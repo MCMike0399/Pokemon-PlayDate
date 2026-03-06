@@ -1,0 +1,6 @@
+name=PokemonPoC
+author=PoC
+description=Pokemon Silver/Gold style proof of concept
+bundleID=com.poc.pokemon
+version=0.1.0
+buildNumber=1
