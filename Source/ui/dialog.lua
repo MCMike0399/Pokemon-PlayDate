@@ -1,6 +1,6 @@
 local gfx <const> = playdate.graphics
 
-class("Dialog").extends()
+Class("Dialog")
 
 function Dialog:init()
     self.lines = {}

@@ -19,20 +19,49 @@ function calcHP(base, level)
     return math.floor(((2 * base * level) / 100) + level + 10)
 end
 
-function createPokemon(species, level)
+Class("Pokemon")
+
+function Pokemon:init(species, level)
     local data = pokemonData[species]
     local maxHP = calcHP(data.baseHP, level)
-    return {
-        species = species,
-        name = data.name,
-        type = data.type,
-        level = level,
-        hp = maxHP,
-        maxHP = maxHP,
-        atk = calcStat(data.baseAtk, level),
-        def = calcStat(data.baseDef, level),
-        spd = calcStat(data.baseSpd, level),
-        statStages = { atk = 0, def = 0 },
-        moves = { table.unpack(data.moves) }
-    }
+    self.species = species
+    self.name = data.name
+    self.type = data.type
+    self.level = level
+    self.hp = maxHP
+    self.maxHP = maxHP
+    self.atk = calcStat(data.baseAtk, level)
+    self.def = calcStat(data.baseDef, level)
+    self.spd = calcStat(data.baseSpd, level)
+    self.statStages = { atk = 0, def = 0 }
+    self.moves = { table.unpack(data.moves) }
+end
+
+function Pokemon:isAlive()
+    return self.hp > 0
+end
+
+function Pokemon:takeDamage(amount)
+    self.hp = math.max(0, self.hp - amount)
+end
+
+function Pokemon:heal(amount)
+    if amount then
+        self.hp = math.min(self.maxHP, self.hp + amount)
+    else
+        self.hp = self.maxHP
+    end
+end
+
+function Pokemon:resetStages()
+    self.statStages = { atk = 0, def = 0 }
+end
+
+function Pokemon:fullRestore()
+    self:heal()
+    self:resetStages()
+end
+
+function createPokemon(species, level)
+    return Pokemon(species, level)
 end

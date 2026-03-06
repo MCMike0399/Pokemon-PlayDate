@@ -37,16 +37,18 @@ function NPC:getDialogLines()
 end
 
 -- NPC manager
-npcManager = {
-    npcs = {}
-}
+Class("NPCManager")
 
-function npcManager.addNPC(npc)
-    table.insert(npcManager.npcs, npc)
+function NPCManager:init()
+    self.npcs = {}
 end
 
-function npcManager.getNPCAt(gx, gy)
-    for _, npc in ipairs(npcManager.npcs) do
+function NPCManager:addNPC(npc)
+    table.insert(self.npcs, npc)
+end
+
+function NPCManager:getNPCAt(gx, gy)
+    for _, npc in ipairs(self.npcs) do
         if npc.gridX == gx and npc.gridY == gy then
             return npc
         end
@@ -54,9 +56,9 @@ function npcManager.getNPCAt(gx, gy)
     return nil
 end
 
-function npcManager.clear()
-    for _, npc in ipairs(npcManager.npcs) do
+function NPCManager:clear()
+    for _, npc in ipairs(self.npcs) do
         npc:remove()
     end
-    npcManager.npcs = {}
+    self.npcs = {}
 end

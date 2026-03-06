@@ -9,14 +9,15 @@ local MOVE_FRAMES <const> = 8
 local playerImages = {
     down = gfx.image.new("images/overworld/player-down"),
     up = gfx.image.new("images/overworld/player-up"),
-    left = gfx.image.new("images/overworld/player-left"),
-    right = gfx.image.new("images/overworld/player-right"),
+    left = gfx.image.new("images/overworld/player-right"),
+    right = gfx.image.new("images/overworld/player-left"),
 }
+
 local playerWalkImages = {
     down = gfx.image.new("images/overworld/player-down-walk"),
     up = gfx.image.new("images/overworld/player-up-walk"),
-    left = gfx.image.new("images/overworld/player-left-walk"),
-    right = gfx.image.new("images/overworld/player-right-walk"),
+    left = gfx.image.new("images/overworld/player-right-walk"),
+    right = gfx.image.new("images/overworld/player-left-walk"),
 }
 
 function Player:init(gridX, gridY, collisionMap)
@@ -32,7 +33,6 @@ function Player:init(gridX, gridY, collisionMap)
     self.targetPixelX = 0
     self.targetPixelY = 0
     self.collisionMap = collisionMap
-    self.walkToggle = false
 
     self:setImage(playerImages.down)
     self:setCenter(0, 0)
@@ -42,7 +42,7 @@ function Player:init(gridX, gridY, collisionMap)
 end
 
 function Player:updateSprite()
-    if self.isMoving and self.walkToggle then
+    if self.isMoving then
         self:setImage(playerWalkImages[self.facing])
     else
         self:setImage(playerImages[self.facing])
@@ -70,7 +70,7 @@ function Player:tryMove(dx, dy)
     local targetGY = self.gridY + dy
 
     -- Check for NPC at target position
-    if npcManager and npcManager.getNPCAt(targetGX, targetGY) then
+    if npcManager and npcManager:getNPCAt(targetGX, targetGY) then
         return
     end
 
@@ -83,7 +83,6 @@ function Player:tryMove(dx, dy)
         self.gridY = targetGY
         self.targetPixelX = self.gridX * TILE_SIZE
         self.targetPixelY = self.gridY * TILE_SIZE
-        self.walkToggle = not self.walkToggle
         self:updateSprite()
     end
 end
@@ -95,11 +94,14 @@ function Player:update()
         if t >= 1 then
             t = 1
             self.isMoving = false
-            self:updateSprite()
+            -- Don't switch to idle here; let next frame's input decide
         end
         local px = self.startPixelX + (self.targetPixelX - self.startPixelX) * t
         local py = self.startPixelY + (self.targetPixelY - self.startPixelY) * t
         self:moveTo(px, py)
+    else
+        -- Only show idle if no movement started this frame
+        self:setImage(playerImages[self.facing])
     end
 end
 

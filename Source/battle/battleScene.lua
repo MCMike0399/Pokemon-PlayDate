@@ -1,6 +1,6 @@
 local gfx <const> = playdate.graphics
 
-class("BattleScene").extends()
+Class("BattleScene")
 
 -- Pre-load Pokemon battle sprites
 local pokemonSprites = {
@@ -110,21 +110,30 @@ function BattleScene:draw()
     self:drawBackground()
 
     -- Draw enemy info (top-left) with white background for readability
+    local enemyLabel = self.battle.enemy.name .. "  Lv" .. self.battle.enemy.level
+    local enemyTextW, _ = gfx.getTextSize(enemyLabel)
+    local enemyBoxW = math.max(140, enemyTextW + 16)
+    local enemyBarW = enemyBoxW - 20
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(6, 6, 140, 36)
+    gfx.fillRect(6, 6, enemyBoxW, 36)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(6, 6, 140, 36)
-    gfx.drawText(self.battle.enemy.name .. "  Lv" .. self.battle.enemy.level, 10, 10)
-    self:drawHPBar(10, 28, 120, 10, self.battle.enemy.hp, self.battle.enemy.maxHP)
+    gfx.drawRect(6, 6, enemyBoxW, 36)
+    gfx.drawText(enemyLabel, 10, 10)
+    self:drawHPBar(10, 28, enemyBarW, 10, self.battle.enemy.hp, self.battle.enemy.maxHP)
 
     -- Draw player info (bottom-right, above menu) with white background
+    local playerLabel = self.battle.player.name .. "  Lv" .. self.battle.player.level
+    local playerTextW, _ = gfx.getTextSize(playerLabel)
+    local playerBoxW = math.max(140, playerTextW + 16)
+    local playerBarW = playerBoxW - 20
+    local playerBoxX = 396 - playerBoxW
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(246, 106, 140, 52)
+    gfx.fillRect(playerBoxX, 106, playerBoxW, 52)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(246, 106, 140, 52)
-    gfx.drawText(self.battle.player.name .. "  Lv" .. self.battle.player.level, 250, 110)
-    self:drawHPBar(250, 128, 120, 10, self.battle.player.hp, self.battle.player.maxHP)
-    gfx.drawText(self.battle.player.hp .. "/" .. self.battle.player.maxHP, 300, 140)
+    gfx.drawRect(playerBoxX, 106, playerBoxW, 52)
+    gfx.drawText(playerLabel, playerBoxX + 4, 110)
+    self:drawHPBar(playerBoxX + 4, 128, playerBarW, 10, self.battle.player.hp, self.battle.player.maxHP)
+    gfx.drawText(self.battle.player.hp .. "/" .. self.battle.player.maxHP, playerBoxX + 54, 140)
 
     -- Draw pokemon sprites
     local flashHide = self.battle.isFlashing and self.battle.flashTimer > 0 and math.floor(self.battle.flashTimer) % 2 == 0

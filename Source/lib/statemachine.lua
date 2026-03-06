@@ -1,38 +1,42 @@
-local states = {}
-local currentState = nil
+Class("StateMachine")
 
-function registerState(name, callbacks)
-    states[name] = callbacks
+function StateMachine:init()
+    self.states = {}
+    self.currentState = nil
 end
 
-function changeState(newState, ...)
-    if currentState and states[currentState] and states[currentState].exit then
-        states[currentState].exit()
+function StateMachine:register(name, callbacks)
+    self.states[name] = callbacks
+end
+
+function StateMachine:change(newState, ...)
+    if self.currentState and self.states[self.currentState] and self.states[self.currentState].exit then
+        self.states[self.currentState].exit()
     end
-    currentState = newState
-    if states[currentState] and states[currentState].enter then
-        states[currentState].enter(...)
-    end
-end
-
-function getCurrentState()
-    return currentState
-end
-
-function updateCurrentState()
-    if currentState and states[currentState] and states[currentState].update then
-        states[currentState].update()
+    self.currentState = newState
+    if self.states[self.currentState] and self.states[self.currentState].enter then
+        self.states[self.currentState].enter(...)
     end
 end
 
-function drawCurrentState()
-    if currentState and states[currentState] and states[currentState].draw then
-        states[currentState].draw()
+function StateMachine:getCurrent()
+    return self.currentState
+end
+
+function StateMachine:update()
+    if self.currentState and self.states[self.currentState] and self.states[self.currentState].update then
+        self.states[self.currentState].update()
     end
 end
 
-function inputCurrentState(button)
-    if currentState and states[currentState] and states[currentState].input then
-        states[currentState].input(button)
+function StateMachine:draw()
+    if self.currentState and self.states[self.currentState] and self.states[self.currentState].draw then
+        self.states[self.currentState].draw()
+    end
+end
+
+function StateMachine:input(button)
+    if self.currentState and self.states[self.currentState] and self.states[self.currentState].input then
+        self.states[self.currentState].input(button)
     end
 end

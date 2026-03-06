@@ -18,7 +18,7 @@ function calcDamage(attacker, defender, move)
     return math.max(1, damage)
 end
 
-class("Battle").extends()
+Class("Battle"):includes(Signal)
 
 -- Battle sub-states
 local BSTATE_INTRO = "intro"
@@ -40,8 +40,6 @@ function Battle:init(playerPokemon, enemyPokemon)
     self.turnIndex = 0
     self.flashTimer = 0
     self.isFlashing = false
-    self.onBattleEnd = nil
-
     self.message = "A wild " .. self.enemy.name .. " appeared!"
     self.messageCallback = function()
         self.state = BSTATE_MENU
@@ -68,9 +66,7 @@ function Battle:handleInput()
 
     if self.state == BSTATE_VICTORY or self.state == BSTATE_DEFEAT then
         if playdate.buttonJustPressed(playdate.kButtonA) then
-            if self.onBattleEnd then
-                self.onBattleEnd(self.state == BSTATE_VICTORY)
-            end
+            self:emit("battleEnd", self.state == BSTATE_VICTORY)
         end
         return
     end
@@ -130,12 +126,12 @@ function Battle:executeNextTurn()
         if move.power > 0 then
             -- Damage move
             local damage = calcDamage(attacker, defender, move)
-            defender.hp = math.max(0, defender.hp - damage)
+            defender:takeDamage(damage)
             self.isFlashing = true
             self.flashTimer = 6
 
             self:showMessage(defenderName .. " took " .. damage .. " damage!", function()
-                if defender.hp <= 0 then
+                if not defender:isAlive() then
                     self:showMessage(defenderName .. " fainted!", function()
                         if turn.attacker == "player" then
                             self.state = BSTATE_VICTORY

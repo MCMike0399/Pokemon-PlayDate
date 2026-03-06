@@ -1,6 +1,6 @@
 local gfx <const> = playdate.graphics
 
-class("BattleMenu").extends()
+Class("BattleMenu")
 
 function BattleMenu:init()
     self.options = {}

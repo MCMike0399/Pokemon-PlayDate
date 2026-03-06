@@ -4,6 +4,7 @@ import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "CoreLibs/frameTimer"
 
+import "lib/oop"
 import "lib/statemachine"
 import "data/maps"
 import "data/pokemon"
@@ -22,6 +23,9 @@ local gfx <const> = playdate.graphics
 playdate.display.setRefreshRate(30)
 
 -- Game objects
+local gameStateMachine = StateMachine()
+npcManager = NPCManager()
+local camera = Camera()
 local player = nil
 local dialog = nil
 local currentBattle = nil
@@ -32,10 +36,10 @@ local rival = nil
 -- ============================================================
 -- OVERWORLD STATE
 -- ============================================================
-registerState("overworld", {
+gameStateMachine:register("overworld", {
     enter = function()
         gfx.sprite.removeAll()
-        npcManager.clear()
+        npcManager:clear()
         setupOverworld()
 
         player = Player(6, 7, palletTownCollision)
@@ -43,16 +47,16 @@ registerState("overworld", {
         -- Prof. Oak (dialogue NPC)
         local oak = NPC(10, 7, "Prof. Oak",
             {"Welcome to Pallet Town!", "The world of Pokemon awaits!", "Take care out there!"}, nil, "oak")
-        npcManager.addNPC(oak)
+        npcManager:addNPC(oak)
 
         -- Rival (battle NPC)
         rival = NPC(13, 9, "Rival",
             {"Hey! Let's battle!"}, { species = "charmander", level = 5 }, "rival")
         rival.postBattleLines = {"Good battle!"}
-        npcManager.addNPC(rival)
+        npcManager:addNPC(rival)
 
         -- Create player pokemon
-        playerPokemon = createPokemon("squirtle", 5)
+        playerPokemon = Pokemon("squirtle", 5)
     end,
 
     exit = function()
@@ -74,17 +78,17 @@ registerState("overworld", {
             -- A button: interact with NPC
             if playdate.buttonJustPressed(playdate.kButtonA) then
                 local fx, fy = player:getFacingTile()
-                local npc = npcManager.getNPCAt(fx, fy)
+                local npc = npcManager:getNPCAt(fx, fy)
                 if npc then
                     local lines = npc:getDialogLines()
                     if npc.battleData and not npc.interacted then
-                        changeState("dialog", lines, function()
-                            local enemyPokemon = createPokemon(npc.battleData.species, npc.battleData.level)
-                            changeState("battle", playerPokemon, enemyPokemon, npc)
+                        gameStateMachine:change("dialog", lines, function()
+                            local enemyPokemon = Pokemon(npc.battleData.species, npc.battleData.level)
+                            gameStateMachine:change("battle", playerPokemon, enemyPokemon, npc)
                         end)
                     else
-                        changeState("dialog", lines, function()
-                            changeState("overworld")
+                        gameStateMachine:change("dialog", lines, function()
+                            gameStateMachine:change("overworld")
                         end)
                     end
                     return
@@ -98,8 +102,8 @@ registerState("overworld", {
         -- Camera follow
         local px, py = player:getPixelCenter()
         local mw, mh = getMapPixelSize()
-        camera.follow(px, py, mw, mh)
-        camera.apply()
+        camera:follow(px, py, mw, mh)
+        camera:apply()
     end,
 
     draw = function()
@@ -110,7 +114,7 @@ registerState("overworld", {
 -- ============================================================
 -- DIALOG STATE
 -- ============================================================
-registerState("dialog", {
+gameStateMachine:register("dialog", {
     enter = function(lines, onComplete)
         dialog = Dialog()
         dialog:show(lines, onComplete)
@@ -127,11 +131,11 @@ registerState("dialog", {
 
         local px, py = player:getPixelCenter()
         local mw, mh = getMapPixelSize()
-        camera.follow(px, py, mw, mh)
-        camera.apply()
+        camera:follow(px, py, mw, mh)
+        camera:apply()
 
         -- Draw dialog on top (in screen coords)
-        camera.reset()
+        camera:reset()
         dialog:update()
         dialog:draw()
         dialog:handleInput()
@@ -146,24 +150,23 @@ registerState("dialog", {
 -- ============================================================
 local battleNPC = nil
 
-registerState("battle", {
+gameStateMachine:register("battle", {
     enter = function(playerPkmn, enemyPkmn, npc)
         battleNPC = npc
         gfx.sprite.removeAll()
-        camera.reset()
+        camera:reset()
 
         currentBattle = Battle(playerPkmn, enemyPkmn)
         battleScene = BattleScene(currentBattle)
 
-        currentBattle.onBattleEnd = function(won)
+        currentBattle:on("battleEnd", function(won)
             if won and battleNPC then
                 battleNPC.interacted = true
             end
             -- Restore player HP for PoC
-            playerPokemon.hp = playerPokemon.maxHP
-            playerPokemon.statStages = { atk = 0, def = 0 }
-            changeState("overworld")
-        end
+            playerPokemon:fullRestore()
+            gameStateMachine:change("overworld")
+        end)
     end,
 
     exit = function()
@@ -184,10 +187,10 @@ registerState("battle", {
 -- ============================================================
 -- GAME LOOP
 -- ============================================================
-changeState("overworld")
+gameStateMachine:change("overworld")
 
 function playdate.update()
-    updateCurrentState()
-    drawCurrentState()
+    gameStateMachine:update()
+    gameStateMachine:draw()
     playdate.timer.updateTimers()
 end
