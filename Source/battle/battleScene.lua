@@ -1,18 +1,21 @@
 local gfx <const> = playdate.graphics
 
+local battleFont <const> = gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold")
+
 Class("BattleScene")
 
--- Pre-load Pokemon battle sprites
-local pokemonSprites = {
-    squirtle = {
-        front = gfx.image.new("images/pokemon/squirtle-front"),
-        back = gfx.image.new("images/pokemon/squirtle-back"),
-    },
-    charmander = {
-        front = gfx.image.new("images/pokemon/charmander-front"),
-        back = gfx.image.new("images/pokemon/charmander-back"),
-    },
-}
+-- Lazy-load Pokemon battle sprites (supports all 156 Gen 5 species)
+local pokemonSprites = {}
+
+local function getPokemonSprites(species)
+    if pokemonSprites[species] then return pokemonSprites[species] end
+    local front = gfx.image.new("images/pokemon/" .. species .. "-front")
+    local back = gfx.image.new("images/pokemon/" .. species .. "-back")
+    if front or back then
+        pokemonSprites[species] = { front = front, back = back }
+    end
+    return pokemonSprites[species]
+end
 
 function BattleScene:init(battle)
     self.battle = battle
@@ -38,6 +41,7 @@ function BattleScene:enter()
                 end
                 table.insert(moveNames, label)
             end
+            self.moveMenu.columns = 2
             self.moveMenu:show(moveNames, function(moveIndex)
                 self.inMoveSelect = false
                 self.moveMenu:hide()
@@ -72,7 +76,7 @@ function BattleScene:handleInput()
     end
 end
 
-function BattleScene:drawBackground()
+function BattleScene:drawBackgroundBase()
     gfx.clear(gfx.kColorWhite)
 
     -- Ground area: light sparse dots (very subtle texture)
@@ -85,12 +89,15 @@ function BattleScene:drawBackground()
             end
         end
     end
+end
+
+function BattleScene:drawPlatforms()
+    local lightShade = {0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}
 
     -- Enemy platform (top-right, like a cliff edge)
     gfx.setColor(gfx.kColorBlack)
     gfx.fillRect(275, 84, 115, 3)
     gfx.drawLine(265, 87, 275, 84)
-    local lightShade = {0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55}
     gfx.setPattern(lightShade)
     gfx.fillRect(268, 87, 122, 6)
     gfx.setColor(gfx.kColorBlack)
@@ -120,35 +127,9 @@ function BattleScene:draw()
         end
     end
 
-    self:drawBackground()
+    self:drawBackgroundBase()
 
-    -- Draw enemy info (top-left) with white background for readability
-    local enemyLabel = self.battle.enemy.name .. "  Lv" .. self.battle.enemy.level
-    local enemyTextW, _ = gfx.getTextSize(enemyLabel)
-    local enemyBoxW = math.max(140, enemyTextW + 16)
-    local enemyBarW = enemyBoxW - 20
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(6, 6, enemyBoxW, 36)
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(6, 6, enemyBoxW, 36)
-    gfx.drawText(enemyLabel, 10, 10)
-    self:drawHPBar(10, 28, enemyBarW, 10, self.battle.enemy.hp, self.battle.enemy.maxHP)
-
-    -- Draw player info (bottom-right, above menu) with white background
-    local playerLabel = self.battle.player.name .. "  Lv" .. self.battle.player.level
-    local playerTextW, _ = gfx.getTextSize(playerLabel)
-    local playerBoxW = math.max(140, playerTextW + 16)
-    local playerBarW = playerBoxW - 20
-    local playerBoxX = 396 - playerBoxW
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(playerBoxX, 106, playerBoxW, 52)
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(playerBoxX, 106, playerBoxW, 52)
-    gfx.drawText(playerLabel, playerBoxX + 4, 110)
-    self:drawHPBar(playerBoxX + 4, 128, playerBarW, 10, self.battle.player.hp, self.battle.player.maxHP)
-    gfx.drawText(self.battle.player.hp .. "/" .. self.battle.player.maxHP, playerBoxX + 54, 140)
-
-    -- Draw pokemon sprites
+    -- Draw pokemon sprites (before platforms so platforms overlap sprite bottoms)
     local flashHide = self.battle.isFlashing and self.battle.flashTimer > 0 and math.floor(self.battle.flashTimer) % 2 == 0
 
     -- Enemy sprite (top-right) - front view
@@ -158,8 +139,47 @@ function BattleScene:draw()
 
     -- Player sprite (bottom-left) - back view
     if not flashHide or self.battle.turnQueue[self.battle.turnIndex] == nil or self.battle.turnQueue[self.battle.turnIndex].attacker ~= "enemy" then
-        self:drawPokemonSprite(self.battle.player.species, 60, 80, true)
+        self:drawPokemonSprite(self.battle.player.species, 55, 70, true)
     end
+
+    -- Draw platforms on top of sprites
+    self:drawPlatforms()
+
+    -- Draw enemy info (top-left)
+    local enemyLabel = self.battle.enemy.name .. "  Lv" .. self.battle.enemy.level
+    gfx.setFont(battleFont)
+    local enemyTextW, _ = gfx.getTextSize(enemyLabel)
+    local enemyBoxW = math.max(130, enemyTextW + 16)
+    local enemyBarW = enemyBoxW - 16
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(4, 4, enemyBoxW, 30)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(4, 4, enemyBoxW, 30)
+    gfx.drawText(enemyLabel, 8, 6)
+    gfx.setFont(gfx.getSystemFont())
+    gfx.drawText("HP", 8, 22)
+    self:drawHPBar(24, 23, enemyBarW - 16, 8, self.battle.enemy.hp, self.battle.enemy.maxHP)
+
+    -- Draw player info (bottom-right, above menu)
+    local playerLabel = self.battle.player.name .. "  Lv" .. self.battle.player.level
+    gfx.setFont(battleFont)
+    local playerTextW, _ = gfx.getTextSize(playerLabel)
+    local hpText = self.battle.player.hp .. "/" .. self.battle.player.maxHP
+    gfx.setFont(gfx.getSystemFont())
+    local hpTextW, _ = gfx.getTextSize(hpText)
+    local playerBoxW = math.max(130, playerTextW + 16)
+    local playerBarW = playerBoxW - 16
+    local playerBoxX = 396 - playerBoxW
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(playerBoxX, 110, playerBoxW, 42)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(playerBoxX, 110, playerBoxW, 42)
+    gfx.setFont(battleFont)
+    gfx.drawText(playerLabel, playerBoxX + 4, 112)
+    gfx.setFont(gfx.getSystemFont())
+    gfx.drawText("HP", playerBoxX + 4, 128)
+    self:drawHPBar(playerBoxX + 20, 129, playerBarW - 18, 8, self.battle.player.hp, self.battle.player.maxHP)
+    gfx.drawText(hpText, playerBoxX + playerBoxW - hpTextW - 6, 140)
 
     -- Update flash timer
     if self.battle.isFlashing then
@@ -185,7 +205,7 @@ function BattleScene:draw()
 
         -- Draw menu on right
         if self.inMoveSelect then
-            self.moveMenu:draw(240, boxY + 4, 156, 52)
+            self.moveMenu:draw(4, boxY + 4, 392, 52)
         else
             self.mainMenu:draw(300, boxY + 4, 96, 52)
         end
@@ -209,18 +229,29 @@ function BattleScene:drawHPBar(x, y, w, h, hp, maxHP)
 end
 
 function BattleScene:drawPokemonSprite(species, x, y, isBack)
-    local size = 64
-    local sprites = pokemonSprites[species]
+    local size = 80
+    local sprites = getPokemonSprites(species)
     if sprites then
         local img = isBack and sprites.back or sprites.front
         if img then
             local iw, ih = img:getSize()
-            local dx = x + math.floor((size - iw) / 2)
-            local dy = y + math.floor((size - ih) / 2)
-            -- Clear area behind sprite so dither pattern doesn't bleed through
+            local scale = math.min(size / iw, size / ih)
+            local sw = math.floor(iw * scale)
+            local sh = math.floor(ih * scale)
+            local dx = x + math.floor((size - sw) / 2)
+            local dy = y + math.floor((size - sh) / 2)
             gfx.setColor(gfx.kColorWhite)
-            gfx.fillRect(dx, dy, iw, ih)
-            img:draw(dx, dy)
+            gfx.fillRect(dx, dy, sw, sh)
+            img:drawScaled(dx, dy, scale)
+            return
         end
     end
+    -- Fallback: draw a placeholder silhouette with species initial
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(x, y, size, size)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRoundRect(x + 2, y + 2, size - 4, size - 4, 4)
+    local initial = string.upper(string.sub(species, 1, 3))
+    local tw, th = gfx.getTextSize(initial)
+    gfx.drawText(initial, x + math.floor((size - tw) / 2), y + math.floor((size - th) / 2))
 end

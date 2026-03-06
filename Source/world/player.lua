@@ -33,6 +33,7 @@ function Player:init(gridX, gridY, collisionMap)
     self.targetPixelX = 0
     self.targetPixelY = 0
     self.collisionMap = collisionMap
+    self.walkToggle = false  -- alternates lead foot between steps
 
     self:setImage(playerImages.down)
     self:setCenter(0, 0)
@@ -50,6 +51,8 @@ function Player:updateSprite()
 end
 
 function Player:canMoveTo(gx, gy)
+    -- Debug noclip: walk through everything
+    if DEBUG_FLAGS and DEBUG_FLAGS.noclip then return true end
     if gx < 0 or gy < 0 then return false end
     if gy + 1 > #self.collisionMap or gx + 1 > #self.collisionMap[1] then return false end
     return self.collisionMap[gy + 1][gx + 1] == 0
@@ -69,14 +72,17 @@ function Player:tryMove(dx, dy)
     local targetGX = self.gridX + dx
     local targetGY = self.gridY + dy
 
-    -- Check for NPC at target position
-    if npcManager and npcManager:getNPCAt(targetGX, targetGY) then
-        return
+    -- Check for NPC at target position (skip during noclip)
+    if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
+        if npcManager and npcManager:getNPCAt(targetGX, targetGY) then
+            return
+        end
     end
 
     if self:canMoveTo(targetGX, targetGY) then
         self.isMoving = true
         self.moveFrames = 0
+        self.walkToggle = not self.walkToggle
         self.startPixelX = self.gridX * TILE_SIZE
         self.startPixelY = self.gridY * TILE_SIZE
         self.gridX = targetGX
@@ -94,13 +100,21 @@ function Player:update()
         if t >= 1 then
             t = 1
             self.isMoving = false
-            -- Don't switch to idle here; let next frame's input decide
         end
+
+        -- 2-frame walk cycle: alternate walk/idle based on walkToggle
+        local inFirstHalf = self.moveFrames <= MOVE_FRAMES / 2
+        local showWalk = (self.walkToggle and inFirstHalf) or (not self.walkToggle and not inFirstHalf)
+        if showWalk then
+            self:setImage(playerWalkImages[self.facing])
+        else
+            self:setImage(playerImages[self.facing])
+        end
+
         local px = self.startPixelX + (self.targetPixelX - self.startPixelX) * t
         local py = self.startPixelY + (self.targetPixelY - self.startPixelY) * t
         self:moveTo(px, py)
     else
-        -- Only show idle if no movement started this frame
         self:setImage(playerImages[self.facing])
     end
 end

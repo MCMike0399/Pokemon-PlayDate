@@ -12,6 +12,7 @@ import "data/typechart"
 import "battle/moves"
 import "ui/dialog"
 import "ui/menu"
+import "ui/debug"
 import "world/camera"
 import "world/npc"
 import "world/player"
@@ -33,6 +34,15 @@ local currentBattle = nil
 local battleScene = nil
 local playerPokemon = nil
 local rival = nil
+local debugMenu = DebugMenu()
+
+-- Add debug menu to Playdate system menu
+local sysMenu = playdate.getSystemMenu()
+sysMenu:addMenuItem("Debug", function()
+    if gameStateMachine:getCurrent() == "overworld" then
+        gameStateMachine:change("debug")
+    end
+end)
 
 -- ============================================================
 -- OVERWORLD STATE
@@ -186,6 +196,66 @@ gameStateMachine:register("battle", {
 })
 
 -- ============================================================
+-- DEBUG STATE
+-- ============================================================
+gameStateMachine:register("debug", {
+    enter = function()
+        camera:reset()
+        debugMenu:open(function()
+            -- Wild battle action closes menu and goes straight to battle
+            local action = debugMenu:consumeAction()
+            if action and action.type == "wildBattle" then
+                local enemyPokemon = Pokemon(action.species, action.level)
+                gameStateMachine:change("battle", playerPokemon, enemyPokemon, nil)
+                return
+            end
+            gameStateMachine:change("overworld")
+        end)
+    end,
+
+    exit = function()
+    end,
+
+    update = function()
+        -- Keep overworld visible underneath
+        gfx.sprite.update()
+        playdate.frameTimer.updateTimers()
+
+        local px, py = player:getPixelCenter()
+        local mw, mh = getMapPixelSize()
+        camera:follow(px, py, mw, mh)
+        camera:apply()
+
+        -- Process in-menu actions (heal, set level, etc.)
+        local action = debugMenu:consumeAction()
+        if action then
+            if action.type == "heal" and playerPokemon then
+                playerPokemon:fullRestore()
+            elseif action.type == "resetNPCs" then
+                for _, npc in ipairs(npcManager.npcs) do
+                    npc.interacted = false
+                end
+            elseif action.type == "setLevel" and playerPokemon then
+                local species = playerPokemon.species
+                playerPokemon = Pokemon(species, action.level)
+            elseif action.type == "warp" and player then
+                player.gridX = action.x
+                player.gridY = action.y
+                player:moveTo(action.x * 16, action.y * 16)
+            end
+        end
+
+        -- Draw debug menu on top (screen coords)
+        camera:reset()
+        debugMenu:handleInput()
+        debugMenu:draw()
+    end,
+
+    draw = function()
+    end
+})
+
+-- ============================================================
 -- GAME LOOP
 -- ============================================================
 gameStateMachine:change("overworld")
@@ -194,4 +264,17 @@ function playdate.update()
     gameStateMachine:update()
     gameStateMachine:draw()
     playdate.timer.updateTimers()
+
+    -- Debug overlays (FPS, grid) always on top
+    local currentState = gameStateMachine:getCurrent()
+    if currentState == "overworld" or currentState == "dialog" then
+        -- Grid draws in world space (before camera reset)
+        if DEBUG_FLAGS.showGrid then
+            DebugMenu.drawOverlays()
+        end
+        camera:reset()
+        if DEBUG_FLAGS.showFPS then
+            playdate.drawFPS(4, 4)
+        end
+    end
 end

@@ -8,6 +8,7 @@ function BattleMenu:init()
     self.isActive = false
     self.onSelect = nil
     self.onCancel = nil
+    self.columns = 1
 end
 
 function BattleMenu:show(options, onSelect, onCancel)
@@ -25,12 +26,31 @@ end
 function BattleMenu:handleInput()
     if not self.isActive then return end
 
+    local cols = self.columns
+    local rows = math.ceil(#self.options / cols)
+    local col = (self.selectedIndex - 1) % cols
+    local row = math.floor((self.selectedIndex - 1) / cols)
+
     if playdate.buttonJustPressed(playdate.kButtonUp) then
-        self.selectedIndex = self.selectedIndex - 1
-        if self.selectedIndex < 1 then self.selectedIndex = #self.options end
+        row = row - 1
+        if row < 0 then row = rows - 1 end
+        local newIdx = row * cols + col + 1
+        if newIdx <= #self.options then self.selectedIndex = newIdx end
     elseif playdate.buttonJustPressed(playdate.kButtonDown) then
-        self.selectedIndex = self.selectedIndex + 1
-        if self.selectedIndex > #self.options then self.selectedIndex = 1 end
+        row = row + 1
+        if row >= rows then row = 0 end
+        local newIdx = row * cols + col + 1
+        if newIdx <= #self.options then self.selectedIndex = newIdx end
+    elseif playdate.buttonJustPressed(playdate.kButtonLeft) and cols > 1 then
+        col = col - 1
+        if col < 0 then col = cols - 1 end
+        local newIdx = row * cols + col + 1
+        if newIdx <= #self.options then self.selectedIndex = newIdx end
+    elseif playdate.buttonJustPressed(playdate.kButtonRight) and cols > 1 then
+        col = col + 1
+        if col >= cols then col = 0 end
+        local newIdx = row * cols + col + 1
+        if newIdx <= #self.options then self.selectedIndex = newIdx end
     elseif playdate.buttonJustPressed(playdate.kButtonA) then
         if self.onSelect then
             self.onSelect(self.selectedIndex, self.options[self.selectedIndex])
@@ -50,12 +70,18 @@ function BattleMenu:draw(x, y, w, h)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(x, y, w, h)
 
+    local cols = self.columns
+    local colW = math.floor(w / cols)
+
     for i, option in ipairs(self.options) do
-        local optY = y + 8 + (i - 1) * 20
+        local col = (i - 1) % cols
+        local row = math.floor((i - 1) / cols)
+        local optX = x + col * colW + 8
+        local optY = y + 8 + row * 20
         if i == self.selectedIndex then
-            gfx.drawText("> " .. option, x + 8, optY)
+            gfx.drawText(">" .. option, optX, optY)
         else
-            gfx.drawText("  " .. option, x + 8, optY)
+            gfx.drawText(" " .. option, optX, optY)
         end
     end
 end
