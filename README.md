@@ -128,31 +128,34 @@ NPCs have dialogue lines and optional battle data. After defeating a trainer NPC
 
 ### Day 1 — Friday, March 6, 2026
 
-**2:14 PM** — Repo created. First commit drops the full skeleton: overworld, battles, NPCs, dialogue, camera, player movement. 37 files, 1,153 lines. Two starter Pokemon with sprites. The game boots and runs.
+**8:14 AM** — First commit. The full game skeleton lands in one shot: tile-based overworld with grid movement and collision, turn-based battle system with menu flow, NPC manager with dialogue triggers, dialog UI, camera with smooth follow, player with 4-direction walk animation, and a state machine tying it all together. Two starter Pokemon (Charmander, Squirtle) with front/back sprites. Seven tile types drawn. Map data with collision layer defined in code. 37 files, 1,153 lines. The game boots, you can walk around Pallet Town, talk to Oak, and fight the rival.
 
-**3:25 PM** — Architecture pass. Built the OOP library (330 lines) with classes, mixins, signals, and object pools. Refactored all modules to use it. Battle scene and state machine cleaned up. The codebase now has a consistent pattern.
+**9:25 AM** — Architecture refactor. Built a custom OOP library (`lib/oop.lua`, 330 lines) with `Class()`, `Mixin()`, `Signal` (observer pattern), and `Pool` (object recycling for GC management). Refactored battle, state machine, camera, NPC, player, dialog, and menu modules to use the new patterns. Pokemon data model expanded with proper stat structure (HP, ATK, DEF, SPC, SPD). Battle scene UI improved. 11 files changed, 492 insertions, 115 deletions.
 
-**3:26 – 7:21 PM** — Gap in commits. Probably lunch and some debugging that didn't make it to a commit.
+**9:26 AM – 1:21 PM** — ~4 hour gap. No commits.
 
-**7:21 PM** — Battle system gets real. Gen I damage formula with STAB, type effectiveness, crits, accuracy. Composable move effect system. Screen shake on crits. Run formula with escalating escape chance. Fixed player sprite having left/right swapped.
+**1:21 PM** — Battle system overhaul. Implemented the full Gen I damage formula with level scaling, STAB (1.5x same-type bonus), type effectiveness from a complete 15-type chart (`data/typechart.lua`), critical hits (1/16 chance, 2x multiplier), and accuracy rolls. Built a composable move effect system — three effect classes (`StatChange`, `StatusEffect`, `ConditionalEffect`) that attach to moves and stack. Screen shake on critical hits via `playdate.display.setOffset()`. Gen I run formula with escalating escape chance per attempt; failed run gives the enemy a free turn. Added the Special stat, dual types, and status condition fields to the Pokemon data model. New moves: Ember, Bubble, Leer. Fixed player sprite having left/right walk images swapped. 7 files, +364 / -81 lines.
 
-Type effectiveness icons now show on the move select screen before confirming — the original told you after. We have the screen space.
+Design decision: type effectiveness icons now display on the move select screen BEFORE confirming. The original Game Boy version only told you after the attack landed.
 
-**8:17 PM** — Pokedex grows to 156 species (Gen I-V). Move library expanded. Sprites lazy-load from disk. Battle UI gets a two-column move layout. Debug menu added. Crank scrolls the Pokedex. 1,870 lines in one commit.
+**2:17 PM** — Major content expansion. Pokedex grows from 4 species to 156 (Gen I through Gen V), each with base stats, types, and level-up movesets. Move library expanded with power, accuracy, PP, type, category (physical/special), and effect definitions. Pokemon sprites now lazy-load from disk via `gfx.image.new("path")` at battle start — necessary because 151+ species can't all sit in memory on Playdate's 16MB RAM. Battle scene refactored: split into dedicated draw methods, 2-column move menu showing name + PP + type + effectiveness icon, bold font for names. Type chart completed to cover all 15 Gen I types. Added a debug menu (`ui/debug.lua`, 441 lines) accessible from the system menu — spawn any Pokemon battle, heal party, warp, toggle FPS/grid overlays. Crank scrolls the Pokedex list using `getCrankTicks()`. Player walk sprite handling improved. 10 files, +1,870 / -112 lines.
 
-**8:33 PM** — PP system. Status effects: poison/burn tick damage, paralysis speed halving and turn skip, sleep/freeze with per-turn checks. Camera snap mode for map transitions. 507 lines, 16 minutes after the last commit.
+**2:33 PM** — PP system wired in — moves now cost PP on use and can run out. Status effect engine integrated into battle flow: poison and burn deal 1/8 max HP at end of turn, paralysis halves speed and has 25% chance to skip the turn entirely, sleep blocks action for 1-3 turns, freeze blocks with 20% thaw chance per turn. Pokemon objects get `usePP()`, `restorePP()`, and `fullHeal()` methods. `accuracy=0` now bypasses the accuracy check (always hits, for moves like Swift). Camera gets a snap mode for instant positioning on map load instead of lerping from (0,0). Overworld map transitions improved with proper spawn point handling. Debug menu gets heal and NPC reset actions. 10 files, +507 / -73 lines. Committed 16 minutes after the previous one.
 
-**9:06 PM** — All 151 Gen I Pokemon sprites added — front and back, 1-bit. 302 PNGs. Tall grass tile type added so encounters only trigger where they should.
+**3:06 PM** — Art drop. Front and back sprites for all 151 Gen I Pokemon added as 1-bit PNGs sized for the Playdate display. 302 image files (Charmander and Squirtle sprites also redrawn to match the new style). Added a tall grass tile (`tallgrass.png`) and tile type ID 8 so wild encounters only trigger on designated grass tiles instead of any ground tile. Camera offset now properly resets when exiting battle (was leaving the screen shifted after a critical hit shake). 303 files changed.
 
-**10:40 PM** — Last commit. Camera resets after battle, step tracking for encounters. 4 files, 16 lines. Clean.
+**4:40 PM** — Final code commit. Tall grass tile type wired into the encounter check in `main.lua` — looks up the tile ID at the player's position and only rolls for encounters on ID 8. Map data updated with tall grass tiles placed in the world. Battle exit resets `playdate.display.setOffset(0, 0)`. Player now tracks `stepJustFinished` flag so encounters trigger at the right moment (after interpolation completes, not during). 4 files, +16 / -10 lines.
 
-**10:47 PM** — Day 1 done.
+**4:47 PM** — Day 1 wrapped.
 
 | Metric | Value |
 |---|---|
-| Time | ~8.5 hours |
-| Commits | 13 |
-| Lines | ~4,400 |
-| Sprites | 302 |
-| Species | 156 |
-| Bugs fixed mid-session | 3 |
+| First commit | 8:14 AM |
+| Last commit | 4:40 PM |
+| Active coding time | ~8.5 hours |
+| Commits | 7 |
+| Lines of Lua | ~4,000 |
+| Sprites | 302 (151 front + 151 back) + 10 overworld + 7 tiles |
+| Pokedex entries | 156 species (Gen I–V) |
+| Files in project | 319 |
+| Bugs fixed mid-session | 3 (sprite L/R swap, camera offset leak, encounter trigger zone) |
