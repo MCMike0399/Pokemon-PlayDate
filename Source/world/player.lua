@@ -9,15 +9,15 @@ local MOVE_FRAMES <const> = 8
 local playerImages = {
     down = gfx.image.new("images/overworld/player-down"),
     up = gfx.image.new("images/overworld/player-up"),
-    left = gfx.image.new("images/overworld/player-right"),
-    right = gfx.image.new("images/overworld/player-left"),
+    left = gfx.image.new("images/overworld/player-left"),
+    right = gfx.image.new("images/overworld/player-right"),
 }
 
 local playerWalkImages = {
     down = gfx.image.new("images/overworld/player-down-walk"),
     up = gfx.image.new("images/overworld/player-up-walk"),
-    left = gfx.image.new("images/overworld/player-right-walk"),
-    right = gfx.image.new("images/overworld/player-left-walk"),
+    left = gfx.image.new("images/overworld/player-left-walk"),
+    right = gfx.image.new("images/overworld/player-right-walk"),
 }
 
 function Player:init(gridX, gridY, collisionMap)
