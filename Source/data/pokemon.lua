@@ -767,6 +767,18 @@ function calcHP(base, level)
     return math.floor(((2 * base * level) / 100) + level + 10)
 end
 
+-- XP required for each level (simplified medium-fast growth rate)
+function xpForLevel(level)
+    return math.floor(level * level * level)
+end
+
+-- Base XP yield per species (simplified: baseHP + baseAtk as proxy)
+function baseExpYield(species)
+    local data = pokemonData[species]
+    if not data then return 50 end
+    return math.floor((data.baseHP + data.baseAtk) / 2)
+end
+
 Class("Pokemon")
 
 function Pokemon:init(species, level)
@@ -786,12 +798,20 @@ function Pokemon:init(species, level)
     self.spd = calcStat(data.baseSpd, level)
     self.statStages = { atk = 0, def = 0, spc = 0, spd = 0 }
     self.status = nil
+    self.statusTurns = 0
+    -- XP tracking
+    self.xp = xpForLevel(level)
+    self.xpToNext = xpForLevel(level + 1)
     -- Pick moves based on level (last 4 moves at or below current level)
     self.moves = {}
+    self.pp = {}
     local allMoves = data.moves
     local startIdx = math.max(1, #allMoves - 3)
     for i = startIdx, #allMoves do
-        self.moves[#self.moves + 1] = allMoves[i]
+        local moveKey = allMoves[i]
+        self.moves[#self.moves + 1] = moveKey
+        local move = moveData[moveKey]
+        self.pp[moveKey] = move and move.maxPP or 10
     end
 end
 
@@ -819,8 +839,57 @@ function Pokemon:fullRestore()
     self:heal()
     self:resetStages()
     self.status = nil
+    self.statusTurns = 0
+    -- Restore all PP
+    for _, moveKey in ipairs(self.moves) do
+        local move = moveData[moveKey]
+        self.pp[moveKey] = move and move.maxPP or 10
+    end
 end
 
-function createPokemon(species, level)
-    return Pokemon(species, level)
+function Pokemon:usePP(moveKey)
+    if self.pp[moveKey] and self.pp[moveKey] > 0 then
+        self.pp[moveKey] = self.pp[moveKey] - 1
+        return true
+    end
+    return false
+end
+
+function Pokemon:hasPP(moveKey)
+    return self.pp[moveKey] and self.pp[moveKey] > 0
+end
+
+-- Returns XP gained and whether a level up occurred
+function Pokemon:gainXP(amount)
+    self.xp = self.xp + amount
+    local leveled = false
+    while self.xp >= self.xpToNext and self.level < 100 do
+        self.level = self.level + 1
+        self.xpToNext = xpForLevel(self.level + 1)
+        leveled = true
+    end
+    if leveled then
+        self:recalcStats()
+    end
+    return leveled
+end
+
+function Pokemon:recalcStats()
+    local data = pokemonData[self.species]
+    local oldMaxHP = self.maxHP
+    self.maxHP = calcHP(data.baseHP, self.level)
+    -- Heal the difference so HP grows on level up
+    self.hp = math.min(self.maxHP, self.hp + (self.maxHP - oldMaxHP))
+    self.atk = calcStat(data.baseAtk, self.level)
+    self.def = calcStat(data.baseDef, self.level)
+    self.spc = calcStat(data.baseSpc, self.level)
+    self.spd = calcStat(data.baseSpd, self.level)
+end
+
+-- Calculate XP earned from defeating an enemy
+function Pokemon:calcExpGain(defeated)
+    local b = baseExpYield(defeated.species)
+    local L = defeated.level
+    -- Simplified Gen I formula: (b * L) / 7
+    return math.max(1, math.floor((b * L) / 7))
 end

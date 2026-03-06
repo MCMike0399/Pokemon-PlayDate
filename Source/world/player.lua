@@ -2,22 +2,26 @@ local gfx <const> = playdate.graphics
 
 class("Player").extends(gfx.sprite)
 
-local TILE_SIZE <const> = 16
 local MOVE_FRAMES <const> = 8
 
--- Pre-load all player images
+-- Pre-load all player images, scaled 2x for native feel
+local function loadScaled(path)
+    local img = gfx.image.new(path)
+    return img:scaledImage(2)
+end
+
 local playerImages = {
-    down = gfx.image.new("images/overworld/player-down"),
-    up = gfx.image.new("images/overworld/player-up"),
-    left = gfx.image.new("images/overworld/player-left"),
-    right = gfx.image.new("images/overworld/player-right"),
+    down = loadScaled("images/overworld/player-down"),
+    up = loadScaled("images/overworld/player-up"),
+    left = loadScaled("images/overworld/player-left"),
+    right = loadScaled("images/overworld/player-right"),
 }
 
 local playerWalkImages = {
-    down = gfx.image.new("images/overworld/player-down-walk"),
-    up = gfx.image.new("images/overworld/player-up-walk"),
-    left = gfx.image.new("images/overworld/player-left-walk"),
-    right = gfx.image.new("images/overworld/player-right-walk"),
+    down = loadScaled("images/overworld/player-down-walk"),
+    up = loadScaled("images/overworld/player-up-walk"),
+    left = loadScaled("images/overworld/player-left-walk"),
+    right = loadScaled("images/overworld/player-right-walk"),
 }
 
 function Player:init(gridX, gridY, collisionMap)
@@ -34,6 +38,7 @@ function Player:init(gridX, gridY, collisionMap)
     self.targetPixelY = 0
     self.collisionMap = collisionMap
     self.walkToggle = false  -- alternates lead foot between steps
+    self.stepJustFinished = false
 
     self:setImage(playerImages.down)
     self:setCenter(0, 0)
@@ -130,5 +135,6 @@ function Player:getFacingTile()
 end
 
 function Player:getPixelCenter()
-    return self.gridX * TILE_SIZE + TILE_SIZE / 2, self.gridY * TILE_SIZE + TILE_SIZE / 2
+    -- Use actual sprite position (smoothly interpolated during movement)
+    return self.x + TILE_SIZE / 2, self.y + TILE_SIZE / 2
 end

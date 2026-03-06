@@ -2,12 +2,10 @@ local gfx <const> = playdate.graphics
 
 class("NPC").extends(gfx.sprite)
 
-local TILE_SIZE <const> = 16
-
--- Pre-load NPC images
+-- Pre-load NPC images, scaled 2x for native feel
 local npcImages = {
-    oak = gfx.image.new("images/overworld/oak-down"),
-    rival = gfx.image.new("images/overworld/rival-down"),
+    oak = gfx.image.new("images/overworld/oak-down"):scaledImage(2),
+    rival = gfx.image.new("images/overworld/rival-down"):scaledImage(2),
 }
 
 function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey)

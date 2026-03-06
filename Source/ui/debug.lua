@@ -426,16 +426,19 @@ function DebugMenu.drawOverlays()
 
     if DEBUG_FLAGS.showGrid then
         gfx.setColor(gfx.kColorXOR)
+        local ts = TILE_SIZE
         local ox, oy = gfx.getDrawOffset()
-        local startTileX = math.floor(-ox / 16)
-        local startTileY = math.floor(-oy / 16)
-        for tx = startTileX, startTileX + 26 do
-            local px = tx * 16
-            gfx.drawLine(px, startTileY * 16, px, (startTileY + 16) * 16)
+        local tilesAcross = math.ceil(400 / ts) + 1
+        local tilesDown = math.ceil(240 / ts) + 1
+        local startTileX = math.floor(-ox / ts)
+        local startTileY = math.floor(-oy / ts)
+        for tx = startTileX, startTileX + tilesAcross do
+            local px = tx * ts
+            gfx.drawLine(px, startTileY * ts, px, (startTileY + tilesDown) * ts)
         end
-        for ty = startTileY, startTileY + 16 do
-            local py = ty * 16
-            gfx.drawLine(startTileX * 16, py, (startTileX + 26) * 16, py)
+        for ty = startTileY, startTileY + tilesDown do
+            local py = ty * ts
+            gfx.drawLine(startTileX * ts, py, (startTileX + tilesAcross) * ts, py)
         end
     end
 end

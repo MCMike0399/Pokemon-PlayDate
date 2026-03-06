@@ -60,6 +60,7 @@ end
 
 -- Accuracy check
 function checkAccuracy(move)
+    if move.accuracy == 0 then return true end
     return math.random(1, 100) <= move.accuracy
 end
 
@@ -123,7 +124,12 @@ function Battle:handleInput()
 end
 
 function Battle:selectMove(moveIndex)
-    local playerMove = moveData[self.player.moves[moveIndex]]
+    local moveKey = self.player.moves[moveIndex]
+    local playerMove = moveData[moveKey]
+
+    -- Deduct PP
+    self.player:usePP(moveKey)
+
     local enemyMoveKey = self.enemy.moves[math.random(1, #self.enemy.moves)]
     local enemyMove = moveData[enemyMoveKey]
 
@@ -131,14 +137,18 @@ function Battle:selectMove(moveIndex)
     local playerSpd = applyStageMod(self.player.spd, self.player.statStages.spd)
     local enemySpd = applyStageMod(self.enemy.spd, self.enemy.statStages.spd)
 
+    -- Paralysis halves speed
+    if self.player.status == "paralyze" then playerSpd = math.floor(playerSpd / 2) end
+    if self.enemy.status == "paralyze" then enemySpd = math.floor(enemySpd / 2) end
+
     self.turnQueue = {}
 
     if playerSpd >= enemySpd then
-        table.insert(self.turnQueue, { attacker = "player", move = playerMove, moveKey = self.player.moves[moveIndex] })
+        table.insert(self.turnQueue, { attacker = "player", move = playerMove, moveKey = moveKey })
         table.insert(self.turnQueue, { attacker = "enemy", move = enemyMove, moveKey = enemyMoveKey })
     else
         table.insert(self.turnQueue, { attacker = "enemy", move = enemyMove, moveKey = enemyMoveKey })
-        table.insert(self.turnQueue, { attacker = "player", move = playerMove, moveKey = self.player.moves[moveIndex] })
+        table.insert(self.turnQueue, { attacker = "player", move = playerMove, moveKey = moveKey })
     end
 
     self.turnIndex = 0
@@ -148,7 +158,10 @@ end
 function Battle:executeNextTurn()
     self.turnIndex = self.turnIndex + 1
     if self.turnIndex > #self.turnQueue then
-        self.state = BSTATE_MENU
+        -- End-of-turn: apply status damage, then back to menu
+        self:endOfTurnStatus(function()
+            self.state = BSTATE_MENU
+        end)
         return
     end
 
@@ -168,6 +181,57 @@ function Battle:executeNextTurn()
         defenderName = self.player.name
     end
 
+    -- Check if attacker fainted (from previous turn)
+    if not attacker:isAlive() then
+        self:executeNextTurn()
+        return
+    end
+
+    -- Status: sleep blocks action
+    if attacker.status == "sleep" then
+        attacker.statusTurns = attacker.statusTurns + 1
+        if attacker.statusTurns >= math.random(1, 3) then
+            attacker.status = nil
+            attacker.statusTurns = 0
+            self:showMessage(attackerName .. " woke up!", function()
+                self:executeNextTurn()
+            end)
+        else
+            self:showMessage(attackerName .. " is fast asleep!", function()
+                self:executeNextTurn()
+            end)
+        end
+        return
+    end
+
+    -- Status: paralysis has 25% chance to skip turn
+    if attacker.status == "paralyze" and math.random(1, 4) == 1 then
+        self:showMessage(attackerName .. " is paralyzed! It can't move!", function()
+            self:executeNextTurn()
+        end)
+        return
+    end
+
+    -- Status: freeze has 20% chance to thaw each turn
+    if attacker.status == "freeze" then
+        if math.random(1, 5) == 1 then
+            attacker.status = nil
+            attacker.statusTurns = 0
+            self:showMessage(attackerName .. " thawed out!", function()
+                self:doAttack(turn, attacker, defender, attackerName, defenderName)
+            end)
+        else
+            self:showMessage(attackerName .. " is frozen solid!", function()
+                self:executeNextTurn()
+            end)
+        end
+        return
+    end
+
+    self:doAttack(turn, attacker, defender, attackerName, defenderName)
+end
+
+function Battle:doAttack(turn, attacker, defender, attackerName, defenderName)
     local move = turn.move
 
     self:showMessage(attackerName .. " used " .. move.name .. "!", function()
@@ -208,15 +272,7 @@ function Battle:executeNextTurn()
                     local function afterCrit()
                         self:applyMoveEffects(move, attacker, defender, function()
                             if not defender:isAlive() then
-                                self:showMessage(defenderName .. " fainted!", function()
-                                    if turn.attacker == "player" then
-                                        self.state = BSTATE_VICTORY
-                                        self.message = "You won the battle!"
-                                    else
-                                        self.state = BSTATE_DEFEAT
-                                        self.message = "You blacked out..."
-                                    end
-                                end)
+                                self:handleFaint(turn.attacker, defenderName)
                             else
                                 self:executeNextTurn()
                             end
@@ -252,6 +308,68 @@ function Battle:executeNextTurn()
     end)
 end
 
+function Battle:handleFaint(attackerSide, defenderName)
+    self:showMessage(defenderName .. " fainted!", function()
+        if attackerSide == "player" then
+            -- Player wins: award XP
+            local xpGained = self.player:calcExpGain(self.enemy)
+            self:showMessage(self.player.name .. " gained " .. xpGained .. " EXP!", function()
+                local leveled = self.player:gainXP(xpGained)
+                if leveled then
+                    self:showMessage(self.player.name .. " grew to Lv" .. self.player.level .. "!", function()
+                        self.state = BSTATE_VICTORY
+                        self.message = "You won the battle!"
+                    end)
+                else
+                    self.state = BSTATE_VICTORY
+                    self.message = "You won the battle!"
+                end
+            end)
+        else
+            self.state = BSTATE_DEFEAT
+            self.message = "You blacked out..."
+        end
+    end)
+end
+
+-- End-of-turn status damage (burn, poison)
+function Battle:endOfTurnStatus(callback)
+    self:applyStatusDamage(self.player, function()
+        self:applyStatusDamage(self.enemy, function()
+            -- Check for status KOs
+            if not self.player:isAlive() then
+                self:showMessage(self.player.name .. " fainted!", function()
+                    self.state = BSTATE_DEFEAT
+                    self.message = "You blacked out..."
+                end)
+            elseif not self.enemy:isAlive() then
+                self:handleFaint("player", self.enemy.name)
+            else
+                callback()
+            end
+        end)
+    end)
+end
+
+function Battle:applyStatusDamage(pokemon, callback)
+    if not pokemon:isAlive() then
+        callback()
+        return
+    end
+
+    if pokemon.status == "burn" then
+        local dmg = math.max(1, math.floor(pokemon.maxHP / 8))
+        pokemon:takeDamage(dmg)
+        self:showMessage(pokemon.name .. " is hurt by its burn!", callback)
+    elseif pokemon.status == "poison" then
+        local dmg = math.max(1, math.floor(pokemon.maxHP / 8))
+        pokemon:takeDamage(dmg)
+        self:showMessage(pokemon.name .. " is hurt by poison!", callback)
+    else
+        callback()
+    end
+end
+
 -- Apply extra effects from a move (stat changes, status conditions, etc.)
 function Battle:applyMoveEffects(move, attacker, defender, callback)
     if not move.effects or #move.effects == 0 then
@@ -285,7 +403,7 @@ function Battle:showEffectResults(results, index, callback)
         local targetName = r.pokemon.name
         msg = targetName .. "'s " .. statNames[r.stat] .. " " .. direction .. "!"
     elseif r.type == "status" then
-        local statusNames = { burn = "was burned", poison = "was poisoned", paralysis = "is paralyzed" }
+        local statusNames = { burn = "was burned", poison = "was poisoned", paralyze = "is paralyzed", sleep = "fell asleep", freeze = "was frozen" }
         msg = r.pokemon.name .. " " .. (statusNames[r.status] or "was afflicted") .. "!"
     end
 

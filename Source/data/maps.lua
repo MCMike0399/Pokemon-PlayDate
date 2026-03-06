@@ -41,4 +41,4 @@ palletTownCollision = {
 
 MAP_WIDTH = 20
 MAP_HEIGHT = 15
-TILE_SIZE = 16
+TILE_SIZE = 32

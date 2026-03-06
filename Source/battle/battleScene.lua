@@ -4,7 +4,7 @@ local battleFont <const> = gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold")
 
 Class("BattleScene")
 
--- Lazy-load Pokemon battle sprites (supports all 156 Gen 5 species)
+-- Lazy-load Pokemon battle sprites (supports all species)
 local pokemonSprites = {}
 
 local function getPokemonSprites(species)
@@ -17,21 +17,32 @@ local function getPokemonSprites(species)
     return pokemonSprites[species]
 end
 
+-- Status condition short labels
+local statusLabels = {
+    burn = "BRN", poison = "PSN", paralyze = "PAR",
+    sleep = "SLP", freeze = "FRZ",
+}
+
 function BattleScene:init(battle)
     self.battle = battle
     self.mainMenu = BattleMenu()
     self.moveMenu = BattleMenu()
     self.inMoveSelect = false
+    -- Intro transition
+    self.introTimer = 0
+    self.introPhase = "iris_in" -- iris_in → ready
+    self.irisRadius = 0
 end
 
 function BattleScene:enter()
     self.mainMenu:show({"FIGHT", "RUN"}, function(index)
         if index == 1 then
-            -- Fight: show move selection with type effectiveness icons
+            -- Fight: show move selection with type effectiveness icons and PP
             self.inMoveSelect = true
             local moveNames = {}
             for _, moveKey in ipairs(self.battle.player.moves) do
                 local move = moveData[moveKey]
+                local pp = self.battle.player.pp[moveKey] or 0
                 local label = move.name
                 -- Show type effectiveness icon next to move name
                 local mult = TypeChart.getMatchup(move.type, self.battle.enemy.type, self.battle.enemy.type2)
@@ -39,10 +50,21 @@ function BattleScene:enter()
                 if icon ~= "" then
                     label = label .. " " .. icon
                 end
+                -- Show PP
+                label = label .. " " .. pp .. "/" .. move.maxPP
+                -- Grey out if no PP
+                if pp <= 0 then
+                    label = "~" .. label .. "~"
+                end
                 table.insert(moveNames, label)
             end
             self.moveMenu.columns = 2
             self.moveMenu:show(moveNames, function(moveIndex)
+                -- Check PP before allowing move
+                local moveKey = self.battle.player.moves[moveIndex]
+                if not self.battle.player:hasPP(moveKey) then
+                    return -- Can't use move with 0 PP
+                end
                 self.inMoveSelect = false
                 self.moveMenu:hide()
                 self.mainMenu:hide()
@@ -62,6 +84,8 @@ function BattleScene:enter()
 end
 
 function BattleScene:handleInput()
+    if self.introPhase ~= "ready" then return end
+
     if self.battle.state == "menu" or self.battle.state == "moveSelect" then
         if self.inMoveSelect then
             self.moveMenu:handleInput()
@@ -116,6 +140,33 @@ function BattleScene:drawPlatforms()
 end
 
 function BattleScene:draw()
+    -- Intro transition
+    if self.introPhase == "iris_in" then
+        self.introTimer = self.introTimer + 1
+        local maxRadius = 260
+        local duration = 20
+        self.irisRadius = math.floor((self.introTimer / duration) * maxRadius)
+        if self.introTimer >= duration then
+            self.introPhase = "ready"
+            self.irisRadius = maxRadius
+        end
+
+        -- Draw black background, then reveal circle
+        gfx.clear(gfx.kColorBlack)
+        if self.irisRadius > 0 then
+            -- Use stencil to mask the battle scene inside the circle
+            local stencilImg = gfx.image.new(400, 240, gfx.kColorBlack)
+            gfx.pushContext(stencilImg)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleAtPoint(200, 120, self.irisRadius)
+            gfx.popContext()
+            gfx.setStencilImage(stencilImg)
+            self:drawBattleField()
+            gfx.clearStencil()
+        end
+        return
+    end
+
     -- Screen shake
     if self.battle.shakeTimer > 0 then
         local ox = math.random(-self.battle.shakeIntensity, self.battle.shakeIntensity)
@@ -127,6 +178,10 @@ function BattleScene:draw()
         end
     end
 
+    self:drawBattleField()
+end
+
+function BattleScene:drawBattleField()
     self:drawBackgroundBase()
 
     -- Draw pokemon sprites (before platforms so platforms overlap sprite bottoms)
@@ -159,6 +214,11 @@ function BattleScene:draw()
     gfx.setFont(gfx.getSystemFont())
     gfx.drawText("HP", 8, 22)
     self:drawHPBar(24, 23, enemyBarW - 16, 8, self.battle.enemy.hp, self.battle.enemy.maxHP)
+    -- Enemy status
+    if self.battle.enemy.status then
+        local statusStr = statusLabels[self.battle.enemy.status] or "???"
+        gfx.drawText(statusStr, enemyBoxW - 26, 22)
+    end
 
     -- Draw player info (bottom-right, above menu)
     local playerLabel = self.battle.player.name .. "  Lv" .. self.battle.player.level
@@ -171,15 +231,32 @@ function BattleScene:draw()
     local playerBarW = playerBoxW - 16
     local playerBoxX = 396 - playerBoxW
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(playerBoxX, 110, playerBoxW, 42)
+    gfx.fillRect(playerBoxX, 110, playerBoxW, 54)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(playerBoxX, 110, playerBoxW, 42)
+    gfx.drawRect(playerBoxX, 110, playerBoxW, 54)
     gfx.setFont(battleFont)
     gfx.drawText(playerLabel, playerBoxX + 4, 112)
     gfx.setFont(gfx.getSystemFont())
+    -- Player status
+    if self.battle.player.status then
+        local statusStr = statusLabels[self.battle.player.status] or "???"
+        gfx.drawText(statusStr, playerBoxX + playerBoxW - 30, 128)
+    end
     gfx.drawText("HP", playerBoxX + 4, 128)
     self:drawHPBar(playerBoxX + 20, 129, playerBarW - 18, 8, self.battle.player.hp, self.battle.player.maxHP)
     gfx.drawText(hpText, playerBoxX + playerBoxW - hpTextW - 6, 140)
+    -- XP bar
+    local xpBarY = 152
+    local xpBarW = playerBarW - 4
+    gfx.drawText("EXP", playerBoxX + 4, xpBarY)
+    local xpCurrent = self.battle.player.xp - xpForLevel(self.battle.player.level)
+    local xpNeeded = self.battle.player.xpToNext - xpForLevel(self.battle.player.level)
+    local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
+    gfx.drawRect(playerBoxX + 26, xpBarY + 1, xpBarW - 22, 6)
+    local xpFill = math.floor(xpRatio * (xpBarW - 24))
+    if xpFill > 0 then
+        gfx.fillRect(playerBoxX + 27, xpBarY + 2, xpFill, 4)
+    end
 
     -- Update flash timer
     if self.battle.isFlashing then
