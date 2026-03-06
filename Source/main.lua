@@ -47,15 +47,15 @@ local function startIrisOut(cx, cy, callback)
     irisOut.callback = callback
 end
 
--- Wild encounter config: grass tile ID = 1
-local GRASS_TILE_ID <const> = 1
-local ENCOUNTER_RATE <const> = 0.15 -- 15% per step on grass
+-- Wild encounter config: tall grass tile ID = 8
+local TALL_GRASS_TILE_ID <const> = 8
+local ENCOUNTER_RATE <const> = 0.15 -- 15% per step on tall grass
 
 local function checkWildEncounter(tileX, tileY)
     -- Check if standing on grass tile
     if tileY + 1 > #palletTownTiles or tileX + 1 > #palletTownTiles[1] then return false end
     local tileId = palletTownTiles[tileY + 1][tileX + 1]
-    if tileId == GRASS_TILE_ID and math.random() < ENCOUNTER_RATE then
+    if tileId == TALL_GRASS_TILE_ID and math.random() < ENCOUNTER_RATE then
         return true
     end
     return false
@@ -306,12 +306,14 @@ gameStateMachine:register("battle", {
     end,
 
     exit = function()
+        playdate.display.setOffset(0, 0)
         currentBattle = nil
         battleScene = nil
         battleNPC = nil
     end,
 
     update = function()
+        camera:reset()
         battleScene:draw()
         battleScene:handleInput()
     end,

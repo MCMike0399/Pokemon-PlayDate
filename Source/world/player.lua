@@ -99,12 +99,15 @@ function Player:tryMove(dx, dy)
 end
 
 function Player:update()
+    self.stepJustFinished = false
+
     if self.isMoving then
         self.moveFrames = self.moveFrames + 1
         local t = self.moveFrames / MOVE_FRAMES
         if t >= 1 then
             t = 1
             self.isMoving = false
+            self.stepJustFinished = true
         end
 
         -- 2-frame walk cycle: alternate walk/idle based on walkToggle

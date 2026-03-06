@@ -10,10 +10,10 @@ local function loadAndScale(path)
 end
 
 function generateTileImages()
-    tileImages = gfx.imagetable.new(7)
+    tileImages = gfx.imagetable.new(8)
 
     -- Load tile images from files, scaled 2x for native feel
-    -- 1=Grass, 2=Path, 3=Wall, 4=Water, 5=Tree, 6=Door, 7=Fence
+    -- 1=Grass, 2=Path, 3=Wall, 4=Water, 5=Tree, 6=Door, 7=Fence, 8=Tall Grass
     tileImages:setImage(1, loadAndScale("images/tiles/grass"))
     tileImages:setImage(2, loadAndScale("images/tiles/path"))
     tileImages:setImage(3, loadAndScale("images/tiles/wall"))
@@ -21,6 +21,7 @@ function generateTileImages()
     tileImages:setImage(5, loadAndScale("images/tiles/tree"))
     tileImages:setImage(6, loadAndScale("images/tiles/door"))
     tileImages:setImage(7, loadAndScale("images/tiles/fence"))
+    tileImages:setImage(8, loadAndScale("images/tiles/tallgrass"))
 end
 
 function setupOverworld()
