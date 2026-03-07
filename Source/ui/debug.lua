@@ -29,6 +29,7 @@ function DebugMenu:init()
     self.messageTimer = 0
 
     self.mainOptions = {
+        { label = "Zones",        action = "zoneSelect" },
         { label = "Wild Battle",  action = "wildBattle" },
         { label = "Heal Pokemon", action = "heal" },
         { label = "Set Level",    action = "setLevel" },
@@ -47,14 +48,7 @@ function DebugMenu:init()
     end
     table.sort(self.speciesList)
 
-    -- Warp presets
-    self.warpPresets = {
-        { label = "Spawn (6,7)",     x = 6, y = 7 },
-        { label = "Oak (10,7)",      x = 9, y = 7 },
-        { label = "Rival (13,9)",    x = 12, y = 9 },
-        { label = "Pond (8,10)",     x = 7, y = 10 },
-        { label = "South (10,13)",   x = 10, y = 13 },
-    }
+    -- Warp presets come from the Zone object directly (currentZone.warps)
 end
 
 function DebugMenu:open(onClose)
@@ -150,6 +144,10 @@ function DebugMenu:executeMain(option)
         self.subMenu = "warpSelect"
         self.subIndex = 1
         self.subScrollOffset = 0
+    elseif option.action == "zoneSelect" then
+        self.subMenu = "zoneSelect"
+        self.subIndex = 1
+        self.subScrollOffset = 0
     end
 end
 
@@ -169,12 +167,23 @@ function DebugMenu:handleSubInput()
             self:doSetLevel(level)
         end)
     elseif self.subMenu == "warpSelect" then
+        local presets = self:getWarpPresets()
         local labels = {}
-        for _, preset in ipairs(self.warpPresets) do
+        for _, preset in ipairs(presets) do
             table.insert(labels, preset.label)
         end
         self:handleListInput(labels, function(index)
-            self:doWarp(self.warpPresets[index].x, self.warpPresets[index].y)
+            self:doWarp(presets[index].x, presets[index].y)
+        end)
+    elseif self.subMenu == "zoneSelect" then
+        local labels = {}
+        for _, key in ipairs(zoneList) do
+            local zone = zoneRegistry[key]
+            local marker = (zone == currentZone) and " *" or ""
+            table.insert(labels, zone.name .. marker)
+        end
+        self:handleListInput(labels, function(index)
+            self:doZoneSwitch(zoneList[index])
         end)
     end
 end
@@ -230,6 +239,13 @@ end
 -- ACTIONS
 -- ============================================================
 
+function DebugMenu:getWarpPresets()
+    if currentZone and currentZone.warps and #currentZone.warps > 0 then
+        return currentZone.warps
+    end
+    return {{ label = "Spawn", x = currentZone.spawn.x, y = currentZone.spawn.y }}
+end
+
 function DebugMenu:doHeal()
     -- Emit signal so main.lua can heal the player pokemon
     self:showMessage("Pokemon healed!")
@@ -257,6 +273,12 @@ function DebugMenu:doWarp(x, y)
     self.subMenu = nil
     self:showMessage("Warped to (" .. x .. "," .. y .. ")!")
     self.pendingAction = { type = "warp", x = x, y = y }
+end
+
+function DebugMenu:doZoneSwitch(zoneKey)
+    self.isActive = false
+    self.pendingAction = { type = "zoneSwitch", zone = zoneKey }
+    if self.onClose then self.onClose() end
 end
 
 function DebugMenu:consumeAction()
@@ -394,13 +416,14 @@ function DebugMenu:drawSubMenu(startY)
         gfx.drawText("U/D:+/-1  L/R:+/-5  A:Confirm  B:Back", MENU_X + 10, MENU_Y + MENU_H - 18)
 
     elseif self.subMenu == "warpSelect" then
-        gfx.drawText("Warp to:", MENU_X + 10, startY)
+        local presets = self:getWarpPresets()
+        gfx.drawText("Warp to (" .. currentZone.name .. "):", MENU_X + 10, startY)
         startY = startY + LINE_H
-        for i = 1, math.min(MAX_VISIBLE - 1, #self.warpPresets) do
+        for i = 1, math.min(MAX_VISIBLE - 1, #presets) do
             local idx = i + self.subScrollOffset
-            if idx > #self.warpPresets then break end
+            if idx > #presets then break end
             local y = startY + (i - 1) * LINE_H
-            local label = self.warpPresets[idx].label
+            local label = presets[idx].label
             if idx == self.subIndex then
                 gfx.setColor(gfx.kColorBlack)
                 gfx.fillRect(MENU_X + 4, y, MENU_W - 8, LINE_H)
@@ -412,6 +435,32 @@ function DebugMenu:drawSubMenu(startY)
             end
         end
         gfx.drawText("A:Select  B:Back", MENU_X + 10, MENU_Y + MENU_H - 18)
+
+    elseif self.subMenu == "zoneSelect" then
+        gfx.drawText("Select Zone:", MENU_X + 10, startY)
+        startY = startY + LINE_H
+        local labels = {}
+        for _, key in ipairs(zoneList) do
+            local zone = zoneRegistry[key]
+            local marker = (zone == currentZone) and " *" or ""
+            table.insert(labels, zone.name .. marker)
+        end
+        for i = 1, math.min(MAX_VISIBLE - 1, #labels) do
+            local idx = i + self.subScrollOffset
+            if idx > #labels then break end
+            local y = startY + (i - 1) * LINE_H
+            local label = labels[idx]
+            if idx == self.subIndex then
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillRect(MENU_X + 4, y, MENU_W - 8, LINE_H)
+                gfx.setImageDrawMode(gfx.kDrawModeInverted)
+                gfx.drawText("> " .. label, MENU_X + 16, y + 4)
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+            else
+                gfx.drawText("  " .. label, MENU_X + 16, y + 4)
+            end
+        end
+        gfx.drawText("A:Select  B:Back  (* = current)", MENU_X + 10, MENU_Y + MENU_H - 18)
     end
 end
 

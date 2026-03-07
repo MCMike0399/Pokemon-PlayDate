@@ -6,7 +6,7 @@ import "CoreLibs/frameTimer"
 
 import "lib/oop"
 import "lib/statemachine"
-import "data/maps"
+import "world/zone"
 import "data/pokemon"
 import "data/typechart"
 import "battle/moves"
@@ -19,6 +19,7 @@ import "world/player"
 import "world/overworld"
 import "battle/battle"
 import "battle/battleScene"
+import "data/maps"
 
 local gfx <const> = playdate.graphics
 
@@ -33,7 +34,6 @@ local dialog = nil
 local currentBattle = nil
 local battleScene = nil
 local playerPokemon = nil
-local rival = nil
 local debugMenu = DebugMenu()
 
 -- Iris-out transition state
@@ -45,111 +45,6 @@ local function startIrisOut(cx, cy, callback)
     irisOut.cx = cx
     irisOut.cy = cy
     irisOut.callback = callback
-end
-
--- Wild encounter config: tall grass tile ID = 8
-local TALL_GRASS_TILE_ID <const> = 8
-local ENCOUNTER_RATE <const> = 0.15 -- 15% per step on tall grass
-
-local function checkWildEncounter(tileX, tileY)
-    local tiles = currentZone.tiles
-    if tileY + 1 > #tiles or tileX + 1 > #tiles[1] then return false end
-    local tileId = tiles[tileY + 1][tileX + 1]
-    if tileId == TALL_GRASS_TILE_ID and math.random() < ENCOUNTER_RATE then
-        return true
-    end
-    return false
-end
-
--- Zone-specific encounter tables
-local zoneEncounters = {
-    pallet_town = {
-        { species = "rattata", minLevel = 2, maxLevel = 4, weight = 40 },
-        { species = "pidgey", minLevel = 2, maxLevel = 5, weight = 35 },
-        { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
-        { species = "weedle", minLevel = 3, maxLevel = 5, weight = 10 },
-    },
-    test_zone = {
-        { species = "rattata", minLevel = 2, maxLevel = 4, weight = 40 },
-        { species = "pidgey", minLevel = 2, maxLevel = 5, weight = 35 },
-        { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
-        { species = "weedle", minLevel = 3, maxLevel = 5, weight = 10 },
-    },
-}
-
-local function rollWildPokemon()
-    -- Find current zone key for encounter lookup
-    local encounters = nil
-    for key, zone in pairs(zones) do
-        if zone == currentZone then
-            encounters = zoneEncounters[key]
-            break
-        end
-    end
-    if not encounters then encounters = zoneEncounters.pallet_town end
-
-    local totalWeight = 0
-    for _, e in ipairs(encounters) do
-        totalWeight = totalWeight + e.weight
-    end
-    local roll = math.random(1, totalWeight)
-    local cumulative = 0
-    for _, e in ipairs(encounters) do
-        cumulative = cumulative + e.weight
-        if roll <= cumulative then
-            local level = math.random(e.minLevel, e.maxLevel)
-            return Pokemon(e.species, level)
-        end
-    end
-    return Pokemon("rattata", 3)
-end
-
--- Zone-specific NPC setup
-local function setupZoneNPCs(zoneKey)
-    npcManager:clear()
-
-    if zoneKey == "pallet_town" then
-        -- Prof. Oak outside his lab
-        local oak = NPC(10, 12, "Prof. Oak",
-            {"Welcome to Pallet Town!", "The world of Pokemon awaits!", "Take care out there!"}, nil, "oak")
-        npcManager:addNPC(oak)
-
-        -- Rival near Blue's house
-        rival = NPC(13, 6, "Rival",
-            {"Hey! Let's battle!"}, { species = "charmander", level = 5 }, "rival")
-        rival.postBattleLines = {"Good battle!"}
-        npcManager:addNPC(rival)
-
-    elseif zoneKey == "test_zone" then
-        -- Prof. Oak
-        local oak = NPC(10, 7, "Prof. Oak",
-            {"Welcome to the Test Zone!", "This is the original map.", "Explore freely!"}, nil, "oak")
-        npcManager:addNPC(oak)
-
-        -- Rival
-        rival = NPC(13, 9, "Rival",
-            {"Hey! Let's battle!"}, { species = "charmander", level = 5 }, "rival")
-        rival.postBattleLines = {"Good battle!"}
-        npcManager:addNPC(rival)
-    end
-end
-
--- Get current zone key from the currentZone reference
-local function getCurrentZoneKey()
-    for key, zone in pairs(zones) do
-        if zone == currentZone then
-            return key
-        end
-    end
-    return "pallet_town"
-end
-
--- Switch to a different zone
-function switchZone(zoneKey)
-    if zones[zoneKey] then
-        currentZone = zones[zoneKey]
-        gameStateMachine:change("overworld")
-    end
 end
 
 -- Add debug menu to Playdate system menu
@@ -171,28 +66,26 @@ gameStateMachine:register("overworld", {
         local spawn = currentZone.spawn
         player = Player(spawn.x, spawn.y, currentZone.collision)
 
-        -- Setup NPCs for current zone
-        setupZoneNPCs(getCurrentZoneKey())
+        -- Zone spawns its own NPCs
+        currentZone:spawnNPCs(npcManager)
 
         -- Create player pokemon (only if not already created)
         if not playerPokemon then
             playerPokemon = Pokemon("squirtle", 5)
         end
 
-        -- Snap camera to player immediately (no lerp on load)
+        -- Snap camera to player immediately
         local px, py = player:getPixelCenter()
         local mw, mh = getMapPixelSize()
         camera:snapTo(px, py, mw, mh)
     end,
 
-    exit = function()
-    end,
+    exit = function() end,
 
     update = function()
-        -- Iris-out transition in progress
+        -- Iris-out transition
         if irisOut.active then
             irisOut.timer = irisOut.timer + 1
-            -- Keep drawing world underneath
             playdate.frameTimer.updateTimers()
             local px, py = player:getPixelCenter()
             local mw, mh = getMapPixelSize()
@@ -200,14 +93,12 @@ gameStateMachine:register("overworld", {
             camera:apply()
             gfx.sprite.update()
 
-            -- Draw iris-out overlay in screen space
             camera:reset()
             local maxRadius = 260
             local progress = irisOut.timer / irisOut.duration
             local radius = math.floor(maxRadius * (1 - progress))
 
             if radius > 0 then
-                -- Draw black border outside the circle using stencil
                 local stencilImg = gfx.image.new(400, 240, gfx.kColorWhite)
                 gfx.pushContext(stencilImg)
                     gfx.setColor(gfx.kColorBlack)
@@ -251,10 +142,6 @@ gameStateMachine:register("overworld", {
                     if npc.battleData and not npc.interacted then
                         gameStateMachine:change("dialog", lines, function()
                             local enemyPokemon = Pokemon(npc.battleData.species, npc.battleData.level)
-                            -- Iris-out then battle
-                            local screenX, screenY = player:getPixelCenter()
-                            screenX = screenX + gfx.getDrawOffset()
-                            screenY = screenY + gfx.getDrawOffset()
                             gameStateMachine:change("battle", playerPokemon, enemyPokemon, npc)
                         end)
                     else
@@ -267,24 +154,19 @@ gameStateMachine:register("overworld", {
             end
         end
 
-        -- Check for wild encounter after movement completes
+        -- Wild encounter check (delegated to Zone)
         if player.stepJustFinished then
-            if checkWildEncounter(player.gridX, player.gridY) then
-                -- Get player screen position for iris center
+            if currentZone:checkEncounter(player.gridX, player.gridY) then
                 local px, py = player:getPixelCenter()
                 local ox, oy = gfx.getDrawOffset()
-                local screenX = px + ox
-                local screenY = py + oy
-                startIrisOut(screenX, screenY, function()
-                    local wildPokemon = rollWildPokemon()
-                    gameStateMachine:change("battle", playerPokemon, wildPokemon, nil)
+                startIrisOut(px + ox, py + oy, function()
+                    gameStateMachine:change("battle", playerPokemon, currentZone:rollEncounter(), nil)
                 end)
             end
         end
 
         playdate.frameTimer.updateTimers()
 
-        -- Camera follow (before sprite draw so offset is applied this frame)
         local px, py = player:getPixelCenter()
         local mw, mh = getMapPixelSize()
         camera:follow(px, py, mw, mh)
@@ -293,9 +175,7 @@ gameStateMachine:register("overworld", {
         gfx.sprite.update()
     end,
 
-    draw = function()
-        -- sprites are drawn by gfx.sprite.update() in update
-    end
+    draw = function() end
 })
 
 -- ============================================================
@@ -307,23 +187,16 @@ gameStateMachine:register("dialog", {
         dialog:show(lines, onComplete)
     end,
 
-    exit = function()
-        dialog = nil
-    end,
+    exit = function() dialog = nil end,
 
     update = function()
         playdate.frameTimer.updateTimers()
-
-        -- Camera follow (before sprite draw)
         local px, py = player:getPixelCenter()
         local mw, mh = getMapPixelSize()
         camera:follow(px, py, mw, mh)
         camera:apply()
-
-        -- Keep overworld visible
         gfx.sprite.update()
 
-        -- Draw dialog on top (in screen coords)
         camera:reset()
         dialog:update()
         dialog:draw()
@@ -331,8 +204,7 @@ gameStateMachine:register("dialog", {
         camera:apply()
     end,
 
-    draw = function()
-    end
+    draw = function() end
 })
 
 -- ============================================================
@@ -345,18 +217,13 @@ gameStateMachine:register("battle", {
         battleNPC = npc
         gfx.sprite.removeAll()
         camera:reset()
-
-        -- Reset stat stages for battle (but keep HP, status, XP)
         playerPkmn:resetStages()
 
         currentBattle = Battle(playerPkmn, enemyPkmn)
         battleScene = BattleScene(currentBattle)
 
         currentBattle:on("battleEnd", function(won)
-            if won and battleNPC then
-                battleNPC.interacted = true
-            end
-            -- Clear status after battle (mercy rule for PoC)
+            if won and battleNPC then battleNPC.interacted = true end
             playerPokemon.status = nil
             playerPokemon.statusTurns = 0
             gameStateMachine:change("overworld")
@@ -376,8 +243,7 @@ gameStateMachine:register("battle", {
         battleScene:handleInput()
     end,
 
-    draw = function()
-    end
+    draw = function() end
 })
 
 -- ============================================================
@@ -387,67 +253,56 @@ gameStateMachine:register("debug", {
     enter = function()
         camera:reset()
         debugMenu:open(function()
-            -- Wild battle action closes menu and goes straight to battle
             local action = debugMenu:consumeAction()
             if action and action.type == "wildBattle" then
-                local enemyPokemon = Pokemon(action.species, action.level)
-                gameStateMachine:change("battle", playerPokemon, enemyPokemon, nil)
+                gameStateMachine:change("battle", playerPokemon, Pokemon(action.species, action.level), nil)
                 return
             end
             if action and action.type == "zoneSwitch" then
                 switchZone(action.zone)
+                gameStateMachine:change("overworld")
                 return
             end
             gameStateMachine:change("overworld")
         end)
     end,
 
-    exit = function()
-    end,
+    exit = function() end,
 
     update = function()
         playdate.frameTimer.updateTimers()
-
-        -- Camera follow (before sprite draw)
         local px, py = player:getPixelCenter()
         local mw, mh = getMapPixelSize()
         camera:follow(px, py, mw, mh)
         camera:apply()
-
-        -- Keep overworld visible underneath
         gfx.sprite.update()
 
-        -- Process in-menu actions (heal, set level, etc.)
         local action = debugMenu:consumeAction()
         if action then
             if action.type == "heal" and playerPokemon then
                 playerPokemon:fullRestore()
             elseif action.type == "resetNPCs" then
-                for _, npc in ipairs(npcManager.npcs) do
-                    npc.interacted = false
-                end
+                for _, npc in ipairs(npcManager.npcs) do npc.interacted = false end
             elseif action.type == "setLevel" and playerPokemon then
-                local species = playerPokemon.species
-                playerPokemon = Pokemon(species, action.level)
+                playerPokemon = Pokemon(playerPokemon.species, action.level)
             elseif action.type == "warp" and player then
                 player.gridX = action.x
                 player.gridY = action.y
                 player:moveTo(action.x * TILE_SIZE, action.y * TILE_SIZE)
             elseif action.type == "zoneSwitch" then
                 switchZone(action.zone)
+                gameStateMachine:change("overworld")
                 return
             end
         end
 
-        -- Draw debug menu on top (screen coords)
         camera:reset()
         debugMenu:handleInput()
         debugMenu:draw()
         camera:apply()
     end,
 
-    draw = function()
-    end
+    draw = function() end
 })
 
 -- ============================================================
@@ -459,18 +314,11 @@ function playdate.update()
     gameStateMachine:update()
     gameStateMachine:draw()
     playdate.timer.updateTimers()
-
-    -- Incremental GC to avoid spikes
     collectgarbage("step", 1)
 
-    -- Debug overlays (FPS, grid) always on top
     local currentState = gameStateMachine:getCurrent()
     if currentState == "overworld" or currentState == "dialog" then
-        -- Grid draws in world space (with camera offset active)
-        if DEBUG_FLAGS.showGrid then
-            DebugMenu.drawOverlays()
-        end
-        -- Temporarily reset offset for screen-space HUD, then restore
+        if DEBUG_FLAGS.showGrid then DebugMenu.drawOverlays() end
         if DEBUG_FLAGS.showFPS then
             camera:reset()
             playdate.drawFPS(4, 4)

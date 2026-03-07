@@ -6,7 +6,7 @@
 --
 -- Features:
 --   Class(name)              — define a class, registered as global
---     :extends(Parent)       — single inheritance
+--     :extends(Parent)       — single inheritance (methods flattened for O(1) lookup)
 --     :includes(Mixin, ...)  — trait composition
 --     :abstract("m1", "m2")  — enforce method contracts
 --   Mixin(name)              — define a composable trait
@@ -36,6 +36,7 @@ local pairs <const> = pairs
 local ipairs <const> = ipairs
 local type <const> = type
 local error <const> = error
+local select <const> = select
 local insert <const> = table.insert
 local remove <const> = table.remove
 
@@ -82,10 +83,19 @@ function Base:getClassName()
     return getmetatable(self).__name
 end
 
--- Builder: set parent class (single inheritance)
+-- Builder: set parent class (single inheritance).
+-- Copies parent functions into child table for O(1) method lookup.
+-- Metatable chain kept as fallback for methods added to parent later.
 function Base:extends(parent)
     self.__parent = parent
     self.super = parent
+
+    -- Flatten: copy parent functions for direct lookup
+    for k, v in pairs(parent) do
+        if type(v) == "function" and rawget(self, k) == nil then
+            self[k] = v
+        end
+    end
 
     if parent.__abstracts then
         self.__abstracts = self.__abstracts or {}
@@ -104,6 +114,13 @@ function Base:extends(parent)
                 insert(self.__mixins, mixin)
             end
         end
+        -- Inherit parent's mixin init chain
+        if parent.__mixinInits then
+            self.__mixinInits = self.__mixinInits or {}
+            for _, fn in ipairs(parent.__mixinInits) do
+                insert(self.__mixinInits, fn)
+            end
+        end
     end
 
     local mt = getmetatable(self)
@@ -111,10 +128,10 @@ function Base:extends(parent)
     return self
 end
 
--- Builder: mix in one or more traits
+-- Builder: mix in one or more traits (avoids {…} allocation via select)
 function Base:includes(...)
-    local args = {...}
-    for _, mixin in ipairs(args) do
+    for i = 1, select("#", ...) do
+        local mixin = select(i, ...)
         insert(self.__mixins, mixin)
 
         for k, v in pairs(mixin) do
@@ -124,6 +141,12 @@ function Base:includes(...)
             end
         end
 
+        -- Pre-build mixin init chain for fast instantiation
+        if mixin.init then
+            if not self.__mixinInits then self.__mixinInits = {} end
+            insert(self.__mixinInits, mixin.init)
+        end
+
         if mixin.included then
             mixin.included(self)
         end
@@ -131,12 +154,11 @@ function Base:includes(...)
     return self
 end
 
--- Builder: declare abstract methods (enforced at instantiation)
+-- Builder: declare abstract methods (enforced at first instantiation)
 function Base:abstract(...)
     self.__abstracts = self.__abstracts or {}
-    local args = {...}
-    for _, methodName in ipairs(args) do
-        self.__abstracts[methodName] = true
+    for i = 1, select("#", ...) do
+        self.__abstracts[select(i, ...)] = true
     end
     return self
 end
@@ -151,29 +173,33 @@ function Class(name)
     cls.__name = name
     cls.__parent = Base
     cls.__mixins = {}
+    cls.__mixinInits = nil
     cls.__abstracts = nil
+    cls.__abstractsOk = false
     cls.super = Base
 
     setmetatable(cls, {
         __index = Base,
 
         __call = function(_, ...)
-            -- Enforce abstract methods
-            if cls.__abstracts then
-                for method, _ in pairs(cls.__abstracts) do
+            -- Enforce abstract methods (cached after first success)
+            if cls.__abstracts and not cls.__abstractsOk then
+                for method in pairs(cls.__abstracts) do
                     if type(cls[method]) ~= "function" then
                         error(cls.__name .. ": abstract method '"
                               .. method .. "' not implemented")
                     end
                 end
+                cls.__abstractsOk = true
             end
 
             local instance = setmetatable({}, cls)
 
-            -- Mixin init (order preserved)
-            for _, mixin in ipairs(cls.__mixins) do
-                if mixin.init then
-                    mixin.init(instance)
+            -- Mixin init (pre-filtered, no conditional per mixin)
+            local inits = cls.__mixinInits
+            if inits then
+                for i = 1, #inits do
+                    inits[i](instance)
                 end
             end
 
@@ -206,6 +232,7 @@ end
 -- SIGNAL — built-in mixin for the observer pattern
 --
 -- Provides: on, off, once, emit, clearListeners
+-- Safe to add/remove listeners during emit (mark-and-compact).
 -- ============================================================
 
 Signal = Mixin("Signal")
@@ -228,7 +255,11 @@ function Signal:off(event, fn)
     local list = self._listeners[event]
     for i = #list, 1, -1 do
         if list[i] == fn then
-            remove(list, i)
+            if self._emitting == event then
+                list[i] = false  -- defer removal until emit completes
+            else
+                remove(list, i)
+            end
             break
         end
     end
@@ -247,8 +278,30 @@ end
 function Signal:emit(event, ...)
     if not self._listeners or not self._listeners[event] then return self end
     local list = self._listeners[event]
-    for i = 1, #list do
-        list[i](...)
+    self._emitting = event
+    local n = #list
+    local dirty = false
+    for i = 1, n do
+        local fn = list[i]
+        if fn then
+            fn(...)
+        else
+            dirty = true
+        end
+    end
+    self._emitting = nil
+    -- Compact any entries marked false by off() during iteration
+    if dirty then
+        local j = 0
+        for i = 1, #list do
+            if list[i] then
+                j = j + 1
+                if j ~= i then list[j] = list[i] end
+            end
+        end
+        for i = j + 1, #list do
+            list[i] = nil
+        end
     end
     return self
 end
@@ -276,6 +329,7 @@ function Pool(cls, prewarmCount)
         _available = {},
         _cls = cls,
         _total = 0,
+        _active = 0,
     }
 
     function pool:get(...)
@@ -289,6 +343,7 @@ function Pool(cls, prewarmCount)
             obj = self._cls(...)
             self._total += 1
         end
+        self._active += 1
         return obj
     end
 
@@ -297,6 +352,7 @@ function Pool(cls, prewarmCount)
             obj:deactivate()
         end
         insert(self._available, obj)
+        self._active -= 1
     end
 
     function pool:prewarm(n)
@@ -320,6 +376,10 @@ function Pool(cls, prewarmCount)
 
     function pool:available()
         return #self._available
+    end
+
+    function pool:activeCount()
+        return self._active
     end
 
     if prewarmCount and prewarmCount > 0 then

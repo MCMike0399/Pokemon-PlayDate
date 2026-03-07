@@ -1,151 +1,138 @@
--- Tile types:
--- 1 = Grass, 2 = Path, 3 = Wall/Building, 4 = Water, 5 = Tree, 6 = Door,
--- 7 = Fence, 8 = Tall Grass (encounters), 9 = Roof, 10 = Sign,
--- 11 = Flowers, 12 = Shore, 13 = Lab Wall, 14 = Mailbox
+-- ============================================================
+-- Zone definitions using declarative syntax
+-- ============================================================
+-- Tile codes:
+--   .  = Grass    Pa = Path     Wa = Wall     Wt = Water
+--   Tr = Tree     Dr = Door     Fn = Fence    TG = Tall Grass
+--   Rf = Roof     Sg = Sign     Fl = Flowers  Sh = Shore
+--   LW = Lab Wall Mb = Mailbox
+--
+-- Collision is auto-generated from tile types (no manual arrays!)
 
 TILE_SIZE = 32
 NUM_TILE_TYPES = 14
 
 -- ============================================================
--- ZONE: Test Zone (original small map)
+-- PALLET TOWN (faithful Gen I recreation, 20x18)
 -- ============================================================
-local testZoneTiles = {
-    { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 },
-    { 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5 },
-    { 5, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1, 5 },
-    { 5, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1, 5 },
-    { 5, 1, 3, 6, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 6, 3, 1, 1, 1, 5 },
-    { 5, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 5 },
-    { 5, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 5 },
-    { 5, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 5 },
-    { 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5 },
-    { 5, 1, 7, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 1, 5 },
-    { 5, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 1, 5 },
-    { 5, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 1, 5 },
-    { 5, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 1, 5 },
-    { 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5 },
-    { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 },
-}
+registerZone("pallet_town", Zone({
+    name = "Pallet Town",
+    spawn = { x = 5, y = 6 },
 
-local testZoneCollision = {
-    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 },
-    { 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 },
-    { 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-}
-
--- ============================================================
--- ZONE: Pallet Town (faithful Gen I recreation, 20x18)
--- ============================================================
---
--- Layout reference:
---   Row 0:     Tree border with Route 1 gap (north exit)
---   Row 1-2:   Tall grass patches (encounter zone)
---   Row 3-5:   Red's house (left) and Blue's house (right)
---   Row 6:     Short paths from house doors
---   Row 7:     Main east-west path with town signs
---   Row 8:     Open grass
---   Row 9-11:  Prof. Oak's Laboratory (center-south)
---   Row 12:    Path from lab entrance
---   Row 13:    Fences
---   Row 14:    Flower beds
---   Row 15:    Shore (Route 21 approach)
---   Row 16:    Water (Route 21)
---   Row 17:    Tree border (south)
-
-local palletTiles = {
-    --   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
-    {  5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5 }, -- 0  border + Route 1
-    {  5, 8, 8, 8, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 8, 8, 8, 5 }, -- 1  tall grass
-    {  5, 8, 8, 8, 1,11, 1, 1, 1, 2, 2, 1, 1, 1,11, 1, 8, 8, 8, 5 }, -- 2  tall grass + flowers
-    {  5, 1, 1, 9, 9, 9, 9, 1, 1, 1, 1, 1, 9, 9, 9, 9, 1, 1, 1, 5 }, -- 3  house roofs
-    {  5, 1, 1, 3, 3, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 1, 5 }, -- 4  house walls
-    {  5, 1,14, 3, 3, 6, 3, 1, 1, 1, 1, 1, 3, 6, 3, 3,14, 1, 1, 5 }, -- 5  doors + mailboxes
-    {  5, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 5 }, -- 6  paths from doors
-    {  5, 1,10, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1,10, 1, 5 }, -- 7  main path + signs
-    {  5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5 }, -- 8  open grass
-    {  5, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 5 }, -- 9  lab roof
-    {  5, 1, 1, 1, 1, 1, 1,13,13,13,13,13,13,13, 1, 1, 1, 1, 1, 5 }, -- 10 lab walls
-    {  5, 1, 1, 1, 1, 1, 1,13,13,13, 6,13,13,13, 1, 1, 1, 1, 1, 5 }, -- 11 lab door
-    {  5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 5 }, -- 12 path from lab
-    {  5, 1, 1, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 1, 1, 5 }, -- 13 fences
-    {  5, 1, 1, 1, 1, 1, 1,11, 1, 1, 1, 1, 1,11, 1, 1, 1, 1, 1, 5 }, -- 14 flower beds
-    {  5, 1, 1, 1, 1, 1,12,12,12,12,12,12,12,12, 1, 1, 1, 1, 1, 5 }, -- 15 shore
-    {  5, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 5 }, -- 16 water
-    {  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 }, -- 17 border
-}
-
-local palletCollision = {
-    --   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
-    {  1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, -- 0
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 1
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 2
-    {  1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1 }, -- 3  roofs
-    {  1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1 }, -- 4  walls
-    {  1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1 }, -- 5  doors open
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 6
-    {  1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 }, -- 7  signs solid
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 8
-    {  1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 9  lab roof
-    {  1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 10 lab walls
-    {  1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 11 lab door open
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 12
-    {  1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1 }, -- 13 fences
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 14
-    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 15 shore walkable
-    {  1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 16 water solid
-    {  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, -- 17
-}
-
--- ============================================================
--- ZONE REGISTRY
--- ============================================================
-
-zones = {
-    test_zone = {
-        name = "Test Zone",
-        width = 20,
-        height = 15,
-        tiles = testZoneTiles,
-        collision = testZoneCollision,
-        spawn = { x = 6, y = 7 },
+    tileRows = {
+    --  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
+        "Tr Tr Tr Tr Tr Tr Tr Tr Tr Pa Pa Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 0  north border + Route 1 gap
+        "Tr TG TG TG .  .  .  .  .  Pa Pa .  .  .  .  .  TG TG TG Tr", -- 1  tall grass
+        "Tr TG TG TG .  Fl .  .  .  Pa Pa .  .  .  Fl .  TG TG TG Tr", -- 2  tall grass + flowers
+        "Tr .  .  Rf Rf Rf Rf .  .  .  .  .  Rf Rf Rf Rf .  .  .  Tr", -- 3  house roofs
+        "Tr .  .  Wa Wa Wa Wa .  .  .  .  .  Wa Wa Wa Wa .  .  .  Tr", -- 4  house walls
+        "Tr .  Mb Wa Wa Dr Wa .  .  .  .  .  Wa Dr Wa Wa Mb .  .  Tr", -- 5  doors + mailboxes
+        "Tr .  .  .  .  Pa .  .  .  .  .  .  .  Pa .  .  .  .  .  Tr", -- 6  paths from doors
+        "Tr .  Sg .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  Sg .  Tr", -- 7  main east-west path
+        "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 8  path wraps around lab
+        "Tr .  .  .  .  .  Pa Rf Rf Rf Rf Rf Rf Rf Pa .  .  .  .  Tr", -- 9  lab roof + side paths
+        "Tr .  .  .  .  .  Pa LW LW LW LW LW LW LW Pa .  .  .  .  Tr", -- 10 lab walls + side paths
+        "Tr .  .  .  .  .  Pa LW LW LW Dr LW LW LW Pa .  .  .  .  Tr", -- 11 lab door + side paths
+        "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 12 path around lab
+        "Tr .  .  Fn Fn Fn .  .  .  .  .  .  .  .  Fn Fn Fn .  .  Tr", -- 13 fences
+        "Tr .  .  .  .  .  .  Fl .  .  .  .  .  Fl .  .  .  .  .  Tr", -- 14 flower beds
+        "Tr .  .  .  .  .  Sh Sh Sh Sh Sh Sh Sh Sh .  .  .  .  .  Tr", -- 15 shore
+        "Tr .  .  .  .  .  Wt Wt Wt Wt Wt Wt Wt Wt .  .  .  .  .  Tr", -- 16 water (Route 21)
+        "Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 17 south border
     },
-    pallet_town = {
-        name = "Pallet Town",
-        width = 20,
-        height = 18,
-        tiles = palletTiles,
-        collision = palletCollision,
-        spawn = { x = 5, y = 6 },
+
+    npcs = {
+        {
+            gridX = 10, gridY = 12,
+            name = "Prof. Oak",
+            dialog = { "Welcome to Pallet Town!", "The world of Pokemon awaits!", "Take care out there!" },
+            sprite = "oak",
+        },
+        {
+            gridX = 13, gridY = 6,
+            name = "Rival",
+            dialog = { "Hey! Let's battle!" },
+            battleData = { species = "charmander", level = 5 },
+            sprite = "rival",
+            postBattleLines = { "Good battle!" },
+        },
     },
-}
 
--- Ordered list for debug menu
-zoneList = { "pallet_town", "test_zone" }
+    encounters = {
+        { species = "rattata",  minLevel = 2, maxLevel = 4, weight = 40 },
+        { species = "pidgey",   minLevel = 2, maxLevel = 5, weight = 35 },
+        { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
+        { species = "weedle",   minLevel = 3, maxLevel = 5, weight = 10 },
+    },
 
--- Current active zone (set before calling setupOverworld)
-currentZone = zones.pallet_town
+    warps = {
+        { label = "Red's House",   x = 5,  y = 6  },
+        { label = "Blue's House",  x = 13, y = 6  },
+        { label = "Oak's Lab",     x = 10, y = 12 },
+        { label = "Main Path",     x = 9,  y = 7  },
+        { label = "Tall Grass",    x = 2,  y = 1  },
+        { label = "Shore",         x = 9,  y = 15 },
+        { label = "Route 1 Exit",  x = 9,  y = 0  },
+    },
+}))
 
--- Legacy globals for backward compat during transition
-function getActiveZoneTiles()
-    return currentZone.tiles
-end
+-- ============================================================
+-- TEST ZONE (original PoC map, 20x15)
+-- ============================================================
+registerZone("test_zone", Zone({
+    name = "Test Zone",
+    spawn = { x = 6, y = 7 },
 
-function getActiveZoneCollision()
-    return currentZone.collision
-end
+    tileRows = {
+        "Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr",
+        "Tr .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  Tr",
+        "Tr .  Wa Wa Wa .  .  .  .  .  .  .  .  Wa Wa Wa .  .  .  Tr",
+        "Tr .  Wa Wa Wa .  .  .  .  .  .  .  .  Wa Wa Wa .  .  .  Tr",
+        "Tr .  Wa Dr Wa .  .  .  .  .  .  .  .  Wa Dr Wa .  .  .  Tr",
+        "Tr .  .  Pa .  .  .  .  .  .  .  .  .  .  Pa .  .  .  .  Tr",
+        "Tr .  .  Pa .  .  .  .  .  .  .  .  .  .  Pa .  .  .  .  Tr",
+        "Tr .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr",
+        "Tr .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  Tr",
+        "Tr .  Fn Fn Fn Fn .  .  .  .  .  .  .  .  .  Fn Fn Fn .  Tr",
+        "Tr .  .  .  .  .  .  .  Wt Wt Wt Wt TG TG TG TG TG TG .  Tr",
+        "Tr .  .  .  .  .  .  .  Wt Wt Wt Wt TG TG TG TG TG TG .  Tr",
+        "Tr .  .  .  .  .  .  .  Wt Wt Wt Wt TG TG TG TG TG TG .  Tr",
+        "Tr .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  Tr",
+        "Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr",
+    },
 
-function getActiveZoneSize()
-    return currentZone.width, currentZone.height
-end
+    npcs = {
+        {
+            gridX = 10, gridY = 7,
+            name = "Prof. Oak",
+            dialog = { "Welcome to the Test Zone!", "This is the original map.", "Explore freely!" },
+            sprite = "oak",
+        },
+        {
+            gridX = 13, gridY = 9,
+            name = "Rival",
+            dialog = { "Hey! Let's battle!" },
+            battleData = { species = "charmander", level = 5 },
+            sprite = "rival",
+            postBattleLines = { "Good battle!" },
+        },
+    },
+
+    encounters = {
+        { species = "rattata",  minLevel = 2, maxLevel = 4, weight = 40 },
+        { species = "pidgey",   minLevel = 2, maxLevel = 5, weight = 35 },
+        { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
+        { species = "weedle",   minLevel = 3, maxLevel = 5, weight = 10 },
+    },
+
+    warps = {
+        { label = "Spawn (6,7)",   x = 6,  y = 7  },
+        { label = "Oak (10,7)",    x = 9,  y = 7  },
+        { label = "Rival (13,9)", x = 12, y = 9  },
+        { label = "Pond (8,10)",   x = 7,  y = 10 },
+        { label = "South (10,13)", x = 10, y = 13 },
+    },
+}))
+
+-- Default zone
+currentZone = zoneRegistry.pallet_town
