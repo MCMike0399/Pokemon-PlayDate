@@ -1,0 +1,6 @@
+#077 PONYTA
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, bounce, ember, fireBlast, fireSpin, flameCharge, flameWheel, flareBlitz, growl, inferno, stomp, tackle, tailWhip, takeDown

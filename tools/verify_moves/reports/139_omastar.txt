@@ -1,0 +1,6 @@
+#139 OMASTAR
+Status: MATCH
+Our moves: 15  |  API moves: 16
+
+All moves match!
+Moves: ancientPower, bite, brine, constrict, hydroPump, leer, mudShot, protect, rockBlast, rollout, shellSmash, spikeCannon, tickle, waterGun, withdraw

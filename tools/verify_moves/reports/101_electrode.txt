@@ -1,0 +1,6 @@
+#101 ELECTRODE
+Status: MATCH
+Our moves: 15  |  API moves: 18
+
+All moves match!
+Moves: charge, chargeBeam, electroBall, explosion, gyroBall, lightScreen, magnetRise, mirrorCoat, rollout, screech, selfDestruct, sonicBoom, spark, swift, tackle

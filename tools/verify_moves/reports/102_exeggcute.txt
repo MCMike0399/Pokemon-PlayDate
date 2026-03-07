@@ -1,0 +1,6 @@
+#102 EXEGGCUTE
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: barrage, bestow, bulletSeed, confusion, hypnosis, leechSeed, naturalGift, poisonPowder, psychic, reflect, sleepPowder, solarBeam, stunSpore, uproar, worrySeed

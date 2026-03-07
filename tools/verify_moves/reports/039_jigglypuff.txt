@@ -1,0 +1,6 @@
+#039 JIGGLYPUFF
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: bodySlam, defenseCurl, disable, doubleEdge, doubleSlap, gyroBall, hyperVoice, mimic, pound, rest, rollout, round, sing, wakeUpSlap

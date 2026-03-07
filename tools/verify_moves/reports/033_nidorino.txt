@@ -1,0 +1,6 @@
+#033 NIDORINO
+Status: MATCH
+Our moves: 13  |  API moves: 13
+
+All moves match!
+Moves: captivate, doubleKick, flatter, focusEnergy, furyAttack, helpingHand, hornAttack, hornDrill, leer, peck, poisonJab, poisonSting, toxicSpikes

@@ -1,0 +1,6 @@
+#125 ELECTABUZZ
+Status: MATCH
+Our moves: 13  |  API moves: 14
+
+All moves match!
+Moves: discharge, electroBall, leer, lightScreen, lowKick, quickAttack, screech, shockWave, swift, thunder, thunderPunch, thunderShock, thunderbolt

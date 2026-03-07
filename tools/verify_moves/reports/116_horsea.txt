@@ -1,0 +1,6 @@
+#116 HORSEA
+Status: MATCH
+Our moves: 12  |  API moves: 12
+
+All moves match!
+Moves: agility, brine, bubble, bubbleBeam, dragonDance, dragonPulse, focusEnergy, hydroPump, leer, smokescreen, twister, waterGun

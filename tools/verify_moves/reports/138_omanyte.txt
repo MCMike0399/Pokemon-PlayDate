@@ -1,0 +1,6 @@
+#138 OMANYTE
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: ancientPower, bite, brine, constrict, hydroPump, leer, mudShot, protect, rockBlast, rollout, shellSmash, tickle, waterGun, withdraw

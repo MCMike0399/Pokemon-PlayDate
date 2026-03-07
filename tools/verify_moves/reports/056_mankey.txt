@@ -1,0 +1,6 @@
+#056 MANKEY
+Status: MATCH
+Our moves: 16  |  API moves: 16
+
+All moves match!
+Moves: assurance, closeCombat, covet, crossChop, finalGambit, focusEnergy, furySwipes, karateChop, leer, lowKick, punishment, scratch, screech, seismicToss, swagger, thrash

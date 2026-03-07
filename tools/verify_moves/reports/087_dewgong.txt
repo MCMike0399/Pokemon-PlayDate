@@ -1,0 +1,6 @@
+#087 DEWGONG
+Status: MATCH
+Our moves: 18  |  API moves: 21
+
+All moves match!
+Moves: aquaJet, aquaRing, aquaTail, auroraBeam, brine, dive, encore, growl, hail, headbutt, iceBeam, iceShard, icyWind, rest, safeguard, sheerCold, signalBeam, takeDown

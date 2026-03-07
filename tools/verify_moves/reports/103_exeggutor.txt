@@ -1,0 +1,6 @@
+#103 EXEGGUTOR
+Status: MATCH
+Our moves: 9  |  API moves: 9
+
+All moves match!
+Moves: barrage, confusion, eggBomb, hypnosis, leafStorm, psyshock, seedBomb, stomp, woodHammer

@@ -1,0 +1,6 @@
+#143 SNORLAX
+Status: MATCH
+Our moves: 16  |  API moves: 16
+
+All moves match!
+Moves: amnesia, bellyDrum, block, bodySlam, chipAway, crunch, defenseCurl, gigaImpact, heavySlam, lick, rest, rollout, sleepTalk, snore, tackle, yawn

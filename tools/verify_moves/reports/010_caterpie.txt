@@ -1,0 +1,6 @@
+#010 CATERPIE
+Status: MATCH
+Our moves: 3  |  API moves: 3
+
+All moves match!
+Moves: bugBite, stringShot, tackle

@@ -1,0 +1,6 @@
+#110 WEEZING
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: assurance, clearSmog, destinyBond, doubleHit, explosion, haze, memento, poisonGas, selfDestruct, sludge, sludgeBomb, smog, smokescreen, tackle

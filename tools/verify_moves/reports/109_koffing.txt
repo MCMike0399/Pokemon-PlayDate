@@ -1,0 +1,6 @@
+#109 KOFFING
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: assurance, clearSmog, destinyBond, explosion, gyroBall, haze, memento, poisonGas, selfDestruct, sludge, sludgeBomb, smog, smokescreen, tackle

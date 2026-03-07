@@ -1,0 +1,6 @@
+#005 CHARMELEON
+Status: MATCH
+Our moves: 12  |  API moves: 13
+
+All moves match!
+Moves: dragonRage, ember, fireFang, fireSpin, flameBurst, flamethrower, growl, inferno, scaryFace, scratch, slash, smokescreen

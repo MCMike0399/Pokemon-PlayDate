@@ -1,0 +1,6 @@
+#150 MEWTWO
+Status: MATCH
+Our moves: 18  |  API moves: 18
+
+All moves match!
+Moves: amnesia, auraSphere, barrier, confusion, disable, futureSight, guardSwap, meFirst, miracleEye, mist, powerSwap, psychUp, psychic, psychoCut, psystrike, recover, safeguard, swift

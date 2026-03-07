@@ -1,0 +1,6 @@
+#134 VAPOREON
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: acidArmor, aquaRing, auroraBeam, bite, haze, helpingHand, hydroPump, lastResort, muddyWater, quickAttack, sandAttack, tackle, tailWhip, waterGun

@@ -1,0 +1,6 @@
+#093 HAUNTER
+Status: MATCH
+Our moves: 16  |  API moves: 17
+
+All moves match!
+Moves: confuseRay, curse, darkPulse, destinyBond, dreamEater, hex, hypnosis, lick, meanLook, nightShade, nightmare, payback, shadowBall, shadowPunch, spite, suckerPunch

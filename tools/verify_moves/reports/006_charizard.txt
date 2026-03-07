@@ -1,0 +1,6 @@
+#006 CHARIZARD
+Status: MATCH
+Our moves: 18  |  API moves: 20
+
+All moves match!
+Moves: airSlash, dragonClaw, dragonRage, ember, fireFang, fireSpin, flameBurst, flamethrower, flareBlitz, growl, heatWave, inferno, scaryFace, scratch, shadowClaw, slash, smokescreen, wingAttack

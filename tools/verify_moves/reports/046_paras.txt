@@ -1,0 +1,6 @@
+#046 PARAS
+Status: MATCH
+Our moves: 12  |  API moves: 12
+
+All moves match!
+Moves: aromatherapy, furyCutter, gigaDrain, growth, leechLife, poisonPowder, ragePowder, scratch, slash, spore, stunSpore, xScissor

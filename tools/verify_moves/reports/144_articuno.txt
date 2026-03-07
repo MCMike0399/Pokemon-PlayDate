@@ -1,0 +1,6 @@
+#144 ARTICUNO
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, ancientPower, blizzard, gust, hail, iceBeam, iceShard, mindReader, mist, powderSnow, reflect, roost, sheerCold, tailwind

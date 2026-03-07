@@ -1,0 +1,6 @@
+#141 KABUTOPS
+Status: MATCH
+Our moves: 15  |  API moves: 17
+
+All moves match!
+Moves: absorb, ancientPower, aquaJet, endure, feint, harden, leer, megaDrain, metalSound, mudShot, nightSlash, sandAttack, scratch, slash, wringOut

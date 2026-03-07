@@ -1,0 +1,6 @@
+#095 ONIX
+Status: MATCH
+Our moves: 19  |  API moves: 19
+
+All moves match!
+Moves: bind, curse, doubleEdge, dragonBreath, harden, ironTail, mudSport, rage, rockPolish, rockThrow, rockTomb, sandTomb, sandstorm, screech, slam, smackDown, stealthRock, stoneEdge, tackle

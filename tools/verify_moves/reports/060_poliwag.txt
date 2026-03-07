@@ -1,0 +1,6 @@
+#060 POLIWAG
+Status: MATCH
+Our moves: 13  |  API moves: 13
+
+All moves match!
+Moves: bellyDrum, bodySlam, bubble, bubbleBeam, doubleSlap, hydroPump, hypnosis, mudBomb, mudShot, rainDance, wakeUpSlap, waterGun, waterSport

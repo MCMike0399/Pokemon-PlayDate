@@ -1,0 +1,6 @@
+#001 BULBASAUR
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: doubleEdge, growl, growth, leechSeed, poisonPowder, razorLeaf, seedBomb, sleepPowder, sweetScent, synthesis, tackle, takeDown, vineWhip, worrySeed

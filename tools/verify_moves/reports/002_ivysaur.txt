@@ -1,0 +1,6 @@
+#002 IVYSAUR
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: doubleEdge, growl, growth, leechSeed, poisonPowder, razorLeaf, sleepPowder, solarBeam, sweetScent, synthesis, tackle, takeDown, vineWhip, worrySeed

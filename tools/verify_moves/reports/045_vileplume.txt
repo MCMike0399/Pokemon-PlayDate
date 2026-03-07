@@ -1,0 +1,6 @@
+#045 VILEPLUME
+Status: MATCH
+Our moves: 6  |  API moves: 6
+
+All moves match!
+Moves: aromatherapy, megaDrain, petalDance, poisonPowder, solarBeam, stunSpore

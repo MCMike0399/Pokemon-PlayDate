@@ -1,0 +1,6 @@
+#112 RHYDON
+Status: MATCH
+Our moves: 15  |  API moves: 17
+
+All moves match!
+Moves: bulldoze, chipAway, drillRun, earthquake, furyAttack, hammerArm, hornAttack, hornDrill, megahorn, rockBlast, scaryFace, stomp, stoneEdge, tailWhip, takeDown

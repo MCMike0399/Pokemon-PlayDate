@@ -1,0 +1,6 @@
+#128 TAUROS
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: gigaImpact, hornAttack, payback, pursuit, rage, rest, scaryFace, swagger, tackle, tailWhip, takeDown, thrash, workUp, zenHeadbutt

@@ -1,0 +1,6 @@
+#127 PINSIR
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: bind, brickBreak, focusEnergy, guillotine, harden, revenge, seismicToss, submission, superpower, swordsDance, thrash, viceGrip, vitalThrow, xScissor

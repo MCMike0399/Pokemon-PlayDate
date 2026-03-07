@@ -1,0 +1,6 @@
+#149 DRAGONITE
+Status: MATCH
+Our moves: 19  |  API moves: 21
+
+All moves match!
+Moves: agility, aquaTail, dragonDance, dragonRage, dragonRush, dragonTail, firePunch, hurricane, hyperBeam, leer, outrage, roost, safeguard, slam, thunderPunch, thunderWave, twister, wingAttack, wrap

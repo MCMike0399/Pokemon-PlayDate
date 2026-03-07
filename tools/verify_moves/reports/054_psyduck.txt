@@ -1,0 +1,6 @@
+#054 PSYDUCK
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: amnesia, confusion, disable, furySwipes, hydroPump, psychUp, scratch, screech, soak, tailWhip, waterGun, waterPulse, waterSport, wonderRoom, zenHeadbutt

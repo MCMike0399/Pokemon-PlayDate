@@ -1,0 +1,6 @@
+#115 KANGASKHAN
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: bite, chipAway, cometPunch, crunch, dizzyPunch, doubleHit, endure, fakeOut, leer, megaPunch, outrage, rage, reversal, suckerPunch, tailWhip

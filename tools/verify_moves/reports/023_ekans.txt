@@ -1,0 +1,6 @@
+#023 EKANS
+Status: MATCH
+Our moves: 16  |  API moves: 16
+
+All moves match!
+Moves: acid, acidSpray, bite, coil, gastroAcid, glare, gunkShot, haze, leer, mudBomb, poisonSting, screech, spitUp, stockpile, swallow, wrap

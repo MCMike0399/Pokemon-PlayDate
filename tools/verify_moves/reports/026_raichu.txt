@@ -1,0 +1,6 @@
+#026 RAICHU
+Status: MATCH
+Our moves: 4  |  API moves: 4
+
+All moves match!
+Moves: quickAttack, tailWhip, thunderShock, thunderbolt

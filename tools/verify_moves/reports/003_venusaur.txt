@@ -1,0 +1,6 @@
+#003 VENUSAUR
+Status: MATCH
+Our moves: 15  |  API moves: 18
+
+All moves match!
+Moves: doubleEdge, growl, growth, leechSeed, petalDance, poisonPowder, razorLeaf, sleepPowder, solarBeam, sweetScent, synthesis, tackle, takeDown, vineWhip, worrySeed

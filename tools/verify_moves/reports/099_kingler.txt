@@ -1,0 +1,6 @@
+#099 KINGLER
+Status: MATCH
+Our moves: 16  |  API moves: 18
+
+All moves match!
+Moves: brine, bubble, bubbleBeam, crabhammer, flail, guillotine, harden, leer, metalClaw, mudShot, mudSport, protect, slam, stomp, viceGrip, wideGuard

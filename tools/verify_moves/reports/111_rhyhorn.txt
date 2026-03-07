@@ -1,0 +1,6 @@
+#111 RHYHORN
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: bulldoze, chipAway, drillRun, earthquake, furyAttack, hornAttack, hornDrill, megahorn, rockBlast, scaryFace, stomp, stoneEdge, tailWhip, takeDown

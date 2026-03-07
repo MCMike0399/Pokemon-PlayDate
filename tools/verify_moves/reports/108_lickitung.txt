@@ -1,0 +1,6 @@
+#108 LICKITUNG
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: chipAway, defenseCurl, disable, knockOff, lick, meFirst, powerWhip, refresh, rollout, screech, slam, stomp, supersonic, wrap, wringOut

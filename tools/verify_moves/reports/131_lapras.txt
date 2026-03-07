@@ -1,0 +1,6 @@
+#131 LAPRAS
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: bodySlam, brine, confuseRay, growl, hydroPump, iceBeam, iceShard, mist, perishSong, rainDance, safeguard, sheerCold, sing, waterGun, waterPulse

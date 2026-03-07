@@ -1,0 +1,6 @@
+#096 DROWZEE
+Status: MATCH
+Our moves: 16  |  API moves: 17
+
+All moves match!
+Moves: confusion, disable, futureSight, headbutt, hypnosis, meditate, nastyPlot, poisonGas, pound, psybeam, psychUp, psychic, psyshock, swagger, synchronoise, zenHeadbutt

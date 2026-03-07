@@ -1,0 +1,6 @@
+#117 SEADRA
+Status: MATCH
+Our moves: 12  |  API moves: 15
+
+All moves match!
+Moves: agility, brine, bubble, bubbleBeam, dragonDance, dragonPulse, focusEnergy, hydroPump, leer, smokescreen, twister, waterGun

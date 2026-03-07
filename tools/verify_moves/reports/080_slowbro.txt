@@ -1,0 +1,6 @@
+#080 SLOWBRO
+Status: MATCH
+Our moves: 17  |  API moves: 18
+
+All moves match!
+Moves: amnesia, confusion, curse, disable, growl, headbutt, healPulse, psychUp, psychic, rainDance, slackOff, tackle, waterGun, waterPulse, withdraw, yawn, zenHeadbutt

@@ -1,0 +1,6 @@
+#119 SEAKING
+Status: MATCH
+Our moves: 15  |  API moves: 16
+
+All moves match!
+Moves: agility, aquaRing, flail, furyAttack, hornAttack, hornDrill, megahorn, peck, poisonJab, soak, supersonic, tailWhip, waterPulse, waterSport, waterfall

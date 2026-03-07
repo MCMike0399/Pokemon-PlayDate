@@ -1,0 +1,6 @@
+#078 RAPIDASH
+Status: MATCH
+Our moves: 17  |  API moves: 19
+
+All moves match!
+Moves: agility, bounce, ember, fireBlast, fireSpin, flameCharge, flameWheel, flareBlitz, furyAttack, growl, inferno, megahorn, poisonJab, quickAttack, stomp, tailWhip, takeDown

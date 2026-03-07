@@ -1,0 +1,6 @@
+#081 MAGNEMITE
+Status: MATCH
+Our moves: 16  |  API moves: 16
+
+All moves match!
+Moves: discharge, electroBall, gyroBall, lockOn, magnetBomb, magnetRise, metalSound, mirrorShot, screech, sonicBoom, spark, supersonic, tackle, thunderShock, thunderWave, zapCannon

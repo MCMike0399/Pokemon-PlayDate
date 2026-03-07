@@ -1,0 +1,6 @@
+#065 ALAKAZAM
+Status: MATCH
+Our moves: 15  |  API moves: 16
+
+All moves match!
+Moves: allySwitch, calmMind, confusion, disable, futureSight, kinesis, miracleEye, psybeam, psychic, psychoCut, recover, reflect, telekinesis, teleport, trick

@@ -1,0 +1,6 @@
+#009 BLASTOISE
+Status: MATCH
+Our moves: 15  |  API moves: 18
+
+All moves match!
+Moves: aquaTail, bite, bubble, flashCannon, hydroPump, ironDefense, protect, rainDance, rapidSpin, skullBash, tackle, tailWhip, waterGun, waterPulse, withdraw

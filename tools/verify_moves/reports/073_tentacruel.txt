@@ -1,0 +1,6 @@
+#073 TENTACRUEL
+Status: MATCH
+Our moves: 16  |  API moves: 18
+
+All moves match!
+Moves: acid, acidSpray, barrier, bubbleBeam, constrict, hex, hydroPump, poisonJab, poisonSting, screech, sludgeWave, supersonic, toxicSpikes, waterPulse, wrap, wringOut

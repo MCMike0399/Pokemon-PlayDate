@@ -1,0 +1,6 @@
+#047 PARASECT
+Status: MATCH
+Our moves: 13  |  API moves: 16
+
+All moves match!
+Moves: aromatherapy, crossPoison, furyCutter, gigaDrain, growth, leechLife, poisonPowder, ragePowder, scratch, slash, spore, stunSpore, xScissor

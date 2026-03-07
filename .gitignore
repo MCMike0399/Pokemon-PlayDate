@@ -1,2 +1,4 @@
 *.pdx
 .DS_Store
+__pycache__/
+tools/verify_moves/cache/

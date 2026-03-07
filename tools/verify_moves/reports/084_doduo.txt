@@ -1,0 +1,6 @@
+#084 DODUO
+Status: MATCH
+Our moves: 13  |  API moves: 13
+
+All moves match!
+Moves: acupressure, agility, doubleHit, drillPeck, endeavor, furyAttack, growl, peck, pursuit, quickAttack, rage, thrash, uproar

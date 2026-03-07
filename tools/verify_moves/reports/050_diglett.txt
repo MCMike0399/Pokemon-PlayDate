@@ -1,0 +1,6 @@
+#050 DIGLETT
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: astonish, bulldoze, dig, earthPower, earthquake, fissure, growl, magnitude, mudBomb, mudSlap, sandAttack, scratch, slash, suckerPunch

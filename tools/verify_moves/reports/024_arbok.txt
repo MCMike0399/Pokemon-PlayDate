@@ -1,0 +1,6 @@
+#024 ARBOK
+Status: MATCH
+Our moves: 20  |  API moves: 22
+
+All moves match!
+Moves: acid, acidSpray, bite, coil, crunch, fireFang, gastroAcid, glare, gunkShot, haze, iceFang, leer, mudBomb, poisonSting, screech, spitUp, stockpile, swallow, thunderFang, wrap

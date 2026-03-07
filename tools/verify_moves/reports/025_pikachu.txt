@@ -1,0 +1,6 @@
+#025 PIKACHU
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, discharge, doubleTeam, electroBall, feint, growl, lightScreen, quickAttack, slam, tailWhip, thunder, thunderShock, thunderWave, thunderbolt

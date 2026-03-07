@@ -1,0 +1,6 @@
+#028 SANDSLASH
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: crushClaw, defenseCurl, furyCutter, furySwipes, gyroBall, poisonSting, rapidSpin, rollout, sandAttack, sandTomb, sandstorm, scratch, slash, swift

@@ -1,0 +1,6 @@
+#120 STARYU
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: bubbleBeam, camouflage, cosmicPower, gyroBall, harden, hydroPump, lightScreen, minimize, powerGem, rapidSpin, recover, reflectType, swift, tackle, waterGun

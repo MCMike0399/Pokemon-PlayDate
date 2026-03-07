@@ -1,0 +1,6 @@
+#076 GOLEM
+Status: MATCH
+Our moves: 17  |  API moves: 19
+
+All moves match!
+Moves: bulldoze, defenseCurl, doubleEdge, earthquake, explosion, heavySlam, magnitude, mudSport, rockBlast, rockPolish, rockThrow, selfDestruct, smackDown, stealthRock, steamroller, stoneEdge, tackle

@@ -1,0 +1,6 @@
+#130 GYARADOS
+Status: MATCH
+Our moves: 11  |  API moves: 11
+
+All moves match!
+Moves: aquaTail, bite, dragonDance, dragonRage, hydroPump, hyperBeam, iceFang, leer, rainDance, thrash, twister

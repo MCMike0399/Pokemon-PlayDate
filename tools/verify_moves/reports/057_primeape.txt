@@ -1,0 +1,6 @@
+#057 PRIMEAPE
+Status: MATCH
+Our moves: 17  |  API moves: 17
+
+All moves match!
+Moves: assurance, closeCombat, crossChop, finalGambit, fling, focusEnergy, furySwipes, karateChop, leer, lowKick, punishment, rage, scratch, screech, seismicToss, swagger, thrash

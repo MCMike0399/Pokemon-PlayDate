@@ -1,0 +1,6 @@
+#129 MAGIKARP
+Status: MATCH
+Our moves: 3  |  API moves: 3
+
+All moves match!
+Moves: flail, splash, tackle

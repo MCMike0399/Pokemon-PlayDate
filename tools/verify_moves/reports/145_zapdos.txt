@@ -1,0 +1,6 @@
+#145 ZAPDOS
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, ancientPower, charge, detect, discharge, drillPeck, lightScreen, peck, pluck, rainDance, roost, thunder, thunderShock, thunderWave

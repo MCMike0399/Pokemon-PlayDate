@@ -1,0 +1,6 @@
+#021 SPEAROW
+Status: MATCH
+Our moves: 11  |  API moves: 11
+
+All moves match!
+Moves: aerialAce, agility, assurance, drillPeck, furyAttack, growl, leer, mirrorMove, peck, pursuit, roost

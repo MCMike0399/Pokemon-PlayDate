@@ -1,0 +1,6 @@
+#042 GOLBAT
+Status: MATCH
+Our moves: 13  |  API moves: 15
+
+All moves match!
+Moves: acrobatics, airCutter, airSlash, astonish, bite, confuseRay, haze, leechLife, meanLook, poisonFang, screech, supersonic, wingAttack

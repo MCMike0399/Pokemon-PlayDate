@@ -1,0 +1,6 @@
+#118 GOLDEEN
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, aquaRing, flail, furyAttack, hornAttack, hornDrill, megahorn, peck, soak, supersonic, tailWhip, waterPulse, waterSport, waterfall

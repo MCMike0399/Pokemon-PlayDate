@@ -1,0 +1,6 @@
+#043 ODDISH
+Status: MATCH
+Our moves: 12  |  API moves: 12
+
+All moves match!
+Moves: absorb, acid, gigaDrain, luckyChant, megaDrain, moonlight, naturalGift, petalDance, poisonPowder, sleepPowder, stunSpore, sweetScent

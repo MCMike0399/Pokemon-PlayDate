@@ -1,0 +1,6 @@
+#052 MEOWTH
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: assurance, bite, captivate, fakeOut, feint, feintAttack, furySwipes, growl, nastyPlot, nightSlash, payDay, scratch, screech, slash, taunt

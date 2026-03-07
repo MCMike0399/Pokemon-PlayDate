@@ -1,0 +1,6 @@
+#082 MAGNETON
+Status: MATCH
+Our moves: 17  |  API moves: 19
+
+All moves match!
+Moves: discharge, electroBall, gyroBall, lockOn, magnetBomb, magnetRise, metalSound, mirrorShot, screech, sonicBoom, spark, supersonic, tackle, thunderShock, thunderWave, triAttack, zapCannon

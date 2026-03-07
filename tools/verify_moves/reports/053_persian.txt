@@ -1,0 +1,6 @@
+#053 PERSIAN
+Status: MATCH
+Our moves: 16  |  API moves: 18
+
+All moves match!
+Moves: assurance, bite, captivate, fakeOut, feint, feintAttack, furySwipes, growl, nastyPlot, nightSlash, powerGem, scratch, screech, slash, switcheroo, taunt

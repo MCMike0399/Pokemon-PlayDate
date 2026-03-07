@@ -1,0 +1,6 @@
+#146 MOLTRES
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, airSlash, ancientPower, ember, endure, fireSpin, flamethrower, heatWave, roost, safeguard, skyAttack, solarBeam, sunnyDay, wingAttack

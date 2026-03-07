@@ -1,0 +1,6 @@
+#064 KADABRA
+Status: MATCH
+Our moves: 15  |  API moves: 16
+
+All moves match!
+Moves: allySwitch, confusion, disable, futureSight, kinesis, miracleEye, psybeam, psychic, psychoCut, recover, reflect, rolePlay, telekinesis, teleport, trick

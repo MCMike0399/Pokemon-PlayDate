@@ -1,0 +1,6 @@
+#074 GEODUDE
+Status: MATCH
+Our moves: 16  |  API moves: 16
+
+All moves match!
+Moves: bulldoze, defenseCurl, doubleEdge, earthquake, explosion, magnitude, mudSport, rockBlast, rockPolish, rockThrow, rollout, selfDestruct, smackDown, stealthRock, stoneEdge, tackle

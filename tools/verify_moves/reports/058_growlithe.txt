@@ -1,0 +1,6 @@
+#058 GROWLITHE
+Status: MATCH
+Our moves: 17  |  API moves: 17
+
+All moves match!
+Moves: agility, bite, crunch, ember, fireFang, flameBurst, flameWheel, flamethrower, flareBlitz, heatWave, helpingHand, leer, odorSleuth, retaliate, reversal, roar, takeDown

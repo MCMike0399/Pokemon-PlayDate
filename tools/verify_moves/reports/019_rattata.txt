@@ -1,0 +1,6 @@
+#019 RATTATA
+Status: MATCH
+Our moves: 13  |  API moves: 13
+
+All moves match!
+Moves: assurance, bite, crunch, doubleEdge, endeavor, focusEnergy, hyperFang, pursuit, quickAttack, suckerPunch, superFang, tackle, tailWhip

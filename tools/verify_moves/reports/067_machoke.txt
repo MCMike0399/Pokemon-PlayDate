@@ -1,0 +1,6 @@
+#067 MACHOKE
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: crossChop, dynamicPunch, focusEnergy, foresight, karateChop, leer, lowKick, lowSweep, revenge, scaryFace, seismicToss, submission, vitalThrow, wakeUpSlap

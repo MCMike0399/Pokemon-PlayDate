@@ -1,0 +1,6 @@
+#135 JOLTEON
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, discharge, doubleKick, helpingHand, lastResort, pinMissile, quickAttack, sandAttack, tackle, tailWhip, thunder, thunderFang, thunderShock, thunderWave

@@ -1,0 +1,6 @@
+#017 PIDGEOTTO
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: agility, airSlash, featherDance, gust, hurricane, mirrorMove, quickAttack, roost, sandAttack, tackle, tailwind, twister, whirlwind, wingAttack

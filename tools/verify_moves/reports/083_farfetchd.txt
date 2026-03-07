@@ -1,0 +1,6 @@
+#083 FARFETCHD
+Status: MATCH
+Our moves: 18  |  API moves: 18
+
+All moves match!
+Moves: acrobatics, aerialAce, agility, airCutter, airSlash, braveBird, falseSwipe, feint, furyAttack, furyCutter, knockOff, leer, nightSlash, peck, poisonJab, sandAttack, slash, swordsDance

@@ -1,0 +1,6 @@
+#012 BUTTERFREE
+Status: MATCH
+Our moves: 15  |  API moves: 16
+
+All moves match!
+Moves: bugBuzz, captivate, confusion, gust, poisonPowder, psybeam, quiverDance, ragePowder, safeguard, silverWind, sleepPowder, stunSpore, supersonic, tailwind, whirlwind

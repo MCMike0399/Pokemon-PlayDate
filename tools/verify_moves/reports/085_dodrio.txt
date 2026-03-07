@@ -1,0 +1,6 @@
+#085 DODRIO
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: acupressure, agility, drillPeck, endeavor, furyAttack, growl, peck, pluck, pursuit, quickAttack, rage, thrash, triAttack, uproar

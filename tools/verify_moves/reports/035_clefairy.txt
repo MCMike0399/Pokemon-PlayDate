@@ -1,0 +1,6 @@
+#035 CLEFAIRY
+Status: MATCH
+Our moves: 20  |  API moves: 20
+
+All moves match!
+Moves: afterYou, bestow, cosmicPower, defenseCurl, doubleSlap, encore, followMe, gravity, growl, healingWish, lightScreen, luckyChant, meteorMash, metronome, minimize, moonlight, pound, sing, storedPower, wakeUpSlap

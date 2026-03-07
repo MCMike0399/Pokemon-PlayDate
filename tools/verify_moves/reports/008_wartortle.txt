@@ -1,0 +1,6 @@
+#008 WARTORTLE
+Status: MATCH
+Our moves: 14  |  API moves: 16
+
+All moves match!
+Moves: aquaTail, bite, bubble, hydroPump, ironDefense, protect, rainDance, rapidSpin, skullBash, tackle, tailWhip, waterGun, waterPulse, withdraw

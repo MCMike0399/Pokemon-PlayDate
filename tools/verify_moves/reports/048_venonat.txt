@@ -1,0 +1,6 @@
+#048 VENONAT
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: confusion, disable, foresight, leechLife, poisonFang, poisonPowder, psybeam, psychic, signalBeam, sleepPowder, stunSpore, supersonic, tackle, zenHeadbutt

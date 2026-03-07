@@ -1,0 +1,6 @@
+#105 MAROWAK
+Status: MATCH
+Our moves: 15  |  API moves: 18
+
+All moves match!
+Moves: boneClub, boneRush, bonemerang, doubleEdge, endeavor, falseSwipe, fling, focusEnergy, growl, headbutt, leer, rage, retaliate, tailWhip, thrash

@@ -1,0 +1,6 @@
+#070 WEEPINBELL
+Status: MATCH
+Our moves: 13  |  API moves: 15
+
+All moves match!
+Moves: acid, gastroAcid, growth, knockOff, poisonPowder, razorLeaf, slam, sleepPowder, stunSpore, sweetScent, vineWhip, wrap, wringOut

@@ -1,0 +1,6 @@
+#136 FLAREON
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: bite, ember, fireBlast, fireFang, fireSpin, helpingHand, lastResort, lavaPlume, quickAttack, sandAttack, scaryFace, smog, tackle, tailWhip

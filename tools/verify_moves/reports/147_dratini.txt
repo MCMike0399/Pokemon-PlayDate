@@ -1,0 +1,6 @@
+#147 DRATINI
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: agility, aquaTail, dragonDance, dragonRage, dragonRush, dragonTail, hyperBeam, leer, outrage, safeguard, slam, thunderWave, twister, wrap

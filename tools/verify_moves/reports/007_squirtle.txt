@@ -1,0 +1,6 @@
+#007 SQUIRTLE
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: aquaTail, bite, bubble, hydroPump, ironDefense, protect, rainDance, rapidSpin, skullBash, tackle, tailWhip, waterGun, waterPulse, withdraw

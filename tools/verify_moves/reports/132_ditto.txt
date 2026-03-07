@@ -1,0 +1,6 @@
+#132 DITTO
+Status: MATCH
+Our moves: 1  |  API moves: 1
+
+All moves match!
+Moves: transform

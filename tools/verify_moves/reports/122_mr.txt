@@ -1,0 +1,6 @@
+#122 MR
+Status: MATCH
+Our moves: 22  |  API moves: 22
+
+All moves match!
+Moves: barrier, batonPass, confusion, copycat, doubleSlap, encore, guardSwap, lightScreen, magicalLeaf, meditate, mimic, powerSwap, psybeam, psychic, quickGuard, recycle, reflect, rolePlay, safeguard, substitute, trick, wideGuard

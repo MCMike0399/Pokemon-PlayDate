@@ -1,0 +1,6 @@
+#066 MACHOP
+Status: MATCH
+Our moves: 14  |  API moves: 14
+
+All moves match!
+Moves: crossChop, dynamicPunch, focusEnergy, foresight, karateChop, leer, lowKick, lowSweep, revenge, scaryFace, seismicToss, submission, vitalThrow, wakeUpSlap

@@ -1,0 +1,6 @@
+#051 DUGTRIO
+Status: MATCH
+Our moves: 17  |  API moves: 18
+
+All moves match!
+Moves: astonish, bulldoze, dig, earthPower, earthquake, fissure, growl, magnitude, mudBomb, mudSlap, nightSlash, sandAttack, sandTomb, scratch, slash, suckerPunch, triAttack

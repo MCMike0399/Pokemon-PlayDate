@@ -1,0 +1,6 @@
+#097 HYPNO
+Status: MATCH
+Our moves: 18  |  API moves: 21
+
+All moves match!
+Moves: confusion, disable, futureSight, headbutt, hypnosis, meditate, nastyPlot, nightmare, poisonGas, pound, psybeam, psychUp, psychic, psyshock, swagger, switcheroo, synchronoise, zenHeadbutt

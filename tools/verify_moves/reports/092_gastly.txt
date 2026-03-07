@@ -1,0 +1,6 @@
+#092 GASTLY
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: confuseRay, curse, darkPulse, destinyBond, dreamEater, hex, hypnosis, lick, meanLook, nightShade, nightmare, payback, shadowBall, spite, suckerPunch

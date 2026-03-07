@@ -1,0 +1,6 @@
+#040 WIGGLYTUFF
+Status: MATCH
+Our moves: 4  |  API moves: 4
+
+All moves match!
+Moves: defenseCurl, disable, doubleSlap, sing

@@ -1,0 +1,6 @@
+#071 VICTREEBEL
+Status: MATCH
+Our moves: 10  |  API moves: 10
+
+All moves match!
+Moves: leafBlade, leafStorm, leafTornado, razorLeaf, sleepPowder, spitUp, stockpile, swallow, sweetScent, vineWhip

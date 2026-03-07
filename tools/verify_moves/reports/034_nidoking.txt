@@ -1,0 +1,6 @@
+#034 NIDOKING
+Status: MATCH
+Our moves: 8  |  API moves: 8
+
+All moves match!
+Moves: chipAway, doubleKick, earthPower, focusEnergy, megahorn, peck, poisonSting, thrash

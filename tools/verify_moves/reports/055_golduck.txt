@@ -1,0 +1,6 @@
+#055 GOLDUCK
+Status: MATCH
+Our moves: 16  |  API moves: 18
+
+All moves match!
+Moves: amnesia, aquaJet, confusion, disable, furySwipes, hydroPump, psychUp, scratch, screech, soak, tailWhip, waterGun, waterPulse, waterSport, wonderRoom, zenHeadbutt

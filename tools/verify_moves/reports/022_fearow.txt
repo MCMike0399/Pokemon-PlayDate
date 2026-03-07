@@ -1,0 +1,6 @@
+#022 FEAROW
+Status: MATCH
+Our moves: 13  |  API moves: 15
+
+All moves match!
+Moves: aerialAce, agility, assurance, drillPeck, drillRun, furyAttack, growl, leer, mirrorMove, peck, pluck, pursuit, roost

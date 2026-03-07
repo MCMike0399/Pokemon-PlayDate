@@ -1,0 +1,6 @@
+#062 POLIWRATH
+Status: MATCH
+Our moves: 7  |  API moves: 7
+
+All moves match!
+Moves: bubbleBeam, circleThrow, doubleSlap, dynamicPunch, hypnosis, mindReader, submission

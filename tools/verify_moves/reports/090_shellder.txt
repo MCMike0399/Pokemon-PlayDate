@@ -1,0 +1,6 @@
+#090 SHELLDER
+Status: MATCH
+Our moves: 16  |  API moves: 16
+
+All moves match!
+Moves: auroraBeam, brine, clamp, hydroPump, iceBeam, iceShard, icicleSpear, ironDefense, leer, protect, razorShell, shellSmash, supersonic, tackle, whirlpool, withdraw

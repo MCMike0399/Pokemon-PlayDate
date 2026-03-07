@@ -1,0 +1,6 @@
+#036 CLEFABLE
+Status: MATCH
+Our moves: 4  |  API moves: 4
+
+All moves match!
+Moves: doubleSlap, metronome, minimize, sing

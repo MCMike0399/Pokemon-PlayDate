@@ -1,0 +1,6 @@
+#059 ARCANINE
+Status: MATCH
+Our moves: 6  |  API moves: 6
+
+All moves match!
+Moves: bite, extremeSpeed, fireFang, odorSleuth, roar, thunderFang

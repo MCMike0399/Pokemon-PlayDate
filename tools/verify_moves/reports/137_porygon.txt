@@ -1,0 +1,6 @@
+#137 PORYGON
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: agility, conversion, conversion2, discharge, lockOn, magicCoat, magnetRise, psybeam, recover, recycle, sharpen, signalBeam, tackle, triAttack, zapCannon

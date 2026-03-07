@@ -1,0 +1,6 @@
+#098 KRABBY
+Status: MATCH
+Our moves: 15  |  API moves: 15
+
+All moves match!
+Moves: brine, bubble, bubbleBeam, crabhammer, flail, guillotine, harden, leer, metalClaw, mudShot, mudSport, protect, slam, stomp, viceGrip

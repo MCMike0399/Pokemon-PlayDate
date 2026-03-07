@@ -1,0 +1,6 @@
+#124 JYNX
+Status: MATCH
+Our moves: 15  |  API moves: 18
+
+All moves match!
+Moves: avalanche, blizzard, bodySlam, doubleSlap, fakeTears, heartStamp, icePunch, lick, lovelyKiss, meanLook, perishSong, pound, powderSnow, wakeUpSlap, wringOut

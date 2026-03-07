@@ -1,0 +1,6 @@
+#041 ZUBAT
+Status: MATCH
+Our moves: 12  |  API moves: 12
+
+All moves match!
+Moves: acrobatics, airCutter, airSlash, astonish, bite, confuseRay, haze, leechLife, meanLook, poisonFang, supersonic, wingAttack

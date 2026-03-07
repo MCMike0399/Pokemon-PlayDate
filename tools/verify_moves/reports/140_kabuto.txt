@@ -1,0 +1,6 @@
+#140 KABUTO
+Status: MATCH
+Our moves: 12  |  API moves: 12
+
+All moves match!
+Moves: absorb, ancientPower, aquaJet, endure, harden, leer, megaDrain, metalSound, mudShot, sandAttack, scratch, wringOut

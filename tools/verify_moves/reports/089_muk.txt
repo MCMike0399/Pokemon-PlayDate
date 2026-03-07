@@ -1,0 +1,6 @@
+#089 MUK
+Status: MATCH
+Our moves: 15  |  API moves: 17
+
+All moves match!
+Moves: acidArmor, disable, fling, gunkShot, harden, memento, minimize, mudBomb, mudSlap, poisonGas, pound, screech, sludge, sludgeBomb, sludgeWave

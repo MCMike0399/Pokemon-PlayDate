@@ -1,0 +1,6 @@
+#049 VENOMOTH
+Status: MATCH
+Our moves: 18  |  API moves: 19
+
+All moves match!
+Moves: bugBuzz, confusion, disable, foresight, gust, leechLife, poisonFang, poisonPowder, psybeam, psychic, quiverDance, signalBeam, silverWind, sleepPowder, stunSpore, supersonic, tackle, zenHeadbutt

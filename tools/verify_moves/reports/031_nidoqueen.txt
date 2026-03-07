@@ -1,0 +1,6 @@
+#031 NIDOQUEEN
+Status: MATCH
+Our moves: 8  |  API moves: 8
+
+All moves match!
+Moves: bodySlam, chipAway, doubleKick, earthPower, poisonSting, scratch, superpower, tailWhip

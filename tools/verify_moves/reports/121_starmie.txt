@@ -1,0 +1,6 @@
+#121 STARMIE
+Status: MATCH
+Our moves: 5  |  API moves: 5
+
+All moves match!
+Moves: confuseRay, rapidSpin, recover, swift, waterGun

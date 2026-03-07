@@ -1,0 +1,6 @@
+#015 BEEDRILL
+Status: MATCH
+Our moves: 11  |  API moves: 12
+
+All moves match!
+Moves: agility, assurance, endeavor, focusEnergy, furyAttack, pinMissile, poisonJab, pursuit, rage, toxicSpikes, twineedle
