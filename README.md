@@ -34,12 +34,13 @@ Source/
     pokemon.lua            -- 156 species (Gen I-V), stats, types, movesets
     moves.lua              -- Move definitions with composable effects
     typechart.lua          -- 15-type effectiveness matrix
-    maps.lua               -- Tile data, collision, encounter zones
+    maps.lua               -- Zone definitions (declarative tile codes)
   battle/
     battle.lua             -- Turn resolution, damage calc, status effects
     battleScene.lua        -- Battle UI rendering and input
     moves.lua              -- Move data and effect classes
   world/
+    zone.lua               -- Zone class (declarative map definitions, auto-collision)
     overworld.lua          -- Tilemap setup and rendering
     player.lua             -- Grid movement with smooth interpolation
     camera.lua             -- Lerp follow + snap mode
@@ -109,7 +110,8 @@ NPCs have dialogue lines and optional battle data. After defeating a trainer NPC
 - 151 Pokemon with 1-bit front/back sprites
 - 156 Pokedex entries (Gen I-V) with stats, types, movesets
 - XP gain and leveling
-- Debug menu: spawn any battle, heal, warp, toggle FPS/grid overlay
+- Zone system with debug teleportation between maps
+- Debug menu: spawn any battle, heal, warp, zone select, toggle FPS/grid overlay
 - Crank scrolls the Pokedex
 
 ## What's next
@@ -126,57 +128,38 @@ NPCs have dialogue lines and optional battle data. After defeating a trainer NPC
 
 ## Development Log
 
-### Day 1 — Friday, March 6, 2026
+### Day 1 — Mar 6, 2026
 
-**8:14 AM** — First commit. The full game skeleton lands in one shot: tile-based overworld with grid movement and collision, turn-based battle system with menu flow, NPC manager with dialogue triggers, dialog UI, camera with smooth follow, player with 4-direction walk animation, and a state machine tying it all together. Two starter Pokemon (Charmander, Squirtle) with front/back sprites. Seven tile types drawn. Map data with collision layer defined in code. 37 files, 1,153 lines. The game boots, you can walk around Pallet Town, talk to Oak, and fight the rival.
+Built the entire game skeleton in one session (8:14 AM – 4:47 PM, 7 commits).
 
-**9:25 AM** — Architecture refactor. Built a custom OOP library (`lib/oop.lua`, 330 lines) with `Class()`, `Mixin()`, `Signal` (observer pattern), and `Pool` (object recycling for GC management). Refactored battle, state machine, camera, NPC, player, dialog, and menu modules to use the new patterns. Pokemon data model expanded with proper stat structure (HP, ATK, DEF, SPC, SPD). Battle scene UI improved. 11 files changed, 492 insertions, 115 deletions.
+**Core systems:** Tile-based overworld (grid movement, collision, camera with lerp follow), turn-based battle engine (Gen I damage formula, STAB, 15-type chart, crits, accuracy, run formula), state machine (overworld/battle/dialog/debug), NPC manager with dialogue and trainer battles, iris-out battle transition.
 
-**9:26 AM – 1:21 PM** — ~4 hour gap. No commits.
+**Battle depth:** Composable move effects (`StatChange`, `StatusEffect`, `ConditionalEffect`), PP system, status conditions (poison/burn/paralysis/sleep/freeze with per-turn processing), screen shake on crits. Type effectiveness shown on move select before confirming (intentional design departure from the original).
 
-**1:21 PM** — Battle system overhaul. Implemented the full Gen I damage formula with level scaling, STAB (1.5x same-type bonus), type effectiveness from a complete 15-type chart (`data/typechart.lua`), critical hits (1/16 chance, 2x multiplier), and accuracy rolls. Built a composable move effect system — three effect classes (`StatChange`, `StatusEffect`, `ConditionalEffect`) that attach to moves and stack. Screen shake on critical hits via `playdate.display.setOffset()`. Gen I run formula with escalating escape chance per attempt; failed run gives the enemy a free turn. Added the Special stat, dual types, and status condition fields to the Pokemon data model. New moves: Ember, Bubble, Leer. Fixed player sprite having left/right walk images swapped. 7 files, +364 / -81 lines.
+**Content:** 156 Pokedex entries (Gen I–V) with stats/types/movesets, 151 Pokemon with 1-bit front/back sprites (lazy-loaded from disk), debug menu (spawn battles, heal, warp, FPS/grid overlays).
 
-Design decision: type effectiveness icons now display on the move select screen BEFORE confirming. The original Game Boy version only told you after the attack landed.
-
-**2:17 PM** — Major content expansion. Pokedex grows from 4 species to 156 (Gen I through Gen V), each with base stats, types, and level-up movesets. Move library expanded with power, accuracy, PP, type, category (physical/special), and effect definitions. Pokemon sprites now lazy-load from disk via `gfx.image.new("path")` at battle start — necessary because 151+ species can't all sit in memory on Playdate's 16MB RAM. Battle scene refactored: split into dedicated draw methods, 2-column move menu showing name + PP + type + effectiveness icon, bold font for names. Type chart completed to cover all 15 Gen I types. Added a debug menu (`ui/debug.lua`, 441 lines) accessible from the system menu — spawn any Pokemon battle, heal party, warp, toggle FPS/grid overlays. Crank scrolls the Pokedex list using `getCrankTicks()`. Player walk sprite handling improved. 10 files, +1,870 / -112 lines.
-
-**2:33 PM** — PP system wired in — moves now cost PP on use and can run out. Status effect engine integrated into battle flow: poison and burn deal 1/8 max HP at end of turn, paralysis halves speed and has 25% chance to skip the turn entirely, sleep blocks action for 1-3 turns, freeze blocks with 20% thaw chance per turn. Pokemon objects get `usePP()`, `restorePP()`, and `fullHeal()` methods. `accuracy=0` now bypasses the accuracy check (always hits, for moves like Swift). Camera gets a snap mode for instant positioning on map load instead of lerping from (0,0). Overworld map transitions improved with proper spawn point handling. Debug menu gets heal and NPC reset actions. 10 files, +507 / -73 lines. Committed 16 minutes after the previous one.
-
-**3:06 PM** — Art drop. Front and back sprites for all 151 Gen I Pokemon added as 1-bit PNGs sized for the Playdate display. 302 image files (Charmander and Squirtle sprites also redrawn to match the new style). Added a tall grass tile (`tallgrass.png`) and tile type ID 8 so wild encounters only trigger on designated grass tiles instead of any ground tile. Camera offset now properly resets when exiting battle (was leaving the screen shifted after a critical hit shake). 303 files changed.
-
-**4:40 PM** — Final code commit. Tall grass tile type wired into the encounter check in `main.lua` — looks up the tile ID at the player's position and only rolls for encounters on ID 8. Map data updated with tall grass tiles placed in the world. Battle exit resets `playdate.display.setOffset(0, 0)`. Player now tracks `stepJustFinished` flag so encounters trigger at the right moment (after interpolation completes, not during). 4 files, +16 / -10 lines.
-
-**4:47 PM** — Day 1 wrapped.
+**Design decision:** Type effectiveness preview on the move select screen. The original GB version only told you after the attack landed.
 
 | Metric | Value |
 |---|---|
-| First commit | 8:14 AM |
-| Last commit | 4:40 PM |
-| Active coding time | ~8.5 hours |
 | Commits | 7 |
 | Lines of Lua | ~4,000 |
-| Sprites | 302 (151 front + 151 back) + 10 overworld + 7 tiles |
-| Pokedex entries | 156 species (Gen I–V) |
-| Files in project | 319 |
-| Bugs fixed mid-session | 3 (sprite L/R swap, camera offset leak, encounter trigger zone) |
+| Sprites | 302 Pokemon + 10 overworld + 7 tiles |
+| Pokedex | 156 species (Gen I–V) |
+| Bugs fixed | 3 (sprite L/R swap, camera offset leak, encounter trigger timing) |
 
-### Day 2 — Friday, March 6, 2026
+### Day 2 — Mar 6, 2026
 
-**Side-facing walk animation overhaul.** The left/right player walk animation looked cursed — the original walk sprite had its lower body shifted 2px left, causing legs to hit column 0 of the sprite. There was also only 1 walk frame per direction (stand + walk toggle), not the 2-frame cycle from Pokemon Red/Blue.
+**Walk animation overhaul.** Side-facing sprites were broken — the "standing" frame was actually the GB walking frame, and the "walk" frame was a 2px-shifted copy. Compared against the [pokered decompilation](https://github.com/pret/pokered) to get the correct frames. Built a Python/Pillow sprite generator (`tools/generate_side_sprites.py`). Right-facing sprites now generated at runtime by flipping left. Walk cycle split into walk1/walk2 tables with proper "legs apart → legs together" beat. Fixed duplicate `nidoran` keys in Pokedex.
 
-**Discovery:** Downloaded the actual Pokemon Red/Blue sprite data from the [pokered decompilation](https://github.com/pret/pokered) and compared against the game's existing sprites. Found that:
-- The game's "standing" left sprite was actually the GB *walking* frame (Frame 5)
-- The game's "walking" left sprite was a broken 2px-left-shifted version of the same frame
-- The real GB standing frame (Frame 2) has a completely different, compact body with legs together
-- The original Game Boy only had ONE side walk frame — standing and walking were entirely different drawings
-- 1-bit conversion rule: only pure black GB pixels become black on Playdate (dark gray, light gray, white all become transparent)
+### Day 3 — Mar 6, 2026
 
-**Changes:**
-- **`tools/generate_side_sprites.py`** — New Python/Pillow script that generates left-facing sprites from pixel grid arrays. Outputs RGBA PNGs with transparent backgrounds (no white box artifacts). Standing sprite uses GB Frame 2 (compact body, legs together), walk sprites use GB Frame 5 (stride pose, feet apart).
-- **`Source/world/player.lua`** — Three changes:
-  1. Added `loadScaledFlipped()` helper that scales 2x and flips horizontally with `gfx.kColorClear` background. Right-facing sprites are now generated at runtime by flipping left-facing ones (deleted `player-right.png` and `player-right-walk.png`).
-  2. Split `playerWalkImages` into `playerWalk1Images` and `playerWalk2Images` tables. For left/right these load distinct walk1/walk2 PNGs. For up/down both point to the existing single walk sprite (no regression).
-  3. Walk animation shows stride frame for 6 of 8 movement frames, then standing for the last 2 — creates a clear "legs apart → legs together" beat between steps instead of continuous cycling.
-- **Deleted:** `player-right.png`, `player-right-walk.png`, `player-left-walk.png` (replaced by walk1/walk2)
-- **Created:** `player-left-walk1.png`, `player-left-walk2.png` (both identical for now — Gen I only had one side walk frame)
-- **Fixed:** Duplicate `nidoran` keys in `pokemonData` table renamed to `nidoranF` / `nidoranM`
+**Zone system and Pallet Town.** Built a declarative zone architecture inspired by Dart/Flutter's widget syntax.
+
+**Zone class (`world/zone.lua`)** — Each zone is a self-contained `Zone({...})` object defining everything in one place: tile map (readable 2-char string codes like `"Tr Pa Wa ."`), NPCs, encounters, warps, and spawn point. Collision is auto-generated from tile types — no more maintaining parallel number arrays. `registerZone()` / `switchZone()` API for the zone registry.
+
+**Pallet Town (20x18)** — Faithful Gen I recreation: Red's house and Blue's house with brick walls and dithered roofs, Oak's Laboratory with windowed lab walls, path network wrapping around the lab, tall grass encounter zones at the Route 1 transition, shore/water for Route 21, fences, signs, mailboxes, flower beds.
+
+**New tiles (9–14):** Roof (50% checkerboard dither), Sign, Flowers, Shore, Lab Wall (brick + window), Mailbox. All 14 tiles drawn in 1-bit Game Boy style — researched actual GB palette mapping (4 shades → 1-bit via dithering density). Multiple iterations to get the right balance: v1-v2 had too much detail (noisy grass, heavy patterns), v3 stripped too much (walls looked like lined paper), v4 found the sweet spot.
+
+**Debug menu** gains "Zones" submenu to teleport between zones. Warp presets now read directly from zone data. OOP lib gets flattened method lookup for O(1) dispatch.
