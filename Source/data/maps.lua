@@ -5,12 +5,13 @@
 --   .  = Grass    Pa = Path     Wa = Wall     Wt = Water
 --   Tr = Tree     Dr = Door     Fn = Fence    TG = Tall Grass
 --   Rf = Roof     Sg = Sign     Fl = Flowers  Sh = Shore
---   LW = Lab Wall Mb = Mailbox
+--   LW = Lab Wall Mb = Mailbox  RL = Roof Left RR = Roof Right
+--   WW = Wall Window
 --
 -- Collision is auto-generated from tile types (no manual arrays!)
 
 TILE_SIZE = 32
-NUM_TILE_TYPES = 14
+NUM_TILE_TYPES = 17
 
 -- ============================================================
 -- PALLET TOWN (faithful Gen I recreation, 20x18)
@@ -24,14 +25,14 @@ registerZone("pallet_town", Zone({
         "Tr Tr Tr Tr Tr Tr Tr Tr Tr Pa Pa Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 0  north border + Route 1 gap
         "Tr TG TG TG .  .  .  .  .  Pa Pa .  .  .  .  .  TG TG TG Tr", -- 1  tall grass
         "Tr TG TG TG .  Fl .  .  .  Pa Pa .  .  .  Fl .  TG TG TG Tr", -- 2  tall grass + flowers
-        "Tr .  .  Rf Rf Rf Rf .  .  .  .  .  Rf Rf Rf Rf .  .  .  Tr", -- 3  house roofs
-        "Tr .  .  Wa Wa Wa Wa .  .  .  .  .  Wa Wa Wa Wa .  .  .  Tr", -- 4  house walls
+        "Tr .  .  RL Rf Rf RR .  .  .  .  .  RL Rf Rf RR .  .  .  Tr", -- 3  peaked house roofs
+        "Tr .  .  Wa WW WW Wa .  .  .  .  .  Wa WW WW Wa .  .  .  Tr", -- 4  house walls + windows
         "Tr .  Mb Wa Wa Dr Wa .  .  .  .  .  Wa Dr Wa Wa Mb .  .  Tr", -- 5  doors + mailboxes
         "Tr .  .  .  .  Pa .  .  .  .  .  .  .  Pa .  .  .  .  .  Tr", -- 6  paths from doors
         "Tr .  Sg .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  Sg .  Tr", -- 7  main east-west path
         "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 8  path wraps around lab
-        "Tr .  .  .  .  .  Pa Rf Rf Rf Rf Rf Rf Rf Pa .  .  .  .  Tr", -- 9  lab roof + side paths
-        "Tr .  .  .  .  .  Pa LW LW LW LW LW LW LW Pa .  .  .  .  Tr", -- 10 lab walls + side paths
+        "Tr .  .  .  .  .  Pa RL Rf Rf Rf Rf Rf RR Pa .  .  .  .  Tr", -- 9  peaked lab roof
+        "Tr .  .  .  .  .  Pa LW WW LW LW LW WW LW Pa .  .  .  .  Tr", -- 10 lab walls + windows
         "Tr .  .  .  .  .  Pa LW LW LW Dr LW LW LW Pa .  .  .  .  Tr", -- 11 lab door + side paths
         "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 12 path around lab
         "Tr .  .  Fn Fn Fn .  .  .  .  .  .  .  .  Fn Fn Fn .  .  Tr", -- 13 fences
@@ -86,8 +87,8 @@ registerZone("test_zone", Zone({
     tileRows = {
         "Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr",
         "Tr .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  Tr",
-        "Tr .  Wa Wa Wa .  .  .  .  .  .  .  .  Wa Wa Wa .  .  .  Tr",
-        "Tr .  Wa Wa Wa .  .  .  .  .  .  .  .  Wa Wa Wa .  .  .  Tr",
+        "Tr .  RL Rf RR .  .  .  .  .  .  .  .  RL Rf RR .  .  .  Tr",
+        "Tr .  Wa WW Wa .  .  .  .  .  .  .  .  Wa WW Wa .  .  .  Tr",
         "Tr .  Wa Dr Wa .  .  .  .  .  .  .  .  Wa Dr Wa .  .  .  Tr",
         "Tr .  .  Pa .  .  .  .  .  .  .  .  .  .  Pa .  .  .  .  Tr",
         "Tr .  .  Pa .  .  .  .  .  .  .  .  .  .  Pa .  .  .  .  Tr",

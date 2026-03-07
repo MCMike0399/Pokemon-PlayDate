@@ -41,6 +41,9 @@ local CODES = {
     Sh = 12,      -- Shore
     LW = 13,      -- Lab Wall
     Mb = 14,      -- Mailbox
+    RL = 15,      -- Roof Left (peaked edge)
+    RR = 16,      -- Roof Right (peaked edge)
+    WW = 17,      -- Wall Window
 }
 
 -- Auto-collision: true = solid, false = walkable
@@ -59,6 +62,9 @@ local SOLID = {
     [12] = false, -- Shore
     [13] = true,  -- Lab Wall
     [14] = true,  -- Mailbox
+    [15] = true,  -- Roof Left
+    [16] = true,  -- Roof Right
+    [17] = true,  -- Wall Window
 }
 
 local TALL_GRASS_ID <const> = 8

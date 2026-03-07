@@ -29,6 +29,7 @@ Source/
   main.lua                 -- Game loop, state registration, encounter logic
   lib/
     oop.lua                -- Class/Mixin/Signal/Pool system (330 lines)
+    shade.lua              -- 4-shade dithering system (Game Boy palette simulation)
     statemachine.lua       -- State machine with enter/exit/update/draw
   data/
     pokemon.lua            -- 156 species (Gen I-V), stats, types, movesets
@@ -41,6 +42,7 @@ Source/
     moves.lua              -- Move data and effect classes
   world/
     zone.lua               -- Zone class (declarative map definitions, auto-collision)
+    tilefactory.lua        -- Runtime tile generation using Shade system
     overworld.lua          -- Tilemap setup and rendering
     player.lua             -- Grid movement with smooth interpolation
     camera.lua             -- Lerp follow + snap mode
@@ -80,6 +82,21 @@ Battles follow the Gen I formula faithfully:
 **Status conditions** are processed per-turn: poison/burn deal 1/8 max HP, paralysis has 25% skip chance and halves speed, sleep blocks 1-3 turns, freeze blocks with 20% thaw chance.
 
 **Type effectiveness** is shown on the move select screen before confirming — an intentional design change from the original. The player sees super effective / not very effective / no effect icons next to each move.
+
+### 2-Bit Color System (`lib/shade.lua` + `world/tilefactory.lua`)
+
+The Game Boy renders 4 shades (white, light gray, dark gray, black) via its 2-bit palette. The Playdate only has 1-bit (black or white). The `Shade` class simulates the Game Boy's 4-shade palette using ordered dithering patterns:
+
+| GB Shade   | 1-Bit Mapping               | Used For                        |
+|------------|-----------------------------|---------------------------------|
+| White      | Pure white                  | Window glass, highlights        |
+| Light Gray | Pure white (clean ground)   | Ground, paths, wall backgrounds |
+| Dark Gray  | 50% checkerboard dither     | Roofs, water                    |
+| Black      | Solid black                 | Outlines, doors, tree canopy    |
+
+Light gray maps to white rather than a dither pattern because at 16x16 tiles scaled 2x, dither dots become visually noisy across large ground areas. Contrast comes from structures (mortar lines, dark roofs, black trees) against clean white ground — matching how the original Game Boy Pallet Town reads at a glance.
+
+`TileFactory` generates all 17 tile types at runtime using `Shade` and Playdate's drawing API — no external PNG files needed. Each tile is drawn at 16x16 and scaled 2x to 32x32. A companion Python script (`tools/generate_tiles.py`) can regenerate equivalent PNGs for reference.
 
 ### Overworld
 
@@ -124,42 +141,3 @@ NPCs have dialogue lines and optional battle data. After defeating a trainer NPC
 - More maps and routes
 - Saving to `playdate.datastore`
 
----
-
-## Development Log
-
-### Day 1 — Mar 6, 2026
-
-Built the entire game skeleton in one session (8:14 AM – 4:47 PM, 7 commits).
-
-**Core systems:** Tile-based overworld (grid movement, collision, camera with lerp follow), turn-based battle engine (Gen I damage formula, STAB, 15-type chart, crits, accuracy, run formula), state machine (overworld/battle/dialog/debug), NPC manager with dialogue and trainer battles, iris-out battle transition.
-
-**Battle depth:** Composable move effects (`StatChange`, `StatusEffect`, `ConditionalEffect`), PP system, status conditions (poison/burn/paralysis/sleep/freeze with per-turn processing), screen shake on crits. Type effectiveness shown on move select before confirming (intentional design departure from the original).
-
-**Content:** 156 Pokedex entries (Gen I–V) with stats/types/movesets, 151 Pokemon with 1-bit front/back sprites (lazy-loaded from disk), debug menu (spawn battles, heal, warp, FPS/grid overlays).
-
-**Design decision:** Type effectiveness preview on the move select screen. The original GB version only told you after the attack landed.
-
-| Metric | Value |
-|---|---|
-| Commits | 7 |
-| Lines of Lua | ~4,000 |
-| Sprites | 302 Pokemon + 10 overworld + 7 tiles |
-| Pokedex | 156 species (Gen I–V) |
-| Bugs fixed | 3 (sprite L/R swap, camera offset leak, encounter trigger timing) |
-
-### Day 2 — Mar 6, 2026
-
-**Walk animation overhaul.** Side-facing sprites were broken — the "standing" frame was actually the GB walking frame, and the "walk" frame was a 2px-shifted copy. Compared against the [pokered decompilation](https://github.com/pret/pokered) to get the correct frames. Built a Python/Pillow sprite generator (`tools/generate_side_sprites.py`). Right-facing sprites now generated at runtime by flipping left. Walk cycle split into walk1/walk2 tables with proper "legs apart → legs together" beat. Fixed duplicate `nidoran` keys in Pokedex.
-
-### Day 3 — Mar 6, 2026
-
-**Zone system and Pallet Town.** Built a declarative zone architecture inspired by Dart/Flutter's widget syntax.
-
-**Zone class (`world/zone.lua`)** — Each zone is a self-contained `Zone({...})` object defining everything in one place: tile map (readable 2-char string codes like `"Tr Pa Wa ."`), NPCs, encounters, warps, and spawn point. Collision is auto-generated from tile types — no more maintaining parallel number arrays. `registerZone()` / `switchZone()` API for the zone registry.
-
-**Pallet Town (20x18)** — Faithful Gen I recreation: Red's house and Blue's house with brick walls and dithered roofs, Oak's Laboratory with windowed lab walls, path network wrapping around the lab, tall grass encounter zones at the Route 1 transition, shore/water for Route 21, fences, signs, mailboxes, flower beds.
-
-**New tiles (9–14):** Roof (50% checkerboard dither), Sign, Flowers, Shore, Lab Wall (brick + window), Mailbox. All 14 tiles drawn in 1-bit Game Boy style — researched actual GB palette mapping (4 shades → 1-bit via dithering density). Multiple iterations to get the right balance: v1-v2 had too much detail (noisy grass, heavy patterns), v3 stripped too much (walls looked like lined paper), v4 found the sweet spot.
-
-**Debug menu** gains "Zones" submenu to teleport between zones. Warp presets now read directly from zone data. OOP lib gets flattened method lookup for O(1) dispatch.
