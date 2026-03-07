@@ -11,7 +11,7 @@
 -- Collision is auto-generated from tile types (no manual arrays!)
 
 TILE_SIZE = 32
-NUM_TILE_TYPES = 17
+NUM_TILE_TYPES = 20
 
 -- ============================================================
 -- PALLET TOWN (faithful Gen I recreation, 20x18)
@@ -24,7 +24,7 @@ registerZone("pallet_town", Zone({
     --  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
         "Tr Tr Tr Tr Tr Tr Tr Tr Tr Pa Pa Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 0  north border + Route 1 gap
         "Tr TG TG TG .  .  .  .  .  Pa Pa .  .  .  .  .  TG TG TG Tr", -- 1  tall grass
-        "Tr TG TG TG .  Fl .  .  .  Pa Pa .  .  .  Fl .  TG TG TG Tr", -- 2  tall grass + flowers
+        "Tr TG TG TG .  .  .  .  .  Pa Pa .  .  .  .  .  TG TG TG Tr", -- 2  tall grass
         "Tr .  .  RL Rf Rf RR .  .  .  .  .  RL Rf Rf RR .  .  .  Tr", -- 3  peaked house roofs
         "Tr .  .  Wa WW WW Wa .  .  .  .  .  Wa WW WW Wa .  .  .  Tr", -- 4  house walls + windows
         "Tr .  Mb Wa Wa Dr Wa .  .  .  .  .  Wa Dr Wa Wa Mb .  .  Tr", -- 5  doors + mailboxes
@@ -36,7 +36,7 @@ registerZone("pallet_town", Zone({
         "Tr .  .  .  .  .  Pa LW LW LW Dr LW LW LW Pa .  .  .  .  Tr", -- 11 lab door + side paths
         "Tr .  .  .  .  .  Pa Pa Pa Pa Pa Pa Pa Pa Pa .  .  .  .  Tr", -- 12 path around lab
         "Tr .  .  Fn Fn Fn .  .  .  .  .  .  .  .  Fn Fn Fn .  .  Tr", -- 13 fences
-        "Tr .  .  .  .  .  .  Fl .  .  .  .  .  Fl .  .  .  .  .  Tr", -- 14 flower beds
+        "Tr .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  Tr", -- 14 open ground
         "Tr .  .  .  .  .  Sh Sh Sh Sh Sh Sh Sh Sh .  .  .  .  .  Tr", -- 15 shore
         "Tr .  .  .  .  .  Wt Wt Wt Wt Wt Wt Wt Wt .  .  .  .  .  Tr", -- 16 water (Route 21)
         "Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr Tr", -- 17 south border

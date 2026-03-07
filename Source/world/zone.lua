@@ -65,6 +65,9 @@ local SOLID = {
     [15] = true,  -- Roof Left
     [16] = true,  -- Roof Right
     [17] = true,  -- Wall Window
+    [18] = false, -- Grass variant A (1 tuft)
+    [19] = false, -- Grass variant B (2 tufts)
+    [20] = false, -- Grass variant C (3 tufts)
 }
 
 local TALL_GRASS_ID <const> = 8
@@ -100,6 +103,41 @@ function Zone:init(config)
         self.tiles = config.tiles
         self.width = config.width
         self.height = config.height
+    end
+
+    -- Scatter grass tuft variants over plain grass (IDs 18-20)
+    -- Original GB Pallet Town: mostly plain, very sparse tufts,
+    -- with 3-tuft clusters near signs
+    local GRASS_ID <const> = 1
+    local SIGN_ID <const> = 10
+    -- First pass: place 3-tuft grass (grassC=20) adjacent to signs
+    for y = 1, self.height do
+        for x = 1, self.width do
+            if self.tiles[y][x] == SIGN_ID then
+                local neighbors = {{x-1,y},{x+1,y},{x,y-1},{x,y+1},
+                                   {x-1,y-1},{x+1,y-1},{x-1,y+1},{x+1,y+1}}
+                for _, n in ipairs(neighbors) do
+                    local nx, ny = n[1], n[2]
+                    if ny >= 1 and ny <= self.height and nx >= 1 and nx <= self.width
+                       and self.tiles[ny][nx] == GRASS_ID then
+                        self.tiles[ny][nx] = 20  -- grassC (3 tufts)
+                    end
+                end
+            end
+        end
+    end
+    -- Second pass: very sparse random tufts (~12% of remaining grass)
+    for y = 1, self.height do
+        for x = 1, self.width do
+            if self.tiles[y][x] == GRASS_ID then
+                local hash = (x * 7 + y * 13 + x * y * 3) % 17
+                if hash == 0 then
+                    self.tiles[y][x] = 18  -- grassA (1 tuft)
+                elseif hash == 5 then
+                    self.tiles[y][x] = 19  -- grassB (2 tufts)
+                end
+            end
+        end
     end
 
     -- Auto-generate collision from tile types

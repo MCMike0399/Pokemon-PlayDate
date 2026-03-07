@@ -73,6 +73,9 @@ function TileFactory.generateAll()
     tiles:setImage(15, TileFactory.roofLeft())
     tiles:setImage(16, TileFactory.roofRight())
     tiles:setImage(17, TileFactory.wallWindow())
+    tiles:setImage(18, TileFactory.grassA())
+    tiles:setImage(19, TileFactory.grassB())
+    tiles:setImage(20, TileFactory.grassC())
     return tiles
 end
 
@@ -83,6 +86,43 @@ end
 -- 1: Grass — clean white ground (GB light gray = 1-bit white)
 function TileFactory.grass()
     return makeTile(nil)
+end
+
+-- 18-20: Grass variants with decorative tufts (like original GB Pokemon towns)
+-- Small 2-pixel diagonal marks simulate the scattered grass blades visible
+-- on the Game Boy's light-gray ground tiles.
+
+function TileFactory.grassA()
+    return makeTile(nil, function()
+        -- Single tuft (bottom-right area)
+        gfx.fillRect(10, 11, 1, 1)
+        gfx.fillRect(11, 10, 1, 1)
+    end)
+end
+
+function TileFactory.grassB()
+    return makeTile(nil, function()
+        -- Tuft 1 (upper-left)
+        gfx.fillRect(3, 5, 1, 1)
+        gfx.fillRect(4, 4, 1, 1)
+        -- Tuft 2 (lower-right)
+        gfx.fillRect(11, 12, 1, 1)
+        gfx.fillRect(12, 11, 1, 1)
+    end)
+end
+
+function TileFactory.grassC()
+    return makeTile(nil, function()
+        -- Tuft 1 (top-left)
+        gfx.fillRect(2, 4, 1, 1)
+        gfx.fillRect(3, 3, 1, 1)
+        -- Tuft 2 (center-right)
+        gfx.fillRect(11, 7, 1, 1)
+        gfx.fillRect(12, 6, 1, 1)
+        -- Tuft 3 (bottom-center)
+        gfx.fillRect(6, 13, 1, 1)
+        gfx.fillRect(7, 12, 1, 1)
+    end)
 end
 
 -- 2: Path — same as grass (clean white)
