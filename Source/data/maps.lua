@@ -1,8 +1,15 @@
 -- Tile types:
--- 1 = Grass, 2 = Path, 3 = Wall/Building, 4 = Water, 5 = Tree, 6 = Door, 7 = Fence, 8 = Tall Grass (encounters)
+-- 1 = Grass, 2 = Path, 3 = Wall/Building, 4 = Water, 5 = Tree, 6 = Door,
+-- 7 = Fence, 8 = Tall Grass (encounters), 9 = Roof, 10 = Sign,
+-- 11 = Flowers, 12 = Shore, 13 = Lab Wall, 14 = Mailbox
 
--- Pallet Town map (20 columns x 15 rows)
-palletTownTiles = {
+TILE_SIZE = 32
+NUM_TILE_TYPES = 14
+
+-- ============================================================
+-- ZONE: Test Zone (original small map)
+-- ============================================================
+local testZoneTiles = {
     { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 },
     { 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5 },
     { 5, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1, 5 },
@@ -20,8 +27,7 @@ palletTownTiles = {
     { 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 },
 }
 
--- Collision layer: 0 = walkable, 1 = solid
-palletTownCollision = {
+local testZoneCollision = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
     { 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 },
@@ -39,6 +45,107 @@ palletTownCollision = {
     { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 }
 
-MAP_WIDTH = 20
-MAP_HEIGHT = 15
-TILE_SIZE = 32
+-- ============================================================
+-- ZONE: Pallet Town (faithful Gen I recreation, 20x18)
+-- ============================================================
+--
+-- Layout reference:
+--   Row 0:     Tree border with Route 1 gap (north exit)
+--   Row 1-2:   Tall grass patches (encounter zone)
+--   Row 3-5:   Red's house (left) and Blue's house (right)
+--   Row 6:     Short paths from house doors
+--   Row 7:     Main east-west path with town signs
+--   Row 8:     Open grass
+--   Row 9-11:  Prof. Oak's Laboratory (center-south)
+--   Row 12:    Path from lab entrance
+--   Row 13:    Fences
+--   Row 14:    Flower beds
+--   Row 15:    Shore (Route 21 approach)
+--   Row 16:    Water (Route 21)
+--   Row 17:    Tree border (south)
+
+local palletTiles = {
+    --   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
+    {  5, 5, 5, 5, 5, 5, 5, 5, 5, 2, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5 }, -- 0  border + Route 1
+    {  5, 8, 8, 8, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 8, 8, 8, 5 }, -- 1  tall grass
+    {  5, 8, 8, 8, 1,11, 1, 1, 1, 2, 2, 1, 1, 1,11, 1, 8, 8, 8, 5 }, -- 2  tall grass + flowers
+    {  5, 1, 1, 9, 9, 9, 9, 1, 1, 1, 1, 1, 9, 9, 9, 9, 1, 1, 1, 5 }, -- 3  house roofs
+    {  5, 1, 1, 3, 3, 3, 3, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 1, 5 }, -- 4  house walls
+    {  5, 1,14, 3, 3, 6, 3, 1, 1, 1, 1, 1, 3, 6, 3, 3,14, 1, 1, 5 }, -- 5  doors + mailboxes
+    {  5, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 5 }, -- 6  paths from doors
+    {  5, 1,10, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1,10, 1, 5 }, -- 7  main path + signs
+    {  5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5 }, -- 8  open grass
+    {  5, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 5 }, -- 9  lab roof
+    {  5, 1, 1, 1, 1, 1, 1,13,13,13,13,13,13,13, 1, 1, 1, 1, 1, 5 }, -- 10 lab walls
+    {  5, 1, 1, 1, 1, 1, 1,13,13,13, 6,13,13,13, 1, 1, 1, 1, 1, 5 }, -- 11 lab door
+    {  5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 5 }, -- 12 path from lab
+    {  5, 1, 1, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 7, 1, 1, 5 }, -- 13 fences
+    {  5, 1, 1, 1, 1, 1, 1,11, 1, 1, 1, 1, 1,11, 1, 1, 1, 1, 1, 5 }, -- 14 flower beds
+    {  5, 1, 1, 1, 1, 1,12,12,12,12,12,12,12,12, 1, 1, 1, 1, 1, 5 }, -- 15 shore
+    {  5, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 5 }, -- 16 water
+    {  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 }, -- 17 border
+}
+
+local palletCollision = {
+    --   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
+    {  1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, -- 0
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 1
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 2
+    {  1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1 }, -- 3  roofs
+    {  1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1 }, -- 4  walls
+    {  1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1 }, -- 5  doors open
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 6
+    {  1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 }, -- 7  signs solid
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 8
+    {  1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 9  lab roof
+    {  1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 10 lab walls
+    {  1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 11 lab door open
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 12
+    {  1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1 }, -- 13 fences
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 14
+    {  1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }, -- 15 shore walkable
+    {  1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 }, -- 16 water solid
+    {  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, -- 17
+}
+
+-- ============================================================
+-- ZONE REGISTRY
+-- ============================================================
+
+zones = {
+    test_zone = {
+        name = "Test Zone",
+        width = 20,
+        height = 15,
+        tiles = testZoneTiles,
+        collision = testZoneCollision,
+        spawn = { x = 6, y = 7 },
+    },
+    pallet_town = {
+        name = "Pallet Town",
+        width = 20,
+        height = 18,
+        tiles = palletTiles,
+        collision = palletCollision,
+        spawn = { x = 5, y = 6 },
+    },
+}
+
+-- Ordered list for debug menu
+zoneList = { "pallet_town", "test_zone" }
+
+-- Current active zone (set before calling setupOverworld)
+currentZone = zones.pallet_town
+
+-- Legacy globals for backward compat during transition
+function getActiveZoneTiles()
+    return currentZone.tiles
+end
+
+function getActiveZoneCollision()
+    return currentZone.collision
+end
+
+function getActiveZoneSize()
+    return currentZone.width, currentZone.height
+end

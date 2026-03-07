@@ -52,31 +52,49 @@ local TALL_GRASS_TILE_ID <const> = 8
 local ENCOUNTER_RATE <const> = 0.15 -- 15% per step on tall grass
 
 local function checkWildEncounter(tileX, tileY)
-    -- Check if standing on grass tile
-    if tileY + 1 > #palletTownTiles or tileX + 1 > #palletTownTiles[1] then return false end
-    local tileId = palletTownTiles[tileY + 1][tileX + 1]
+    local tiles = currentZone.tiles
+    if tileY + 1 > #tiles or tileX + 1 > #tiles[1] then return false end
+    local tileId = tiles[tileY + 1][tileX + 1]
     if tileId == TALL_GRASS_TILE_ID and math.random() < ENCOUNTER_RATE then
         return true
     end
     return false
 end
 
--- Wild encounter table for Pallet Town grass
-local wildEncounters = {
-    { species = "rattata", minLevel = 2, maxLevel = 4, weight = 40 },
-    { species = "pidgey", minLevel = 2, maxLevel = 5, weight = 35 },
-    { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
-    { species = "weedle", minLevel = 3, maxLevel = 5, weight = 10 },
+-- Zone-specific encounter tables
+local zoneEncounters = {
+    pallet_town = {
+        { species = "rattata", minLevel = 2, maxLevel = 4, weight = 40 },
+        { species = "pidgey", minLevel = 2, maxLevel = 5, weight = 35 },
+        { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
+        { species = "weedle", minLevel = 3, maxLevel = 5, weight = 10 },
+    },
+    test_zone = {
+        { species = "rattata", minLevel = 2, maxLevel = 4, weight = 40 },
+        { species = "pidgey", minLevel = 2, maxLevel = 5, weight = 35 },
+        { species = "caterpie", minLevel = 3, maxLevel = 5, weight = 15 },
+        { species = "weedle", minLevel = 3, maxLevel = 5, weight = 10 },
+    },
 }
 
 local function rollWildPokemon()
+    -- Find current zone key for encounter lookup
+    local encounters = nil
+    for key, zone in pairs(zones) do
+        if zone == currentZone then
+            encounters = zoneEncounters[key]
+            break
+        end
+    end
+    if not encounters then encounters = zoneEncounters.pallet_town end
+
     local totalWeight = 0
-    for _, e in ipairs(wildEncounters) do
+    for _, e in ipairs(encounters) do
         totalWeight = totalWeight + e.weight
     end
     local roll = math.random(1, totalWeight)
     local cumulative = 0
-    for _, e in ipairs(wildEncounters) do
+    for _, e in ipairs(encounters) do
         cumulative = cumulative + e.weight
         if roll <= cumulative then
             local level = math.random(e.minLevel, e.maxLevel)
@@ -84,6 +102,54 @@ local function rollWildPokemon()
         end
     end
     return Pokemon("rattata", 3)
+end
+
+-- Zone-specific NPC setup
+local function setupZoneNPCs(zoneKey)
+    npcManager:clear()
+
+    if zoneKey == "pallet_town" then
+        -- Prof. Oak outside his lab
+        local oak = NPC(10, 12, "Prof. Oak",
+            {"Welcome to Pallet Town!", "The world of Pokemon awaits!", "Take care out there!"}, nil, "oak")
+        npcManager:addNPC(oak)
+
+        -- Rival near Blue's house
+        rival = NPC(13, 6, "Rival",
+            {"Hey! Let's battle!"}, { species = "charmander", level = 5 }, "rival")
+        rival.postBattleLines = {"Good battle!"}
+        npcManager:addNPC(rival)
+
+    elseif zoneKey == "test_zone" then
+        -- Prof. Oak
+        local oak = NPC(10, 7, "Prof. Oak",
+            {"Welcome to the Test Zone!", "This is the original map.", "Explore freely!"}, nil, "oak")
+        npcManager:addNPC(oak)
+
+        -- Rival
+        rival = NPC(13, 9, "Rival",
+            {"Hey! Let's battle!"}, { species = "charmander", level = 5 }, "rival")
+        rival.postBattleLines = {"Good battle!"}
+        npcManager:addNPC(rival)
+    end
+end
+
+-- Get current zone key from the currentZone reference
+local function getCurrentZoneKey()
+    for key, zone in pairs(zones) do
+        if zone == currentZone then
+            return key
+        end
+    end
+    return "pallet_town"
+end
+
+-- Switch to a different zone
+function switchZone(zoneKey)
+    if zones[zoneKey] then
+        currentZone = zones[zoneKey]
+        gameStateMachine:change("overworld")
+    end
 end
 
 -- Add debug menu to Playdate system menu
@@ -100,21 +166,13 @@ end)
 gameStateMachine:register("overworld", {
     enter = function()
         gfx.sprite.removeAll()
-        npcManager:clear()
         setupOverworld()
 
-        player = Player(6, 7, palletTownCollision)
+        local spawn = currentZone.spawn
+        player = Player(spawn.x, spawn.y, currentZone.collision)
 
-        -- Prof. Oak (dialogue NPC)
-        local oak = NPC(10, 7, "Prof. Oak",
-            {"Welcome to Pallet Town!", "The world of Pokemon awaits!", "Take care out there!"}, nil, "oak")
-        npcManager:addNPC(oak)
-
-        -- Rival (battle NPC)
-        rival = NPC(13, 9, "Rival",
-            {"Hey! Let's battle!"}, { species = "charmander", level = 5 }, "rival")
-        rival.postBattleLines = {"Good battle!"}
-        npcManager:addNPC(rival)
+        -- Setup NPCs for current zone
+        setupZoneNPCs(getCurrentZoneKey())
 
         -- Create player pokemon (only if not already created)
         if not playerPokemon then
@@ -336,6 +394,10 @@ gameStateMachine:register("debug", {
                 gameStateMachine:change("battle", playerPokemon, enemyPokemon, nil)
                 return
             end
+            if action and action.type == "zoneSwitch" then
+                switchZone(action.zone)
+                return
+            end
             gameStateMachine:change("overworld")
         end)
     end,
@@ -371,6 +433,9 @@ gameStateMachine:register("debug", {
                 player.gridX = action.x
                 player.gridY = action.y
                 player:moveTo(action.x * TILE_SIZE, action.y * TILE_SIZE)
+            elseif action.type == "zoneSwitch" then
+                switchZone(action.zone)
+                return
             end
         end
 

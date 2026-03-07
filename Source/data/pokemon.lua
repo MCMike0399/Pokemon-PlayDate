@@ -142,8 +142,8 @@ pokemonData = {
         baseHP = 75, baseAtk = 100, baseDef = 110, baseSpc = 50, baseSpd = 65,
         moves = { "scratch", "sandAttack", "defenseCurl", "poisonSting", "rapidSpin", "swift", "furySwipes", "rollout", "crushClaw", "furyCutter", "sandTomb", "slash", "gyroBall", "sandstorm" }
     },
-    nidoran = {
-        name = "NIDORAN", dex = 29, type = "poison", type2 = nil,
+    nidoranF = {
+        name = "NIDORAN F", dex = 29, type = "poison", type2 = nil,
         baseHP = 55, baseAtk = 47, baseDef = 52, baseSpc = 40, baseSpd = 41,
         moves = { "scratch", "growl", "tailWhip", "doubleKick", "poisonSting", "furySwipes", "bite", "helpingHand", "toxicSpikes", "flatter", "crunch", "captivate", "poisonFang" }
     },
@@ -157,8 +157,8 @@ pokemonData = {
         baseHP = 90, baseAtk = 92, baseDef = 87, baseSpc = 80, baseSpd = 76,
         moves = { "scratch", "doubleKick", "tailWhip", "poisonSting", "chipAway", "bodySlam", "earthPower", "superpower" }
     },
-    nidoran = {
-        name = "NIDORAN", dex = 32, type = "poison", type2 = nil,
+    nidoranM = {
+        name = "NIDORAN M", dex = 32, type = "poison", type2 = nil,
         baseHP = 46, baseAtk = 57, baseDef = 40, baseSpc = 40, baseSpd = 50,
         moves = { "leer", "peck", "focusEnergy", "doubleKick", "poisonSting", "furyAttack", "hornAttack", "helpingHand", "toxicSpikes", "flatter", "poisonJab", "captivate", "hornDrill" }
     },

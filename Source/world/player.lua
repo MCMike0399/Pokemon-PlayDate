@@ -10,18 +10,35 @@ local function loadScaled(path)
     return img:scaledImage(2)
 end
 
+local function loadScaledFlipped(path)
+    local scaled = loadScaled(path)
+    local w, h = scaled:getSize()
+    local flipped = gfx.image.new(w, h, gfx.kColorClear)
+    gfx.pushContext(flipped)
+    scaled:draw(0, 0, gfx.kImageFlippedX)
+    gfx.popContext()
+    return flipped
+end
+
 local playerImages = {
     down = loadScaled("images/overworld/player-down"),
     up = loadScaled("images/overworld/player-up"),
     left = loadScaled("images/overworld/player-left"),
-    right = loadScaled("images/overworld/player-right"),
+    right = loadScaledFlipped("images/overworld/player-left"),
 }
 
-local playerWalkImages = {
+local playerWalk1Images = {
     down = loadScaled("images/overworld/player-down-walk"),
     up = loadScaled("images/overworld/player-up-walk"),
-    left = loadScaled("images/overworld/player-left-walk"),
-    right = loadScaled("images/overworld/player-right-walk"),
+    left = loadScaled("images/overworld/player-left-walk1"),
+    right = loadScaledFlipped("images/overworld/player-left-walk1"),
+}
+
+local playerWalk2Images = {
+    down = loadScaled("images/overworld/player-down-walk"),
+    up = loadScaled("images/overworld/player-up-walk"),
+    left = loadScaled("images/overworld/player-left-walk2"),
+    right = loadScaledFlipped("images/overworld/player-left-walk2"),
 }
 
 function Player:init(gridX, gridY, collisionMap)
@@ -49,7 +66,7 @@ end
 
 function Player:updateSprite()
     if self.isMoving then
-        self:setImage(playerWalkImages[self.facing])
+        self:setImage(playerWalk1Images[self.facing])
     else
         self:setImage(playerImages[self.facing])
     end
@@ -110,11 +127,11 @@ function Player:update()
             self.stepJustFinished = true
         end
 
-        -- 2-frame walk cycle: alternate walk/idle based on walkToggle
-        local inFirstHalf = self.moveFrames <= MOVE_FRAMES / 2
-        local showWalk = (self.walkToggle and inFirstHalf) or (not self.walkToggle and not inFirstHalf)
-        if showWalk then
-            self:setImage(playerWalkImages[self.facing])
+        -- Walk frame for most of the step, standing for last 2 frames
+        -- Gives: stride -> stand -> stride -> stand (zig-zag, not cycling)
+        local walkImages = self.walkToggle and playerWalk1Images or playerWalk2Images
+        if self.moveFrames <= MOVE_FRAMES - 2 then
+            self:setImage(walkImages[self.facing])
         else
             self:setImage(playerImages[self.facing])
         end

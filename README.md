@@ -159,3 +159,24 @@ Design decision: type effectiveness icons now display on the move select screen 
 | Pokedex entries | 156 species (Gen I–V) |
 | Files in project | 319 |
 | Bugs fixed mid-session | 3 (sprite L/R swap, camera offset leak, encounter trigger zone) |
+
+### Day 2 — Friday, March 6, 2026
+
+**Side-facing walk animation overhaul.** The left/right player walk animation looked cursed — the original walk sprite had its lower body shifted 2px left, causing legs to hit column 0 of the sprite. There was also only 1 walk frame per direction (stand + walk toggle), not the 2-frame cycle from Pokemon Red/Blue.
+
+**Discovery:** Downloaded the actual Pokemon Red/Blue sprite data from the [pokered decompilation](https://github.com/pret/pokered) and compared against the game's existing sprites. Found that:
+- The game's "standing" left sprite was actually the GB *walking* frame (Frame 5)
+- The game's "walking" left sprite was a broken 2px-left-shifted version of the same frame
+- The real GB standing frame (Frame 2) has a completely different, compact body with legs together
+- The original Game Boy only had ONE side walk frame — standing and walking were entirely different drawings
+- 1-bit conversion rule: only pure black GB pixels become black on Playdate (dark gray, light gray, white all become transparent)
+
+**Changes:**
+- **`tools/generate_side_sprites.py`** — New Python/Pillow script that generates left-facing sprites from pixel grid arrays. Outputs RGBA PNGs with transparent backgrounds (no white box artifacts). Standing sprite uses GB Frame 2 (compact body, legs together), walk sprites use GB Frame 5 (stride pose, feet apart).
+- **`Source/world/player.lua`** — Three changes:
+  1. Added `loadScaledFlipped()` helper that scales 2x and flips horizontally with `gfx.kColorClear` background. Right-facing sprites are now generated at runtime by flipping left-facing ones (deleted `player-right.png` and `player-right-walk.png`).
+  2. Split `playerWalkImages` into `playerWalk1Images` and `playerWalk2Images` tables. For left/right these load distinct walk1/walk2 PNGs. For up/down both point to the existing single walk sprite (no regression).
+  3. Walk animation shows stride frame for 6 of 8 movement frames, then standing for the last 2 — creates a clear "legs apart → legs together" beat between steps instead of continuous cycling.
+- **Deleted:** `player-right.png`, `player-right-walk.png`, `player-left-walk.png` (replaced by walk1/walk2)
+- **Created:** `player-left-walk1.png`, `player-left-walk2.png` (both identical for now — Gen I only had one side walk frame)
+- **Fixed:** Duplicate `nidoran` keys in `pokemonData` table renamed to `nidoranF` / `nidoranM`

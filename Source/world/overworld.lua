@@ -10,7 +10,7 @@ local function loadAndScale(path)
 end
 
 function generateTileImages()
-    tileImages = gfx.imagetable.new(8)
+    tileImages = gfx.imagetable.new(NUM_TILE_TYPES)
 
     -- Load tile images from files, scaled 2x for native feel
     -- 1=Grass, 2=Path, 3=Wall, 4=Water, 5=Tree, 6=Door, 7=Fence, 8=Tall Grass
@@ -22,18 +22,29 @@ function generateTileImages()
     tileImages:setImage(6, loadAndScale("images/tiles/door"))
     tileImages:setImage(7, loadAndScale("images/tiles/fence"))
     tileImages:setImage(8, loadAndScale("images/tiles/tallgrass"))
+    -- New tiles for zones
+    tileImages:setImage(9, loadAndScale("images/tiles/roof"))
+    tileImages:setImage(10, loadAndScale("images/tiles/sign"))
+    tileImages:setImage(11, loadAndScale("images/tiles/flowers"))
+    tileImages:setImage(12, loadAndScale("images/tiles/shore"))
+    tileImages:setImage(13, loadAndScale("images/tiles/labwall"))
+    tileImages:setImage(14, loadAndScale("images/tiles/mailbox"))
 end
 
 function setupOverworld()
     generateTileImages()
 
+    local zone = currentZone
+    local mapW, mapH = zone.width, zone.height
+    local tiles = zone.tiles
+
     tilemap = gfx.tilemap.new()
     tilemap:setImageTable(tileImages)
-    tilemap:setSize(MAP_WIDTH, MAP_HEIGHT)
+    tilemap:setSize(mapW, mapH)
 
-    for y = 1, MAP_HEIGHT do
-        for x = 1, MAP_WIDTH do
-            tilemap:setTileAtPosition(x, y, palletTownTiles[y][x])
+    for y = 1, mapH do
+        for x = 1, mapW do
+            tilemap:setTileAtPosition(x, y, tiles[y][x])
         end
     end
 
@@ -46,10 +57,11 @@ function setupOverworld()
 
     -- Add wall sprites from collision layer
     local ts = TILE_SIZE
+    local collision = zone.collision
     local emptyImage = gfx.image.new(ts, ts)
-    for y = 1, MAP_HEIGHT do
-        for x = 1, MAP_WIDTH do
-            if palletTownCollision[y][x] == 1 then
+    for y = 1, mapH do
+        for x = 1, mapW do
+            if collision[y][x] == 1 then
                 local wallSprite = gfx.sprite.new(emptyImage)
                 wallSprite:setCenter(0, 0)
                 wallSprite:moveTo((x - 1) * ts, (y - 1) * ts)
@@ -61,7 +73,7 @@ function setupOverworld()
 end
 
 function getMapPixelSize()
-    return MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE
+    return currentZone.width * TILE_SIZE, currentZone.height * TILE_SIZE
 end
 
 function getOverworldTileSize()
