@@ -30,6 +30,7 @@ Source/
   lib/
     oop.lua                -- Class/Mixin/Signal/Pool system (330 lines)
     shade.lua              -- 4-shade dithering system (Game Boy palette simulation)
+    colormapper.lua        -- GB 2-bit to Playdate shade mapping for authentic tiles
     statemachine.lua       -- State machine with enter/exit/update/draw
   data/
     pokemon.lua            -- 156 species (Gen I-V), stats, types, movesets
@@ -42,7 +43,7 @@ Source/
     moves.lua              -- Move data and effect classes
   world/
     zone.lua               -- Zone class (declarative map definitions, auto-collision)
-    tilefactory.lua        -- Runtime tile generation using Shade system
+    tilefactory.lua        -- Runtime tile generation (procedural + authentic ROM tiles)
     overworld.lua          -- Tilemap setup and rendering
     player.lua             -- Grid movement with smooth interpolation
     camera.lua             -- Lerp follow + snap mode
@@ -98,6 +99,40 @@ Light gray maps to white rather than a dither pattern because at 16x16 tiles sca
 
 `TileFactory` generates all 17 tile types at runtime using `Shade` and Playdate's drawing API — no external PNG files needed. Each tile is drawn at 16x16 and scaled 2x to 32x32. A companion Python script (`tools/generate_tiles.py`) can regenerate equivalent PNGs for reference.
 
+### ColorMapper — Authentic ROM Tile Support (`lib/colormapper.lua`)
+
+The `ColorMapper` class enables loading and rendering authentic Game Boy ROM tiles by mapping the Game Boy's 2-bit color values to Playdate's dithered shades:
+
+```lua
+-- Game Boy 2-bit to Playdate shade mapping
+GB 00 (white)  → Shade.WHITE  (0% black)
+GB 01 (light)  → Shade.LIGHT  (~12.5% black, dithered)
+GB 10 (dark)   → Shade.DARK   (50% black, checkerboard)
+GB 11 (black)  → Shade.BLACK  (100% black)
+```
+
+**Features:**
+- **Pixel-level mapping**: Each 8×8 GB tile pixel is converted individually using the Shade dithering system
+- **Multiple palettes**: `GB_GREEN` (default), `SGB_PALETTE`, `HIGH_CONTRAST`
+- **Tile caching**: Converted tiles are cached for performance; clear with `ColorMapper:clearCache()`
+- **ROM tile loading**: `TileFactory.generateFromROM(tilesetPath, tileIndices)` loads authentic tiles from PNG tilesets
+
+**Usage:**
+```lua
+-- Load authentic Game Boy tiles from assets_dump (not included, add your own)
+local tileIndices = {0x00, 0x01, 0x02, 0x03}  -- Pallet Town specific indices
+local tiles = TileFactory.generateFromROM("../assets_dump/misc/Tileset.png", tileIndices)
+
+-- Or use ColorMapper directly
+ColorMapper:loadTileset("../assets_dump/misc/Tileset.png")
+local grassTile = ColorMapper:getTile(0)  -- Get tile at index 0
+
+-- Switch to high contrast palette
+ColorMapper:setPalette(ColorMapper.HIGH_CONTRAST)
+```
+
+**Note:** The `assets_dump/` directory is excluded from git (see `.gitignore`). Place your own legally-obtained Game Boy tile assets there to use authentic tiles.
+
 ### Overworld
 
 Grid-based movement at 16x16 tiles. Player moves between tiles with smooth interpolation over 150ms. Camera follows with 20% lerp per frame, snaps instantly on map load.
@@ -118,7 +153,7 @@ NPCs have dialogue lines and optional battle data. After defeating a trainer NPC
 
 ## What works
 
-- Tile-based overworld with NPCs and dialogue
+- Tile-based overworld with NPCs and dialogue (procedural or authentic ROM tiles)
 - Random wild encounters in tall grass with iris-out transition
 - Full turn-based battles (Gen I damage formula, STAB, type chart, crits, accuracy)
 - PP system — moves cost PP and can run out
