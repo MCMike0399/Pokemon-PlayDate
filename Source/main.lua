@@ -6,6 +6,7 @@ import "CoreLibs/frameTimer"
 
 import "lib/oop"
 import "lib/shade"
+import "lib/colormapper"
 import "lib/statemachine"
 import "world/zone"
 import "data/pokemon"

@@ -79,6 +79,28 @@ function TileFactory.generateAll()
     return tiles
 end
 
+-- ROM TILE GENERATION (using ColorMapper)
+
+function TileFactory.generateFromROM(tilesetPath, tileIndices)
+    local success = ColorMapper:loadTileset(tilesetPath)
+    if not success then
+        print('ERROR: Failed to load ROM tileset')
+        return TileFactory.generateAll()
+    end
+
+    local tiles = gfx.imagetable.new(#tileIndices)
+    for i, tileIndex in ipairs(tileIndices) do
+        local tile = ColorMapper:getTile(tileIndex)
+        if tile then
+            tiles:setImage(i, tile)
+        else
+            tiles:setImage(i, TileFactory.grass())
+        end
+    end
+
+    return tiles
+end
+
 -- ============================================================
 -- TILE DEFINITIONS
 -- ============================================================
