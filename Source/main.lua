@@ -23,6 +23,7 @@ import "world/overworld"
 import "battle/battle"
 import "battle/battleScene"
 import "data/maps"
+import "dev/autopilot"
 
 local gfx <const> = playdate.graphics
 
@@ -158,7 +159,7 @@ gameStateMachine:register("overworld", {
         end
 
         -- Wild encounter check (delegated to Zone)
-        if player.stepJustFinished then
+        if player.stepJustFinished and not DEBUG_FLAGS.noEncounters then
             if currentZone:checkEncounter(player.gridX, player.gridY) then
                 local px, py = player:getPixelCenter()
                 local ox, oy = gfx.getDrawOffset()
@@ -314,6 +315,7 @@ gameStateMachine:register("debug", {
 gameStateMachine:change("overworld")
 
 function playdate.update()
+    Autopilot.update(player, camera)
     gameStateMachine:update()
     gameStateMachine:draw()
     playdate.timer.updateTimers()

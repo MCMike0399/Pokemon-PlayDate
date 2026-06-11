@@ -3,3 +3,4 @@
 __pycache__/
 tools/verify_moves/cache/
 assets_dump/
+tools/shots/

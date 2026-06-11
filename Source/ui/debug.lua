@@ -7,6 +7,7 @@ DEBUG_FLAGS = {
     noclip = false,
     showFPS = false,
     showGrid = false,
+    noEncounters = false,
 }
 
 local MENU_X <const> = 20
