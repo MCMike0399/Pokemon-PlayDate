@@ -1,18 +1,19 @@
 -- ============================================================
 -- TileFactory: Runtime tile generation using Shade system
 -- ============================================================
--- Generates all 17 tile types programmatically using the 4-shade
--- dithering system. No external PNG files needed.
+-- Tiles are authored as 16x16 four-shade pixel grids (the Game
+-- Boy metatile resolution) and rendered at native 32x32: each
+-- authored pixel becomes a 2x2 block, but the LIGHT/DARK dither
+-- patterns are applied in screen space, so the dots stay fine
+-- instead of doubling into chunky 2x2 dots.
 --
--- Shade mapping (matching Game Boy Pallet Town):
---   WHITE  — ground, paths, wall/building backgrounds
---   DARK   — roofs, water (only mid-tone areas)
---   BLACK  — outlines, doors, tree canopy, mortar lines
---
--- Each tile is drawn at 16x16 and scaled 2x to 32x32 (TILE_SIZE).
+-- Grid shade codes:
+--   .  WHITE  (ground, highlights, window shine)
+--   1  LIGHT  (~12.5% dither — paths, glass, plank shadows)
+--   2  DARK   (50% checkerboard — roofs, doors, tree canopy)
+--   #  BLACK  (outlines, ridges, blades)
 
 local gfx <const> = playdate.graphics
-local S <const> = 16
 
 Class("TileFactory")
 
@@ -20,34 +21,53 @@ Class("TileFactory")
 -- HELPERS
 -- ============================================================
 
-local function makeTile(shade, drawer)
-    local img = gfx.image.new(S, S, gfx.kColorWhite)
+local SHADES <const> = { ["1"] = Shade.LIGHT, ["2"] = Shade.DARK, ["#"] = Shade.BLACK }
+
+-- rows: 16 strings of 16 shade codes -> native 32x32 image
+local function makeShadeTile(rows)
+    local img = gfx.image.new(32, 32, gfx.kColorWhite)
     gfx.pushContext(img)
-        if shade then
-            Shade.set(shade)
-            gfx.fillRect(0, 0, S, S)
+    for y = 1, 16 do
+        local row = rows[y]
+        assert(row and #row == 16, "tile row " .. y .. " must be 16 chars")
+        local x = 1
+        while x <= 16 do
+            local c = row:sub(x, x)
+            local x2 = x
+            while x2 < 16 and row:sub(x2 + 1, x2 + 1) == c do x2 = x2 + 1 end
+            local shade = SHADES[c]
+            if shade then
+                Shade.set(shade)
+                gfx.fillRect((x - 1) * 2, (y - 1) * 2, (x2 - x + 1) * 2, 2)
+            end
+            x = x2 + 1
         end
-        if drawer then
-            gfx.setColor(gfx.kColorBlack)
-            drawer()
-        end
+    end
+    Shade.reset()
     gfx.popContext()
-    return img:scaledImage(2)
+    return img
 end
 
-local function makePixelTile(pixelFn)
-    local img = gfx.image.new(S, S, gfx.kColorWhite)
-    gfx.pushContext(img)
-        gfx.setColor(gfx.kColorBlack)
-        for y = 0, S - 1 do
-            for x = 0, S - 1 do
-                if pixelFn(x, y) then
-                    gfx.fillRect(x, y, 1, 1)
-                end
-            end
+-- fn(x, y) -> shade code, for tiles easier to express procedurally
+local function makeShadeTileFn(fn)
+    local rows = {}
+    for y = 0, 15 do
+        local chars = {}
+        for x = 0, 15 do
+            chars[x + 1] = fn(x, y)
         end
-    gfx.popContext()
-    return img:scaledImage(2)
+        rows[y + 1] = table.concat(chars)
+    end
+    return makeShadeTile(rows)
+end
+
+local function tuftTile(points)
+    return makeShadeTileFn(function(x, y)
+        for _, p in ipairs(points) do
+            if p[1] == x and p[2] == y then return "#" end
+        end
+        return "."
+    end)
 end
 
 -- ============================================================
@@ -107,263 +127,314 @@ end
 
 -- 1: Grass — clean white ground (GB light gray = 1-bit white)
 function TileFactory.grass()
-    return makeTile(nil)
+    return gfx.image.new(32, 32, gfx.kColorWhite)
 end
 
--- 18-20: Grass variants with decorative tufts (like original GB Pokemon towns)
--- Small 2-pixel diagonal marks simulate the scattered grass blades visible
--- on the Game Boy's light-gray ground tiles.
-
+-- 18-20: Grass variants with decorative tufts
 function TileFactory.grassA()
-    return makeTile(nil, function()
-        -- Single tuft (bottom-right area)
-        gfx.fillRect(10, 11, 1, 1)
-        gfx.fillRect(11, 10, 1, 1)
-    end)
+    return tuftTile({ {10, 11}, {11, 10} })
 end
 
 function TileFactory.grassB()
-    return makeTile(nil, function()
-        -- Tuft 1 (upper-left)
-        gfx.fillRect(3, 5, 1, 1)
-        gfx.fillRect(4, 4, 1, 1)
-        -- Tuft 2 (lower-right)
-        gfx.fillRect(11, 12, 1, 1)
-        gfx.fillRect(12, 11, 1, 1)
-    end)
+    return tuftTile({ {3, 5}, {4, 4}, {11, 12}, {12, 11} })
 end
 
 function TileFactory.grassC()
-    return makeTile(nil, function()
-        -- Tuft 1 (top-left)
-        gfx.fillRect(2, 4, 1, 1)
-        gfx.fillRect(3, 3, 1, 1)
-        -- Tuft 2 (center-right)
-        gfx.fillRect(11, 7, 1, 1)
-        gfx.fillRect(12, 6, 1, 1)
-        -- Tuft 3 (bottom-center)
-        gfx.fillRect(6, 13, 1, 1)
-        gfx.fillRect(7, 12, 1, 1)
-    end)
+    return tuftTile({ {2, 4}, {3, 3}, {11, 7}, {12, 6}, {6, 13}, {7, 12} })
 end
 
--- 2: Path — same as grass (clean white)
+-- 2: Path — light-gray dithered dirt with dark pebble clusters
 function TileFactory.path()
-    return makeTile(nil)
+    return makeShadeTile({
+        "1111111111111111",
+        "1111111111111111",
+        "111#211111111111",
+        "1112211111##2111",
+        "1111111111122111",
+        "1111111111111111",
+        "1111111111111111",
+        "11111111#2111111",
+        "1111111122211111",
+        "1111111111111111",
+        "11##111111111111",
+        "112211111111#211",
+        "1111111111122111",
+        "1111111111111111",
+        "1111111111111111",
+        "1111111111111111",
+    })
 end
 
--- 3: Wall — white base + black mortar lines
+-- 3: Wall — horizontal plank siding with shadowed seams + joints
 function TileFactory.wall()
-    return makeTile(nil, function()
-        for _, y in ipairs({0, 4, 8, 12}) do
-            gfx.drawLine(0, y, 15, y)
-        end
-        gfx.drawLine(7, 1, 7, 3)
-        gfx.drawLine(3, 5, 3, 7)
-        gfx.drawLine(11, 5, 11, 7)
-        gfx.drawLine(7, 9, 7, 11)
-        gfx.drawLine(3, 13, 3, 15)
-        gfx.drawLine(11, 13, 11, 15)
-    end)
+    return makeShadeTile({
+        "################",
+        "1111111111111111",
+        ".......#........",
+        ".......#........",
+        "################",
+        "1111111111111111",
+        "...#.......#....",
+        "...#.......#....",
+        "################",
+        "1111111111111111",
+        ".......#........",
+        ".......#........",
+        "################",
+        "1111111111111111",
+        "...#.......#....",
+        "...#.......#....",
+    })
 end
 
--- 4: Water — dark gray checkerboard + white wave highlights
+-- 4: Water — light water with staggered dark wave dashes
 function TileFactory.water()
-    return makeTile(Shade.DARK, function()
-        gfx.setColor(gfx.kColorWhite)
-        for wave = 0, 3 do
-            local baseY = wave * 4 + 2
-            local offset = (wave % 2) * 4
-            for x = 0, 15 do
-                local wy = baseY + math.floor(0.5 + math.sin((x + offset) * math.pi / 4))
-                gfx.fillRect(x, wy, 1, 1)
-                gfx.fillRect(x, wy - 1, 1, 1)
-            end
+    return makeShadeTileFn(function(x, y)
+        if y % 4 == 2 then
+            local phase = ((y // 4) % 2) * 4
+            if (x + phase) % 8 < 4 then return "#" end
         end
+        return "1"
     end)
 end
 
--- 5: Tree — dense black canopy with white leaf specks, white ground at edges
+-- 5: Tree — full-width bushy canopy so borders tile into a forest wall
 function TileFactory.tree()
-    return makeTile(nil, function()
-        for y = 0, 15 do
-            local x1, x2
-            if y == 0 or y == 15 then
-                x1, x2 = 4, 11
-            elseif y == 1 or y == 14 then
-                x1, x2 = 2, 13
-            else
-                x1, x2 = 1, 14
-            end
-            gfx.fillRect(x1, y, x2 - x1 + 1, 1)
-        end
-        gfx.setColor(gfx.kColorWhite)
-        local specks = {
-            {4,3}, {10,2}, {7,4}, {13,3},
-            {3,6}, {8,5}, {12,7},
-            {5,8}, {10,9}, {3,10},
-            {7,11}, {12,10}, {5,13},
-            {9,12}, {11,4}, {6,7},
-        }
-        for _, s in ipairs(specks) do
-            gfx.fillRect(s[1], s[2], 1, 1)
-        end
-    end)
+    return makeShadeTile({
+        "..####....####..",
+        ".#2222#..#2222#.",
+        "#211222##222222#",
+        "#21122222222222#",
+        "#11222222222222#",
+        "#22222222222222#",
+        "#22221122222222#",
+        "#22222222222222#",
+        "#22222222222222#",
+        "#22211222222222#",
+        "#22222222222222#",
+        ".#222222222222#.",
+        "..#22##22##22#..",
+        "...##..##..##...",
+        "......1##1......",
+        "................",
+    })
 end
 
--- 6: Door — white wall top + solid black door opening
+-- 6: Door — recessed dark doorway with white knob, plank lintel
 function TileFactory.door()
-    return makeTile(nil, function()
-        gfx.drawLine(0, 0, 15, 0)
-        gfx.drawLine(3, 1, 3, 3)
-        gfx.drawLine(11, 1, 11, 3)
-        gfx.drawLine(0, 4, 15, 4)
-        gfx.fillRect(4, 5, 8, 11)
-    end)
+    return makeShadeTile({
+        "################",
+        "1111111111111111",
+        "................",
+        "...##########...",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222.22#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..#2222222222#..",
+        "..############..",
+    })
 end
 
--- 7: Fence — white pickets on white ground
+-- 7: Fence — pickets with two rails (8px period for seamless tiling)
 function TileFactory.fence()
-    return makeTile(nil, function()
-        gfx.drawLine(0, 3, 15, 3)
-        gfx.drawLine(0, 11, 15, 11)
-        for _, postX in ipairs({1, 5, 9, 13}) do
-            gfx.drawLine(postX, 2, postX, 13)
-        end
-    end)
+    return makeShadeTile({
+        "................",
+        "................",
+        ".##......##.....",
+        ".##......##.....",
+        "################",
+        "2222222222222222",
+        ".##......##.....",
+        ".##......##.....",
+        "################",
+        "2222222222222222",
+        ".##......##.....",
+        ".##......##.....",
+        ".##......##.....",
+        ".11......11.....",
+        "................",
+        "................",
+    })
 end
 
--- 8: Tall Grass — V-blade pattern ~30% density (unique texture, not a shade)
+-- 8: Tall Grass — layered zigzag blade rows over light ground
 function TileFactory.tallGrass()
-    return makePixelTile(function(x, y)
-        local by = y % 4
-        local bx = x % 4
-        return (by == 0 and bx % 2 == 1)
-            or (by == 1 and bx % 2 == 0)
-            or (by == 2 and bx % 2 == 1)
+    return makeShadeTileFn(function(x, y)
+        local band = y // 4
+        local brow = y % 4
+        local lx = (x + (band % 2) * 2) % 4
+        if brow == 0 and lx == 1 then return "#" end
+        if brow == 1 and (lx == 0 or lx == 2) then return "#" end
+        return "1"
     end)
 end
 
--- 9: Roof — dark gray checkerboard + shingle ridge lines
+-- Shared roof shingle banding: ridge line, highlight, dark, dark
+local function roofBand(y)
+    local m = y % 4
+    if m == 0 then return "#" end
+    if m == 1 then return "1" end
+    return "2"
+end
+
+-- 9: Roof — horizontal shingle bands
 function TileFactory.roof()
-    return makeTile(Shade.DARK, function()
-        for _, y in ipairs({3, 7, 11, 15}) do
-            gfx.drawLine(0, y, 15, y)
-        end
+    return makeShadeTileFn(function(_, y)
+        return roofBand(y)
     end)
 end
 
--- 10: Sign — white board with outline on white ground + post
-function TileFactory.sign()
-    return makeTile(nil, function()
-        gfx.drawRect(3, 1, 10, 6)
-        gfx.drawLine(7, 7, 7, 14)
-        gfx.drawLine(8, 7, 8, 14)
-    end)
-end
-
--- 11: Flowers — + shapes on white ground
-function TileFactory.flowers()
-    return makeTile(nil, function()
-        local positions = {{4,3}, {11,3}, {7,8}, {3,12}, {12,12}}
-        for _, f in ipairs(positions) do
-            local fx, fy = f[1], f[2]
-            gfx.fillRect(fx, fy, 1, 1)
-            gfx.fillRect(fx-1, fy, 1, 1)
-            gfx.fillRect(fx+1, fy, 1, 1)
-            gfx.fillRect(fx, fy-1, 1, 1)
-            gfx.fillRect(fx, fy+1, 1, 1)
-        end
-    end)
-end
-
--- 12: Shore — white land → black edge → dark gray water
-function TileFactory.shore()
-    return makePixelTile(function(x, y)
-        local edgeY = 7 + math.floor(0.5 + 1.5 * math.sin(x * math.pi / 4))
-        if y < edgeY then
-            return false -- white land
-        elseif y == edgeY then
-            return true -- black edge
-        else
-            return Shade.isDarkDot(x, y) -- dark gray water
-        end
-    end)
-end
-
--- 13: Lab Wall — white base + wider brick mortar
-function TileFactory.labWall()
-    return makeTile(nil, function()
-        for _, y in ipairs({0, 5, 10, 15}) do
-            gfx.drawLine(0, y, 15, y)
-        end
-        gfx.drawLine(8, 1, 8, 4)
-        gfx.drawLine(4, 6, 4, 9)
-        gfx.drawLine(12, 6, 12, 9)
-        gfx.drawLine(8, 11, 8, 14)
-    end)
-end
-
--- 14: Mailbox — white box with outline + post on white ground
-function TileFactory.mailbox()
-    return makeTile(nil, function()
-        gfx.drawRect(4, 3, 8, 6)
-        -- Flag
-        gfx.drawRect(12, 4, 3, 3)
-        -- Post
-        gfx.drawLine(7, 9, 7, 14)
-        gfx.drawLine(8, 9, 8, 14)
-    end)
-end
-
--- 15: Roof Left — / diagonal, dark gray inside, white outside
+-- 15: Roof Left — '/' peaked end, white outside, shingles inside
 function TileFactory.roofLeft()
-    return makePixelTile(function(x, y)
-        local edgeX = 15 - y
-        if x > edgeX then
-            return Shade.isDarkDot(x, y) or y % 4 == 3
-        elseif x == edgeX then
-            return true
-        else
-            return false -- white outside
-        end
+    return makeShadeTileFn(function(x, y)
+        local edge = 15 - y
+        if x < edge then return "." end
+        if x == edge then return "#" end
+        return roofBand(y)
     end)
 end
 
--- 16: Roof Right — \ diagonal, dark gray inside, white outside
+-- 16: Roof Right — '\' peaked end, shingles inside, white outside
 function TileFactory.roofRight()
-    return makePixelTile(function(x, y)
-        local edgeX = y
-        if x < edgeX then
-            return Shade.isDarkDot(x, y) or y % 4 == 3
-        elseif x == edgeX then
-            return true
+    return makeShadeTileFn(function(x, y)
+        local edge = y
+        if x > edge then return "." end
+        if x == edge then return "#" end
+        return roofBand(y)
+    end)
+end
+
+-- 10: Sign — outlined board with text squiggles + post
+function TileFactory.sign()
+    return makeShadeTile({
+        "................",
+        ".############...",
+        ".#..........#...",
+        ".#.22.22.22..#..",
+        ".#..........#...",
+        ".#.22.22.22..#..",
+        ".#..........#...",
+        ".############...",
+        "......##........",
+        "......##........",
+        "......##........",
+        "......##........",
+        "......##........",
+        ".....1##1.......",
+        "................",
+        "................",
+    })
+end
+
+-- 11: Flowers — outlined blooms with light centers + tuft
+function TileFactory.flowers()
+    return makeShadeTile({
+        "................",
+        "....#...........",
+        "...#1#..........",
+        "..#111#.........",
+        "...#1#..........",
+        "....#...........",
+        "............#...",
+        "...........#1#..",
+        "..........#111#.",
+        "...........#1#..",
+        "............#...",
+        "................",
+        "..##............",
+        "..#.............",
+        "................",
+        "................",
+    })
+end
+
+-- 12: Shore — white land, gentle wavy black edge, water below
+function TileFactory.shore()
+    return makeShadeTileFn(function(x, y)
+        local edgeY = 8 + math.floor(0.5 + math.sin(x * math.pi / 8))
+        if y < edgeY then
+            return "."
+        elseif y == edgeY then
+            return "#"
         else
-            return false -- white outside
+            if y % 4 == 2 then
+                local phase = ((y // 4) % 2) * 4
+                if (x + phase) % 8 < 4 then return "#" end
+            end
+            return "1"
         end
     end)
 end
 
--- 17: Wall Window — white brick wall with mullioned window
+-- 13: Lab Wall — taller stone courses with shadowed seams
+function TileFactory.labWall()
+    return makeShadeTile({
+        "################",
+        "1111111111111111",
+        ".....#..........",
+        ".....#..........",
+        ".....#..........",
+        "################",
+        "1111111111111111",
+        "..........#.....",
+        "..........#.....",
+        "..........#.....",
+        "################",
+        "1111111111111111",
+        "...#............",
+        "...#............",
+        "...#............",
+        "################",
+    })
+end
+
+-- 14: Mailbox — outlined box with dark slot front + post
+function TileFactory.mailbox()
+    return makeShadeTile({
+        "................",
+        "...#######......",
+        "..#1111111#.....",
+        "..#1111111#.##..",
+        "..#2222222#..#..",
+        "..#2222222#.##..",
+        "..#1111111####..",
+        "...#######......",
+        ".....##.........",
+        ".....##.........",
+        ".....##.........",
+        ".....##.........",
+        ".....##.........",
+        "....1##1........",
+        "................",
+        "................",
+    })
+end
+
+-- 17: Wall Window — plank wall with two-pane window
 function TileFactory.wallWindow()
-    local img = gfx.image.new(S, S, gfx.kColorWhite)
-    gfx.pushContext(img)
-        -- Wall mortar
-        gfx.setColor(gfx.kColorBlack)
-        for _, y in ipairs({0, 4, 8, 12}) do
-            gfx.drawLine(0, y, 15, y)
-        end
-        gfx.drawLine(7, 1, 7, 3)
-        gfx.drawLine(3, 5, 3, 7)
-        gfx.drawLine(11, 5, 11, 7)
-        gfx.drawLine(7, 9, 7, 11)
-        gfx.drawLine(3, 13, 3, 15)
-        gfx.drawLine(11, 13, 11, 15)
-        -- Window frame
-        gfx.drawRect(5, 4, 6, 8)
-        -- Mullion cross
-        gfx.drawLine(6, 8, 9, 8)
-        gfx.drawLine(8, 5, 8, 10)
-    gfx.popContext()
-    return img:scaledImage(2)
+    return makeShadeTile({
+        "################",
+        "1111111111111111",
+        "................",
+        "...##########...",
+        "...#..111111#...",
+        "...#.1111111#...",
+        "...#11111111#...",
+        "...##########...",
+        "...#11111111#...",
+        "...#11111111#...",
+        "...#11111111#...",
+        "...##########...",
+        "################",
+        "1111111111111111",
+        ".......#........",
+        ".......#........",
+    })
 end
