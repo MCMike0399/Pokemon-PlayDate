@@ -55,7 +55,7 @@ Order matters. Key constraints:
 - **`data/typechart.lua`** — 15-type effectiveness matrix accessed via `TypeChart.getMatchup()`.
 - **`data/maps.lua`** — Zone definitions using declarative tile codes and `setupOverworld()`.
 - **`world/zone.lua`** — Zone class with Dart-like declarative config. Auto-generates collision from tile types. See below.
-- **`world/player.lua`** — Grid movement with smooth interpolation (150ms). `stepJustFinished` flag triggers encounter checks.
+- **`world/player.lua`** — Grid movement with smooth interpolation (8 frames/step at 30fps). Walk animation: Gen 1 cadence (stride first half of step, standing second half) with the lead leg alternating per step via `walkToggle` (distinct side stride frames; X-flipped frames for up/down). Characters draw 8px above their tile (GB style) and a tall-grass overlay hides the legs while in grass. `stepJustFinished` flag triggers encounter checks.
 - **`world/camera.lua`** — Lerp follow (20%/frame) with `snapTo()` for instant positioning. `apply()`/`reset()` toggle the graphics draw offset.
 
 ### Zone System (`world/zone.lua` + `data/maps.lua`)
@@ -78,7 +78,7 @@ Collision is auto-generated from tile types — no manual collision arrays. Glob
 
 ### 2-Bit Color System (`lib/shade.lua` + `world/tilefactory.lua`)
 
-Simulates the Game Boy's 4-shade palette on Playdate's 1-bit display using ordered dithering patterns. `TileFactory` generates all 17 tile types at runtime — no external tile PNGs needed. TILE_SIZE=32 (16x16 drawn, scaled 2x). Light gray maps to white (dither dots are too noisy at this scale for ground tiles).
+Simulates the Game Boy's 4-shade palette on Playdate's 1-bit display using ordered dithering patterns. `TileFactory` generates all tile types at runtime — no external tile PNGs needed. Tiles are authored as 16x16 four-shade text grids (`.`=white, `1`=LIGHT, `2`=DARK, `#`=black) and rendered at native 32x32 (TILE_SIZE): each authored pixel becomes a 2x2 block, but dither patterns apply in screen space so the dots stay fine. Every grid row must be exactly 16 chars (asserted at startup).
 
 ### Conventions
 
@@ -91,5 +91,7 @@ Simulates the Game Boy's 4-shade palette on Playdate's 1-bit display using order
 
 ## Tools
 
+- **`tools/autopilot.py` + `Source/dev/autopilot.lua`** — Simulator automation bridge for visual iteration. The Lua side (simulator-only, no-op on device) polls `autopilot.txt` in the game's Data folder (`~/Developer/PlaydateSDK/Disk/Data/com.poc.pokemon/`) and acks with `autopilot-done.txt`. Commands: `move <dir> [n]`, `face <dir>`, `warp <gx> <gy>`, `wait <frames>`, `shot <name>`, `record <name> <n>` (per-frame capture), `encounters <on|off>`. Screenshots land in `tools/shots/`. Example: `python3 tools/autopilot.py "encounters off" "warp 5 8" "record walk 18" "move right 2" --strip walk` builds a magnified film strip plus frame-to-frame pixel diffs. Note: `warp` bypasses collision. `open -a` does not reliably reload a running Simulator and multiple instances can accumulate — they race for the command file and answer with stale builds. Before testing: `pkill -9 -f "Playdate Simulator"`, confirm none remain with `pgrep -f "MacOS/Playdate Simulator"`, then `make run` and wait ~4s.
+- **`tools/generate_side_sprites.py`** — Python/Pillow generator for all player overworld sprites (and NPC alpha re-emit). Side stride frames are authored as text grids; every frame gets sprite alpha via border flood-fill: transparent outside the outline, opaque white inside the body. Run after editing and commit the regenerated PNGs in `Source/images/overworld/`.
 - **`tools/verify_moves/`** — Python tool that validates move data in `battle/moves.lua` against PokeAPI. Run with `python tools/verify_moves/main.py`. Caches API responses locally. Generates per-species comparison reports in `tools/verify_moves/reports/`.
-- **`tools/generate_tiles.py`** — Python/Pillow script that generates PNG versions of tiles for reference (not used at runtime).
+- **`tools/generate_tiles.py`** — Python/Pillow script that generates PNG versions of tiles for reference (not used at runtime; predates the in-game shade-grid tiles).
