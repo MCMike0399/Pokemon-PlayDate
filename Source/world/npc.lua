@@ -22,7 +22,8 @@ function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey)
     local img = npcImages[spriteKey or "oak"]
     self:setImage(img)
     self:setCenter(0, 0)
-    self:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE)
+    -- Drawn 8px above the tile, matching the player's visual offset
+    self:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE - 8)
     self:setZIndex(90)
     self:add()
 end

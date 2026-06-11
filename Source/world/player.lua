@@ -4,6 +4,10 @@ class("Player").extends(gfx.sprite)
 
 local MOVE_FRAMES <const> = 8
 
+-- Characters draw 8px above their tile (GB drew sprites 4px up): the head
+-- pokes over the tile above and tall grass covers just the legs
+local SPRITE_Y_OFFSET <const> = -8
+
 -- Pre-load all player images, scaled 2x for native feel
 local function loadScaled(path)
     local img = gfx.image.new(path)
@@ -34,12 +38,27 @@ local playerWalk1Images = {
     right = loadScaledFlipped("images/overworld/player-left-walk1"),
 }
 
+-- walk2 vertical frames are X-flipped so up/down steps alternate the lead
+-- foot, exactly like Gen 1; side frames are genuinely different strides
 local playerWalk2Images = {
-    down = loadScaled("images/overworld/player-down-walk"),
-    up = loadScaled("images/overworld/player-up-walk"),
+    down = loadScaledFlipped("images/overworld/player-down-walk"),
+    up = loadScaledFlipped("images/overworld/player-up-walk"),
     left = loadScaled("images/overworld/player-left-walk2"),
     right = loadScaledFlipped("images/overworld/player-left-walk2"),
 }
+
+-- Tall grass overlay: drawn over the player's legs while in grass (Gen 1 style)
+local grassOverlayImage = nil
+local function getGrassOverlay()
+    if not grassOverlayImage then
+        local tile = TileFactory.tallGrass()
+        grassOverlayImage = playdate.graphics.image.new(TILE_SIZE, TILE_SIZE // 2)
+        gfx.pushContext(grassOverlayImage)
+        tile:draw(0, -TILE_SIZE // 2)
+        gfx.popContext()
+    end
+    return grassOverlayImage
+end
 
 function Player:init(gridX, gridY, collisionMap)
     Player.super.init(self)
@@ -62,6 +81,28 @@ function Player:init(gridX, gridY, collisionMap)
     self:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE)
     self:setZIndex(100)
     self:add()
+
+    self.grassOverlay = gfx.sprite.new(getGrassOverlay())
+    self.grassOverlay:setCenter(0, 0)
+    self.grassOverlay:setZIndex(101)
+    self.grassOverlay:setVisible(false)
+    self.grassOverlay:add()
+end
+
+-- Show the grass overlay on the player's tile when standing in tall grass
+function Player:updateGrassOverlay()
+    local row = currentZone and currentZone.tiles[self.gridY + 1]
+    local onGrass = row and row[self.gridX + 1] == 8
+    self.grassOverlay:setVisible(onGrass or false)
+    if onGrass then
+        self.grassOverlay:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE + TILE_SIZE // 2)
+    end
+end
+
+-- All position updates go through here, so the visual offset applies to
+-- init, walking interpolation, and debug/autopilot warps alike
+function Player:moveTo(x, y)
+    Player.super.moveTo(self, x, y + SPRITE_Y_OFFSET)
 end
 
 function Player:updateSprite()
@@ -127,10 +168,11 @@ function Player:update()
             self.stepJustFinished = true
         end
 
-        -- Walk frame for most of the step, standing for last 2 frames
-        -- Gives: stride -> stand -> stride -> stand (zig-zag, not cycling)
+        -- Even Gen 1 cadence: stride for the first half of the step,
+        -- standing for the second half. walkToggle alternates the lead
+        -- leg between steps: stride A -> stand -> stride B -> stand
         local walkImages = self.walkToggle and playerWalk1Images or playerWalk2Images
-        if self.moveFrames <= MOVE_FRAMES - 2 then
+        if self.moveFrames <= MOVE_FRAMES // 2 then
             self:setImage(walkImages[self.facing])
         else
             self:setImage(playerImages[self.facing])
@@ -142,6 +184,8 @@ function Player:update()
     else
         self:setImage(playerImages[self.facing])
     end
+
+    self:updateGrassOverlay()
 end
 
 function Player:getFacingTile()
