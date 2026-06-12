@@ -50,21 +50,29 @@ STANDING = _HEAD + [
 ]
 
 # Down/up frames: heads and torsos keep the authentic GB art; the leg rows
-# are redrawn so the standing pose is symmetric and the walk pose has ONE
-# clearly lifted foot. The runtime X-flips the walk frame on alternate steps
-# (Gen 1's trick), so the lifted foot must read unambiguously left or right.
+# follow the authentic pokered frames (gfx/sprites/red.png frames 0/1/3/4) —
+# outlined legs with white interiors, not solid blocks. The walk pose has
+# ONE clearly lifted foot; the runtime X-flips it on alternate steps (Gen
+# 1's trick), so the lifted foot must read unambiguously left or right.
 #
-# Walk frames are drawn 1px lower than standing (Gen 1 body bob). Leg pose
-# follows the authentic pokered frames (gfx/sprites/red.png frames 3/4):
-# the silhouette stays NARROW — one leg planted near center, the other leg
-# raised BEHIND the body with only a small heel hint beside the hip. No
-# lateral kick (a kicked-out foot reads as a frog hop at this scale).
+# Walk frames are drawn 1px lower than standing (Gen 1 body bob). The
+# silhouette stays NARROW — one leg planted near center, the other foot
+# raised BEHIND the body beside the hip. No lateral kick (a kicked-out
+# foot reads as a frog hop at this scale).
 
-# Stout GB-style standing legs (authentic r15 is '###..###' — straight
-# down, small gap, no flare; thin stilts read as insect legs)
-_DOWN_LEGS_STAND = [
-    "...####..####...",  # 13 thighs
-    "....###..###....",  # 14 shins
+# Authentic GB standing legs (pokered red.png frames 0/1 rows 13-15):
+# outlined with white interiors — black only at the edges plus the shorts
+# hem — instead of solid blocks, matching the side frames' leg weight.
+_LEGS_STAND_DOWN = [
+    "...#.##..##.#...",  # 13 thighs, shorts hem
+    "...#...##...#...",  # 14 shins, inner-leg shadow
+    "....###..###....",  # 15 feet
+]
+
+# Up legs differ only at the thigh row: a dark band under the backpack.
+_LEGS_STAND_UP = [
+    "...#.######.#...",  # 13 thighs under the backpack shadow
+    "...#...##...#...",  # 14 shins, inner-leg shadow
     "....###..###....",  # 15 feet
 ]
 
@@ -82,7 +90,7 @@ DOWN = [
     ".#.##......#.#..",  # 10 collar
     "..##########.#..",  # 11 shoulders
     "...##.####..##..",  # 12 arms + shirt
-] + _DOWN_LEGS_STAND
+] + _LEGS_STAND_DOWN
 
 DOWN_WALK = [
     "................",  # 0
@@ -99,7 +107,7 @@ DOWN_WALK = [
     "..#.#......##.#.",  # 11 collar
     "..#.##########..",  # 12 shoulders
     "..##..####.##...",  # 13 arms + shirt
-    "....#####..##...",  # 14 planted left thigh+knee; raised right heel
+    "....#..##.##....",  # 14 planted left shin (outlined) + raised right foot
     ".....###........",  # 15 planted left foot; right foot off the ground
 ]
 
@@ -117,7 +125,7 @@ UP = [
     ".#.###....####..",  # 10 backpack
     "..###.####.#..#.",  # 11 backpack bottom + arm
     "...##......##...",  # 12 arms
-] + _DOWN_LEGS_STAND
+] + _LEGS_STAND_UP
 
 UP_WALK = [
     "................",  # 0
@@ -133,34 +141,41 @@ UP_WALK = [
     "..##..####..###.",  # 10 backpack (arm swing)
     "..####....###.#.",  # 11
     ".#..#.####.###..",  # 12
-    ".#..#......##...",  # 13 (right marks read as the raised heel behind)
-    "....######......",  # 14 planted left leg; raised leg hidden behind body
+    ".#..#.....###...",  # 13 raised right foot behind (authentic 3px width)
+    "....#.####......",  # 14 planted left shin (outlined) + far leg in shadow
     ".....###........",  # 15 planted left foot
 ]
 
-# Side stride legs use thin 1px outlines like the standing pose — solid 2px
-# legs read as oversized at this scale.
+# Side stride frames bob like the down/up ones: the whole body drops 1px
+# (two blank rows on top) and the legs/torso compress a row to keep the
+# feet on the ground line. The dipped head reuses _HEAD shifted down.
+_HEAD_DIP = ["................"] + _HEAD
 
-# Stride A: near leg forward (authentic GB Frame 5 torso)
-WALK1 = _HEAD + [
-    "...#.......#....",  # 9  chin
+# Stride A: the authentic Gen 1 side walk (pokered red.png frame 5, minus
+# the chin row this project also drops from the standing frame). Both arms
+# swing — front arm reaching forward, rear arm trailing back — and the
+# legs are short and chunky: front foot planted, rear toe pushing off.
+WALK1 = _HEAD_DIP + [
     "....#....##.#...",  # 10 neck
-    ".....######.#...",  # 11 torso + arm
-    "...######..##...",  # 12 wide waist + rear arm
-    "....#...##......",  # 13 front thigh, rear thigh
-    "...#......#.....",  # 14 front shin, rear shin
-    "...##.....##....",  # 15 feet apart
+    ".....######.#...",  # 11 torso
+    "...######..##...",  # 12 arm swing: front arm forward, rear arm back
+    "..#..#..#..#.#..",  # 13 hands + hips
+    "...#..#####..#..",  # 14 legs, weight over the front foot
+    "....###....##...",  # 15 front foot planted, rear toe push-off
 ]
 
-# Stride B: far leg forward (slight variation -> visible alternation)
-WALK2 = _HEAD + [
-    "...#.......#....",  # 9  chin
+# Stride B: the passing pose Gen 1 never had, after FRLG's second side
+# stride (pokefirered red_normal.png frame 7): legs gathered under the
+# body mid-swing, one foot planted beneath the hip. Torso and arms reuse
+# WALK1's authentic art; the fist bottoms close 1px wider so the flood
+# fill can't hollow them out now that no planted foot seals them below.
+WALK2 = _HEAD_DIP + [
     "....#....##.#...",  # 10 neck
-    ".....######.#...",  # 11 torso + arm
-    "....#####..##...",  # 12 waist + rear arm
-    ".....#..##......",  # 13 thighs scissored
-    "....#.....#.....",  # 14 front shin, rear shin
-    "....##....##....",  # 15 feet apart
+    ".....######.#...",  # 11 torso
+    "...######..##...",  # 12 arm swing: front arm forward, rear arm back
+    "..#..#..#..#.#..",  # 13 hands + hips
+    "...##.#####.##..",  # 14 legs gathered mid-swing
+    ".......###......",  # 15 single foot planted under the body
 ]
 
 
