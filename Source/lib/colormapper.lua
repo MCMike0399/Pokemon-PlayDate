@@ -130,8 +130,10 @@ function ColorMapper:getTile(tileIndex)
     gfx.pushContext(tileImg)
         for y = 0, self.TILE_HEIGHT - 1 do
             for x = 0, self.TILE_WIDTH - 1 do
+                -- sample() returns a 1-bit color constant (kColorBlack/White/Clear),
+                -- not a color object: black -> GB black, white/clear -> GB white
                 local pixelColor = self.tilesetImage:sample(tileX + x + 0.5, tileY + y + 0.5)
-                local gray = pixelColor and pixelColor:lightness() or 1.0
+                local gray = (pixelColor == gfx.kColorBlack) and 0.0 or 1.0
                 local grayValue = math.floor((1.0 - gray) * 255)
                 local gbValue = self:grayToGB(grayValue)
                 local shade = self:map(gbValue)

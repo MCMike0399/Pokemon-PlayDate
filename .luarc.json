@@ -28,6 +28,9 @@
         "PokemonPoC.pdx"
     ],
     "workspace.checkThirdParty": false,
+    "diagnostics.disable": [
+        "lowercase-global"
+    ],
     "diagnostics.globals": [
         "import",
         "playdate",
