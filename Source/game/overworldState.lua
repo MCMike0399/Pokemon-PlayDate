@@ -209,6 +209,7 @@ function OverworldState:exit()
 end
 
 function OverworldState:update()
+    updateOverworldAnimations()
     self.sub:update()
 end
 

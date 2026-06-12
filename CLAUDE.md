@@ -66,7 +66,7 @@ Order matters. Key constraints:
 - **`data/typechart.lua`** — Gen V 17-type effectiveness matrix accessed via `TypeChart.getMatchup()`.
 - **`data/maps.lua`** — Zone definitions using declarative tile codes and `setupOverworld()`.
 - **`world/zone.lua`** — Zone class with Dart-like declarative config. Auto-generates collision from tile types. See below.
-- **`world/player.lua`** — Grid movement with smooth interpolation (8 frames/step at 30fps). Walk animation: Gen 1 cadence (stride first half of step, standing second half) with the lead leg alternating per step via `walkToggle` (distinct side stride frames; X-flipped frames for up/down). Characters draw 8px above their tile (GB style) and a tall-grass overlay hides the legs while in grass. `stepJustFinished` flag triggers encounter checks.
+- **`world/player.lua`** — Grid movement with smooth interpolation (8 frames/step at 30fps). Walk animation: Gen 1 cadence (stride first half of step, standing second half) with the lead leg alternating per step via `walkToggle` (distinct side stride frames; X-flipped frames for up/down). Characters draw 8px above their tile (GB style) and a tall-grass overlay hides the legs while in grass; landing a step in grass shows a splayed rustle variant for 6 frames (`rustleFrames`). `stepJustFinished` flag triggers encounter checks.
 - **`world/camera.lua`** — Lerp follow (20%/frame) with `snapTo()` for instant positioning. `apply()`/`reset()` toggle the graphics draw offset.
 
 ### Zone System (`world/zone.lua` + `data/maps.lua`)
@@ -87,9 +87,13 @@ Tile codes: `.`=Grass, `Pa`=Path, `Wa`=Wall, `Wt`=Water, `Tr`=Tree, `Dr`=Door, `
 
 Collision is auto-generated from tile types — no manual collision arrays. Globals: `zoneRegistry`, `zoneList`, `currentZone`. `switchZone(key)` changes zones. Zone methods: `spawnNPCs()`, `checkEncounter()`, `rollEncounter()`.
 
+`Zone:init` resolves roof corner tiles against the terrain beside them (RL checks left then above, RR right then above): a corner next to path/tall grass swaps to a composited variant (IDs 21-24) so the triangle outside the roof diagonal shows that texture instead of a white wedge. Authoring always uses plain `RL`/`RR`.
+
 ### 2-Bit Color System (`lib/shade.lua` + `world/tilefactory.lua`)
 
-Simulates the Game Boy's 4-shade palette on Playdate's 1-bit display using ordered dithering patterns. `TileFactory` generates all tile types at runtime — no external tile PNGs needed. Tiles are authored as 16x16 four-shade text grids (`.`=white, `1`=LIGHT, `2`=DARK, `#`=black) and rendered at native 32x32 (TILE_SIZE): each authored pixel becomes a 2x2 block, but dither patterns apply in screen space so the dots stay fine. Every grid row must be exactly 16 chars (asserted at startup).
+Simulates the Game Boy's 4-shade palette on Playdate's 1-bit display using ordered dithering patterns. `TileFactory` generates all tile types at runtime — no external tile PNGs needed. Tiles are authored as 16x16 four-shade text grids (`.`=white, `1`=LIGHT, `2`=DARK, `#`=black) and rendered at native 32x32 (TILE_SIZE): each authored pixel becomes a 2x2 block, but dither patterns apply in screen space so the dots stay fine. Every grid row must be exactly 16 chars (asserted at startup). Water, tall grass, and the 3 flower bob frames are 1:1 ports of the Gen 1 tiles from the pokered disassembly.
+
+**Animated tiles** (`world/overworld.lua`): water, shore, and flowers animate by swapping images into the imagetable in place (tile IDs never change) and marking the tilemap sprite dirty. One shared 10-frame heartbeat reproduces Gen 1's global animation counter (one step per 21 frames at 60fps): water/shore oscillate the wave streaks ±4px (`TileFactory.water(shift)`), flowers cycle bob frames 1,2,3,1. `updateOverworldAnimations()` is driven from `OverworldState:update()`, so animation continues under dialog/debug overlays and during the iris transition.
 
 ### Conventions
 

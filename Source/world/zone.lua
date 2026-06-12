@@ -21,7 +21,18 @@
 --   }))
 -- ============================================================
 
-Class("Zone")
+---@class Zone
+---@field name string
+---@field spawn { x: integer, y: integer, facing?: string }
+---@field npcDefs table[]
+---@field encounters table[]
+---@field encounterRate number
+---@field warps table[]
+---@field tiles integer[][]
+---@field width integer
+---@field height integer
+---@field collision integer[][]
+Zone = Class("Zone")
 
 -- 2-char tile codes -> IDs (readable map authoring)
 -- Use "." as shorthand for grass (most common tile)
@@ -68,6 +79,10 @@ local SOLID = {
     [18] = false, -- Grass variant A (1 tuft)
     [19] = false, -- Grass variant B (2 tufts)
     [20] = false, -- Grass variant C (3 tufts)
+    [21] = true,  -- Roof Left on path
+    [22] = true,  -- Roof Right on path
+    [23] = true,  -- Roof Left on tall grass
+    [24] = true,  -- Roof Right on tall grass
 }
 
 local TALL_GRASS_ID <const> = 8
@@ -103,6 +118,28 @@ function Zone:init(config)
         self.tiles = config.tiles
         self.width = config.width
         self.height = config.height
+    end
+
+    -- Resolve roof corner tiles against the ground beside them: the
+    -- triangle outside the roof diagonal takes the neighbor's texture
+    -- (path/tall grass) instead of punching a white wedge into it.
+    -- RL checks left then above; RR checks right then above.
+    local ROOF_L <const>, ROOF_R <const> = 15, 16
+    local CORNER_ON = {
+        [ROOF_L] = { [2] = 21, [8] = 23 },  -- on path / on tall grass
+        [ROOF_R] = { [2] = 22, [8] = 24 },
+    }
+    for y = 1, self.height do
+        for x = 1, self.width do
+            local id = self.tiles[y][x]
+            local variants = CORNER_ON[id]
+            if variants then
+                local sideX = (id == ROOF_L) and x - 1 or x + 1
+                local side = (sideX >= 1 and sideX <= self.width) and self.tiles[y][sideX]
+                local above = (y > 1) and self.tiles[y - 1][x]
+                self.tiles[y][x] = variants[side] or variants[above] or id
+            end
+        end
     end
 
     -- Scatter grass tuft variants over plain grass (IDs 18-20)
@@ -194,8 +231,11 @@ end
 -- ============================================================
 -- ZONE REGISTRY
 -- ============================================================
+---@type table<string, Zone>
 zoneRegistry = {}
+---@type string[]
 zoneList = {}
+---@type Zone
 currentZone = nil
 
 function registerZone(key, zone)

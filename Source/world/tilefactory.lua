@@ -24,8 +24,10 @@ Class("TileFactory")
 local SHADES <const> = { ["1"] = Shade.LIGHT, ["2"] = Shade.DARK, ["#"] = Shade.BLACK }
 
 -- rows: 16 strings of 16 shade codes -> native 32x32 image
-local function makeShadeTile(rows)
-    local img = gfx.image.new(32, 32, gfx.kColorWhite)
+-- With a baseImage the tile is drawn over a copy of it: "." paints
+-- explicit white and " " leaves the base showing through (overlays)
+local function makeShadeTile(rows, baseImage)
+    local img = baseImage and baseImage:copy() or gfx.image.new(32, 32, gfx.kColorWhite)
     gfx.pushContext(img)
     for y = 1, 16 do
         local row = rows[y]
@@ -36,6 +38,9 @@ local function makeShadeTile(rows)
             local x2 = x
             while x2 < 16 and row:sub(x2 + 1, x2 + 1) == c do x2 = x2 + 1 end
             local shade = SHADES[c]
+            if not shade and baseImage and c == "." then
+                shade = Shade.WHITE
+            end
             if shade then
                 Shade.set(shade)
                 gfx.fillRect((x - 1) * 2, (y - 1) * 2, (x2 - x + 1) * 2, 2)
@@ -49,7 +54,7 @@ local function makeShadeTile(rows)
 end
 
 -- fn(x, y) -> shade code, for tiles easier to express procedurally
-local function makeShadeTileFn(fn)
+local function makeShadeTileFn(fn, baseImage)
     local rows = {}
     for y = 0, 15 do
         local chars = {}
@@ -58,7 +63,7 @@ local function makeShadeTileFn(fn)
         end
         rows[y + 1] = table.concat(chars)
     end
-    return makeShadeTile(rows)
+    return makeShadeTile(rows, baseImage)
 end
 
 local function tuftTile(points)
@@ -96,6 +101,13 @@ function TileFactory.generateAll()
     tiles:setImage(18, TileFactory.grassA())
     tiles:setImage(19, TileFactory.grassB())
     tiles:setImage(20, TileFactory.grassC())
+    -- Roof corners composited over textured ground (resolved in Zone:init):
+    -- the triangle outside the diagonal shows the surrounding terrain
+    -- instead of punching a white hole into it
+    tiles:setImage(21, TileFactory.roofLeft(TileFactory.path()))
+    tiles:setImage(22, TileFactory.roofRight(TileFactory.path()))
+    tiles:setImage(23, TileFactory.roofLeft(TileFactory.tallGrass()))
+    tiles:setImage(24, TileFactory.roofRight(TileFactory.tallGrass()))
     return tiles
 end
 
@@ -187,14 +199,31 @@ function TileFactory.wall()
     })
 end
 
--- 4: Water — light water with staggered dark wave dashes
-function TileFactory.water()
+-- Authentic Gen 1 water tile ($14 in pokered): dark field with two
+-- diagonal white wave streaks. The GB animates it by rotating the
+-- tile's bytes horizontally — `shift` reproduces that as a wrapped
+-- sample offset (the streaks slide, the field stays put).
+local WATER_ROWS <const> = {
+    "2222..22",
+    "222..222",
+    "222..222",
+    "2222..22",
+    "22222...",
+    "..222222",
+    "22..2222",
+    "222..222",
+}
+
+local function waterCode(x, y, shift)
+    local row = WATER_ROWS[(y % 8) + 1]
+    local i = (((x - (shift or 0)) % 8) + 8) % 8 + 1
+    return row:sub(i, i)
+end
+
+-- 4: Water — Gen 1 streaked water, oscillates +-4px via shift
+function TileFactory.water(shift)
     return makeShadeTileFn(function(x, y)
-        if y % 4 == 2 then
-            local phase = ((y // 4) % 2) * 4
-            if (x + phase) % 8 < 4 then return "#" end
-        end
-        return "1"
+        return waterCode(x, y, shift)
     end)
 end
 
@@ -264,15 +293,34 @@ function TileFactory.fence()
     })
 end
 
--- 8: Tall Grass — layered zigzag blade rows over light ground
+-- Authentic Gen 1 tall grass tile ($52, the Route 1 encounter grass):
+-- comma-shaped blade clumps, tiled 2x2 across the 16x16 metatile
+local TALL_GRASS_ROWS <const> = {
+    "......21",
+    ".....2.2",
+    "22..2112",
+    "2.2.2121",
+    "2.12222.",
+    ".2.1221.",
+    "112122..",
+    ".11221..",
+}
+
+-- 8: Tall Grass
 function TileFactory.tallGrass()
     return makeShadeTileFn(function(x, y)
-        local band = y // 4
-        local brow = y % 4
-        local lx = (x + (band % 2) * 2) % 4
-        if brow == 0 and lx == 1 then return "#" end
-        if brow == 1 and (lx == 0 or lx == 2) then return "#" end
-        return "1"
+        local row = TALL_GRASS_ROWS[(y % 8) + 1]
+        return row:sub((x % 8) + 1, (x % 8) + 1)
+    end)
+end
+
+-- Rustle variant for the step-into-grass splay (FRLG juice): the
+-- blades part outward from the tile's center for a few frames
+function TileFactory.tallGrassRustle()
+    return makeShadeTileFn(function(x, y)
+        local sx = (x < 8) and (x + 1) or (x - 1)
+        local row = TALL_GRASS_ROWS[(y % 8) + 1]
+        return row:sub((sx % 8) + 1, (sx % 8) + 1)
     end)
 end
 
@@ -291,24 +339,25 @@ function TileFactory.roof()
     end)
 end
 
--- 15: Roof Left — '/' peaked end, white outside, shingles inside
-function TileFactory.roofLeft()
+-- 15: Roof Left — '/' peaked end, shingles inside; outside the diagonal
+-- shows the ground tile passed as base (white grass when omitted)
+function TileFactory.roofLeft(base)
     return makeShadeTileFn(function(x, y)
         local edge = 15 - y
-        if x < edge then return "." end
+        if x < edge then return base and " " or "." end
         if x == edge then return "#" end
         return roofBand(y)
-    end)
+    end, base)
 end
 
--- 16: Roof Right — '\' peaked end, shingles inside, white outside
-function TileFactory.roofRight()
+-- 16: Roof Right — '\' peaked end, shingles inside, ground outside
+function TileFactory.roofRight(base)
     return makeShadeTileFn(function(x, y)
         local edge = y
-        if x > edge then return "." end
+        if x > edge then return base and " " or "." end
         if x == edge then return "#" end
         return roofBand(y)
-    end)
+    end, base)
 end
 
 -- 10: Sign — outlined board with text squiggles + post
@@ -333,43 +382,40 @@ function TileFactory.sign()
     })
 end
 
--- 11: Flowers — outlined blooms with light centers + tuft
-function TileFactory.flowers()
-    return makeShadeTile({
-        "................",
-        "....#...........",
-        "...#1#..........",
-        "..#111#.........",
-        "...#1#..........",
-        "....#...........",
-        "............#...",
-        "...........#1#..",
-        "..........#111#.",
-        "...........#1#..",
-        "............#...",
-        "................",
-        "..##............",
-        "..#.............",
-        "................",
-        "................",
-    })
+-- Authentic Gen 1 flower frames (gfx/tilesets/flower/flower1-3.png):
+-- the same blossom bobbing 1px (mid / down-right / up). One blossom
+-- per 8x8 sub-tile, placed diagonally in the metatile over the
+-- dither "mat" the original garden beds use.
+local FLOWER_FRAMES <const> = {
+    { "1......1", "...22...", "..2..2..", "12.22121",
+      ".2.1112.", "2.2112.2", ".222222.", "1..22..1" },
+    { "1......1", "....22..", "...2..2.", "1.2.2212",
+      "222.1112", ".2221122", "..22222.", "1..22..1" },
+    { "1..22..1", "..2..2..", ".2.2212.", "12.11121",
+      "..2112..", "22.22.22", ".222222.", "1..22..1" },
+}
+
+-- 11: Flowers — two blossoms on a dither mat, 3 bob frames
+function TileFactory.flowers(frame)
+    local f = FLOWER_FRAMES[frame or 1]
+    return makeShadeTileFn(function(x, y)
+        if (x < 8) == (y < 8) then
+            local row = f[(y % 8) + 1]
+            return row:sub((x % 8) + 1, (x % 8) + 1)
+        end
+        return "1"
+    end)
 end
 
--- 12: Shore — white land, gentle wavy black edge, water below
-function TileFactory.shore()
+-- 12: Shore — white land over the Gen 1 scalloped diamond-chain
+-- bank edging, animated water below (shares the water's shift)
+function TileFactory.shore(shift)
     return makeShadeTileFn(function(x, y)
-        local edgeY = 8 + math.floor(0.5 + math.sin(x * math.pi / 8))
-        if y < edgeY then
-            return "."
-        elseif y == edgeY then
-            return "#"
-        else
-            if y % 4 == 2 then
-                local phase = ((y // 4) % 2) * 4
-                if (x + phase) % 8 < 4 then return "#" end
-            end
-            return "1"
-        end
+        if y < 6 then return "." end
+        local m = x % 4
+        if y == 6 or y == 8 then return (m == 1) and "#" or "." end
+        if y == 7 then return (m == 0 or m == 2) and "#" or "." end
+        return waterCode(x, y, shift)
     end)
 end
 

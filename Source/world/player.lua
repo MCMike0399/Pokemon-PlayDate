@@ -10,7 +10,7 @@ local SPRITE_Y_OFFSET <const> = -8
 
 -- Pre-load all player images, scaled 2x for native feel
 local function loadScaled(path)
-    local img = gfx.image.new(path)
+    local img = assert(gfx.image.new(path), "missing image: " .. path)
     return img:scaledImage(2)
 end
 
@@ -47,15 +47,24 @@ local playerWalk2Images = {
     right = loadScaledFlipped("images/overworld/player-left-walk2"),
 }
 
--- Tall grass overlay: drawn over the player's legs while in grass (Gen 1 style)
-local grassOverlayImage = nil
+-- Tall grass overlay: drawn over the player's legs while in grass (Gen 1
+-- style). A splayed rustle variant shows briefly when a step lands in
+-- grass (FRLG-style), then settles to the normal overlay.
+---@type _Image
+local grassOverlayImage
+---@type _Image
+local grassRustleImage
+local function buildOverlayHalf(tile)
+    local img = playdate.graphics.image.new(TILE_SIZE, TILE_SIZE // 2)
+    gfx.pushContext(img)
+    tile:draw(0, -TILE_SIZE // 2)
+    gfx.popContext()
+    return img
+end
 local function getGrassOverlay()
     if not grassOverlayImage then
-        local tile = TileFactory.tallGrass()
-        grassOverlayImage = playdate.graphics.image.new(TILE_SIZE, TILE_SIZE // 2)
-        gfx.pushContext(grassOverlayImage)
-        tile:draw(0, -TILE_SIZE // 2)
-        gfx.popContext()
+        grassOverlayImage = buildOverlayHalf(TileFactory.tallGrass())
+        grassRustleImage = buildOverlayHalf(TileFactory.tallGrassRustle())
     end
     return grassOverlayImage
 end
@@ -75,6 +84,7 @@ function Player:init(gridX, gridY, collisionMap)
     self.collisionMap = collisionMap
     self.walkToggle = false  -- alternates lead foot between steps
     self.stepJustFinished = false
+    self.rustleFrames = 0    -- grass splay countdown after landing in grass
 
     self:setImage(playerImages.down)
     self:setCenter(0, 0)
@@ -95,6 +105,12 @@ function Player:updateGrassOverlay()
     local onGrass = row and row[self.gridX + 1] == 8
     self.grassOverlay:setVisible(onGrass or false)
     if onGrass then
+        if self.rustleFrames > 0 then
+            self.rustleFrames = self.rustleFrames - 1
+            self.grassOverlay:setImage(grassRustleImage)
+        else
+            self.grassOverlay:setImage(grassOverlayImage)
+        end
         self.grassOverlay:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE + TILE_SIZE // 2)
     end
 end
@@ -166,6 +182,10 @@ function Player:update()
             t = 1
             self.isMoving = false
             self.stepJustFinished = true
+            local row = currentZone and currentZone.tiles[self.gridY + 1]
+            if row and row[self.gridX + 1] == 8 then
+                self.rustleFrames = 6
+            end
         end
 
         -- Even Gen 1 cadence: stride for the first half of the step,
