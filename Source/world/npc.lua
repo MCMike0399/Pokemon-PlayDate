@@ -35,6 +35,18 @@ function NPC:getDialogLines()
     return self.dialogLines
 end
 
+-- Interacted state is mirrored onto the zone's npc def so it survives the
+-- sprite teardown/respawn that happens when re-entering the overworld
+function NPC:markInteracted()
+    self.interacted = true
+    if self.def then self.def.interacted = true end
+end
+
+function NPC:resetInteracted()
+    self.interacted = false
+    if self.def then self.def.interacted = false end
+end
+
 -- NPC manager
 Class("NPCManager")
 

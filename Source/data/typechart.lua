@@ -18,9 +18,9 @@ local chart = {
     psychic = { dark = 0.0, fighting = 2.0, poison = 2.0, psychic = 0.5, steel = 0.5 },
     bug = { dark = 2.0, fighting = 0.5, fire = 0.5, flying = 0.5, ghost = 0.5, grass = 2.0, poison = 0.5, psychic = 2.0, steel = 0.5 },
     rock = { bug = 2.0, fighting = 0.5, fire = 2.0, flying = 2.0, ground = 0.5, ice = 2.0, steel = 0.5 },
-    ghost = { dark = 0.5, ghost = 2.0, normal = 0.0, psychic = 2.0 },
+    ghost = { dark = 0.5, ghost = 2.0, normal = 0.0, psychic = 2.0, steel = 0.5 },
     dragon = { dragon = 2.0, steel = 0.5 },
-    dark = { dark = 0.5, fighting = 0.5, ghost = 2.0, psychic = 2.0 },
+    dark = { dark = 0.5, fighting = 0.5, ghost = 2.0, psychic = 2.0, steel = 0.5 },
     steel = { electric = 0.5, fire = 0.5, ice = 2.0, rock = 2.0, steel = 0.5, water = 0.5 },
 }
 

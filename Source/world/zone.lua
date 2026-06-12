@@ -159,6 +159,8 @@ function Zone:spawnNPCs(npcManager)
         if def.postBattleLines then
             npc.postBattleLines = def.postBattleLines
         end
+        npc.def = def
+        npc.interacted = def.interacted or false
         npcManager:addNPC(npc)
         created[def.name] = npc
     end

@@ -22,35 +22,41 @@ diskutil eject /Volumes/PLAYDATE
 
 ## Architecture
 
-Top-level state machine (`StateMachine`) drives the game loop. Four states: `overworld`, `battle`, `dialog`, `debug`. Only one active at a time, with dialog compositing on top of the overworld.
+A hierarchical, stack-based state machine (`lib/statemachine.lua`) drives the game loop. Top-level states are classes in `Source/game/`: `OverworldState` (with its own substate machine: `explore`, `irisOut`), `BattleState`, plus `DialogState` and `DebugState`, which are *pushed* onto the stack as overlays — the world keeps animating and drawing beneath them while input routes to the top state only. The battle runs the same `StateMachine` class internally for its phases (`command`, `script`, `ended`).
 
 ```
 Source/
-  main.lua                 -- Game loop, state registration, encounter logic
+  main.lua                 -- Imports, state registration, the update loop
+  game/
+    context.lua            -- GameContext: machine/camera/player/pokemon + transition log
+    overworldState.lua     -- Overworld play (explore + iris-out substates)
+    dialogState.lua        -- Text box overlay (pushed over the overworld)
+    battleState.lua        -- Battle lifecycle, blackout/respawn handling
+    debugState.lua         -- Debug menu overlay (pushed over the overworld)
   lib/
-    oop.lua                -- Class/Mixin/Signal/Pool system (330 lines)
+    oop.lua                -- Class/Mixin/Signal/Pool system
     shade.lua              -- 4-shade dithering system (Game Boy palette simulation)
     colormapper.lua        -- GB 2-bit to Playdate shade mapping for authentic tiles
-    statemachine.lua       -- State machine with enter/exit/update/draw
+    statemachine.lua       -- State + StateMachine (stack, push/pop, nesting, signals)
   data/
-    pokemon.lua            -- 156 species (Gen I-V), stats, types, movesets
-    moves.lua              -- Move definitions with composable effects
-    typechart.lua          -- 15-type effectiveness matrix
+    pokemon.lua            -- 151 species with Gen V stats/types + Pokemon class
+    typechart.lua          -- Gen V 17-type effectiveness matrix
     maps.lua               -- Zone definitions (declarative tile codes)
   battle/
-    battle.lua             -- Turn resolution, damage calc, status effects
+    dsl.lua                -- Composable battle DSL: Targets, Numbers, Conditions, Effects
+    battle.lua             -- Rules engine: Gen V math, coroutine-scripted turns + phases
     battleScene.lua        -- Battle UI rendering and input
-    moves.lua              -- Move data and effect classes
+    moves.lua              -- B2W2 move data (generated, composed from DSL effects)
   world/
     zone.lua               -- Zone class (declarative map definitions, auto-collision)
     tilefactory.lua        -- Runtime tile generation (procedural + authentic ROM tiles)
     overworld.lua          -- Tilemap setup and rendering
     player.lua             -- Grid movement with smooth interpolation
     camera.lua             -- Lerp follow + snap mode
-    npc.lua                -- NPC manager, patrol, dialogue triggers
+    npc.lua                -- NPC manager, dialogue triggers, persistent trainer flags
   ui/
-    dialog.lua             -- Text box overlay
-    menu.lua               -- Action menu (Fight/Bag/Pokemon/Run)
+    dialog.lua             -- Text box widget
+    menu.lua               -- Battle menu widget
     debug.lua              -- Debug tools (spawn battles, heal, warp)
 ```
 
@@ -66,19 +72,34 @@ Custom class system that sits alongside Playdate's `CoreLibs/object`. Playdate's
 
 ### Battle System
 
-Battles follow the Gen I formula faithfully:
+Battles follow Gen V (Black 2 / White 2) mechanics:
 
-- **Damage**: `(((2 * level * crit / 5 + 2) * power * atk / def) / 50 + 2) * STAB * type * random`
-- **STAB**: 1.5x when move type matches attacker type
-- **Crits**: 1/16 chance, 2x multiplier, screen shake via `display.setOffset()`
-- **Speed**: determines turn order, modified by stat stages and paralysis
-- **Accuracy**: per-move check, `accuracy=0` bypasses (always hits)
-- **Run**: Gen I formula with escalating chance per attempt, failed run gives enemy a free turn
+- **Damage**: `(2·L/5 + 2) · power · A/D / 50 + 2`, then modifiers in Gen V order with flooring at each step: crit ×2 → random 85–100% → STAB ×1.5 → type chart → burn halves physical
+- **Physical/special split**: per move (Gen IV+), resolved from PokeAPI damage classes — not the old per-type rule
+- **Stats**: full Gen V six-stat spread (Atk/Def/SpA/SpD/Spe) with stage multipliers; accuracy/evasion stages use the 3-based table
+- **Crits**: 1/16 chance, ×2, ignore stat stages unfavorable to the attacker; screen shake via `display.setOffset()`
+- **Turn order**: move priority brackets first, then effective speed (paralysis quarters speed)
+- **Multi-hit**: 2–5 hit moves use the Gen V distribution (2/3 hits: 1/3 each; 4/5 hits: 1/6 each), one accuracy roll, per-hit damage and crit rolls
+- **Drain/recoil**: % of damage dealt (Absorb drains 50%, Double-Edge recoils 33%, ...)
+- **Volatiles**: flinch (one turn) and confusion (1–4 turns, 50% to self-hit with a 40-power typeless physical) live alongside major status; sleep counts down 1–3 turns and the pokemon attacks the turn it wakes
+- **Status immunities**: fire can't be burned, ice can't be frozen, poison/steel can't be poisoned
+- **XP**: B2W2 flat formula `(baseExp · defeatedLevel) / 7` with real base experience yields
+- **Run**: Gen III–V formula `(A·128/B + 30·attempts) mod 256`, failed run gives the enemy a free turn
 
-**Composable move effects** — moves carry an `effects` array of objects that implement `:apply(attacker, defender)`. Three types:
-- `StatChange(target, stat, stages)` — raise/lower atk/def/spc/spd
-- `StatusEffect(target, status, chance)` — burn/poison/paralyze/sleep/freeze with proc chance
-- `ConditionalEffect(condition, effect)` — apply effect only when condition passes
+Move data (B2W2 power/accuracy/PP/type/priority) and Gen V base stats are regenerated by `tools/generate_gen5_data.py`, which resolves historical values through PokeAPI's move changelog and Pokémon Showdown's generation mods.
+
+**Coroutine-scripted turns** — turn resolution runs as a coroutine inside the battle's `script` phase. `battle:say(msg)` yields until the player confirms, so the whole round reads as linear code (status gates → accuracy → damage → effectiveness/crit messages → effects → faint/XP) instead of nested callbacks.
+
+**Composable move effects (`battle/dsl.lua`)** — moves carry an `effects` array of DSL objects that implement `:apply(battle)` and narrate themselves with `battle:say()`. The battle carries directionality (attacker/defender flip each half-turn), so effects are written once, not per side:
+- Targets: `ATTACKER` / `DEFENDER` selectors resolved against the battle
+- Numbers: lazy values — `Exactly(n)`, `Between(min,max)`, `Weighted{...}`, `Product/Sum/Quotient`, `MaxHPOf(target)`, `LevelOf(target)`...
+- Conditions: `Chance(pct)`, `Not/AllOf/AnyOf`, battler predicates (`HasType`, `HasStatus`) lifted with `For(target, cond)`
+- Effects: `ModifyStat`, `ApplyStatus`, `DirectDamage`, `Heal`, combinators `EffectSeq`, `When(cond, effect)`, `NoEffect`
+
+```lua
+-- e.g. BODY SLAM with a 30% paralysis rider would be:
+When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))
+```
 
 **Status conditions** are processed per-turn: poison/burn deal 1/8 max HP, paralysis has 25% skip chance and halves speed, sleep blocks 1-3 turns, freeze blocks with 20% thaw chance.
 

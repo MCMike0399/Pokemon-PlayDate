@@ -4,3 +4,4 @@ __pycache__/
 tools/verify_moves/cache/
 assets_dump/
 tools/shots/
+tools/gen5cache/

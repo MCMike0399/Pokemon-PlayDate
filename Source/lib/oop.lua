@@ -87,6 +87,9 @@ end
 -- Copies parent functions into child table for O(1) method lookup.
 -- Metatable chain kept as fallback for methods added to parent later.
 function Base:extends(parent)
+    if not parent then
+        error(self.__name .. ":extends(nil) — parent class not defined yet (check import order)", 2)
+    end
     self.__parent = parent
     self.super = parent
 
@@ -167,7 +170,8 @@ end
 -- CLASS(name) — create and register a new class
 -- ============================================================
 
-function Class(name)
+-- Optional second arg is a parent class: Class("Dog", Animal) ≡ Class("Dog"):extends(Animal)
+function Class(name, parent)
     local cls = {}
     cls.__index = cls
     cls.__name = name
@@ -217,6 +221,9 @@ function Class(name)
     })
 
     _G[name] = cls
+    if parent then
+        cls:extends(parent)
+    end
     return cls
 end
 
@@ -255,8 +262,10 @@ function Signal:off(event, fn)
     local list = self._listeners[event]
     for i = #list, 1, -1 do
         if list[i] == fn then
-            if self._emitting == event then
+            if self._emitting and self._emitting[event] then
                 list[i] = false  -- defer removal until emit completes
+                self._dirty = self._dirty or {}
+                self._dirty[event] = true
             else
                 remove(list, i)
             end
@@ -275,23 +284,30 @@ function Signal:once(event, fn)
     return self:on(event, wrapper)
 end
 
+-- Re-entrancy safe: listeners may emit (same or other events) and add/remove
+-- listeners. Removals during an emit are deferred (marked false) and
+-- compacted once the outermost emit for that event unwinds.
 function Signal:emit(event, ...)
     if not self._listeners or not self._listeners[event] then return self end
     local list = self._listeners[event]
-    self._emitting = event
+    local emitting = self._emitting
+    if not emitting then
+        emitting = {}
+        self._emitting = emitting
+    end
+    emitting[event] = (emitting[event] or 0) + 1
     local n = #list
-    local dirty = false
     for i = 1, n do
         local fn = list[i]
         if fn then
             fn(...)
-        else
-            dirty = true
         end
     end
-    self._emitting = nil
-    -- Compact any entries marked false by off() during iteration
-    if dirty then
+    local depth = emitting[event] - 1
+    emitting[event] = depth > 0 and depth or nil
+    -- Compact entries marked false by off() once fully unwound
+    if depth == 0 and self._dirty and self._dirty[event] then
+        self._dirty[event] = nil
         local j = 0
         for i = 1, #list do
             if list[i] then
@@ -336,6 +352,7 @@ function Pool(cls, prewarmCount)
         local obj
         if #self._available > 0 then
             obj = remove(self._available)
+            obj.__pooled = nil
             if obj.reset then
                 obj:reset(...)
             end
@@ -348,6 +365,8 @@ function Pool(cls, prewarmCount)
     end
 
     function pool:release(obj)
+        if obj.__pooled then return end  -- double-release guard
+        obj.__pooled = true
         if obj.deactivate then
             obj:deactivate()
         end
@@ -358,6 +377,7 @@ function Pool(cls, prewarmCount)
     function pool:prewarm(n)
         for _ = 1, n do
             local obj = self._cls()
+            obj.__pooled = true
             if obj.deactivate then
                 obj:deactivate()
             end

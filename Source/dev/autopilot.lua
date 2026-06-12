@@ -16,6 +16,15 @@
 --   shot <name>                     screenshot -> tools/shots/<name>.png
 --   record <name> <n>               capture next n frames -> <name>-NN.png
 --   encounters <on|off>             toggle wild encounters
+--   press <a|b|up|down|left|right>  inject one button press (menus, dialog)
+--   mash <btn> <n> [gap]            press <btn> n times, every gap frames (default 16)
+--   battle <species> <level>        jump straight into a wild battle
+--   gamestate                       report state stack, battle phase, transitions
+--   seed <n>                        math.randomseed(n) for deterministic runs
+--   debug <open|close>              push/pop the debug menu overlay
+--   pokemon                         report player pokemon species/lv/hp/xp/status
+--   state                           dump player/overlay diagnostics
+--   dumpimg <name>                  write the player's current sprite image
 
 Autopilot = { update = function() end }
 
@@ -34,12 +43,45 @@ local DIRS <const> = {
     up = { 0, -1 }, down = { 0, 1 }, left = { -1, 0 }, right = { 1, 0 },
 }
 
+local BUTTONS <const> = {
+    a = playdate.kButtonA, b = playdate.kButtonB,
+    up = playdate.kButtonUp, down = playdate.kButtonDown,
+    left = playdate.kButtonLeft, right = playdate.kButtonRight,
+}
+
 local queue = {}
 local active = nil      -- command currently executing
 local recording = nil   -- { name, total, count }
 local pendingAck = false
 local pollCountdown = 0
 local results = {}
+
+-- ------------------------------------------------------------
+-- Synthetic input: wrap the button query functions so injected
+-- presses are indistinguishable from real ones for exactly one frame
+-- ------------------------------------------------------------
+local injectedPress = {}
+
+local realJustPressed = playdate.buttonJustPressed
+local realIsPressed = playdate.buttonIsPressed
+
+function playdate.buttonJustPressed(button)
+    return injectedPress[button] == true or realJustPressed(button)
+end
+
+function playdate.buttonIsPressed(button)
+    return injectedPress[button] == true or realIsPressed(button)
+end
+
+local function inject(button)
+    injectedPress[button] = true
+end
+
+local function clearInjected()
+    for k in pairs(injectedPress) do
+        injectedPress[k] = nil
+    end
+end
 
 local function screenshot(name)
     playdate.simulator.writeToFile(gfx.getDisplayImage(), SHOTS_DIR .. name .. ".png")
@@ -77,13 +119,132 @@ local function readCommands()
 end
 
 -- Returns true when the command has finished
-local function step(cmd, player, camera)
+local function step(cmd, game)
     local name = cmd[1]
+    local player = game.player
+
+    -- Commands that work in any state ------------------------------------
+
+    if name == "wait" then
+        if cmd.left == nil then cmd.left = tonumber(cmd[2]) or 1 end
+        cmd.left = cmd.left - 1
+        return cmd.left <= 0
+
+    elseif name == "shot" then
+        screenshot(cmd[2] or "shot")
+        results[#results + 1] = "shot " .. (cmd[2] or "shot")
+        return true
+
+    elseif name == "record" then
+        recording = { name = cmd[2] or "rec", total = tonumber(cmd[3]) or 16, count = 0 }
+        return true
+
+    elseif name == "encounters" then
+        DEBUG_FLAGS.noEncounters = (cmd[2] == "off")
+        return true
+
+    elseif name == "press" then
+        local button = BUTTONS[cmd[2]]
+        if not button then
+            results[#results + 1] = "err press: bad button " .. tostring(cmd[2])
+            return true
+        end
+        inject(button)
+        return true
+
+    elseif name == "mash" then
+        local button = BUTTONS[cmd[2]]
+        if not button then
+            results[#results + 1] = "err mash: bad button " .. tostring(cmd[2])
+            return true
+        end
+        if cmd.count == nil then
+            cmd.count = tonumber(cmd[3]) or 1
+            cmd.gap = tonumber(cmd[4]) or 16
+            cmd.cooldown = 0
+        end
+        if cmd.cooldown > 0 then
+            cmd.cooldown = cmd.cooldown - 1
+            return false
+        end
+        inject(button)
+        cmd.count = cmd.count - 1
+        cmd.cooldown = cmd.gap
+        return cmd.count <= 0
+
+    elseif name == "battle" then
+        local species = cmd[2]
+        local level = tonumber(cmd[3]) or 5
+        if not (species and pokemonData[species]) then
+            results[#results + 1] = "err battle: unknown species " .. tostring(species)
+            return true
+        end
+        if not game.playerPokemon then
+            results[#results + 1] = "err battle: no player pokemon yet"
+            return true
+        end
+        game.machine:change("battle", game.playerPokemon, Pokemon(species, level), nil)
+        results[#results + 1] = "battle " .. species .. " " .. level
+        return true
+
+    elseif name == "gamestate" then
+        local line = "gamestate " .. game.machine:stackNames()
+        local top = game.machine:current()
+        if top and top.battle then
+            line = line .. " phase=" .. tostring(top.battle:phase())
+                .. " msg=[" .. tostring(top.battle.message) .. "]"
+        end
+        if player then
+            line = line .. string.format(" player=%d,%d", player.gridX, player.gridY)
+        end
+        results[#results + 1] = line
+        results[#results + 1] = "transitions " .. game:recentTransitions()
+        return true
+
+    elseif name == "seed" then
+        math.randomseed(tonumber(cmd[2]) or 0)
+        results[#results + 1] = "seed " .. tostring(cmd[2])
+        return true
+
+    elseif name == "debug" then
+        if cmd[2] == "open" and game.machine:is("overworld") then
+            game.machine:push("debug")
+        elseif cmd[2] == "close" and game.machine:is("debug") then
+            game.machine:pop()
+        end
+        results[#results + 1] = "debug " .. tostring(cmd[2]) .. " -> " .. game.machine:stackNames()
+        return true
+
+    elseif name == "pokemon" then
+        local p = game.playerPokemon
+        if p then
+            results[#results + 1] = string.format("pokemon %s lv%d hp=%d/%d xp=%d status=%s",
+                p.species, p.level, p.hp, p.maxHP, p.xp, tostring(p.status))
+        else
+            results[#results + 1] = "pokemon none"
+        end
+        return true
+    end
+
+    -- Commands that need the overworld player -----------------------------
+
+    if not player then
+        results[#results + 1] = "err " .. name .. ": no player (state="
+            .. game.machine:stackNames() .. ")"
+        return true
+    end
 
     if name == "move" then
         local dir = DIRS[cmd[2]]
         if not dir then
             results[#results + 1] = "err move: bad direction " .. tostring(cmd[2])
+            return true
+        end
+        -- A step can trigger an encounter that yanks us out of the overworld;
+        -- abort instead of waiting forever on a frozen walk interpolation
+        if game.machine:getCurrent() ~= "overworld" then
+            results[#results + 1] = string.format("interrupted move at %d,%d (state=%s)",
+                player.gridX, player.gridY, game.machine:stackNames())
             return true
         end
         if cmd.remaining == nil then cmd.remaining = tonumber(cmd[3]) or 1 end
@@ -112,26 +273,8 @@ local function step(cmd, player, camera)
             player:moveTo(gx * TILE_SIZE, gy * TILE_SIZE)
             local px, py = player:getPixelCenter()
             local mw, mh = getMapPixelSize()
-            camera:snapTo(px, py, mw, mh)
+            game.camera:snapTo(px, py, mw, mh)
         end
-        return true
-
-    elseif name == "wait" then
-        if cmd.left == nil then cmd.left = tonumber(cmd[2]) or 1 end
-        cmd.left = cmd.left - 1
-        return cmd.left <= 0
-
-    elseif name == "shot" then
-        screenshot(cmd[2] or "shot")
-        results[#results + 1] = "shot " .. (cmd[2] or "shot")
-        return true
-
-    elseif name == "record" then
-        recording = { name = cmd[2] or "rec", total = tonumber(cmd[3]) or 16, count = 0 }
-        return true
-
-    elseif name == "encounters" then
-        DEBUG_FLAGS.noEncounters = (cmd[2] == "off")
         return true
 
     elseif name == "dumpimg" then
@@ -153,7 +296,10 @@ local function step(cmd, player, camera)
     return true
 end
 
-function Autopilot.update(player, camera)
+function Autopilot.update(game)
+    -- Injected presses last exactly one frame
+    clearInjected()
+
     -- Capture first: getDisplayImage() returns the last completed frame
     if recording then
         recording.count = recording.count + 1
@@ -164,18 +310,18 @@ function Autopilot.update(player, camera)
         end
     end
 
-    if not player then return end
+    if not game then return end
 
     if active == nil and #queue > 0 then
         active = table.remove(queue, 1)
     end
-    if active and step(active, player, camera) then
+    if active and step(active, game) then
         active = nil
     end
 
     if pendingAck and active == nil and #queue == 0 and recording == nil then
         pendingAck = false
-        writeDone(player)
+        writeDone(game.player)
     end
 
     pollCountdown = pollCountdown - 1

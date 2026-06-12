@@ -1,3 +1,18 @@
+-- battle/battle.lua — Battle rules engine
+--
+-- The Battle owns a nested StateMachine with three phases:
+--
+--   command — waiting for the player (BattleScene shows FIGHT/RUN menus)
+--   script  — a coroutine resolves the round; battle:say(msg) yields until
+--             the player presses A, so turn logic reads as linear prose
+--             instead of a callback pyramid
+--   ended   — victory/defeat shown; A emits the "battleEnd" signal
+--
+-- Directionality (the attacker/defender "turn" idea from the OOP talk):
+-- before each half-turn the battle sets attacker/defender, and every DSL
+-- Target/Number/Condition/Effect resolves against that orientation, so each
+-- effect is written once instead of once per side.
+
 local stageMultipliers = {
     [-6] = 2/8, [-5] = 2/7, [-4] = 2/6, [-3] = 2/5, [-2] = 2/4, [-1] = 2/3,
     [0] = 2/2,
@@ -9,42 +24,65 @@ function applyStageMod(stat, stage)
     return math.floor(stat * stageMultipliers[stage])
 end
 
--- Full Gen I damage formula with STAB, type effectiveness, crits
+-- Full Gen V (Black/White) damage formula. Differences from Gen I:
+--   * physical/special is per MOVE (move.category from PokeAPI damage
+--     classes), not per type
+--   * crit is a x2 modifier applied to the finished base damage (Gen I
+--     doubled the level term instead) and ignores stat stages that would
+--     hurt the attacker (attacker's negative offensive / defender's
+--     positive defensive stages)
+--   * modifier order with flooring at each step:
+--     crit -> random 85-100% -> STAB -> type -> burn
+--   * burn halves physical damage
 function calcDamage(attacker, defender, move)
     if move.power == 0 then return { damage = 0, effectiveness = 1, isCrit = false, isSTAB = false } end
 
-    -- Pick physical or special stats
-    local atkStat, defStat
+    -- Crit roll first: it changes which stat stages count (1/16 base rate)
+    local isCrit = math.random(1, 16) == 1
+
+    -- Pick offensive/defensive stats per the move's damage class
+    local atkBase, defBase, atkStage, defStage
     if move.category == "special" then
-        atkStat = applyStageMod(attacker.spc, attacker.statStages.spc)
-        defStat = applyStageMod(defender.spc, defender.statStages.spc)
+        atkBase, defBase = attacker.spa, defender.spd
+        atkStage, defStage = attacker.statStages.spa, defender.statStages.spd
     else
-        atkStat = applyStageMod(attacker.atk, attacker.statStages.atk)
-        defStat = applyStageMod(defender.def, defender.statStages.def)
+        atkBase, defBase = attacker.atk, defender.def
+        atkStage, defStage = attacker.statStages.atk, defender.statStages.def
     end
 
-    -- Critical hit: Gen I base rate ~6.25% (speed/512, simplified to 1/16)
-    local isCrit = math.random(1, 16) == 1
-    local critMult = isCrit and 2.0 or 1.0
+    -- Crits ignore stages unfavorable to the attacker
+    if isCrit then
+        if atkStage < 0 then atkStage = 0 end
+        if defStage > 0 then defStage = 0 end
+    end
+    local atkStat = applyStageMod(atkBase, atkStage)
+    local defStat = applyStageMod(defBase, defStage)
 
     -- STAB (Same Type Attack Bonus)
     local isSTAB = (attacker.type == move.type) or (attacker.type2 and attacker.type2 == move.type)
-    local stabMult = isSTAB and 1.5 or 1.0
 
     -- Type effectiveness
     local effectiveness = TypeChart.getMatchup(move.type, defender.type, defender.type2)
 
-    -- Random factor 85-100%
-    local rand = math.random(85, 100) / 100
-
-    -- Gen I damage formula
+    -- Base damage
     local level = attacker.level
-    local damage = math.floor(
-        (((2 * level * critMult / 5 + 2) * move.power * atkStat / defStat) / 50) + 2
-    )
-    damage = math.floor(damage * stabMult)
+    local damage = math.floor(math.floor(
+        math.floor(2 * level / 5 + 2) * move.power * atkStat / defStat
+    ) / 50) + 2
+
+    -- Modifier chain (Gen V order, floor after each step)
+    if isCrit then
+        damage = damage * 2
+    end
+    damage = math.floor(damage * math.random(85, 100) / 100)
+    if isSTAB then
+        damage = math.floor(damage * 1.5)
+    end
     damage = math.floor(damage * effectiveness)
-    damage = math.floor(damage * rand)
+    if attacker.status == "burn" and move.category == "physical" then
+        damage = math.floor(damage / 2)
+    end
+
     damage = math.max(1, damage)
 
     -- Immune = 0 damage
@@ -58,384 +96,478 @@ function calcDamage(attacker, defender, move)
     }
 end
 
--- Accuracy check
-function checkAccuracy(move)
-    if move.accuracy == 0 then return true end
-    return math.random(1, 100) <= move.accuracy
+-- Accuracy/evasion stage multipliers are 3-based (unlike the 2-based
+-- regular stat stages)
+local function accStageMult(stage)
+    stage = math.max(-6, math.min(6, stage))
+    if stage >= 0 then
+        return (3 + stage) / 3
+    end
+    return 3 / (3 - stage)
 end
 
-Class("Battle"):includes(Signal)
+-- Accuracy check: move accuracy scaled by attacker accuracy vs defender
+-- evasion stages. accuracy == 0 means the move never misses (Swift etc.)
+function checkAccuracy(move, attacker, defender)
+    if move.accuracy == 0 then return true end
+    local stage = attacker.statStages.acc - defender.statStages.eva
+    local threshold = move.accuracy * accStageMult(stage)
+    return math.random(1, 100) <= threshold
+end
 
--- Battle sub-states
-local BSTATE_INTRO = "intro"
-local BSTATE_MENU = "menu"
-local BSTATE_MOVE_SELECT = "moveSelect"
-local BSTATE_EXECUTE_TURN = "executeTurn"
-local BSTATE_SHOW_MESSAGE = "showMessage"
-local BSTATE_VICTORY = "victory"
-local BSTATE_DEFEAT = "defeat"
+-- ============================================================
+-- BATTLE PHASE STATES
+-- ============================================================
+
+-- command: nothing to do here — BattleScene owns the menus and calls
+-- battle:selectMove()/battle:tryRun() when the player picks
+Class("BattleCommandPhase"):extends(State)
+
+-- script: drives the resolution coroutine. Each battle:say() yield parks
+-- the script on a message until the player confirms with A.
+Class("BattleScriptPhase"):extends(State)
+
+local MESSAGE_MIN_FRAMES <const> = 10
+
+function BattleScriptPhase:init(battle)
+    BattleScriptPhase.super.init(self, "script")
+    self.battle = battle
+end
+
+function BattleScriptPhase:enter(co)
+    self.co = co
+    self.waiting = false
+    self.messageTimer = 0
+    self:advance()
+end
+
+function BattleScriptPhase:advance()
+    local ok, kind, value = coroutine.resume(self.co)
+    if not ok then
+        error("battle script error: " .. tostring(kind))
+    end
+
+    if coroutine.status(self.co) == "dead" then
+        -- Script finished; its return value names the next phase
+        local outcome = kind or "command"
+        if outcome == "victory" or outcome == "defeat" then
+            self.machine:change("ended", outcome == "victory")
+        elseif outcome == "run" then
+            self.battle:emit("battleEnd", false)
+        else
+            self.machine:change("command")
+        end
+        return
+    end
+
+    if kind == "say" then
+        self.battle.message = value
+        self.messageTimer = 0
+        self.waiting = true
+    end
+end
+
+function BattleScriptPhase:update()
+    self.messageTimer = self.messageTimer + 1
+end
+
+function BattleScriptPhase:handleInput()
+    if self.waiting and self.messageTimer > MESSAGE_MIN_FRAMES
+       and playdate.buttonJustPressed(playdate.kButtonA) then
+        self.waiting = false
+        self:advance()
+    end
+end
+
+-- ended: terminal message ("You won the battle!" / "You blacked out...");
+-- A hands control back to whoever owns the battle via the battleEnd signal
+Class("BattleEndedPhase"):extends(State)
+
+function BattleEndedPhase:init(battle)
+    BattleEndedPhase.super.init(self, "ended")
+    self.battle = battle
+end
+
+function BattleEndedPhase:enter(won)
+    self.won = won
+end
+
+function BattleEndedPhase:handleInput()
+    if playdate.buttonJustPressed(playdate.kButtonA) then
+        self.battle:emit("battleEnd", self.won)
+    end
+end
+
+-- ============================================================
+-- BATTLE
+-- ============================================================
+
+Class("Battle"):includes(Signal)
 
 function Battle:init(playerPokemon, enemyPokemon)
     self.player = playerPokemon
     self.enemy = enemyPokemon
-    self.state = BSTATE_SHOW_MESSAGE
+
+    -- Directionality: set per half-turn, consumed by the DSL
+    self.attacker = nil
+    self.defender = nil
+    self.attackerSide = nil   -- "player" | "enemy"
+    self.lastDamage = 0
+
+    -- Scene-facing presentation state
     self.message = ""
-    self.messageTimer = 0
-    self.messageCallback = nil
-    self.turnQueue = {}
-    self.turnIndex = 0
     self.flashTimer = 0
     self.isFlashing = false
     self.shakeTimer = 0
     self.shakeIntensity = 0
+
     self.runAttempts = 0
-    self.message = "A wild " .. self.enemy.name .. " appeared!"
-    self.messageCallback = function()
-        self.state = BSTATE_MENU
-    end
+
+    self.machine = StateMachine()
+    self.machine:register("command", BattleCommandPhase("command"))
+    self.machine:register("script", BattleScriptPhase(self))
+    self.machine:register("ended", BattleEndedPhase(self))
+
+    self:runScript(function()
+        self:say("A wild " .. self.enemy.name .. " appeared!")
+    end)
 end
 
-function Battle:showMessage(msg, callback)
-    self.state = BSTATE_SHOW_MESSAGE
-    self.message = msg
-    self.messageTimer = 0
-    self.messageCallback = callback
+function Battle:update()
+    self.machine:update()
 end
 
 function Battle:handleInput()
-    if self.state == BSTATE_SHOW_MESSAGE then
-        self.messageTimer = self.messageTimer + 1
-        if playdate.buttonJustPressed(playdate.kButtonA) and self.messageTimer > 10 then
-            if self.messageCallback then
-                self.messageCallback()
-            end
-        end
-        return
-    end
+    self.machine:handleInput()
+end
 
-    if self.state == BSTATE_VICTORY or self.state == BSTATE_DEFEAT then
-        if playdate.buttonJustPressed(playdate.kButtonA) then
-            self:emit("battleEnd", self.state == BSTATE_VICTORY)
-        end
-        return
-    end
+function Battle:phase()
+    return self.machine:getCurrent()
+end
 
-    -- Menu and move select handled by battleScene
+function Battle:isAwaitingCommand()
+    return self.machine:is("command")
+end
+
+-- Start a resolution script. The function runs as a coroutine; battle:say()
+-- inside it suspends until the player confirms the message.
+function Battle:runScript(fn)
+    self.machine:change("script", coroutine.create(fn))
+end
+
+-- Only callable from inside a script coroutine
+function Battle:say(text)
+    coroutine.yield("say", text)
+end
+
+function Battle:setDirection(side)
+    self.attackerSide = side
+    if side == "player" then
+        self.attacker, self.defender = self.player, self.enemy
+    else
+        self.attacker, self.defender = self.enemy, self.player
+    end
+end
+
+-- ============================================================
+-- COMMANDS (called by BattleScene from the command phase)
+-- ============================================================
+
+-- Effective speed: stage-modified, quartered by paralysis (Gen V)
+local function effectiveSpeed(pokemon)
+    local speed = applyStageMod(pokemon.spe, pokemon.statStages.spe)
+    if pokemon.status == "paralyze" then
+        speed = math.floor(speed / 4)
+    end
+    return speed
 end
 
 function Battle:selectMove(moveIndex)
     local moveKey = self.player.moves[moveIndex]
     local playerMove = moveData[moveKey]
-
-    -- Deduct PP
     self.player:usePP(moveKey)
 
     local enemyMoveKey = self.enemy.moves[math.random(1, #self.enemy.moves)]
     local enemyMove = moveData[enemyMoveKey]
 
-    -- Determine turn order by speed (using spd stat stage)
-    local playerSpd = applyStageMod(self.player.spd, self.player.statStages.spd)
-    local enemySpd = applyStageMod(self.enemy.spd, self.enemy.statStages.spd)
-
-    -- Paralysis halves speed
-    if self.player.status == "paralyze" then playerSpd = math.floor(playerSpd / 2) end
-    if self.enemy.status == "paralyze" then enemySpd = math.floor(enemySpd / 2) end
-
-    self.turnQueue = {}
-
-    if playerSpd >= enemySpd then
-        table.insert(self.turnQueue, { attacker = "player", move = playerMove, moveKey = moveKey })
-        table.insert(self.turnQueue, { attacker = "enemy", move = enemyMove, moveKey = enemyMoveKey })
+    -- Turn order: move priority brackets first, then effective speed
+    local playerFirst
+    if playerMove.priority ~= enemyMove.priority then
+        playerFirst = playerMove.priority > enemyMove.priority
     else
-        table.insert(self.turnQueue, { attacker = "enemy", move = enemyMove, moveKey = enemyMoveKey })
-        table.insert(self.turnQueue, { attacker = "player", move = playerMove, moveKey = moveKey })
+        playerFirst = effectiveSpeed(self.player) >= effectiveSpeed(self.enemy)
     end
 
-    self.turnIndex = 0
-    self:executeNextTurn()
-end
-
-function Battle:executeNextTurn()
-    self.turnIndex = self.turnIndex + 1
-    if self.turnIndex > #self.turnQueue then
-        -- End-of-turn: apply status damage, then back to menu
-        self:endOfTurnStatus(function()
-            self.state = BSTATE_MENU
-        end)
-        return
-    end
-
-    local turn = self.turnQueue[self.turnIndex]
-    local attacker, defender
-    local attackerName, defenderName
-
-    if turn.attacker == "player" then
-        attacker = self.player
-        defender = self.enemy
-        attackerName = self.player.name
-        defenderName = self.enemy.name
+    local turns
+    if playerFirst then
+        turns = { { side = "player", move = playerMove },
+                  { side = "enemy",  move = enemyMove } }
     else
-        attacker = self.enemy
-        defender = self.player
-        attackerName = self.enemy.name
-        defenderName = self.player.name
+        turns = { { side = "enemy",  move = enemyMove },
+                  { side = "player", move = playerMove } }
     end
 
-    -- Check if attacker fainted (from previous turn)
-    if not attacker:isAlive() then
-        self:executeNextTurn()
-        return
-    end
-
-    -- Status: sleep blocks action
-    if attacker.status == "sleep" then
-        attacker.statusTurns = attacker.statusTurns + 1
-        if attacker.statusTurns >= math.random(1, 3) then
-            attacker.status = nil
-            attacker.statusTurns = 0
-            self:showMessage(attackerName .. " woke up!", function()
-                self:executeNextTurn()
-            end)
-        else
-            self:showMessage(attackerName .. " is fast asleep!", function()
-                self:executeNextTurn()
-            end)
-        end
-        return
-    end
-
-    -- Status: paralysis has 25% chance to skip turn
-    if attacker.status == "paralyze" and math.random(1, 4) == 1 then
-        self:showMessage(attackerName .. " is paralyzed! It can't move!", function()
-            self:executeNextTurn()
-        end)
-        return
-    end
-
-    -- Status: freeze has 20% chance to thaw each turn
-    if attacker.status == "freeze" then
-        if math.random(1, 5) == 1 then
-            attacker.status = nil
-            attacker.statusTurns = 0
-            self:showMessage(attackerName .. " thawed out!", function()
-                self:doAttack(turn, attacker, defender, attackerName, defenderName)
-            end)
-        else
-            self:showMessage(attackerName .. " is frozen solid!", function()
-                self:executeNextTurn()
-            end)
-        end
-        return
-    end
-
-    self:doAttack(turn, attacker, defender, attackerName, defenderName)
-end
-
-function Battle:doAttack(turn, attacker, defender, attackerName, defenderName)
-    local move = turn.move
-
-    self:showMessage(attackerName .. " used " .. move.name .. "!", function()
-        if move.power > 0 then
-            -- Accuracy check
-            if not checkAccuracy(move) then
-                self:showMessage(attackerName .. "'s attack missed!", function()
-                    self:executeNextTurn()
-                end)
-                return
-            end
-
-            -- Damage move
-            local result = calcDamage(attacker, defender, move)
-
-            if result.effectiveness == 0 then
-                self:showMessage("It doesn't affect " .. defenderName .. "...", function()
-                    self:applyMoveEffects(move, attacker, defender, function()
-                        self:executeNextTurn()
-                    end)
-                end)
-                return
-            end
-
-            defender:takeDamage(result.damage)
-            self.isFlashing = true
-            self.flashTimer = 6
-
-            -- Screen shake on crit
-            if result.isCrit then
-                self.shakeTimer = 8
-                self.shakeIntensity = 3
-            end
-
-            -- Build message chain
-            local function afterDamageMsg()
-                local function afterEffectiveness()
-                    local function afterCrit()
-                        self:applyMoveEffects(move, attacker, defender, function()
-                            if not defender:isAlive() then
-                                self:handleFaint(turn.attacker, defenderName)
-                            else
-                                self:executeNextTurn()
-                            end
-                        end)
-                    end
-
-                    if result.isCrit then
-                        self:showMessage("A critical hit!", afterCrit)
-                    else
-                        afterCrit()
-                    end
-                end
-
-                if result.effectiveness > 1 then
-                    self:showMessage("It's super effective!", afterEffectiveness)
-                elseif result.effectiveness < 1 then
-                    self:showMessage("It's not very effective...", afterEffectiveness)
-                else
-                    afterEffectiveness()
-                end
-            end
-
-            self:showMessage(defenderName .. " took " .. result.damage .. " damage!", afterDamageMsg)
-
-        elseif move.effects then
-            -- Status move: apply effects directly
-            self:applyMoveEffects(move, attacker, defender, function()
-                self:executeNextTurn()
-            end)
-        else
-            self:executeNextTurn()
-        end
+    self:runScript(function()
+        return self:resolveRound(turns)
     end)
-end
-
-function Battle:handleFaint(attackerSide, defenderName)
-    self:showMessage(defenderName .. " fainted!", function()
-        if attackerSide == "player" then
-            -- Player wins: award XP
-            local xpGained = self.player:calcExpGain(self.enemy)
-            self:showMessage(self.player.name .. " gained " .. xpGained .. " EXP!", function()
-                local leveled = self.player:gainXP(xpGained)
-                if leveled then
-                    self:showMessage(self.player.name .. " grew to Lv" .. self.player.level .. "!", function()
-                        self.state = BSTATE_VICTORY
-                        self.message = "You won the battle!"
-                    end)
-                else
-                    self.state = BSTATE_VICTORY
-                    self.message = "You won the battle!"
-                end
-            end)
-        else
-            self.state = BSTATE_DEFEAT
-            self.message = "You blacked out..."
-        end
-    end)
-end
-
--- End-of-turn status damage (burn, poison)
-function Battle:endOfTurnStatus(callback)
-    self:applyStatusDamage(self.player, function()
-        self:applyStatusDamage(self.enemy, function()
-            -- Check for status KOs
-            if not self.player:isAlive() then
-                self:showMessage(self.player.name .. " fainted!", function()
-                    self.state = BSTATE_DEFEAT
-                    self.message = "You blacked out..."
-                end)
-            elseif not self.enemy:isAlive() then
-                self:handleFaint("player", self.enemy.name)
-            else
-                callback()
-            end
-        end)
-    end)
-end
-
-function Battle:applyStatusDamage(pokemon, callback)
-    if not pokemon:isAlive() then
-        callback()
-        return
-    end
-
-    if pokemon.status == "burn" then
-        local dmg = math.max(1, math.floor(pokemon.maxHP / 8))
-        pokemon:takeDamage(dmg)
-        self:showMessage(pokemon.name .. " is hurt by its burn!", callback)
-    elseif pokemon.status == "poison" then
-        local dmg = math.max(1, math.floor(pokemon.maxHP / 8))
-        pokemon:takeDamage(dmg)
-        self:showMessage(pokemon.name .. " is hurt by poison!", callback)
-    else
-        callback()
-    end
-end
-
--- Apply extra effects from a move (stat changes, status conditions, etc.)
-function Battle:applyMoveEffects(move, attacker, defender, callback)
-    if not move.effects or #move.effects == 0 then
-        callback()
-        return
-    end
-
-    local results = {}
-    for _, effect in ipairs(move.effects) do
-        local r = effect:apply(attacker, defender)
-        if r then
-            table.insert(results, r)
-        end
-    end
-
-    self:showEffectResults(results, 1, callback)
-end
-
-function Battle:showEffectResults(results, index, callback)
-    if index > #results then
-        callback()
-        return
-    end
-
-    local r = results[index]
-    local msg = nil
-
-    if r.type == "statChange" then
-        local statNames = { atk = "ATTACK", def = "DEFENSE", spc = "SPECIAL", spd = "SPEED" }
-        local direction = r.stages < 0 and "fell" or "rose"
-        local targetName = r.pokemon.name
-        msg = targetName .. "'s " .. statNames[r.stat] .. " " .. direction .. "!"
-    elseif r.type == "status" then
-        local statusNames = { burn = "was burned", poison = "was poisoned", paralyze = "is paralyzed", sleep = "fell asleep", freeze = "was frozen" }
-        msg = r.pokemon.name .. " " .. (statusNames[r.status] or "was afflicted") .. "!"
-    end
-
-    if msg then
-        self:showMessage(msg, function()
-            self:showEffectResults(results, index + 1, callback)
-        end)
-    else
-        self:showEffectResults(results, index + 1, callback)
-    end
 end
 
 function Battle:tryRun()
     self.runAttempts = self.runAttempts + 1
 
-    -- Gen I run formula
-    local playerSpd = self.player.spd
-    local enemySpd = self.enemy.spd
-    local runChance = math.floor((playerSpd * 32) / (math.max(1, math.floor(enemySpd / 4)) % 256) + 30 * self.runAttempts)
+    -- Gen III-V run formula: F = (A*128/B + 30*attempts) mod 256,
+    -- escape if rand(0,255) < F
+    local playerSpe = self.player.spe
+    local enemySpe = math.max(1, self.enemy.spe)
+    local runChance = math.floor(playerSpe * 128 / enemySpe + 30 * self.runAttempts) % 256
 
-    if runChance > 255 or math.random(0, 255) < runChance then
-        self:showMessage("Got away safely!", function()
-            self:emit("battleEnd", false)
+    if math.random(0, 255) < runChance then
+        self:runScript(function()
+            self:say("Got away safely!")
+            return "run"
         end)
     else
-        self:showMessage("Can't escape!", function()
+        self:runScript(function()
+            self:say("Can't escape!")
             -- Enemy gets a free turn
             local enemyMoveKey = self.enemy.moves[math.random(1, #self.enemy.moves)]
-            local enemyMove = moveData[enemyMoveKey]
-            self.turnQueue = {{ attacker = "enemy", move = enemyMove, moveKey = enemyMoveKey }}
-            self.turnIndex = 0
-            self:executeNextTurn()
+            local outcome = self:resolveTurn({ side = "enemy", move = moveData[enemyMoveKey] })
+            if outcome then return outcome end
+            return self:endOfRoundStatus() or "command"
         end)
+    end
+end
+
+-- ============================================================
+-- ROUND RESOLUTION (runs inside the script coroutine)
+-- Functions return nil to continue, or a terminal outcome:
+-- "victory" | "defeat" | "command"
+-- ============================================================
+
+function Battle:resolveRound(turns)
+    for _, turn in ipairs(turns) do
+        local outcome = self:resolveTurn(turn)
+        if outcome then return outcome end
+    end
+    return self:endOfRoundStatus() or "command"
+end
+
+function Battle:resolveTurn(turn)
+    self:setDirection(turn.side)
+    local attacker = self.attacker
+
+    -- Fainted by the earlier half-turn: skip
+    if not attacker:isAlive() then return nil end
+
+    -- Flinch (volatile, set by the opponent's hit earlier this round)
+    if attacker.flinched then
+        attacker.flinched = false
+        self:say(attacker.name .. " flinched and couldn't move!")
+        return nil
+    end
+
+    -- Major status gates (Gen V)
+    if attacker.status == "sleep" then
+        attacker.statusTurns = attacker.statusTurns - 1
+        if attacker.statusTurns <= 0 then
+            attacker.status = nil
+            attacker.statusTurns = 0
+            self:say(attacker.name .. " woke up!")
+            -- Gen V: a pokemon acts on the turn it wakes
+        else
+            self:say(attacker.name .. " is fast asleep!")
+            return nil
+        end
+    elseif attacker.status == "paralyze" and math.random(1, 4) == 1 then
+        self:say(attacker.name .. " is paralyzed! It can't move!")
+        return nil
+    elseif attacker.status == "freeze" then
+        if math.random(1, 5) == 1 then
+            attacker.status = nil
+            attacker.statusTurns = 0
+            self:say(attacker.name .. " thawed out!")
+            -- thawing lets the attack proceed
+        else
+            self:say(attacker.name .. " is frozen solid!")
+            return nil
+        end
+    end
+
+    -- Confusion (volatile, decrements per attacking turn; 50% self-hit
+    -- with a 40-power typeless physical attack)
+    if attacker.confusion then
+        attacker.confusion = attacker.confusion - 1
+        if attacker.confusion <= 0 then
+            attacker.confusion = nil
+            self:say(attacker.name .. " snapped out of its confusion!")
+        else
+            self:say(attacker.name .. " is confused!")
+            if math.random(1, 2) == 1 then
+                local atkStat = applyStageMod(attacker.atk, attacker.statStages.atk)
+                local defStat = applyStageMod(attacker.def, attacker.statStages.def)
+                local damage = math.floor(math.floor(
+                    math.floor(2 * attacker.level / 5 + 2) * 40 * atkStat / defStat
+                ) / 50) + 2
+                damage = math.max(1, math.floor(damage * math.random(85, 100) / 100))
+                attacker:takeDamage(damage)
+                self:say("It hurt itself in its confusion!")
+                if not attacker:isAlive() then
+                    self:setDirection(turn.side == "player" and "enemy" or "player")
+                    return self:handleFaint()
+                end
+                return nil
+            end
+        end
+    end
+
+    return self:performMove(turn.move)
+end
+
+function Battle:performMove(move)
+    local attacker, defender = self.attacker, self.defender
+
+    self:say(attacker.name .. " used " .. move.name .. "!")
+
+    -- One accuracy roll for the whole move (Gen V) — status moves miss too
+    if not checkAccuracy(move, attacker, defender) then
+        self:say(attacker.name .. "'s attack missed!")
+        return nil
+    end
+
+    if move.power > 0 then
+        local effectiveness = TypeChart.getMatchup(move.type, defender.type, defender.type2)
+        if effectiveness == 0 then
+            self:say("It doesn't affect " .. defender.name .. "...")
+            return nil
+        end
+
+        -- Multi-hit: one accuracy roll, independent damage/crit per hit.
+        -- Gen V 2-5 distribution: 2 or 3 hits 1/3 each, 4 or 5 hits 1/6 each
+        local hits = 1
+        if move.minHits and move.maxHits and move.maxHits > 1 then
+            if move.minHits == 2 and move.maxHits == 5 then
+                local roll = math.random(6)
+                if roll <= 2 then hits = 2
+                elseif roll <= 4 then hits = 3
+                elseif roll == 5 then hits = 4
+                else hits = 5 end
+            else
+                hits = math.random(move.minHits, move.maxHits)
+            end
+        end
+
+        local total, landed, anyCrit = 0, 0, false
+        for _ = 1, hits do
+            local result = calcDamage(attacker, defender, move)
+            defender:takeDamage(result.damage)
+            total = total + result.damage
+            landed = landed + 1
+            anyCrit = anyCrit or result.isCrit
+            if not defender:isAlive() then break end
+        end
+        self.lastDamage = total
+        self.isFlashing = true
+        self.flashTimer = 6
+        if anyCrit then
+            self.shakeTimer = 8
+            self.shakeIntensity = 3
+        end
+
+        self:say(defender.name .. " took " .. total .. " damage!")
+        if landed > 1 then
+            self:say("Hit " .. landed .. " times!")
+        end
+        if effectiveness > 1 then
+            self:say("It's super effective!")
+        elseif effectiveness < 1 then
+            self:say("It's not very effective...")
+        end
+        if anyCrit then
+            self:say("A critical hit!")
+        end
+
+        -- Drain / recoil: % of damage dealt (negative = recoil)
+        if move.drain and move.drain > 0 then
+            attacker:heal(math.max(1, math.floor(total * move.drain / 100)))
+            self:say(defender.name .. " had its energy drained!")
+        elseif move.drain and move.drain < 0 then
+            attacker:takeDamage(math.max(1, math.floor(total * -move.drain / 100)))
+            self:say(attacker.name .. " is damaged by recoil!")
+        end
+
+        self:applyMoveEffects(move)
+
+        if not defender:isAlive() then
+            return self:handleFaint()
+        end
+        if not attacker:isAlive() then
+            -- recoil (or a self-effect) felled the attacker
+            self:setDirection(self.attackerSide == "player" and "enemy" or "player")
+            return self:handleFaint()
+        end
+    else
+        -- Status / fixed-damage move: effects carry the whole payload
+        self:applyMoveEffects(move)
+        if not defender:isAlive() then
+            return self:handleFaint()
+        end
+    end
+
+    return nil
+end
+
+function Battle:applyMoveEffects(move)
+    if not move.effects then return end
+    for _, effect in ipairs(move.effects) do
+        effect:apply(self)   -- DSL effects narrate themselves via battle:say
+    end
+end
+
+-- The current defender fainted
+function Battle:handleFaint()
+    self:say(self.defender.name .. " fainted!")
+
+    if self.attackerSide == "player" then
+        local xpGained = self.player:calcExpGain(self.enemy)
+        self:say(self.player.name .. " gained " .. xpGained .. " EXP!")
+        if self.player:gainXP(xpGained) then
+            self:say(self.player.name .. " grew to Lv" .. self.player.level .. "!")
+        end
+        self.message = "You won the battle!"
+        return "victory"
+    end
+
+    self.message = "You blacked out..."
+    return "defeat"
+end
+
+-- End-of-round status damage (burn, poison) and resulting KOs.
+-- Unconsumed flinches expire here — they only ever last the round.
+function Battle:endOfRoundStatus()
+    self.player.flinched = false
+    self.enemy.flinched = false
+    self:applyStatusDamage(self.player)
+    self:applyStatusDamage(self.enemy)
+
+    if not self.player:isAlive() then
+        self:say(self.player.name .. " fainted!")
+        self.message = "You blacked out..."
+        return "defeat"
+    elseif not self.enemy:isAlive() then
+        self:setDirection("player")
+        return self:handleFaint()
+    end
+    return nil
+end
+
+function Battle:applyStatusDamage(pokemon)
+    if not pokemon:isAlive() then return end
+
+    if pokemon.status == "burn" then
+        pokemon:takeDamage(math.max(1, math.floor(pokemon.maxHP / 8)))
+        self:say(pokemon.name .. " is hurt by its burn!")
+    elseif pokemon.status == "poison" then
+        pokemon:takeDamage(math.max(1, math.floor(pokemon.maxHP / 8)))
+        self:say(pokemon.name .. " is hurt by poison!")
     end
 end

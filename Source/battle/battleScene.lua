@@ -86,7 +86,7 @@ end
 function BattleScene:handleInput()
     if self.introPhase ~= "ready" then return end
 
-    if self.battle.state == "menu" or self.battle.state == "moveSelect" then
+    if self.battle:isAwaitingCommand() then
         if self.inMoveSelect then
             self.moveMenu:handleInput()
         else
@@ -187,13 +187,13 @@ function BattleScene:drawBattleField()
     -- Draw pokemon sprites (before platforms so platforms overlap sprite bottoms)
     local flashHide = self.battle.isFlashing and self.battle.flashTimer > 0 and math.floor(self.battle.flashTimer) % 2 == 0
 
-    -- Enemy sprite (top-right) - front view
-    if not flashHide or self.battle.turnQueue[self.battle.turnIndex] == nil or self.battle.turnQueue[self.battle.turnIndex].attacker ~= "player" then
+    -- Enemy sprite (top-right) - front view; hidden while flashing from a player hit
+    if not (flashHide and self.battle.attackerSide == "player") then
         self:drawPokemonSprite(self.battle.enemy.species, 300, 20, false)
     end
 
-    -- Player sprite (bottom-left) - back view
-    if not flashHide or self.battle.turnQueue[self.battle.turnIndex] == nil or self.battle.turnQueue[self.battle.turnIndex].attacker ~= "enemy" then
+    -- Player sprite (bottom-left) - back view; hidden while flashing from an enemy hit
+    if not (flashHide and self.battle.attackerSide == "enemy") then
         self:drawPokemonSprite(self.battle.player.species, 55, 70, true)
     end
 
@@ -275,7 +275,7 @@ function BattleScene:drawBattleField()
     gfx.setColor(gfx.kColorBlack)
     gfx.drawRect(4, boxY + 4, 392, 52)
 
-    if self.battle.state == "menu" or self.battle.state == "moveSelect" then
+    if self.battle:isAwaitingCommand() then
         -- Draw text area on left
         gfx.drawText("What will", 14, boxY + 12)
         gfx.drawText(self.battle.player.name .. " do?", 14, boxY + 30)
