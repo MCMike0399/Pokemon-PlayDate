@@ -99,14 +99,3 @@ end
 function getMapPixelSize()
     return currentZone.width * TILE_SIZE, currentZone.height * TILE_SIZE
 end
-
-function getOverworldTileSize()
-    return TILE_SIZE
-end
-
-function cleanupOverworld()
-    if tilemapSprite then
-        tilemapSprite:remove()
-    end
-    gfx.sprite.removeAll()
-end

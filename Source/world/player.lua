@@ -69,7 +69,7 @@ local function getGrassOverlay()
     return grassOverlayImage
 end
 
-function Player:init(gridX, gridY, collisionMap)
+function Player:init(gridX, gridY, collisionMap, npcManager)
     Player.super.init(self)
 
     self.gridX = gridX
@@ -82,6 +82,7 @@ function Player:init(gridX, gridY, collisionMap)
     self.targetPixelX = 0
     self.targetPixelY = 0
     self.collisionMap = collisionMap
+    self.npcManager = npcManager
     self.walkToggle = false  -- alternates lead foot between steps
     self.stepJustFinished = false
     self.rustleFrames = 0    -- grass splay countdown after landing in grass
@@ -153,7 +154,7 @@ function Player:tryMove(dx, dy)
 
     -- Check for NPC at target position (skip during noclip)
     if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
-        if npcManager and npcManager:getNPCAt(targetGX, targetGY) then
+        if self.npcManager:getNPCAt(targetGX, targetGY) then
             return
         end
     end

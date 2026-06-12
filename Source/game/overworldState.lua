@@ -179,7 +179,7 @@ function OverworldState:enter(opts)
         pos = saved
     end
 
-    game.player = Player(pos.x, pos.y, currentZone.collision)
+    game.player = Player(pos.x, pos.y, currentZone.collision, game.npcManager)
     if pos.facing then
         game.player.facing = pos.facing
         game.player:updateSprite()

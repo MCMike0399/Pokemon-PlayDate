@@ -6,7 +6,6 @@ import "CoreLibs/frameTimer"
 
 import "lib/oop"
 import "lib/shade"
-import "lib/colormapper"
 import "lib/statemachine"
 import "world/zone"
 import "data/pokemon"
@@ -36,7 +35,6 @@ playdate.display.setRefreshRate(30)
 -- Shared context: root machine, camera, npc manager, player, player pokemon.
 -- Global so dev tooling (autopilot, debug) can reach it.
 game = GameContext()
-npcManager = game.npcManager   -- legacy global read by world/player.lua
 
 local machine <const> = game.machine
 machine:register("overworld", OverworldState(game))

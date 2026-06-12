@@ -13,8 +13,6 @@
 --   Shade.set(Shade.LIGHT)            -- set draw pattern
 --   gfx.fillRect(0, 0, 16, 16)       -- draws with light gray
 --   Shade.reset()                     -- back to solid black
---
---   local img = Shade.newImage(Shade.DARK, 16, 16)
 
 local gfx <const> = playdate.graphics
 
@@ -47,32 +45,4 @@ end
 -- Reset to solid black
 function Shade.reset()
     gfx.setColor(gfx.kColorBlack)
-end
-
--- Fill a rectangle with a shade
-function Shade.fillRect(shade, x, y, w, h)
-    Shade.set(shade)
-    gfx.fillRect(x, y, w, h)
-end
-
--- Create image filled with a shade
-function Shade.newImage(shade, w, h)
-    local img = gfx.image.new(w, h, gfx.kColorWhite)
-    if shade ~= Shade.WHITE then
-        gfx.pushContext(img)
-            Shade.set(shade)
-            gfx.fillRect(0, 0, w, h)
-        gfx.popContext()
-    end
-    return img
-end
-
--- Pixel-level shade tests (for custom tile drawing)
--- Returns true where a black pixel should be placed
-function Shade.isLightDot(x, y)
-    return (x % 4 == 1 and y % 4 == 0) or (x % 4 == 3 and y % 4 == 2)
-end
-
-function Shade.isDarkDot(x, y)
-    return (x + y) % 2 == 0
 end

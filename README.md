@@ -36,7 +36,6 @@ Source/
   lib/
     oop.lua                -- Class/Mixin/Signal/Pool system
     shade.lua              -- 4-shade dithering system (Game Boy palette simulation)
-    colormapper.lua        -- GB 2-bit to Playdate shade mapping for authentic tiles
     statemachine.lua       -- State + StateMachine (stack, push/pop, nesting, signals)
   data/
     pokemon.lua            -- 151 species with Gen V stats/types + Pokemon class
@@ -49,7 +48,7 @@ Source/
     moves.lua              -- B2W2 move data (generated, composed from DSL effects)
   world/
     zone.lua               -- Zone class (declarative map definitions, auto-collision)
-    tilefactory.lua        -- Runtime tile generation (procedural + authentic ROM tiles)
+    tilefactory.lua        -- Runtime tile generation (authored 4-shade grids)
     overworld.lua          -- Tilemap setup and rendering
     player.lua             -- Grid movement with smooth interpolation
     camera.lua             -- Lerp follow + snap mode
@@ -118,41 +117,7 @@ The Game Boy renders 4 shades (white, light gray, dark gray, black) via its 2-bi
 
 Light gray maps to white rather than a dither pattern because at 16x16 tiles scaled 2x, dither dots become visually noisy across large ground areas. Contrast comes from structures (mortar lines, dark roofs, black trees) against clean white ground — matching how the original Game Boy Pallet Town reads at a glance.
 
-`TileFactory` generates all 17 tile types at runtime using `Shade` and Playdate's drawing API — no external PNG files needed. Each tile is drawn at 16x16 and scaled 2x to 32x32. A companion Python script (`tools/generate_tiles.py`) can regenerate equivalent PNGs for reference.
-
-### ColorMapper — Authentic ROM Tile Support (`lib/colormapper.lua`)
-
-The `ColorMapper` class enables loading and rendering authentic Game Boy ROM tiles by mapping the Game Boy's 2-bit color values to Playdate's dithered shades:
-
-```lua
--- Game Boy 2-bit to Playdate shade mapping
-GB 00 (white)  → Shade.WHITE  (0% black)
-GB 01 (light)  → Shade.LIGHT  (~12.5% black, dithered)
-GB 10 (dark)   → Shade.DARK   (50% black, checkerboard)
-GB 11 (black)  → Shade.BLACK  (100% black)
-```
-
-**Features:**
-- **Pixel-level mapping**: Each 8×8 GB tile pixel is converted individually using the Shade dithering system
-- **Multiple palettes**: `GB_GREEN` (default), `SGB_PALETTE`, `HIGH_CONTRAST`
-- **Tile caching**: Converted tiles are cached for performance; clear with `ColorMapper:clearCache()`
-- **ROM tile loading**: `TileFactory.generateFromROM(tilesetPath, tileIndices)` loads authentic tiles from PNG tilesets
-
-**Usage:**
-```lua
--- Load authentic Game Boy tiles from assets_dump (not included, add your own)
-local tileIndices = {0x00, 0x01, 0x02, 0x03}  -- Pallet Town specific indices
-local tiles = TileFactory.generateFromROM("../assets_dump/misc/Tileset.png", tileIndices)
-
--- Or use ColorMapper directly
-ColorMapper:loadTileset("../assets_dump/misc/Tileset.png")
-local grassTile = ColorMapper:getTile(0)  -- Get tile at index 0
-
--- Switch to high contrast palette
-ColorMapper:setPalette(ColorMapper.HIGH_CONTRAST)
-```
-
-**Note:** The `assets_dump/` directory is excluded from git (see `.gitignore`). Place your own legally-obtained Game Boy tile assets there to use authentic tiles.
+`TileFactory` generates every tile type at runtime using `Shade` and Playdate's drawing API — no external PNG files needed. Each tile is authored as a 16x16 four-shade text grid and rendered at native 32x32.
 
 ### Overworld
 
