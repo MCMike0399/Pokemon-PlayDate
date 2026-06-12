@@ -57,6 +57,7 @@ end)
 -- ============================================================
 machine:change("overworld")
 
+---@diagnostic disable-next-line: duplicate-set-field
 function playdate.update()
     Autopilot.update(game)
 

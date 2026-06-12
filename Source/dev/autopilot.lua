@@ -65,10 +65,12 @@ local injectedPress = {}
 local realJustPressed = playdate.buttonJustPressed
 local realIsPressed = playdate.buttonIsPressed
 
+---@diagnostic disable-next-line: duplicate-set-field
 function playdate.buttonJustPressed(button)
     return injectedPress[button] == true or realJustPressed(button)
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function playdate.buttonIsPressed(button)
     return injectedPress[button] == true or realIsPressed(button)
 end
