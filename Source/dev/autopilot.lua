@@ -18,6 +18,8 @@
 --   encounters <on|off>             toggle wild encounters
 --   press <a|b|up|down|left|right>  inject one button press (menus, dialog)
 --   mash <btn> <n> [gap]            press <btn> n times, every gap frames (default 16)
+--   dismiss                         press A until the dialog overlay closes
+--                                   (mash can overshoot and re-trigger the NPC)
 --   battle <species> <level>        jump straight into a wild battle
 --   gamestate                       report state stack, battle phase, transitions
 --   seed <n>                        math.randomseed(n) for deterministic runs
@@ -174,6 +176,22 @@ local function step(cmd, game)
         cmd.cooldown = cmd.gap
         return cmd.count <= 0
 
+    elseif name == "dismiss" then
+        -- Checks the state BEFORE each press, so the press that closes the
+        -- dialog is the last one — it can't re-open the NPC interaction
+        if game.machine:getCurrent() ~= "dialog" then
+            results[#results + 1] = "dismissed -> " .. game.machine:stackNames()
+            return true
+        end
+        if cmd.cooldown == nil then cmd.cooldown = 0 end
+        if cmd.cooldown > 0 then
+            cmd.cooldown = cmd.cooldown - 1
+            return false
+        end
+        inject(BUTTONS.a)
+        cmd.cooldown = 16
+        return false
+
     elseif name == "battle" then
         local species = cmd[2]
         local level = tonumber(cmd[3]) or 5
@@ -195,6 +213,9 @@ local function step(cmd, game)
         if top and top.battle then
             line = line .. " phase=" .. tostring(top.battle:phase())
                 .. " msg=[" .. tostring(top.battle.message) .. "]"
+        end
+        if currentZone then
+            line = line .. " zone=[" .. currentZone.name .. "]"
         end
         if player then
             line = line .. string.format(" player=%d,%d", player.gridX, player.gridY)
@@ -248,6 +269,12 @@ local function step(cmd, game)
             results[#results + 1] = string.format("interrupted move at %d,%d (state=%s)",
                 player.gridX, player.gridY, game.machine:stackNames())
             return true
+        end
+        -- Stepping onto a door starts a fade and rebuilds the player; wait
+        -- it out (remaining steps continue in the destination zone)
+        local top = game.machine:current()
+        if top.sub and top.sub:getCurrent() ~= "explore" then
+            return false
         end
         if cmd.remaining == nil then cmd.remaining = tonumber(cmd[3]) or 1 end
         if player.isMoving then return false end

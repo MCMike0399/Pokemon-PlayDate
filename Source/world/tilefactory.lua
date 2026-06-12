@@ -108,6 +108,19 @@ function TileFactory.generateAll()
     tiles:setImage(22, TileFactory.roofRight(TileFactory.path()))
     tiles:setImage(23, TileFactory.roofLeft(TileFactory.tallGrass()))
     tiles:setImage(24, TileFactory.roofRight(TileFactory.tallGrass()))
+    -- Interior tiles (houses, Oak's lab)
+    tiles:setImage(25, TileFactory.floor())
+    tiles:setImage(26, TileFactory.interiorWall())
+    tiles:setImage(27, TileFactory.mat())
+    tiles:setImage(28, TileFactory.table())
+    tiles:setImage(29, TileFactory.bookshelf())
+    tiles:setImage(30, TileFactory.tv())
+    tiles:setImage(31, TileFactory.plant())
+    tiles:setImage(32, TileFactory.stairs())
+    tiles:setImage(33, TileFactory.bed())
+    tiles:setImage(34, TileFactory.pc())
+    tiles:setImage(35, TileFactory.labMachine())
+    tiles:setImage(36, TileFactory.void())
     return tiles
 end
 
@@ -439,6 +452,247 @@ function TileFactory.mailbox()
         "................",
         "................",
     })
+end
+
+-- ============================================================
+-- INTERIOR TILES (25+)
+-- ============================================================
+
+-- 25: Floor — wood planks: seam line every 4 rows, staggered joints
+function TileFactory.floor()
+    return makeShadeTile({
+        "............1...",
+        "............1...",
+        "............1...",
+        "1111111111111111",
+        "....1...........",
+        "....1...........",
+        "....1...........",
+        "1111111111111111",
+        "............1...",
+        "............1...",
+        "............1...",
+        "1111111111111111",
+        "....1...........",
+        "....1...........",
+        "....1...........",
+        "1111111111111111",
+    })
+end
+
+-- 26: Interior Wall — dark crown molding over paneled wainscot
+function TileFactory.interiorWall()
+    return makeShadeTile({
+        "################",
+        "2222222222222222",
+        "2222222222222222",
+        "################",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "111#111#111#111#",
+        "1111111111111111",
+        "################",
+    })
+end
+
+-- 27: Door Mat — bordered rug; stepping on it exits the room
+function TileFactory.mat()
+    return makeShadeTile({
+        "################",
+        "#..............#",
+        "#.############.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.#1111111111#.#",
+        "#.############.#",
+        "#..............#",
+        "################",
+    })
+end
+
+-- 28: Table / counter — white top with sheen, dark front panel.
+-- One tile tall; tile horizontally for longer counters (lab benches)
+function TileFactory.table()
+    return makeShadeTile({
+        "################",
+        "#..............#",
+        "#.111111111111.#",
+        "#.111111111111.#",
+        "#.111111111111.#",
+        "#..............#",
+        "################",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "################",
+    })
+end
+
+-- 29: Bookshelf — three shelf rows of alternating book spines
+function TileFactory.bookshelf()
+    return makeShadeTile({
+        "################",
+        "#11111111111111#",
+        "################",
+        "#.2#.2#.2#.2#.2#",
+        "#.2#.2#.2#.2#.2#",
+        "#.2#.2#.2#.2#.2#",
+        "################",
+        "#.2#.2#.2#.2#.2#",
+        "#.2#.2#.2#.2#.2#",
+        "#.2#.2#.2#.2#.2#",
+        "################",
+        "#2.#2.#2.#2.#2.#",
+        "#2.#2.#2.#2.#2.#",
+        "#2.#2.#2.#2.#2.#",
+        "################",
+        "2222222222222222",
+    })
+end
+
+-- 30: TV — dark screen with a diagonal glint, feet below
+function TileFactory.tv()
+    return makeShadeTile({
+        "................",
+        ".##############.",
+        ".#............#.",
+        ".#.##########.#.",
+        ".#.#..112222#.#.",
+        ".#.#.1122222#.#.",
+        ".#.#11222222#.#.",
+        ".#.#12222222#.#.",
+        ".#.#22222222#.#.",
+        ".#.#22222222#.#.",
+        ".#.##########.#.",
+        ".#............#.",
+        ".##############.",
+        "................",
+        "...##......##...",
+        "................",
+    })
+end
+
+-- 31: Potted Plant — bushy canopy over a striped pot
+function TileFactory.plant()
+    return makeShadeTile({
+        "................",
+        ".....######.....",
+        "...##222222##...",
+        "..#2222#2222#...",
+        "..#222222222#...",
+        "...##222222##...",
+        ".....######.....",
+        "......1##1......",
+        "....########....",
+        "....#111111#....",
+        "....#111111#....",
+        ".....#1111#.....",
+        ".....#1111#.....",
+        ".....######.....",
+        "................",
+        "................",
+    })
+end
+
+-- 32: Stairs — tread bands (Gen 1 uses the same art up and down;
+-- the door def decides where they lead)
+function TileFactory.stairs()
+    return makeShadeTileFn(function(_, y)
+        local m = y % 4
+        if m == 0 then return "#" end
+        if m == 2 then return "1" end
+        return "."
+    end)
+end
+
+-- 33: Bed — outlined pillow up top, striped blanket below
+function TileFactory.bed()
+    return makeShadeTile({
+        "################",
+        "#..............#",
+        "#..##########..#",
+        "#..#........#..#",
+        "#..##########..#",
+        "#..............#",
+        "################",
+        "#22222222222222#",
+        "#22222222222222#",
+        "#11111111111111#",
+        "#22222222222222#",
+        "#22222222222222#",
+        "#11111111111111#",
+        "#22222222222222#",
+        "#22222222222222#",
+        "################",
+    })
+end
+
+-- 34: PC — monitor on a desk with a keyboard
+function TileFactory.pc()
+    return makeShadeTile({
+        "................",
+        "...##########...",
+        "...#11111111#...",
+        "...#1......1#...",
+        "...#1......1#...",
+        "...#11111111#...",
+        "...##########...",
+        "......####......",
+        "................",
+        "################",
+        "#..............#",
+        "#.221122112211.#",
+        "#..............#",
+        "2222222222222222",
+        "2222222222222222",
+        "################",
+    })
+end
+
+-- 35: Lab Machine — console with indicator windows and dials
+function TileFactory.labMachine()
+    return makeShadeTile({
+        "################",
+        "#11111111111111#",
+        "#1############1#",
+        "#1#..22..22..#1#",
+        "#1#..22..22..#1#",
+        "#1############1#",
+        "#11111111111111#",
+        "################",
+        "#..............#",
+        "#.##..##..##...#",
+        "#.##..##..##...#",
+        "#..............#",
+        "#.111111111111.#",
+        "#.111111111111.#",
+        "#..............#",
+        "################",
+    })
+end
+
+-- 36: Void — solid black surround outside room bounds
+function TileFactory.void()
+    return gfx.image.new(32, 32, gfx.kColorBlack)
 end
 
 -- 17: Wall Window — plank wall with two-pane window

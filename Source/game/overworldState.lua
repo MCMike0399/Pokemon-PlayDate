@@ -1,9 +1,11 @@
 -- game/overworldState.lua — Overworld play, with its own substate machine
 --
 -- Substates:
---   explore — normal play: movement, NPC interaction, wild encounter checks
---   irisOut — Gen 1 battle transition: world keeps animating while a black
---             iris closes in, then fires a callback (usually -> battle)
+--   explore  — normal play: movement, NPC interaction, wild encounter checks
+--   irisOut  — Gen 1 battle transition: world keeps animating while a black
+--              iris closes in, then fires a callback (usually -> battle)
+--   doorWarp — door/mat/stairs transition: GB-style shade fade to black,
+--              then re-enters the overworld in the door's target zone
 --
 -- Dialog and the debug menu are NOT substates: they are pushed onto the ROOT
 -- machine, so the overworld keeps updating (and drawing) beneath them while
@@ -25,6 +27,15 @@ end
 function ExploreSubstate:update()
     local game = self.owner.game
     local player = game.player
+
+    -- Door warp check: landing on a door/mat/stairs tile leaves the zone
+    if player.stepJustFinished then
+        local door = currentZone:getDoorAt(player.gridX, player.gridY)
+        if door then
+            self.machine:change("doorWarp", door)
+            return
+        end
+    end
 
     -- Wild encounter check (player.stepJustFinished was set during the
     -- previous frame's sprite update, exactly like the old main loop)
@@ -148,6 +159,58 @@ function IrisOutSubstate:draw()
 end
 
 -- ============================================================
+-- DOOR-WARP substate (zone -> zone transition through a door def)
+-- ============================================================
+
+Class("DoorWarpSubstate"):extends(State)
+
+local DOOR_FADE_FRAMES <const> = 12
+
+function DoorWarpSubstate:init(owner)
+    DoorWarpSubstate.super.init(self, "doorWarp")
+    self.owner = owner
+end
+
+function DoorWarpSubstate:enter(door)
+    self.timer = 0
+    self.door = door
+end
+
+function DoorWarpSubstate:update()
+    self.timer = self.timer + 1
+    playdate.frameTimer.updateTimers()
+    gfx.sprite.update()
+
+    if self.timer >= DOOR_FADE_FRAMES then
+        local door = self.door
+        self.door = nil
+        switchZone(door.to)
+        self.owner.machine:change("overworld", {
+            entry = { x = door.toX, y = door.toY, facing = door.facing },
+        })
+    end
+end
+
+function DoorWarpSubstate:draw()
+    -- GB-style palette fade: light -> dark -> black over the whole screen
+    local game = self.owner.game
+    game.camera:reset()
+
+    local t = self.timer / DOOR_FADE_FRAMES
+    if t < 1 / 3 then
+        Shade.set(Shade.LIGHT)
+    elseif t < 2 / 3 then
+        Shade.set(Shade.DARK)
+    else
+        Shade.set(Shade.BLACK)
+    end
+    gfx.fillRect(0, 0, 400, 240)
+    Shade.reset()
+
+    game.camera:apply()
+end
+
+-- ============================================================
 -- OVERWORLD top-level state
 -- ============================================================
 
@@ -162,9 +225,11 @@ function OverworldState:init(game)
     self.sub = StateMachine()
     self.sub:register("explore", ExploreSubstate(self))
     self.sub:register("irisOut", IrisOutSubstate(self))
+    self.sub:register("doorWarp", DoorWarpSubstate(self))
 end
 
--- opts.respawn = true forces the zone spawn point (blackout, zone switch)
+-- opts.respawn = true forces the zone spawn point (blackout, zone switch);
+-- opts.entry = {x, y, facing} places the player exactly there (door warps)
 function OverworldState:enter(opts)
     local game = self.game
 
@@ -175,7 +240,10 @@ function OverworldState:enter(opts)
     local pos = currentZone.spawn
     local saved = self.savedPos
     local respawn = opts and opts.respawn
-    if saved and saved.zone == currentZone and not respawn then
+    local entry = opts and opts.entry
+    if entry then
+        pos = entry
+    elseif saved and saved.zone == currentZone and not respawn then
         pos = saved
     end
 

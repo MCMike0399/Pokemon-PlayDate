@@ -18,7 +18,15 @@
 --       warps = {
 --           { label="Red's House", x=5, y=6 },
 --       },
+--       doors = {
+--           -- stepping onto (5,5) fades out and re-enters the overworld
+--           -- in zone "reds_house" at (3,7), facing up
+--           { x=5, y=5, to="reds_house", toX=3, toY=7, facing="up" },
+--       },
 --   }))
+--
+-- `warps` are debug-menu teleport presets; `doors` are real tile-triggered
+-- zone transitions (house doors, exit mats, stairs).
 -- ============================================================
 
 ---@class Zone
@@ -55,6 +63,19 @@ local CODES = {
     RL = 15,      -- Roof Left (peaked edge)
     RR = 16,      -- Roof Right (peaked edge)
     WW = 17,      -- Wall Window
+    -- Interior tiles
+    Fo = 25,      -- Floor (wood planks)
+    IW = 26,      -- Interior Wall
+    Ma = 27,      -- Door Mat (exit warp)
+    Tb = 28,      -- Table / counter
+    Bk = 29,      -- Bookshelf
+    Tv = 30,      -- TV
+    Pl = 31,      -- Potted Plant
+    St = 32,      -- Stairs (warp)
+    Bd = 33,      -- Bed
+    PC = 34,      -- PC desk
+    LM = 35,      -- Lab Machine
+    Vd = 36,      -- Void (black surround outside rooms)
 }
 
 -- Auto-collision: true = solid, false = walkable
@@ -83,6 +104,18 @@ local SOLID = {
     [22] = true,  -- Roof Right on path
     [23] = true,  -- Roof Left on tall grass
     [24] = true,  -- Roof Right on tall grass
+    [25] = false, -- Floor
+    [26] = true,  -- Interior Wall
+    [27] = false, -- Door Mat
+    [28] = true,  -- Table
+    [29] = true,  -- Bookshelf
+    [30] = true,  -- TV
+    [31] = true,  -- Plant
+    [32] = false, -- Stairs
+    [33] = true,  -- Bed
+    [34] = true,  -- PC
+    [35] = true,  -- Lab Machine
+    [36] = true,  -- Void
 }
 
 local TALL_GRASS_ID <const> = 8
@@ -105,12 +138,18 @@ function Zone:init(config)
     self.encounters = config.encounters or {}
     self.encounterRate = config.encounterRate or 0.15
     self.warps = config.warps or {}
+    self.doors = config.doors or {}
 
     -- Parse tile grid from string rows
     if config.tileRows then
         self.tiles = {}
-        for _, rowStr in ipairs(config.tileRows) do
-            self.tiles[#self.tiles + 1] = parseRow(rowStr)
+        for i, rowStr in ipairs(config.tileRows) do
+            local row = parseRow(rowStr)
+            if i > 1 and #row ~= #self.tiles[1] then
+                error(self.name .. " row " .. i .. ": " .. #row
+                    .. " tiles, expected " .. #self.tiles[1])
+            end
+            self.tiles[i] = row
         end
         self.height = #self.tiles
         self.width = #self.tiles[1]
@@ -202,6 +241,14 @@ function Zone:spawnNPCs(npcManager)
         created[def.name] = npc
     end
     return created
+end
+
+-- Door/mat/stairs warp at grid position (player coords are 0-based)
+function Zone:getDoorAt(gx, gy)
+    for _, door in ipairs(self.doors) do
+        if door.x == gx and door.y == gy then return door end
+    end
+    return nil
 end
 
 -- Check wild encounter at grid position

@@ -252,7 +252,7 @@ def main():
     }
 
     # NPC frames: re-emit existing art with proper alpha
-    for name in ("oak-down.png", "rival-down.png"):
+    for name in ("oak-down.png", "rival-down.png", "mom-down.png", "daisy-down.png"):
         path = os.path.join(out_dir, name)
         if os.path.exists(path):
             jobs[name] = png_to_bw(path)

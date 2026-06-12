@@ -6,6 +6,8 @@ class("NPC").extends(gfx.sprite)
 local npcImages = {
     oak = gfx.image.new("images/overworld/oak-down"):scaledImage(2),
     rival = gfx.image.new("images/overworld/rival-down"):scaledImage(2),
+    mom = gfx.image.new("images/overworld/mom-down"):scaledImage(2),
+    daisy = gfx.image.new("images/overworld/daisy-down"):scaledImage(2),
 }
 
 function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey)

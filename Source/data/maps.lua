@@ -7,11 +7,17 @@
 --   Rf = Roof     Sg = Sign     Fl = Flowers  Sh = Shore
 --   LW = Lab Wall Mb = Mailbox  RL = Roof Left RR = Roof Right
 --   WW = Wall Window
+-- Interior codes:
+--   Fo = Floor    IW = Int Wall Ma = Door Mat Tb = Table
+--   Bk = Bookshelf Tv = TV      Pl = Plant    St = Stairs
+--   Bd = Bed      PC = PC desk  LM = Lab Machine Vd = Void
 --
 -- Collision is auto-generated from tile types (no manual arrays!)
+-- Interior rooms are padded with Vd to at least 13x8 tiles so the
+-- camera clamp (which assumes map >= screen) keeps working.
 
 TILE_SIZE = 32
-NUM_TILE_TYPES = 24
+NUM_TILE_TYPES = 36
 
 -- ============================================================
 -- PALLET TOWN (faithful Gen I recreation, 20x18)
@@ -44,13 +50,8 @@ registerZone("pallet_town", Zone({
 
     npcs = {
         {
-            gridX = 10, gridY = 12,
-            name = "Prof. Oak",
-            dialog = { "Welcome to Pallet Town!", "The world of Pokemon awaits!", "Take care out there!" },
-            sprite = "oak",
-        },
-        {
-            gridX = 13, gridY = 6,
+            -- Rival loiters outside his house (Oak is inside the lab)
+            gridX = 12, gridY = 6,
             name = "Rival",
             dialog = { "Hey! Let's battle!" },
             battleData = { species = "charmander", level = 5 },
@@ -74,6 +75,164 @@ registerZone("pallet_town", Zone({
         { label = "Tall Grass",    x = 9,  y = 1  },
         { label = "Shore",         x = 9,  y = 15 },
         { label = "Route 1 Exit",  x = 9,  y = 0  },
+    },
+
+    doors = {
+        { x = 5,  y = 5,  to = "reds_house",  toX = 3, toY = 7, facing = "up" },
+        { x = 13, y = 5,  to = "blues_house", toX = 3, toY = 7, facing = "up" },
+        { x = 10, y = 11, to = "oaks_lab",    toX = 5, toY = 9, facing = "up" },
+    },
+}))
+
+-- ============================================================
+-- INTERIORS — Red's house (1F + 2F), Blue's house, Oak's lab.
+-- Rooms sit inside a Vd (void) surround; exit mats and stairs are
+-- door defs back to the overworld / between floors.
+-- ============================================================
+
+registerZone("reds_house", Zone({
+    name = "Red's House 1F",
+    spawn = { x = 3, y = 7, facing = "up" },
+
+    tileRows = {
+    --  0  1  2  3  4  5  6  7  8  9  10 11 12
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+        "Vd Vd IW IW IW IW IW IW IW IW Vd Vd Vd", -- 1  back wall
+        "Vd Vd Fo Fo Tv Fo Fo Fo Fo St Vd Vd Vd", -- 2  TV + stairs up
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 3
+        "Vd Vd Fo Tb Tb Fo Fo Fo Fo Fo Vd Vd Vd", -- 4  dining table (Mom beside)
+        "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
+        "Vd Vd Ma Ma Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 7  exit mats
+    },
+
+    npcs = {
+        {
+            gridX = 5, gridY = 4,
+            name = "Mom",
+            dialog = {
+                "MOM: Right. All boys leave home someday.",
+                "It said so on TV!",
+                "Rest up before you head out, honey.",
+            },
+            sprite = "mom",
+        },
+    },
+
+    warps = {
+        { label = "Exit Mat", x = 3, y = 7 },
+        { label = "Stairs",   x = 9, y = 2 },
+    },
+
+    doors = {
+        { x = 2, y = 7, to = "pallet_town",   toX = 5, toY = 5, facing = "down" },
+        { x = 3, y = 7, to = "pallet_town",   toX = 5, toY = 5, facing = "down" },
+        { x = 9, y = 2, to = "reds_house_2f", toX = 9, toY = 2, facing = "left" },
+    },
+}))
+
+registerZone("reds_house_2f", Zone({
+    name = "Red's Room",
+    spawn = { x = 5, y = 4 },
+
+    tileRows = {
+    --  0  1  2  3  4  5  6  7  8  9  10 11 12
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+        "Vd Vd IW IW IW IW IW IW IW IW Vd Vd Vd", -- 1  back wall
+        "Vd Vd Bd Fo Fo Tv Fo PC Fo St Vd Vd Vd", -- 2  bed, SNES corner, PC, stairs
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 3
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 4
+        "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 7
+    },
+
+    warps = {
+        { label = "Stairs", x = 9, y = 2 },
+    },
+
+    doors = {
+        { x = 9, y = 2, to = "reds_house", toX = 9, toY = 2, facing = "left" },
+    },
+}))
+
+registerZone("blues_house", Zone({
+    name = "Blue's House",
+    spawn = { x = 3, y = 7, facing = "up" },
+
+    tileRows = {
+    --  0  1  2  3  4  5  6  7  8  9  10 11 12
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+        "Vd Vd IW IW IW IW IW IW IW IW Vd Vd Vd", -- 1  back wall
+        "Vd Vd Fo Fo Fo Fo Fo Fo Bk Bk Vd Vd Vd", -- 2  bookshelves
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 3
+        "Vd Vd Fo Fo Tb Tb Fo Fo Fo Fo Vd Vd Vd", -- 4  table (Daisy beside)
+        "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
+        "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
+        "Vd Vd Ma Ma Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 7  exit mats
+    },
+
+    npcs = {
+        {
+            gridX = 6, gridY = 4,
+            name = "Daisy",
+            dialog = {
+                "DAISY: Hi! My brother is out at Grandpa's lab.",
+                "Pallet Town is so peaceful and pretty!",
+            },
+            sprite = "daisy",
+        },
+    },
+
+    warps = {
+        { label = "Exit Mat", x = 3, y = 7 },
+    },
+
+    doors = {
+        { x = 2, y = 7, to = "pallet_town", toX = 13, toY = 5, facing = "down" },
+        { x = 3, y = 7, to = "pallet_town", toX = 13, toY = 5, facing = "down" },
+    },
+}))
+
+registerZone("oaks_lab", Zone({
+    name = "Oak's Lab",
+    spawn = { x = 5, y = 9, facing = "up" },
+
+    tileRows = {
+    --  0  1  2  3  4  5  6  7  8  9  10 11 12
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
+        "Vd IW IW IW IW IW IW IW IW IW IW Vd Vd", -- 1  back wall
+        "Vd LM LM Fo Fo Fo Tb Tb Tb Bk Bk Vd Vd", -- 2  machine, starter table, shelves
+        "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 3  Oak stands here
+        "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 4
+        "Vd Bk Bk Bk Bk Fo Fo Bk Bk Bk Bk Vd Vd", -- 5  library stacks
+        "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 6
+        "Vd Bk Bk Bk Bk Fo Fo Bk Bk Bk Bk Vd Vd", -- 7  library stacks
+        "Vd Pl Fo Fo Fo Fo Fo Fo Fo Fo Pl Vd Vd", -- 8
+        "Vd Fo Fo Fo Fo Ma Ma Fo Fo Fo Fo Vd Vd", -- 9  exit mats
+    },
+
+    npcs = {
+        {
+            gridX = 5, gridY = 3,
+            name = "Prof. Oak",
+            dialog = {
+                "OAK: Welcome to my lab!",
+                "I study Pokemon as a profession.",
+                "The world of Pokemon awaits. Go catch 'em all!",
+            },
+            sprite = "oak",
+        },
+    },
+
+    warps = {
+        { label = "Exit Mat",      x = 5, y = 9 },
+        { label = "Starter Table", x = 6, y = 3 },
+    },
+
+    doors = {
+        { x = 5, y = 9, to = "pallet_town", toX = 10, toY = 11, facing = "down" },
+        { x = 6, y = 9, to = "pallet_town", toX = 10, toY = 11, facing = "down" },
     },
 }))
 

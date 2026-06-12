@@ -58,6 +58,7 @@
         "DialogState",
         "DirectDamage",
         "Dog",
+        "DoorWarpSubstate",
         "EffectSeq",
         "Emitter",
         "Exactly",
