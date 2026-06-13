@@ -11,13 +11,19 @@
 --   Fo = Floor    IW = Int Wall Ma = Door Mat Tb = Table
 --   Bk = Bookshelf Tv = TV      Pl = Plant    St = Stairs
 --   Bd = Bed      PC = PC desk  LM = Lab Machine Vd = Void
+--   Pb = Table with POKE BALL (starter choice)
 --
 -- Collision is auto-generated from tile types (no manual arrays!)
 -- Interior rooms are padded with Vd to at least 13x8 tiles so the
 -- camera clamp (which assumes map >= screen) keeps working.
+--
+-- Exit mats are EDGE doors (`edge = "down"`): the warp fires when the
+-- player stands on the mat and walks down into the room edge, Gen 2/3
+-- style — landing on the mat alone does nothing. Outside doors and
+-- stairs stay step-triggered.
 
 TILE_SIZE = 32
-NUM_TILE_TYPES = 36
+NUM_TILE_TYPES = 37
 
 -- ============================================================
 -- PALLET TOWN (faithful Gen I recreation, 20x18)
@@ -50,13 +56,17 @@ registerZone("pallet_town", Zone({
 
     npcs = {
         {
-            -- Rival loiters outside his house (Oak is inside the lab)
+            -- After the intro questline, BLUE loiters outside his house
+            -- itching for a rematch with his (counter-pick) starter
             gridX = 12, gridY = 6,
-            name = "Rival",
-            dialog = { "Hey! Let's battle!" },
-            battleData = { species = "charmander", level = 5 },
+            name = "BLUE",
             sprite = "rival",
-            postBattleLines = { "Good battle!" },
+            appearsIf = function() return Story.stage == "done" end,
+            dialog = { "BLUE: You again, RED?", "My POKEMON got way tougher!", "Let's go!" },
+            battleData = function()
+                return { species = Story.rivalStarter or "charmander", level = 7 }
+            end,
+            postBattleLines = { "BLUE: Hmph! Smell ya later!" },
         },
     },
 
@@ -104,18 +114,27 @@ registerZone("reds_house", Zone({
         "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
         "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
         "Vd Vd Ma Ma Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 7  exit mats
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 8  void below the door (exit-arrow space)
     },
 
     npcs = {
         {
             gridX = 5, gridY = 4,
-            name = "Mom",
-            dialog = {
-                "MOM: Right. All boys leave home someday.",
-                "It said so on TV!",
-                "Rest up before you head out, honey.",
-            },
+            name = "MOM",
             sprite = "mom",
+            dialog = function()
+                if Story.stage == "pre_oak" then
+                    return {
+                        "MOM: Right. All boys leave home someday.",
+                        "It said so on TV!",
+                        "PROF. OAK, next door, is looking for you.",
+                    }
+                end
+                return {
+                    "MOM: Take care out there, honey!",
+                    "Come rest up whenever you're tired.",
+                }
+            end,
         },
     },
 
@@ -125,15 +144,16 @@ registerZone("reds_house", Zone({
     },
 
     doors = {
-        { x = 2, y = 7, to = "pallet_town",   toX = 5, toY = 5, facing = "down" },
-        { x = 3, y = 7, to = "pallet_town",   toX = 5, toY = 5, facing = "down" },
+        { x = 2, y = 7, edge = "down", to = "pallet_town", toX = 5, toY = 5, facing = "down" },
+        { x = 3, y = 7, edge = "down", to = "pallet_town", toX = 5, toY = 5, facing = "down" },
         { x = 9, y = 2, to = "reds_house_2f", toX = 9, toY = 2, facing = "left" },
     },
 }))
 
 registerZone("reds_house_2f", Zone({
     name = "Red's Room",
-    spawn = { x = 5, y = 4 },
+    -- New game starts here, in front of the TV (Gen 1 starts at the SNES)
+    spawn = { x = 5, y = 3, facing = "up" },
 
     tileRows = {
     --  0  1  2  3  4  5  6  7  8  9  10 11 12
@@ -170,6 +190,7 @@ registerZone("blues_house", Zone({
         "Vd Vd Fo Fo Fo Fo Fo Fo Pl Fo Vd Vd Vd", -- 5
         "Vd Vd Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 6
         "Vd Vd Ma Ma Fo Fo Fo Fo Fo Fo Vd Vd Vd", -- 7  exit mats
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 8  void below the door (exit-arrow space)
     },
 
     npcs = {
@@ -189,8 +210,8 @@ registerZone("blues_house", Zone({
     },
 
     doors = {
-        { x = 2, y = 7, to = "pallet_town", toX = 13, toY = 5, facing = "down" },
-        { x = 3, y = 7, to = "pallet_town", toX = 13, toY = 5, facing = "down" },
+        { x = 2, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 5, facing = "down" },
+        { x = 3, y = 7, edge = "down", to = "pallet_town", toX = 13, toY = 5, facing = "down" },
     },
 }))
 
@@ -202,26 +223,65 @@ registerZone("oaks_lab", Zone({
     --  0  1  2  3  4  5  6  7  8  9  10 11 12
         "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 0
         "Vd IW IW IW IW IW IW IW IW IW IW Vd Vd", -- 1  back wall
-        "Vd LM LM Fo Fo Fo Tb Tb Tb Bk Bk Vd Vd", -- 2  machine, starter table, shelves
-        "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 3  Oak stands here
+        "Vd LM LM Fo Fo Fo Pb Pb Pb Bk Bk Vd Vd", -- 2  machine, starter balls, shelves
+        "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 3  Oak + Blue stand here
         "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 4
         "Vd Bk Bk Bk Bk Fo Fo Bk Bk Bk Bk Vd Vd", -- 5  library stacks
         "Vd Fo Fo Fo Fo Fo Fo Fo Fo Fo Fo Vd Vd", -- 6
         "Vd Bk Bk Bk Bk Fo Fo Bk Bk Bk Bk Vd Vd", -- 7  library stacks
         "Vd Pl Fo Fo Fo Fo Fo Fo Fo Fo Pl Vd Vd", -- 8
         "Vd Fo Fo Fo Fo Ma Ma Fo Fo Fo Fo Vd Vd", -- 9  exit mats
+        "Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd Vd", -- 10 void below the door (exit-arrow space)
     },
 
     npcs = {
         {
             gridX = 5, gridY = 3,
-            name = "Prof. Oak",
-            dialog = {
-                "OAK: Welcome to my lab!",
-                "I study Pokemon as a profession.",
-                "The world of Pokemon awaits. Go catch 'em all!",
-            },
+            name = "OAK",
             sprite = "oak",
+            -- Gen 1: Oak is out at the grass strip until he escorts you in
+            appearsIf = function() return Story.stage ~= "pre_oak" end,
+            dialog = function()
+                if Story.stage == "choose" then
+                    return {
+                        "OAK: Go on, pick a POKEMON!",
+                        "They're in the POKE BALLS on the table.",
+                    }
+                elseif Story.stage == "pre_rival" then
+                    return {
+                        "OAK: A POKEMON can sense how you feel.",
+                        "Raise it with love!",
+                    }
+                end
+                return {
+                    "OAK: Welcome to my lab!",
+                    "I study POKEMON as a profession.",
+                    "The world of POKEMON awaits. Go catch 'em all!",
+                }
+            end,
+        },
+        {
+            -- Stands clear of the three ball tiles (x 6-8) so the player
+            -- can step in front of any of them
+            gridX = 9, gridY = 3,
+            name = "BLUE",
+            sprite = "rival",
+            -- Leaves for good after the intro battle ("Smell ya later!")
+            appearsIf = function() return Story.stage ~= "done" end,
+            dialog = function()
+                if Story.stage == "pre_oak" then
+                    return {
+                        "BLUE: Yo RED! Gramps isn't around.",
+                        "He said he'd be at the lab...",
+                    }
+                elseif Story.stage == "choose" then
+                    return {
+                        "BLUE: No rush, RED.",
+                        "I already know which one I want!",
+                    }
+                end
+                return { "BLUE: My POKEMON looks way tougher than yours!" }
+            end,
         },
     },
 
@@ -231,8 +291,8 @@ registerZone("oaks_lab", Zone({
     },
 
     doors = {
-        { x = 5, y = 9, to = "pallet_town", toX = 10, toY = 11, facing = "down" },
-        { x = 6, y = 9, to = "pallet_town", toX = 10, toY = 11, facing = "down" },
+        { x = 5, y = 9, edge = "down", to = "pallet_town", toX = 10, toY = 11, facing = "down" },
+        { x = 6, y = 9, edge = "down", to = "pallet_town", toX = 10, toY = 11, facing = "down" },
     },
 }))
 
@@ -264,13 +324,13 @@ registerZone("test_zone", Zone({
     npcs = {
         {
             gridX = 10, gridY = 7,
-            name = "Prof. Oak",
+            name = "OAK",
             dialog = { "Welcome to the Test Zone!", "This is the original map.", "Explore freely!" },
             sprite = "oak",
         },
         {
             gridX = 13, gridY = 9,
-            name = "Rival",
+            name = "BLUE",
             dialog = { "Hey! Let's battle!" },
             battleData = { species = "charmander", level = 5 },
             sprite = "rival",

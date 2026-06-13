@@ -204,9 +204,12 @@ end
 
 Class("Battle"):includes(Signal)
 
-function Battle:init(playerPokemon, enemyPokemon)
+-- trainerName (optional) makes this a trainer battle: intro messages
+-- name the trainer and running is forbidden (Gen 1 rules)
+function Battle:init(playerPokemon, enemyPokemon, trainerName)
     self.player = playerPokemon
     self.enemy = enemyPokemon
+    self.trainerName = trainerName
 
     -- Directionality: set per half-turn, consumed by the DSL
     self.attacker = nil
@@ -229,7 +232,12 @@ function Battle:init(playerPokemon, enemyPokemon)
     self.machine:register("ended", BattleEndedPhase(self))
 
     self:runScript(function()
-        self:say("A wild " .. self.enemy.name .. " appeared!")
+        if self.trainerName then
+            self:say(self.trainerName .. " wants to battle!")
+            self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
+        else
+            self:say("A wild " .. self.enemy.name .. " appeared!")
+        end
     end)
 end
 
@@ -313,6 +321,15 @@ function Battle:selectMove(moveIndex)
 end
 
 function Battle:tryRun()
+    -- Gen 1: no running from a trainer battle
+    if self.trainerName then
+        self:runScript(function()
+            self:say("No! There's no running from a trainer battle!")
+            return "command"
+        end)
+        return
+    end
+
     self.runAttempts = self.runAttempts + 1
 
     -- Gen III-V run formula: F = (A*128/B + 30*attempts) mod 256,
@@ -533,11 +550,13 @@ function Battle:handleFaint()
         if self.player:gainXP(xpGained) then
             self:say(self.player.name .. " grew to Lv" .. self.player.level .. "!")
         end
-        self.message = "You won the battle!"
+        self.message = self.trainerName
+            and ("You defeated " .. self.trainerName .. "!")
+            or "You won the battle!"
         return "victory"
     end
 
-    self.message = "You blacked out..."
+    self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
     return "defeat"
 end
 
@@ -551,7 +570,7 @@ function Battle:endOfRoundStatus()
 
     if not self.player:isAlive() then
         self:say(self.player.name .. " fainted!")
-        self.message = "You blacked out..."
+        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
         return "defeat"
     elseif not self.enemy:isAlive() then
         self:setDirection("player")

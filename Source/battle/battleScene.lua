@@ -200,62 +200,61 @@ function BattleScene:drawBattleField()
     -- Draw platforms on top of sprites
     self:drawPlatforms()
 
-    -- Draw enemy info (top-left)
-    local enemyLabel = self.battle.enemy.name .. "  Lv" .. self.battle.enemy.level
+    -- Enemy info box (top-left): name/level row, then HP bar row.
+    -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
+    -- so nothing pokes through the frame.
+    local enemy = self.battle.enemy
     gfx.setFont(battleFont)
+    local enemyLabel = enemy.name .. "  Lv" .. enemy.level
     local enemyTextW, _ = gfx.getTextSize(enemyLabel)
-    local enemyBoxW = math.max(130, enemyTextW + 16)
-    local enemyBarW = enemyBoxW - 16
+    local eBoxW = math.max(140, enemyTextW + 20)
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(4, 4, enemyBoxW, 30)
+    gfx.fillRect(4, 4, eBoxW, 40)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(4, 4, enemyBoxW, 30)
-    gfx.drawText(enemyLabel, 8, 6)
+    gfx.drawRect(4, 4, eBoxW, 40)
+    gfx.drawText(enemyLabel, 12, 7)
     gfx.setFont(gfx.getSystemFont())
-    gfx.drawText("HP", 8, 22)
-    self:drawHPBar(24, 23, enemyBarW - 16, 8, self.battle.enemy.hp, self.battle.enemy.maxHP)
-    -- Enemy status
-    if self.battle.enemy.status then
-        local statusStr = statusLabels[self.battle.enemy.status] or "???"
-        gfx.drawText(statusStr, enemyBoxW - 26, 22)
+    gfx.drawText("HP", 12, 23)
+    local eBarX, eBarW = 32, eBoxW - 44
+    if enemy.status then
+        eBarW = eBarW - 36
+        gfx.drawText(statusLabels[enemy.status] or "???", eBarX + eBarW + 6, 23)
     end
+    self:drawHPBar(eBarX, 26, eBarW, 8, enemy.hp, enemy.maxHP)
 
-    -- Draw player info (bottom-right, above menu)
-    local playerLabel = self.battle.player.name .. "  Lv" .. self.battle.player.level
+    -- Player info box (bottom-right): name/level, HP bar, HP numbers,
+    -- and a thin XP gauge along the bottom edge
+    local player = self.battle.player
     gfx.setFont(battleFont)
+    local playerLabel = player.name .. "  Lv" .. player.level
     local playerTextW, _ = gfx.getTextSize(playerLabel)
-    local hpText = self.battle.player.hp .. "/" .. self.battle.player.maxHP
-    gfx.setFont(gfx.getSystemFont())
-    local hpTextW, _ = gfx.getTextSize(hpText)
-    local playerBoxW = math.max(130, playerTextW + 16)
-    local playerBarW = playerBoxW - 16
-    local playerBoxX = 396 - playerBoxW
+    local pBoxW = math.max(150, playerTextW + 20)
+    local pBoxX = 396 - pBoxW
+    local pBoxY = 102
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(playerBoxX, 110, playerBoxW, 54)
+    gfx.fillRect(pBoxX, pBoxY, pBoxW, 62)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(playerBoxX, 110, playerBoxW, 54)
-    gfx.setFont(battleFont)
-    gfx.drawText(playerLabel, playerBoxX + 4, 112)
+    gfx.drawRect(pBoxX, pBoxY, pBoxW, 62)
+    gfx.drawText(playerLabel, pBoxX + 8, pBoxY + 5)
     gfx.setFont(gfx.getSystemFont())
-    -- Player status
-    if self.battle.player.status then
-        local statusStr = statusLabels[self.battle.player.status] or "???"
-        gfx.drawText(statusStr, playerBoxX + playerBoxW - 30, 128)
+    gfx.drawText("HP", pBoxX + 8, pBoxY + 22)
+    local pBarX, pBarW = pBoxX + 28, pBoxW - 40
+    if player.status then
+        pBarW = pBarW - 36
+        gfx.drawText(statusLabels[player.status] or "???", pBarX + pBarW + 6, pBoxY + 22)
     end
-    gfx.drawText("HP", playerBoxX + 4, 128)
-    self:drawHPBar(playerBoxX + 20, 129, playerBarW - 18, 8, self.battle.player.hp, self.battle.player.maxHP)
-    gfx.drawText(hpText, playerBoxX + playerBoxW - hpTextW - 6, 140)
-    -- XP bar
-    local xpBarY = 152
-    local xpBarW = playerBarW - 4
-    gfx.drawText("EXP", playerBoxX + 4, xpBarY)
-    local xpCurrent = self.battle.player.xp - xpForLevel(self.battle.player.level)
-    local xpNeeded = self.battle.player.xpToNext - xpForLevel(self.battle.player.level)
+    self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, player.hp, player.maxHP)
+    local hpText = player.hp .. "/" .. player.maxHP
+    local hpTextW, _ = gfx.getTextSize(hpText)
+    gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
+    -- XP gauge
+    local xpCurrent = player.xp - xpForLevel(player.level)
+    local xpNeeded = player.xpToNext - xpForLevel(player.level)
     local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
-    gfx.drawRect(playerBoxX + 26, xpBarY + 1, xpBarW - 22, 6)
-    local xpFill = math.floor(xpRatio * (xpBarW - 24))
+    gfx.drawRect(pBoxX + 6, pBoxY + 52, pBoxW - 12, 6)
+    local xpFill = math.floor(xpRatio * (pBoxW - 14))
     if xpFill > 0 then
-        gfx.fillRect(playerBoxX + 27, xpBarY + 2, xpFill, 4)
+        gfx.fillRect(pBoxX + 7, pBoxY + 53, xpFill, 4)
     end
 
     -- Update flash timer
@@ -277,8 +276,8 @@ function BattleScene:drawBattleField()
 
     if self.battle:isAwaitingCommand() then
         -- Draw text area on left
-        gfx.drawText("What will", 14, boxY + 12)
-        gfx.drawText(self.battle.player.name .. " do?", 14, boxY + 30)
+        gfx.drawText("What will", 14, boxY + 10)
+        gfx.drawText(self.battle.player.name .. " do?", 14, boxY + 28)
 
         -- Draw menu on right
         if self.inMoveSelect then
@@ -287,8 +286,8 @@ function BattleScene:drawBattleField()
             self.mainMenu:draw(300, boxY + 4, 96, 52)
         end
     else
-        -- Draw message
-        gfx.drawText(self.battle.message, 14, boxY + 18)
+        -- Word-wrapped inside the frame so long messages never escape
+        gfx.drawTextInRect(self.battle.message, 14, boxY + 10, 374, 44)
     end
 
     -- Separator line

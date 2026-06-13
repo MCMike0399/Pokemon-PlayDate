@@ -21,6 +21,7 @@
 --   dismiss                         press A until the dialog overlay closes
 --                                   (mash can overshoot and re-trigger the NPC)
 --   battle <species> <level>        jump straight into a wild battle
+--   intro <skip|reset|status>       control the intro questline (Story)
 --   gamestate                       report state stack, battle phase, transitions
 --   seed <n>                        math.randomseed(n) for deterministic runs
 --   debug <open|close>              push/pop the debug menu overlay
@@ -207,6 +208,23 @@ local function step(cmd, game)
         results[#results + 1] = "battle " .. species .. " " .. level
         return true
 
+    elseif name == "intro" then
+        local sub = cmd[2]
+        if sub == "skip" then
+            Story.skipIntro(game)
+            if game.machine:is("overworld") then
+                game.machine:change("overworld")
+            end
+        elseif sub == "reset" then
+            Story.resetIntro(game)
+            if game.machine:is("overworld") then
+                game.machine:change("overworld", { respawn = true })
+            end
+        end
+        results[#results + 1] = "intro " .. tostring(sub)
+            .. " stage=" .. Story.stage .. " starter=" .. tostring(Story.starter)
+        return true
+
     elseif name == "gamestate" then
         local line = "gamestate " .. game.machine:stackNames()
         local top = game.machine:current()
@@ -217,6 +235,7 @@ local function step(cmd, game)
         if currentZone then
             line = line .. " zone=[" .. currentZone.name .. "]"
         end
+        line = line .. " story=" .. Story.stage
         if player then
             line = line .. string.format(" player=%d,%d", player.gridX, player.gridY)
         end
@@ -281,6 +300,13 @@ local function step(cmd, game)
         if cmd.remaining <= 0 then return true end
         player:tryMove(dir[1], dir[2])
         if not player.isMoving then
+            if player.pendingEdgeDoor then
+                -- Walking into an edge exit: the warp starts on the next
+                -- explore update; queued commands wait it out
+                results[#results + 1] = string.format("edge-door %s at %d,%d",
+                    cmd[2], player.gridX, player.gridY)
+                return true
+            end
             results[#results + 1] = string.format("blocked %s at %d,%d", cmd[2], player.gridX, player.gridY)
             return true
         end

@@ -66,7 +66,8 @@ function Dialog:draw()
 
     local line = self.lines[self.currentLine]
     local displayText = string.sub(line, 1, self.charIndex)
-    gfx.drawText(displayText, 14, boxY + 16)
+    -- Word-wrapped inside the frame so long lines never escape the box
+    gfx.drawTextInRect(displayText, 14, boxY + 12, 372, 42)
 
     if self.charIndex >= #line and math.floor(self.blinkTimer / 15) % 2 == 0 then
         gfx.drawText("v", 380, boxY + 40)

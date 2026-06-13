@@ -99,3 +99,13 @@ end
 function getMapPixelSize()
     return currentZone.width * TILE_SIZE, currentZone.height * TILE_SIZE
 end
+
+-- Swap one tile of the LIVE tilemap (story events: a starter ball taken
+-- off Oak's table). Callers must also update zone.tiles themselves —
+-- rebuilds read from there. Grid coords are 0-based player coords.
+function setOverworldTile(gx, gy, id)
+    if tilemap then
+        tilemap:setTileAtPosition(gx + 1, gy + 1, id)
+        if tilemapSprite then tilemapSprite:markDirty() end
+    end
+end

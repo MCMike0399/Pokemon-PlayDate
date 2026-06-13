@@ -76,6 +76,7 @@ local CODES = {
     PC = 34,      -- PC desk
     LM = 35,      -- Lab Machine
     Vd = 36,      -- Void (black surround outside rooms)
+    Pb = 37,      -- Table with a POKE BALL (starter choice)
 }
 
 -- Auto-collision: true = solid, false = walkable
@@ -116,6 +117,7 @@ local SOLID = {
     [34] = true,  -- PC
     [35] = true,  -- Lab Machine
     [36] = true,  -- Void
+    [37] = true,  -- Table with POKE BALL
 }
 
 local TALL_GRASS_ID <const> = 8
@@ -226,27 +228,45 @@ function Zone:init(config)
     end
 end
 
--- Spawn NPCs defined in this zone
+-- Spawn NPCs defined in this zone. Defs with an `appearsIf` predicate are
+-- skipped while it returns false (story-conditional NPCs).
 function Zone:spawnNPCs(npcManager)
     npcManager:clear()
     local created = {}
     for _, def in ipairs(self.npcDefs) do
-        local npc = NPC(def.gridX, def.gridY, def.name, def.dialog, def.battleData, def.sprite)
-        if def.postBattleLines then
-            npc.postBattleLines = def.postBattleLines
+        if not def.appearsIf or def.appearsIf() then
+            local npc = NPC(def.gridX, def.gridY, def.name, def.dialog, def.battleData, def.sprite)
+            if def.postBattleLines then
+                npc.postBattleLines = def.postBattleLines
+            end
+            npc.def = def
+            npc.interacted = def.interacted or false
+            npcManager:addNPC(npc)
+            created[def.name] = npc
         end
-        npc.def = def
-        npc.interacted = def.interacted or false
-        npcManager:addNPC(npc)
-        created[def.name] = npc
     end
     return created
 end
 
--- Door/mat/stairs warp at grid position (player coords are 0-based)
+-- Step-triggered warp at grid position (player coords are 0-based).
+-- Edge doors are excluded: they fire on walking INTO the edge, not on
+-- landing (see getEdgeDoorAt).
 function Zone:getDoorAt(gx, gy)
     for _, door in ipairs(self.doors) do
-        if door.x == gx and door.y == gy then return door end
+        if not door.edge and door.x == gx and door.y == gy then return door end
+    end
+    return nil
+end
+
+-- Gen 2/3-style edge exit: a door with `edge = "down"` fires when the
+-- player stands on (x, y) and walks in that direction (into the room edge).
+-- `dir` nil matches any edge door at the tile (used to point the exit arrow).
+function Zone:getEdgeDoorAt(gx, gy, dir)
+    for _, door in ipairs(self.doors) do
+        if door.edge and door.x == gx and door.y == gy
+           and (dir == nil or door.edge == dir) then
+            return door
+        end
     end
     return nil
 end

@@ -24,7 +24,7 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc)
     self.game.camera:reset()
     playerPokemon:resetStages()
 
-    self.battle = Battle(playerPokemon, enemyPokemon)
+    self.battle = Battle(playerPokemon, enemyPokemon, npc and npc.name)
     self.scene = BattleScene(self.battle)
 
     self.battle:on("battleEnd", function(won)
@@ -37,6 +37,7 @@ function BattleState:finish(won)
     if won and self.npc then
         self.npc:markInteracted()
     end
+    Story.notifyBattleEnd(won)
 
     local pokemon = game.playerPokemon
     pokemon.status = nil

@@ -69,6 +69,56 @@ local function getGrassOverlay()
     return grassOverlayImage
 end
 
+-- Exit arrow (Gen 2/3): a chunky bobbing arrow that appears in the void
+-- beside an exit mat, pointing the way out. Authored as a 16x16 silhouette
+-- (block shaft + triangular head) and rendered at TILE_SIZE with a 1px
+-- black outline so it reads on both the black void and lighter tiles.
+local exitArrowImages
+local function inArrowRight(x, y)
+    if x >= 1 and x <= 7 and y >= 5 and y <= 10 then return true end   -- shaft
+    if x >= 7 and x <= 13 then                                         -- head
+        local half = 13 - x
+        return y >= 7 - half and y <= 7 + half
+    end
+    return false
+end
+-- The other three are coordinate transforms of the right-pointing arrow:
+-- mirror x for left, transpose for down, transpose+mirror for up
+local function inArrowLeft(x, y) return inArrowRight(15 - x, y) end
+local function inArrowDown(x, y) return inArrowRight(y, x) end
+local function inArrowUp(x, y)   return inArrowRight(15 - y, x) end
+
+local function buildArrow(inFn)
+    local scale = TILE_SIZE // 16
+    local img = gfx.image.new(TILE_SIZE, TILE_SIZE, gfx.kColorClear)
+    gfx.pushContext(img)
+    for y = 0, 15 do
+        for x = 0, 15 do
+            if inFn(x, y) then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillRect(x * scale, y * scale, scale, scale)
+            elseif inFn(x - 1, y) or inFn(x + 1, y) or inFn(x, y - 1) or inFn(x, y + 1) then
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillRect(x * scale, y * scale, scale, scale)
+            end
+        end
+    end
+    gfx.popContext()
+    return img
+end
+
+local function getExitArrows()
+    if not exitArrowImages then
+        exitArrowImages = {
+            up = buildArrow(inArrowUp),
+            down = buildArrow(inArrowDown),
+            left = buildArrow(inArrowLeft),
+            right = buildArrow(inArrowRight),
+        }
+    end
+    return exitArrowImages
+end
+
 function Player:init(gridX, gridY, collisionMap, npcManager)
     Player.super.init(self)
 
@@ -86,6 +136,7 @@ function Player:init(gridX, gridY, collisionMap, npcManager)
     self.walkToggle = false  -- alternates lead foot between steps
     self.stepJustFinished = false
     self.rustleFrames = 0    -- grass splay countdown after landing in grass
+    self.pendingEdgeDoor = nil  -- set by tryMove when walking into an edge exit
 
     self:setImage(playerImages.down)
     self:setCenter(0, 0)
@@ -98,6 +149,38 @@ function Player:init(gridX, gridY, collisionMap, npcManager)
     self.grassOverlay:setZIndex(101)
     self.grassOverlay:setVisible(false)
     self.grassOverlay:add()
+
+    self.exitArrow = gfx.sprite.new()
+    self.exitArrow:setCenter(0, 0)
+    self.exitArrow:setZIndex(102)
+    self.exitArrow:setVisible(false)
+    self.exitArrow:add()
+    self.arrowTimer = 0
+end
+
+-- Show the bobbing exit arrow when standing still on an exit-mat tile,
+-- in the void tile just past the door, pointing the way out
+local ARROW_DELTA <const> = { up = {0,-1}, down = {0,1}, left = {-1,0}, right = {1,0} }
+
+function Player:updateExitArrow()
+    local door = (not self.isMoving) and currentZone
+        and currentZone:getEdgeDoorAt(self.gridX, self.gridY)
+    if not door then
+        self.exitArrow:setVisible(false)
+        self.arrowTimer = 0
+        return
+    end
+
+    self.arrowTimer = self.arrowTimer + 1
+    local dir = door.edge
+    local d = ARROW_DELTA[dir]
+    self.exitArrow:setImage(getExitArrows()[dir])
+    -- Two-state bob: nudge a few px toward the exit every ~8 frames
+    local bob = (math.floor(self.arrowTimer / 8) % 2 == 0) and 0 or 3
+    local ax = (self.gridX + d[1]) * TILE_SIZE + d[1] * bob
+    local ay = (self.gridY + d[2]) * TILE_SIZE + d[2] * bob
+    self.exitArrow:moveTo(ax, ay)
+    self.exitArrow:setVisible(true)
 end
 
 -- Show the grass overlay on the player's tile when standing in tall grass
@@ -170,6 +253,13 @@ function Player:tryMove(dx, dy)
         self.targetPixelX = self.gridX * TILE_SIZE
         self.targetPixelY = self.gridY * TILE_SIZE
         self:updateSprite()
+    elseif currentZone then
+        -- Walking into the room edge from an exit mat (Gen 2/3 gates):
+        -- explore picks this up and starts the door warp
+        local door = currentZone:getEdgeDoorAt(self.gridX, self.gridY, self.facing)
+        if door then
+            self.pendingEdgeDoor = door
+        end
     end
 end
 
@@ -207,6 +297,7 @@ function Player:update()
     end
 
     self:updateGrassOverlay()
+    self:updateExitArrow()
 end
 
 function Player:getFacingTile()

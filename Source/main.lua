@@ -22,6 +22,7 @@ import "world/tilefactory"
 import "world/overworld"
 import "battle/battle"
 import "battle/battleScene"
+import "game/story"
 import "data/maps"
 import "game/context"
 import "game/overworldState"
@@ -53,7 +54,11 @@ end)
 -- ============================================================
 -- GAME LOOP
 -- ============================================================
+-- New game: the intro questline starts in Red's bedroom with Oak's
+-- monologue (debug menu "Skip Intro" jumps straight to free play)
+Story.begin()
 machine:change("overworld")
+machine:push("dialog", Story.openingLines)
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function playdate.update()

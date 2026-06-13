@@ -34,6 +34,8 @@ function DebugMenu:init()
         { label = "Wild Battle",  action = "wildBattle" },
         { label = "Heal Pokemon", action = "heal" },
         { label = "Set Level",    action = "setLevel" },
+        { label = "Skip Intro",   action = "skipIntro" },
+        { label = "Reset Intro",  action = "resetIntro" },
         { label = "Noclip",       action = "toggle", flag = "noclip" },
         { label = "Show FPS",     action = "toggle", flag = "showFPS" },
         { label = "Show Grid",    action = "toggle", flag = "showGrid" },
@@ -134,6 +136,12 @@ function DebugMenu:executeMain(option)
         self:doHeal()
     elseif option.action == "resetNPCs" then
         self:doResetNPCs()
+    elseif option.action == "skipIntro" or option.action == "resetIntro" then
+        -- Menu-closing actions: the overworld rebuilds with the new story
+        -- state when DebugState's onClose handles the pending action
+        self.isActive = false
+        self.pendingAction = { type = option.action }
+        if self.onClose then self.onClose() end
     elseif option.action == "wildBattle" then
         self.subMenu = "speciesSelect"
         self.subIndex = 1

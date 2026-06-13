@@ -121,6 +121,7 @@ function TileFactory.generateAll()
     tiles:setImage(34, TileFactory.pc())
     tiles:setImage(35, TileFactory.labMachine())
     tiles:setImage(36, TileFactory.void())
+    tiles:setImage(37, TileFactory.tableBall())
     return tiles
 end
 
@@ -502,7 +503,8 @@ function TileFactory.interiorWall()
     })
 end
 
--- 27: Door Mat — bordered rug; stepping on it exits the room
+-- 27: Door Mat — bordered rug; standing on it shows the animated exit
+-- arrow (Player.updateExitArrow) and walking into the edge leaves
 function TileFactory.mat()
     return makeShadeTile({
         "################",
@@ -693,6 +695,29 @@ end
 -- 36: Void — solid black surround outside room bounds
 function TileFactory.void()
     return gfx.image.new(32, 32, gfx.kColorBlack)
+end
+
+-- 37: Table with a POKE BALL on top (starter choice in Oak's lab);
+-- the dark front panel matches the plain table so they tile together
+function TileFactory.tableBall()
+    return makeShadeTile({
+        "################",
+        "#.....####.....#",
+        "#....#2222#....#",
+        "#...#222222#...#",
+        "#...########...#",
+        "#....#.##.#....#",
+        "################",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "2222222222222222",
+        "################",
+    })
 end
 
 -- 17: Wall Window — plank wall with two-pane window

@@ -18,12 +18,20 @@ function DebugState:enter()
         local action = game.debugMenu:consumeAction()
         self.machine:pop()
 
-        if action and action.type == "wildBattle" then
+        if action and action.type == "wildBattle" and game.playerPokemon then
             self.machine:change("battle",
                 game.playerPokemon, Pokemon(action.species, action.level), nil)
         elseif action and action.type == "zoneSwitch" then
             switchZone(action.zone)
             self.machine:change("overworld", { respawn = true })
+        elseif action and action.type == "skipIntro" then
+            Story.skipIntro(game)
+            -- Rebuild in place so story-conditional NPCs refresh
+            self.machine:change("overworld")
+        elseif action and action.type == "resetIntro" then
+            Story.resetIntro(game)
+            self.machine:change("overworld", { respawn = true })
+            self.machine:push("dialog", Story.openingLines)
         end
     end)
 end

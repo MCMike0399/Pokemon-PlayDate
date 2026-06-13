@@ -30,11 +30,22 @@ function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey)
     self:add()
 end
 
+-- Dialog defs may be a function (story-stage-dependent lines)
 function NPC:getDialogLines()
+    local lines = self.dialogLines
     if self.interacted and self.postBattleLines then
-        return self.postBattleLines
+        lines = self.postBattleLines
     end
-    return self.dialogLines
+    if type(lines) == "function" then lines = lines() end
+    return lines
+end
+
+-- Battle defs may be a function too (BLUE's rematch uses the story's
+-- counter-pick starter)
+function NPC:getBattleData()
+    local data = self.battleData
+    if type(data) == "function" then data = data() end
+    return data
 end
 
 -- Interacted state is mirrored onto the zone's npc def so it survives the
@@ -67,6 +78,26 @@ function NPCManager:getNPCAt(gx, gy)
         end
     end
     return nil
+end
+
+function NPCManager:findByName(name)
+    for _, npc in ipairs(self.npcs) do
+        if npc.name == name then
+            return npc
+        end
+    end
+    return nil
+end
+
+-- Remove a single NPC mid-scene (BLUE storming out of the lab)
+function NPCManager:removeNPC(npc)
+    for i, candidate in ipairs(self.npcs) do
+        if candidate == npc then
+            table.remove(self.npcs, i)
+            npc:remove()
+            return
+        end
+    end
 end
 
 function NPCManager:clear()

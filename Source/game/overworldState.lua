@@ -28,7 +28,20 @@ function ExploreSubstate:update()
     local game = self.owner.game
     local player = game.player
 
-    -- Door warp check: landing on a door/mat/stairs tile leaves the zone
+    -- Edge-exit doors (Gen 2/3 gates): the player walked into the room
+    -- edge from an exit mat during the previous handleInput
+    if player.pendingEdgeDoor then
+        local door = player.pendingEdgeDoor
+        player.pendingEdgeDoor = nil
+        self.machine:change("doorWarp", door)
+        return
+    end
+
+    -- Intro storyline triggers (cutscene dialogs, the scripted rival
+    -- battle); they preempt doors and encounters
+    if Story.check(game, self.owner) then return end
+
+    -- Door warp check: landing on a step-triggered door/stairs tile
     if player.stepJustFinished then
         local door = currentZone:getDoorAt(player.gridX, player.gridY)
         if door then
@@ -38,8 +51,10 @@ function ExploreSubstate:update()
     end
 
     -- Wild encounter check (player.stepJustFinished was set during the
-    -- previous frame's sprite update, exactly like the old main loop)
-    if player.stepJustFinished and not DEBUG_FLAGS.noEncounters then
+    -- previous frame's sprite update, exactly like the old main loop).
+    -- No pokemon yet (pre-starter intro) = no wild battles.
+    if player.stepJustFinished and not DEBUG_FLAGS.noEncounters
+       and game.playerPokemon then
         if currentZone:checkEncounter(player.gridX, player.gridY) then
             local px, py = player:getPixelCenter()
             local ox, oy = gfx.getDrawOffset()
@@ -76,16 +91,18 @@ function ExploreSubstate:handleInput()
         player:tryMove(1, 0)
     end
 
-    -- A: interact with the NPC we are facing
+    -- A: story interactions (starter balls) first, then the facing NPC
     if playdate.buttonJustPressed(playdate.kButtonA) then
         local fx, fy = player:getFacingTile()
+        if Story.tryInteract(game, fx, fy) then return end
         local npc = game.npcManager:getNPCAt(fx, fy)
         if npc then
             local rootMachine = self.owner.machine
             local lines = npc:getDialogLines()
-            if npc.battleData and not npc.interacted then
+            local battleData = npc:getBattleData()
+            if battleData and not npc.interacted and game.playerPokemon then
                 rootMachine:push("dialog", lines, function()
-                    local enemy = Pokemon(npc.battleData.species, npc.battleData.level)
+                    local enemy = Pokemon(battleData.species, battleData.level)
                     rootMachine:change("battle", game.playerPokemon, enemy, npc)
                 end)
             else
@@ -255,7 +272,9 @@ function OverworldState:enter(opts)
 
     currentZone:spawnNPCs(game.npcManager)
 
-    if not game.playerPokemon then
+    -- During the intro the player has no pokemon until Oak's lab; after
+    -- it (or a debug skip) fall back to the classic default
+    if not game.playerPokemon and Story.stage == "done" then
         game.playerPokemon = Pokemon("squirtle", 5)
     end
 
