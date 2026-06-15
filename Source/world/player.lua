@@ -8,44 +8,12 @@ local MOVE_FRAMES <const> = 8
 -- pokes over the tile above and tall grass covers just the legs
 local SPRITE_Y_OFFSET <const> = -8
 
--- Pre-load all player images, scaled 2x for native feel
-local function loadScaled(path)
-    local img = assert(gfx.image.new(path), "missing image: " .. path)
-    return img:scaledImage(2)
-end
-
-local function loadScaledFlipped(path)
-    local scaled = loadScaled(path)
-    local w, h = scaled:getSize()
-    local flipped = gfx.image.new(w, h, gfx.kColorClear)
-    gfx.pushContext(flipped)
-    scaled:draw(0, 0, gfx.kImageFlippedX)
-    gfx.popContext()
-    return flipped
-end
-
-local playerImages = {
-    down = loadScaled("images/overworld/player-down"),
-    up = loadScaled("images/overworld/player-up"),
-    left = loadScaled("images/overworld/player-left"),
-    right = loadScaledFlipped("images/overworld/player-left"),
-}
-
-local playerWalk1Images = {
-    down = loadScaled("images/overworld/player-down-walk"),
-    up = loadScaled("images/overworld/player-up-walk"),
-    left = loadScaled("images/overworld/player-left-walk1"),
-    right = loadScaledFlipped("images/overworld/player-left-walk1"),
-}
-
--- walk2 vertical frames are X-flipped so up/down steps alternate the lead
--- foot, exactly like Gen 1; side frames are genuinely different strides
-local playerWalk2Images = {
-    down = loadScaledFlipped("images/overworld/player-down-walk"),
-    up = loadScaledFlipped("images/overworld/player-up-walk"),
-    left = loadScaled("images/overworld/player-left-walk2"),
-    right = loadScaledFlipped("images/overworld/player-left-walk2"),
-}
+-- Player frames are generated at runtime by SpriteFactory from the same
+-- grids the retired PNGs used; the autopilot "atlas" command pixel-diffs
+-- them to guarantee parity (down/up/left + right-flip, two walk strides).
+local playerImages = SpriteFactory.playerStand
+local playerWalk1Images = SpriteFactory.playerWalk1
+local playerWalk2Images = SpriteFactory.playerWalk2
 
 -- Tall grass overlay: drawn over the player's legs while in grass (Gen 1
 -- style). A splayed rustle variant shows briefly when a step lands in

@@ -34,11 +34,12 @@ local COUNTER <const> = {
     squirtle = "bulbasaur",
 }
 
--- The three starter balls on Oak's table (grid coords in oaks_lab)
+-- The three starter balls on Oak's table (grid coords in oaks_lab).
+-- Gen 1 left-to-right order: CHARMANDER, SQUIRTLE, BULBASAUR.
 local BALLS <const> = {
-    { x = 6, y = 2, species = "bulbasaur" },
-    { x = 7, y = 2, species = "charmander" },
-    { x = 8, y = 2, species = "squirtle" },
+    { x = 6, y = 2, species = "charmander" },
+    { x = 7, y = 2, species = "squirtle" },
+    { x = 8, y = 2, species = "bulbasaur" },
 }
 
 -- ------------------------------------------------------------
@@ -46,49 +47,48 @@ local BALLS <const> = {
 -- ------------------------------------------------------------
 
 Story.openingLines = {
-    "OAK: Hello there!",
-    "Welcome to the world of POKEMON!",
-    "My name is OAK!",
-    "People call me the POKEMON PROF!",
-    "Your very own POKEMON legend is",
-    "about to unfold! Let's go!",
+    "OAK: Hello there! Welcome to the world of POKEMON!",
+    "My name is OAK. People call me the POKEMON PROF.",
+    "This world is inhabited by creatures called POKEMON!",
+    "For some people, POKEMON are pets. Others use them for fights.",
+    "Myself... I study POKEMON as a profession.",
+    "Now, what is your name? ...Right! RED!",
+    "This is my grandson. He's been your rival since you were a baby.",
+    "...Erm, what is his name again? Oh, that's right -- BLUE!",
+    "RED! Your very own POKEMON legend is about to unfold!",
+    "A world of dreams and adventures awaits! Let's go!",
 }
 
 local OAK_STOP <const> = {
     "OAK: Hey! Wait! Don't go out!",
     "It's unsafe! Wild POKEMON live in tall grass!",
-    "You need your own POKEMON for protection.",
-    "Here, come with me!",
+    "You need your own POKEMON for your protection.",
+    "I know! Here, come with me!",
 }
 
 local LAB_GREET <const> = {
     "BLUE: Gramps! I'm fed up with waiting!",
-    "OAK: BLUE? Oh right, I told you to come.",
-    "There are 3 POKEMON on that table.",
-    "When I was young, I was a serious trainer.",
-    "In my old age, I have only 3 left.",
-    "Go on, RED! Pick your partner!",
-    "BLUE: Hey! Gramps! What about me?",
-    "OAK: Be patient, BLUE. You can have one too!",
+    "OAK: BLUE? Let me think... Oh, that's right, I told you to come! Just wait!",
+    "Here, RED! There are 3 POKEMON here.",
+    "When I was young, I was a serious POKEMON trainer!",
+    "In my old age, I have only 3 left, but you can have one! Choose!",
 }
 
 local RIVAL_CHALLENGE <const> = {
-    "BLUE: Wait, RED!",
-    "Let's check out our POKEMON!",
+    "BLUE: Wait, RED! Let's check out our POKEMON!",
     "Come on, I'll take you on!",
 }
 
 local GOODBYE_WON <const> = {
-    "BLUE: WHAT? Unbelievable!",
-    "I picked the wrong POKEMON!",
+    "BLUE: WHAT? Unbelievable! I picked the wrong POKEMON!",
     "Okay! I'll make my POKEMON fight to toughen it up!",
-    "RED! Gramps! Smell ya later!",
+    "RED! Gramps! Smell you later!",
 }
 
 local GOODBYE_LOST <const> = {
-    "BLUE: Yeah! Am I great or what!",
+    "BLUE: Yeah! Am I great or what?",
     "Okay! I'll make my POKEMON fight to toughen it up!",
-    "RED! Gramps! Smell ya later!",
+    "RED! Gramps! Smell you later!",
 }
 
 -- ------------------------------------------------------------
@@ -127,15 +127,17 @@ local function restoreBalls()
     end
 end
 
--- Intro starters know their EARLY moves (Scratch/Growl tier), not the
--- last-4 endgame moves Pokemon:init defaults to — keeps the first rival
--- fight an authentic Gen 1 chip-damage duel
+-- Intro starters know only their level-1 moves — the first 2 in the
+-- Gen V learnset — not the last-4 endgame moves Pokemon:init defaults to.
+-- A Lv5 starter hasn't learned Ember/Smokescreen/Vine Whip yet, so the
+-- first rival fight stays an authentic low-level chip-damage duel
+-- (Scratch/Tackle + Growl/Tail Whip).
 local function starterPokemon(species)
     local mon = Pokemon(species, STARTER_LEVEL)
     local data = pokemonData[species]
     mon.moves = {}
     mon.pp = {}
-    for i = 1, math.min(4, #data.moves) do
+    for i = 1, math.min(2, #data.moves) do
         local moveKey = data.moves[i]
         mon.moves[#mon.moves + 1] = moveKey
         local move = moveData[moveKey]
@@ -230,9 +232,10 @@ function Story.chooseStarter(game, species)
     takeBall(species)
     takeBall(Story.rivalStarter)
     game.machine:push("dialog", {
-        "RED received " .. pokemonData[species].name .. "!",
+        "OAK: This POKEMON is really energetic!",
+        "RED received a " .. pokemonData[species].name .. "!",
         "BLUE: I'll take this one, then!",
-        "BLUE got " .. pokemonData[Story.rivalStarter].name .. "!",
+        "BLUE received a " .. pokemonData[Story.rivalStarter].name .. "!",
     })
 end
 

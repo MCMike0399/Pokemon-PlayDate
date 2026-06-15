@@ -92,6 +92,55 @@ local function screenshot(name)
     playdate.simulator.writeToFile(gfx.getDisplayImage(), SHOTS_DIR .. name .. ".png")
 end
 
+-- Visual verification harness: render every TileFactory tile and every
+-- SpriteFactory frame onto labeled contact sheets, so art can be checked
+-- without walking the game. Also dumps each player frame individually for
+-- a pixel-identity diff against the retired PNGs.
+local function buildAtlas()
+    local tiles = TileFactory.generateAll()
+    local cols, cell = 8, 36
+    local rows = math.ceil(NUM_TILE_TYPES / cols)
+    local timg = gfx.image.new(cols * cell, rows * cell + 6, gfx.kColorWhite)
+    gfx.pushContext(timg)
+    gfx.setColor(gfx.kColorBlack)
+    for i = 1, NUM_TILE_TYPES do
+        local img = tiles:getImage(i)
+        if img then
+            local c, r = (i - 1) % cols, (i - 1) // cols
+            img:draw(c * cell + 2, r * cell + 2)
+            gfx.drawText(tostring(i), c * cell + 2, r * cell + 33)
+        end
+    end
+    gfx.popContext()
+    playdate.simulator.writeToFile(timg, SHOTS_DIR .. "atlas_tiles.png")
+
+    local frames = {}
+    local function add(label, img) frames[#frames + 1] = { label, img } end
+    local P = SpriteFactory
+    add("Pdn", P.playerStand.down); add("Pup", P.playerStand.up)
+    add("Plf", P.playerStand.left); add("Prt", P.playerStand.right)
+    add("Pdw", P.playerWalk1.down); add("Plw1", P.playerWalk1.left); add("Plw2", P.playerWalk2.left)
+    for _, key in ipairs({ "oak", "rival", "mom", "daisy" }) do
+        local s = P.npc[key]
+        add(key .. ".d", s.down); add(key .. ".u", s.up)
+        add(key .. ".l", s.left); add(key .. ".r", s.right)
+    end
+    local scols, scell = 6, 44
+    local srows = math.ceil(#frames / scols)
+    local simg = gfx.image.new(scols * scell, srows * scell, gfx.kColorWhite)
+    gfx.pushContext(simg)
+    for i, f in ipairs(frames) do
+        local c, r = (i - 1) % scols, (i - 1) // scols
+        local x, y = c * scell + 2, r * scell + 2
+        Shade.set(Shade.DARK); gfx.fillRect(x, y, 32, 32); Shade.reset()
+        gfx.setColor(gfx.kColorBlack); gfx.drawRect(x, y, 32, 32)
+        f[2]:draw(x, y)
+        gfx.drawText(f[1], x, y + 33)
+    end
+    gfx.popContext()
+    playdate.simulator.writeToFile(simg, SHOTS_DIR .. "atlas_sprites.png")
+end
+
 local function writeDone(player)
     local f = playdate.file.open(DONE_FILE, playdate.file.kFileWrite)
     if not f then return end
@@ -138,6 +187,11 @@ local function step(cmd, game)
     elseif name == "shot" then
         screenshot(cmd[2] or "shot")
         results[#results + 1] = "shot " .. (cmd[2] or "shot")
+        return true
+
+    elseif name == "atlas" then
+        buildAtlas()
+        results[#results + 1] = "atlas -> atlas_tiles.png, atlas_sprites.png"
         return true
 
     elseif name == "record" then

@@ -66,7 +66,7 @@ registerZone("pallet_town", Zone({
             battleData = function()
                 return { species = Story.rivalStarter or "charmander", level = 7 }
             end,
-            postBattleLines = { "BLUE: Hmph! Smell ya later!" },
+            postBattleLines = { "BLUE: Hmph! Smell you later!" },
         },
     },
 

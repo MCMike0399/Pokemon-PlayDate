@@ -97,6 +97,7 @@ function ExploreSubstate:handleInput()
         if Story.tryInteract(game, fx, fy) then return end
         local npc = game.npcManager:getNPCAt(fx, fy)
         if npc then
+            npc:faceTowards(player.gridX, player.gridY)
             local rootMachine = self.owner.machine
             local lines = npc:getDialogLines()
             local battleData = npc:getBattleData()

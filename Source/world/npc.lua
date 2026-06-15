@@ -2,15 +2,7 @@ local gfx <const> = playdate.graphics
 
 class("NPC").extends(gfx.sprite)
 
--- Pre-load NPC images, scaled 2x for native feel
-local npcImages = {
-    oak = gfx.image.new("images/overworld/oak-down"):scaledImage(2),
-    rival = gfx.image.new("images/overworld/rival-down"):scaledImage(2),
-    mom = gfx.image.new("images/overworld/mom-down"):scaledImage(2),
-    daisy = gfx.image.new("images/overworld/daisy-down"):scaledImage(2),
-}
-
-function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey)
+function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey, facing)
     NPC.super.init(self)
 
     self.gridX = gridX
@@ -21,13 +13,35 @@ function NPC:init(gridX, gridY, name, dialogLines, battleData, spriteKey)
     self.interacted = false
     self.postBattleLines = nil
 
-    local img = npcImages[spriteKey or "oak"]
-    self:setImage(img)
+    -- Directional frames generated at runtime by SpriteFactory (down/up/
+    -- left/right). NPCs default to facing down and turn to the player when
+    -- talked to (see faceTowards), Gen 1 style.
+    self.images = SpriteFactory.npc[spriteKey or "oak"] or SpriteFactory.npc.oak
+    self.facing = facing or "down"
+    self:setImage(self.images[self.facing])
     self:setCenter(0, 0)
     -- Drawn 8px above the tile, matching the player's visual offset
     self:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE - 8)
     self:setZIndex(90)
     self:add()
+end
+
+-- Turn to face a direction (down/up/left/right)
+function NPC:setFacing(dir)
+    if self.images[dir] then
+        self.facing = dir
+        self:setImage(self.images[dir])
+    end
+end
+
+-- Turn to look at a grid tile (the player's), favoring the larger axis
+function NPC:faceTowards(gx, gy)
+    local dx, dy = gx - self.gridX, gy - self.gridY
+    if math.abs(dx) > math.abs(dy) then
+        self:setFacing(dx < 0 and "left" or "right")
+    elseif dy ~= 0 or dx ~= 0 then
+        self:setFacing(dy < 0 and "up" or "down")
+    end
 end
 
 -- Dialog defs may be a function (story-stage-dependent lines)

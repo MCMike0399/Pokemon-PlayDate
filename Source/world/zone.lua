@@ -235,7 +235,7 @@ function Zone:spawnNPCs(npcManager)
     local created = {}
     for _, def in ipairs(self.npcDefs) do
         if not def.appearsIf or def.appearsIf() then
-            local npc = NPC(def.gridX, def.gridY, def.name, def.dialog, def.battleData, def.sprite)
+            local npc = NPC(def.gridX, def.gridY, def.name, def.dialog, def.battleData, def.sprite, def.facing)
             if def.postBattleLines then
                 npc.postBattleLines = def.postBattleLines
             end

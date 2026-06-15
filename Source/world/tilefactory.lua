@@ -53,6 +53,10 @@ local function makeShadeTile(rows, baseImage)
     return img
 end
 
+-- Shared with SpriteFactory: render a 16-row four-shade grid to a 32x32
+-- image (sprites add an alpha mask on top of this).
+TileFactory.renderGrid = makeShadeTile
+
 -- fn(x, y) -> shade code, for tiles easier to express procedurally
 local function makeShadeTileFn(fn, baseImage)
     local rows = {}
@@ -670,25 +674,27 @@ function TileFactory.pc()
     })
 end
 
--- 35: Lab Machine — console with indicator windows and dials
+-- 35: Lab Machine — Oak's scientific supercomputer: a monitor showing a
+-- data waveform, a column of indicator lights, a bank of toggle switches,
+-- and a lower dial panel
 function TileFactory.labMachine()
     return makeShadeTile({
-        "################",
-        "#11111111111111#",
-        "#1############1#",
-        "#1#..22..22..#1#",
-        "#1#..22..22..#1#",
-        "#1############1#",
-        "#11111111111111#",
-        "################",
-        "#..............#",
-        "#.##..##..##...#",
-        "#.##..##..##...#",
-        "#..............#",
-        "#.111111111111.#",
-        "#.111111111111.#",
-        "#..............#",
-        "################",
+        "################",  -- 0  casing top
+        "#..............#",  -- 1
+        "#.##########.#.#",  -- 2  monitor frame + light
+        "#.#22222222#.#.#",  -- 3  screen (dark) + light
+        "#.#2#2222#2#...#",  -- 4  screen waveform notch
+        "#.#22222222#.#.#",  -- 5  screen + light
+        "#.##########.#.#",  -- 6  monitor frame + light
+        "#..............#",  -- 7
+        "#.##.##.##.##..#",  -- 8  toggle switches
+        "#..............#",  -- 9
+        "#.############.#",  -- 10 lower panel frame
+        "#.1##1##1##1#1.#",  -- 11 dials
+        "#.############.#",  -- 12 lower panel frame
+        "#..............#",  -- 13
+        "#..............#",  -- 14
+        "################",  -- 15
     })
 end
 
@@ -697,26 +703,29 @@ function TileFactory.void()
     return gfx.image.new(32, 32, gfx.kColorBlack)
 end
 
--- 37: Table with a POKE BALL on top (starter choice in Oak's lab);
--- the dark front panel matches the plain table so they tile together
+-- 37: Table with a POKE BALL on top (starter choice in Oak's lab).
+-- Shares the plain table's slab frame and dark front EXACTLY so a Pb
+-- swapped to Tb (ball taken) leaves a seamless counter. The ball: dark
+-- upper hemisphere, black equator band, white lower half with a center
+-- release button.
 function TileFactory.tableBall()
     return makeShadeTile({
-        "################",
-        "#.....####.....#",
-        "#....#2222#....#",
-        "#...#222222#...#",
-        "#...########...#",
-        "#....#.##.#....#",
-        "################",
-        "2222222222222222",
-        "2222222222222222",
-        "2222222222222222",
-        "2222222222222222",
-        "2222222222222222",
-        "2222222222222222",
-        "2222222222222222",
-        "2222222222222222",
-        "################",
+        "################",  -- 0  slab top edge
+        "#...########...#",  -- 1  ball top arc
+        "#..#22222222#..#",  -- 2  upper hemisphere (dark)
+        "#..##########..#",  -- 3  black equator band
+        "#..#..####..#..#",  -- 4  white lower half + center button
+        "#...########...#",  -- 5  ball bottom arc
+        "################",  -- 6  slab bottom edge
+        "2222222222222222",  -- 7  dark counter front
+        "2222222222222222",  -- 8
+        "2222222222222222",  -- 9
+        "2222222222222222",  -- 10
+        "2222222222222222",  -- 11
+        "2222222222222222",  -- 12
+        "2222222222222222",  -- 13
+        "2222222222222222",  -- 14
+        "################",  -- 15
     })
 end
 
