@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "ok": true,
+  "native_cases_passed": 26,
+  "source_sha256": "325a69a70bcd9f8e09a7ed7f28e46c783b15ddf2b3075c75db6d354e46b85048",
+  "sdk_version": "3.1.2",
+  "archive_sha256": "7c1477f3f9fa8367481956847546acea6d3e384616234c74a2b6b8b9e93dd46f"
+}

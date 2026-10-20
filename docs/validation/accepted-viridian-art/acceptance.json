@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "source_comparisons": 96,
+  "changed_pixels": 0,
+  "protected_comparisons": 915,
+  "protected_equal": true,
+  "sdk_contracts_passed": 206,
+  "inspected": "Root viewed City, Mart and Center native actor composites and both route/interior terrain rasters; exact46 new sprites+46 masks match pinned source transforms.",
+  "scope": "Assets/adapters only; connected campaign event playthrough pending. Full extended catalog backgrounds/overlays still need final inventory review."
+}

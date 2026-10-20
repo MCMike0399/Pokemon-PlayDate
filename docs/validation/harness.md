@@ -123,6 +123,23 @@ protocol/build/session is rejected. Old result IDs are archived and never count
 as success. Incomplete/malformed results, invalid commands, assertions, missing
 outputs and runtime errors fail with a nonzero host exit.
 
+Command values support the full signed-int32 span without the SDK JSON decoder's
+float32 rounding. The host recursively tags Python integers with
+`abs(value) >= 16777216` as a reserved singleton object, for example
+`{"__harness_int32_v1":"2147483647"}`. The runtime decodes it through
+`DecimalInteger` before normalizing or executing any command. Untagged numeric
+values at that boundary, overflow, malformed/duplicate/unknown reserved tags,
+extra tag fields and nonfinite values fail closed with
+`error_code="invalid-integer-wire"`. Caller-supplied reserved tag keys are
+rejected by the host. Booleans, normal strings and small finite floats retain
+their types; fixture seeds require Python integers and never coerce floats.
+Text `seed -2147483648` also remains exact. Numbered request evidence records the
+actual tagged wire packet; `scenario.json` retains the original input.
+Terminal result `rng_data` carries exact decimal RNG diagnostics; legacy numeric
+snapshot fields may still round during JSON serialization. All 34 host tests and
+26 root-owned native SDK integer cases passed, including malformed multi-command
+packets leaving the prior seed unchanged and subsequent request recovery.
+
 `--timeout` bounds each request in wall seconds; `--max-frames` bounds runtime
 execution (default 1800, maximum 18000). On host timeout it atomically publishes
 `cancel.json` for that exact request and waits up to two seconds for a matching

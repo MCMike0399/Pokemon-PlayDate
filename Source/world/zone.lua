@@ -79,49 +79,6 @@ local CODES = {
     Pb = 37,      -- Table with a POKE BALL (starter choice)
 }
 
--- Auto-collision: true = solid, false = walkable
-local SOLID = {
-    [1]  = false, -- Grass
-    [2]  = false, -- Path
-    [3]  = true,  -- Wall
-    [4]  = true,  -- Water
-    [5]  = true,  -- Tree
-    [6]  = false, -- Door
-    [7]  = true,  -- Fence
-    [8]  = false, -- Tall Grass
-    [9]  = true,  -- Roof
-    [10] = true,  -- Sign
-    [11] = false, -- Flowers
-    [12] = false, -- Shore
-    [13] = true,  -- Lab Wall
-    [14] = true,  -- Mailbox
-    [15] = true,  -- Roof Left
-    [16] = true,  -- Roof Right
-    [17] = true,  -- Wall Window
-    [18] = false, -- Grass variant A (1 tuft)
-    [19] = false, -- Grass variant B (2 tufts)
-    [20] = false, -- Grass variant C (3 tufts)
-    [21] = true,  -- Roof Left on path
-    [22] = true,  -- Roof Right on path
-    [23] = true,  -- Roof Left on tall grass
-    [24] = true,  -- Roof Right on tall grass
-    [25] = false, -- Floor
-    [26] = true,  -- Interior Wall
-    [27] = false, -- Door Mat
-    [28] = true,  -- Table
-    [29] = true,  -- Bookshelf
-    [30] = true,  -- TV
-    [31] = true,  -- Plant
-    [32] = false, -- Stairs
-    [33] = true,  -- Bed
-    [34] = true,  -- PC
-    [35] = true,  -- Lab Machine
-    [36] = true,  -- Void
-    [37] = true,  -- Table with POKE BALL
-}
-
-local TALL_GRASS_ID <const> = 8
-
 -- Parse "Tr Tr Pa .  Dr Wa" -> {5, 5, 2, 1, 6, 3}
 local function parseRow(str)
     local row = {}
@@ -133,14 +90,55 @@ local function parseRow(str)
     return row
 end
 
+-- Internal copies are the immutable reset/save reference; callers never receive them.
+local zoneData = setmetatable({}, { __mode = "k" })
+local function deepCopy(value)
+    if type(value) ~= "table" then return value end
+    local result = {}
+    for key, item in pairs(value) do result[key] = deepCopy(item) end
+    return result
+end
+local function integer(value) return type(value) == "number" and value % 1 == 0 end
+local function array(value, count, label)
+    assert(type(value) == "table" and #value == count, label .. " length mismatch")
+    local found = 0
+    for key in pairs(value) do
+        assert(integer(key) and key >= 1 and key <= count, label .. " has invalid index")
+        found = found + 1
+    end
+    assert(found == count, label .. " has holes")
+end
+local function rectangle(value, width, height, label, validate)
+    array(value, height, label)
+    for y = 1, height do
+        array(value[y], width, label .. " row " .. y)
+        for x = 1, width do validate(value[y][x], x, y) end
+    end
+end
+local function bounds(zone, x, y)
+    assert(integer(x) and integer(y) and x >= 0 and y >= 0 and x < zone.width and y < zone.height, "zone coordinate outside bounds")
+end
+local function captureDefinition(zone, terrain, revision, issues, blocked)
+    zoneData[zone] = { tiles = deepCopy(zone.tiles), collision = deepCopy(zone.collision),
+        terrain = deepCopy(terrain), baselineTerrain = deepCopy(terrain), revision = revision or "authored-v1",
+        issues = deepCopy(issues or {}), blocked = deepCopy(blocked or {}), view = nil }
+end
+local function blockedAt(data, x, y) return data.blocked[y + 1] and data.blocked[y + 1][x + 1] end
+
+
 function Zone:init(config)
+    assert(type(config) == "table", "zone configuration required")
     self.name = config.name or "Unnamed"
-    self.spawn = config.spawn or { x = 1, y = 1 }
-    self.npcDefs = config.npcs or {}
-    self.encounters = config.encounters or {}
+    self.stableID = config.id or self.name
+    self.registry = config.registry or WorldTiles
+    self.imported = config.imported == true
+    self.terrainFixture = config.terrainFixture == true
+    self.spawn = deepCopy(config.spawn or { x = 1, y = 1 })
+    self.npcDefs = deepCopy(config.npcs or {})
+    self.encounters = deepCopy(config.encounters or {})
     self.encounterRate = config.encounterRate or 0.15
-    self.warps = config.warps or {}
-    self.doors = config.doors or {}
+    self.warps = deepCopy(config.warps or {})
+    self.doors = deepCopy(config.doors or {})
 
     -- Parse tile grid from string rows
     if config.tileRows then
@@ -159,6 +157,30 @@ function Zone:init(config)
         self.tiles = config.tiles
         self.width = config.width
         self.height = config.height
+    end
+
+    assert(integer(self.width) and integer(self.height) and self.width > 0 and self.height > 0, "invalid zone dimensions")
+    rectangle(self.tiles, self.width, self.height, "zone tiles", function(id) self.registry:id(id) end)
+    self.tiles = deepCopy(self.tiles)
+    if config.collision then
+        assert(type(config.terrain) == "table", "explicit numeric zones require terrain")
+        rectangle(config.collision, self.width, self.height, "zone collision", function(value)
+            assert(value == 0 or value == 1, "unknown zone collision value")
+        end)
+        rectangle(config.terrain, self.width, self.height, "zone terrain", function(value, x, y)
+            assert(type(value) == "table" and type(value.land_passable) == "boolean", "zone terrain requires passability")
+            local entry = self.registry:entry(self.tiles[y][x])
+            assert(value.land_passable == entry.terrain.land_passable, "numeric zone terrain disagrees with stable tile key")
+            local blocker = config.blockedBindings and config.blockedBindings[y] and config.blockedBindings[y][x]
+            assert(config.collision[y][x] == (blocker and 1 or entry.collision), "numeric zone collision disagrees with stable tile key")
+        end)
+        self.collision = deepCopy(config.collision)
+        captureDefinition(self, config.terrain, config.sourceRevision, config.bindingIssues, config.blockedBindings)
+        return
+    end
+
+    for _, row in ipairs(self.tiles) do
+        for _, id in ipairs(row) do assert(id <= 37, "imported numeric tiles require explicit collision and terrain") end
     end
 
     -- Resolve roof corner tiles against the ground beside them: the
@@ -223,18 +245,350 @@ function Zone:init(config)
     for y = 1, self.height do
         self.collision[y] = {}
         for x = 1, self.width do
-            self.collision[y][x] = SOLID[self.tiles[y][x]] and 1 or 0
+            self.collision[y][x] = self.registry:entry(self.tiles[y][x]).collision
         end
     end
+    local terrain = {}
+    for y = 1, self.height do
+        terrain[y] = {}
+        for x = 1, self.width do terrain[y][x] = self.registry:entry(self.tiles[y][x]).terrain end
+    end
+    captureDefinition(self, terrain, config.sourceRevision)
 end
+
+function Zone:terrainAt(x, y)
+    bounds(self, x, y)
+    local data = assert(zoneData[self], "zone definition not initialized")
+    local result = deepCopy(data.terrain[y + 1][x + 1])
+    result.binding_blocked = blockedAt(data, x, y) ~= nil
+    return result
+end
+function Zone:isTallGrass(x, y)
+    if not integer(x) or not integer(y) or x < 0 or y < 0 or x >= self.width or y >= self.height then return false end
+    return zoneData[self].terrain[y + 1][x + 1].grass == true
+end
+function Zone:getBindingIssues() return deepCopy(zoneData[self].issues) end
+function Zone:isCampaignReady() return #zoneData[self].issues == 0 end
+function Zone:isSliceReady() return zoneData[self].slicePlan ~= nil end
+function Zone:sourceEventsAt(x, y)
+    bounds(self, x, y)
+    local plan, events = zoneData[self].slicePlan, {}
+    if not plan then return events end
+    for _, kind in ipairs({ "objects", "background_events", "warps" }) do
+        for _, event in ipairs(plan.source.events[kind]) do
+            if event.x == x and event.y == y then
+                events[#events + 1] = { id = event.id, kind = kind, status = plan.specs[event.id].status }
+            end
+        end
+    end
+    return events
+end
+function Zone:movementRule(x, y, direction)
+    local plan = assert(zoneData[self].slicePlan, "no explicit source movement binding")
+    return MapBindings.movement(plan.source, x, y, direction, self)
+end
+function Zone:assertEnterable()
+    assert(self:isCampaignReady() or self:isSliceReady() or self.terrainFixture == true, "unresolved imported world bindings: " .. self.stableID)
+end
+function Zone:bindingAt(x, y)
+    bounds(self, x, y)
+    return deepCopy(blockedAt(zoneData[self], x, y))
+end
+function Zone:attachView(view)
+    assert(type(view) == "table" and type(view.applyTiles) == "function", "world view adapter required")
+    local data = zoneData[self]
+    assert(not data.view or data.view == view, "zone already has a world view")
+    data.view = view
+end
+function Zone:detachView(view)
+    if zoneData[self].view == view then zoneData[self].view = nil end
+end
+local function prepare(zone, changes)
+    local data, result, occupied = zoneData[zone], {}, {}
+    for _, change in ipairs(changes) do
+        assert(type(change) == "table", "world delta tile record required")
+        for key in pairs(change) do assert(key == "x" or key == "y" or key == "key", "unsupported world delta tile field") end
+        bounds(zone, change.x, change.y)
+        assert(type(change.key) == "string", "persistent world tiles require stable keys")
+        local position = change.y * zone.width + change.x
+        assert(not occupied[position], "duplicate world delta coordinate")
+        occupied[position] = true
+        local id = zone.registry:id(change.key)
+        local entry = zone.registry:entry(id)
+        result[#result + 1] = { x = change.x, y = change.y, id = id, key = entry.key,
+            collision = blockedAt(data, change.x, change.y) and 1 or entry.collision, terrain = entry.terrain }
+    end
+    return result
+end
+function Zone:_commitTiles(plan)
+    local data, old, undoView = zoneData[self], {}, nil
+    for i, change in ipairs(plan) do
+        old[i] = { x = change.x, y = change.y, id = self.tiles[change.y + 1][change.x + 1],
+            collision = self.collision[change.y + 1][change.x + 1], terrain = data.terrain[change.y + 1][change.x + 1] }
+    end
+    if data.view then undoView = data.view:applyTiles(plan) end
+    local function assign(values)
+        for _, change in ipairs(values) do
+            self.tiles[change.y + 1][change.x + 1] = change.id
+            self.collision[change.y + 1][change.x + 1] = change.collision
+            data.terrain[change.y + 1][change.x + 1] = change.terrain
+        end
+    end
+    local ok, problem = pcall(assign, plan)
+    if not ok then
+        assign(old)
+        if undoView then undoView() end
+        error(problem, 0)
+    end
+    return function()
+        if undoView then undoView() end
+        assign(old)
+    end
+end
+function Zone:setTile(x, y, tileKeyOrID)
+    bounds(self, x, y)
+    local key = self.registry:key(tileKeyOrID)
+    self:_commitTiles(prepare(self, { { x = x, y = y, key = key } }))
+    return key
+end
+function Zone:exportDeltas()
+    local data, changes = zoneData[self], {}
+    for y = 1, self.height do
+        for x = 1, self.width do
+            local id = self.registry:id(self.tiles[y][x])
+            if id ~= data.tiles[y][x] then changes[#changes + 1] = { x = x - 1, y = y - 1, key = self.registry:key(id) } end
+        end
+    end
+    return { schema = 1, zone_id = self.stableID, definition_revision = data.revision, tiles = changes, tile_count = #changes }
+end
+function Zone:_prepareDeltas(payload)
+    local data = zoneData[self]
+    assert(type(payload) == "table" and payload.schema == 1 and payload.zone_id == self.stableID, "wrong world delta identity/schema")
+    for key in pairs(payload) do
+        assert(key == "schema" or key == "zone_id" or key == "definition_revision"
+            or key == "tile_count" or key == "tiles", "unsupported world zone delta field")
+    end
+    assert(payload.definition_revision == data.revision, "wrong world definition revision")
+    assert(integer(payload.tile_count) and payload.tile_count >= 0, "world delta count required")
+    array(payload.tiles, payload.tile_count, "world delta tiles")
+    local changed = prepare(self, payload.tiles)
+    local desired = {}
+    for y = 1, self.height do
+        for x = 1, self.width do
+            local id = data.tiles[y][x]
+            desired[(y - 1) * self.width + x] = { x = x - 1, y = y - 1, id = id,
+                collision = data.collision[y][x], terrain = data.baselineTerrain[y][x] }
+        end
+    end
+    for _, change in ipairs(changed) do desired[change.y * self.width + change.x + 1] = change end
+    return desired
+end
+function Zone:applyDeltas(payload) self:_commitTiles(self:_prepareDeltas(payload)) end
+function Zone:resetDeltas()
+    self:applyDeltas({ schema = 1, zone_id = self.stableID, definition_revision = zoneData[self].revision, tiles = {}, tile_count = 0 })
+end
+
+-- Validate every source row/event/key before adding anything to the shared registry.
+function Zone.fromMapDefinition(definition, registry, options)
+    options = options or {}
+    registry = registry or WorldTiles
+    assert(type(definition) == "table" and definition.schema == 1 and type(definition.id) == "string", "invalid map definition")
+    assert(type(definition.name) == "string" and #definition.name > 0, "imported map name required")
+    local size = definition.dimensions and definition.dimensions.cells
+    assert(type(size) == "table" and integer(size[1]) and integer(size[2]) and size[1] > 0 and size[2] > 0, "invalid imported dimensions")
+    array(size, 2, "imported dimensions")
+    assert(type(definition.source_revision) == "string", "imported source revision required")
+    assert(options.terrainFixture == nil or type(options.terrainFixture) == "boolean", "terrain fixture flag must be boolean")
+    local width, height = size[1], size[2]
+    local spawn = options.spawn or { x = 1, y = 1 }
+    assert(type(spawn) == "table" and integer(spawn.x) and integer(spawn.y) and spawn.x >= 0 and spawn.y >= 0 and spawn.x < width and spawn.y < height, "invalid imported spawn")
+    local entries, localKeys = {}, {}
+    for i, entry in ipairs(definition.grids) do
+        assert(entry.id == i and not localKeys[i] and type(entry.stable_id) == "string", "invalid imported local tile ID")
+        assert(type(entry.terrain) == "table" and type(entry.terrain.land_passable) == "boolean", "imported terrain missing")
+        entries[i] = { key = entry.stable_id, grid = entry.grid, collision = entry.terrain.land_passable and 0 or 1, terrain = entry.terrain }
+        localKeys[i] = entry.stable_id
+    end
+    array(definition.grids, #entries, "imported grids")
+    assert(#entries > 0, "imported palette is empty")
+    registry:validateBatch(entries)
+    rectangle(definition.tile_ids, width, height, "imported tile IDs", function(id)
+        assert(integer(id) and localKeys[id], "unknown imported tile ID")
+    end)
+    rectangle(definition.collision, width, height, "imported collision", function(collision, x, y)
+        assert(collision == 0 or collision == 1, "unknown imported collision value")
+        assert(collision == entries[definition.tile_ids[y][x]].collision, "imported collision/terrain mismatch")
+    end)
+    local slicePlan = options.sliceBindings and MapBindings.prepare(definition, options.sliceBindings, options) or nil
+    local issues, blocked, identities = {}, {}, {}
+    local function issue(kind, id, x, y)
+        assert(type(id) == "string" and #id > 0 and not identities[id], "duplicate/invalid imported binding ID")
+        identities[id] = true
+        if x ~= nil then
+            assert(integer(x) and integer(y) and x >= 0 and y >= 0 and x < width and y < height, "imported event outside bounds")
+        end
+        if slicePlan and slicePlan.bound[id] then return end
+        local value = { kind = kind, id = id, status = "unresolved source binding", x = x, y = y }
+        issues[#issues + 1] = value
+        -- A verified source NPC owns occupancy through NPCManager, including
+        -- conditional visibility. Keep its behavior gap diagnostic, not a
+        -- permanent collision tile after the source actor disappears.
+        if slicePlan and kind == "objects" then return end
+        if x ~= nil then
+            assert(integer(x) and integer(y) and x >= 0 and y >= 0 and x < width and y < height, "imported event outside bounds")
+            blocked[y + 1] = blocked[y + 1] or {}
+            assert(not blocked[y + 1][x + 1], "overlapping unresolved bindings require explicit resolution")
+            blocked[y + 1][x + 1] = value
+        end
+    end
+    local events = assert(definition.events, "imported events required")
+    for _, kind in ipairs({ "objects", "warps", "background_events" }) do
+        assert(type(events[kind]) == "table", "imported event list required")
+        array(events[kind], #events[kind], "imported " .. kind)
+        for _, event in ipairs(events[kind]) do
+            assert(type(event.id) == "string", "stable source event ID required")
+            issue(kind, event.id, event.x, event.y)
+        end
+    end
+    for _, connection in ipairs(definition.connections or {}) do issue("connection", connection.direction .. ":" .. tostring(connection.target_map)) end
+    if definition.directional_rules and #definition.directional_rules.ledges > 0 then issue("directional_rules", "ledges:" .. definition.id) end
+    issue("script", definition.script and definition.script.source or definition.id)
+    if definition.encounters and definition.encounters.grass and definition.encounters.grass.rate_byte > 0 then issue("encounter_policy", definition.id) end
+    if slicePlan then
+        issues[#issues + 1] = { kind = "slice_scope", id = "parcel-slice-only", status = "bounded parcel slice; full campaign content incomplete" }
+        for _, event in ipairs(definition.events.objects) do
+            if event.movement == "WALK" then
+                issues[#issues + 1] = { kind = "npc_movement", id = event.id .. ":wander", status = "source wandering descriptor retained; movement executor not integrated" }
+            end
+        end
+    end
+    local ids = registry:registerBatch(entries)
+    local tiles, collision, terrain = {}, {}, {}
+    for y = 1, height do
+        tiles[y], collision[y], terrain[y] = {}, {}, {}
+        for x = 1, width do
+            local localID = definition.tile_ids[y][x]
+            tiles[y][x] = ids[localID]
+            collision[y][x] = blocked[y] and blocked[y][x] and 1 or definition.collision[y][x]
+            terrain[y][x] = deepCopy(entries[localID].terrain)
+        end
+    end
+    local zone = Zone({ name = definition.name, id = definition.id, registry = registry, tiles = tiles,
+        width = width, height = height, collision = collision, terrain = terrain,
+        imported = true, terrainFixture = options.terrainFixture == true,
+        sourceRevision = definition.source_revision, bindingIssues = issues, blockedBindings = blocked,
+        spawn = deepCopy(spawn), npcs = slicePlan and slicePlan.npcs, doors = slicePlan and slicePlan.doors,
+        encounters = slicePlan and slicePlan.encounters })
+    zoneData[zone].slicePlan = slicePlan
+    return zone
+end
+
+WorldDeltas = {}
+function WorldDeltas.export()
+    local zones, names = {}, {}
+    for name in pairs(zoneRegistry) do names[#names + 1] = name end
+    table.sort(names)
+    for _, name in ipairs(names) do
+        local value = zoneRegistry[name]:exportDeltas()
+        if value.tile_count > 0 then zones[#zones + 1] = value end
+    end
+    return { schema = 1, zones = zones, zone_count = #zones }
+end
+local function prepareWorld(payload)
+    assert(type(payload) == "table" and payload.schema == 1 and integer(payload.zone_count), "invalid world delta payload")
+    for key in pairs(payload) do
+        assert(key == "schema" or key == "zone_count" or key == "zones", "unsupported world delta field")
+    end
+    array(payload.zones, payload.zone_count, "world delta zones")
+    local indexed, plans, occupied, normalized = {}, {}, {}, {}
+    for _, zone in pairs(zoneRegistry) do
+        assert(not indexed[zone.stableID] or indexed[zone.stableID] == zone, "duplicate stable world zone ID")
+        indexed[zone.stableID] = zone
+    end
+    for _, value in ipairs(payload.zones) do
+        assert(type(value) == "table", "world delta zone required")
+        local zone = indexed[value.zone_id]
+        assert(zone and not occupied[zone], "unknown/duplicate world delta zone")
+        occupied[zone] = true
+        zone:_prepareDeltas(value)
+        local tiles = {}
+        for _, tile in ipairs(value.tiles) do tiles[#tiles + 1] = { x = tile.x, y = tile.y, key = tile.key } end
+        table.sort(tiles, function(a, b) return a.y == b.y and a.x < b.x or a.y < b.y end)
+        normalized[#normalized + 1] = { schema = 1, zone_id = zone.stableID,
+            definition_revision = zoneData[zone].revision, tile_count = #tiles, tiles = tiles }
+    end
+    table.sort(normalized, function(a, b) return a.zone_id < b.zone_id end)
+    for _, zone in pairs(zoneRegistry) do
+        local value = nil
+        for _, candidate in ipairs(payload.zones) do if candidate.zone_id == zone.stableID then value = candidate end end
+        value = value or { schema = 1, zone_id = zone.stableID, definition_revision = zoneData[zone].revision, tile_count = 0, tiles = {} }
+        plans[#plans + 1] = { zone = zone, changes = zone:_prepareDeltas(value) }
+    end
+    return plans, { schema = 1, zone_count = #normalized, zones = normalized }
+end
+-- Validation is pure: no registry allocation, view update, or domain mutation.
+-- Returned records are defensive values; apply always preflights again.
+function WorldDeltas.validate(payload)
+    local _, normalized = prepareWorld(payload)
+    return normalized
+end
+function WorldDeltas.resolveLocation(location, candidateWorld, options)
+    assert(type(location) == "table", "world location required")
+    for key in pairs(location) do
+        assert(key == "zone_id" or key == "x" or key == "y" or key == "facing", "unsupported world location field")
+    end
+    assert(type(location.zone_id) == "string", "stable world location ID required")
+    assert(location.facing == "up" or location.facing == "down" or location.facing == "left" or location.facing == "right", "invalid world facing")
+    local plans = prepareWorld(candidateWorld)
+    local selected
+    for _, plan in ipairs(plans) do if plan.zone.stableID == location.zone_id then selected = plan end end
+    assert(selected, "unknown world location zone")
+    local zone = selected.zone
+    bounds(zone, location.x, location.y)
+    local namedSlice = options and options.sliceZones and options.sliceZones[zone.stableID] == true
+    assert(zone:isCampaignReady() or (namedSlice and zone:isSliceReady()), "unresolved campaign world location")
+    local tile = selected.changes[location.y * zone.width + location.x + 1]
+    assert(tile.collision == 0, "world location is blocked in candidate world")
+    return { zone_id = zone.stableID, x = location.x, y = location.y, facing = location.facing }
+end
+function WorldDeltas.apply(payload)
+    local plans = prepareWorld(payload)
+    local undo = {}
+    local ok, problem = pcall(function()
+        for _, plan in ipairs(plans) do undo[#undo + 1] = plan.zone:_commitTiles(plan.changes) end
+    end)
+    if not ok then
+        for i = #undo, 1, -1 do undo[i]() end
+        error(problem, 0)
+    end
+end
+function WorldDeltas.reset() WorldDeltas.apply({ schema = 1, zones = {}, zone_count = 0 }) end
 
 -- Spawn NPCs defined in this zone. Defs with an `appearsIf` predicate are
 -- skipped while it returns false (story-conditional NPCs).
 function Zone:spawnNPCs(npcManager)
+    self:assertEnterable()
     npcManager:clear()
     local created = {}
+    if self.imported then
+        for _, issue in ipairs(zoneData[self].issues) do
+            if issue.x ~= nil and not (self:isSliceReady() and issue.kind == "objects") then
+                local message = "unresolved source interaction: " .. issue.id
+                local blocker = { gridX = issue.x, gridY = issue.y, name = message, source_id = issue.id, interacted = false }
+                function blocker:faceTowards() error(message) end
+                function blocker:getDialogLines() error(message) end
+                function blocker:getBattleData() error(message) end
+                function blocker:remove() end -- No sprite was invented for an unresolved source actor.
+                npcManager:addNPC(blocker)
+            end
+        end
+        if not self:isSliceReady() then return created end
+    end
     for _, def in ipairs(self.npcDefs) do
         if not def.appearsIf or def.appearsIf() then
+            if self.imported and self:isSliceReady() then
+                assert(type(def.sprite) == "string" and SpriteFactory.npc[def.sprite], "bound source NPC sprite missing; no fallback allowed")
+            end
             local npc = NPC(def.gridX, def.gridY, def.name, def.dialog, def.battleData, def.sprite, def.facing)
             if def.postBattleLines then
                 npc.postBattleLines = def.postBattleLines
@@ -252,6 +606,10 @@ end
 -- Edge doors are excluded: they fire on walking INTO the edge, not on
 -- landing (see getEdgeDoorAt).
 function Zone:getDoorAt(gx, gy)
+    if self.imported then
+        local issue = self:bindingAt(gx, gy)
+        assert(not issue or issue.kind ~= "warps", "unresolved source warp: " .. (issue and issue.id or ""))
+    end
     for _, door in ipairs(self.doors) do
         if not door.edge and door.x == gx and door.y == gy then return door end
     end
@@ -262,6 +620,10 @@ end
 -- player stands on (x, y) and walks in that direction (into the room edge).
 -- `dir` nil matches any edge door at the tile (used to point the exit arrow).
 function Zone:getEdgeDoorAt(gx, gy, dir)
+    if self.imported and integer(gx) and integer(gy) and gx >= 0 and gy >= 0 and gx < self.width and gy < self.height then
+        local issue = self:bindingAt(gx, gy)
+        assert(not issue or issue.kind ~= "warps", "unresolved source warp: " .. (issue and issue.id or ""))
+    end
     for _, door in ipairs(self.doors) do
         if door.edge and door.x == gx and door.y == gy
            and (dir == nil or door.edge == dir) then
@@ -273,16 +635,26 @@ end
 
 -- Check wild encounter at grid position
 function Zone:checkEncounter(tileX, tileY)
-    if tileY + 1 > self.height or tileX + 1 > self.width then return false end
-    return self.tiles[tileY + 1][tileX + 1] == TALL_GRASS_ID
-       and RulesRNG.random() < self.encounterRate
+    if self.imported and self:isSliceReady() then
+        local rate = zoneData[self].slicePlan.encounterRateByte
+        return self:isTallGrass(tileX, tileY) and RulesRNG.random(0, 255) < rate
+    end
+    if self.imported then
+        assert(self.terrainFixture, "unresolved imported encounter policy")
+        return false -- Explicit terrain-only fixture; getBindingIssues reports disabled content.
+    end
+    return self:isTallGrass(tileX, tileY) and RulesRNG.random() < self.encounterRate
 end
 
 -- Roll a random wild Pokemon from encounter table
 function Zone:rollEncounter()
+    assert(not self.imported or self:isSliceReady(), "unresolved imported species/encounter policy")
     local total = 0
     for _, e in ipairs(self.encounters) do total = total + e.weight end
-    if total == 0 then return Pokemon("rattata", 3) end
+    if total == 0 then
+        assert(not self.imported, "imported map has no bound encounter slots")
+        return Pokemon("rattata", 3)
+    end
 
     local roll = RulesRNG.random(1, total)
     local sum = 0
@@ -306,6 +678,12 @@ zoneList = {}
 currentZone = nil
 
 function registerZone(key, zone)
+    for existing, value in pairs(zoneRegistry) do
+        assert(value ~= zone or existing == key, "zone object already registered under another key")
+        assert(not zone.imported or value == zone or value.stableID ~= zone.stableID, "duplicate stable zone ID")
+    end
+    assert(type(key) == "string" and (not zoneRegistry[key] or zoneRegistry[key] == zone), "duplicate/invalid zone key")
+    if not zone.imported then zone.stableID = key end
     zoneRegistry[key] = zone
     zoneList[#zoneList + 1] = key
 end

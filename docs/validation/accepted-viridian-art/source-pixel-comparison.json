@@ -1,0 +1,578 @@
+[
+  {
+    "kind": "terrain",
+    "image": "slice-Route1-terrain.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "terrain",
+    "image": "slice-ViridianCity-terrain.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "terrain",
+    "image": "slice-ViridianMart-terrain.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "terrain",
+    "image": "slice-ViridianPokecenter-terrain.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-clerk-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-clerk-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-clerk-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-cooltrainer_m-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-cooltrainer_m-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-cooltrainer_m-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-cooltrainer_m-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-cooltrainer_m-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-cooltrainer_m-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-fisher-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-fisher-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-fisher-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-fisher-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-fisher-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-fisher-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gambler_asleep-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gentleman-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gentleman-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gentleman-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gentleman-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gentleman-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-gentleman-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-girl-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-girl-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-girl-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-girl-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-girl-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-girl-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-link_receptionist-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-link_receptionist-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-link_receptionist-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-nurse-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-nurse-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-nurse-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-youngster-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-youngster-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-youngster-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-youngster-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-youngster-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "masks",
+    "image": "slice-mask-youngster-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-clerk-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-clerk-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-clerk-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-cooltrainer_m-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-cooltrainer_m-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-cooltrainer_m-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-cooltrainer_m-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-cooltrainer_m-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-cooltrainer_m-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-fisher-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-fisher-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-fisher-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-fisher-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-fisher-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-fisher-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gambler_asleep-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gentleman-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gentleman-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gentleman-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gentleman-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gentleman-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-gentleman-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-girl-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-girl-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-girl-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-girl-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-girl-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-girl-5.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-link_receptionist-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-link_receptionist-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-link_receptionist-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-nurse-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-nurse-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-nurse-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-youngster-0.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-youngster-1.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-youngster-2.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-youngster-3.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-youngster-4.png",
+    "changed": 0,
+    "bbox": null
+  },
+  {
+    "kind": "sprite_candidates",
+    "image": "slice-sprite-youngster-5.png",
+    "changed": 0,
+    "bbox": null
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "additional_source_files": [
+    {
+      "path": "data/tilesets/water_tilesets.asm",
+      "sha256": "c37911107dc60805a56c1fd8718dd1aa95c2ae5ccd99b6fcb2620617d9f48d09"
+    },
+    {
+      "path": "data/tilesets/warp_tile_ids.asm",
+      "sha256": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5"
+    }
+  ],
+  "scope": [
+    "Route1",
+    "ViridianMart"
+  ],
+  "status": "pilot metadata; runtime integration pending",
+  "adapter_proposals": {
+    "pallet_route1": {
+      "status": "review candidate; not implemented",
+      "source_header_south_offset_blocks": 0,
+      "authored_pallet_north_cells": [
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ]
+      ],
+      "imported_route1_south_cells": [
+        [
+          10,
+          35
+        ],
+        [
+          11,
+          35
+        ]
+      ],
+      "north_lateral_adjustment_cells": 1,
+      "south_lateral_adjustment_cells": -1,
+      "reason": "customized Pallet gap differs by one cell from source Route1 central corridor; source Route1(9,35) foot0x3a is blocked",
+      "preserve_existing_maps": true
+    },
+    "viridian_mart_padding": {
+      "status": "review candidate; not generated",
+      "source_origin": [
+        2,
+        0
+      ],
+      "padding_left_right_top_bottom": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "presented_cells": [
+        13,
+        9
+      ]
+    }
+  }
+}

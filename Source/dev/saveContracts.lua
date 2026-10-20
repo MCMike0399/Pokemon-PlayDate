@@ -42,11 +42,12 @@ function SaveContracts.run()
     end)
     test("codec preserves chosen moves zero PP status HP XP nickname pending choices",function()
         local original=mon()
-        original:gainXP(xpForLevel(20)-original.xp)
+        original:gainXP(original:xpForLevel(20)-original.xp)
         local choices=original:getPendingMoveChoices(); assert(#choices>=3)
         original:resolveMoveChoice(choices[1].id,"learn")
         original:resolveMoveChoice(choices[2].id,"learn")
         original.name,original.hp,original.status,original.statusTurns="EMBER",7,"sleep",2
+        original.sleepDuration=3
         original.pp[original.moves[1]]=0
         original.statStages.atk,original.confusion,original.flinched=-2,3,true
         local record=assert(PokemonCodec.encode(original))
@@ -59,7 +60,7 @@ function SaveContracts.run()
         record.moves[1]="tackle"; eq(original.moves[1],"scratch"); eq(restored.moves[1],"scratch")
         for _,status in ipairs({"none","burn","poison","paralyze","freeze"}) do
             local variant=copy(assert(PokemonCodec.encode(original)))
-            variant.status,variant.statusTurns,variant.hp=status,0,0
+            variant.status,variant.statusTurns,variant.hp,variant.sleepDuration=status,0,0,0
             assert(same(variant,assert(PokemonCodec.encode(assert(PokemonCodec.decode(variant))))))
         end
         local exhausted=copy(assert(PokemonCodec.encode(original)))
@@ -72,7 +73,7 @@ function SaveContracts.run()
         eq(loaded.level,100); eq(loaded.xp,capped.xp)
     end)
     test("codec rejects malformed records and choices without mutating source",function()
-        local original=mon(); original:gainXP(xpForLevel(20)-original.xp)
+        local original=mon(); original:gainXP(original:xpForLevel(20)-original.xp)
         local source=assert(PokemonCodec.encode(original))
         local changes={
             function(r) r.species="missingno" end,
@@ -85,7 +86,7 @@ function SaveContracts.run()
             function(r) r.level=0 end,
             function(r) r.level=101 end,
             function(r) r.xp=0 end,
-            function(r) r.xp=xpForLevel(r.level+1) end,
+            function(r) r.xp=xpForLevel(r.level+1, r.species) end,
             function(r) r.status="toxic" end,
             function(r) r.status="sleep"; r.statusTurns=-1 end,
             function(r) r.status="sleep"; r.statusTurns=4 end,

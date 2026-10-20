@@ -67,9 +67,9 @@ local function computeMask(grid)
     return mask
 end
 
-function SpriteFactory.makeSprite(grid)
+function SpriteFactory.makeSprite(grid, patternPhase)
     assert(#grid == 16, "sprite grid must have 16 rows")
-    local img = TileFactory.renderGrid(grid)
+    local img = TileFactory.renderGrid(grid, nil, patternPhase)
     img:setMaskImage(computeMask(grid))
     return img
 end

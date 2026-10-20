@@ -1,0 +1,4156 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_AbandonLearningText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 98,
+          "text": "Abandon learning"
+        },
+        {
+          "op": "line",
+          "source_line": 99,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 100,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 101,
+          "text": "?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 102
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_BoulderText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 45,
+          "text": "This requires"
+        },
+        {
+          "op": "line",
+          "source_line": 46,
+          "text": "STRENGTH to move!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 47
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_CableClubNPCAreaReservedFor2FriendsLinkedByCableText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 191,
+          "text": "This area is"
+        },
+        {
+          "op": "line",
+          "source_line": 192,
+          "text": "reserved for 2"
+        },
+        {
+          "op": "cont",
+          "source_line": 193,
+          "text": "friends who are"
+        },
+        {
+          "op": "cont",
+          "source_line": 194,
+          "text": "linked by cable."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 195
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_CableClubNPCLinkClosedBecauseOfInactivityText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "vc_patch Change_link_closed_inactivity_message",
+          "source_line": 215
+        },
+        {
+          "op": "control",
+          "source": "IF DEF(_RED_VC) || DEF(_BLUE_VC)",
+          "source_line": 216
+        },
+        {
+          "op": "text",
+          "source_line": 217,
+          "text": "Please come again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 218
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 219
+        },
+        {
+          "op": "control",
+          "source": "db   \"osed because of\"",
+          "source_line": 220
+        },
+        {
+          "op": "cont",
+          "source_line": 221,
+          "text": "inactivity."
+        },
+        {
+          "op": "control",
+          "source": "ELSE",
+          "source_line": 222
+        },
+        {
+          "op": "text",
+          "source_line": 223,
+          "text": "The link has been"
+        },
+        {
+          "op": "line",
+          "source_line": 224,
+          "text": "closed because of"
+        },
+        {
+          "op": "cont",
+          "source_line": 225,
+          "text": "inactivity."
+        },
+        {
+          "op": "control",
+          "source": "ENDC",
+          "source_line": 226
+        },
+        {
+          "op": "control",
+          "source": "vc_patch_end",
+          "source_line": 227
+        },
+        {
+          "op": "para",
+          "source_line": 229,
+          "text": "Please contact"
+        },
+        {
+          "op": "line",
+          "source_line": 230,
+          "text": "your friend and"
+        },
+        {
+          "op": "cont",
+          "source_line": 231,
+          "text": "come again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 232
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_CableClubNPCPleaseApplyHereHaveToSaveText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 203,
+          "text": "Please apply here."
+        },
+        {
+          "op": "para",
+          "source_line": 205,
+          "text": "Before opening"
+        },
+        {
+          "op": "line",
+          "source_line": 206,
+          "text": "the link, we have"
+        },
+        {
+          "op": "cont",
+          "source_line": 207,
+          "text": "to save the game."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 208
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_CableClubNPCPleaseWaitText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 211,
+          "text": "Please wait.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 212
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_CableClubNPCWelcomeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 198,
+          "text": "Welcome to the"
+        },
+        {
+          "op": "line",
+          "source_line": 199,
+          "text": "Cable Club!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 200
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_CardKeyFailText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "Darn! It needs a"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "CARD KEY!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 14
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_CardKeySuccessText1": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Bingo!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 3
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_CardKeySuccessText2": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 6
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "The CARD KEY"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "opened the door!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_DidNotLearnText": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 105,
+          "symbol": "wLearnMoveMonName"
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 106
+        },
+        {
+          "op": "line",
+          "source_line": 107,
+          "text": "did not learn"
+        },
+        {
+          "op": "cont",
+          "source_line": 108,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 109,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 110,
+          "text": "!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 111
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_ExclamationText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 36,
+          "text": "!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 37
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_ForgotAndText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 143
+        },
+        {
+          "op": "para",
+          "source_line": 145,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 146,
+          "symbol": "wLearnMoveMonName"
+        },
+        {
+          "op": "text",
+          "source_line": 147,
+          "text": " forgot"
+        },
+        {
+          "op": "line",
+          "source_line": 148,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 149,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 150,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 152,
+          "text": "And..."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 153
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_FoundItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 63,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 65
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_GroundRoseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 40,
+          "text": "Ground rose up"
+        },
+        {
+          "op": "line",
+          "source_line": 41,
+          "text": "somewhere!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 42
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_HMCantDeleteText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 156,
+          "text": "HM techniques"
+        },
+        {
+          "op": "line",
+          "source_line": 157,
+          "text": "can't be deleted!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 158
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_ItsABiteText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 31,
+          "text": "Oh!"
+        },
+        {
+          "op": "line",
+          "source_line": 32,
+          "text": "It's a bite!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 33
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_LearnedMove1Text": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 85,
+          "symbol": "wLearnMoveMonName"
+        },
+        {
+          "op": "text",
+          "source_line": 86,
+          "text": " learned"
+        },
+        {
+          "op": "line",
+          "source_line": 87,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 88,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 89,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 90
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_MartSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 50,
+          "text": "All your item"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "needs fulfilled!"
+        },
+        {
+          "op": "cont",
+          "source_line": 52,
+          "text": "#MON MART"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 53
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_NeedYourPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 175,
+          "text": "OK. We'll need"
+        },
+        {
+          "op": "line",
+          "source_line": 176,
+          "text": "your #MON."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 177
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_NoMoreRoomForItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 68,
+          "text": "No more room for"
+        },
+        {
+          "op": "line",
+          "source_line": 69,
+          "text": "items!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 70
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_NoNibbleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 22,
+          "text": "Not even a nibble!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 23
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_NothingHereText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 26,
+          "text": "Looks like there's"
+        },
+        {
+          "op": "line",
+          "source_line": 27,
+          "text": "nothing here."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 28
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksAideComeBackText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 113,
+          "text": "Oh. I see."
+        },
+        {
+          "op": "para",
+          "source_line": 115,
+          "text": "When you get @"
+        },
+        {
+          "op": "control",
+          "source": "text_decimal hOaksAideRequirement, 1, 3",
+          "source_line": 116
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 117
+        },
+        {
+          "op": "line",
+          "source_line": 118,
+          "text": "kinds, come back"
+        },
+        {
+          "op": "cont",
+          "source_line": 119,
+          "text": "for @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 120,
+          "symbol": "wOaksAideRewardItemName"
+        },
+        {
+          "op": "text",
+          "source_line": 121,
+          "text": "."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 122
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksAideGotItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 136,
+          "text": "<PLAYER> got the"
+        },
+        {
+          "op": "line",
+          "source_line": 137,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 138,
+          "symbol": "wOaksAideRewardItemName"
+        },
+        {
+          "op": "text",
+          "source_line": 139,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 140
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksAideHereYouGoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 125,
+          "text": "Great! You have"
+        },
+        {
+          "op": "line",
+          "source_line": 126,
+          "text": "caught @"
+        },
+        {
+          "op": "control",
+          "source": "text_decimal hOaksAideNumMonsOwned, 1, 3",
+          "source_line": 127
+        },
+        {
+          "op": "text",
+          "source_line": 128,
+          "text": " kinds "
+        },
+        {
+          "op": "cont",
+          "source_line": 129,
+          "text": "of #MON!"
+        },
+        {
+          "op": "cont",
+          "source_line": 130,
+          "text": "Congratulations!"
+        },
+        {
+          "op": "para",
+          "source_line": 132,
+          "text": "Here you go!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 133
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksAideHiText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 73,
+          "text": "Hi! Remember me?"
+        },
+        {
+          "op": "line",
+          "source_line": 74,
+          "text": "I'm PROF.OAK's"
+        },
+        {
+          "op": "cont",
+          "source_line": 75,
+          "text": "AIDE!"
+        },
+        {
+          "op": "para",
+          "source_line": 77,
+          "text": "If you caught @"
+        },
+        {
+          "op": "control",
+          "source": "text_decimal hOaksAideRequirement, 1, 3",
+          "source_line": 78
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 79
+        },
+        {
+          "op": "line",
+          "source_line": 80,
+          "text": "kinds of #MON,"
+        },
+        {
+          "op": "cont",
+          "source_line": 81,
+          "text": "I'm supposed to"
+        },
+        {
+          "op": "cont",
+          "source_line": 82,
+          "text": "give you an"
+        },
+        {
+          "op": "cont",
+          "source_line": 83,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 84,
+          "symbol": "wOaksAideRewardItemName"
+        },
+        {
+          "op": "text",
+          "source_line": 85,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 87,
+          "text": "So, <PLAYER>! Have"
+        },
+        {
+          "op": "line",
+          "source_line": 88,
+          "text": "you caught at"
+        },
+        {
+          "op": "cont",
+          "source_line": 89,
+          "text": "least @"
+        },
+        {
+          "op": "control",
+          "source": "text_decimal hOaksAideRequirement, 1, 3",
+          "source_line": 90
+        },
+        {
+          "op": "text",
+          "source_line": 91,
+          "text": " kinds of"
+        },
+        {
+          "op": "cont",
+          "source_line": 92,
+          "text": "#MON?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 93
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksAideNoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 143,
+          "text": "Oh! I see you"
+        },
+        {
+          "op": "line",
+          "source_line": 144,
+          "text": "don't have any"
+        },
+        {
+          "op": "cont",
+          "source_line": 145,
+          "text": "room for the"
+        },
+        {
+          "op": "cont",
+          "source_line": 146,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 147,
+          "symbol": "wOaksAideRewardItemName"
+        },
+        {
+          "op": "text",
+          "source_line": 148,
+          "text": "."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 149
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksAideUhOhText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 96,
+          "text": "Let's see..."
+        },
+        {
+          "op": "line",
+          "source_line": 97,
+          "text": "Uh-oh! You have"
+        },
+        {
+          "op": "cont",
+          "source_line": 98,
+          "text": "caught only @"
+        },
+        {
+          "op": "control",
+          "source": "text_decimal hOaksAideNumMonsOwned, 1, 3",
+          "source_line": 99
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 100
+        },
+        {
+          "op": "cont",
+          "source_line": 101,
+          "text": "kinds of #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 103,
+          "text": "You need @"
+        },
+        {
+          "op": "control",
+          "source": "text_decimal hOaksAideRequirement, 1, 3",
+          "source_line": 104
+        },
+        {
+          "op": "text",
+          "source_line": 105,
+          "text": " kinds"
+        },
+        {
+          "op": "line",
+          "source_line": 106,
+          "text": "if you want the"
+        },
+        {
+          "op": "cont",
+          "source_line": 107,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 108,
+          "symbol": "wOaksAideRewardItemName"
+        },
+        {
+          "op": "text",
+          "source_line": 109,
+          "text": "."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 110
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_OaksLabGirlText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 180,
+          "text": "PROF.OAK is the"
+        },
+        {
+          "op": "line",
+          "source_line": 181,
+          "text": "authority on"
+        },
+        {
+          "op": "cont",
+          "source_line": 182,
+          "text": "#MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 184,
+          "text": "Many #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 185,
+          "text": "trainers hold him"
+        },
+        {
+          "op": "cont",
+          "source_line": 186,
+          "text": "in high regard!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 187
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabGivePokeballsExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 134
+        },
+        {
+          "op": "para",
+          "source_line": 136,
+          "text": "When a wild"
+        },
+        {
+          "op": "line",
+          "source_line": 137,
+          "text": "#MON appears,"
+        },
+        {
+          "op": "cont",
+          "source_line": 138,
+          "text": "it's fair game."
+        },
+        {
+          "op": "para",
+          "source_line": 140,
+          "text": "Just throw a #"
+        },
+        {
+          "op": "line",
+          "source_line": 141,
+          "text": "BALL at it and try"
+        },
+        {
+          "op": "line",
+          "source_line": 142,
+          "text": "to catch it!"
+        },
+        {
+          "op": "para",
+          "source_line": 144,
+          "text": "This won't always"
+        },
+        {
+          "op": "line",
+          "source_line": 145,
+          "text": "work, though."
+        },
+        {
+          "op": "para",
+          "source_line": 147,
+          "text": "A healthy #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 148,
+          "text": "could escape. You"
+        },
+        {
+          "op": "cont",
+          "source_line": 149,
+          "text": "have to be lucky!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 150
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabLastMonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 59,
+          "text": "That's PROF.OAK's"
+        },
+        {
+          "op": "line",
+          "source_line": 60,
+          "text": "last #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 61
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabMonEnergeticText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 47,
+          "text": "This #MON is"
+        },
+        {
+          "op": "line",
+          "source_line": 48,
+          "text": "really energetic!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 49
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1ComeSeeMeSometimesText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 153,
+          "text": "OAK: Come see me"
+        },
+        {
+          "op": "line",
+          "source_line": 154,
+          "text": "sometimes."
+        },
+        {
+          "op": "para",
+          "source_line": 156,
+          "text": "I want to know how"
+        },
+        {
+          "op": "line",
+          "source_line": 157,
+          "text": "your #DEX is"
+        },
+        {
+          "op": "cont",
+          "source_line": 158,
+          "text": "coming along."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 159
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1DeliverParcelText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 84,
+          "text": "OAK: Oh, <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 86,
+          "text": "How is my old"
+        },
+        {
+          "op": "line",
+          "source_line": 87,
+          "text": "#MON?"
+        },
+        {
+          "op": "para",
+          "source_line": 89,
+          "text": "Well, it seems to"
+        },
+        {
+          "op": "line",
+          "source_line": 90,
+          "text": "like you a lot."
+        },
+        {
+          "op": "para",
+          "source_line": 92,
+          "text": "You must be"
+        },
+        {
+          "op": "line",
+          "source_line": 93,
+          "text": "talented as a"
+        },
+        {
+          "op": "cont",
+          "source_line": 94,
+          "text": "#MON trainer!"
+        },
+        {
+          "op": "para",
+          "source_line": 96,
+          "text": "What? You have"
+        },
+        {
+          "op": "line",
+          "source_line": 97,
+          "text": "something for me?"
+        },
+        {
+          "op": "para",
+          "source_line": 99,
+          "text": "<PLAYER> delivered"
+        },
+        {
+          "op": "line",
+          "source_line": 100,
+          "text": "OAK's PARCEL.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 101
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1HowIsYourPokedexComingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 162,
+          "text": "OAK: Good to see "
+        },
+        {
+          "op": "line",
+          "source_line": 163,
+          "text": "you! How is your "
+        },
+        {
+          "op": "cont",
+          "source_line": 164,
+          "text": "#DEX coming? "
+        },
+        {
+          "op": "cont",
+          "source_line": 165,
+          "text": "Here, let me take"
+        },
+        {
+          "op": "cont",
+          "source_line": 166,
+          "text": "a look!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 167
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1ParcelThanksText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 104
+        },
+        {
+          "op": "para",
+          "source_line": 106,
+          "text": "Ah! This is the"
+        },
+        {
+          "op": "line",
+          "source_line": 107,
+          "text": "custom # BALL"
+        },
+        {
+          "op": "cont",
+          "source_line": 108,
+          "text": "I ordered!"
+        },
+        {
+          "op": "cont",
+          "source_line": 109,
+          "text": "Thank you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 110
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1PokemonAroundTheWorldText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 113,
+          "text": "#MON around the"
+        },
+        {
+          "op": "line",
+          "source_line": 114,
+          "text": "world wait for"
+        },
+        {
+          "op": "cont",
+          "source_line": 115,
+          "text": "you, <PLAYER>!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 116
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1RaiseYourYoungPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 77,
+          "text": "OAK: <PLAYER>,"
+        },
+        {
+          "op": "line",
+          "source_line": 78,
+          "text": "raise your young"
+        },
+        {
+          "op": "cont",
+          "source_line": 79,
+          "text": "#MON by making"
+        },
+        {
+          "op": "cont",
+          "source_line": 80,
+          "text": "it fight!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 81
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1ReceivedPokeballsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 119,
+          "text": "OAK: You can't get"
+        },
+        {
+          "op": "line",
+          "source_line": 120,
+          "text": "detailed data on"
+        },
+        {
+          "op": "cont",
+          "source_line": 121,
+          "text": "#MON by just"
+        },
+        {
+          "op": "cont",
+          "source_line": 122,
+          "text": "seeing them."
+        },
+        {
+          "op": "para",
+          "source_line": 124,
+          "text": "You must catch"
+        },
+        {
+          "op": "line",
+          "source_line": 125,
+          "text": "them! Use these"
+        },
+        {
+          "op": "cont",
+          "source_line": 126,
+          "text": "to capture wild"
+        },
+        {
+          "op": "cont",
+          "source_line": 127,
+          "text": "#MON."
+        },
+        {
+          "op": "para",
+          "source_line": 129,
+          "text": "<PLAYER> got 5"
+        },
+        {
+          "op": "line",
+          "source_line": 130,
+          "text": "# BALLs!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 131
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1WhichPokemonDoYouWantText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "OAK: Now, <PLAYER>,"
+        },
+        {
+          "op": "line",
+          "source_line": 65,
+          "text": "which #MON do"
+        },
+        {
+          "op": "cont",
+          "source_line": 66,
+          "text": "you want?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 67
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak1YourPokemonCanFightText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 70,
+          "text": "OAK: If a wild"
+        },
+        {
+          "op": "line",
+          "source_line": 71,
+          "text": "#MON appears,"
+        },
+        {
+          "op": "cont",
+          "source_line": 72,
+          "text": "your #MON can"
+        },
+        {
+          "op": "cont",
+          "source_line": 73,
+          "text": "fight against it!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 74
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOak2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 176,
+          "text": "?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 177
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakBePatientText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 230,
+          "text": "OAK: Be patient!"
+        },
+        {
+          "op": "line",
+          "source_line": 231,
+          "text": "<RIVAL>, you can"
+        },
+        {
+          "op": "cont",
+          "source_line": 232,
+          "text": "have one too!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 233
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakChooseMonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 196,
+          "text": "OAK: <RIVAL>?"
+        },
+        {
+          "op": "line",
+          "source_line": 197,
+          "text": "Let me think..."
+        },
+        {
+          "op": "para",
+          "source_line": 199,
+          "text": "Oh, that's right,"
+        },
+        {
+          "op": "line",
+          "source_line": 200,
+          "text": "I told you to"
+        },
+        {
+          "op": "cont",
+          "source_line": 201,
+          "text": "come! Just wait!"
+        },
+        {
+          "op": "para",
+          "source_line": 203,
+          "text": "Here, <PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 205,
+          "text": "There are 3"
+        },
+        {
+          "op": "line",
+          "source_line": 206,
+          "text": "#MON here!"
+        },
+        {
+          "op": "para",
+          "source_line": 208,
+          "text": "Haha!"
+        },
+        {
+          "op": "para",
+          "source_line": 210,
+          "text": "They are inside"
+        },
+        {
+          "op": "line",
+          "source_line": 211,
+          "text": "the # BALLs."
+        },
+        {
+          "op": "para",
+          "source_line": 213,
+          "text": "When I was young,"
+        },
+        {
+          "op": "line",
+          "source_line": 214,
+          "text": "I was a serious"
+        },
+        {
+          "op": "cont",
+          "source_line": 215,
+          "text": "#MON trainer!"
+        },
+        {
+          "op": "para",
+          "source_line": 217,
+          "text": "In my old age, I"
+        },
+        {
+          "op": "line",
+          "source_line": 218,
+          "text": "have only 3 left,"
+        },
+        {
+          "op": "cont",
+          "source_line": 219,
+          "text": "but you can have"
+        },
+        {
+          "op": "cont",
+          "source_line": 220,
+          "text": "one! Choose!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 221
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakDontGoAwayYetText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 236,
+          "text": "OAK: Hey! Don't go"
+        },
+        {
+          "op": "line",
+          "source_line": 237,
+          "text": "away yet!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 238
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakGotPokedexText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 314,
+          "text": "OAK: <PLAYER> and"
+        },
+        {
+          "op": "line",
+          "source_line": 315,
+          "text": "<RIVAL>! Take"
+        },
+        {
+          "op": "cont",
+          "source_line": 316,
+          "text": "these with you!"
+        },
+        {
+          "op": "para",
+          "source_line": 318,
+          "text": "<PLAYER> got"
+        },
+        {
+          "op": "line",
+          "source_line": 319,
+          "text": "#DEX from OAK!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 320
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakIHaveARequestText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 294,
+          "text": "OAK: Oh right! I"
+        },
+        {
+          "op": "line",
+          "source_line": 295,
+          "text": "have a request"
+        },
+        {
+          "op": "cont",
+          "source_line": 296,
+          "text": "of you two."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 297
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakMyInventionPokedexText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 300,
+          "text": "On the desk there"
+        },
+        {
+          "op": "line",
+          "source_line": 301,
+          "text": "is my invention,"
+        },
+        {
+          "op": "cont",
+          "source_line": 302,
+          "text": "#DEX!"
+        },
+        {
+          "op": "para",
+          "source_line": 304,
+          "text": "It automatically"
+        },
+        {
+          "op": "line",
+          "source_line": 305,
+          "text": "records data on"
+        },
+        {
+          "op": "cont",
+          "source_line": 306,
+          "text": "#MON you've"
+        },
+        {
+          "op": "cont",
+          "source_line": 307,
+          "text": "seen or caught!"
+        },
+        {
+          "op": "para",
+          "source_line": 309,
+          "text": "It's a hi-tech"
+        },
+        {
+          "op": "line",
+          "source_line": 310,
+          "text": "encyclopedia!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 311
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabOakThatWasMyDreamText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 323,
+          "text": "To make a complete"
+        },
+        {
+          "op": "line",
+          "source_line": 324,
+          "text": "guide on all the"
+        },
+        {
+          "op": "cont",
+          "source_line": 325,
+          "text": "#MON in the"
+        },
+        {
+          "op": "cont",
+          "source_line": 326,
+          "text": "world..."
+        },
+        {
+          "op": "para",
+          "source_line": 328,
+          "text": "That was my dream!"
+        },
+        {
+          "op": "para",
+          "source_line": 330,
+          "text": "But, I'm too old!"
+        },
+        {
+          "op": "line",
+          "source_line": 331,
+          "text": "I can't do it!"
+        },
+        {
+          "op": "para",
+          "source_line": 333,
+          "text": "So, I want you two"
+        },
+        {
+          "op": "line",
+          "source_line": 334,
+          "text": "to fulfill my"
+        },
+        {
+          "op": "cont",
+          "source_line": 335,
+          "text": "dream for me!"
+        },
+        {
+          "op": "para",
+          "source_line": 337,
+          "text": "Get moving, you"
+        },
+        {
+          "op": "line",
+          "source_line": 338,
+          "text": "two!"
+        },
+        {
+          "op": "para",
+          "source_line": 340,
+          "text": "This is a great"
+        },
+        {
+          "op": "line",
+          "source_line": 341,
+          "text": "undertaking in"
+        },
+        {
+          "op": "cont",
+          "source_line": 342,
+          "text": "#MON history!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 343
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabPokedexText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 170,
+          "text": "It's encyclopedia-"
+        },
+        {
+          "op": "line",
+          "source_line": 171,
+          "text": "like, but the"
+        },
+        {
+          "op": "cont",
+          "source_line": 172,
+          "text": "pages are blank!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 173
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabReceivedMonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 52,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 53,
+          "text": "a @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 54,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 55,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 56
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalAmIGreatOrWhatText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 270,
+          "text": "<RIVAL>: Yeah! Am"
+        },
+        {
+          "op": "line",
+          "source_line": 271,
+          "text": "I great or what?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 272
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalFedUpWithWaitingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 190,
+          "text": "<RIVAL>: Gramps!"
+        },
+        {
+          "op": "line",
+          "source_line": 191,
+          "text": "I'm fed up with"
+        },
+        {
+          "op": "cont",
+          "source_line": 192,
+          "text": "waiting!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 193
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalGoAheadAndChooseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 8,
+          "text": "<RIVAL>: Heh, I"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "don't need to be"
+        },
+        {
+          "op": "cont",
+          "source_line": 10,
+          "text": "greedy like you!"
+        },
+        {
+          "op": "para",
+          "source_line": 12,
+          "text": "Go ahead and"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "choose, <PLAYER>!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 14
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalGrampsIsntAroundText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "<RIVAL>: Yo"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "<PLAYER>! Gramps"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "isn't around!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 5
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalGrampsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 285,
+          "text": "<RIVAL>: Gramps!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 286
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalIPickedTheWrongPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 263,
+          "text": "WHAT?"
+        },
+        {
+          "op": "line",
+          "source_line": 264,
+          "text": "Unbelievable!"
+        },
+        {
+          "op": "cont",
+          "source_line": 265,
+          "text": "I picked the"
+        },
+        {
+          "op": "cont",
+          "source_line": 266,
+          "text": "wrong #MON!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 267
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalIllTakeThisOneText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 241,
+          "text": "<RIVAL>: I'll take"
+        },
+        {
+          "op": "line",
+          "source_line": 242,
+          "text": "this one, then!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 243
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalIllTakeYouOnText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 253,
+          "text": "<RIVAL>: Wait"
+        },
+        {
+          "op": "line",
+          "source_line": 254,
+          "text": "<PLAYER>!"
+        },
+        {
+          "op": "cont",
+          "source_line": 255,
+          "text": "Let's check out"
+        },
+        {
+          "op": "cont",
+          "source_line": 256,
+          "text": "our #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 258,
+          "text": "Come on, I'll take"
+        },
+        {
+          "op": "line",
+          "source_line": 259,
+          "text": "you on!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 260
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalLeaveItAllToMeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 346,
+          "text": "<RIVAL>: Alright"
+        },
+        {
+          "op": "line",
+          "source_line": 347,
+          "text": "Gramps! Leave it"
+        },
+        {
+          "op": "cont",
+          "source_line": 348,
+          "text": "all to me!"
+        },
+        {
+          "op": "para",
+          "source_line": 350,
+          "text": "<PLAYER>, I hate to"
+        },
+        {
+          "op": "line",
+          "source_line": 351,
+          "text": "say it, but I"
+        },
+        {
+          "op": "cont",
+          "source_line": 352,
+          "text": "don't need you!"
+        },
+        {
+          "op": "para",
+          "source_line": 354,
+          "text": "I know! I'll"
+        },
+        {
+          "op": "line",
+          "source_line": 355,
+          "text": "borrow a TOWN MAP"
+        },
+        {
+          "op": "cont",
+          "source_line": 356,
+          "text": "from my sis!"
+        },
+        {
+          "op": "para",
+          "source_line": 358,
+          "text": "I'll tell her not"
+        },
+        {
+          "op": "line",
+          "source_line": 359,
+          "text": "to lend you one,"
+        },
+        {
+          "op": "cont",
+          "source_line": 360,
+          "text": "<PLAYER>! Hahaha!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 361
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalMyPokemonLooksStrongerText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 17,
+          "text": "<RIVAL>: My"
+        },
+        {
+          "op": "line",
+          "source_line": 18,
+          "text": "#MON looks a"
+        },
+        {
+          "op": "cont",
+          "source_line": 19,
+          "text": "lot stronger."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 20
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalReceivedMonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 246,
+          "text": "<RIVAL> received"
+        },
+        {
+          "op": "line",
+          "source_line": 247,
+          "text": "a @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 248,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 249,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 250
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalSmellYouLaterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 275,
+          "text": "<RIVAL>: Okay!"
+        },
+        {
+          "op": "line",
+          "source_line": 276,
+          "text": "I'll make my"
+        },
+        {
+          "op": "cont",
+          "source_line": 277,
+          "text": "#MON fight to"
+        },
+        {
+          "op": "cont",
+          "source_line": 278,
+          "text": "toughen it up!"
+        },
+        {
+          "op": "para",
+          "source_line": 280,
+          "text": "<PLAYER>! Gramps!"
+        },
+        {
+          "op": "line",
+          "source_line": 281,
+          "text": "Smell you later!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 282
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalWhatAboutMeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 224,
+          "text": "<RIVAL>: Hey!"
+        },
+        {
+          "op": "line",
+          "source_line": 225,
+          "text": "Gramps! What"
+        },
+        {
+          "op": "cont",
+          "source_line": 226,
+          "text": "about me?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 227
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabRivalWhatDidYouCallMeForText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 289,
+          "text": "<RIVAL>: What did"
+        },
+        {
+          "op": "line",
+          "source_line": 290,
+          "text": "you call me for?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 291
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabScientistText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 364,
+          "text": "I study #MON as"
+        },
+        {
+          "op": "line",
+          "source_line": 365,
+          "text": "PROF.OAK's AIDE."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 366
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabThoseArePokeBallsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 23,
+          "text": "Those are #"
+        },
+        {
+          "op": "line",
+          "source_line": 24,
+          "text": "BALLs. They"
+        },
+        {
+          "op": "cont",
+          "source_line": 25,
+          "text": "contain #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 26
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabYouWantBulbasaurText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 41,
+          "text": "So! You want the"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "plant #MON,"
+        },
+        {
+          "op": "cont",
+          "source_line": 43,
+          "text": "BULBASAUR?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 44
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabYouWantCharmanderText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "So! You want the"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "fire #MON,"
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "CHARMANDER?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 32
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OaksLabYouWantSquirtleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 35,
+          "text": "So! You want the"
+        },
+        {
+          "op": "line",
+          "source_line": 36,
+          "text": "water #MON,"
+        },
+        {
+          "op": "cont",
+          "source_line": 37,
+          "text": "SQUIRTLE?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 38
+        }
+      ],
+      "source": "text/OaksLab.asm"
+    },
+    "_OneTwoAndText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 135,
+          "text": "1, 2 and...@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 136
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PlayerBlackedOutText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 13,
+          "text": "<PLAYER> is out of"
+        },
+        {
+          "op": "line",
+          "source_line": 14,
+          "text": "useable #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 16,
+          "text": "<PLAYER> blacked"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "out!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 18
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokeCenterSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 56,
+          "text": "Heal Your #MON!"
+        },
+        {
+          "op": "line",
+          "source_line": 57,
+          "text": "#MON CENTER"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 58
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_PokemartAnythingElseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 80,
+          "text": "Is there anything"
+        },
+        {
+          "op": "line",
+          "source_line": 81,
+          "text": "else I can do?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 82
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartBoughtItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "Here you are!"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "Thank you!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 41
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartBuyingGreetingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 26,
+          "text": "Take your time."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 27
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartGreetingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hi there!"
+        },
+        {
+          "op": "next",
+          "source_line": 3,
+          "text": "May I help you?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 4
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartItemBagEmptyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 66,
+          "text": "You don't have"
+        },
+        {
+          "op": "line",
+          "source_line": 67,
+          "text": "anything to sell."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 68
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartItemBagFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 49,
+          "text": "You can't carry"
+        },
+        {
+          "op": "line",
+          "source_line": 50,
+          "text": "any more items."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 51
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartNotEnoughMoneyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 44,
+          "text": "You don't have"
+        },
+        {
+          "op": "line",
+          "source_line": 45,
+          "text": "enough money."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 46
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartTellBuyPriceText": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 30,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 31,
+          "text": "?"
+        },
+        {
+          "op": "line",
+          "source_line": 32,
+          "text": "That will be"
+        },
+        {
+          "op": "cont",
+          "source_line": 33,
+          "text": "¥@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd hMoney, 3 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 34
+        },
+        {
+          "op": "text",
+          "source_line": 35,
+          "text": ". OK?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 36
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartTellSellPriceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 59,
+          "text": "I can pay you"
+        },
+        {
+          "op": "line",
+          "source_line": 60,
+          "text": "¥@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd hMoney, 3 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 61
+        },
+        {
+          "op": "text",
+          "source_line": 62,
+          "text": " for that."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 63
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartThankYouText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 76,
+          "text": "Thank you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 77
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemartUnsellableItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 71,
+          "text": "I can't put a"
+        },
+        {
+          "op": "line",
+          "source_line": 72,
+          "text": "price on that."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 73
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonCenterFarewellText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 186,
+          "text": "We hope to see"
+        },
+        {
+          "op": "line",
+          "source_line": 187,
+          "text": "you again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 188
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonCenterWelcomeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 161,
+          "text": "Welcome to our"
+        },
+        {
+          "op": "line",
+          "source_line": 162,
+          "text": "#MON CENTER!"
+        },
+        {
+          "op": "para",
+          "source_line": 164,
+          "text": "We heal your"
+        },
+        {
+          "op": "line",
+          "source_line": 165,
+          "text": "#MON back to"
+        },
+        {
+          "op": "cont",
+          "source_line": 166,
+          "text": "perfect health!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 167
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonFaintedText": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 7,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 8
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "fainted!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 10
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonFightingFitText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 180,
+          "text": "Thank you!"
+        },
+        {
+          "op": "line",
+          "source_line": 181,
+          "text": "Your #MON are"
+        },
+        {
+          "op": "cont",
+          "source_line": 182,
+          "text": "fighting fit!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 183
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonSellingGreetingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 54,
+          "text": "What would you"
+        },
+        {
+          "op": "line",
+          "source_line": 55,
+          "text": "like to sell?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 56
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PoofText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 139,
+          "text": " Poof!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 140
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_RepelWoreOffText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 21,
+          "text": "REPEL's effect"
+        },
+        {
+          "op": "line",
+          "source_line": 22,
+          "text": "wore off."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 23
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_Route1SignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 47,
+          "text": "ROUTE 1"
+        },
+        {
+          "op": "line",
+          "source_line": 48,
+          "text": "PALLET TOWN -"
+        },
+        {
+          "op": "cont",
+          "source_line": 49,
+          "text": "VIRIDIAN CITY"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 50
+        }
+      ],
+      "source": "text/Route1.asm"
+    },
+    "_Route1Youngster1AlsoGotPokeballsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 23,
+          "text": "We also carry"
+        },
+        {
+          "op": "line",
+          "source_line": 24,
+          "text": "# BALLs for"
+        },
+        {
+          "op": "cont",
+          "source_line": 25,
+          "text": "catching #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 26
+        }
+      ],
+      "source": "text/Route1.asm"
+    },
+    "_Route1Youngster1GotPotionText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 16,
+          "text": "<PLAYER> got"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 18,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 20
+        }
+      ],
+      "source": "text/Route1.asm"
+    },
+    "_Route1Youngster1MartSampleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hi! I work at a"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "#MON MART."
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "It's a convenient"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "shop, so please"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "visit us in"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "VIRIDIAN CITY."
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "I know, I'll give"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "you a sample!"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "Here you go!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 13
+        }
+      ],
+      "source": "text/Route1.asm"
+    },
+    "_Route1Youngster1NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "You have too much"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "stuff with you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 31
+        }
+      ],
+      "source": "text/Route1.asm"
+    },
+    "_Route1Youngster2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 34,
+          "text": "See those ledges"
+        },
+        {
+          "op": "line",
+          "source_line": 35,
+          "text": "along the road?"
+        },
+        {
+          "op": "para",
+          "source_line": 37,
+          "text": "It's a bit scary,"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "but you can jump"
+        },
+        {
+          "op": "cont",
+          "source_line": 39,
+          "text": "from them."
+        },
+        {
+          "op": "para",
+          "source_line": 41,
+          "text": "You can get back"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "to PALLET TOWN"
+        },
+        {
+          "op": "cont",
+          "source_line": 43,
+          "text": "quicker that way."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 44
+        }
+      ],
+      "source": "text/Route1.asm"
+    },
+    "_ShallWeHealYourPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 170,
+          "text": "Shall we heal your"
+        },
+        {
+          "op": "line",
+          "source_line": 171,
+          "text": "#MON?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 172
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_TrainerNameText": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 17,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 18,
+          "text": ": @"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 19
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_TryingToLearnText": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 114,
+          "symbol": "wLearnMoveMonName"
+        },
+        {
+          "op": "text",
+          "source_line": 115,
+          "text": " is"
+        },
+        {
+          "op": "line",
+          "source_line": 116,
+          "text": "trying to learn"
+        },
+        {
+          "op": "cont",
+          "source_line": 117,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 118,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 119,
+          "text": "!"
+        },
+        {
+          "op": "para",
+          "source_line": 121,
+          "text": "But, @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 122,
+          "symbol": "wLearnMoveMonName"
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 123
+        },
+        {
+          "op": "line",
+          "source_line": 124,
+          "text": "can't learn more"
+        },
+        {
+          "op": "cont",
+          "source_line": 125,
+          "text": "than 4 moves!"
+        },
+        {
+          "op": "para",
+          "source_line": 127,
+          "text": "Delete an older"
+        },
+        {
+          "op": "line",
+          "source_line": 128,
+          "text": "move to make room"
+        },
+        {
+          "op": "cont",
+          "source_line": 129,
+          "text": "for @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 130,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 131,
+          "text": "?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 132
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_ViridianCityFisherReceivedTM42Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 86,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 87,
+          "text": "TM42!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 88
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityFisherTM42ExplanationText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 91,
+          "text": "TM42 contains"
+        },
+        {
+          "op": "line",
+          "source_line": 92,
+          "text": "DREAM EATER..."
+        },
+        {
+          "op": "cont",
+          "source_line": 93,
+          "text": "...Snore..."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 94
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityFisherTM42NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 97,
+          "text": "You have too much"
+        },
+        {
+          "op": "line",
+          "source_line": 98,
+          "text": "stuff already."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 99
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityGambler1GymAlwaysClosedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 13,
+          "text": "This #MON GYM"
+        },
+        {
+          "op": "line",
+          "source_line": 14,
+          "text": "is always closed."
+        },
+        {
+          "op": "para",
+          "source_line": 16,
+          "text": "I wonder who the"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "LEADER is?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 18
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityGambler1GymLeaderReturnedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 21,
+          "text": "VIRIDIAN GYM's"
+        },
+        {
+          "op": "line",
+          "source_line": 22,
+          "text": "LEADER returned!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 23
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityGirlHasntHadHisCoffeeYetText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 46,
+          "text": "Oh Grandpa! Don't"
+        },
+        {
+          "op": "line",
+          "source_line": 47,
+          "text": "be so mean!"
+        },
+        {
+          "op": "cont",
+          "source_line": 48,
+          "text": "He hasn't had his"
+        },
+        {
+          "op": "cont",
+          "source_line": 49,
+          "text": "coffee yet."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 50
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityGirlWhenIGoShopText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 53,
+          "text": "When I go shop in"
+        },
+        {
+          "op": "line",
+          "source_line": 54,
+          "text": "PEWTER CITY, I"
+        },
+        {
+          "op": "cont",
+          "source_line": 55,
+          "text": "have to take the"
+        },
+        {
+          "op": "cont",
+          "source_line": 56,
+          "text": "winding trail in"
+        },
+        {
+          "op": "cont",
+          "source_line": 57,
+          "text": "VIRIDIAN FOREST."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 58
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityGymLockedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 179,
+          "text": "The GYM's doors"
+        },
+        {
+          "op": "line",
+          "source_line": 180,
+          "text": "are locked..."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 181
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityGymSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 174,
+          "text": "VIRIDIAN CITY"
+        },
+        {
+          "op": "line",
+          "source_line": 175,
+          "text": "#MON GYM"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 176
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityOldManHadMyCoffeeNowText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 102,
+          "text": "Ahh, I've had my"
+        },
+        {
+          "op": "line",
+          "source_line": 103,
+          "text": "coffee now and I"
+        },
+        {
+          "op": "cont",
+          "source_line": 104,
+          "text": "feel great!"
+        },
+        {
+          "op": "para",
+          "source_line": 106,
+          "text": "Sure you can go"
+        },
+        {
+          "op": "line",
+          "source_line": 107,
+          "text": "through!"
+        },
+        {
+          "op": "para",
+          "source_line": 109,
+          "text": "Are you in a"
+        },
+        {
+          "op": "line",
+          "source_line": 110,
+          "text": "hurry?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 111
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityOldManKnowHowToCatchPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 114,
+          "text": "I see you're using"
+        },
+        {
+          "op": "line",
+          "source_line": 115,
+          "text": "a #DEX."
+        },
+        {
+          "op": "para",
+          "source_line": 117,
+          "text": "When you catch a"
+        },
+        {
+          "op": "line",
+          "source_line": 118,
+          "text": "#MON, #DEX"
+        },
+        {
+          "op": "cont",
+          "source_line": 119,
+          "text": "is automatically"
+        },
+        {
+          "op": "cont",
+          "source_line": 120,
+          "text": "updated."
+        },
+        {
+          "op": "para",
+          "source_line": 122,
+          "text": "What? Don't you"
+        },
+        {
+          "op": "line",
+          "source_line": 123,
+          "text": "know how to catch"
+        },
+        {
+          "op": "cont",
+          "source_line": 124,
+          "text": "#MON?"
+        },
+        {
+          "op": "para",
+          "source_line": 126,
+          "text": "I'll show you"
+        },
+        {
+          "op": "line",
+          "source_line": 127,
+          "text": "how to then."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 128
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityOldManSleepyPrivatePropertyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "You can't go"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "through here!"
+        },
+        {
+          "op": "para",
+          "source_line": 64,
+          "text": "This is private"
+        },
+        {
+          "op": "line",
+          "source_line": 65,
+          "text": "property!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 66
+        },
+        {
+          "op": "control",
+          "source": "ViridianCityFisherYouCanHaveThisText::",
+          "source_line": 68
+        },
+        {
+          "op": "text",
+          "source_line": 69,
+          "text": "Yawn!"
+        },
+        {
+          "op": "line",
+          "source_line": 70,
+          "text": "I must have dozed"
+        },
+        {
+          "op": "cont",
+          "source_line": 71,
+          "text": "off in the sun."
+        },
+        {
+          "op": "para",
+          "source_line": 73,
+          "text": "I had this dream"
+        },
+        {
+          "op": "line",
+          "source_line": 74,
+          "text": "about a DROWZEE"
+        },
+        {
+          "op": "cont",
+          "source_line": 75,
+          "text": "eating my dream."
+        },
+        {
+          "op": "cont",
+          "source_line": 76,
+          "text": "What's this?"
+        },
+        {
+          "op": "cont",
+          "source_line": 77,
+          "text": "Where did this TM"
+        },
+        {
+          "op": "cont",
+          "source_line": 78,
+          "text": "come from?"
+        },
+        {
+          "op": "para",
+          "source_line": 80,
+          "text": "This is spooky!"
+        },
+        {
+          "op": "line",
+          "source_line": 81,
+          "text": "Here, you can"
+        },
+        {
+          "op": "cont",
+          "source_line": 82,
+          "text": "have this TM."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 83
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityOldManTimeIsMoneyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 131,
+          "text": "Time is money..."
+        },
+        {
+          "op": "line",
+          "source_line": 132,
+          "text": "Go along then."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 133
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityOldManYouNeedToWeakenTheTargetText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 136,
+          "text": "First, you need"
+        },
+        {
+          "op": "line",
+          "source_line": 137,
+          "text": "to weaken the"
+        },
+        {
+          "op": "cont",
+          "source_line": 138,
+          "text": "target #MON."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 139
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCitySignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 142,
+          "text": "VIRIDIAN CITY "
+        },
+        {
+          "op": "line",
+          "source_line": 143,
+          "text": "The Eternally"
+        },
+        {
+          "op": "cont",
+          "source_line": 144,
+          "text": "Green Paradise"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 145
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityTrainerTips1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 148,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 150,
+          "text": "Catch #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 151,
+          "text": "and expand your"
+        },
+        {
+          "op": "cont",
+          "source_line": 152,
+          "text": "collection!"
+        },
+        {
+          "op": "para",
+          "source_line": 154,
+          "text": "The more you have,"
+        },
+        {
+          "op": "line",
+          "source_line": 155,
+          "text": "the easier it is"
+        },
+        {
+          "op": "cont",
+          "source_line": 156,
+          "text": "to fight!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 157
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityTrainerTips2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 160,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 162,
+          "text": "The battle moves"
+        },
+        {
+          "op": "line",
+          "source_line": 163,
+          "text": "of #MON are"
+        },
+        {
+          "op": "cont",
+          "source_line": 164,
+          "text": "limited by their"
+        },
+        {
+          "op": "cont",
+          "source_line": 165,
+          "text": "POWER POINTs, PP."
+        },
+        {
+          "op": "para",
+          "source_line": 167,
+          "text": "To replenish PP,"
+        },
+        {
+          "op": "line",
+          "source_line": 168,
+          "text": "rest your tired"
+        },
+        {
+          "op": "cont",
+          "source_line": 169,
+          "text": "#MON at a"
+        },
+        {
+          "op": "cont",
+          "source_line": 170,
+          "text": "#MON CENTER!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 171
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityYoungster1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Those # BALLs"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "at your waist!"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "You have #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "It's great that"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "you can carry and"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "use #MON any"
+        },
+        {
+          "op": "cont",
+          "source_line": 9,
+          "text": "time, anywhere!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 10
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianCityYoungster2YouWantToKnowAboutText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 26,
+          "text": "You want to know"
+        },
+        {
+          "op": "line",
+          "source_line": 27,
+          "text": "about the 2 kinds"
+        },
+        {
+          "op": "cont",
+          "source_line": 28,
+          "text": "of caterpillar"
+        },
+        {
+          "op": "cont",
+          "source_line": 29,
+          "text": "#MON?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 30
+        },
+        {
+          "op": "control",
+          "source": "ViridianCityYoungster2OkThenText::",
+          "source_line": 32
+        },
+        {
+          "op": "text",
+          "source_line": 33,
+          "text": "Oh, OK then!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 34
+        },
+        {
+          "op": "control",
+          "source": "ViridianCityYoungster2CaterpieAndWeedleDescriptionText::",
+          "source_line": 36
+        },
+        {
+          "op": "text",
+          "source_line": 37,
+          "text": "CATERPIE has no"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "poison, but"
+        },
+        {
+          "op": "cont",
+          "source_line": 39,
+          "text": "WEEDLE does."
+        },
+        {
+          "op": "para",
+          "source_line": 41,
+          "text": "Watch out for its"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "POISON STING!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 43
+        }
+      ],
+      "source": "text/ViridianCity.asm"
+    },
+    "_ViridianMartClerkParcelQuestText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "You know PROF."
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "OAK, right?"
+        },
+        {
+          "op": "para",
+          "source_line": 15,
+          "text": "His order came in."
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "Will you take it"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "to him?"
+        },
+        {
+          "op": "para",
+          "source_line": 19,
+          "text": "<PLAYER> got"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "OAK's PARCEL!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 21
+        }
+      ],
+      "source": "text/ViridianMart.asm"
+    },
+    "_ViridianMartClerkSayHiToOakText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Okay! Say hi to"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "PROF.OAK for me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 4
+        }
+      ],
+      "source": "text/ViridianMart.asm"
+    },
+    "_ViridianMartClerkYouCameFromPalletTownText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 7,
+          "text": "Hey! You came from"
+        },
+        {
+          "op": "line",
+          "source_line": 8,
+          "text": "PALLET TOWN?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/ViridianMart.asm"
+    },
+    "_ViridianMartCooltrainerMText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "No! POTIONs are"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "all sold out."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 31
+        }
+      ],
+      "source": "text/ViridianMart.asm"
+    },
+    "_ViridianMartYoungsterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 24,
+          "text": "This shop sells"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "many ANTIDOTEs."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 26
+        }
+      ],
+      "source": "text/ViridianMart.asm"
+    },
+    "_ViridianPokecenterCooltrainerMText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 10,
+          "text": "There's a #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "CENTER in every"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "town ahead."
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "They don't charge"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "any money either!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 16
+        }
+      ],
+      "source": "text/ViridianPokecenter.asm"
+    },
+    "_ViridianPokecenterGentlemanText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "You can use that"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "PC in the corner."
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "The receptionist"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "told me. So kind!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 7
+        }
+      ],
+      "source": "text/ViridianPokecenter.asm"
+    },
+    "_WhichMoveToForgetText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 93,
+          "text": "Which move should"
+        },
+        {
+          "op": "next",
+          "source_line": 94,
+          "text": "be forgotten?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 95
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    }
+  }
+}

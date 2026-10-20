@@ -1,0 +1,11 @@
+{
+  "journey": {
+    "name": "parcel-natural",
+    "seed": 42,
+    "starter": "squirtle",
+    "expected_outcome": "win",
+    "max_steps": 1000,
+    "max_actions": 6000
+  },
+  "acceptance_status": "requires root event/UI/diagnostic integration; runtime passage not claimed"
+}

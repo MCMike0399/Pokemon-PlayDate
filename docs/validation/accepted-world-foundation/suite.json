@@ -1,0 +1,186 @@
+{
+  "complete": true,
+  "failure_policy": "continue",
+  "finished_utc": "2026-10-20T19:36:21.216515+00:00",
+  "job_timeout_seconds": 360.0,
+  "not_run": [],
+  "ok": true,
+  "output": "/private/tmp/pokemon-world-integrated-suite-01",
+  "plan_only": false,
+  "requested": [
+    "contracts-catalog",
+    "qualification",
+    "interior-roundtrips",
+    "session-resets",
+    "intro-bulbasaur",
+    "intro-charmander",
+    "intro-squirtle"
+  ],
+  "results": [
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/01-contracts-catalog/Harness.pdx",
+          "compiled_source_sha256": "93374ec9775a7fa684918a44cb94d89c94cef3ced947544665dfdc489ac2c979",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "a181430ba33b4a3da6e612395a8a967a",
+          "simulator_pid": 79367,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "catalog_images": 915,
+      "catalog_missing": 0,
+      "contracts": {
+        "failed": 0,
+        "ok": true,
+        "passed": 128
+      },
+      "elapsed_seconds": 5.617,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/01-contracts-catalog",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/01-contracts-catalog-host",
+      "name": "contracts-catalog",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false
+    },
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/02-qualification/Harness.pdx",
+          "compiled_source_sha256": "3ae5b001ab9939b28fe0e5825b4099fb06ad19fc16c9993549918f8a5ec3cc06",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "d8f0cbe03d9147c5ac106e6c05921aac",
+          "simulator_pid": 79414,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "elapsed_seconds": 10.039,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/02-qualification",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/02-qualification-host",
+      "name": "qualification",
+      "ok": true,
+      "qualification_cases": 41,
+      "returncode": 0,
+      "timed_out": false
+    },
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/03-interior-roundtrips/Harness.pdx",
+          "compiled_source_sha256": "e77b2d604481af00773f0fa42829a3c8d188abcdb95994cff849102532913bfb",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "678e93ae0c8c42e999e572bed6f04306",
+          "simulator_pid": 79466,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "elapsed_seconds": 28.158,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/03-interior-roundtrips",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/03-interior-roundtrips-host",
+      "name": "interior-roundtrips",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false
+    },
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/04-session-resets/Harness.pdx",
+          "compiled_source_sha256": "220994d4eefd028f0bc31c9186445319af34b86de54e47c9c8d640c5899ba7cc",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "38cde30bda06448ea2b078b5fbe4f17e",
+          "simulator_pid": 79724,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "elapsed_seconds": 16.268,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/04-session-resets",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/04-session-resets-host",
+      "name": "session-resets",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false
+    },
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/05-intro-bulbasaur/Harness.pdx",
+          "compiled_source_sha256": "fe62dfb7fb4504cc54d07cd89436e84a427f157f60d0be6830fd3609fec5990b",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "92cc7e0ba8e545a38fad54174baaa529",
+          "simulator_pid": 79878,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "elapsed_seconds": 45.371,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/05-intro-bulbasaur",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/05-intro-bulbasaur-host",
+      "name": "intro-bulbasaur",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false
+    },
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/06-intro-charmander/Harness.pdx",
+          "compiled_source_sha256": "5f18ec98d64ac5bf71220c92d06c6f905159564877fedbd90c04cc197565c523",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "bd7c07f676da46f49e24a80ef0a0328a",
+          "simulator_pid": 80228,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "elapsed_seconds": 40.692,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/06-intro-charmander",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/06-intro-charmander-host",
+      "name": "intro-charmander",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false
+    },
+    {
+      "builds": [
+        {
+          "build_id": "a4e2f03d19e1f6310ca1dceb187a365234c9174c:e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb",
+          "bundle": "/private/tmp/pokemon-world-integrated-suite-01/07-intro-squirtle/Harness.pdx",
+          "compiled_source_sha256": "45dcb08c85b5546692cf9af45409467bf5550c23f398fd3686429e04e2ea0942",
+          "mutation": null,
+          "revision": "a4e2f03d19e1f6310ca1dceb187a365234c9174c",
+          "sdk_version": "3.1.2",
+          "session_id": "11bfa8faa7cd47dd99423b419d1a9c91",
+          "simulator_pid": 80565,
+          "source_sha256": "e2dd56a771aca320a51557b1ebb2b70cf47d3d4515c10a54cfe5c8d21a96bfcb"
+        }
+      ],
+      "elapsed_seconds": 39.043,
+      "evidence": "/private/tmp/pokemon-world-integrated-suite-01/07-intro-squirtle",
+      "host_logs": "/private/tmp/pokemon-world-integrated-suite-01/07-intro-squirtle-host",
+      "name": "intro-squirtle",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false
+    }
+  ],
+  "schema": 1,
+  "source_consistent": true,
+  "started_utc": "2026-10-20T19:33:15.786742+00:00"
+}

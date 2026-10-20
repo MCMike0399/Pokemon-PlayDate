@@ -3,14 +3,24 @@ HarnessDiagnostics = {}
 
 local function pokemon(mon)
     if not mon then return { present = false } end
-    local pp, moves = {}, {}
-    for i, key in ipairs(mon.moves or {}) do moves[i] = key end
+    local pp, maxPP, moves = {}, {}, {}
+    for i, key in ipairs(mon.moves or {}) do
+        moves[i] = key
+        maxPP[key] = moveData[key].maxPP
+    end
     for key, value in pairs(mon.pp or {}) do pp[key] = value end
     return { present = true, species = mon.species, level = mon.level,
         hp = mon.hp, maxHP = mon.maxHP, xp = mon.xp, status = mon.status or "none",
-        statusTurns = mon.statusTurns, confusion = mon.confusion or 0,
-        flinched = mon.flinched or false, pp = pp, moves = moves,
+        statusTurns = mon.statusTurns, sleepDuration = mon.sleepDuration or 0, confusion = mon.confusion or 0,
+        flinched = mon.flinched or false, pp = pp, maxPP = maxPP, moves = moves,
         pending_moves = #mon:getPendingMoveChoices(), pending_choices = mon:getPendingMoveChoices() }
+end
+local function menu(value)
+    return value and {active = value.isActive, selected = value.selectedIndex, options = value.options, columns = value.columns} or nil
+end
+local function ui(state)
+    return state and {phase = state.phase or "closed", selected = state.selected or (state.menu and state.menu.selectedIndex),
+        menu = menu(state.menu), lastSave = state.lastSave, message = state.message} or {phase = "closed"}
 end
 
 function HarnessDiagnostics.snapshot(game)
@@ -25,20 +35,33 @@ function HarnessDiagnostics.snapshot(game)
     local tile = player and currentZone.tiles[player.gridY + 1]
     local npcs = {}
     for _, npc in ipairs(game.npcManager.npcs) do
-        npcs[#npcs + 1] = { name = npc.name, x = npc.gridX, y = npc.gridY, interacted = npc.interacted }
+        npcs[#npcs + 1] = { name = npc.name, x = npc.gridX, y = npc.gridY,
+            source_event_id = npc.def and npc.def.source_event_id,
+            interacted = npc.hasInteracted and npc:hasInteracted() or npc.interacted }
     end
+    local party = {count = game.session:party():count(), active = game.session:party():activeIndex(), members = {}}
+    for i, mon in ipairs(game.session:party():members()) do party.members[i] = pokemon(mon) end
+    local inventory = {slots = game.session:inventory():slots(), money = game.session:inventory():money(), quantities = {}}
+    for id in pairs(ItemData.definitions) do inventory.quantities[id] = game.session:inventory():quantity(id) end
     return {
         display = HarnessCapture.display(),
         frame = { tick = HarnessCapture.tick, phase = HarnessCapture.phase },
         root = root:getCurrent(), stack = root:stackNames(),
         overworld = world.sub:getCurrent(), zone = getCurrentZoneKey(),
-        story = { stage = Story.stage, starter = Story.starter or "none",
-            rivalStarter = Story.rivalStarter or "none", rivalOutcome = Story.rivalOutcome },
+        zone_id = currentZone and currentZone.stableID,
+        session = {party = party, inventory = inventory, flags = game.session:flags(), checkpoint = game.session:checkpoint()},
+        party = party, inventory = inventory,
+        pause = ui(root:get("pause")), title = ui(root:get("title")),
+        party_ui = ui(root:get("party")), bag = ui(root:get("bag")),
+        story = { stage = Story.get(game).stage, starter = Story.get(game).starter or "none",
+            rivalStarter = Story.get(game).rivalStarter or "none", rivalOutcome = Story.get(game).rivalOutcome },
         player = player and { x = player.gridX, y = player.gridY, pixelX = player.x, pixelY = player.y,
             facing = player.facing, moving = player.isMoving, settled = not player.isMoving,
             pendingEdgeDoor = player.pendingEdgeDoor ~= nil, tile = tile and tile[player.gridX + 1] } or { present = false },
-        pokemon = pokemon(game.playerPokemon),
+        pokemon = pokemon(game:getPlayerPokemon()),
         battle = battle and { phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
+            forced_switch = battle:needsForcedSwitch(), selection_kind = battle.selectionKind or "none",
+            capture_result = battle.captureResult or {caught = false, checks = 0},
             attackerSide = battle.attackerSide, trainerName = battle.trainerName,
             outcome = battle.outcome or "ongoing",
             current_move = battle.currentMoveKey or "none",
@@ -52,10 +75,8 @@ function HarnessDiagnostics.snapshot(game)
             inMoveSelect = battleState.scene.inMoveSelect,
             enemy = pokemon(battle.enemy), player = pokemon(battle.player),
             waiting = battle.machine:current().waiting, runAttempts = battle.runAttempts,
-            menu = battleState.scene.mainMenu and { active = battleState.scene.mainMenu.isActive,
-                selected = battleState.scene.mainMenu.selectedIndex } or nil,
-            moveMenu = battleState.scene.moveMenu and { active = battleState.scene.moveMenu.isActive,
-                selected = battleState.scene.moveMenu.selectedIndex } or nil } or { present = false },
+            menu = menu(battleState.scene.mainMenu),
+            moveMenu = menu(battleState.scene.moveMenu) } or { present = false },
         dialog = { active = root:is("dialog") and dialog.isActive, line = dialog.currentLine,
             ready = root:is("dialog") and dialog.isActive and dialog.charIndex >= #(dialog.lines[dialog.currentLine] or "") },
         camera = { x = game.camera.x, y = game.camera.y }, npcs = npcs,

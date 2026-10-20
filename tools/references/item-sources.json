@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "pokered_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "essentials_revision": "8c5911e4a4b07b07e832e4bb0d5d8859e88b4a9b",
+  "policy": "English Blue item IDs/prices/key flags/marts; Gen V medicine effects, no later medicine rebalance",
+  "files": {
+    "constants/item_constants.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/constants/item_constants.asm",
+      "sha256": "b5a1db015fbf0de637381eb39350f21f35a436a8088e2f6657f65c79f118f97f"
+    },
+    "data/items/names.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/names.asm",
+      "sha256": "16ac8004e87264dd1f5ad3bcd1bda246989ffaf356d8b580354bd0f4836f8729"
+    },
+    "data/items/prices.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/prices.asm",
+      "sha256": "f5c70cea9cf59239ddb2deceda59e577cfe30cf2bc36c80e5e2a8834af788d60"
+    },
+    "data/items/key_items.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/key_items.asm",
+      "sha256": "f50153804248ef659ca5eadb3978eabd2489aeda6c747d9a12e98c4d6cb8d955"
+    },
+    "data/items/marts.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/marts.asm",
+      "sha256": "d227deffbe60d8c10f0602710c6fa966c80edc7b36cb4c6ee973e42787f66f89"
+    },
+    "data/items/tm_prices.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/tm_prices.asm",
+      "sha256": "7a7df6ab58cbbdf6785ee479b6f86552f052482ce6712f265e43392c73f47166"
+    },
+    "data/items/use_party.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/use_party.asm",
+      "sha256": "829437fef7ae6312e4ece1299271359c13efa285e46c9bcd6662faced127d2b9"
+    },
+    "data/items/use_overworld.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/items/use_overworld.asm",
+      "sha256": "7986692efb96b977f156db797f5eb6c527dbb6913264a1761beca741a8e248db"
+    },
+    "engine/items/item_effects.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/engine/items/item_effects.asm",
+      "sha256": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1"
+    },
+    "engine/events/pokemart.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/engine/events/pokemart.asm",
+      "sha256": "94c0f7c02cb6d5d1b8e6adf98b49eb8848561f1225cc6b95bb426ce9db9e5abc"
+    },
+    "001_Settings.rb": {
+      "url": "https://raw.githubusercontent.com/Maruno17/pokemon-essentials/8c5911e4a4b07b07e832e4bb0d5d8859e88b4a9b/Data/Scripts/001_Settings.rb",
+      "sha256": "a491c8560378640aa2e7577e8c48793e23efd5bb28ed790f3537f51d1e31f40e"
+    },
+    "002_Item_Effects.rb": {
+      "url": "https://raw.githubusercontent.com/Maruno17/pokemon-essentials/8c5911e4a4b07b07e832e4bb0d5d8859e88b4a9b/Data/Scripts/013_Items/002_Item_Effects.rb",
+      "sha256": "6ed4877769f3d7edddb096481780a8d29da6bd1de331ca9c24ccffb8477a1b15"
+    },
+    "003_Item_BattleEffects.rb": {
+      "url": "https://raw.githubusercontent.com/Maruno17/pokemon-essentials/8c5911e4a4b07b07e832e4bb0d5d8859e88b4a9b/Data/Scripts/013_Items/003_Item_BattleEffects.rb",
+      "sha256": "acd6f3d2f49e2d8084310b8b62f269973a26fa9c7a1ec4191a64d0b119f223e0"
+    }
+  }
+}

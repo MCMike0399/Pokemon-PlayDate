@@ -277,11 +277,12 @@ function ApplyStatus:apply(battle)
 
     if pokemon.status then return end   -- already afflicted: silently no-op
     if immuneToStatus(pokemon, self.status) then return end
+    -- Sample before committing durable fields; RNG exhaustion cannot leave an
+    -- asleep Pokemon without its original duration.
+    local duration = self.status == "sleep" and RulesRNG.random(1, 3) or 0
     pokemon.status = self.status
-    pokemon.statusTurns = 0
-    if self.status == "sleep" then
-        pokemon.statusTurns = RulesRNG.random(1, 3)   -- Gen V: 1-3 turn counter
-    end
+    pokemon.statusTurns = duration
+    pokemon.sleepDuration = duration
     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
 end
 

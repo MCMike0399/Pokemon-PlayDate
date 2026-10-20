@@ -99,7 +99,7 @@
     {
       "op": "assert",
       "path": "pokemon.xp",
-      "equals": 343
+      "equals": 236
     },
     "shot combat-simultaneous-recoil",
     "wait 12",
@@ -137,7 +137,7 @@
     {
       "op": "assert",
       "path": "pokemon.xp",
-      "equals": 343
+      "equals": 236
     },
     "shot combat-simultaneous-victory",
     "press a",
@@ -185,7 +185,7 @@
     {
       "op": "assert",
       "path": "pokemon.xp",
-      "equals": 343
+      "equals": 236
     },
     {
       "op": "assert",

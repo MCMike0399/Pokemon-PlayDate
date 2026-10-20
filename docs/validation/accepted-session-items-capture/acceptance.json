@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "status": "Domain modules accepted; live session bridge, field menus and capture battle integration pending",
+  "runs": [
+    {
+      "run": "pokemon-items-runtime-01",
+      "source_sha256": "381a5151e2b802e7d4207ed27a9ed954babdef16a1b3e544bf81a6f2c0b5ca90",
+      "passed": 167,
+      "failed": 0
+    },
+    {
+      "run": "pokemon-session-runtime-01",
+      "source_sha256": "5f0c70dcc2d38e7035f49d3229cbd132f4705448fbb2bb4118500717c3f2aa4f",
+      "passed": 178,
+      "failed": 0
+    },
+    {
+      "run": "pokemon-capture-runtime-01",
+      "source_sha256": "e082bc09bb30aa615ddead550784e15084970d0eab3065838c2774351505690b",
+      "passed": 194,
+      "failed": 0
+    }
+  ],
+  "archive_sha256": "225b021f3c82d7147e7ed1d51dc81d5389c70cc06f2586a995c14c04f7ce7ac9",
+  "remaining": "No Save/Continue or capture gameplay claim from these contract runs. New menu Source files are not yet imported."
+}

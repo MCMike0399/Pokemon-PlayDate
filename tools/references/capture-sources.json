@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "target": "B2W2 original151 catch rates; ordinary wild encounters, no Capture Power",
+  "files": {
+    "personal_b2w2": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Resources/byte/personal/personal_b2w2",
+      "sha256": "6df24e7f00dab32322d9d8f8b3209d30de1c89b0de88277081fe53434211830f"
+    },
+    "PersonalInfo5B2W2.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/PersonalInfo/Info/PersonalInfo5B2W2.cs",
+      "sha256": "1387c7258b6b71d65e537fe49b52ef1543e02932889f6946f6aa0bb7b1155daf"
+    },
+    "pokemon_species.csv": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/2bf639e5572812a67d2b94903fdcb9d095f5aeb2/data/v2/csv/pokemon_species.csv",
+      "sha256": "e66e2eeb25fd3836b0ebab6bf87bbf01960aa3c0555e2bac495fa8393c5e0c45"
+    }
+  },
+  "research": {
+    "formula": {
+      "url": "https://www.dragonflycave.com/mechanics/gen-v-capturing/",
+      "sha256": "c9bee66786e0e1e17c5053a1dc899661766f70dc56079b1b9d9d5c81de4ea93c",
+      "last_modified": "2025-11-20",
+      "authors": "Dragonfree; algorithm analysis credited to poccil and magical"
+    },
+    "calculator": {
+      "url": "https://www.dragonflycave.com/gen5capture-worker.js?v=1",
+      "sha256": "2b49912b04b83384ef73b2b22203abbc3d6d1298d6afc65ca6663de446231687",
+      "use": "Independent primary Q12 rounding reference; not distributed or required for build"
+    }
+  }
+}

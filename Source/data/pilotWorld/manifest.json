@@ -1,0 +1,231 @@
+{
+  "artifacts": [
+    {
+      "bytes": 93385,
+      "path": "Route1-native.png",
+      "sha256": "18007fd57c011aed229f77c623407583b4639a4557d362f84dd2392fbdce7f57"
+    },
+    {
+      "bytes": 46724,
+      "path": "Route1-reference.png",
+      "sha256": "fd4ac13ea99933a24be537598da8dddb8ef1d10d5b47ccb38f436761f279f52a"
+    },
+    {
+      "bytes": 72194,
+      "path": "Route1.json",
+      "sha256": "2549444c57758df02febdb8cd67ea3d3a8826c93454de4baa7041c76f2591b08"
+    },
+    {
+      "bytes": 8516,
+      "path": "ViridianMart-native.png",
+      "sha256": "8cb31c157e414960aa12376c101ce63a334fb0065b56a968ff475d28c3777aef"
+    },
+    {
+      "bytes": 4292,
+      "path": "ViridianMart-reference.png",
+      "sha256": "bf5debf30042ed9fd85c9651960e8ddf23eb780a850e7bf395efb0ca6dd7f593"
+    },
+    {
+      "bytes": 24059,
+      "path": "ViridianMart.json",
+      "sha256": "53408b6bb36d2c8b9b2a0b3a4359877ed46227762d9556599480f4bde9b8d1e4"
+    }
+  ],
+  "generator": "kanto-map-pilot-v1",
+  "generator_sha256": "159eee55a09a3686b636355162a4ebbe05eae033de83d3b4938af12fba5401a3",
+  "maps": [
+    {
+      "dimensions": {
+        "blocks": [
+          10,
+          18
+        ],
+        "cells": [
+          20,
+          36
+        ],
+        "original_pixels": [
+          320,
+          576
+        ],
+        "playdate_pixels": [
+          640,
+          1152
+        ]
+      },
+      "events": {
+        "background_events": 1,
+        "objects": 2,
+        "warps": 0
+      },
+      "grid_count": 15,
+      "name": "Route1"
+    },
+    {
+      "dimensions": {
+        "blocks": [
+          4,
+          4
+        ],
+        "cells": [
+          8,
+          8
+        ],
+        "original_pixels": [
+          128,
+          128
+        ],
+        "playdate_pixels": [
+          256,
+          256
+        ]
+      },
+      "events": {
+        "background_events": 0,
+        "objects": 3,
+        "warps": 2
+      },
+      "grid_count": 16,
+      "name": "ViridianMart"
+    }
+  ],
+  "render_contract": {
+    "alpha": false,
+    "cell_native_pixels": 32,
+    "cell_source_pixels": 16,
+    "dark": [
+      85,
+      170,
+      85,
+      170,
+      85,
+      170,
+      85,
+      170
+    ],
+    "light": [
+      187,
+      255,
+      238,
+      255,
+      187,
+      255,
+      238,
+      255
+    ],
+    "pattern_phase": [
+      0,
+      0
+    ]
+  },
+  "schema": 1,
+  "source_files": [
+    {
+      "path": "constants/map_constants.asm",
+      "sha256": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271"
+    },
+    {
+      "path": "constants/tileset_constants.asm",
+      "sha256": "887387444a2be79ffb2b501fee60fc40f8b31668d0a142ea38fc842f90c96769"
+    },
+    {
+      "path": "data/maps/headers/Route1.asm",
+      "sha256": "b64b3376c6516f3edc6a884d9220791805745d6cb7564574a11b9ee457da535d"
+    },
+    {
+      "path": "data/maps/headers/ViridianMart.asm",
+      "sha256": "2865a96e291bdaf405e24220ae90f95d77155c1b9148d8551d5dffee17cf51e2"
+    },
+    {
+      "path": "data/maps/objects/Route1.asm",
+      "sha256": "ec8fce208c628b4e2c3a97d6acecc7c1caf9def2008568f2e9756804ebf52d6e"
+    },
+    {
+      "path": "data/maps/objects/ViridianMart.asm",
+      "sha256": "ff5e9c6fc5eea24bd2cede7cd5fd3e141b545293f0430c3070af0d5cd391016c"
+    },
+    {
+      "path": "data/tilesets/collision_tile_ids.asm",
+      "sha256": "15df9f5ad78dd176e91b78a85ef6ff9cf471d51a6222689d3d4902e58af4fc0a"
+    },
+    {
+      "path": "data/tilesets/ledge_tiles.asm",
+      "sha256": "405a9a9649e669f77b986151445782190f96dd4af8f4642c1e92993f068e6024"
+    },
+    {
+      "path": "data/tilesets/pair_collision_tile_ids.asm",
+      "sha256": "d7ed744bfa0fcaf8e7f69a23f9e3d44cdcf9f3c3f9931d93926f5084f1c4466b"
+    },
+    {
+      "path": "data/tilesets/tileset_headers.asm",
+      "sha256": "1176f00ecd31c140939c1c3191dcea840fe12b9d75eebaf9edc5b8014c0cb4cb"
+    },
+    {
+      "path": "data/tilesets/warp_tile_ids.asm",
+      "sha256": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5"
+    },
+    {
+      "path": "data/tilesets/water_tilesets.asm",
+      "sha256": "c37911107dc60805a56c1fd8718dd1aa95c2ae5ccd99b6fcb2620617d9f48d09"
+    },
+    {
+      "path": "data/wild/grass_water.asm",
+      "sha256": "0446d318fc0dfbdd3397c44439c2bf2604fa64bed3951d5b5a6698c929c717ab"
+    },
+    {
+      "path": "data/wild/maps/Route1.asm",
+      "sha256": "51e6ce11b3541e837344829733708a8c27f1857953d10a19b4f56b0079115a92"
+    },
+    {
+      "path": "data/wild/maps/nothing.asm",
+      "sha256": "2a1a0bce377ee3ba195c165b0b67d4cf861a5466bce45e42d6df109e0c7d930c"
+    },
+    {
+      "path": "data/wild/probabilities.asm",
+      "sha256": "e52ce63daabed6e183866bcaad889691a057b0a1b49a609271a371af7c69b9f9"
+    },
+    {
+      "path": "gfx/blocksets/overworld.bst",
+      "sha256": "c4f6d88cc7dea8196aa51d3aa059c6d1da0ea45718dd12870fcddee9f9304d50"
+    },
+    {
+      "path": "gfx/blocksets/pokecenter.bst",
+      "sha256": "0dd8c8f693882a208b39487ba2b97505910f9e22b8f7108e11f0efe7405f61c9"
+    },
+    {
+      "path": "gfx/tilesets.asm",
+      "sha256": "6db7f6d5219788ba16251f16646c8c642704ed588f6ba1de6e67f881aa0dce03"
+    },
+    {
+      "path": "gfx/tilesets/overworld.png",
+      "sha256": "580a310bef9f446c62d75994db3197b3f511aeed5f055ded9f38c36c8a152bdb"
+    },
+    {
+      "path": "gfx/tilesets/pokecenter.png",
+      "sha256": "424e3cc03aef70c570df21b5c39423666a644c9d851aed98d27d180599fc0a37"
+    },
+    {
+      "path": "maps.asm",
+      "sha256": "692ff4f5a4d88178e336c7465dd3d1bc443dc42ede07938d09b0b7db26406b57"
+    },
+    {
+      "path": "maps/Route1.blk",
+      "sha256": "328b8ad2dee6852d9f332f18af80a6210bb0f9204597ad082ac6e569e226d482"
+    },
+    {
+      "path": "maps/ViridianMart.blk",
+      "sha256": "5833a4889db96f11b431f23b7fde604cbb59df36337cef4351828bc9291e1ee1"
+    },
+    {
+      "path": "scripts/Route1.asm",
+      "sha256": "ae79d24e5180ef5723078eb7e4ae1cdbc59173554fdd0074047a347b44104e73"
+    },
+    {
+      "path": "scripts/ViridianMart.asm",
+      "sha256": "be36a6b0486b28d81c7f5ad61759561a750b674568963d3895d83818ec808c0a"
+    }
+  ],
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "status": "staged terrain/data pilot; no runtime/gameplay acceptance",
+  "version": "English Blue"
+}

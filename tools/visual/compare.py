@@ -43,33 +43,64 @@ def compare_image(expected, actual, diff_path=None):
     return result
 
 
-def compare_catalog(expected, actual, diff_dir=None):
+def compare_catalog(expected, actual, diff_dir=None, *, protected_preservation=False):
     expected, actual = Path(expected), Path(actual)
     before = json.loads((expected / "catalog.json").read_text())
     after = json.loads((actual / "catalog.json").read_text())
     expected_images, actual_images = image_directory(expected, before), image_directory(actual, after)
-    def paths(manifest):
+    def paths(manifest, root):
         values = [item["path"] for item in manifest["images"]]
         if not values or len(values) != len(set(values)):
             raise ValueError("empty or duplicate image inventory")
         for path in values:
-            if Path(path).is_absolute() or ".." in Path(path).parts:
-                raise ValueError("catalog image paths must stay inside catalog directory")
+            contained(root, path)
         return set(values)
-    a, b = paths(before), paths(after)
+    a, b = paths(before, expected_images), paths(after, actual_images)
+    before_entries = {item["path"]: item for item in before["images"]}
+    after_entries = {item["path"]: item for item in after["images"]}
     results = []
     for path in sorted(a | b):
         if path not in a or path not in b:
             results.append({"path": path, "equal": False, "reason": "inventory", "expected": path in a, "actual": path in b})
         elif not contained(expected_images, path).is_file() or not contained(actual_images, path).is_file():
             results.append({"path": path, "equal": False, "reason": "missing file"})
+        elif protected_preservation and any(before_entries[path].get(field) != after_entries[path].get(field)
+                                               for field in ("mask", "category", "width", "height") if field in before_entries[path]):
+            results.append({"path": path, "equal": False, "reason": "protected metadata"})
         else:
             diff_path = Path(diff_dir) / path if diff_dir else None
             results.append({"path": path} | compare_image(contained(expected_images, path), contained(actual_images, path), diff_path))
     missing_equal = before.get("missing", []) == after.get("missing", [])
-    return {"equal": all(r["equal"] for r in results) and missing_equal,
-            "missing_inventory_equal": missing_equal, "checked": len(results),
-            "failures": [r for r in results if not r["equal"]]}
+    report = {"equal": all(r["equal"] for r in results) and missing_equal,
+              "missing_inventory_equal": missing_equal, "checked": len(results),
+              "failures": [r for r in results if not r["equal"]]}
+    if protected_preservation:
+        added = sorted(b - a)
+        failures = [r for r in results if r["path"] in a and not r["equal"]]
+        added_failures = []
+        for path in added:
+            try:
+                filename = contained(actual_images, path)
+                with Image.open(filename) as image:
+                    if image.format != "PNG":
+                        raise ValueError("added artifact must be PNG")
+                    size = image.size
+                    image.verify()
+                item = after_entries[path]
+                for axis, field in enumerate(("width", "height")):
+                    if field in item and item[field] != size[axis]:
+                        raise ValueError("added artifact dimensions disagree with manifest")
+            except (OSError, ValueError) as error:
+                added_failures.append({"path": path, "equal": False, "reason": "invalid unreviewed file", "error": str(error)})
+        protected_equal = not failures and missing_equal
+        report.update(mode="protected-preservation", protected_equal=protected_equal,
+                      protected_checked=len(a), added_unreviewed=added,
+                      added_files_valid=not added_failures, failures=failures + added_failures,
+                      comparison_ok=protected_equal and not added_failures,
+                      review_complete=not added and protected_equal)
+        # Additions are never promoted to reviewed equality by this mode.
+        report["equal"] = protected_equal and not added
+    return report
 
 
 def main():
@@ -78,11 +109,14 @@ def main():
     parser.add_argument("actual", type=Path)
     parser.add_argument("--diff-dir", type=Path)
     parser.add_argument("--report", type=Path)
+    parser.add_argument("--protected-preservation", action="store_true", help="check protected subset; added files remain explicitly unreviewed")
     args = parser.parse_args()
     try:
         if args.expected.is_dir() and args.actual.is_dir():
-            report = compare_catalog(args.expected, args.actual, args.diff_dir)
+            report = compare_catalog(args.expected, args.actual, args.diff_dir, protected_preservation=args.protected_preservation)
         else:
+            if args.protected_preservation:
+                raise ValueError("protected preservation requires two catalog directories")
             report = compare_image(args.expected, args.actual, args.diff_dir / "diff.png" if args.diff_dir else None)
     except (OSError, ValueError, KeyError) as error:
         report = {"equal": False, "error": str(error)}
@@ -90,7 +124,7 @@ def main():
     if args.report:
         args.report.write_text(rendered + "\n")
     print(rendered)
-    return 0 if report["equal"] else 1
+    return 0 if report.get("comparison_ok", report["equal"]) else 1
 
 
 if __name__ == "__main__":

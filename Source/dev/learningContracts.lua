@@ -13,7 +13,7 @@ local function copyPP(pokemon)
 end
 local function pending(species, level, target)
     local pokemon = Pokemon(species, level)
-    pokemon:gainXP(xpForLevel(target) - pokemon.xp)
+    pokemon:gainXP(pokemon:xpForLevel(target) - pokemon.xp)
     return pokemon
 end
 local function setup(pokemon, callback)

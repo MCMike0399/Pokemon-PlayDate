@@ -164,5 +164,9 @@ def run(client, evidence_dir, sdk):
         assert not output.exists(), 'competing runner staged before ownership'
         return {'exit': process.returncode, 'stderr': process.stderr.strip()}
     test('second actual runner process rejected before build/launch', competing_runner)
+    from tools.harness import integer_qualification
+    integer_report = integer_qualification.run(client, evidence_dir, sdk)
+    report['tests'].extend(integer_report['tests'])
+    report['ok'] = report['ok'] and integer_report['ok']
     report['passed'] = len(report['tests'])
     return report

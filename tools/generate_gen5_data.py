@@ -14,7 +14,8 @@ Produces:
 Sources (cached in tools/gen5cache/):
   PokeAPI CSV dumps  — moves, move_changelog (resolves values as of version
                        group 14 = B2W2), move_meta, move_meta_stat_changes,
-                       pokemon (base_experience)
+  Pinned B2W2 personal table — Gen V base experience yields, independently
+                       cross-checked by generate_growth_data.py
   Pokémon Showdown   — pokedex.ts + mods/gen{8,7,6,5}/pokedex.ts applied in
                        order, yielding Gen V base stats and types
 
@@ -48,7 +49,7 @@ B2W2_VERSION_GROUP = 14
 POKEAPI_CSV = "https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/"
 SHOWDOWN = "https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/"
 
-CSV_FILES = ["moves", "move_changelog", "move_meta", "move_meta_stat_changes", "pokemon", "types"]
+CSV_FILES = ["moves", "move_changelog", "move_meta", "move_meta_stat_changes", "types"]
 SHOWDOWN_FILES = ["pokedex.ts", "mods/gen8/pokedex.ts", "mods/gen7/pokedex.ts",
                   "mods/gen6/pokedex.ts", "mods/gen5/pokedex.ts"]
 
@@ -137,6 +138,7 @@ def resolve_b2w2(move_row, changelog_rows):
         "accuracy": num(move_row["accuracy"]),
         "priority": num(move_row["priority"]),
         "effect_chance": num(move_row["effect_chance"]),
+        "target_id": num(move_row["target_id"]),
     }
     entries = [r for r in changelog_rows
                if int(r["changed_in_version_group_id"]) > B2W2_VERSION_GROUP]
@@ -228,6 +230,8 @@ def generate_moves(data, preserve_existing=False):
             raise ValueError("move introduced after Gen V: " + key)
         move_id = row["id"]
         fields = resolve_b2w2(row, changelog.get(move_id, []))
+        if fields["target_id"] not in range(1, 15):
+            raise ValueError("invalid Gen V target metadata: " + key)
         meta = meta_by_id.get(move_id)
         target_id = num(row["target_id"]) or 0
         category = class_names[num(row["damage_class_id"]) or 1]
@@ -244,6 +248,7 @@ def generate_moves(data, preserve_existing=False):
             f"power = {fields['power'] or 0}",
             f"accuracy = {fields['accuracy'] or 0}",
             f"pp = {PP_OVERRIDES.get(key, fields['pp'])}",
+            f"targetId = {fields['target_id']}",
         ]
         if key == "struggle":
             parts.extend(["typeless = true", "noPP = true", "struggleRecoil = true"])
@@ -280,6 +285,7 @@ function Move:init(m)
     self.accuracy = m.accuracy   -- 0 = never misses
     self.pp = m.pp
     self.maxPP = m.pp
+    self.targetId = m.targetId or 10
     self.priority = m.priority or 0
     self.willCrit = m.willCrit or false
     self.typeless = m.typeless or false
@@ -298,7 +304,15 @@ moveData = {
     if preserve_existing:
         old_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", current, re.MULTILINE))
         new_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", "\n".join(out), re.MULTILINE))
-        changed = [key for key, value in old_rows.items() if new_rows.get(key) != value]
+        # The one-time target metadata migration may only add targetId. Once
+        # present, even its value must match; other scalars/effects stay exact.
+        def compatible(old, new):
+            if new is None:
+                return False
+            if re.search(r", targetId = \d+", old):
+                return old == new
+            return old == re.sub(r", targetId = \d+", "", new)
+        changed = [key for key, value in old_rows.items() if not compatible(value, new_rows.get(key))]
         if changed:
             raise ValueError("refusing unexpected changes to existing move rows: " + ", ".join(changed))
     os.makedirs(os.path.dirname(MOVES_LUA), exist_ok=True)
@@ -343,13 +357,19 @@ def resolve_gen5_dex(data):
     return resolved
 
 
-def generate_species(data):
+def load_gen5_yields(cache, fetch=False):
+    """Use the authoritative growth projection, never modern PokeAPI yields."""
+    sys.path.insert(0, ROOT)
+    from tools.generate_growth_data import load_sources, collect
+    _, species = collect(load_sources(cache, fetch))
+    return {dex: values[1] for dex, values in species.items()}
+
+
+def generate_species(data, gen5_yields):
     with open(POKEMON_INPUT, encoding="utf-8") as f:
         src = f.read()
 
     dex = resolve_gen5_dex(data)
-    base_exp = {r["identifier"]: int(r["base_experience"] or 0)
-                for r in data["pokemon"] if r["is_default"] == "1"}
 
     block_re = re.compile(
         r'(^    (\w+) = \{\n'
@@ -369,7 +389,7 @@ def generate_species(data):
         s = entry["baseStats"]
         types = entry["types"]
         type2 = f'"{types[1]}"' if len(types) > 1 else "nil"
-        exp = base_exp.get(SPECIES_CSV_ALIASES.get(key) or camel_to_kebab(key), 0)
+        exp = gen5_yields[int(_dexnum)]
         changed.append(key)
         return (f'{prefix}type = "{types[0]}", type2 = {type2},\n'
                 f'        baseHP = {s["hp"]}, baseAtk = {s["atk"]}, baseDef = {s["def"]}, '
@@ -393,7 +413,8 @@ def main():
     parser.add_argument("--output-root", type=Path, required=True, help="explicit project root receiving generated Source")
     parser.add_argument("--moves-only", action="store_true", help="skip species/Showdown, pin CSV inputs and preserve every existing move row")
     parser.add_argument("--pinned-cache", type=Path)
-    parser.add_argument("--fetch", action="store_true", help="download missing immutable CSVs for moves-only")
+    parser.add_argument("--fetch", action="store_true", help="download missing immutable inputs")
+    parser.add_argument("--growth-cache", type=Path, default=Path(ROOT) / "tools/growthcache", help="pinned growth-source cache for full species yields")
     parser.add_argument("--extra-move", action="append", default=[])
     args = parser.parse_args()
     MOVES_INPUT = str(args.input_root / "Source/battle/moves.lua")
@@ -413,9 +434,10 @@ def main():
     else:
         if args.pinned_cache:
             parser.error("--pinned-cache requires --moves-only; species Showdown sources are not yet pinned")
+        gen5_yields = load_gen5_yields(args.growth_cache, args.fetch)
         data = load_all()
         generate_moves(data)
-        generate_species(data)
+        generate_species(data, gen5_yields)
 
 
 if __name__ == "__main__":

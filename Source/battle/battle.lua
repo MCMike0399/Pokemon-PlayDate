@@ -122,6 +122,7 @@ end
 -- command: nothing to do here — BattleScene owns the menus and calls
 -- battle:selectMove()/battle:tryRun() when the player picks
 Class("BattleCommandPhase"):extends(State)
+Class("BattleForcedSwitchPhase"):extends(State)
 
 -- script: drives the resolution coroutine. Each battle:say() yield parks
 -- the script on a message until the player confirms with A.
@@ -150,10 +151,12 @@ function BattleScriptPhase:advance()
     if coroutine.status(self.co) == "dead" then
         -- Script finished; its return value names the next phase
         local outcome = kind or "command"
-        if outcome == "victory" or outcome == "defeat" or outcome == "run" then
+        if outcome == "victory" or outcome == "defeat" or outcome == "run" or outcome == "caught" then
             self.battle.outcome = outcome
             self.machine:change("ended", outcome)
             if outcome == "run" then self.battle:emitEnd() end
+        elseif outcome == "forcedSwitch" then
+            self.machine:change("forcedSwitch")
         else
             self.machine:change("command")
         end
@@ -207,10 +210,23 @@ Class("Battle"):includes(Signal)
 
 -- trainerName (optional) makes this a trainer battle: intro messages
 -- name the trainer and running is forbidden (Gen 1 rules)
-function Battle:init(playerPokemon, enemyPokemon, trainerName)
+function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
+    dependencies = dependencies or {}
+    assert(type(dependencies) == "table", "battle dependencies required")
+    for key in pairs(dependencies) do assert(key == "party" or key == "session" or key == "enemyParty", "unsupported battle dependency") end
+    self.session = dependencies.session
+    self.party = dependencies.party or (self.session and self.session:party())
+    self.enemyParty = dependencies.enemyParty
+    if self.party then assert(self.party:is("Party") and self.party:active() == playerPokemon, "active player party mismatch") end
+    if self.session then assert(self.session:is("GameSession") and self.session:party() == self.party, "battle session party mismatch") end
+    if self.enemyParty then assert(trainerName and self.enemyParty:is("Party") and self.enemyParty:active() == enemyPokemon, "active trainer party mismatch") end
     self.player = playerPokemon
     self.enemy = enemyPokemon
     self.trainerName = trainerName
+    self.selectionKind = nil
+    self.captureResult = nil
+    self.awardedEnemies = {}
+    self.participants = {[playerPokemon]=true}
 
     -- Directionality: set per half-turn, consumed by the DSL
     self.attacker = nil
@@ -236,6 +252,7 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName)
 
     self.machine = StateMachine()
     self.machine:register("command", BattleCommandPhase("command"))
+    self.machine:register("forcedSwitch", BattleForcedSwitchPhase("forcedSwitch"))
     self.machine:register("script", BattleScriptPhase(self))
     self.machine:register("ended", BattleEndedPhase(self))
 
@@ -246,6 +263,7 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName)
         else
             self:say("A wild " .. self.enemy.name .. " appeared!")
         end
+        if not self.player:isAlive() then return self:hasUsablePlayer() and "forcedSwitch" or "defeat" end
     end)
 end
 
@@ -340,6 +358,7 @@ end
 function Battle:selectMove(moveIndex)
     -- All rejection paths precede every mutation and RNG draw.
     if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
+    if self.selectionKind then return false, "selection-open" end
     if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
     if type(moveIndex) ~= "number" or moveIndex ~= moveIndex or moveIndex < 0
         or moveIndex > #self.player.moves or moveIndex ~= math.floor(moveIndex) then return false, "invalid-index" end
@@ -370,8 +389,141 @@ function Battle:selectMove(moveIndex)
     return true
 end
 
+-- Authoritative roster/selection commands. Rejections do not mutate or draw RNG.
+function Battle:hasUsablePlayer()
+    return self.party and self.party:firstUsable() ~= nil or self.player:isAlive()
+end
+function Battle:hasUsableEnemy()
+    return self.enemyParty and self.enemyParty:firstUsable() ~= nil or self.enemy:isAlive()
+end
+function Battle:needsForcedSwitch()
+    return self.machine:is("forcedSwitch")
+end
+function Battle:clearHitPresentation()
+    self.attacker,self.defender,self.attackerSide=nil,nil,nil
+    self.currentMove,self.currentMoveKey,self.lastDamage=nil,nil,0
+    self.flashTimer,self.isFlashing,self.shakeTimer,self.shakeIntensity=0,false,0,0
+end
+function Battle:beginSelection(kind)
+    if self.outcome or (not self:isAwaitingCommand() and not self:needsForcedSwitch()) then return false,"wrong-phase" end
+    if self.selectionKind then return false,"selection-open" end
+    if kind == "party" then
+        if not self.party then return false,"party-unavailable" end
+    elseif kind == "bag" then
+        if self:needsForcedSwitch() then return false,"forced-switch" end
+        if not self.session then return false,"bag-unavailable" end
+    else return false,"unknown-selection" end
+    self.selectionKind=kind
+    return true
+end
+function Battle:cancelSelection()
+    if self:needsForcedSwitch() then return false,"forced-switch" end
+    if not self.selectionKind then return false,"no-selection" end
+    self.selectionKind=nil
+    return true
+end
+local function validSwitchSleep(mon)
+    local remaining=type(mon.statusTurns)=="number" and math.tointeger(mon.statusTurns) or nil
+    if mon.status ~= "sleep" then return mon.sleepDuration == 0 and remaining == 0 end
+    local duration=type(mon.sleepDuration)=="number" and math.tointeger(mon.sleepDuration) or nil
+    return duration and remaining and duration>=1 and duration<=3 and remaining>=0 and remaining<=duration
+end
+function Battle:chooseParty(index)
+    local forced=self:needsForcedSwitch()
+    if self.outcome or (not forced and not self:isAwaitingCommand()) then return false,"wrong-phase" end
+    if self.selectionKind and self.selectionKind~="party" then return false,"selection-open" end
+    if not self.party then return false,"party-unavailable" end
+    index=type(index)=="number" and math.tointeger(index) or nil
+    if not index then return false,"invalid-index" end
+    local chosen,problem=self.party:get(index)
+    if not chosen then return false,problem end
+    if chosen==self.player then return false,"already-active" end
+    if not chosen:isAlive() then return false,"fainted" end
+    if not validSwitchSleep(self.player) or not validSwitchSleep(chosen) then return false,"invalid-sleep-duration" end
+    if forced and self.player:isAlive() then return false,"replacement-not-required" end
+    if not forced and (not self.player:isAlive() or not self.enemy:isAlive()) then return false,"fainted" end
+    local old=self.player
+    assert(self.party:switch(index))
+    old:onSwitchOut()
+    self.player=chosen
+    chosen:resetStages()
+    self.participants[chosen]=true
+    self.faintAnnounced.player=nil
+    self.selectionKind=nil
+    self:clearHitPresentation()
+    self:runScript(function()
+        if not forced then self:say(old.name .. ", come back!") end
+        self:say("Go! " .. chosen.name .. "!")
+        if forced then return "command" end
+        local outcome=self:resolveTurn(self:enemyTurn())
+        if outcome and outcome~="replacement" then return outcome end
+        return self:finishRound()
+    end)
+    return true
+end
+function Battle:availableBalls()
+    local choices={}
+    if not self.session then return choices end
+    local inventory=self.session:inventory()
+    for _,id in ipairs({"pokeBall","greatBall","ultraBall","masterBall"}) do
+        local quantity=Inventory.quantity(inventory,id)
+        if quantity and quantity>0 then choices[#choices+1]={id=id,quantity=quantity} end
+    end
+    return choices
+end
+function Battle:throwBall(ballId)
+    if self.outcome or not self:isAwaitingCommand() then return false,"wrong-phase" end
+    if self.selectionKind and self.selectionKind~="bag" then return false,"selection-open" end
+    if self.trainerName then return false,"trainer-battle" end
+    if not self.session then return false,"bag-unavailable" end
+    if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
+    if Party._owner(self.enemy) then return false,"already-owned-target" end
+    local context={pokemon=self.enemy,wild=true}
+    local dex=self.session:pokedex()
+    local caughtCount=0;for _,owned in pairs(dex.owned) do if owned then caughtCount=caughtCount+1 end end
+    local parameters,problem=Capture.parameters(context,ballId,caughtCount)
+    if not parameters then return false,problem end
+    local storage=self.session:storage()
+    if self.party:count()>=Party.CAPACITY and storage:count()>=Storage.BOX_CAPACITY then return false,"storage-full" end
+    local inventory=self.session:inventory()
+    local quantity,why=Inventory.quantity(inventory,ballId)
+    if not quantity or quantity<1 then return false,why or "insufficient-items" end
+    local result,captureError=Capture.attempt(context,ballId,caughtCount,RulesRNG)
+    if not result then return false,captureError end
+    -- No yield/callback between preflight, trial RNG completion and these
+    -- synchronous production commits. Same enemy identity enters the session.
+    assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
+    if result.caught then
+        self.enemy:resetStages()
+        self:clearHitPresentation()
+        local recruited,destination=GameSession.recruit(self.session,self.enemy)
+        assert(recruited,"capture recruitment invariant: " .. tostring(destination))
+        result.destination=destination
+        self.caughtPokemon=self.enemy
+    end
+    self.captureResult=result
+    self.selectionKind=nil
+    local definition=ItemData.definitions[ballId]
+    self:runScript(function()
+        self:say("RED threw a " .. definition.name .. "!")
+        if result.caught then
+            self:say("Gotcha! " .. self.enemy.name .. " was caught!")
+            self.message=self.enemy.name .. " was caught!"
+            return "caught" -- Catching grants no XP in Gen V.
+        end
+        local message=result.displayShakes==0 and "Oh no! The POKEMON broke free!"
+            or (result.displayShakes==1 and "Aww! It appeared to be caught!" or "Aargh! Almost had it!")
+        self:say(message)
+        local outcome=self:resolveTurn(self:enemyTurn())
+        if outcome and outcome~="replacement" then return outcome end
+        return self:finishRound()
+    end)
+    return true,result
+end
+
 function Battle:tryRun()
     if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
+    if self.selectionKind then return false, "selection-open" end
     if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
     -- Gen 1: no running from a trainer battle
     if self.trainerName then
@@ -400,8 +552,8 @@ function Battle:tryRun()
             self:say("Can't escape!")
             -- Enemy gets a free turn
             local outcome = self:resolveTurn(self:enemyTurn())
-            if outcome then return outcome end
-            return self:endOfRoundStatus() or "command"
+            if outcome and outcome ~= "replacement" then return outcome end
+            return self:finishRound()
         end)
     end
     return true
@@ -416,9 +568,9 @@ end
 function Battle:resolveRound(turns)
     for _, turn in ipairs(turns) do
         local outcome = self:resolveTurn(turn)
-        if outcome then return outcome end
+        if outcome and outcome ~= "replacement" then return outcome end
     end
-    return self:endOfRoundStatus() or "command"
+    return self:finishRound()
 end
 
 function Battle:resolveTurn(turn)
@@ -435,12 +587,13 @@ function Battle:resolveTurn(turn)
             self:say(attacker.name .. " is fast asleep!")
             return nil
         end
-        attacker.status, attacker.statusTurns = nil, 0
+        attacker.status, attacker.statusTurns, attacker.sleepDuration = nil, 0, 0
         self:say(attacker.name .. " woke up!")
     elseif attacker.status == "freeze" then
         if RulesRNG.random(1, 5) == 1 then
             attacker.status = nil
             attacker.statusTurns = 0
+            attacker.sleepDuration = 0
             self:say(attacker.name .. " thawed out!")
             -- thawing lets the attack proceed
         else
@@ -499,6 +652,17 @@ function Battle:resolveTurn(turn)
     return self:performMove(turn.move)
 end
 
+-- Pinned PokeAPI Gen V target IDs. Only singles are currently supported.
+-- Opponent-targeted moves need the still-living opposing active battler.
+-- User/user-or-ally and side/field targets remain valid without that battler.
+local opponentTargets = {[1]=true,[2]=true,[8]=true,[9]=true,[10]=true,[11]=true}
+function Battle:moveHasTarget(move)
+    local target=move.targetId or 10
+    if target==3 or target==15 then return false end -- No other ally in singles.
+    if opponentTargets[target] then return self.defender:isAlive() end
+    return target==4 or target==5 or target==6 or target==7 or target==12 or target==13 or target==14
+end
+
 function Battle:performMove(move)
     local attacker, defender = self.attacker, self.defender
     self.currentMove = move
@@ -509,6 +673,12 @@ function Battle:performMove(move)
     self.lastDamage = 0
 
     self:say(attacker.name .. " used " .. move.name .. "!")
+    -- BeforeMove gates and PP already ran. A queued move can reach this point
+    -- after the opponent self-KOs; do not damage or debuff a fainted target.
+    if not self:moveHasTarget(move) then
+        self:say("But there was no target!")
+        return nil
+    end
 
     -- One accuracy roll for the whole move (Gen V) — status moves miss too
     if not checkAccuracy(move, attacker, defender) then
@@ -626,22 +796,64 @@ function Battle:handleFaint(lastFaintedSide)
             self:say(pokemon.name .. " fainted!")
         end
     end
-    local won = not enemyAlive and (playerAlive or lastFaintedSide == "player")
-    if won then
-        -- Fainted participants receive no XP; stat growth must not resurrect.
-        if playerAlive and not self.xpAwarded then
-            self.xpAwarded = true
-            local xpGained = self.player:calcExpGain(self.enemy)
-            self:say(self.player.name .. " gained " .. xpGained .. " EXP!")
-            if self.player:gainXP(xpGained) then
-                self:say(self.player.name .. " grew to Lv" .. self.player.level .. "!")
+    -- Every opposing identity awards at most once, including a nonfinal team
+    -- member. Fainted recipients remain ineligible and never revive through XP.
+    if not enemyAlive and not self.awardedEnemies[self.enemy] then
+        self.awardedEnemies[self.enemy] = true
+        self.xpAwarded = true
+        local recipients={}
+        if self.party then
+            for _,mon in ipairs(self.party:members()) do
+                if self.participants[mon] and mon:isAlive() then recipients[#recipients+1]=mon end
+            end
+        elseif playerAlive then recipients[1]=self.player end
+        for _,mon in ipairs(recipients) do
+            local xpGained=mon:calcExpGain(self.enemy,self.trainerName~=nil,#recipients)
+            if xpGained>0 then
+                self:say(mon.name .. " gained " .. xpGained .. " EXP!")
+                if mon:gainXP(xpGained) then self:say(mon.name .. " grew to Lv" .. mon.level .. "!") end
             end
         end
+    end
+    local playerTeamAlive, enemyTeamAlive = self:hasUsablePlayer(), self:hasUsableEnemy()
+    local won = not enemyTeamAlive and (playerTeamAlive or lastFaintedSide == "player")
+    if won then
         self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
         return "victory"
     end
-    self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
-    return "defeat"
+    if not playerTeamAlive then
+        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
+        return "defeat"
+    end
+    return "replacement"
+end
+
+function Battle:finishRound()
+    local outcome = self:endOfRoundStatus()
+    if outcome and outcome ~= "replacement" then return outcome end
+    -- Gen V replaces fainted battlers after residual effects, not mid-move.
+    if not self.enemy:isAlive() and self.enemyParty then
+        local index = self.enemyParty:firstUsable()
+        if index then
+            local old = self.enemy
+            old:onSwitchOut()
+            assert(self.enemyParty:switch(index))
+            self.enemy = self.enemyParty:active()
+            self.enemy:resetStages()
+            self.awardedEnemies[self.enemy]=nil
+            self.participants={}
+            if self.player:isAlive() then self.participants[self.player]=true end
+            self.faintAnnounced.enemy = nil
+            self.xpAwarded = false
+            self:clearHitPresentation()
+            self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
+        end
+    end
+    if not self.player:isAlive() then
+        self.message = "Choose a POKEMON!"
+        return "forcedSwitch"
+    end
+    return "command"
 end
 
 function Battle:endOfRoundStatus()
@@ -649,7 +861,7 @@ function Battle:endOfRoundStatus()
     local events = {}
     for _, side in ipairs({"player", "enemy"}) do
         local pokemon = side == "player" and self.player or self.enemy
-        if pokemon.status == "poison" or pokemon.status == "burn" then
+        if pokemon:isAlive() and (pokemon.status == "poison" or pokemon.status == "burn") then
             events[#events + 1] = {side = side, pokemon = pokemon, order = pokemon.status == "poison" and 9 or 10}
         end
     end
@@ -667,7 +879,8 @@ function Battle:endOfRoundStatus()
         self:applyStatusDamage(event.pokemon)
         if not event.pokemon:isAlive() then
             self:setDirection(event.side == "player" and "enemy" or "player")
-            return self:handleFaint(event.side)
+            local outcome = self:handleFaint(event.side)
+            if outcome ~= "replacement" then return outcome end
         end
     end
     return nil

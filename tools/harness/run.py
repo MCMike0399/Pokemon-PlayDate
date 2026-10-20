@@ -131,6 +131,30 @@ def prepare(project, sdk, output, session):
     return metadata
 
 
+def verify_request_outputs(commands, result, output):
+    for command in commands:
+        if isinstance(command, str):
+            parts = command.split()
+            op, values = parts[0], parts[1:]
+        else:
+            op, values = command.get('op'), command.get('args', [])
+        expected = []
+        if op in ('shot', 'dumpimg'):
+            expected = [str(values[0]) + '.png']
+        elif op == 'record':
+            expected = [f'{values[0]}-{number:02d}.png' for number in range(1, int(values[1]) + 1)]
+        for name in expected:
+            verify_png(output / 'frames' / name, 400 if op in ('shot', 'record') else None, 240)
+    if result.get('catalog'):
+        catalog = dict(result['catalog'], image_root='frames')
+        for image in catalog.get('images', []):
+            image_path = Path(image['path'])
+            if image_path.is_absolute() or '..' in image_path.parts or not (output / 'frames' / image_path).is_file():
+                raise ProtocolError(f'missing/invalid catalog output: {image_path}')
+            verify_png(output / 'frames' / image_path, image.get('width'), image.get('height'))
+        atomic_json(output / 'catalog.json', catalog)
+
+
 def _run(args):
     sdk = sdk_path(args.sdk)
     session = uuid.uuid4().hex
@@ -140,6 +164,8 @@ def _run(args):
     atomic_json(output / 'scenario.json', scenario)
     if not isinstance(scenario, dict):
         raise ProtocolError('scenario must be a JSON object')
+    from tools.harness import restarting
+    restarting.validate(scenario, getattr(args, 'qualification', False))
     try:
         metadata = prepare(PROJECT, sdk, output, session)
     except BaseException as error:
@@ -155,6 +181,20 @@ def _run(args):
     data.mkdir(parents=True, exist_ok=False)
     owner = OwnerLock(data / 'owner.lock')
     owner.__enter__()
+    if 'processes' in scenario:
+        confirmed_exit = True
+        try:
+            return restarting.run(args, scenario, metadata, output, data, owner, sys.modules[__name__])
+        except restarting.UnconfirmedExit:
+            confirmed_exit = False
+            raise
+        finally:
+            try:
+                if confirmed_exit and data.is_dir():
+                    shutil.copytree(data, output / 'runtime-data')
+                    shutil.rmtree(data)
+            finally:
+                owner.__exit__()
     try:
         with (output / 'simulator.log').open('w') as log:
             process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
@@ -176,27 +216,7 @@ def _run(args):
                     raise ProtocolError('journey failed')
             for commands in ([] if scenario.get('journey') or getattr(args, 'qualification', False) else scenario.get('requests', [scenario.get('commands', [])])):
                 result = client.send(commands, args.timeout, args.max_frames)
-                for command in commands:
-                    if isinstance(command, str):
-                        parts = command.split()
-                        op, values = parts[0], parts[1:]
-                    else:
-                        op, values = command.get('op'), command.get('args', [])
-                    expected = []
-                    if op in ('shot', 'dumpimg'):
-                        expected = [str(values[0]) + '.png']
-                    elif op == 'record':
-                        expected = [f'{values[0]}-{number:02d}.png' for number in range(1, int(values[1]) + 1)]
-                    for name in expected:
-                        verify_png(output / 'frames' / name, 400 if op in ('shot', 'record') else None, 240)
-                if result.get('catalog'):
-                    catalog = dict(result['catalog'], image_root='frames')
-                    for image in catalog.get('images', []):
-                        image_path = Path(image['path'])
-                        if image_path.is_absolute() or '..' in image_path.parts or not (output / 'frames' / image_path).is_file():
-                            raise ProtocolError(f'missing/invalid catalog output: {image_path}')
-                        verify_png(output / 'frames' / image_path, image.get('width'), image.get('height'))
-                    atomic_json(output / 'catalog.json', catalog)
+                verify_request_outputs(commands, result, output)
             # Ensure runtime-produced images exist before reporting success.
             for path in scenario.get('outputs', []):
                 path = Path(path)

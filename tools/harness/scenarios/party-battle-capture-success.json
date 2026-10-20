@@ -1,0 +1,132 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "party_pokemon": [
+          {
+            "species": "charmander",
+            "level": 5
+          }
+        ],
+        "inventory": {
+          "slots": [
+            {
+              "id": "masterBall",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    "battle rattata 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 180
+    },
+    "shot party-capture-bag",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "battle",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "script",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.capture_result.caught",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.masterBall",
+      "equals": 0
+    },
+    "shot party-capture-throw",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.outcome",
+      "equals": "caught",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.xp",
+      "equals": 135
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 0
+    },
+    "shot party-capture-success",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.kind",
+      "equals": "caught"
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.blackout",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "party.count",
+      "equals": 2
+    },
+    "shot party-capture-return"
+  ],
+  "outputs": [
+    "party-capture-bag.png",
+    "party-capture-throw.png",
+    "party-capture-success.png",
+    "party-capture-return.png"
+  ]
+}

@@ -113,3 +113,14 @@ function Inventory.fromData(definitions, data)
     state.slots, state.money = copySlots(data.slots), data.money
     return inventory
 end
+
+-- Internal validated commit seam for Session's bounded bag+quest transaction.
+-- Preserves this Inventory identity; callers keep using public item operations.
+function Inventory:_replaceData(data)
+    local current=states[self]
+    local replacement,reason=Inventory.fromData(current.definitions,data)
+    if not replacement then return false,reason end
+    local prepared=states[replacement]
+    current.slots,current.money=prepared.slots,prepared.money
+    return true
+end

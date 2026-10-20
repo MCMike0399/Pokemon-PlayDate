@@ -1,3 +1,6 @@
+import "data/growthData"
+import "domain/growth"
+
 -- Gen I species with complete B2W2 level-up learnsets (version group 14).
 -- Auto-generated from veekun/pokedex data
 
@@ -249,7 +252,7 @@ pokemonData = {
     },
     butterfree = {
         name = "BUTTERFREE", dex = 12, type = "bug", type2 = "flying",
-        baseHP = 60, baseAtk = 45, baseDef = 50, baseSpA = 80, baseSpD = 80, baseSpe = 70, baseExp = 178,
+        baseHP = 60, baseAtk = 45, baseDef = 50, baseSpA = 80, baseSpD = 80, baseSpe = 70, baseExp = 173,
         moves = { "confusion", "confusion", "poisonPowder", "stunSpore", "sleepPowder", "gust", "supersonic", "whirlwind", "psybeam", "silverWind", "tailwind", "ragePowder", "safeguard", "captivate", "bugBuzz", "quiverDance" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -297,7 +300,7 @@ pokemonData = {
     },
     beedrill = {
         name = "BEEDRILL", dex = 15, type = "bug", type2 = "poison",
-        baseHP = 65, baseAtk = 80, baseDef = 40, baseSpA = 45, baseSpD = 80, baseSpe = 75, baseExp = 178,
+        baseHP = 65, baseAtk = 80, baseDef = 40, baseSpA = 45, baseSpD = 80, baseSpe = 75, baseExp = 173,
         moves = { "furyAttack", "furyAttack", "focusEnergy", "twineedle", "rage", "pursuit", "toxicSpikes", "pinMissile", "agility", "assurance", "poisonJab", "endeavor" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -366,7 +369,7 @@ pokemonData = {
     },
     pidgeot = {
         name = "PIDGEOT", dex = 18, type = "normal", type2 = "flying",
-        baseHP = 83, baseAtk = 80, baseDef = 75, baseSpA = 70, baseSpD = 70, baseSpe = 91, baseExp = 216,
+        baseHP = 83, baseAtk = 80, baseDef = 75, baseSpA = 70, baseSpD = 70, baseSpe = 91, baseExp = 211,
         moves = { "tackle", "sandAttack", "gust", "quickAttack", "sandAttack", "gust", "quickAttack", "whirlwind", "twister", "featherDance", "agility", "wingAttack", "roost", "tailwind", "mirrorMove", "airSlash", "hurricane" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -509,7 +512,7 @@ pokemonData = {
     },
     arbok = {
         name = "ARBOK", dex = 24, type = "poison", type2 = nil,
-        baseHP = 60, baseAtk = 85, baseDef = 69, baseSpA = 65, baseSpD = 79, baseSpe = 80, baseExp = 157,
+        baseHP = 60, baseAtk = 85, baseDef = 69, baseSpA = 65, baseSpD = 79, baseSpe = 80, baseExp = 153,
         moves = { "iceFang", "thunderFang", "fireFang", "wrap", "leer", "poisonSting", "bite", "poisonSting", "bite", "glare", "screech", "acid", "crunch", "stockpile", "swallow", "spitUp", "acidSpray", "mudBomb", "gastroAcid", "haze", "coil", "gunkShot" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -540,7 +543,7 @@ pokemonData = {
     },
     pikachu = {
         name = "PIKACHU", dex = 25, type = "electric", type2 = nil,
-        baseHP = 35, baseAtk = 55, baseDef = 30, baseSpA = 50, baseSpD = 40, baseSpe = 90, baseExp = 112,
+        baseHP = 35, baseAtk = 55, baseDef = 30, baseSpA = 50, baseSpD = 40, baseSpe = 90, baseExp = 105,
         moves = { "growl", "thunderShock", "tailWhip", "thunderWave", "quickAttack", "electroBall", "doubleTeam", "slam", "thunderbolt", "feint", "agility", "discharge", "lightScreen", "thunder" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -563,7 +566,7 @@ pokemonData = {
     },
     raichu = {
         name = "RAICHU", dex = 26, type = "electric", type2 = nil,
-        baseHP = 60, baseAtk = 90, baseDef = 55, baseSpA = 90, baseSpD = 80, baseSpe = 100, baseExp = 218,
+        baseHP = 60, baseAtk = 90, baseDef = 55, baseSpA = 90, baseSpD = 80, baseSpe = 100, baseExp = 214,
         moves = { "thunderShock", "tailWhip", "quickAttack", "thunderbolt" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -675,7 +678,7 @@ pokemonData = {
     },
     nidoqueen = {
         name = "NIDOQUEEN", dex = 31, type = "poison", type2 = "ground",
-        baseHP = 90, baseAtk = 82, baseDef = 87, baseSpA = 75, baseSpD = 85, baseSpe = 76, baseExp = 227,
+        baseHP = 90, baseAtk = 82, baseDef = 87, baseSpA = 75, baseSpD = 85, baseSpe = 76, baseExp = 223,
         moves = { "scratch", "tailWhip", "doubleKick", "poisonSting", "chipAway", "bodySlam", "earthPower", "superpower" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -736,7 +739,7 @@ pokemonData = {
     },
     nidoking = {
         name = "NIDOKING", dex = 34, type = "poison", type2 = "ground",
-        baseHP = 81, baseAtk = 92, baseDef = 77, baseSpA = 85, baseSpD = 75, baseSpe = 85, baseExp = 227,
+        baseHP = 81, baseAtk = 92, baseDef = 77, baseSpA = 85, baseSpD = 75, baseSpe = 85, baseExp = 223,
         moves = { "peck", "focusEnergy", "doubleKick", "poisonSting", "chipAway", "thrash", "earthPower", "megahorn" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -783,7 +786,7 @@ pokemonData = {
     },
     clefable = {
         name = "CLEFABLE", dex = 36, type = "normal", type2 = nil,
-        baseHP = 95, baseAtk = 70, baseDef = 73, baseSpA = 85, baseSpD = 90, baseSpe = 60, baseExp = 217,
+        baseHP = 95, baseAtk = 70, baseDef = 73, baseSpA = 85, baseSpD = 90, baseSpe = 60, baseExp = 213,
         moves = { "sing", "doubleSlap", "minimize", "metronome" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -861,7 +864,7 @@ pokemonData = {
     },
     wigglytuff = {
         name = "WIGGLYTUFF", dex = 40, type = "normal", type2 = nil,
-        baseHP = 140, baseAtk = 70, baseDef = 45, baseSpA = 75, baseSpD = 50, baseSpe = 45, baseExp = 196,
+        baseHP = 140, baseAtk = 70, baseDef = 45, baseSpA = 75, baseSpD = 50, baseSpe = 45, baseExp = 191,
         moves = { "sing", "disable", "defenseCurl", "doubleSlap" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -965,7 +968,7 @@ pokemonData = {
     },
     vileplume = {
         name = "VILEPLUME", dex = 45, type = "grass", type2 = "poison",
-        baseHP = 75, baseAtk = 80, baseDef = 85, baseSpA = 100, baseSpD = 90, baseSpe = 50, baseExp = 221,
+        baseHP = 75, baseAtk = 80, baseDef = 85, baseSpA = 100, baseSpD = 90, baseSpe = 50, baseExp = 216,
         moves = { "megaDrain", "aromatherapy", "stunSpore", "poisonPowder", "petalDance", "solarBeam" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1100,7 +1103,7 @@ pokemonData = {
     },
     dugtrio = {
         name = "DUGTRIO", dex = 51, type = "ground", type2 = nil,
-        baseHP = 35, baseAtk = 80, baseDef = 50, baseSpA = 50, baseSpD = 70, baseSpe = 120, baseExp = 149,
+        baseHP = 35, baseAtk = 80, baseDef = 50, baseSpA = 50, baseSpD = 70, baseSpe = 120, baseExp = 142,
         moves = { "nightSlash", "triAttack", "scratch", "sandAttack", "growl", "growl", "astonish", "mudSlap", "magnitude", "bulldoze", "suckerPunch", "sandTomb", "mudBomb", "earthPower", "dig", "slash", "earthquake", "fissure" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1371,7 +1374,7 @@ pokemonData = {
     },
     poliwrath = {
         name = "POLIWRATH", dex = 62, type = "water", type2 = "fighting",
-        baseHP = 90, baseAtk = 85, baseDef = 95, baseSpA = 70, baseSpD = 90, baseSpe = 70, baseExp = 230,
+        baseHP = 90, baseAtk = 85, baseDef = 95, baseSpA = 70, baseSpD = 90, baseSpe = 70, baseExp = 225,
         moves = { "bubbleBeam", "hypnosis", "doubleSlap", "submission", "dynamicPunch", "mindReader", "circleThrow" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1422,7 +1425,7 @@ pokemonData = {
     },
     alakazam = {
         name = "ALAKAZAM", dex = 65, type = "psychic", type2 = nil,
-        baseHP = 55, baseAtk = 50, baseDef = 45, baseSpA = 135, baseSpD = 85, baseSpe = 120, baseExp = 225,
+        baseHP = 55, baseAtk = 50, baseDef = 45, baseSpA = 135, baseSpD = 85, baseSpe = 120, baseExp = 221,
         moves = { "teleport", "kinesis", "confusion", "confusion", "disable", "miracleEye", "allySwitch", "psybeam", "reflect", "telekinesis", "recover", "psychoCut", "calmMind", "psychic", "futureSight", "trick" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1567,7 +1570,7 @@ pokemonData = {
     },
     victreebel = {
         name = "VICTREEBEL", dex = 71, type = "grass", type2 = "poison",
-        baseHP = 80, baseAtk = 105, baseDef = 65, baseSpA = 100, baseSpD = 60, baseSpe = 70, baseExp = 221,
+        baseHP = 80, baseAtk = 105, baseDef = 65, baseSpA = 100, baseSpD = 60, baseSpe = 70, baseExp = 216,
         moves = { "stockpile", "swallow", "spitUp", "vineWhip", "sleepPowder", "sweetScent", "razorLeaf", "leafTornado", "leafStorm", "leafBlade" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1690,7 +1693,7 @@ pokemonData = {
     },
     golem = {
         name = "GOLEM", dex = 76, type = "rock", type2 = "ground",
-        baseHP = 80, baseAtk = 110, baseDef = 130, baseSpA = 55, baseSpD = 65, baseSpe = 45, baseExp = 223,
+        baseHP = 80, baseAtk = 110, baseDef = 130, baseSpA = 55, baseSpD = 65, baseSpe = 45, baseExp = 218,
         moves = { "tackle", "defenseCurl", "mudSport", "rockPolish", "mudSport", "rockPolish", "rockThrow", "magnitude", "steamroller", "rockBlast", "smackDown", "selfDestruct", "bulldoze", "stealthRock", "earthquake", "explosion", "doubleEdge", "stoneEdge", "heavySlam" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1877,7 +1880,7 @@ pokemonData = {
     },
     farfetchd = {
         name = "FARFETCHD", dex = 83, type = "normal", type2 = "flying",
-        baseHP = 52, baseAtk = 65, baseDef = 55, baseSpA = 58, baseSpD = 62, baseSpe = 60, baseExp = 132,
+        baseHP = 52, baseAtk = 65, baseDef = 55, baseSpA = 58, baseSpD = 62, baseSpe = 60, baseExp = 123,
         moves = { "poisonJab", "peck", "sandAttack", "leer", "furyCutter", "furyAttack", "knockOff", "aerialAce", "slash", "airCutter", "swordsDance", "agility", "nightSlash", "acrobatics", "feint", "falseSwipe", "airSlash", "braveBird" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -1926,7 +1929,7 @@ pokemonData = {
     },
     dodrio = {
         name = "DODRIO", dex = 85, type = "normal", type2 = "flying",
-        baseHP = 60, baseAtk = 110, baseDef = 70, baseSpA = 60, baseSpD = 60, baseSpe = 100, baseExp = 165,
+        baseHP = 60, baseAtk = 110, baseDef = 70, baseSpA = 60, baseSpD = 60, baseSpe = 100, baseExp = 161,
         moves = { "pluck", "peck", "growl", "quickAttack", "rage", "quickAttack", "rage", "furyAttack", "pursuit", "uproar", "acupressure", "triAttack", "agility", "drillPeck", "endeavor", "thrash" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -2336,7 +2339,7 @@ pokemonData = {
     },
     electrode = {
         name = "ELECTRODE", dex = 101, type = "electric", type2 = nil,
-        baseHP = 60, baseAtk = 50, baseDef = 70, baseSpA = 80, baseSpD = 80, baseSpe = 140, baseExp = 172,
+        baseHP = 60, baseAtk = 50, baseDef = 70, baseSpA = 80, baseSpD = 80, baseSpe = 140, baseExp = 168,
         moves = { "charge", "tackle", "sonicBoom", "spark", "tackle", "sonicBoom", "spark", "rollout", "screech", "chargeBeam", "lightScreen", "electroBall", "selfDestruct", "swift", "magnetRise", "gyroBall", "explosion", "mirrorCoat" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -2387,7 +2390,7 @@ pokemonData = {
     },
     exeggutor = {
         name = "EXEGGUTOR", dex = 103, type = "grass", type2 = "psychic",
-        baseHP = 95, baseAtk = 95, baseDef = 85, baseSpA = 125, baseSpD = 65, baseSpe = 55, baseExp = 186,
+        baseHP = 95, baseAtk = 95, baseDef = 85, baseSpA = 125, baseSpD = 65, baseSpe = 55, baseExp = 182,
         moves = { "seedBomb", "barrage", "hypnosis", "confusion", "stomp", "psyshock", "eggBomb", "woodHammer", "leafStorm" },
         -- BEGIN B2W2 LEARNSET
         learnset = {
@@ -3555,16 +3558,18 @@ function calcHP(base, level)
     return math.floor(((2 * base * level) / 100) + level + 10)
 end
 
--- XP required for each level (simplified medium-fast growth rate)
-function xpForLevel(level)
-    return math.floor(level * level * level)
+-- Deprecated global compatibility requires an explicit species. New code uses
+-- Pokemon:xpForLevel(level), preventing an accidental medium-fast fallback.
+function xpForLevel(level, species)
+    assert(type(species) == "string" and pokemonData[species], "xpForLevel requires an explicit species")
+    local group = Growth.species(pokemonData[species].dex)
+    return Growth.threshold(group, level)
 end
 
--- Base XP yield per species (real values from PokeAPI)
 function baseExpYield(species)
-    local data = pokemonData[species]
-    if not data or not data.baseExp or data.baseExp == 0 then return 50 end
-    return data.baseExp
+    assert(pokemonData[species], "Unknown species: " .. tostring(species))
+    local _, yield = Growth.species(pokemonData[species].dex)
+    return yield
 end
 
 Class("Pokemon")
@@ -3698,12 +3703,13 @@ function Pokemon:init(species, level)
     self.spe = calcStat(data.baseSpe, level)
     self.statStages = { atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 }
     self.status = nil       -- major: burn/poison/paralyze/sleep/freeze
-    self.statusTurns = 0    -- sleep counter (set when sleep is inflicted)
+    self.statusTurns = 0    -- remaining blocked sleep attempts
+    self.sleepDuration = 0  -- original Gen V sleep roll; restored on switching
     self.confusion = nil    -- volatile: remaining confused turns
     self.flinched = false   -- volatile: set by flinch effects, lasts one turn
     -- XP tracking
-    self.xp = xpForLevel(level)
-    self.xpToNext = xpForLevel(level + 1)
+    self.xp = self:xpForLevel(level)
+    self.xpToNext = self:xpForLevel(math.min(100, level + 1))
     self.moves = Pokemon.initialMovesFor(species, level)
     self.pp = {}
     self.pendingMoveChoices = {}
@@ -3735,11 +3741,23 @@ function Pokemon:resetStages()
     self.flinched = false
 end
 
+-- Actual party withdrawal, distinct from ordinary battle-exit cleanup.
+function Pokemon:onSwitchOut()
+    local duration
+    if self.status == "sleep" then
+        duration=type(self.sleepDuration)=="number" and math.tointeger(self.sleepDuration) or nil
+        assert(duration and duration>=1 and duration<=3,"invalid-sleep-duration")
+    end
+    self:resetStages()
+    if duration then self.statusTurns=duration else self.sleepDuration=0 end
+end
+
 function Pokemon:fullRestore()
     self:heal()
     self:resetStages()
     self.status = nil
     self.statusTurns = 0
+    self.sleepDuration = 0
     -- Restore all PP
     for _, moveKey in ipairs(self.moves) do
         local move = moveData[moveKey]
@@ -3762,30 +3780,45 @@ end
 -- Preserve legacy bool first return; structured second result gives new levels
 -- and learning choices. The queue remains until a UI/session owner resolves it.
 function Pokemon:gainXP(amount)
-    assert(type(amount) == "number" and amount == math.floor(amount) and amount >= 0 and amount < math.huge, "XP gain must be a nonnegative finite integer")
+    amount = type(amount) == "number" and math.tointeger(amount) or nil
+    assert(amount and amount >= 0, "XP gain must be a nonnegative native integer")
     local oldLevel = self.level
-    self.xp = self.xp + amount
-    local result = {fromLevel = oldLevel, toLevel = oldLevel, levels = {}, moveChoices = {}}
-    while self.xp >= self.xpToNext and self.level < 100 do
-        self.level = self.level + 1
-        self.xpToNext = xpForLevel(self.level + 1)
-        result.levels[#result.levels + 1] = self.level
+    local room = self:xpForLevel(100) - self.xp
+    local gained = self:isAlive() and math.min(amount, room) or 0
+    local targetXP = self.xp + gained -- Clamp BEFORE addition: native MAX is valid.
+    local targetLevel, levels = oldLevel, {}
+    while targetLevel < 100 and targetXP >= self:xpForLevel(targetLevel + 1) do
+        targetLevel = targetLevel + 1
+        levels[#levels + 1] = targetLevel
     end
-    result.toLevel = self.level
-    if self.level > oldLevel then
-        self:recalcStats()
-        for _, entry in ipairs(Pokemon.learnsetEntriesFor(self.species, oldLevel + 1, self.level)) do
-            local pending = false
-            for _, choice in ipairs(self.pendingMoveChoices) do if choice.move == entry.move then pending = true; break end end
-            if not self:hasMove(entry.move) and not pending then
-                moveDefinition(entry.move)
-                local choice = {id = self.nextMoveChoiceId, move = entry.move, level = entry.level,
-                    sourceOrder = entry.order, sourceMoveId = entry.id, reason = "level-up"}
-                self.nextMoveChoiceId = self.nextMoveChoiceId + 1
-                self.pendingMoveChoices[#self.pendingMoveChoices + 1] = choice
-                result.moveChoices[#result.moveChoices + 1] = copyChoice(choice)
-            end
+    -- Plan and validate every new choice before committing XP, stats or queue.
+    -- The next counter must remain representable after all allocations; MAX is
+    -- a valid exhausted counter, not permission to wrap to a negative ID.
+    local planned, seen = {}, {}
+    for _, key in ipairs(self.moves) do seen[key] = true end
+    for _, choice in ipairs(self.pendingMoveChoices) do seen[choice.move] = true end
+    for _, entry in ipairs(Pokemon.learnsetEntriesFor(self.species, oldLevel + 1, targetLevel)) do
+        if not seen[entry.move] then
+            moveDefinition(entry.move)
+            planned[#planned + 1] = entry
+            seen[entry.move] = true
         end
+    end
+    local nextId = math.tointeger(self.nextMoveChoiceId)
+    assert(nextId and nextId >= 1 and nextId <= 2147483647, "invalid-move-choice-counter")
+    assert(#planned <= 2147483647 - nextId, "move-choice-id-exhausted")
+    local result = {fromLevel = oldLevel, toLevel = targetLevel, levels = levels, moveChoices = {},
+        gained = gained, totalXP = targetXP, capped = gained < amount}
+    self.xp, self.level = targetXP, targetLevel
+    self.xpToNext = self:xpForLevel(math.min(100, targetLevel + 1))
+    if targetLevel > oldLevel then self:recalcStats() end
+    self.nextMoveChoiceId = nextId
+    for _, entry in ipairs(planned) do
+        local choice = {id = self.nextMoveChoiceId, move = entry.move, level = entry.level,
+            sourceOrder = entry.order, sourceMoveId = entry.id, reason = "level-up"}
+        self.nextMoveChoiceId = self.nextMoveChoiceId + 1
+        self.pendingMoveChoices[#self.pendingMoveChoices + 1] = choice
+        result.moveChoices[#result.moveChoices + 1] = copyChoice(choice)
     end
     return self.level > oldLevel, result
 end
@@ -3803,11 +3836,19 @@ function Pokemon:recalcStats()
     self.spe = calcStat(data.baseSpe, self.level)
 end
 
--- Calculate XP earned from defeating an enemy.
--- B2W2 reverted to the flat formula: (baseExp * defeatedLevel) / 7
--- (single participant, wild battle, no modifiers)
-function Pokemon:calcExpGain(defeated)
-    local b = baseExpYield(defeated.species)
-    local L = defeated.level
-    return math.max(1, math.floor((b * L) / 7))
+-- Species-aware thresholds, including level 1 = 0 and level 100 maximum.
+function Pokemon:xpForLevel(level)
+    return xpForLevel(level, self.species)
+end
+
+-- Conscious participants share the base before recipient scaling; original OT,
+-- no held/item/Pass Power boosts. Omitted count preserves single-member callers.
+-- Eligibility/cap return the actual amount that gainXP can accept.
+function Pokemon:calcExpGain(defeated, trainerBattle, participants)
+    assert(type(trainerBattle) == "boolean", "calcExpGain requires trainer battle flag")
+    participants = participants == nil and 1 or (type(participants)=="number" and math.tointeger(participants))
+    assert(participants and participants>=1 and participants<=6,"invalid conscious participant count")
+    if not self:isAlive() or self.level == 100 then return 0 end
+    return math.min(self:xpForLevel(100) - self.xp,
+        Growth.battleAward(baseExpYield(defeated.species), defeated.level, self.level, trainerBattle, participants))
 end

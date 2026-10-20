@@ -28,6 +28,7 @@ function BattleScene:init(battle)
     self.mainMenu = BattleMenu()
     self.moveMenu = BattleMenu()
     self.inMoveSelect = false
+    self.selectionRequest, self.selectionOpen = nil, false
     -- Intro transition
     self.introTimer = 0
     self.introPhase = "iris_in" -- iris_in → ready
@@ -35,9 +36,47 @@ function BattleScene:init(battle)
     self.introDrawing = true
 end
 
+function BattleScene:mainOptions()
+    if self.battle.party or self.battle.session then return {"FIGHT", "BAG", "POKEMON", "RUN"} end
+    return {"FIGHT", "RUN"} -- Existing single-mon callers retain their menu.
+end
+
+function BattleScene:requestSelection(kind)
+    if self.selectionRequest or self.selectionOpen then return false,"selection-open" end
+    local ok,problem=self.battle:beginSelection(kind)
+    if not ok then return false,problem end
+    self.selectionRequest={kind=kind,forced=self.battle:needsForcedSwitch()}
+    self.selectionOpen=true
+    self.inMoveSelect=false
+    self.mainMenu:hide();self.moveMenu:hide()
+    return true
+end
+
+-- Owner takes each request exactly once, then owns its actual overlay lifecycle.
+function BattleScene:takeSelectionRequest()
+    local request=self.selectionRequest
+    self.selectionRequest=nil
+    return request
+end
+
+function BattleScene:completeSelection(cancelled)
+    if cancelled then
+        local ok,problem=self.battle:cancelSelection()
+        if not ok then return false,problem end
+    elseif self.battle.selectionKind then return false,"selection-unresolved" end
+    self.selectionRequest,self.selectionOpen=nil,false
+    self.mainMenu:hide();self.moveMenu:hide();self.inMoveSelect=false
+    if not self.battle.isFlashing then self.flashHide=false end
+    if self.battle.shakeTimer<=0 then self.shakeX,self.shakeY=0,0 end
+    return true
+end
+
 function BattleScene:enter()
-    self.mainMenu:show({"FIGHT", "RUN"}, function(index)
-        if index == 1 then
+    local options=self:mainOptions()
+    self.mainMenu.columns=#options==4 and 2 or 1
+    self.mainMenu:show(options, function(index)
+        local choice=options[index]
+        if choice == "FIGHT" then
             if self.battle:needsStruggle() then
                 if self.battle:selectStruggle() then
                     self.inMoveSelect = false
@@ -78,17 +117,22 @@ function BattleScene:enter()
                 -- Cancel: back to main menu
                 self.inMoveSelect = false
                 self.moveMenu:hide()
-                self.mainMenu:show({"FIGHT", "RUN"}, self.mainMenu.onSelect, nil)
+                self.mainMenu:show(self:mainOptions(), self.mainMenu.onSelect, nil)
             end)
-        elseif index == 2 then
-            -- Run
+        elseif choice == "RUN" then
             if self.battle:tryRun() then self.mainMenu:hide() end
+        elseif choice == "BAG" then
+            self:requestSelection("bag")
+        elseif choice == "POKEMON" then
+            self:requestSelection("party")
         end
     end, nil)
 end
 
 function BattleScene:handleInput()
     if self.introPhase ~= "ready" or self.introDrawing then return end
+    if self.battle:needsForcedSwitch() then self:requestSelection("party");return end
+    if self.selectionOpen then return end
 
     local flashTimer, isFlashing = self.battle.flashTimer, self.battle.isFlashing
     local shakeTimer, shakeIntensity = self.battle.shakeTimer, self.battle.shakeIntensity
@@ -165,6 +209,7 @@ function BattleScene:update()
 
     end
     self:updateEffects(true, not self.introDrawing)
+    if not self.introDrawing and self.battle:needsForcedSwitch() then self:requestSelection("party") end
 end
 
 -- Called once per simulation update, and for newly-created effects after input.
@@ -208,7 +253,7 @@ function BattleScene:draw()
         return
     end
 
-    playdate.display.setOffset(self.shakeX or 0, self.shakeY or 0)
+    playdate.display.setOffset(self.selectionOpen and 0 or (self.shakeX or 0), self.selectionOpen and 0 or (self.shakeY or 0))
 
     self:drawBattleField()
 end
@@ -280,8 +325,8 @@ function BattleScene:drawBattleField()
     local hpTextW, _ = gfx.getTextSize(hpText)
     gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
     -- XP gauge
-    local xpCurrent = player.xp - xpForLevel(player.level)
-    local xpNeeded = player.xpToNext - xpForLevel(player.level)
+    local xpCurrent = player.xp - player:xpForLevel(player.level)
+    local xpNeeded = player.xpToNext - player:xpForLevel(player.level)
     local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
     gfx.drawRect(pBoxX + 6, pBoxY + 52, pBoxW - 12, 6)
     local xpFill = math.floor(xpRatio * (pBoxW - 14))
@@ -307,7 +352,8 @@ function BattleScene:drawBattleField()
         if self.inMoveSelect then
             self.moveMenu:draw(4, boxY + 4, 392, 52)
         else
-            self.mainMenu:draw(300, boxY + 4, 96, 52)
+            if #self:mainOptions()==4 then self.mainMenu:draw(204, boxY + 4, 192, 52)
+            else self.mainMenu:draw(300, boxY + 4, 96, 52) end
         end
     else
         -- Word-wrapped inside the frame so long messages never escape

@@ -6,50 +6,72 @@ owned task handoffs before changing files. Do not repeat the original audit.
 
 ## Current checkout / next continuation
 
-Harness checkpoint: `b53566d`. Foundation checkpoint: `75b7d05`, with durable
-[acceptance evidence](accepted-foundations/acceptance.json).
-**Do not reapply the old learnset, party or save patches.**
+Committed checkpoints: harness `b53566d`, foundations `75b7d05`, battle-art
+provenance `a4e2f03` (HEAD before the next checkpoint). Later Source is integrated
+and independently tested. **Do not reapply historical foundation/bridge/party/
+slice/followup/catalog patches over current code.**
 
-- All 151 ordered B2W2 learnsets (2,184 events), real level initialization and
-  move choices are live. Charm/Psywave/Storm Throw are implemented; Struggle is
-  now a generated runtime-only fallback (423 move records total).
-- Party/Storage/Inventory models are integrated and SDK-tested, but the live
-  GameContext still owns one `playerPokemon`; full session/party/menu/capture
-  integration is outstanding.
-- Move-learning overlay is wired after battle return. Seven-job UI/intro suite
-  passed at `/private/tmp/pokemon-learning-integration-suite-01` (55 SDK cases,
-  14 native captures inspected, exact clean-screen return). A real XP-awarding
-  battle also passed `/private/tmp/pokemon-battle-learning-02`. The first probe
-  exposed/fixed a host one-based array-path lookup bug; game learning was correct.
-- Combat PP/Struggle/status/faint ordering and terminal observer cleanup are
-  implemented. All 27 new SDK cases passed. Native three-job combat suite is
-  passed at `/private/tmp/pokemon-combat-journeys-01`; root inspected eight native
-  display captures covering exhausted/partial PP, poison, escape, simultaneous
-  faint victory and blackout restoration.
-- Pokémon codec and two-slot SaveStore are live primitives, **not** aggregate
-  game save/Continue. Real SDK JSON decoding rounded numeric 2147483647 to float
-  2147483648. Decimal text now preserves full counter bounds. Raw numeric RNG
-  snapshots are in-memory only; `toData`/`restoreData` are the persistence seam.
-- Latest root SDK execution: **112/112 passed**, including 16 persistence and
-  14 RNG serialization cases, at `/private/tmp/pokemon-persistence-rng-contracts-02`.
-  All 915 protected visual artifacts compare exactly. The earlier red sequence
-  probe and diagnostic remain under `/private/tmp/pokemon-save-*probe-01` and
-  `/private/tmp/pokemon-combat-save-contracts-01`.
-- World adapter is still staged only: `/private/tmp/pokemon-world-foundation/`
-  has a nine-file patch, manifest, README and `validate_staged.py`. It overlays
-  only owned files onto current source and qualifies 12 SDK cases + pilot PNGs.
-  Root executed `/private/tmp/pokemon-world-contracts-01`: all 124 aggregate
-  contracts passed. **Visual acceptance failed:** Route1 has 148,176 differing
-  pixels and Mart 11,533 against independent previews. Root inspected both pairs;
-  native shade patterns differ. Diagnose before integration, without modifying
-  protected rendering or blessing a replacement golden. Player/Story/reset
-  integration hooks are in README.
+Latest root integrated acceptance: **244/244 SDK contracts,14/14 native jobs**,
+all same source hash, `/private/tmp/pokemon-session-party-integrated-suite-01`.
+It covers field party/stats/bag/medicine, voluntary sleep reset and forced switch,
+successful/failed capture commands, checkpoint blackout, overlays,41 protocol
+fault cases, all3 natural starter intros and actual two-process Save/Continue.
+Root inspected native menus, stats, capture/forced-switch scenes and Continue.
+Original915 visual artifacts remain EXACT. Current catalog adds292 valid but
+explicitly unreviewed artifacts; full installed four-map catalog remains pending.
+Durable evidence: [accepted-session-gameplay](accepted-session-gameplay/acceptance.json).
+212 host tests passed at the combined run; subsequent added generators have
+separate check-only proofs.
 
-Root retains sole Simulator ownership. Current worker Source is frozen pending
-root native/world tests. Follow-ups must explicitly release owned files.
-Next: resolve pilot render differences, qualify/integrate world adapter, then compose
-persistent session state/Save/Continue and actual party/inventory/capture UI.
-The complete campaign/postgame goal remains active.
+Live Source includes authoritative GameSession/SessionCodec, lossless saves/RNG/
+integer command transport, correct B2W2 learnsets/growth/participant XP,423 moves
+with pinned target metadata, Party/Storage/Inventory/items, PokemonCodec3 with
+original sleepDuration, player/enemy-team battle seams, capture rules and actual
+party/bag selection overlays. `game.playerPokemon` is gone: use getPlayerPokemon().
+Story delegates session tuples; trainer flags have stable IDs. B opens field menu.
+No-save boot retains Oak opening; existing save opens Continue/New Game. Initial
+money3000, empty party/bag, bedroom checkpoint. General blackout uses checkpoint;
+intro rival keeps lab exception. All pending party learning queues are drained.
+
+Source-backed world registry/views/deltas and four-map Viridian modules are live,
+but four new maps are NOT registered/connected yet. Source followup fixes full-bag
+entry movement, idempotent sprite install, defensive binding flags and10 simple
+local dialogue handlers. Registry-aware catalog is applied; do not register its
+coverage tests until production maps are installed. Root separately proved96 new
+source sprite/mask/terrain comparisons exact and inspected City/Mart/Center
+composites: `accepted-viridian-art/`, runtime `/private/tmp/pokemon-viridian-slice-runtime-02`.
+Preserve original render calls; only new imported tiles/NPCs use explicit phase0.
+
+Known capture presentation gap: caught enemy remains visible behind result text.
+Rules/ownership commands passed; animation acceptance is NOT claimed. Original-art
+throw/absorb/shake/breakout/caught scene is staged for root next.
+
+Runtime ownership: root alone launches/owns Simulator/private Data. **Current
+single native job** is staged Shop UI, exec session77477, output
+`/private/tmp/pokemon-shop-ui-runtime-01`. Poll/finish before another launch.
+No other Simulator job is active. All workers remain explicit Sol6.1/medium.
+
+Pending staged work (do NOT overwrite root main/UI with old staging trees):
+
+- `/private/tmp/pokemon-shop-ui`: two new Source modules,12 SDK groups; running.
+- `/private/tmp/pokemon-event-ui`: five new Source files,16 SDK groups, pinned7
+  event images; root helper uses current SliceEvents7e2c... and optional staged
+  ShopState only if absent. Actual Oak/Blue motion/receipt/heal review pending.
+- `/private/tmp/pokemon-kanto-traversal`: worker still implementing source
+  connections/ledges/entry/counters/install, preserving root pause/B policy.
+- `/private/tmp/pokemon-capture-animation`: Scene/module/data/9 PNGs,13 SDK groups,
+  three native scenarios. Root must add scene:exit and capture_animation snapshot.
+- Event-art catalog extension/profiling probe is staged by visual worker.
+- Host parcel journey/scenarios are live but dispatch is a separate patch
+  `tools/harness/parcel_dispatch.patch`; natural journey not run yet.
+
+Fixture party_pokemon/inventory/quest_flags and sleep_duration are implemented
+and native-tested. Read harness/scenario files for exact schema. Diagnostics
+include session.{party,inventory,flags,checkpoint}, top-level party/inventory
+aliases, pause/title/party_ui/bag, maxPP, battle selection/capture result and menu
+options/columns. Event/shop/traversal snapshots still need owner wiring.
+
+The complete campaign/postgame objective is active. No physical-device claim.
 
 ## Accepted milestone: harness and protected references
 
@@ -145,9 +167,9 @@ Follow-ups reuse those exact workers. Never silently inherit or substitute.
 
 | Worker | Current handoff / allowed scope |
 |---|---|
-| `harness` | Lossless integer protocol host changes live; runtime patch staged. Next diagnose pilot preview/native mismatch. World adapter remains staged. |
-| `rules_contracts` | Prior foundations integrated and validated; now growth/XP research and staged implementation at `/private/tmp/pokemon-growth-foundation`. No live Source edits. |
-| `visual_catalog` | Prior party/save foundations integrated; now tracing all 302 battle PNGs against pinned originals. No Source art edits. |
+| `harness` | Source slice/followup and host parcel driver delivered. Now stages Kanto traversal/install/ledges/connections; no live Source edits. Portable Viridian generator checks all6 current JSONs exactly. |
+| `rules_contracts` | Party/capture rules integrated; capture animation frozen at `/private/tmp/pokemon-capture-animation`, native proof pending. |
+| `visual_catalog` | Session bridge/restart/catalog delivered; Shop native job running, Event UI frozen, event-art catalog followup/profiling probe underway. |
 
 Shared checkout uses disjoint ownership. No worker runs the Simulator. Root must
 review diffs, apply only owned staged files, run integrated SDK contracts and
@@ -155,25 +177,29 @@ inspect resulting images before accepting implementation.
 
 ## Next executable work
 
-1. Accepted foundations are committed at `75b7d05`; keep subsequent changes
-   separate until integrated checks and visual review pass.
-2. Integrate/qualify lossless harness integer wire transport with real SDK large
-   positive/negative seed and assertion cases.
-3. Diagnose pilot preview/native discrepancy; validate world adapter and integrate
-   only its nine owned files plus root Story/Player/reset seams. Rerun catalog and
-   natural intros. Never reapply historical learnset/party/save patches.
-4. Compose authoritative GameSession, aggregate codec, Save/Continue and actual
-   party/storage/inventory UI. Primitives and codec alone are not gameplay.
-5. Integrate independently sourced growth/XP and remaining special move behavior;
-   connect capture, switching, multi-member battles, healing and checkpoint rules.
-6. Bind Route 1 and Viridian gameplay, padding/camera, NPCs, parcel/shop quests and
-   exact connections; preserve authored Pallet and validate natural play/save.
-7. Continue connected campaign milestones through Champion/credits/postgame.
+1. Poll Shop SDK job77477, inspect/review and apply only owned modules, register
+   shop state/contract/snapshot. Run staged Event UI next, review source assets and
+   BLUE arrival/departure motion; apply guarded operations only after proof.
+2. Run capture-animation SDK+three native scenarios. Root integrates scene exit
+   cleanup and snapshot; verify early input can't skip animation or spend RNG.
+3. Integrate staged Kanto traversal and event-art catalog, register maps with
+   explicit slice save-location whitelist before GameSaves startup. Preserve
+   authored Pallet±1, Route1/City±10, edge-down interior usability; no unsupported
+   generic Center/later-Mart auto-step. Continue must not replay entry scripts.
+4. Wire EventState/source NPC/counter/background interactions and entry scripts;
+   source text/state for Oak parcel/Pokedex actor scene, shop and healing outdoor
+   checkpoint. Full bag must retry; no receipt claim before atomic commit.
+5. Run natural intro→Mart parcel→Oak→shop/heal/save plus supplementary full-bag/
+   old-man/checkpoint scenarios; review expanded catalog and native ledge/capture/
+   cutscene motion. Source slice readiness is not complete campaign readiness.
+6. Commit accepted checkpoints/evidence and keep ledger current. Before bulk map
+   expansion, measure retained heap/startup/map-entry and determine lazy loading
+   needs. Continue Pallet–Brock and every campaign/postgame milestone; don't stop.
 
 | Full-goal milestone | Status |
 |---|---|
 | Harness and protected references | Accepted with evidence above |
-| Domain/data/party/items/save foundations | Integrated primitives/learning/combat; session and gameplay integration pending |
+| Domain/data/party/items/save foundations | Native session/save/menus/party/capture commands accepted; capture presentation pending |
 | Pallet–Brock coherent campaign | Pending |
 | Mt. Moon–Cerulean–S.S. Anne | Pending |
 | Connected midgame Kanto | Pending |

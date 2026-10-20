@@ -44,7 +44,7 @@ local function exitContext(player, enemy)
     -- Actual context/controller, with a minimal world State callback instead
     -- of rebuilding the global map while a contract command is executing.
     local game = GameContext()
-    game.playerPokemon = player
+    assert(game:recruit(player))
     local entry
     game.machine:register("overworld", {enter = function(_, options) entry = options end})
     game.machine:register("learning", LearningState(game))
@@ -58,10 +58,8 @@ end
 function CombatContracts.run()
     local rng = RulesRNG.snapshot()
     local offsetX, offsetY = playdate.display.getOffset()
-    local storyStage, rivalOutcome = Story.stage, Story.rivalOutcome
     local report = {ok = true, passed = 0, failed = 0, tests = {}}
     local function test(name, fn)
-        Story.stage = "done"
         local ok, problem = pcall(fn)
         report.tests[#report.tests + 1] = {name = name, ok = ok, error = not ok and tostring(problem) or nil}
         if ok then report.passed = report.passed + 1 else report.failed = report.failed + 1; report.ok = false end
@@ -114,7 +112,7 @@ function CombatContracts.run()
 
     test("Sleep blocks every remaining turn including0 boundary, then wakes and spends PP", function()
         local b = fresh(); own(b.player, {"growl"}, 4)
-        b.player.status, b.player.statusTurns = "sleep", 1
+        b.player.status, b.player.statusTurns, b.player.sleepDuration = "sleep", 1, 1
         one(b, "player", "growl")
         equal(b.player.status, "sleep"); equal(b.player.statusTurns, 0); equal(b.player.pp.growl, 4)
         local text = one(b, "player", "growl")
@@ -125,7 +123,7 @@ function CombatContracts.run()
     test("Sleep, freeze, flinch, paralysis and confusion skips do not spend PP", function()
         for _, gate in ipairs({"sleep", "freeze", "flinch", "paralyze", "confusion"}) do
             local b = fresh(); own(b.player, {"growl"}, 4)
-            if gate == "sleep" then b.player.status, b.player.statusTurns = "sleep", 2
+            if gate == "sleep" then b.player.status, b.player.statusTurns, b.player.sleepDuration = "sleep", 2, 2
             elseif gate == "flinch" then b.player.flinched = true
             elseif gate == "confusion" then b.player.confusion = 1; RulesRNG.seed(1)
             elseif gate == "freeze" then b.player.status = "freeze"; RulesRNG.seed(seedFor(1, 5, function(x) return x > 1 end))
@@ -137,7 +135,7 @@ function CombatContracts.run()
 
     test("BeforeMove priority counts sleep before flinch and confusion before paralysis", function()
         local b = fresh(); own(b.player, {"growl"}, 4)
-        b.player.status, b.player.statusTurns, b.player.flinched = "sleep", 1, true
+        b.player.status, b.player.statusTurns, b.player.flinched, b.player.sleepDuration = "sleep", 1, true, 1
         one(b, "player", "growl")
         equal(b.player.statusTurns, 0); equal(b.player.flinched, true); equal(b.player.pp.growl, 4)
         one(b, "player", "growl")
@@ -284,7 +282,10 @@ function CombatContracts.run()
     end)
 
     test("Residuals resolve by poison/burn priority, speed and first fatal event", function()
-        local b = fresh(); b.player.status, b.enemy.status = "burn", "poison"
+        -- Level 100 isolates residual ordering from victory XP's legitimate
+        -- level-up HP increase; progression has separate production contracts.
+        local b = fresh(Pokemon("charmander", 100), Pokemon("squirtle", 100))
+        b.player.status, b.enemy.status = "burn", "poison"
         b.player.hp, b.enemy.hp = 1, 1
         b:runScript(function() return b:endOfRoundStatus() end); settle(b)
         equal(b.outcome, "victory"); equal(b.enemy.hp, 0); equal(b.player.hp, 1, "battle ends before later burn event")
@@ -314,7 +315,7 @@ function CombatContracts.run()
         local ok, problem = pcall(function()
             local game = GameContext()
             local p, e = Pokemon("charmander", 100), Pokemon("magikarp", 1)
-            game.playerPokemon = p
+            assert(game:recruit(p))
             game.machine:register("overworld", {})
             game.machine:register("learning", LearningState(game))
             local owner = BattleState(game)
@@ -364,6 +365,7 @@ function CombatContracts.run()
         for _, status in ipairs({"poison", "burn", "paralyze", "freeze", "sleep"}) do
             local p, e = Pokemon("charmander", 5), Pokemon("squirtle", 5)
             p.status, p.statusTurns, p.confusion, p.flinched, p.statStages.atk = status, 0, 2, true, -6
+            p.sleepDuration = status == "sleep" and 3 or 0
             e.confusion, e.flinched, e.statStages.def = 2, true, 6
             local game, state, entry = exitContext(p, e)
             state:finish(false, "run")
@@ -377,13 +379,15 @@ function CombatContracts.run()
     test("Blackout restores supported player even when terminal narrative is victory", function()
         local p, e = Pokemon("charmander", 5), Pokemon("squirtle", 5)
         p.hp, p.status, p.statusTurns, p.pp.scratch = 0, "sleep", 0, 0
+        p.sleepDuration = 3
         local game, state, entry = exitContext(p, e)
         local npc = NPC(1000, 1000, "TEST", {}, nil, "rival"); npc:remove(); npc.def = {}
-        state.npc = npc; Story.stage = "rival_fight"
+        npc:bindSession(game,"contract:terminal-trainer")
+        state.npc = npc; assert(game.session:setIntro({stage="rival_fight",starter="charmander",rivalStarter="squirtle"}))
         local xp = p.xp
         state:finish(true, "victory")
-        equal(npc.interacted, true); equal(npc.def.interacted, true); equal(Story.rivalOutcome, true)
-        equal(Story.stage, "goodbye"); equal(entry().respawn, true)
+        equal(npc.interacted, true); equal(npc.def.interacted, nil); equal(game.session:trainerDefeated("contract:terminal-trainer"), true); equal(Story.get(game).rivalOutcome, true)
+        equal(Story.get(game).stage, "goodbye"); equal(entry().respawn, true)
         equal(p.hp, p.maxHP); equal(p.status, nil); equal(p.statusTurns, 0); equal(p.pp.scratch, moveData.scratch.maxPP)
         equal(p.xp, xp, "blackout must not fabricate XP"); equal(game.machine:getCurrent(), "overworld")
         equal(game.lastBattleOutcome.kind, "victory"); equal(game.lastBattleOutcome.won, true)
@@ -407,7 +411,6 @@ function CombatContracts.run()
         equal(b.enemy.status, "poison"); equal(b.enemy.statusTurns, 0)
     end)
 
-    Story.stage, Story.rivalOutcome = storyStage, rivalOutcome
     RulesRNG.restore(rng)
     playdate.display.setOffset(offsetX, offsetY)
     return report

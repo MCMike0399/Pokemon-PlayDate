@@ -1,0 +1,1593 @@
+{
+  "oracle": "Independent Fraction/Decimal, all64 parameter vectors cross-checked against primary Dragonfly Q12 calculator snapshot",
+  "parameters": [
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 150,
+      "rate": 3,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 4096,
+        "shakeThreshold": 16400,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 25,
+      "rate": 190,
+      "hp": 1,
+      "maxHP": 137,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 113,
+      "rate": 30,
+      "hp": 101,
+      "maxHP": 201,
+      "ball": "ultraBall",
+      "status": "paralyze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 245148,
+        "shakeThreshold": 45613,
+        "criticalThreshold": 9
+      }
+    },
+    {
+      "dex": 1,
+      "rate": 45,
+      "hp": 21,
+      "maxHP": 22,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 100538,
+        "shakeThreshold": 36501,
+        "criticalThreshold": 2
+      }
+    },
+    {
+      "dex": 129,
+      "rate": 255,
+      "hp": 1,
+      "maxHP": 20,
+      "ball": "ultraBall",
+      "status": "freeze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 140,
+      "rate": 45,
+      "hp": 7629,
+      "maxHP": 63831,
+      "ball": "greatBall",
+      "status": "burn",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 381675,
+        "shakeThreshold": 50955,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 28,
+      "rate": 90,
+      "hp": 4561,
+      "maxHP": 9442,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 937215,
+        "shakeThreshold": 63791,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 55,
+      "rate": 75,
+      "hp": 16075,
+      "maxHP": 52158,
+      "ball": "greatBall",
+      "status": "burn",
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 549182,
+        "shakeThreshold": 55807,
+        "criticalThreshold": 11
+      }
+    },
+    {
+      "dex": 33,
+      "rate": 120,
+      "hp": 17941,
+      "maxHP": 35416,
+      "ball": "pokeBall",
+      "status": "sleep",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 813810,
+        "shakeThreshold": 61567,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 146,
+      "rate": 3,
+      "hp": 1814,
+      "maxHP": 4282,
+      "ball": "pokeBall",
+      "status": "paralyze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 13226,
+        "shakeThreshold": 21984,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 27,
+      "rate": 255,
+      "hp": 18970,
+      "maxHP": 36814,
+      "ball": "ultraBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 129,
+      "rate": 255,
+      "hp": 9232,
+      "maxHP": 18584,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 43,
+      "rate": 255,
+      "hp": 9491,
+      "maxHP": 19538,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 27,
+      "rate": 255,
+      "hp": 6491,
+      "maxHP": 23466,
+      "ball": "pokeBall",
+      "status": "poison",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 26,
+      "rate": 75,
+      "hp": 8387,
+      "maxHP": 14926,
+      "ball": "greatBall",
+      "status": "poison",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 432273,
+        "shakeThreshold": 52562,
+        "criticalThreshold": 17
+      }
+    },
+    {
+      "dex": 127,
+      "rate": 45,
+      "hp": 15307,
+      "maxHP": 31576,
+      "ball": "pokeBall",
+      "status": "paralyze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 187127,
+        "shakeThreshold": 42635,
+        "criticalThreshold": 3
+      }
+    },
+    {
+      "dex": 100,
+      "rate": 190,
+      "hp": 35966,
+      "maxHP": 49129,
+      "ball": "pokeBall",
+      "status": "burn",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 597632,
+        "shakeThreshold": 56992,
+        "criticalThreshold": 24
+      }
+    },
+    {
+      "dex": 131,
+      "rate": 45,
+      "hp": 3845,
+      "maxHP": 53557,
+      "ball": "greatBall",
+      "status": "freeze",
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 658118,
+        "shakeThreshold": 58393,
+        "criticalThreshold": 13
+      }
+    },
+    {
+      "dex": 95,
+      "rate": 45,
+      "hp": 8239,
+      "maxHP": 13131,
+      "ball": "pokeBall",
+      "status": "freeze",
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 268048,
+        "shakeThreshold": 46643,
+        "criticalThreshold": 5
+      }
+    },
+    {
+      "dex": 38,
+      "rate": 75,
+      "hp": 50063,
+      "maxHP": 60196,
+      "ball": "ultraBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 684373,
+        "shakeThreshold": 58957,
+        "criticalThreshold": 13
+      }
+    },
+    {
+      "dex": 57,
+      "rate": 75,
+      "hp": 19407,
+      "maxHP": 33951,
+      "ball": "ultraBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 380265,
+        "shakeThreshold": 50907,
+        "criticalThreshold": 7
+      }
+    },
+    {
+      "dex": 76,
+      "rate": 45,
+      "hp": 4366,
+      "maxHP": 8961,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 186675,
+        "shakeThreshold": 42608,
+        "criticalThreshold": 7
+      }
+    },
+    {
+      "dex": 68,
+      "rate": 45,
+      "hp": 20048,
+      "maxHP": 54916,
+      "ball": "pokeBall",
+      "status": "poison",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 209190,
+        "shakeThreshold": 43840,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 93,
+      "rate": 90,
+      "hp": 16520,
+      "maxHP": 17512,
+      "ball": "pokeBall",
+      "status": "burn",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 205202,
+        "shakeThreshold": 43633,
+        "criticalThreshold": 4
+      }
+    },
+    {
+      "dex": 3,
+      "rate": 45,
+      "hp": 5708,
+      "maxHP": 29721,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 160720,
+        "shakeThreshold": 41045,
+        "criticalThreshold": 6
+      }
+    },
+    {
+      "dex": 60,
+      "rate": 255,
+      "hp": 27494,
+      "maxHP": 43094,
+      "ball": "pokeBall",
+      "status": "freeze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 20,
+      "rate": 127,
+      "hp": 10122,
+      "maxHP": 17338,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 29,
+      "rate": 235,
+      "hp": 232,
+      "maxHP": 664,
+      "ball": "pokeBall",
+      "status": "burn",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 82,
+      "rate": 60,
+      "hp": 23464,
+      "maxHP": 35862,
+      "ball": "ultraBall",
+      "status": null,
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 277123,
+        "shakeThreshold": 47036,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 62,
+      "rate": 45,
+      "hp": 4077,
+      "maxHP": 20663,
+      "ball": "pokeBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 400185,
+        "shakeThreshold": 51562,
+        "criticalThreshold": 8
+      }
+    },
+    {
+      "dex": 104,
+      "rate": 190,
+      "hp": 20325,
+      "maxHP": 30193,
+      "ball": "ultraBall",
+      "status": "sleep",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 78,
+      "rate": 60,
+      "hp": 30102,
+      "maxHP": 38553,
+      "ball": "ultraBall",
+      "status": "poison",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 353504,
+        "shakeThreshold": 49987,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 68,
+      "rate": 45,
+      "hp": 28238,
+      "maxHP": 54035,
+      "ball": "ultraBall",
+      "status": "freeze",
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 600520,
+        "shakeThreshold": 57065,
+        "criticalThreshold": 12
+      }
+    },
+    {
+      "dex": 25,
+      "rate": 190,
+      "hp": 41975,
+      "maxHP": 51771,
+      "ball": "ultraBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 715169,
+        "shakeThreshold": 59612,
+        "criticalThreshold": 14
+      }
+    },
+    {
+      "dex": 120,
+      "rate": 225,
+      "hp": 55502,
+      "maxHP": 55796,
+      "ball": "greatBall",
+      "status": "paralyze",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 698484,
+        "shakeThreshold": 59257,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 150,
+      "rate": 3,
+      "hp": 38657,
+      "maxHP": 57079,
+      "ball": "ultraBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 13479,
+        "shakeThreshold": 22087,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 76,
+      "rate": 45,
+      "hp": 43473,
+      "maxHP": 57019,
+      "ball": "pokeBall",
+      "status": "poison",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 135948,
+        "shakeThreshold": 39365,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 111,
+      "rate": 120,
+      "hp": 7902,
+      "maxHP": 14515,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 313130,
+        "shakeThreshold": 48489,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 22,
+      "rate": 90,
+      "hp": 11946,
+      "maxHP": 32752,
+      "ball": "pokeBall",
+      "status": "freeze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 697503,
+        "shakeThreshold": 59244,
+        "criticalThreshold": 14
+      }
+    },
+    {
+      "dex": 103,
+      "rate": 45,
+      "hp": 27365,
+      "maxHP": 59011,
+      "ball": "pokeBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 318343,
+        "shakeThreshold": 48691,
+        "criticalThreshold": 6
+      }
+    },
+    {
+      "dex": 96,
+      "rate": 190,
+      "hp": 4024,
+      "maxHP": 60666,
+      "ball": "greatBall",
+      "status": "freeze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 135,
+      "rate": 45,
+      "hp": 598,
+      "maxHP": 7006,
+      "ball": "greatBall",
+      "status": "burn",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 391121,
+        "shakeThreshold": 51267,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 95,
+      "rate": 45,
+      "hp": 51031,
+      "maxHP": 64543,
+      "ball": "greatBall",
+      "status": "freeze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 326868,
+        "shakeThreshold": 49020,
+        "criticalThreshold": 6
+      }
+    },
+    {
+      "dex": 31,
+      "rate": 45,
+      "hp": 52843,
+      "maxHP": 53909,
+      "ball": "ultraBall",
+      "status": "freeze",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 319348,
+        "shakeThreshold": 48735,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 92,
+      "rate": 190,
+      "hp": 2453,
+      "maxHP": 31695,
+      "ball": "greatBall",
+      "status": "freeze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 52,
+      "rate": 255,
+      "hp": 9928,
+      "maxHP": 12434,
+      "ball": "pokeBall",
+      "status": "sleep",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 89,
+      "rate": 75,
+      "hp": 10315,
+      "maxHP": 25513,
+      "ball": "pokeBall",
+      "status": "sleep",
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 560995,
+        "shakeThreshold": 56099,
+        "criticalThreshold": 11
+      }
+    },
+    {
+      "dex": 129,
+      "rate": 255,
+      "hp": 28691,
+      "maxHP": 61792,
+      "ball": "pokeBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 118,
+      "rate": 225,
+      "hp": 20790,
+      "maxHP": 41302,
+      "ball": "pokeBall",
+      "status": "freeze",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 17,
+      "rate": 120,
+      "hp": 5128,
+      "maxHP": 27628,
+      "ball": "ultraBall",
+      "status": "paralyze",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 114,
+      "rate": 45,
+      "hp": 6493,
+      "maxHP": 51395,
+      "ball": "ultraBall",
+      "status": "poison",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 506387,
+        "shakeThreshold": 54693,
+        "criticalThreshold": 10
+      }
+    },
+    {
+      "dex": 125,
+      "rate": 45,
+      "hp": 3861,
+      "maxHP": 28492,
+      "ball": "greatBall",
+      "status": "paralyze",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 377253,
+        "shakeThreshold": 50811,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 128,
+      "rate": 45,
+      "hp": 4522,
+      "maxHP": 22523,
+      "ball": "ultraBall",
+      "status": "poison",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 478947,
+        "shakeThreshold": 53924,
+        "criticalThreshold": 19
+      }
+    },
+    {
+      "dex": 68,
+      "rate": 45,
+      "hp": 9102,
+      "maxHP": 31653,
+      "ball": "pokeBall",
+      "status": "paralyze",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 223478,
+        "shakeThreshold": 44575,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 81,
+      "rate": 190,
+      "hp": 47560,
+      "maxHP": 56151,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 111,
+      "rate": 120,
+      "hp": 1679,
+      "maxHP": 3019,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 463923,
+        "shakeThreshold": 53505,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 123,
+      "rate": 45,
+      "hp": 2,
+      "maxHP": 5,
+      "ball": "pokeBall",
+      "status": "paralyze",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 202752,
+        "shakeThreshold": 43499,
+        "criticalThreshold": 4
+      }
+    },
+    {
+      "dex": 41,
+      "rate": 255,
+      "hp": 2827,
+      "maxHP": 53252,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 138,
+      "rate": 45,
+      "hp": 2407,
+      "maxHP": 15347,
+      "ball": "pokeBall",
+      "status": "freeze",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 412618,
+        "shakeThreshold": 51951,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 138,
+      "rate": 45,
+      "hp": 28012,
+      "maxHP": 51820,
+      "ball": "ultraBall",
+      "status": "sleep",
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 589478,
+        "shakeThreshold": 56799,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 34,
+      "rate": 45,
+      "hp": 38624,
+      "maxHP": 41980,
+      "ball": "pokeBall",
+      "status": "burn",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 106895,
+        "shakeThreshold": 37066,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 78,
+      "rate": 60,
+      "hp": 31258,
+      "maxHP": 53563,
+      "ball": "ultraBall",
+      "status": "burn",
+      "caughtCount": 0,
+      "expected": {
+        "modifiedRate4096": 450441,
+        "shakeThreshold": 53113,
+        "criticalThreshold": 0
+      }
+    },
+    {
+      "dex": 41,
+      "rate": 255,
+      "hp": 15098,
+      "maxHP": 54312,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      },
+      "seed": 1,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 984943658,
+        "criticalRoll": 166,
+        "shakeRolls": [
+          15088,
+          44248,
+          3113
+        ]
+      }
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      },
+      "seed": 42,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 565444343,
+        "criticalRoll": 101,
+        "shakeRolls": [
+          43918,
+          23480,
+          65270
+        ]
+      }
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      },
+      "seed": 525,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 123134082,
+        "criticalRoll": 122,
+        "shakeRolls": [
+          57473
+        ]
+      }
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      },
+      "seed": 7777,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 1980143064,
+        "criticalRoll": 70,
+        "shakeRolls": [
+          38734,
+          812,
+          38359
+        ]
+      }
+    },
+    {
+      "dex": 150,
+      "rate": 3,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 4096,
+        "shakeThreshold": 16400,
+        "criticalThreshold": 0
+      },
+      "seed": 1,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 2,
+        "displayShakes": 1,
+        "rngRolls": 3,
+        "state": 1622650073,
+        "criticalRoll": 166,
+        "shakeRolls": [
+          15088,
+          44248
+        ]
+      }
+    },
+    {
+      "dex": 150,
+      "rate": 3,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 4096,
+        "shakeThreshold": 16400,
+        "criticalThreshold": 0
+      },
+      "seed": 42,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 1126542223,
+        "criticalRoll": 101,
+        "shakeRolls": [
+          43918
+        ]
+      }
+    },
+    {
+      "dex": 150,
+      "rate": 3,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 4096,
+        "shakeThreshold": 16400,
+        "criticalThreshold": 0
+      },
+      "seed": 525,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 123134082,
+        "criticalRoll": 122,
+        "shakeRolls": [
+          57473
+        ]
+      }
+    },
+    {
+      "dex": 150,
+      "rate": 3,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 4096,
+        "shakeThreshold": 16400,
+        "criticalThreshold": 0
+      },
+      "seed": 7777,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 2081724239,
+        "criticalRoll": 70,
+        "shakeRolls": [
+          38734
+        ]
+      }
+    },
+    {
+      "dex": 25,
+      "rate": 190,
+      "hp": 1,
+      "maxHP": 137,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      },
+      "seed": 1,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 0,
+        "displayShakes": 3,
+        "rngRolls": 0,
+        "state": 1,
+        "criticalRoll": null,
+        "shakeRolls": []
+      }
+    },
+    {
+      "dex": 25,
+      "rate": 190,
+      "hp": 1,
+      "maxHP": 137,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      },
+      "seed": 42,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 0,
+        "displayShakes": 3,
+        "rngRolls": 0,
+        "state": 42,
+        "criticalRoll": null,
+        "shakeRolls": []
+      }
+    },
+    {
+      "dex": 25,
+      "rate": 190,
+      "hp": 1,
+      "maxHP": 137,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      },
+      "seed": 525,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 0,
+        "displayShakes": 3,
+        "rngRolls": 0,
+        "state": 525,
+        "criticalRoll": null,
+        "shakeRolls": []
+      }
+    },
+    {
+      "dex": 25,
+      "rate": 190,
+      "hp": 1,
+      "maxHP": 137,
+      "ball": "greatBall",
+      "status": "sleep",
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 1044480,
+        "shakeThreshold": 65536,
+        "criticalThreshold": 0
+      },
+      "seed": 7777,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 0,
+        "displayShakes": 3,
+        "rngRolls": 0,
+        "state": 7777,
+        "criticalRoll": null,
+        "shakeRolls": []
+      }
+    },
+    {
+      "dex": 113,
+      "rate": 30,
+      "hp": 101,
+      "maxHP": 201,
+      "ball": "ultraBall",
+      "status": "paralyze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 245148,
+        "shakeThreshold": 45613,
+        "criticalThreshold": 9
+      },
+      "seed": 1,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 984943658,
+        "criticalRoll": 166,
+        "shakeRolls": [
+          15088,
+          44248,
+          3113
+        ]
+      }
+    },
+    {
+      "dex": 113,
+      "rate": 30,
+      "hp": 101,
+      "maxHP": 201,
+      "ball": "ultraBall",
+      "status": "paralyze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 245148,
+        "shakeThreshold": 45613,
+        "criticalThreshold": 9
+      },
+      "seed": 42,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 565444343,
+        "criticalRoll": 101,
+        "shakeRolls": [
+          43918,
+          23480,
+          65270
+        ]
+      }
+    },
+    {
+      "dex": 113,
+      "rate": 30,
+      "hp": 101,
+      "maxHP": 201,
+      "ball": "ultraBall",
+      "status": "paralyze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 245148,
+        "shakeThreshold": 45613,
+        "criticalThreshold": 9
+      },
+      "seed": 525,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 123134082,
+        "criticalRoll": 122,
+        "shakeRolls": [
+          57473
+        ]
+      }
+    },
+    {
+      "dex": 113,
+      "rate": 30,
+      "hp": 101,
+      "maxHP": 201,
+      "ball": "ultraBall",
+      "status": "paralyze",
+      "caughtCount": 151,
+      "expected": {
+        "modifiedRate4096": 245148,
+        "shakeThreshold": 45613,
+        "criticalThreshold": 9
+      },
+      "seed": 7777,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 1980143064,
+        "criticalRoll": 70,
+        "shakeRolls": [
+          38734,
+          812,
+          38359
+        ]
+      }
+    },
+    {
+      "dex": 1,
+      "rate": 45,
+      "hp": 21,
+      "maxHP": 22,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 100538,
+        "shakeThreshold": 36501,
+        "criticalThreshold": 2
+      },
+      "seed": 1,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 2,
+        "displayShakes": 1,
+        "rngRolls": 3,
+        "state": 1622650073,
+        "criticalRoll": 166,
+        "shakeRolls": [
+          15088,
+          44248
+        ]
+      }
+    },
+    {
+      "dex": 1,
+      "rate": 45,
+      "hp": 21,
+      "maxHP": 22,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 100538,
+        "shakeThreshold": 36501,
+        "criticalThreshold": 2
+      },
+      "seed": 42,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 1126542223,
+        "criticalRoll": 101,
+        "shakeRolls": [
+          43918
+        ]
+      }
+    },
+    {
+      "dex": 1,
+      "rate": 45,
+      "hp": 21,
+      "maxHP": 22,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 100538,
+        "shakeThreshold": 36501,
+        "criticalThreshold": 2
+      },
+      "seed": 525,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 123134082,
+        "criticalRoll": 122,
+        "shakeRolls": [
+          57473
+        ]
+      }
+    },
+    {
+      "dex": 1,
+      "rate": 45,
+      "hp": 21,
+      "maxHP": 22,
+      "ball": "greatBall",
+      "status": null,
+      "caughtCount": 150,
+      "expected": {
+        "modifiedRate4096": 100538,
+        "shakeThreshold": 36501,
+        "criticalThreshold": 2
+      },
+      "seed": 7777,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 2081724239,
+        "criticalRoll": 70,
+        "shakeRolls": [
+          38734
+        ]
+      }
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      },
+      "seed": 15917,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 717581286,
+        "criticalRoll": 90,
+        "shakeRolls": [
+          49801,
+          7966,
+          27621
+        ]
+      },
+      "boundary": "first shake threshold-minus-one"
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 30,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 0
+      },
+      "seed": 62594,
+      "attempt": {
+        "caught": false,
+        "critical": false,
+        "checks": 1,
+        "displayShakes": 0,
+        "rngRolls": 2,
+        "state": 1022870155,
+        "criticalRoll": 205,
+        "shakeRolls": [
+          49802
+        ]
+      },
+      "boundary": "first shake threshold"
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 7
+      },
+      "seed": 161,
+      "attempt": {
+        "caught": true,
+        "critical": true,
+        "checks": 1,
+        "displayShakes": 1,
+        "rngRolls": 2,
+        "state": 381358502,
+        "criticalRoll": 6,
+        "shakeRolls": [
+          4517
+        ]
+      },
+      "boundary": "critical threshold-minus-one"
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 7
+      },
+      "seed": 184,
+      "attempt": {
+        "caught": true,
+        "critical": false,
+        "checks": 3,
+        "displayShakes": 3,
+        "rngRolls": 4,
+        "state": 841006724,
+        "criticalRoll": 7,
+        "shakeRolls": [
+          23887,
+          15490,
+          48771
+        ]
+      },
+      "boundary": "critical threshold"
+    },
+    {
+      "dex": 19,
+      "rate": 255,
+      "hp": 20,
+      "maxHP": 20,
+      "ball": "pokeBall",
+      "status": null,
+      "caughtCount": 31,
+      "expected": {
+        "modifiedRate4096": 348160,
+        "shakeThreshold": 49802,
+        "criticalThreshold": 7
+      },
+      "seed": 69,
+      "attempt": {
+        "caught": false,
+        "critical": true,
+        "checks": 1,
+        "displayShakes": 1,
+        "rngRolls": 2,
+        "state": 163439358,
+        "criticalRoll": 2,
+        "shakeRolls": [
+          58109
+        ]
+      },
+      "boundary": "failed critical"
+    }
+  ]
+}

@@ -260,7 +260,7 @@ function Contracts.run()
         p.statStages.atk = -6; p.status = "sleep"; p.confusion = 2; p.flinched = true
         p:fullRestore(); equal(p.statStages.atk, 0); equal(p.status, nil); equal(p.confusion, nil)
         equal(p.flinched, false); equal(p.pp[move], moveData[move].maxPP)
-        truth(p:gainXP(xpForLevel(6) - p.xp), "exact XP threshold levels")
+        truth(p:gainXP(p:xpForLevel(6) - p.xp), "exact XP threshold levels")
         equal(p.level, 6, "level after exact threshold")
         local cap = Pokemon("squirtle", 100); cap:gainXP(1000000); equal(cap.level, 100)
     end)

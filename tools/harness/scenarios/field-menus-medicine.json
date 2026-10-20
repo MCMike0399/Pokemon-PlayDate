@@ -1,0 +1,205 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "party_pokemon": [
+          {
+            "species": "charmander",
+            "level": 5,
+            "hp": 3,
+            "status": "sleep",
+            "status_turns": 0,
+            "sleep_duration": 3,
+            "pp": {
+              "scratch": 2
+            }
+          },
+          {
+            "species": "pikachu",
+            "level": 5
+          }
+        ],
+        "inventory": {
+          "money": 1000,
+          "slots": [
+            {
+              "id": "potion",
+              "quantity": 2
+            },
+            {
+              "id": "ether",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "assert",
+      "path": "party.count",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "inventory.money",
+      "equals": 1000
+    },
+    "press b",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 180
+    },
+    "shot field-pause",
+    "press a",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 180
+    },
+    "shot field-party",
+    "press a",
+    "wait 2",
+    "press a",
+    "wait 2",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "stats"
+    },
+    "shot field-stats",
+    "press b",
+    "wait 2",
+    "press b",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 180
+    },
+    "press b",
+    "wait 2",
+    "press down",
+    "wait 2",
+    "press a",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 180
+    },
+    "shot field-bag",
+    "press a",
+    "wait 2",
+    "press a",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 180
+    },
+    "press a",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.potion",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "party.members.1.hp",
+      "equals": 18
+    },
+    {
+      "op": "assert",
+      "path": "party.members.1.status",
+      "equals": "sleep"
+    },
+    "shot field-potion-used",
+    "press a",
+    "wait 2",
+    "press down",
+    "wait 2",
+    "press a",
+    "wait 2",
+    "press a",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 180
+    },
+    "press a",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "bag.phase",
+      "equals": "move",
+      "frames": 180
+    },
+    "shot field-ether-moves",
+    "press a",
+    "wait 2",
+    {
+      "op": "assert",
+      "path": "inventory.quantities.ether",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "party.members.1.pp.scratch",
+      "equals": 12
+    },
+    "shot field-ether-used",
+    "press a",
+    "wait 2",
+    "press b",
+    "wait 2",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "player.x",
+      "equals": 5
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 3
+    },
+    "shot field-menu-return"
+  ],
+  "outputs": [
+    "field-pause.png",
+    "field-party.png",
+    "field-stats.png",
+    "field-bag.png",
+    "field-potion-used.png",
+    "field-ether-moves.png",
+    "field-ether-used.png",
+    "field-menu-return.png"
+  ]
+}

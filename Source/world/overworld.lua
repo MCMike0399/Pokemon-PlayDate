@@ -1,111 +1,150 @@
 local gfx <const> = playdate.graphics
 
----@type _ImageTable
-local tileImages
-local tilemap = nil
-local tilemapSprite = nil
-
--- Animated tiles: pre-rendered frames swapped into the imagetable in
--- place, so every cell of that tile type animates at once and the
--- tilemap indices never change.
---
--- Gen 1 cadence: water and flowers tick off ONE global counter, one
--- step every 21 frames at 60fps (~0.35s) — every animated tile in
--- view pulses in lockstep. HEARTBEAT = 10 reproduces that at 30fps.
--- Water oscillates +-4px (4 steps right, 4 left, like the GB's
--- byte-rotation); flowers cycle bob frames 1,2,3,1.
+-- Owns only a map view and its static wall sprites. Offscreen instances exercise
+-- exactly the same SDK tilemap/registry path without tearing down the live game.
+Class("WorldView")
+local activeView = nil
 local WATER_ID <const>, SHORE_ID <const>, FLOWERS_ID <const> = 4, 12, 11
 local HEARTBEAT <const> = 10
 local WATER_SHIFTS <const> = { 0, 1, 2, 3, 4, 3, 2, 1 }
 local FLOWER_SEQ <const> = { 1, 2, 3, 1 }
 
-local animTiles = nil
-local animTick = 0
-local animStep = 0
-
-local function buildAnimatedTiles()
+local function animatedTiles()
     local water, shore, flowers = {}, {}, {}
     for i, shift in ipairs(WATER_SHIFTS) do
         water[i] = TileFactory.water(shift)
         shore[i] = TileFactory.shore(shift)
     end
-    for i, frame in ipairs(FLOWER_SEQ) do
-        flowers[i] = TileFactory.flowers(frame)
-    end
+    for i, frame in ipairs(FLOWER_SEQ) do flowers[i] = TileFactory.flowers(frame) end
     return { water = water, shore = shore, flowers = flowers }
 end
-
--- Call once per frame while the overworld is on screen (keeps running
--- under dialog/debug overlays since stacked states still update)
-function updateOverworldAnimations()
-    if not (tilemapSprite and animTiles) then return end
-    animTick = animTick + 1
-    if animTick % HEARTBEAT ~= 0 then return end
-    animStep = animStep + 1
-    tileImages:setImage(WATER_ID, animTiles.water[(animStep % #WATER_SHIFTS) + 1])
-    tileImages:setImage(SHORE_ID, animTiles.shore[(animStep % #WATER_SHIFTS) + 1])
-    tileImages:setImage(FLOWERS_ID, animTiles.flowers[(animStep % #FLOWER_SEQ) + 1])
-    tilemapSprite:markDirty()
+function generateTileImages(registry)
+    return TileFactory.generateAll(registry or (currentZone and currentZone.registry) or WorldTiles)
 end
-
-function generateTileImages()
-    tileImages = TileFactory.generateAll()
-    animTiles = buildAnimatedTiles()
-    animTick = 0
-    animStep = 0
+function WorldView:_applyAnimationImages(images)
+    images:setImage(WATER_ID, self.animTiles.water[(self.animStep % #WATER_SHIFTS) + 1])
+    images:setImage(SHORE_ID, self.animTiles.shore[(self.animStep % #WATER_SHIFTS) + 1])
+    images:setImage(FLOWERS_ID, self.animTiles.flowers[(self.animStep % #FLOWER_SEQ) + 1])
 end
-
+function WorldView:_wall(x, y)
+    local wall = gfx.sprite.new(self.emptyImage)
+    wall:setCenter(0, 0)
+    wall:moveTo(x * TILE_SIZE, y * TILE_SIZE)
+    wall:setCollideRect(0, 0, TILE_SIZE, TILE_SIZE)
+    return wall
+end
+function WorldView:init(zone, options)
+    options = options or {}
+    zone:assertEnterable()
+    self.zone = zone
+    self.attached = options.attach ~= false
+    self.images = generateTileImages(zone.registry)
+    self.imageCount = zone.registry:maxID()
+    self.animTiles = animatedTiles()
+    self.animTick, self.animStep = 0, 0
+    self.tilemap = gfx.tilemap.new()
+    self.tilemap:setImageTable(self.images)
+    self.tilemap:setSize(zone.width, zone.height)
+    self.emptyImage = gfx.image.new(TILE_SIZE, TILE_SIZE)
+    self.walls = {}
+    for y = 1, zone.height do
+        self.walls[y] = {}
+        for x = 1, zone.width do
+            self.tilemap:setTileAtPosition(x, y, zone.tiles[y][x])
+            if zone.collision[y][x] == 1 then self.walls[y][x] = self:_wall(x - 1, y - 1) end
+        end
+    end
+    self.sprite = gfx.sprite.new()
+    self.sprite:setTilemap(self.tilemap)
+    self.sprite:setCenter(0, 0)
+    self.sprite:moveTo(0, 0)
+    self.sprite:setZIndex(-1)
+    zone:attachView(self)
+    if self.attached then
+        self.sprite:add()
+        for _, row in ipairs(self.walls) do for _, wall in pairs(row) do wall:add() end end
+    end
+end
+function WorldView:updateAnimations()
+    self.animTick = self.animTick + 1
+    if self.animTick % HEARTBEAT ~= 0 then return end
+    self.animStep = self.animStep + 1
+    self:_applyAnimationImages(self.images)
+    self.sprite:markDirty()
+end
+function WorldView:tileAt(x, y) return self.tilemap:getTileAtPosition(x + 1, y + 1) end
+function WorldView:imageAt(x, y) return self.images:getImage(self:tileAt(x, y)) end
+function WorldView:hasWallAt(x, y) return self.walls[y + 1] and self.walls[y + 1][x + 1] ~= nil or false end
+function WorldView:applyTiles(plan)
+    assert(not self.disposed, "world view disposed")
+    local old, oldImages, oldCount = {}, self.images, self.imageCount
+    local images = oldImages
+    if self.zone.registry:maxID() > oldCount then
+        images = generateTileImages(self.zone.registry)
+        self:_applyAnimationImages(images)
+    end
+    local replacements = {}
+    for i, change in ipairs(plan) do
+        assert(self.zone.registry:has(change.id) and images:getImage(change.id), "tile image missing from registry palette")
+        old[i] = { x = change.x, y = change.y, id = self:tileAt(change.x, change.y), wall = self.walls[change.y + 1][change.x + 1] }
+        if change.collision == 1 then replacements[i] = old[i].wall or self:_wall(change.x, change.y) end
+    end
+    local function restore()
+        for i, item in ipairs(old) do
+            local replacement = replacements[i]
+            if replacement and replacement ~= item.wall then replacement:remove() end
+            self.walls[item.y + 1][item.x + 1] = item.wall
+            if self.attached and item.wall then item.wall:add() end
+            self.tilemap:setTileAtPosition(item.x + 1, item.y + 1, item.id)
+        end
+        self.images, self.imageCount = oldImages, oldCount
+        self.tilemap:setImageTable(oldImages)
+        self.sprite:markDirty()
+    end
+    local ok, problem = pcall(function()
+        if images ~= oldImages then self.tilemap:setImageTable(images) end
+        self.images, self.imageCount = images, self.zone.registry:maxID()
+        for i, change in ipairs(plan) do
+            local wall = old[i].wall
+            if wall and wall ~= replacements[i] then wall:remove() end
+            if self.attached and replacements[i] and replacements[i] ~= wall then replacements[i]:add() end
+            self.walls[change.y + 1][change.x + 1] = replacements[i]
+            self.tilemap:setTileAtPosition(change.x + 1, change.y + 1, change.id)
+        end
+        self.sprite:markDirty()
+    end)
+    if not ok then restore(); error(problem, 0) end
+    return restore
+end
+function WorldView:render()
+    assert(not self.disposed, "world view disposed")
+    local image = gfx.image.new(self.zone.width * TILE_SIZE, self.zone.height * TILE_SIZE, gfx.kColorWhite)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    self.tilemap:draw(0, 0)
+    gfx.popContext()
+    return image
+end
+function WorldView:dispose()
+    if self.disposed then return end
+    self.sprite:remove()
+    for _, row in ipairs(self.walls) do for _, wall in pairs(row) do wall:remove() end end
+    self.zone:detachView(self)
+    self.disposed = true
+end
 function setupOverworld()
-    generateTileImages()
-
-    local zone = currentZone
-    local mapW, mapH = zone.width, zone.height
-    local tiles = zone.tiles
-
-    tilemap = gfx.tilemap.new()
-    tilemap:setImageTable(tileImages)
-    tilemap:setSize(mapW, mapH)
-
-    for y = 1, mapH do
-        for x = 1, mapW do
-            tilemap:setTileAtPosition(x, y, tiles[y][x])
-        end
-    end
-
-    tilemapSprite = gfx.sprite.new()
-    tilemapSprite:setTilemap(tilemap)
-    tilemapSprite:setCenter(0, 0)
-    tilemapSprite:moveTo(0, 0)
-    tilemapSprite:setZIndex(-1)
-    tilemapSprite:add()
-
-    -- Add wall sprites from collision layer
-    local ts = TILE_SIZE
-    local collision = zone.collision
-    local emptyImage = gfx.image.new(ts, ts)
-    for y = 1, mapH do
-        for x = 1, mapW do
-            if collision[y][x] == 1 then
-                local wallSprite = gfx.sprite.new(emptyImage)
-                wallSprite:setCenter(0, 0)
-                wallSprite:moveTo((x - 1) * ts, (y - 1) * ts)
-                wallSprite:setCollideRect(0, 0, ts, ts)
-                wallSprite:add()
-            end
-        end
-    end
+    currentZone:assertEnterable()
+    if activeView then activeView:dispose() end
+    activeView = WorldView(currentZone)
 end
-
-function getMapPixelSize()
-    return currentZone.width * TILE_SIZE, currentZone.height * TILE_SIZE
+function getOverworldView() return activeView end
+function updateOverworldAnimations()
+    if activeView then activeView:updateAnimations() end
 end
-
--- Swap one tile of the LIVE tilemap (story events: a starter ball taken
--- off Oak's table). Callers must also update zone.tiles themselves —
--- rebuilds read from there. Grid coords are 0-based player coords.
+function getMapPixelSize() return currentZone.width * TILE_SIZE, currentZone.height * TILE_SIZE end
+-- Compatibility entry point now keeps data, collision, terrain and view together.
 function setOverworldTile(gx, gy, id)
-    if tilemap then
-        tilemap:setTileAtPosition(gx + 1, gy + 1, id)
-        if tilemapSprite then tilemapSprite:markDirty() end
-    end
+    assert(currentZone, "no active world zone")
+    return currentZone:setTile(gx, gy, id)
 end

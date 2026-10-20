@@ -18,9 +18,9 @@ function DebugState:enter()
         local action = game.debugMenu:consumeAction()
         self.machine:pop()
 
-        if action and action.type == "wildBattle" and game.playerPokemon then
+        if action and action.type == "wildBattle" and game:getPlayerPokemon() then
             self.machine:change("battle",
-                game.playerPokemon, Pokemon(action.species, action.level), nil)
+                game:getPlayerPokemon(), Pokemon(action.species, action.level), nil)
         elseif action and action.type == "zoneSwitch" then
             switchZone(action.zone)
             self.machine:change("overworld", { respawn = true })
@@ -30,7 +30,6 @@ function DebugState:enter()
             self.machine:change("overworld")
         elseif action and action.type == "resetIntro" then
             Story.resetIntro(game)
-            self.machine:change("overworld", { respawn = true })
             self.machine:push("dialog", Story.openingLines)
         end
     end)
@@ -45,14 +44,14 @@ function DebugState:update()
     local action = game.debugMenu:consumeAction()
     if not action then return end
 
-    if action.type == "heal" and game.playerPokemon then
-        game.playerPokemon:fullRestore()
+    if action.type == "heal" and game:getPlayerPokemon() then
+        game:getPlayerPokemon():fullRestore()
     elseif action.type == "resetNPCs" then
         for _, npc in ipairs(game.npcManager.npcs) do
             npc:resetInteracted()
         end
-    elseif action.type == "setLevel" and game.playerPokemon then
-        game.playerPokemon = Pokemon(game.playerPokemon.species, action.level)
+    elseif action.type == "setLevel" and game:getPlayerPokemon() then
+        game:resetActiveLevelForDebug(action.level)
     elseif action.type == "warp" and game.player then
         game.player.gridX = action.x
         game.player.gridY = action.y

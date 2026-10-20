@@ -1,6 +1,7 @@
 """Versioned, exclusively owned Simulator mailbox. No Simulator dependencies."""
 import fcntl
 import json
+import math
 import os
 from pathlib import Path
 import time
@@ -11,6 +12,63 @@ PROTOCOL = 1
 
 class ProtocolError(RuntimeError):
     pass
+
+
+INT32_TAG = '__harness_int32_v1'
+INT32_RESERVED_PREFIX = '__harness_int32'
+INT32_MIN, INT32_MAX = -(1 << 31), (1 << 31) - 1
+EXACT_SMALL_INTEGER_LIMIT = 1 << 24
+
+
+def encode_wire_values(value):
+    """Protocol-v1 value extension: preserve native int32 through SDK float32 JSON.
+
+    The tag is generated only here. Caller-supplied reserved objects are rejected
+    rather than interpreted as an escape hatch. Regular strings are untouched.
+    """
+    if value is None or type(value) in (bool, str):
+        return value
+    if type(value) is int:
+        if not INT32_MIN <= value <= INT32_MAX:
+            raise ProtocolError('integer outside native signed-int32 bounds')
+        if value <= -EXACT_SMALL_INTEGER_LIMIT or value >= EXACT_SMALL_INTEGER_LIMIT:
+            return {INT32_TAG: str(value)}
+        return value
+    if type(value) is float:
+        if not math.isfinite(value):
+            raise ProtocolError('nonfinite numeric command value')
+        if value <= -EXACT_SMALL_INTEGER_LIMIT or value >= EXACT_SMALL_INTEGER_LIMIT:
+            raise ProtocolError('large floating command value is not a native int32')
+        return value
+    if type(value) in (list, tuple):
+        return [encode_wire_values(item) for item in value]
+    if type(value) is dict:
+        for key in value:
+            if type(key) is not str:
+                raise ProtocolError('command object keys must be strings')
+            if key.startswith(INT32_RESERVED_PREFIX):
+                raise ProtocolError('reserved harness integer tag collision')
+        return {key: encode_wire_values(item) for key, item in value.items()}
+    raise ProtocolError('unsupported command value type: ' + type(value).__name__)
+
+
+def encode_commands(commands):
+    if type(commands) not in (list, tuple):
+        raise ProtocolError('commands must be an array')
+    # Fixture seeds are integers, not numeric-looking floats/strings/bools. The
+    # runtime additionally validates tagged values and exact-small JSON numbers.
+    for command in commands:
+        if type(command) is not dict:
+            continue
+        if command.get('op') == 'fixture':
+            options = command.get('options', {})
+            if type(options) is dict and 'seed' in options and type(options['seed']) is not int:
+                raise ProtocolError('fixture seed requires a native Python integer')
+        if command.get('op') == 'seed':
+            args = command.get('args', [])
+            if type(args) in (list, tuple) and args and type(args[0]) not in (str, int):
+                raise ProtocolError('seed argument requires an integer or canonical integer text')
+    return encode_wire_values(commands)
 
 
 def atomic_json(path, value):
@@ -115,9 +173,12 @@ class Client:
             raise ProtocolError('runtime is quiescent; start a new session')
         if self._pending_id is not None:
             raise ProtocolError('unconfirmed pending request; recover or close this client before sending')
+        wire_commands = encode_commands(commands)
+        if type(max_frames) is not int or not 1 <= max_frames <= 18000:
+            raise ProtocolError('max_frames requires an integer in 1..18000')
         self.sequence += 1
         request_id = f'{self.sequence:05d}-{uuid.uuid4().hex}'
-        request = self.envelope(id=request_id, commands=commands, max_frames=max_frames)
+        request = self.envelope(id=request_id, commands=wire_commands, max_frames=max_frames)
         atomic_json(self.evidence / f'{self.sequence:05d}-request.json', request)
         self._pending_id = request_id
         atomic_json(self.data / 'request.json', request)

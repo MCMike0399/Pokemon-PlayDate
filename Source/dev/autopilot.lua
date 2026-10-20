@@ -215,11 +215,11 @@ function Autopilot.step(cmd, game)
             results[#results + 1] = "err battle: unknown species " .. tostring(species)
             return true
         end
-        if not game.playerPokemon then
+        if not game:getPlayerPokemon() then
             results[#results + 1] = "err battle: no player pokemon yet"
             return true
         end
-        game.machine:change("battle", game.playerPokemon, Pokemon(species, level), nil)
+        game.machine:change("battle", game:getPlayerPokemon(), Pokemon(species, level), nil)
         results[#results + 1] = "battle " .. species .. " " .. level
         return true
 
@@ -230,7 +230,7 @@ function Autopilot.step(cmd, game)
             HarnessFixtures.reset(game, { intro = sub, opening = sub ~= "skip" })
         end
         results[#results + 1] = "intro " .. tostring(sub)
-            .. " stage=" .. Story.stage .. " starter=" .. tostring(Story.starter)
+            .. " stage=" .. Story.get(game).stage .. " starter=" .. tostring(Story.get(game).starter)
         return true
 
     elseif name == "gamestate" then
@@ -243,7 +243,7 @@ function Autopilot.step(cmd, game)
         if currentZone then
             line = line .. " zone=[" .. currentZone.name .. "]"
         end
-        line = line .. " story=" .. Story.stage
+        line = line .. " story=" .. Story.get(game).stage
         if player then
             line = line .. string.format(" player=%d,%d", player.gridX, player.gridY)
         end
@@ -267,7 +267,7 @@ function Autopilot.step(cmd, game)
         return true
 
     elseif name == "pokemon" then
-        local p = game.playerPokemon
+        local p = game:getPlayerPokemon()
         if p then
             results[#results + 1] = string.format("pokemon %s lv%d hp=%d/%d xp=%d status=%s",
                 p.species, p.level, p.hp, p.maxHP, p.xp, tostring(p.status))

@@ -1,0 +1,271 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "version": "English Blue",
+  "scope": [
+    "Route1",
+    "ViridianCity",
+    "ViridianMart",
+    "ViridianPokecenter"
+  ],
+  "provenance": "Final reviewed slice inputs, including common sign text_1; exact consumed hashes from the accepted immutable reference checkout. No ROM.",
+  "files": [
+    {
+      "path": "constants/item_constants.asm",
+      "sha256": "b5a1db015fbf0de637381eb39350f21f35a436a8088e2f6657f65c79f118f97f"
+    },
+    {
+      "path": "constants/map_constants.asm",
+      "sha256": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271"
+    },
+    {
+      "path": "constants/tileset_constants.asm",
+      "sha256": "887387444a2be79ffb2b501fee60fc40f8b31668d0a142ea38fc842f90c96769"
+    },
+    {
+      "path": "data/items/key_items.asm",
+      "sha256": "f50153804248ef659ca5eadb3978eabd2489aeda6c747d9a12e98c4d6cb8d955"
+    },
+    {
+      "path": "data/items/marts.asm",
+      "sha256": "d227deffbe60d8c10f0602710c6fa966c80edc7b36cb4c6ee973e42787f66f89"
+    },
+    {
+      "path": "data/items/prices.asm",
+      "sha256": "f5c70cea9cf59239ddb2deceda59e577cfe30cf2bc36c80e5e2a8834af788d60"
+    },
+    {
+      "path": "data/maps/headers/Route1.asm",
+      "sha256": "b64b3376c6516f3edc6a884d9220791805745d6cb7564574a11b9ee457da535d"
+    },
+    {
+      "path": "data/maps/headers/ViridianCity.asm",
+      "sha256": "f00734789d39eb6526b2fe54a4ad87af35253655e2d146f4a2ed3d6537f016b6"
+    },
+    {
+      "path": "data/maps/headers/ViridianMart.asm",
+      "sha256": "2865a96e291bdaf405e24220ae90f95d77155c1b9148d8551d5dffee17cf51e2"
+    },
+    {
+      "path": "data/maps/headers/ViridianPokecenter.asm",
+      "sha256": "c8b356c3e40ec10f729044475761a44f2dbc8aa5c559cf732651637e23659c4e"
+    },
+    {
+      "path": "data/maps/objects/Route1.asm",
+      "sha256": "ec8fce208c628b4e2c3a97d6acecc7c1caf9def2008568f2e9756804ebf52d6e"
+    },
+    {
+      "path": "data/maps/objects/ViridianCity.asm",
+      "sha256": "b1aa24caeb3ba6a6e59c8c7ad544303ada71bc851e4d35371a51a5dd580d93c0"
+    },
+    {
+      "path": "data/maps/objects/ViridianMart.asm",
+      "sha256": "ff5e9c6fc5eea24bd2cede7cd5fd3e141b545293f0430c3070af0d5cd391016c"
+    },
+    {
+      "path": "data/maps/objects/ViridianPokecenter.asm",
+      "sha256": "6be814e1a3b80c878eb35f4f550c10a5acb5ac0522f18ac7c5357117cdc81e6e"
+    },
+    {
+      "path": "data/maps/special_warps.asm",
+      "sha256": "d96914d09a633328dd1a8a81bdf0e2d58a0ce82b3d988d1efb5a9ae5f7314283"
+    },
+    {
+      "path": "data/sprites/facings.asm",
+      "sha256": "519d357bae44590199642812f4140295b08801a9a81619b2fec30f8dd98fc66f"
+    },
+    {
+      "path": "data/text/text_1.asm",
+      "sha256": "ae58dfc09cdfc0ea9b28362ac3bbd97fbd79923e96ce1dfa2e3c36a3b686f267"
+    },
+    {
+      "path": "data/text/text_4.asm",
+      "sha256": "eb9287b4d4e40679a916747d5ab7f6fb97ae7d6aabbfd7c2dc9ccabd2dcf5311"
+    },
+    {
+      "path": "data/tilesets/collision_tile_ids.asm",
+      "sha256": "15df9f5ad78dd176e91b78a85ef6ff9cf471d51a6222689d3d4902e58af4fc0a"
+    },
+    {
+      "path": "data/tilesets/ledge_tiles.asm",
+      "sha256": "405a9a9649e669f77b986151445782190f96dd4af8f4642c1e92993f068e6024"
+    },
+    {
+      "path": "data/tilesets/pair_collision_tile_ids.asm",
+      "sha256": "d7ed744bfa0fcaf8e7f69a23f9e3d44cdcf9f3c3f9931d93926f5084f1c4466b"
+    },
+    {
+      "path": "data/tilesets/tileset_headers.asm",
+      "sha256": "1176f00ecd31c140939c1c3191dcea840fe12b9d75eebaf9edc5b8014c0cb4cb"
+    },
+    {
+      "path": "data/tilesets/warp_tile_ids.asm",
+      "sha256": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5"
+    },
+    {
+      "path": "data/tilesets/water_tilesets.asm",
+      "sha256": "c37911107dc60805a56c1fd8718dd1aa95c2ae5ccd99b6fcb2620617d9f48d09"
+    },
+    {
+      "path": "data/wild/grass_water.asm",
+      "sha256": "0446d318fc0dfbdd3397c44439c2bf2604fa64bed3951d5b5a6698c929c717ab"
+    },
+    {
+      "path": "data/wild/maps/Route1.asm",
+      "sha256": "51e6ce11b3541e837344829733708a8c27f1857953d10a19b4f56b0079115a92"
+    },
+    {
+      "path": "data/wild/maps/nothing.asm",
+      "sha256": "2a1a0bce377ee3ba195c165b0b67d4cf861a5466bce45e42d6df109e0c7d930c"
+    },
+    {
+      "path": "data/wild/probabilities.asm",
+      "sha256": "e52ce63daabed6e183866bcaad889691a057b0a1b49a609271a371af7c69b9f9"
+    },
+    {
+      "path": "engine/events/pokecenter.asm",
+      "sha256": "55903bede37954620e23375f2b387bb13b601bb8ae062f282a20eb7afd36c82c"
+    },
+    {
+      "path": "engine/events/set_blackout_map.asm",
+      "sha256": "d26f065fd9348ebca0761f7999b856107a61d68bea52c5c0cffc8e07f4121536"
+    },
+    {
+      "path": "engine/overworld/ledges.asm",
+      "sha256": "dd419d706a8af9e75f1ed1d8b6249055ea94473b1dcf22a9ac453f6b655b1a6f"
+    },
+    {
+      "path": "gfx/blocksets/overworld.bst",
+      "sha256": "c4f6d88cc7dea8196aa51d3aa059c6d1da0ea45718dd12870fcddee9f9304d50"
+    },
+    {
+      "path": "gfx/blocksets/pokecenter.bst",
+      "sha256": "0dd8c8f693882a208b39487ba2b97505910f9e22b8f7108e11f0efe7405f61c9"
+    },
+    {
+      "path": "gfx/sprites.asm",
+      "sha256": "1e0e5e953d078f578f5a8a64a934d1b26c411b6e8355857089ec87f83508892c"
+    },
+    {
+      "path": "gfx/sprites/clerk.png",
+      "sha256": "58b91c7b2e9e9023ee1eee8595ebd43d8e756fba8da8fc5bb696eeeebb6b757b"
+    },
+    {
+      "path": "gfx/sprites/cooltrainer_m.png",
+      "sha256": "644ac9568f8523af7726234767e19fc3f306044af7d12be368e075fc6a85c4c8"
+    },
+    {
+      "path": "gfx/sprites/fisher.png",
+      "sha256": "e884a2b4da41666a207ef80f20197e3ac2ff6aab85e6dd4829b3a72bfe10b762"
+    },
+    {
+      "path": "gfx/sprites/gambler.png",
+      "sha256": "fcc5c4a73b59f1353e1d6c02d00f7d0b5e9f88134d586868935b58dc90b62eaf"
+    },
+    {
+      "path": "gfx/sprites/gambler_asleep.png",
+      "sha256": "bbf408d4ec735561c052f16fa891140f617d0aa0f1b5f54466838c2c82de7897"
+    },
+    {
+      "path": "gfx/sprites/gentleman.png",
+      "sha256": "269e74b51a4708f64eeecbf8cacfa2748c7aa724dd6beb255126c7adf468263f"
+    },
+    {
+      "path": "gfx/sprites/girl.png",
+      "sha256": "991e313b3f55ac2156020347cceb0bd309201999a9afa32d45e60aea3235ac69"
+    },
+    {
+      "path": "gfx/sprites/link_receptionist.png",
+      "sha256": "f9d8ba1c1f17b9e062870186116e6bf8a80f0a9f81cca8dc7ec983895acecce5"
+    },
+    {
+      "path": "gfx/sprites/nurse.png",
+      "sha256": "29eca72bd268f4f7906a12a9b6132dca400642456b73b119e2ddd7484bc5385d"
+    },
+    {
+      "path": "gfx/sprites/youngster.png",
+      "sha256": "210c4ff436a2b31988d8cb2aa78d3d0ce99de88aa4a1c1c6ef119d9fd92975a8"
+    },
+    {
+      "path": "gfx/tilesets.asm",
+      "sha256": "6db7f6d5219788ba16251f16646c8c642704ed588f6ba1de6e67f881aa0dce03"
+    },
+    {
+      "path": "gfx/tilesets/overworld.png",
+      "sha256": "580a310bef9f446c62d75994db3197b3f511aeed5f055ded9f38c36c8a152bdb"
+    },
+    {
+      "path": "gfx/tilesets/pokecenter.png",
+      "sha256": "424e3cc03aef70c570df21b5c39423666a644c9d851aed98d27d180599fc0a37"
+    },
+    {
+      "path": "home/map_objects.asm",
+      "sha256": "d16b4724ff9cceaa1c41cd9131d0578e4e2c3e4309d44dbbf395a88e28313307"
+    },
+    {
+      "path": "home/overworld.asm",
+      "sha256": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a"
+    },
+    {
+      "path": "maps.asm",
+      "sha256": "692ff4f5a4d88178e336c7465dd3d1bc443dc42ede07938d09b0b7db26406b57"
+    },
+    {
+      "path": "maps/Route1.blk",
+      "sha256": "328b8ad2dee6852d9f332f18af80a6210bb0f9204597ad082ac6e569e226d482"
+    },
+    {
+      "path": "maps/ViridianCity.blk",
+      "sha256": "e5a3fb7713a3b75cf3ecba9ede35fe71fa4bff0c910fc10b6659ef7b0dc101ae"
+    },
+    {
+      "path": "maps/ViridianMart.blk",
+      "sha256": "5833a4889db96f11b431f23b7fde604cbb59df36337cef4351828bc9291e1ee1"
+    },
+    {
+      "path": "maps/ViridianPokecenter.blk",
+      "sha256": "bb3eb97825513f690d99282255b3413b9169a3a124b1d6a73d2bc0972a793fed"
+    },
+    {
+      "path": "scripts/OaksLab.asm",
+      "sha256": "4c3d62602ef212c2c16d10fa46f27e246b6ac954afc8670feae82f0181e53bbe"
+    },
+    {
+      "path": "scripts/Route1.asm",
+      "sha256": "ae79d24e5180ef5723078eb7e4ae1cdbc59173554fdd0074047a347b44104e73"
+    },
+    {
+      "path": "scripts/ViridianCity.asm",
+      "sha256": "7cf10cb0a38cdb340f09f5637710cb405753a250a7bbe044ef6b66f9f8865142"
+    },
+    {
+      "path": "scripts/ViridianMart.asm",
+      "sha256": "be36a6b0486b28d81c7f5ad61759561a750b674568963d3895d83818ec808c0a"
+    },
+    {
+      "path": "scripts/ViridianPokecenter.asm",
+      "sha256": "25de2f4bff00218bda04a6dd00a77e328e1128cf8b74d584da943219e1908f5e"
+    },
+    {
+      "path": "text/OaksLab.asm",
+      "sha256": "004c4c4e0bdd47c1d8024f53439e7d0e03ab3d94d0b7ea4e72f817558b22fafa"
+    },
+    {
+      "path": "text/Route1.asm",
+      "sha256": "6a82503d414f57abd7782fa7efe4d5b8dacde69be5346b978c273dc1448b7571"
+    },
+    {
+      "path": "text/ViridianCity.asm",
+      "sha256": "d104fa629e8982e64b6d10bb8c9d94ccd6abd6a343f09d47abb28b34e7d77ef9"
+    },
+    {
+      "path": "text/ViridianMart.asm",
+      "sha256": "f350a27cb6e47e56bb6cda3b6b36ec0c99add1fdc0d873e661744bc0d8dbefa9"
+    },
+    {
+      "path": "text/ViridianPokecenter.asm",
+      "sha256": "5c10944114eff612f7d29390d47332f57529b08767651797c79cc31292777c56"
+    }
+  ]
+}

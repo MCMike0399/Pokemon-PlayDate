@@ -1,0 +1,154 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "party_pokemon": [
+          {
+            "species": "charmander",
+            "level": 5,
+            "hp": 1
+          },
+          {
+            "species": "pikachu",
+            "level": 5
+          }
+        ]
+      }
+    },
+    "battle rattata 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "tackle": 35,
+            "tailWhip": 0,
+            "quickAttack": 0
+          }
+        }
+      }
+    },
+    "seed 42",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.phase",
+      "equals": "forcedSwitch"
+    },
+    {
+      "op": "assert",
+      "path": "battle.forced_switch",
+      "equals": true
+    },
+    "shot party-forced-list",
+    "press b",
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "party"
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "battle",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "script",
+      "frames": 180
+    },
+    "shot party-forced-send",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.species",
+      "equals": "pikachu"
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 18
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.tackle",
+      "equals": 34
+    },
+    {
+      "op": "assert",
+      "path": "party.active",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "battle.outcome",
+      "equals": "ongoing"
+    },
+    "shot party-forced-complete"
+  ],
+  "outputs": [
+    "party-forced-list.png",
+    "party-forced-send.png",
+    "party-forced-complete.png"
+  ]
+}

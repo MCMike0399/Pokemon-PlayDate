@@ -26,7 +26,11 @@ local SHADES <const> = { ["1"] = Shade.LIGHT, ["2"] = Shade.DARK, ["#"] = Shade.
 -- rows: 16 strings of 16 shade codes -> native 32x32 image
 -- With a baseImage the tile is drawn over a copy of it: "." paints
 -- explicit white and " " leaves the base showing through (overlays)
-local function makeShadeTile(rows, baseImage)
+local function makeShadeTile(rows, baseImage, patternPhase)
+    if patternPhase then
+        assert(type(patternPhase) == "table" and patternPhase[1] == 0 and patternPhase[2] == 0,
+            "imported grid pattern phase must be explicit zero")
+    end
     local img = baseImage and baseImage:copy() or gfx.image.new(32, 32, gfx.kColorWhite)
     gfx.pushContext(img)
     for y = 1, 16 do
@@ -42,7 +46,13 @@ local function makeShadeTile(rows, baseImage)
                 shade = Shade.WHITE
             end
             if shade then
-                Shade.set(shade)
+                -- SDK3.1.2 omitted phase differs from explicit zero for these
+                -- patterns. Legacy calls retain their exact historical pixels.
+                if patternPhase and type(shade) == "table" then
+                    gfx.setPattern(shade, patternPhase[1], patternPhase[2])
+                else
+                    Shade.set(shade)
+                end
                 gfx.fillRect((x - 1) * 2, (y - 1) * 2, (x2 - x + 1) * 2, 2)
             end
             x = x2 + 1
@@ -83,8 +93,9 @@ end
 -- PUBLIC API
 -- ============================================================
 
-function TileFactory.generateAll()
-    local tiles = gfx.imagetable.new(NUM_TILE_TYPES)
+function TileFactory.generateAll(registry)
+    local count = registry and registry:maxID() or NUM_TILE_TYPES
+    local tiles = gfx.imagetable.new(count)
     tiles:setImage(1,  TileFactory.grass())
     tiles:setImage(2,  TileFactory.path())
     tiles:setImage(3,  TileFactory.wall())
@@ -126,6 +137,9 @@ function TileFactory.generateAll()
     tiles:setImage(35, TileFactory.labMachine())
     tiles:setImage(36, TileFactory.void())
     tiles:setImage(37, TileFactory.tableBall())
+    if registry then
+        for id = 38, count do tiles:setImage(id, registry:renderImported(id, TileFactory.renderGrid)) end
+    end
     return tiles
 end
 

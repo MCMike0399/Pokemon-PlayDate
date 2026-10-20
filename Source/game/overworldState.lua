@@ -54,14 +54,14 @@ function ExploreSubstate:update()
     -- previous frame's sprite update, exactly like the old main loop).
     -- No pokemon yet (pre-starter intro) = no wild battles.
     if player.stepJustFinished and not DEBUG_FLAGS.noEncounters
-       and game.playerPokemon then
+       and game:getPlayerPokemon() then
         if currentZone:checkEncounter(player.gridX, player.gridY) then
             local px, py = player:getPixelCenter()
             local ox, oy = gfx.getDrawOffset()
             local rootMachine = self.owner.machine
             self.machine:change("irisOut", px + ox, py + oy, function()
                 rootMachine:change("battle",
-                    game.playerPokemon, currentZone:rollEncounter(), nil)
+                    game:getPlayerPokemon(), currentZone:rollEncounter(), nil)
             end)
             return
         end
@@ -80,6 +80,10 @@ function ExploreSubstate:handleInput()
     local game = self.owner.game
     local player = game.player
     if player.isMoving then return end
+    if playdate.buttonJustPressed(playdate.kButtonB) then
+        self.owner.machine:push("pause")
+        return
+    end
 
     if playdate.buttonIsPressed(playdate.kButtonUp) then
         player:tryMove(0, -1)
@@ -101,10 +105,10 @@ function ExploreSubstate:handleInput()
             local rootMachine = self.owner.machine
             local lines = npc:getDialogLines()
             local battleData = npc:getBattleData()
-            if battleData and not npc.interacted and game.playerPokemon then
+            if battleData and not npc:hasInteracted() and game:getPlayerPokemon() then
                 rootMachine:push("dialog", lines, function()
                     local enemy = Pokemon(battleData.species, battleData.level)
-                    rootMachine:change("battle", game.playerPokemon, enemy, npc)
+                    rootMachine:change("battle", game:getPlayerPokemon(), enemy, npc)
                 end)
             else
                 rootMachine:push("dialog", lines)
@@ -273,11 +277,7 @@ function OverworldState:enter(opts)
 
     currentZone:spawnNPCs(game.npcManager)
 
-    -- During the intro the player has no pokemon until Oak's lab; after
-    -- it (or a debug skip) fall back to the classic default
-    if not game.playerPokemon and Story.stage == "done" then
-        game.playerPokemon = Pokemon("squirtle", 5)
-    end
+    -- An empty session remains empty until an explicit acquisition.
 
     local px, py = game.player:getPixelCenter()
     local mw, mh = getMapPixelSize()
@@ -287,6 +287,7 @@ function OverworldState:enter(opts)
 end
 
 function OverworldState:exit()
+    self:resume()
     local player = self.game.player
     if player then
         self.savedPos = {
@@ -296,9 +297,33 @@ function OverworldState:exit()
     end
 end
 
+-- Menus/dialogue retain world rendering and tile animation, while movement,
+-- encounter/door triggers and actor update callbacks wait for the overlay.
+function OverworldState:pause()
+    self.pausedSprites = {}
+    local function suspend(sprite)
+        if sprite and sprite.updatesEnabled then
+            self.pausedSprites[#self.pausedSprites + 1] = {sprite = sprite, enabled = sprite:updatesEnabled()}
+            sprite:setUpdatesEnabled(false)
+        end
+    end
+    suspend(self.game.player)
+    for _, npc in ipairs(self.game.npcManager.npcs) do suspend(npc) end
+end
+
+function OverworldState:resume()
+    for _, item in ipairs(self.pausedSprites or {}) do item.sprite:setUpdatesEnabled(item.enabled) end
+    self.pausedSprites = nil
+end
+
 function OverworldState:update()
     updateOverworldAnimations()
-    self.sub:update()
+    if self:isTop() then
+        self.sub:update()
+    else
+        self.game.camera:apply()
+        gfx.sprite.update()
+    end
 end
 
 function OverworldState:handleInput()

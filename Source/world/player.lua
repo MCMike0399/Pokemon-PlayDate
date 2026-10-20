@@ -156,11 +156,21 @@ end
 
 -- Show the grass overlay on the player's tile when standing in tall grass
 function Player:updateGrassOverlay()
-    local row = currentZone and currentZone.tiles[self.gridY + 1]
-    local onGrass = row and row[self.gridX + 1] == 8
+    local onGrass = currentZone and currentZone:isTallGrass(self.gridX, self.gridY)
     self.grassOverlay:setVisible(onGrass or false)
     if onGrass then
-        if self.rustleFrames > 0 then
+        local id = currentZone.tiles[self.gridY + 1][self.gridX + 1]
+        if id > 37 then
+            local tile = currentZone.registry:renderImported(id, TileFactory.renderGrid)
+            if self.importedGrassTile ~= tile then
+                self.importedGrassTile = tile
+                self.importedGrassOverlay = buildOverlayHalf(tile)
+            end
+            self.grassOverlay:setImage(self.importedGrassOverlay)
+            -- Imported animation needs an explicit source binding; do not
+            -- replace its source grass with the authored Pallet rustle.
+            self.rustleFrames = 0
+        elseif self.rustleFrames > 0 then
             self.rustleFrames = self.rustleFrames - 1
             self.grassOverlay:setImage(grassRustleImage)
         else
@@ -244,8 +254,7 @@ function Player:update()
             t = 1
             self.isMoving = false
             self.stepJustFinished = true
-            local row = currentZone and currentZone.tiles[self.gridY + 1]
-            if row and row[self.gridX + 1] == 8 then
+            if currentZone and currentZone:isTallGrass(self.gridX, self.gridY) then
                 self.rustleFrames = 6
             end
         end

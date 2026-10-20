@@ -1,0 +1,111 @@
+{
+  "journey": {
+    "name": "parcel-full-bag-supplementary",
+    "supplementary": true,
+    "reward": "potion",
+    "seed": 42,
+    "fixture_options": {
+      "seed": 42,
+      "intro": "skip",
+      "opening": false,
+      "zone": "kanto_route1",
+      "entry": {
+        "x": 4,
+        "y": 24,
+        "facing": "right"
+      },
+      "inventory": {
+        "money": 3000,
+        "slots": [
+          {
+            "id": "potion",
+            "quantity": 99
+          },
+          {
+            "id": "antidote",
+            "quantity": 1
+          },
+          {
+            "id": "burnHeal",
+            "quantity": 1
+          },
+          {
+            "id": "iceHeal",
+            "quantity": 1
+          },
+          {
+            "id": "awakening",
+            "quantity": 1
+          },
+          {
+            "id": "parlyzHeal",
+            "quantity": 1
+          },
+          {
+            "id": "fullRestore",
+            "quantity": 1
+          },
+          {
+            "id": "maxPotion",
+            "quantity": 1
+          },
+          {
+            "id": "hyperPotion",
+            "quantity": 1
+          },
+          {
+            "id": "superPotion",
+            "quantity": 1
+          },
+          {
+            "id": "escapeRope",
+            "quantity": 1
+          },
+          {
+            "id": "repel",
+            "quantity": 1
+          },
+          {
+            "id": "moonStone",
+            "quantity": 1
+          },
+          {
+            "id": "fireStone",
+            "quantity": 1
+          },
+          {
+            "id": "thunderStone",
+            "quantity": 1
+          },
+          {
+            "id": "waterStone",
+            "quantity": 1
+          },
+          {
+            "id": "hpUp",
+            "quantity": 1
+          },
+          {
+            "id": "protein",
+            "quantity": 1
+          },
+          {
+            "id": "iron",
+            "quantity": 1
+          },
+          {
+            "id": "carbos",
+            "quantity": 1
+          }
+        ]
+      },
+      "quest_flags": {
+        "EVENT_GOT_POTION_SAMPLE": false,
+        "EVENT_GOT_OAKS_PARCEL": false,
+        "EVENT_OAK_GOT_PARCEL": false,
+        "EVENT_GOT_POKEDEX": false
+      }
+    }
+  },
+  "acceptance_status": "requires root event/UI/diagnostic integration; runtime passage not claimed"
+}

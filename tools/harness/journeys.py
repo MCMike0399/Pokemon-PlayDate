@@ -340,8 +340,9 @@ class Journey:
         # award the remaining XP and open learning through BattleState.finish.
         self.reset(intro="skip", opening=False, zone="reds_house_2f",
                    player_pokemon={"species": "charmander", "level": 6},
-                   grant_xp={"amount": 126})
-        self.require(root="overworld", **{"pokemon.level": 6, "pokemon.xp": 342,
+                   grant_xp={"amount": 56})
+        # Pinned B2W2 medium-slow thresholds: Lv6=179, Lv7=236.
+        self.require(root="overworld", **{"pokemon.level": 6, "pokemon.xp": 235,
                                          "pokemon.pending_moves": 0})
         self.send("battle rattata 2")
         self.battle("level-up-battle", expected="win")
@@ -372,9 +373,9 @@ class Journey:
             self.adjust_battle(player_hp=1)
         self.battle("wild-blackout" if blackout else "wild-return", strategy="status" if blackout else "attack",
                     expected="loss" if blackout else "win")
-        self.require(root="overworld", zone="pallet_town", **{"story.stage": "done"})
+        self.require(root="overworld", zone="reds_house_2f" if blackout else "pallet_town", **{"story.stage": "done"})
         if blackout:
-            self.require(**{"player.x": 5, "player.y": 6, "pokemon.hp": self.state["pokemon"]["maxHP"]})
+            self.require(**{"player.x": 5, "player.y": 3, "pokemon.hp": self.state["pokemon"]["maxHP"]})
         else:
             self.require(**{"player.x": 9, "player.tile": 8})
         self.checkpoint("blackout-return" if blackout else "wild-return")

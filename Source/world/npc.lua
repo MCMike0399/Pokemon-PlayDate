@@ -47,7 +47,7 @@ end
 -- Dialog defs may be a function (story-stage-dependent lines)
 function NPC:getDialogLines()
     local lines = self.dialogLines
-    if self.interacted and self.postBattleLines then
+    if self:hasInteracted() and self.postBattleLines then
         lines = self.postBattleLines
     end
     if type(lines) == "function" then lines = lines() end
@@ -62,26 +62,45 @@ function NPC:getBattleData()
     return data
 end
 
--- Interacted state is mirrored onto the zone's npc def so it survives the
--- sprite teardown/respawn that happens when re-entering the overworld
-function NPC:markInteracted()
-    self.interacted = true
-    if self.def then self.def.interacted = true end
+-- Durable trainer state is owned by the installed session, not authored defs.
+function NPC:bindSession(game,id)
+    self.sessionContext,self.trainerID=game,id
+    self.interacted=self:hasInteracted()
 end
-
+function NPC:hasInteracted()
+    if self.sessionContext and self.trainerID then return self.sessionContext.session:trainerDefeated(self.trainerID) end
+    return self.interacted
+end
+function NPC:markInteracted()
+    if self.sessionContext then assert(self.sessionContext.session:setTrainerDefeated(self.trainerID,true)) end
+    self.interacted=true
+end
 function NPC:resetInteracted()
-    self.interacted = false
-    if self.def then self.def.interacted = false end
+    if self.sessionContext then assert(self.sessionContext.session:setTrainerDefeated(self.trainerID,false)) end
+    self.interacted=false
 end
 
 -- NPC manager
 Class("NPCManager")
 
-function NPCManager:init()
+function NPCManager:init(game)
+    self.game=game
     self.npcs = {}
 end
 
 function NPCManager:addNPC(npc)
+    if self.game and npc.bindSession then
+        local id=npc.def and npc.def.source_event_id
+        if not id then
+            for _,zone in pairs(zoneRegistry) do
+                for index,def in ipairs(zone.npcDefs) do
+                    if def==npc.def then id="authored:"..zone.stableID..":npc:"..index end
+                end
+            end
+        end
+        assert(id,"session NPC requires stable authored identity")
+        npc:bindSession(self.game,id)
+    end
     table.insert(self.npcs, npc)
 end
 

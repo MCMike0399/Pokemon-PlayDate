@@ -1,0 +1,12 @@
+--- a/tools/harness/journeys.py
++++ b/tools/harness/journeys.py
+@@ -385,6 +385,9 @@
+     config = scenario["journey"]
+     if not isinstance(config, dict):
+         raise ProtocolError("journey must be an object")
++    if config.get("name") in {"parcel-natural", "parcel-full-bag-supplementary", "parcel-visibility-checkpoint-supplementary"}:
++        from tools.harness.parcel_journey import run as run_parcel
++        return run_parcel(client, scenario, evidence_dir)
+     journey = Journey(client, evidence_dir, config)
+     name = config.get("name")
+     actions = {"intro": journey.natural_intro, "interiors": journey.interiors,

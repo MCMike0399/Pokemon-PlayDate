@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "status": "terrain/mutation foundation accepted; campaign bindings pending",
+  "sdk_contracts_passed": 128,
+  "integrated_jobs_passed": 7,
+  "protected_visuals_identical": 915,
+  "pilot_changed_pixels": 0,
+  "native_protocol_fault_cases": 41,
+  "inspected": "Root viewed both SDK map rasters, shade byte probe, native starter and battle scenes.",
+  "remaining": "Maps remain explicit terrain fixtures; parcel/shop/ledge/campaign readiness pending. Strict unknown-envelope rejection subsequently passed in142-case growth integration.",
+  "archive_sha256": "e360977c4df41a9bcc4a6ec7663d8bda241b2f76f470353a8da351da4f104872",
+  "archive_bytes": 2749669
+}

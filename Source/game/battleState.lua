@@ -18,48 +18,56 @@ function BattleState:init(game)
     self.scene = nil
 end
 
-function BattleState:enter(playerPokemon, enemyPokemon, npc)
+function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     self.npc = npc
     playdate.graphics.sprite.removeAll()
     self.game.camera:reset()
     playerPokemon:resetStages()
 
-    self.battle = Battle(playerPokemon, enemyPokemon, npc and npc.name)
+    self.battle = Battle(playerPokemon, enemyPokemon, npc and npc.name,
+        {party = self.game.session:party(), session = self.game.session, enemyParty = enemyParty})
     self.scene = BattleScene(self.battle)
 
     self.battle:on("battleEnd", function(won, kind)
         self:finish(won, kind)
     end)
+    assert(self.game.session:markSeen(enemyPokemon.species))
 end
 
 function BattleState:finish(won, kind)
     local game = self.game
     kind = kind or (self.battle and self.battle.outcome) or (won and "victory" or "defeat")
-    local pokemon = game.playerPokemon
-    game.lastBattleOutcome = {kind = kind, won = won, blackout = not pokemon:isAlive(),
+    local pokemon = game:getPlayerPokemon()
+    local party=game.session:party()
+    local blackout=party:allFainted()
+    local introRival=Story.get(game).stage=="rival_fight"
+    game.lastBattleOutcome = {kind = kind, won = won, blackout = blackout,
         player_hp = pokemon.hp, enemy_hp = self.battle and self.battle.enemy.hp or nil}
     if won and self.npc then
         self.npc:markInteracted()
     end
-    Story.notifyBattleEnd(won, kind)
+    Story.notifyBattleEnd(game, won, kind)
 
     pokemon:resetStages()
     if self.battle then self.battle.enemy:resetStages() end
 
-    if not pokemon:isAlive() then
-        -- Blacked out: classic Pokemon behavior — heal up, respawn at spawn
-        pokemon:fullRestore()
-        self.machine:change("overworld", { respawn = true })
+    if blackout then
+        party:healAll()
+        assert(party:switch(assert(party:firstUsable())))
+        if introRival then self.machine:change("overworld",{respawn=true})
+        else game:returnToCheckpoint() end
     else
+        -- A final recoil victory may leave a fainted lead with usable reserves.
+        if not pokemon:isAlive() then assert(party:switch(assert(party:firstUsable()))) end
         self.machine:change("overworld")
     end
-    game:offerLearning(pokemon)
+    game:offerPartyLearning()
 end
 
 function BattleState:exit()
     playdate.display.setOffset(0, 0)
     if self.battle then
-        self.battle.player:resetStages()
+        for _, mon in ipairs(self.game.session:party():members()) do mon:resetStages() end
         self.battle.enemy:resetStages()
         if not self.battle.emittingEnd then self.battle:clearListeners() end
     end
@@ -69,14 +77,43 @@ function BattleState:exit()
 end
 
 function BattleState:update()
-    self.battle:update()
+    if not self:isTop() or not self.battle then return end
+    local battle = self.battle
+    battle:update()
+    if self.battle ~= battle then return end
     if self.scene then self.scene:update() end
+    self:openSelection()
 end
 
 function BattleState:handleInput()
-    self.scene:handleInput()
+    if self.scene then self.scene:handleInput() end
+    self:openSelection()
 end
 
 function BattleState:draw()
-    self.scene:draw()
+    if self.scene then self.scene:draw() end
+end
+
+function BattleState:openSelection()
+    if not self:isTop() or not self.scene then return end
+    local request = self.scene:takeSelectionRequest()
+    if not request then return end
+    local battle, scene, session = self.battle, self.scene, self.game.session
+    local function current()
+        return self.battle == battle and self.scene == scene and self.game.session == session
+    end
+    local function select(value)
+        if not current() then return false, "stale-selection" end
+        local ok, reason
+        if request.kind == "party" then ok, reason = battle:chooseParty(value)
+        else ok, reason = battle:throwBall(value) end
+        if ok then assert(scene:completeSelection()) end
+        return ok, reason
+    end
+    local function cancel()
+        if not current() then return false, "stale-selection" end
+        return scene:completeSelection(true)
+    end
+    self.machine:push(request.kind == "party" and "party" or "bag",
+        {prompt = "Choose a POKEMON!", allowCancel = not request.forced, trySelect = select, tryCancel = cancel})
 end

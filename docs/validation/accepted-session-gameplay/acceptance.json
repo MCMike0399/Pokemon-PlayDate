@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "scope": "Functional session/save/field menus/party/capture commands; full campaign remains active",
+  "source_sha256": "99a6316ef9e16fd14625eaf823a4142fbadb1ff95f1ab500962057334fd1a0c7",
+  "sdk_contracts_passed": 244,
+  "native_jobs_passed": 14,
+  "host_tests_passed": 212,
+  "protected_artifacts_identical": 915,
+  "added_catalog_artifacts_unreviewed": 292,
+  "visual_inspection": [
+    "native party list/stats/bag",
+    "medicine target/PP selection",
+    "forced switch battle return",
+    "capture throw/result (gap below)",
+    "save confirmation/title/continued exploration"
+  ],
+  "known_visual_gap": "Capture result currently leaves enemy visible; staged original-art throw/absorb/shake animation is required before presentation acceptance.",
+  "save_restart": "Two distinct owned Simulator PIDs; private adventure file checksum unchanged across restart; earlier smoke scene comparison0 changed pixels.",
+  "remaining": "Production four-map traversal/event/shop/healing/Oak scene, extended catalog review, entire subsequent campaign and postgame.",
+  "archive_sha256": "84763ed2432697fb197055f4631bf62c97423fd90d03946c0a4b2f3c583507fb",
+  "archive_bytes": 3534809
+}

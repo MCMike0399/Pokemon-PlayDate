@@ -17,12 +17,23 @@
 -- Stages are flipped BEFORE their dialog is pushed, so a trigger can never
 -- fire twice while its own dialog overlay is up.
 
-Story = {
-    stage = "pre_oak",
-    starter = nil,        -- chosen species key
-    rivalStarter = nil,   -- BLUE's counter pick
-    rivalOutcome = nil,   -- true = player won the intro fight
-}
+Story = {}
+local boundContext
+function Story.bind(game) boundContext=game end
+function Story.currentContext() return boundContext end
+function Story.get(game)
+    game=game or boundContext
+    return game and game.session:getIntro() or {stage="pre_oak"}
+end
+local function update(game,changes)
+    local tuple=Story.get(game)
+    for key,value in pairs(changes) do tuple[key]=value end
+    assert(game.session:setIntro(tuple))
+end
+-- Authored map dialogue closures have a read-only view of the installed owner.
+local fields={stage=true,starter=true,rivalStarter=true,rivalOutcome=true}
+setmetatable(Story,{__index=function(_,key) if fields[key] then return Story.get()[key] end end,
+    __newindex=function(t,key,value) assert(not fields[key],"Story fields are session-owned"); rawset(t,key,value) end})
 
 local STARTER_LEVEL <const> = 5
 local BALL_TILE <const> = 37   -- Pb: table with a POKE BALL on it
@@ -95,22 +106,18 @@ local GOODBYE_LOST <const> = {
 -- Helpers
 -- ------------------------------------------------------------
 
-function Story.isActive()
-    return Story.stage ~= "done"
+function Story.isActive(game)
+    return Story.get(game).stage ~= "done"
 end
 
 -- New game: the questline starts in Red's bedroom
-function Story.begin()
-    Story.stage = "pre_oak"
-    switchZone("reds_house_2f")
+function Story.begin(game,seed)
+    assert(game,"Story.begin requires GameContext")
+    return game:beginNewSession(seed)
 end
 
 local function setLabTile(gx, gy, id)
-    local lab = zoneRegistry.oaks_lab
-    lab.tiles[gy + 1][gx + 1] = id
-    if currentZone == lab then
-        setOverworldTile(gx, gy, id)
-    end
+    zoneRegistry.oaks_lab:setTile(gx, gy, id)
 end
 
 local function takeBall(species)
@@ -140,23 +147,23 @@ end
 -- ------------------------------------------------------------
 
 function Story.check(game, overworldState)
-    if Story.stage == "done" then return false end
+    if Story.get(game).stage == "done" then return false end
     -- Never re-trigger while a dialog/debug overlay already owns input
     if not game.machine:is("overworld") then return false end
 
     local player = game.player
-    local stage = Story.stage
+    local stage = Story.get(game).stage
 
     -- Scene triggers: fire on BEING somewhere, not on a step
     if stage == "lab_greet" and currentZone == zoneRegistry.oaks_lab then
-        Story.stage = "choose"
+        update(game,{stage="choose"})
         game.machine:push("dialog", LAB_GREET)
         return true
     end
 
     if stage == "goodbye" and currentZone == zoneRegistry.oaks_lab then
-        Story.stage = "done"
-        local lines = Story.rivalOutcome and GOODBYE_WON or GOODBYE_LOST
+        update(game,{stage="done"})
+        local lines = Story.get(game).rivalOutcome and GOODBYE_WON or GOODBYE_LOST
         game.machine:push("dialog", lines, function()
             local blue = game.npcManager:findByName("BLUE")
             if blue then game.npcManager:removeNPC(blue) end
@@ -171,7 +178,7 @@ function Story.check(game, overworldState)
     if stage == "pre_oak" and currentZone == zoneRegistry.pallet_town
        and player.gridY <= 2 then
         game.machine:push("dialog", OAK_STOP, function()
-            Story.stage = "lab_greet"
+            update(game,{stage="lab_greet"})
             -- Drop the player a clear tile below Oak so the two sprites
             -- don't stack into one tall figure
             overworldState.sub:change("doorWarp",
@@ -184,10 +191,10 @@ function Story.check(game, overworldState)
     if stage == "pre_rival" and currentZone == zoneRegistry.oaks_lab
        and player.gridY >= 8 then
         game.machine:push("dialog", RIVAL_CHALLENGE, function()
-            Story.stage = "rival_fight"
+            update(game,{stage="rival_fight"})
             local blue = game.npcManager:findByName("BLUE")
-            local enemy = starterPokemon(Story.rivalStarter)
-            game.machine:change("battle", game.playerPokemon, enemy, blue)
+            local enemy = starterPokemon(Story.get(game).rivalStarter)
+            game.machine:change("battle", game:getPlayerPokemon(), enemy, blue)
         end)
         return true
     end
@@ -198,7 +205,7 @@ end
 -- A-press on a facing tile — called from ExploreSubstate:handleInput
 -- before NPC interaction. Returns true if the press was consumed.
 function Story.tryInteract(game, fx, fy)
-    if Story.stage ~= "choose" or currentZone ~= zoneRegistry.oaks_lab then
+    if Story.get(game).stage ~= "choose" or currentZone ~= zoneRegistry.oaks_lab then
         return false
     end
     for _, ball in ipairs(BALLS) do
@@ -212,25 +219,23 @@ function Story.tryInteract(game, fx, fy)
 end
 
 function Story.chooseStarter(game, species)
-    Story.starter = species
-    Story.rivalStarter = COUNTER[species]
-    Story.stage = "pre_rival"
-    game.playerPokemon = starterPokemon(species)
+    assert(COUNTER[species],"unknown starter")
+    assert(game:recruit(starterPokemon(species)))
+    assert(game.session:setIntro({stage="pre_rival",starter=species,rivalStarter=COUNTER[species]}))
     takeBall(species)
-    takeBall(Story.rivalStarter)
+    takeBall(Story.get(game).rivalStarter)
     game.machine:push("dialog", {
         "OAK: This POKEMON is really energetic!",
         "RED received a " .. pokemonData[species].name .. "!",
         "BLUE: I'll take this one, then!",
-        "BLUE received a " .. pokemonData[Story.rivalStarter].name .. "!",
+        "BLUE received a " .. pokemonData[Story.get(game).rivalStarter].name .. "!",
     })
 end
 
 -- Called by BattleState when any battle resolves
-function Story.notifyBattleEnd(won)
-    if Story.stage == "rival_fight" then
-        Story.rivalOutcome = won
-        Story.stage = "goodbye"
+function Story.notifyBattleEnd(game,won,kind)
+    if Story.get(game).stage == "rival_fight" then
+        update(game,{rivalOutcome=won,stage="goodbye"})
     end
 end
 
@@ -240,29 +245,13 @@ end
 
 -- Jump straight to free play (squirtle starter unless one was chosen)
 function Story.skipIntro(game)
-    if Story.stage ~= "done" then
-        Story.starter = Story.starter or "squirtle"
-        Story.rivalStarter = COUNTER[Story.starter]
-        Story.stage = "done"
-    end
-    if not game.playerPokemon then
-        game.playerPokemon = starterPokemon(Story.starter)
-    end
-    takeBall(Story.starter)
-    takeBall(Story.rivalStarter)
+    local tuple=Story.get(game)
+    local starter=tuple.starter or "squirtle"
+    if not game:getPlayerPokemon() then assert(game:recruit(starterPokemon(starter))) end
+    assert(game.session:setIntro({stage="done",starter=starter,rivalStarter=COUNTER[starter],rivalOutcome=tuple.rivalOutcome}))
+    takeBall(starter); takeBall(COUNTER[starter])
 end
 
--- Restart the questline from the bedroom
 function Story.resetIntro(game)
-    Story.stage = "pre_oak"
-    Story.starter = nil
-    Story.rivalStarter = nil
-    Story.rivalOutcome = nil
-    game.playerPokemon = nil
-    restoreBalls()
-    -- the post-intro rematch BLUE forgets the earlier fight
-    for _, def in ipairs(zoneRegistry.pallet_town.npcDefs) do
-        if def.name == "BLUE" then def.interacted = false end
-    end
-    switchZone("reds_house_2f")
+    return game:beginNewSession(RulesRNG.snapshot().seed)
 end
