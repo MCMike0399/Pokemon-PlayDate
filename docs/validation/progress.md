@@ -4,6 +4,53 @@ Persistent objective: [complete goal](../plans/astra-full-game-goal.md).
 Status: **active; campaign unfinished**. Resume from this ledger, then inspect the
 owned task handoffs before changing files. Do not repeat the original audit.
 
+## Current checkout / next continuation
+
+Harness checkpoint: `b53566d`. Foundation checkpoint: `75b7d05`, with durable
+[acceptance evidence](accepted-foundations/acceptance.json).
+**Do not reapply the old learnset, party or save patches.**
+
+- All 151 ordered B2W2 learnsets (2,184 events), real level initialization and
+  move choices are live. Charm/Psywave/Storm Throw are implemented; Struggle is
+  now a generated runtime-only fallback (423 move records total).
+- Party/Storage/Inventory models are integrated and SDK-tested, but the live
+  GameContext still owns one `playerPokemon`; full session/party/menu/capture
+  integration is outstanding.
+- Move-learning overlay is wired after battle return. Seven-job UI/intro suite
+  passed at `/private/tmp/pokemon-learning-integration-suite-01` (55 SDK cases,
+  14 native captures inspected, exact clean-screen return). A real XP-awarding
+  battle also passed `/private/tmp/pokemon-battle-learning-02`. The first probe
+  exposed/fixed a host one-based array-path lookup bug; game learning was correct.
+- Combat PP/Struggle/status/faint ordering and terminal observer cleanup are
+  implemented. All 27 new SDK cases passed. Native three-job combat suite is
+  passed at `/private/tmp/pokemon-combat-journeys-01`; root inspected eight native
+  display captures covering exhausted/partial PP, poison, escape, simultaneous
+  faint victory and blackout restoration.
+- Pokémon codec and two-slot SaveStore are live primitives, **not** aggregate
+  game save/Continue. Real SDK JSON decoding rounded numeric 2147483647 to float
+  2147483648. Decimal text now preserves full counter bounds. Raw numeric RNG
+  snapshots are in-memory only; `toData`/`restoreData` are the persistence seam.
+- Latest root SDK execution: **112/112 passed**, including 16 persistence and
+  14 RNG serialization cases, at `/private/tmp/pokemon-persistence-rng-contracts-02`.
+  All 915 protected visual artifacts compare exactly. The earlier red sequence
+  probe and diagnostic remain under `/private/tmp/pokemon-save-*probe-01` and
+  `/private/tmp/pokemon-combat-save-contracts-01`.
+- World adapter is still staged only: `/private/tmp/pokemon-world-foundation/`
+  has a nine-file patch, manifest, README and `validate_staged.py`. It overlays
+  only owned files onto current source and qualifies 12 SDK cases + pilot PNGs.
+  Root executed `/private/tmp/pokemon-world-contracts-01`: all 124 aggregate
+  contracts passed. **Visual acceptance failed:** Route1 has 148,176 differing
+  pixels and Mart 11,533 against independent previews. Root inspected both pairs;
+  native shade patterns differ. Diagnose before integration, without modifying
+  protected rendering or blessing a replacement golden. Player/Story/reset
+  integration hooks are in README.
+
+Root retains sole Simulator ownership. Current worker Source is frozen pending
+root native/world tests. Follow-ups must explicitly release owned files.
+Next: resolve pilot render differences, qualify/integrate world adapter, then compose
+persistent session state/Save/Continue and actual party/inventory/capture UI.
+The complete campaign/postgame goal remains active.
+
 ## Accepted milestone: harness and protected references
 
 Starting revision `1cb82252e4d591e9819fdd23caa234e02128263c`; tracked tree was clean.
@@ -68,6 +115,10 @@ acceptance run. No failing golden image was overwritten to achieve acceptance.
 - [NPC mask comparison](reference-mask-comparison.json): all 16 SDK masks match
   independent transforms of pinned original source inputs. Existing NPC grids
   reproduce exactly; RED remains the intentional hand-tuned exception.
+- [Battle-art reproduction](battle-art-provenance.md): root independently checked
+  all 302 PNGs against pinned original front/back images and threshold 128,
+  with identical pixels/opacity and unchanged protected files. No art rewritten.
+  [Root report](accepted-foundations/battle-art-check.json).
 - [coordinate check](reference-coordinate-check.json): independent Pillow decoder
   agrees with source block/quadrant examples for Route 1 and Red's house.
 - [Kanto inventory](../research/kanto-content-inventory.md), plus machine-readable
@@ -75,10 +126,9 @@ acceptance run. No failing golden image was overwritten to achieve acceptance.
 - [fidelity ledger](fidelity-ledger.md): Blue default, original 151, intentional
   Gen V/B2W2 mechanics and Dark/Steel; original palette/art contracts preserved.
 
-The B2W2 validator correctly fails current live content: 151 missing level-aware
-learnsets, 115 ordered-list discrepancies, zero scalar discrepancies across 419
-moves. Runtime mechanisms still have explicit known/review/unverified gaps.
-These are next-milestone defects, not waived full-game acceptance criteria.
+The B2W2 validator now has zero learnset/scalar discrepancies across 151 species
+and 423 moves. It still fails explicit unimplemented/review/unverified mechanics.
+Those remaining gaps are not waived full-game acceptance criteria.
 
 ## Ownership and runtime controls
 
@@ -95,9 +145,9 @@ Follow-ups reuse those exact workers. Never silently inherit or substitute.
 
 | Worker | Current handoff / allowed scope |
 |---|---|
-| `harness` | Harness accepted; pinned Kanto inventory research delivered. Live Source frozen until root integration. |
-| `rules_contracts` | Learnset foundation staged only at `/private/tmp/pokemon-learnsets-foundation`; six-file patch + manifest. |
-| `visual_catalog` | Party/storage/inventory staged only at `/private/tmp/pokemon-party-foundation`; contract-report normalization requested. |
+| `harness` | Lossless integer protocol host changes live; runtime patch staged. Next diagnose pilot preview/native mismatch. World adapter remains staged. |
+| `rules_contracts` | Prior foundations integrated and validated; now growth/XP research and staged implementation at `/private/tmp/pokemon-growth-foundation`. No live Source edits. |
+| `visual_catalog` | Prior party/save foundations integrated; now tracing all 302 battle PNGs against pinned originals. No Source art edits. |
 
 Shared checkout uses disjoint ownership. No worker runs the Simulator. Root must
 review diffs, apply only owned staged files, run integrated SDK contracts and
@@ -105,28 +155,25 @@ inspect resulting images before accepting implementation.
 
 ## Next executable work
 
-1. Checkpoint the accepted harness separately from pending foundation changes.
-2. Integrate only the six files named by learnset `foundation-manifest.json`;
-   never overwrite current harness files with the older staged source copy.
-   [Learnset handoff](learnsets-foundation.md) documents complete 2,184 learning
-   events, explicit choices and three real move additions (Charm/Psywave/Storm
-   Throw). Root reviewed the production diff; 14 SDK cases still need execution.
-3. Add a small contract-suite registration seam, import staged module tests, and
-   rerun original SDK contracts, content validator and all three intro regressions.
-   Wire move-learning UI before claiming playable learning complete.
-4. Review/integrate staged Party6, Storage12×20, Inventory20-stack modules and run
-   actual SDK tests. [Party handoff](../plans/party-foundation.md). Session/UI,
-   capture, actual Pokémon codec, versioned saves/corruption recovery remain work.
-5. Audit/fix exposed battle behavior: PP/Struggle, persistent status, fixed damage,
-   overkill drain/recoil, outcome ordering, growth/XP and special moves.
-6. Pilot original-source Route 1 + a new Viridian interior with exact coordinate
-   transformation and actual visual/playability checks; preserve authored Pallet.
+1. Accepted foundations are committed at `75b7d05`; keep subsequent changes
+   separate until integrated checks and visual review pass.
+2. Integrate/qualify lossless harness integer wire transport with real SDK large
+   positive/negative seed and assertion cases.
+3. Diagnose pilot preview/native discrepancy; validate world adapter and integrate
+   only its nine owned files plus root Story/Player/reset seams. Rerun catalog and
+   natural intros. Never reapply historical learnset/party/save patches.
+4. Compose authoritative GameSession, aggregate codec, Save/Continue and actual
+   party/storage/inventory UI. Primitives and codec alone are not gameplay.
+5. Integrate independently sourced growth/XP and remaining special move behavior;
+   connect capture, switching, multi-member battles, healing and checkpoint rules.
+6. Bind Route 1 and Viridian gameplay, padding/camera, NPCs, parcel/shop quests and
+   exact connections; preserve authored Pallet and validate natural play/save.
 7. Continue connected campaign milestones through Champion/credits/postgame.
 
 | Full-goal milestone | Status |
 |---|---|
 | Harness and protected references | Accepted with evidence above |
-| Domain/data/party/items/save foundations | Staged candidates; integration beginning |
+| Domain/data/party/items/save foundations | Integrated primitives/learning/combat; session and gameplay integration pending |
 | Pallet–Brock coherent campaign | Pending |
 | Mt. Moon–Cerulean–S.S. Anne | Pending |
 | Connected midgame Kanto | Pending |

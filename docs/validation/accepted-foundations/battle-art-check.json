@@ -1,0 +1,4240 @@
+{
+  "schema": 1,
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "assets": 302,
+  "exact": 302,
+  "protected_files_unchanged": 302,
+  "ok": true,
+  "transformation": "native opaque threshold128: 0/85 black,170/255 white",
+  "results": [
+    {
+      "species": "bulbasaur",
+      "view": "front",
+      "asset": "bulbasaur-front.png",
+      "reference": "gfx/pokemon/front/bulbasaur.png",
+      "reference_sha256": "bc9e7f51f7764cf72a68b614e322d298492dc6810507f3b6c46e758000d7df3d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "bulbasaur",
+      "view": "back",
+      "asset": "bulbasaur-back.png",
+      "reference": "gfx/pokemon/back/bulbasaurb.png",
+      "reference_sha256": "0aa1b8005ba28fc813eac877fb4f52cd1d44631b86d6bff453fa66246e2ad969",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ivysaur",
+      "view": "front",
+      "asset": "ivysaur-front.png",
+      "reference": "gfx/pokemon/front/ivysaur.png",
+      "reference_sha256": "bdc87d9c8bf092116935d9de2233b84dad6d0170002107daa9c54c2a18790c8f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ivysaur",
+      "view": "back",
+      "asset": "ivysaur-back.png",
+      "reference": "gfx/pokemon/back/ivysaurb.png",
+      "reference_sha256": "1c4bebd8f7883a8c3fa71b9498689ff9962216262c353cf4c6777d4357348064",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "venusaur",
+      "view": "front",
+      "asset": "venusaur-front.png",
+      "reference": "gfx/pokemon/front/venusaur.png",
+      "reference_sha256": "cc943eaa4a1dd17bef2816f791161e7c89c82c33c5c8fa47d518ef408d2f848f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "venusaur",
+      "view": "back",
+      "asset": "venusaur-back.png",
+      "reference": "gfx/pokemon/back/venusaurb.png",
+      "reference_sha256": "d613ea24079248550f0078eb8802a0d9287711607bca584fb6fa08b9baf8f088",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "charmander",
+      "view": "front",
+      "asset": "charmander-front.png",
+      "reference": "gfx/pokemon/front/charmander.png",
+      "reference_sha256": "b4ca98f07af4b77dc31c7cf24677e6d5afd0b13aad81acd2a089682727cf249f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "charmander",
+      "view": "back",
+      "asset": "charmander-back.png",
+      "reference": "gfx/pokemon/back/charmanderb.png",
+      "reference_sha256": "83e0b38426f0a03e6fb5229a178e87e01849f0dbf150767420fde6efda4f1b7f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "charmeleon",
+      "view": "front",
+      "asset": "charmeleon-front.png",
+      "reference": "gfx/pokemon/front/charmeleon.png",
+      "reference_sha256": "73ac78c1ba7f6a8945887130ce6c194178f72a18056c5ded2de818daef0a21be",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "charmeleon",
+      "view": "back",
+      "asset": "charmeleon-back.png",
+      "reference": "gfx/pokemon/back/charmeleonb.png",
+      "reference_sha256": "e71e2b16c771da6673a6bd5096907ed3d7f0cfaad6967ba053dfd2ef8d46a6ce",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "charizard",
+      "view": "front",
+      "asset": "charizard-front.png",
+      "reference": "gfx/pokemon/front/charizard.png",
+      "reference_sha256": "5bb61e11a7f5e0a0e1e9d47b94ea27b3fa25c789fb896d18208555d1f5e889ba",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "charizard",
+      "view": "back",
+      "asset": "charizard-back.png",
+      "reference": "gfx/pokemon/back/charizardb.png",
+      "reference_sha256": "c1d24b79cba64e81dccbf22dcf4578cb7444ff3f6237942f129611ecdc3e0e57",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "squirtle",
+      "view": "front",
+      "asset": "squirtle-front.png",
+      "reference": "gfx/pokemon/front/squirtle.png",
+      "reference_sha256": "d449e7a4ed00f6255309412525ef04be9c515adc54de13f09e5fc84aeb4fb92f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "squirtle",
+      "view": "back",
+      "asset": "squirtle-back.png",
+      "reference": "gfx/pokemon/back/squirtleb.png",
+      "reference_sha256": "771c29ae1466110f569d0cbddc5aed1883a1c19e2782728241533994df945e1a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "wartortle",
+      "view": "front",
+      "asset": "wartortle-front.png",
+      "reference": "gfx/pokemon/front/wartortle.png",
+      "reference_sha256": "88e72dde7053f00483e10da846367e2b4830d3e1a4a14e5fa564ce69fc456e25",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "wartortle",
+      "view": "back",
+      "asset": "wartortle-back.png",
+      "reference": "gfx/pokemon/back/wartortleb.png",
+      "reference_sha256": "aa11f227640a4e9b3d240ef0072590194f9945b61fe0951f4f4ab09919896ef6",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "blastoise",
+      "view": "front",
+      "asset": "blastoise-front.png",
+      "reference": "gfx/pokemon/front/blastoise.png",
+      "reference_sha256": "f4a2f783768806fa8a4278f0258e517aef8add0867bd3c78e7ccb57e64bfd478",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "blastoise",
+      "view": "back",
+      "asset": "blastoise-back.png",
+      "reference": "gfx/pokemon/back/blastoiseb.png",
+      "reference_sha256": "cf8a7f4385f37db72dd2e2b54a120969f0e9dda15d5725c55c98cbb008c4fcc0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "caterpie",
+      "view": "front",
+      "asset": "caterpie-front.png",
+      "reference": "gfx/pokemon/front/caterpie.png",
+      "reference_sha256": "c75ef8d8a375445174061a277f67fec111babc7938b2ea0bb6207a4f9b3f97d0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "caterpie",
+      "view": "back",
+      "asset": "caterpie-back.png",
+      "reference": "gfx/pokemon/back/caterpieb.png",
+      "reference_sha256": "0a7267186d553cd5525243c1fc86c31ba8f57dc12f914492d70ad6c4a00235f5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "metapod",
+      "view": "front",
+      "asset": "metapod-front.png",
+      "reference": "gfx/pokemon/front/metapod.png",
+      "reference_sha256": "011f910a0db099d38910a70b404bc35e7a4af237408bca8a109f9202d145c848",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "metapod",
+      "view": "back",
+      "asset": "metapod-back.png",
+      "reference": "gfx/pokemon/back/metapodb.png",
+      "reference_sha256": "354bdee84d9e990183b338ac4370a2d06734a7d24f989247873299d47800541d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "butterfree",
+      "view": "front",
+      "asset": "butterfree-front.png",
+      "reference": "gfx/pokemon/front/butterfree.png",
+      "reference_sha256": "05b463c32fe7a7cd855a9c9b47df119d08835331f513ea7af4327d2380afdd1c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "butterfree",
+      "view": "back",
+      "asset": "butterfree-back.png",
+      "reference": "gfx/pokemon/back/butterfreeb.png",
+      "reference_sha256": "1467f4c289549c4b240bd44694b94e499962f2a08f950b9476cf7cc8f569a1c2",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "weedle",
+      "view": "front",
+      "asset": "weedle-front.png",
+      "reference": "gfx/pokemon/front/weedle.png",
+      "reference_sha256": "86957890e770a47dbee95bb22839849dcb3dffb53ada83d5fb8d39a1f5528411",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "weedle",
+      "view": "back",
+      "asset": "weedle-back.png",
+      "reference": "gfx/pokemon/back/weedleb.png",
+      "reference_sha256": "0ec4e2c8adcf4d99a0bec1d9910693b4582c39156d8aa447bdfd568b04b27759",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kakuna",
+      "view": "front",
+      "asset": "kakuna-front.png",
+      "reference": "gfx/pokemon/front/kakuna.png",
+      "reference_sha256": "5b3a1112f39b93f2d2b5eaf38895831f4b23b36df8b33a5a8fd6bcdae9b61b52",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kakuna",
+      "view": "back",
+      "asset": "kakuna-back.png",
+      "reference": "gfx/pokemon/back/kakunab.png",
+      "reference_sha256": "ba7022ba4a482cbcff05c4bc3d1dee4b7b340d454b03f9553e593fce982e636f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "beedrill",
+      "view": "front",
+      "asset": "beedrill-front.png",
+      "reference": "gfx/pokemon/front/beedrill.png",
+      "reference_sha256": "6573d047a77bf2bdd6d755bc80abb57edfd964dcf3d9f522f5c0c5c2721d5508",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "beedrill",
+      "view": "back",
+      "asset": "beedrill-back.png",
+      "reference": "gfx/pokemon/back/beedrillb.png",
+      "reference_sha256": "50c6dbd328fe74339b554d7261f9a7a2ab4900b037df89d1d74c181e019f8ff8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pidgey",
+      "view": "front",
+      "asset": "pidgey-front.png",
+      "reference": "gfx/pokemon/front/pidgey.png",
+      "reference_sha256": "627acd5a7c794b59512fa9f30d018cd01a362ffe42f2659177baac5c6cab3936",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pidgey",
+      "view": "back",
+      "asset": "pidgey-back.png",
+      "reference": "gfx/pokemon/back/pidgeyb.png",
+      "reference_sha256": "58160bc2039c797199d639f9fba8e2fdedc0f3ce699359f5e646730baa627713",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pidgeotto",
+      "view": "front",
+      "asset": "pidgeotto-front.png",
+      "reference": "gfx/pokemon/front/pidgeotto.png",
+      "reference_sha256": "7ce7a6ae5316414aba87734e0247c396b8234c2f738f0871c66635fde975b51b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pidgeotto",
+      "view": "back",
+      "asset": "pidgeotto-back.png",
+      "reference": "gfx/pokemon/back/pidgeottob.png",
+      "reference_sha256": "5b97025a59fa3d9da22ca7189655b31a2c6f56ca5f3a2a22d31d8f130ce6e721",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pidgeot",
+      "view": "front",
+      "asset": "pidgeot-front.png",
+      "reference": "gfx/pokemon/front/pidgeot.png",
+      "reference_sha256": "7aac8798429f40e82f9ef0443ce1db07186b419cbc5af75f2818ee9b27a32b8a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pidgeot",
+      "view": "back",
+      "asset": "pidgeot-back.png",
+      "reference": "gfx/pokemon/back/pidgeotb.png",
+      "reference_sha256": "0ac845227eaee0fad25df26a44eea4600e494d852ce3f180f9dae1412f021e99",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rattata",
+      "view": "front",
+      "asset": "rattata-front.png",
+      "reference": "gfx/pokemon/front/rattata.png",
+      "reference_sha256": "f74fcbb204d0b598d6611e417d372ad219d74074bc4081731196ce9d3d013ce1",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rattata",
+      "view": "back",
+      "asset": "rattata-back.png",
+      "reference": "gfx/pokemon/back/rattatab.png",
+      "reference_sha256": "3d0e9f747e2a3084f360301e4eb284b8d62f347ef334769d4eb7f3d315814471",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "raticate",
+      "view": "front",
+      "asset": "raticate-front.png",
+      "reference": "gfx/pokemon/front/raticate.png",
+      "reference_sha256": "a6c5a6459fdc02a82c1d59e976ce50ab33247059ea6e5a9a3f29ecd722c03808",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "raticate",
+      "view": "back",
+      "asset": "raticate-back.png",
+      "reference": "gfx/pokemon/back/raticateb.png",
+      "reference_sha256": "8f73435744aa4c26322093530e71a5b2d386684a5b393c36ac528ed3087c964b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "spearow",
+      "view": "front",
+      "asset": "spearow-front.png",
+      "reference": "gfx/pokemon/front/spearow.png",
+      "reference_sha256": "2bea4e8896a8a5afb5f0293f11535a997c490aa80fdfce08d625a212e239d241",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "spearow",
+      "view": "back",
+      "asset": "spearow-back.png",
+      "reference": "gfx/pokemon/back/spearowb.png",
+      "reference_sha256": "31f2e9b1d19023c8b2aa7db4071e322517c935a2036b8c935a84c94969d6eaf1",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "fearow",
+      "view": "front",
+      "asset": "fearow-front.png",
+      "reference": "gfx/pokemon/front/fearow.png",
+      "reference_sha256": "cd8ad538a97f08a71a00a85c740504fef2a33820e32712264286e1fddf331712",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "fearow",
+      "view": "back",
+      "asset": "fearow-back.png",
+      "reference": "gfx/pokemon/back/fearowb.png",
+      "reference_sha256": "08d217b770190a2e4a202f1ae72f4853c7d05f2a739776045a5e4d277bd659fc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ekans",
+      "view": "front",
+      "asset": "ekans-front.png",
+      "reference": "gfx/pokemon/front/ekans.png",
+      "reference_sha256": "6a99be5c327dbf67ddf260fa80c1e3857bbb159ffe87704d35fa6c2f23f8fd55",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ekans",
+      "view": "back",
+      "asset": "ekans-back.png",
+      "reference": "gfx/pokemon/back/ekansb.png",
+      "reference_sha256": "96d28e487a631aeb163e6faf89007178e642b743977a41f3465aa3a802cedca3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "arbok",
+      "view": "front",
+      "asset": "arbok-front.png",
+      "reference": "gfx/pokemon/front/arbok.png",
+      "reference_sha256": "0fd8bef8021033bac4ba4222226d09fbe30831c47c5ab3368960b1a27f12011e",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "arbok",
+      "view": "back",
+      "asset": "arbok-back.png",
+      "reference": "gfx/pokemon/back/arbokb.png",
+      "reference_sha256": "4d51065e6b87aa40e1a8835c96c87f79639abeef2eb5e46087c8598194ec0a40",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pikachu",
+      "view": "front",
+      "asset": "pikachu-front.png",
+      "reference": "gfx/pokemon/front/pikachu.png",
+      "reference_sha256": "70b4e39bb8c2152a917cb33a2c1f40ff39d9a41d7d3b4d166bc8c5cd5de6600a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pikachu",
+      "view": "back",
+      "asset": "pikachu-back.png",
+      "reference": "gfx/pokemon/back/pikachub.png",
+      "reference_sha256": "1dfdf0ec60c77068be6b8101186104907b98b0d6b851fc32c2e4579b7e6a05bf",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "raichu",
+      "view": "front",
+      "asset": "raichu-front.png",
+      "reference": "gfx/pokemon/front/raichu.png",
+      "reference_sha256": "2e68ccb421e5bdd4b97c7bf0c386bae772db24054beacccdbfbf9e8d4b6145ce",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "raichu",
+      "view": "back",
+      "asset": "raichu-back.png",
+      "reference": "gfx/pokemon/back/raichub.png",
+      "reference_sha256": "01e3d5dc0afe128ef6832b82e8953d4dfb04f88e81688eeacab959f4be193a97",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "sandshrew",
+      "view": "front",
+      "asset": "sandshrew-front.png",
+      "reference": "gfx/pokemon/front/sandshrew.png",
+      "reference_sha256": "dfccce60af8c7660a261edc064cfa66e75d076e311d218125aa7494e77bdbe4f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "sandshrew",
+      "view": "back",
+      "asset": "sandshrew-back.png",
+      "reference": "gfx/pokemon/back/sandshrewb.png",
+      "reference_sha256": "cf13a8ee68781f8d9a0d574d9a2faeb9fb19edc538047f6fdd72726c192f3dec",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "sandslash",
+      "view": "front",
+      "asset": "sandslash-front.png",
+      "reference": "gfx/pokemon/front/sandslash.png",
+      "reference_sha256": "2a10701f912a23f76584964558af9a849017d36e3415dfc974e0af1aee8f5cff",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "sandslash",
+      "view": "back",
+      "asset": "sandslash-back.png",
+      "reference": "gfx/pokemon/back/sandslashb.png",
+      "reference_sha256": "bf23b2c0222d0643beec91b985e00ab2da5c78b199595afa34733387c5224900",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoranF",
+      "view": "front",
+      "asset": "nidoran-f-front.png",
+      "reference": "gfx/pokemon/front/nidoranf.png",
+      "reference_sha256": "25214d6edb59a1197fb4b250d23deb4875341f857a2b7d12f35e5a8de59d3c0c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoranF",
+      "view": "back",
+      "asset": "nidoran-f-back.png",
+      "reference": "gfx/pokemon/back/nidoranfb.png",
+      "reference_sha256": "f7a84992a1b2b646398e56e2990e51c35cf2aeb59bb12e5b19674d1e4abbd1c4",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidorina",
+      "view": "front",
+      "asset": "nidorina-front.png",
+      "reference": "gfx/pokemon/front/nidorina.png",
+      "reference_sha256": "afd0e35f732c2436ce8d2435de384c8113b761ce0527eda1443411f643a1bbdb",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidorina",
+      "view": "back",
+      "asset": "nidorina-back.png",
+      "reference": "gfx/pokemon/back/nidorinab.png",
+      "reference_sha256": "32bec6b08be9a1c1056e56cd9802042d11598e5514fe2b369659ce64da833854",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoqueen",
+      "view": "front",
+      "asset": "nidoqueen-front.png",
+      "reference": "gfx/pokemon/front/nidoqueen.png",
+      "reference_sha256": "63867048b89d84ade186438523d8a1590dacfedc60b51bed0e8dfecbfa3bf7b6",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoqueen",
+      "view": "back",
+      "asset": "nidoqueen-back.png",
+      "reference": "gfx/pokemon/back/nidoqueenb.png",
+      "reference_sha256": "1b19da81ebcacd29267b1253f52f7f790fb6391fdcf6eeead21597094f00f414",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoranM",
+      "view": "front",
+      "asset": "nidoran-m-front.png",
+      "reference": "gfx/pokemon/front/nidoranm.png",
+      "reference_sha256": "bd75a409816236d1fccf469761a2ce693c95750a0fd1eefcf06432b2e7121a95",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoranM",
+      "view": "back",
+      "asset": "nidoran-m-back.png",
+      "reference": "gfx/pokemon/back/nidoranmb.png",
+      "reference_sha256": "2e97c28a1a075e2cbea308e02b75bcb6161d1000734004d42ecad19a224c568a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidorino",
+      "view": "front",
+      "asset": "nidorino-front.png",
+      "reference": "gfx/pokemon/front/nidorino.png",
+      "reference_sha256": "744600a2a7eb28d25fee695183e345bb0cbd5e651c81d5853c6059758d1f875d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidorino",
+      "view": "back",
+      "asset": "nidorino-back.png",
+      "reference": "gfx/pokemon/back/nidorinob.png",
+      "reference_sha256": "06fe186f18c35ed8081b010bc5b6c29e3a9736c72c3e017fe318238478cb0bca",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoking",
+      "view": "front",
+      "asset": "nidoking-front.png",
+      "reference": "gfx/pokemon/front/nidoking.png",
+      "reference_sha256": "a4382819afd37bb3e4857321e6893838c2cde6d18c114e5ca920eff942d59a87",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "nidoking",
+      "view": "back",
+      "asset": "nidoking-back.png",
+      "reference": "gfx/pokemon/back/nidokingb.png",
+      "reference_sha256": "bba3ff0feca1ff560683bc2e08a7acdb7bb65a774c81bdd7fffb9c633e189ca6",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "clefairy",
+      "view": "front",
+      "asset": "clefairy-front.png",
+      "reference": "gfx/pokemon/front/clefairy.png",
+      "reference_sha256": "aff09873e2be7748d26382d53810b64689ba0639a0a944945bbc7fbd7779bccc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "clefairy",
+      "view": "back",
+      "asset": "clefairy-back.png",
+      "reference": "gfx/pokemon/back/clefairyb.png",
+      "reference_sha256": "6c0c539489b4f574215b6aa243aa5bf97e5fd464d64e11aeb8094b93efadf4a7",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "clefable",
+      "view": "front",
+      "asset": "clefable-front.png",
+      "reference": "gfx/pokemon/front/clefable.png",
+      "reference_sha256": "dd746967dcca15b075a0c0fcfa824ac4cbd73e1b70a232862a1cd29af40c130d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "clefable",
+      "view": "back",
+      "asset": "clefable-back.png",
+      "reference": "gfx/pokemon/back/clefableb.png",
+      "reference_sha256": "3f17f2851cb33dafa33186c9b46a234c1ebf4c65ca371d0211d0a5cf5d0b091f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "vulpix",
+      "view": "front",
+      "asset": "vulpix-front.png",
+      "reference": "gfx/pokemon/front/vulpix.png",
+      "reference_sha256": "412b48ee08fe4a87f72a05e505d962d6475903c8a553402ed67ffac55e01f353",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "vulpix",
+      "view": "back",
+      "asset": "vulpix-back.png",
+      "reference": "gfx/pokemon/back/vulpixb.png",
+      "reference_sha256": "e22275d7cccf6d878904ef07c06907d5453b62f8c58e03af3e9a5fd55f34048f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ninetales",
+      "view": "front",
+      "asset": "ninetales-front.png",
+      "reference": "gfx/pokemon/front/ninetales.png",
+      "reference_sha256": "dfdabdf3c1f9dca539c37f947946eb5bcf849923d2deddbda896692281bbf78b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ninetales",
+      "view": "back",
+      "asset": "ninetales-back.png",
+      "reference": "gfx/pokemon/back/ninetalesb.png",
+      "reference_sha256": "e891f8fc9a0a510e6928e9340a0f282b37e257bb93072b56f5209464b6c16f12",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "jigglypuff",
+      "view": "front",
+      "asset": "jigglypuff-front.png",
+      "reference": "gfx/pokemon/front/jigglypuff.png",
+      "reference_sha256": "153eb2929cf0818c4e871f83f6bb41dd33ddcb435c4bff31833a2e57db4b999d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "jigglypuff",
+      "view": "back",
+      "asset": "jigglypuff-back.png",
+      "reference": "gfx/pokemon/back/jigglypuffb.png",
+      "reference_sha256": "5dc7586a1d80b6fbda27dc65fc22a8d90b93f464cf3c6ab644a6f3cfb79690d9",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "wigglytuff",
+      "view": "front",
+      "asset": "wigglytuff-front.png",
+      "reference": "gfx/pokemon/front/wigglytuff.png",
+      "reference_sha256": "88685009d9141781ae495fc040a44f8dd6ab109ec905baed3e6ff7534da79858",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "wigglytuff",
+      "view": "back",
+      "asset": "wigglytuff-back.png",
+      "reference": "gfx/pokemon/back/wigglytuffb.png",
+      "reference_sha256": "34c6f5209b91b0b1f9bb15af0dd769ccc25f169ba80f3ad5d6f27e7c5281891a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "zubat",
+      "view": "front",
+      "asset": "zubat-front.png",
+      "reference": "gfx/pokemon/front/zubat.png",
+      "reference_sha256": "69860eee6df14038935d192b8cfd2ba64adde567c91488781e0fbf3870ec9259",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "zubat",
+      "view": "back",
+      "asset": "zubat-back.png",
+      "reference": "gfx/pokemon/back/zubatb.png",
+      "reference_sha256": "8b178f13f84042fe43df206804e9502e3006f6ebf6693c342f81410804f26d3c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "golbat",
+      "view": "front",
+      "asset": "golbat-front.png",
+      "reference": "gfx/pokemon/front/golbat.png",
+      "reference_sha256": "e29e3e52caacb0280a1700dcf7259e2074e2e6a0a5745ac1d310609a2bbe95b5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "golbat",
+      "view": "back",
+      "asset": "golbat-back.png",
+      "reference": "gfx/pokemon/back/golbatb.png",
+      "reference_sha256": "6b50f54da6148ed4430e5b2383ccb1be2f7565573ba7c48115a37cc5a9d1d687",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "oddish",
+      "view": "front",
+      "asset": "oddish-front.png",
+      "reference": "gfx/pokemon/front/oddish.png",
+      "reference_sha256": "fbb4a47a1885ce59c0a00dbf7d8de93318a9cde273af3aff84c9ca89f423d61d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "oddish",
+      "view": "back",
+      "asset": "oddish-back.png",
+      "reference": "gfx/pokemon/back/oddishb.png",
+      "reference_sha256": "0cbdc3071166d25dc3ec726b453cbc7a7ce38547c94cc55eec02a6ad64bc5fc0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gloom",
+      "view": "front",
+      "asset": "gloom-front.png",
+      "reference": "gfx/pokemon/front/gloom.png",
+      "reference_sha256": "d18e3e171f814f1543dfd17b1bc5c6970942d25806a39d12083a0ddfbbe75349",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gloom",
+      "view": "back",
+      "asset": "gloom-back.png",
+      "reference": "gfx/pokemon/back/gloomb.png",
+      "reference_sha256": "835fe14edfa40c08a1e6f9415f662d5a65946174ade8b8b0e20880fee979c45b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "vileplume",
+      "view": "front",
+      "asset": "vileplume-front.png",
+      "reference": "gfx/pokemon/front/vileplume.png",
+      "reference_sha256": "ac7a41bd65692fd7f211ab9003687212c1c17e7f214662604af7682d1be792f5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "vileplume",
+      "view": "back",
+      "asset": "vileplume-back.png",
+      "reference": "gfx/pokemon/back/vileplumeb.png",
+      "reference_sha256": "ae32f80bb174602103d208f5e84cd29cc19f916567faa1059d277375206a0444",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "paras",
+      "view": "front",
+      "asset": "paras-front.png",
+      "reference": "gfx/pokemon/front/paras.png",
+      "reference_sha256": "e1784efab88c43a4e7d86d26ae303de076f912bb1c70ad779f72a4caa2d8ad30",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "paras",
+      "view": "back",
+      "asset": "paras-back.png",
+      "reference": "gfx/pokemon/back/parasb.png",
+      "reference_sha256": "874ec392530959f2fca3ac954c6f9c66ff80cc9de2f9a70991332c092f1f0a7a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "parasect",
+      "view": "front",
+      "asset": "parasect-front.png",
+      "reference": "gfx/pokemon/front/parasect.png",
+      "reference_sha256": "7ade37685586cbfd2474aaabdb43d1ea43f36ab98a2d65dffe19ffc68b48ddb9",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "parasect",
+      "view": "back",
+      "asset": "parasect-back.png",
+      "reference": "gfx/pokemon/back/parasectb.png",
+      "reference_sha256": "cf00db9cc6c1091ba3e384fa9550d5921db4b414b29551c5b71a8b0cd5d05720",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "venonat",
+      "view": "front",
+      "asset": "venonat-front.png",
+      "reference": "gfx/pokemon/front/venonat.png",
+      "reference_sha256": "322be653fa41dacc5c9a2fbdc3e472be548cc58df691999cfeb7d51c3df58de3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "venonat",
+      "view": "back",
+      "asset": "venonat-back.png",
+      "reference": "gfx/pokemon/back/venonatb.png",
+      "reference_sha256": "a8a52ea874920d07fae33f1d887bc009e21aecd8b093b0d06aff14b4260d1895",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "venomoth",
+      "view": "front",
+      "asset": "venomoth-front.png",
+      "reference": "gfx/pokemon/front/venomoth.png",
+      "reference_sha256": "6d382acb07505370afff80cb0223fd5ce2d911a736c39d700d93b84154a7948f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "venomoth",
+      "view": "back",
+      "asset": "venomoth-back.png",
+      "reference": "gfx/pokemon/back/venomothb.png",
+      "reference_sha256": "fb14804e28c049d15c29d3a7ad841a0d1a853709ee7aa62f3d9effed964a7830",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "diglett",
+      "view": "front",
+      "asset": "diglett-front.png",
+      "reference": "gfx/pokemon/front/diglett.png",
+      "reference_sha256": "4464ff28589924acaaea22a6f13d4ac3e1eae87664548dd4d320692b205b268d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "diglett",
+      "view": "back",
+      "asset": "diglett-back.png",
+      "reference": "gfx/pokemon/back/diglettb.png",
+      "reference_sha256": "8871c5804428f34383ae55a406e9e31dbdab5ff4cd1adc8ae9c804194cf04c62",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dugtrio",
+      "view": "front",
+      "asset": "dugtrio-front.png",
+      "reference": "gfx/pokemon/front/dugtrio.png",
+      "reference_sha256": "1b919336d597fa9bd924b946f8b97fe152161d7532bfb909f7d39121d8a940d8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dugtrio",
+      "view": "back",
+      "asset": "dugtrio-back.png",
+      "reference": "gfx/pokemon/back/dugtriob.png",
+      "reference_sha256": "84a16f7e121969881ed33958207ffa5fef61c70fa4a4db19938a96daff332937",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "meowth",
+      "view": "front",
+      "asset": "meowth-front.png",
+      "reference": "gfx/pokemon/front/meowth.png",
+      "reference_sha256": "c900f343b2fc613bf1e95b2e009b924ba4b42370009b6744429e626c7d89a982",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "meowth",
+      "view": "back",
+      "asset": "meowth-back.png",
+      "reference": "gfx/pokemon/back/meowthb.png",
+      "reference_sha256": "71f07b88868f4a737ad0251b991f66165cf5d01e4d01f2151ecc2a1d31bfd9a3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "persian",
+      "view": "front",
+      "asset": "persian-front.png",
+      "reference": "gfx/pokemon/front/persian.png",
+      "reference_sha256": "afa89097136b739f21ba3d1ed6c89d24082bc0434d500a4eea1be03128fd86bf",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "persian",
+      "view": "back",
+      "asset": "persian-back.png",
+      "reference": "gfx/pokemon/back/persianb.png",
+      "reference_sha256": "470d9928001bdc71bb606039c10d8e130bfe883359e3a17bb8fa3a3c54a02fc0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "psyduck",
+      "view": "front",
+      "asset": "psyduck-front.png",
+      "reference": "gfx/pokemon/front/psyduck.png",
+      "reference_sha256": "c620e8c8474f26ea5ceae41c99cff491279e8961c6ddacbf5cf70788fbb1135a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "psyduck",
+      "view": "back",
+      "asset": "psyduck-back.png",
+      "reference": "gfx/pokemon/back/psyduckb.png",
+      "reference_sha256": "220ee6ac1646c14fd524aee160677c6a703ecb3f3fe04f6e1ea777b2b496ad8a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "golduck",
+      "view": "front",
+      "asset": "golduck-front.png",
+      "reference": "gfx/pokemon/front/golduck.png",
+      "reference_sha256": "d4adaf7d048f68fd2e8690062f7645569a92411bc9454e41a43d2ae97ba87669",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "golduck",
+      "view": "back",
+      "asset": "golduck-back.png",
+      "reference": "gfx/pokemon/back/golduckb.png",
+      "reference_sha256": "4b19fb774b8192c7aed56586f7bd71c079c7eac6b72858b776b35dd8e45102e9",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mankey",
+      "view": "front",
+      "asset": "mankey-front.png",
+      "reference": "gfx/pokemon/front/mankey.png",
+      "reference_sha256": "04bda1e4d0aa6d7de2d148d2ab92dfffbcba53b5f42d0ee213274bb627962dba",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mankey",
+      "view": "back",
+      "asset": "mankey-back.png",
+      "reference": "gfx/pokemon/back/mankeyb.png",
+      "reference_sha256": "b3cec423689862e0358cca71a27a4708b15bc0485f521440ac9fb48a03d26953",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "primeape",
+      "view": "front",
+      "asset": "primeape-front.png",
+      "reference": "gfx/pokemon/front/primeape.png",
+      "reference_sha256": "47592776978853ec1ebdf6ecb5df55f18a2804dd8ab93011698f6f188a994743",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "primeape",
+      "view": "back",
+      "asset": "primeape-back.png",
+      "reference": "gfx/pokemon/back/primeapeb.png",
+      "reference_sha256": "c60f6cb186f5ee3eda53091edd6f352da32f34b9781ad9eff1578b8d0aaad8bf",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "growlithe",
+      "view": "front",
+      "asset": "growlithe-front.png",
+      "reference": "gfx/pokemon/front/growlithe.png",
+      "reference_sha256": "7bc8939c0abe05286d397cea1687bace48ec3fcdb79009f1fcb57f646e4ff535",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "growlithe",
+      "view": "back",
+      "asset": "growlithe-back.png",
+      "reference": "gfx/pokemon/back/growlitheb.png",
+      "reference_sha256": "ce14fb10d28ea187037581632dc4c84dbe0c3428f37b7dad21c52ac38322b442",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "arcanine",
+      "view": "front",
+      "asset": "arcanine-front.png",
+      "reference": "gfx/pokemon/front/arcanine.png",
+      "reference_sha256": "c3a8d27e82b3b1cc6799642505149acbbc3cdfe19735647602e148f702b4f45b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "arcanine",
+      "view": "back",
+      "asset": "arcanine-back.png",
+      "reference": "gfx/pokemon/back/arcanineb.png",
+      "reference_sha256": "6af207adf897804e0116ca3950670d6b0497aaf2067561cef659cc14f30a28c8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "poliwag",
+      "view": "front",
+      "asset": "poliwag-front.png",
+      "reference": "gfx/pokemon/front/poliwag.png",
+      "reference_sha256": "a4162317e6be3e8ef29456bde0ff15cd4783e4b7d5d3a5ad7b2124ca4f637696",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "poliwag",
+      "view": "back",
+      "asset": "poliwag-back.png",
+      "reference": "gfx/pokemon/back/poliwagb.png",
+      "reference_sha256": "9f03b0834e316dfa3a95a588983db92991f2515b5522169f298ebbf0ce543748",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "poliwhirl",
+      "view": "front",
+      "asset": "poliwhirl-front.png",
+      "reference": "gfx/pokemon/front/poliwhirl.png",
+      "reference_sha256": "48166b75932f3db87fd41987d805913385f99143f21cea1d0627f22c38a45888",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "poliwhirl",
+      "view": "back",
+      "asset": "poliwhirl-back.png",
+      "reference": "gfx/pokemon/back/poliwhirlb.png",
+      "reference_sha256": "500533ec5dd1fbfe36e034775314e5146b4b0360db3d7826af2c4de63cd8c0b5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "poliwrath",
+      "view": "front",
+      "asset": "poliwrath-front.png",
+      "reference": "gfx/pokemon/front/poliwrath.png",
+      "reference_sha256": "6857bbf5b813a8b6100dbc544432e1cd872050738522269e1ed20a68e5875d6e",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "poliwrath",
+      "view": "back",
+      "asset": "poliwrath-back.png",
+      "reference": "gfx/pokemon/back/poliwrathb.png",
+      "reference_sha256": "6d3a2fa1c0caa6cdefadb61dccd581e13c705c0c1d65a7fb194047f4fb9919e3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "abra",
+      "view": "front",
+      "asset": "abra-front.png",
+      "reference": "gfx/pokemon/front/abra.png",
+      "reference_sha256": "ea0fef4bb0d3f6b810bdd29bf9a390075e8ca0539e44a72f559914be13ea30f8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "abra",
+      "view": "back",
+      "asset": "abra-back.png",
+      "reference": "gfx/pokemon/back/abrab.png",
+      "reference_sha256": "2078590abce78d89ea6066a928abcd4dd1e3e38f5f4c3e5bae4611a9419e54d0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kadabra",
+      "view": "front",
+      "asset": "kadabra-front.png",
+      "reference": "gfx/pokemon/front/kadabra.png",
+      "reference_sha256": "d0f39a1dbd5fce480a1c25a10ac822ec3cee0948c8a023c9aa6e5f41e5d46bcf",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kadabra",
+      "view": "back",
+      "asset": "kadabra-back.png",
+      "reference": "gfx/pokemon/back/kadabrab.png",
+      "reference_sha256": "ce31b756f017064a2da4a347167c5c8740674b2174b48e49f078a51443c219b5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "alakazam",
+      "view": "front",
+      "asset": "alakazam-front.png",
+      "reference": "gfx/pokemon/front/alakazam.png",
+      "reference_sha256": "0269d94a6c414eed80853466f83956ff0abc8cef7a93ec4abed7483403c271bc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "alakazam",
+      "view": "back",
+      "asset": "alakazam-back.png",
+      "reference": "gfx/pokemon/back/alakazamb.png",
+      "reference_sha256": "72ed2915c4be94d269ddb4a0d47a69a88cbbf768dff91c6103c8921aa395379b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "machop",
+      "view": "front",
+      "asset": "machop-front.png",
+      "reference": "gfx/pokemon/front/machop.png",
+      "reference_sha256": "5fe96d9a9729f6c7a6bb1166d24d5372558c2d19be0d814b0e25d105c450c8c3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "machop",
+      "view": "back",
+      "asset": "machop-back.png",
+      "reference": "gfx/pokemon/back/machopb.png",
+      "reference_sha256": "fe91969da7c2e4a654e8d36a285c94f5a67db4d9dfbb3cc73bc0277741a2bccf",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "machoke",
+      "view": "front",
+      "asset": "machoke-front.png",
+      "reference": "gfx/pokemon/front/machoke.png",
+      "reference_sha256": "e6a394d18e35e90323fbd0e93d932fa1c1f4551496ea5780db630306bdf7619d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "machoke",
+      "view": "back",
+      "asset": "machoke-back.png",
+      "reference": "gfx/pokemon/back/machokeb.png",
+      "reference_sha256": "fedc4b050170c409f65a00d7dcf3af3ab3a556b79afd7b449339d852ddca1899",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "machamp",
+      "view": "front",
+      "asset": "machamp-front.png",
+      "reference": "gfx/pokemon/front/machamp.png",
+      "reference_sha256": "598be0db3010860b878f2111f07047f6ed2ac87060f487b4f81b5658ca34dcf7",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "machamp",
+      "view": "back",
+      "asset": "machamp-back.png",
+      "reference": "gfx/pokemon/back/machampb.png",
+      "reference_sha256": "696bceaddb0c645b671dbffe5fb07f1e07566512cef43edd021afef617e42df8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "bellsprout",
+      "view": "front",
+      "asset": "bellsprout-front.png",
+      "reference": "gfx/pokemon/front/bellsprout.png",
+      "reference_sha256": "d1dd2625c9e31ca1eb1c652b970e991d2b3f5be635a27e070139f2d4267f716f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "bellsprout",
+      "view": "back",
+      "asset": "bellsprout-back.png",
+      "reference": "gfx/pokemon/back/bellsproutb.png",
+      "reference_sha256": "4809d24386da644e8565d89e4e74f0595a5be820ca32a969a3394f8a8f40a4b0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "weepinbell",
+      "view": "front",
+      "asset": "weepinbell-front.png",
+      "reference": "gfx/pokemon/front/weepinbell.png",
+      "reference_sha256": "0ad69cf3c995ff7c71d6e0990be05b830e38b03224c6911e998559c14aab1b7f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "weepinbell",
+      "view": "back",
+      "asset": "weepinbell-back.png",
+      "reference": "gfx/pokemon/back/weepinbellb.png",
+      "reference_sha256": "50010901011f9dac916324abbc9940207fc2333556bfa7c5128b7be7475faf7c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "victreebel",
+      "view": "front",
+      "asset": "victreebel-front.png",
+      "reference": "gfx/pokemon/front/victreebel.png",
+      "reference_sha256": "39f0d76843eb4f7a860c472bbc2e0c2f91c8d4b3eec3e63ae014c742405aed0b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "victreebel",
+      "view": "back",
+      "asset": "victreebel-back.png",
+      "reference": "gfx/pokemon/back/victreebelb.png",
+      "reference_sha256": "95319559a9f0a4800cccdcbb0d2510427172199a32a469e4e38904968dce15dc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tentacool",
+      "view": "front",
+      "asset": "tentacool-front.png",
+      "reference": "gfx/pokemon/front/tentacool.png",
+      "reference_sha256": "97af0e23854730bd737a090ddb117fd9b0321b293754d6cf810f4a77ea53f999",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tentacool",
+      "view": "back",
+      "asset": "tentacool-back.png",
+      "reference": "gfx/pokemon/back/tentacoolb.png",
+      "reference_sha256": "8c8235cf14e4529d4ed49fa8c7bd3a74681a687b05b8c9a6a9bf869ccf4b03df",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tentacruel",
+      "view": "front",
+      "asset": "tentacruel-front.png",
+      "reference": "gfx/pokemon/front/tentacruel.png",
+      "reference_sha256": "8d08ba675471bc020e0a8ceb7c20d9501acec6ed32cd14eb80e8c26bc1213a1e",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tentacruel",
+      "view": "back",
+      "asset": "tentacruel-back.png",
+      "reference": "gfx/pokemon/back/tentacruelb.png",
+      "reference_sha256": "219b59c8df92a92c7ed9b5ab56f42656dfe2e24decbba98fb1a3a9ebbb474e2f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "geodude",
+      "view": "front",
+      "asset": "geodude-front.png",
+      "reference": "gfx/pokemon/front/geodude.png",
+      "reference_sha256": "2e5bf7ae4eb55ca85241697ddec2658a93a8a065de961a9784eb790e394faae2",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "geodude",
+      "view": "back",
+      "asset": "geodude-back.png",
+      "reference": "gfx/pokemon/back/geodudeb.png",
+      "reference_sha256": "688fa6a369553d0b171d925673da818ab70f811c7c2a302cfbf51a348092626c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "graveler",
+      "view": "front",
+      "asset": "graveler-front.png",
+      "reference": "gfx/pokemon/front/graveler.png",
+      "reference_sha256": "abe177d1fa5086089275daa0645745e93d87a7dcfb3e75df5134880accde11ec",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "graveler",
+      "view": "back",
+      "asset": "graveler-back.png",
+      "reference": "gfx/pokemon/back/gravelerb.png",
+      "reference_sha256": "1864a2d439b65faedee45ecafb7acf2c219dee219aec97a69967a3b06cac541d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "golem",
+      "view": "front",
+      "asset": "golem-front.png",
+      "reference": "gfx/pokemon/front/golem.png",
+      "reference_sha256": "ec231d7ab0ea7095a6999b09fd1e971512ba47e5044240d378b9283b2882c614",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "golem",
+      "view": "back",
+      "asset": "golem-back.png",
+      "reference": "gfx/pokemon/back/golemb.png",
+      "reference_sha256": "7ca2e25226f983b3e674984404346ac8fb3a1bbabac8eeeafcd57d7bc8f3daa8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ponyta",
+      "view": "front",
+      "asset": "ponyta-front.png",
+      "reference": "gfx/pokemon/front/ponyta.png",
+      "reference_sha256": "d144adff8534e03de52fbb167b7560896a0529eb6b6ce218fa82b87f42273440",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ponyta",
+      "view": "back",
+      "asset": "ponyta-back.png",
+      "reference": "gfx/pokemon/back/ponytab.png",
+      "reference_sha256": "3a01144e6a90665813b3fd0f9ce63809f2cbceb57b8c1d87f750cfedf776842a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rapidash",
+      "view": "front",
+      "asset": "rapidash-front.png",
+      "reference": "gfx/pokemon/front/rapidash.png",
+      "reference_sha256": "7a4c052066348b258073189be428308c26f71c2aa46349755ea7ab0e4ad8babd",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rapidash",
+      "view": "back",
+      "asset": "rapidash-back.png",
+      "reference": "gfx/pokemon/back/rapidashb.png",
+      "reference_sha256": "5c263a9bb69bc8776bc791e0eefe7cb1b116bed3ada520c57b25708b0b401aab",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "slowpoke",
+      "view": "front",
+      "asset": "slowpoke-front.png",
+      "reference": "gfx/pokemon/front/slowpoke.png",
+      "reference_sha256": "2da516ec0503dcf051c7f15b71c2d6077d525e499377d771a2509a547698181b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "slowpoke",
+      "view": "back",
+      "asset": "slowpoke-back.png",
+      "reference": "gfx/pokemon/back/slowpokeb.png",
+      "reference_sha256": "8972ae6e70b24c9b136581994609f7a603df5d5f6e4ef955ba8a2872a6713675",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "slowbro",
+      "view": "front",
+      "asset": "slowbro-front.png",
+      "reference": "gfx/pokemon/front/slowbro.png",
+      "reference_sha256": "8901210872bff6643af7b6776454d7289a47c480be73d30937294745cf3aa5da",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "slowbro",
+      "view": "back",
+      "asset": "slowbro-back.png",
+      "reference": "gfx/pokemon/back/slowbrob.png",
+      "reference_sha256": "767e61ba37322ba956500589e9975cdd92808785ea9cf79967509df2eda32d7d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magnemite",
+      "view": "front",
+      "asset": "magnemite-front.png",
+      "reference": "gfx/pokemon/front/magnemite.png",
+      "reference_sha256": "d6fb486da0c6aedc1409f40a5332dc482afb42f64825db422ace9dcfcc101daa",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magnemite",
+      "view": "back",
+      "asset": "magnemite-back.png",
+      "reference": "gfx/pokemon/back/magnemiteb.png",
+      "reference_sha256": "6aa64aefd240d6c0d9e7d09c226a9770955a3cba6d66f715eac558295bfed9fa",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magneton",
+      "view": "front",
+      "asset": "magneton-front.png",
+      "reference": "gfx/pokemon/front/magneton.png",
+      "reference_sha256": "dc81732cabef1c492eefc6748ee666357cde6cb30a1a78b192e533eca4c9633d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magneton",
+      "view": "back",
+      "asset": "magneton-back.png",
+      "reference": "gfx/pokemon/back/magnetonb.png",
+      "reference_sha256": "d3c29b5535493ab30c7b6a0bde15200168e93c88ce4b3168ee0106955a60d3e4",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "farfetchd",
+      "view": "front",
+      "asset": "farfetchd-front.png",
+      "reference": "gfx/pokemon/front/farfetchd.png",
+      "reference_sha256": "6e63eea2bd0ff11659f9f4cb8ba0072296557eb449ad1f79181e48a60dae443d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "farfetchd",
+      "view": "back",
+      "asset": "farfetchd-back.png",
+      "reference": "gfx/pokemon/back/farfetchdb.png",
+      "reference_sha256": "e4ca5d12234b1c043502cededfa70821423f769ab3bfeed4e37f688f1a2ddc3c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "doduo",
+      "view": "front",
+      "asset": "doduo-front.png",
+      "reference": "gfx/pokemon/front/doduo.png",
+      "reference_sha256": "d5a9f773468b4e77344401dfa5df9fa64ed46c1cd8dd2413b160a044f1769a64",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "doduo",
+      "view": "back",
+      "asset": "doduo-back.png",
+      "reference": "gfx/pokemon/back/doduob.png",
+      "reference_sha256": "91338640c28b3e483edb04c4eb4b3ab5ae9a6b416e2cdc0f71f934e950b8d9ae",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dodrio",
+      "view": "front",
+      "asset": "dodrio-front.png",
+      "reference": "gfx/pokemon/front/dodrio.png",
+      "reference_sha256": "3ae1d145e5791ce3a0a1cebb72c7678871af6807b6d2d29823fc041c0d214f2b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dodrio",
+      "view": "back",
+      "asset": "dodrio-back.png",
+      "reference": "gfx/pokemon/back/dodriob.png",
+      "reference_sha256": "fc0807517686f85dc1e3360af0eb8dffe250a49ff9c89fcd110df55714de85cb",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "seel",
+      "view": "front",
+      "asset": "seel-front.png",
+      "reference": "gfx/pokemon/front/seel.png",
+      "reference_sha256": "3ce3a769a67b12d39bbca20dcc3de8e2daf10b5ceb051030ebdad691e1cc97f0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "seel",
+      "view": "back",
+      "asset": "seel-back.png",
+      "reference": "gfx/pokemon/back/seelb.png",
+      "reference_sha256": "ab7b8ed87dfc7357e041092b1f46f7fb0d46f08a29db28435abb9de4ca860e0f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dewgong",
+      "view": "front",
+      "asset": "dewgong-front.png",
+      "reference": "gfx/pokemon/front/dewgong.png",
+      "reference_sha256": "449836ea51cacc1a41050cf43e5596f3b1e6f99c495ade3ce3e1ce2509f7d370",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dewgong",
+      "view": "back",
+      "asset": "dewgong-back.png",
+      "reference": "gfx/pokemon/back/dewgongb.png",
+      "reference_sha256": "4786c29fb814a0993e6659993113c33bfb53a07cb538e6f8e6278eddebdc2521",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "grimer",
+      "view": "front",
+      "asset": "grimer-front.png",
+      "reference": "gfx/pokemon/front/grimer.png",
+      "reference_sha256": "e78e9a0ecd367f515bb2c9996db45791c54138c49a56098b11d7e51195a1e840",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "grimer",
+      "view": "back",
+      "asset": "grimer-back.png",
+      "reference": "gfx/pokemon/back/grimerb.png",
+      "reference_sha256": "f917c578062c3d0fab2e2bbd197a36d935688d7a0626e8f9026cffd77ffc9681",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "muk",
+      "view": "front",
+      "asset": "muk-front.png",
+      "reference": "gfx/pokemon/front/muk.png",
+      "reference_sha256": "25f225d2d6a0f2038c437e56fcc7d672765da5fe74256236e31985b0e0c28adf",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "muk",
+      "view": "back",
+      "asset": "muk-back.png",
+      "reference": "gfx/pokemon/back/mukb.png",
+      "reference_sha256": "021c9b4b735d7a55e721aaec69089ec37029cf2ecb3b59b145ac84c5b5e83c7f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "shellder",
+      "view": "front",
+      "asset": "shellder-front.png",
+      "reference": "gfx/pokemon/front/shellder.png",
+      "reference_sha256": "3648111013171f77a8d9cdfc726c0d6c64106316927e714c7efdb07929e22f89",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "shellder",
+      "view": "back",
+      "asset": "shellder-back.png",
+      "reference": "gfx/pokemon/back/shellderb.png",
+      "reference_sha256": "6af59367ce41a76378d304ffe0c715a101c25e69e1c6e99235bb6b64693c8cfa",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "cloyster",
+      "view": "front",
+      "asset": "cloyster-front.png",
+      "reference": "gfx/pokemon/front/cloyster.png",
+      "reference_sha256": "922f3fb3f8511ff2cb7482f0b3e106be6740b060361428db4d966817c5da90bd",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "cloyster",
+      "view": "back",
+      "asset": "cloyster-back.png",
+      "reference": "gfx/pokemon/back/cloysterb.png",
+      "reference_sha256": "410e8e99d5baaacf1811fd275a4e2c314f59ac6f3acd978a8307ec08a24e6ddc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gastly",
+      "view": "front",
+      "asset": "gastly-front.png",
+      "reference": "gfx/pokemon/front/gastly.png",
+      "reference_sha256": "747db5168b534dcb600cf4522062e2be163bd47abfc0918292fe917868323608",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gastly",
+      "view": "back",
+      "asset": "gastly-back.png",
+      "reference": "gfx/pokemon/back/gastlyb.png",
+      "reference_sha256": "c6672835070b7f65e2e1b11d69f483bdd9c45010ab383a0334bce14abcd08025",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "haunter",
+      "view": "front",
+      "asset": "haunter-front.png",
+      "reference": "gfx/pokemon/front/haunter.png",
+      "reference_sha256": "e00fc0bc3b54dc0ad50ec21291151032fe5d97afc9f32da03c1764e55a2234dd",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "haunter",
+      "view": "back",
+      "asset": "haunter-back.png",
+      "reference": "gfx/pokemon/back/haunterb.png",
+      "reference_sha256": "81f9051bc68b027670f3509c5ccfcfb1698c51208387d427207e412dde7c4a69",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gengar",
+      "view": "front",
+      "asset": "gengar-front.png",
+      "reference": "gfx/pokemon/front/gengar.png",
+      "reference_sha256": "ee11f7609b75ae6e7103a20b1929018a84283a6a74e95e5c7deb0dad36b42cbb",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gengar",
+      "view": "back",
+      "asset": "gengar-back.png",
+      "reference": "gfx/pokemon/back/gengarb.png",
+      "reference_sha256": "fb78c78496f77c5b67fb448001b9107c19fe9e22f212977d6e4c3f57d623fa71",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "onix",
+      "view": "front",
+      "asset": "onix-front.png",
+      "reference": "gfx/pokemon/front/onix.png",
+      "reference_sha256": "09a3a7524081a0504512a088c068d653ec9c6eb792b970a5929a613761b94e26",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "onix",
+      "view": "back",
+      "asset": "onix-back.png",
+      "reference": "gfx/pokemon/back/onixb.png",
+      "reference_sha256": "406fa80cd3289244298c91039ca00504e5045ec391cd563b0836c00caed3a839",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "drowzee",
+      "view": "front",
+      "asset": "drowzee-front.png",
+      "reference": "gfx/pokemon/front/drowzee.png",
+      "reference_sha256": "b12f6acc6f5a39eb45af246f9c059b90519fdd36728d8ff0f75be99d2e87b034",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "drowzee",
+      "view": "back",
+      "asset": "drowzee-back.png",
+      "reference": "gfx/pokemon/back/drowzeeb.png",
+      "reference_sha256": "a03de7cd7138597b50f2bdfc71759f06487b3257765a9abb09e00aeab99f49ff",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "hypno",
+      "view": "front",
+      "asset": "hypno-front.png",
+      "reference": "gfx/pokemon/front/hypno.png",
+      "reference_sha256": "ffa6296b006a9d0501a88cfc2d8cb1edbbecae6a011683e6e7f288f946634e96",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "hypno",
+      "view": "back",
+      "asset": "hypno-back.png",
+      "reference": "gfx/pokemon/back/hypnob.png",
+      "reference_sha256": "0b0760ff1831e088329bdbcb63e501871e3be9eceecb09d786363f77f40a6ced",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "krabby",
+      "view": "front",
+      "asset": "krabby-front.png",
+      "reference": "gfx/pokemon/front/krabby.png",
+      "reference_sha256": "b3f62c2b1cf7a77153d6e593b47b01bc2fa2d8a73fec63aca7ae61cdc9765f46",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "krabby",
+      "view": "back",
+      "asset": "krabby-back.png",
+      "reference": "gfx/pokemon/back/krabbyb.png",
+      "reference_sha256": "04d19bdc95fbf5f5601aa926541f6271ff536773a4763d5e2f2e2c06153c4994",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kingler",
+      "view": "front",
+      "asset": "kingler-front.png",
+      "reference": "gfx/pokemon/front/kingler.png",
+      "reference_sha256": "e4db0495ac5a959eaa54788e9612e902122a8f08de7de9154c0352556c5e3e3e",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kingler",
+      "view": "back",
+      "asset": "kingler-back.png",
+      "reference": "gfx/pokemon/back/kinglerb.png",
+      "reference_sha256": "8d02466727e9c4b7fc381933bb9d943820ed28272161932b5b3d847ed79049d4",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "voltorb",
+      "view": "front",
+      "asset": "voltorb-front.png",
+      "reference": "gfx/pokemon/front/voltorb.png",
+      "reference_sha256": "433cb30303b770319202f524f20d66ebd951dd4025385d6affc90e9802ec17ae",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "voltorb",
+      "view": "back",
+      "asset": "voltorb-back.png",
+      "reference": "gfx/pokemon/back/voltorbb.png",
+      "reference_sha256": "a1d17540d44a5737bda6881ecc0d5ba5ec5d11d95944c0b73db7834a0cd99faa",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "electrode",
+      "view": "front",
+      "asset": "electrode-front.png",
+      "reference": "gfx/pokemon/front/electrode.png",
+      "reference_sha256": "411562bc0903c6fc1fd9d3271285531be2036e3b0a548a0dd3448c6c1bbe4813",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "electrode",
+      "view": "back",
+      "asset": "electrode-back.png",
+      "reference": "gfx/pokemon/back/electrodeb.png",
+      "reference_sha256": "0430070d780f2c87bcc1eebfc957b9c434255d825647a00c3506756687334328",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "exeggcute",
+      "view": "front",
+      "asset": "exeggcute-front.png",
+      "reference": "gfx/pokemon/front/exeggcute.png",
+      "reference_sha256": "b1267a849284c76ba1d4318ffd1fabe0a5f758c4ff6d8b5ed667ce440fa0c028",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "exeggcute",
+      "view": "back",
+      "asset": "exeggcute-back.png",
+      "reference": "gfx/pokemon/back/exeggcuteb.png",
+      "reference_sha256": "9fba27f906c871e438cf8a1447574fab412607ed4f718f49781de2d9e98b47d5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "exeggutor",
+      "view": "front",
+      "asset": "exeggutor-front.png",
+      "reference": "gfx/pokemon/front/exeggutor.png",
+      "reference_sha256": "c907be2183d89cafa54560ddfaaf2ca6601efb6f35b0b31bd95fba98d34658e5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "exeggutor",
+      "view": "back",
+      "asset": "exeggutor-back.png",
+      "reference": "gfx/pokemon/back/exeggutorb.png",
+      "reference_sha256": "e2160fe69a264a8f5cc290d6399cb260b5b0be105b50da4012f8705c3ce56517",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "cubone",
+      "view": "front",
+      "asset": "cubone-front.png",
+      "reference": "gfx/pokemon/front/cubone.png",
+      "reference_sha256": "aa202e0c206e9100dadf352d37eec97e437b582491ec6689dc630ebc19100574",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "cubone",
+      "view": "back",
+      "asset": "cubone-back.png",
+      "reference": "gfx/pokemon/back/cuboneb.png",
+      "reference_sha256": "9ac71d3f09e306194165c27e9381cd524492724fcc362929835e6b7ed0ea96f0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "marowak",
+      "view": "front",
+      "asset": "marowak-front.png",
+      "reference": "gfx/pokemon/front/marowak.png",
+      "reference_sha256": "b6cc0e99416c119d2d2fc3c4bd6e12f705b3dc830085d95af3cf111d7e8d88ad",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "marowak",
+      "view": "back",
+      "asset": "marowak-back.png",
+      "reference": "gfx/pokemon/back/marowakb.png",
+      "reference_sha256": "c8b8973fd74287dc454dde90b08f53c57fc5310f2f1cc02aacabb8107f5303d6",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "hitmonlee",
+      "view": "front",
+      "asset": "hitmonlee-front.png",
+      "reference": "gfx/pokemon/front/hitmonlee.png",
+      "reference_sha256": "fa24898f1bbec01a3cca4bc530dfcda8b8965754d837319400c26e343adeac56",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "hitmonlee",
+      "view": "back",
+      "asset": "hitmonlee-back.png",
+      "reference": "gfx/pokemon/back/hitmonleeb.png",
+      "reference_sha256": "fa63b9a8357818de7690bc9dc0e6664e26b81e9d023ad2ecde45e31f60851374",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "hitmonchan",
+      "view": "front",
+      "asset": "hitmonchan-front.png",
+      "reference": "gfx/pokemon/front/hitmonchan.png",
+      "reference_sha256": "94a3cc7a8d69f65cebaaeca2015af3262192d483b72c862eb85f8a8ecba4f9b5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "hitmonchan",
+      "view": "back",
+      "asset": "hitmonchan-back.png",
+      "reference": "gfx/pokemon/back/hitmonchanb.png",
+      "reference_sha256": "2cc41228d2540e5de23210fd8d6041b4643e2d0bf850b45ff66adafafb92c1ed",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "lickitung",
+      "view": "front",
+      "asset": "lickitung-front.png",
+      "reference": "gfx/pokemon/front/lickitung.png",
+      "reference_sha256": "37f9fa0274642978ba8634f7d9274282325480a9f44920a69238c8858e3adb9d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "lickitung",
+      "view": "back",
+      "asset": "lickitung-back.png",
+      "reference": "gfx/pokemon/back/lickitungb.png",
+      "reference_sha256": "a71f61f13431ee35fdac3ef1244aa848146b8734a6988824bdebbebc72ee61a6",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "koffing",
+      "view": "front",
+      "asset": "koffing-front.png",
+      "reference": "gfx/pokemon/front/koffing.png",
+      "reference_sha256": "94d34017ab7d39129052a01dd10c75947e9332454ef376a0b0f6d35290c546e7",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "koffing",
+      "view": "back",
+      "asset": "koffing-back.png",
+      "reference": "gfx/pokemon/back/koffingb.png",
+      "reference_sha256": "87cd6dc7f2a9b5117dcbd2989646e5d990be8aefd70ae4bd8c1335cd0538d3db",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "weezing",
+      "view": "front",
+      "asset": "weezing-front.png",
+      "reference": "gfx/pokemon/front/weezing.png",
+      "reference_sha256": "d071c196748bc603e64d557e186131b2f6bdc94b15169bfc2786af8619da5c29",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "weezing",
+      "view": "back",
+      "asset": "weezing-back.png",
+      "reference": "gfx/pokemon/back/weezingb.png",
+      "reference_sha256": "e04b4d55aa567f18144a55388389687cf6a89da1b90553a36d6d94a576cbb609",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rhyhorn",
+      "view": "front",
+      "asset": "rhyhorn-front.png",
+      "reference": "gfx/pokemon/front/rhyhorn.png",
+      "reference_sha256": "a921419f0ee6cc649a6bbc53904bf30cb382084fe19813c59a06f030837562a9",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rhyhorn",
+      "view": "back",
+      "asset": "rhyhorn-back.png",
+      "reference": "gfx/pokemon/back/rhyhornb.png",
+      "reference_sha256": "9aaa3654760491114167aa43cdcf70940d93f88e175c80e1d6c10edaec6ffcdc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rhydon",
+      "view": "front",
+      "asset": "rhydon-front.png",
+      "reference": "gfx/pokemon/front/rhydon.png",
+      "reference_sha256": "fcd92a9cba2c0de3f8fe28f837fc8d9a7cbfbae4354d9c2692007d48c4a9399d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "rhydon",
+      "view": "back",
+      "asset": "rhydon-back.png",
+      "reference": "gfx/pokemon/back/rhydonb.png",
+      "reference_sha256": "0433ce646fc6435bc30ec2c5e767f88e55d986f41d5c42340325a52a5d26c655",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "chansey",
+      "view": "front",
+      "asset": "chansey-front.png",
+      "reference": "gfx/pokemon/front/chansey.png",
+      "reference_sha256": "fdfd0eb746551e1e79896053830f8a97e548eefebad4ed036c7645d67730ea10",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "chansey",
+      "view": "back",
+      "asset": "chansey-back.png",
+      "reference": "gfx/pokemon/back/chanseyb.png",
+      "reference_sha256": "2f51358a578eb5b36eacc8f0d83323ac504c9b28d74e05afcaf894b5dd2b2eb3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tangela",
+      "view": "front",
+      "asset": "tangela-front.png",
+      "reference": "gfx/pokemon/front/tangela.png",
+      "reference_sha256": "75baf395ff975a131aa6c28b9c790327e1c963d4180ef607ecbc59cd9f0b25c5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tangela",
+      "view": "back",
+      "asset": "tangela-back.png",
+      "reference": "gfx/pokemon/back/tangelab.png",
+      "reference_sha256": "116336545bccfa005bf8a62332f0a3647464858e7b2e5db11e8e3769ee6a931c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kangaskhan",
+      "view": "front",
+      "asset": "kangaskhan-front.png",
+      "reference": "gfx/pokemon/front/kangaskhan.png",
+      "reference_sha256": "cb2301bc1431be85dbc977d18225a7735d7042455204cd6ae5f7cb55d53c58bc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kangaskhan",
+      "view": "back",
+      "asset": "kangaskhan-back.png",
+      "reference": "gfx/pokemon/back/kangaskhanb.png",
+      "reference_sha256": "499697581d15f7bd47894adab23bd0cfcb47a0a39d8ab7c202247d0b806b1c6a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "horsea",
+      "view": "front",
+      "asset": "horsea-front.png",
+      "reference": "gfx/pokemon/front/horsea.png",
+      "reference_sha256": "06ccce050558e5fa889cb60b06d051f49dd7c023f5b347808647456cc2723c6c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "horsea",
+      "view": "back",
+      "asset": "horsea-back.png",
+      "reference": "gfx/pokemon/back/horseab.png",
+      "reference_sha256": "d27017e2dad55d20f2ce6e1b31adfcb5e92794d1be627b712b4407fb3bcef790",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "seadra",
+      "view": "front",
+      "asset": "seadra-front.png",
+      "reference": "gfx/pokemon/front/seadra.png",
+      "reference_sha256": "89df2d7942c8a42b6e5a6d09ea1ca7830c87d52a6b786646397b823c6f695a32",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "seadra",
+      "view": "back",
+      "asset": "seadra-back.png",
+      "reference": "gfx/pokemon/back/seadrab.png",
+      "reference_sha256": "04fcb9ef9c2f511e60b4bc8f75baef5d4d9e150c580e25759b84578bb59035c0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "goldeen",
+      "view": "front",
+      "asset": "goldeen-front.png",
+      "reference": "gfx/pokemon/front/goldeen.png",
+      "reference_sha256": "267a85aa7d952da251e7276dbf1f97b4b4f6ab32d5ec3b55a8b91e4879df703f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "goldeen",
+      "view": "back",
+      "asset": "goldeen-back.png",
+      "reference": "gfx/pokemon/back/goldeenb.png",
+      "reference_sha256": "fa4dad712035998a48065cbfe49a025f166bf1933a25c276f534ad9dfa6dafa4",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "seaking",
+      "view": "front",
+      "asset": "seaking-front.png",
+      "reference": "gfx/pokemon/front/seaking.png",
+      "reference_sha256": "ab5b6737281b066a4dedd341d9e6d4f95899cc673056c17a0ea9f86fb73465d8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "seaking",
+      "view": "back",
+      "asset": "seaking-back.png",
+      "reference": "gfx/pokemon/back/seakingb.png",
+      "reference_sha256": "0c747cce4826a5eea9b42b7da8c23e33d7f95c22ab1793940bfaac7e2371a000",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "staryu",
+      "view": "front",
+      "asset": "staryu-front.png",
+      "reference": "gfx/pokemon/front/staryu.png",
+      "reference_sha256": "cf9303f494bbb99dcc8f4e3856585eb3c5ac64e95c2da0e4723cc3058e0238f3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "staryu",
+      "view": "back",
+      "asset": "staryu-back.png",
+      "reference": "gfx/pokemon/back/staryub.png",
+      "reference_sha256": "830fbdcba0124595c4a31306abfeec37e8ce799e1f0a476b6b4f45b8620724fe",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "starmie",
+      "view": "front",
+      "asset": "starmie-front.png",
+      "reference": "gfx/pokemon/front/starmie.png",
+      "reference_sha256": "bb6075032d2b8331477d0f6dccdcbb5c4f635862ebab167760825ee5f4f475bd",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "starmie",
+      "view": "back",
+      "asset": "starmie-back.png",
+      "reference": "gfx/pokemon/back/starmieb.png",
+      "reference_sha256": "0d50708dec3d1f9e75bc570b4c5fb6e79f8b3beff8ea38d323ed65baad1cfbb1",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mr",
+      "view": "front",
+      "asset": "mr-mime-front.png",
+      "reference": "gfx/pokemon/front/mr.mime.png",
+      "reference_sha256": "a17349ec76af69e59d9e11a89337e4046fd30143574e4949d7fbea7db301b7c3",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mr",
+      "view": "back",
+      "asset": "mr-mime-back.png",
+      "reference": "gfx/pokemon/back/mr.mimeb.png",
+      "reference_sha256": "7c6adb0176a7acd9382e773a65c9873bb05c1cf1541e3e848a35f4ef27aee5d9",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "scyther",
+      "view": "front",
+      "asset": "scyther-front.png",
+      "reference": "gfx/pokemon/front/scyther.png",
+      "reference_sha256": "58db84f3737592bc2e017118951593b22d563577a8bb45711d50b7bf92c3f4eb",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "scyther",
+      "view": "back",
+      "asset": "scyther-back.png",
+      "reference": "gfx/pokemon/back/scytherb.png",
+      "reference_sha256": "dad0f9081d9bc45f8fe22df5d85933dd413a701f72b1e2e32dc39a7249a84cfd",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "jynx",
+      "view": "front",
+      "asset": "jynx-front.png",
+      "reference": "gfx/pokemon/front/jynx.png",
+      "reference_sha256": "7c5a581760695cd49c6841d71aef84dccd00aa9095355de3dbd77f5051231bf1",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "jynx",
+      "view": "back",
+      "asset": "jynx-back.png",
+      "reference": "gfx/pokemon/back/jynxb.png",
+      "reference_sha256": "f267798be75d8c54212f21e6ae4ce17c2c7b9b5e1107aff44de4013b25e053f5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "electabuzz",
+      "view": "front",
+      "asset": "electabuzz-front.png",
+      "reference": "gfx/pokemon/front/electabuzz.png",
+      "reference_sha256": "218ba1ca5cfa9186ec45d873136d683c1c75d907fd1563b532b05cc5e06530ba",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "electabuzz",
+      "view": "back",
+      "asset": "electabuzz-back.png",
+      "reference": "gfx/pokemon/back/electabuzzb.png",
+      "reference_sha256": "3bf945a840d6fe740d167888ab04f803e172d4765aba5e893a0ef205205de0ec",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magmar",
+      "view": "front",
+      "asset": "magmar-front.png",
+      "reference": "gfx/pokemon/front/magmar.png",
+      "reference_sha256": "955fc7e4b544b0baec4c565f2d5c94370212af32e73bf20750a904a9275400b1",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magmar",
+      "view": "back",
+      "asset": "magmar-back.png",
+      "reference": "gfx/pokemon/back/magmarb.png",
+      "reference_sha256": "645f0065b6a4dc1cf2b3ab043076aa7e646a8afc5df1847a94e29981b1bb3871",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pinsir",
+      "view": "front",
+      "asset": "pinsir-front.png",
+      "reference": "gfx/pokemon/front/pinsir.png",
+      "reference_sha256": "0570d2111fde5299e9373a9d38ddf5283921b16d2b65c9402ce5c6f44acc9215",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "pinsir",
+      "view": "back",
+      "asset": "pinsir-back.png",
+      "reference": "gfx/pokemon/back/pinsirb.png",
+      "reference_sha256": "b725a1bc37cc5bf83dc70070ec45bc44b26c4edddb2d630a982b0ca0284f2d9c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tauros",
+      "view": "front",
+      "asset": "tauros-front.png",
+      "reference": "gfx/pokemon/front/tauros.png",
+      "reference_sha256": "3d912d40a1bea0552508fc82ed9474937b293d95af86ef8149472f4f1bb921b8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "tauros",
+      "view": "back",
+      "asset": "tauros-back.png",
+      "reference": "gfx/pokemon/back/taurosb.png",
+      "reference_sha256": "bbd425d1326167f1860041b9e1f977c24e7bbc9bb33aaa10993d2a75fcd72b50",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magikarp",
+      "view": "front",
+      "asset": "magikarp-front.png",
+      "reference": "gfx/pokemon/front/magikarp.png",
+      "reference_sha256": "a3bc8a795f0f54bdba883db0b7e057f2b00a7fe2673214f6937e9793ba889656",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "magikarp",
+      "view": "back",
+      "asset": "magikarp-back.png",
+      "reference": "gfx/pokemon/back/magikarpb.png",
+      "reference_sha256": "9cc7de7c169686eb9dcd70d84cf271fd3224e5aeabc7058f9a103728cea15059",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gyarados",
+      "view": "front",
+      "asset": "gyarados-front.png",
+      "reference": "gfx/pokemon/front/gyarados.png",
+      "reference_sha256": "29cefa73bec07fd5e582850ad193b45be186c1bfdaa3c929a29a0f43f0f5d1bb",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "gyarados",
+      "view": "back",
+      "asset": "gyarados-back.png",
+      "reference": "gfx/pokemon/back/gyaradosb.png",
+      "reference_sha256": "2e85f59dd45f620c3fa56cb434c3b91d29431a963d67aa2958407c3d28bf194d",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "lapras",
+      "view": "front",
+      "asset": "lapras-front.png",
+      "reference": "gfx/pokemon/front/lapras.png",
+      "reference_sha256": "4941fef8c683dcf38d7e13621659e8e8355a7b317eb9d4ae5a463b15f9766015",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "lapras",
+      "view": "back",
+      "asset": "lapras-back.png",
+      "reference": "gfx/pokemon/back/laprasb.png",
+      "reference_sha256": "e745d2e974aef473ffa3b7b8c92f356b585f29ed0e5ca8d58300caad0a02f6c8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ditto",
+      "view": "front",
+      "asset": "ditto-front.png",
+      "reference": "gfx/pokemon/front/ditto.png",
+      "reference_sha256": "9bf226ee869bb61974c3a0e145de74f6dfa304e5b23133ca5eb8f1712628ef7a",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "ditto",
+      "view": "back",
+      "asset": "ditto-back.png",
+      "reference": "gfx/pokemon/back/dittob.png",
+      "reference_sha256": "9d2b4b0deefad3b7c74d85d38e728aa92b554a3bae86e30b8583a79ef5589529",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "eevee",
+      "view": "front",
+      "asset": "eevee-front.png",
+      "reference": "gfx/pokemon/front/eevee.png",
+      "reference_sha256": "19307e6902919fdc9234ebf0121f3b2e35acf15b5b92d4a3e556ecf84caff948",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "eevee",
+      "view": "back",
+      "asset": "eevee-back.png",
+      "reference": "gfx/pokemon/back/eeveeb.png",
+      "reference_sha256": "0880d2071e964d7db8312579da267304494e1d729d6c8fd8947ff7760e8610c2",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "vaporeon",
+      "view": "front",
+      "asset": "vaporeon-front.png",
+      "reference": "gfx/pokemon/front/vaporeon.png",
+      "reference_sha256": "5b2c74f9789a7d2c77f12c5a2fdecb8e33ab5df427383767f956595e107101b7",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "vaporeon",
+      "view": "back",
+      "asset": "vaporeon-back.png",
+      "reference": "gfx/pokemon/back/vaporeonb.png",
+      "reference_sha256": "fa10a9d5a7a13f97e06622a2e4022cc6b871a14d5e99b4adcdd4d0aab5f59842",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "jolteon",
+      "view": "front",
+      "asset": "jolteon-front.png",
+      "reference": "gfx/pokemon/front/jolteon.png",
+      "reference_sha256": "c37a50cf1265e83e3bc55a3bd12fded0f224c604c24ac5486dfcb15df6c8eb5b",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "jolteon",
+      "view": "back",
+      "asset": "jolteon-back.png",
+      "reference": "gfx/pokemon/back/jolteonb.png",
+      "reference_sha256": "5eba1aaebb77040af2acfe6f179d2d99461ef2de1116ab1c67d0c7ca605ea769",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "flareon",
+      "view": "front",
+      "asset": "flareon-front.png",
+      "reference": "gfx/pokemon/front/flareon.png",
+      "reference_sha256": "85e6cc0a36c14f06df29182976a654f7796224ff40f107587b3e2c1d8ad8c33e",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "flareon",
+      "view": "back",
+      "asset": "flareon-back.png",
+      "reference": "gfx/pokemon/back/flareonb.png",
+      "reference_sha256": "68f146b759b06282bdd9a220091d8297f8db62534525a8a2fd3f0bd0c13db3ec",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "porygon",
+      "view": "front",
+      "asset": "porygon-front.png",
+      "reference": "gfx/pokemon/front/porygon.png",
+      "reference_sha256": "8b2be03bb65310cdf6380c51e2bcb0f524eb116daa2938f7860f6fae1e722a81",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "porygon",
+      "view": "back",
+      "asset": "porygon-back.png",
+      "reference": "gfx/pokemon/back/porygonb.png",
+      "reference_sha256": "9eeb3b0d17785f32c9c4d423b4012964fcc8afbefe79935f67b80f622aa94b0c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "omanyte",
+      "view": "front",
+      "asset": "omanyte-front.png",
+      "reference": "gfx/pokemon/front/omanyte.png",
+      "reference_sha256": "b57881c5af218991528404076cf84538f6c789044b7213f4801c30c8bfffd646",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "omanyte",
+      "view": "back",
+      "asset": "omanyte-back.png",
+      "reference": "gfx/pokemon/back/omanyteb.png",
+      "reference_sha256": "4bbb436f5ac15859dd6a284b19f86e6ea30a46692041441d8b8d603afce28a93",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "omastar",
+      "view": "front",
+      "asset": "omastar-front.png",
+      "reference": "gfx/pokemon/front/omastar.png",
+      "reference_sha256": "2434886ee540c10d0e159d895dd8822029b555169bd82ce75a82fa0ca667547c",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "omastar",
+      "view": "back",
+      "asset": "omastar-back.png",
+      "reference": "gfx/pokemon/back/omastarb.png",
+      "reference_sha256": "e8dcf8b58af7ef0f16beae1373099bfd1d0e94cb1ffc4d0e50097d4e1a23640e",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kabuto",
+      "view": "front",
+      "asset": "kabuto-front.png",
+      "reference": "gfx/pokemon/front/kabuto.png",
+      "reference_sha256": "0b10fac063d2400fd96c9abd88ecde439cce2951f91f4a8a2955116b0f09def0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kabuto",
+      "view": "back",
+      "asset": "kabuto-back.png",
+      "reference": "gfx/pokemon/back/kabutob.png",
+      "reference_sha256": "4659887420290b40f976eac3e1c909cfc3c384cc11596fbbcf7c712ab4de2660",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kabutops",
+      "view": "front",
+      "asset": "kabutops-front.png",
+      "reference": "gfx/pokemon/front/kabutops.png",
+      "reference_sha256": "084c87e1628ce9723b7ecce407bad048a28288f301b0f23778ef467f2919baa4",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "kabutops",
+      "view": "back",
+      "asset": "kabutops-back.png",
+      "reference": "gfx/pokemon/back/kabutopsb.png",
+      "reference_sha256": "cae2cbb7d775468115c439a17277a79d80cb4d3950048b80d8e3433699809714",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "aerodactyl",
+      "view": "front",
+      "asset": "aerodactyl-front.png",
+      "reference": "gfx/pokemon/front/aerodactyl.png",
+      "reference_sha256": "075c19d6b382d7e697a25131bf9ebe047703671e30534efbb42a2af59f74cdb8",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "aerodactyl",
+      "view": "back",
+      "asset": "aerodactyl-back.png",
+      "reference": "gfx/pokemon/back/aerodactylb.png",
+      "reference_sha256": "5c7ccdddb80740426142b195772fe61ef672a3c43f5498cda98f6714e36cf0b9",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "snorlax",
+      "view": "front",
+      "asset": "snorlax-front.png",
+      "reference": "gfx/pokemon/front/snorlax.png",
+      "reference_sha256": "a33d6b37f81559b924ed744c6638a366ded31836b602d215f9429394115bc9ac",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "snorlax",
+      "view": "back",
+      "asset": "snorlax-back.png",
+      "reference": "gfx/pokemon/back/snorlaxb.png",
+      "reference_sha256": "1a6a5260905f6ab704a886ebe9addca3a01eccd488a725335a960f9d9149bc73",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "articuno",
+      "view": "front",
+      "asset": "articuno-front.png",
+      "reference": "gfx/pokemon/front/articuno.png",
+      "reference_sha256": "fb4cde879aaa98b2864749bcce1d5e18a702ddcfbfe485f1a397f27dd74c7053",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "articuno",
+      "view": "back",
+      "asset": "articuno-back.png",
+      "reference": "gfx/pokemon/back/articunob.png",
+      "reference_sha256": "a35017b3398e31931613bc3dc4071c2bbe7b1ba5ff6876fc62ee10dd63c50b39",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "zapdos",
+      "view": "front",
+      "asset": "zapdos-front.png",
+      "reference": "gfx/pokemon/front/zapdos.png",
+      "reference_sha256": "6a37f83e1d63dcbd6a8f3022cc32f29705609f29ca06d0b4e2cf9a7a9795b59f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "zapdos",
+      "view": "back",
+      "asset": "zapdos-back.png",
+      "reference": "gfx/pokemon/back/zapdosb.png",
+      "reference_sha256": "8cd7319301e293d5a85b2cddd3d9be571d7c9b60e78d0378f184bf4db0e55dae",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "moltres",
+      "view": "front",
+      "asset": "moltres-front.png",
+      "reference": "gfx/pokemon/front/moltres.png",
+      "reference_sha256": "20a0bdc25c39e090810527c5b7179a0f956a6c6f41d803b32fd4d6004afd4c61",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "moltres",
+      "view": "back",
+      "asset": "moltres-back.png",
+      "reference": "gfx/pokemon/back/moltresb.png",
+      "reference_sha256": "6d9b815293e419536d13965cbd8cd3e9c40025d118870a8446662ed4020990e0",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dratini",
+      "view": "front",
+      "asset": "dratini-front.png",
+      "reference": "gfx/pokemon/front/dratini.png",
+      "reference_sha256": "067845d18f5eafa97578833cb19c7ba727313bf65def20b840f78c264292a7a7",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dratini",
+      "view": "back",
+      "asset": "dratini-back.png",
+      "reference": "gfx/pokemon/back/dratinib.png",
+      "reference_sha256": "6c411bfda76c8609e4fa5c132c2dc64cd41c51cc3a2519233b2fb94fca62f2f5",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dragonair",
+      "view": "front",
+      "asset": "dragonair-front.png",
+      "reference": "gfx/pokemon/front/dragonair.png",
+      "reference_sha256": "71972c12ecd5abce94f76542d77b40de421077980b92de27d09cd9320934b791",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dragonair",
+      "view": "back",
+      "asset": "dragonair-back.png",
+      "reference": "gfx/pokemon/back/dragonairb.png",
+      "reference_sha256": "59210d409e478383de1326a28fd0856113b06ede7f5d9a87e0a4e9d5db43ed8f",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dragonite",
+      "view": "front",
+      "asset": "dragonite-front.png",
+      "reference": "gfx/pokemon/front/dragonite.png",
+      "reference_sha256": "076b34609d06624a64ece0f870e500e8654609812011d7a9c00065f6ac8a51ce",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "dragonite",
+      "view": "back",
+      "asset": "dragonite-back.png",
+      "reference": "gfx/pokemon/back/dragoniteb.png",
+      "reference_sha256": "ab48c89da0ba47595023db36fa2a74746a69d5e9c5b4c6f6fa4d449aab822dca",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mewtwo",
+      "view": "front",
+      "asset": "mewtwo-front.png",
+      "reference": "gfx/pokemon/front/mewtwo.png",
+      "reference_sha256": "141bb0a0f0698130ccac17d31182b32df40f9998288927fa6108e8e8e51213cc",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mewtwo",
+      "view": "back",
+      "asset": "mewtwo-back.png",
+      "reference": "gfx/pokemon/back/mewtwob.png",
+      "reference_sha256": "1f787bd2fa435b1626aa641fb5b2369817b5881f07cde73b227a2ea59b5117a2",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mew",
+      "view": "front",
+      "asset": "mew-front.png",
+      "reference": "gfx/pokemon/front/mew.png",
+      "reference_sha256": "96e344d9c937008996ebde46d1ea8a141a1237a37d5ef5d7b4a5f8b60ff9db08",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    },
+    {
+      "species": "mew",
+      "view": "back",
+      "asset": "mew-back.png",
+      "reference": "gfx/pokemon/back/mewb.png",
+      "reference_sha256": "8a88787df2f8aedf1d8061b5e2f7e06bb59bd033fbee01d4ef250adea4ab0a97",
+      "protected_bytes_unchanged": true,
+      "direct": {
+        "equal": true,
+        "changed_pixels": 0,
+        "bbox": null,
+        "mask_pixels": 0
+      }
+    }
+  ],
+  "search": []
+}
