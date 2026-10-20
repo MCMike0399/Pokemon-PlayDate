@@ -1,0 +1,8 @@
+{
+  "journey": {
+    "name": "intro",
+    "starter": "charmander",
+    "seed": 42,
+    "expected_outcome": "win"
+  }
+}

@@ -1,0 +1,493 @@
+{
+  "schema": 1,
+  "scope": "current source audit, not gameplay completion",
+  "version_group": 14,
+  "production_inputs": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate/Source/data/pokemon.lua": "392e46e3099e0fa3ec2f3c7b23d25bd696d4e7b79ad0bcb6aac6e51f89d47754",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate/Source/battle/moves.lua": "c5e310afc96c6a9619367e7e97d0be6e4e540e9305e8962bc3c13097f10c2faf",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate/Source/battle/battle.lua": "555312b45070f32d1afb14437acd23af65ce7f685cb84faf90e9009c51ede9b4",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate/Source/battle/dsl.lua": "da6ed8c4ec6d3617e6a4e4b233da3bc728955acc97095460ff5d52426b1fa3a9"
+  },
+  "counts": {
+    "species": 151,
+    "moves": 419,
+    "learnset_failures": 151,
+    "move_field_failures": 0,
+    "known_runtime_gaps": 53,
+    "status_dispatch_reviews": 80,
+    "runtime_unreviewed": 285
+  },
+  "learnset_gaps": {
+    "missing_level_metadata": 151,
+    "ordered_name_mismatches": 115
+  },
+  "semantics_status_counts": {
+    "requires-independent-runtime-contract": 285,
+    "status-dispatch-review-required": 80,
+    "known-runtime-gap": 36,
+    "missing-damage-dispatch": 17,
+    "intentional-no-effect": 1
+  },
+  "known_runtime_gaps": [
+    {
+      "move": "airCutter",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "blazeKick",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "bounce",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "charge/invulnerability"
+      ]
+    },
+    {
+      "move": "counter",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "crabhammer",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "crossChop",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "crossPoison",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "detect",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "protection"
+      ]
+    },
+    {
+      "move": "dig",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "charge/invulnerability"
+      ]
+    },
+    {
+      "move": "dive",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "charge/invulnerability"
+      ]
+    },
+    {
+      "move": "drillRun",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "electroBall",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "endeavor",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "endure",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "survive lethal damage"
+      ]
+    },
+    {
+      "move": "explosion",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "user faint"
+      ]
+    },
+    {
+      "move": "falseSwipe",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "nonlethal damage"
+      ]
+    },
+    {
+      "move": "finalGambit",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "flail",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "fling",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "gigaImpact",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "recharge"
+      ]
+    },
+    {
+      "move": "gyroBall",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "healPulse",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "heal target (generated effect currently heals attacker)"
+      ]
+    },
+    {
+      "move": "heavySlam",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "hyperBeam",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "recharge"
+      ]
+    },
+    {
+      "move": "karateChop",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "leafBlade",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "lowKick",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "magnitude",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "metronome",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "move selection"
+      ]
+    },
+    {
+      "move": "mirrorCoat",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "naturalGift",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "nightSlash",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "protect",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "protection"
+      ]
+    },
+    {
+      "move": "psychoCut",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "psyshock",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "special attack versus physical defense"
+      ]
+    },
+    {
+      "move": "psystrike",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "special attack versus physical defense"
+      ]
+    },
+    {
+      "move": "punishment",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "razorLeaf",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "razorWind",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "charge",
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "rest",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "healing plus sleep"
+      ]
+    },
+    {
+      "move": "reversal",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "selfDestruct",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "user faint"
+      ]
+    },
+    {
+      "move": "shadowClaw",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "skullBash",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "charge"
+      ]
+    },
+    {
+      "move": "skyAttack",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "skyDrop",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "two-turn state"
+      ]
+    },
+    {
+      "move": "slash",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "solarBeam",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "charge/weather"
+      ]
+    },
+    {
+      "move": "spitUp",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "stoneEdge",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "source crit-rate modifier has no engine field"
+      ]
+    },
+    {
+      "move": "transform",
+      "status": "known-runtime-gap",
+      "reasons": [
+        "battler copy"
+      ]
+    },
+    {
+      "move": "trumpCard",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    },
+    {
+      "move": "wringOut",
+      "status": "missing-damage-dispatch",
+      "reasons": [
+        "zero-base-power attack has no damage effect"
+      ]
+    }
+  ],
+  "status_dispatch_review": [
+    "acupressure",
+    "afterYou",
+    "allySwitch",
+    "aquaRing",
+    "aromatherapy",
+    "batonPass",
+    "bellyDrum",
+    "bestow",
+    "block",
+    "camouflage",
+    "conversion",
+    "conversion2",
+    "copycat",
+    "curse",
+    "destinyBond",
+    "disable",
+    "encore",
+    "focusEnergy",
+    "followMe",
+    "foresight",
+    "gastroAcid",
+    "gravity",
+    "grudge",
+    "guardSwap",
+    "hail",
+    "haze",
+    "healingWish",
+    "helpingHand",
+    "imprison",
+    "ingrain",
+    "leechSeed",
+    "lightScreen",
+    "lockOn",
+    "luckyChant",
+    "magicCoat",
+    "magnetRise",
+    "meFirst",
+    "meanLook",
+    "mimic",
+    "mindReader",
+    "miracleEye",
+    "mirrorMove",
+    "mist",
+    "mudSport",
+    "nightmare",
+    "odorSleuth",
+    "perishSong",
+    "powerSwap",
+    "psychUp",
+    "quickGuard",
+    "ragePowder",
+    "rainDance",
+    "recycle",
+    "reflect",
+    "reflectType",
+    "refresh",
+    "roar",
+    "rolePlay",
+    "safeguard",
+    "sandstorm",
+    "sleepTalk",
+    "soak",
+    "spikes",
+    "spite",
+    "stealthRock",
+    "substitute",
+    "sunnyDay",
+    "switcheroo",
+    "tailwind",
+    "taunt",
+    "telekinesis",
+    "teleport",
+    "toxicSpikes",
+    "trick",
+    "waterSport",
+    "whirlwind",
+    "wideGuard",
+    "wonderRoom",
+    "worrySeed",
+    "yawn"
+  ],
+  "limitations": [
+    "Missing status dispatch is a review requirement, not automatically a proven behavior bug.",
+    "Static gap inventory is conservative and incomplete; existing DSL effects can still be wrong.",
+    "Unaudited moves require independent behavior contracts.",
+    "Scalar checks use two immutable raw PokeAPI snapshots; no generator imports or outputs."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "examples": [
+    {
+      "map": "Route1",
+      "canonical_sha256": "f31adf65be1d1ec73c573d4aebaf0fda4270dbd58b6b286604a8af982b45a249",
+      "pixels": 256,
+      "independent_decoder": "Pillow12.0.0; index via source tile width, no research PNG decoder"
+    },
+    {
+      "map": "RedsHouse1F",
+      "canonical_sha256": "e420c633515349e4ad0dfa9fc00412d61348dced842795c20677b14ee5bf7dae",
+      "pixels": 256,
+      "independent_decoder": "Pillow12.0.0; index via source tile width, no research PNG decoder"
+    }
+  ]
+}

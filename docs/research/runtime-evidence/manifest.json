@@ -1,0 +1,127 @@
+{
+  "purpose": "Limited observations for codebase research and future goal prompt; not an approved complete golden suite",
+  "captured_at": "2026-10-20T10:46:14.946719-06:00",
+  "source_commit": "1cb82252e4d591e9819fdd23caa234e02128263c",
+  "source_unchanged": true,
+  "source_fingerprint": {
+    "sha256": "0e366cf9cf754a2619de07b6d6aedfc99a7312bfd406bf6d1cb17351dcdc0bd0",
+    "algorithm": "sorted git-tracked Source, tools, Makefile and .luarc.json paths: path UTF-8 + NUL + SHA256(file bytes)",
+    "tracked_file_count": 497
+  },
+  "sdk_version": "3.1.2",
+  "build_command": "PLAYDATE_SDK_PATH=/Users/burbujamc/Developer/PlaydateSDK make compile",
+  "build_exit_code": 0,
+  "launch": "Direct SDK Simulator executable with absolute PokemonPoC.pdx path; separately owned process",
+  "known_limitations": [
+    "Current bridge has no build/session handshake; process launch and successful command responses are observed, not a cryptographic runtime attestation",
+    "Screenshot path workaround required temporary creation of the absent legacy output directory",
+    "No completed battle, natural intro playthrough, rival outcome coverage, or physical-device validation",
+    "Some scene positioning used collision-bypassing warp",
+    "System python3 lacks Pillow; film strips not generated",
+    "Screenshots capture prior completed display frame; animation phase was not controlled"
+  ],
+  "command_batches": [
+    [
+      "gamestate"
+    ],
+    [
+      "atlas",
+      "dismiss",
+      "shot research-bedroom",
+      "intro skip",
+      "gamestate"
+    ],
+    [
+      "encounters off",
+      "move right 4",
+      "move up",
+      "wait 30",
+      "gamestate",
+      "warp 3 7",
+      "move down",
+      "wait 30",
+      "warp 9 7",
+      "wait 20",
+      "shot research-town",
+      "gamestate",
+      "warp 10 12",
+      "move up",
+      "wait 30",
+      "shot research-lab",
+      "gamestate"
+    ],
+    [
+      "research_unknown_command"
+    ],
+    [
+      "seed 42",
+      "battle rattata 3",
+      "wait 30",
+      "shot research-battle-intro",
+      "press a",
+      "wait 15",
+      "press a",
+      "wait 15",
+      "shot research-battle-moves",
+      "gamestate",
+      "pokemon"
+    ]
+  ],
+  "observations": {
+    "fresh_boot": "overworld>dialog, Red's Room, pre_oak, player 5,3",
+    "stairs": "Red's House 1F, player 9,2",
+    "edge_exit": "edge-door down at 3,7 then Pallet Town",
+    "lab_entry": "Oak's Lab, player 5,9",
+    "battle": "phase=command, Squirtle Lv5 HP19/19, seeded Rattata Lv3 fixture, move menu visible",
+    "negative_probe": {
+      "command": "research_unknown_command",
+      "response": "err unknown command: research_unknown_command\npos 5 9 facing up\ndone",
+      "host_exit_code": 0,
+      "finding": "Runtime command error is incorrectly treated as host success"
+    }
+  },
+  "images": [
+    {
+      "path": "atlas_tiles.png",
+      "sha256": "764d375f944b5a8b69a74e8848f6e5fbde825269f5f785348e93e405b2c342bf",
+      "bytes": 4594,
+      "visually_inspected": true
+    },
+    {
+      "path": "atlas_sprites.png",
+      "sha256": "debe3aeba09b6897e396c3f23500baf225fc7c9990245e0bae3e4e8e6aabd895",
+      "bytes": 5138,
+      "visually_inspected": true
+    },
+    {
+      "path": "research-bedroom.png",
+      "sha256": "ba273e61a584a465269fdddc790221367081a919f5559411e5e0d14b9f2a144c",
+      "bytes": 2278,
+      "visually_inspected": true
+    },
+    {
+      "path": "research-town.png",
+      "sha256": "dc19ae779ae6bfe52fd19753aaef51736384d97a7276fafd6e1b79a7e95602e1",
+      "bytes": 3929,
+      "visually_inspected": true
+    },
+    {
+      "path": "research-lab.png",
+      "sha256": "36904cc29c3da01c9978371cfb7ef676d18e52a7cfa9ec8b159eea3acd9e1786",
+      "bytes": 2604,
+      "visually_inspected": true
+    },
+    {
+      "path": "research-battle-intro.png",
+      "sha256": "60d22896f2c1ee9abe7bc52745b30c9db77ecde36fcac8aaff9992b965b6f095",
+      "bytes": 3032,
+      "visually_inspected": true
+    },
+    {
+      "path": "research-battle-moves.png",
+      "sha256": "7471c7b6770d97161135c0fca4f95139d65a82fbac1d572be0caa8436b97482b",
+      "bytes": 3145,
+      "visually_inspected": true
+    }
+  ]
+}

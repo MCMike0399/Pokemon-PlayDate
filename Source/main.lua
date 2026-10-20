@@ -5,12 +5,14 @@ import "CoreLibs/timer"
 import "CoreLibs/frameTimer"
 
 import "lib/oop"
+import "lib/rng"
 import "lib/shade"
 import "lib/statemachine"
 import "world/tilefactory"
 import "world/spritefactory"
 import "world/zone"
 import "data/pokemon"
+import "data/pokemonArt"
 import "data/typechart"
 import "battle/dsl"
 import "battle/moves"
@@ -30,9 +32,19 @@ import "game/overworldState"
 import "game/dialogState"
 import "game/battleState"
 import "game/debugState"
+import "dev/contracts"
+import "dev/catalog"
+import "dev/harness_build"
+import "dev/harness_capture"
+import "dev/diagnostics"
+import "dev/fixtures"
 import "dev/autopilot"
+import "dev/harness"
 
 playdate.display.setRefreshRate(30)
+if not HarnessBuild.enabled then
+    RulesRNG.seed(playdate.getSecondsSinceEpoch())
+end
 
 -- Shared context: root machine, camera, npc manager, player, player pokemon.
 -- Global so dev tooling (autopilot, debug) can reach it.
@@ -62,8 +74,8 @@ machine:change("overworld")
 machine:push("dialog", Story.openingLines)
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function playdate.update()
-    Autopilot.update(game)
+local function updateGame()
+    Harness.beforeFrame(game)
 
     machine:update()
     machine:handleInput()
@@ -80,5 +92,16 @@ function playdate.update()
             playdate.drawFPS(4, 4)
             game.camera:apply()
         end
+    end
+end
+
+-- Harness failures are evidence rather than an unacknowledged mailbox hang.
+function playdate.update()
+    if Harness.isQuiescent then return end
+    if HarnessBuild.enabled and playdate.isSimulator then
+        local ok, message = pcall(updateGame)
+        Harness.afterFrame(game, not ok and tostring(message) or nil)
+    else
+        updateGame()
     end
 end

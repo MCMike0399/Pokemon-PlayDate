@@ -38,7 +38,7 @@ function calcDamage(attacker, defender, move)
     if move.power == 0 then return { damage = 0, effectiveness = 1, isCrit = false, isSTAB = false } end
 
     -- Crit roll first: it changes which stat stages count (1/16 base rate)
-    local isCrit = math.random(1, 16) == 1
+    local isCrit = RulesRNG.random(1, 16) == 1
 
     -- Pick offensive/defensive stats per the move's damage class
     local atkBase, defBase, atkStage, defStage
@@ -74,7 +74,7 @@ function calcDamage(attacker, defender, move)
     if isCrit then
         damage = damage * 2
     end
-    damage = math.floor(damage * math.random(85, 100) / 100)
+    damage = math.floor(damage * RulesRNG.random(85, 100) / 100)
     if isSTAB then
         damage = math.floor(damage * 1.5)
     end
@@ -112,7 +112,7 @@ function checkAccuracy(move, attacker, defender)
     if move.accuracy == 0 then return true end
     local stage = attacker.statStages.acc - defender.statStages.eva
     local threshold = move.accuracy * accStageMult(stage)
-    return math.random(1, 100) <= threshold
+    return RulesRNG.random(1, 100) <= threshold
 end
 
 -- ============================================================
@@ -295,7 +295,7 @@ function Battle:selectMove(moveIndex)
     local playerMove = moveData[moveKey]
     self.player:usePP(moveKey)
 
-    local enemyMoveKey = self.enemy.moves[math.random(1, #self.enemy.moves)]
+    local enemyMoveKey = self.enemy.moves[RulesRNG.random(1, #self.enemy.moves)]
     local enemyMove = moveData[enemyMoveKey]
 
     -- Turn order: move priority brackets first, then effective speed
@@ -338,7 +338,7 @@ function Battle:tryRun()
     local enemySpe = math.max(1, self.enemy.spe)
     local runChance = math.floor(playerSpe * 128 / enemySpe + 30 * self.runAttempts) % 256
 
-    if math.random(0, 255) < runChance then
+    if RulesRNG.random(0, 255) < runChance then
         self:runScript(function()
             self:say("Got away safely!")
             return "run"
@@ -347,7 +347,7 @@ function Battle:tryRun()
         self:runScript(function()
             self:say("Can't escape!")
             -- Enemy gets a free turn
-            local enemyMoveKey = self.enemy.moves[math.random(1, #self.enemy.moves)]
+            local enemyMoveKey = self.enemy.moves[RulesRNG.random(1, #self.enemy.moves)]
             local outcome = self:resolveTurn({ side = "enemy", move = moveData[enemyMoveKey] })
             if outcome then return outcome end
             return self:endOfRoundStatus() or "command"
@@ -395,11 +395,11 @@ function Battle:resolveTurn(turn)
             self:say(attacker.name .. " is fast asleep!")
             return nil
         end
-    elseif attacker.status == "paralyze" and math.random(1, 4) == 1 then
+    elseif attacker.status == "paralyze" and RulesRNG.random(1, 4) == 1 then
         self:say(attacker.name .. " is paralyzed! It can't move!")
         return nil
     elseif attacker.status == "freeze" then
-        if math.random(1, 5) == 1 then
+        if RulesRNG.random(1, 5) == 1 then
             attacker.status = nil
             attacker.statusTurns = 0
             self:say(attacker.name .. " thawed out!")
@@ -419,13 +419,13 @@ function Battle:resolveTurn(turn)
             self:say(attacker.name .. " snapped out of its confusion!")
         else
             self:say(attacker.name .. " is confused!")
-            if math.random(1, 2) == 1 then
+            if RulesRNG.random(1, 2) == 1 then
                 local atkStat = applyStageMod(attacker.atk, attacker.statStages.atk)
                 local defStat = applyStageMod(attacker.def, attacker.statStages.def)
                 local damage = math.floor(math.floor(
                     math.floor(2 * attacker.level / 5 + 2) * 40 * atkStat / defStat
                 ) / 50) + 2
-                damage = math.max(1, math.floor(damage * math.random(85, 100) / 100))
+                damage = math.max(1, math.floor(damage * RulesRNG.random(85, 100) / 100))
                 attacker:takeDamage(damage)
                 self:say("It hurt itself in its confusion!")
                 if not attacker:isAlive() then
@@ -463,13 +463,13 @@ function Battle:performMove(move)
         local hits = 1
         if move.minHits and move.maxHits and move.maxHits > 1 then
             if move.minHits == 2 and move.maxHits == 5 then
-                local roll = math.random(6)
+                local roll = RulesRNG.random(6)
                 if roll <= 2 then hits = 2
                 elseif roll <= 4 then hits = 3
                 elseif roll == 5 then hits = 4
                 else hits = 5 end
             else
-                hits = math.random(move.minHits, move.maxHits)
+                hits = RulesRNG.random(move.minHits, move.maxHits)
             end
         end
 

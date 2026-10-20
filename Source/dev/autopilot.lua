@@ -1,46 +1,13 @@
--- ============================================================
--- Autopilot: simulator-only automation bridge
--- ============================================================
--- Polls the game's Data folder (~/Developer/PlaydateSDK/Disk/Data/
--- com.poc.pokemon/ on the host) for "autopilot.txt" command files
--- written by tools/autopilot.py, executes them, and acks with
--- "autopilot-done.txt". Screenshots are written straight to the
--- host filesystem via playdate.simulator.writeToFile().
--- Does nothing on a real device.
---
--- Commands (one per line):
---   move <up|down|left|right> [n]   walk n tiles (default 1)
---   face <up|down|left|right>       turn without stepping
---   warp <gridX> <gridY>            teleport + snap camera
---   wait <frames>                   idle for n frames
---   shot <name>                     screenshot -> tools/shots/<name>.png
---   record <name> <n>               capture next n frames -> <name>-NN.png
---   encounters <on|off>             toggle wild encounters
---   press <a|b|up|down|left|right>  inject one button press (menus, dialog)
---   mash <btn> <n> [gap]            press <btn> n times, every gap frames (default 16)
---   dismiss                         press A until the dialog overlay closes
---                                   (mash can overshoot and re-trigger the NPC)
---   battle <species> <level>        jump straight into a wild battle
---   intro <skip|reset|status>       control the intro questline (Story)
---   gamestate                       report state stack, battle phase, transitions
---   seed <n>                        math.randomseed(n) for deterministic runs
---   debug <open|close>              push/pop the debug menu overlay
---   pokemon                         report player pokemon species/lv/hp/xp/status
---   state                           dump player/overlay diagnostics
---   dumpimg <name>                  write the player's current sprite image
-
+-- Bounded actions used exclusively by the identified Simulator harness.
 Autopilot = { update = function() end }
 
-if not playdate.isSimulator then
+if not playdate.isSimulator or not HarnessBuild.enabled then
     return
 end
 
 local gfx <const> = playdate.graphics
 
-local CMD_FILE <const> = "autopilot.txt"
-local DONE_FILE <const> = "autopilot-done.txt"
-local SHOTS_DIR <const> = "~/Developer/PlaydateSDK/PlayDate-Pokemon-PoC/tools/shots/"
-local POLL_INTERVAL <const> = 10
+local SHOTS_DIR <const> = HarnessBuild.output_dir
 
 local DIRS <const> = {
     up = { 0, -1 }, down = { 0, 1 }, left = { -1, 0 }, right = { 1, 0 },
@@ -52,11 +19,7 @@ local BUTTONS <const> = {
     left = playdate.kButtonLeft, right = playdate.kButtonRight,
 }
 
-local queue = {}
-local active = nil      -- command currently executing
 local recording = nil   -- { name, total, count }
-local pendingAck = false
-local pollCountdown = 0
 local results = {}
 
 -- ------------------------------------------------------------
@@ -64,18 +27,29 @@ local results = {}
 -- presses are indistinguishable from real ones for exactly one frame
 -- ------------------------------------------------------------
 local injectedPress = {}
-
-local realJustPressed = playdate.buttonJustPressed
-local realIsPressed = playdate.buttonIsPressed
+local held = {}
+local released = {}
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function playdate.buttonJustPressed(button)
-    return injectedPress[button] == true or realJustPressed(button)
+    return injectedPress[button] == true
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function playdate.buttonIsPressed(button)
-    return injectedPress[button] == true or realIsPressed(button)
+    return injectedPress[button] == true or held[button] == true
+end
+
+function playdate.buttonJustReleased(button)
+    return released[button] == true
+end
+
+function playdate.getButtonState()
+    local current, pressed, up = 0, 0, 0
+    for button in pairs(held) do current = current | button end
+    for button in pairs(injectedPress) do current = current | button; pressed = pressed | button end
+    for button in pairs(released) do up = up | button end
+    return current, pressed, up
 end
 
 local function inject(button)
@@ -83,13 +57,15 @@ local function inject(button)
 end
 
 local function clearInjected()
+    for k in pairs(released) do released[k] = nil end
     for k in pairs(injectedPress) do
+        if not held[k] then released[k] = true end
         injectedPress[k] = nil
     end
 end
 
 local function screenshot(name)
-    playdate.simulator.writeToFile(gfx.getDisplayImage(), SHOTS_DIR .. name .. ".png")
+    HarnessCapture.write(name)
 end
 
 -- Visual verification harness: render every TileFactory tile and every
@@ -141,39 +117,8 @@ local function buildAtlas()
     playdate.simulator.writeToFile(simg, SHOTS_DIR .. "atlas_sprites.png")
 end
 
-local function writeDone(player)
-    local f = playdate.file.open(DONE_FILE, playdate.file.kFileWrite)
-    if not f then return end
-    for _, line in ipairs(results) do
-        f:write(line .. "\n")
-    end
-    if player then
-        f:write(string.format("pos %d %d facing %s\n", player.gridX, player.gridY, player.facing))
-    end
-    f:write("done\n")
-    f:close()
-    results = {}
-end
-
-local function readCommands()
-    local f = playdate.file.open(CMD_FILE, playdate.file.kFileRead)
-    if not f then return end
-    while true do
-        local line = f:readline()
-        if not line then break end
-        local parts = {}
-        for w in line:gmatch("%S+") do parts[#parts + 1] = w end
-        if #parts > 0 then
-            queue[#queue + 1] = parts
-        end
-    end
-    f:close()
-    playdate.file.delete(CMD_FILE)
-    pendingAck = true
-end
-
 -- Returns true when the command has finished
-local function step(cmd, game)
+function Autopilot.step(cmd, game)
     local name = cmd[1]
     local player = game.player
 
@@ -190,7 +135,11 @@ local function step(cmd, game)
         return true
 
     elseif name == "atlas" then
-        buildAtlas()
+        if VisualCatalog then
+            Autopilot.catalog = VisualCatalog.write(SHOTS_DIR)
+        else
+            buildAtlas()
+        end
         results[#results + 1] = "atlas -> atlas_tiles.png, atlas_sprites.png"
         return true
 
@@ -209,6 +158,18 @@ local function step(cmd, game)
             return true
         end
         inject(button)
+        return true
+
+    elseif name == "hold" then
+        local button = BUTTONS[cmd[2]]
+        if not held[button] then inject(button) end
+        held[button] = true
+        return true
+
+    elseif name == "release" then
+        local button = BUTTONS[cmd[2]]
+        held[button] = nil
+        released[button] = true
         return true
 
     elseif name == "mash" then
@@ -264,16 +225,9 @@ local function step(cmd, game)
 
     elseif name == "intro" then
         local sub = cmd[2]
-        if sub == "skip" then
-            Story.skipIntro(game)
-            if game.machine:is("overworld") then
-                game.machine:change("overworld")
-            end
-        elseif sub == "reset" then
-            Story.resetIntro(game)
-            if game.machine:is("overworld") then
-                game.machine:change("overworld", { respawn = true })
-            end
+        if sub == "skip" or sub == "reset" then
+            Autopilot.resetControls()
+            HarnessFixtures.reset(game, { intro = sub, opening = sub ~= "skip" })
         end
         results[#results + 1] = "intro " .. tostring(sub)
             .. " stage=" .. Story.stage .. " starter=" .. tostring(Story.starter)
@@ -299,6 +253,7 @@ local function step(cmd, game)
 
     elseif name == "seed" then
         math.randomseed(tonumber(cmd[2]) or 0)
+        if RulesRNG then RulesRNG.seed(tonumber(cmd[2]) or 0) end
         results[#results + 1] = "seed " .. tostring(cmd[2])
         return true
 
@@ -368,6 +323,7 @@ local function step(cmd, game)
         return false
 
     elseif name == "face" then
+        assert(game.machine:is("overworld"), "face requires overworld")
         if DIRS[cmd[2]] then
             player.facing = cmd[2]
             player:updateSprite()
@@ -375,8 +331,14 @@ local function step(cmd, game)
         return true
 
     elseif name == "warp" then
+        assert(game.machine:is("overworld"), "warp requires overworld")
         local gx, gy = tonumber(cmd[2]), tonumber(cmd[3])
+        assert(gx and gy and gx >= 0 and gy >= 0 and gx < currentZone.width and gy < currentZone.height,
+            "warp outside current zone")
         if gx and gy then
+            player.isMoving = false
+            player.stepJustFinished = false
+            player.pendingEdgeDoor = nil
             player.gridX = gx
             player.gridY = gy
             player:moveTo(gx * TILE_SIZE, gy * TILE_SIZE)
@@ -405,39 +367,40 @@ local function step(cmd, game)
     return true
 end
 
-function Autopilot.update(game)
-    -- Injected presses last exactly one frame
+function Autopilot.beginFrame()
     clearInjected()
+end
 
-    -- Capture first: getDisplayImage() returns the last completed frame
+function Autopilot.resetControls()
+    clearInjected()
+    for key in pairs(held) do held[key] = nil end
+    for key in pairs(released) do released[key] = nil end
+    results = {}
+    recording = nil
+end
+
+function Autopilot.takeResults()
+    local found = results
+    results = {}
+    return found
+end
+
+function Autopilot.afterFrame()
     if recording then
         recording.count = recording.count + 1
         screenshot(string.format("%s-%02d", recording.name, recording.count))
-        if recording.count >= recording.total then
-            results[#results + 1] = string.format("recorded %s %d", recording.name, recording.total)
-            recording = nil
-        end
+        if recording.count >= recording.total then recording = nil end
     end
+end
 
-    if not game then return end
+function Autopilot.isRecording() return recording ~= nil end
 
-    if active == nil and #queue > 0 then
-        active = table.remove(queue, 1)
+function Autopilot.inputSnapshot()
+    local state = { held = {}, pressed = {}, released = {} }
+    for name, button in pairs(BUTTONS) do
+        if held[button] then state.held[#state.held + 1] = name end
+        if injectedPress[button] then state.pressed[#state.pressed + 1] = name end
+        if released[button] then state.released[#state.released + 1] = name end
     end
-    if active and step(active, game) then
-        active = nil
-    end
-
-    if pendingAck and active == nil and #queue == 0 and recording == nil then
-        pendingAck = false
-        writeDone(game.player)
-    end
-
-    pollCountdown = pollCountdown - 1
-    if pollCountdown <= 0 then
-        pollCountdown = POLL_INTERVAL
-        if active == nil and #queue == 0 and playdate.file.exists(CMD_FILE) then
-            readCommands()
-        end
-    end
+    return state
 end

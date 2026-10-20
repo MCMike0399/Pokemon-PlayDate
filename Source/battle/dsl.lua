@@ -69,7 +69,7 @@ function Exactly:evaluate(_battle) return self.value end
 
 Class("Between")
 function Between:init(min, max) self.min = min; self.max = max end
-function Between:evaluate(_battle) return math.random(self.min, self.max) end
+function Between:evaluate(_battle) return RulesRNG.random(self.min, self.max) end
 
 -- Weighted{ {value=2, weight=375}, {value=3, weight=375}, ... }
 Class("Weighted")
@@ -81,7 +81,7 @@ function Weighted:init(entries)
 end
 
 function Weighted:evaluate(_battle)
-    local roll = math.random(1, self.total)
+    local roll = RulesRNG.random(1, self.total)
     local sum = 0
     for _, e in ipairs(self.entries) do
         sum = sum + e.weight
@@ -124,7 +124,7 @@ function LastDamage:evaluate(battle) return battle.lastDamage or 0 end
 
 Class("Chance")
 function Chance:init(percent) self.percent = percent end
-function Chance:check(_battle) return math.random(1, 100) <= self.percent end
+function Chance:check(_battle) return RulesRNG.random(1, 100) <= self.percent end
 
 Class("Always")
 function Always:check(_battle) return true end
@@ -270,7 +270,7 @@ function ApplyStatus:apply(battle)
     end
     if self.status == "confuse" then
         if pokemon.confusion then return end
-        pokemon.confusion = math.random(1, 4)   -- attacking turns of confusion
+        pokemon.confusion = RulesRNG.random(1, 4)   -- attacking turns of confusion
         battle:say(pokemon.name .. " became confused!")
         return
     end
@@ -279,7 +279,7 @@ function ApplyStatus:apply(battle)
     if immuneToStatus(pokemon, self.status) then return end
     pokemon.status = self.status
     if self.status == "sleep" then
-        pokemon.statusTurns = math.random(1, 3)   -- Gen V: 1-3 turn counter
+        pokemon.statusTurns = RulesRNG.random(1, 3)   -- Gen V: 1-3 turn counter
     end
     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
 end

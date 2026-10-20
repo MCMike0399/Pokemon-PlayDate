@@ -1,166 +1,187 @@
-"""Compare our lua movesets against PokeAPI Gen 5 data and generate reports."""
-import os
-from parse_lua import to_camel_case
+"""Independent B2W2 oracle from pinned raw CSVs; no generator imports."""
+from collections import defaultdict
+try:
+    from .parse_lua import to_camel_case
+    from .fetch_pokeapi import SourceError
+except ImportError:
+    from parse_lua import to_camel_case
+    from fetch_pokeapi import SourceError
+
+VERSION_GROUP = 14
+TIE_POLICY = 'level ascending; explicit source order ascending; missing order last; numeric move ID ascending'
 
 
-class MoveComparer:
-    """Compares local move lists against PokeAPI level-up moves."""
-
-    def compare(self, pokemon_name, dex, our_moves, api_moves):
-        """Compare move lists and return a ComparisonResult."""
-        if api_moves is None:
-            return ComparisonResult(
-                pokemon=pokemon_name, dex=dex, status="error",
-                message="Failed to fetch from API"
-            )
-
-        api_move_map = {}
-        api_move_names = set()
-        for m in api_moves:
-            camel = to_camel_case(m["name"])
-            api_move_names.add(camel)
-            api_move_map[camel] = m
-
-        our_set = set(our_moves)
-        missing = api_move_names - our_set
-        extra = our_set - api_move_names
-        common = our_set & api_move_names
-        status = "match" if not missing and not extra else "mismatch"
-
-        return ComparisonResult(
-            pokemon=pokemon_name, dex=dex, status=status,
-            our_count=len(our_moves), api_count=len(api_moves),
-            common=sorted(common), missing=sorted(missing),
-            extra=sorted(extra), api_detail=api_move_map
-        )
+def number(row, field, optional=False):
+    value = row.get(field)
+    if optional and value == '': return None
+    try:
+        return int(value)
+    except (ValueError, TypeError) as error:
+        raise SourceError(f'invalid integer {field}={value!r}') from error
 
 
-class ComparisonResult:
-    """Holds the result of comparing moves for one pokemon."""
+class Oracle:
+    def __init__(self, tables):
+        self.tables = tables
+        groups = {number(row, 'id'): row for row in tables['version_groups']}
+        if groups.get(VERSION_GROUP, {}).get('identifier') != 'black-2-white-2':
+            raise SourceError('version-group 14 must identify black-2-white-2')
+        self.moves = {}
+        self.ids = {}
+        for row in tables['moves']:
+            move_id = number(row, 'id')
+            key = to_camel_case(row['identifier'])
+            if move_id in self.ids or key in self.moves:
+                raise SourceError(f'duplicate move identity: {move_id}/{key}')
+            self.moves[key] = row
+            self.ids[move_id] = key
+        self.types = {number(row, 'id'): row['identifier'] for row in tables['types']}
+        self.classes = {number(row, 'id'): row['identifier'] for row in tables['move_damage_classes']}
+        # PokeAPI's latest history omits some Gen IX healing PP nerfs. Resolve
+        # numeric fields from a separately pinned pre-SV snapshot, whose own
+        # changelog still undoes Gen VI-VIII changes back to B2W2.
+        self.field_rows = {to_camel_case(row['identifier']): row for row in tables.get('moves_pre_sv', tables['moves'])}
+        self.changes = defaultdict(list)
+        for row in tables.get('move_changelog_pre_sv', tables['move_changelog']):
+            move_id = number(row, 'move_id')
+            if move_id not in self.ids: raise SourceError(f'unknown changelog move ID {move_id}')
+            self.changes[move_id].append(row)
+        self.meta = {number(row, 'move_id'): row for row in tables['move_meta']}
+        self.effect_prose = {number(row, 'move_effect_id'): row['short_effect']
+                             for row in tables.get('move_effect_prose', []) if row['local_language_id'] == '9'}
+        self.stat_changes = defaultdict(list)
+        for row in tables.get('move_meta_stat_changes', []):
+            self.stat_changes[number(row, 'move_id')].append({'stat_id': number(row, 'stat_id'), 'change': number(row, 'change')})
+        self.learnsets = defaultdict(list)
+        seen = set()
+        for row in tables['pokemon_moves']:
+            if number(row, 'version_group_id') != VERSION_GROUP or number(row, 'pokemon_move_method_id') != 1:
+                continue
+            dex, move_id = number(row, 'pokemon_id'), number(row, 'move_id')
+            if not 1 <= dex <= 151: continue
+            if move_id not in self.ids: raise SourceError(f'unknown learnset move ID {move_id}')
+            level, order = number(row, 'level'), number(row, 'order', optional=True)
+            if not 0 <= level <= 100 or (order is not None and order < 0): raise SourceError('invalid learnset level/order')
+            identity = dex, move_id, level, order
+            if identity in seen: raise SourceError(f'duplicate learnset row: {identity}')
+            seen.add(identity)
+            self.learnsets[dex].append({'move': self.ids[move_id], 'level': level, 'order': order, 'id': move_id})
+        for entries in self.learnsets.values():
+            entries.sort(key=lambda row: (row['level'], row['order'] is None, row['order'] or 0, row['id']))
 
-    def __init__(self, pokemon, dex, status, our_count=0, api_count=0,
-                 common=None, missing=None, extra=None, api_detail=None,
-                 message=None):
-        self.pokemon = pokemon
-        self.dex = dex
-        self.status = status
-        self.our_count = our_count
-        self.api_count = api_count
-        self.common = common or []
-        self.missing = missing or []
-        self.extra = extra or []
-        self.api_detail = api_detail or {}
-        self.message = message
+    def fields(self, key):
+        if key not in self.moves: raise SourceError(f'unknown canonical move: {key}')
+        if key not in self.field_rows: raise SourceError(f'missing archived field row: {key}')
+        current = self.field_rows[key]
+        if number(current, 'generation_id') > 5: raise SourceError(f'move introduced after Gen V: {key}')
+        # Walk backward from current values, undoing every post-B2W2 change.
+        fields = {field: number(current, field, optional=True) for field in
+                  ('power', 'pp', 'accuracy', 'priority', 'type_id', 'effect_id')}
+        for change in sorted(self.changes[number(current, 'id')],
+                             key=lambda row: number(row, 'changed_in_version_group_id'), reverse=True):
+            if number(change, 'changed_in_version_group_id') > VERSION_GROUP:
+                for field in fields:
+                    value = number(change, field, optional=True)
+                    if value is not None: fields[field] = value
+        try:
+            return {'type': self.types[fields['type_id']], 'category': self.classes[number(current, 'damage_class_id')],
+                    'power': fields['power'] or 0, 'accuracy': fields['accuracy'] or 0,
+                    'pp': fields['pp'], 'priority': fields['priority'] or 0}
+        except KeyError as error:
+            raise SourceError(f'unknown type/category for {key}') from error
 
-    @property
-    def is_match(self):
-        return self.status == "match"
 
-    @property
-    def is_error(self):
-        return self.status == "error"
+def issue(code, **detail):
+    return {'code': code, **detail}
 
 
-class ReportWriter:
-    """Writes per-pokemon and summary reports to disk."""
+def compare_learnset(name, species, oracle, local_moves):
+    expected = oracle.learnsets.get(species['dex'])
+    failures = []
+    if not expected: failures.append(issue('missing-reference-learnset'))
+    unknown = [key for key in species['moves'] if key not in local_moves or key not in oracle.moves]
+    if unknown: failures.append(issue('unknown-move-key', moves=unknown))
+    actual = species.get('learnset')
+    if not isinstance(actual, list) or not actual:
+        failures.append(issue('missing-level-metadata', message='flat move names cannot prove learned level or order'))
+    else:
+        for index, row in enumerate(actual):
+            if (not isinstance(row, dict) or not isinstance(row.get('move'), str)
+                    or type(row.get('level')) is not int or not 0 <= row['level'] <= 100
+                    or (row.get('order') is not None and type(row['order']) is not int)):
+                failures.append(issue('invalid-learnset-entry', index=index)); continue
+            if row['move'] not in oracle.moves or row['move'] not in local_moves:
+                failures.append(issue('unknown-move-key', index=index, move=row['move']))
+        if not any(f['code'] == 'invalid-learnset-entry' for f in failures):
+            projection = lambda rows: [(row['move'], row['level'], row.get('order')) for row in rows]
+            if expected and projection(actual) != projection(expected):
+                failures.append(issue('ordered-learnset-mismatch', expected=expected, actual=actual))
+    # Even without levels, retain useful ordered name diagnostics (never success).
+    expected_names = [row['move'] for row in expected or []]
+    if species['moves'] != expected_names:
+        failures.append(issue('ordered-move-names-mismatch', expected=expected_names, actual=species['moves']))
+    return {'species': name, 'dex': species['dex'], 'ok': not failures, 'issues': failures,
+            'expected_learnset': expected or []}
 
-    def __init__(self, reports_dir=None):
-        self.reports_dir = reports_dir or os.path.join(
-            os.path.dirname(__file__), "reports"
-        )
 
-    def write_pokemon_report(self, result):
-        """Write a single pokemon report file. Returns the file path."""
-        os.makedirs(self.reports_dir, exist_ok=True)
-        filepath = os.path.join(
-            self.reports_dir, f"{result.dex:03d}_{result.pokemon}.txt"
-        )
+# Source-verified dispatcher gaps, not an exhaustive semantics allowlist.
+SPECIAL_GAPS = {
+    'hyperBeam': 'recharge', 'gigaImpact': 'recharge', 'solarBeam': 'charge/weather',
+    'fly': 'charge/invulnerability', 'dig': 'charge/invulnerability', 'dive': 'charge/invulnerability',
+    'bounce': 'charge/invulnerability', 'skullBash': 'charge', 'skyDrop': 'two-turn state',
+    'razorWind': 'charge', 'protect': 'protection', 'detect': 'protection', 'endure': 'survive lethal damage',
+    'transform': 'battler copy', 'metronome': 'move selection', 'rest': 'healing plus sleep',
+    'healPulse': 'heal target (generated effect currently heals attacker)',
+    'psystrike': 'special attack versus physical defense', 'psyshock': 'special attack versus physical defense',
+    'falseSwipe': 'nonlethal damage', 'selfDestruct': 'user faint', 'explosion': 'user faint',
+}
 
-        lines = [
-            f"#{result.dex:03d} {result.pokemon.upper()}",
-            f"Status: {result.status.upper()}",
-            f"Our moves: {result.our_count}  |  API moves: {result.api_count}",
-            "",
-        ]
 
-        if result.is_error:
-            lines.append(f"Error: {result.message or 'unknown'}")
-        elif result.is_match:
-            lines.append("All moves match!")
-            lines.append(f"Moves: {', '.join(result.common)}")
-        else:
-            if result.missing:
-                lines.append("MISSING (in API but not in ours):")
-                for m in result.missing:
-                    detail = result.api_detail.get(m, {})
-                    level = detail.get("level", "?")
-                    api_name = detail.get("name", m)
-                    lines.append(f"  - {m} (API: {api_name}, Lv.{level})")
+def semantics_inventory(moves, oracle):
+    inventory = []
+    for key, row in sorted(moves.items()):
+        reasons = []
+        status = 'requires-independent-runtime-contract'
+        if key == 'splash': status = 'intentional-no-effect'
+        elif key in SPECIAL_GAPS:
+            status = 'known-runtime-gap'; reasons.append(SPECIAL_GAPS[key])
+        elif row['category'] == 'status' and not row.get('effects'):
+            status = 'status-dispatch-review-required'; reasons.append('no effects or dedicated dispatcher; verify intentional failure/no-op policy')
+        elif row['category'] != 'status' and row['power'] == 0 and not row.get('effects'):
+            status = 'missing-damage-dispatch'; reasons.append('zero-base-power attack has no damage effect')
+        source = oracle.moves.get(key)
+        meta = oracle.meta.get(number(source, 'id'), {}) if source else {}
+        if meta.get('crit_rate') not in (None, '', '0'):
+            status = 'known-runtime-gap'; reasons.append('source crit-rate modifier has no engine field')
+        inventory.append({'move': key, 'status': status, 'reasons': reasons,
+                          'reference_effect': oracle.effect_prose.get(number(source, 'effect_id')) if source else None,
+                          'reference_meta': meta,
+                          'reference_stat_changes': oracle.stat_changes.get(number(source, 'id'), []) if source else []})
+    return inventory
 
-            if result.extra:
-                lines.append("EXTRA (in ours but not in API level-up):")
-                for m in result.extra:
-                    lines.append(f"  - {m}")
 
-            if result.common:
-                lines.append(
-                    f"\nMatching ({len(result.common)}): {', '.join(result.common)}"
-                )
-
-        lines.append("")
-
-        with open(filepath, "w") as f:
-            f.write("\n".join(lines))
-        return filepath
-
-    def write_summary(self, results):
-        """Write the overall summary report. Returns the file path."""
-        os.makedirs(self.reports_dir, exist_ok=True)
-        filepath = os.path.join(self.reports_dir, "000_SUMMARY.txt")
-
-        matches = [r for r in results if r.is_match]
-        mismatches = [r for r in results if r.status == "mismatch"]
-        errors = [r for r in results if r.is_error]
-
-        lines = [
-            "=" * 60,
-            "MOVE VERIFICATION SUMMARY - Gen 5 (Black/White) Level-Up",
-            "=" * 60,
-            f"Total: {len(results)}  |  Match: {len(matches)}  |  "
-            f"Mismatch: {len(mismatches)}  |  Errors: {len(errors)}",
-            "",
-        ]
-
-        if mismatches:
-            lines.append("MISMATCHES:")
-            lines.append("-" * 40)
-            for r in sorted(mismatches, key=lambda x: x.dex):
-                missing_str = f" missing={len(r.missing)}" if r.missing else ""
-                extra_str = f" extra={len(r.extra)}" if r.extra else ""
-                lines.append(
-                    f"  #{r.dex:03d} {r.pokemon:12s} |{missing_str}{extra_str}"
-                )
-                if r.missing:
-                    lines.append(f"       Missing: {', '.join(r.missing)}")
-                if r.extra:
-                    lines.append(f"       Extra:   {', '.join(r.extra)}")
-            lines.append("")
-
-        if errors:
-            lines.append("ERRORS:")
-            lines.append("-" * 40)
-            for r in sorted(errors, key=lambda x: x.dex):
-                lines.append(f"  #{r.dex:03d} {r.pokemon}: {r.message or 'unknown'}")
-            lines.append("")
-
-        if matches:
-            lines.append(f"MATCHES ({len(matches)}):")
-            lines.append("-" * 40)
-            lines.append(
-                ", ".join(f"#{r.dex:03d}" for r in sorted(matches, key=lambda x: x.dex))
-            )
-            lines.append("")
-
-        with open(filepath, "w") as f:
-            f.write("\n".join(lines))
-        return filepath
+def verify(species, moves, oracle):
+    if not species or not moves: raise SourceError('cannot verify an empty roster or move library')
+    learnsets = [compare_learnset(name, row, oracle, moves) for name, row in sorted(species.items(), key=lambda x: x[1]['dex'])]
+    fields = []
+    for key, row in sorted(moves.items()):
+        failures = []
+        try:
+            expected = oracle.fields(key)
+            for field, wanted in expected.items():
+                actual = row.get(field, 0 if field == 'priority' else None)
+                if actual != wanted: failures.append(issue('move-field-mismatch', field=field, expected=wanted, actual=actual))
+        except SourceError as error:
+            failures.append(issue('unknown-or-invalid-reference-move', message=str(error)))
+        fields.append({'move': key, 'ok': not failures, 'issues': failures})
+    inventory = semantics_inventory(moves, oracle)
+    gaps = [row for row in inventory if row['status'] in ('known-runtime-gap', 'missing-damage-dispatch')]
+    reviews = [row for row in inventory if row['status'] == 'status-dispatch-review-required']
+    return {'ok': all(row['ok'] for row in learnsets + fields) and not gaps and not reviews,
+            'version_group': VERSION_GROUP, 'tie_policy': TIE_POLICY, 'learnsets': learnsets,
+            'runtime_semantics_complete': False,
+            'move_fields': fields, 'runtime_semantics': inventory,
+            'counts': {'species': len(species), 'moves': len(moves),
+                       'learnset_failures': sum(not row['ok'] for row in learnsets),
+                       'move_field_failures': sum(not row['ok'] for row in fields), 'known_runtime_gaps': len(gaps), 'status_dispatch_reviews': len(reviews),
+                       'runtime_unreviewed': sum(row['status'] == 'requires-independent-runtime-contract' for row in inventory)}}

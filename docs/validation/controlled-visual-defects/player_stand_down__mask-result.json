@@ -1,0 +1,22 @@
+{
+  "expected": "/Users/burbujamc/Developer/Pokemon-PlayDate/docs/validation/baseline-catalog/player_stand_down__mask.png",
+  "actual": "/Users/burbujamc/Developer/Pokemon-PlayDate/docs/validation/controlled-visual-defects/player_stand_down__mask-mutant.png",
+  "equal": false,
+  "changed_pixels": 1,
+  "rgb_pixels": 1,
+  "alpha_pixels": 0,
+  "bbox": [
+    7,
+    11,
+    8,
+    12
+  ],
+  "rgb_bbox": [
+    7,
+    11,
+    8,
+    12
+  ],
+  "alpha_bbox": null,
+  "diff": "/Users/burbujamc/Developer/Pokemon-PlayDate/docs/validation/controlled-visual-defects/player_stand_down__mask/diff.png"
+}

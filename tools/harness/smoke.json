@@ -1,0 +1,20 @@
+{
+  "commands": [
+    {"op":"assert", "path":"stack", "equals":"overworld>dialog"},
+    {"op":"assert", "path":"zone", "equals":"reds_house_2f"},
+    "shot bedroom",
+    "dismiss",
+    {"op":"assert", "path":"root", "equals":"overworld"},
+    "move right 4",
+    "move up 1",
+    {"op":"await", "path":"zone", "equals":"reds_house", "frames":90},
+    {"op":"await", "path":"overworld", "equals":"explore", "frames":90},
+    "shot downstairs",
+    {"op":"fixture", "options":{"seed":42}},
+    {"op":"assert", "path":"stack", "equals":"overworld>dialog"},
+    {"op":"assert", "path":"zone", "equals":"reds_house_2f"},
+    {"op":"assert", "path":"pokemon.present", "equals":false},
+    "shot reset"
+  ],
+  "outputs":["bedroom.png","downstairs.png","reset.png"]
+}

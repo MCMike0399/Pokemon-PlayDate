@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Drive the in-game autopilot (Source/dev/autopilot.lua) from the host.
 
-Writes a command file into the Playdate Simulator's sandboxed Data folder,
-waits for the game's ack file, and post-processes screenshots that the game
-wrote into tools/shots/.
+Builds an identified private bundle, launches an owned SDK Simulator session,
+runs versioned commands, and optionally creates a film strip from its frames.
+Evidence is retained under tools/shots/runs/<session>/.
 
 Usage:
   python3 tools/autopilot.py "encounters off" "move right 3" "shot town"
@@ -27,40 +27,25 @@ import glob
 import os
 import re
 import sys
-import time
 
-DATA_DIR = os.path.expanduser("~/Developer/PlaydateSDK/Disk/Data/com.poc.pokemon")
+# Every invocation owns a fresh identified build and private Simulator session.
+# For multi-request persistent scenarios use tools/harness/run.py --scenario.
 SHOTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "shots")
-CMD_FILE = os.path.join(DATA_DIR, "autopilot.txt")
-DONE_FILE = os.path.join(DATA_DIR, "autopilot-done.txt")
-
-# Playdate screen; the camera keeps the player's center near screen center
 SCREEN_W, SCREEN_H = 400, 240
 
 
 def send(commands, timeout=60):
-    os.makedirs(SHOTS_DIR, exist_ok=True)
-    os.makedirs(DATA_DIR, exist_ok=True)
-    if os.path.exists(DONE_FILE):
-        os.remove(DONE_FILE)
-
-    tmp = CMD_FILE + ".tmp"
-    with open(tmp, "w") as f:
-        f.write("\n".join(commands) + "\n")
-    os.rename(tmp, CMD_FILE)  # atomic: the game never sees a partial file
-
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        if os.path.exists(DONE_FILE):
-            time.sleep(0.2)  # let the game finish writing
-            with open(DONE_FILE) as f:
-                ack = f.read().strip()
-            os.remove(DONE_FILE)
-            print(ack)
-            return True
-        time.sleep(0.1)
-    print("TIMEOUT: no ack from the game — is the Simulator running the current build?", file=sys.stderr)
-    return False
+    from harness.run import run
+    global SHOTS_DIR
+    import uuid
+    from pathlib import Path
+    output = Path(SHOTS_DIR) / "runs" / uuid.uuid4().hex
+    args = argparse.Namespace(sdk=None, output=str(output), scenario=None,
+                             commands=commands, build_only=False,
+                             ready_timeout=20, timeout=timeout, max_frames=1800)
+    result = run(args)
+    SHOTS_DIR = str(output / "frames")
+    return result == 0
 
 
 def frame_key(path):
@@ -72,7 +57,7 @@ def build_strip(prefix, crop=120, scale=2, columns=8, center=None):
     from PIL import Image, ImageDraw
 
     frames = sorted(
-        glob.glob(os.path.join(SHOTS_DIR, f"{prefix}-[0-9]*.png")), key=frame_key
+        [path for path in glob.glob(os.path.join(SHOTS_DIR, f"{prefix}-[0-9]*.png")) if frame_key(path) > 0], key=frame_key
     )
     if not frames:
         print(f"no frames matching {prefix}-NN.png in {SHOTS_DIR}", file=sys.stderr)

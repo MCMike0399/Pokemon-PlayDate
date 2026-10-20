@@ -1,0 +1,8 @@
+{
+  "journey": {
+    "name": "intro",
+    "starter": "squirtle",
+    "seed": 42,
+    "rival_fixture": "loss"
+  }
+}

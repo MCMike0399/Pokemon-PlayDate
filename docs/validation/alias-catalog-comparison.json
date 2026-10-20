@@ -1,0 +1,92 @@
+{
+  "equal": false,
+  "missing_inventory_equal": false,
+  "checked": 915,
+  "failures": [
+    {
+      "path": "battle_mr_back.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_mr_back__mask.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_mr_front.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_mr_front__mask.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranF_back.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranF_back__mask.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranF_front.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranF_front__mask.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranM_back.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranM_back__mask.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranM_front.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    },
+    {
+      "path": "battle_nidoranM_front__mask.png",
+      "equal": false,
+      "reason": "inventory",
+      "expected": false,
+      "actual": true
+    }
+  ],
+  "review": "903 original images identical; exactly 6 previously missing views plus6 masks added by explicit filename aliases. No baseline overwritten."
+}

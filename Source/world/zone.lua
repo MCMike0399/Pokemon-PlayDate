@@ -275,7 +275,7 @@ end
 function Zone:checkEncounter(tileX, tileY)
     if tileY + 1 > self.height or tileX + 1 > self.width then return false end
     return self.tiles[tileY + 1][tileX + 1] == TALL_GRASS_ID
-       and math.random() < self.encounterRate
+       and RulesRNG.random() < self.encounterRate
 end
 
 -- Roll a random wild Pokemon from encounter table
@@ -284,12 +284,12 @@ function Zone:rollEncounter()
     for _, e in ipairs(self.encounters) do total = total + e.weight end
     if total == 0 then return Pokemon("rattata", 3) end
 
-    local roll = math.random(1, total)
+    local roll = RulesRNG.random(1, total)
     local sum = 0
     for _, e in ipairs(self.encounters) do
         sum = sum + e.weight
         if roll <= sum then
-            return Pokemon(e.species, math.random(e.minLevel, e.maxLevel))
+            return Pokemon(e.species, RulesRNG.random(e.minLevel, e.maxLevel))
         end
     end
     return Pokemon("rattata", 3)

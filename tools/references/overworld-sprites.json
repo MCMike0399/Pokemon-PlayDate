@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/pret/pokered",
+  "commit": "af519899719f0754965776faac0e836a3b906e6d",
+  "retrieved": "2026-10-20",
+  "purpose": "New reproducibility pin verified against accepted existing grid bodies; historical original import revision unknown.",
+  "frame_reference": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/sprites/facings.asm",
+  "source_reference": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/gfx/sprites.asm",
+  "mask": "4-connected border flood-fill through white cells; enclosed white is opaque; each logical cell expands to 2x2 opacity pixels; right mirrors left",
+  "red": "Excluded intentional hand-tuned exception; do not regenerate.",
+  "characters": {
+    "rival": {
+      "source": "blue.png",
+      "sha256": "2134b4c3540a600f9e121b271d61e80da5b05b2ec6ff94b103a5c839bf523999",
+      "size": [
+        16,
+        96
+      ],
+      "mode": "L",
+      "palette": [
+        255,
+        170,
+        85,
+        0
+      ],
+      "frames": {
+        "down": 0,
+        "up": 1,
+        "left": 2
+      },
+      "mapping": "greyhair"
+    },
+    "oak": {
+      "source": "oak.png",
+      "sha256": "096e35c3b6d7b0677f3b3841f5091ed2d6da72b28b8c444b31cb1c77c49b2e72",
+      "size": [
+        16,
+        96
+      ],
+      "mode": "L",
+      "palette": [
+        255,
+        170,
+        85,
+        0
+      ],
+      "frames": {
+        "down": 0,
+        "up": 1,
+        "left": 2
+      },
+      "mapping": "outline"
+    },
+    "mom": {
+      "source": "mom.png",
+      "sha256": "f8e5ae7b19d1a68a2fd9b9c78cbf263e4950d2fc98a5f519e3f8a0da9c91a82f",
+      "size": [
+        16,
+        48
+      ],
+      "mode": "L",
+      "palette": [
+        255,
+        170,
+        85,
+        0
+      ],
+      "frames": {
+        "down": 0,
+        "up": 1,
+        "left": 2
+      },
+      "mapping": "greyhair"
+    },
+    "daisy": {
+      "source": "daisy.png",
+      "sha256": "6e3ddee307d5b187b789b247c19527adc9e8ad9368691816d218dc0156c5110e",
+      "size": [
+        16,
+        96
+      ],
+      "mode": "L",
+      "palette": [
+        255,
+        170,
+        85,
+        0
+      ],
+      "frames": {
+        "down": 0,
+        "up": 1,
+        "left": 2
+      },
+      "mapping": "greyhair"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "status": "accepted harness milestone only",
+  "complete_campaign": false,
+  "suite_jobs": 14,
+  "sdk_version": "3.1.2",
+  "source_sha256": "f2a0eb99b20ed637c3d998ea547687d475ef9492e0108b43eb38a241133abd50",
+  "archive_sha256": "e1a20c9c63331f7fe0af0274c338dfa49dfea98796dd855d3a84338d593c648f",
+  "archive_bytes": 4231546,
+  "source_staging_excluded": "Rebuild from accepted source; source manifests and generated build metadata included. SDK .pdx bundles omitted from evidence archive."
+}

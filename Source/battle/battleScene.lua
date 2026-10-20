@@ -9,8 +9,8 @@ local pokemonSprites = {}
 
 local function getPokemonSprites(species)
     if pokemonSprites[species] then return pokemonSprites[species] end
-    local front = gfx.image.new("images/pokemon/" .. species .. "-front")
-    local back = gfx.image.new("images/pokemon/" .. species .. "-back")
+    local front = gfx.image.new(PokemonArt.path(species, "front"))
+    local back = gfx.image.new(PokemonArt.path(species, "back"))
     if front or back then
         pokemonSprites[species] = { front = front, back = back }
     end
@@ -32,6 +32,7 @@ function BattleScene:init(battle)
     self.introTimer = 0
     self.introPhase = "iris_in" -- iris_in → ready
     self.irisRadius = 0
+    self.introDrawing = true
 end
 
 function BattleScene:enter()
@@ -84,8 +85,10 @@ function BattleScene:enter()
 end
 
 function BattleScene:handleInput()
-    if self.introPhase ~= "ready" then return end
+    if self.introPhase ~= "ready" or self.introDrawing then return end
 
+    local flashTimer, isFlashing = self.battle.flashTimer, self.battle.isFlashing
+    local shakeTimer, shakeIntensity = self.battle.shakeTimer, self.battle.shakeIntensity
     if self.battle:isAwaitingCommand() then
         if self.inMoveSelect then
             self.moveMenu:handleInput()
@@ -98,6 +101,11 @@ function BattleScene:handleInput()
     else
         self.battle:handleInput()
     end
+    -- Input can advance a script and start a hit after this frame's update.
+    -- Present that new effect on this frame, as the original draw did.
+    local flashChanged = self.battle.flashTimer ~= flashTimer or self.battle.isFlashing ~= isFlashing
+    local shakeChanged = self.battle.shakeTimer ~= shakeTimer or self.battle.shakeIntensity ~= shakeIntensity
+    if flashChanged or shakeChanged then self:updateEffects(flashChanged, shakeChanged) end
 end
 
 function BattleScene:drawBackgroundBase()
@@ -139,7 +147,8 @@ function BattleScene:drawPlatforms()
     gfx.drawLine(0, 168, 400, 168)
 end
 
-function BattleScene:draw()
+function BattleScene:update()
+    self.introDrawing = self.introPhase == "iris_in"
     -- Intro transition
     if self.introPhase == "iris_in" then
         self.introTimer = self.introTimer + 1
@@ -151,6 +160,35 @@ function BattleScene:draw()
             self.irisRadius = maxRadius
         end
 
+    end
+    self:updateEffects(true, not self.introDrawing)
+end
+
+-- Called once per simulation update, and for newly-created effects after input.
+-- Drawing only consumes the cached values and never ticks either effect.
+function BattleScene:updateEffects(advanceFlash, advanceShake)
+    if advanceFlash then
+        self.flashHide = self.battle.isFlashing and self.battle.flashTimer > 0
+            and math.floor(self.battle.flashTimer) % 2 == 0
+        if self.battle.isFlashing then
+            self.battle.flashTimer = self.battle.flashTimer - 1
+            if self.battle.flashTimer <= 0 then self.battle.isFlashing = false end
+        end
+    end
+    if advanceShake then
+        self.shakeX, self.shakeY = 0, 0
+        if self.battle.shakeTimer > 0 then
+            self.shakeX = math.random(-self.battle.shakeIntensity, self.battle.shakeIntensity)
+            self.shakeY = math.random(-self.battle.shakeIntensity, self.battle.shakeIntensity)
+            self.battle.shakeTimer = self.battle.shakeTimer - 1
+            if self.battle.shakeTimer <= 0 then self.shakeX, self.shakeY = 0, 0 end
+        end
+    end
+end
+
+function BattleScene:draw()
+    -- The twentieth iris frame still renders the fully-open stencil.
+    if self.introTimer <= 20 and self.introDrawing then
         -- Draw black background, then reveal circle
         gfx.clear(gfx.kColorBlack)
         if self.irisRadius > 0 then
@@ -167,16 +205,7 @@ function BattleScene:draw()
         return
     end
 
-    -- Screen shake
-    if self.battle.shakeTimer > 0 then
-        local ox = math.random(-self.battle.shakeIntensity, self.battle.shakeIntensity)
-        local oy = math.random(-self.battle.shakeIntensity, self.battle.shakeIntensity)
-        playdate.display.setOffset(ox, oy)
-        self.battle.shakeTimer = self.battle.shakeTimer - 1
-        if self.battle.shakeTimer <= 0 then
-            playdate.display.setOffset(0, 0)
-        end
-    end
+    playdate.display.setOffset(self.shakeX or 0, self.shakeY or 0)
 
     self:drawBattleField()
 end
@@ -185,7 +214,7 @@ function BattleScene:drawBattleField()
     self:drawBackgroundBase()
 
     -- Draw pokemon sprites (before platforms so platforms overlap sprite bottoms)
-    local flashHide = self.battle.isFlashing and self.battle.flashTimer > 0 and math.floor(self.battle.flashTimer) % 2 == 0
+    local flashHide = self.flashHide
 
     -- Enemy sprite (top-right) - front view; hidden while flashing from a player hit
     if not (flashHide and self.battle.attackerSide == "player") then
@@ -255,14 +284,6 @@ function BattleScene:drawBattleField()
     local xpFill = math.floor(xpRatio * (pBoxW - 14))
     if xpFill > 0 then
         gfx.fillRect(pBoxX + 7, pBoxY + 53, xpFill, 4)
-    end
-
-    -- Update flash timer
-    if self.battle.isFlashing then
-        self.battle.flashTimer = self.battle.flashTimer - 1
-        if self.battle.flashTimer <= 0 then
-            self.battle.isFlashing = false
-        end
     end
 
     -- Draw message box or menus

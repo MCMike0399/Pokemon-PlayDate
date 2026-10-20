@@ -164,10 +164,13 @@ Pallet Town has four interiors — Red's house (Mom; stairs to the 2F bedroom), 
 
 ## Tooling
 
-- **`tools/autopilot.py` + `Source/dev/autopilot.lua`** — Simulator automation bridge for visual iteration (no-op on device). Scripts movement, dialog/battle input, screenshots and film strips, deterministic RNG, the intro questline, and an `atlas` contact sheet of every generated tile and sprite frame. First stop for triage is the `gamestate` command (state stack, battle phase, zone, story stage, player position, recent transitions).
+- **[Simulator harness](docs/validation/harness.md)** — `make harness-smoke` builds and verifies a private session. `python3 tools/harness/suite.py --mutations --output /private/tmp/pokemon-suite-UNIQUE` runs the deeper serialized suite. Each run records build identity, semantic state, action/RNG traces, screenshots and animations. `tools/autopilot.py` is a fresh-session convenience wrapper.
 - **`tools/generate_gen5_data.py`** — Regenerates `battle/moves.lua` and the species stat blocks in `data/pokemon.lua` from cached Gen V sources (PokeAPI CSVs resolved to B2W2 + Pokémon Showdown's generation mods).
-- **`tools/generate_overworld_sprites.py`** — Generates the NPC sprite grids in `world/sprites/` from the pokered Gen 1 overworld sprites.
-- **`tools/verify_moves/`** — Validates move data against PokeAPI and writes per-species comparison reports.
+- **[NPC generation](docs/validation/sprite-provenance.md)** — `tools/generate_overworld_sprites.py --check` checks protected grids against pinned source strips. Default mappings preserve existing faces/hair; RED remains hand-tuned.
+- **[B2W2 verifier](docs/validation/move-verifier.md)** — validates ordered level-aware learnsets and move values against immutable sources, reports unfinished mechanics, and returns a failure status for gaps.
+- **[Visual catalog](docs/validation/visual-catalog.md)** — exports assets/masks/maps and compares exact pixels with controlled mutation tests. Install `tools/requirements-dev.txt` in a venv for visual tools.
+
+Full-game implementation is active; [the progress ledger](docs/validation/progress.md) distinguishes completed checks from remaining campaign work.
 
 ## What works
 

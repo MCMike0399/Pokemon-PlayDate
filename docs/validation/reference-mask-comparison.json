@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "source_commit": "af519899719f0754965776faac0e836a3b906e6d",
+  "compared": [
+    "rival.down",
+    "rival.up",
+    "rival.left",
+    "rival.right",
+    "oak.down",
+    "oak.up",
+    "oak.left",
+    "oak.right",
+    "mom.down",
+    "mom.up",
+    "mom.left",
+    "mom.right",
+    "daisy.down",
+    "daisy.up",
+    "daisy.left",
+    "daisy.right"
+  ],
+  "method": "Pinned source grid border flood-fill at32px vs real SDK exported opacity images; right=left mirrored"
+}

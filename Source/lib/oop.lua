@@ -297,12 +297,12 @@ function Signal:emit(event, ...)
     end
     emitting[event] = (emitting[event] or 0) + 1
     local n = #list
-    for i = 1, n do
-        local fn = list[i]
-        if fn then
-            fn(...)
+    local ok, err = pcall(function(...)
+        for i = 1, n do
+            local fn = list[i]
+            if fn then fn(...) end
         end
-    end
+    end, ...)
     local depth = emitting[event] - 1
     emitting[event] = depth > 0 and depth or nil
     -- Compact entries marked false by off() once fully unwound
@@ -319,15 +319,25 @@ function Signal:emit(event, ...)
             list[i] = nil
         end
     end
+    if not ok then error(err, 0) end
     return self
 end
 
 function Signal:clearListeners(event)
     if not self._listeners then return self end
+    local function clear(name, list)
+        -- An in-flight emit retains this list. Cancel its remaining callbacks
+        -- too; listeners registered after clear belong to a fresh list.
+        if self._emitting and self._emitting[name] then
+            for i = 1, #list do list[i] = false end
+        end
+        self._listeners[name] = nil
+    end
     if event then
-        self._listeners[event] = nil
+        local list = self._listeners[event]
+        if list then clear(event, list) end
     else
-        self._listeners = {}
+        for name, list in pairs(self._listeners) do clear(name, list) end
     end
     return self
 end

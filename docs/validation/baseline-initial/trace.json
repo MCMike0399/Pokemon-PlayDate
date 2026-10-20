@@ -1,0 +1,100 @@
+[
+  {
+    "commands": [
+      "gamestate",
+      "shot opening",
+      "atlas",
+      "dismiss",
+      "shot bedroom",
+      "encounters off"
+    ],
+    "result": "gamestate overworld>dialog zone=[Red's Room] story=pre_oak player=5,3\ntransitions change:nil>overworld push:overworld>dialog\nshot opening\natlas -> atlas_tiles.png, atlas_sprites.png\ndismissed -> overworld\nshot bedroom\npos 5 3 facing up\ndone\n"
+  },
+  {
+    "commands": [
+      "record walk-bedroom 40",
+      "move right 4",
+      "move up",
+      "wait 30",
+      "gamestate",
+      "shot house-1f"
+    ],
+    "result": "recorded walk-bedroom 40\ngamestate overworld zone=[Red's House 1F] story=pre_oak player=9,2\ntransitions change:nil>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld\nshot house-1f\npos 9 2 facing left\ndone\n"
+  },
+  {
+    "commands": [
+      "move down 4",
+      "move left 6",
+      "move down",
+      "shot exit-mat",
+      "move down",
+      "wait 30",
+      "gamestate",
+      "shot pallet-arrival"
+    ],
+    "result": "shot exit-mat\nedge-door down at 3,7\ngamestate overworld zone=[Pallet Town] story=pre_oak player=5,5\ntransitions change:nil>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld change:overworld>overworld\nshot pallet-arrival\npos 5 5 facing down\ndone\n"
+  },
+  {
+    "commands": [
+      "move down",
+      "move right 4",
+      "record walk-grass 36",
+      "move up 4",
+      "wait 10",
+      "gamestate",
+      "shot oak-stop"
+    ],
+    "result": "interrupted move at 9,2 (state=overworld>dialog)\nrecorded walk-grass 36\ngamestate overworld>dialog zone=[Pallet Town] story=pre_oak player=9,2\ntransitions change:nil>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld change:overworld>overworld push:overworld>dialog\nshot oak-stop\npos 9 2 facing up\ndone\n"
+  },
+  {
+    "commands": [
+      "dismiss",
+      "wait 30",
+      "gamestate",
+      "shot lab-greeting",
+      "dismiss",
+      "shot lab-choose"
+    ],
+    "result": "dismissed -> overworld\ngamestate overworld>dialog zone=[Oak's Lab] story=choose player=5,5\ntransitions change:nil>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld push:overworld>dialog\nshot lab-greeting\ndismissed -> overworld\nshot lab-choose\npos 5 5 facing up\ndone\n"
+  },
+  {
+    "commands": [
+      "move up",
+      "move right 2",
+      "move up",
+      "face up",
+      "press a",
+      "wait 10",
+      "gamestate",
+      "shot starter",
+      "dismiss"
+    ],
+    "result": "gamestate overworld>dialog zone=[Oak's Lab] story=pre_rival player=7,3\ntransitions change:nil>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld push:overworld>dialog\nshot starter\ndismissed -> overworld\npos 7 3 facing up\ndone\n"
+  },
+  {
+    "commands": [
+      "move down",
+      "move left 2",
+      "move down 4",
+      "wait 10",
+      "gamestate",
+      "shot rival-challenge",
+      "dismiss",
+      "wait 30",
+      "shot rival-intro",
+      "gamestate"
+    ],
+    "result": "interrupted move at 5,8 (state=overworld>dialog)\ngamestate overworld>dialog zone=[Oak's Lab] story=pre_rival player=5,8\ntransitions push:overworld>dialog pop:dialog>overworld change:overworld>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld push:overworld>dialog pop:dialog>overworld push:overworld>dialog\nshot rival-challenge\ndismissed -> battle\nshot rival-intro\ngamestate battle phase=script msg=[BLUE wants to battle!] zone=[Oak's Lab] story=rival_fight player=5,8\ntransitions change:overworld>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld change:overworld>overworld push:overworld>dialog pop:dialog>overworld push:overworld>dialog pop:dialog>overworld push:overworld>dialog pop:dialog>overworld change:overworld>battle\npos 5 8 facing down\ndone\n"
+  },
+  {
+    "commands": [
+      "press a",
+      "wait 15",
+      "shot battle-command",
+      "press a",
+      "wait 2",
+      "shot battle-moves"
+    ],
+    "result": "shot battle-command\nshot battle-moves\npos 5 8 facing down\ndone\n"
+  }
+]

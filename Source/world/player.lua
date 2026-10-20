@@ -87,6 +87,9 @@ local function getExitArrows()
     return exitArrowImages
 end
 
+-- Shared read-only images for the visual catalog; uses the gameplay renderer.
+Player.getExitArrowImages = getExitArrows
+
 function Player:init(gridX, gridY, collisionMap, npcManager)
     Player.super.init(self)
 

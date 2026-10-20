@@ -1,22 +1,23 @@
-SDK = $(PLAYDATE_SDK_PATH)
+SDK = $(if $(PLAYDATE_SDK_PATH),$(PLAYDATE_SDK_PATH),$(HOME)/Developer/PlaydateSDK)
 PDC = $(SDK)/bin/pdc
 PDUTIL = $(SDK)/bin/pdutil
 PRODUCT = PokemonPoC.pdx
 DEVICE = $(shell ls /dev/cu.usbmodemPD* 2>/dev/null | head -1)
 
-build: clean compile run
+build: compile
+	$(MAKE) run
 
 clean:
 	rm -rf $(PRODUCT)
 
 compile:
-	$(PDC) Source $(PRODUCT)
+	"$(PDC)" Source $(PRODUCT)
 
 run:
 	open -a "$(SDK)/bin/Playdate Simulator.app" $(PRODUCT)
 
 # Deploy to physical Playdate: build, enter data disk, copy, eject & reboot
-deploy: clean compile
+deploy: compile
 	@DEVICE=$$(ls /dev/cu.usbmodemPD* 2>/dev/null | head -1); \
 	if [ -z "$$DEVICE" ]; then \
 		echo "Error: No Playdate found. Connect via USB and unlock the device."; \
@@ -40,3 +41,10 @@ deploy: clean compile
 	echo "Ejecting Playdate (will reboot)..."; \
 	diskutil eject /Volumes/PLAYDATE; \
 	echo "Done! Playdate will reboot with $(PRODUCT) installed."
+
+.PHONY: build clean compile run deploy harness-smoke test-harness
+harness-smoke:
+	python3 tools/harness/run.py --scenario tools/harness/smoke.json
+
+test-harness:
+	python3 -m unittest discover -s tools/tests -p 'test_protocol*.py' -v

@@ -63,6 +63,7 @@ end
 
 function BattleState:update()
     self.battle:update()
+    if self.scene then self.scene:update() end
 end
 
 function BattleState:handleInput()

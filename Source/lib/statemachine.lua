@@ -51,6 +51,9 @@ Class("StateMachine"):includes(Signal)
 function StateMachine:init()
     self.states = {}
     self.stack = {}
+    self._generation = 0
+    self._transitioning = false
+    self._pending = {}
 end
 
 -- Accepts a State instance or a plain table of callbacks
@@ -106,41 +109,76 @@ local function resolve(self, name)
     return state
 end
 
--- Replace the entire stack with `name`
-function StateMachine:change(name, ...)
-    local state = resolve(self, name)
-    local from = self:getCurrent()
-    for i = #self.stack, 1, -1 do
-        self.stack[i]:exit()
-        self.stack[i] = nil
+-- Lifecycle-triggered transitions are queued until the current transition
+-- finishes: exit/changed/enter cannot recursively overwrite a half-built stack.
+-- Calls from update/draw/input remain synchronous. State objects are registered
+-- once and cannot occupy two overlay slots simultaneously.
+function StateMachine:_transition(kind, name, ...)
+    local state = name and resolve(self, name) or nil
+    local result = state or self:current()
+    local request = { kind = kind, state = state, args = table.pack(...) }
+    self._pending[#self._pending + 1] = request
+    if self._transitioning then return result end
+    self._transitioning = true
+    local ok, err = pcall(function()
+        local count = 0
+        while #self._pending > 0 do
+            count = count + 1
+            assert(count <= 100, "StateMachine: lifecycle transition loop")
+            local nextRequest = table.remove(self._pending, 1)
+            self:_applyTransition(nextRequest)
+        end
+    end)
+    self._transitioning = false
+    if not ok then
+        self._pending = {}
+        error(err, 0)
     end
-    self.stack[1] = state
-    self:emit("changed", "change", from, name)
-    state:enter(...)
-    return state
+    return result
 end
 
--- Overlay `name` on top of the current state (which gets pause())
-function StateMachine:push(name, ...)
-    local state = resolve(self, name)
+function StateMachine:_applyTransition(request)
+    local kind, state, args = request.kind, request.state, request.args
     local top = self:current()
-    if top then top:pause() end
-    self.stack[#self.stack + 1] = state
-    self:emit("changed", "push", top and top.name, name)
-    state:enter(...)
-    return state
+    if kind == "push" then
+        for _, active in ipairs(self.stack) do
+            assert(active ~= state, "StateMachine: state already on stack: " .. state.name)
+        end
+    elseif kind == "pop" and not top then return end
+    self._generation = self._generation + 1
+    if kind == "change" then
+        for i = #self.stack, 1, -1 do
+            local exiting = self.stack[i]
+            self.stack[i] = nil
+            exiting:exit()
+        end
+        self.stack[1] = state
+        self:emit("changed", "change", top and top.name, state.name)
+        state:enter(table.unpack(args, 1, args.n))
+    elseif kind == "push" then
+        if top then top:pause() end
+        self.stack[#self.stack + 1] = state
+        self:emit("changed", "push", top and top.name, state.name)
+        state:enter(table.unpack(args, 1, args.n))
+    else
+        self.stack[#self.stack] = nil
+        top:exit()
+        local below = self:current()
+        self:emit("changed", "pop", top.name, below and below.name)
+        if below then below:resume(table.unpack(args, 1, args.n)) end
+    end
 end
 
--- Remove the top state; the one below gets resume(...)
+function StateMachine:change(name, ...)
+    return self:_transition("change", name, ...)
+end
+
+function StateMachine:push(name, ...)
+    return self:_transition("push", name, ...)
+end
+
 function StateMachine:pop(...)
-    local top = self.stack[#self.stack]
-    if not top then return end
-    self.stack[#self.stack] = nil
-    top:exit()
-    local below = self:current()
-    self:emit("changed", "pop", top.name, below and below.name)
-    if below then below:resume(...) end
-    return top
+    return self:_transition("pop", nil, ...)
 end
 
 -- Update every stacked state bottom→top (the world keeps animating under
@@ -148,11 +186,12 @@ end
 -- frame's pass is skipped — the new stack takes over next frame.
 function StateMachine:update()
     local stack = self.stack
+    local generation = self._generation
     local i = 1
     while i <= #stack do
         local state = stack[i]
         state:update()
-        if stack[i] ~= state then return end
+        if self._generation ~= generation then return end
         i = i + 1
     end
 end
@@ -166,11 +205,12 @@ end
 
 function StateMachine:draw()
     local stack = self.stack
+    local generation = self._generation
     local i = 1
     while i <= #stack do
         local state = stack[i]
         state:draw()
-        if stack[i] ~= state then return end
+        if self._generation ~= generation then return end
         i = i + 1
     end
 end
