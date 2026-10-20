@@ -1,0 +1,219 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "charmander",
+          "level": 7
+        }
+      }
+    },
+    "battle gastly 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "player_hp": 1,
+          "enemy_hp": 1,
+          "player_pp": {
+            "scratch": 0,
+            "growl": 0,
+            "ember": 0
+          },
+          "enemy_pp": {
+            "hypnosis": 0,
+            "lick": 0,
+            "spite": 0
+          }
+        }
+      }
+    },
+    "seed 42",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.current_move",
+      "equals": "struggle",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.attackerSide",
+      "equals": "player"
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "battle.lastDamage",
+      "equals": 1
+    },
+    "shot combat-simultaneous-hit",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.xp",
+      "equals": 343
+    },
+    "shot combat-simultaneous-recoil",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "ended",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.outcome",
+      "equals": "victory"
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.level",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.xp",
+      "equals": 343
+    },
+    "shot combat-simultaneous-victory",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.kind",
+      "equals": "victory"
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.won",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.blackout",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.player_hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.enemy_hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.hp",
+      "equals": 22
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.level",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.xp",
+      "equals": 343
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.scratch",
+      "equals": 35
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.growl",
+      "equals": 40
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.ember",
+      "equals": 25
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.status",
+      "equals": "none"
+    },
+    "wait 2",
+    "shot combat-blackout-restored"
+  ],
+  "outputs": [
+    "combat-simultaneous-hit.png",
+    "combat-simultaneous-recoil.png",
+    "combat-simultaneous-victory.png",
+    "combat-blackout-restored.png"
+  ]
+}

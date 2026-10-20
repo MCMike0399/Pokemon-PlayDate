@@ -38,7 +38,7 @@ function calcDamage(attacker, defender, move)
     if move.power == 0 then return { damage = 0, effectiveness = 1, isCrit = false, isSTAB = false } end
 
     -- Crit roll first: it changes which stat stages count (1/16 base rate)
-    local isCrit = RulesRNG.random(1, 16) == 1
+    local isCrit = move.willCrit or RulesRNG.random(1, 16) == 1
 
     -- Pick offensive/defensive stats per the move's damage class
     local atkBase, defBase, atkStage, defStage
@@ -59,10 +59,10 @@ function calcDamage(attacker, defender, move)
     local defStat = applyStageMod(defBase, defStage)
 
     -- STAB (Same Type Attack Bonus)
-    local isSTAB = (attacker.type == move.type) or (attacker.type2 and attacker.type2 == move.type)
+    local isSTAB = not move.typeless and (attacker.type == move.type or attacker.type2 == move.type)
 
     -- Type effectiveness
-    local effectiveness = TypeChart.getMatchup(move.type, defender.type, defender.type2)
+    local effectiveness = move.typeless and 1 or TypeChart.getMatchup(move.type, defender.type, defender.type2)
 
     -- Base damage
     local level = attacker.level
@@ -150,10 +150,10 @@ function BattleScriptPhase:advance()
     if coroutine.status(self.co) == "dead" then
         -- Script finished; its return value names the next phase
         local outcome = kind or "command"
-        if outcome == "victory" or outcome == "defeat" then
-            self.machine:change("ended", outcome == "victory")
-        elseif outcome == "run" then
-            self.battle:emit("battleEnd", false)
+        if outcome == "victory" or outcome == "defeat" or outcome == "run" then
+            self.battle.outcome = outcome
+            self.machine:change("ended", outcome)
+            if outcome == "run" then self.battle:emitEnd() end
         else
             self.machine:change("command")
         end
@@ -188,13 +188,14 @@ function BattleEndedPhase:init(battle)
     self.battle = battle
 end
 
-function BattleEndedPhase:enter(won)
-    self.won = won
+function BattleEndedPhase:enter(kind)
+    self.kind = kind
+    self.won = kind == "victory"
 end
 
 function BattleEndedPhase:handleInput()
     if playdate.buttonJustPressed(playdate.kButtonA) then
-        self.battle:emit("battleEnd", self.won)
+        self.battle:emitEnd()
     end
 end
 
@@ -216,6 +217,13 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName)
     self.defender = nil
     self.attackerSide = nil   -- "player" | "enemy"
     self.lastDamage = 0
+    self.currentMove = nil
+    self.currentMoveKey = nil
+    self.outcome = nil
+    self.endEmitted = false
+    self.emittingEnd = false
+    self.xpAwarded = false
+    self.faintAnnounced = {}
 
     -- Scene-facing presentation state
     self.message = ""
@@ -290,44 +298,88 @@ local function effectiveSpeed(pokemon)
     return speed
 end
 
+-- Read-only choices. Struggle is a runtime fallback, never a learned PP slot.
+function Battle:availableMoves(pokemon)
+    local choices = {}
+    for index, key in ipairs(pokemon.moves) do
+        local move = moveData[key]
+        if move and not move.noPP and pokemon:hasPP(key) then
+            choices[#choices + 1] = {index = index, key = key, move = move}
+        end
+    end
+    return choices
+end
+
+function Battle:needsStruggle(pokemon)
+    return #self:availableMoves(pokemon or self.player) == 0
+end
+
+function Battle:emitEnd()
+    if not self.outcome then return false, "not-ended" end
+    if self.endEmitted then return false, "already-emitted" end
+    self.endEmitted = true
+    self.emittingEnd = true
+    local ok, problem = pcall(self.emit, self, "battleEnd", self.outcome == "victory", self.outcome)
+    self.emittingEnd = false
+    self:clearListeners()
+    if not ok then error(problem, 0) end
+    return true
+end
+
+function Battle:enemyTurn()
+    local choices = self:availableMoves(self.enemy)
+    if #choices == 0 then return {side = "enemy", move = moveData.struggle} end
+    local choice = choices[RulesRNG.random(1, #choices)]
+    return {side = "enemy", move = choice.move, key = choice.key}
+end
+
+function Battle:selectStruggle()
+    return self:selectMove(0)
+end
+
 function Battle:selectMove(moveIndex)
-    local moveKey = self.player.moves[moveIndex]
-    local playerMove = moveData[moveKey]
-    self.player:usePP(moveKey)
-
-    local enemyMoveKey = self.enemy.moves[RulesRNG.random(1, #self.enemy.moves)]
-    local enemyMove = moveData[enemyMoveKey]
-
-    -- Turn order: move priority brackets first, then effective speed
+    -- All rejection paths precede every mutation and RNG draw.
+    if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
+    if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
+    if type(moveIndex) ~= "number" or moveIndex ~= moveIndex or moveIndex < 0
+        or moveIndex > #self.player.moves or moveIndex ~= math.floor(moveIndex) then return false, "invalid-index" end
+    local playerMove, key
+    if moveIndex == 0 then
+        if not self:needsStruggle() then return false, "moves-available" end
+        playerMove = moveData.struggle
+    else
+        key = self.player.moves[moveIndex]
+        if moveIndex < 1 or not key then return false, "invalid-index" end
+        playerMove = moveData[key]
+        if not playerMove or playerMove.noPP then return false, "unknown-move" end
+        if not self.player:hasPP(key) then return false, "no-pp" end
+    end
+    assert(playerMove, "Struggle definition must be generated")
+    local playerTurn = {side = "player", move = playerMove, key = key}
+    local enemyTurn = self:enemyTurn()
     local playerFirst
-    if playerMove.priority ~= enemyMove.priority then
-        playerFirst = playerMove.priority > enemyMove.priority
+    if playerMove.priority ~= enemyTurn.move.priority then
+        playerFirst = playerMove.priority > enemyTurn.move.priority
     else
-        playerFirst = effectiveSpeed(self.player) >= effectiveSpeed(self.enemy)
+        local playerSpeed, enemySpeed = effectiveSpeed(self.player), effectiveSpeed(self.enemy)
+        if playerSpeed == enemySpeed then playerFirst = RulesRNG.random(1, 2) == 1
+        else playerFirst = playerSpeed > enemySpeed end
     end
-
-    local turns
-    if playerFirst then
-        turns = { { side = "player", move = playerMove },
-                  { side = "enemy",  move = enemyMove } }
-    else
-        turns = { { side = "enemy",  move = enemyMove },
-                  { side = "player", move = playerMove } }
-    end
-
-    self:runScript(function()
-        return self:resolveRound(turns)
-    end)
+    local turns = playerFirst and {playerTurn, enemyTurn} or {enemyTurn, playerTurn}
+    self:runScript(function() return self:resolveRound(turns) end)
+    return true
 end
 
 function Battle:tryRun()
+    if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
+    if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
     -- Gen 1: no running from a trainer battle
     if self.trainerName then
         self:runScript(function()
             self:say("No! There's no running from a trainer battle!")
             return "command"
         end)
-        return
+        return true
     end
 
     self.runAttempts = self.runAttempts + 1
@@ -347,12 +399,12 @@ function Battle:tryRun()
         self:runScript(function()
             self:say("Can't escape!")
             -- Enemy gets a free turn
-            local enemyMoveKey = self.enemy.moves[RulesRNG.random(1, #self.enemy.moves)]
-            local outcome = self:resolveTurn({ side = "enemy", move = moveData[enemyMoveKey] })
+            local outcome = self:resolveTurn(self:enemyTurn())
             if outcome then return outcome end
             return self:endOfRoundStatus() or "command"
         end)
     end
+    return true
 end
 
 -- ============================================================
@@ -376,28 +428,15 @@ function Battle:resolveTurn(turn)
     -- Fainted by the earlier half-turn: skip
     if not attacker:isAlive() then return nil end
 
-    -- Flinch (volatile, set by the opponent's hit earlier this round)
-    if attacker.flinched then
-        attacker.flinched = false
-        self:say(attacker.name .. " flinched and couldn't move!")
-        return nil
-    end
-
     -- Major status gates (Gen V)
     if attacker.status == "sleep" then
-        attacker.statusTurns = attacker.statusTurns - 1
-        if attacker.statusTurns <= 0 then
-            attacker.status = nil
-            attacker.statusTurns = 0
-            self:say(attacker.name .. " woke up!")
-            -- Gen V: a pokemon acts on the turn it wakes
-        else
+        if attacker.statusTurns > 0 then
+            attacker.statusTurns = attacker.statusTurns - 1
             self:say(attacker.name .. " is fast asleep!")
             return nil
         end
-    elseif attacker.status == "paralyze" and RulesRNG.random(1, 4) == 1 then
-        self:say(attacker.name .. " is paralyzed! It can't move!")
-        return nil
+        attacker.status, attacker.statusTurns = nil, 0
+        self:say(attacker.name .. " woke up!")
     elseif attacker.status == "freeze" then
         if RulesRNG.random(1, 5) == 1 then
             attacker.status = nil
@@ -410,14 +449,20 @@ function Battle:resolveTurn(turn)
         end
     end
 
+    if attacker.flinched then
+        attacker.flinched = false
+        self:say(attacker.name .. " flinched and couldn't move!")
+        return nil
+    end
+
     -- Confusion (volatile, decrements per attacking turn; 50% self-hit
     -- with a 40-power typeless physical attack)
     if attacker.confusion then
-        attacker.confusion = attacker.confusion - 1
         if attacker.confusion <= 0 then
             attacker.confusion = nil
             self:say(attacker.name .. " snapped out of its confusion!")
         else
+            attacker.confusion = attacker.confusion - 1
             self:say(attacker.name .. " is confused!")
             if RulesRNG.random(1, 2) == 1 then
                 local atkStat = applyStageMod(attacker.atk, attacker.statStages.atk)
@@ -437,11 +482,31 @@ function Battle:resolveTurn(turn)
         end
     end
 
+    if attacker.status == "paralyze" and RulesRNG.random(1, 4) == 1 then
+        self:say(attacker.name .. " is paralyzed! It can't move!")
+        return nil
+    end
+    if not turn.move.noPP then
+        local key = turn.key
+        if not key then
+            for _, owned in ipairs(attacker.moves) do if moveData[owned] == turn.move then key = owned; break end end
+        end
+        if not key or not attacker:usePP(key) then
+            self:say(attacker.name .. " has no PP left for that move!")
+            return nil
+        end
+    end
     return self:performMove(turn.move)
 end
 
 function Battle:performMove(move)
     local attacker, defender = self.attacker, self.defender
+    self.currentMove = move
+    self.currentMoveKey = nil
+    for key, definition in pairs(moveData) do
+        if definition == move then self.currentMoveKey = key; break end
+    end
+    self.lastDamage = 0
 
     self:say(attacker.name .. " used " .. move.name .. "!")
 
@@ -452,7 +517,7 @@ function Battle:performMove(move)
     end
 
     if move.power > 0 then
-        local effectiveness = TypeChart.getMatchup(move.type, defender.type, defender.type2)
+        local effectiveness = move.typeless and 1 or TypeChart.getMatchup(move.type, defender.type, defender.type2)
         if effectiveness == 0 then
             self:say("It doesn't affect " .. defender.name .. "...")
             return nil
@@ -476,8 +541,9 @@ function Battle:performMove(move)
         local total, landed, anyCrit = 0, 0, false
         for _ = 1, hits do
             local result = calcDamage(attacker, defender, move)
+            local before = defender.hp
             defender:takeDamage(result.damage)
-            total = total + result.damage
+            total = total + before - defender.hp
             landed = landed + 1
             anyCrit = anyCrit or result.isCrit
             if not defender:isAlive() then break end
@@ -505,17 +571,20 @@ function Battle:performMove(move)
 
         -- Drain / recoil: % of damage dealt (negative = recoil)
         if move.drain and move.drain > 0 then
-            attacker:heal(math.max(1, math.floor(total * move.drain / 100)))
+            attacker:heal(math.max(1, math.floor(total * move.drain / 100 + 0.5)))
             self:say(defender.name .. " had its energy drained!")
+        elseif move.struggleRecoil then
+            attacker:takeDamage(math.max(1, math.floor(attacker.maxHP / 4 + 0.5)))
+            self:say(attacker.name .. " is damaged by recoil!")
         elseif move.drain and move.drain < 0 then
-            attacker:takeDamage(math.max(1, math.floor(total * -move.drain / 100)))
+            attacker:takeDamage(math.max(1, math.floor(total * -move.drain / 100 + 0.5)))
             self:say(attacker.name .. " is damaged by recoil!")
         end
 
         self:applyMoveEffects(move)
 
         if not defender:isAlive() then
-            return self:handleFaint()
+            return self:handleFaint(not attacker:isAlive() and self.attackerSide or nil)
         end
         if not attacker:isAlive() then
             -- recoil (or a self-effect) felled the attacker
@@ -540,41 +609,66 @@ function Battle:applyMoveEffects(move)
     end
 end
 
--- The current defender fainted
-function Battle:handleFaint()
-    self:say(self.defender.name .. " fainted!")
-
-    if self.attackerSide == "player" then
-        local xpGained = self.player:calcExpGain(self.enemy)
-        self:say(self.player.name .. " gained " .. xpGained .. " EXP!")
-        if self.player:gainXP(xpGained) then
-            self:say(self.player.name .. " grew to Lv" .. self.player.level .. "!")
+-- Gen V singles faint order: when both sides fall, the side of the last
+-- fainted battler wins. Recoil follows target damage; no competitive Self-KO
+-- clause is added. A campaign win and local blackout can coexist.
+function Battle:handleFaint(lastFaintedSide)
+    if self.outcome then return self.outcome end
+    local playerAlive, enemyAlive = self.player:isAlive(), self.enemy:isAlive()
+    if playerAlive and enemyAlive then return nil end
+    local defenderSide = self.attackerSide == "player" and "enemy" or "player"
+    lastFaintedSide = lastFaintedSide or defenderSide
+    local order = lastFaintedSide == "player" and {"enemy", "player"} or {"player", "enemy"}
+    for _, side in ipairs(order) do
+        local pokemon = side == "player" and self.player or self.enemy
+        if not pokemon:isAlive() and not self.faintAnnounced[side] then
+            self.faintAnnounced[side] = true
+            self:say(pokemon.name .. " fainted!")
         end
-        self.message = self.trainerName
-            and ("You defeated " .. self.trainerName .. "!")
-            or "You won the battle!"
+    end
+    local won = not enemyAlive and (playerAlive or lastFaintedSide == "player")
+    if won then
+        -- Fainted participants receive no XP; stat growth must not resurrect.
+        if playerAlive and not self.xpAwarded then
+            self.xpAwarded = true
+            local xpGained = self.player:calcExpGain(self.enemy)
+            self:say(self.player.name .. " gained " .. xpGained .. " EXP!")
+            if self.player:gainXP(xpGained) then
+                self:say(self.player.name .. " grew to Lv" .. self.player.level .. "!")
+            end
+        end
+        self.message = self.trainerName and ("You defeated " .. self.trainerName .. "!") or "You won the battle!"
         return "victory"
     end
-
     self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
     return "defeat"
 end
 
--- End-of-round status damage (burn, poison) and resulting KOs.
--- Unconsumed flinches expire here — they only ever last the round.
 function Battle:endOfRoundStatus()
-    self.player.flinched = false
-    self.enemy.flinched = false
-    self:applyStatusDamage(self.player)
-    self:applyStatusDamage(self.enemy)
-
-    if not self.player:isAlive() then
-        self:say(self.player.name .. " fainted!")
-        self.message = self.trainerName and "You lost the battle!" or "You blacked out..."
-        return "defeat"
-    elseif not self.enemy:isAlive() then
-        self:setDirection("player")
-        return self:handleFaint()
+    self.player.flinched, self.enemy.flinched = false, false
+    local events = {}
+    for _, side in ipairs({"player", "enemy"}) do
+        local pokemon = side == "player" and self.player or self.enemy
+        if pokemon.status == "poison" or pokemon.status == "burn" then
+            events[#events + 1] = {side = side, pokemon = pokemon, order = pokemon.status == "poison" and 9 or 10}
+        end
+    end
+    if #events == 2 then
+        local a, b = events[1], events[2]
+        local swap
+        if a.order ~= b.order then swap = b.order < a.order
+        else
+            local aSpeed, bSpeed = effectiveSpeed(a.pokemon), effectiveSpeed(b.pokemon)
+            swap = bSpeed > aSpeed or (aSpeed == bSpeed and RulesRNG.random(1, 2) == 1)
+        end
+        if swap then events[1], events[2] = b, a end
+    end
+    for _, event in ipairs(events) do
+        self:applyStatusDamage(event.pokemon)
+        if not event.pokemon:isAlive() then
+            self:setDirection(event.side == "player" and "enemy" or "player")
+            return self:handleFaint(event.side)
+        end
     end
     return nil
 end

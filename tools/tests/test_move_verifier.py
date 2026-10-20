@@ -208,8 +208,11 @@ class SourceTests(unittest.TestCase):
 class ParserAndCLITests(unittest.TestCase):
     def test_reads_actual_full_production_tables_without_execution(self):
         species_rows, move_rows = LuaParser().parse(), read_moves()
-        self.assertEqual(151, len(species_rows)); self.assertEqual(419, len(move_rows))
-        self.assertTrue(all('learnset' not in row for row in species_rows.values()))
+        self.assertEqual(151, len(species_rows)); self.assertEqual(423, len(move_rows))
+        self.assertTrue(all(row.get('learnset') for row in species_rows.values()))
+        self.assertEqual(2184, sum(len(row['learnset']) for row in species_rows.values()))
+        for key in ('charm', 'psywave', 'stormThrow', 'struggle'):
+            self.assertIn(key, move_rows)
         self.assertIsInstance(move_rows['tackle']['pp'], int)
 
     def test_nested_level_metadata_parses_without_losing_order(self):

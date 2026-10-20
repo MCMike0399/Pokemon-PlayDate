@@ -9,7 +9,8 @@ local function pokemon(mon)
     return { present = true, species = mon.species, level = mon.level,
         hp = mon.hp, maxHP = mon.maxHP, xp = mon.xp, status = mon.status or "none",
         statusTurns = mon.statusTurns, confusion = mon.confusion or 0,
-        flinched = mon.flinched or false, pp = pp, moves = moves }
+        flinched = mon.flinched or false, pp = pp, moves = moves,
+        pending_moves = #mon:getPendingMoveChoices(), pending_choices = mon:getPendingMoveChoices() }
 end
 
 function HarnessDiagnostics.snapshot(game)
@@ -39,7 +40,10 @@ function HarnessDiagnostics.snapshot(game)
         pokemon = pokemon(game.playerPokemon),
         battle = battle and { phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             attackerSide = battle.attackerSide, trainerName = battle.trainerName,
-            outcome = battle:phase() == "ended" and (battle.machine:current().won and "victory" or "defeat") or "ongoing",
+            outcome = battle.outcome or "ongoing",
+            current_move = battle.currentMoveKey or "none",
+            available_player_moves = #battle:availableMoves(battle.player),
+            needs_struggle = battle:needsStruggle(),
             introPhase = battleState.scene.introPhase, introTimer = battleState.scene.introTimer,
             introDrawing = battleState.scene.introDrawing, irisRadius = battleState.scene.irisRadius,
             flashTimer = battle.flashTimer, isFlashing = battle.isFlashing, flashHide = battleState.scene.flashHide,
@@ -55,6 +59,12 @@ function HarnessDiagnostics.snapshot(game)
         dialog = { active = root:is("dialog") and dialog.isActive, line = dialog.currentLine,
             ready = root:is("dialog") and dialog.isActive and dialog.charIndex >= #(dialog.lines[dialog.currentLine] or "") },
         camera = { x = game.camera.x, y = game.camera.y }, npcs = npcs,
+        learning = root:get("learning") and root:get("learning"):getSnapshot() or {phase = "closed"},
+        last_battle_outcome = game.lastBattleOutcome and {
+            kind = game.lastBattleOutcome.kind, won = game.lastBattleOutcome.won,
+            blackout = game.lastBattleOutcome.blackout, player_hp = game.lastBattleOutcome.player_hp,
+            enemy_hp = game.lastBattleOutcome.enemy_hp,
+        } or {kind = "none"},
         flags = { noEncounters = DEBUG_FLAGS.noEncounters, showGrid = DEBUG_FLAGS.showGrid, showFPS = DEBUG_FLAGS.showFPS },
         rng = RulesRNG and RulesRNG.snapshot() or {}, transitions = game:recentTransitions(),
     }

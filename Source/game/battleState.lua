@@ -27,23 +27,24 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc)
     self.battle = Battle(playerPokemon, enemyPokemon, npc and npc.name)
     self.scene = BattleScene(self.battle)
 
-    self.battle:on("battleEnd", function(won)
-        self:finish(won)
+    self.battle:on("battleEnd", function(won, kind)
+        self:finish(won, kind)
     end)
 end
 
-function BattleState:finish(won)
+function BattleState:finish(won, kind)
     local game = self.game
+    kind = kind or (self.battle and self.battle.outcome) or (won and "victory" or "defeat")
+    local pokemon = game.playerPokemon
+    game.lastBattleOutcome = {kind = kind, won = won, blackout = not pokemon:isAlive(),
+        player_hp = pokemon.hp, enemy_hp = self.battle and self.battle.enemy.hp or nil}
     if won and self.npc then
         self.npc:markInteracted()
     end
-    Story.notifyBattleEnd(won)
+    Story.notifyBattleEnd(won, kind)
 
-    local pokemon = game.playerPokemon
-    pokemon.status = nil
-    pokemon.statusTurns = 0
-    pokemon.confusion = nil
-    pokemon.flinched = false
+    pokemon:resetStages()
+    if self.battle then self.battle.enemy:resetStages() end
 
     if not pokemon:isAlive() then
         -- Blacked out: classic Pokemon behavior — heal up, respawn at spawn
@@ -52,10 +53,16 @@ function BattleState:finish(won)
     else
         self.machine:change("overworld")
     end
+    game:offerLearning(pokemon)
 end
 
 function BattleState:exit()
     playdate.display.setOffset(0, 0)
+    if self.battle then
+        self.battle.player:resetStages()
+        self.battle.enemy:resetStages()
+        if not self.battle.emittingEnd then self.battle:clearListeners() end
+    end
     self.battle = nil
     self.scene = nil
     self.npc = nil

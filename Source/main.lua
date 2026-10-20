@@ -13,9 +13,14 @@ import "world/spritefactory"
 import "world/zone"
 import "data/pokemon"
 import "data/pokemonArt"
+import "domain/party"
+import "domain/storage"
+import "domain/inventory"
 import "data/typechart"
 import "battle/dsl"
 import "battle/moves"
+import "domain/pokemonCodec"
+import "domain/saveStore"
 import "ui/dialog"
 import "ui/menu"
 import "ui/debug"
@@ -32,7 +37,20 @@ import "game/overworldState"
 import "game/dialogState"
 import "game/battleState"
 import "game/debugState"
+import "game/learningState"
 import "dev/contracts"
+import "dev/learnsetContracts"
+import "dev/partyContracts"
+import "dev/learningContracts"
+import "dev/saveContracts"
+import "dev/combatContracts"
+import "dev/rngPersistenceContracts"
+Contracts.register("learnsets", LearnsetContracts.run)
+Contracts.register("collections", PartyContracts.run)
+Contracts.register("learning", LearningContracts.run)
+Contracts.register("persistence", SaveContracts.run)
+Contracts.register("combat", CombatContracts.run)
+Contracts.register("rng-persistence", RNGPersistenceContracts.run)
 import "dev/catalog"
 import "dev/harness_build"
 import "dev/harness_capture"
@@ -55,6 +73,7 @@ machine:register("overworld", OverworldState(game))
 machine:register("dialog", DialogState(game))
 machine:register("battle", BattleState(game))
 machine:register("debug", DebugState(game))
+machine:register("learning", LearningState(game))
 
 -- Debug menu rides on top of the overworld via the system menu
 local sysMenu = playdate.getSystemMenu()

@@ -18,20 +18,30 @@ Sources (cached in tools/gen5cache/):
   Pokémon Showdown   — pokedex.ts + mods/gen{8,7,6,5}/pokedex.ts applied in
                        order, yielding Gen V base stats and types
 
-Run: python3 tools/generate_gen5_data.py
+Run moves-only into an explicit staging root:
+  python3 tools/generate_gen5_data.py --input-root . --output-root /tmp/stage \
+      --moves-only --pinned-cache /path/to/pinned/csvs --extra-move charm
+Full species generation still uses mutable historical Showdown fetch paths;
+that uninvoked mode requires a separate provenance migration.
 """
 
+import argparse
 import csv
 import io
 import os
 import re
 import sys
 import urllib.request
+from pathlib import Path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(ROOT, "tools", "gen5cache")
 MOVES_LUA = os.path.join(ROOT, "Source", "battle", "moves.lua")
 POKEMON_LUA = os.path.join(ROOT, "Source", "data", "pokemon.lua")
+
+MOVES_INPUT = MOVES_LUA
+POKEMON_INPUT = POKEMON_LUA
+EXTRA_MOVE_KEYS = []
 
 B2W2_VERSION_GROUP = 14
 
@@ -64,6 +74,7 @@ PP_OVERRIDES = {"recover": 10, "roost": 10, "softBoiled": 10,
 
 # Classic fixed-damage / OHKO moves the formula can't express — DSL effects
 FIXED_DAMAGE = {
+    "psywave": "PsywaveDamage()",
     "sonicBoom": 'DirectDamage(DEFENDER, 20)',
     "dragonRage": 'DirectDamage(DEFENDER, 40)',
     "seismicToss": 'DirectDamage(DEFENDER, LevelOf(ATTACKER))',
@@ -185,12 +196,16 @@ def build_effects(key, meta, stat_changes, target_id, is_status):
     return effects
 
 
-def generate_moves(data):
-    with open(MOVES_LUA, encoding="utf-8") as f:
+def generate_moves(data, preserve_existing=False):
+    with open(MOVES_INPUT, encoding="utf-8") as f:
         current = f.read()
     keys = re.findall(r"^\s*(\w+) = Move[({]", current, re.MULTILINE)
     if not keys:
         sys.exit("no move keys found in moves.lua")
+
+    for key in EXTRA_MOVE_KEYS:
+        if key not in keys:
+            keys.append(key)
 
     moves_by_ident = {r["identifier"]: r for r in data["moves"]}
     changelog = {}
@@ -209,6 +224,8 @@ def generate_moves(data):
         if not row:
             missing.append(key)
             continue
+        if int(row["generation_id"]) > 5:
+            raise ValueError("move introduced after Gen V: " + key)
         move_id = row["id"]
         fields = resolve_b2w2(row, changelog.get(move_id, []))
         meta = meta_by_id.get(move_id)
@@ -228,11 +245,15 @@ def generate_moves(data):
             f"accuracy = {fields['accuracy'] or 0}",
             f"pp = {PP_OVERRIDES.get(key, fields['pp'])}",
         ]
+        if key == "struggle":
+            parts.extend(["typeless = true", "noPP = true", "struggleRecoil = true"])
+        if key == "stormThrow":
+            parts.append("willCrit = true")
         if fields["priority"]:
             parts.append(f"priority = {fields['priority']}")
         if meta:
             drain = int(meta["drain"] or 0)
-            if drain:
+            if drain and key != "struggle":
                 parts.append(f"drain = {drain}")
             min_hits, max_hits = num(meta["min_hits"]), num(meta["max_hits"])
             if min_hits and max_hits and max_hits > 1:
@@ -260,6 +281,10 @@ function Move:init(m)
     self.pp = m.pp
     self.maxPP = m.pp
     self.priority = m.priority or 0
+    self.willCrit = m.willCrit or false
+    self.typeless = m.typeless or false
+    self.noPP = m.noPP or false
+    self.struggleRecoil = m.struggleRecoil or false
     self.drain = m.drain
     self.minHits = m.minHits
     self.maxHits = m.maxHits
@@ -268,6 +293,15 @@ end
 
 moveData = {
 '''
+    if missing:
+        raise ValueError("move IDs missing from source: " + ", ".join(missing))
+    if preserve_existing:
+        old_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", current, re.MULTILINE))
+        new_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", "\n".join(out), re.MULTILINE))
+        changed = [key for key, value in old_rows.items() if new_rows.get(key) != value]
+        if changed:
+            raise ValueError("refusing unexpected changes to existing move rows: " + ", ".join(changed))
+    os.makedirs(os.path.dirname(MOVES_LUA), exist_ok=True)
     with open(MOVES_LUA, "w", encoding="utf-8") as f:
         f.write(header + "\n".join(out) + "\n}\n")
 
@@ -310,7 +344,7 @@ def resolve_gen5_dex(data):
 
 
 def generate_species(data):
-    with open(POKEMON_LUA, encoding="utf-8") as f:
+    with open(POKEMON_INPUT, encoding="utf-8") as f:
         src = f.read()
 
     dex = resolve_gen5_dex(data)
@@ -343,6 +377,7 @@ def generate_species(data):
                 f'baseExp = {exp},\n')
 
     out = block_re.sub(replace, src)
+    os.makedirs(os.path.dirname(POKEMON_LUA), exist_ok=True)
     with open(POKEMON_LUA, "w", encoding="utf-8") as f:
         f.write(out)
 
@@ -352,9 +387,35 @@ def generate_species(data):
 
 
 def main():
-    data = load_all()
-    generate_moves(data)
-    generate_species(data)
+    global MOVES_INPUT, MOVES_LUA, POKEMON_INPUT, POKEMON_LUA, EXTRA_MOVE_KEYS
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--input-root", type=Path, default=Path(ROOT), help="project root containing input Source")
+    parser.add_argument("--output-root", type=Path, required=True, help="explicit project root receiving generated Source")
+    parser.add_argument("--moves-only", action="store_true", help="skip species/Showdown, pin CSV inputs and preserve every existing move row")
+    parser.add_argument("--pinned-cache", type=Path)
+    parser.add_argument("--fetch", action="store_true", help="download missing immutable CSVs for moves-only")
+    parser.add_argument("--extra-move", action="append", default=[])
+    args = parser.parse_args()
+    MOVES_INPUT = str(args.input_root / "Source/battle/moves.lua")
+    POKEMON_INPUT = str(args.input_root / "Source/data/pokemon.lua")
+    MOVES_LUA = str(args.output_root / "Source/battle/moves.lua")
+    POKEMON_LUA = str(args.output_root / "Source/data/pokemon.lua")
+    EXTRA_MOVE_KEYS = args.extra_move
+    if args.moves_only:
+        sys.path.insert(0, ROOT)
+        from tools.verify_moves.fetch_pokeapi import PinnedSources
+        source = PinnedSources(args.pinned_cache, args.fetch)
+        data = {"moves": source.load("moves_pre_sv.csv"),
+                "move_changelog": source.load("move_changelog_pre_sv.csv")}
+        for name in ("move_meta", "move_meta_stat_changes", "types"):
+            data[name] = source.load(name + ".csv")
+        generate_moves(data, preserve_existing=True)
+    else:
+        if args.pinned_cache:
+            parser.error("--pinned-cache requires --moves-only; species Showdown sources are not yet pinned")
+        data = load_all()
+        generate_moves(data)
+        generate_species(data)
 
 
 if __name__ == "__main__":

@@ -38,6 +38,14 @@ end
 function BattleScene:enter()
     self.mainMenu:show({"FIGHT", "RUN"}, function(index)
         if index == 1 then
+            if self.battle:needsStruggle() then
+                if self.battle:selectStruggle() then
+                    self.inMoveSelect = false
+                    self.moveMenu:hide()
+                    self.mainMenu:hide()
+                end
+                return
+            end
             -- Fight: show move selection with type effectiveness icons and PP
             self.inMoveSelect = true
             local moveNames = {}
@@ -61,15 +69,11 @@ function BattleScene:enter()
             end
             self.moveMenu.columns = 2
             self.moveMenu:show(moveNames, function(moveIndex)
-                -- Check PP before allowing move
-                local moveKey = self.battle.player.moves[moveIndex]
-                if not self.battle.player:hasPP(moveKey) then
-                    return -- Can't use move with 0 PP
-                end
+                -- The rules API validates phase/index/PP before UI commits.
+                if not self.battle:selectMove(moveIndex) then return end
                 self.inMoveSelect = false
                 self.moveMenu:hide()
                 self.mainMenu:hide()
-                self.battle:selectMove(moveIndex)
             end, function()
                 -- Cancel: back to main menu
                 self.inMoveSelect = false
@@ -78,8 +82,7 @@ function BattleScene:enter()
             end)
         elseif index == 2 then
             -- Run
-            self.mainMenu:hide()
-            self.battle:tryRun()
+            if self.battle:tryRun() then self.mainMenu:hide() end
         end
     end, nil)
 end

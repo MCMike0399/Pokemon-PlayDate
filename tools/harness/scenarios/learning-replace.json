@@ -1,0 +1,182 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "player_pokemon": {
+          "species": "charmander",
+          "level": 15
+        },
+        "grant_xp": {
+          "to_level": 16
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "learning",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "learning.phase",
+      "equals": "ask"
+    },
+    {
+      "op": "assert",
+      "path": "learning.move",
+      "equals": "dragonRage"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_moves",
+      "equals": 1
+    },
+    "shot learning-full-ask",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "replace",
+      "frames": 120
+    },
+    "press down",
+    {
+      "op": "assert",
+      "path": "learning.selected",
+      "equals": 2
+    },
+    "shot learning-full-moves",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "confirm",
+      "frames": 120
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "replace",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "learning.selected",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.2",
+      "equals": "growl"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.growl",
+      "equals": 40
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "ask",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.1",
+      "equals": "scratch"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.2",
+      "equals": "growl"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.3",
+      "equals": "ember"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.4",
+      "equals": "smokescreen"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "replace",
+      "frames": 120
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "confirm",
+      "frames": 120
+    },
+    "shot learning-full-confirm",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "message",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.2",
+      "equals": "dragonRage"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.dragonRage",
+      "equals": 10
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_moves",
+      "equals": 0
+    },
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 120
+    },
+    "shot learning-full-forgot",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 120
+    },
+    "shot learning-full-learned",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 120
+    },
+    "wait 2",
+    "shot learning-full-return"
+  ],
+  "outputs": [
+    "learning-full-ask.png",
+    "learning-full-moves.png",
+    "learning-full-confirm.png",
+    "learning-full-forgot.png",
+    "learning-full-learned.png",
+    "learning-full-return.png"
+  ]
+}

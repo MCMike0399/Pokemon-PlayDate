@@ -1,6 +1,13 @@
 -- SDK-only contracts: imports the real production objects via main.lua.
 -- No replacement SDK globals, source rewriting, or synthetic rules engine.
 Contracts = {}
+local suites = {}
+
+function Contracts.register(name, run)
+    assert(type(name) == "string" and type(run) == "function", "contract suite requires a name and function")
+    for _, suite in ipairs(suites) do assert(suite.name ~= name, "duplicate contract suite: " .. name) end
+    suites[#suites + 1] = { name = name, run = run }
+end
 local function equal(actual, expected, label)
     assert(actual == expected, (label or "value") .. ": expected " .. tostring(expected) .. ", got " .. tostring(actual))
 end
@@ -355,6 +362,26 @@ function Contracts.run()
         equal(roll(true), roll(false), "encounter/DSL replay")
     end)
 
+    for _, suite in ipairs(suites) do
+        local ok, child = pcall(suite.run)
+        if not ok then
+            test(suite.name .. ": execution", function() error(child) end)
+        elseif type(child) ~= "table" or type(child.tests) ~= "table" or #child.tests == 0 then
+            test(suite.name .. ": report", function() error("missing contract results") end)
+        else
+            local passed, failed = 0, 0
+            for _, result in ipairs(child.tests) do
+                test(suite.name .. ": " .. tostring(result.name), function()
+                    assert(type(result.name) == "string" and type(result.ok) == "boolean", "invalid contract result")
+                    assert(result.ok, result.error or "contract failed")
+                end)
+                if result.ok == true then passed = passed + 1 else failed = failed + 1 end
+            end
+            if child.passed ~= passed or child.failed ~= failed or child.ok ~= (failed == 0) then
+                test(suite.name .. ": report", function() error("inconsistent contract totals") end)
+            end
+        end
+    end
     RulesRNG.restore(savedRNG)
     playdate.display.setOffset(savedOffsetX, savedOffsetY)
     return report

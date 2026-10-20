@@ -16,6 +16,10 @@ function Move:init(m)
     self.pp = m.pp
     self.maxPP = m.pp
     self.priority = m.priority or 0
+    self.willCrit = m.willCrit or false
+    self.typeless = m.typeless or false
+    self.noPP = m.noPP or false
+    self.struggleRecoil = m.struggleRecoil or false
     self.drain = m.drain
     self.minHits = m.minHits
     self.maxHits = m.maxHits
@@ -442,4 +446,8 @@ moveData = {
     psystrike = Move{ name = "PSYSTRIKE", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 10 },
     hurricane = Move{ name = "HURRICANE", type = "flying", category = "special", power = 120, accuracy = 70, pp = 10, effects = { When(Chance(30), ApplyStatus(DEFENDER, "confuse")) } },
     icicleCrash = Move{ name = "ICICLE CRASH", type = "ice", category = "physical", power = 85, accuracy = 90, pp = 10, effects = { When(Chance(30), ApplyStatus(DEFENDER, "flinch")) } },
+    charm = Move{ name = "CHARM", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, effects = { ModifyStat(DEFENDER, "atk", -2) } },
+    psywave = Move{ name = "PSYWAVE", type = "psychic", category = "special", power = 0, accuracy = 80, pp = 15, effects = { PsywaveDamage() } },
+    stormThrow = Move{ name = "STORM THROW", type = "fighting", category = "physical", power = 40, accuracy = 100, pp = 10, willCrit = true },
+    struggle = Move{ name = "STRUGGLE", type = "normal", category = "physical", power = 50, accuracy = 0, pp = 1, typeless = true, noPP = true, struggleRecoil = true },
 }

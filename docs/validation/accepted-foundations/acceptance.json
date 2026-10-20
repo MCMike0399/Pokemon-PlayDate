@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "status": "accepted foundations only; full campaign remains active",
+  "base_revision": "b53566d45bf2c5b89c19c8422b6a239cc03aa054",
+  "integrated_source_sha256": "07e890fcf95c4313581cd54be9666463f7e19a55891d52a396e47793773ce299",
+  "sdk": "3.1.2",
+  "sdk_contracts": {
+    "passed": 112,
+    "failed": 0
+  },
+  "combat_native_jobs": {
+    "passed": 3,
+    "failed": 0,
+    "same_source_as_contracts": true
+  },
+  "learning_evidence": "Seven earlier UI/intro jobs and one real battle XP learning journey; their historical source hashes retained in archive.",
+  "visuals": "915 exact protected catalog images/masks; root inspected learning and combat native images.",
+  "remaining": "Authoritative session/Save/Continue and party/storage/inventory UI, capture, growth/XP correction, imported-world pixel discrepancy and all later campaign milestones remain.",
+  "archive": "evidence.tar.gz",
+  "archive_sha256": "87ba2c6bac7982a8e8204b95d23c62a178af7f7086a8da2b44eb800eb18eb68b",
+  "archive_bytes": 2783547,
+  "runs": [
+    "pokemon-learning-integration-suite-01",
+    "pokemon-battle-learning-02",
+    "pokemon-persistence-rng-contracts-02",
+    "pokemon-combat-journeys-01"
+  ]
+}

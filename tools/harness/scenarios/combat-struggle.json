@@ -1,0 +1,175 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "charmander",
+          "level": 5
+        }
+      }
+    },
+    "battle magikarp 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "player_pp": {
+            "scratch": 0,
+            "growl": 0
+          },
+          "enemy_pp": {
+            "splash": 0
+          }
+        }
+      }
+    },
+    "seed 42",
+    {
+      "op": "assert",
+      "path": "battle.needs_struggle",
+      "equals": true
+    },
+    "shot combat-exhausted-command",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.current_move",
+      "equals": "struggle",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.attackerSide",
+      "equals": "enemy"
+    },
+    "shot combat-enemy-struggle",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 15
+    },
+    {
+      "op": "assert",
+      "path": "battle.lastDamage",
+      "equals": 3
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 13
+    },
+    "shot combat-enemy-recoil",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.attackerSide",
+      "equals": "player"
+    },
+    {
+      "op": "assert",
+      "path": "battle.current_move",
+      "equals": "struggle"
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 8
+    },
+    {
+      "op": "assert",
+      "path": "battle.lastDamage",
+      "equals": 5
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 10
+    },
+    "shot combat-player-recoil",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 10
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 8
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.scratch",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.growl",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.splash",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "battle.needs_struggle",
+      "equals": true
+    },
+    "shot combat-struggle-round-complete"
+  ],
+  "outputs": [
+    "combat-exhausted-command.png",
+    "combat-enemy-struggle.png",
+    "combat-enemy-recoil.png",
+    "combat-player-recoil.png",
+    "combat-struggle-round-complete.png"
+  ]
+}

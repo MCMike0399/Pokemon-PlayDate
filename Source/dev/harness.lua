@@ -54,6 +54,7 @@ local function integer(value, low, high)
 end
 local dirs = { up = true, down = true, left = true, right = true }
 local buttons = { a = true, b = true, up = true, down = true, left = true, right = true }
+local statuses = { none = true, burn = true, poison = true, paralyze = true, sleep = true, freeze = true }
 local function normalize(value)
     if type(value) == "string" then
         local parts = {}
@@ -73,11 +74,36 @@ local function normalize(value)
         assert(type(options) == "table", "fixture options required")
         assert(options.zone == nil or zoneRegistry[options.zone], "unknown fixture zone")
         assert(options.intro == nil or options.intro == "skip" or options.intro == "reset", "invalid fixture intro")
+        if options.player_pokemon then
+            local mon = options.player_pokemon
+            assert(type(mon) == "table" and pokemonData[mon.species]
+                and type(mon.level) == "number" and integer(mon.level, 1, 100), "invalid player Pokemon fixture")
+        end
+        if options.grant_xp then
+            local xp = options.grant_xp
+            assert(type(xp) == "table" and ((xp.amount == nil) ~= (xp.to_level == nil)),
+                "XP fixture requires exactly one of amount/to_level")
+            assert(xp.amount == nil or (type(xp.amount) == "number" and integer(xp.amount, 0, 1000000)), "invalid XP amount")
+            assert(xp.to_level == nil or (type(xp.to_level) == "number" and integer(xp.to_level, 1, 100)), "invalid XP target level")
+        end
         if options.adjust_battle then
+            assert(not options.player_pokemon and not options.grant_xp, "battle adjustment cannot reset player or XP")
             assert(type(options.adjust_battle) == "table", "battle adjustment object required")
             local hp = options.adjust_battle
-            assert(hp.player_hp == nil or integer(hp.player_hp, 1, 9999), "invalid player fixture hp")
-            assert(hp.enemy_hp == nil or integer(hp.enemy_hp, 1, 9999), "invalid enemy fixture hp")
+            assert(hp.player_hp == nil or (type(hp.player_hp) == "number" and integer(hp.player_hp, 1, 9999)), "invalid player fixture hp")
+            assert(hp.enemy_hp == nil or (type(hp.enemy_hp) == "number" and integer(hp.enemy_hp, 1, 9999)), "invalid enemy fixture hp")
+            for _, side in ipairs({"player", "enemy"}) do
+                local pp, status, turns = hp[side .. "_pp"], hp[side .. "_status"], hp[side .. "_status_turns"]
+                if pp then
+                    assert(type(pp) == "table", "PP fixture must be an object")
+                    for key, amount in pairs(pp) do
+                        assert(moveData[key] and type(amount) == "number" and integer(amount, 0, moveData[key].maxPP), "invalid fixture PP")
+                    end
+                end
+                assert(status == nil or statuses[status], "invalid fixture status")
+                assert(turns == nil or (type(turns) == "number" and integer(turns, 0, 3)), "invalid fixture status turns")
+                assert(turns == nil or status == nil or status == "sleep" or turns == 0, "only sleep may have a positive counter")
+            end
         end
         if options.entry then
             local zone = zoneRegistry[options.zone or "reds_house_2f"]
@@ -173,15 +199,29 @@ function Harness.beforeFrame(game)
             local options = command.options or {}
             if options.adjust_battle then
                 local battle = game.machine:get("battle").battle
-                assert(game.machine:is("battle") and battle, "HP fixture requires a live battle")
-                local hp = options.adjust_battle
-                if hp.player_hp then
-                    assert(hp.player_hp <= battle.player.maxHP, "fixture player hp exceeds maxHP")
-                    battle.player.hp = hp.player_hp
+                assert(game.machine:is("battle") and battle, "battle adjustment requires a live battle")
+                local values = options.adjust_battle
+                -- Validate both actual battlers before applying any mutation.
+                for _, side in ipairs({"player", "enemy"}) do
+                    local mon = battle[side]
+                    assert(not values[side .. "_hp"] or values[side .. "_hp"] <= mon.maxHP, "fixture HP exceeds maxHP")
+                    for key in pairs(values[side .. "_pp"] or {}) do
+                        assert(mon:hasMove(key), "fixture PP refers to an unknown move")
+                    end
+                    local turns = values[side .. "_status_turns"]
+                    assert(values[side .. "_status"] or turns == nil or mon.status == "sleep" or turns == 0, "status-counter mismatch")
                 end
-                if hp.enemy_hp then
-                    assert(hp.enemy_hp <= battle.enemy.maxHP, "fixture enemy hp exceeds maxHP")
-                    battle.enemy.hp = hp.enemy_hp
+                for _, side in ipairs({"player", "enemy"}) do
+                    local mon = battle[side]
+                    if values[side .. "_hp"] then mon.hp = values[side .. "_hp"] end
+                    for key, amount in pairs(values[side .. "_pp"] or {}) do mon.pp[key] = amount end
+                    local status = values[side .. "_status"]
+                    if status then
+                        mon.status = status ~= "none" and status or nil
+                        mon.statusTurns = status == "sleep" and (values[side .. "_status_turns"] or 0) or 0
+                    elseif values[side .. "_status_turns"] ~= nil then
+                        mon.statusTurns = values[side .. "_status_turns"]
+                    end
                 end
             else
                 HarnessFixtures.reset(game, options)

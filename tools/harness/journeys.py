@@ -8,6 +8,18 @@ from tools.harness.protocol import ProtocolError, atomic_json
 DIRECTIONS = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
 COUNTERS = {"charmander": "squirtle", "squirtle": "bulbasaur", "bulbasaur": "charmander"}
 
+def lookup(state, path):
+    """Use the runtime's one-based array paths in host assertions too."""
+    actual = state
+    for key in path.split("."):
+        if isinstance(actual, dict):
+            actual = actual.get(key)
+        elif isinstance(actual, list) and key.isdigit() and 1 <= int(key) <= len(actual):
+            actual = actual[int(key) - 1]
+        else:
+            return None
+    return actual
+
 
 class Journey:
     def __init__(self, client, evidence, config):
@@ -40,9 +52,7 @@ class Journey:
 
     def require(self, **values):
         for path, expected in values.items():
-            actual = self.state
-            for key in path.split("."):
-                actual = actual.get(key) if isinstance(actual, dict) else None
+            actual = lookup(self.state, path)
             if actual != expected:
                 raise ProtocolError(f"journey expected {path}={expected!r}, got {actual!r}")
 
@@ -325,6 +335,25 @@ class Journey:
                             "pokemon.present": False})
             self.checkpoint("reset-settled-" + source)
 
+    def battle_learning(self):
+        # XP positions the fixture just below level 7; the real battle must
+        # award the remaining XP and open learning through BattleState.finish.
+        self.reset(intro="skip", opening=False, zone="reds_house_2f",
+                   player_pokemon={"species": "charmander", "level": 6},
+                   grant_xp={"amount": 126})
+        self.require(root="overworld", **{"pokemon.level": 6, "pokemon.xp": 342,
+                                         "pokemon.pending_moves": 0})
+        self.send("battle rattata 2")
+        self.battle("level-up-battle", expected="win")
+        self.require(root="learning", **{"pokemon.level": 7, "learning.phase": "message",
+                                         "pokemon.moves.3": "ember"})
+        self.await_value("learning.dialog_ready", True)
+        self.checkpoint("battle-learned-ember")
+        self.send("press a")
+        self.await_value("root", "overworld")
+        self.require(**{"pokemon.pending_moves": 0, "pokemon.pp.ember": 25})
+        self.checkpoint("battle-learning-return")
+
     def wild(self, blackout=False):
         self.reset(intro="skip", zone="pallet_town", entry={"x": 9, "y": 3, "facing": "up"})
         self.send("encounters on")
@@ -359,7 +388,8 @@ def run(client, scenario, evidence_dir):
     name = config.get("name")
     actions = {"intro": journey.natural_intro, "interiors": journey.interiors,
                "overlays-inputs": journey.overlays_inputs, "session-resets": journey.session_resets, "wild-return": journey.wild,
-               "wild-blackout": lambda: journey.wild(blackout=True)}
+               "wild-blackout": lambda: journey.wild(blackout=True),
+               "battle-learning": journey.battle_learning}
     if name not in actions:
         raise ProtocolError("unknown journey: " + str(name))
     try:

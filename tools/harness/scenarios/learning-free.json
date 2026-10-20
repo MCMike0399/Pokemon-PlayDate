@@ -1,0 +1,107 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "player_pokemon": {
+          "species": "charmander",
+          "level": 5
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 120
+    },
+    "shot learning-free-before",
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "player_pokemon": {
+          "species": "charmander",
+          "level": 5
+        },
+        "grant_xp": {
+          "to_level": 7
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "learning",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.level",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "learning.phase",
+      "equals": "message"
+    },
+    {
+      "op": "assert",
+      "path": "learning.message_kind",
+      "equals": "learned"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.1",
+      "equals": "scratch"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.2",
+      "equals": "growl"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.moves.3",
+      "equals": "ember"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.ember",
+      "equals": 25
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_moves",
+      "equals": 0
+    },
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 120
+    },
+    "shot learning-free-learned",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 120
+    },
+    "wait 2",
+    "shot learning-free-return"
+  ],
+  "outputs": [
+    "learning-free-before.png",
+    "learning-free-learned.png",
+    "learning-free-return.png"
+  ]
+}

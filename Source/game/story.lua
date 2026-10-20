@@ -127,23 +127,10 @@ local function restoreBalls()
     end
 end
 
--- Intro starters know only their level-1 moves — the first 2 in the
--- Gen V learnset — not the last-4 endgame moves Pokemon:init defaults to.
--- A Lv5 starter hasn't learned Ember/Smokescreen/Vine Whip yet, so the
--- first rival fight stays an authentic low-level chip-damage duel
--- (Scratch/Tackle + Growl/Tail Whip).
+-- Normal B2W2 Lv5 initialization yields the protected intro pairs:
+-- Tackle/Growl, Scratch/Growl, or Tackle/Tail Whip. No special override.
 local function starterPokemon(species)
-    local mon = Pokemon(species, STARTER_LEVEL)
-    local data = pokemonData[species]
-    mon.moves = {}
-    mon.pp = {}
-    for i = 1, math.min(2, #data.moves) do
-        local moveKey = data.moves[i]
-        mon.moves[#mon.moves + 1] = moveKey
-        local move = moveData[moveKey]
-        mon.pp[moveKey] = move and move.maxPP or 10
-    end
-    return mon
+    return Pokemon(species, STARTER_LEVEL)
 end
 
 -- ------------------------------------------------------------

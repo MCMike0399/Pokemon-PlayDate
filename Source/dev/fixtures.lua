@@ -38,6 +38,7 @@ function HarnessFixtures.reset(game, options)
     for key, value in pairs(flagBaseline) do DEBUG_FLAGS[key] = value end
     game.player = nil
     game.playerPokemon = nil
+    game.lastBattleOutcome = nil
     game.transitionLog = {}
     game.debugMenu = DebugMenu()
     local world = machine:get("overworld")
@@ -53,6 +54,15 @@ function HarnessFixtures.reset(game, options)
     math.randomseed(options.seed or 0)
     Story.begin()
     if options.intro == "skip" then Story.skipIntro(game) end
+    if options.player_pokemon then
+        game.playerPokemon = Pokemon(options.player_pokemon.species, options.player_pokemon.level)
+    end
+    if options.grant_xp then
+        local mon = assert(game.playerPokemon, "XP fixture requires a player Pokemon")
+        local xp = options.grant_xp
+        assert(not xp.to_level or xp.to_level >= mon.level, "XP fixture cannot lower a level")
+        mon:gainXP(xp.amount or math.max(0, xpForLevel(xp.to_level) - mon.xp))
+    end
     if options.zone then
         assert(zoneRegistry[options.zone], "unknown fixture zone")
         switchZone(options.zone)
@@ -61,4 +71,5 @@ function HarnessFixtures.reset(game, options)
     if options.intro ~= "skip" and options.opening ~= false then
         machine:push("dialog", Story.openingLines)
     end
+    if options.grant_xp then game:offerLearning(game.playerPokemon) end
 end

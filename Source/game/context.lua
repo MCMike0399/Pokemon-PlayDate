@@ -30,3 +30,7 @@ end
 function GameContext:recentTransitions()
     return table.concat(self.transitionLog, " ")
 end
+
+function GameContext:offerLearning(pokemon, onComplete)
+    return LearningState.open(self, pokemon or self.playerPokemon, onComplete)
+end

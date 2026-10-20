@@ -278,6 +278,7 @@ function ApplyStatus:apply(battle)
     if pokemon.status then return end   -- already afflicted: silently no-op
     if immuneToStatus(pokemon, self.status) then return end
     pokemon.status = self.status
+    pokemon.statusTurns = 0
     if self.status == "sleep" then
         pokemon.statusTurns = RulesRNG.random(1, 3)   -- Gen V: 1-3 turn counter
     end
@@ -293,10 +294,18 @@ end
 
 function DirectDamage:apply(battle)
     local pokemon = self.target:resolve(battle)
+    local move = battle.currentMove
+    if pokemon == battle.defender and move and move.category ~= "status" and not move.typeless
+        and TypeChart.getMatchup(move.type, pokemon.type, pokemon.type2) == 0 then
+        battle.lastDamage = 0
+        battle:say("It doesn't affect " .. pokemon.name .. "...")
+        return
+    end
     local damage = math.max(1, math.floor(self.amount:evaluate(battle)))
+    local before = pokemon.hp
     pokemon:takeDamage(damage)
-    battle.lastDamage = damage
-    battle:say(pokemon.name .. " took " .. damage .. " damage!")
+    battle.lastDamage = before - pokemon.hp
+    battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
 end
 
 Class("Heal")
@@ -311,3 +320,22 @@ function Heal:apply(battle)
     battle:say(pokemon.name .. " regained health!")
 end
 
+
+-- Gen V Psywave: uniform integer percent50..150 times level, floored, min1.
+-- This fixed damage ignores STAB/critical/resistance but respects immunity.
+-- Primary implementation: pinned Pokemon Showdown moves.ts + gen5 accuracy80.
+Class("PsywaveDamage")
+function PsywaveDamage:apply(battle)
+    local attacker, defender = battle.attacker, battle.defender
+    if TypeChart.getMatchup("psychic", defender.type, defender.type2) == 0 then
+        battle.lastDamage = 0
+        battle:say("It doesn't affect " .. defender.name .. "...")
+        return
+    end
+    local amount = math.max(1, math.floor(RulesRNG.random(50, 150) * attacker.level / 100))
+    local before = defender.hp
+    defender:takeDamage(amount)
+    battle.lastDamage = before - defender.hp
+    battle.isFlashing, battle.flashTimer = true, 6
+    battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
+end
