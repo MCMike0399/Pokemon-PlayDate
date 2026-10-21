@@ -39,6 +39,42 @@ class ProtocolTests(unittest.TestCase):
         self.addCleanup(thread.join, 3)
         return thread
 
+    def test_unicode_request_uses_literal_utf8_and_matching_evidence_bytes(self):
+        text = "RED threw a POKé BALL!"
+        commands = [{'op': 'assert', 'path': 'battle.message', 'equals': text}]
+        def reply(request):
+            wire = (self.data / 'request.json').read_bytes()
+            saved = (self.root / 'evidence/00001-request.json').read_bytes()
+            self.assertEqual(wire, saved)
+            self.assertIn(b'POK\xc3\xa9 BALL', wire)
+            self.assertNotIn(b'\\u00e9', wire)
+            self.assertEqual(request['commands'], commands)
+            atomic_json(self.data / 'result.json', self.response(id=request['id'], status='ok',
+                results=[{'command':1,'status':'ok'}], snapshot={'message':text}))
+        self.runtime(reply)
+        result = self.client.send(commands, timeout=1)
+        self.assertEqual(result['snapshot']['message'], text)
+
+    def test_atomic_json_preserves_multibyte_text_and_json_escaping(self):
+        value = {'text': 'POKé BALL / 海 / 😀', 'control': 'line\n"quote"\\slash'}
+        path = self.root / 'unicode.json'
+        atomic_json(path, value)
+        wire = path.read_bytes()
+        self.assertIn('POKé BALL / 海 / 😀'.encode('utf-8'), wire)
+        self.assertEqual(json.loads(wire.decode('utf-8')), value)
+        self.assertEqual(list(self.root.glob('unicode.json.*.tmp')), [])
+
+    def test_invalid_single_byte_utf8_result_is_still_rejected_and_pending(self):
+        def reply(request):
+            # The exact invalid E9 class observed after SDK decoding \u00e9.
+            wire = json.dumps(self.response(id=request['id'], status='ok',
+                results=[{'command':1,'status':'ok'}], snapshot={'message':'MARKER'})).encode('ascii')
+            (self.data / 'result.json').write_bytes(wire.replace(b'MARKER', b'POK\xe9 BALL'))
+        self.runtime(reply)
+        with self.assertRaisesRegex(ProtocolError, 'malformed result.json'):
+            self.client.send(['gamestate'], timeout=1)
+        self.assertIsNotNone(self.client._pending_id)
+
     def test_ready_handshake_and_wrong_build(self):
         atomic_json(self.data / 'ready.json', self.response(status='ready'))
         self.assertEqual(self.client.ready(.1)['status'], 'ready')

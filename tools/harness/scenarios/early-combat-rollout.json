@@ -1,0 +1,196 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "sandshrew",
+          "level": 11,
+          "pp": {
+            "rollout": 1
+          }
+        }
+      }
+    },
+    "battle magikarp 100",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "splash": 40,
+            "tackle": 0,
+            "flail": 0
+          }
+        }
+      }
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 180
+    },
+    "press right",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rollout_hits",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.rollout",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 4
+    },
+    "shot early-rollout-1",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rollout_hits",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.rollout",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 8
+    },
+    "shot early-rollout-2",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rollout_hits",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.rollout",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 12
+    },
+    "shot early-rollout-3",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rollout_hits",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.rollout",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 16
+    },
+    "shot early-rollout-4",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rollout_hits",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.rollout",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 20
+    },
+    "shot early-rollout-5",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rollout_hits",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.rollout",
+      "equals": 0
+    }
+  ],
+  "outputs": [
+    "early-rollout-1.png",
+    "early-rollout-2.png",
+    "early-rollout-3.png",
+    "early-rollout-4.png",
+    "early-rollout-5.png"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "geodude",
+          "level": 12
+        }
+      }
+    },
+    "battle magikarp 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 180
+    },
+    "press right",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.mud_sport",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.mudSport",
+      "equals": 14
+    },
+    "shot early-mud-sport",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    }
+  ],
+  "outputs": [
+    "early-mud-sport.png"
+  ]
+}

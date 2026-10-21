@@ -82,11 +82,12 @@ class Journey:
         for _ in range(64):
             if self.state.get("root") != "dialog":
                 return
-            previous = self.state["dialog"].get("line")
+            previous = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
             ready = self.state["dialog"].get("ready")
             self.send("press a")
             if self.state.get("root") == "dialog" and ready:
-                if self.state["dialog"].get("line") == previous:
+                current = (self.state["dialog"].get("instance"), self.state["dialog"].get("line"))
+                if current == previous:
                     raise ProtocolError("ready dialog failed to advance on A")
         raise ProtocolError("dialog exceeded 64 semantic presses")
 
@@ -385,6 +386,9 @@ def run(client, scenario, evidence_dir):
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")
+    if config.get("name") in {"parcel-natural", "parcel-full-bag-supplementary", "parcel-visibility-checkpoint-supplementary"}:
+        from tools.harness.parcel_journey import run as run_parcel
+        return run_parcel(client, scenario, evidence_dir)
     journey = Journey(client, evidence_dir, config)
     name = config.get("name")
     actions = {"intro": journey.natural_intro, "interiors": journey.interiors,

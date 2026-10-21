@@ -107,7 +107,7 @@ function PartyState:draw()
             gfx.drawText((i == self.selected and "> " or "  ") .. member.name, 8, top)
             gfx.drawText("Lv" .. member.level, 196, top)
             gfx.drawText(member.hp .. "/" .. member.maxHP, 256, top)
-            local status = {poison="PSN",burn="BRN",paralyze="PAR",sleep="SLP",freeze="FRZ"}
+            local status = {poison="PSN",badPoison="PSN",burn="BRN",paralyze="PAR",sleep="SLP",freeze="FRZ"}
             gfx.drawText(member.hp == 0 and "FNT" or status[member.status] or "", 354, top)
             gfx.drawRect(30, top + 21, 140, 4)
             local fill = math.floor(138 * member.hp / member.maxHP)

@@ -1,0 +1,76 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "kanto_route1",
+        "entry": {
+          "x": 4,
+          "y": 4,
+          "facing": "down"
+        },
+        "seed": 42
+      }
+    },
+    "encounters off",
+    "shot ledge-before",
+    "record ledge-hop 18",
+    "press down",
+    {
+      "op": "assert",
+      "path": "player.isJumping",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 6
+    },
+    {
+      "op": "await",
+      "path": "player.settled",
+      "equals": true,
+      "frames": 20
+    },
+    {
+      "op": "assert",
+      "path": "player.x",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 6
+    },
+    {
+      "op": "assert",
+      "path": "player.jumpOffset",
+      "equals": 0
+    },
+    "wait 2",
+    "shot ledge-landed",
+    "press up",
+    "wait 10",
+    {
+      "op": "assert",
+      "path": "player.x",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 6
+    },
+    "shot ledge-reverse-blocked"
+  ],
+  "outputs": [
+    "ledge-before.png",
+    "ledge-hop-01.png",
+    "ledge-hop-18.png",
+    "ledge-landed.png",
+    "ledge-reverse-blocked.png"
+  ],
+  "fixture_note": "Supplementary native motion/collision proof; isolated encounters, no natural journey claim."
+}

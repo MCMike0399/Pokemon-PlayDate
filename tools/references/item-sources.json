@@ -56,5 +56,13 @@
       "url": "https://raw.githubusercontent.com/Maruno17/pokemon-essentials/8c5911e4a4b07b07e832e4bb0d5d8859e88b4a9b/Data/Scripts/013_Items/003_Item_BattleEffects.rb",
       "sha256": "acd6f3d2f49e2d8084310b8b62f269973a26fa9c7a1ec4191a64d0b119f223e0"
     }
+  },
+  "display_name_adaptation": {
+    "reason": "Existing native system font lacks é; display ASCII POKE consistently with existing game text. Original spelling remains sourceName.",
+    "mapping": {
+      "POKé BALL": "POKE BALL",
+      "POKé DOLL": "POKE DOLL",
+      "POKé FLUTE": "POKE FLUTE"
+    }
   }
 }

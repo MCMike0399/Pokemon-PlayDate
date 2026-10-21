@@ -22,7 +22,7 @@ def fixture():
     return {'constants/item_constants.asm':const,
       'data/items/prices.asm':''.join(f' bcd3 {300 if symbol=="POTION" else 200} ; {symbol}\n' for symbol in SYMBOLS[1:]),
       'data/items/key_items.asm':''.join(f' dbit {"TRUE" if symbol in key else "FALSE"} ; {symbol}\n' for symbol in SYMBOLS[1:]),
-      'data/items/names.asm':''.join(f' li "{symbol}"\n' for symbol in SYMBOLS[1:]),
+      'data/items/names.asm':''.join(f' li "{g.DISPLAY_NAMES[symbol][0] if symbol in g.DISPLAY_NAMES else symbol}"\n' for symbol in SYMBOLS[1:]),
       'data/items/tm_prices.asm':''.join(f' nybble {3 if n==1 else 1} ; TM{n:02}\n' for n in range(1,51)),
       'data/items/marts.asm':''.join(f'Mart{n}::\n script_mart POKE_BALL, POTION\n' for n in range(14))+'UnusedMartClerkText::\n script_mart BICYCLE\n',
       '001_Settings.rb':'REBALANCED_HEALING_ITEM_AMOUNTS = (MECHANICS_GENERATION >= 7)\n',
@@ -42,6 +42,19 @@ class ItemGeneratorTests(unittest.TestCase):
     def test_render_stable_and_does_not_omit_unsupported(self):
         text=g.render(fixture());self.assertEqual(text,g.render(fixture()))
         self.assertIn('ppUp = ',text);self.assertIn('["effect"] = "unsupported"',text)
+    def test_three_ascii_display_adaptations_preserve_exact_original_source_names(self):
+        items,_,_=g.collect(fixture())
+        for symbol,(original,display) in g.DISPLAY_NAMES.items():
+            item=items[g.camel(symbol)]
+            self.assertEqual(item['name'],display);self.assertTrue(item['name'].isascii())
+            self.assertEqual(item['sourceName'],original)
+        self.assertEqual(sum('sourceName'in value for value in items.values()),3)
+        self.assertNotIn('sourceName',items['potion'])
+    def test_unknown_unicode_or_changed_original_label_requires_explicit_review(self):
+        raw=fixture();raw['data/items/names.asm']=raw['data/items/names.asm'].replace('POKé BALL','POKéBALL')
+        with self.assertRaisesRegex(g.GenerationError,'original display name'):g.collect(raw)
+        raw=fixture();raw['data/items/names.asm']=raw['data/items/names.asm'].replace('"POTION"','"POTIÓN"')
+        with self.assertRaisesRegex(g.GenerationError,'unreviewed non-ASCII'):g.collect(raw)
     def test_modern_medicine_values_rejected(self):
         raw=fixture();raw['002_Item_Effects.rb']=raw['002_Item_Effects.rb'].replace(': 200,',': 120,')
         with self.assertRaisesRegex(g.GenerationError,'medicine value disagreement'):g.collect(raw)

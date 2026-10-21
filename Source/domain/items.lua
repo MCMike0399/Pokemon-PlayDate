@@ -2,7 +2,7 @@
 -- Import after data/items, domain/inventory, data/pokemon and battle/moves.
 -- Does not own a bag, party, money, battle turn or session.
 Items = {}
-local statuses = {burn=true,poison=true,paralyze=true,sleep=true,freeze=true}
+local statuses = {burn=true,poison=true,badPoison=true,paralyze=true,sleep=true,freeze=true}
 local function integer(value, low, high)
     local n = type(value) == "number" and math.tointeger(value) or nil
     return n and n >= low and n <= high and n or nil
@@ -48,7 +48,7 @@ function Items.planUse(id, mon, moveSlot)
         end
     elseif item.effect == "cure" then
         if mon.hp == 0 then return nil,"no-effect" end
-        plan.clearStatus = mon.status ~= nil and (item.status == "all" or item.status == mon.status)
+        plan.clearStatus = mon.status ~= nil and (item.status == "all" or item.status == mon.status or (item.status == "poison" and mon.status == "badPoison"))
         plan.clearConfusion = item.status == "all" and mon.confusion ~= nil and mon.confusion > 0
     elseif item.effect == "revive" then
         if mon.hp ~= 0 then return nil,"no-effect" end

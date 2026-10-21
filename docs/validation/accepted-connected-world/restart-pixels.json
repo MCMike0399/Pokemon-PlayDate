@@ -1,0 +1,11 @@
+{
+  "expected": "/private/tmp/pokemon-connected-regression-01/07-save-restart-viridian/processes/0001/frames/parcel-game-saved.png",
+  "actual": "/private/tmp/pokemon-connected-regression-01/07-save-restart-viridian/processes/0002/frames/viridian-continued.png",
+  "equal": true,
+  "changed_pixels": 0,
+  "rgb_pixels": 0,
+  "alpha_pixels": 0,
+  "bbox": null,
+  "rgb_bbox": null,
+  "alpha_bbox": null
+}

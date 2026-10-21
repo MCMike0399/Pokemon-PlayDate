@@ -3,7 +3,7 @@
 -- outside battle; stat stages/confusion/flinch are intentionally transient.
 PokemonCodec = { VERSION = 3 }
 local MAX_INTEGER = 2147483647 -- Installed SDK signed-int ceiling; no float counter coercion.
-local statuses = { none=true, burn=true, poison=true, paralyze=true, sleep=true, freeze=true }
+local statuses = { none=true, burn=true, poison=true,badPoison=true, paralyze=true, sleep=true, freeze=true }
 local fields = {version=true,species=true,name=true,level=true,xp=true,hp=true,status=true,statusTurns=true,sleepDuration=true,
     moves=true,pp=true,pendingMoveChoices=true,nextMoveChoiceId=true}
 local choiceFields = {id=true,move=true,level=true,sourceOrder=true,sourceMoveId=true,reason=true}

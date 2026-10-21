@@ -1,0 +1,181 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "party_pokemon": [
+          {
+            "species": "bulbasaur",
+            "level": 5
+          }
+        ],
+        "pokedex_seen": [
+          "ivysaur"
+        ],
+        "quest_flags": {
+          "EVENT_GOT_POKEDEX": true
+        }
+      }
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 90
+    },
+    {
+      "op": "assert",
+      "path": "pause.menu.options.1",
+      "equals": "POKEDEX"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pokedex",
+      "frames": 90
+    },
+    {
+      "op": "assert",
+      "path": "pokedex.selected",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "pokedex.owned",
+      "equals": true
+    },
+    "shot pokedex-first-owned-list",
+    "press a",
+    {
+      "op": "assert",
+      "path": "pokedex.phase",
+      "equals": "entry"
+    },
+    "shot pokedex-owned-entry",
+    "press b",
+    "press down",
+    {
+      "op": "assert",
+      "path": "pokedex.species",
+      "equals": "ivysaur"
+    },
+    {
+      "op": "assert",
+      "path": "pokedex.seen",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "pokedex.owned",
+      "equals": false
+    },
+    "shot pokedex-seen-list",
+    "press a",
+    "shot pokedex-seen-entry",
+    "press b",
+    "press down",
+    {
+      "op": "assert",
+      "path": "pokedex.seen",
+      "equals": false
+    },
+    "press a",
+    {
+      "op": "assert",
+      "path": "pokedex.phase",
+      "equals": "list"
+    },
+    "shot pokedex-unseen",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    "press right",
+    {
+      "op": "assert",
+      "path": "pokedex.selected",
+      "equals": 151
+    },
+    "shot pokedex-last",
+    "press down",
+    "press right",
+    {
+      "op": "assert",
+      "path": "pokedex.selected",
+      "equals": 151
+    },
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press left",
+    "press up",
+    "press up",
+    "press up",
+    "press up",
+    "press up",
+    "press up",
+    {
+      "op": "assert",
+      "path": "pokedex.selected",
+      "equals": 1
+    },
+    "press up",
+    "press left",
+    {
+      "op": "assert",
+      "path": "pokedex.selected",
+      "equals": 1
+    },
+    "shot pokedex-first-boundary",
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 90
+    }
+  ],
+  "outputs": [
+    "pokedex-first-owned-list.png",
+    "pokedex-owned-entry.png",
+    "pokedex-seen-list.png",
+    "pokedex-seen-entry.png",
+    "pokedex-unseen.png",
+    "pokedex-last.png",
+    "pokedex-first-boundary.png"
+  ]
+}

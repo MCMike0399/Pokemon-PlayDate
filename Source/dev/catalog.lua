@@ -24,6 +24,20 @@ local function render(w, h, background, draw)
     return image
 end
 
+-- Only newly added compiled capture bitmaps need materialization before raw
+-- Simulator export. Drawing honors the loaded image's logical padding; export
+-- disagrees for these loaded images on SDK3.1.2 (observed). The suspected
+-- trimmed-storage cause is not a documented SDK guarantee. Never touch factories.
+function VisualCatalog.materializeCaptureImage(image)
+    local w,h=image:getSize()
+    local logical=render(w,h,gfx.kColorClear,function() image:draw(0,0) end)
+    -- All nine pinned PNGs store white RGB beneath alpha0. A clear SDK canvas
+    -- exports black RGB there; preserve exact source bytes, not only visibility.
+    local output=render(w,h,gfx.kColorWhite,function() image:draw(0,0) end)
+    output:setMaskImage(assert(logical:getMaskImage(),"capture logical mask missing"))
+    return output
+end
+
 -- Reversible UTF-8 byte encoding; allocation IDs never enter added filenames.
 local function stableName(key)
     assert(type(key)=="string" and #key>0 and #key<=100,"stable content key required (1..100 bytes)")
@@ -63,13 +77,32 @@ local function importedMapName(zone) return "map_imported_"..stableName(zone.sta
 local originalNPC={oak=true,rival=true,mom=true,daisy=true}
 -- Pure inventory seam for root SDK contracts and independent host coverage.
 function VisualCatalog.additionInventory()
-    local result={images={},tiles={},npcs={},maps={}}
+    local result={images={},tiles={},npcs={},maps={},event_art={},runtime_art={}}
     local function add(name,category,backgrounds)
         result.images[#result.images+1]={path=name..".png",category=category,mask=false}
         result.images[#result.images+1]={path=name.."__mask.png",category=category,mask=true}
         if backgrounds then for _,bg in ipairs({"white","black","texture"}) do
             result.images[#result.images+1]={path=name.."__"..bg..".png",category=category.."-background",mask=false}
         end end
+    end
+    if EventArt then
+        assert(type(EventArt.catalogInventory)=="function","EventArt catalog seam required")
+        for _,entry in ipairs(EventArt.catalogInventory()) do
+            add(entry.name,"event-character",true);result.event_art[#result.event_art+1]=entry
+        end
+    end
+    if CaptureAnimationData then
+        for _,name in ipairs(keys(CaptureAnimationData.assets)) do
+            assert(name:match("^[a-z0-9-]+$"),"unsafe capture asset key")
+            add("capture_"..name,"capture-animation",true)
+            result.runtime_art[#result.runtime_art+1]={path="capture_"..name..".png",source_id="pokered:battle-capture:"..name,
+                source_path=CaptureAnimationData.assets[name]..".png",phase_policy="original-OAM-monochrome-2x"}
+        end
+    end
+    if Player.getJumpShadowImage then
+        add("jump_shadow","jump-shadow",true)
+        result.runtime_art[#result.runtime_art+1]={path="jump_shadow.png",source_id="pokered:ledge-shadow:four-oam-quarters",
+            source_path="gfx/overworld/shadow.png",phase_policy="black-white-phase-independent"}
     end
     local entries=importedTiles()
     for _,key in ipairs(keys(entries)) do
@@ -107,7 +140,7 @@ end
 function VisualCatalog.write(outputDir)
     assert(playdate.isSimulator and playdate.simulator, "catalog requires Simulator")
     assert(type(outputDir) == "string" and outputDir:sub(1, 1) == "/", "absolute output directory required")
-    local manifest = { schema = 1, images = {}, missing = {}, maps = {}, tiles = {}, source_npcs = {},
+    local manifest = { schema = 1, images = {}, missing = {}, maps = {}, tiles = {}, source_npcs = {}, event_art = {}, runtime_art = {},
         added_inventory = VisualCatalog.additionInventory(),
         phase = { waterShifts = {0,1,2,3,4,3,2,1}, flowerFrames = {1,2,3,1}, map = "initial factory phase; current zone definitions" },
         limitations = { "Static catalog does not replace frame-sequence journeys.",
@@ -186,6 +219,28 @@ function VisualCatalog.write(outputDir)
                         source_revision=source.source_revision,standing=entry.standing,fixed=entry.fixed,pattern_phase={0,0}}
                 end
             end
+        end
+        if EventArt then
+            assert(type(EventArt.catalogImages)=="function","EventArt catalog seam required")
+            for _,entry in ipairs(EventArt.catalogImages()) do
+                asset(entry.name,entry.image,"event-character",true)
+                local metadata={}
+                for field,value in pairs(entry) do if field~="image" then metadata[field]=value end end
+                manifest.event_art[#manifest.event_art+1]=metadata
+            end
+        end
+        if CaptureAnimationData then
+            for _,name in ipairs(keys(CaptureAnimationData.assets)) do
+                local image=assert(gfx.image.new(CaptureAnimationData.assets[name]),"capture animation image missing")
+                asset("capture_"..name,VisualCatalog.materializeCaptureImage(image),"capture-animation",true)
+                manifest.runtime_art[#manifest.runtime_art+1]={path="capture_"..name..".png",source_id="pokered:battle-capture:"..name,
+                    source_path=CaptureAnimationData.assets[name]..".png",source_revision="af519899719f0754965776faac0e836a3b906e6d",phase_policy="original-OAM-monochrome-2x"}
+            end
+        end
+        if Player.getJumpShadowImage then
+            asset("jump_shadow",Player.getJumpShadowImage(),"jump-shadow",true)
+            manifest.runtime_art[#manifest.runtime_art+1]={path="jump_shadow.png",source_id="pokered:ledge-shadow:four-oam-quarters",
+                source_path="gfx/overworld/shadow.png",source_revision=KantoJumpData.revision,phase_policy="black-white-phase-independent"}
         end
         if Player.getExitArrowImages then
             for _, dir in ipairs({"down", "up", "left", "right"}) do asset("exit_arrow_" .. dir, Player.getExitArrowImages()[dir], "terrain", true) end

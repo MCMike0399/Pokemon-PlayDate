@@ -239,7 +239,7 @@ function ModifyStat:apply(battle)
 end
 
 local STATUS_NAMES <const> = {
-    burn = "was burned", poison = "was poisoned", paralyze = "is paralyzed",
+    burn = "was burned", poison = "was poisoned", badPoison = "was badly poisoned", paralyze = "is paralyzed",
     sleep = "fell asleep", freeze = "was frozen",
 }
 
@@ -249,7 +249,7 @@ local function immuneToStatus(pokemon, status)
         return pokemon.type == t or pokemon.type2 == t
     end
     if status == "burn" then return hasType("fire") end
-    if status == "poison" then return hasType("poison") or hasType("steel") end
+    if status == "poison" or status == "badPoison" then return hasType("poison") or hasType("steel") end
     if status == "freeze" then return hasType("ice") end
     return false
 end
@@ -275,11 +275,18 @@ function ApplyStatus:apply(battle)
         return
     end
 
-    if pokemon.status then return end   -- already afflicted: silently no-op
-    if immuneToStatus(pokemon, self.status) then return end
+    if pokemon.status then
+        if self.status=="badPoison" then battle:say("But it failed!") end
+        return
+    end
+    if immuneToStatus(pokemon, self.status) then
+        if self.status=="badPoison" then battle:say("It doesn't affect "..pokemon.name.."...") end
+        return
+    end
     -- Sample before committing durable fields; RNG exhaustion cannot leave an
     -- asleep Pokemon without its original duration.
     local duration = self.status == "sleep" and RulesRNG.random(1, 3) or 0
+    if battle.conditions then battle.conditions:of(pokemon).toxic=nil end
     pokemon.status = self.status
     pokemon.statusTurns = duration
     pokemon.sleepDuration = duration
@@ -306,6 +313,7 @@ function DirectDamage:apply(battle)
     local before = pokemon.hp
     pokemon:takeDamage(damage)
     battle.lastDamage = before - pokemon.hp
+    if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 then battle.conditions:rageHit(pokemon) end
     battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
 end
 
@@ -337,6 +345,26 @@ function PsywaveDamage:apply(battle)
     local before = defender.hp
     defender:takeDamage(amount)
     battle.lastDamage = before - defender.hp
+    if battle.conditions and battle.lastDamage>0 then battle.conditions:rageHit(defender) end
     battle.isFlashing, battle.flashTimer = true, 6
     battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
 end
+
+-- Dedicated effects delegate transient ownership to this battle only.
+Class("MudSportEffect")
+function MudSportEffect:apply(battle) battle.conditions:mudSport() end
+Class("CurseEffect")
+function CurseEffect:apply(battle) battle.conditions:curse() end
+Class("RageEffect")
+function RageEffect:apply(battle) if battle.attacker:isAlive() then battle.conditions:of(battle.attacker).rage=true end end
+Class("DefenseCurlEffect")
+function DefenseCurlEffect:apply(battle) battle.conditions:of(battle.attacker).defenseCurl=true end
+Class("RapidSpinEffect")
+function RapidSpinEffect:apply(battle) battle.conditions:rapidSpin() end
+Class("LeechSeedEffect")
+function LeechSeedEffect:apply(battle) battle.conditions:leechSeed() end
+Class("PartialTrapEffect")
+function PartialTrapEffect:apply(battle) battle.conditions:trap() end
+Class("EntryHazardEffect")
+function EntryHazardEffect:init(kind) self.kind=kind end
+function EntryHazardEffect:apply(battle) battle.conditions:hazard(self.kind) end

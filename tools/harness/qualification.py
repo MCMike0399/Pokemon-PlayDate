@@ -12,6 +12,28 @@ import time
 from tools.harness.protocol import Client, ProtocolError, atomic_json
 
 
+def unicode_error_roundtrip(client):
+    """A real literal-UTF8 expected value must survive a deliberate SDK error."""
+    expected = "é"
+    try:
+        client.send([{'op':'assert','path':'story.stage','equals':expected}])
+    except ProtocolError as error:
+        assert 'assertion' in str(error) and expected in str(error), str(error)
+    else:
+        raise AssertionError('controlled Unicode mismatch was accepted')
+    failed = client.read('result.json')
+    assert failed and failed.get('status') == 'error' and expected in failed.get('error',''), failed
+    wire = (client.data / 'result.json').read_bytes()
+    wire.decode('utf-8')  # strict: malformed E9 must remain a failure
+    assert b'\xc3\xa9' in wire, 'Unicode error did not contain literal UTF8'
+    assert client._pending_id is None, 'terminal Unicode error did not release request barrier'
+    recovered = client.recover(timeout=5)
+    following = client.send(['gamestate'])
+    assert recovered['status'] == following['status'] == 'ok'
+    return {'expected':expected,'error':failed['error'],'failed_id':failed['id'],
+            'recovery_id':recovered['id'],'following_id':following['id'],'encoding':'strict UTF8'}
+
+
 def run(client, evidence_dir, sdk):
     evidence = Path(evidence_dir) / 'qualification'
     evidence.mkdir()
@@ -93,6 +115,7 @@ def run(client, evidence_dir, sdk):
     test('invalid command returns failure', lambda: expect_failure(lambda: client.send(['qualification_unknown_command']), 'invalid command'))
     test('assertion failure returns failure', lambda: expect_failure(lambda: client.send([{'op': 'assert', 'path': 'zone', 'equals': 'impossible-zone'}]), 'assertion'))
     test('invalid-command and assertion recovery', recover)
+    test('literal-UTF8 mismatch error stays parseable and next requests recover', lambda: unicode_error_roundtrip(client))
 
     def stale_reply():
         atomic_json(client.data / 'result.json', client.envelope(id='stale-ack', status='ok', results=[], snapshot={}))

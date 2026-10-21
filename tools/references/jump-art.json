@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "files": {
+    "engine/overworld/player_animations.asm": "73aa2824e0340db2b54aa38f3dd2200f72ace80428770b70e0f5ff6ddf04a0e7",
+    "engine/overworld/ledges.asm": "dd419d706a8af9e75f1ed1d8b6249055ea94473b1dcf22a9ac453f6b655b1a6f",
+    "gfx/overworld/shadow.png": "9be4880fed0a10165d22a21d6ccb76c050bbf1958c209e0f27c445ef38431afd",
+    "home/oam.asm": "601177b3dae9b5d9a399345214bcbab67611dc1c9b75940344f8f19c7c6970ff",
+    "engine/gfx/sprite_oam.asm": "d6daebd7c5a4666d05c81cbdd2d58776a1ce3f3fadd97f9f58f68fb539d878fc",
+    "home/overworld.asm": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a",
+    "engine/overworld/auto_movement.asm": "51132df663914861ac176733a764788e1db1d96f27d830952279338cc7633379"
+  },
+  "adaptation": "16native updates at30FPS; two existing8-update cells, source vertical offsets2x; original quarter shadow mirrored according OAM"
+}

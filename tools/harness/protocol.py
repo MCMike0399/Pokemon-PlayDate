@@ -75,8 +75,10 @@ def atomic_json(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
-    with temporary.open('w') as stream:
-        json.dump(value, stream, sort_keys=True)
+    with temporary.open('w', encoding='utf-8') as stream:
+        # SDK JSON's \u escape path can emit non-UTF8 single bytes (e.g. E9).
+        # Publish literal UTF8 so accented production text survives exactly.
+        json.dump(value, stream, sort_keys=True, ensure_ascii=False)
         stream.flush()
         os.fsync(stream.fileno())
     os.replace(temporary, path)
@@ -144,7 +146,7 @@ class Client:
         if not path.exists():
             return None
         try:
-            result = json.loads(path.read_text())
+            result = json.loads(path.read_text(encoding='utf-8'))
         except (ValueError, OSError) as error:
             raise ProtocolError(f'malformed {filename}: {error}') from error
         if not isinstance(result, dict):

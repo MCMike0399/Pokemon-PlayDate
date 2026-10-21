@@ -50,11 +50,17 @@ import "game/titleState"
 import "game/pauseState"
 import "game/partyState"
 import "game/bagState"
+import "game/shopState"
 import "data/pilotWorld"
 import "world/sliceEvents"
 import "world/sliceSprites"
 import "world/mapBindings"
 import "data/viridianSlice"
+import "game/kantoWorld"
+import "game/eventText"
+import "game/eventArt"
+import "game/eventState"
+import "game/pokedexState"
 import "dev/sliceCatalog"
 import "dev/sliceContracts"
 import "dev/worldContracts"
@@ -71,6 +77,14 @@ import "dev/sessionContracts"
 import "dev/captureContracts"
 import "dev/sessionBridgeContracts"
 import "dev/partyBattleContracts"
+import "dev/shopContracts"
+import "dev/captureAnimationContracts"
+import "dev/traversalContracts"
+import "dev/eventContracts"
+import "dev/eventCatalogContracts"
+import "dev/pokedexContracts"
+import "dev/earlyCombatContracts"
+import "dev/runtimeArtContracts"
 Contracts.register("learnsets", LearnsetContracts.run)
 Contracts.register("collections", PartyContracts.run)
 Contracts.register("learning", LearningContracts.run)
@@ -85,6 +99,14 @@ Contracts.register("capture", CaptureContracts.run)
 Contracts.register("viridian-slice", SliceContracts.run)
 Contracts.register("session-bridge", SessionBridgeContracts.run)
 Contracts.register("party-battle", PartyBattleContracts.run)
+Contracts.register("shop", ShopContracts.run)
+Contracts.register("capture-animation", CaptureAnimationContracts.run)
+Contracts.register("traversal", TraversalContracts.run)
+Contracts.register("event-ui", EventContracts.run)
+Contracts.register("event-catalog", EventCatalogContracts.run)
+Contracts.register("pokedex", PokedexContracts.run)
+Contracts.register("early-combat", EarlyCombatContracts.run)
+Contracts.register("runtime-art", RuntimeArtContracts.run)
 import "dev/catalog"
 import "dev/harness_build"
 import "dev/harness_capture"
@@ -100,7 +122,7 @@ end
 
 -- Shared context: root machine, camera, npc manager, player, player pokemon.
 -- Global so dev tooling (autopilot, debug) can reach it.
-game = GameContext()
+game = GameContext({sessionLocationPolicy=KantoWorld.locationPolicy()})
 
 local machine <const> = game.machine
 machine:register("overworld", OverworldState(game))
@@ -112,6 +134,10 @@ machine:register("title", TitleState(game))
 machine:register("pause", PauseState(game))
 machine:register("party", PartyState(game))
 machine:register("bag", BagState(game))
+machine:register("shop", ShopState(game))
+machine:register("event", EventState(game))
+machine:register("pokedex", PokedexState(game))
+KantoWorld.install(game)
 game.saves = GameSaves(game)
 
 -- Debug menu rides on top of the overworld via the system menu

@@ -22,12 +22,23 @@ local function fields(value, allowed)
 end
 local function prepare(options)
     fields(options, {seed=true,intro=true,zone=true,entry=true,opening=true,player_pokemon=true,
-        party_pokemon=true,inventory=true,quest_flags=true,grant_xp=true,adjust_battle=true})
+        party_pokemon=true,inventory=true,quest_flags=true,grant_xp=true,adjust_battle=true,pokedex_seen=true})
     assert(options.opening == nil or type(options.opening) == "boolean", "invalid opening fixture flag")
     assert(options.grant_xp == nil or type(options.grant_xp) == "table", "invalid XP fixture")
     assert(options.adjust_battle == nil or type(options.adjust_battle) == "table", "invalid battle fixture")
     assert(not (options.party_pokemon ~= nil and options.player_pokemon ~= nil), "choose a single Pokemon or party fixture")
     local prepared = {}
+    if options.pokedex_seen ~= nil then
+        assert(Party._array(options.pokedex_seen,151), "Pokedex seen fixture requires a dense array")
+        prepared.pokedexSeen = {}
+        local seen = {}
+        for i, species in ipairs(options.pokedex_seen) do
+            assert(type(species)=="string" and pokemonData[species], "unknown Pokedex fixture species")
+            assert(not seen[species], "duplicate Pokedex fixture species")
+            seen[species] = true
+            prepared.pokedexSeen[i] = species
+        end
+    end
     local roster = options.party_pokemon
     if options.player_pokemon ~= nil then roster = {options.player_pokemon} end
     if roster ~= nil then
@@ -41,7 +52,7 @@ local function prepare(options)
             if spec.hp ~= nil then assert(integer(spec.hp,0,mon.maxHP), "invalid fixture HP"); mon.hp = spec.hp end
             if spec.status ~= nil then
                 assert(spec.status=="none" or spec.status=="sleep" or spec.status=="freeze"
-                    or spec.status=="poison" or spec.status=="burn" or spec.status=="paralyze", "invalid fixture status")
+                    or spec.status=="poison" or spec.status=="badPoison" or spec.status=="burn" or spec.status=="paralyze", "invalid fixture status")
                 mon.status = spec.status ~= "none" and spec.status or nil
             end
             mon.statusTurns = spec.status_turns == nil and 0 or spec.status_turns
@@ -114,6 +125,7 @@ function HarnessFixtures.reset(game, options)
         if prepared.questFlags then data.questFlags = prepared.questFlags end
         assert(game:installSession(assert(SessionCodec.decode(data,game:getSessionDependencies()))))
     end
+    for _, species in ipairs(prepared.pokedexSeen or {}) do assert(game.session:markSeen(species)) end
     if options.grant_xp then
         local mon = assert(game:getPlayerPokemon(), "XP fixture requires a player Pokemon")
         local xp = options.grant_xp

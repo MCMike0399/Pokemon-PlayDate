@@ -20,7 +20,16 @@
 | Oak parcel scene | Original lab coordinates and receipt order | Adapt actor paths/transient Dex art to authored lab; defer receipt text until atomic commit | Preserve layout and prevent false reward claims on cancellation | Staged event UI; native acceptance pending |
 | Save records | No preexisting aggregate save format in this project | Explicit codec version boundaries, no guessed XP/sleep migration | Reject unreleased incompatible records safely | Real two-process Save/Continue preserves file hash and exact scene |
 | Species availability | Exclusives/trading/event Mew | Technical support differs from natural Blue availability | Avoid falsely claiming link/event availability | Policy to resolve before corresponding content |
-| Abilities/items/weather | Gen V dependencies exceed current engine | Explicit feature policy required before exposing dependent content | Prevent successful no-op moves | Unresolved implementation work; no blanket Gen V certification |
+| Abilities, held items, natures | Absent from original Red/Blue | Add Gen V/B2W2 behavior for the original151 | Explicit user choice on 2026-10-20: “Add abilities, held items, and natures” | Required implementation, UI, persistence and regression work; not yet accepted |
+| Weather and dependent effects | Gen V moves introduce dependencies beyond the original engine | Implement the dependencies of enabled moves, abilities and held items | Prevent successful no-op effects | Unresolved implementation work; no blanket Gen V certification |
+
+The abilities/held-items/natures decision extends the gameplay enhancement policy.
+It does not authorize later species, Fairy, Mega Evolution, a changed Kanto story,
+or replacement of the protected visual style. Existing saves need explicit
+migration rules; new specimen generation, evolution, menus, storage, capture and
+battle ordering must agree on the new attributes. Availability of later held
+items and hidden abilities needs a documented acquisition policy rather than
+invented original-world rewards.
 
 Source references for future content must be pinned and independently checked.
 The prior research audit is a starting investigation, not an acceptance oracle.

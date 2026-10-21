@@ -6,7 +6,7 @@ local MAX_RATE <const> = 1044480 -- 255 *4096
 local balls = {pokeBall=2,greatBall=3,ultraBall=4,masterBall=0} -- half units
 local types = {normal=true,fire=true,water=true,electric=true,grass=true,ice=true,fighting=true,
     poison=true,ground=true,flying=true,psychic=true,bug=true,rock=true,ghost=true,dragon=true,dark=true,steel=true}
-local statusBonus = {burn=3,poison=3,paralyze=3,sleep=5,freeze=5} -- half units
+local statusBonus = {burn=3,poison=3,badPoison=3,paralyze=3,sleep=5,freeze=5} -- half units
 local function integer(value,low,high)
     local n=type(value)=="number" and math.tointeger(value) or nil
     return n and n>=low and n<=high and n or nil

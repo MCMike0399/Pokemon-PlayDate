@@ -1,0 +1,198 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "party_pokemon": [
+          {
+            "species": "charmander",
+            "level": 5
+          }
+        ],
+        "inventory": {
+          "slots": [
+            {
+              "id": "pokeBall",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    "battle rattata 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "tackle": 35,
+            "tailWhip": 0,
+            "quickAttack": 0
+          }
+        }
+      }
+    },
+    "seed 62594",
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "battle",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "script",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.capture_result.caught",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "battle.capture_result.shakeRolls.1",
+      "equals": 49802
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.pokeBall",
+      "equals": 0
+    },
+    {
+      "op": "await",
+      "path": "battle.capture_animation.phase",
+      "equals": "throw",
+      "frames": 10
+    },
+    {
+      "op": "assert",
+      "path": "battle.capture_animation.done",
+      "equals": false
+    },
+    "shot capture-fail-throw",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.message",
+      "equals": "RED threw a POKE BALL!"
+    },
+    {
+      "op": "assert",
+      "path": "battle.phase",
+      "equals": "script"
+    },
+    {
+      "op": "assert",
+      "path": "battle.capture_animation.done",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.pokeBall",
+      "equals": 0
+    },
+    {
+      "op": "await",
+      "path": "battle.capture_animation.phase",
+      "equals": "absorb",
+      "frames": 40
+    },
+    "shot capture-fail-absorb",
+    {
+      "op": "await",
+      "path": "battle.capture_animation.phase",
+      "equals": "breakout",
+      "frames": 80
+    },
+    "record capture-fail-breakout 8",
+    {
+      "op": "await",
+      "path": "battle.capture_animation.done",
+      "equals": true,
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    "shot party-capture-failed",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.tackle",
+      "equals": 34
+    },
+    {
+      "op": "assert",
+      "path": "party.count",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.xp",
+      "equals": 135
+    },
+    "shot party-capture-enemy-response"
+  ],
+  "outputs": [
+    "party-capture-failed.png",
+    "party-capture-enemy-response.png",
+    "capture-fail-throw.png",
+    "capture-fail-absorb.png",
+    "capture-fail-breakout-01.png"
+  ]
+}

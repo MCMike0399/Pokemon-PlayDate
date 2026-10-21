@@ -1,0 +1,19 @@
+{
+  "status": "functional native evidence; broader visual/release acceptance separate",
+  "run": "pokemon-parcel-natural-04",
+  "archive_sha256": "378b3bb5c02d3f583ccb27ac1a9d3e31fe89d562c24eb0cca9e23441f4a61e7f",
+  "natural": true,
+  "initial_fixture": "seed42 only",
+  "wild_encounters": 3,
+  "root_visual_review": [
+    "Mart source walk/parcel receipt",
+    "BLUE source arrival/departure",
+    "shop purchase",
+    "healing/save"
+  ],
+  "pending": [
+    "healing modal composition polish",
+    "trainer initial payout/heal correction in next slice",
+    "expanded catalog raw bitmap export repair"
+  ]
+}

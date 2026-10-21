@@ -95,6 +95,12 @@
     },
     "shot party-capture-failed",
     "wait 12",
+    {
+      "op": "await",
+      "path": "battle.capture_animation.done",
+      "equals": true,
+      "frames": 300
+    },
     "press a",
     "wait 12",
     "press a",

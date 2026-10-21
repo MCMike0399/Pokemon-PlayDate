@@ -1,0 +1,45 @@
+{
+  "journey": {
+    "name": "parcel-visibility-checkpoint-supplementary",
+    "supplementary": true,
+    "seed": 42,
+    "fixture_options": {
+      "seed": 42,
+      "intro": "skip",
+      "opening": false,
+      "zone": "kanto_viridian_city",
+      "entry": {
+        "x": 20,
+        "y": 30,
+        "facing": "up"
+      },
+      "inventory": {
+        "money": 3000,
+        "slots": []
+      },
+      "quest_flags": {
+        "EVENT_GOT_OAKS_PARCEL": false,
+        "EVENT_OAK_GOT_PARCEL": false,
+        "EVENT_GOT_POKEDEX": false
+      },
+      "party_pokemon": [
+        {
+          "species": "squirtle",
+          "level": 5,
+          "hp": 1,
+          "status": "poison",
+          "status_turns": 0
+        },
+        {
+          "species": "charmander",
+          "level": 5,
+          "hp": 2,
+          "status": "sleep",
+          "status_turns": 2,
+          "sleep_duration": 2
+        }
+      ]
+    }
+  },
+  "acceptance_status": "supplementary fixture scenario; native verification required"
+}

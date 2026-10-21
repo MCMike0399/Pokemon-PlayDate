@@ -39,7 +39,9 @@ No Lua parsing or transpilation is used.
 The protected Pallet +/-1 seam comes from the reviewed map-pilot reference;
 Route1/City +/-10 comes from original header metadata. Crossings verify those
 projections before sending input. Only explicit source edge doors or supported
-connections may cross zones. Runtime mismatches fail with the ordinary request,
+connections may cross zones. Imported bottom-row interior doors preserve the explicit outward-input usability adaptation: standing on the mat does not exit; the driver presses down once. First Mart entry uses the real door marker, including full-bag supplementary setup; Continue never fabricates that marker. Ledge steps wait for the full sixteen native updates.
+
+Runtime mismatches fail with the ordinary request,
 snapshot, trace and capture evidence.
 
 Offline action plan, with **no Simulator launch**:

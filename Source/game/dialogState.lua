@@ -13,9 +13,11 @@ function DialogState:init(game)
     self.dialog = Dialog()
     self.onComplete = nil
     self.done = false
+    self.generation = 0
 end
 
 function DialogState:enter(lines, onComplete)
+    self.generation = self.generation + 1
     self.onComplete = onComplete
     self.done = false
     self.dialog:show(lines, function()

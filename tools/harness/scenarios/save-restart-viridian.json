@@ -1,0 +1,309 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "intro": "skip",
+              "opening": false,
+              "seed": 42,
+              "zone": "kanto_viridian_center",
+              "entry": {
+                "x": 3,
+                "y": 3,
+                "facing": "up"
+              },
+              "party_pokemon": [
+                {
+                  "species": "squirtle",
+                  "level": 6,
+                  "hp": 4,
+                  "pp": {
+                    "tackle": 27,
+                    "tailWhip": 30
+                  }
+                }
+              ],
+              "inventory": {
+                "money": 2800,
+                "slots": [
+                  {
+                    "id": "pokeBall",
+                    "quantity": 1
+                  }
+                ]
+              },
+              "quest_flags": {
+                "EVENT_GOT_OAKS_PARCEL": true,
+                "EVENT_OAK_GOT_PARCEL": true,
+                "EVENT_GOT_POKEDEX": true
+              }
+            }
+          }
+        ],
+        [
+          "press up",
+          "wait 2"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "record parcel-event-04-heal-animation 71"
+        ],
+        [
+          "wait 3"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "shot healing-complete"
+        ],
+        [
+          "press b"
+        ],
+        [
+          "press down"
+        ],
+        [
+          "press down"
+        ],
+        [
+          "press down"
+        ],
+        [
+          "press down"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "press a"
+        ],
+        [
+          "shot parcel-game-saved"
+        ],
+        [
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "kanto_viridian_center"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "player.facing",
+            "equals": "up"
+          },
+          {
+            "op": "assert",
+            "path": "session.checkpoint.zone_id",
+            "equals": "pokered:VIRIDIAN_CITY"
+          },
+          {
+            "op": "assert",
+            "path": "session.checkpoint.x",
+            "equals": 23
+          },
+          {
+            "op": "assert",
+            "path": "session.checkpoint.y",
+            "equals": 26
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.hp",
+            "equals": 21
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.pp.tackle",
+            "equals": 35
+          },
+          {
+            "op": "assert",
+            "path": "inventory.money",
+            "equals": 2800
+          },
+          {
+            "op": "assert",
+            "path": "inventory.quantities.pokeBall",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_GOT_POKEDEX",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_OAK_GOT_PARCEL",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "pause.lastSave.ok",
+            "equals": true
+          }
+        ]
+      ],
+      "outputs": [
+        "parcel-game-saved.png",
+        "healing-complete.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "title"
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 60
+          },
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "kanto_viridian_center"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "player.facing",
+            "equals": "up"
+          },
+          {
+            "op": "assert",
+            "path": "session.checkpoint.zone_id",
+            "equals": "pokered:VIRIDIAN_CITY"
+          },
+          {
+            "op": "assert",
+            "path": "session.checkpoint.x",
+            "equals": 23
+          },
+          {
+            "op": "assert",
+            "path": "session.checkpoint.y",
+            "equals": 26
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.hp",
+            "equals": 21
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.pp.tackle",
+            "equals": 35
+          },
+          {
+            "op": "assert",
+            "path": "inventory.money",
+            "equals": 2800
+          },
+          {
+            "op": "assert",
+            "path": "inventory.quantities.pokeBall",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_GOT_POKEDEX",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_OAK_GOT_PARCEL",
+            "equals": true
+          },
+          "shot viridian-continued"
+        ]
+      ],
+      "outputs": [
+        "viridian-continued.png"
+      ]
+    }
+  ],
+  "provenance": "Supplementary initial fixture; healing and Save input sequence from natural04 requests647..674, retained as separate requests; second process reuses same private durable files."
+}

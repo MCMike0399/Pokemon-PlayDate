@@ -1,0 +1,23 @@
+{
+  "status": "accepted bounded early-combat slice; full campaign incomplete",
+  "revision": "6036974134e11e210c7c9735b77758c1dcf5b4fa",
+  "source_sha256": "07b57637389ab5b4b1b2c4c77c05e1dd8dc5b8719766a070294fe423c4b2d622",
+  "sdk_version": "3.1.2",
+  "sdk_contracts": 335,
+  "native_jobs": 6,
+  "same_source": true,
+  "protected_images_equal": 915,
+  "new_catalog_additions_review_complete": false,
+  "root_review": [
+    "conditions owner and battle/DSL/generator/codec/item/capture hooks",
+    "pinned primary source ordering and literal damage/status vectors",
+    "native Mud Sport, Curse, Rage, five-hit Rollout, Leech Seed and Rapid Spin screenshots"
+  ],
+  "artifact_sha256": "895834d392f6f84c421e3308203dcf131e1562466f19edcba60312393d3f7501",
+  "limitations": [
+    "Original larger move library still incomplete",
+    "No abilities/held-items/weather certification",
+    "Not natural Forest/Gym trainer balance evidence",
+    "No physical-device performance claim"
+  ]
+}

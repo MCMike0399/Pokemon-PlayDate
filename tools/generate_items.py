@@ -20,6 +20,7 @@ EXCLUDED={'SURFBOARD':'unused','SAFARI_BALL':'safari-mode-resource','POKEDEX':'d
  'RAINBOWBADGE':'badge-not-bag','SOULBADGE':'badge-not-bag','MARSHBADGE':'badge-not-bag',
  'VOLCANOBADGE':'badge-not-bag','EARTHBADGE':'badge-not-bag','ITEM_2C':'unused','ITEM_32':'unused-duplicate-pp-up','COIN':'game-corner-resource'}
 HEAL={'POTION':20,'SUPER_POTION':50,'HYPER_POTION':200,'FRESH_WATER':50,'SODA_POP':60,'LEMONADE':80}
+DISPLAY_NAMES={"POKE_BALL":("POKé BALL","POKE BALL"),"POKE_DOLL":("POKé DOLL","POKE DOLL"),"POKE_FLUTE":("POKé FLUTE","POKE FLUTE")}
 CURES={'ANTIDOTE':'poison','BURN_HEAL':'burn','ICE_HEAL':'freeze','AWAKENING':'sleep','PARLYZ_HEAL':'paralyze'}
 
 class GenerationError(ValueError):pass
@@ -86,6 +87,11 @@ def collect(raw):
         if identity in items:raise GenerationError('duplicate canonical ID')
         entry={'id':identity,'symbol':symbol,'numericId':numeric,'name':names[numeric-1],
                'keyItem':flags[symbol],'price':prices[symbol],'category':'key' if flags[symbol] else 'item','effect':'unsupported'}
+        if symbol in DISPLAY_NAMES:
+            original,display=DISPLAY_NAMES[symbol]
+            if entry['name']!=original:raise GenerationError('original display name changed: '+symbol)
+            entry['sourceName']=entry['name'];entry['name']=display
+        elif not entry['name'].isascii():raise GenerationError('unreviewed non-ASCII display name: '+symbol)
         if symbol in effects:entry.update(effects[symbol]);entry['category']='medicine'
         if symbol.endswith('_BALL'):entry['category']='ball'
         entry['sellPrice']=entry['price']//2 if not entry['keyItem'] else None

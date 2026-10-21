@@ -16,6 +16,7 @@ The user has explicitly chosen this combination:
 
 - **Red/Blue supplies the world, Kanto geography, story, progression, characters, dialogue identity, visual language, and overall feel.**
 - **Gen V, specifically B2W2 where applicable, supplies enhanced battle mechanics, base stats, the physical/special split, broader movesets, and the 17-type chart including Dark and Steel.** This is intentional. Do not revert combat to Gen I in pursuit of fidelity.
+- **Subsequent explicit user decision, 2026-10-20: add abilities, held items, and natures.** Implement their Gen V/B2W2 behavior for the original 151, including persistence, evolution, menus and battle dependencies. Do not substitute a policy that omits these systems. Keep acquisition and hidden-ability availability explicit without presenting new rewards as original Red/Blue content.
 - Implement Gen V typing accurately for the original roster. Support Dark moves and Steel typing without inventing new typings for familiar species merely to fill every type.
 - Keep the original 151-species scope. Do not silently add later-generation species, Fairy, Mega Evolution, or unrelated modern mechanics. Preserve the existing effectiveness preview and edge-door usability improvements.
 - Use Blue as the working default when Red and Blue differ, following the README's “Pokemon Blue” identity; record this assumption and version-specific decisions. Maintain the original campaign structure while balancing the enhanced combat and learnsets.

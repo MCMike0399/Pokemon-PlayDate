@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "inputs": [
+    {
+      "path": "gfx/battle/move_anim_0.png",
+      "sha256": "912a5ecc0cae9ac583b4e2390c0da1176942cb84b0340c0c65403b4b11f0193d",
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/gfx/battle/move_anim_0.png"
+    },
+    {
+      "path": "data/battle_anims/frame_blocks.asm",
+      "sha256": "91442ddcf364a345c0b62362cb2d82db9a03a3ed6b18e51d97c061d4d404c921",
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/battle_anims/frame_blocks.asm"
+    },
+    {
+      "path": "data/battle_anims/subanimations.asm",
+      "sha256": "4a92ba1657ca7b90fb9861e5738a9c850c2b14503a8188875068f12b4d29de28",
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/battle_anims/subanimations.asm"
+    },
+    {
+      "path": "data/battle_anims/base_coords.asm",
+      "sha256": "bd90902d46d484c47d204695df11c69779567f32c4cfa9a2a3229c3f8626e1d5",
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/battle_anims/base_coords.asm"
+    },
+    {
+      "path": "data/moves/animations.asm",
+      "sha256": "f9840d818512459b094b24ee3402725d71527650544b852d29f0124fed2560f3",
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/data/moves/animations.asm"
+    },
+    {
+      "path": "engine/battle/animations.asm",
+      "sha256": "188abd046daf4f1c8482ed5cc541ffa85edf0681b5205f08dea0e1344b017e4b",
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/engine/battle/animations.asm"
+    }
+  ],
+  "transform": {
+    "sheet_size": [
+      128,
+      40
+    ],
+    "scale": 2,
+    "palette": {
+      "0": 0,
+      "85": 0,
+      "170": 255
+    },
+    "transparent_source_shade": 255,
+    "ultra_master_flash": "exchange85and170 before threshold; original OBP0 complement colors1/2",
+    "geometry": "ASM frame-block 8x8 tile coordinates and exact X/Y flips; nearest2x; no redraw"
+  },
+  "assets": [
+    {
+      "name": "closed",
+      "frame_block": "03",
+      "flash": false,
+      "size": [
+        32,
+        32
+      ],
+      "pixel_sha256": "63ecc5a6552db89a3b4b9bb28a7ab8109908e5f076748efe337431f72e44a7d1",
+      "png_sha256": "3aaa70d4259aefecfbe113169b1f2fdd796a8398386f3ec429b92036234bccac"
+    },
+    {
+      "name": "tilt-left",
+      "frame_block": "04",
+      "flash": false,
+      "size": [
+        32,
+        32
+      ],
+      "pixel_sha256": "1e5c37cf6c0b91263b55b9e5f1784e4eb0ed18afc889759450aad360035ebd4c",
+      "png_sha256": "fddcdff4b2ab6b0d7b2d40c393d383c7df900f60e5fba61479115d831d658603"
+    },
+    {
+      "name": "tilt-right",
+      "frame_block": "05",
+      "flash": false,
+      "size": [
+        32,
+        32
+      ],
+      "pixel_sha256": "95c0848298f94ef098f01dac27ffa7ffef16b7b636990b0c9f583906b7b44677",
+      "png_sha256": "7c8f64bd8dd8b70bc63fb17f9ce953971e3b005ac2a6f6ab9381d2c56228d4a2"
+    },
+    {
+      "name": "poof-1",
+      "frame_block": "06",
+      "flash": false,
+      "size": [
+        64,
+        64
+      ],
+      "pixel_sha256": "bffb8f4eb423a4244fa788fa7c62585d494af88368a3d48552a19e8e3b77c8c8",
+      "png_sha256": "1806bc702ef2f57c8396725bb3f568fbf73dfd2b13734c22a1bed929679c6336"
+    },
+    {
+      "name": "poof-2",
+      "frame_block": "07",
+      "flash": false,
+      "size": [
+        64,
+        64
+      ],
+      "pixel_sha256": "9dfb6ae6ab3d54a924f6fa0991d242b5d8c670bc74898201cda6f962ddc9646a",
+      "png_sha256": "82e7b2e3d3cc902725a3d445c2ad395c2064afb85ddd151218a8da4c5b9fa155"
+    },
+    {
+      "name": "poof-3",
+      "frame_block": "08",
+      "flash": false,
+      "size": [
+        80,
+        80
+      ],
+      "pixel_sha256": "90ae0e344e69a52eca0ea21798bf96e309c9e70bb4dec6f2edf1728f5c89bbbf",
+      "png_sha256": "7829dc9326751fb5f06378dc7803f3e603d728046defa75f256511d2a104b1d2"
+    },
+    {
+      "name": "poof-4",
+      "frame_block": "09",
+      "flash": false,
+      "size": [
+        80,
+        80
+      ],
+      "pixel_sha256": "a8984d9cfa62d2cca8139d222dbb7306c123a293da3eac50c057f2802caf5d7b",
+      "png_sha256": "6a02c85388e7c9519f7e5672ac22076e27134c7f2326673ea813fa9a361bca74"
+    },
+    {
+      "name": "poof-5",
+      "frame_block": "0a",
+      "flash": false,
+      "size": [
+        96,
+        96
+      ],
+      "pixel_sha256": "aac253f243d32be5fbfa6dc3dd9328046a4b7e1ac3add18b5279cc79bbf78a7c",
+      "png_sha256": "a5fc5fe1445ef6d5f1640d6317ddce4623cfee337d6355aec8e691b2e4eea197"
+    },
+    {
+      "name": "closed-flash",
+      "frame_block": "03",
+      "flash": true,
+      "size": [
+        32,
+        32
+      ],
+      "pixel_sha256": "07268e0ca0a028fed37193357aacdc861b5b020af308f1299059ed7e0250743b",
+      "png_sha256": "9e2b5302177fecee64a091a1369eac1bc5ff98822a630d764e753fb90bd4e802"
+    }
+  ],
+  "timing": {
+    "source_fps": 60,
+    "runtime_fps": 30,
+    "throw_gb_frame_hold": {
+      "high": 3,
+      "middle": 3,
+      "low": 2
+    },
+    "poof_gb_frame_hold": 4,
+    "shake_gb_frame_hold": 4,
+    "shake_gb_pause": 40,
+    "drop_ticks": 3,
+    "caught_hold_ticks": 10
+  }
+}

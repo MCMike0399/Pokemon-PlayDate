@@ -152,6 +152,20 @@ def resolve_b2w2(move_row, changelog_rows):
 
 
 def build_effects(key, meta, stat_changes, target_id, is_status):
+    # Pinned Gen V mechanic overrides; modern move_meta includes later changes.
+    concrete={
+        "mudSport": ["MudSportEffect()"], "curse": ["CurseEffect()"],
+        "rage": ["RageEffect()"], "rapidSpin": ["RapidSpinEffect()"],
+        "stringShot": ['ModifyStat(DEFENDER, "spe", -1)'],
+        "defenseCurl": ['ModifyStat(ATTACKER, "def", 1)',"DefenseCurlEffect()"],
+        "leechSeed": ["LeechSeedEffect()"],
+        "spikes": ['EntryHazardEffect("spikes")'],
+        "toxicSpikes": ['EntryHazardEffect("toxicSpikes")'],
+        "stealthRock": ['EntryHazardEffect("stealthRock")'],
+        "toxic": ['ApplyStatus(DEFENDER, "badPoison")'],
+    }
+    if key in concrete:return concrete[key]
+    if key in {"bind","wrap","clamp","fireSpin","whirlpool","sandTomb","magmaStorm"}:return ["PartialTrapEffect()"]
     effects = []
 
     if key in FIXED_DAMAGE:
@@ -250,6 +264,8 @@ def generate_moves(data, preserve_existing=False):
             f"pp = {PP_OVERRIDES.get(key, fields['pp'])}",
             f"targetId = {fields['target_id']}",
         ]
+        if key == "rollout": parts.append("rollout = true")
+        if key == "curse": parts.append("curse = true")
         if key == "struggle":
             parts.extend(["typeless = true", "noPP = true", "struggleRecoil = true"])
         if key == "stormThrow":
@@ -287,6 +303,8 @@ function Move:init(m)
     self.maxPP = m.pp
     self.targetId = m.targetId or 10
     self.priority = m.priority or 0
+    self.rollout = m.rollout or false
+    self.curse = m.curse or false
     self.willCrit = m.willCrit or false
     self.typeless = m.typeless or false
     self.noPP = m.noPP or false
@@ -306,13 +324,19 @@ moveData = {
         new_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", "\n".join(out), re.MULTILINE))
         # The one-time target metadata migration may only add targetId. Once
         # present, even its value must match; other scalars/effects stay exact.
-        def compatible(old, new):
+        effect_updates={"mudSport","curse","rage","rapidSpin","stringShot","rollout","defenseCurl","leechSeed","spikes","toxicSpikes","stealthRock","toxic","bind","wrap","clamp","fireSpin","whirlpool","sandTomb","magmaStorm"}
+        def compatible(key, old, new):
             if new is None:
                 return False
+            if key in effect_updates:
+                def scalar(row):
+                    row=re.sub(r", effects = \{.*", " },", row)
+                    return re.sub(r", (?:rollout|curse) = true", "", row)
+                return scalar(old)==scalar(new)
             if re.search(r", targetId = \d+", old):
                 return old == new
             return old == re.sub(r", targetId = \d+", "", new)
-        changed = [key for key, value in old_rows.items() if not compatible(value, new_rows.get(key))]
+        changed = [key for key, value in old_rows.items() if not compatible(key, value, new_rows.get(key))]
         if changed:
             raise ValueError("refusing unexpected changes to existing move rows: " + ", ".join(changed))
     os.makedirs(os.path.dirname(MOVES_LUA), exist_ok=True)

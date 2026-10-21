@@ -95,10 +95,11 @@ function ExploreSubstate:handleInput()
         player:tryMove(1, 0)
     end
 
-    -- A: story interactions (starter balls) first, then the facing NPC
+    -- A: story interactions first, then source events/counters, then legacy NPCs
     if playdate.buttonJustPressed(playdate.kButtonA) then
         local fx, fy = player:getFacingTile()
         if Story.tryInteract(game, fx, fy) then return end
+        if KantoWorld and KantoWorld.tryInteract(game) then return end
         local npc = game.npcManager:getNPCAt(fx, fy)
         if npc then
             npc:faceTowards(player.gridX, player.gridY)
@@ -209,6 +210,7 @@ function DoorWarpSubstate:update()
         switchZone(door.to)
         self.owner.machine:change("overworld", {
             entry = { x = door.toX, y = door.toY, facing = door.facing },
+            fromDoor = not door.connection,
         })
     end
 end
@@ -284,6 +286,9 @@ function OverworldState:enter(opts)
     game.camera:snapTo(px, py, mw, mh)
 
     self.sub:change("explore")
+    -- StateMachine queues this overlay until enter/change completes, so the
+    -- first Mart event is top before ordinary input, doors or encounters run.
+    if KantoWorld then KantoWorld.onEnter(game,opts) end
 end
 
 function OverworldState:exit()

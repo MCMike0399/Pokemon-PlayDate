@@ -58,7 +58,7 @@ function CaptureContracts.run()
         for _,hp in ipairs({0,-1,65536,1.5}) do local ctx=context();ctx.pokemon.hp=hp;rejected(ctx,"pokeBall",0,"invalid-target-hp") end
         local ctx=context();ctx.pokemon.type="fairy";rejected(ctx,"pokeBall",0,"invalid-pokemon")
         ctx=context();ctx.pokemon.dex=999;rejected(ctx,"pokeBall",0,"invalid-pokemon")
-        ctx=context();ctx.pokemon.status="badPoison";rejected(ctx,"pokeBall",0,"invalid-target-status")
+        ctx=context();ctx.pokemon.status="unknownStatus";rejected(ctx,"pokeBall",0,"invalid-target-status")
         ctx=context();ctx.pokemon.statusTurns=1;rejected(ctx,"pokeBall",0,"invalid-target-status")
     end)
     test("Caught count is distinct original-roster species0 through151",function()

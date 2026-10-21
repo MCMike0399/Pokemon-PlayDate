@@ -26,10 +26,10 @@ DEPENDENCIES = {
                  "session.inventory.money", "session.party.members", "session.party.active", "session.checkpoint"],
     "ui": {"battle.menu": ["selected", "options", "columns"], "event": ["id", "phase", "waiting", "menu.selected"],
            "shop": ["phase", "selected", "item", "quantity", "result"],
-           "pause": ["phase", "selected", "lastSave.ok"]},
+           "pause": ["phase", "selected", "menu.options", "lastSave.ok"]},
     "shop_phases": ["mode", "browse", "quantity", "confirm", "result"],
     "heal_phases": ["dialog", "heal-confirm", "heal-animation"],
-    "save": "B -> pause menu4 SAVE -> phase save YES1 -> saved dialog; lastSave.ok survives exit",
+    "save": "B -> pause option SAVE -> phase save option YES -> saved dialog; lastSave.ok survives exit",
     "dispatcher": "journeys.run must dispatch parcel-natural to this module",
     "natural_constraints": "one initial new-game seed reset; no inventory/HP/position/encounter/outcome fixtures afterward",
 }
@@ -246,6 +246,7 @@ class ParcelJourney(Journey):
         self.initializing = False
         self.initialized = False
         self.actions = 0
+        self.event_recordings = set()
         self.summary.update(dependencies=DEPENDENCIES, navigation=[], events=[], wild_encounters=[], acceptance="pending",
                             driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                             authored_reference_sha256=hashlib.sha256(Path(__file__).with_name("parcel_authored.json").read_bytes()).hexdigest())
@@ -294,10 +295,19 @@ class ParcelJourney(Journey):
         return sum(slot["quantity"] for slot in slots if slot["id"] == item)
 
     def flag(self, name):
-        value = lookup(self.state, "session.flags.quest").get(name, False)
-        if type(value) is not bool:
-            raise ProtocolError("quest diagnostic must be boolean: " + name)
-        return value
+        flags = lookup(self.state, "session.flags.quest")
+        if flags == []:  # SDK encodes an empty Lua mapping as an empty array.
+            flags = {}
+        if not isinstance(flags, dict) or any(not isinstance(key, str) or type(value) is not bool
+                                               for key, value in flags.items()):
+            raise ProtocolError("quest diagnostic requires a boolean flag map")
+        return flags.get(name, False)
+
+    def pause_option(self, name):
+        options = sequence(lookup(self.state, "pause.menu.options"), "pause.menu.options")
+        if any(not isinstance(option, str) for option in options) or options.count(name) != 1:
+            raise ProtocolError("pause menu requires exactly one option: " + name)
+        self.select("pause.selected", options.index(name) + 1)
 
     def inventory(self):
         return lookup(self.state, "session.inventory")
@@ -357,6 +367,15 @@ class ParcelJourney(Journey):
             elif phase == "command":
                 if lookup(self.state, "battle.inMoveSelect"):
                     self.send("press b")
+                active = lookup(self.state, "battle.menu.active")
+                if type(active) is not bool:
+                    raise ProtocolError("battle command menu requires an active diagnostic")
+                if not active:
+                    # introPhase becomes ready at the end of an update, before
+                    # BattleScene's next ordinary input pass opens its menu.
+                    self.send("wait 2")
+                    self.await_value("battle.menu.active", True, frames=60)
+                    continue
                 options = lookup(self.state, "battle.menu.options")
                 run_index = 2  # Compatibility with the original confirmed FIGHT/RUN menu.
                 if options is not None:
@@ -386,6 +405,8 @@ class ParcelJourney(Journey):
             elif root == "event":
                 event = self.state["event"]
                 self.summary["events"].append({"id": event.get("id"), "phase": event.get("phase"), "waiting": event.get("waiting")})
+                if event.get("phase") == "failed":
+                    raise ProtocolError("source event failed: " + str(event.get("waiting")))
                 if stop_phase is not None and event.get("phase") == stop_phase:
                     return
                 if event.get("phase") == "heal-confirm":
@@ -393,6 +414,14 @@ class ParcelJourney(Journey):
                 if event.get("phase") == "dialog":
                     self.send("press a")
                 else:
+                    phase = event.get("phase")
+                    key = (event.get("id"), phase)
+                    if phase in {"move", "oak-arrival", "oak-departure", "heal-animation"} and key not in self.event_recordings:
+                        self.event_recordings.add(key)
+                        name = f"parcel-event-{len(self.event_recordings):02d}-{phase}"
+                        frames = 40 if phase.startswith("oak-") else 24 if phase == "move" else 15 * len(self.party()) + 56
+                        self.summary.setdefault("event_records", []).append({"name": name, "frames": frames, "id": key[0], "phase": phase})
+                        self.send(f"record {name} {frames}")
                     self.send("wait 3")
             elif root == "learning":
                 phase = lookup(self.state, "learning.phase")
@@ -567,10 +596,10 @@ class ParcelJourney(Journey):
     def save(self):
         self.send("press b")
         self.require(root="pause", **{"pause.phase": "menu"})
-        self.select("pause.selected", 4)
+        self.pause_option("SAVE")
         self.send("press a")
         self.require(**{"pause.phase": "save"})
-        self.select("pause.selected", 1)
+        self.pause_option("YES")
         self.send("press a")
         self.require(root="dialog", **{"pause.lastSave.ok": True})
         self.dialog()
@@ -615,7 +644,7 @@ class ParcelJourney(Journey):
             raise ProtocolError("supplementary retry requires a single ordinary item to toss")
         self.send("press b")
         self.require(root="pause", **{"pause.phase": "menu"})
-        self.select("pause.selected", 2)
+        self.pause_option("ITEM")
         self.send("press a")
         self.require(root="bag", **{"bag.phase": "list"})
         self.select("bag.selected", index)

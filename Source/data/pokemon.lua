@@ -1,3 +1,4 @@
+import "data/pokemonNames"
 import "data/growthData"
 import "domain/growth"
 
@@ -3689,7 +3690,7 @@ function Pokemon:init(species, level)
     local data = pokemonData[species]
     local maxHP = calcHP(data.baseHP, level)
     self.species = species
-    self.name = data.name
+    self.name = assert(PokemonNames[species], "missing canonical species name")
     self.dex = data.dex
     self.type = data.type
     self.type2 = data.type2

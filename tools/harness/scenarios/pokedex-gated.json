@@ -1,0 +1,36 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42
+      }
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 90
+    },
+    {
+      "op": "assert",
+      "path": "pause.menu.options.1",
+      "equals": "POKEMON"
+    },
+    "shot pokedex-not-received",
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 90
+    }
+  ],
+  "outputs": [
+    "pokedex-not-received.png"
+  ]
+}

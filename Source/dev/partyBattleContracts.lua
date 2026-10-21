@@ -299,13 +299,13 @@ function PartyBattleContracts.run()
         equal(b:phase(),"forcedSwitch");equal(b.outcome,nil);equal(p.hp,0)
         equal(b:chooseParty(2),true);settle(b);equal(b:phase(),"command");equal(b.player,bench)
     end)
-    test("All423 generated moves carry pinned GenV target metadata including changelog corrections",function()
+    test("All424 generated moves carry pinned GenV target metadata including added Toxic",function()
         local count=0
         for key,move in pairs(moveData) do
             assert(type(move.targetId)=="number" and math.tointeger(move.targetId) and move.targetId>=1 and move.targetId<=14,"missing target metadata: " .. key)
             count=count+1
         end
-        equal(count,423);equal(moveData.recover.targetId,7);equal(moveData.tackle.targetId,10)
+        equal(count,424);equal(moveData.toxic.targetId,10);equal(moveData.recover.targetId,7);equal(moveData.tackle.targetId,10)
         equal(moveData.struggle.targetId,10);equal(moveData.perishSong.targetId,12)
         equal(moveData.reflect.targetId,4);equal(moveData.haze.targetId,12)
     end)

@@ -29,9 +29,9 @@ end
 handlers["pokered:ROUTE_1:objects:2"] = function() return { status = "ready", steps = { dialogue("_Route1Youngster2Text") } } end
 handlers["pokered:ROUTE_1:background_events:1"] = function() return { status = "ready", steps = { dialogue("_Route1SignText") } } end
 handlers["pokered:VIRIDIAN_MART:script:entry"] = function(state)
-    if flag(state, "EVENT_OAK_GOT_PARCEL") then return { status = "shop-available", steps = { { op="move", direction="up", count=1 } } } end
+    if flag(state, "EVENT_OAK_GOT_PARCEL") then return { status = "shop-available", steps = {} } end
     if flag(state, "EVENT_GOT_OAKS_PARCEL") or item(state, "oaksParcel") > 0 then
-        return { status = "already-complete", steps = { { op="move", direction="up", count=1 } } }
+        return { status = "already-complete", steps = {} }
     end
     local plan = grant(state, "oaksParcel", "EVENT_GOT_OAKS_PARCEL", "_ViridianMartClerkSayHiToOakText", "_ViridianMartClerkParcelQuestText")
     if plan.status == "bag-full" then

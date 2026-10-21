@@ -65,6 +65,8 @@ function BattleState:finish(won, kind)
 end
 
 function BattleState:exit()
+    if self.battle and not self.battle.emittingEnd then self.battle:clearVolatiles() end
+    if self.scene then self.scene:exit() end
     playdate.display.setOffset(0, 0)
     if self.battle then
         for _, mon in ipairs(self.game.session:party():members()) do mon:resetStages() end

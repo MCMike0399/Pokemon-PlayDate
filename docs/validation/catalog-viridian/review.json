@@ -1,0 +1,7 @@
+{
+  "status": "root-reviewed static baseline; scene milestones have separate evidence",
+  "acceptance": "../accepted-connected-world/acceptance.json",
+  "protected_original": "../catalog-alias-fix",
+  "source_sha256": "25a4a80403e76b62d1e09ba05f39b51f41bce92723f20dbc69e3ad754353924f",
+  "images": 1635
+}

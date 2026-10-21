@@ -1,0 +1,176 @@
+{
+  "ok": false,
+  "checked": 50,
+  "failures": [
+    {
+      "path": "capture_closed.png",
+      "equal": false,
+      "changed_pixels": 576,
+      "rgb_pixels": 576,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "path": "capture_tilt-left.png",
+      "equal": false,
+      "changed_pixels": 576,
+      "rgb_pixels": 576,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "path": "capture_tilt-right.png",
+      "equal": false,
+      "changed_pixels": 576,
+      "rgb_pixels": 576,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        32,
+        32
+      ]
+    },
+    {
+      "path": "capture_poof-1.png",
+      "equal": false,
+      "changed_pixels": 2720,
+      "rgb_pixels": 2720,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        64,
+        64
+      ]
+    },
+    {
+      "path": "capture_poof-2.png",
+      "equal": false,
+      "changed_pixels": 1744,
+      "rgb_pixels": 1744,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        64,
+        64
+      ]
+    },
+    {
+      "path": "capture_poof-3.png",
+      "equal": false,
+      "changed_pixels": 4048,
+      "rgb_pixels": 4048,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        80,
+        80
+      ]
+    },
+    {
+      "path": "capture_poof-4.png",
+      "equal": false,
+      "changed_pixels": 5136,
+      "rgb_pixels": 5136,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        80,
+        80
+      ]
+    },
+    {
+      "path": "capture_poof-5.png",
+      "equal": false,
+      "changed_pixels": 7952,
+      "rgb_pixels": 7952,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        96,
+        96
+      ]
+    },
+    {
+      "path": "capture_closed-flash.png",
+      "equal": false,
+      "changed_pixels": 576,
+      "rgb_pixels": 576,
+      "alpha_pixels": 0,
+      "bbox": [
+        0,
+        0,
+        32,
+        32
+      ]
+    }
+  ],
+  "added_unreviewed": [
+    "capture_closed-flash.png",
+    "capture_closed-flash__black.png",
+    "capture_closed-flash__mask.png",
+    "capture_closed-flash__texture.png",
+    "capture_closed-flash__white.png",
+    "capture_closed.png",
+    "capture_closed__black.png",
+    "capture_closed__mask.png",
+    "capture_closed__texture.png",
+    "capture_closed__white.png",
+    "capture_poof-1.png",
+    "capture_poof-1__black.png",
+    "capture_poof-1__mask.png",
+    "capture_poof-1__texture.png",
+    "capture_poof-1__white.png",
+    "capture_poof-2.png",
+    "capture_poof-2__black.png",
+    "capture_poof-2__mask.png",
+    "capture_poof-2__texture.png",
+    "capture_poof-2__white.png",
+    "capture_poof-3.png",
+    "capture_poof-3__black.png",
+    "capture_poof-3__mask.png",
+    "capture_poof-3__texture.png",
+    "capture_poof-3__white.png",
+    "capture_poof-4.png",
+    "capture_poof-4__black.png",
+    "capture_poof-4__mask.png",
+    "capture_poof-4__texture.png",
+    "capture_poof-4__white.png",
+    "capture_poof-5.png",
+    "capture_poof-5__black.png",
+    "capture_poof-5__mask.png",
+    "capture_poof-5__texture.png",
+    "capture_poof-5__white.png",
+    "capture_tilt-left.png",
+    "capture_tilt-left__black.png",
+    "capture_tilt-left__mask.png",
+    "capture_tilt-left__texture.png",
+    "capture_tilt-left__white.png",
+    "capture_tilt-right.png",
+    "capture_tilt-right__black.png",
+    "capture_tilt-right__mask.png",
+    "capture_tilt-right__texture.png",
+    "capture_tilt-right__white.png",
+    "jump_shadow.png",
+    "jump_shadow__black.png",
+    "jump_shadow__mask.png",
+    "jump_shadow__texture.png",
+    "jump_shadow__white.png"
+  ],
+  "review_status": "independent source check only; native scene review remains required"
+}

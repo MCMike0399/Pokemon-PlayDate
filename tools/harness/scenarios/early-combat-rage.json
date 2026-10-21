@@ -1,0 +1,92 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "onix",
+          "level": 14
+        }
+      }
+    },
+    "battle rattata 5",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "tackle": 35,
+            "tailWhip": 0,
+            "quickAttack": 0
+          }
+        }
+      }
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 180
+    },
+    "press down",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rage",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "battle.message",
+      "equals": "ONIX's rage is building!"
+    },
+    "shot early-onix-rage",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    }
+  ],
+  "outputs": [
+    "early-onix-rage.png"
+  ]
+}

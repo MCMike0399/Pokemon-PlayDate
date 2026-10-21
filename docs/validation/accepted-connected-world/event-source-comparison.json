@@ -1,0 +1,71 @@
+{
+  "ok": true,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "checked_images": 35,
+  "failures": [],
+  "legacy_phase": {
+    "policy": "legacy-omitted",
+    "calibrated_from": "reviewed protected BLUE standing only",
+    "dark_checker_inversion": 1
+  },
+  "shared_hair": [
+    {
+      "direction": "down",
+      "shared_hair_pixels": 76,
+      "mismatched_pixels": 0
+    },
+    {
+      "direction": "up",
+      "shared_hair_pixels": 136,
+      "mismatched_pixels": 0
+    },
+    {
+      "direction": "left",
+      "shared_hair_pixels": 104,
+      "mismatched_pixels": 0
+    },
+    {
+      "direction": "right",
+      "shared_hair_pixels": 104,
+      "mismatched_pixels": 0
+    }
+  ],
+  "added_unreviewed": [
+    "event_blue_walk_down.png",
+    "event_blue_walk_down__black.png",
+    "event_blue_walk_down__mask.png",
+    "event_blue_walk_down__texture.png",
+    "event_blue_walk_down__white.png",
+    "event_blue_walk_left.png",
+    "event_blue_walk_left__black.png",
+    "event_blue_walk_left__mask.png",
+    "event_blue_walk_left__texture.png",
+    "event_blue_walk_left__white.png",
+    "event_blue_walk_right.png",
+    "event_blue_walk_right__black.png",
+    "event_blue_walk_right__mask.png",
+    "event_blue_walk_right__texture.png",
+    "event_blue_walk_right__white.png",
+    "event_blue_walk_up.png",
+    "event_blue_walk_up__black.png",
+    "event_blue_walk_up__mask.png",
+    "event_blue_walk_up__texture.png",
+    "event_blue_walk_up__white.png",
+    "event_heal_ball.png",
+    "event_heal_ball__black.png",
+    "event_heal_ball__mask.png",
+    "event_heal_ball__texture.png",
+    "event_heal_ball__white.png",
+    "event_heal_monitor.png",
+    "event_heal_monitor__black.png",
+    "event_heal_monitor__mask.png",
+    "event_heal_monitor__texture.png",
+    "event_heal_monitor__white.png",
+    "event_pokedex.png",
+    "event_pokedex__black.png",
+    "event_pokedex__mask.png",
+    "event_pokedex__texture.png",
+    "event_pokedex__white.png"
+  ],
+  "review_status": "source comparison only; native scene/motion review still required"
+}

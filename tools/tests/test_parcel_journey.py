@@ -16,6 +16,32 @@ class FakeClient:
 
 
 class ParcelPlannerTests(unittest.TestCase):
+    def test_empty_sdk_quest_array_is_map_but_malformed_arrays_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            journey = ParcelJourney(FakeClient(), directory, {"name": "parcel-natural"})
+            for flags in ([], {}, {"EVENT_GOT_POKEDEX": True}):
+                journey.state = {"session": {"flags": {"quest": flags}}}
+                self.assertEqual(journey.flag("EVENT_GOT_POKEDEX"), flags == {"EVENT_GOT_POKEDEX": True})
+            for flags in ([True], [{"EVENT_GOT_POKEDEX": True}], None, False, {"EVENT_GOT_POKEDEX": 1}):
+                journey.state = {"session": {"flags": {"quest": flags}}}
+                with self.subTest(flags=flags), self.assertRaises(ProtocolError):
+                    journey.flag("EVENT_GOT_POKEDEX")
+
+    def test_pause_item_and_save_follow_actual_option_names_after_dex_unlock(self):
+        with tempfile.TemporaryDirectory() as directory:
+            journey = ParcelJourney(FakeClient(), directory, {"name": "parcel-natural"})
+            selected = []
+            journey.select = lambda path, index: selected.append((path, index))
+            for options, item_index, save_index in ((["POKEMON", "ITEM", "RED", "SAVE", "CLOSE"], 2, 4),
+                    (["POKEDEX", "POKEMON", "ITEM", "RED", "SAVE", "CLOSE"], 3, 5)):
+                journey.state = {"pause": {"menu": {"options": options}}}
+                journey.pause_option("ITEM");journey.pause_option("SAVE")
+                self.assertEqual(selected[-2:], [("pause.selected", item_index), ("pause.selected", save_index)])
+            for options in (["SAVE", "SAVE"], ["POKEMON"], ["SAVE", 1], {}):
+                journey.state = {"pause": {"menu": {"options": options}}}
+                with self.subTest(options=options), self.assertRaises(ProtocolError):
+                    journey.pause_option("SAVE")
+
     def test_real_collision_detour_and_no_path(self):
         model = Geometry("walls", [[0, 1, 0], [0, 1, 0], [0, 0, 0]])
         route = model.path((0, 0), {(2, 0)})
@@ -50,6 +76,37 @@ class ParcelPlannerTests(unittest.TestCase):
             with self.assertRaises(ProtocolError):
                 journey.reset(inventory={"money": 999, "slots": []})
             self.assertEqual(client.commands, [])
+
+    def test_wild_ready_intro_waits_for_inactive_command_menu_before_run(self):
+        with tempfile.TemporaryDirectory() as directory:
+            class WarmupClient:
+                def __init__(self):
+                    self.commands=[]
+                    self.state={"root":"battle","battle":{"introPhase":"ready","phase":"command",
+                        "trainerName":None,"menu":{"active":False,"options":[],"selected":1,"columns":2}}}
+                def send(self, commands, **kwargs):
+                    for command in commands:
+                        self.commands.append(command)
+                        if isinstance(command,dict):
+                            self.asserted=command["path"]
+                            if command["path"]=="battle.menu.active" and not self.state["battle"]["menu"]["active"]:
+                                raise ProtocolError("menu readiness timed out")
+                            continue
+                        menu=self.state["battle"]["menu"]
+                        if command=="wait 2":
+                            menu.update(active=True,options=["FIGHT","ITEM","POKEMON","RUN"])
+                        elif command=="press right":menu["selected"]=2
+                        elif command=="press down":menu["selected"]=4
+                        elif command=="press a":
+                            if not menu["active"] or menu["selected"]!=4:raise AssertionError("A before actual RUN readiness")
+                            self.state={"root":"overworld","last_battle_outcome":{"kind":"run","blackout":False}}
+                    return {"snapshot":self.state}
+            client=WarmupClient();journey=ParcelJourney(client,directory,{"name":"parcel-natural"});journey.state=client.state
+            journey.flee()
+            self.assertEqual(client.commands[1],"wait 2")
+            self.assertEqual(client.commands[2],{"op":"await","path":"battle.menu.active","equals":True,"frames":60})
+            self.assertEqual(client.commands[-3:],["press right","press down","press a"])
+            self.assertEqual(journey.summary["wild_encounters"][0]["exit"]["kind"],"run")
 
     def test_battle_run_selection_supports_expanded_two_column_menu(self):
         with tempfile.TemporaryDirectory() as directory:

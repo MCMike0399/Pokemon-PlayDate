@@ -1,0 +1,82 @@
+{
+  "packages": [
+    {
+      "name": "pokemon-pewter-runtime-candidate-02",
+      "archive": "pokemon-pewter-runtime-candidate-02.tar.gz",
+      "files": 73,
+      "sha256": "7c28fcb3638c3088f7b5c5361426eacf6a5187e0177fd27495eed9d7638ec815",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-pewter-runtime",
+      "archive": "pokemon-pewter-runtime.tar.gz",
+      "files": 56,
+      "sha256": "b958a9f821da0df1ad5791b6c686c685bc006e8735b18ff78dafe1bf9b798151",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-pewter-trainer-domain",
+      "archive": "pokemon-pewter-trainer-domain.tar.gz",
+      "files": 26,
+      "sha256": "1561bcb12a29b79d31458a4998443f4b7f4f73cbe432a1f5d31dea4dc667955a",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-evolution",
+      "archive": "pokemon-evolution.tar.gz",
+      "files": 37,
+      "sha256": "6b73b58d111227b88051c1b170e40db0b5a83b2c8eee9272a9913c7c3f603962",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-evolution-followup-01",
+      "archive": "pokemon-evolution-followup-01.tar.gz",
+      "files": 9,
+      "sha256": "d50c7b0c9492b8543b1457475ee194898e5ac95468713c33ebf4ba6eec00594b",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-battle-learning",
+      "archive": "pokemon-battle-learning.tar.gz",
+      "files": 21,
+      "sha256": "07438eaa89e667a66f50a3637a3a2af5e8e102e00da70a4d8ccd898bee93d32a",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-battle-learning-contract-followup",
+      "archive": "pokemon-battle-learning-contract-followup.tar.gz",
+      "files": 8,
+      "sha256": "980e01b64864dbeed2606db6731413b287e0b2c8153f5d8eab4a625146e12454",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-pc-ui",
+      "archive": "pokemon-pc-ui.tar.gz",
+      "files": 15,
+      "sha256": "f00f90d24a50cdadcafdf88a05736e54330762b4825f14cda764117f9214db77",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-pc-ui-followup-01",
+      "archive": "pokemon-pc-ui-followup-01.tar.gz",
+      "files": 18,
+      "sha256": "d0c34eff6530fbb80e643df7816505e0373919165ddf8a1078e9698008416a95",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-healing-presentation",
+      "archive": "pokemon-healing-presentation.tar.gz",
+      "files": 16,
+      "sha256": "234e14f62ff58396d60d7f407a89f6a1383095b3c5661b5210b787ab30a28127",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    },
+    {
+      "name": "pokemon-battle-items",
+      "archive": "pokemon-battle-items.tar.gz",
+      "files": 4,
+      "sha256": "be7a4f443cd668359ee93531198428ce55e90ae2475dbe596f47c95807a5a288",
+      "status": "unmerged candidate; acceptance varies; see progress ledger"
+    }
+  ],
+  "excluded": "third-party reference caches, original-base snapshots, compiled bundles and Python caches"
+}

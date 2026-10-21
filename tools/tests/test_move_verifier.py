@@ -208,12 +208,14 @@ class SourceTests(unittest.TestCase):
 class ParserAndCLITests(unittest.TestCase):
     def test_reads_actual_full_production_tables_without_execution(self):
         species_rows, move_rows = LuaParser().parse(), read_moves()
-        self.assertEqual(151, len(species_rows)); self.assertEqual(423, len(move_rows))
+        self.assertEqual(151, len(species_rows)); self.assertEqual(424, len(move_rows))
         self.assertTrue(all(row.get('learnset') for row in species_rows.values()))
         self.assertEqual(2184, sum(len(row['learnset']) for row in species_rows.values()))
-        for key in ('charm', 'psywave', 'stormThrow', 'struggle'):
+        for key in ('charm', 'psywave', 'stormThrow', 'struggle', 'toxic'):
             self.assertIn(key, move_rows)
         self.assertIsInstance(move_rows['tackle']['pp'], int)
+        self.assertEqual(10, move_rows['toxic']['pp'])
+        self.assertEqual(90, move_rows['toxic']['accuracy'])
 
     def test_nested_level_metadata_parses_without_losing_order(self):
         with tempfile.TemporaryDirectory() as directory:

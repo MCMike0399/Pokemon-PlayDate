@@ -1,0 +1,73 @@
+{
+  "scope": "offline completed evidence; no native allocation attribution",
+  "source_report_sha256": "9f104d6cf6eb20c1ac3c80e65c325bdc5290dfd0b344d37c43ca66810d546c39",
+  "build_id": "6036974134e11e210c7c9735b77758c1dcf5b4fa:b5dbfaaf038e849b7c483412bf6cd41bfe5665b401498ef9b457680fe85e52fb",
+  "retained_cycle_endpoints": [
+    {
+      "label": "cycle-01-retained:post-gc",
+      "lua_heap_kib": 8770.7607421875,
+      "observer_rows": 40
+    },
+    {
+      "label": "cycle-02-retained:post-gc",
+      "lua_heap_kib": 8807.3681640625,
+      "observer_rows": 61
+    },
+    {
+      "label": "cycle-03-retained:post-gc",
+      "lua_heap_kib": 8841.9140625,
+      "observer_rows": 82
+    },
+    {
+      "label": "cycle-04-retained:post-gc",
+      "lua_heap_kib": 8881.3662109375,
+      "observer_rows": 103
+    },
+    {
+      "label": "cycle-05-retained:post-gc",
+      "lua_heap_kib": 8914.912109375,
+      "observer_rows": 124
+    },
+    {
+      "label": "cycle-06-retained:post-gc",
+      "lua_heap_kib": 8950.4580078125,
+      "observer_rows": 145
+    }
+  ],
+  "steady_cycle_delta_kib": [
+    36.607421875,
+    34.5458984375,
+    39.4521484375,
+    33.5458984375,
+    35.5458984375
+  ],
+  "mean_delta_kib": 35.939453125,
+  "first_cycle_cold_delta_kib": 300.287109375,
+  "observer_inventory": {
+    "retained_row_tables": 146,
+    "retained_row_field_slots": 1870,
+    "history_array_slots": 146,
+    "compact_json_payload_bytes": 41996,
+    "rows_between_cycle_endpoints": [
+      21,
+      21,
+      21,
+      21,
+      21
+    ],
+    "meaning": "logical ownership/payload counts, NOT Lua allocation sizes"
+  },
+  "harness_inventory": {
+    "published_requests": 234,
+    "unique_request_ids": 234,
+    "seen_id_string_payload_bytes": 8892,
+    "meaning": "runtime replay-ID retention; excludes table/header/interning overhead"
+  },
+  "simulator_flag_caveat": "Original native01 rows used ==true incorrectly for SDK numeric1; original evidence remains unchanged. Future observer uses boolean coercion plus type.",
+  "conclusion": "Combined instrumented retained growth includes observer and harness ownership; no game leak or native heap capacity claim.",
+  "future_controls": [
+    "matched no-transition request/capture control",
+    "explicit observer release/GC or fixed-size history",
+    "Simulator native allocator observation"
+  ]
+}

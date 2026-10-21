@@ -1,0 +1,51 @@
+{
+  "status": "accepted connected Viridian functional slice and static assets; full campaign incomplete",
+  "revision": "6036974134e11e210c7c9735b77758c1dcf5b4fa",
+  "source_sha256": "25a4a80403e76b62d1e09ba05f39b51f41bce92723f20dbc69e3ad754353924f",
+  "sdk_contracts": 338,
+  "functional_source_sha256": "ee13a3b4ebee9cb310f19c4436be1729b6eb761b01d16510b903303a50b4ed52",
+  "functional_jobs": 9,
+  "natural_parcel_same_functional_source": true,
+  "changes_after_functional_suite": [
+    "dev/catalog.lua capture-only export repair",
+    "dev/runtimeArtContracts.lua added source-preserving export contract"
+  ],
+  "protocol_cases": 42,
+  "protected_original_exact": 915,
+  "expanded_static_baseline": {
+    "path": "../catalog-viridian",
+    "images": 1635,
+    "additions": 720
+  },
+  "source_checks": [
+    "previous96 Viridian terrain/sprite/mask checks in accepted-viridian-art",
+    "35 EventArt PNGs/masks/composites",
+    "50 capture/jump PNGs/masks/composites"
+  ],
+  "root_visual_review": [
+    "natural parcel/Mart/shop/healing/save",
+    "BLUE arrival/departure40-frame sequences",
+    "capture throw/absorb/shakes/breakout/caught",
+    "actual ledge18-frame sequence",
+    "Pokedex list/owned/seen/unseen views"
+  ],
+  "restart": {
+    "pids": [
+      97153,
+      97208
+    ],
+    "save_sha256": "82f5b94680d8d819a73413768909ff981909c369938e30e547c40cc5bd19129f",
+    "scene_changed_pixels": 0
+  },
+  "remaining": [
+    "healing modal composition is being replaced with in-world source composition",
+    "initial rival payout/heal and ordinary blackout money pending trainer integration",
+    "Pewter/Brock and rest of campaign not implemented yet",
+    "abilities/held items/natures explicitly required by new user choice",
+    "no physical device validation"
+  ],
+  "archives": {
+    "export-proof-evidence.tar.gz": "f0e4cf62e0ee6ce0c1afb5309cb23678a43412fbec848ee0d937a10451c52846",
+    "regression-evidence.tar.gz": "054f2691713d764da467b00dac83d17114cf6af4a49a90ffdf06537c3e3697f3"
+  }
+}

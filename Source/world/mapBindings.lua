@@ -45,7 +45,8 @@ function MapBindings.prepare(definition, specs, options)
             local advance=target.source_map_constant=="VIRIDIAN_CITY" and 1 or 0
             assert(spec.toX==arrival.x and spec.toY==arrival.y+advance, "warp binding disagrees with exact source arrival")
             assert(spec.toX<target.dimensions.cells[1] and spec.toY<target.dimensions.cells[2] and target.collision[spec.toY+1][spec.toX+1]==0, "source warp arrival blocked/outside map")
-            doors[#doors+1]={x=event.x,y=event.y,to=spec.to,toX=spec.toX,toY=spec.toY,facing=spec.facing,source_event_id=event.id}
+            doors[#doors+1]={x=event.x,y=event.y,to=spec.to,toX=spec.toX,toY=spec.toY,facing=spec.facing,source_event_id=event.id,
+                edge=event.y==definition.dimensions.cells[2]-1 and "down" or nil}
         end
     end
     for _,event in ipairs(definition.events.background_events) do

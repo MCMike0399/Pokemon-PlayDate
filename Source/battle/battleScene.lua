@@ -1,3 +1,5 @@
+import "battle/captureAnimation"
+
 local gfx <const> = playdate.graphics
 
 local battleFont <const> = gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold")
@@ -19,7 +21,7 @@ end
 
 -- Status condition short labels
 local statusLabels = {
-    burn = "BRN", poison = "PSN", paralyze = "PAR",
+    burn = "BRN", poison = "PSN", badPoison = "PSN", paralyze = "PAR",
     sleep = "SLP", freeze = "FRZ",
 }
 
@@ -29,6 +31,9 @@ function BattleScene:init(battle)
     self.moveMenu = BattleMenu()
     self.inMoveSelect = false
     self.selectionRequest, self.selectionOpen = nil, false
+    self.captureSeen=setmetatable({}, {__mode="k"})
+    self.captureAnimation=nil
+    self.captureClosed=false
     -- Intro transition
     self.introTimer = 0
     self.introPhase = "iris_in" -- iris_in → ready
@@ -130,6 +135,7 @@ function BattleScene:enter()
 end
 
 function BattleScene:handleInput()
+    if self.captureClosed or self:isCaptureBlocking() then return end
     if self.introPhase ~= "ready" or self.introDrawing then return end
     if self.battle:needsForcedSwitch() then self:requestSelection("party");return end
     if self.selectionOpen then return end
@@ -195,6 +201,7 @@ function BattleScene:drawPlatforms()
 end
 
 function BattleScene:update()
+    if self.captureClosed then return end
     self.introDrawing = self.introPhase == "iris_in"
     -- Intro transition
     if self.introPhase == "iris_in" then
@@ -210,6 +217,35 @@ function BattleScene:update()
     end
     self:updateEffects(true, not self.introDrawing)
     if not self.introDrawing and self.battle:needsForcedSwitch() then self:requestSelection("party") end
+    if not self.introDrawing then self:updateCapture() end
+end
+
+function BattleScene:updateCapture()
+    local receipt=self.battle.captureResult
+    if receipt and not self.captureSeen[receipt] then
+        if self.captureAnimation then self.captureAnimation:cancel() end
+        self.captureSeen[receipt]=true
+        self.captureAnimation=CaptureAnimation(receipt)
+        return -- Present original frame0 once; later updates advance it.
+    end
+    if self.captureAnimation then self.captureAnimation:update() end
+end
+function BattleScene:isCaptureBlocking()
+    local receipt=self.battle.captureResult
+    return (receipt and not self.captureSeen[receipt]) or (self.captureAnimation and not self.captureAnimation.done) or false
+end
+function BattleScene:getCaptureSnapshot()
+    if self.captureClosed then return {phase="closed",frame=0,done=true,shake=0} end
+    local receipt=self.battle.captureResult
+    if receipt and not self.captureSeen[receipt] then return {phase="pending",frame=0,done=false,shake=0} end
+    return self.captureAnimation and self.captureAnimation:getSnapshot() or {phase="idle",frame=0,done=true,shake=0}
+end
+function BattleScene:exit()
+    if self.captureAnimation then self.captureAnimation:cancel() end
+    self.captureClosed=true
+    self.selectionRequest,self.selectionOpen=nil,false
+    self.mainMenu:hide();self.moveMenu:hide()
+    playdate.display.setOffset(0,0)
 end
 
 -- Called once per simulation update, and for newly-created effects after input.
@@ -235,6 +271,7 @@ function BattleScene:updateEffects(advanceFlash, advanceShake)
 end
 
 function BattleScene:draw()
+    if self.captureClosed then return end
     -- The twentieth iris frame still renders the fully-open stencil.
     if self.introTimer <= 20 and self.introDrawing then
         -- Draw black background, then reveal circle
@@ -253,7 +290,8 @@ function BattleScene:draw()
         return
     end
 
-    playdate.display.setOffset(self.selectionOpen and 0 or (self.shakeX or 0), self.selectionOpen and 0 or (self.shakeY or 0))
+    local fixed=self.selectionOpen or self:isCaptureBlocking()
+    playdate.display.setOffset(fixed and 0 or (self.shakeX or 0), fixed and 0 or (self.shakeY or 0))
 
     self:drawBattleField()
 end
@@ -265,7 +303,7 @@ function BattleScene:drawBattleField()
     local flashHide = self.flashHide
 
     -- Enemy sprite (top-right) - front view; hidden while flashing from a player hit
-    if not (flashHide and self.battle.attackerSide == "player") then
+    if (not self.captureAnimation or self.captureAnimation:isEnemyVisible()) and not (flashHide and self.battle.attackerSide == "player") then
         self:drawPokemonSprite(self.battle.enemy.species, 300, 20, false)
     end
 
@@ -276,6 +314,7 @@ function BattleScene:drawBattleField()
 
     -- Draw platforms on top of sprites
     self:drawPlatforms()
+    if self.captureAnimation then self.captureAnimation:draw() end
 
     -- Enemy info box (top-left): name/level row, then HP bar row.
     -- Heights are sized for the fonts (battleFont ~17px, system ~16px)

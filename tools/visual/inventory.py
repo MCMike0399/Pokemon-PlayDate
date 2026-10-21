@@ -25,7 +25,7 @@ def stable_name(key):
     return key.encode().hex()
 
 
-def expected_slice(source):
+def expected_slice(source, *, include_events=False, include_runtime_art=False):
     source=Path(source);directory=source/'data/viridianSlice'
     paths=set();tile_keys=set();inputs={};frames=facings=0
     def load(name):
@@ -55,8 +55,17 @@ def expected_slice(source):
         for facing in standing:
             if facing not in ('down','up','left','right'):raise ValueError('unknown facing')
             asset('npc_'+RUNTIME_NPCS[name]+'_'+facing,True);facings+=1
-    return dict(schema=1,source_revision=REVISION,inputs=inputs,expected=sorted(paths),
+    if include_events:
+        from tools.visual.event_art import expected_inventory
+        paths.update(expected_inventory())
+    if include_runtime_art:
+        from tools.visual.runtime_art import expected_inventory as runtime_inventory
+        paths.update(runtime_inventory())
+    result = dict(schema=1,source_revision=REVISION,inputs=inputs,expected=sorted(paths),
                 counts=dict(images=len(paths),imported_tiles=len(tile_keys),source_npc_frames=frames,runtime_npc_facings=facings,maps=len(NAMES)))
+    if include_events: result["counts"]["event_art_images"] = 7
+    if include_runtime_art: result["counts"]["runtime_art_images"] = 10
+    return result
 
 
 def inspect_catalog(catalog, expected):
@@ -78,10 +87,12 @@ def inspect_catalog(catalog, expected):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source',type=Path,default=Path(__file__).resolve().parents[2]/'Source')
+    parser.add_argument('--include-runtime-art',action='store_true',help='also require50 capture/shadow variants')
+    parser.add_argument('--include-events',action='store_true',help='require all35 event-art additions too')
     parser.add_argument('--catalog',type=Path);parser.add_argument('--report',type=Path)
     args=parser.parse_args()
     try:
-        report=expected_slice(args.source)
+        report=expected_slice(args.source,include_events=args.include_events,include_runtime_art=args.include_runtime_art)
         if args.catalog:report['coverage']=inspect_catalog(args.catalog,report)
         ok=report.get('coverage',{}).get('ok',True)
     except (OSError,ValueError,KeyError) as error:report={'ok':False,'error':str(error)};ok=False

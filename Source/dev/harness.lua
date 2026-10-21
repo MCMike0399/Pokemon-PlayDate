@@ -164,7 +164,7 @@ local function integer(value, low, high)
 end
 local dirs = { up = true, down = true, left = true, right = true }
 local buttons = { a = true, b = true, up = true, down = true, left = true, right = true }
-local statuses = { none = true, burn = true, poison = true, paralyze = true, sleep = true, freeze = true }
+local statuses = { none = true, burn = true, poison = true, badPoison = true, paralyze = true, sleep = true, freeze = true }
 local function adjustedBattler(mon, values, side)
     local hp = values[side .. "_hp"]
     assert(hp == nil or (integer(hp,1,mon.maxHP)), "fixture HP exceeds maxHP")

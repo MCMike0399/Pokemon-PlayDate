@@ -1,0 +1,7 @@
+{
+  "status": "Simulator observations only; no hardware capacity verdict",
+  "run": "pokemon-world-profile-native-01",
+  "archive_sha256": "485200e246fbe3d8dd9a814b7cf3ec85f0ce0836ccd87d2edaf4d7aa6e711ddf",
+  "known_observer_bug": "Original sample simulator==true is false for SDK numeric1. PID/build establish Simulator; future observer fixed.",
+  "cycles": 6
+}

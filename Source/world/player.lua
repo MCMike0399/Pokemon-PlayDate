@@ -1,3 +1,4 @@
+import "data/kantoJump"
 local gfx <const> = playdate.graphics
 
 class("Player").extends(gfx.sprite)
@@ -107,7 +108,10 @@ function Player:init(gridX, gridY, collisionMap, npcManager)
     self.walkToggle = false  -- alternates lead foot between steps
     self.stepJustFinished = false
     self.rustleFrames = 0    -- grass splay countdown after landing in grass
-    self.pendingEdgeDoor = nil  -- set by tryMove when walking into an edge exit
+    self.pendingEdgeDoor = nil  -- edge doors and validated map connections share one queue
+    self.isJumping, self.jumpOffset = false, 0
+    self.jumpShadow = nil
+    self.lastTraversalBlock = nil
 
     self:setImage(playerImages.down)
     self:setCenter(0, 0)
@@ -156,6 +160,7 @@ end
 
 -- Show the grass overlay on the player's tile when standing in tall grass
 function Player:updateGrassOverlay()
+    if self.isJumping then self.grassOverlay:setVisible(false); return end
     local onGrass = currentZone and currentZone:isTallGrass(self.gridX, self.gridY)
     self.grassOverlay:setVisible(onGrass or false)
     if onGrass then
@@ -202,6 +207,32 @@ function Player:canMoveTo(gx, gy)
     return self.collisionMap[gy + 1][gx + 1] == 0
 end
 
+local jumpShadowImage
+local function getJumpShadowImage()
+    if not jumpShadowImage then jumpShadowImage=SpriteFactory.makeSprite(KantoJumpData.shadowGrid,{0,0}) end
+    return jumpShadowImage
+end
+Player.getJumpShadowImage=getJumpShadowImage
+local function startMove(player,gx,gy,jumping)
+    player.isMoving=true;player.moveFrames=0
+    player.walkToggle=not player.walkToggle
+    player.startPixelX=player.gridX*TILE_SIZE;player.startPixelY=player.gridY*TILE_SIZE
+    player.gridX,player.gridY=gx,gy
+    player.targetPixelX=gx*TILE_SIZE;player.targetPixelY=gy*TILE_SIZE
+    player.isJumping,player.jumpOffset=jumping or false,0
+    if jumping then
+        player.groundPixelX,player.groundPixelY=player.startPixelX,player.startPixelY
+        local image=getJumpShadowImage()
+        if not player.jumpShadow then
+            player.jumpShadow=gfx.sprite.new(image)
+            player.jumpShadow:setCenter(0,0);player.jumpShadow:setZIndex(89);player.jumpShadow:add()
+        end
+        player.jumpShadow:moveTo(player.startPixelX,player.startPixelY+SPRITE_Y_OFFSET+KantoJumpData.shadowOffsetFromStandingTop)
+        player.jumpShadow:setVisible(true)
+    end
+    player:updateSprite()
+end
+
 function Player:tryMove(dx, dy)
     if self.isMoving then return end
 
@@ -215,25 +246,42 @@ function Player:tryMove(dx, dy)
 
     local targetGX = self.gridX + dx
     local targetGY = self.gridY + dy
-
-    -- Check for NPC at target position (skip during noclip)
-    if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
-        if self.npcManager:getNPCAt(targetGX, targetGY) then
+    self.lastTraversalBlock=nil
+    local noclip=DEBUG_FLAGS and DEBUG_FLAGS.noclip
+    -- The explicit mat exit always wins over any boundary connection.
+    if not noclip and not self:canMoveTo(targetGX,targetGY) and currentZone then
+        local edge=currentZone:getEdgeDoorAt(self.gridX,self.gridY,self.facing)
+        if edge then self.pendingEdgeDoor=edge;return end
+        local outside=targetGX<0 or targetGY<0 or targetGX>=currentZone.width or targetGY>=currentZone.height
+        if outside and KantoWorld then
+            local door,reason=KantoWorld.connection(self.npcManager.game,currentZone,self.gridX,self.gridY,self.facing)
+            if door then self.pendingEdgeDoor=door;return end
+            if reason then self.lastTraversalBlock={kind="connection",id=reason} end
             return
         end
     end
 
+    -- Check for NPC at target position (skip during noclip)
+    if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
+        if self.npcManager:getNPCAt(targetGX, targetGY) then
+            if currentZone and currentZone:isSliceReady() then self.lastTraversalBlock={kind="npc",id="occupied-next-cell"} end
+            return
+        end
+    end
+
+    if not noclip and currentZone and currentZone:isSliceReady() then
+        local rule=currentZone:movementRule(self.gridX,self.gridY,self.facing)
+        if rule.kind=="ledge" then
+            if self.npcManager:getNPCAt(rule.x,rule.y) then
+                self.lastTraversalBlock={kind="ledge",id="occupied-landing"};return
+            end
+            startMove(self,rule.x,rule.y,true);return
+        elseif rule.kind=="blocked" then
+            self.lastTraversalBlock={kind="terrain",id=rule.reason or "source-collision"};return
+        end
+    end
     if self:canMoveTo(targetGX, targetGY) then
-        self.isMoving = true
-        self.moveFrames = 0
-        self.walkToggle = not self.walkToggle
-        self.startPixelX = self.gridX * TILE_SIZE
-        self.startPixelY = self.gridY * TILE_SIZE
-        self.gridX = targetGX
-        self.gridY = targetGY
-        self.targetPixelX = self.gridX * TILE_SIZE
-        self.targetPixelY = self.gridY * TILE_SIZE
-        self:updateSprite()
+        startMove(self,targetGX,targetGY,false)
     elseif currentZone then
         -- Walking into the room edge from an exit mat (Gen 2/3 gates):
         -- explore picks this up and starts the door warp
@@ -249,7 +297,9 @@ function Player:update()
 
     if self.isMoving then
         self.moveFrames = self.moveFrames + 1
-        local t = self.moveFrames / MOVE_FRAMES
+        local jumping=self.isJumping
+        local duration=jumping and #KantoJumpData.nativeOffsets or MOVE_FRAMES
+        local t = self.moveFrames / duration
         if t >= 1 then
             t = 1
             self.isMoving = false
@@ -271,9 +321,21 @@ function Player:update()
 
         local px = self.startPixelX + (self.targetPixelX - self.startPixelX) * t
         local py = self.startPixelY + (self.targetPixelY - self.startPixelY) * t
-        self:moveTo(px, py)
+        if jumping then
+            self.groundPixelX,self.groundPixelY=px,py
+            self.jumpOffset=KantoJumpData.nativeOffsets[self.moveFrames]
+            self:moveTo(px,py+self.jumpOffset)
+            self.jumpShadow:moveTo(px,py+SPRITE_Y_OFFSET+KantoJumpData.shadowOffsetFromStandingTop)
+            if not self.isMoving then
+                self.isJumping,self.jumpOffset=false,0
+                self.jumpShadow:setVisible(false)
+            end
+        else
+            self:moveTo(px, py)
+        end
     else
         self:setImage(playerImages[self.facing])
+        if self.jumpShadow then self.jumpShadow:setVisible(false) end
     end
 
     self:updateGrassOverlay()
@@ -292,5 +354,12 @@ end
 
 function Player:getPixelCenter()
     -- Use actual sprite position (smoothly interpolated during movement)
+    if self.isJumping and self.groundPixelX then
+        return self.groundPixelX+TILE_SIZE/2,self.groundPixelY+SPRITE_Y_OFFSET+TILE_SIZE/2
+    end
     return self.x + TILE_SIZE / 2, self.y + TILE_SIZE / 2
+end
+function Player:remove()
+    if self.jumpShadow then self.jumpShadow:remove(); self.jumpShadow=nil end
+    Player.super.remove(self)
 end

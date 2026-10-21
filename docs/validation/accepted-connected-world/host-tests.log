@@ -1,0 +1,34 @@
+capture art failed: capture animation metadata drift
+capture art failed: capture asset drift: closed
+capture art failed: generation requires a staged output root
+capture generation failed: generated catch-rate drift
+growth generation failed: generated growth data drift: /var/folders/y1/13lf3rj12nxc6fj_1qb645km0000gn/T/tmpagvxxzd9/out.lua
+item generation failed: generated item catalog drift
+pokedex generation failed: generated data drift: data/pokedexData.lua
+pokedex generation failed: explicit staged output required
+9 original battle ball/poof assets and capture paths verified/generated
+151 B2W2 catch rates cross-checked
+151 B2W2 catch rates cross-checked
+pokemon.lua: 1 species updated
+growth data: 151 species, 600 independently checked thresholds, 210 Q12 coefficients
+growth data: 151 species, 600 independently checked thresholds, 210 Q12 coefficients
+Blue item catalog verified/generated
+Blue item catalog verified/generated
+moves.lua: 1/1 moves written
+moves.lua: 1/1 moves written
+151 original entries and ASCII default names verified
+151 original entries and ASCII default names verified
+/var/folders/y1/13lf3rj12nxc6fj_1qb645km0000gn/T/tmpye7etwbb/output
+[1/2] smoke
+smoke: FAIL: child exited 1
+/private/var/folders/y1/13lf3rj12nxc6fj_1qb645km0000gn/T/tmpdxkwdzjj/suite
+[1/2] smoke
+smoke: FAIL: child exited 1
+[2/2] qualification
+qualification: FAIL: child exited 1
+----------------------------------------------------------------------
+Ran 265 tests in 8.578s
+
+OK
+/private/var/folders/y1/13lf3rj12nxc6fj_1qb645km0000gn/T/tmpmronkvx9/suite
+/private/var/folders/y1/13lf3rj12nxc6fj_1qb645km0000gn/T/tmpubhqfwc7/suite
