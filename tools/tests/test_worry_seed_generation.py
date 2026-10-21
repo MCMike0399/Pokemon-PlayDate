@@ -36,7 +36,7 @@ class WorrySeedProducerTests(unittest.TestCase):
 
     def test_current_epoch_exact_inverse_preserves_all_original_oracles(self):
         text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text)
-        self.assertEqual(epoch,8)
+        self.assertEqual(epoch,10)
         self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
         for field in ('attemptRule','effects'):
             changed=dict(rows);changed['worrySeed']=c.drop_fields(rows['worrySeed'],(field,))

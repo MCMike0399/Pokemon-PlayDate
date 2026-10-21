@@ -1,0 +1,75 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "seed": 42,
+        "intro": "skip",
+        "opening": false,
+        "zone": "kanto_viridian_forest",
+        "entry": {
+          "x": 6,
+          "y": 6,
+          "facing": "right"
+        },
+        "quest_flags": {
+          "EVENT_GOT_POKEDEX": false
+        },
+        "player_pokemon": {
+          "species": "pidgey",
+          "level": 20
+        }
+      }
+    },
+    "seed 413",
+    "move right 1",
+    {
+      "op": "await",
+      "path": "field_encounter.reason",
+      "equals": "ability-suppressed",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "overworld"
+    },
+    {
+      "op": "assert",
+      "path": "overworld",
+      "equals": "explore"
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.kind",
+      "equals": "none"
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.rules_after.rolls",
+      "equals": "4"
+    },
+    {
+      "op": "assert",
+      "path": "player.x",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 6
+    },
+    "record field-keen-eye-settled 48",
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "overworld"
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.reason",
+      "equals": "ability-suppressed"
+    },
+    "shot field-keen-eye-no-battle"
+  ]
+}

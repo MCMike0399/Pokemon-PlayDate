@@ -36,7 +36,7 @@ class ChargeProducerTests(unittest.TestCase):
             for before,after in [('power = 100','power = 130'),('pp = 15','pp = 10'),('targetId = 8','targetId = 10'),('lockRule = "rampage"','lockRule = "rampage", effects = { NoEffect() }')]:
                 with self.subTest(change=(before,after)),self.assertRaisesRegex(ValueError,'unexpected changes'):generate(text.replace(before,after,1),p)
     def test_complete_source_epoch_requires_all_three_rules_and_preserves_original_hashes(self):
-        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,8)
+        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,10)
         for key,(field,value)in RULES.items():
             changed=dict(rows);changed[key]=c.drop_fields(rows[key],(field,))
             with self.subTest(key=key),self.assertRaisesRegex(ValueError,'producer metadata'):c.legacy_rows(changed,epoch)

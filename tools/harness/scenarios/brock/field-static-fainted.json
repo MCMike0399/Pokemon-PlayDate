@@ -1,0 +1,99 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "seed": 42,
+        "intro": "skip",
+        "opening": false,
+        "zone": "kanto_viridian_forest",
+        "entry": {
+          "x": 6,
+          "y": 6,
+          "facing": "right"
+        },
+        "quest_flags": {
+          "EVENT_GOT_POKEDEX": false
+        },
+        "party_pokemon": [
+          {
+            "species": "pikachu",
+            "level": 10,
+            "hp": 0
+          },
+          {
+            "species": "squirtle",
+            "level": 5
+          }
+        ]
+      }
+    },
+    "seed 413",
+    "move right 1",
+    {
+      "op": "await",
+      "path": "field_encounter.reason",
+      "equals": "accepted",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.ability",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.physical_lead.fainted",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.slot",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.creation.draws",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.creation.heldRoll",
+      "equals": 53
+    },
+    "record field-static-fainted-entry 48",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "battle",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.species",
+      "equals": "pikachu"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.level",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.held_item",
+      "equals": "lightBall"
+    },
+    {
+      "op": "assert",
+      "path": "field_encounter.rules_after.state",
+      "equals": "796991454"
+    },
+    "shot field-static-fainted-ready"
+  ]
+}

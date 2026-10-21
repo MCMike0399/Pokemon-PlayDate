@@ -101,6 +101,7 @@ function HarnessDiagnostics.snapshot(game)
     for id in pairs(ItemData.definitions) do inventory.quantities[id] = game.session:inventory():quantity(id) end
     return {
         display = HarnessCapture.display(),
+        field_encounter=game.lastEncounterSession==game.session and game.lastEncounterAttempt or {kind="none",reason="not-attempted"},
         performance={heap_kib=collectgarbage("count"),elapsed_ms=playdate.getCurrentTimeMilliseconds()},
         world_motion={rng=game.session:worldRngData(),live=game.npcManager.motion:snapshot(),captured=game.session:actorData(),
             paused=root:getCurrent()~="overworld"or root:depth()~=1 or world.sub:getCurrent()~="explore"},

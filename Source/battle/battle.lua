@@ -94,6 +94,8 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
     end
 
     damage = math.max(1, damage)
+    -- GenV final screen modifier follows minimum1, so a real hit may do0.
+    if effects then damage=effects.battle.conditions:screenDamage(attacker,defender,move,damage,isCrit) end
 
     -- Immune = 0 damage
     if effectiveness == 0 then damage = 0 end
@@ -408,14 +410,15 @@ end
 -- ============================================================
 
 -- Effective speed: stage-modified, quartered by paralysis (Gen V)
-local function effectiveSpeed(pokemon)
+local function effectiveSpeed(pokemon,conditions)
     local speed = applyStageMod(pokemon.spe, pokemon.statStages.spe)
+    if conditions then speed=conditions:speed(pokemon,speed) end
     if pokemon.status == "paralyze" then
         speed = math.floor(speed / 4)
     end
     return math.max(1,speed)
 end
-function Battle:effectiveSpeed(pokemon) return effectiveSpeed(pokemon) end
+function Battle:effectiveSpeed(pokemon) return effectiveSpeed(pokemon,self.conditions) end
 -- Pure current-state power observation; shares the production pipeline.
 function Battle:effectiveMovePower(move,attacker,defender)
     if move.category=="status" or (move.power==0 and not move.powerRule) then return 0 end
@@ -508,7 +511,7 @@ commitFight=function(self,playerTurn)
     if playerMove.priority ~= enemyTurn.move.priority then
         playerFirst = playerMove.priority > enemyTurn.move.priority
     else
-        local playerSpeed, enemySpeed = effectiveSpeed(self.player), effectiveSpeed(self.enemy)
+        local playerSpeed,enemySpeed=self:effectiveSpeed(self.player),self:effectiveSpeed(self.enemy)
         if playerSpeed == enemySpeed then playerFirst = RulesRNG.random(1, 2) == 1
         else playerFirst = playerSpeed > enemySpeed end
     end
@@ -854,6 +857,14 @@ function Battle:performMove(move)
         return nil
     end
 
+    -- GenV TryHit protection follows type immunity, before move-specific
+    -- gates/accuracy/HP/effects. A blocked attempt has no contact receipt.
+    if self.conditions:blocks(move,attacker,defender) then
+        if move.rollout then self.conditions:of(attacker).rollout=nil end
+        self.conditions:moveFinished(move,false)
+        return nil
+    end
+
     -- Move-specific failure after type immunity, before accuracy. PP has been
     -- consumed at the actual attempt, and no failure here samples damage RNG.
     local permitted,attemptReason=self.effects:canAttempt(move,attacker,defender)
@@ -883,6 +894,7 @@ function Battle:performMove(move)
         return nil
     end
 
+    self.conditions:breakProtection(move,defender)
     local fixed=self.effects:fixedDamage(move,attacker,defender)
     if fixed then
         DirectDamage(DEFENDER,fixed):apply(self)
@@ -902,14 +914,14 @@ function Battle:performMove(move)
         for hitNumber = 1, hits do
             local result = calcDamage(attacker, defender, move, power,self.effects)
             local receipt=self.effects:hit(attacker,defender,move,result.damage,hitNumber)
-            if receipt.removed>0 then self.conditions:landedMove(move) end
+            self.conditions:landedMove(move)
             local before=receipt.before
             total=total+receipt.removed
             landed = landed + 1
             anyCrit = anyCrit or result.isCrit
             self:say(defender.name .. " took " .. receipt.removed .. " damage!")
             if result.isCrit then self:say("A critical hit!") end
-            if receipt.removed>0 then self.conditions:rageHit(defender) end
+            self.conditions:rageHit(defender)
             self.effects:announceEndure(receipt)
             -- C DamageListCore: drain, secondary effects, contact reactions;
             -- whole-move recoil follows DamageMultiHit, before terminal verdict.
@@ -1050,6 +1062,7 @@ end
 
 function Battle:finishRound()
     local outcome = self:endOfRoundStatus()
+    self.conditions:endRound()
     if outcome and outcome ~= "replacement" then return outcome end
     -- Gen V replaces fainted battlers after residual effects, not mid-move.
     while not self.enemy:isAlive() and self.enemyParty and self.enemyParty:firstUsable() do
@@ -1089,22 +1102,30 @@ function Battle:endOfRoundStatus()
     self.player.flinched, self.enemy.flinched = false, false
     local events=self.conditions:events()
     for _,event in ipairs(self.effects:events()) do events[#events+1]=event end
-    local tie={}
+    local tie,sideTie={},{}
     local tiedSide
+    local function eventSpeed(event) return event.pokemon and self:effectiveSpeed(event.pokemon) or 0 end
+    local function sub(event) return event.suborder or 0 end
+    local function sideKey(event) return tostring(event.order)..":"..tostring(sub(event)) end
     for _,a in ipairs(events) do
         for _,b in ipairs(events) do
-            if a.side=="player" and b.side=="enemy" and a.order==b.order and effectiveSpeed(a.pokemon)==effectiveSpeed(b.pokemon) and not tie[a.order] then
-                tiedSide=tiedSide or RulesRNG.random(1,2)
-                tie[a.order]=tiedSide
+            if a.side=="player" and b.side=="enemy" and a.order==b.order and sub(a)==sub(b) and eventSpeed(a)==eventSpeed(b) then
+                if a.kind=="sideTimer" and b.kind=="sideTimer" then
+                    local key=sideKey(a);if not sideTie[key] then sideTie[key]=RulesRNG.random(1,2) end
+                elseif not tie[a.order] then
+                    tiedSide=tiedSide or RulesRNG.random(1,2);tie[a.order]=tiedSide
+                end
             end
         end
     end
     table.sort(events,function(a,b)
         if a==b then return false end
         if a.order~=b.order then return a.order<b.order end
-        local sa,sb=effectiveSpeed(a.pokemon),effectiveSpeed(b.pokemon)
+        if sub(a)~=sub(b) then return sub(a)<sub(b) end
+        local sa,sb=eventSpeed(a),eventSpeed(b)
         if sa~=sb then return sa>sb end
-        return a.side~="enemy" and tie[a.order]~=2 or a.side=="enemy" and tie[a.order]==2
+        local orientation=a.kind=="sideTimer" and sideTie[sideKey(a)] or tie[a.order]
+        return a.side~="enemy" and orientation~=2 or a.side=="enemy" and orientation==2
     end)
     local weatherFaint
     for index, event in ipairs(events) do
@@ -1145,11 +1166,11 @@ function Battle:getConditionsSnapshot()
     local out={sides={}}
     for _,side in ipairs({"player","enemy"}) do
         local state=self.conditions.members[self[side]] or {};local hazards=self.conditions.sides[side]
-        out[side]={charge_key=state.charge and state.charge.key or "",rampage_key=state.rampage and state.rampage.key or "",rampage_remaining=state.rampage and state.rampage.remaining or 0,rampage_total=state.rampage and state.rampage.total or 0,bide_turns=state.bide and state.bide.turns or 0,bide_damage=state.bide and state.bide.total or 0,focus_energy=state.focusEnergy==true,mud_sport=state.mudSport==true,cursed=state.curse==true,rage=state.rage==true,
+        out[side]={protect=state.protect==true,stall_counter=state.stall and state.stall.counter or 0,stall_remaining=state.stall and state.stall.remaining or 0,charge_key=state.charge and state.charge.key or "",rampage_key=state.rampage and state.rampage.key or "",rampage_remaining=state.rampage and state.rampage.remaining or 0,rampage_total=state.rampage and state.rampage.total or 0,bide_turns=state.bide and state.bide.turns or 0,bide_damage=state.bide and state.bide.total or 0,focus_energy=state.focusEnergy==true,mud_sport=state.mudSport==true,cursed=state.curse==true,rage=state.rage==true,
             defense_curl=state.defenseCurl==true,rollout_hits=state.rollout and state.rollout.hits or 0,
             seeded=state.seed~=nil,trapped=self.conditions:trapped(self[side]),trap_turns=state.trap and state.trap.remaining or 0,
             toxic_counter=self[side].status=="badPoison" and (state.toxic or 0) or 0}
-        out.sides[side]={spikes=hazards.spikes or 0,toxic_spikes=hazards.toxicSpikes or 0,stealth_rock=hazards.stealthRock or 0}
+        out.sides[side]={spikes=hazards.spikes or 0,toxic_spikes=hazards.toxicSpikes or 0,stealth_rock=hazards.stealthRock or 0,light_screen=hazards.lightScreen and hazards.lightScreen.turns or 0,safeguard=hazards.safeguard and hazards.safeguard.turns or 0,tailwind=hazards.tailwind and hazards.tailwind.turns or 0}
     end
     return out
 end

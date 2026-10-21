@@ -1,0 +1,498 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 2,
+        "player_pokemon": {
+          "species": "squirtle",
+          "level": 22,
+          "nature_id": 0,
+          "ability_slot": "first",
+          "held_item": "none"
+        },
+        "inventory": {
+          "money": 3000,
+          "slots": [
+            {
+              "id": "tm34",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 360
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "bag.phase",
+      "equals": "actions",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "learning",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.mode",
+      "equals": "machine",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "ask",
+      "frames": 360
+    },
+    "wait 2",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "replace",
+      "frames": 360
+    },
+    "press down",
+    "press down",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "confirm",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "message",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 360
+    },
+    "shot bide-forgot-protect",
+    "press a",
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 360
+    },
+    "shot bide-tm34-learned",
+    {
+      "op": "assert",
+      "path": "party.members.1.moves.4",
+      "equals": "bide"
+    },
+    {
+      "op": "assert",
+      "path": "party.members.1.pp.bide",
+      "equals": 10
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.tm34",
+      "equals": 0
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 360
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "battle squirtle 22",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild SQUIRTLE appeared!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "waterGun": 2,
+            "bite": 0,
+            "rapidSpin": 0,
+            "protect": 0
+          }
+        }
+      }
+    },
+    "seed 2",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press down",
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used BIDE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE is storing energy!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used WATER GUN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE took 5 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 46
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_damage",
+      "equals": 5
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "It's not very effective...",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE is storing energy!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used WATER GUN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE took 5 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 41
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_damage",
+      "equals": 10
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "protect": 1
+          }
+        }
+      }
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "It's not very effective...",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used PROTECT!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE protected itself!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.conditions.enemy.protect",
+      "equals": true
+    },
+    "shot bide-target-protect",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE unleashed energy!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "shot bide-release-at-protect",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE protected itself!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 51
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 41
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.bide",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.protect",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_turns",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 9
+    },
+    "record bide-protect-block 12",
+    "shot bide-protect-block",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.enemy.protect",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.tm34",
+      "equals": 0
+    },
+    "shot bide-protect-complete"
+  ],
+  "outputs": [
+    "bide-forgot-protect.png",
+    "bide-tm34-learned.png",
+    "bide-target-protect.png",
+    "bide-release-at-protect.png",
+    "bide-protect-block.png",
+    "bide-protect-complete.png",
+    "bide-protect-block-01.png"
+  ]
+}

@@ -243,16 +243,17 @@ end
 function BattleEffects:afterHit(receipt)
     if not self.receipts[receipt] or not self:active(receipt.source) or not self:active(receipt.target) then return false,"stale-hit" end
     self.receipts[receipt]=nil
+    if receipt.before<=0 then return false,"target-was-fainted" end
     local b,source,target,move=self.battle,receipt.source,receipt.target,receipt.move
     local id=self:effectiveAbility(target)
-    if (id==9 or id==38) and receipt.contact and receipt.removed>0 and RulesRNG.random(0,99)<30 then
+    if (id==9 or id==38) and receipt.contact and receipt.before>0 and RulesRNG.random(0,99)<30 then
         -- Preserve native/Static chance-before-eligibility order, including KO.
         local status=id==9 and "paralyze" or "poison"
         local eligible=status~="poison" or (not has(source,"poison") and not has(source,"steel")
             and not self:statusImmunity(source,status))
         if alive(source) and not source.status and eligible then
             b:say(target.name .. (id==9 and "'s Static!" or "'s Poison Point!"))
-            ApplyStatus({resolve=function() return source end},status):apply(b)
+            ApplyStatus({resolve=function() return source end},status,{source={resolve=function() return target end},cause="ability"}):apply(b)
         end
     end
     return true

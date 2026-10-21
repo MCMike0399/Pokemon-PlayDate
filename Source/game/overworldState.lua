@@ -57,15 +57,23 @@ function ExploreSubstate:update()
     -- No pokemon yet (pre-starter intro) = no wild battles.
     if player.stepJustFinished and not DEBUG_FLAGS.noEncounters
        and game.session:party():firstUsable() then
-        if currentZone:checkEncounter(player.gridX, player.gridY) then
-            local px, py = player:getPixelCenter()
-            local ox, oy = gfx.getDrawOffset()
-            local rootMachine = self.owner.machine
-            self.machine:change("irisOut", px + ox, py + oy, function()
-                assert(FieldBattle.start(game,
-                    game:getPlayerPokemon(), currentZone:rollEncounter(game.session), nil))
-            end)
-            return
+        local session,zone=game.session,currentZone
+        local plan,reason=FieldEncounters.prepare({session=session,party=session:party(),zone=zone,x=player.gridX,y=player.gridY})
+        if plan then
+            local ok,result=FieldEncounters.resolve(plan);assert(ok,result)
+            game.lastEncounterAttempt=result.receipt;game.lastEncounterSession=session
+            if result.kind=="encounter"then
+                local enemy=result.pokemon
+                local px,py=player:getPixelCenter();local ox,oy=gfx.getDrawOffset()
+                local rootMachine=self.owner.machine
+                self.machine:change("irisOut",px+ox,py+oy,function()
+                    if game.session~=session or currentZone~=zone or game.player~=player then return false,"stale-wild-transition"end
+                    assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
+                end)
+                return
+            end
+        else
+            assert(reason=="ineligible-terrain"or reason=="disabled-rate",reason)
         end
     end
 
@@ -268,6 +276,9 @@ end
 function OverworldState:enter(opts)
     self.presentationVisit = nil
     local game = self.game
+    if game.lastEncounterSession~=game.session then
+        game.lastEncounterSession,game.lastEncounterAttempt=nil,nil
+    end
 
     gfx.sprite.removeAll()
     setupOverworld()

@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "source_revision": "48e88ac",
+  "source_sha256": "cd1d3c0464ca348f7b418d6fa0ea767b5c9e315d3e4b39ce9b6d506e7a1de3c2",
+  "instrumentation_code_sha256": "ae0ebc140ed38c7bbc7132837268b2c8f4d945887747bd6dc455f2400631e2dc",
+  "sdk_version": "3.1.2",
+  "comparison": {
+    "schema": 1,
+    "base_source_sha256": "cd1d3c0464ca348f7b418d6fa0ea767b5c9e315d3e4b39ce9b6d506e7a1de3c2",
+    "runs": [
+      {
+        "output": "/private/tmp/pokemon-root-memory02-production-milestones",
+        "mode": "production",
+        "observer": "milestones",
+        "run_id": "432de3afd1ea42a9a7dd59fb98265220",
+        "pid": 15519,
+        "startup_elapsed_ms": 215,
+        "startup_wall_seconds": 1.8560871250228956,
+        "first_measured_steady_heap_kib": 22765.734375,
+        "steady_before_full_gc_kib": 10597.733398438,
+        "frame300_after_full_gc_kib": 10592.098632812,
+        "final_after_full_gc_kib": 10596.328125,
+        "sampled_peak_kib": 22765.734375,
+        "mean_instrumented_update_work_ms": 0.12,
+        "observer_calibration": {
+          "retained_during_loop_delta_kib": 84.0546875,
+          "runs": 512,
+          "note": "Raw observer calibration, not subtracted from game/device measurements",
+          "sample_loop_ms": 1,
+          "clock_loop_ms": 0,
+          "heap_after_release_kib": 10598.1328125,
+          "release_full_gc_ms": 1
+        }
+      },
+      {
+        "output": "/private/tmp/pokemon-root-memory02-production-imports",
+        "mode": "production",
+        "observer": "imports",
+        "run_id": "3e29eabbb449484b81738ea5de340dc1",
+        "pid": 15711,
+        "startup_elapsed_ms": 212,
+        "startup_wall_seconds": 1.752125333994627,
+        "first_measured_steady_heap_kib": 22851.2265625,
+        "steady_before_full_gc_kib": 10597.696289062,
+        "frame300_after_full_gc_kib": 10592.061523438,
+        "final_after_full_gc_kib": 10596.291015625,
+        "sampled_peak_kib": 22851.2265625,
+        "mean_instrumented_update_work_ms": 0.15166666666666667,
+        "observer_calibration": {
+          "note": "Raw observer calibration, not subtracted from game/device measurements",
+          "clock_loop_ms": 0,
+          "heap_after_release_kib": 10598.095703125,
+          "runs": 512,
+          "retained_during_loop_delta_kib": 84.0546875,
+          "release_full_gc_ms": 1,
+          "sample_loop_ms": 0
+        }
+      },
+      {
+        "output": "/private/tmp/pokemon-root-memory02-harness-milestones",
+        "mode": "harness",
+        "observer": "milestones",
+        "run_id": "3efe02f6df5b42efbeca380605f1ca2b",
+        "pid": 16031,
+        "startup_elapsed_ms": 218,
+        "startup_wall_seconds": 1.8699419579934329,
+        "first_measured_steady_heap_kib": 22547.296875,
+        "steady_before_full_gc_kib": 10716.11328125,
+        "frame300_after_full_gc_kib": 10677.102539062,
+        "final_after_full_gc_kib": 10681.357421875,
+        "sampled_peak_kib": 22547.296875,
+        "mean_instrumented_update_work_ms": 5.171666666666667,
+        "observer_calibration": {
+          "release_full_gc_ms": 1,
+          "retained_during_loop_delta_kib": 84.0546875,
+          "clock_loop_ms": 0,
+          "runs": 512,
+          "sample_loop_ms": 0,
+          "note": "Raw observer calibration, not subtracted from game/device measurements",
+          "heap_after_release_kib": 10682.849609375
+        }
+      },
+      {
+        "output": "/private/tmp/pokemon-root-memory02-harness-imports",
+        "mode": "harness",
+        "observer": "imports",
+        "run_id": "cbf500c75f6f4897bf4ca0371280efc0",
+        "pid": 16328,
+        "startup_elapsed_ms": 215,
+        "startup_wall_seconds": 1.844691416947171,
+        "first_measured_steady_heap_kib": 22671.736328125,
+        "steady_before_full_gc_kib": 10716.079101562,
+        "frame300_after_full_gc_kib": 10677.064453125,
+        "final_after_full_gc_kib": 10681.3203125,
+        "sampled_peak_kib": 22671.736328125,
+        "mean_instrumented_update_work_ms": 5.273333333333333,
+        "observer_calibration": {
+          "retained_during_loop_delta_kib": 84.0546875,
+          "note": "Raw observer calibration, not subtracted from game/device measurements",
+          "runs": 512,
+          "heap_after_release_kib": 10682.8125,
+          "clock_loop_ms": 0,
+          "release_full_gc_ms": 1,
+          "sample_loop_ms": 0
+        }
+      }
+    ],
+    "claim": "Instrumented Simulator Lua heap/work only, no production-device/native-malloc/true-peak inference. No fix or release approval implied."
+  },
+  "runtime_result": "4 fresh identified native jobs PASS; root reviewed actual native bedroom/Oak capture",
+  "host": "10 verifier checks PASS, zero skips",
+  "preserved_failures": [
+    {
+      "path": "/private/tmp/pokemon-root-memory-H-min-01",
+      "outcome": {
+        "ok": false,
+        "error": "harness comparison missing actual runtime publications",
+        "run_id": "53e2d01696644b59b990d151b019d852",
+        "build_id": "48e88ac464e3c21d539f0f94c3a660a44dd1ca39:production-probe:ae0ebc140ed38c7bbc7132837268b2c8f4d945887747bd6dc455f2400631e2dc"
+      }
+    },
+    {
+      "path": "/private/tmp/pokemon-root-memory-H-imports-01",
+      "outcome": {
+        "ok": false,
+        "error": "harness comparison missing actual runtime publications",
+        "run_id": "eee2c26283734a2384ab51733698b7bb",
+        "build_id": "48e88ac464e3c21d539f0f94c3a660a44dd1ca39:production-probe:ae0ebc140ed38c7bbc7132837268b2c8f4d945887747bd6dc455f2400631e2dc"
+      }
+    }
+  ],
+  "failure_resolution": "Original host verifier wrongly expected frame-trace.jsonl. Separate frozen erratum requires actual trace.jsonl, exact identity/600 consecutive completed frames and no production trace. Four fresh jobs; no failed run reclassified. No game/probe Lua change.",
+  "archive": "production-memory02.tar.gz",
+  "archive_sha256": "512bbe1617a1ac18fe342e2d6fa129dfbbbb1a0e7b7c7f461c79d9072185d3f1",
+  "archive_bytes": 1269405,
+  "archive_layout": "One shared exact compiled Source, per-job three generated Source overlays plus all metadata/runtime Data/captures/logs. Verify per-job source-manifest. PDX reproducible via SDK3.1.2; excluded. Two frozen probe packets included.",
+  "limits": [
+    "Sampled Lua heap only, not total/native allocation or true peak",
+    "Startup original Source plus passive observer/PDZ overhead, clock1ms resolution",
+    "Opening idle scene for600frames only, not map/battle/long-run stress",
+    "Explicit two full collections are measurement, game GC policy unchanged",
+    "Simulator-only; no device RAM-fit/CPU/release acceptance",
+    "No import-gating optimization included or accepted"
+  ]
+}

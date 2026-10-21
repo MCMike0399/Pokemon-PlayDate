@@ -7,14 +7,16 @@ import hashlib,json,re
 from pathlib import Path
 from tools.verify_moves.parse_lua import Reader,TOKEN
 ROOT=Path(__file__).resolve().parents[1]
-CONTRACT_SHA256='a8413f38faeb86df2e510e206a535d6080b1bea3e32b47ab557287ad3e421a61'
+CONTRACT_SHA256='4011094c5a3c8ae33feee6799daf223e4f4f361b3108d3a82966c4fc88da0231'
 META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
+PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
 ABILITY_FIELDS=('contact','hasSecondary','ohko','typeImmunity','sandWeakened')
 RULE_FIELDS=('powerRule','damageRule','attemptRule','chargeRule','lockRule','weatherAccuracy')
 RULES={'electroBall':{'powerRule':'electroBall'},'assurance':{'powerRule':'assurance'},'endeavor':{'damageRule':'endeavor'},'suckerPunch':{'attemptRule':'suckerPunch'},'ragePowder':{'attemptRule':'singlesRedirect'},'bide':{'damageRule':'bide'},'captivate':{'attemptRule':'oppositeSex'},'solarBeam':{'chargeRule':'solarBeam'},'skullBash':{'chargeRule':'skullBash'},'petalDance':{'lockRule':'rampage'},'thunder':{'weatherAccuracy':True},'hurricane':{'weatherAccuracy':True},'worrySeed':{'attemptRule':'worrySeed'}}
 RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thunder':7,'hurricane':7,'worrySeed':8}
-PRODUCER_FIELDS=ABILITY_FIELDS+('critStage',)+RULE_FIELDS
+PROTECTION_FIELDS=('protectable','breaksProtect')
+PRODUCER_FIELDS=ABILITY_FIELDS+('critStage',)+RULE_FIELDS+PROTECTION_FIELDS
 def digest(raw):return hashlib.sha256(raw).hexdigest()
 def read_rows(text):
     pairs=re.findall(r'^    (\w+) = (Move[^\n]+)$',text,re.M)
@@ -101,26 +103,44 @@ def producer_metadata():
         result[key]=row['metadata']
     return result
 
+def protection_metadata():
+    raw=(ROOT/'tools/references/protection-move-metadata.json').read_bytes()
+    if digest(raw)!=PROTECTION_SHA256:raise ValueError('protection metadata checksum mismatch')
+    result=json.loads(raw)
+    if result.get('schema')!=1 or result.get('generation')!=5 or result.get('revision')!='9b136a8c8cdb860a8ab96fa063f906604e352547':raise ValueError('unverified protection metadata source')
+    rows=result['moves']
+    if set(rows)!=set(producer_metadata()):raise ValueError('protection metadata roster mismatch')
+    for key,row in rows.items():
+        if set(row)!=set(PROTECTION_FIELDS) or any(type(v)is not bool for v in row.values()):raise ValueError('invalid protection metadata '+key)
+    return rows
+
 def historical_rows(rows,epoch=None):
     result=dict(rows)
     for key,entry in load_contract().get('added_moves',{}).items():
         if key in result:
-            if result[key]!=entry['row']:raise ValueError('an added move scalar or effect changed: '+key)
+            row=result[key];value=fields(row)
+            if (epoch or 0)>=9 or (epoch is None and any(k in value for k in PROTECTION_FIELDS)):
+                expected=protection_metadata()[key]
+                if any(type(value.get(k))is not bool or value[k]!=v for k,v in expected.items()):raise ValueError('an added move protection metadata changed: '+key)
+                row=drop_fields(row,PROTECTION_FIELDS)
+            if row!=entry['row']:raise ValueError('an added move scalar or effect changed: '+key)
             del result[key]
     return result
 
-def additions(key,semantics):
+def additions(key,semantics,epoch=9):
     expected={'contact':semantics['contact'],'hasSecondary':semantics['secondary'],'ohko':semantics['ohko']}
     if semantics['typeImmunity']:expected['typeImmunity']=True
     if key=='solarBeam':expected['sandWeakened']=True
+    if epoch>=9:expected.update(protection_metadata()[key])
     return expected
 
 def producer_epoch(text):
     marker=re.search(r'^-- move-producer-contract: (\d+)$',text,re.M)
     if marker:
         version=int(marker[1])
-        if version not in (1,2,3,4,5,6,7,8):raise ValueError('unsupported move producer epoch')
+        if version not in (1,2,3,4,5,6,7,8,9,10):raise ValueError('unsupported move producer epoch')
         return version
+    if re.search(r'self\.protectable\s*=',text) or any(any(field in fields(row)for field in PROTECTION_FIELDS)for row in read_rows(text).values()):return 9
     if re.search(r'self\.(?:powerRule|damageRule|attemptRule)\s*=',text):return 3
     if re.search(r'self\.critStage\s*=',text):return 2
     return 1 if any(any(field in fields(row)for field in ABILITY_FIELDS)for row in read_rows(text).values())else 0
@@ -145,7 +165,7 @@ def compatible(key,old,new,semantics,contract=None,epoch=0):
         if field in left:
             if field not in expected or type(left[field])is not type(expected[field])or left[field]!=expected[field]:return False
         elif field in expected:
-            introduced=RULE_EPOCHS[key] if field in RULE_FIELDS else 2 if field=='critStage' else 1
+            introduced=9 if field in PROTECTION_FIELDS else RULE_EPOCHS[key] if field in RULE_FIELDS else 2 if field=='critStage' else 1
             if epoch>=introduced:return False
             left[field]=expected[field]
     if not same({k:v for k,v in left.items()if k not in PAYLOAD},{k:v for k,v in after.items()if k not in PAYLOAD}):return False
@@ -156,15 +176,15 @@ def compatible(key,old,new,semantics,contract=None,epoch=0):
 def legacy_rows(rows,epoch=None):
     """Reverse exact declared v1 payloads, then retain ORIGINAL legacy hashes."""
     contract=load_contract();semantics=metadata();result={}
-    inferred=max([1]+[RULE_EPOCHS[key]for key,row in rows.items()if key in RULES and any(field in fields(row)for field in RULE_FIELDS)])
-    rows=historical_rows(rows,epoch)
+    inferred=max([1]+[RULE_EPOCHS[key]for key,row in rows.items()if key in RULES and any(field in fields(row)for field in RULE_FIELDS)]+[9 for row in rows.values()if any(field in fields(row)for field in PROTECTION_FIELDS)])
+    rows=historical_rows(rows,epoch or inferred)
     migrated=any(any(k in fields(row)for k in ABILITY_FIELDS)for row in rows.values())
     if not migrated:return dict(rows)
     critical=(epoch is not None and epoch>=2) or any('critStage'in fields(row)or 'FocusEnergyEffect'in row for row in rows.values())
     rules=(epoch is not None and epoch>=3) or any(any(field in fields(row)for field in RULE_FIELDS)for row in rows.values())
     version=max(epoch or 0,inferred,3 if rules else 2 if critical else 1)
     for key,row in rows.items():
-        value=fields(row);expected=additions(key,semantics[key])
+        value=fields(row);expected=additions(key,semantics[key],epoch=version)
         if rules and RULE_EPOCHS.get(key,3)<=version:expected.update(RULES.get(key,{}))
         if critical and key in contract['critical']['nonzero']:expected['critStage']=contract['critical']['nonzero'][key]
         if any(field not in value or type(value[field])is not type(flag)or value[field]!=flag for field,flag in expected.items()):raise ValueError('an existing move scalar changed: producer metadata '+key)

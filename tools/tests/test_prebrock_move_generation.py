@@ -47,6 +47,6 @@ class PreBrockProducerTests(unittest.TestCase):
             for mutant in [old_rows().replace('"eva", -2','"eva", -3'),old_rows().replace('power = 80','power = 79')]:
                 with self.assertRaisesRegex(ValueError,'unexpected changes'):generate(mutant,p)
     def test_legacy_inverse_keeps_original_scalar_effect_oracles(self):
-        rows=c.read_rows((ROOT/'Source/battle/moves.lua').read_text());lowered=c.legacy_rows(rows)
+        rows=c.read_rows((ROOT/'Source/battle/moves.lua').read_text());lowered=c.legacy_rows(rows,c.producer_epoch((ROOT/'Source/battle/moves.lua').read_text()))
         import json
         self.assertEqual(c.digest(json.dumps(lowered,sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')

@@ -18,7 +18,7 @@
     "ohko-dispatch": 4,
     "weather-producer": 3
   },
-  "policy": "Only epoch0 may add absent targetId/ability metadata; complete epoch1 may add declared epoch2 critical metadata/Focus producer. Wrong or deleted current-epoch metadata and arbitrary effects reject. Exact declared payload pairs reverse to unchanged historical early-combat hashes. Epoch3 adds only five literal rule fields and the source-pinned GenV SweetScent Eva-1 correction; complete epoch3 inputs may not lose either. Legacy hashes remain unchanged. Epoch4 explicitly adds Bide117 for originalBlue TM34; exact added row is independently source-qualified and removed only from the historical424-row hash projection. Arbitrary extra rows and mutations of the added row reject. Epoch5 adds only Captivate oppositeSex attempt eligibility; its existing SpA-2 effect and every scalar remain unchanged. Per-rule introduction epochs protect complete old versions and reject current deletions. Epoch6 adds only SolarBeam/SkullBash chargeRule and PetalDance lockRule, with all prior scalar/effect bytes retained. Epoch7 introduces only RainDance WeatherEffect and Thunder/Hurricane weatherAccuracy booleans; exact payload inverse and current metadata checks preserve original scalar/effect hashes. Epoch8 adds only WorrySeed attemptRule and exact WorrySeedEffect producer; all existing fields and historical hashes remain protected.",
+  "policy": "Only epoch0 may add absent targetId/ability metadata; complete epoch1 may add declared epoch2 critical metadata/Focus producer. Wrong or deleted current-epoch metadata and arbitrary effects reject. Exact declared payload pairs reverse to unchanged historical early-combat hashes. Epoch3 adds only five literal rule fields and the source-pinned GenV SweetScent Eva-1 correction; complete epoch3 inputs may not lose either. Legacy hashes remain unchanged. Epoch4 explicitly adds Bide117 for originalBlue TM34; exact added row is independently source-qualified and removed only from the historical424-row hash projection. Arbitrary extra rows and mutations of the added row reject. Epoch5 adds only Captivate oppositeSex attempt eligibility; its existing SpA-2 effect and every scalar remain unchanged. Per-rule introduction epochs protect complete old versions and reject current deletions. Epoch6 adds only SolarBeam/SkullBash chargeRule and PetalDance lockRule, with all prior scalar/effect bytes retained. Epoch7 introduces only RainDance WeatherEffect and Thunder/Hurricane weatherAccuracy booleans; exact payload inverse and current metadata checks preserve original scalar/effect hashes. Epoch8 adds only WorrySeed attemptRule and exact WorrySeedEffect producer; all existing fields and historical hashes remain protected. Epoch9 adds only two exact source-projected booleans on all425 rows and ProtectEffect. The original immutable ability metadata artifact and historical scalar/effect hashes remain unchanged. AddedBide must validate both exact new flags before projecting its unchanged legacy row. Epoch10 adds only LightScreen/Safeguard/Tailwind typed side-condition payloads; Gen5 PP30/25/30, all425 original scalars/targets/flags/prior fields and original historical hashes retained.",
   "transitions": {
     "acid": [
       {
@@ -2207,6 +2207,78 @@
         },
         "legacy_suffix": " },"
       }
+    ],
+    "protect": [
+      {
+        "migration": "protect-v9",
+        "kind": "protection",
+        "version": 9,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "ProtectEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "lightScreen": [
+      {
+        "migration": "sides-v10",
+        "kind": "side-condition",
+        "version": 10,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "SideConditionEffect ( \"lightScreen\" )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "safeguard": [
+      {
+        "migration": "sides-v10",
+        "kind": "side-condition",
+        "version": 10,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "SideConditionEffect ( \"safeguard\" )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "tailwind": [
+      {
+        "migration": "sides-v10",
+        "kind": "side-condition",
+        "version": 10,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "SideConditionEffect ( \"tailwind\" )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
     ]
   },
   "critical": {
@@ -2317,5 +2389,6 @@
         "sim/pokemon.ts:2257"
       ]
     }
-  }
+  },
+  "protection_metadata_artifact_sha256": "66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462"
 }

@@ -28,11 +28,11 @@ class TargetGenerationTests(unittest.TestCase):
                 g.generate_moves(data,preserve_existing=True)
                 generated=output.read_text()
                 actual=re.search(r'^    recover = .*$',generated,re.M)[0]+'\n'
-                # These exact four producer-owned additions are now declared. No
+                # These exact six producer-owned additions are now declared. No
                 # other scalar or effect may disappear behind normalization.
                 from tools.move_producer_contract import fields
-                self.assertEqual(fields(actual[actual.index("Move"):].strip()),{'name':'RECOVER','type':'normal','category':'status','power':0,'accuracy':0,'pp':10,'targetId':7,'contact':False,'hasSecondary':False,'ohko':False})
-                self.assertEqual(actual.replace(', targetId = 7','').replace(', contact = false, hasSecondary = false, ohko = false',''),old)
+                self.assertEqual(fields(actual[actual.index("Move"):].strip()),{'name':'RECOVER','type':'normal','category':'status','power':0,'accuracy':0,'pp':10,'targetId':7,'contact':False,'hasSecondary':False,'ohko':False,'breaksProtect':False,'protectable':False})
+                self.assertEqual(actual.replace(', targetId = 7','').replace(', contact = false, hasSecondary = false, ohko = false','').replace(', breaksProtect = false, protectable = false',''),old)
                 self.assertIn('self.targetId = m.targetId or 10',generated)
                 source.write_text(generated)
                 g.generate_moves(data,preserve_existing=True)

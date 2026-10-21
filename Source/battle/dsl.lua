@@ -258,9 +258,27 @@ local function immuneToStatus(pokemon, status)
 end
 
 Class("ApplyStatus")
-function ApplyStatus:init(target, status)
+function ApplyStatus:init(target, status, origin)
     self.target = Target.from(target)
     self.status = status
+    if origin~=nil then
+        assert(type(origin)=="table","invalid-status-origin")
+        for key in pairs(origin) do assert(key=="source" or key=="cause","unknown-status-origin-field") end
+        assert(origin.cause=="move" or origin.cause=="ability" or origin.cause=="fatigue","invalid-status-cause")
+        self.statusSource=Target.from(origin.source);self.statusCause=origin.cause
+        assert(type(self.statusSource)=="table" and type(self.statusSource.resolve)=="function","invalid-status-source")
+        assert(origin.cause~="fatigue" or status=="confuse","invalid-fatigue-status")
+    else self.statusSource=ATTACKER;self.statusCause="move" end
+end
+function ApplyStatus:preventedBySide(battle,pokemon)
+    if not battle.conditions then return false end
+    local source=self.statusSource:resolve(battle)
+    assert(self.statusCause~="fatigue" or source==pokemon,"fatigue-must-be-self-origin")
+    local origin=battle.conditions:statusOrigin(source,self.statusCause)
+    if battle.conditions:preventsStatus(pokemon,self.status,origin) then
+        battle:say(pokemon.name.." is protected by Safeguard!");return true
+    end
+    return false
 end
 
 function ApplyStatus:apply(battle)
@@ -276,6 +294,7 @@ function ApplyStatus:apply(battle)
         if pokemon.confusion then return end
         local immunity=battle.effects and battle.effects:statusImmunity(pokemon,"confuse")
         if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
+        if self:preventedBySide(battle,pokemon) then return end
         pokemon.confusion = RulesRNG.random(1, 4)   -- attacking turns of confusion
         battle:say(pokemon.name .. " became confused!")
         return
@@ -293,6 +312,7 @@ function ApplyStatus:apply(battle)
     if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
     -- Sample before committing durable fields; RNG exhaustion cannot leave an
     -- asleep Pokemon without its original duration.
+    if self:preventedBySide(battle,pokemon) then return end
     local duration = self.status == "sleep" and RulesRNG.random(1, 3) or 0
     if battle.conditions then battle.conditions:of(pokemon).toxic=nil end
     pokemon.status = self.status
@@ -415,6 +435,16 @@ function WorrySeedEffect:apply(battle)
     local ok=battle.effects:worrySeed(battle.attacker,battle.defender)
     if not ok then battle:say("But it failed!") end
 end
+
+Class("SideConditionEffect")
+function SideConditionEffect:init(kind)
+    assert(kind=="lightScreen" or kind=="safeguard" or kind=="tailwind","unsupported-side-condition")
+    self.kind=kind
+end
+function SideConditionEffect:apply(battle) return battle.conditions:setSideCondition(self.kind) end
+
+Class("ProtectEffect")
+function ProtectEffect:apply(battle) return battle.conditions:protect() end
 
 Class("FocusEnergyEffect")
 function FocusEnergyEffect:apply(battle) battle.conditions:focusEnergy() end

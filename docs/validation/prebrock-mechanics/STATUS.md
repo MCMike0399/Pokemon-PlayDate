@@ -7,3 +7,5 @@ Correction: Red’s PC original Potion acquisition is not currently implemented;
 Six-move, sex/LightBall/CompoundEyes, map/rope and teaching/Bide candidates are staged separately and are not accepted by this status file. Follow ../progress.md for current executable work.
 
 Current implementation is now installed in main, Sourcecd1d3c...de3c2:873SDK/455host0skips;22unique native recipes (including truePC/Map/seenContinue),2494catalog exact. Teaching/Bide, sixmove rules, traits/LightBall, map/Rope, home/lead/PC, charge/Rain/Worry/sex hooks are integrated. This does not waive the snapshot135move/fullgrind inventory, fieldabilities, IV/EV, Route22 or final naturalall3 evidence. Follow progress.md; newerfield/Protect/side candidates remain unaccepted.
+
+Current Source49832d integrates Protect/Feint, physical-lead Static/KeenEye/Intimidate and LightScreen/Safeguard/Tailwind:950SDK/462host0skip;11new native cases across explicit022ff/49832d hashes, all16meaningful fault witnesses and2494exact images. Snapshot rows remain historical; Roost, Route22, individualstats/rewards and final naturalall3 remain required. See brock-integrated950.json and progress.md.

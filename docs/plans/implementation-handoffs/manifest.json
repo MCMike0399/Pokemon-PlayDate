@@ -268,6 +268,70 @@
       "sha256": "355d5a10b65cba405730d880888a5dbd67518b3f0b53b47640905d80e953b939",
       "bytes": 1572082,
       "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-brock-protect-cleanup-errata01",
+      "archive": "pokemon-brock-protect-cleanup-errata01.tar.gz",
+      "sha256": "ad95bdb78d6471256daa2438823ae72c803ab2342b59498a19ad8c3bfa7fb578",
+      "bytes": 8802,
+      "manifest_sha256": "5f22aa3d2e86867a9ada5c9355c0803e1507415b5df9e467b95a777a442cea25",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-field-abilities-fixture-erratum-02",
+      "archive": "pokemon-field-abilities-fixture-erratum-02.tar.gz",
+      "sha256": "73e2818ab701def80a1ee5393e7b04e382851e3f23215fd87d5800a4d0cc12a4",
+      "bytes": 5735,
+      "manifest_sha256": "201d59c85aad34773c1be49921e7363ff4b9a68cbac3c05390ec4f9126a7d1af",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-brock-sides-01",
+      "archive": "pokemon-brock-sides-01.tar.gz",
+      "sha256": "6d02122b5fc9514e3536686847312c0e9536eaff73d37f91930983518bbbb854",
+      "bytes": 85360,
+      "manifest_sha256": "f51dea5895211f450ea6cf4bdfee6ed5267e5ba90dc3365533660138a38245b3",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-brock-roost-proposal",
+      "archive": "pokemon-brock-roost-proposal.tar.gz",
+      "sha256": "732a4dce8b36ed69caf142a32fb4f1506871d80bbd5c4f64c4c48b135c74d901",
+      "bytes": 10163,
+      "manifest_sha256": "1fc38e08cb856eb987d8e0c3199e65ce6fc864f474795029ed81ad9428be8b90",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-root-producer-v11",
+      "archive": "pokemon-root-producer-v11.tar.gz",
+      "sha256": "008f251ac782196595da635fcd467dd70a23a7cde1be4e7bf8aea9dfb2d41f88",
+      "bytes": 45355,
+      "manifest_sha256": "6a1ec984e5d804f6099c86f468a42580113f329e3949fd9b8b8dab52e70c137f",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-iv-ev-proposal-01",
+      "archive": "pokemon-iv-ev-proposal-01.tar.gz",
+      "sha256": "b80ccf4860f72a23844dae9d2bfb3c356530cae6fa1e01af3f76f656fa806b51",
+      "bytes": 237773,
+      "manifest_sha256": "5331cff3383bf01c6cd9a50eea5e4ad5b04884a30fa5a014f1790f757f65a046",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-production-memory-probe-01",
+      "archive": "pokemon-production-memory-probe-01.tar.gz",
+      "sha256": "e4da080a8ed3b49e64b904025dad1402159a876af04d4f5a570b6e5599cf6e3c",
+      "bytes": 27382,
+      "manifest_sha256": "06e9c31c84e9ee7d31f9bb30474d59a9f66f41471bf04ecdee422de66ede0336",
+      "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-production-memory-probe-erratum-02",
+      "archive": "pokemon-production-memory-probe-erratum-02.tar.gz",
+      "sha256": "01fb0f102c154aa466e248d667bd81cd0e50ece78cf0590f71897233a371ba24",
+      "bytes": 29935,
+      "manifest_sha256": "1d802d4bb383e4d20c1d8a15a439ae8938540fefb28716503148a91529457a52",
+      "status": "frozen handoff; acceptance separate"
     }
   ]
 }

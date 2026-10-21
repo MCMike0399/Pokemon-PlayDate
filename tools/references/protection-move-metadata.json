@@ -1,0 +1,1714 @@
+{
+  "generation": 5,
+  "moves": {
+    "absorb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "acid": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "acidArmor": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "acidSpray": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "acrobatics": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "acupressure": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "aerialAce": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "afterYou": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "agility": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "airCutter": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "airSlash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "allySwitch": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "amnesia": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "ancientPower": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "aquaJet": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "aquaRing": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "aquaTail": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "aromatherapy": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "assurance": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "astonish": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "auraSphere": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "auroraBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "avalanche": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "barrage": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "barrier": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "batonPass": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "bellyDrum": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "bestow": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bide": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bind": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bite": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "blazeKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "blizzard": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "block": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bodySlam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "boneClub": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "boneRush": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bonemerang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bounce": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "braveBird": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "brickBreak": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "brine": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bubble": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bubbleBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bugBite": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bugBuzz": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bulldoze": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bulletPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "bulletSeed": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "calmMind": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "camouflage": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "captivate": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "charge": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "chargeBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "charm": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "chipAway": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "circleThrow": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "clamp": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "clearSmog": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "closeCombat": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "coil": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "cometPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "confuseRay": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "confusion": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "constrict": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "conversion": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "conversion2": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "copycat": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "cosmicPower": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "counter": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "covet": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "crabhammer": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "crossChop": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "crossPoison": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "crunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "crushClaw": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "curse": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "darkPulse": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "defenseCurl": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "destinyBond": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "detect": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "dig": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "disable": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "discharge": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dive": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dizzyPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "doubleEdge": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "doubleHit": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "doubleKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "doubleSlap": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "doubleTeam": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "dragonBreath": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dragonClaw": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dragonDance": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "dragonPulse": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dragonRage": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dragonRush": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dragonTail": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dreamEater": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "drillPeck": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "drillRun": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "dynamicPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "earthPower": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "earthquake": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "eggBomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "electroBall": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "ember": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "encore": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "endeavor": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "endure": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "explosion": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "extrasensory": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "extremeSpeed": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fakeOut": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fakeTears": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "falseSwipe": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "featherDance": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "feint": {
+      "breaksProtect": true,
+      "protectable": false
+    },
+    "feintAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "finalGambit": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fireBlast": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fireFang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "firePunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fireSpin": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fissure": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flail": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flameBurst": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flameCharge": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flameWheel": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flamethrower": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flareBlitz": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flashCannon": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "flatter": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "fling": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "focusEnergy": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "focusPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "followMe": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "foresight": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "furyAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "furyCutter": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "furySwipes": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "futureSight": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "gastroAcid": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "gigaDrain": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "gigaImpact": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "glare": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "gravity": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "growl": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "growth": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "grudge": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "guardSwap": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "guillotine": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "gunkShot": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "gust": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "gyroBall": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hail": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "hammerArm": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "harden": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "haze": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "headbutt": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "healPulse": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "healingWish": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "heartStamp": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "heatWave": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "heavySlam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "helpingHand": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "hex": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "highJumpKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hornAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hornDrill": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hurricane": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hydroPump": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hyperBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hyperFang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hyperVoice": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "hypnosis": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "iceBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "iceFang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "icePunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "iceShard": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "icicleCrash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "icicleSpear": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "icyWind": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "imprison": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "inferno": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "ingrain": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "ironDefense": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "ironHead": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "ironTail": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "jumpKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "karateChop": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "kinesis": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "knockOff": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lastResort": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lavaPlume": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "leafBlade": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "leafStorm": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "leafTornado": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "leechLife": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "leechSeed": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "leer": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lightScreen": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "lockOn": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lovelyKiss": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lowKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "lowSweep": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "luckyChant": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "machPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "magicCoat": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "magicalLeaf": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "magnetBomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "magnetRise": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "magnitude": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "meFirst": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "meanLook": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "meditate": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "megaDrain": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "megaKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "megaPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "megahorn": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "memento": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "metalClaw": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "metalSound": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "meteorMash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "metronome": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "mimic": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mindReader": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "minimize": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "miracleEye": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mirrorCoat": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mirrorMove": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "mirrorShot": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mist": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "moonlight": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "mudBomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mudShot": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mudSlap": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "mudSport": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "muddyWater": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "nastyPlot": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "naturalGift": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "nightShade": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "nightSlash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "nightmare": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "odorSleuth": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "outrage": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "payDay": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "payback": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "peck": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "perishSong": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "petalDance": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "pinMissile": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "pluck": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "poisonFang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "poisonGas": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "poisonJab": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "poisonPowder": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "poisonSting": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "pound": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "powderSnow": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "powerGem": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "powerSwap": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "powerWhip": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "protect": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "psybeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "psychUp": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "psychic": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "psychoCut": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "psyshock": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "psystrike": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "psywave": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "punishment": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "pursuit": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "quickAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "quickGuard": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "quiverDance": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "rage": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "ragePowder": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "rainDance": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "rapidSpin": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "razorLeaf": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "razorShell": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "razorWind": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "recover": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "recycle": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "reflect": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "reflectType": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "refresh": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "rest": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "retaliate": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "revenge": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "reversal": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "roar": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "rockBlast": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "rockPolish": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "rockSlide": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "rockThrow": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "rockTomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "rolePlay": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "rollingKick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "rollout": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "roost": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "round": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "safeguard": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "sandAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sandTomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sandstorm": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "scaryFace": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "scratch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "screech": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "seedBomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "seismicToss": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "selfDestruct": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "shadowBall": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "shadowClaw": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "shadowPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sharpen": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "sheerCold": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "shellSmash": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "shockWave": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "signalBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "silverWind": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sing": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "skullBash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "skyAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "skyDrop": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "skyUppercut": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "slackOff": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "slam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "slash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sleepPowder": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sleepTalk": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "sludge": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sludgeBomb": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sludgeWave": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "smackDown": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "smog": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "smokescreen": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "snore": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "soak": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "softBoiled": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "solarBeam": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sonicBoom": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "spark": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "spikeCannon": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "spikes": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "spitUp": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "spite": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "splash": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "spore": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "stealthRock": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "steamroller": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "stockpile": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "stomp": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "stoneEdge": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "storedPower": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "stormThrow": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "stringShot": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "struggle": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "stunSpore": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "submission": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "substitute": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "suckerPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "sunnyDay": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "superFang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "superpower": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "supersonic": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "swagger": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "swallow": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "sweetScent": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "swift": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "switcheroo": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "swordsDance": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "synchronoise": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "synthesis": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "tackle": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "tailWhip": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "tailwind": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "takeDown": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "taunt": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "telekinesis": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "teleport": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "thrash": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "thunder": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "thunderFang": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "thunderPunch": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "thunderShock": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "thunderWave": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "thunderbolt": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "tickle": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "toxic": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "toxicSpikes": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "transform": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "triAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "trick": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "trumpCard": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "twineedle": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "twister": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "uproar": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "vacuumWave": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "viceGrip": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "vineWhip": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "vitalThrow": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "wakeUpSlap": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "waterGun": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "waterPulse": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "waterSport": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "waterfall": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "whirlpool": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "whirlwind": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "wideGuard": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "willOWisp": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "wingAttack": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "withdraw": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "wonderRoom": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "woodHammer": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "workUp": {
+      "breaksProtect": false,
+      "protectable": false
+    },
+    "worrySeed": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "wrap": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "wringOut": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "xScissor": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "yawn": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "zapCannon": {
+      "breaksProtect": false,
+      "protectable": true
+    },
+    "zenHeadbutt": {
+      "breaksProtect": false,
+      "protectable": true
+    }
+  },
+  "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "schema": 1,
+  "source_sha256": {
+    "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010",
+    "data/mods/gen6/moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+    "data/mods/gen7/moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+    "data/mods/gen8/moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+    "data/moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7"
+  }
+}

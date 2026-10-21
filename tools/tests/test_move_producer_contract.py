@@ -51,7 +51,7 @@ class ProducerPreservationTests(unittest.TestCase):
         self.assertEqual(manifest['original_scalars_sha256'],'888e16018e3e58593bf2a608309f85fb483a3b6c85af8f44dfc36a69bc966ca6')
         self.assertEqual(manifest['unchanged_rows_sha256'],'56de9c3ad26dd413935390799afa87680138c335067786f8eb18b721f820206c')
         self.assertEqual(manifest['candidate_rows_sha256'],'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
-        rows=contract.read_rows((ROOT/'Source/battle/moves.lua').read_text());lowered=contract.legacy_rows(rows)
+        rows=contract.read_rows((ROOT/'Source/battle/moves.lua').read_text());lowered=contract.legacy_rows(rows,contract.producer_epoch((ROOT/'Source/battle/moves.lua').read_text()))
         encoded=json.dumps(lowered,sort_keys=True,separators=(',',':')).encode();self.assertEqual(contract.digest(encoded),manifest['candidate_rows_sha256'])
     def test_reference_exact106_typed_transitions_and_primary_pins(self):
         value=contract.load_contract();entries=[e for es in value['transitions'].values()for e in es];self.assertEqual(sum(e['version']==1 for e in entries),106);self.assertEqual(value['counts'],{'typed-secondary':99,'ohko-dispatch':4,'weather-producer':3})

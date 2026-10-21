@@ -199,6 +199,10 @@ import "dev/worrySeedContracts"
 Contracts.register("worry-seed",WorrySeedContracts.run)
 import "dev/brockIntegrationContracts"
 Contracts.register("brock-integration",BrockIntegrationContracts.run)
+import "dev/protectContracts"
+Contracts.register("protect",ProtectContracts.run)
+import "dev/sideContracts"
+Contracts.register("sides",SideContracts.run)
 import "dev/catalog"
 import "dev/pewterCatalogExporter"
 PewterCatalogExporter.register()
@@ -232,6 +236,10 @@ Contracts.register("home-lead",HomeLeadContracts.run)
 import "game/itemPCState"
 import "dev/itemPCContracts"
 Contracts.register("red-pc-items",ItemPCContracts.run)
+
+import "domain/fieldEncounters"
+import "dev/fieldEncounterContracts"
+Contracts.register("field-encounters",FieldEncounterContracts.run)
 
 game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 

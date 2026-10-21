@@ -1,0 +1,570 @@
+{
+  "schema": 1,
+  "base_commit": "48e88ac",
+  "source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+  "sdk_version": "3.1.2",
+  "implemented": [
+    "Protect/Feint with declared425 protection flags",
+    "Bide release source-resolved protection guard",
+    "Static/KeenEye/Intimidate physical-lead field policies",
+    "LightScreen/Safeguard/Tailwind",
+    "Successful zeroHP-hit rampage/contact/Rage distinct from actualHP damage ledgers"
+  ],
+  "sdk": {
+    "passed": 950,
+    "failed": 0,
+    "control": "/private/tmp/pokemon-root-sides-sdk-01"
+  },
+  "host": {
+    "passed": 462,
+    "skipped": 0,
+    "production_compile": "PASS"
+  },
+  "native_cases": [
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--brock-protect-chain",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/01-brock--brock-protect-chain",
+      "compiled_source_sha256": "339cf97426aa2f241d828d3605d80f1a91d7af14e8e3fb2358e0691b8bd0a87d"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--brock-feint-break-chain",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/02-brock--brock-feint-break-chain",
+      "compiled_source_sha256": "7085a2ccebd3541efd0b5ba689cf02c83bcd705f57607f6aaee025e860c4383b"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--brock-protect-bide-tm34",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/03-brock--brock-protect-bide-tm34",
+      "compiled_source_sha256": "b362b9dbc00c83bf2ad19409a3444375247f7da3b4d940c5cc6052d07773b5c1"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--field-static",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/04-brock--field-static",
+      "compiled_source_sha256": "466e25f66c410454da194c10ae829ad963857e2ec618ab2f5ae80c2e3a57e0f8"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--field-static-fainted",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/05-brock--field-static-fainted",
+      "compiled_source_sha256": "962ddf052dd942e3684a7566c1df795415ebd42b7b3992328509ae8ddea6f0c9"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--field-keen-eye",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/06-brock--field-keen-eye",
+      "compiled_source_sha256": "9033b5ce953b6b296aa2090f359b4013af63d939e0c2349f70ac75e32a09c8ed"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--field-intimidate",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/07-brock--field-intimidate",
+      "compiled_source_sha256": "bfb02b61c7221eb1fdd79871805597c7da3428cac9646a6059990013de977c6e"
+    },
+    {
+      "suite": "pokemon-root-protect-field-native-01",
+      "name": "brock--field-save-continue",
+      "source_sha256": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-native-01/08-brock--field-save-continue",
+      "compiled_source_sha256": "802e7778807b26a061e87f9c1036f4ac03f390fdb4a3a44652e978365dfe1acb"
+    },
+    {
+      "suite": "pokemon-root-sides-native-01",
+      "name": "brock--brock-light-screen-zero-expiry",
+      "source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-sides-native-01/01-brock--brock-light-screen-zero-expiry",
+      "compiled_source_sha256": "900437e3647004966b8bc4215f08f3d42e1a570abefd1c0b31e2b95f8a0179b0"
+    },
+    {
+      "suite": "pokemon-root-sides-native-01",
+      "name": "brock--brock-safeguard-expiry",
+      "source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-sides-native-01/02-brock--brock-safeguard-expiry",
+      "compiled_source_sha256": "43c06ad3415377e9c60f141f69e0454f4bddd17fa247af8ca2a2f3d3ea50b8c5"
+    },
+    {
+      "suite": "pokemon-root-sides-native-01",
+      "name": "brock--brock-tailwind-order-expiry",
+      "source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-sides-native-01/03-brock--brock-tailwind-order-expiry",
+      "compiled_source_sha256": "0e69ab83c809544055c83b1b717b6a18975d0f48b244001e49436851e18081d6"
+    },
+    {
+      "suite": "pokemon-root-protect-field-side-catalog-01",
+      "name": "brock--brock-catalog-current",
+      "source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+      "result": true,
+      "evidence": "/private/tmp/pokemon-root-protect-field-side-catalog-01/01-brock--brock-catalog-current",
+      "compiled_source_sha256": "cebe4e380b2fda650ff4174c0ef9f6f53accd36843b5ba498d43140f44234081"
+    }
+  ],
+  "native_distinct_input_cases": 11,
+  "catalog": {
+    "equal": true,
+    "missing_inventory_equal": true,
+    "checked": 2494,
+    "failures": []
+  },
+  "faults": {
+    "base_source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+    "complete": true,
+    "control": "/private/tmp/pokemon-root-sides-sdk-01",
+    "control_passed": 950,
+    "executed": true,
+    "ok": true,
+    "requested": [
+      "after-accuracy",
+      "refresh-chain",
+      "clear-stall-feint",
+      "alwaysfail-cap",
+      "bide-bypass",
+      "gate-boundary",
+      "static-first-slot",
+      "suppression-boundary",
+      "physical-threshold",
+      "rapidspin-wipes",
+      "wind-after-para",
+      "block-self",
+      "screen-min1",
+      "skip-zero-contact",
+      "skip-zero-lock",
+      "skip-zero-rage"
+    ],
+    "results": [
+      {
+        "changes": [
+          {
+            "after_sha256": "306b9de61ecb3e78b1fd3bbd1ca83049c1bdcc77356cfb5b965aeadd6dee32ad",
+            "before_sha256": "253be652d45e037975a6d60c055acb2b1ae9a6a767c0f9d90612e5a5752aa308",
+            "path": "battle/battle.lua"
+          }
+        ],
+        "compiled_source_sha256": "a344489293944bccb2d5873458b7c4c23da6af1fa70325f2a65e420b307a0e1b",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/after-accuracy/00001-result.json",
+        "failed": 9,
+        "failed_tests": [
+          "protect: Blocked hits create no Assurance HP ledger/Rage boost or contact receipts",
+          "protect: Charge preparation bypasses Protect, while actual second-turn release is blocked",
+          "protect: Consecutive public Protect success doubles counter; failure then next attempt resets",
+          "protect: First Protect priority4 blocks actual faster attack before accuracy/critical/contact draws",
+          "protect: Protect cancels early rampage quietly and final rampage with real fatigue",
+          "protect: Protect stops OHKO before level/Sturdy/chance and avoids all damage RNG",
+          "protect: Protection blocks primary status/stat changes, multi-hit sampling and secondaries",
+          "protect: Public Protect reaches saturated counter and actually succeeds using reproducible rare pair",
+          "sides: Protect miss immunity and forged/dead receipts remain nonhits not0HP successes"
+        ],
+        "passed": 941,
+        "qualified": true,
+        "required_witness": "protect: First Protect priority4 blocks actual faster attack before accuracy/critical/contact draws",
+        "returncode": 1,
+        "variant": "after-accuracy"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "b2c221cd26846d113d8fa298d8c5c83d3a5674b0073d2bd36fa4663dccc774f0",
+            "before_sha256": "13cfee0fd5b4ae24319f9b5e27e00ea29ce3df4c85d0050adf7de215e82c2b5b",
+            "path": "battle/conditions.lua"
+          }
+        ],
+        "compiled_source_sha256": "7ad1321a0e6ac716727ff4785a9d11fa06be738205fa9a3a562d4ab7c8b8e1f8",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/refresh-chain/00001-result.json",
+        "failed": 4,
+        "failed_tests": [
+          "protect: Charge preparation bypasses Protect, while actual second-turn release is blocked",
+          "protect: Consecutive public Protect success doubles counter; failure then next attempt resets",
+          "protect: Feint breaks real protection after accuracy, no contact reaction, preserving stall",
+          "protect: Public Protect reaches saturated counter and actually succeeds using reproducible rare pair"
+        ],
+        "passed": 946,
+        "qualified": true,
+        "required_witness": "protect: Consecutive public Protect success doubles counter; failure then next attempt resets",
+        "returncode": 1,
+        "variant": "refresh-chain"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "544978c523c95239f21db22a0ef9f538703a66e2838d3983db16a5abfc7bda2b",
+            "before_sha256": "13cfee0fd5b4ae24319f9b5e27e00ea29ce3df4c85d0050adf7de215e82c2b5b",
+            "path": "battle/conditions.lua"
+          }
+        ],
+        "compiled_source_sha256": "83105e1b3c0de8df8ca601893bfd774552c32d42c645a1c1729856554348469b",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/clear-stall-feint/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "protect: Feint breaks real protection after accuracy, no contact reaction, preserving stall"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "protect: Feint breaks real protection after accuracy, no contact reaction, preserving stall",
+        "returncode": 1,
+        "variant": "clear-stall-feint"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "95c3591fde30f010601b1805080e2a4935a55ff190905b4ff0142584e78906d3",
+            "before_sha256": "13cfee0fd5b4ae24319f9b5e27e00ea29ce3df4c85d0050adf7de215e82c2b5b",
+            "path": "battle/conditions.lua"
+          }
+        ],
+        "compiled_source_sha256": "238483c144283a1b80ce98bd17c67ffbe93a3760f3df9f184aaf0682f6c4fc7d",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/alwaysfail-cap/00001-result.json",
+        "failed": 3,
+        "failed_tests": [
+          "protect: Public Protect reaches saturated counter and actually succeeds using reproducible rare pair",
+          "protect: Rare branch preserves canonical decimal persistence and replay continuation",
+          "protect: Saturated counter256 samples BOTH16bit draws and has real reproducible success"
+        ],
+        "passed": 947,
+        "qualified": true,
+        "required_witness": "protect: Saturated counter256 samples BOTH16bit draws and has real reproducible success",
+        "returncode": 1,
+        "variant": "alwaysfail-cap"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "1ff4ac5fcf3c197bdebd4bb32b3b158122ccda017b2c888f844d74a0d5472657",
+            "before_sha256": "13cfee0fd5b4ae24319f9b5e27e00ea29ce3df4c85d0050adf7de215e82c2b5b",
+            "path": "battle/conditions.lua"
+          }
+        ],
+        "compiled_source_sha256": "6cc3794d748895083ff6c3ec0f871546523b95e7734a3ffed2885ac72e825d87",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/bide-bypass/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "protect: Native-C source-resolved Bide release blocked; retained actual PS bypass discrepancy explicit"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "protect: Native-C source-resolved Bide release blocked; retained actual PS bypass discrepancy explicit",
+        "returncode": 1,
+        "variant": "bide-bypass"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "48d3f4434753d9a1bc57b2f853b48c6fd137e9d1e79ecab5a80dcf6f178bcff2",
+            "before_sha256": "515e5f5d7d112ab4ad973262c304e67dd74082ec6fbb2c742574293afc23b406",
+            "path": "domain/fieldEncounters.lua"
+          }
+        ],
+        "compiled_source_sha256": "cdd077b4824b8219091fb8edb0d50ea2cbdbe8848387ca59945177480bb42989",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/gate-boundary/00001-result.json",
+        "failed": 9,
+        "failed_tests": [
+          "field-encounters: KeenEye and Intimidate suppress at exactly5below before any creation",
+          "field-encounters: Static without any Electric slot falls back to the unchanged weighted table",
+          "field-encounters: accepted suppressed and failed-rate attempts never consume actor world stream",
+          "field-encounters: actual Explore suppresses without iris or specimen, accepted gate enters original iris",
+          "field-encounters: fainted physical lead supplies ability but conscious member supplies suppression level",
+          "field-encounters: fourbelow and inactive gate both permit original specimen creation calls",
+          "field-encounters: physical lead Static survives fainting and ignores separately selected battle active",
+          "field-encounters: source50 gate49 inactive and50 active, with Blue table physical duplicate indices",
+          "field-encounters: volatile WorrySeed overrides cannot replace durable field ability"
+        ],
+        "passed": 941,
+        "qualified": true,
+        "required_witness": "field-encounters: source50 gate49 inactive and50 active, with Blue table physical duplicate indices",
+        "returncode": 1,
+        "variant": "gate-boundary"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "6452448447e297367f75af7b34a05ef1e7371ff951eb4e292aa87307b3b78fc1",
+            "before_sha256": "515e5f5d7d112ab4ad973262c304e67dd74082ec6fbb2c742574293afc23b406",
+            "path": "domain/fieldEncounters.lua"
+          }
+        ],
+        "compiled_source_sha256": "881dab16b4bce22be1f5aab9c350ff95ce94f9756251df18af631eaaa9dcd884",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/static-first-slot/00001-result.json",
+        "failed": 2,
+        "failed_tests": [
+          "field-encounters: Static uniformly chooses matching slot indices, preserving duplicate Pikachu levels",
+          "field-encounters: actual pinned BlueForest byte rate and both Electric source rows match independent literal vectors"
+        ],
+        "passed": 948,
+        "qualified": true,
+        "required_witness": "field-encounters: Static uniformly chooses matching slot indices, preserving duplicate Pikachu levels",
+        "returncode": 1,
+        "variant": "static-first-slot"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "89f7d2e5bd9b5809b9ee0b4a8fb2d1cfeb118ea607caba3d1bbe3cda294a6cc9",
+            "before_sha256": "515e5f5d7d112ab4ad973262c304e67dd74082ec6fbb2c742574293afc23b406",
+            "path": "domain/fieldEncounters.lua"
+          }
+        ],
+        "compiled_source_sha256": "0710057f3646094f399c52ac5f58bf48cc5529f9b30bac7f1e68c89095ff7b41",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/suppression-boundary/00001-result.json",
+        "failed": 4,
+        "failed_tests": [
+          "field-encounters: KeenEye and Intimidate suppress at exactly5below before any creation",
+          "field-encounters: accepted suppressed and failed-rate attempts never consume actor world stream",
+          "field-encounters: actual Explore suppresses without iris or specimen, accepted gate enters original iris",
+          "field-encounters: fainted physical lead supplies ability but conscious member supplies suppression level"
+        ],
+        "passed": 946,
+        "qualified": true,
+        "required_witness": "field-encounters: KeenEye and Intimidate suppress at exactly5below before any creation",
+        "returncode": 1,
+        "variant": "suppression-boundary"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "0bcc4044895dd81a0c45da176dddc2ceb1c288fd9d06c34703f06906cdc26ebc",
+            "before_sha256": "515e5f5d7d112ab4ad973262c304e67dd74082ec6fbb2c742574293afc23b406",
+            "path": "domain/fieldEncounters.lua"
+          }
+        ],
+        "compiled_source_sha256": "c46d1075c550d7d1d920dcf9f9a64e0804d3ce6f6b35c5ab09219d0db8ccfe13",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/physical-threshold/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "field-encounters: fainted physical lead supplies ability but conscious member supplies suppression level"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "field-encounters: fainted physical lead supplies ability but conscious member supplies suppression level",
+        "returncode": 1,
+        "variant": "physical-threshold"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "20bc0ef5e3edce492e330aa76f6113cb7340390a981480a9a3671447941d5d8a",
+            "before_sha256": "13cfee0fd5b4ae24319f9b5e27e00ea29ce3df4c85d0050adf7de215e82c2b5b",
+            "path": "battle/conditions.lua"
+          }
+        ],
+        "compiled_source_sha256": "89b5a7b00022f0428a60fc6039b5c94830cb0d0d766e45ddd1f78f0f8ff55faf",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/rapidspin-wipes/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "sides: RapidSpin removes only hazards and bindings while preserving all side timers"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "sides: RapidSpin removes only hazards and bindings while preserving all side timers",
+        "returncode": 1,
+        "variant": "rapidspin-wipes"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "03d614db8fba8b1673951f2b1ca2a22491c906c227bbc2f19af5e92b107a7e37",
+            "before_sha256": "253be652d45e037975a6d60c055acb2b1ae9a6a767c0f9d90612e5a5752aa308",
+            "path": "battle/battle.lua"
+          }
+        ],
+        "compiled_source_sha256": "6f08b32690dac60786f7e783d0ee42879534ad9e1716f304cba735637479a44d",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/wind-after-para/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "sides: Actual shared effectiveSpeed doubles BEFORE GenVparalysisfloor with minimum1"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "sides: Actual shared effectiveSpeed doubles BEFORE GenVparalysisfloor with minimum1",
+        "returncode": 1,
+        "variant": "wind-after-para"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "a31d4650bb0a2da11a643e169fb03439e841d3160de2aadfafe712f993a5ed50",
+            "before_sha256": "13cfee0fd5b4ae24319f9b5e27e00ea29ce3df4c85d0050adf7de215e82c2b5b",
+            "path": "battle/conditions.lua"
+          }
+        ],
+        "compiled_source_sha256": "e60bbf6024e9d5cb46b9295844af2677a6654116af01a4f855934be00d19b639",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/block-self/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "sides: Source-self sleep and late residual fatigue pass Safeguard with explicit provenance"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "sides: Source-self sleep and late residual fatigue pass Safeguard with explicit provenance",
+        "returncode": 1,
+        "variant": "block-self"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "cbc32fd1f5194a6d88c874f242bb817dd49313d8ce039ea594333ad294fa32fa",
+            "before_sha256": "253be652d45e037975a6d60c055acb2b1ae9a6a767c0f9d90612e5a5752aa308",
+            "path": "battle/battle.lua"
+          }
+        ],
+        "compiled_source_sha256": "a9cbdfb730018b0f5875bf050ca1cb02e754962da1300f15aaf5807074f88778",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/screen-min1/00001-result.json",
+        "failed": 3,
+        "failed_tests": [
+          "sides: Natural Pikachu100 screen vs Sandshrew11 Swift is actual successful0HP hit",
+          "sides: Successful zeroHP Swift builds living Rage receiver while HP ledgers stay unchanged",
+          "sides: ZeroHP contact hit starts real rampage and samples Static with no HP ledger"
+        ],
+        "passed": 947,
+        "qualified": true,
+        "required_witness": "sides: Natural Pikachu100 screen vs Sandshrew11 Swift is actual successful0HP hit",
+        "returncode": 1,
+        "variant": "screen-min1"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "ad9cd04cfefdf23008a51ecf777fcab1f4127a3f004c6b7bec6150c1d9a1cf28",
+            "before_sha256": "6d302374819abc12779b242874e8851f243e2b3a10a48eee66851609c6f0e3f6",
+            "path": "battle/effects.lua"
+          }
+        ],
+        "compiled_source_sha256": "e043ad5193c8de68d9fc00668a0015335180e8bf937a1319b1f34b9cc6af5e71",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/skip-zero-contact/00001-result.json",
+        "failed": 2,
+        "failed_tests": [
+          "sex-abilities: PoisonPoint real zeroHP-loss contact remains a successful hit and samples chance",
+          "sides: ZeroHP contact hit starts real rampage and samples Static with no HP ledger"
+        ],
+        "passed": 948,
+        "qualified": true,
+        "required_witness": "sides: ZeroHP contact hit starts real rampage and samples Static with no HP ledger",
+        "returncode": 1,
+        "variant": "skip-zero-contact"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "0346a7f880f77a34c1e0a8f67df3710909d220e17b1d0c684ba4d4578a29e496",
+            "before_sha256": "253be652d45e037975a6d60c055acb2b1ae9a6a767c0f9d90612e5a5752aa308",
+            "path": "battle/battle.lua"
+          }
+        ],
+        "compiled_source_sha256": "9f4d8aa1435ca7647fa9e892c16a62338b43ed772c2560d55fa48759baaf05f6",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/skip-zero-lock/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "sides: ZeroHP contact hit starts real rampage and samples Static with no HP ledger"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "sides: ZeroHP contact hit starts real rampage and samples Static with no HP ledger",
+        "returncode": 1,
+        "variant": "skip-zero-lock"
+      },
+      {
+        "changes": [
+          {
+            "after_sha256": "65becf586e27071f38713f90ef782f4abee6f6001c7cb9d6f272fd778e513d88",
+            "before_sha256": "253be652d45e037975a6d60c055acb2b1ae9a6a767c0f9d90612e5a5752aa308",
+            "path": "battle/battle.lua"
+          }
+        ],
+        "compiled_source_sha256": "99ef6b8deaaaecae9b3f9fad8e9b93302dc1469d0b65032be6c61041b30b1532",
+        "evidence": "/private/tmp/pokemon-root-16-mutants-sdk-01/skip-zero-rage/00001-result.json",
+        "failed": 1,
+        "failed_tests": [
+          "sides: Successful zeroHP Swift builds living Rage receiver while HP ledgers stay unchanged"
+        ],
+        "passed": 949,
+        "qualified": true,
+        "required_witness": "sides: Successful zeroHP Swift builds living Rage receiver while HP ledgers stay unchanged",
+        "returncode": 1,
+        "variant": "skip-zero-rage"
+      }
+    ],
+    "schema": 1
+  },
+  "retained_failure": {
+    "passed": 922,
+    "failed": 2,
+    "tests": [
+      {
+        "error": "dev/contracts.lua:380: dev/protectContracts.lua:2: value: expected nil, got table: 0x757d386a80",
+        "name": "protect: Faint replacement clears guard/stall and ordinary exit discards all counters",
+        "ok": false
+      },
+      {
+        "error": "dev/contracts.lua:380: dev/fieldEncounterContracts.lua:91: domain/sessionCodec.lua:25: invalid-integer-text",
+        "name": "field-encounters: fainted physical lead supplies ability but conscious member supplies suppression level",
+        "ok": false
+      }
+    ],
+    "resolution": "Test-only explicit faint/residual/replacement boundaries and SessionCodec.encodePokemon decimal-counter wire; no production or codec relaxation."
+  },
+  "inspected": [
+    "Protect failed-attempt panel before foe hit",
+    "Feint actual break panel",
+    "Bide release blocked and complete HP41/51/target51",
+    "Static real48-frame iris/battle entry plus native ready Pikachu3",
+    "TrueSaveContinue title, distinct ownedPIDs20299\u219220368 and exact durable checksum/next encounter replay",
+    "LightScreen actual0HP-hit panel",
+    "Safeguard poison blocked panel",
+    "Tailwind expiry panel"
+  ],
+  "sources": {
+    "sdk950": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+    "nativeProtectField8": "022ff9fd8c326bc6c9e7c7ac2846fa87db87394a8637af5c70c16db7683b2490",
+    "nativeSide3AndCatalog": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386"
+  },
+  "archives": {
+    "sdk": {
+      "archive": "brock-integrated950-sdk.tar.gz",
+      "sha256": "ea8552754be23341cf41f39292cb91c427b3ac21ac5f39cf8560303c3bdec843",
+      "bytes": 3474019
+    },
+    "native": {
+      "archive": "brock-integrated950-native.tar.gz",
+      "sha256": "76841289224fba38a3583cf5901d78d627899b729fea6f357f510fc07023c757",
+      "bytes": 4631769
+    },
+    "faults": {
+      "archive": "brock-integrated950-faults.tar.gz",
+      "sha256": "789449960d8c6c3bf687a9c4e6bca2f80d7fd6785b6e909690d54137167d75b1",
+      "bytes": 2574590
+    },
+    "firstFailure": {
+      "archive": "brock-protect-field-sdk02-failures.tar.gz",
+      "sha256": "d59b6ed9fd1f1547126605a50266b26a29e3457ecd11859ae23a85d7b69f03ce",
+      "bytes": 3405911
+    }
+  },
+  "archive_notes": [
+    "SDK950 and original failed922/2 include full exact compiled Source/frames/metadata/runtimeData, PDX excluded.",
+    "Native archive includes full Source022ff once, uses SDK950 shared Source for newer three side cases/catalog, per-job generated Source overlays, all original evidence/captures/manifests.",
+    "Mutant archive retains every actual numbered report/metadata/log/runtimeData/failure frame, changed Source file and generated overlays; reconstruct with shared SDK950 Source and verify compiled fingerprint. Repetitive frames catalog exports intentionally excluded; no mutant visual-acceptance claim."
+  ],
+  "limits": [
+    "Brock gate/full campaign incomplete; final integrated naturalall3/evolution/SaveContinue still required",
+    "ParkMiller Protect nominal2x16 mapping is correlated, not exactnative32bit frequency",
+    "Bide/Protect uses explicit nativeC+PokeAPI dispatch resolution; actualShowdown bypass retained",
+    "No physical device validation or full111-ability certification"
+  ]
+}

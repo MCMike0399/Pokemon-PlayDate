@@ -732,6 +732,19 @@ function Zone:getEdgeDoorAt(gx, gy, dir)
     return nil
 end
 
+-- Pure descriptor for the normal owned encounter-attempt boundary. Existing
+-- explicit checkEncounter/rollEncounter helpers below retain their old contracts.
+function Zone:encounterPolicyAt(x,y)
+    if not Party._integer(x,0,self.width-1)or not Party._integer(y,0,self.height-1)then return nil,"invalid-encounter-coordinate"end
+    if self.collision[y+1][x+1]~=0 or not self:isTallGrass(x,y)then return nil,"ineligible-terrain"end
+    local rate
+    if self.imported then
+        if not self:isSliceReady()then return nil,"unbound-encounter-policy"end
+        rate={kind="byte",value=zoneData[self].slicePlan.encounterRateByte}
+    else rate={kind="unit",value=self.encounterRate}end
+    return {rate=rate,slots=deepCopy(self.encounters)}
+end
+
 -- Check wild encounter at grid position
 function Zone:checkEncounter(tileX, tileY)
     if self.imported and self:isSliceReady() then
