@@ -10,12 +10,29 @@ local function own(mon,keys,pp)
     mon.moves,mon.pp={},{}
     for i,key in ipairs(keys) do mon.moves[i]=key;mon.pp[key]=pp or moveData[key].maxPP end
 end
+-- Production receipt and LearningState, including explicit refusal if a set
+-- is full. No test deletes a queue or resumes an unresolved script.
+local function resolveLearning(b)
+    local receipt,mon=b:takeLearningRequest();assert(receipt,"missing learning receipt")
+    local machine=StateMachine();local game={machine=machine}
+    machine:register("base",State("base"));local learning=LearningState(game);machine:register("learning",learning);machine:change("base")
+    assert(LearningState.open(game,mon,function() assert(b:resumeLearning(receipt)) end))
+    local count=0
+    while machine:is("learning") do
+        count=count+1;assert(count<100,"production learning did not settle")
+        if learning.phase=="message" then assert(learning.dialog.onComplete)();learning:handleInput()
+        elseif learning.phase=="ask" then learning.menu.onSelect(2)
+        elseif learning.phase=="stop" then learning.menu.onSelect(1)
+        else error("unexpected learning phase "..learning.phase) end
+    end
+end
 local function settle(b)
     local messages,count={},0
     while b:phase()=="script" do
         count=count+1;assert(count<500,"battle script failed to settle")
         messages[#messages+1]=b.message
-        b.machine:get("script"):advance()
+        if b:getLearningSnapshot().pending then resolveLearning(b)
+        else b.machine:get("script"):advance() end
     end
     return table.concat(messages,"|")
 end
@@ -217,12 +234,12 @@ function PartyBattleContracts.run()
         local before=RulesRNG.snapshot();e:onSwitchOut()
         equal(e.statusTurns,3);equal(e.sleepDuration,3);sameRNG(RulesRNG.snapshot(),before)
     end)
-    test("Codec4 preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
+    test("Codec5 preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
         for duration=1,3 do
             for remaining=0,duration do
                 local p=Pokemon("charmander",5)
                 p.status,p.statusTurns,p.sleepDuration="sleep",remaining,duration
-                local record=assert(PokemonCodec.encode(p));equal(record.version,4)
+                local record=assert(PokemonCodec.encode(p));equal(record.version,5)
                 local restored=assert(PokemonCodec.decode(record))
                 equal(restored.statusTurns,remaining);equal(restored.sleepDuration,duration)
                 local before=RulesRNG.snapshot();restored:onSwitchOut()
@@ -232,7 +249,7 @@ function PartyBattleContracts.run()
         local record=assert(PokemonCodec.encode(Pokemon("charmander",5)));record.version=2
         local restored,problem=PokemonCodec.decode(record);equal(restored,nil)
         assert(problem:find("unsupported%-pokemon%-record%-version"),problem)
-        record.version=3;record.sleepDuration=1
+        record.version=3;record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil;record.sleepDuration=1
         restored,problem=PokemonCodec.decode(record);equal(restored,nil);assert(problem:find("invalid%-sleep%-duration"),problem)
     end)
     test("Invalid sleep duration cannot partially switch or reset outgoing stages",function()
@@ -259,7 +276,7 @@ function PartyBattleContracts.run()
         equal(Growth.battleAward(64,6,6,true,2),58)
         for _,count in ipairs({0,7,1.5,"2"}) do equal(pcall(Growth.battleAward,64,5,5,true,count),false) end
     end)
-    test("Two real participants receive58 each and queue separate level7 learning choices",function()
+    test("Two real participants receive58 each and learn separately before terminal victory",function()
         local p,bench,unused,e=Pokemon("charmander",6),Pokemon("bulbasaur",6),Pokemon("squirtle",6),Pokemon("bulbasaur",6)
         e.hp=1;e.spe=1;bench.spe=1000;own(e,{"growl"},3);own(bench,{"dragonRage"},3)
         local party=roster(p,bench,unused);local b=fresh(p,e,party,nil,nil,"RIVAL")
@@ -267,10 +284,10 @@ function PartyBattleContracts.run()
         equal(b:selectMove(1),true);settle(b)
         equal(b.outcome,"victory");equal(p.xp,237);equal(bench.xp,237);equal(unused.xp,179)
         equal(p.level,7);equal(bench.level,7);equal(unused.level,6)
-        equal(p:getPendingMoveChoices()[1].move,"ember")
-        equal(bench:getPendingMoveChoices()[1].move,"leechSeed")
+        equal(#p:getPendingMoveChoices(),0)
+        equal(#bench:getPendingMoveChoices(),0)
         equal(#unused:getPendingMoveChoices(),0)
-        equal(p:hasMove("ember"),false);equal(bench:hasMove("leechSeed"),false)
+        equal(p:hasMove("ember"),true);equal(bench:hasMove("leechSeed"),true)
     end)
     test("Fainted participant is excluded from split and never revived by XP",function()
         local p,bench,e=Pokemon("charmander",6),Pokemon("bulbasaur",6),Pokemon("bulbasaur",6)
@@ -291,7 +308,8 @@ function PartyBattleContracts.run()
         equal(p.xp,237);equal(bench.xp,237);equal(b.enemy,z);equal(b.outcome,nil)
         equal(b:selectMove(1),true);settle(b)
         equal(b.outcome,"victory");equal(p.xp,237);equal(bench.xp,338,"new sole participant gets101")
-        equal(#p:getPendingMoveChoices(),1,"first opponent queues exactly one Ember choice")
+        equal(#p:getPendingMoveChoices(),0,"first opponent learning resolved before enemy2")
+        equal(p:hasMove("ember"),true,"learned Ember persists without a second award")
     end)
     test("Preexisting fainted active member requests replacement rather than blackout if reserve usable",function()
         local p,bench,e=Pokemon("charmander",5),Pokemon("pikachu",5),Pokemon("squirtle",5)

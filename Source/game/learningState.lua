@@ -16,7 +16,16 @@ end
 
 -- Called by the session owner after the world/battle return is established.
 -- An interrupted session leaves unresolved choices on the Pokemon.
-function LearningState.open(game, pokemon, onComplete)
+local function openingOptions(options)
+    if options == nil then return {} end
+    assert(type(options) == "table", "learning options must be an object")
+    for key in pairs(options) do assert(key == "waitForRelease", "unknown learning option") end
+    assert(options.waitForRelease == nil or type(options.waitForRelease) == "boolean", "invalid learning input gate")
+    return options
+end
+
+function LearningState.open(game, pokemon, onComplete, options)
+    options = openingOptions(options)
     local state = game.machine:get("learning")
     assert(state, "LearningState must be registered before offering learning")
     if state.active then
@@ -24,7 +33,7 @@ function LearningState.open(game, pokemon, onComplete)
         return true
     end
     if not pokemon or #pokemon:getPendingMoveChoices() == 0 then return false end
-    game.machine:push("learning", pokemon, onComplete)
+    game.machine:push("learning", pokemon, onComplete, options)
     return true
 end
 
@@ -36,10 +45,12 @@ function LearningState:guard(callback)
     end
 end
 
-function LearningState:enter(pokemon, onComplete)
+function LearningState:enter(pokemon, onComplete, options)
+    options = openingOptions(options)
     assert(pokemon and pokemon:is("Pokemon"), "LearningState requires a Pokemon")
     self.visit = self.visit + 1
     self.active = true
+    self.waitForRelease = options.waitForRelease == true
     self.pokemon = pokemon
     self.onComplete = onComplete
     self.results = {}
@@ -51,6 +62,7 @@ end
 
 function LearningState:exit()
     self.active = false
+    self.waitForRelease = false
     self.visit = self.visit + 1
     self.menu:hide()
     self.menu.onSelect, self.menu.onCancel = nil, nil
@@ -172,6 +184,12 @@ end
 
 function LearningState:handleInput()
     if not self.active then return end
+    if self.waitForRelease then
+        if not playdate.buttonIsPressed(playdate.kButtonA) and not playdate.buttonIsPressed(playdate.kButtonB) then
+            self.waitForRelease = false
+        end
+        return
+    end
     if self.phase == "message" then self.dialog:handleInput() else self.menu:handleInput() end
     if self.requestedAdvance and self.active then self:nextChoice() end
     if self.requestedClose and self.active then self:finish(self.requestedClose) end
@@ -179,7 +197,7 @@ end
 
 function LearningState:getSnapshot()
     local line = self.dialog.lines[self.dialog.currentLine]
-    return {phase = self.phase, move = self.pendingMove or "", choice_id = self.choiceId or 0,
+    return {input_blocked = self.waitForRelease == true, phase = self.phase, move = self.pendingMove or "", choice_id = self.choiceId or 0,
         selected = self.menu.selectedIndex, message_kind = self.messageKind or "",
         dialog_ready = self.dialog.isActive and line ~= nil and self.dialog.charIndex >= #line,
         remaining = self.pokemon and #self.pokemon:getPendingMoveChoices() or 0,

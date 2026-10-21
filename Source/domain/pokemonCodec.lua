@@ -1,11 +1,11 @@
 -- Authoritative durable record for the current Pokemon model. No battle resume.
 -- Import after data/pokemon, battle/moves. Caller restricts session saves to
 -- outside battle; stat stages/confusion/flinch are intentionally transient.
-PokemonCodec = { VERSION = 4 }
+PokemonCodec = { VERSION = 5 }
 local MAX_INTEGER = 2147483647 -- Installed SDK signed-int ceiling; no float counter coercion.
 local statuses = { none=true, burn=true, poison=true,badPoison=true, paralyze=true, sleep=true, freeze=true }
 local fields = {version=true,species=true,name=true,level=true,xp=true,hp=true,status=true,statusTurns=true,sleepDuration=true,
-    moves=true,pp=true,pendingMoveChoices=true,nextMoveChoiceId=true,pendingEvolution=true}
+    moves=true,pp=true,pendingMoveChoices=true,nextMoveChoiceId=true,pendingEvolution=true,natureId=true,abilitySlot=true,heldItem=true}
 local choiceFields = {id=true,move=true,level=true,sourceOrder=true,sourceMoveId=true,reason=true}
 local function integer(n, low, high)
     return type(n)=="number" and n==math.floor(n) and n>=low and n<=high
@@ -23,7 +23,15 @@ local function array(value, low, high)
 end
 local function checked(record)
     assert(object(record,fields),"invalid-record-fields")
-    assert(record.version==PokemonCodec.VERSION or record.version==3,"unsupported-pokemon-record-version")
+    assert(record.version==PokemonCodec.VERSION or record.version==4 or record.version==3,"unsupported-pokemon-record-version")
+    local attributes
+    if record.version==3 or record.version==4 then
+        assert(record.natureId==nil and record.abilitySlot==nil and record.heldItem==nil,"legacy-specimen-fields")
+        -- Deliberate unreleased legacy defaults, never historical reconstruction.
+        attributes=Specimen.attributes(nil)
+    else
+        attributes=Specimen.attributes({natureId=record.natureId,abilitySlot=record.abilitySlot,heldItem=record.heldItem})
+    end
     if record.version==3 then assert(record.pendingEvolution==nil,"legacy-evolution-field") end
     assert(type(record.species)=="string" and pokemonData[record.species],"unknown-species")
     assert(type(record.name)=="string" and #record.name>=1 and #record.name<=10 and not record.name:find("[^ -~]"),"invalid-name")
@@ -48,7 +56,7 @@ local function checked(record)
     assert(integer(record.nextMoveChoiceId,1,MAX_INTEGER),"invalid-next-choice-id")
     local pending, seenMoves, lastId={}, {}, 0
     for i,choice in ipairs(record.pendingMoveChoices) do
-        assert(object(choice,choiceFields) and (choice.reason=="level-up" or (record.version==4 and choice.reason=="evolution")),"invalid-choice-record")
+        assert(object(choice,choiceFields) and (choice.reason=="level-up" or (record.version~=3 and choice.reason=="evolution")),"invalid-choice-record")
         assert(integer(choice.id,1,record.nextMoveChoiceId-1) and choice.id>lastId,"invalid-choice-id")
         assert(type(choice.move)=="string" and moveData[choice.move] and not seenMoves[choice.move],"unknown-or-duplicate-choice-move")
         assert(integer(choice.level,1,record.level),"invalid-choice-level")
@@ -75,20 +83,22 @@ local function checked(record)
         evolution={species=value.species,level=value.level}
     end
     return {version=PokemonCodec.VERSION,species=record.species,name=record.name,level=record.level,xp=record.xp,hp=record.hp,
-        status=record.status,statusTurns=record.statusTurns,sleepDuration=record.sleepDuration,moves=moves,pp=pp,pendingMoveChoices=pending,nextMoveChoiceId=record.nextMoveChoiceId,pendingEvolution=evolution}
+        status=record.status,statusTurns=record.statusTurns,sleepDuration=record.sleepDuration,moves=moves,pp=pp,pendingMoveChoices=pending,nextMoveChoiceId=record.nextMoveChoiceId,pendingEvolution=evolution,
+        natureId=attributes.natureId,abilitySlot=attributes.abilitySlot,heldItem=attributes.heldItem}
 end
 function PokemonCodec.encode(mon)
     if type(mon)~="table" or type(mon.is)~="function" or not mon:is("Pokemon") then return nil,"invalid-pokemon" end
     local ok,data=pcall(checked,{version=PokemonCodec.VERSION,species=mon.species,name=mon.name,level=mon.level,xp=mon.xp,hp=mon.hp,
         status=mon.status or "none",statusTurns=mon.statusTurns,sleepDuration=mon.sleepDuration,moves=mon.moves,pp=mon.pp,
-        pendingMoveChoices=mon.pendingMoveChoices,nextMoveChoiceId=mon.nextMoveChoiceId,pendingEvolution=mon.pendingEvolution})
+        pendingMoveChoices=mon.pendingMoveChoices,nextMoveChoiceId=mon.nextMoveChoiceId,pendingEvolution=mon.pendingEvolution,
+        natureId=mon.natureId,abilitySlot=mon.abilitySlot,heldItem=mon.heldItem})
     if not ok then return nil,tostring(data) end
     return data
 end
 function PokemonCodec.decode(record)
     local ok,data=pcall(checked,record)
     if not ok then return nil,tostring(data) end
-    local created,mon=pcall(Pokemon,data.species,data.level)
+    local created,mon=pcall(Pokemon,data.species,data.level,{natureId=data.natureId,abilitySlot=data.abilitySlot,heldItem=data.heldItem})
     if not created then return nil,"pokemon-construction-failed: "..tostring(mon) end
     -- Constructor derives stats/types/dex/XP threshold from current production
     -- definitions. Override durable player choices instead of re-deriving them.

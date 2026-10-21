@@ -1,0 +1,12 @@
+{
+  "archive": "ownership-and-natural-failures.tar.gz",
+  "sha256": "dfb40935469c614590d8aa341793a6f03a7ce93fdae8d2f62fb9e4ca41f00041",
+  "ownership_contracts": {
+    "passed": 470,
+    "failed": 0
+  },
+  "root_live_source_matches_proved_source_except_harness_overlays": true,
+  "natural01": "Failed host shop selector row/menu lookup; repaired two paths.",
+  "natural02": "Actual firstForest defeat with poison and unused medicine; full blackout and state evidence retained.",
+  "natural03": "Currently running; not included or claimed successful."
+}

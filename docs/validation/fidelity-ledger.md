@@ -20,7 +20,7 @@
 | Oak parcel scene | Original lab coordinates and receipt order | Adapt actor paths/transient Dex art to authored lab; defer receipt text until atomic commit | Preserve layout and prevent false reward claims on cancellation | Staged event UI; native acceptance pending |
 | Save records | No preexisting aggregate save format in this project | Explicit codec version boundaries, no guessed XP/sleep migration | Reject unreleased incompatible records safely | Real two-process Save/Continue preserves file hash and exact scene |
 | Species availability | Exclusives/trading/event Mew | Technical support differs from natural Blue availability | Avoid falsely claiming link/event availability | Policy to resolve before corresponding content |
-| Abilities, held items, natures | Absent from original Red/Blue | Add Gen V/B2W2 behavior for the original151 | Explicit user choice on 2026-10-20: “Add abilities, held items, and natures” | Required implementation, UI, persistence and regression work; not yet accepted |
+| Abilities, held items, natures | Absent from original Red/Blue | Add Gen V/B2W2 behavior for the original151 | Explicit user choice on 2026-10-20: “Add abilities, held items, and natures” | Codec5/nature/ability-slot/held records and Give/Take/INFO integrated;516 SDK/7 native jobs pass; acquisition/battle effects remain unfinished; see progress ledger |
 | Weather and dependent effects | Gen V moves introduce dependencies beyond the original engine | Implement the dependencies of enabled moves, abilities and held items | Prevent successful no-op effects | Unresolved implementation work; no blanket Gen V certification |
 
 The abilities/held-items/natures decision extends the gameplay enhancement policy.

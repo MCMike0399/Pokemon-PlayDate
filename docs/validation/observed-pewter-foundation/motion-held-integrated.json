@@ -1,0 +1,22 @@
+{
+  "status": "integrated checkpoint; full campaign and natural Brock acceptance pending",
+  "suite_ok": true,
+  "jobs_passed": 7,
+  "contracts": {
+    "failed": 0,
+    "ok": true,
+    "passed": 516
+  },
+  "source_sha256": "9fe188240f3e015c160d54a7455b9467f72f295f9249757d62b56bd93048e564",
+  "live_source_files_verified": 484,
+  "sdk_version": "3.1.2",
+  "archive": "motion-held-integrated.tar.gz",
+  "archive_sha256": "0d55c53489051417446257a66971a8c6a8ed9c775aad457c50388bba1de07820",
+  "review": "Root reviewed actual native held INFO/Bag/Party panels, full-bag refusal/success and restored INFO; prior healing/medicine/learning/evolution review remains recorded separately.",
+  "limitations": [
+    "No full campaign completion",
+    "No natural Brock completion yet",
+    "Expanded comprehensive catalog and early ability effects remain staged outside checkout",
+    "No physical-device validation"
+  ]
+}

@@ -129,3 +129,16 @@ function TileRegistry:renderImported(value, renderer)
 end
 
 WorldTiles = TileRegistry()
+
+-- Runtime installation rollback only. Validation/codec never needs this seam.
+-- Definitions are immutable append-only entries; preserve original image refs.
+function TileRegistry:checkpointRuntime()
+    local store=stores[self];local count=#store.entries;local images={}
+    for key,value in pairs(store.images) do images[key]=value end
+    local used=false
+    return function()
+        if used then return end;used=true
+        for id=#store.entries,count+1,-1 do store.keys[store.entries[id].key]=nil;store.entries[id]=nil end
+        store.images=images
+    end
+end

@@ -6,12 +6,58 @@ function BagState:init(game)
     self.game, self.menu = game, BattleMenu()
 end
 
+-- Explicit field-only selection mode; validates before pushing any state.
+function BagState.openHeld(game,options)
+    assert(type(options)=="table" and getmetatable(options)==nil,"held bag options required")
+    local allowed={mode=true,holder=true,trySelect=true,onComplete=true,onCancel=true}
+    for key in pairs(options) do assert(allowed[key],"unknown held bag option") end
+    assert(options.mode=="held" and type(options.trySelect)=="function","invalid held bag mode")
+    assert(options.onComplete==nil or type(options.onComplete)=="function","invalid held completion")
+    assert(options.onCancel==nil or type(options.onCancel)=="function","invalid held cancellation")
+    local party=game.machine:get("party")
+    if game.machine:current()~=party or not party.active or party.options.trySelect or party.options.onSelect then return false,"field-only" end
+    if Party._owner(options.holder)~=game.session:party() then return false,"not-party-member" end
+    game.machine:push("bag",options);return true
+end
+function BagState:visibleSlots()
+    local slots=(self.options and self.options.mode=="held" and self.session or self.game.session):inventory():slots()
+    if not self.options or self.options.mode~="held" then return slots end
+    local filtered={}
+    for _,slot in ipairs(slots) do if SpecimenData.holdable[slot.id] then filtered[#filtered+1]=slot end end
+    return filtered
+end
+function BagState:getHeldSnapshot()
+    local held=self.active and self.options and self.options.mode=="held"
+    local slots=held and self:visibleSlots() or {}
+    return {mode=held and "held" or "normal",holder=held and self.options.holder.species or "",count=#slots,
+        selected_id=slots[self.selected] and slots[self.selected].id or "none",quantity=slots[self.selected] and slots[self.selected].quantity or 0}
+end
+function BagState:selectHeld(id)
+    if not self.active or not self:isTop() or self.game.session~=self.session or not self.options or self.options.mode~="held" then return false,"stale-selection" end
+    local options=self.options
+    local ok,result=options.trySelect(id)
+    if ok then
+        self.heldReceipt=result
+        self.machine:pop()
+        if options.onComplete then options.onComplete(result) end
+    else
+        self:showMessage(result=="bag-full" and "There's no room for the returned item."
+            or result=="insufficient-items" and "That item is no longer in your bag."
+            or result=="already-holding" and "That POKEMON is already holding that item."
+            or "That item can't be held.")
+    end
+    return ok,result
+end
+
 function BagState:enter(options)
     self.visit=(self.visit or 0)+1
+    self.heldReceipt=nil
     self.options = options or {}
     self.selected, self.phase, self.message = 1, "list", nil
     self.menu:hide()
     self.active = true
+    self.session,self.battle=self.game.session,self.options.battle
+    self.battleSerial=(self.battleSerial or 0)+1
 end
 
 function BagState:exit()
@@ -21,6 +67,8 @@ function BagState:exit()
     self.menu:hide()
     self.menu.onSelect, self.menu.onCancel = nil, nil
     self.options = nil
+    self.session,self.battle=nil,nil
+    self.battleSerial=(self.battleSerial or 0)+1
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
 end
 
@@ -98,6 +146,8 @@ function BagState:actions(id)
 end
 
 function BagState:handleInput()
+    if not self.active then return end
+    if self.options.mode=="held" and self.game.session~=self.session then return end
     if self.phase == "message" then
         if playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonJustPressed(playdate.kButtonB) then
             self.phase = "list"
@@ -105,17 +155,23 @@ function BagState:handleInput()
         return
     end
     if self.phase ~= "list" then self.menu:handleInput(); return end
-    local slots = self.game.session:inventory():slots()
+    local slots = self:visibleSlots()
     local count = #slots
     self.selected = math.max(1, math.min(self.selected, count))
     if playdate.buttonJustPressed(playdate.kButtonB) then
-        if not self.options.tryCancel or self.options.tryCancel() then self.machine:pop() end
+        if self.options.mode=="held" then
+            local callback=self.options.onCancel;self.machine:pop();if callback then callback() end
+        elseif not self.options.tryCancel or self.options.tryCancel() then self.machine:pop() end
     elseif count > 0 then
         if playdate.buttonJustPressed(playdate.kButtonUp) then self.selected = (self.selected - 2) % count + 1
         elseif playdate.buttonJustPressed(playdate.kButtonDown) then self.selected = self.selected % count + 1
         elseif playdate.buttonJustPressed(playdate.kButtonA) then
             local id = slots[self.selected].id
-            if self.options.trySelect then
+            if self.options.mode=="held" then self:selectHeld(id)
+            elseif self.options.trySelect then
+                local item=ItemData.definitions[id]
+                local medicine={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
+                if self.battle and medicine[item.effect] then self:chooseBattleTarget(id);return end
                 local ok, reason = self.options.trySelect(id)
                 if ok then self.machine:pop()
                 else
@@ -133,17 +189,17 @@ function BagState:draw()
     gfx.setDrawOffset(0, 0)
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawText("ITEM", 12, 8)
+    gfx.drawText(self.options and self.options.mode=="held" and ("GIVE: "..self.options.holder.name) or "ITEM", 12, 8)
     gfx.drawText("$" .. self.game.session:inventory():money(), 286, 8)
-    local slots = self.game.session:inventory():slots()
+    local slots = self:visibleSlots()
     local first = math.max(1, self.selected - 7)
-    if #slots == 0 then gfx.drawText("Your bag is empty.", 16, 64) end
+    if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
     for i = first, math.min(#slots, first + 7) do
         local slot, top = slots[i], 36 + (i - first) * 21
         gfx.drawText((i == self.selected and "> " or "  ") .. ItemData.definitions[slot.id].name, 12, top)
         gfx.drawText("x" .. slot.quantity, 328, top)
     end
-    gfx.drawText("A: Choose  B: Back", 12, 218)
+    gfx.drawText(self.options and self.options.mode=="held" and "A: Give  B: Back" or "A: Choose  B: Back", 12, 218)
     if self.phase == "message" then
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(4, 174, 392, 62)
         gfx.setColor(gfx.kColorBlack); gfx.drawRect(4, 174, 392, 62)
@@ -155,4 +211,67 @@ function BagState:draw()
         self.menu:draw(208, 152, 180, 60)
     elseif self.phase == "actions" then self.menu:draw(208, 144, 180, 76) end
     gfx.setDrawOffset(x, y)
+end
+
+-- Battle medicine uses the controller's guarded command capability. These
+-- callbacks retain identities/visit; neither party nor move preview commits.
+function BagState:guardBattle(callback)
+    self.battleSerial=(self.battleSerial or 0)+1
+    local serial,visit,session,battle,options=self.battleSerial,self.visit,self.session,self.battle,self.options
+    return function(...)
+        if self.active and self:isTop() and self.battleSerial==serial and self.visit==visit
+            and self.game.session==session and self.session==session and self.battle==battle
+            and self.options==options and battle and battle.session==session and battle.party==session:party() then
+            return callback(...)
+        end
+        return false,"stale-selection"
+    end
+end
+function BagState:battleMessage(reason)
+    self.battleSerial=(self.battleSerial or 0)+1
+    self:showMessage(reason=="no-effect" and "It won't have any effect."
+        or reason=="insufficient-items" and "That item is no longer in your bag."
+        or reason=="stale-selection" and "That selection has changed. Try again."
+        or "That item can't be used here.")
+    self.menu.onSelect,self.menu.onCancel=nil,nil
+end
+function BagState:battleUse(id,index,slot,mon,moveKey)
+    if not self.active or not self:isTop() or not self.session or not self.options then return false,"stale-selection" end
+    if self.game.session~=self.session or self.session:party():get(index)~=mon
+        or (slot and mon.moves[slot]~=moveKey) then self:battleMessage("stale-selection");return false,"stale-selection" end
+    local ok,result=self.options.trySelect(id,index,slot)
+    if ok then self.machine:pop() else self:battleMessage(result) end
+    return ok,result
+end
+function BagState:chooseBattleTarget(id)
+    if self.battle:needsForcedSwitch() or not self.battle:isAwaitingCommand() then self:battleMessage("wrong-phase");return end
+    local item=ItemData.definitions[id]
+    local members=self.session:party():members()
+    self.phase="battle-target"
+    local selected=self:guardBattle(function(index)
+        local mon=members[index]
+        if not mon or self.session:party():get(index)~=mon then self:battleMessage("stale-selection");return end
+        if item.effect=="pp" and not item.allMoves then
+            local moves,options={},{}
+            for slot,key in ipairs(mon.moves) do
+                moves[slot]=key;options[slot]=moveData[key].name.."  "..mon.pp[key].."/"..moveData[key].maxPP
+            end
+            self.phase="move"
+            local choose=self:guardBattle(function(slot)
+                return self:battleUse(id,index,slot,mon,moves[slot])
+            end)
+            local visit,session,battle,serial=self.visit,self.session,self.battle,self.battleSerial
+            self.menu:show(options,choose,function()
+                if self.active and self:isTop() and self.visit==visit and self.game.session==session and self.battle==battle and self.battleSerial==serial then
+                    self.battleSerial=self.battleSerial+1;self.phase="list";self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
+                end
+            end)
+        else return self:battleUse(id,index,nil,mon) end
+    end)
+    local visit,session,battle,serial=self.visit,self.session,self.battle,self.battleSerial
+    self.machine:push("party",{prompt="Use on which POKEMON?",onSelect=selected,onCancel=function()
+        if self.active and self:isTop() and self.visit==visit and self.game.session==session and self.battle==battle and self.battleSerial==serial then
+            self.battleSerial=self.battleSerial+1;self.phase="list"
+        end
+    end})
 end

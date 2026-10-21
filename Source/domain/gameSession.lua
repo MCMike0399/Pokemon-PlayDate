@@ -79,10 +79,11 @@ local function rngData(value)
 end
 local function dependencies(deps)
     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
+    assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
     local definitions={}
     for id,entry in pairs(assert(deps.itemDefinitions,"item definitions required")) do definitions[id]={keyItem=entry.keyItem} end
     Inventory(definitions) -- validates configuration without modifying callers.
-    return {itemDefinitions=definitions,validateWorld=deps.validateWorld,resolveLocation=deps.resolveLocation}
+    return {itemDefinitions=definitions,validateWorld=deps.validateWorld,resolveLocation=deps.resolveLocation,validateActors=deps.validateActors}
 end
 -- Internal serialization seam; consumers use SessionCodec rather than mutating.
 GameSession._copy,GameSession._object,GameSession._flags=copy,object,flags
@@ -97,7 +98,7 @@ function GameSession:init(deps,options)
     local stream=RulesRNG.new(options.seed or 1)
     state[self]={deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
-        world=payload,rng=stream:toData(),rngActive=false}
+        world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
 function GameSession.newSession(deps,options) return GameSession(deps,options) end
 function GameSession:party() return state[self].party end
@@ -133,7 +134,7 @@ local function setFlag(self,kind,id,value)
         local count=0; for _ in pairs(values) do count=count+1 end
         if count>=4096 then return false,"flag-limit" end
     end
-    values[id]=value; return true
+    values[id]=value;state[self].currentActors=WorldMotionData.empty();return true
 end
 function GameSession:setQuestFlag(id,value) return setFlag(self,"questFlags",id,value) end
 function GameSession:questFlag(id) return state[self].questFlags[id] or false end
@@ -141,14 +142,17 @@ function GameSession:setTrainerDefeated(id,value) return setFlag(self,"trainerFl
 function GameSession:trainerDefeated(id) return state[self].trainerFlags[id] or false end
 function GameSession:flags() return {quest=copy(state[self].questFlags),trainers=copy(state[self].trainerFlags)} end
 -- A deliberately small event transaction: item transfers + boolean quest
--- flags only. Dialogue/world/UI actions remain the root event executor's work.
+-- flags, trainer outcomes and saturating currency. Dialogue/world/UI actions
+-- remain the root event executor's work.
 function GameSession:transact(expected,changes)
     local current=state[self]
     local ok,result=pcall(function()
         expected,changes=copy(expected),copy(changes)
-        object(expected,{flags=true,items=true}); object(changes,{flags=true,items=true})
+        object(expected,{flags=true,items=true,trainers=true,money=true}); object(changes,{flags=true,items=true,trainers=true,money=true})
         local required=flags(expected.flags,32)
         local writes=flags(changes.flags,32)
+        local trainerRequired=flags(expected.trainers or {},32)
+        local trainerWrites=flags(changes.trainers or {},32)
         assert(type(expected.items)=="table" and getmetatable(expected.items)==nil,"item quantity guards required")
         local once,guardCount=false,0
         for id,value in pairs(required) do
@@ -156,7 +160,20 @@ function GameSession:transact(expected,changes)
             if value==false and writes[id]==true then once=true end
             if (current.questFlags[id] or false)~=value then error("stale-flag",0) end
         end
+        for id,value in pairs(trainerRequired) do
+            guardCount=guardCount+1
+            if value==false and trainerWrites[id]==true then once=true end
+            if (current.trainerFlags[id] or false)~=value then error("stale-trainer",0) end
+        end
+        assert(guardCount<=32,"too many transaction guards")
+        local writeCount=0;for _ in pairs(writes) do writeCount=writeCount+1 end
+        for _ in pairs(trainerWrites) do writeCount=writeCount+1 end
+        assert(writeCount<=32,"too many transaction flag writes")
         assert(guardCount>=1 and once,"guarded one-time completion flag required")
+        if expected.money~=nil then
+            assert(Party._integer(expected.money,0,Inventory.MONEY_LIMIT),"invalid money guard")
+            if current.inventory:money()~=expected.money then error("stale-money",0) end
+        end
         local quantities=0
         for id,value in pairs(expected.items) do
             assert(type(id)=="string" and Party._integer(value,0,Inventory.CAPACITY*Inventory.STACK_LIMIT),"invalid item quantity guard")
@@ -179,30 +196,61 @@ function GameSession:transact(expected,changes)
             else error("unknown item operation") end
             if not accepted then error(reason,0) end
         end
+        if changes.money~=nil then
+            object(changes.money,{op=true,amount=true})
+            assert(expected.money~=nil and Party._integer(changes.money.amount,0,Inventory.MONEY_LIMIT),"guarded integer currency required")
+            assert(changes.money.op=="credit" or changes.money.op=="debit","unknown currency operation")
+            local accepted,reason
+            if changes.money.op=="credit" then
+                -- Original AddBCD saturates all result bytes to99 on carry.
+                accepted,reason=bag:credit(math.min(changes.money.amount,Inventory.MONEY_LIMIT-bag:money()))
+            else accepted,reason=bag:spend(changes.money.amount) end
+            assert(accepted,reason)
+        end
         local combined=copy(current.questFlags)
         for id,value in pairs(writes) do combined[id]=value end
-        return {bag=bag:toData(),flags=flags(combined,4096)}
+        local trainerCombined=copy(current.trainerFlags)
+        for id,value in pairs(trainerWrites) do trainerCombined[id]=value end
+        return {bag=bag:toData(),flags=flags(combined,4096),trainers=flags(trainerCombined,4096),actors=WorldMotionData.empty()}
     end)
     if not ok then return false,tostring(result) end
     -- _replaceData validates before assignment and cannot yield/call scripts.
     local committed,reason=Inventory._replaceData(current.inventory,result.bag)
     if not committed then return false,reason end
-    current.questFlags=result.flags
+    current.questFlags,current.trainerFlags,current.currentActors=result.flags,result.trainers,result.actors
     return true
+end
+-- Badge bits are represented by stable quest flags in the existing codec.
+local badgeFlags={boulder="BADGE_BOULDER"}
+function GameSession:hasBadge(name)
+    local id=assert(badgeFlags[name],"unsupported badge name")
+    return self:questFlag(id)
+end
+-- The battle controller's terminal guard owns one invocation. Compare-and-set
+-- rejects stale balances; the detached bag commits while preserving identity.
+function GameSession:halveMoneyOnBlackout(expectedMoney)
+    local current=state[self]
+    if not Party._integer(expectedMoney,0,Inventory.MONEY_LIMIT) then return false,"invalid-money-guard" end
+    if current.inventory:money()~=expectedMoney then return false,"stale-money" end
+    local bag=assert(Inventory.fromData(current.deps.itemDefinitions,current.inventory:toData()))
+    assert(bag:spend(expectedMoney-expectedMoney//2))
+    return Inventory._replaceData(current.inventory,bag:toData())
 end
 function GameSession:location() return copy(state[self].location) end
 function GameSession:checkpoint() return copy(state[self].checkpoint) end
 function GameSession:captureTraversal(snapshot)
     local current=state[self]
     local ok,prepared=pcall(function()
-        object(snapshot,{location=true,world=true,checkpoint=true})
+        object(snapshot,{location=true,world=true,checkpoint=true,actors=true})
         local normalized=world(current.deps,assert(snapshot.world,"candidate world required"))
         local position=location(current.deps,assert(snapshot.location,"candidate location required"),normalized)
         local checkpoint=location(current.deps,snapshot.checkpoint or current.checkpoint,normalized)
-        return {world=normalized,location=position,checkpoint=checkpoint}
+        local actors=GameSession._validateActors(current.deps,snapshot.actors or WorldMotionData.empty(),normalized,position,self:flags())
+        return {world=normalized,location=position,checkpoint=checkpoint,actors=actors}
     end)
     if not ok then return false,tostring(prepared) end
     current.world,current.location,current.checkpoint=prepared.world,prepared.location,prepared.checkpoint
+    current.currentActors=prepared.actors
     return true
 end
 function GameSession:setLocation(value,asCheckpoint)
@@ -247,6 +295,7 @@ function GameSession._restore(deps,values)
     -- All values are privately constructed by SessionCodec after full preflight.
     local session=setmetatable({},GameSession)
     values.deps=dependencies(deps); values.rngActive=false
+    values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
     return session
 end
@@ -270,4 +319,77 @@ function GameSession:evolvePokemon(request)
     current.dex=prepared.dex
     prepared.request.status="complete"
     return true,prepared.result
+end
+
+-- Independent persistent logical-world stream. Read methods never initialize or
+-- mutate it; new/legacy-restored sessions construct it explicitly with zero rolls.
+function GameSession:worldRandom(low,high)return assert(state[self].worldRng):random(low,high)end
+function GameSession:worldRngData()return assert(state[self].worldRng):toData()end
+function GameSession:actorData()return copy(assert(state[self].currentActors))end
+function GameSession._validateActors(deps,payload,candidateWorld,position,candidateFlags)
+    if deps.validateActors then
+        local input=copy(payload);local before=copy(input)
+        local normalized=deps.validateActors(input,copy(candidateWorld),copy(position),copy(candidateFlags))
+        retainedFields(before,normalized);return copy(normalized)
+    end
+    assert(payload.zone_id=="none","source actor validator required")
+    return WorldMotionData.normalize(payload,nil,position,candidateFlags)
+end
+function GameSession:_installWorldMotion(payload)
+    object(payload,{version=true,rng=true,actors=true});assert(payload.version==1,"unsupported world motion version")
+    local current=state[self];local stream=RulesRNG.new(1);stream:restoreData(rngData(payload.rng))
+    local actors=GameSession._validateActors(current.deps,payload.actors,current.world,current.location,self:flags())
+    current.worldRng,current.currentActors=stream,actors
+end
+
+-- Deterministic same-owner transfer. Candidate bag and primitive receipt are
+-- fully prepared before either retained Inventory or Pokemon is committed.
+local function prepareHeldTransfer(session,mon,id,taking)
+    local current=GameSession._state(session)
+    if not current then return nil,"invalid-session" end
+    if type(mon)~="table" or Party._owner(mon)~=current.party then return nil,"not-party-member" end
+    local index
+    for i,value in ipairs(current.party:members()) do if value==mon then index=i;break end end
+    if not index then return nil,"not-party-member" end
+    local valid,why=PokemonCodec.encode(mon)
+    if not valid then return nil,"invalid-pokemon" end
+    local previous=mon.heldItem
+    if taking then
+        if previous=="none" then return nil,"no-held-item" end
+    else
+        if type(id)~="string" or not SpecimenData.holdable[id] then return nil,"invalid-or-nonholdable-item" end
+        if previous==id then return nil,"already-holding" end
+    end
+    local bag=current.inventory
+    local candidate,problem=Inventory.fromData(current.deps.itemDefinitions,bag:toData())
+    if not candidate then return nil,problem end
+    if not taking then
+        local accepted,reason=candidate:consume(id,1)
+        if not accepted then return nil,reason end
+    end
+    if previous~="none" then
+        local accepted,reason=candidate:add(previous,1)
+        if not accepted then return nil,reason end
+    end
+    local nextItem=taking and "none" or id
+    local changedItem=taking and previous or id
+    local receipt={kind=taking and "taken" or "given",item=changedItem,previous=previous,heldItem=nextItem,
+        partyIndex=index,quantityBefore=bag:quantity(changedItem),quantityAfter=candidate:quantity(changedItem)}
+    return {bag=bag,pokemon=mon,data=candidate:toData(),heldItem=nextItem,receipt=receipt}
+end
+local function commitHeldTransfer(plan)
+    local accepted,reason=plan.bag:_replaceData(plan.data)
+    if not accepted then return false,reason end
+    plan.pokemon.heldItem=plan.heldItem -- Existing scalar field; no callbacks or validation after bag commit.
+    return true,plan.receipt
+end
+function GameSession:giveHeldItem(mon,id)
+    local plan,reason=prepareHeldTransfer(self,mon,id,false)
+    if not plan then return false,reason end
+    return commitHeldTransfer(plan)
+end
+function GameSession:takeHeldItem(mon)
+    local plan,reason=prepareHeldTransfer(self,mon,nil,true)
+    if not plan then return false,reason end
+    return commitHeldTransfer(plan)
 end

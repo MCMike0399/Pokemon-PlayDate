@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "pinned_inputs": 10,
+  "species": 151,
+  "ability_ids": 111,
+  "literal_species_vectors": 8,
+  "independent_nature_comparisons": 25,
+  "catalog_items": 124,
+  "holdable": 49,
+  "nonholdable": 75,
+  "generated_data_matches": true
+}

@@ -25,6 +25,7 @@ class Journey:
     def __init__(self, client, evidence, config):
         self.client = client
         self.evidence = Path(evidence)
+        self.frames_dir = self.evidence / "frames"
         self.config = config
         self.state = {}
         self.checkpoints = []
@@ -43,10 +44,10 @@ class Journey:
                     name, count = parts[1], int(parts[2])
                     for number in range(1, count + 1):
                         filename = f"{name}-{number:02d}.png"
-                        if not (self.evidence / "frames" / filename).is_file():
+                        if not (self.frames_dir / filename).is_file():
                             raise ProtocolError(f"journey recording missing: {filename}")
                     self.recordings.append({"name": name, "frames": count})
-                elif parts[0] == "shot" and not (self.evidence / "frames" / (parts[1] + ".png")).is_file():
+                elif parts[0] == "shot" and not (self.frames_dir / (parts[1] + ".png")).is_file():
                     raise ProtocolError(f"journey screenshot missing: {parts[1]}")
         return self.state
 
@@ -382,10 +383,16 @@ class Journey:
         self.checkpoint("blackout-return" if blackout else "wild-return")
 
 
-def run(client, scenario, evidence_dir):
+def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None, capture_dir=None):
+    if scenario.get("journey", {}).get("name") == "battle-medicine":
+        from tools.harness.battle_medicine_journey import run as run_medicine
+        return run_medicine(client, scenario, evidence_dir)
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")
+    if config.get("name") in {"brock-natural", "brock-continue", "brock-source-supplementary"}:
+        from tools.harness.brock_journey import run as run_brock
+        return run_brock(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)
     if config.get("name") in {"parcel-natural", "parcel-full-bag-supplementary", "parcel-visibility-checkpoint-supplementary"}:
         from tools.harness.parcel_journey import run as run_parcel
         return run_parcel(client, scenario, evidence_dir)

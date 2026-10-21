@@ -22,23 +22,56 @@ def validate(scenario, qualification=False):
         return
     if qualification or any(key in scenario for key in ('commands', 'requests', 'journey', 'outputs')):
         raise ProtocolError('processes cannot mix with commands/requests/journey/outputs/qualification')
+    if set(scenario)!={'processes'}:
+        raise ProtocolError('unknown process scenario fields')
     groups = scenario['processes']
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
         raise ProtocolError('processes requires 2..8 process groups')
     for index, group in enumerate(groups):
-        if not isinstance(group, dict) or set(group) - {'restart', 'requests', 'outputs'}:
+        if not isinstance(group, dict) or set(group) - {'restart', 'requests', 'journey', 'outputs'}:
             raise ProtocolError('invalid process group fields')
         if (index == 0 and 'restart' in group) or (index > 0 and group.get('restart') is not True):
             raise ProtocolError('each later process group requires restart:true; first cannot restart')
-        requests = group.get('requests')
-        if not isinstance(requests, list) or not requests or any(not isinstance(value, list) or not value for value in requests):
-            raise ProtocolError('process requests requires nonempty command arrays')
+        if ('requests' in group) == ('journey' in group):
+            raise ProtocolError('process group requires exactly one of requests or known journey')
+        if 'requests' in group:
+            requests = group['requests']
+            if not isinstance(requests, list) or not requests or any(not isinstance(value, list) or not value for value in requests):
+                raise ProtocolError('process requests requires nonempty command arrays')
+        else:
+            journey=group['journey']
+            allowed={'name','starter','seed','max_actions','max_steps','max_encounters'}
+            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue'}:
+                raise ProtocolError('unknown or malformed process journey')
+            if journey['name']=='brock-natural' and index!=0:
+                raise ProtocolError('new-game journey must be first process')
+            if journey['name']=='brock-continue' and (index==0 or groups[index-1].get('journey',{}).get('name') not in {'brock-natural','brock-continue'}):
+                raise ProtocolError('Continue journey requires prior saved journey receipt')
+            for name,low,high in [('seed',-2147483648,2147483647),('max_actions',1,20000),('max_steps',1,5000),('max_encounters',1,64)]:
+                if name in journey and (type(journey[name]) is not int or not low<=journey[name]<=high):
+                    raise ProtocolError('invalid process journey bound: '+name)
+            if journey.get('starter','squirtle')!='squirtle':raise ProtocolError('Brock journey requires Squirtle')
         outputs = group.get('outputs', [])
         if not isinstance(outputs, list):
             raise ProtocolError('process outputs requires an array')
         for value in outputs:
             if not isinstance(value, str) or not value or Path(value).is_absolute() or '..' in Path(value).parts:
                 raise ProtocolError('invalid process output path')
+
+
+
+def read_receipt(reference, metadata):
+    if not isinstance(reference,dict) or set(reference)!={'path','sha256'}:
+        raise ProtocolError('missing prior immutable journey receipt')
+    path=Path(reference['path'])
+    if path.is_symlink() or not path.is_file():raise ProtocolError('missing prior immutable journey receipt')
+    raw=path.read_bytes()
+    if hashlib.sha256(raw).hexdigest()!=reference['sha256']:raise ProtocolError('prior journey receipt changed')
+    try:packet=json.loads(raw)
+    except (UnicodeDecodeError,ValueError) as error:raise ProtocolError('malformed prior journey receipt')from error
+    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind']!='brock-saved' or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
+        raise ProtocolError('wrong-build or malformed prior journey receipt')
+    return packet
 
 
 def check_owner(owner, data):
@@ -117,6 +150,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
     finalized = archived = False
     prior_pid = None
     expected_durable = None
+    prior_receipt = None
 
     def publish():
         atomic_json(output / 'run.json', dict(metadata, processes=processes))
@@ -155,9 +189,23 @@ def run(args, scenario, metadata, output, data, owner, runner):
                     raise ProtocolError('boot changed durable files across restart')
                 record.update(status='ready', fresh_ready=True, ready_tick=ready.get('tick'), ready_observed_ns=time.time_ns())
                 atomic_json(evidence / 'process.json', record); publish()
-                for commands in group['requests']:
-                    result = client.send(commands, args.timeout, args.max_frames)
-                    runner.verify_request_outputs(commands, result, output)
+                if 'journey' in group:
+                    from tools.harness import journeys
+                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name']=='brock-continue' else None
+                    summary=journeys.run(client,{'journey':group['journey']},evidence,
+                        build_evidence=output,prior_receipt=prior,capture_dir=output/'frames')
+                    if not isinstance(summary,dict)or summary.get('ok') is not True:raise ProtocolError('process journey failed')
+                    receipt=summary.get('receipt')
+                    if not isinstance(receipt,dict)or set(receipt)!={'path','sha256'}or receipt['path']!='journey-receipt.json':raise ProtocolError('successful journey missing immutable receipt')
+                    prior_receipt={'path':str(evidence/'journey-receipt.json'),'sha256':receipt['sha256']}
+                    read_receipt(prior_receipt,metadata)
+                    record['journey_receipt']={'path':str((evidence/'journey-receipt.json').relative_to(output)),'sha256':receipt['sha256']}
+                    record['journey_summary']='journey-summary.json'
+                else:
+                    for commands in group['requests']:
+                        result = client.send(commands, args.timeout, args.max_frames)
+                        runner.verify_request_outputs(commands, result, output)
+                    prior_receipt=None
                 for path in group.get('outputs', []):
                     runner.verify_png(output / 'frames' / path)
                 runner.finalize_captures(client, data, output)

@@ -208,7 +208,7 @@ local function normalize(value)
             assert(type(options.seed) == "number", "fixture seed requires an integer number")
             options.seed = seedInteger(options.seed)
         end
-        assert(options.zone == nil or zoneRegistry[options.zone], "unknown fixture zone")
+        assert(options.zone == nil or WorldDeltas.describeZone(options.zone), "unknown fixture zone")
         assert(options.intro == nil or options.intro == "skip" or options.intro == "reset", "invalid fixture intro")
         if options.player_pokemon then
             local mon = options.player_pokemon
@@ -252,7 +252,7 @@ local function normalize(value)
         if options.entry ~= nil then
             assert(type(options.entry) == "table", "fixture entry object required")
             for key in pairs(options.entry) do assert(key == "x" or key == "y" or key == "facing", "unknown fixture entry field") end
-            local zone = zoneRegistry[options.zone or "reds_house_2f"]
+            local zone = WorldDeltas.describeZone(options.zone or "reds_house_2f")
             assert(integer(options.entry.x, 0, zone.width - 1) and integer(options.entry.y, 0, zone.height - 1), "invalid fixture entry")
             assert(options.entry.facing == nil or dirs[options.entry.facing], "invalid fixture facing")
         end

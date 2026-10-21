@@ -1,0 +1,2196 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_FoundItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 63,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 65
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_MartSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 50,
+          "text": "All your item"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "needs fulfilled!"
+        },
+        {
+          "op": "cont",
+          "source_line": 52,
+          "text": "#MON MART"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 53
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_MoneyForWinningText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 869,
+          "text": "<PLAYER> got ¥@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd wAmountMoneyWon, 3 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 870
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 871
+        },
+        {
+          "op": "line",
+          "source_line": 872,
+          "text": "for winning!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 873
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_NeedYourPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 175,
+          "text": "OK. We'll need"
+        },
+        {
+          "op": "line",
+          "source_line": 176,
+          "text": "your #MON."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 177
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_NoMoreRoomForItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 68,
+          "text": "No more room for"
+        },
+        {
+          "op": "line",
+          "source_line": 69,
+          "text": "items!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 70
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_PewterCityCooltrainerFText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "It's rumored that"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "CLEFAIRYs came"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "from the moon!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "They appeared "
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "after MOON STONE"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "fell on MT.MOON."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityCooltrainerMText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "There aren't many"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "serious #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 14,
+          "text": "trainers here!"
+        },
+        {
+          "op": "para",
+          "source_line": 16,
+          "text": "They're all like"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "BUG CATCHERs,"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "but PEWTER GYM's"
+        },
+        {
+          "op": "cont",
+          "source_line": 19,
+          "text": "BROCK is totally"
+        },
+        {
+          "op": "cont",
+          "source_line": 20,
+          "text": "into it!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 21
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityGymSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 105,
+          "text": "PEWTER CITY"
+        },
+        {
+          "op": "line",
+          "source_line": 106,
+          "text": "#MON GYM"
+        },
+        {
+          "op": "cont",
+          "source_line": 107,
+          "text": "LEADER: BROCK"
+        },
+        {
+          "op": "para",
+          "source_line": 109,
+          "text": "The Rock Solid"
+        },
+        {
+          "op": "line",
+          "source_line": 110,
+          "text": "#MON Trainer!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 111
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityMuseumSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 100,
+          "text": "PEWTER MUSEUM"
+        },
+        {
+          "op": "line",
+          "source_line": 101,
+          "text": "OF SCIENCE"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 102
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityPoliceNoticeSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 89,
+          "text": "NOTICE!"
+        },
+        {
+          "op": "para",
+          "source_line": 91,
+          "text": "Thieves have been"
+        },
+        {
+          "op": "line",
+          "source_line": 92,
+          "text": "stealing #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 93,
+          "text": "fossils at MT."
+        },
+        {
+          "op": "cont",
+          "source_line": 94,
+          "text": "MOON! Please call"
+        },
+        {
+          "op": "cont",
+          "source_line": 95,
+          "text": "PEWTER POLICE"
+        },
+        {
+          "op": "cont",
+          "source_line": 96,
+          "text": "with any info!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 97
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 114,
+          "text": "PEWTER CITY"
+        },
+        {
+          "op": "line",
+          "source_line": 115,
+          "text": "A Stone Gray"
+        },
+        {
+          "op": "cont",
+          "source_line": 116,
+          "text": "City"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 117
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd1DidYouCheckOutMuseumText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 24,
+          "text": "Did you check out"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "the MUSEUM?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 26
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd1ItsRightHereText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 41,
+          "text": "It's right here!"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "You have to pay"
+        },
+        {
+          "op": "cont",
+          "source_line": 43,
+          "text": "to get in, but"
+        },
+        {
+          "op": "cont",
+          "source_line": 44,
+          "text": "it's worth it!"
+        },
+        {
+          "op": "cont",
+          "source_line": 45,
+          "text": "See you around!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 46
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd1WerentThoseFossilsAmazingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "Weren't those"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "fossils from MT."
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "MOON amazing?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 32
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd1YouHaveToGoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 35,
+          "text": "Really?"
+        },
+        {
+          "op": "line",
+          "source_line": 36,
+          "text": "You absolutely"
+        },
+        {
+          "op": "cont",
+          "source_line": 37,
+          "text": "have to go!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 38
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd2DoYouKnowWhatImDoingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 49,
+          "text": "Psssst!"
+        },
+        {
+          "op": "line",
+          "source_line": 50,
+          "text": "Do you know what"
+        },
+        {
+          "op": "cont",
+          "source_line": 51,
+          "text": "I'm doing?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 52
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd2ImSprayingRepelText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 60,
+          "text": "I'm spraying REPEL"
+        },
+        {
+          "op": "line",
+          "source_line": 61,
+          "text": "to keep #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 62,
+          "text": "out of my garden!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 63
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCitySuperNerd2ThatsRightText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 55,
+          "text": "That's right!"
+        },
+        {
+          "op": "line",
+          "source_line": 56,
+          "text": "It's hard work!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 57
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityTrainerTipsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 80,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 82,
+          "text": "Any #MON that"
+        },
+        {
+          "op": "line",
+          "source_line": 83,
+          "text": "takes part in"
+        },
+        {
+          "op": "cont",
+          "source_line": 84,
+          "text": "battle, however"
+        },
+        {
+          "op": "cont",
+          "source_line": 85,
+          "text": "short, earns EXP!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 86
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityYoungsterGoTakeOnBrockText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 74,
+          "text": "If you have the"
+        },
+        {
+          "op": "line",
+          "source_line": 75,
+          "text": "right stuff, go"
+        },
+        {
+          "op": "cont",
+          "source_line": 76,
+          "text": "take on BROCK!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 77
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterCityYoungsterYoureATrainerFollowMeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 66,
+          "text": "You're a trainer"
+        },
+        {
+          "op": "line",
+          "source_line": 67,
+          "text": "right? BROCK's"
+        },
+        {
+          "op": "cont",
+          "source_line": 68,
+          "text": "looking for new"
+        },
+        {
+          "op": "cont",
+          "source_line": 69,
+          "text": "challengers!"
+        },
+        {
+          "op": "cont",
+          "source_line": 70,
+          "text": "Follow me!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 71
+        }
+      ],
+      "source": "text/PewterCity.asm"
+    },
+    "_PewterGymBrockBoulderBadgeInfoText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 67
+        },
+        {
+          "op": "para",
+          "source_line": 69,
+          "text": "That's an official"
+        },
+        {
+          "op": "line",
+          "source_line": 70,
+          "text": "#MON LEAGUE"
+        },
+        {
+          "op": "cont",
+          "source_line": 71,
+          "text": "BADGE!"
+        },
+        {
+          "op": "para",
+          "source_line": 73,
+          "text": "Its bearer's"
+        },
+        {
+          "op": "line",
+          "source_line": 74,
+          "text": "#MON become"
+        },
+        {
+          "op": "cont",
+          "source_line": 75,
+          "text": "more powerful!"
+        },
+        {
+          "op": "para",
+          "source_line": 77,
+          "text": "The technique"
+        },
+        {
+          "op": "line",
+          "source_line": 78,
+          "text": "FLASH can now be"
+        },
+        {
+          "op": "cont",
+          "source_line": 79,
+          "text": "used any time!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 80
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymBrockPostBattleAdviceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "There are all"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "kinds of trainers"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "in the world!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "You appear to be"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "very gifted as a"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "#MON trainer!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "Go to the GYM in"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "CERULEAN and test"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "your abilities!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 13
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymBrockPreBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I'm BROCK!"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "I'm PEWTER's GYM"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "LEADER!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "I believe in rock"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "hard defense and"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "determination!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "That's why my"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "#MON are all"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "the rock-type!"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "Do you still want"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "to challenge me?"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "Fine then! Show"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "me your best!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 18
+        }
+      ],
+      "source": "text/PewterGym.asm"
+    },
+    "_PewterGymBrockReceivedBoulderBadgeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 55,
+          "text": "I took"
+        },
+        {
+          "op": "line",
+          "source_line": 56,
+          "text": "you for granted."
+        },
+        {
+          "op": "para",
+          "source_line": 58,
+          "text": "As proof of your"
+        },
+        {
+          "op": "line",
+          "source_line": 59,
+          "text": "victory, here's"
+        },
+        {
+          "op": "cont",
+          "source_line": 60,
+          "text": "the BOULDERBADGE!"
+        },
+        {
+          "op": "para",
+          "source_line": 62,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 63,
+          "text": "the BOULDERBADGE!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 64
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymBrockWaitTakeThisText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 16,
+          "text": "Wait! Take this"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "with you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 18
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymCooltrainerMAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 100,
+          "text": "You're pretty hot,"
+        },
+        {
+          "op": "line",
+          "source_line": 101,
+          "text": "but not as hot"
+        },
+        {
+          "op": "cont",
+          "source_line": 102,
+          "text": "as BROCK!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 103
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymCooltrainerMBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 83,
+          "text": "Stop right there,"
+        },
+        {
+          "op": "line",
+          "source_line": 84,
+          "text": "kid!"
+        },
+        {
+          "op": "para",
+          "source_line": 86,
+          "text": "You're still light"
+        },
+        {
+          "op": "line",
+          "source_line": 87,
+          "text": "years from facing"
+        },
+        {
+          "op": "cont",
+          "source_line": 88,
+          "text": "BROCK!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 89
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymCooltrainerMEndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 92,
+          "text": "Darn!"
+        },
+        {
+          "op": "para",
+          "source_line": 94,
+          "text": "Light years isn't"
+        },
+        {
+          "op": "line",
+          "source_line": 95,
+          "text": "time! It measures"
+        },
+        {
+          "op": "cont",
+          "source_line": 96,
+          "text": "distance!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 97
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymGuideAdviceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 125,
+          "text": "The 1st #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 126,
+          "text": "out in a match is"
+        },
+        {
+          "op": "cont",
+          "source_line": 127,
+          "text": "at the top of the"
+        },
+        {
+          "op": "cont",
+          "source_line": 128,
+          "text": "#MON LIST!"
+        },
+        {
+          "op": "para",
+          "source_line": 130,
+          "text": "By changing the"
+        },
+        {
+          "op": "line",
+          "source_line": 131,
+          "text": "order of #MON,"
+        },
+        {
+          "op": "cont",
+          "source_line": 132,
+          "text": "matches could be"
+        },
+        {
+          "op": "cont",
+          "source_line": 133,
+          "text": "made easier!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 134
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymGuideBeginAdviceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 120,
+          "text": "All right! Let's"
+        },
+        {
+          "op": "line",
+          "source_line": 121,
+          "text": "get happening!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 122
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymGuideFreeServiceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 137,
+          "text": "It's a free"
+        },
+        {
+          "op": "line",
+          "source_line": 138,
+          "text": "service! Let's"
+        },
+        {
+          "op": "cont",
+          "source_line": 139,
+          "text": "get happening!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 140
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymGuidePostBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 143,
+          "text": "Just as I thought!"
+        },
+        {
+          "op": "line",
+          "source_line": 144,
+          "text": "You're #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 145,
+          "text": "champ material!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 146
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymGuidePreAdviceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 106,
+          "text": "Hiya! I can tell"
+        },
+        {
+          "op": "line",
+          "source_line": 107,
+          "text": "you have what it"
+        },
+        {
+          "op": "cont",
+          "source_line": 108,
+          "text": "takes to become a"
+        },
+        {
+          "op": "cont",
+          "source_line": 109,
+          "text": "#MON champ!"
+        },
+        {
+          "op": "para",
+          "source_line": 111,
+          "text": "I'm no trainer,"
+        },
+        {
+          "op": "line",
+          "source_line": 112,
+          "text": "but I can tell"
+        },
+        {
+          "op": "cont",
+          "source_line": 113,
+          "text": "you how to win!"
+        },
+        {
+          "op": "para",
+          "source_line": 115,
+          "text": "Let me take you"
+        },
+        {
+          "op": "line",
+          "source_line": 116,
+          "text": "to the top!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 117
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymReceivedTM34Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 21,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 22,
+          "text": "TM34!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 23
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterGymTM34NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 50,
+          "text": "You don't have"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "room for this!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 52
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_PewterMartSuperNerdText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "Good things can"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "happen if you"
+        },
+        {
+          "op": "cont",
+          "source_line": 14,
+          "text": "raise #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 15,
+          "text": "diligently, even"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "the weak ones!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 17
+        }
+      ],
+      "source": "text/PewterMart.asm"
+    },
+    "_PewterMartYoungsterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "A shady, old man"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "got me to buy"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "this really weird"
+        },
+        {
+          "op": "cont",
+          "source_line": 5,
+          "text": "fish #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 7,
+          "text": "It's totally weak"
+        },
+        {
+          "op": "line",
+          "source_line": 8,
+          "text": "and it cost ¥500!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/PewterMart.asm"
+    },
+    "_PewterPokecenterGentlemanText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "What!?"
+        },
+        {
+          "op": "para",
+          "source_line": 4,
+          "text": "TEAM ROCKET is"
+        },
+        {
+          "op": "line",
+          "source_line": 5,
+          "text": "at MT.MOON? Huh?"
+        },
+        {
+          "op": "cont",
+          "source_line": 6,
+          "text": "I'm on the phone!"
+        },
+        {
+          "op": "para",
+          "source_line": 8,
+          "text": "Scram!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/PewterPokecenter.asm"
+    },
+    "_PewterPokecenterJigglypuffText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "JIGGLYPUFF: Puu"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "pupuu!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 14
+        }
+      ],
+      "source": "text/PewterPokecenter.asm"
+    },
+    "_PokeCenterSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 56,
+          "text": "Heal Your #MON!"
+        },
+        {
+          "op": "line",
+          "source_line": 57,
+          "text": "#MON CENTER"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 58
+        }
+      ],
+      "source": "data/text/text_1.asm"
+    },
+    "_PokemonCenterFarewellText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 186,
+          "text": "We hope to see"
+        },
+        {
+          "op": "line",
+          "source_line": 187,
+          "text": "you again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 188
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonCenterWelcomeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 161,
+          "text": "Welcome to our"
+        },
+        {
+          "op": "line",
+          "source_line": 162,
+          "text": "#MON CENTER!"
+        },
+        {
+          "op": "para",
+          "source_line": 164,
+          "text": "We heal your"
+        },
+        {
+          "op": "line",
+          "source_line": 165,
+          "text": "#MON back to"
+        },
+        {
+          "op": "cont",
+          "source_line": 166,
+          "text": "perfect health!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 167
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_PokemonFightingFitText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 180,
+          "text": "Thank you!"
+        },
+        {
+          "op": "line",
+          "source_line": 181,
+          "text": "Your #MON are"
+        },
+        {
+          "op": "cont",
+          "source_line": 182,
+          "text": "fighting fit!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 183
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_Route2DiglettsCaveSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 8,
+          "text": "DIGLETT's CAVE"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/Route2.asm"
+    },
+    "_Route2SignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "ROUTE 2"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "VIRIDIAN CITY -"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "PEWTER CITY"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 5
+        }
+      ],
+      "source": "text/Route2.asm"
+    },
+    "_ShallWeHealYourPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 170,
+          "text": "Shall we heal your"
+        },
+        {
+          "op": "line",
+          "source_line": 171,
+          "text": "#MON?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 172
+        }
+      ],
+      "source": "data/text/text_4.asm"
+    },
+    "_TM34ExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 26
+        },
+        {
+          "op": "para",
+          "source_line": 28,
+          "text": "A TM contains a"
+        },
+        {
+          "op": "line",
+          "source_line": 29,
+          "text": "technique that"
+        },
+        {
+          "op": "cont",
+          "source_line": 30,
+          "text": "can be taught to"
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "#MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 33,
+          "text": "A TM is good only"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "once! So when you"
+        },
+        {
+          "op": "cont",
+          "source_line": 35,
+          "text": "use one to teach"
+        },
+        {
+          "op": "cont",
+          "source_line": 36,
+          "text": "a new technique,"
+        },
+        {
+          "op": "cont",
+          "source_line": 37,
+          "text": "pick the #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 38,
+          "text": "carefully!"
+        },
+        {
+          "op": "para",
+          "source_line": 40,
+          "text": "TM34 contains"
+        },
+        {
+          "op": "line",
+          "source_line": 41,
+          "text": "BIDE!"
+        },
+        {
+          "op": "para",
+          "source_line": 43,
+          "text": "Your #MON will"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "absorb damage in"
+        },
+        {
+          "op": "cont",
+          "source_line": 45,
+          "text": "battle then pay"
+        },
+        {
+          "op": "cont",
+          "source_line": 46,
+          "text": "it back double!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 47
+        }
+      ],
+      "source": "text/PewterGym_2.asm"
+    },
+    "_ViridianForestLeavingSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 120,
+          "text": "LEAVING"
+        },
+        {
+          "op": "line",
+          "source_line": 121,
+          "text": "VIRIDIAN FOREST"
+        },
+        {
+          "op": "cont",
+          "source_line": 122,
+          "text": "PEWTER CITY AHEAD"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 123
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestNorthGateGrampsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "Have you noticed"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "the bushes on the"
+        },
+        {
+          "op": "cont",
+          "source_line": 14,
+          "text": "roadside?"
+        },
+        {
+          "op": "para",
+          "source_line": 16,
+          "text": "They can be cut"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "down by a special"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "#MON move."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 19
+        }
+      ],
+      "source": "text/ViridianForestNorthGate.asm"
+    },
+    "_ViridianForestNorthGateSuperNerdText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Many #MON live"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "only in forests "
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "and caves."
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "You need to look"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "everywhere to get"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "different kinds!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/ViridianForestNorthGate.asm"
+    },
+    "_ViridianForestSouthGateGirlText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Are you going to"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "VIRIDIAN FOREST?"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "Be careful, it's"
+        },
+        {
+          "op": "cont",
+          "source_line": 5,
+          "text": "a natural maze!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 6
+        }
+      ],
+      "source": "text/ViridianForestSouthGate.asm"
+    },
+    "_ViridianForestSouthGateLittleGirlText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 9,
+          "text": "RATTATA may be"
+        },
+        {
+          "op": "line",
+          "source_line": 10,
+          "text": "small, but its"
+        },
+        {
+          "op": "cont",
+          "source_line": 11,
+          "text": "bite is wicked!"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "Did you get one?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 13
+        }
+      ],
+      "source": "text/ViridianForestSouthGate.asm"
+    },
+    "_ViridianForestTrainerTips1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 75,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 77,
+          "text": "If you want to"
+        },
+        {
+          "op": "line",
+          "source_line": 78,
+          "text": "avoid battles,"
+        },
+        {
+          "op": "cont",
+          "source_line": 79,
+          "text": "stay away from"
+        },
+        {
+          "op": "cont",
+          "source_line": 80,
+          "text": "grassy areas!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 81
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestTrainerTips2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 90,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 92,
+          "text": "Contact PROF.OAK"
+        },
+        {
+          "op": "line",
+          "source_line": 93,
+          "text": "via PC to get"
+        },
+        {
+          "op": "cont",
+          "source_line": 94,
+          "text": "your #DEX"
+        },
+        {
+          "op": "cont",
+          "source_line": 95,
+          "text": "evaluated!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 96
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestTrainerTips3Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 99,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 101,
+          "text": "No stealing of"
+        },
+        {
+          "op": "line",
+          "source_line": 102,
+          "text": "#MON from"
+        },
+        {
+          "op": "cont",
+          "source_line": 103,
+          "text": "other trainers!"
+        },
+        {
+          "op": "cont",
+          "source_line": 104,
+          "text": "Catch only wild"
+        },
+        {
+          "op": "cont",
+          "source_line": 105,
+          "text": "#MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 106
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestTrainerTips4Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 109,
+          "text": "TRAINER TIPS"
+        },
+        {
+          "op": "para",
+          "source_line": 111,
+          "text": "Weaken #MON"
+        },
+        {
+          "op": "line",
+          "source_line": 112,
+          "text": "before attempting"
+        },
+        {
+          "op": "cont",
+          "source_line": 113,
+          "text": "capture!"
+        },
+        {
+          "op": "para",
+          "source_line": 115,
+          "text": "When healthy,"
+        },
+        {
+          "op": "line",
+          "source_line": 116,
+          "text": "they may escape!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 117
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestUseAntidoteSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 84,
+          "text": "For poison, use"
+        },
+        {
+          "op": "line",
+          "source_line": 85,
+          "text": "ANTIDOTE! Get it"
+        },
+        {
+          "op": "cont",
+          "source_line": 86,
+          "text": "at #MON MARTs!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 87
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I came here with"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "some friends!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "They're out for"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "#MON fights!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 7
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster2AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 22,
+          "text": "Ssh! You'll scare"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "the bugs away!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 24
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster2BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 10,
+          "text": "Hey! You have"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "#MON! Come on!"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "Let's battle'em!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 13
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster2EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 16,
+          "text": "No!"
+        },
+        {
+          "op": "line",
+          "source_line": 17,
+          "text": "CATERPIE can't"
+        },
+        {
+          "op": "cont",
+          "source_line": 18,
+          "text": "cut it!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 19
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster3AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "Darn! I'm going"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "to catch some"
+        },
+        {
+          "op": "cont",
+          "source_line": 41,
+          "text": "stronger ones!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 42
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster3BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 27,
+          "text": "Yo! You can't jam"
+        },
+        {
+          "op": "line",
+          "source_line": 28,
+          "text": "out if you're a"
+        },
+        {
+          "op": "cont",
+          "source_line": 29,
+          "text": "#MON trainer!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 30
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster3EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 33,
+          "text": "Huh?"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "I ran out of"
+        },
+        {
+          "op": "cont",
+          "source_line": 35,
+          "text": "#MON!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 36
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster4AfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 56,
+          "text": "Sometimes, you"
+        },
+        {
+          "op": "line",
+          "source_line": 57,
+          "text": "can find stuff on"
+        },
+        {
+          "op": "cont",
+          "source_line": 58,
+          "text": "the ground!"
+        },
+        {
+          "op": "para",
+          "source_line": 60,
+          "text": "I'm looking for"
+        },
+        {
+          "op": "line",
+          "source_line": 61,
+          "text": "the stuff I"
+        },
+        {
+          "op": "cont",
+          "source_line": 62,
+          "text": "dropped!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 63
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster4BattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 45,
+          "text": "Hey, wait up!"
+        },
+        {
+          "op": "line",
+          "source_line": 46,
+          "text": "What's the hurry?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 47
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster4EndBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 50,
+          "text": "I"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "give! You're good"
+        },
+        {
+          "op": "cont",
+          "source_line": 52,
+          "text": "at this!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 53
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    },
+    "_ViridianForestYoungster5Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 66,
+          "text": "I ran out of #"
+        },
+        {
+          "op": "line",
+          "source_line": 67,
+          "text": "BALLs to catch"
+        },
+        {
+          "op": "cont",
+          "source_line": 68,
+          "text": "#MON with!"
+        },
+        {
+          "op": "para",
+          "source_line": 70,
+          "text": "You should carry"
+        },
+        {
+          "op": "line",
+          "source_line": 71,
+          "text": "extras!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 72
+        }
+      ],
+      "source": "text/ViridianForest.asm"
+    }
+  }
+}

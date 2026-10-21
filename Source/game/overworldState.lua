@@ -50,6 +50,8 @@ function ExploreSubstate:update()
         end
     end
 
+    if PewterWorld and PewterWorld.trySight(game) then return end
+
     -- Wild encounter check (player.stepJustFinished was set during the
     -- previous frame's sprite update, exactly like the old main loop).
     -- No pokemon yet (pre-starter intro) = no wild battles.
@@ -61,11 +63,13 @@ function ExploreSubstate:update()
             local rootMachine = self.owner.machine
             self.machine:change("irisOut", px + ox, py + oy, function()
                 rootMachine:change("battle",
-                    game:getPlayerPokemon(), currentZone:rollEncounter(), nil)
+                    game:getPlayerPokemon(), currentZone:rollEncounter(game.session), nil)
             end)
             return
         end
     end
+
+    if game.npcManager.motion:tick()then return end
 
     playdate.frameTimer.updateTimers()
 
@@ -81,6 +85,7 @@ function ExploreSubstate:handleInput()
     local player = game.player
     if player.isMoving then return end
     if playdate.buttonJustPressed(playdate.kButtonB) then
+        game.npcManager.motion:cancelPending()
         self.owner.machine:push("pause")
         return
     end
@@ -107,8 +112,10 @@ function ExploreSubstate:handleInput()
             local lines = npc:getDialogLines()
             local battleData = npc:getBattleData()
             if battleData and not npc:hasInteracted() and game:getPlayerPokemon() then
+                local session=game.session
                 rootMachine:push("dialog", lines, function()
-                    local enemy = Pokemon(battleData.species, battleData.level)
+                    if game.session~=session or rootMachine:current()~=self.owner or not Specimen.isActiveSession(session) then return false,"stale-trainer-creation" end
+                    local enemy = assert(Specimen.createForSession(session,battleData.species,battleData.level,"trainer"))
                     rootMachine:change("battle", game:getPlayerPokemon(), enemy, npc)
                 end)
             else
@@ -207,9 +214,10 @@ function DoorWarpSubstate:update()
     if self.timer >= DOOR_FADE_FRAMES then
         local door = self.door
         self.door = nil
+        local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
         switchZone(door.to)
         self.owner.machine:change("overworld", {
-            entry = { x = door.toX, y = door.toY, facing = door.facing },
+            entry = { x = door.toX, y = door.toY, facing = facing },
             fromDoor = not door.connection,
         })
     end
@@ -278,6 +286,13 @@ function OverworldState:enter(opts)
     end
 
     currentZone:spawnNPCs(game.npcManager)
+    local actorRecord=opts and opts.actors
+    local reconcile=false
+    if not actorRecord and not entry and not respawn and self.savedActorsSession==game.session
+        and self.savedActors and self.savedActors.zone_id==currentZone.stableID then
+        actorRecord=self.savedActors;reconcile=true
+    end
+    game.npcManager.motion:attach(game,currentZone,actorRecord,reconcile)
 
     -- An empty session remains empty until an explicit acquisition.
 
@@ -292,6 +307,7 @@ function OverworldState:enter(opts)
 end
 
 function OverworldState:exit()
+    self.savedActors=self.game.npcManager.motion:snapshot();self.savedActorsSession=self.game.session
     self:resume()
     local player = self.game.player
     if player then

@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "names": {
+    "OPP_BUG_CATCHER": "BUG CATCHER",
+    "OPP_JR_TRAINER_M": "JR.TRAINER♂",
+    "OPP_BROCK": "BROCK"
+  },
+  "sprites": {
+    "pokered:PEWTER_GYM:objects:1": "SPRITE_SUPER_NERD",
+    "pokered:PEWTER_GYM:objects:2": "SPRITE_COOLTRAINER_M",
+    "pokered:VIRIDIAN_FOREST:objects:2": "SPRITE_YOUNGSTER",
+    "pokered:VIRIDIAN_FOREST:objects:3": "SPRITE_YOUNGSTER",
+    "pokered:VIRIDIAN_FOREST:objects:4": "SPRITE_YOUNGSTER"
+  }
+}

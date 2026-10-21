@@ -1,0 +1,647 @@
+{
+  "bindings": [
+    {
+      "id": "pokered:ROUTE_2:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:ROUTE_2:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:ROUTE_2:warps:3",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:ROUTE_2:warps:4",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:ROUTE_2:warps:5",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:ROUTE_2:warps:6",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:ROUTE_2:background_events:1",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "Route2SignText",
+      "source_text_id": "TEXT_ROUTE2_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:ROUTE_2:background_events:2",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "Route2DiglettsCaveSignText",
+      "source_text_id": "TEXT_ROUTE2_DIGLETTS_CAVE_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:ROUTE_2:objects:1",
+      "kind": "objects",
+      "requires": "atomic pickup/visibility",
+      "source_script_label": "PickUpItemText",
+      "source_text_id": "TEXT_ROUTE2_MOON_STONE",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:ROUTE_2:objects:2",
+      "kind": "objects",
+      "requires": "atomic pickup/visibility",
+      "source_script_label": "PickUpItemText",
+      "source_text_id": "TEXT_ROUTE2_HP_UP",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:ROUTE_2:connection:north",
+      "kind": "connection",
+      "status": "candidate",
+      "target_map": "PEWTER_CITY"
+    },
+    {
+      "id": "pokered:ROUTE_2:connection:south",
+      "kind": "connection",
+      "status": "candidate",
+      "target_map": "VIRIDIAN_CITY"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE:warps:3",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE:warps:4",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE:objects:1",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestSouthGateGirlText",
+      "source_text_id": "TEXT_VIRIDIANFORESTSOUTHGATE_GIRL",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE:objects:2",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestSouthGateLittleGirlText",
+      "source_text_id": "TEXT_VIRIDIANFORESTSOUTHGATE_LITTLE_GIRL",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:warps:3",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:warps:4",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:warps:5",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:warps:6",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:background_events:1",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestTrainerTips1Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_TRAINER_TIPS1",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:background_events:2",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestUseAntidoteSignText",
+      "source_text_id": "TEXT_VIRIDIANFOREST_USE_ANTIDOTE_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:background_events:3",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestTrainerTips2Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_TRAINER_TIPS2",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:background_events:4",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestTrainerTips3Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_TRAINER_TIPS3",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:background_events:5",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestTrainerTips4Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_TRAINER_TIPS4",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:background_events:6",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestLeavingSignText",
+      "source_text_id": "TEXT_VIRIDIANFOREST_LEAVING_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:1",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestYoungster1Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_YOUNGSTER1",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:2",
+      "kind": "objects",
+      "requires": "trainer sight/approach/battle",
+      "source_script_label": "ViridianForestYoungster2Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_YOUNGSTER2",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:3",
+      "kind": "objects",
+      "requires": "trainer sight/approach/battle",
+      "source_script_label": "ViridianForestYoungster3Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_YOUNGSTER3",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:4",
+      "kind": "objects",
+      "requires": "trainer sight/approach/battle",
+      "source_script_label": "ViridianForestYoungster4Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_YOUNGSTER4",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:5",
+      "kind": "objects",
+      "requires": "atomic pickup/visibility",
+      "source_script_label": "PickUpItemText",
+      "source_text_id": "TEXT_VIRIDIANFOREST_ANTIDOTE",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:6",
+      "kind": "objects",
+      "requires": "atomic pickup/visibility",
+      "source_script_label": "PickUpItemText",
+      "source_text_id": "TEXT_VIRIDIANFOREST_POTION",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:7",
+      "kind": "objects",
+      "requires": "atomic pickup/visibility",
+      "source_script_label": "PickUpItemText",
+      "source_text_id": "TEXT_VIRIDIANFOREST_POKE_BALL",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST:objects:8",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestYoungster5Text",
+      "source_text_id": "TEXT_VIRIDIANFOREST_YOUNGSTER5",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE:warps:3",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE:warps:4",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE:objects:1",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestNorthGateSuperNerdText",
+      "source_text_id": "TEXT_VIRIDIANFORESTNORTHGATE_SUPER_NERD",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE:objects:2",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "ViridianForestNorthGateGrampsText",
+      "source_text_id": "TEXT_VIRIDIANFORESTNORTHGATE_GRAMPS",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:3",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:4",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:5",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:6",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "blocked-outside-scope"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:warps:7",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:1",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityTrainerTipsText",
+      "source_text_id": "TEXT_PEWTERCITY_TRAINER_TIPS",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:2",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityPoliceNoticeSignText",
+      "source_text_id": "TEXT_PEWTERCITY_POLICE_NOTICE_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:3",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "MartSignText",
+      "source_text_id": "TEXT_PEWTERCITY_MART_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:4",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PokeCenterSignText",
+      "source_text_id": "TEXT_PEWTERCITY_POKECENTER_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:5",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityMuseumSignText",
+      "source_text_id": "TEXT_PEWTERCITY_MUSEUM_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:6",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityGymSignText",
+      "source_text_id": "TEXT_PEWTERCITY_GYM_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:background_events:7",
+      "kind": "background_events",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCitySignText",
+      "source_text_id": "TEXT_PEWTERCITY_SIGN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:objects:1",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityCooltrainerFText",
+      "source_text_id": "TEXT_PEWTERCITY_COOLTRAINER_F",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:objects:2",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityCooltrainerMText",
+      "source_text_id": "TEXT_PEWTERCITY_COOLTRAINER_M",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:objects:3",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCitySuperNerd1Text",
+      "source_text_id": "TEXT_PEWTERCITY_SUPER_NERD1",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:objects:4",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCitySuperNerd2Text",
+      "source_text_id": "TEXT_PEWTERCITY_SUPER_NERD2",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:objects:5",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterCityYoungsterText",
+      "source_text_id": "TEXT_PEWTERCITY_YOUNGSTER",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:connection:south",
+      "kind": "connection",
+      "status": "candidate",
+      "target_map": "ROUTE_2"
+    },
+    {
+      "id": "pokered:PEWTER_CITY:connection:east",
+      "kind": "connection",
+      "status": "blocked-outside-scope",
+      "target_map": "ROUTE_3"
+    },
+    {
+      "id": "pokered:PEWTER_GYM:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_GYM:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_GYM:objects:1",
+      "kind": "objects",
+      "requires": "trainer sight/approach/battle",
+      "source_script_label": "PewterGymBrockText",
+      "source_text_id": "TEXT_PEWTERGYM_BROCK",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_GYM:objects:2",
+      "kind": "objects",
+      "requires": "trainer sight/approach/battle",
+      "source_script_label": "PewterGymCooltrainerMText",
+      "source_text_id": "TEXT_PEWTERGYM_COOLTRAINER_M",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_GYM:objects:3",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterGymGuideText",
+      "source_text_id": "TEXT_PEWTERGYM_GYM_GUIDE",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_MART:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_MART:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_MART:objects:1",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterMartClerkText",
+      "source_text_id": "TEXT_PEWTERMART_CLERK",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_MART:objects:2",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterMartYoungsterText",
+      "source_text_id": "TEXT_PEWTERMART_YOUNGSTER",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_MART:objects:3",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterMartSuperNerdText",
+      "source_text_id": "TEXT_PEWTERMART_SUPER_NERD",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_POKECENTER:warps:1",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_POKECENTER:warps:2",
+      "kind": "warps",
+      "requires": "explicit warp handler",
+      "source_script_label": null,
+      "source_text_id": null,
+      "status": "candidate"
+    },
+    {
+      "id": "pokered:PEWTER_POKECENTER:objects:1",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterPokecenterNurseText",
+      "source_text_id": "TEXT_PEWTERPOKECENTER_NURSE",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_POKECENTER:objects:2",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterPokecenterGentlemanText",
+      "source_text_id": "TEXT_PEWTERPOKECENTER_GENTLEMAN",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_POKECENTER:objects:3",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterPokecenterJigglypuffText",
+      "source_text_id": "TEXT_PEWTERPOKECENTER_JIGGLYPUFF",
+      "status": "proposed-source-handler"
+    },
+    {
+      "id": "pokered:PEWTER_POKECENTER:objects:4",
+      "kind": "objects",
+      "requires": "source dialogue/control review",
+      "source_script_label": "PewterPokecenterLinkReceptionistText",
+      "source_text_id": "TEXT_PEWTERPOKECENTER_LINK_RECEPTIONIST",
+      "status": "proposed-source-handler"
+    }
+  ],
+  "campaign_ready": false,
+  "runtime_installed": false,
+  "schema": 1
+}

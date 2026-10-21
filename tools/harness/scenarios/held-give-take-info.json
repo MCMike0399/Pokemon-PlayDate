@@ -1,0 +1,360 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "party_pokemon": [
+          {
+            "species": "butterfree",
+            "level": 50,
+            "nature_id": 23,
+            "ability_slot": "first",
+            "held_item": "none",
+            "hp": 23,
+            "status": "sleep",
+            "status_turns": 0,
+            "sleep_duration": 3,
+            "pp": {
+              "safeguard": 3,
+              "captivate": 5,
+              "bugBuzz": 7,
+              "quiverDance": 9
+            }
+          },
+          {
+            "species": "squirtle",
+            "level": 5
+          }
+        ],
+        "inventory": {
+          "money": 2800,
+          "slots": [
+            {
+              "id": "townMap",
+              "quantity": 1
+            },
+            {
+              "id": "tm01",
+              "quantity": 1
+            },
+            {
+              "id": "expAll",
+              "quantity": 1
+            },
+            {
+              "id": "maxElixir",
+              "quantity": 2
+            },
+            {
+              "id": "potion",
+              "quantity": 3
+            }
+          ]
+        }
+      }
+    },
+    "encounters off",
+    {
+      "op": "assert",
+      "path": "pokemon.species",
+      "equals": "butterfree"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.nature_id",
+      "equals": 23
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.ability_slot",
+      "equals": "first"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.ability_id",
+      "equals": 14
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.hp",
+      "equals": 23
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.status",
+      "equals": "sleep"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.statusTurns",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.sleepDuration",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.safeguard",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.captivate",
+      "equals": 5
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.bugBuzz",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.quiverDance",
+      "equals": 9
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 240
+    },
+    "press a",
+    "press a",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "stats"
+    },
+    "shot held-long-name-four-pp",
+    "press a",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "info"
+    },
+    {
+      "op": "assert",
+      "path": "party_info.ability_id",
+      "equals": 14
+    },
+    {
+      "op": "assert",
+      "path": "party_info.nature_id",
+      "equals": 23
+    },
+    "shot held-long-name-info-empty",
+    "press b",
+    "press a",
+    "press down",
+    "press down",
+    "press a",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "held-actions"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "bag_held.mode",
+      "equals": "held"
+    },
+    {
+      "op": "assert",
+      "path": "bag_held.count",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "bag_held.selected_id",
+      "equals": "maxElixir"
+    },
+    {
+      "op": "assert",
+      "path": "bag_held.quantity",
+      "equals": 2
+    },
+    "shot held-filtered-bag",
+    "press b",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "held-actions"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.held_item",
+      "equals": "none"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "held-message"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.held_item",
+      "equals": "maxElixir"
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.maxElixir",
+      "equals": 1
+    },
+    "shot held-given",
+    "press a",
+    "press down",
+    "press a",
+    {
+      "op": "assert",
+      "path": "pokemon.held_item",
+      "equals": "none"
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.maxElixir",
+      "equals": 2
+    },
+    "shot held-taken",
+    "press a",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 240
+    },
+    "press a",
+    "press b",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "actions"
+    },
+    "press a",
+    "press a",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "info"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.held_item",
+      "equals": "maxElixir"
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.maxElixir",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    "shot held-long-name-info-held",
+    {
+      "op": "assert",
+      "path": "pokemon.species",
+      "equals": "butterfree"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.nature_id",
+      "equals": 23
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.ability_slot",
+      "equals": "first"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.ability_id",
+      "equals": 14
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.hp",
+      "equals": 23
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.status",
+      "equals": "sleep"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.statusTurns",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.sleepDuration",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.safeguard",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.captivate",
+      "equals": 5
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.bugBuzz",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.quiverDance",
+      "equals": 9
+    }
+  ],
+  "outputs": []
+}

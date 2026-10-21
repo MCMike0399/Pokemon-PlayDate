@@ -14,13 +14,28 @@ end
 
 function DebugState:enter()
     local game = self.game
+    local session=game.session
+    self.visit=(self.visit or 0)+1
+    local visit=self.visit
     self.game.debugMenu:open(function()
+        if not self:isTop() or self.visit~=visit or game.session~=session then return false,"stale-debug-creation" end
+        if not Specimen.isActiveSession(session) then game.debugMenu.isActive=true;return false,"inactive-specimen-session" end
         local action = game.debugMenu:consumeAction()
+        local enemy
+        if action and action.type=="wildBattle" and game:getPlayerPokemon() then
+            local problem
+            enemy,problem=Specimen.createForSession(session,action.species,action.level,"debug")
+            if not enemy then
+                game.debugMenu.isActive=true
+                game.debugMenu:showMessage("Couldn't start battle.")
+                return false,problem
+            end
+        end
         self.machine:pop()
 
         if action and action.type == "wildBattle" and game:getPlayerPokemon() then
             self.machine:change("battle",
-                game:getPlayerPokemon(), Pokemon(action.species, action.level), nil)
+                game:getPlayerPokemon(), enemy, nil)
         elseif action and action.type == "zoneSwitch" then
             switchZone(action.zone)
             self.machine:change("overworld", { respawn = true })
@@ -36,6 +51,7 @@ function DebugState:enter()
 end
 
 function DebugState:exit()
+    self.visit=(self.visit or 0)+1
     self.game.debugMenu.isActive = false
 end
 

@@ -118,7 +118,21 @@ end
 local function bounds(zone, x, y)
     assert(integer(x) and integer(y) and x >= 0 and y >= 0 and x < zone.width and y < zone.height, "zone coordinate outside bounds")
 end
-local function captureDefinition(zone, terrain, revision, issues, blocked)
+local function captureDefinition(zone, terrain, revision, issues, blocked, compact)
+    if compact then
+        local current,baseline,palette={},{},{}
+        for y=1,zone.height do
+            current[y],baseline[y]={},{}
+            for x=1,zone.width do
+                local id=zone.tiles[y][x]
+                if not palette[id] then palette[id]=deepCopy(terrain[y][x]) end
+                current[y][x],baseline[y][x]=palette[id],palette[id]
+            end
+        end
+        zoneData[zone]={tiles=deepCopy(zone.tiles),collision=deepCopy(zone.collision),terrain=current,baselineTerrain=baseline,
+            revision=revision or "authored-v1",issues=deepCopy(issues or {}),blocked=deepCopy(blocked or {}),compactTerrain=true}
+        return
+    end
     zoneData[zone] = { tiles = deepCopy(zone.tiles), collision = deepCopy(zone.collision),
         terrain = deepCopy(terrain), baselineTerrain = deepCopy(terrain), revision = revision or "authored-v1",
         issues = deepCopy(issues or {}), blocked = deepCopy(blocked or {}), view = nil }
@@ -167,15 +181,18 @@ function Zone:init(config)
         rectangle(config.collision, self.width, self.height, "zone collision", function(value)
             assert(value == 0 or value == 1, "unknown zone collision value")
         end)
+        local verifiedEntries=config.compactTerrain and {} or nil
         rectangle(config.terrain, self.width, self.height, "zone terrain", function(value, x, y)
             assert(type(value) == "table" and type(value.land_passable) == "boolean", "zone terrain requires passability")
-            local entry = self.registry:entry(self.tiles[y][x])
+            local id=self.tiles[y][x]
+            local entry=verifiedEntries and verifiedEntries[id] or self.registry:entry(id)
+            if verifiedEntries then verifiedEntries[id]=entry end
             assert(value.land_passable == entry.terrain.land_passable, "numeric zone terrain disagrees with stable tile key")
             local blocker = config.blockedBindings and config.blockedBindings[y] and config.blockedBindings[y][x]
             assert(config.collision[y][x] == (blocker and 1 or entry.collision), "numeric zone collision disagrees with stable tile key")
         end)
         self.collision = deepCopy(config.collision)
-        captureDefinition(self, config.terrain, config.sourceRevision, config.bindingIssues, config.blockedBindings)
+        captureDefinition(self, config.terrain, config.sourceRevision, config.bindingIssues, config.blockedBindings, config.compactTerrain)
         return
     end
 
@@ -345,9 +362,21 @@ function Zone:_commitTiles(plan)
         assign(old)
     end
 end
+function Zone:bindDefinitionProvider(provider)
+    assert(self.imported and type(provider)=="table" and type(provider.mutate)=="function","explicit imported definition provider required")
+    local data=zoneData[self];assert(not data.definitionProvider or data.definitionProvider==provider,"imported provider ownership replaced")
+    data.definitionProvider=provider
+end
+function Zone:disposeView()
+    local view=zoneData[self].view;if view then view:dispose() end
+end
 function Zone:setTile(x, y, tileKeyOrID)
     bounds(self, x, y)
-    local key = self.registry:key(tileKeyOrID)
+    local provider=zoneData[self].definitionProvider
+    -- The immutable provider knows stable keys before their images/numeric IDs
+    -- are materialized. It validates the key before its atomic registry commit.
+    local key = provider and type(tileKeyOrID)=="string" and tileKeyOrID or self.registry:key(tileKeyOrID)
+    if provider then return provider:mutate(self,x,y,key) end
     self:_commitTiles(prepare(self, { { x = x, y = y, key = key } }))
     return key
 end
@@ -392,6 +421,9 @@ end
 function Zone.fromMapDefinition(definition, registry, options)
     options = options or {}
     registry = registry or WorldTiles
+    assert(options.registry==nil or options.registry==registry,"registry option must match actual registry")
+    assert(options.isolatedCatalog==nil or type(options.isolatedCatalog)=="boolean","isolated catalog flag must be boolean")
+    assert(not options.isolatedCatalog or registry~=WorldTiles,"isolated catalog requires actual private registry")
     assert(type(definition) == "table" and definition.schema == 1 and type(definition.id) == "string", "invalid map definition")
     assert(type(definition.name) == "string" and #definition.name > 0, "imported map name required")
     local size = definition.dimensions and definition.dimensions.cells
@@ -399,6 +431,7 @@ function Zone.fromMapDefinition(definition, registry, options)
     array(size, 2, "imported dimensions")
     assert(type(definition.source_revision) == "string", "imported source revision required")
     assert(options.terrainFixture == nil or type(options.terrainFixture) == "boolean", "terrain fixture flag must be boolean")
+    assert(options.compactTerrain==nil or type(options.compactTerrain)=="boolean","compact terrain mode must be boolean")
     local width, height = size[1], size[2]
     local spawn = options.spawn or { x = 1, y = 1 }
     assert(type(spawn) == "table" and integer(spawn.x) and integer(spawn.y) and spawn.x >= 0 and spawn.y >= 0 and spawn.x < width and spawn.y < height, "invalid imported spawn")
@@ -419,7 +452,9 @@ function Zone.fromMapDefinition(definition, registry, options)
         assert(collision == 0 or collision == 1, "unknown imported collision value")
         assert(collision == entries[definition.tile_ids[y][x]].collision, "imported collision/terrain mismatch")
     end)
-    local slicePlan = options.sliceBindings and MapBindings.prepare(definition, options.sliceBindings, options) or nil
+    local bindings=options.bindingAdapter or MapBindings
+    assert(bindings==MapBindings or bindings==PewterBindings,"unreviewed source binding adapter")
+    local slicePlan = options.sliceBindings and bindings.prepare(definition, options.sliceBindings, options) or nil
     local issues, blocked, identities = {}, {}, {}
     local function issue(kind, id, x, y)
         assert(type(id) == "string" and #id > 0 and not identities[id], "duplicate/invalid imported binding ID")
@@ -455,7 +490,7 @@ function Zone.fromMapDefinition(definition, registry, options)
     issue("script", definition.script and definition.script.source or definition.id)
     if definition.encounters and definition.encounters.grass and definition.encounters.grass.rate_byte > 0 then issue("encounter_policy", definition.id) end
     if slicePlan then
-        issues[#issues + 1] = { kind = "slice_scope", id = "parcel-slice-only", status = "bounded parcel slice; full campaign content incomplete" }
+        issues[#issues + 1] = { kind = "slice_scope", id = slicePlan.scope or "parcel-slice-only", status = slicePlan.scopeStatus or "bounded parcel slice; full campaign content incomplete" }
         for _, event in ipairs(definition.events.objects) do
             if event.movement == "WALK" then
                 issues[#issues + 1] = { kind = "npc_movement", id = event.id .. ":wander", status = "source wandering descriptor retained; movement executor not integrated" }
@@ -470,12 +505,12 @@ function Zone.fromMapDefinition(definition, registry, options)
             local localID = definition.tile_ids[y][x]
             tiles[y][x] = ids[localID]
             collision[y][x] = blocked[y] and blocked[y][x] and 1 or definition.collision[y][x]
-            terrain[y][x] = deepCopy(entries[localID].terrain)
+            terrain[y][x] = options.compactTerrain and entries[localID].terrain or deepCopy(entries[localID].terrain)
         end
     end
     local zone = Zone({ name = definition.name, id = definition.id, registry = registry, tiles = tiles,
         width = width, height = height, collision = collision, terrain = terrain,
-        imported = true, terrainFixture = options.terrainFixture == true,
+        imported = true, compactTerrain = options.compactTerrain == true, terrainFixture = options.terrainFixture == true,
         sourceRevision = definition.source_revision, bindingIssues = issues, blockedBindings = blocked,
         spawn = deepCopy(spawn), npcs = slicePlan and slicePlan.npcs, doors = slicePlan and slicePlan.doors,
         encounters = slicePlan and slicePlan.encounters })
@@ -484,14 +519,55 @@ function Zone.fromMapDefinition(definition, registry, options)
 end
 
 WorldDeltas = {}
+local definitionProvider
+function WorldDeltas.installDefinitionProvider(provider)
+    assert(type(provider)=="table" and type(provider.validate)=="function" and type(provider.ensure)=="function","immutable imported world provider required")
+    assert(not definitionProvider or definitionProvider==provider,"world definition provider already installed")
+    definitionProvider=provider
+end
+function WorldDeltas.definitionProvider() return definitionProvider end
+-- SDK contract dependency scope; not available in ordinary production builds.
+function WorldDeltas._withDefinitionProvider(provider,callback)
+    assert(HarnessBuild and HarnessBuild.enabled and type(callback)=="function","development provider scope required")
+    local previous=definitionProvider;definitionProvider=provider
+    local ok,a,b=pcall(callback);definitionProvider=previous
+    if not ok then error(a,0) end;return a,b
+end
+function WorldDeltas.disposeImportedCache() if definitionProvider then definitionProvider:disposeCache() end end
+function WorldDeltas.zoneKey(stableID)
+    for key,zone in pairs(zoneRegistry) do if zone.stableID==stableID then return key end end
+    return definitionProvider and definitionProvider:keyForID(stableID)
+end
+function WorldDeltas.describeZone(key)
+    local zone=zoneRegistry[key]
+    if zone then return {key=key,id=zone.stableID,width=zone.width,height=zone.height,name=zone.name} end
+    if definitionProvider and definitionProvider:hasKey(key) then
+        local d=definitionProvider:descriptor(key)
+        return {key=d.key,id=d.id,width=d.width,height=d.height,name=d.name}
+    end
+end
+function WorldDeltas.ensureZone(key)
+    if zoneRegistry[key] then return zoneRegistry[key] end
+    if definitionProvider and definitionProvider:hasKey(key) then return definitionProvider:ensure(key) end
+end
+function WorldDeltas.checkpointRuntime()
+    local undoProvider=definitionProvider and definitionProvider:checkpointRuntime()
+    local undoTiles=WorldTiles:checkpointRuntime()
+    return function() if undoProvider then undoProvider() end;undoTiles() end
+end
 function WorldDeltas.export()
     local zones, names = {}, {}
     for name in pairs(zoneRegistry) do names[#names + 1] = name end
     table.sort(names)
     for _, name in ipairs(names) do
-        local value = zoneRegistry[name]:exportDeltas()
-        if value.tile_count > 0 then zones[#zones + 1] = value end
+        local zone=zoneRegistry[name]
+        if not definitionProvider or not definitionProvider:owns(zone) then
+            local value = zone:exportDeltas()
+            if value.tile_count > 0 then zones[#zones + 1] = value end
+        end
     end
+    if definitionProvider then for _,value in ipairs(definitionProvider:export().zones) do zones[#zones+1]=value end end
+    table.sort(zones,function(a,b)return a.zone_id<b.zone_id end)
     return { schema = 1, zones = zones, zone_count = #zones }
 end
 local function prepareWorld(payload)
@@ -500,14 +576,19 @@ local function prepareWorld(payload)
         assert(key == "schema" or key == "zone_count" or key == "zones", "unsupported world delta field")
     end
     array(payload.zones, payload.zone_count, "world delta zones")
-    local indexed, plans, occupied, normalized = {}, {}, {}, {}
+    local indexed, plans, occupied, normalized, provided = {}, {}, {}, {}, {}
     for _, zone in pairs(zoneRegistry) do
-        assert(not indexed[zone.stableID] or indexed[zone.stableID] == zone, "duplicate stable world zone ID")
-        indexed[zone.stableID] = zone
+        if not definitionProvider or not definitionProvider:owns(zone) then
+            assert(not indexed[zone.stableID] or indexed[zone.stableID] == zone, "duplicate stable world zone ID")
+            indexed[zone.stableID] = zone
+        end
     end
     for _, value in ipairs(payload.zones) do
         assert(type(value) == "table", "world delta zone required")
         local zone = indexed[value.zone_id]
+        if not zone and definitionProvider and definitionProvider:hasID(value.zone_id) then
+            provided[#provided+1]=value
+        else
         assert(zone and not occupied[zone], "unknown/duplicate world delta zone")
         occupied[zone] = true
         zone:_prepareDeltas(value)
@@ -516,15 +597,21 @@ local function prepareWorld(payload)
         table.sort(tiles, function(a, b) return a.y == b.y and a.x < b.x or a.y < b.y end)
         normalized[#normalized + 1] = { schema = 1, zone_id = zone.stableID,
             definition_revision = zoneData[zone].revision, tile_count = #tiles, tiles = tiles }
+        end
+    end
+    local providerPlan
+    if definitionProvider then
+        providerPlan=definitionProvider:validate({schema=1,zone_count=#provided,zones=provided})
+        for _,value in ipairs(providerPlan.zones) do normalized[#normalized+1]=value end
     end
     table.sort(normalized, function(a, b) return a.zone_id < b.zone_id end)
-    for _, zone in pairs(zoneRegistry) do
+    for _, zone in pairs(indexed) do
         local value = nil
         for _, candidate in ipairs(payload.zones) do if candidate.zone_id == zone.stableID then value = candidate end end
         value = value or { schema = 1, zone_id = zone.stableID, definition_revision = zoneData[zone].revision, tile_count = 0, tiles = {} }
         plans[#plans + 1] = { zone = zone, changes = zone:_prepareDeltas(value) }
     end
-    return plans, { schema = 1, zone_count = #normalized, zones = normalized }
+    return plans, { schema = 1, zone_count = #normalized, zones = normalized }, providerPlan
 end
 -- Validation is pure: no registry allocation, view update, or domain mutation.
 -- Returned records are defensive values; apply always preflights again.
@@ -539,7 +626,10 @@ function WorldDeltas.resolveLocation(location, candidateWorld, options)
     end
     assert(type(location.zone_id) == "string", "stable world location ID required")
     assert(location.facing == "up" or location.facing == "down" or location.facing == "left" or location.facing == "right", "invalid world facing")
-    local plans = prepareWorld(candidateWorld)
+    local plans,_,providerPlan = prepareWorld(candidateWorld)
+    if definitionProvider and definitionProvider:hasID(location.zone_id) then
+        return definitionProvider:resolveLocation(location,providerPlan,options)
+    end
     local selected
     for _, plan in ipairs(plans) do if plan.zone.stableID == location.zone_id then selected = plan end end
     assert(selected, "unknown world location zone")
@@ -552,15 +642,24 @@ function WorldDeltas.resolveLocation(location, candidateWorld, options)
     return { zone_id = zone.stableID, x = location.x, y = location.y, facing = location.facing }
 end
 function WorldDeltas.apply(payload)
-    local plans = prepareWorld(payload)
-    local undo = {}
+    local plans,_,providerPlan = prepareWorld(payload)
+    local undo,registries={},{}
+    local function checkpoint(registry)
+        if not registries[registry] then registries[registry]=registry:checkpointRuntime() end
+    end
+    checkpoint(WorldTiles);for _,plan in ipairs(plans) do checkpoint(plan.zone.registry) end
+    local restored=false
+    local function rollback()
+        if restored then return end;restored=true
+        for i=#undo,1,-1 do undo[i]() end
+        for _,restore in pairs(registries) do restore() end
+    end
     local ok, problem = pcall(function()
         for _, plan in ipairs(plans) do undo[#undo + 1] = plan.zone:_commitTiles(plan.changes) end
+        if definitionProvider then undo[#undo+1]=definitionProvider:apply(providerPlan) end
     end)
-    if not ok then
-        for i = #undo, 1, -1 do undo[i]() end
-        error(problem, 0)
-    end
+    if not ok then rollback();error(problem,0) end
+    return rollback
 end
 function WorldDeltas.reset() WorldDeltas.apply({ schema = 1, zones = {}, zone_count = 0 }) end
 
@@ -647,24 +746,34 @@ function Zone:checkEncounter(tileX, tileY)
 end
 
 -- Roll a random wild Pokemon from encounter table
-function Zone:rollEncounter()
+function Zone:rollEncounter(session)
+    if session~=nil then assert(Specimen.isActiveSession(session),"inactive-encounter-session") end
     assert(not self.imported or self:isSliceReady(), "unresolved imported species/encounter policy")
+    local planned=RulesRNG.new(1);planned:restore(RulesRNG.snapshot())
+    local function create(species,level)
+        local mon=assert(Specimen.create(species,level,"wild",planned))
+        RulesRNG.restore(planned:snapshot())
+        return mon
+    end
     local total = 0
     for _, e in ipairs(self.encounters) do total = total + e.weight end
     if total == 0 then
         assert(not self.imported, "imported map has no bound encounter slots")
-        return Pokemon("rattata", 3)
+        local mon=create("rattata",3)
+        return mon
     end
 
-    local roll = RulesRNG.random(1, total)
+    local roll = planned:random(1, total)
     local sum = 0
     for _, e in ipairs(self.encounters) do
         sum = sum + e.weight
         if roll <= sum then
-            return Pokemon(e.species, RulesRNG.random(e.minLevel, e.maxLevel))
+            local mon=create(e.species,planned:random(e.minLevel,e.maxLevel))
+            return mon
         end
     end
-    return Pokemon("rattata", 3)
+    local mon=create("rattata",3)
+    return mon
 end
 
 -- ============================================================
@@ -696,7 +805,6 @@ function getCurrentZoneKey()
 end
 
 function switchZone(key)
-    if zoneRegistry[key] then
-        currentZone = zoneRegistry[key]
-    end
+    local zone=WorldDeltas.ensureZone(key)
+    if zone then currentZone=zone end
 end

@@ -24,6 +24,7 @@ import "domain/pokemonCodec"
 import "domain/saveStore"
 import "data/items"
 import "domain/items"
+import "domain/worldMotion"
 import "domain/gameSession"
 import "domain/sessionCodec"
 import "data/captureData"
@@ -56,9 +57,19 @@ import "world/sliceEvents"
 import "world/sliceSprites"
 import "world/mapBindings"
 import "data/viridianSlice"
+import "data/pewterSlice"
+import "world/importedMaps"
+import "world/pewterSprites"
+import "game/trainerEvents"
+import "game/pewterEvents"
+import "world/pewterBindings"
+import "game/pewterWorld"
+import "world/sourceActors"
+import "world/npcMotion"
 import "game/kantoWorld"
 import "game/eventText"
 import "game/eventArt"
+import "game/healingComposition"
 import "game/eventState"
 import "game/pokedexState"
 import "game/pcState"
@@ -90,6 +101,7 @@ import "dev/earlyCombatContracts"
 import "dev/runtimeArtContracts"
 import "dev/pcContracts"
 import "dev/evolutionContracts"
+import "dev/healingCompositionContracts"
 Contracts.register("learnsets", LearnsetContracts.run)
 Contracts.register("collections", PartyContracts.run)
 Contracts.register("learning", LearningContracts.run)
@@ -114,6 +126,37 @@ Contracts.register("early-combat", EarlyCombatContracts.run)
 Contracts.register("runtime-art", RuntimeArtContracts.run)
 Contracts.register("pc-ui", PCContracts.run)
 Contracts.register("evolution", EvolutionContracts.run)
+Contracts.register("healing-composition", HealingCompositionContracts.run)
+import "dev/trainerContracts"
+Contracts.register("trainerContracts", TrainerContracts.run)
+import "dev/pewterProviderContracts"
+Contracts.register("pewterProviderContracts", PewterProviderContracts.run)
+import "dev/pewterInstallContracts"
+Contracts.register("pewterInstallContracts", PewterInstallContracts.run)
+import "dev/eventReceiptContracts"
+Contracts.register("eventReceiptContracts", EventReceiptContracts.run)
+import "dev/battleLearningContracts"
+Contracts.register("battleLearningContracts", BattleLearningContracts.run)
+import "dev/battleLearningEvolutionContracts"
+Contracts.register("battleLearningEvolutionContracts", BattleLearningEvolutionContracts.run)
+import "dev/battleItemContracts"
+Contracts.register("battle-items", BattleItemContracts.run)
+import "dev/specimenContracts"
+Contracts.register("specimenContracts", SpecimenContracts.run)
+import "dev/specimenTrainerContracts"
+Contracts.register("specimenTrainerContracts", SpecimenTrainerContracts.run)
+import "dev/specimenOwnershipContracts"
+Contracts.register("specimen-ownership", SpecimenOwnershipContracts.run)
+import "dev/npcMotionContracts"
+Contracts.register("npcMotionContracts", NPCMotionContracts.run)
+import "dev/npcMotionLegacyContracts"
+Contracts.register("npcMotionLegacyContracts", NPCMotionLegacyContracts.run)
+import "dev/worldViewRollbackContracts"
+Contracts.register("worldViewRollbackContracts", WorldViewRollbackContracts.run)
+import "dev/heldItemContracts"
+Contracts.register("held-items", HeldItemContracts.run)
+import "dev/heldLifecycleContracts"
+Contracts.register("held-lifecycle", HeldLifecycleContracts.run)
 import "dev/catalog"
 import "dev/harness_build"
 import "dev/harness_capture"
@@ -129,7 +172,7 @@ end
 
 -- Shared context: root machine, camera, npc manager, player, player pokemon.
 -- Global so dev tooling (autopilot, debug) can reach it.
-game = GameContext({sessionLocationPolicy=KantoWorld.locationPolicy()})
+game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 
 local machine <const> = game.machine
 machine:register("overworld", OverworldState(game))
@@ -147,6 +190,7 @@ machine:register("event", EventState(game))
 machine:register("pokedex", PokedexState(game))
 machine:register("pc", PCState(game))
 KantoWorld.install(game)
+PewterWorld.install(game)
 game.saves = GameSaves(game)
 
 -- Debug menu rides on top of the overworld via the system menu

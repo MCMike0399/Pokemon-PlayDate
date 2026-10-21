@@ -1,5 +1,19 @@
 # Original151 evolution foundation
 
+Current integrated status: PC/evolution shipped in checkpoint `6b37c78`, with
+381 SDK contracts and seven runtime jobs ([evidence](accepted-pc-evolution/acceptance.json)).
+The current continuation also resolves old-species learning **during** battle
+before the next opponent; the earlier deferral note below is historical.
+Four repaired integrated recipes pass, including the actual battle→learning→
+evolution flow and120-frame recording, with complete result text inspected.
+Specimen Codec5 now preserves nature/ability-slot/held data through evolution;
+ability/item effects and the creator-ownership followup remain unfinished.
+See [current execution ledger](progress.md) and
+[observed evidence](observed-pewter-foundation/evidence.json).
+
+The following records the frozen evolution packet's original design and tests;
+its candidate/pending wording describes that historical handoff.
+
 Candidate only: `/private/tmp/pokemon-evolution`. No live Source or Simulator was changed by this worker. Compile03 and the two-file follow-up compile passed; six host tests and full pinned generation checks pass. Original actual SDK evidence `/private/tmp/pokemon-evolution-sdk-01/00001-result.json` reports364 passed/0 failed, including26 evolution groups. The separate follow-up adds one callback regression for27 evolution groups; its SDK/native acceptance remains pending root. Five native recipes are supplied. This foundation does not complete the campaign or establish natural availability of all151 species.
 
 ## Primary data and sequencing

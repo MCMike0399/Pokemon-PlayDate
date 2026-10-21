@@ -136,8 +136,9 @@ end
 
 -- Normal B2W2 Lv5 initialization yields the protected intro pairs:
 -- Tackle/Growl, Scratch/Growl, or Tackle/Tail Whip. No special override.
-local function starterPokemon(species)
-    return Pokemon(species, STARTER_LEVEL)
+local function starterPokemon(game, species, origin)
+    local mon=assert(Specimen.createForSession(game.session,species,STARTER_LEVEL,origin or "starter"))
+    return mon
 end
 
 -- ------------------------------------------------------------
@@ -190,10 +191,12 @@ function Story.check(game, overworldState)
     -- BLUE blocks the lab exit and challenges you
     if stage == "pre_rival" and currentZone == zoneRegistry.oaks_lab
        and player.gridY >= 8 then
+        local session=game.session
         game.machine:push("dialog", RIVAL_CHALLENGE, function()
-            update(game,{stage="rival_fight"})
+            if game.session~=session or not Specimen.isActiveSession(session) or not game.machine:is("overworld") then return false,"stale-rival-creation" end
             local blue = game.npcManager:findByName("BLUE")
-            local enemy = starterPokemon(Story.get(game).rivalStarter)
+            local enemy = starterPokemon(game, Story.get(game).rivalStarter, "trainer")
+            update(game,{stage="rival_fight"})
             game.machine:change("battle", game:getPlayerPokemon(), enemy, blue)
         end)
         return true
@@ -220,7 +223,8 @@ end
 
 function Story.chooseStarter(game, species)
     assert(COUNTER[species],"unknown starter")
-    assert(game:recruit(starterPokemon(species)))
+    assert(game.session:party():count()==0,"starter requires an empty party")
+    assert(game:recruit(starterPokemon(game, species)))
     assert(game.session:setIntro({stage="pre_rival",starter=species,rivalStarter=COUNTER[species]}))
     takeBall(species)
     takeBall(Story.get(game).rivalStarter)
@@ -247,7 +251,7 @@ end
 function Story.skipIntro(game)
     local tuple=Story.get(game)
     local starter=tuple.starter or "squirtle"
-    if not game:getPlayerPokemon() then assert(game:recruit(starterPokemon(starter))) end
+    if not game:getPlayerPokemon() then assert(game:recruit(starterPokemon(game, starter))) end
     assert(game.session:setIntro({stage="done",starter=starter,rivalStarter=COUNTER[starter],rivalOutcome=tuple.rivalOutcome}))
     takeBall(starter); takeBall(COUNTER[starter])
 end

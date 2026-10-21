@@ -1,0 +1,8 @@
+{
+  "journey": {
+    "name": "brock-source-supplementary",
+    "supplementary": true,
+    "case": "blackout",
+    "seed": 42
+  }
+}

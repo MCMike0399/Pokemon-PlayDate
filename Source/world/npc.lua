@@ -86,6 +86,7 @@ Class("NPCManager")
 function NPCManager:init(game)
     self.game=game
     self.npcs = {}
+    self.motion=NPCMotion(self)
 end
 
 function NPCManager:addNPC(npc)
@@ -105,6 +106,7 @@ function NPCManager:addNPC(npc)
 end
 
 function NPCManager:getNPCAt(gx, gy)
+    local reserved=self.motion:occupantAt(gx,gy);if reserved then return reserved end
     for _, npc in ipairs(self.npcs) do
         if npc.gridX == gx and npc.gridY == gy then
             return npc
@@ -124,6 +126,7 @@ end
 
 -- Remove a single NPC mid-scene (BLUE storming out of the lab)
 function NPCManager:removeNPC(npc)
+    self.motion:remove(npc)
     for i, candidate in ipairs(self.npcs) do
         if candidate == npc then
             table.remove(self.npcs, i)
@@ -134,6 +137,7 @@ function NPCManager:removeNPC(npc)
 end
 
 function NPCManager:clear()
+    self.motion:clear()
     for _, npc in ipairs(self.npcs) do
         npc:remove()
     end

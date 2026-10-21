@@ -1,0 +1,9 @@
+{
+  "journey": {
+    "name": "brock-source-supplementary",
+    "supplementary": true,
+    "case": "trainer",
+    "trainer_id": "pokered:VIRIDIAN_FOREST:objects:4",
+    "seed": 42
+  }
+}

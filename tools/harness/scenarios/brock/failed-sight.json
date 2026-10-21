@@ -1,0 +1,8 @@
+{
+  "journey": {
+    "name": "brock-source-supplementary",
+    "supplementary": true,
+    "case": "failed-sight",
+    "seed": 42
+  }
+}

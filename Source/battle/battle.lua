@@ -130,6 +130,8 @@ Class("BattleForcedSwitchPhase"):extends(State)
 Class("BattleScriptPhase"):extends(State)
 
 local MESSAGE_MIN_FRAMES <const> = 10
+-- Opaque receipts bind one learning overlay to one suspended production script.
+local learningReceipts = setmetatable({}, {__mode = "k"})
 
 function BattleScriptPhase:init(battle)
     BattleScriptPhase.super.init(self, "script")
@@ -138,12 +140,19 @@ end
 
 function BattleScriptPhase:enter(co)
     self.co = co
+    self.cancelled = false
     self.waiting = false
     self.messageTimer = 0
     self:advance()
 end
 
+function BattleScriptPhase:exit()
+    self.battle:cancelPendingLearning()
+end
+
 function BattleScriptPhase:advance()
+    if self.cancelled then return false, "script-cancelled" end
+    if self.battle.pendingLearning then return false, "learning-pending" end
     local ok, kind, value = coroutine.resume(self.co)
     if not ok then
         error("battle script error: " .. tostring(kind))
@@ -161,17 +170,27 @@ function BattleScriptPhase:advance()
         else
             self.machine:change("command")
         end
-        return
+        return true
     end
 
     if kind == "say" then
         self.battle.message = value
         self.messageTimer = 0
         self.waiting = true
+    elseif kind == "learning" then
+        assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
+        local receipt = {}
+        learningReceipts[receipt] = {battle=self.battle, script=self, co=self.co, pokemon=value, claimed=false}
+        self.battle.pendingLearning = receipt
+        self.waiting = false
+    else
+        error("unknown battle script event: " .. tostring(kind))
     end
+    return true
 end
 
 function BattleScriptPhase:update()
+    if self.cancelled or self.battle.pendingLearning then return end
     self.messageTimer = self.messageTimer + 1
 end
 
@@ -303,6 +322,41 @@ function Battle:say(text)
     coroutine.yield("say", text)
 end
 
+-- Only the owner may claim once, present LearningState, then resume this exact
+-- coroutine. Rejections never advance rules or consume RNG.
+function Battle:takeLearningRequest()
+    local receipt = self.pendingLearning
+    local data = receipt and learningReceipts[receipt]
+    if not data or data.claimed or self:phase() ~= "script" or data.script.cancelled then return nil end
+    data.claimed = true
+    return receipt, data.pokemon
+end
+
+function Battle:resumeLearning(receipt)
+    local data = learningReceipts[receipt]
+    if not data or data.battle ~= self or self.pendingLearning ~= receipt or not data.claimed
+       or self:phase() ~= "script" or self.machine:current() ~= data.script
+       or data.script.co ~= data.co or data.script.cancelled then return false, "stale-learning" end
+    if #data.pokemon:getPendingMoveChoices() > 0 then return false, "learning-pending" end
+    self.pendingLearning = nil
+    learningReceipts[receipt] = nil
+    data.script:advance()
+    return true
+end
+
+function Battle:cancelPendingLearning()
+    if self.pendingLearning then learningReceipts[self.pendingLearning] = nil end
+    self.pendingLearning = nil
+    local script = self.machine and self.machine:get("script")
+    if script then script.cancelled = true; script.waiting = false end
+end
+
+function Battle:getLearningSnapshot()
+    local data = self.pendingLearning and learningReceipts[self.pendingLearning]
+    return {pending=data~=nil, claimed=data and data.claimed or false,
+        species=data and data.pokemon.species or "", remaining=data and #data.pokemon:getPendingMoveChoices() or 0}
+end
+
 function Battle:setDirection(side)
     self.attackerSide = side
     if side == "player" then
@@ -354,7 +408,10 @@ function Battle:emitEnd()
     return true
 end
 
-function Battle:clearVolatiles() self.conditions:clearAll() end
+function Battle:clearVolatiles()
+    self:cancelPendingLearning()
+    self.conditions:clearAll()
+end
 function Battle:enemyTurn()
     if self.conditions:locked(self.enemy) then return {side="enemy",move=moveData.rollout,key="rollout",continuation=true} end
     local choices = self:availableMoves(self.enemy)
@@ -861,6 +918,7 @@ function Battle:handleFaint(lastFaintedSide)
             if xpGained>0 then
                 self:say(mon.name .. " gained " .. xpGained .. " EXP!")
                 if mon:gainXP(xpGained) then self:say(mon.name .. " grew to Lv" .. mon.level .. "!") end
+                if #mon:getPendingMoveChoices() > 0 then coroutine.yield("learning", mon) end
             end
         end
     end
@@ -965,4 +1023,35 @@ function Battle:getConditionsSnapshot()
         out.sides[side]={spikes=hazards.spikes or 0,toxic_spikes=hazards.toxicSpikes or 0,stealth_rock=hazards.stealthRock or 0}
     end
     return out
+end
+
+-- Successful medicine replaces the player's action, then resolves one enemy
+-- action and the normal residual boundary. Invalid commands are entirely inert.
+function Battle:useItem(id,partyIndex,moveSlot)
+    if self.outcome or not self:isAwaitingCommand() or self:needsForcedSwitch() then return false,"wrong-phase" end
+    if self.selectionKind and self.selectionKind~="bag" then return false,"selection-open" end
+    if not self.session or not self.party then return false,"bag-unavailable" end
+    if GameSession.activeRNGSession()~=self.session or self.session:party()~=self.party
+        or self.party:active()~=self.player then return false,"stale-session" end
+    if not self.player:isAlive() or not self.enemy:isAlive() then return false,"fainted" end
+    if self.conditions:locked(self.player) then return false,"locked-move" end
+    local item=type(id)=="string" and ItemData.definitions[id] or nil
+    local legal={heal=true,fullRestore=true,cure=true,revive=true,pp=true}
+    if not item or not legal[item.effect] then return false,"unsupported-item-use" end
+    partyIndex=type(partyIndex)=="number" and math.tointeger(partyIndex) or nil
+    if not partyIndex then return false,"invalid-index" end
+    local target,problem=self.party:get(partyIndex)
+    if not target then return false,problem end
+    if Party._owner(target)~=self.party then return false,"stale-target" end
+    local ok,result=Items.use(self.session:inventory(),id,target,moveSlot)
+    if not ok then return false,result end
+    self.selectionKind=nil
+    self:clearHitPresentation()
+    self:runScript(function()
+        self:say("RED used "..item.name.." on "..target.name.."!")
+        local outcome=self:resolveTurn(self:enemyTurn())
+        if outcome and outcome~="replacement" then return outcome end
+        return self:finishRound()
+    end)
+    return true,result
 end

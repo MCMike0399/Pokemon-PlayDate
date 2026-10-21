@@ -2,6 +2,8 @@ import "data/evolutionData"
 import "data/pokemonNames"
 import "data/growthData"
 import "domain/growth"
+import "data/specimenData"
+import "domain/specimen"
 
 -- Gen I species with complete B2W2 level-up learnsets (version group 14).
 -- Auto-generated from veekun/pokedex data
@@ -3686,10 +3688,13 @@ function Pokemon:resolveMoveChoice(id, decision, replacement)
     return {kind = "learned", move = choice.move, forgotten = forgotten, slot = slot}
 end
 
-function Pokemon:init(species, level)
+function Pokemon:init(species, level, attributes)
     checkedLevel(level)
-    local data = pokemonData[species]
+    local attributes = Specimen.attributes(attributes)
+    local data = assert(pokemonData[species], "unknown-species")
+    Specimen.ability(species,attributes.abilitySlot)
     local maxHP = calcHP(data.baseHP, level)
+    self.natureId, self.abilitySlot, self.heldItem = attributes.natureId, attributes.abilitySlot, attributes.heldItem
     self.species = species
     self.name = assert(PokemonNames[species], "missing canonical species name")
     self.dex = data.dex
@@ -3698,11 +3703,11 @@ function Pokemon:init(species, level)
     self.level = level
     self.hp = maxHP
     self.maxHP = maxHP
-    self.atk = calcStat(data.baseAtk, level)
-    self.def = calcStat(data.baseDef, level)
-    self.spa = calcStat(data.baseSpA, level)
-    self.spd = calcStat(data.baseSpD, level)
-    self.spe = calcStat(data.baseSpe, level)
+    self.atk = Specimen.stat(calcStat(data.baseAtk, level), self.natureId, "atk")
+    self.def = Specimen.stat(calcStat(data.baseDef, level), self.natureId, "def")
+    self.spa = Specimen.stat(calcStat(data.baseSpA, level), self.natureId, "spa")
+    self.spd = Specimen.stat(calcStat(data.baseSpD, level), self.natureId, "spd")
+    self.spe = Specimen.stat(calcStat(data.baseSpe, level), self.natureId, "spe")
     self.statStages = { atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 }
     self.status = nil       -- major: burn/poison/paralyze/sleep/freeze
     self.statusTurns = 0    -- remaining blocked sleep attempts
@@ -3720,6 +3725,13 @@ function Pokemon:init(species, level)
     for _, moveKey in ipairs(self.moves) do
         self.pp[moveKey] = moveDefinition(moveKey).maxPP
     end
+end
+
+function Pokemon:attributes()
+    return Specimen.attributes({natureId=self.natureId,abilitySlot=self.abilitySlot,heldItem=self.heldItem})
+end
+function Pokemon:ability()
+    return Specimen.ability(self.species,self.abilitySlot)
 end
 
 function Pokemon:isAlive()
@@ -3783,6 +3795,7 @@ end
 -- Preserve legacy bool first return; structured second result gives new levels
 -- and learning choices. The queue remains until a UI/session owner resolves it.
 function Pokemon:gainXP(amount)
+    self:attributes() -- Validate durable inputs before any XP/stats/choice mutation.
     amount = type(amount) == "number" and math.tointeger(amount) or nil
     assert(amount and amount >= 0, "XP gain must be a nonnegative native integer")
     local oldLevel = self.level
@@ -3842,11 +3855,11 @@ function Pokemon:recalcStats()
     self.maxHP = calcHP(data.baseHP, self.level)
     -- Heal the difference so HP grows on level up
     self.hp = math.min(self.maxHP, self.hp + (self.maxHP - oldMaxHP))
-    self.atk = calcStat(data.baseAtk, self.level)
-    self.def = calcStat(data.baseDef, self.level)
-    self.spa = calcStat(data.baseSpA, self.level)
-    self.spd = calcStat(data.baseSpD, self.level)
-    self.spe = calcStat(data.baseSpe, self.level)
+    self.atk = Specimen.stat(calcStat(data.baseAtk, self.level), self.natureId, "atk")
+    self.def = Specimen.stat(calcStat(data.baseDef, self.level), self.natureId, "def")
+    self.spa = Specimen.stat(calcStat(data.baseSpA, self.level), self.natureId, "spa")
+    self.spd = Specimen.stat(calcStat(data.baseSpD, self.level), self.natureId, "spd")
+    self.spe = Specimen.stat(calcStat(data.baseSpe, self.level), self.natureId, "spe")
 end
 
 -- Species-aware thresholds, including level 1 = 0 and level 100 maximum.

@@ -83,10 +83,14 @@ function WorldView:applyTiles(plan)
         images = generateTileImages(self.zone.registry)
         self:_applyAnimationImages(images)
     end
-    local replacements = {}
+    local replacements, present = {}, {}
+    -- A retained view may have been removed from the display list by a root
+    -- controller. Rollback restores actual membership, not the attach policy.
+    for _, sprite in ipairs(gfx.sprite.getAllSprites()) do present[sprite] = true end
     for i, change in ipairs(plan) do
         assert(self.zone.registry:has(change.id) and images:getImage(change.id), "tile image missing from registry palette")
         old[i] = { x = change.x, y = change.y, id = self:tileAt(change.x, change.y), wall = self.walls[change.y + 1][change.x + 1] }
+        old[i].present = present[old[i].wall] == true
         if change.collision == 1 then replacements[i] = old[i].wall or self:_wall(change.x, change.y) end
     end
     local function restore()
@@ -94,7 +98,9 @@ function WorldView:applyTiles(plan)
             local replacement = replacements[i]
             if replacement and replacement ~= item.wall then replacement:remove() end
             self.walls[item.y + 1][item.x + 1] = item.wall
-            if self.attached and item.wall then item.wall:add() end
+            if item.wall then
+                if item.present then item.wall:add() else item.wall:remove() end
+            end
             self.tilemap:setTileAtPosition(item.x + 1, item.y + 1, item.id)
         end
         self.images, self.imageCount = oldImages, oldCount

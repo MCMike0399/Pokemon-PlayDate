@@ -1,0 +1,239 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "enemy_party": [
+          {
+            "level": 5,
+            "species": "rattata"
+          },
+          {
+            "level": 5,
+            "species": "geodude"
+          }
+        ],
+        "grant_xp": {
+          "amount": 499
+        },
+        "intro": "skip",
+        "opening": false,
+        "player_pokemon": {
+          "level": 15,
+          "species": "charmander"
+        },
+        "seed": 42,
+        "trainer_name": "LEARNING TEST",
+        "zone": "reds_house_2f"
+      }
+    },
+    {
+      "equals": "ready",
+      "frames": 240,
+      "op": "await",
+      "path": "battle.introPhase"
+    },
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "equals": "command",
+      "frames": 240,
+      "op": "await",
+      "path": "battle.phase"
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_hp": 1,
+          "enemy_sleep_duration": 3,
+          "enemy_status": "sleep",
+          "enemy_status_turns": 3
+        }
+      }
+    },
+    "seed 42",
+    "press a",
+    {
+      "equals": true,
+      "frames": 240,
+      "op": "await",
+      "path": "battle.inMoveSelect"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA is fast asleep!",
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CHARMANDER used SCRATCH!",
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.enemy.hp",
+      "equals": 0,
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA fainted!",
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "pokemon.level",
+      "equals": 16,
+      "frames": 240
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CHARMANDER grew to Lv16!",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_moves",
+      "equals": 1
+    },
+    "wait 12",
+    "hold a",
+    {
+      "equals": "learning",
+      "frames": 240,
+      "op": "await",
+      "path": "root"
+    },
+    {
+      "equals": "ask",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    {
+      "equals": true,
+      "op": "assert",
+      "path": "learning.input_blocked"
+    },
+    {
+      "equals": "rattata",
+      "op": "assert",
+      "path": "battle.enemy.species"
+    },
+    "wait 20",
+    {
+      "equals": "ask",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "shot midbattle-full-held-entry",
+    "release a",
+    "wait 2",
+    "press a",
+    {
+      "equals": "replace",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "press b",
+    {
+      "equals": "ask",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "press b",
+    {
+      "equals": "stop",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "press b",
+    {
+      "equals": "ask",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "press a",
+    "press down",
+    "press a",
+    {
+      "equals": "confirm",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "shot midbattle-replace-confirm",
+    "press b",
+    {
+      "equals": "replace",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    "press a",
+    "press a",
+    {
+      "equals": "message",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    {
+      "equals": "dragonRage",
+      "op": "assert",
+      "path": "pokemon.moves.2"
+    },
+    {
+      "equals": 10,
+      "op": "assert",
+      "path": "pokemon.pp.dragonRage"
+    },
+    {
+      "equals": true,
+      "frames": 240,
+      "op": "await",
+      "path": "learning.dialog_ready"
+    },
+    "press a",
+    {
+      "equals": true,
+      "frames": 240,
+      "op": "await",
+      "path": "learning.dialog_ready"
+    },
+    "press a",
+    {
+      "equals": "battle",
+      "frames": 240,
+      "op": "await",
+      "path": "root"
+    },
+    {
+      "equals": "geodude",
+      "op": "assert",
+      "path": "battle.enemy.species"
+    },
+    "shot midbattle-replacement-resumed"
+  ],
+  "outputs": []
+}

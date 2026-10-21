@@ -1,0 +1,359 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "party_pokemon": [
+          {
+            "species": "charmander",
+            "level": 12,
+            "nature_id": 3,
+            "ability_slot": "hidden",
+            "held_item": "potion"
+          },
+          {
+            "species": "squirtle",
+            "level": 5
+          }
+        ],
+        "inventory": {
+          "money": 2800,
+          "slots": [
+            {
+              "id": "moonStone",
+              "quantity": 2
+            },
+            {
+              "id": "antidote",
+              "quantity": 1
+            },
+            {
+              "id": "awakening",
+              "quantity": 1
+            },
+            {
+              "id": "burnHeal",
+              "quantity": 1
+            },
+            {
+              "id": "calcium",
+              "quantity": 1
+            },
+            {
+              "id": "carbos",
+              "quantity": 1
+            },
+            {
+              "id": "direHit",
+              "quantity": 1
+            },
+            {
+              "id": "elixir",
+              "quantity": 1
+            },
+            {
+              "id": "escapeRope",
+              "quantity": 1
+            },
+            {
+              "id": "ether",
+              "quantity": 1
+            },
+            {
+              "id": "expAll",
+              "quantity": 1
+            },
+            {
+              "id": "fireStone",
+              "quantity": 1
+            },
+            {
+              "id": "freshWater",
+              "quantity": 1
+            },
+            {
+              "id": "fullHeal",
+              "quantity": 1
+            },
+            {
+              "id": "fullRestore",
+              "quantity": 1
+            },
+            {
+              "id": "greatBall",
+              "quantity": 1
+            },
+            {
+              "id": "guardSpec",
+              "quantity": 1
+            },
+            {
+              "id": "hpUp",
+              "quantity": 1
+            },
+            {
+              "id": "hyperPotion",
+              "quantity": 1
+            },
+            {
+              "id": "iceHeal",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 240
+    },
+    "press a",
+    "press down",
+    "press down",
+    "press a",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "held-actions"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "bag_held.mode",
+      "equals": "held"
+    },
+    "press a",
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "bag"
+    },
+    {
+      "op": "assert",
+      "path": "bag.phase",
+      "equals": "message"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.held_item",
+      "equals": "potion"
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.moonStone",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.potion",
+      "equals": 0
+    },
+    "shot held-full-bag-quantity2-refused",
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "zone": "reds_house_2f",
+        "party_pokemon": [
+          {
+            "species": "charmander",
+            "level": 12,
+            "nature_id": 3,
+            "ability_slot": "hidden",
+            "held_item": "potion"
+          },
+          {
+            "species": "squirtle",
+            "level": 5
+          }
+        ],
+        "inventory": {
+          "money": 2800,
+          "slots": [
+            {
+              "id": "moonStone",
+              "quantity": 1
+            },
+            {
+              "id": "antidote",
+              "quantity": 1
+            },
+            {
+              "id": "awakening",
+              "quantity": 1
+            },
+            {
+              "id": "burnHeal",
+              "quantity": 1
+            },
+            {
+              "id": "calcium",
+              "quantity": 1
+            },
+            {
+              "id": "carbos",
+              "quantity": 1
+            },
+            {
+              "id": "direHit",
+              "quantity": 1
+            },
+            {
+              "id": "elixir",
+              "quantity": 1
+            },
+            {
+              "id": "escapeRope",
+              "quantity": 1
+            },
+            {
+              "id": "ether",
+              "quantity": 1
+            },
+            {
+              "id": "expAll",
+              "quantity": 1
+            },
+            {
+              "id": "fireStone",
+              "quantity": 1
+            },
+            {
+              "id": "freshWater",
+              "quantity": 1
+            },
+            {
+              "id": "fullHeal",
+              "quantity": 1
+            },
+            {
+              "id": "fullRestore",
+              "quantity": 1
+            },
+            {
+              "id": "greatBall",
+              "quantity": 1
+            },
+            {
+              "id": "guardSpec",
+              "quantity": 1
+            },
+            {
+              "id": "hpUp",
+              "quantity": 1
+            },
+            {
+              "id": "hyperPotion",
+              "quantity": 1
+            },
+            {
+              "id": "iceHeal",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 240
+    },
+    "press a",
+    "press down",
+    "press down",
+    "press a",
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "held-actions"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "bag_held.mode",
+      "equals": "held"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "party_ui.phase",
+      "equals": "held-message"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.held_item",
+      "equals": "moonStone"
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.moonStone",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.potion",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "inventory.slots.20.id",
+      "equals": "potion"
+    },
+    "shot held-full-bag-quantity1-swap",
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    }
+  ],
+  "outputs": []
+}

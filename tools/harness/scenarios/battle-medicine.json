@@ -1,0 +1,15 @@
+{
+  "journey": {
+    "name": "battle-medicine"
+  },
+  "outputs": [
+    "medicine-potion-bag.png",
+    "medicine-potion-used.png",
+    "medicine-potion-enemy-response.png",
+    "medicine-no-effect.png",
+    "medicine-bench-revived.png",
+    "medicine-ether-move-menu.png",
+    "medicine-ether-used.png",
+    "medicine-cancel-no-turn.png"
+  ]
+}

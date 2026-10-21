@@ -50,6 +50,10 @@ function KantoWorld.connection(game,zone,x,y,direction)
     local d=directions[direction]
     if not d or not inside(zone,x,y) then return nil,"invalid-origin" end
     if zone.collision[y+1][x+1]~=0 then return nil,"blocked-origin" end
+    if PewterWorld then
+        local door,handled,reason=PewterWorld.connection(game,zone,x,y,direction)
+        if handled then return door,reason end
+    end
     local name=byID[zone.stableID] or (zone.stableID=="pallet_town" and "pallet_town")
     if not name then return nil end
     if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil end
@@ -65,7 +69,7 @@ function KantoWorld.connection(game,zone,x,y,direction)
 end
 function KantoWorld.dispatch(game,id)
     assert(game.session:getIntro().stage=="done","Kanto events require completed original intro")
-    assert(SliceEvents.has(id),"unimplemented source event: "..tostring(id))
+    assert(SliceEvents.has(id) or PewterEvents and PewterEvents.has(id),"unimplemented source event: "..tostring(id))
     assert(not game.player or not game.player.isMoving and not game.player.pendingEdgeDoor,"source event requires settled player")
     assert(game.machine:getCurrent()=="overworld" and game.machine:get("event"),"root event executor required")
     game.machine:push("event",id)
@@ -79,6 +83,7 @@ function KantoWorld.onEnter(game,options)
 end
 function KantoWorld.tryInteract(game)
     if PCTerminals.tryInteract(game) then return true end
+    if PewterWorld and PewterWorld.tryInteract(game) then return true end
     local player=game.player;local fx,fy=player:getFacingTile()
     if not inside(currentZone,fx,fy) then return false end
     local npc=game.npcManager:getNPCAt(fx,fy)

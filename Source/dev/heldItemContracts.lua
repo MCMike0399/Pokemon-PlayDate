@@ -1,0 +1,167 @@
+HeldItemContracts={}
+local function eq(a,b,label)assert(a==b,(label or "value")..": expected "..tostring(b)..", got "..tostring(a))end
+local function same(a,b,path)
+    path=path or "record";eq(type(a),type(b),path)
+    if type(a)~="table" then eq(a,b,path);return end
+    for k,v in pairs(a)do same(v,b[k],path.."."..tostring(k))end
+    for k in pairs(b)do assert(a[k]~=nil,path.." extra "..tostring(k))end
+end
+local function attrs(held)return{natureId=3,abilitySlot="hidden",heldItem=held or "none"}end
+local function setup(held)
+    local game=GameContext();local mon=Pokemon("charmander",12,attrs(held));mon.name="CUSTOM"
+    assert(game:recruit(mon));assert(game.session:setIntro({stage="done",starter="charmander",rivalStarter="squirtle"}))
+    return game,mon,game.session:inventory()
+end
+local function snapshot(game,mon)return{bag=game.session:inventory():toData(),mon=assert(PokemonCodec.encode(mon)),rng=RulesRNG.snapshot()}end
+local function unchanged(game,mon,before)same(snapshot(game,mon),before)end
+local function fill(bag,excluded)
+    local keys={};for id,item in pairs(ItemData.definitions)do if not item.keyItem and not excluded[id]then keys[#keys+1]=id end end;table.sort(keys)
+    for _,id in ipairs(keys)do if bag:count()==Inventory.CAPACITY then break end;assert(bag:add(id,1))end
+    eq(bag:count(),20)
+end
+local function ui(game)
+    game.machine:register("base",State("base"));local party=PartyState(game);local bag=BagState(game)
+    game.machine:register("party",party);game.machine:register("bag",bag);game.machine:change("base");game.machine:push("party")
+    return party,bag
+end
+local function giveView(game,party)
+    party:actions();party.menu.onSelect(3);eq(party.phase,"held-actions");party.menu.onSelect(1);eq(game.machine:getCurrent(),"bag")
+end
+local function press(game,button)
+    Autopilot.beginFrame();Autopilot.step({"press",button},game);game.machine:handleInput();Autopilot.beginFrame()
+end
+function HeldItemContracts.run()
+    local report={ok=true,passed=0,failed=0,tests={}};local saved=RulesRNG.snapshot()
+    local function test(name,fn)local ok,why=pcall(fn);Autopilot.resetControls();report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why)or nil};if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end end
+    test("Give and take retain bag party mon moves PP status and money without RNG",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));p.status,p.statusTurns,p.sleepDuration="sleep",0,3;p.pp.scratch=2;p.statStages.atk=3
+        local party,moves,pp,before=game.session:party(),p.moves,p.pp,RulesRNG.snapshot();local active=party:active()
+        local ok,result=game.session:giveHeldItem(p,"potion");assert(ok,result);eq(result.kind,"given");eq(result.quantityBefore,2);eq(result.quantityAfter,1)
+        eq(p.heldItem,"potion");eq(bag:quantity("potion"),1);eq(game.session:inventory(),bag);eq(game.session:party(),party);eq(party:active(),active)
+        eq(p.moves,moves);eq(p.pp,pp);eq(p.pp.scratch,2);eq(p.status,"sleep");eq(p.statusTurns,0);eq(p.sleepDuration,3);eq(p.statStages.atk,3);eq(bag:money(),3000)
+        ok,result=game.session:takeHeldItem(p);assert(ok,result);eq(result.kind,"taken");eq(result.item,"potion");eq(p.heldItem,"none");eq(bag:quantity("potion"),2);same(RulesRNG.snapshot(),before)
+    end)
+    test("No held item and same item are explicit no-effect with no bag mutation",function()
+        local game,p,bag=setup();local before=snapshot(game,p);local ok,why=game.session:takeHeldItem(p);eq(ok,false);eq(why,"no-held-item");unchanged(game,p,before)
+        assert(bag:add("potion",2));assert(game.session:giveHeldItem(p,"potion"));before=snapshot(game,p)
+        ok,why=game.session:giveHeldItem(p,"potion");eq(ok,false);eq(why,"already-holding");unchanged(game,p,before)
+    end)
+    test("Foreign copies and same-session stored Pokemon cannot alter selected party bag",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));local other,q=setup();local before=snapshot(game,p)
+        eq(game.session:giveHeldItem(q,"potion"),false);eq(game.session:takeHeldItem(q),false)
+        local clone=assert(PokemonCodec.decode(assert(PokemonCodec.encode(p))));eq(game.session:giveHeldItem(clone,"potion"),false);unchanged(game,p,before)
+        for _=1,5 do assert(game:recruit(Pokemon("charmander",5)))end
+        local stored=Pokemon("pikachu",5);local ok,where=game:recruit(stored);assert(ok);eq(where.destination,"storage")
+        before=snapshot(game,p);eq(game.session:giveHeldItem(stored,"potion"),false);unchanged(game,p,before);eq(stored.heldItem,"none")
+    end)
+    test("Nonholdable keys TM HM EXP.ALL unknown and malformed IDs reject unchanged",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));local before=snapshot(game,p)
+        for _,id in ipairs({"townMap","oaksParcel","tm01","hm01","expAll","missing","none",true,42,{}})do eq(game.session:giveHeldItem(p,id),false);unchanged(game,p,before)end
+        eq(game.session:giveHeldItem(p,nil),false);unchanged(game,p,before)
+    end)
+    test("Missing stock never changes an occupied held slot",function()
+        local game,p,bag=setup("potion");local before=snapshot(game,p);local ok,why=game.session:giveHeldItem(p,"moonStone")
+        eq(ok,false);eq(why,"insufficient-items");unchanged(game,p,before)
+    end)
+    test("Occupied swap returns exactly one old item and consumes exactly one new",function()
+        local game,p,bag=setup("potion");assert(bag:add("moonStone",2));local before=RulesRNG.snapshot();local ok,r=game.session:giveHeldItem(p,"moonStone");assert(ok,r)
+        eq(r.previous,"potion");eq(r.heldItem,"moonStone");eq(bag:quantity("moonStone"),1);eq(bag:quantity("potion"),1);eq(p.heldItem,"moonStone");same(RulesRNG.snapshot(),before)
+    end)
+    test("Full bag swap quantity1 frees its slot for the returned old item",function()
+        local game,p,bag=setup("potion");assert(bag:add("moonStone",1));fill(bag,{potion=true,moonStone=true})
+        local before=RulesRNG.snapshot();assert(game.session:giveHeldItem(p,"moonStone"));eq(bag:count(),20);eq(bag:quantity("moonStone"),0);eq(bag:quantity("potion"),1);eq(p.heldItem,"moonStone");same(RulesRNG.snapshot(),before)
+    end)
+    test("Full bag swap quantity2 leaves no free slot and rolls back both owners",function()
+        local game,p,bag=setup("potion");assert(bag:add("moonStone",2));fill(bag,{potion=true,moonStone=true});local before=snapshot(game,p)
+        local ok,why=game.session:giveHeldItem(p,"moonStone");eq(ok,false);eq(why,"bag-full");unchanged(game,p,before)
+    end)
+    test("Full bag old stack98 accepts returned item at99 without a new slot",function()
+        local game,p,bag=setup("potion");assert(bag:add("potion",98));assert(bag:add("moonStone",2));fill(bag,{potion=true,moonStone=true})
+        assert(game.session:giveHeldItem(p,"moonStone"));eq(bag:count(),20);eq(bag:quantity("potion"),99);eq(bag:quantity("moonStone"),1)
+    end)
+    test("Full bag old stack99 refuses return when new stack quantity2 stays occupied",function()
+        local game,p,bag=setup("potion");assert(bag:add("potion",99));assert(bag:add("moonStone",2));fill(bag,{potion=true,moonStone=true});local before=snapshot(game,p)
+        eq(game.session:giveHeldItem(p,"moonStone"),false);unchanged(game,p,before)
+    end)
+    test("Existing inventory stack model can use freed slot after a99 stack",function()
+        local game,p,bag=setup("potion");assert(bag:add("potion",99));assert(bag:add("moonStone",1));fill(bag,{potion=true,moonStone=true})
+        assert(game.session:giveHeldItem(p,"moonStone"));eq(bag:quantity("potion"),100);eq(bag:count(),20)
+        for _,slot in ipairs(bag:slots())do assert(slot.quantity<=99)end
+    end)
+    test("Take full bag stack99 fails unchanged while stack98 reaches99",function()
+        local game,p,bag=setup("potion");assert(bag:add("potion",99));fill(bag,{potion=true});local before=snapshot(game,p)
+        local ok,why=game.session:takeHeldItem(p);eq(ok,false);eq(why,"bag-full");unchanged(game,p,before)
+        assert(bag:consume("potion",1));assert(game.session:takeHeldItem(p));eq(bag:quantity("potion"),99);eq(p.heldItem,"none");eq(bag:count(),20)
+    end)
+    test("Invalid current specimen is rejected before bag commit",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));p.heldItem="townMap";local before=bag:toData();local rng=RulesRNG.snapshot()
+        local ok,why=game.session:giveHeldItem(p,"potion");eq(ok,false);eq(why,"invalid-pokemon");same(bag:toData(),before);eq(p.heldItem,"townMap");same(RulesRNG.snapshot(),rng)
+    end)
+    test("All49 holdable catalog IDs give and take; data support is not held battle effects",function()
+        local count=0
+        for id,legal in pairs(SpecimenData.holdable)do if legal then
+            local game,p,bag=setup();assert(bag:add(id,1));assert(game.session:giveHeldItem(p,id));eq(p.heldItem,id);eq(bag:quantity(id),0)
+            assert(game.session:takeHeldItem(p));eq(p.heldItem,"none");eq(bag:quantity(id),1);count=count+1
+        end end
+        eq(count,49)
+    end)
+    test("Actual identity remains target after party reorder; active identity is unchanged",function()
+        local game,p,bag=setup();local q=Pokemon("squirtle",5);assert(game:recruit(q));assert(bag:add("potion",1));assert(game.session:party():swap(1,2))
+        local active=game.session:party():active();local ok,r=game.session:giveHeldItem(p,"potion");assert(ok,r);eq(r.partyIndex,2);eq(game.session:party():get(2),p);eq(game.session:party():active(),active);eq(q.heldItem,"none")
+    end)
+    test("Session JSON keeps transferred item bag conservation nature ability status PP",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));p.status="burn";p.pp.scratch=3;assert(game.session:giveHeldItem(p,"potion"));local before=RulesRNG.snapshot()
+        local data=assert(SessionCodec.encode(game.session,{root="overworld",overworld="explore",settled=true}))
+        local restored=assert(SessionCodec.decode(json.decode(json.encode(data)),game:getSessionDependencies()));local q=restored:party():get(1)
+        eq(q.heldItem,"potion");eq(q.natureId,3);eq(q.abilitySlot,"hidden");eq(q.status,"burn");eq(q.pp.scratch,3);eq(restored:inventory():quantity("potion"),1);same(RulesRNG.snapshot(),before)
+    end)
+    test("Held Bag mode filters keys TM HM and unsupported EXP.ALL but shows live quantities",function()
+        local game,p,bag=setup();assert(bag:add("townMap",1));assert(bag:add("tm01",1));assert(bag:add("expAll",1));assert(bag:add("potion",3));assert(bag:add("moonStone",2))
+        local party,view=ui(game);giveView(game,party);local slots=view:visibleSlots();eq(#slots,2);eq(slots[1].id,"potion");eq(slots[1].quantity,3);eq(slots[2].id,"moonStone");eq(slots[2].quantity,2)
+        eq(view:getHeldSnapshot().mode,"held");eq(view:getHeldSnapshot().quantity,3)
+        assert(bag:consume("potion",1));eq(view:visibleSlots()[1].quantity,2)
+    end)
+    test("Actual field menus give then take without changing retained identities or RNG",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));local party,view=ui(game);local before=RulesRNG.snapshot()
+        giveView(game,party);assert(view:selectHeld("potion"));eq(game.machine:getCurrent(),"party");eq(party.phase,"held-message");eq(p.heldItem,"potion");eq(bag:quantity("potion"),1)
+        press(game,"a");eq(party.phase,"held-actions");party.menu.onSelect(2);eq(p.heldItem,"none");eq(bag:quantity("potion"),2);eq(game.session:inventory(),bag);eq(game.session:party():get(1),p);same(RulesRNG.snapshot(),before)
+    end)
+    test("Held selection cancel preserves item bag and returns to the same party menu",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));local party,view=ui(game);local before=snapshot(game,p);giveView(game,party)
+        press(game,"b");eq(game.machine:getCurrent(),"party");eq(party.phase,"held-actions");unchanged(game,p,before)
+    end)
+    test("Stale forced-exit and same-state reentry capabilities cannot give an item",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));local party,view=ui(game);giveView(game,party);local select=view.options.trySelect;local before=snapshot(game,p)
+        game.machine:change("base");eq(select("potion"),false);unchanged(game,p,before)
+        game.machine:push("party");giveView(game,party);eq(select("potion"),false);unchanged(game,p,before)
+    end)
+    test("Replaced session rejects old held capability before either bag mutates",function()
+        local game,p,bag=setup();assert(bag:add("potion",2));local party,view=ui(game);giveView(game,party);local select=view.options.trySelect;local data=bag:toData();local before=RulesRNG.snapshot()
+        game.session=GameContext().session;eq(select("potion"),false);same(bag:toData(),data);eq(p.heldItem,"none");eq(game.session:inventory():quantity("potion"),0);same(RulesRNG.snapshot(),before)
+    end)
+    test("Stale stock is freshly rejected; Bag preview is never transfer authority",function()
+        local game,p,bag=setup();assert(bag:add("potion",1));local party,view=ui(game);giveView(game,party);assert(bag:consume("potion",1));local before=snapshot(game,p)
+        eq(view:selectHeld("potion"),false);eq(view.phase,"message");unchanged(game,p,before)
+    end)
+    test("Held mode option validation rejects before push and field target modes cannot open it",function()
+        local game,p,bag=setup();local party,view=ui(game);local generation=game.machine._generation
+        for _,options in ipairs({{}, {mode="held",holder=p,trySelect=true},{mode="held",holder=p,trySelect=function()end,extra=true}})do
+            eq(pcall(BagState.openHeld,game,options),false);eq(game.machine._generation,generation)
+        end
+        game.machine:pop();game.machine:push("party",{trySelect=function()return true end})
+        eq(BagState.openHeld(game,{mode="held",holder=p,trySelect=function()end}),false);eq(game.machine:getCurrent(),"party")
+    end)
+    test("Battle selection bypass retains its callback and never opens field ITEM actions",function()
+        local game,p,bag=setup();local party=ui(game);game.machine:pop();local chosen=0
+        game.machine:push("party",{trySelect=function(index)chosen=index;return true end})
+        press(game,"a");eq(chosen,1);eq(game.machine:getCurrent(),"base");eq(p.heldItem,"none")
+    end)
+    test("INFO toggles display names with stats four PP lines intact and no draw progression",function()
+        local game,p,bag=setup();local party=ui(game);party:actions();party.menu.onSelect(1);eq(party.phase,"stats")
+        local before=snapshot(game,p);press(game,"a");eq(party.phase,"info");eq(party:getInfoSnapshot().nature_id,3);eq(party:getInfoSnapshot().ability_id,94)
+        local canvas=playdate.graphics.image.new(400,240,playdate.graphics.kColorWhite);playdate.graphics.pushContext(canvas)
+        local ok,why=pcall(function()for _=1,8 do party:draw()end end);playdate.graphics.popContext();assert(ok,why);unchanged(game,p,before)
+        press(game,"a");eq(party.phase,"stats");eq(#p.moves,4);press(game,"b");eq(party.phase,"list")
+    end)
+    RulesRNG.restore(saved);return report
+end

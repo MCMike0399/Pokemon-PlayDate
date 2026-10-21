@@ -1,0 +1,8 @@
+{
+  "journey": {
+    "name": "brock-source-supplementary",
+    "supplementary": true,
+    "case": "tm-full-retry",
+    "seed": 42
+  }
+}

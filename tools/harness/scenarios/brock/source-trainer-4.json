@@ -1,0 +1,9 @@
+{
+  "journey": {
+    "name": "brock-source-supplementary",
+    "supplementary": true,
+    "case": "trainer",
+    "trainer_id": "pokered:PEWTER_GYM:objects:2",
+    "seed": 42
+  }
+}

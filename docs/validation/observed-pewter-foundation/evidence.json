@@ -1,0 +1,105 @@
+{
+  "status": "integrated foundation evidence; campaign/Brock acceptance pending",
+  "runs": [
+    {
+      "name": "pokemon-provider-healing-integrated-01",
+      "source": "/private/tmp/pokemon-provider-healing-integrated-01",
+      "ok": true
+    },
+    {
+      "name": "pokemon-provider-learning-integrated-01",
+      "source": "/private/tmp/pokemon-provider-learning-integrated-01",
+      "ok": true
+    },
+    {
+      "name": "pokemon-pewter-learning-medicine-integrated-01",
+      "source": "/private/tmp/pokemon-pewter-learning-medicine-integrated-01",
+      "ok": false,
+      "jobs": [
+        {
+          "name": "contracts-catalog",
+          "ok": true
+        },
+        {
+          "name": "battle-medicine",
+          "ok": true
+        },
+        {
+          "name": "battle-learning-two-enemy-bubble",
+          "ok": true
+        },
+        {
+          "name": "battle-learning-two-enemy-replacement-back",
+          "ok": false
+        },
+        {
+          "name": "battle-learning-two-enemy-refusal",
+          "ok": false
+        },
+        {
+          "name": "battle-learning-final-evolution",
+          "ok": false
+        },
+        {
+          "name": "evolution-natural-level",
+          "ok": false
+        },
+        {
+          "name": "evolution-new-species-learning",
+          "ok": true
+        },
+        {
+          "name": "evolution-cancel-level",
+          "ok": true
+        },
+        {
+          "name": "evolution-stone-bag",
+          "ok": true
+        },
+        {
+          "name": "evolution-stone-no-effect",
+          "ok": true
+        },
+        {
+          "name": "pc-storage-restart",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "pokemon-learning-recipes-integrated-02",
+      "source": "/private/tmp/pokemon-learning-recipes-integrated-02",
+      "ok": true,
+      "jobs": [
+        {
+          "name": "battle-learning-two-enemy-replacement-back",
+          "ok": true
+        },
+        {
+          "name": "battle-learning-two-enemy-refusal",
+          "ok": true
+        },
+        {
+          "name": "battle-learning-final-evolution",
+          "ok": true
+        },
+        {
+          "name": "evolution-natural-level",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "pokemon-specimen-integrated-01",
+      "source": "/private/tmp/pokemon-specimen-integrated-01",
+      "ok": true
+    },
+    {
+      "name": "pokemon-brock-source-1-native-01",
+      "source": "/private/tmp/pokemon-brock-source-1-native-01",
+      "ok": true
+    }
+  ],
+  "archive_sha256": "c9677d8f602a5fc647ab335cb3f987d2cf3aa0082e47f7949cf80410f6fbea77",
+  "review": "Root inspected machine composition/restoration, map actors/native crops, eight medicine UI panels, held-entry/replacement/next enemy and evolution animation/result captures. Full provider catalog/abilities/item effects/natural Brock remain unfinished."
+}

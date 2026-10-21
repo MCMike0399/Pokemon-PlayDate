@@ -1,0 +1,168 @@
+{
+  "checkpoint": {
+    "map_id": "pokered:PEWTER_CITY",
+    "source": "SetLastBlackoutMap + fly_warp PEWTER_CITY",
+    "status": "candidate validated source spawn; integration uses existing checkpoint seam",
+    "x": 13,
+    "y": 26
+  },
+  "cut_tree_cells": [
+    {
+      "map_id": "pokered:ROUTE_2",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 5,
+      "y": 10
+    },
+    {
+      "map_id": "pokered:ROUTE_2",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 15,
+      "y": 22
+    },
+    {
+      "map_id": "pokered:ROUTE_2",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 5,
+      "y": 38
+    },
+    {
+      "map_id": "pokered:ROUTE_2",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 12,
+      "y": 52
+    },
+    {
+      "map_id": "pokered:ROUTE_2",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 12,
+      "y": 60
+    },
+    {
+      "map_id": "pokered:ROUTE_2",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 12,
+      "y": 68
+    },
+    {
+      "map_id": "pokered:PEWTER_CITY",
+      "source_foot_tile": 61,
+      "status": "blocked; Cut/HM binding outside this slice",
+      "x": 26,
+      "y": 4
+    }
+  ],
+  "item_pickups": [
+    {
+      "bag_full": "no inventory or visibility/eligibility mutation; retry remains available",
+      "id": "pokered:ROUTE_2:objects:1",
+      "initially_visible": true,
+      "item_source": "MOON_STONE",
+      "quantity": 1,
+      "source_object": "ROUTE2_MOON_STONE",
+      "success": "GiveItem then hide source toggle; persist stable source object collection ID"
+    },
+    {
+      "bag_full": "no inventory or visibility/eligibility mutation; retry remains available",
+      "id": "pokered:ROUTE_2:objects:2",
+      "initially_visible": true,
+      "item_source": "HP_UP",
+      "quantity": 1,
+      "source_object": "ROUTE2_HP_UP",
+      "success": "GiveItem then hide source toggle; persist stable source object collection ID"
+    },
+    {
+      "bag_full": "no inventory or visibility/eligibility mutation; retry remains available",
+      "id": "pokered:VIRIDIAN_FOREST:objects:5",
+      "initially_visible": true,
+      "item_source": "ANTIDOTE",
+      "quantity": 1,
+      "source_object": "VIRIDIANFOREST_ANTIDOTE",
+      "success": "GiveItem then hide source toggle; persist stable source object collection ID"
+    },
+    {
+      "bag_full": "no inventory or visibility/eligibility mutation; retry remains available",
+      "id": "pokered:VIRIDIAN_FOREST:objects:6",
+      "initially_visible": true,
+      "item_source": "POTION",
+      "quantity": 1,
+      "source_object": "VIRIDIANFOREST_POTION",
+      "success": "GiveItem then hide source toggle; persist stable source object collection ID"
+    },
+    {
+      "bag_full": "no inventory or visibility/eligibility mutation; retry remains available",
+      "id": "pokered:VIRIDIAN_FOREST:objects:7",
+      "initially_visible": true,
+      "item_source": "POKE_BALL",
+      "quantity": 1,
+      "source_object": "VIRIDIANFOREST_POKE_BALL",
+      "success": "GiveItem then hide source toggle; persist stable source object collection ID"
+    }
+  ],
+  "mart": {
+    "handler": "existing Items.buy/sell and real ShopState; Escape Rope use is separately unsupported",
+    "source": "data/items/marts.asm:PewterMartClerkText",
+    "stock": [
+      "POKE_BALL",
+      "POTION",
+      "ESCAPE_ROPE",
+      "ANTIDOTE",
+      "BURN_HEAL",
+      "AWAKENING",
+      "PARLYZ_HEAL"
+    ]
+  },
+  "pewter_east_gate": {
+    "behavior": "source youngster escort to Gym; no invented static dialogue or silent pass",
+    "coordinates": [
+      [
+        35,
+        17
+      ],
+      [
+        36,
+        17
+      ],
+      [
+        37,
+        18
+      ],
+      [
+        37,
+        19
+      ]
+    ],
+    "source": "scripts/PewterCity.asm:PewterCityPlayerLeavingEastCoords",
+    "until_source_flag": "EVENT_BEAT_BROCK"
+  },
+  "remaining": {
+    "blocked_exits": [
+      "DIGLETTS_CAVE_ROUTE_2",
+      "ROUTE_2_TRADE_HOUSE",
+      "ROUTE_2_GATE",
+      "MUSEUM_1F",
+      "PEWTER_NIDORAN_HOUSE",
+      "PEWTER_SPEECH_HOUSE",
+      "ROUTE_3"
+    ],
+    "campaign_ready": false,
+    "required_bindings": [
+      "one-time trainer sight/approach/battle/payout",
+      "Brock badge/TM retry/deactivation",
+      "item and hidden-item pickups",
+      "Gym guide yes/no advice/statues",
+      "Pewter escort scripts",
+      "Center Jigglypuff song/spin/audio",
+      "PC/storage interaction",
+      "link receptionist remains unsupported",
+      "Cut trees remain physical blockers"
+    ]
+  },
+  "schema": 1,
+  "status": "source requirements/plan only, not runtime bindings"
+}

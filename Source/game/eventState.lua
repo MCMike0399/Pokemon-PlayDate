@@ -15,14 +15,15 @@ function EventState.redrawSprites()
     for _,state in ipairs(states) do state.sprite:setUpdatesEnabled(state.enabled) end
     assert(ok,problem)
 end
-function EventState.observe(game)
+function EventState.observe(game,id,options)
     local bag=game.session:inventory();local items,canAdd={},{}
-    for _,id in ipairs({"potion","oaksParcel"}) do
+    for _,id in ipairs({"potion","oaksParcel","tm34","moonStone","hpUp","antidote","pokeBall"}) do
         items[id]=bag:quantity(id)
         local candidate=assert(Inventory.fromData(ItemData.definitions,bag:toData()))
         canAdd[id]=candidate:add(id,1)==true
     end
-    return {intro=game.session:getIntro().stage,flags=game.session:flags().quest,items=items,can_add=canAdd}
+    return {intro=game.session:getIntro().stage,flags=game.session:flags().quest,trainers=game.session:flags().trainers,items=items,can_add=canAdd,
+        mode=options and options.mode or "talk"}
 end
 function EventState:init(game)
     EventState.super.init(self,"event");self.game=game;self.menu=BattleMenu()
@@ -45,18 +46,30 @@ function EventState:dialog(pages,callback,receipt)
     self.phase,self.waiting=receipt and "receipt" or "dialog",pages[1].label
     self.machine:push("dialog",lines,self:guard(callback))
 end
-function EventState:source(labels,callback) self:dialog(EventText.pages(labels),callback) end
+function EventState:pages(labels)
+    if self.content=="pewter" then return PewterEvents.pages(labels,self.plan.ram) end
+    return EventText.pages(labels)
+end
+function EventState:source(labels,callback) self:dialog(self:pages(labels),callback) end
 function EventState:_queueDialog(labels)
     local pages={}
-    for _,page in ipairs(EventText.pages(labels)) do
+    for _,page in ipairs(self:pages(labels)) do
         if page.receipt then self.receipts[#self.receipts+1]=page else pages[#pages+1]=page end
     end
     if #pages>0 then self.ops[#self.ops+1]={op="pages",pages=pages} end
 end
-function EventState:enter(id)
-    assert(type(id)=="string" and SliceEvents.has(id),"supported source event required")
+function EventState:enter(id,options)
+    local extended=PewterEvents and PewterEvents.has(id)
+    assert(type(id)=="string" and (SliceEvents.has(id) or extended),"supported source event required")
+    assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight"),"bounded source event options required")
+    self.content=extended and "pewter" or "viridian"
+    if extended then assert(currentZone.stableID=="pokered:"..id:match("^pokered:([^:]+):"),"source event belongs to another map") end
     assert(self.game.player and not self.game.player.isMoving,"event requires settled player")
-    local plan=SliceEvents.plan(id,EventState.observe(self.game))
+    local observation=EventState.observe(self.game,id,options)
+    -- Receipt ownership changes only on this explicit controller entry, never
+    -- during diagnostics, previews or repeated read-only observations.
+    if extended and self.game.trainers then observation.receipt=self.game.trainers:takeReceipt(id) end
+    local plan=extended and PewterEvents.plan(id,observation) or SliceEvents.plan(id,observation)
     assert(type(plan.steps)=="table" and #plan.steps<=16,"event step limit")
     self.epoch=self.epoch+1;self.active=true;self.serial=0
     self.id,self.plan,self.session,self.player,self.zone=id,plan,self.game.session,self.game.player,currentZone
@@ -86,6 +99,15 @@ function EventState:enter(id)
                 end
                 self:_queueDialog({label})
             end
+        elseif step.op=="confirmed-dialog" then
+            assert(extended and observation.receipt and observation.receipt.won and self.session:trainerDefeated(id),"unconfirmed source victory receipt")
+            self.ops[#self.ops+1]={op="pages",pages=self:pages(step.labels)}
+        elseif step.op=="receipt" then
+            assert(extended and plan.expected,"source item receipt requires guarded commit")
+            for _,page in ipairs(self:pages(step.labels)) do self.receipts[#self.receipts+1]=page end
+        elseif step.op=="trainer" then
+            assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
+            self.ops[#self.ops+1]=step
         elseif step.op=="move" then
             assert(DELTA[step.direction] and type(step.count)=="number" and step.count%1==0 and step.count>=1 and step.count<=8,"bounded movement required")
             for _=1,step.count do self.ops[#self.ops+1]={op="move",direction=step.direction} end
@@ -108,6 +130,7 @@ function EventState:commit()
         local ok,reason=self.session:transact(self.plan.expected,self.plan.changes)
         if not ok then self:failureDialogue(reason);return end
         self.committed=true
+        if self.content=="pewter" then PewterEvents.afterCommit(self.game,self.plan) end
         self:removeBooks()
         if #self.receipts>0 then self:dialog(self.receipts,function() self:finish() end,true);return end
     elseif self.plan.status=="bag-full" and not self.hasFailureText then self:failureDialogue("bag-full");return end
@@ -117,7 +140,7 @@ end
 function EventState:failureDialogue(reason)
     self.receipts={}
     if reason=="bag-full" then
-        self:source({"_PokemartItemBagFullText"},function() self:finish() end)
+        self:source(self.plan.failure_labels or {"_PokemartItemBagFullText"},function() self:finish() end)
     else self:fail(reason) end
 end
 function EventState:advance()
@@ -126,6 +149,7 @@ function EventState:advance()
     if not step then self:commit();return end
     if step.op=="pages" then self:dialog(step.pages,function() self:advance() end)
     elseif step.op=="move" then self:startMove(step.direction)
+    elseif step.op=="trainer" then self:startTrainer(step)
     elseif step.op=="shop" then
         self.phase,self.waiting="shop",step.id
         self.machine:push("shop",{martId=step.id,onComplete=self:guard(function() self:advance() end)})
@@ -217,24 +241,31 @@ function EventState:beginHealing()
     self.healClock,self.healCount=0,self.session:party():count()
     self.healNurse=nil
     for _,npc in ipairs(self.game.npcManager.npcs) do
-        if npc.def and npc.def.source_event_id=="pokered:VIRIDIAN_POKECENTER:objects:1" then self.healNurse=npc end
+        if npc.def and npc.def.source_event_id==(self.healStep.nurse_id or "pokered:VIRIDIAN_POKECENTER:objects:1") then self.healNurse=npc end
     end
     if self.healNurse then self.oldNurseFacing=self.healNurse.facing;self.healNurse:setFacing("left") end
     self.phase,self.waiting="heal-animation","healing"
 end
 function EventState:finishHealing()
-    local checkpoint={zone_id="pokered:VIRIDIAN_CITY",x=23,y=26,facing="down"}
+    local checkpoint=self.healStep.checkpoint or {zone_id="pokered:VIRIDIAN_CITY",x=23,y=26,facing="down"}
     local ok,reason=self.session:captureTraversal({world=WorldDeltas.export(),
         location={zone_id=self.zone.stableID,x=self.player.gridX,y=self.player.gridY,facing=self.player.facing},checkpoint=checkpoint})
     if not ok then self:fail(reason);return end
     self.session:party():healAll()
     if self.healNurse then self.healNurse:setFacing(self.oldNurseFacing) end
+    gfx.sprite.addDirtyRect(0,0,400,240) -- erase transient machine OAM before the following dialogue
     local step=self.healStep
     self:source({step.after,step.farewell},function() self:advance() end)
 end
 function EventState:update()
     if not self:valid() or not self:isTop() then return end
-    if self.phase=="move" then
+    if self.phase=="trainer-notice" then
+        self.trainerNoticeClock=self.trainerNoticeClock+1
+        if self.trainerNoticeClock>=30 then self:removeTrainerBubble();self.phase="trainer-approach" end
+    elseif self.phase=="trainer-approach" then
+        local done,reason=self.game.trainers:updateApproach(self.trainerToken)
+        if done then self:trainerReady() elseif reason~="moving" then self:fail(reason) end
+    elseif self.phase=="move" then
         self.player:update()
         if not self.player.isMoving then self.moveOrigin=nil;self.player.stepJustFinished=false;self.player.pendingEdgeDoor=nil;self.player.pendingConnection=nil;self:advance() end
     elseif self.phase=="oak-arrival" or self.phase=="oak-departure" then self:updateRival()
@@ -264,6 +295,9 @@ end
 function EventState:exit()
     self.epoch=self.epoch+1;self.serial=self.serial+1;self.active=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
+    self:removeTrainerBubble()
+    if self.trainerToken and not self.trainerLaunching then self.game.trainers:cancel(self.trainerToken) end
+    self.trainerToken,self.trainerNPC,self.trainerStep=nil,nil,nil;self.trainerLaunching=false
     if self.rival then self.game.npcManager:removeNPC(self.rival);self.rival=nil end
     self:removeBooks()
     if self.oak then self.oak:setFacing(self.oldOakFacing);self.oak=nil end
@@ -286,31 +320,59 @@ function EventState:exit()
         self.player.stepJustFinished=false;self.player.pendingEdgeDoor=nil;self.player.pendingConnection=nil
     end
     self.moveOrigin=nil;self.phase,self.waiting="closed","none"
+    self.game.npcManager.motion:finishInteraction(self.id)
     gfx.sprite.addDirtyRect(0,0,400,240)
 end
 function EventState:getSnapshot()
     local options={};for i,value in ipairs(self.menu.options) do options[i]=value end
     return {id=self.id or "none",phase=self.phase,waiting=self.waiting,
-        menu={active=self.menu.isActive,selected=self.menu.selectedIndex,options=options}}
+        menu={active=self.menu.isActive,selected=self.menu.selectedIndex,options=options},
+        trainer=self.game.trainers and self.game.trainers:snapshot() or {phase="idle"}}
 end
 function EventState:draw()
     if not self:valid() then return end
+    if self.phase=="heal-animation" then gfx.sprite.addDirtyRect(0,0,400,240) end
     EventState.redrawSprites()
+    if self.phase=="heal-animation" then
+        HealingComposition.draw(self.zone,self.healCount,self.healClock,self.game.camera)
+        return
+    end
     if self.phase~="heal-confirm" and self.phase~="heal-animation" and self.phase~="failed" then return end
     gfx.pushContext();gfx.setDrawOffset(0,0);gfx.clearClipRect();gfx.clearStencil();gfx.setFont(gfx.getSystemFont());gfx.setLineWidth(1);gfx.setImageDrawMode(gfx.kDrawModeCopy);gfx.setColor(gfx.kColorWhite)
     if self.phase=="heal-confirm" then self.menu:draw(244,120,140,56)
     elseif self.phase=="failed" then
         gfx.fillRect(4,180,392,56);gfx.setColor(gfx.kColorBlack);gfx.drawRect(4,180,392,56)
         gfx.drawText("The event could not complete.\nA / B: Back",16,188)
-    else
-        gfx.fillRect(112,48,176,96);gfx.setColor(gfx.kColorBlack);gfx.drawRect(112,48,176,96)
-        gfx.drawText("POKEMON CENTER",122,54)
-        local monitor,ball=EventArt.healing();monitor:draw(126,88)
-        local count=math.min(self.healCount,self.healClock//15+1)
-        local flashing=self.healClock>=15*self.healCount and self.healClock<15*self.healCount+40
-        if not flashing or ((self.healClock-15*self.healCount)//5)%2==0 then
-            for index=1,count do ball:draw(164+((index-1)%2)*20,80+((index-1)//2)*18) end
-        end
     end
     gfx.popContext()
+end
+
+function EventState:removeTrainerBubble()
+    if self.trainerBubble then self.trainerBubble:remove();self.trainerBubble=nil end
+end
+function EventState:startTrainer(step)
+    local npc
+    for _,actor in ipairs(self.game.npcManager.npcs) do if actor.def and actor.def.source_event_id==step.id then npc=actor;break end end
+    if not npc then self:fail("absent-source-trainer");return end
+    local token,reason=self.game.trainers:prepare(npc,step.mode)
+    if not token then self:fail(reason);return end
+    self.trainerToken,self.trainerNPC,self.trainerStep=token,npc,step;self.trainerLaunching=false
+    self.phase,self.waiting="trainer-approach",step.id
+    if step.mode=="sight" then
+        self.trainerNoticeClock=0
+        self.trainerBubble=gfx.sprite.new(PewterSprites.exclamation());self.trainerBubble:setCenter(0,0)
+        self.trainerBubble:moveTo(npc.x,npc.y-32);self.trainerBubble:setZIndex(110);self.trainerBubble:add()
+        self.phase="trainer-notice"
+    else
+        local done,problem=self.game.trainers:updateApproach(token)
+        if done then self:trainerReady() elseif problem~="moving" then self:fail(problem) end
+    end
+end
+function EventState:trainerReady()
+    self:source(self.trainerStep.before,function()
+        local party,reason=self.game.trainers:launch(self.trainerToken)
+        if not party then self:fail(reason);return end
+        self.trainerLaunching=true
+        self.machine:change("battle",self.game:getPlayerPokemon(),party:active(),self.trainerNPC,party)
+    end)
 end

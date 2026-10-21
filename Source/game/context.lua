@@ -4,6 +4,8 @@ local TRANSITION_LOG_MAX <const> = 12
 local function startLocation() return {zone_id="reds_house_2f",x=5,y=3,facing="up"} end
 local function zoneKey(stableID)
     for key,zone in pairs(zoneRegistry) do if zone.stableID==stableID then return key end end
+    local provided=WorldDeltas.zoneKey(stableID)
+    if provided then return provided end
     error("unknown stable session zone: "..tostring(stableID))
 end
 local function newModel(context,seed)
@@ -26,7 +28,7 @@ function GameContext:init(options)
 end
 function GameContext:getSessionDependencies()
     assert(ItemData and ItemData.definitions,"production item definitions required")
-    return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,
+    return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
         resolveLocation=function(location,world) return WorldDeltas.resolveLocation(location,world,self.sessionLocationPolicy) end}
 end
 function GameContext:getPlayerPokemon() return self.session:activePokemon() end
@@ -73,7 +75,7 @@ end
 local function captureSettledTraversal(context)
     local player=context.player
     local position={zone_id=currentZone.stableID,x=player.gridX,y=player.gridY,facing=player.facing}
-    local ok,reason=context.session:captureTraversal({location=position,world=WorldDeltas.export()})
+    local ok,reason=context.session:captureTraversal({location=position,world=WorldDeltas.export(),actors=context.npcManager.motion:snapshot()})
     if not ok then return nil,reason end
     return SessionCodec.encode(context.session,{root="overworld",overworld="explore",settled=true})
 end
@@ -105,23 +107,27 @@ function GameContext:installSession(candidate)
     if not located then return false,tostring(key) end
     if not self.machine:get("overworld") then return false,"overworld state must be registered before install" end
     local previous={session=self.session,zone=currentZone,world=WorldDeltas.export(),rng=RulesRNG.toData(),
-        owner=GameSession.activeRNGSession(),story=Story.currentContext(),player=self.player}
+        owner=GameSession.activeRNGSession(),story=Story.currentContext(),player=self.player,actors=self.npcManager.motion:snapshot()}
+    local undoRuntime=WorldDeltas.checkpointRuntime()
     -- World owner validates/rolls back view rejection before session/RNG change.
-    local applied,error=pcall(WorldDeltas.apply,payload.world)
-    if not applied then return false,tostring(error) end
+    local applied,undoWorld=pcall(WorldDeltas.apply,payload.world)
+    if not applied then undoRuntime();return false,tostring(undoWorld) end
     local activated,activationError=candidate:activateRNG()
-    if not activated then WorldDeltas.apply(previous.world); return false,activationError end
-    self.session=candidate; Story.bind(self); switchZone(key)
-    local rebuilt,rebuildError=pcall(self.machine.change,self.machine,"overworld",{entry={x=location.x,y=location.y,facing=location.facing}})
+    if not activated then undoWorld();undoRuntime();return false,activationError end
+    self.session=candidate; Story.bind(self)
+    local rebuilt,rebuildError=pcall(function()
+        switchZone(key)
+        self.machine:change("overworld",{entry={x=location.x,y=location.y,facing=location.facing},actors=candidate:actorData()})
+    end)
     if rebuilt then return true end
     -- No arbitrary old coroutine resume: root controller can surface failure;
     -- restore durable owners and rebuild a safe previous overworld entry.
     candidate:deactivateRNG()
     if previous.owner then previous.owner:activateRNG() else RulesRNG.restoreData(previous.rng) end
     self.session=previous.session; currentZone=previous.zone; Story.bind(previous.story)
-    local restored,restoreError=pcall(WorldDeltas.apply,previous.world)
+    local restored,restoreError=pcall(function() undoWorld();undoRuntime() end)
     if restored and previous.player then
-        pcall(self.machine.change,self.machine,"overworld",{entry={x=previous.player.gridX,y=previous.player.gridY,facing=previous.player.facing}})
+        pcall(self.machine.change,self.machine,"overworld",{entry={x=previous.player.gridX,y=previous.player.gridY,facing=previous.player.facing},actors=previous.actors})
     end
     return false,tostring(rebuildError)..(restored and "" or "; world rollback failed: "..tostring(restoreError))
 end
@@ -134,9 +140,10 @@ end
 -- Explicit development fixture: replace the single fixture party, preserving
 -- starter acquisition history via the authoritative codec, never a loose owner.
 function GameContext:resetFixturePokemon(species,level)
-    local mon=Pokemon(species,level)
-    if self.session:party():count()==0 then return self:recruit(mon) end
-    assert(self.session:party():count()==1,"reset the whole fixture before replacing its player")
+    local count=self.session:party():count()
+    assert(count<=1,"reset the whole fixture before replacing its player")
+    local mon=assert(Specimen.createForSession(self.session,species,level,"debug"))
+    if count==0 then return self:recruit(mon) end
     local position = self.player and {zone_id=currentZone.stableID,x=self.player.gridX,y=self.player.gridY,facing=self.player.facing}
         or self.session:location()
     assert(self.session:captureTraversal({location=position,world=WorldDeltas.export()}))
@@ -150,7 +157,8 @@ function GameContext:resetFixturePokemon(species,level)
 end
 function GameContext:resetActiveLevelForDebug(level)
     local mon=assert(self:getPlayerPokemon(),"debug level requires a player")
-    local replacement=Pokemon(mon.species,level)
+    local replacement=Pokemon(mon.species,level,mon:attributes())
+    replacement.name=mon.name
     for key in pairs(mon) do mon[key]=nil end
     for key,value in pairs(replacement) do mon[key]=value end
     return mon

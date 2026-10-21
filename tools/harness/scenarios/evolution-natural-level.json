@@ -3,42 +3,42 @@
     {
       "op": "fixture",
       "options": {
-        "intro": "skip",
-        "opening": false,
-        "zone": "reds_house_2f",
-        "seed": 42,
-        "player_pokemon": {
-          "species": "charmander",
-          "level": 15
-        },
         "grant_xp": {
           "amount": 499
-        }
+        },
+        "intro": "skip",
+        "opening": false,
+        "player_pokemon": {
+          "level": 15,
+          "species": "charmander"
+        },
+        "seed": 42,
+        "zone": "reds_house_2f"
       }
     },
     "battle rattata 5",
     {
-      "op": "await",
-      "path": "battle.introPhase",
       "equals": "ready",
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "battle.introPhase"
     },
     "wait 12",
     "press a",
     {
-      "op": "await",
-      "path": "battle.phase",
       "equals": "command",
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "battle.phase"
     },
     {
       "op": "fixture",
       "options": {
         "adjust_battle": {
           "enemy_pp": {
+            "quickAttack": 0,
             "tackle": 35,
-            "tailWhip": 0,
-            "quickAttack": 0
+            "tailWhip": 0
           }
         }
       }
@@ -46,160 +46,213 @@
     "seed 1",
     "press a",
     {
-      "op": "await",
-      "path": "battle.inMoveSelect",
       "equals": true,
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "battle.inMoveSelect"
     },
     "press down",
     "press a",
-    "wait 12",
-    "press a",
-    "wait 12",
-    "press a",
-    "wait 12",
-    "press a",
-    "wait 12",
-    "press a",
-    "wait 12",
-    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CHARMANDER used EMBER!",
+      "frames": 240
+    },
     "wait 12",
     "press a",
     {
       "op": "await",
-      "path": "root",
-      "equals": "learning",
-      "frames": 180
+      "path": "battle.enemy.hp",
+      "equals": 0,
+      "frames": 240
     },
-    {
-      "op": "assert",
-      "path": "learning.phase",
-      "equals": "ask"
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.level",
-      "equals": 16
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.species",
-      "equals": "charmander"
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.pending_evolution",
-      "equals": true
-    },
+    "wait 12",
+    "press a",
     {
       "op": "await",
-      "path": "learning.dialog_ready",
+      "path": "battle.message",
+      "equals": "RATTATA fainted!",
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.waiting",
       "equals": true,
-      "frames": 180
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "pokemon.level",
+      "equals": 16,
+      "frames": 240
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CHARMANDER grew to Lv16!",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_moves",
+      "equals": 1
+    },
+    "wait 12",
+    "press a",
+    {
+      "equals": "learning",
+      "frames": 180,
+      "op": "await",
+      "path": "root"
+    },
+    {
+      "equals": "ask",
+      "op": "assert",
+      "path": "learning.phase"
+    },
+    {
+      "equals": 16,
+      "op": "assert",
+      "path": "pokemon.level"
+    },
+    {
+      "equals": "charmander",
+      "op": "assert",
+      "path": "pokemon.species"
+    },
+    {
+      "equals": true,
+      "op": "assert",
+      "path": "pokemon.pending_evolution"
+    },
+    {
+      "op": "await",
+      "path": "learning.input_blocked",
+      "equals": false,
+      "frames": 240
     },
     "shot evolution-old-move-first",
     "press down",
     "press a",
     {
+      "equals": "stop",
       "op": "assert",
-      "path": "learning.phase",
-      "equals": "stop"
+      "path": "learning.phase"
     },
     "press a",
     {
-      "op": "await",
-      "path": "learning.dialog_ready",
       "equals": true,
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "learning.dialog_ready"
     },
     "press a",
     {
       "op": "await",
       "path": "root",
-      "equals": "evolution",
-      "frames": 180
-    },
-    {
-      "op": "assert",
-      "path": "evolution.phase",
-      "equals": "announce"
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.species",
-      "equals": "charmander"
+      "equals": "battle",
+      "frames": 240
     },
     {
       "op": "await",
-      "path": "evolution.dialog_ready",
+      "path": "battle.phase",
+      "equals": "ended",
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    {
+      "equals": "evolution",
+      "frames": 180,
+      "op": "await",
+      "path": "root"
+    },
+    {
+      "equals": "announce",
+      "op": "assert",
+      "path": "evolution.phase"
+    },
+    {
+      "equals": "charmander",
+      "op": "assert",
+      "path": "pokemon.species"
+    },
+    {
       "equals": true,
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "evolution.dialog_ready"
     },
     "shot evolution-charmander-before",
     {
-      "op": "await",
-      "path": "evolution.dialog_ready",
       "equals": true,
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "evolution.dialog_ready"
     },
     "press a",
     {
+      "equals": "animate",
       "op": "assert",
-      "path": "evolution.phase",
-      "equals": "animate"
+      "path": "evolution.phase"
     },
     "record evolution-charmander-frames 120",
     "wait 24",
     {
-      "op": "await",
-      "path": "evolution.done",
       "equals": true,
-      "frames": 180
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.species",
-      "equals": "charmeleon"
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.hp",
-      "equals": 44
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.pp.ember",
-      "equals": 24
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.pending_evolution",
-      "equals": false
-    },
-    {
-      "op": "assert",
-      "path": "pokemon.pending_moves",
-      "equals": 0
-    },
-    {
+      "frames": 180,
       "op": "await",
-      "path": "evolution.dialog_ready",
+      "path": "evolution.done"
+    },
+    {
+      "equals": "charmeleon",
+      "op": "assert",
+      "path": "pokemon.species"
+    },
+    {
+      "equals": 44,
+      "op": "assert",
+      "path": "pokemon.hp"
+    },
+    {
+      "equals": 24,
+      "op": "assert",
+      "path": "pokemon.pp.ember"
+    },
+    {
+      "equals": false,
+      "op": "assert",
+      "path": "pokemon.pending_evolution"
+    },
+    {
+      "equals": 0,
+      "op": "assert",
+      "path": "pokemon.pending_moves"
+    },
+    {
       "equals": true,
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "evolution.dialog_ready"
     },
     "shot evolution-charmeleon-after",
     {
-      "op": "await",
-      "path": "evolution.dialog_ready",
       "equals": true,
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "evolution.dialog_ready"
     },
     "press a",
     {
-      "op": "await",
-      "path": "root",
       "equals": "overworld",
-      "frames": 180
+      "frames": 180,
+      "op": "await",
+      "path": "root"
     }
   ],
   "outputs": [

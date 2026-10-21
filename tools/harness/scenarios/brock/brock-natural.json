@@ -1,0 +1,10 @@
+{
+  "journey": {
+    "name": "brock-natural",
+    "starter": "squirtle",
+    "seed": 42,
+    "max_actions": 20000,
+    "max_steps": 5000,
+    "max_encounters": 64
+  }
+}

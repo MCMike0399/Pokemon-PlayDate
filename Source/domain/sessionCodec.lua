@@ -50,7 +50,7 @@ local function normalize(record,deps)
     deps=GameSession._dependencies(deps)
     local data=copy(record)
     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true})
+        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true})
     assert(data.version==SessionCodec.VERSION and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
     object(data.title,{playerName=true,rivalName=true})
     assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
@@ -63,6 +63,10 @@ local function normalize(record,deps)
     local location=GameSession._location(deps,data.location,world)
     local checkpoint=GameSession._location(deps,data.checkpoint,world)
     local rng=GameSession._rngData(data.rng)
+    local motion=data.worldMotion
+    if motion==nil then motion={version=1,rng=WorldMotionData.newWorldRNG(rng):toData(),actors=WorldMotionData.empty()}end
+    object(motion,{version=true,rng=true,actors=true});assert(motion.version==1,"unsupported world motion version")
+    motion={version=1,rng=GameSession._rngData(motion.rng),actors=GameSession._validateActors(deps,motion.actors,world,location,{quest=quests,trainers=trainers})}
     object(data.party,{version=true,active=true,members=true})
     assert(data.party.version==1,"unsupported-party-version"); array(data.party.members,6)
     data.party.active=integer(data.party.active,#data.party.members>0 and 1 or 0,#data.party.members)
@@ -87,7 +91,7 @@ local function normalize(record,deps)
     for _,slot in ipairs(data.inventory.slots) do object(slot,{id=true,quantity=true}) end
     assert(Inventory.fromData(deps.itemDefinitions,data.inventory),"invalid inventory")
     return {deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
-        location=location,checkpoint=checkpoint,rng=rng}
+        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion}
 end
 function SessionCodec.encode(session,gate)
     local ok,result=pcall(function()
@@ -104,6 +108,7 @@ function SessionCodec.encode(session,gate)
             title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
+            worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
             party=assert(current.party:toData(unique)),storage=assert(current.storage:toData(unique)),inventory=current.inventory:toData()}
         normalize(data,current.deps)
         return data
@@ -121,9 +126,11 @@ function SessionCodec.decode(record,deps)
         local party=assert(Party.fromData(prepared.data.party,function(value) return pokemonFromWire(value,true) end))
         local storage=assert(Storage.fromData(prepared.data.storage,function(value) return pokemonFromWire(value,true) end))
         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
-        return GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,intro=prepared.intro,
+        local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,intro=prepared.intro,
             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
             location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng})
+        session:_installWorldMotion(prepared.worldMotion)
+        return session
     end)
     if not ok then return nil,tostring(result) end
     return result

@@ -1,0 +1,179 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "squirtle",
+          "level": 6
+        },
+        "grant_xp": {
+          "amount": 56
+        },
+        "trainer_name": "LEARNING TEST",
+        "enemy_party": [
+          {
+            "species": "rattata",
+            "level": 5
+          },
+          {
+            "species": "geodude",
+            "level": 5
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 240
+    },
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 240
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_hp": 1,
+          "enemy_status": "sleep",
+          "enemy_status_turns": 3,
+          "enemy_sleep_duration": 3
+        }
+      }
+    },
+    "seed 42",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 240
+    },
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    "wait 12",
+    "hold a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "learning",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "learning.phase",
+      "equals": "message"
+    },
+    {
+      "op": "assert",
+      "path": "learning.input_blocked",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.species",
+      "equals": "rattata"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.level",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.bubble",
+      "equals": 30
+    },
+    "shot midbattle-bubble-held-entry",
+    "wait 20",
+    {
+      "op": "assert",
+      "path": "learning.phase",
+      "equals": "message"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.species",
+      "equals": "rattata"
+    },
+    "release a",
+    "wait 2",
+    {
+      "op": "assert",
+      "path": "learning.input_blocked",
+      "equals": false
+    },
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "battle",
+      "frames": 240
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.species",
+      "equals": "geodude"
+    },
+    "shot midbattle-bubble-next-enemy",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 240
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 240
+    },
+    "press down",
+    "press a",
+    {
+      "op": "assert",
+      "path": "battle.current_move",
+      "equals": "bubble"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.bubble",
+      "equals": 29
+    },
+    "record midbattle-bubble-attack 32",
+    "wait 32",
+    "shot midbattle-bubble-used-against-enemy2"
+  ],
+  "outputs": []
+}

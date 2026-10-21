@@ -6,107 +6,130 @@ owned task handoffs before changing files. Do not repeat the original audit.
 
 ## Current checkout / next continuation
 
-**New explicit user decision:** add Gen V abilities, held items and natures for
-the original151. This is required full-goal scope, not optional polish. Keep world/
-story/art/roster constraints. See fidelity-ledger.md; plan persistence, specimen
-generation/evolution, UI/acquisition and battle-event integration before enabling.
+Push checkpoint after `6b37c78`: integrated Pewter, specimen attributes, NPC
+motion, midbattle learning/medicine and held-item menus. The user requested a push
+of the current checkout; this ledger describes that checkpoint. Full campaign
+unfinished. Three existing workers remain explicitly Sol6.1/medium; no
+inherited/substituted model/effort. Runtime lists statuses but no resolved-model
+metadata. Root alone owns Simulator; no root runtime is currently running.
 
+`/private/tmp/pokemon-motion-held-integrated-01` finished **516/516 SDK and7/7
+jobs PASS**, including held Give/Take/INFO, full-bag cases, actual held Save/Continue,
+battle medicine and PC restart. All484 source-manifest entries match the live
+checkout exactly. Native Party/Bag/INFO captures were independently inspected.
+[Durable proof](observed-pewter-foundation/motion-held-integrated.json) includes
+the archived suite, traces, screenshots and identities. Production compile and
+13 specimen-generator/Brock-policy host cases pass at checkpoint. NPC02 staged
+489/489 and held staged497/497 also passed before composition. Expanded default
+catalog, motion real-input recipes and early16 ability effects remain staged;
+they are not part of this pushed implementation or acceptance claim.
+Natural03 is terminal: trainer1/medicine/learning/payout succeeded, then cached
+actor target became stale after a battle rebuilt NPCs. Root target+path now both
+replan after every real step;7 host policy/replanning cases pass. Natural04 pending. No worker
+may launch a runtime. No physical-device validation has been performed.
 
-Current push checkpoint follows `b114145` (the earlier connected-world push).
-Root stopped all three workers to freeze this checkout for the user's request to
-push current work to main. No Simulator session remains running. Worker settings
-remain the explicitly requested gpt-6.1-sol/medium; runtime exposes status but no
-resolved-model field. No physical-device validation has been performed.
+**Required user scope:** add abilities, held items and natures for original151,
+with GenV/B2W2 behavior; preserve Kanto/world/story/art/noFairy/noMega identity.
+Nature/slot/held persistence is now integrated, but battle effects and acquisition work
+remain required. Held Give/Take and nature/ability/item INFO are integrated. A data record does not prove its battle effect exists.
 
-Live Source now includes **PC storage and evolution**, merged together with the
-previous connected Viridian campaign slice. Root's frozen-source integration
-suite passed **381/381 SDK contracts and 7/7 runtime jobs**, including a real
-two-process PC deposit→box save→Continue→withdraw and five evolution scenarios.
-All live Source files match the tested tree except generated harness overlays.
-Durable [PC/evolution evidence](accepted-pc-evolution/acceptance.json) includes the
-suite, captures, traces, source hashes and compressed runtime evidence. Root
-reviewed actual PC panels and evolution before/after/cancel/stone/new-move scenes.
-The five evolution recipes now await complete dialog text and request 120-frame
-captures; these host-only refinements need a rerun before claiming longer motion
-review. The tested original recipes are preserved inside the evidence archive.
+Live implementation after the push:
 
-PC preserves owned identity, HP/status/PP and move slots through twelve boxes,
-last-member/last-usable guards, explicit release confirmation and guarded box save.
-Evolution covers original151 level/stone relationships, cancellation, old/new
-species learning order and pending state. Codec4 deliberately accepts older3
-records. Trade evolution has an internal hook; no link availability is claimed.
+- Source-backed Route2, Forest south/north gates, Forest, PewterCity/Gym/Mart/Center
+  connected to the prior Route1/Viridian slice. ImportedMaps has LRU2 zones,
+  compact terrain and sparse durable deltas. Existing6authored+4Viridian eager
+  maps remain interim; no device capacity claim. Save/checkpoint validation is
+  pure and install restores actual view/registry/session/RNG on failure.
+- Source five-trainer definitions, approach/exclamation/original walk art,
+  canonical defeat flags/payouts; lab175 payout/heal-after-either exception;
+  normal blackout halves money once; Brock badge/TM34 full-bag retry. Source NPC
+  wandering is integrated with separate persisted world RNG, current-map actor
+  snapshots, overlay pause and explicit legacy migration. Original continuous
+  map scrolling remains unfinished. Native motion journeys still await root runs.
+- Healing OAM draws over the real source machine, explicit Viridian/Pewter
+  matching anchors; flash-off/cancel restores map. Source palette-flash behavior
+  remains an approximation requiring later work. Pure EventState.observe no
+  longer consumes the trainer receipt; EventState.enter claims it once.
+- Midbattle LearningState suspends real battle coroutine before next opponent,
+  with one-shot receipts and held-input release guard; old/new species learning
+  still brackets evolution correctly. Battle medicine uses existing Items,
+  exact one enemy action/residual boundary, guarded party/move selection.
+- Specimen phase1: Codec5 deliberately migrates3/4 to Hardy/first/none; stores
+  independent nature/first-second-hidden slot/held canonical ID, derives ability
+  from species+slot; preserves attributes across evolution/learning/storage/save.
+  Creation uses planned RNG; trainer team/encounter aggregate rollback. IV0/EV0
+  remains unfinished fidelity work. **Root ownership repair integrated:** active-session production creator
+  wrappers; inactive trainer contexts and failed multi-member debug replacement
+  reject without draws; stale Story/Debug callbacks guarded.
 
-Previous integrated work remains: source-backed Route1/ViridianCity/Mart/Center,
-explicit slice save policy, traversal/counters/ledges, parcel/Oak/BLUE/Pokédex151,
-shop/healing/checkpoint, capture animation and six early B2W2 move corrections
-plus seed/trap/hazards/Toxic dependencies. Dialog generation distinguishes chained
-instances. Display names remain ASCII where required by the current font.
+Root validation/evidence:
 
-Prior independently accepted checkpoints:
+- PC+Evolution original pushed proof:381/381 SDK,7/7 jobs, actual two-process PC
+  deposit/save/Continue/withdraw; [durable archive](accepted-pc-evolution/acceptance.json).
+- Provider/healing/pure receipt integration409/409 SDK, then learning429/429,
+  then medicine438/438. Root inspected real healing1/2/6/camera/restoration,
+  Pewter interior/gate/native outdoor crops and all8medicine UI captures.
+- Frozen12-job `/private/tmp/pokemon-pewter-learning-medicine-integrated-01`:
+  8pass/4recipe failures. Source contracts438, medicine5cases, Bubble learning,
+  PC restart and4evolution recipes pass. Original4failures preserved.
+- Root trace found brittle message counts in Charmander learning recipes; narrow
+  host repair preserves all downstream held/replacement/back/refusal assertions.
+  `/private/tmp/pokemon-learning-recipes-integrated-02`:4/4PASS. Root inspected
+  held-entry/replacement/enemy2 and120-frame evolution/result evidence.
+- Specimen staged461/461 and ordinary integrated461/461 SDK pass:
+  `/private/tmp/pokemon-specimen-attributes-sdk-01`,
+  `/private/tmp/pokemon-specimen-integrated-01`. Ordinary suite no longer depends
+  on private startup probe. Primary data generated check passes against pinned
+  `/private/tmp/pokemon-specimen-attributes/references` plus items cache.
+  Portable generator tests now split6 synthetic units from explicit full-source
+  qualification. Root12 unit cases (specimen+evolution) pass; primary source
+  qualification passed root explicit-cache check:10pins/151species/111abilityIDs/
+  25nature comparisons/124items;49holdable, generated data exact.
+- Ownership followup `/private/tmp/pokemon-specimen-ownership-sdk-01`:470/470
+  SDK PASS. Root reviewed11narrow Lua hunks, integrated exact bytes/main hook;
+  every Source file matches the proved tree except generated harness overlays.
+  Production compile passes. No extra private startup probe.
+- Brock host/diagnostics/restart driver installed narrowly;24new +29compatible
+  root host tests PASS without skips. Actual source trainer1 battle/payout/repeat
+  PASS `/private/tmp/pokemon-brock-source-1-native-01`. Natural Brock attempts remain incomplete;
+  no Brock natural/restart acceptance yet.
+- All1635 protected static images EXACT after provider/medicine merge;25provider
+  additions remain unreviewed in old default catalog. Provider isolated300-image
+  probe passes360 contracts and284 independent exact pixel checks. Comprehensive
+  default aggregation still staged. No silent baseline regeneration.
+- [Durable observed foundation evidence](observed-pewter-foundation/evidence.json)
+  preserves6runs, including failures and their repaired reruns; Source/PDX
+  excluded but source/build identities, traces, captures and manifests retained.
 
-- [Early combat](accepted-early-combat/acceptance.json):335/335 SDK,6/6 jobs;
-  original915 static artifacts exact. No complete GenV mechanics claim.
-- [Natural parcel](accepted-parcel-functional/evidence.json): seed42 initial reset
-  only, real starter/BLUE win, wild encounters, parcel/Oak/BLUE/Pokédex, shopping,
-  nurse decline/accept and save. Root inspected actual scenes and BLUE motion.
-- [Connected world](accepted-connected-world/acceptance.json):337/337 SDK,9/9
-  functional jobs; final capture-export proof338/338.42 native protocol cases,
-  full-bag retries, quest visibility/checkpoints, real Viridian Save/Continue.
-  Restart PIDs97153→97208 preserved exact save hash and scene pixels.
-- Reviewed static baseline1635 in `catalog-viridian/` preserves original915.
-  Independent35 EventArt and50 capture/jump comparisons pass. Capture export uses
-  a clear logical mask and white-canvas materialization to preserve hidden RGB.
-- [World profiling](observed-world-profile/evidence.json):6 Simulator cycles,
-  four-map install165ms, postGC9179KiB, City views8–12ms/676sprites. Observer growth
-  prevents a leak conclusion. No device capacity claim. SDK numeric isSimulator
-  reporting was repaired for future samples.
+Next executable work: run/inspect source motion and true midstep Continue; finish natural Brock; source five trainers,
+full-bag retry/blackout/sight and true Brock Save/Continue. Review/integrate source
+catalog candidate and exact protected comparisons. Finish ownership/host test
+followups, actual GenV ability/item effects and acquisition, then finish every
+later campaign/postgame milestone.
 
-Current checkpoint validation: native production compile and `git diff --check`
-pass. Generator host tests:103 run,4 skipped by existing source/cache conditions.
-Older broader host/protocol qualification remains documented in the accepted
-checkpoints; no newly merged specimen or provider implementation is claimed.
+Current staged ownership:
 
-Unmerged worker packets are preserved in
-[checkpoint handoffs](../plans/paused-handoffs/README.md), with SHA-256 manifest.
-Restore named packets under `/private/tmp`, verify manifests, and apply only
-reviewed narrow hunks. Do not overwrite current context/codec/battle/UI with stale
-candidate copies. Reference caches are excluded; fetch/check pinned inputs.
+| Worker | Packet / remaining scope |
+|---|---|
+| harness | `pokemon-brock-journey-main6b37` installed; NPCMotion/legacy/view repair integrated; motion recipes/true midstep restart pending. |
+| rules_contracts | `pokemon-specimen-attributes` + followup01 integrated; phase2 Give/Take/UI integrated; early16 battle ability effects staged for root qualification. |
+| visual_catalog | `pokemon-comprehensive-catalog`: staged2494 inventory + source oracle; catalog guard followup and normal runner qualifier await integration. MtMoon six-map research packet staged. |
 
-- Pewter provider/trainer: `pokemon-pewter-runtime-candidate-03` passes root's
-  **360/360 SDK** staged probe;300 isolated catalog images exported and284 exact
-  independent pixel checks pass. Actor/event composites still require root visual
-  review. LRU2 imported maps, pure save validation and actual install rollback.
-  `EventState.observe` currently consumes a trainer receipt: a separate pure
-  observation repair was requested but is not accepted or integrated.
-- Brock journey: `pokemon-brock-journey`,22 new host tests plus29 compatible
-  existing tests pass. Natural driver and supplementary recipes are frozen;
-  native journey awaits provider/learning integration. No Brock completion claim.
-- Healing: `pokemon-healing-presentation`, latest root staged probe
-  `/private/tmp/pokemon-healing-presentation-sdk-02` passes385/385 contracts with
-  required14 images exported. Those images await root review and the three owned
-  files remain unmerged. Old342 probe's missing-export defect is repaired.
-  Original EventArt stays unchanged; source palette-flash refinement remains.
-- Midbattle learning: `pokemon-battle-learning-contract-followup`,18 learning
-  groups plus2 evolution integration groups compiled, native run pending. Real
-  one-shot learning receipts suspend before next enemy; release gate prevents
-  accidental held-input choices. Preserve provider trainer-finish ownership.
-- Battle medicine: `pokemon-battle-items`, frozen compiled packet with9 groups
-  and5 input scenarios/8 required panels. Native proof and merge remain pending.
-- GenV specimen traits: `pokemon-specimen-attributes` is unfinished staged work,
-  NOT installed. Source proposal is in `pokemon-specimen-attributes-audit`.
-  Approved direction: Codec5 migrates3/4 to Hardy/first/none; persistent independent
-  nature and first/second/hidden ability slot, species-derived ability identity,
-  explicit atomic generation RNG, canonical holdable IDs. Existing IV0/EV0 remains
-  an explicit unfinished fidelity issue. Battle effects and item acquisition are
-  subsequent required work, not established by data-only generation.
-- Catalog aggregation: `pokemon-runtime-catalog` and `pokemon-catalog-registry`
-  contain staged work. Comprehensive provider registration was being designed;
-  full native/default aggregation and protected1635 comparisons remain pending.
+Historical handoffs in [checkpoint archives](../plans/paused-handoffs/README.md)
+are not instructions to overwrite current shared files. Their latest root merges
+preserve PC, Evolution, trainer, medicine and learning owners. Newer `/private/tmp`
+followups must be archived at the next accepted checkpoint.
 
-Continue by validating/reviewing these candidates, merging narrow shared-file
-hunks and running integrated SDK/journeys with actual image inspection. Finish
-Pallet–Brock, then every remaining campaign/postgame milestone. The full campaign
-remains unfinished; abilities, held items and natures are required user scope.
+Prior accepted connected-world evidence remains:
+[early combat](accepted-early-combat/acceptance.json)335SDK/6jobs;
+[natural parcel](accepted-parcel-functional/evidence.json) seed42 initial reset
+only through actual Oak/BLUE/Pokédex/shop/nurse/save;
+[connected world](accepted-connected-world/acceptance.json)337SDK/9functionaljobs,
+final export338SDK,42protocol cases and actual Viridian two-process restart.
+Reviewed baseline1635 preserves original915;35EventArt and50capture/jump oracle
+comparisons pass. [Profiling](observed-world-profile/evidence.json):4map install165ms,
+postGC9179KiB, City8–12ms/676sprites,6cycles with observer growth; not leak/device
+proof. SDK numeric isSimulator handling repaired for future samples.
 
 ## Accepted milestone: harness and protected references
 

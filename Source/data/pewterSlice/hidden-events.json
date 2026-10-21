@@ -1,0 +1,59 @@
+{
+  "events": [
+    {
+      "argument_source": "SPRITE_FACING_UP",
+      "handler_source": "GymStatues",
+      "id": "pokered:PEWTER_GYM:hidden:1",
+      "map_id": "pokered:PEWTER_GYM",
+      "status": "requires explicit hidden/PC/statue binding",
+      "x": 3,
+      "y": 10
+    },
+    {
+      "argument_source": "SPRITE_FACING_UP",
+      "handler_source": "GymStatues",
+      "id": "pokered:PEWTER_GYM:hidden:2",
+      "map_id": "pokered:PEWTER_GYM",
+      "status": "requires explicit hidden/PC/statue binding",
+      "x": 6,
+      "y": 10
+    },
+    {
+      "argument_source": "SPRITE_FACING_LEFT",
+      "handler_source": "PrintBenchGuyText",
+      "id": "pokered:PEWTER_POKECENTER:hidden:1",
+      "map_id": "pokered:PEWTER_POKECENTER",
+      "status": "requires explicit hidden/PC/statue binding",
+      "x": 0,
+      "y": 4
+    },
+    {
+      "argument_source": "SPRITE_FACING_UP",
+      "handler_source": "OpenPokemonCenterPC",
+      "id": "pokered:PEWTER_POKECENTER:hidden:2",
+      "map_id": "pokered:PEWTER_POKECENTER",
+      "status": "requires explicit hidden/PC/statue binding",
+      "x": 13,
+      "y": 3
+    },
+    {
+      "argument_source": "POTION",
+      "handler_source": "HiddenItems",
+      "id": "pokered:VIRIDIAN_FOREST:hidden:1",
+      "map_id": "pokered:VIRIDIAN_FOREST",
+      "status": "requires explicit hidden/PC/statue binding",
+      "x": 1,
+      "y": 18
+    },
+    {
+      "argument_source": "ANTIDOTE",
+      "handler_source": "HiddenItems",
+      "id": "pokered:VIRIDIAN_FOREST:hidden:2",
+      "map_id": "pokered:VIRIDIAN_FOREST",
+      "status": "requires explicit hidden/PC/statue binding",
+      "x": 16,
+      "y": 42
+    }
+  ],
+  "schema": 1
+}
