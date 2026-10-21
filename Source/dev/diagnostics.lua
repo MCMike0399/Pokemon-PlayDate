@@ -13,6 +13,8 @@ local function pokemon(mon)
         hp = mon.hp, maxHP = mon.maxHP, xp = mon.xp, status = mon.status or "none",
         statusTurns = mon.statusTurns, sleepDuration = mon.sleepDuration or 0, confusion = mon.confusion or 0,
         flinched = mon.flinched or false, pp = pp, maxPP = maxPP, moves = moves,
+        pending_evolution = mon.pendingEvolution ~= nil,
+        pending_evolution_level = mon.pendingEvolution and mon.pendingEvolution.level or 0,
         pending_moves = #mon:getPendingMoveChoices(), pending_choices = mon:getPendingMoveChoices() }
 end
 local function menu(value)
@@ -45,6 +47,8 @@ function HarnessDiagnostics.snapshot(game)
     for id in pairs(ItemData.definitions) do inventory.quantities[id] = game.session:inventory():quantity(id) end
     return {
         display = HarnessCapture.display(),
+        pc = root:get("pc"):getSnapshot(),
+        evolution = root:get("evolution"):getSnapshot(),
         frame = { tick = HarnessCapture.tick, phase = HarnessCapture.phase },
         root = root:getCurrent(), stack = root:stackNames(),
         overworld = world.sub:getCurrent(), zone = getCurrentZoneKey(),

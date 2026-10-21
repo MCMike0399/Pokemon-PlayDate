@@ -1,3 +1,4 @@
+import "data/evolutionData"
 import "data/pokemonNames"
 import "data/growthData"
 import "domain/growth"
@@ -3713,6 +3714,7 @@ function Pokemon:init(species, level)
     self.xpToNext = self:xpForLevel(math.min(100, level + 1))
     self.moves = Pokemon.initialMovesFor(species, level)
     self.pp = {}
+    self.pendingEvolution = nil -- Only an actual level gain can create a durable event.
     self.pendingMoveChoices = {}
     self.nextMoveChoiceId = 1
     for _, moveKey in ipairs(self.moves) do
@@ -3820,6 +3822,16 @@ function Pokemon:gainXP(amount)
         self.nextMoveChoiceId = self.nextMoveChoiceId + 1
         self.pendingMoveChoices[#self.pendingMoveChoices + 1] = choice
         result.moveChoices[#result.moveChoices + 1] = copyChoice(choice)
+    end
+    if self.level > oldLevel then
+        self.pendingEvolution=nil
+        for _, rule in ipairs(EvolutionData.rules[self.species] or {}) do
+            if rule.trigger=="level" and self.level>=rule.minimum then
+                self.pendingEvolution={species=self.species,level=self.level}
+                result.evolution={species=self.species,level=self.level}
+                break
+            end
+        end
     end
     return self.level > oldLevel, result
 end

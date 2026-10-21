@@ -1,6 +1,7 @@
-# Paused implementation handoffs
+# Implementation checkpoint handoffs
 
-These archives preserve unfinished worker candidates at the user-requested pause.
+These archives preserve worker candidates when freezing current work for a push.
+Some earlier candidates are now integrated; consult the current ledger before use.
 They are **not integrated production code** and do not establish full-game completion.
 See [the execution ledger](../../validation/progress.md) for each proof and limitation.
 

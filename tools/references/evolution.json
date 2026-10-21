@@ -1,0 +1,433 @@
+{
+  "schema": 1,
+  "pkhex_revision": "d2fea14b563f4b16fef7788b9699b20d5b3f410f",
+  "game": "B2W2, original151 graph",
+  "inputs": {
+    "PKHeX.Core_Legality_Evolutions_EvolutionSet.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Legality/Evolutions/EvolutionSet.cs",
+      "sha256": "c0558ae2b6806f8df9f1bece912704dd211ec0791ec23191fabf9e517a7bbeb9"
+    },
+    "PKHeX.Core_Legality_Evolutions_EvolutionTree.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Legality/Evolutions/EvolutionTree.cs",
+      "sha256": "ed269d0cbd85851732f848bfe0b4b29fdc6a36b445a589a59e62d3cb30ac88c7"
+    },
+    "PKHeX.Core_Legality_Evolutions_Methods_EvolutionMethod.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Legality/Evolutions/Methods/EvolutionMethod.cs",
+      "sha256": "9a68093246f0e56d0f9be7f714cf8706ec1eb221769fbfda4c1ba8bc4462073e"
+    },
+    "PKHeX.Core_Legality_Evolutions_Methods_EvolutionType.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Legality/Evolutions/Methods/EvolutionType.cs",
+      "sha256": "2420c54cf354aab6c29df2cca3f9ff138a6b405d83f7c5de2f81fccf84e571c6"
+    },
+    "evos_g5.pkl": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Resources/byte/evolve/evos_g5.pkl",
+      "sha256": "40a415c1febd807cd6e82b1bece71d7dcd724c7a17f03d9117af67304023479f"
+    },
+    "PKHeX.Core_Legality_LearnSource_Sources_LearnSource5B2W2.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Legality/LearnSource/Sources/LearnSource5B2W2.cs",
+      "sha256": "7e2a2f1b3906aea13050e33b7888ce23f20e5befcad74e8daa39f3148f6e5869"
+    },
+    "PKHeX.Core_Legality_Assets_BinLinkerAccessor16.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Legality/Assets/BinLinkerAccessor16.cs",
+      "sha256": "2353665981a406cc7f4d81c46e48a2d3f30eb4f6b92a890a4dc6e731ac0d812a"
+    },
+    "items.csv": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/2bf639e5572812a67d2b94903fdcb9d095f5aeb2/data/v2/csv/items.csv",
+      "sha256": "f08cd6dc30b447cb91cbe9232c79052e8521f32f6105bb1489b5bfabf4ca3241"
+    },
+    "src_ov166_event_battle_return.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov166/event_battle_return.c",
+      "sha256": "6165ec0229b0c67201e489226b9ae215aaf1bd5fa69fbdf441943ca730adc68e"
+    },
+    "include_pml_evolution.h": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/pml/evolution.h",
+      "sha256": "1957dfcb6739bf39f1ee024a1e4597b6e5b06b132ba5321a36f3582d5cd410d1"
+    },
+    "src_ov165_plist_battle.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_battle.c",
+      "sha256": "a5bd04aa2263eda3b4323cb6d1ab8a2770ca1fa3c7f4e302bb1eba408ae15495"
+    },
+    "src_system_pokeparty.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/pokeparty.c",
+      "sha256": "23c7e705009952855e74c7ce1d072188796b35b10e1f883a8242cccda2d22c82"
+    },
+    "include_pml_poke_party.h": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/pml/poke_party.h",
+      "sha256": "c888cb94afe673151678ad8211b4eb97e2302481ab88d3a0c97ef8739e74ba04"
+    },
+    "src_ov284_shinka_demo.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov284/shinka_demo.c",
+      "sha256": "98f01c4b0f184bdb3ea32f874b3d21538d1547d2910fb85e24b0cf138d492519"
+    },
+    "src_system_shinka_check.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/shinka_check.c",
+      "sha256": "f647a0c3895d334e60fd0b2dee9d6d823c070635bbe9edff5107df9f3816fbfd"
+    },
+    "include_demo_shinka_demo.h": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/demo/shinka_demo.h",
+      "sha256": "3bee6e476da14cf47affc8ca9e3b5b8dc7f168ca894813553ab17335749e50a2"
+    },
+    "src_ov284_shinka_demo_view.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov284/shinka_demo_view.c",
+      "sha256": "002f246b9811aab9a113b5e2ef61f7ef7fe6ef4cd4bebdbcb88789f5ac7a6aa0"
+    },
+    "src_ov167_btl_pokeparam.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_pokeparam.c",
+      "sha256": "f32695f748a235d17ad24557d929a74f00068f1aa3913f13974a0a9290dca452"
+    },
+    "src_system_poke_tool.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_tool.c",
+      "sha256": "8964093175e250425e22e442f3d977ae689fd235e4810fc0d2fffefcb2cbbad7"
+    },
+    "src_system_poke_personal.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_personal.c",
+      "sha256": "4ce6fbe848b05eaa5996b06140fe6c365d13146c2816ae83979fa5ac924cdfbd"
+    },
+    "src_system_waza_tool.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/waza_tool.c",
+      "sha256": "15b9e76f587b636b31f2f6acee8b1e6f38523c950bea86209a6acad91deb5696"
+    },
+    "include_battle_btl_setup.h": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/battle/btl_setup.h",
+      "sha256": "b05991e23eaa3ff5add0b2b3cfbce95c56dc2a06b7669f41b13247192bb08798"
+    },
+    "src_ov167_btl_server_flow.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow.c",
+      "sha256": "f1498c627ae38274d7ecfd0e1f50585958753e1f876f71a5eac6633972066909"
+    },
+    "src_ov167_btl_server_flow_sub.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow_sub.c",
+      "sha256": "224b984bfeb441a1761cb82cf11447b2507beda8a6e5644d1bbbf19cd9f9736a"
+    },
+    "src_ov167_btl_server_cmd.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_cmd.c",
+      "sha256": "cbdd1fe43580b9fb3b41ee328a77cc2ec5b1e45ad68c729848e875e92d77ccac"
+    },
+    "src_ov167_btl_main.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_main.c",
+      "sha256": "4a94eb399501b1eda6cd1fce05870eec9e481296bdd1bfc7904a5cd159d7b9dc"
+    },
+    "src_ov167_btl_client.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_client.c",
+      "sha256": "cfdcdf4a268d0b64be7307f93227c65eec333922e4bec8aa79b8b2c84661eddf"
+    },
+    "src_ov167_btl_server.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server.c",
+      "sha256": "354e79c9c471dab28b650743a8bbd42e0e7e1f6b9e0458ac1263c4dd04ba7e78"
+    },
+    "src_ov169_btl_tables.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov169/btl_tables.c",
+      "sha256": "28459a298d6a7363d535d71db1e73daca7bf9531098bf2d154dc446cf54108ca"
+    },
+    "src_ov167_btl_net.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_net.c",
+      "sha256": "c9a76c2aa57a0cf90b1a7989af59f2941e1de2259066218a2a0f0e41b5bedf0f"
+    },
+    "src_system_btl_setup.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/btl_setup.c",
+      "sha256": "246410185a9edaf7312f15a34f79435bc02243b61daa848f77d05af06f3c1286"
+    },
+    "src_ov165_plist_item.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_item.c",
+      "sha256": "c632991e53ee3dc97f0db9e4ef2b327b87408d9a5069edde9ecd2b0bdfb2bef2"
+    },
+    "include_battle_btl_main.h": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/battle/btl_main.h",
+      "sha256": "c7b6ee103b6528631cec3be2ae903fb392c7f617b4aafd354f5881bfd2c4b515"
+    },
+    "src_ov165_plist_demo.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_demo.c",
+      "sha256": "557c4c776c1b96e243b65eeea300eb0093137bc3e9b49c0434a651c67956a646"
+    },
+    "src_ov165_plist_menu.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_menu.c",
+      "sha256": "8431222f7084acc0724bb291bd418cc204939be33127b1ac54e62da814d83ff5"
+    },
+    "src_ov167_btl_calc.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_calc.c",
+      "sha256": "7a85311212044df299b64ebe9de1996c1ac3a736a591217973c4cf0e71b6ba17"
+    }
+  },
+  "species": [
+    "bulbasaur",
+    "ivysaur",
+    "venusaur",
+    "charmander",
+    "charmeleon",
+    "charizard",
+    "squirtle",
+    "wartortle",
+    "blastoise",
+    "caterpie",
+    "metapod",
+    "butterfree",
+    "weedle",
+    "kakuna",
+    "beedrill",
+    "pidgey",
+    "pidgeotto",
+    "pidgeot",
+    "rattata",
+    "raticate",
+    "spearow",
+    "fearow",
+    "ekans",
+    "arbok",
+    "pikachu",
+    "raichu",
+    "sandshrew",
+    "sandslash",
+    "nidoranF",
+    "nidorina",
+    "nidoqueen",
+    "nidoranM",
+    "nidorino",
+    "nidoking",
+    "clefairy",
+    "clefable",
+    "vulpix",
+    "ninetales",
+    "jigglypuff",
+    "wigglytuff",
+    "zubat",
+    "golbat",
+    "oddish",
+    "gloom",
+    "vileplume",
+    "paras",
+    "parasect",
+    "venonat",
+    "venomoth",
+    "diglett",
+    "dugtrio",
+    "meowth",
+    "persian",
+    "psyduck",
+    "golduck",
+    "mankey",
+    "primeape",
+    "growlithe",
+    "arcanine",
+    "poliwag",
+    "poliwhirl",
+    "poliwrath",
+    "abra",
+    "kadabra",
+    "alakazam",
+    "machop",
+    "machoke",
+    "machamp",
+    "bellsprout",
+    "weepinbell",
+    "victreebel",
+    "tentacool",
+    "tentacruel",
+    "geodude",
+    "graveler",
+    "golem",
+    "ponyta",
+    "rapidash",
+    "slowpoke",
+    "slowbro",
+    "magnemite",
+    "magneton",
+    "farfetchd",
+    "doduo",
+    "dodrio",
+    "seel",
+    "dewgong",
+    "grimer",
+    "muk",
+    "shellder",
+    "cloyster",
+    "gastly",
+    "haunter",
+    "gengar",
+    "onix",
+    "drowzee",
+    "hypno",
+    "krabby",
+    "kingler",
+    "voltorb",
+    "electrode",
+    "exeggcute",
+    "exeggutor",
+    "cubone",
+    "marowak",
+    "hitmonlee",
+    "hitmonchan",
+    "lickitung",
+    "koffing",
+    "weezing",
+    "rhyhorn",
+    "rhydon",
+    "chansey",
+    "tangela",
+    "kangaskhan",
+    "horsea",
+    "seadra",
+    "goldeen",
+    "seaking",
+    "staryu",
+    "starmie",
+    "mr",
+    "scyther",
+    "jynx",
+    "electabuzz",
+    "magmar",
+    "pinsir",
+    "tauros",
+    "magikarp",
+    "gyarados",
+    "lapras",
+    "ditto",
+    "eevee",
+    "vaporeon",
+    "jolteon",
+    "flareon",
+    "porygon",
+    "omanyte",
+    "omastar",
+    "kabuto",
+    "kabutops",
+    "aerodactyl",
+    "snorlax",
+    "articuno",
+    "zapdos",
+    "moltres",
+    "dratini",
+    "dragonair",
+    "dragonite",
+    "mewtwo",
+    "mew"
+  ],
+  "primary_behavior": {
+    "repository": "https://github.com/fuddlesworth/pokebw2",
+    "revision": "b279bbefa99bb2f6fbabcc95e4b6d3e939290353",
+    "files": {
+      "src/ov166/event_battle_return.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov166/event_battle_return.c",
+        "sha256": "6165ec0229b0c67201e489226b9ae215aaf1bd5fa69fbdf441943ca730adc68e"
+      },
+      "include/pml/evolution.h": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/pml/evolution.h",
+        "sha256": "1957dfcb6739bf39f1ee024a1e4597b6e5b06b132ba5321a36f3582d5cd410d1"
+      },
+      "src/ov165/plist_battle.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_battle.c",
+        "sha256": "a5bd04aa2263eda3b4323cb6d1ab8a2770ca1fa3c7f4e302bb1eba408ae15495"
+      },
+      "src/system/pokeparty.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/pokeparty.c",
+        "sha256": "23c7e705009952855e74c7ce1d072188796b35b10e1f883a8242cccda2d22c82"
+      },
+      "include/pml/poke_party.h": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/pml/poke_party.h",
+        "sha256": "c888cb94afe673151678ad8211b4eb97e2302481ab88d3a0c97ef8739e74ba04"
+      },
+      "src/ov284/shinka_demo.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov284/shinka_demo.c",
+        "sha256": "98f01c4b0f184bdb3ea32f874b3d21538d1547d2910fb85e24b0cf138d492519"
+      },
+      "src/system/shinka_check.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/shinka_check.c",
+        "sha256": "f647a0c3895d334e60fd0b2dee9d6d823c070635bbe9edff5107df9f3816fbfd"
+      },
+      "include/demo/shinka_demo.h": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/demo/shinka_demo.h",
+        "sha256": "3bee6e476da14cf47affc8ca9e3b5b8dc7f168ca894813553ab17335749e50a2"
+      },
+      "src/ov284/shinka_demo_view.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov284/shinka_demo_view.c",
+        "sha256": "002f246b9811aab9a113b5e2ef61f7ef7fe6ef4cd4bebdbcb88789f5ac7a6aa0"
+      },
+      "src/ov167/btl_pokeparam.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_pokeparam.c",
+        "sha256": "f32695f748a235d17ad24557d929a74f00068f1aa3913f13974a0a9290dca452"
+      },
+      "src/system/poke_tool.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_tool.c",
+        "sha256": "8964093175e250425e22e442f3d977ae689fd235e4810fc0d2fffefcb2cbbad7"
+      },
+      "src/system/poke_personal.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_personal.c",
+        "sha256": "4ce6fbe848b05eaa5996b06140fe6c365d13146c2816ae83979fa5ac924cdfbd"
+      },
+      "src/system/waza_tool.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/waza_tool.c",
+        "sha256": "15b9e76f587b636b31f2f6acee8b1e6f38523c950bea86209a6acad91deb5696"
+      },
+      "include/battle/btl_setup.h": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/battle/btl_setup.h",
+        "sha256": "b05991e23eaa3ff5add0b2b3cfbce95c56dc2a06b7669f41b13247192bb08798"
+      },
+      "src/ov167/btl_server_flow.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow.c",
+        "sha256": "f1498c627ae38274d7ecfd0e1f50585958753e1f876f71a5eac6633972066909"
+      },
+      "src/ov167/btl_server_flow_sub.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow_sub.c",
+        "sha256": "224b984bfeb441a1761cb82cf11447b2507beda8a6e5644d1bbbf19cd9f9736a"
+      },
+      "src/ov167/btl_server_cmd.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_cmd.c",
+        "sha256": "cbdd1fe43580b9fb3b41ee328a77cc2ec5b1e45ad68c729848e875e92d77ccac"
+      },
+      "src/ov167/btl_main.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_main.c",
+        "sha256": "4a94eb399501b1eda6cd1fce05870eec9e481296bdd1bfc7904a5cd159d7b9dc"
+      },
+      "src/ov167/btl_client.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_client.c",
+        "sha256": "cfdcdf4a268d0b64be7307f93227c65eec333922e4bec8aa79b8b2c84661eddf"
+      },
+      "src/ov167/btl_server.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server.c",
+        "sha256": "354e79c9c471dab28b650743a8bbd42e0e7e1f6b9e0458ac1263c4dd04ba7e78"
+      },
+      "src/ov169/btl_tables.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov169/btl_tables.c",
+        "sha256": "28459a298d6a7363d535d71db1e73daca7bf9531098bf2d154dc446cf54108ca"
+      },
+      "src/ov167/btl_net.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_net.c",
+        "sha256": "c9a76c2aa57a0cf90b1a7989af59f2941e1de2259066218a2a0f0e41b5bedf0f"
+      },
+      "src/system/btl_setup.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/btl_setup.c",
+        "sha256": "246410185a9edaf7312f15a34f79435bc02243b61daa848f77d05af06f3c1286"
+      },
+      "src/ov165/plist_item.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_item.c",
+        "sha256": "c632991e53ee3dc97f0db9e4ef2b327b87408d9a5069edde9ecd2b0bdfb2bef2"
+      },
+      "include/battle/btl_main.h": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/include/battle/btl_main.h",
+        "sha256": "c7b6ee103b6528631cec3be2ae903fb392c7f617b4aafd354f5881bfd2c4b515"
+      },
+      "src/ov165/plist_demo.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_demo.c",
+        "sha256": "557c4c776c1b96e243b65eeea300eb0093137bc3e9b49c0434a651c67956a646"
+      },
+      "src/ov165/plist_menu.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov165/plist_menu.c",
+        "sha256": "8431222f7084acc0724bb291bd418cc204939be33127b1ac54e62da814d83ff5"
+      },
+      "src/ov167/btl_calc.c": {
+        "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_calc.c",
+        "sha256": "7a85311212044df299b64ebe9de1996c1ac3a736a591217973c4cf0e71b6ba17"
+      }
+    }
+  },
+  "item_projection": {
+    "stones": [
+      "fireStone",
+      "leafStone",
+      "moonStone",
+      "thunderStone",
+      "waterStone"
+    ],
+    "unchanged_sha256": "90ed7d935436c305c89832fc11583f3ada1931f142dcdd7400b623a473a1e6cd",
+    "stone_scalar_sha256": "9324cec7fa3e801d8fbacb4e6d5a7fbb32abaff03f902bd6b575103e1bec5829"
+  }
+}

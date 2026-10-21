@@ -93,6 +93,8 @@ def collect(raw):
             entry['sourceName']=entry['name'];entry['name']=display
         elif not entry['name'].isascii():raise GenerationError('unreviewed non-ASCII display name: '+symbol)
         if symbol in effects:entry.update(effects[symbol]);entry['category']='medicine'
+        if symbol in {"MOON_STONE","FIRE_STONE","THUNDER_STONE","WATER_STONE","LEAF_STONE"}:
+            entry['category']='evolution';entry['effect']='evolution'
         if symbol.endswith('_BALL'):entry['category']='ball'
         entry['sellPrice']=entry['price']//2 if not entry['keyItem'] else None
         items[identity]=entry;symbols[symbol]=identity

@@ -37,6 +37,7 @@ end
 function BattleState:finish(won, kind)
     local game = self.game
     kind = kind or (self.battle and self.battle.outcome) or (won and "victory" or "defeat")
+    assert(Evolution.afterBattle(game.session,kind))
     local pokemon = game:getPlayerPokemon()
     local party=game.session:party()
     local blackout=party:allFainted()

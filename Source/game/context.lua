@@ -33,7 +33,7 @@ function GameContext:getPlayerPokemon() return self.session:activePokemon() end
 function GameContext:recruit(mon) return self.session:recruit(mon) end
 function GameContext:recentTransitions() return table.concat(self.transitionLog," ") end
 function GameContext:offerLearning(pokemon,onComplete) return LearningState.open(self,pokemon or self:getPlayerPokemon(),onComplete) end
-function GameContext:offerPartyLearning(onComplete)
+function GameContext:offerPartyProgression(onComplete)
     local session = self.session
     local function advance()
         if self.session ~= session then return end
@@ -42,27 +42,58 @@ function GameContext:offerPartyLearning(onComplete)
                 return self:offerLearning(mon, advance)
             end
         end
+        for _,mon in ipairs(session:party():members()) do
+            if Evolution.hasPending(mon) then
+                local request,reason=Evolution.prepare(session,mon,{kind="level"})
+                if not request then return false,reason end
+                return EvolutionState.open(self,request,function(result)
+                    if result.kind=="failed" then if onComplete then onComplete(result) end;return end
+                    advance()
+                end)
+            end
+        end
         if onComplete then onComplete() end
         return false
     end
     return advance()
 end
+-- Existing afterbattle/Continue owners keep their callback contract.
+function GameContext:offerPartyLearning(onComplete) return self:offerPartyProgression(onComplete) end
 function GameContext:beginNewSession(seed)
     local ok,candidate=pcall(newModel,self,seed)
     if not ok then return false,tostring(candidate) end
     return self:installSession(candidate)
 end
+local function settledTraversal(context)
+    local world=context.machine:get("overworld")
+    local player=context.player
+    return world and world.sub and world.sub:getCurrent()=="explore" and player
+        and not player.isMoving and not player.pendingEdgeDoor and not player.stepJustFinished
+end
+local function captureSettledTraversal(context)
+    local player=context.player
+    local position={zone_id=currentZone.stableID,x=player.gridX,y=player.gridY,facing=player.facing}
+    local ok,reason=context.session:captureTraversal({location=position,world=WorldDeltas.export()})
+    if not ok then return nil,reason end
+    return SessionCodec.encode(context.session,{root="overworld",overworld="explore",settled=true})
+end
 function GameContext:captureSession()
-    local world=self.machine:get("overworld")
-    local player=self.player
-    if self.machine:getCurrent()~="overworld" or self.machine:depth()~=1 or not world or not world.sub
-        or world.sub:getCurrent()~="explore" or not player or player.isMoving or player.pendingEdgeDoor or player.stepJustFinished then
+    if self.machine:getCurrent()~="overworld" or self.machine:depth()~=1 or not settledTraversal(self) then
         return nil,"save requires settled exploration after step triggers"
     end
-    local position={zone_id=currentZone.stableID,x=player.gridX,y=player.gridY,facing=player.facing}
-    local ok,reason=self.session:captureTraversal({location=position,world=WorldDeltas.export()})
-    if not ok then return nil,reason end
-    return SessionCodec.encode(self.session,{root="overworld",overworld="explore",settled=true})
+    return captureSettledTraversal(self)
+end
+function GameContext:isPCSaveBoundary(pc,epoch)
+    local machine=self.machine
+    return type(pc)=="table" and type(pc.is)=="function" and pc:is("PCState")
+        and type(epoch)=="number" and epoch%1==0 and epoch>=1 and machine:get("pc")==pc and machine:current()==pc and machine:depth()==2
+        and machine.stack[1]==machine:get("overworld") and pc.game==self and pc.active==true
+        and pc.epoch==epoch and pc.session==self.session and settledTraversal(self)
+        and not self.player.pendingConnection and not self.player.isJumping and true or false
+end
+function GameContext:captureSessionFromPC(pc,epoch)
+    if not self:isPCSaveBoundary(pc,epoch) then return nil,"save requires current settled PC boundary" end
+    return captureSettledTraversal(self)
 end
 function GameContext:installSession(candidate)
     local payload,reason=SessionCodec.encode(candidate,{root="overworld",overworld="explore",settled=true})

@@ -107,3 +107,15 @@ function Storage.fromData(data, decodePokemon)
     states[storage] = { boxes = boxes, active = data.active }
     return storage
 end
+
+-- Boxed-only irreversible action. Caller must explicitly confirm; retained UI
+-- selections cannot release a different mon after another transfer.
+function Storage:release(index, expectedMon)
+    local mon, err = self:get(index)
+    if not mon then return false, err end
+    if mon ~= expectedMon then return false, "stale-selection" end
+    if Party._owner(mon) ~= self then return false, "ownership" end
+    table.remove(states[self].boxes[self:activeBox()], index)
+    Party._moveOwner(mon, self, nil)
+    return true
+end

@@ -1,0 +1,167 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "eevee",
+          "level": 5
+        },
+        "inventory": {
+          "slots": [
+            {
+              "id": "waterStone",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 180
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "assert",
+      "path": "bag.phase",
+      "equals": "actions"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "evolution",
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "evolution.kind",
+      "equals": "stone"
+    },
+    {
+      "op": "assert",
+      "path": "evolution.can_cancel",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.waterStone",
+      "equals": 1
+    },
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "shot evolution-stone-before",
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "evolution.phase",
+      "equals": "animate",
+      "frames": 180
+    },
+    "press b",
+    {
+      "op": "assert",
+      "path": "evolution.phase",
+      "equals": "animate"
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.waterStone",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.species",
+      "equals": "eevee"
+    },
+    "record evolution-stone-frames 120",
+    "wait 24",
+    {
+      "op": "await",
+      "path": "evolution.done",
+      "equals": true,
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.species",
+      "equals": "vaporeon"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.hp",
+      "equals": 28
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.waterStone",
+      "equals": 0
+    },
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "shot evolution-stone-after",
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 180
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 180
+    }
+  ],
+  "outputs": [
+    "evolution-stone-before.png",
+    "evolution-stone-frames-01.png",
+    "evolution-stone-after.png",
+    "evolution-stone-frames-120.png"
+  ]
+}

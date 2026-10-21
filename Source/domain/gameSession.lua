@@ -250,3 +250,24 @@ function GameSession._restore(deps,values)
     state[session]=values
     return session
 end
+
+-- Same-owned identity commit. Evolution privately prepares every candidate before
+-- the first assignment; no callbacks or fallible validation follow bag commit.
+function GameSession:evolvePokemon(request)
+    local current=state[self]
+    local prepared,reason=Evolution._commitPlan(self,request,current.deps.itemDefinitions)
+    if not prepared then return false,reason end
+    if prepared.bagData then
+        local ok,problem=current.inventory:_replaceData(prepared.bagData)
+        if not ok then return false,problem end
+    end
+    for key,value in pairs(prepared.replacement) do prepared.pokemon[key]=value end
+    prepared.pokemon.type2=prepared.replacement.type2
+    prepared.pokemon.status=prepared.replacement.status
+    prepared.pokemon.pendingEvolution=nil
+    prepared.pokemon.confusion=nil
+    prepared.pokemon.flinched=false
+    current.dex=prepared.dex
+    prepared.request.status="complete"
+    return true,prepared.result
+end

@@ -61,6 +61,9 @@ import "game/eventText"
 import "game/eventArt"
 import "game/eventState"
 import "game/pokedexState"
+import "game/pcState"
+import "game/evolutionState"
+import "world/pcTerminals"
 import "dev/sliceCatalog"
 import "dev/sliceContracts"
 import "dev/worldContracts"
@@ -85,6 +88,8 @@ import "dev/eventCatalogContracts"
 import "dev/pokedexContracts"
 import "dev/earlyCombatContracts"
 import "dev/runtimeArtContracts"
+import "dev/pcContracts"
+import "dev/evolutionContracts"
 Contracts.register("learnsets", LearnsetContracts.run)
 Contracts.register("collections", PartyContracts.run)
 Contracts.register("learning", LearningContracts.run)
@@ -107,6 +112,8 @@ Contracts.register("event-catalog", EventCatalogContracts.run)
 Contracts.register("pokedex", PokedexContracts.run)
 Contracts.register("early-combat", EarlyCombatContracts.run)
 Contracts.register("runtime-art", RuntimeArtContracts.run)
+Contracts.register("pc-ui", PCContracts.run)
+Contracts.register("evolution", EvolutionContracts.run)
 import "dev/catalog"
 import "dev/harness_build"
 import "dev/harness_capture"
@@ -130,6 +137,7 @@ machine:register("dialog", DialogState(game))
 machine:register("battle", BattleState(game))
 machine:register("debug", DebugState(game))
 machine:register("learning", LearningState(game))
+machine:register("evolution", EvolutionState(game))
 machine:register("title", TitleState(game))
 machine:register("pause", PauseState(game))
 machine:register("party", PartyState(game))
@@ -137,6 +145,7 @@ machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
 machine:register("event", EventState(game))
 machine:register("pokedex", PokedexState(game))
+machine:register("pc", PCState(game))
 KantoWorld.install(game)
 game.saves = GameSaves(game)
 

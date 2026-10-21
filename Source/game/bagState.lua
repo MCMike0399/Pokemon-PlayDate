@@ -7,6 +7,7 @@ function BagState:init(game)
 end
 
 function BagState:enter(options)
+    self.visit=(self.visit or 0)+1
     self.options = options or {}
     self.selected, self.phase, self.message = 1, "list", nil
     self.menu:hide()
@@ -14,6 +15,7 @@ function BagState:enter(options)
 end
 
 function BagState:exit()
+    self.visit=(self.visit or 0)+1
     self.active = false
     self.phase = "closed"
     self.menu:hide()
@@ -39,15 +41,29 @@ function BagState:use(id, index, moveSlot)
     end
 end
 
+function BagState:useStone(id,index)
+    local visit,session=self.visit,self.game.session
+    local mon=self.game.session:party():get(index)
+    local request,reason=Evolution.prepare(self.game.session,mon,{kind="stone",item=id})
+    if not request then self:showMessage("It won't have any effect.");return false,reason end
+    return EvolutionState.open(self.game,request,function(result)
+        if not self.active or self.visit~=visit or self.game.session~=session then return end
+        self.phase="list";self.menu:hide()
+        if result.kind=="complete" then self.game:offerPartyProgression()
+        else self:showMessage("That item could not be used.") end
+    end)
+end
 function BagState:chooseTarget(id)
     local item = ItemData.definitions[id]
-    if item.effect == "unsupported" then self:showMessage("That item can't be used here."); return end
+    if item.effect == "unsupported" and not Evolution.isStone(id) then self:showMessage("That item can't be used here."); return end
     if self.game.session:party():count() == 0 then self:showMessage("You have no POKEMON yet."); return end
+    local visit=self.visit
     self.machine:push("party", {
         prompt = "Use on which POKEMON?",
         onSelect = function(index)
-            if not self.active then return end
-            if item.effect == "pp" and not item.allMoves then
+            if not self.active or self.visit~=visit then return end
+            if Evolution.isStone(id) then self:useStone(id,index)
+            elseif item.effect == "pp" and not item.allMoves then
                 local mon = self.game.session:party():get(index)
                 local options = {}
                 for _, key in ipairs(mon.moves) do

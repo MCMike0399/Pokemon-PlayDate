@@ -78,6 +78,7 @@ function KantoWorld.onEnter(game,options)
     return false -- Continue is an exact saved position; Center has no generic UP step.
 end
 function KantoWorld.tryInteract(game)
+    if PCTerminals.tryInteract(game) then return true end
     local player=game.player;local fx,fy=player:getFacingTile()
     if not inside(currentZone,fx,fy) then return false end
     local npc=game.npcManager:getNPCAt(fx,fy)

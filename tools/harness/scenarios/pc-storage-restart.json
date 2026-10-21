@@ -1,0 +1,293 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "seed": 42,
+              "intro": "skip",
+              "zone": "kanto_viridian_center",
+              "entry": {
+                "x": 13,
+                "y": 4,
+                "facing": "up"
+              },
+              "party_pokemon": [
+                {
+                  "species": "charmander",
+                  "level": 5
+                },
+                {
+                  "species": "squirtle",
+                  "level": 5
+                }
+              ]
+            }
+          },
+          "encounters off"
+        ],
+        [
+          "press a",
+          "wait 2",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "pc",
+            "frames": 240
+          },
+          {
+            "op": "assert",
+            "path": "pc.phase",
+            "equals": "top"
+          },
+          "shot pc-top"
+        ],
+        [
+          "press a",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.phase",
+            "equals": "list"
+          },
+          "shot pc-deposit-list"
+        ],
+        [
+          "press a",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.result.ok",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "party.count",
+            "equals": 1
+          },
+          "shot pc-deposited"
+        ],
+        [
+          "press a",
+          "wait 2",
+          "press b",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.phase",
+            "equals": "box-confirm"
+          },
+          {
+            "op": "assert",
+            "path": "pc.menu.selected",
+            "equals": 2
+          },
+          "shot pc-box-save-confirm"
+        ],
+        [
+          "press up",
+          "wait 2",
+          "press a",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.result.ok",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "pc.box",
+            "equals": 2
+          },
+          "shot pc-box-saved"
+        ],
+        [
+          "press b",
+          "wait 2",
+          "press b",
+          "wait 2",
+          "press b",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 13
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 4
+          },
+          "shot pc-before-restart"
+        ]
+      ],
+      "outputs": [
+        "pc-top.png",
+        "pc-deposit-list.png",
+        "pc-deposited.png",
+        "pc-box-save-confirm.png",
+        "pc-box-saved.png",
+        "pc-before-restart.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "title",
+            "frames": 240
+          },
+          "shot pc-fresh-process-title"
+        ],
+        [
+          "press a",
+          "wait 2",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 240
+          },
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "kanto_viridian_center"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 13
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 4
+          },
+          {
+            "op": "assert",
+            "path": "party.count",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.species",
+            "equals": "squirtle"
+          }
+        ],
+        [
+          "press a",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.phase",
+            "equals": "storage"
+          },
+          {
+            "op": "assert",
+            "path": "pc.box",
+            "equals": 2
+          },
+          "shot pc-restored-box-two"
+        ],
+        [
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          "wait 2",
+          "press up",
+          "wait 2",
+          "press a",
+          "wait 2",
+          "press up",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.result.ok",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "pc.box",
+            "equals": 1
+          }
+        ],
+        [
+          "press a",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.phase",
+            "equals": "list"
+          },
+          {
+            "op": "assert",
+            "path": "pc.pokemon",
+            "equals": "charmander"
+          },
+          "shot pc-restored-box-one"
+        ],
+        [
+          "press a",
+          "wait 2",
+          "press a",
+          "wait 2",
+          {
+            "op": "assert",
+            "path": "pc.result.ok",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "party.count",
+            "equals": 2
+          },
+          "shot pc-withdrawn-after-restart"
+        ]
+      ],
+      "outputs": [
+        "pc-fresh-process-title.png",
+        "pc-restored-box-two.png",
+        "pc-restored-box-one.png",
+        "pc-withdrawn-after-restart.png"
+      ]
+    }
+  ]
+}

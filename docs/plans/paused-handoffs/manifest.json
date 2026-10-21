@@ -4,78 +4,120 @@
       "name": "pokemon-pewter-runtime-candidate-02",
       "archive": "pokemon-pewter-runtime-candidate-02.tar.gz",
       "files": 73,
-      "sha256": "7c28fcb3638c3088f7b5c5361426eacf6a5187e0177fd27495eed9d7638ec815",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "17f528d3ba6814548cd19e4bc6458fd206bea01335308d14aa5547764909b088",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-pewter-runtime",
       "archive": "pokemon-pewter-runtime.tar.gz",
       "files": 56,
-      "sha256": "b958a9f821da0df1ad5791b6c686c685bc006e8735b18ff78dafe1bf9b798151",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "563ab39f6c4223fe9703d5d0a2d513a09149dda78b65e02d5ad7f3e31e2fc27e",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-pewter-trainer-domain",
       "archive": "pokemon-pewter-trainer-domain.tar.gz",
       "files": 26,
-      "sha256": "1561bcb12a29b79d31458a4998443f4b7f4f73cbe432a1f5d31dea4dc667955a",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "44430dcfee036525dfa9cfc51db19d5919d59ce10d0ae07913c92439c45fc778",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-evolution",
       "archive": "pokemon-evolution.tar.gz",
       "files": 37,
-      "sha256": "6b73b58d111227b88051c1b170e40db0b5a83b2c8eee9272a9913c7c3f603962",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "cd1f49cdc961948e93ec26b125a6ffc745d9eacf5f81f5b00e45b8c2ec9c83df",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-evolution-followup-01",
       "archive": "pokemon-evolution-followup-01.tar.gz",
       "files": 9,
-      "sha256": "d50c7b0c9492b8543b1457475ee194898e5ac95468713c33ebf4ba6eec00594b",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "00d64e577626a497a2fa155fc60f4b9ae84af844d5df3d474d7a4a367860ac61",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-battle-learning",
       "archive": "pokemon-battle-learning.tar.gz",
       "files": 21,
-      "sha256": "07438eaa89e667a66f50a3637a3a2af5e8e102e00da70a4d8ccd898bee93d32a",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "7b539f2c963f9858e641f372f7fce1977338971e91c3f1e8f12ccaefd4ba07e9",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-battle-learning-contract-followup",
       "archive": "pokemon-battle-learning-contract-followup.tar.gz",
       "files": 8,
-      "sha256": "980e01b64864dbeed2606db6731413b287e0b2c8153f5d8eab4a625146e12454",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "c24e0bbb7ee0d416ba53b5fd5817561ce2a1ab5d34d4944fc72073c2b0eab4ff",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-pc-ui",
       "archive": "pokemon-pc-ui.tar.gz",
       "files": 15,
-      "sha256": "f00f90d24a50cdadcafdf88a05736e54330762b4825f14cda764117f9214db77",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "c5e7673634cd81da3dd270508be224ba30b934d2488bc419ab5b61566c3b4103",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-pc-ui-followup-01",
       "archive": "pokemon-pc-ui-followup-01.tar.gz",
       "files": 18,
-      "sha256": "d0c34eff6530fbb80e643df7816505e0373919165ddf8a1078e9698008416a95",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "e03d9b0f0f594912f93fa9d8af47179107739bb233d5aad8992a2babe49a13c1",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-healing-presentation",
       "archive": "pokemon-healing-presentation.tar.gz",
       "files": 16,
-      "sha256": "234e14f62ff58396d60d7f407a89f6a1383095b3c5661b5210b787ab30a28127",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "sha256": "10ddbb505289d4fc411d5092e766efe4ca2723a611c0b7dc0ced2f3cf5441b05",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     },
     {
       "name": "pokemon-battle-items",
       "archive": "pokemon-battle-items.tar.gz",
-      "files": 4,
-      "sha256": "be7a4f443cd668359ee93531198428ce55e90ae2475dbe596f47c95807a5a288",
-      "status": "unmerged candidate; acceptance varies; see progress ledger"
+      "files": 13,
+      "sha256": "c0f78e50c67e5df7fbd60b938e1d33419a322462042533d27450d99b68ffffaa",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
+    },
+    {
+      "name": "pokemon-pewter-runtime-candidate-03",
+      "archive": "pokemon-pewter-runtime-candidate-03.tar.gz",
+      "files": 76,
+      "sha256": "f927bf975af3e51ea8ea538142dbfb538f449d4124b0b09b881de1934b2bc8f2",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
+    },
+    {
+      "name": "pokemon-brock-journey",
+      "archive": "pokemon-brock-journey.tar.gz",
+      "files": 23,
+      "sha256": "b56e461d6f1778d335efaf82347c3c8ccad32de97beb7eb59545ab14a263ee94",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
+    },
+    {
+      "name": "pokemon-specimen-attributes",
+      "archive": "pokemon-specimen-attributes.tar.gz",
+      "files": 21,
+      "sha256": "61c39904a609921f364288f57837dfa1f1d419c60574efe298a2a1943d8ba378",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
+    },
+    {
+      "name": "pokemon-specimen-attributes-audit",
+      "archive": "pokemon-specimen-attributes-audit.tar.gz",
+      "files": 7,
+      "sha256": "d92eacff977826b59e1cfad8c4505ed63d19fa813cd87ef2dfff4bfd45ac96ee",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
+    },
+    {
+      "name": "pokemon-runtime-catalog",
+      "archive": "pokemon-runtime-catalog.tar.gz",
+      "files": 13,
+      "sha256": "8c0a2173c6472821ead83325a74eeb95ced97307fcc729a4ec4787e910c73479",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
+    },
+    {
+      "name": "pokemon-catalog-registry",
+      "archive": "pokemon-catalog-registry.tar.gz",
+      "files": 8,
+      "sha256": "f13752af683ebea8ec4a64b991202c10fea431f0e2524d773b9e46ce3491624a",
+      "status": "checkpoint handoff; see current progress ledger; do not apply stale complete trees"
     }
   ],
   "excluded": "third-party reference caches, original-base snapshots, compiled bundles and Python caches"

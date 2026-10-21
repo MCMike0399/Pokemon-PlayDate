@@ -140,5 +140,5 @@ function HarnessFixtures.reset(game, options)
     if options.intro ~= "skip" and options.opening ~= false then
         machine:push("dialog", Story.openingLines)
     end
-    if options.grant_xp then game:offerLearning(game:getPlayerPokemon()) end
+    if options.grant_xp then game:offerPartyLearning() end
 end

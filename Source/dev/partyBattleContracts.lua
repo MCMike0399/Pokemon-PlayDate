@@ -217,12 +217,12 @@ function PartyBattleContracts.run()
         local before=RulesRNG.snapshot();e:onSwitchOut()
         equal(e.statusTurns,3);equal(e.sleepDuration,3);sameRNG(RulesRNG.snapshot(),before)
     end)
-    test("Codec3 preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
+    test("Codec4 preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
         for duration=1,3 do
             for remaining=0,duration do
                 local p=Pokemon("charmander",5)
                 p.status,p.statusTurns,p.sleepDuration="sleep",remaining,duration
-                local record=assert(PokemonCodec.encode(p));equal(record.version,3)
+                local record=assert(PokemonCodec.encode(p));equal(record.version,4)
                 local restored=assert(PokemonCodec.decode(record))
                 equal(restored.statusTurns,remaining);equal(restored.sleepDuration,duration)
                 local before=RulesRNG.snapshot();restored:onSwitchOut()

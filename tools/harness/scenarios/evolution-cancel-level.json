@@ -1,0 +1,89 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "player_pokemon": {
+          "species": "abra",
+          "level": 15
+        },
+        "grant_xp": {
+          "to_level": 16
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "evolution",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "evolution.phase",
+      "equals": "animate",
+      "frames": 180
+    },
+    "wait 20",
+    "press b",
+    {
+      "op": "assert",
+      "path": "evolution.result",
+      "equals": "cancelled"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.species",
+      "equals": "abra"
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_evolution",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pending_moves",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "pokemon.pp.teleport",
+      "equals": 20
+    },
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "shot evolution-cancelled",
+    {
+      "op": "await",
+      "path": "evolution.dialog_ready",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 180
+    }
+  ],
+  "outputs": [
+    "evolution-cancelled.png"
+  ]
+}
