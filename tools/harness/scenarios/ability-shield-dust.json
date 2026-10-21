@@ -1,0 +1,154 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "trainer_name": "DUST TEST",
+        "enemy_party": [
+          {
+            "species": "caterpie",
+            "level": 8,
+            "status": "sleep",
+            "status_turns": 3,
+            "sleep_duration": 3
+          }
+        ],
+        "player_pokemon": {
+          "species": "weedle",
+          "level": 9
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "DUST TEST wants to battle!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "DUST TEST sent out CATERPIE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 42",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WEEDLE used POISON STING!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.current_move",
+      "equals": "poisonSting",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CATERPIE is fast asleep!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.status",
+      "equals": "sleep"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.statusTurns",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.poisonSting",
+      "equals": 34
+    },
+    "shot ability-shield-dust"
+  ],
+  "outputs": [
+    "ability-shield-dust.png"
+  ]
+}

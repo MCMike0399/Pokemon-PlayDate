@@ -12,8 +12,11 @@ python3 tools/harness/run.py --scenario tools/harness/smoke.json --output /priva
 
 `PLAYDATE_SDK_PATH` or `--sdk` selects the installed SDK; the default is
 `~/Developer/PlaydateSDK`. `--output` must be a new directory. Without it,
-artifacts go to `tools/shots/runs/<UUID>`. No Pillow is needed unless using
-`tools/autopilot.py --strip`. Each invocation builds and launches a fresh
+artifacts go to `tools/shots/runs/<UUID>`. Nonvisual functional journeys and protocol checks do not require Pillow. Visual
+catalog invariance contracts, the explicit NPC motion Continue PNG pose proof,
+and `tools/autopilot.py --strip` require Pillow from
+`tools/requirements-dev.txt`; the runner checks visual contract dependencies
+before launching the Simulator. Each invocation builds and launches a fresh
 session. Put multiple requests in a scenario to retain one runtime between
 requests; separate CLI invocations intentionally start independently.
 
@@ -289,3 +292,18 @@ cannot confirm quiescence or artifacts remain invalid, `artifact-finalization.js
 records that limitation and the host terminates its owned PID; it does not claim
 those artifacts were finalized. The final quiesce action is an additional
 numbered request/result, including for contract and mutation scenarios.
+
+
+When the staged Source contains `dev/comprehensiveCatalogContracts.lua`, a
+`contracts` request also requires the named `catalog-invariance-v1` host
+qualification. Contracts report executed stable suite IDs; the runner never
+infers qualification from English test descriptions. Before launch it prepares
+only the two owned `frames/catalog-invariance-before` and `-after` directories.
+After producer quiescence it copies the two native manifests, verifies all859
+source-derived entries in each phase (1718 actual PNGs), dimensions, standalone
+masks and exact decoded RGBA including hidden RGB. Missing, corrupt, stale or
+changed artifacts fail the invocation. `catalog-invariance-qualification.json`
+records build/session/request/process identity and the result. Restart evidence
+is archived per process before the next boot clears only those owned transient
+manifests; saves are untouched. More than one comprehensive export suite in one
+process fails explicitly rather than reusing overwritten artifacts.

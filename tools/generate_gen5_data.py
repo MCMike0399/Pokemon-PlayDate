@@ -29,6 +29,7 @@ that uninvoked mode requires a separate provenance migration.
 import argparse
 import csv
 import io
+import json
 import os
 import re
 import sys
@@ -154,6 +155,9 @@ def resolve_b2w2(move_row, changelog_rows):
 def build_effects(key, meta, stat_changes, target_id, is_status):
     # Pinned Gen V mechanic overrides; modern move_meta includes later changes.
     concrete={
+        "sandstorm": ["SandstormEffect()"],
+        "triAttack": ['When(Chance(20), RandomMajorStatusEffect(DEFENDER, {"burn", "paralyze", "freeze"}))'],
+        "synthesis": ["WeatherHealEffect()"],"moonlight": ["WeatherHealEffect()"],"morningSun": ["WeatherHealEffect()"],
         "mudSport": ["MudSportEffect()"], "curse": ["CurseEffect()"],
         "rage": ["RageEffect()"], "rapidSpin": ["RapidSpinEffect()"],
         "stringShot": ['ModifyStat(DEFENDER, "spe", -1)'],
@@ -234,6 +238,7 @@ def generate_moves(data, preserve_existing=False):
     type_names = {r["id"]: r["identifier"] for r in data["types"]}
     class_names = {1: "status", 2: "physical", 3: "special"}
 
+    ability_metadata=json.loads((Path(ROOT)/'tools/references/ability-move-metadata.json').read_text())['moves']
     out, missing = [], []
     for key in keys:
         row = moves_by_ident.get(MOVE_ALIASES.get(key) or camel_to_kebab(key))
@@ -254,6 +259,20 @@ def generate_moves(data, preserve_existing=False):
         effects = build_effects(key, meta, stat_changes_by_id.get(move_id, []),
                                 target_id, is_status)
 
+        semantics=ability_metadata[key]
+        secondaries=[]
+        if semantics['secondary']:
+            primary=[]
+            for effect in effects:
+                # Eligibility is from the pinned resolved Gen5 secondary field,
+                # never power/category or chance alone. Target comes from the DSL.
+                if ('ApplyStatus(' in effect or 'ModifyStat(' in effect or 'RandomMajorStatusEffect(' in effect) and 'DEFENDER' in effect:
+                    secondaries.append('SecondaryEffect(DEFENDER, '+effect+')')
+                elif ('ApplyStatus(' in effect or 'ModifyStat(' in effect or 'RandomMajorStatusEffect(' in effect) and 'ATTACKER' in effect:
+                    secondaries.append('SecondaryEffect(ATTACKER, '+effect+')')
+                else:primary.append(effect)
+            effects=primary
+        if semantics['ohko']:effects=[]
         display = camel_to_kebab(key).replace("-", " ").upper()
         parts = [
             f'name = "{display}"',
@@ -264,6 +283,11 @@ def generate_moves(data, preserve_existing=False):
             f"pp = {PP_OVERRIDES.get(key, fields['pp'])}",
             f"targetId = {fields['target_id']}",
         ]
+        parts.extend(["contact = " + str(semantics['contact']).lower(),
+                      "hasSecondary = " + str(semantics['secondary']).lower(),
+                      "ohko = " + str(semantics['ohko']).lower()])
+        if semantics["typeImmunity"]: parts.append("typeImmunity = true")
+        if key == "solarBeam": parts.append("sandWeakened = true")
         if key == "rollout": parts.append("rollout = true")
         if key == "curse": parts.append("curse = true")
         if key == "struggle":
@@ -279,6 +303,8 @@ def generate_moves(data, preserve_existing=False):
             min_hits, max_hits = num(meta["min_hits"]), num(meta["max_hits"])
             if min_hits and max_hits and max_hits > 1:
                 parts.append(f"minHits = {min_hits}, maxHits = {max_hits}")
+        if secondaries:
+            parts.append("secondaries = { " + ", ".join(secondaries) + " }")
         if effects:
             parts.append("effects = { " + ", ".join(effects) + " }")
 
@@ -312,6 +338,12 @@ function Move:init(m)
     self.drain = m.drain
     self.minHits = m.minHits
     self.maxHits = m.maxHits
+    self.typeImmunity = m.typeImmunity or false
+    self.sandWeakened = m.sandWeakened or false
+    self.contact = m.contact or false
+    self.hasSecondary = m.hasSecondary or false
+    self.ohko = m.ohko or false
+    self.secondaries = m.secondaries
     self.effects = m.effects
 end
 
@@ -322,20 +354,15 @@ moveData = {
     if preserve_existing:
         old_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", current, re.MULTILINE))
         new_rows = dict(re.findall(r"^    (\w+) = (Move[^\n]+)$", "\n".join(out), re.MULTILINE))
-        # The one-time target metadata migration may only add targetId. Once
-        # present, even its value must match; other scalars/effects stay exact.
-        effect_updates={"mudSport","curse","rage","rapidSpin","stringShot","rollout","defenseCurl","leechSeed","spikes","toxicSpikes","stealthRock","toxic","bind","wrap","clamp","fireSpin","whirlpool","sandTomb","magmaStorm"}
         def compatible(key, old, new):
-            if new is None:
-                return False
-            if key in effect_updates:
-                def scalar(row):
-                    row=re.sub(r", effects = \{.*", " },", row)
-                    return re.sub(r", (?:rollout|curse) = true", "", row)
-                return scalar(old)==scalar(new)
-            if re.search(r", targetId = \d+", old):
-                return old == new
-            return old == re.sub(r", targetId = \d+", "", new)
+            if new is None:return False
+            def clean(row):
+                row=re.sub(r", (?:contact|hasSecondary|ohko|sandWeakened|typeImmunity) = (?:true|false)", "", row)
+                return row
+            def scalars(row):return re.split(r", (?:secondaries|effects) = \{",clean(row))[0].rstrip(' },')
+            if scalars(old)!=scalars(new):return False
+            if ability_metadata[key]['secondary'] or ability_metadata[key]['ohko'] or key in {'sandstorm','synthesis','moonlight','morningSun'}:return True
+            return clean(old)==clean(new)
         changed = [key for key, value in old_rows.items() if not compatible(key, value, new_rows.get(key))]
         if changed:
             raise ValueError("refusing unexpected changes to existing move rows: " + ", ".join(changed))

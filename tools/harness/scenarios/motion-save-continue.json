@@ -1,0 +1,17 @@
+{
+  "processes": [
+    {
+      "journey": {
+        "name": "npc-motion-save",
+        "location": "pewter-mart",
+        "seed": 42
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "name": "npc-motion-continue"
+      }
+    }
+  ]
+}

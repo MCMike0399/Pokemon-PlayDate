@@ -151,6 +151,7 @@ function PartyState:handleInput()
                 else
                     self.message = reason == "fainted" and "That POKEMON has fainted."
                         or reason == "already-active" and "That POKEMON is already out!"
+                        or reason == "trapped" and "Your POKEMON is trapped!"
                         or "That POKEMON can't be selected."
                 end
             elseif self.options.onSelect then self:close(self.selected)

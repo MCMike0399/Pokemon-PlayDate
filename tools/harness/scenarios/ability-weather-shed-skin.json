@@ -1,0 +1,560 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "trainer_name": "WEATHER TEST",
+        "enemy_party": [
+          {
+            "species": "metapod",
+            "level": 10,
+            "status": "burn"
+          }
+        ],
+        "player_pokemon": {
+          "species": "sandshrew",
+          "level": 42
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WEATHER TEST wants to battle!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WEATHER TEST sent out METAPOD!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 26",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press right",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW used SANDSTORM!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A sandstorm kicked up!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-sandstorm-start",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD is buffeted by the sandstorm!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD shed its status with Shed Skin!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-shed-skin",
+    {
+      "op": "assert",
+      "path": "battle.enemy.status",
+      "equals": "none"
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.turns",
+      "equals": 4
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW used SWORDS DANCE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW's ATTACK rose sharply!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD is buffeted by the sandstorm!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.turns",
+      "equals": 3
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW used SWORDS DANCE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW's ATTACK rose sharply!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD is buffeted by the sandstorm!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.turns",
+      "equals": 2
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW used SWORDS DANCE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW's ATTACK rose sharply!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD is buffeted by the sandstorm!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.turns",
+      "equals": 1
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW used SWORDS DANCE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW's ATTACK won't go any higher!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "The sandstorm subsided.",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-sandstorm-expiry",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.turns",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.weather",
+      "equals": "none"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 26
+    }
+  ],
+  "outputs": [
+    "ability-sandstorm-start.png",
+    "ability-shed-skin.png",
+    "ability-sandstorm-expiry.png"
+  ]
+}

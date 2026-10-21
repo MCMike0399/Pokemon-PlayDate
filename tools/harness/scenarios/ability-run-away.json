@@ -1,0 +1,108 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 1,
+        "player_pokemon": {
+          "species": "rattata",
+          "level": 6,
+          "ability_slot": "first"
+        }
+      }
+    },
+    "battle diglett 11",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild DIGLETT appeared!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 1",
+    "press right",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA's Run Away!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-run-away",
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 0
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "Got away safely!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.kind",
+      "equals": "run"
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 0
+    }
+  ],
+  "outputs": [
+    "ability-run-away.png"
+  ]
+}

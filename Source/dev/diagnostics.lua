@@ -70,6 +70,7 @@ function HarnessDiagnostics.snapshot(game)
     for _, npc in ipairs(game.npcManager.npcs) do
         npcs[#npcs + 1] = { name = npc.name, x = npc.gridX, y = npc.gridY,
             source_event_id = npc.def and npc.def.source_event_id,
+            pixel_x=npc.x,pixel_y=npc.y,facing=npc.facing,
             interacted = npc.hasInteracted and npc:hasInteracted() or npc.interacted,
             motion=game.npcManager.motion:actor(npc) }
     end
@@ -79,6 +80,7 @@ function HarnessDiagnostics.snapshot(game)
     for id in pairs(ItemData.definitions) do inventory.quantities[id] = game.session:inventory():quantity(id) end
     return {
         display = HarnessCapture.display(),
+        performance={heap_kib=collectgarbage("count"),elapsed_ms=playdate.getCurrentTimeMilliseconds()},
         world_motion={rng=game.session:worldRngData(),live=game.npcManager.motion:snapshot(),captured=game.session:actorData(),
             paused=root:getCurrent()~="overworld"or root:depth()~=1 or world.sub:getCurrent()~="explore"},
         pc = root:get("pc"):getSnapshot(),
@@ -106,6 +108,7 @@ function HarnessDiagnostics.snapshot(game)
         pokemon = pokemon(game:getPlayerPokemon()),
         battle = battle and { phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             conditions = battle:getConditionsSnapshot(),
+            effects = battle.effects:snapshot(),
             learning = battle:getLearningSnapshot(),
             forced_switch = battle:needsForcedSwitch(), selection_kind = battle.selectionKind or "none",
             capture_result = battle.captureResult or {caught = false, checks = 0},

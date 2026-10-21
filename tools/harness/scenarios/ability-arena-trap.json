@@ -1,0 +1,116 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "trainer_name": "TRAP TEST",
+        "enemy_party": [
+          {
+            "species": "diglett",
+            "level": 11,
+            "ability_slot": "second",
+            "status": "sleep",
+            "status_turns": 3,
+            "sleep_duration": 3
+          }
+        ],
+        "party_pokemon": [
+          {
+            "species": "rattata",
+            "level": 6,
+            "ability_slot": "second"
+          },
+          {
+            "species": "pidgey",
+            "level": 5
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "TRAP TEST wants to battle!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "TRAP TEST sent out DIGLETT!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 1",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 300
+    },
+    "press down",
+    "press a",
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "party"
+    },
+    {
+      "op": "assert",
+      "path": "party_ui.message",
+      "equals": "Your POKEMON is trapped!"
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.species",
+      "equals": "rattata"
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 0
+    },
+    "shot ability-arena-trap-switch"
+  ],
+  "outputs": [
+    "ability-arena-trap-switch.png"
+  ]
+}

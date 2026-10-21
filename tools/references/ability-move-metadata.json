@@ -1,0 +1,2557 @@
+{
+  "schema": 1,
+  "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "source_sha256": {
+    "data/moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+    "data/mods/gen8/moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+    "data/mods/gen7/moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+    "data/mods/gen6/moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+    "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
+  },
+  "moves": {
+    "pound": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "karateChop": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "doubleSlap": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "cometPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "megaPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "payDay": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "firePunch": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "icePunch": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "thunderPunch": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "scratch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "viceGrip": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "guillotine": {
+      "contact": true,
+      "ohko": true,
+      "secondary": false,
+      "typeImmunity": false
+    },
+    "razorWind": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "swordsDance": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gust": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "wingAttack": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "whirlwind": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bind": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "slam": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "vineWhip": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stomp": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "doubleKick": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "megaKick": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "jumpKick": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rollingKick": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sandAttack": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "headbutt": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hornAttack": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "furyAttack": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hornDrill": {
+      "contact": true,
+      "ohko": true,
+      "secondary": false,
+      "typeImmunity": false
+    },
+    "tackle": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bodySlam": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "wrap": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "takeDown": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "thrash": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "doubleEdge": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "tailWhip": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "poisonSting": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "twineedle": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "pinMissile": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "leer": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bite": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "growl": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "roar": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sing": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "supersonic": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sonicBoom": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "disable": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "acid": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ember": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flamethrower": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mist": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "waterGun": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hydroPump": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "iceBeam": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "blizzard": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psybeam": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bubbleBeam": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "auroraBeam": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hyperBeam": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "peck": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "drillPeck": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "submission": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lowKick": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "counter": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "seismicToss": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "absorb": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "megaDrain": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "leechSeed": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "growth": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "razorLeaf": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "solarBeam": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "poisonPowder": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stunSpore": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sleepPowder": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "petalDance": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stringShot": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonRage": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fireSpin": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "thunderShock": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "thunderbolt": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "thunderWave": {
+      "contact": false,
+      "typeImmunity": true,
+      "secondary": false,
+      "ohko": false
+    },
+    "thunder": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rockThrow": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "earthquake": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fissure": {
+      "contact": false,
+      "ohko": true,
+      "secondary": false,
+      "typeImmunity": false
+    },
+    "dig": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "confusion": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psychic": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hypnosis": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "meditate": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "agility": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "quickAttack": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rage": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "teleport": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "nightShade": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mimic": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "screech": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "doubleTeam": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "recover": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "harden": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "minimize": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "smokescreen": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "confuseRay": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "withdraw": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "defenseCurl": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "barrier": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lightScreen": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "haze": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "reflect": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "focusEnergy": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "metronome": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mirrorMove": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "selfDestruct": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "eggBomb": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lick": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "smog": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sludge": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "boneClub": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fireBlast": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "waterfall": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "clamp": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "swift": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "skullBash": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "spikeCannon": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "constrict": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "amnesia": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "kinesis": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "softBoiled": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "highJumpKick": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "glare": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dreamEater": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "poisonGas": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "barrage": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "leechLife": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lovelyKiss": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "skyAttack": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "transform": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bubble": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dizzyPunch": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "spore": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "splash": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "acidArmor": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "crabhammer": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "explosion": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "furySwipes": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bonemerang": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rest": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rockSlide": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hyperFang": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sharpen": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "conversion": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "triAttack": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "superFang": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "slash": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "substitute": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mindReader": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "nightmare": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flameWheel": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "snore": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "curse": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flail": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "conversion2": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "reversal": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "spite": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "powderSnow": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "protect": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "machPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "scaryFace": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "feintAttack": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bellyDrum": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sludgeBomb": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mudSlap": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "spikes": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "zapCannon": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "foresight": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "destinyBond": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "perishSong": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "icyWind": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "detect": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "boneRush": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lockOn": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "outrage": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sandstorm": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gigaDrain": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "endure": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rollout": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "falseSwipe": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "swagger": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "spark": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "furyCutter": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "meanLook": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sleepTalk": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "safeguard": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "magnitude": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dynamicPunch": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "megahorn": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonBreath": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "batonPass": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "encore": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "pursuit": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rapidSpin": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sweetScent": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ironTail": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "metalClaw": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "vitalThrow": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "synthesis": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "moonlight": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "crossChop": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "twister": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rainDance": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sunnyDay": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "crunch": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mirrorCoat": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psychUp": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "extremeSpeed": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ancientPower": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "shadowBall": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "futureSight": {
+      "contact": false,
+      "typeImmunity": false,
+      "secondary": false,
+      "ohko": false
+    },
+    "whirlpool": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fakeOut": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "uproar": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stockpile": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "spitUp": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "swallow": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "heatWave": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hail": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flatter": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "willOWisp": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "memento": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "focusPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "followMe": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "charge": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "taunt": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "helpingHand": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "trick": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rolePlay": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ingrain": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "superpower": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "magicCoat": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "recycle": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "revenge": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "brickBreak": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "yawn": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "knockOff": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "endeavor": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "imprison": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "refresh": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "grudge": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dive": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "camouflage": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "featherDance": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "blazeKick": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mudSport": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "slackOff": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hyperVoice": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "poisonFang": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "crushClaw": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "meteorMash": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "astonish": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "aromatherapy": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fakeTears": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "airCutter": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "odorSleuth": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rockTomb": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "silverWind": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "metalSound": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "tickle": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "cosmicPower": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "signalBeam": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "shadowPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "extrasensory": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "skyUppercut": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sandTomb": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sheerCold": {
+      "contact": false,
+      "ohko": true,
+      "secondary": false,
+      "typeImmunity": false
+    },
+    "muddyWater": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bulletSeed": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "aerialAce": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "icicleSpear": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ironDefense": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "block": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonClaw": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bounce": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mudShot": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "covet": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "magicalLeaf": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "waterSport": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "calmMind": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "leafBlade": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonDance": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rockBlast": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "shockWave": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "waterPulse": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "roost": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gravity": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "miracleEye": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "wakeUpSlap": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hammerArm": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gyroBall": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "healingWish": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "brine": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "naturalGift": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "feint": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "pluck": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "tailwind": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "acupressure": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "closeCombat": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "payback": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "assurance": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fling": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "trumpCard": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "wringOut": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gastroAcid": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "luckyChant": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "meFirst": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "copycat": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "powerSwap": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "guardSwap": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "punishment": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lastResort": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "worrySeed": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "suckerPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "toxicSpikes": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "aquaRing": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "magnetRise": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flareBlitz": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "auraSphere": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "rockPolish": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "poisonJab": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "darkPulse": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "nightSlash": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "aquaTail": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "seedBomb": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "airSlash": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "xScissor": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bugBuzz": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonPulse": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonRush": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "powerGem": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "vacuumWave": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "braveBird": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "earthPower": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "switcheroo": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gigaImpact": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "nastyPlot": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bulletPunch": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "avalanche": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "iceShard": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "shadowClaw": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "thunderFang": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "iceFang": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "fireFang": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mudBomb": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psychoCut": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "zenHeadbutt": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "mirrorShot": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flashCannon": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "discharge": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lavaPlume": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "leafStorm": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "powerWhip": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "crossPoison": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "gunkShot": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ironHead": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "magnetBomb": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stoneEdge": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "captivate": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stealthRock": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bugBite": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "chargeBeam": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "woodHammer": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "aquaJet": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "doubleHit": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "wideGuard": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "wonderRoom": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psyshock": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "ragePowder": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "telekinesis": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "smackDown": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flameBurst": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "sludgeWave": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "quiverDance": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "heavySlam": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "synchronoise": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "electroBall": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "soak": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "flameCharge": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "coil": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "lowSweep": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "acidSpray": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "afterYou": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "round": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "chipAway": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "clearSmog": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "storedPower": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "quickGuard": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "allySwitch": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "shellSmash": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "healPulse": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hex": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "skyDrop": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "circleThrow": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "acrobatics": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "reflectType": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "retaliate": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "finalGambit": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bestow": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "inferno": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "bulldoze": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "dragonTail": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "workUp": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "drillRun": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "heartStamp": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "razorShell": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "leafTornado": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "steamroller": {
+      "contact": true,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psystrike": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "hurricane": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "icicleCrash": {
+      "contact": false,
+      "secondary": true,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "charm": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "psywave": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "stormThrow": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "struggle": {
+      "contact": true,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    },
+    "toxic": {
+      "contact": false,
+      "secondary": false,
+      "ohko": false,
+      "typeImmunity": false
+    }
+  }
+}

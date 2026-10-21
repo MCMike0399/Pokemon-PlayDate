@@ -157,7 +157,21 @@ import "dev/heldItemContracts"
 Contracts.register("held-items", HeldItemContracts.run)
 import "dev/heldLifecycleContracts"
 Contracts.register("held-lifecycle", HeldLifecycleContracts.run)
+import "dev/abilityContracts"
+Contracts.register("early-abilities", AbilityContracts.run)
+import "dev/abilityCompatibilityContracts"
+Contracts.register("ability-compatibility", AbilityCompatibilityContracts.run)
 import "dev/catalog"
+import "dev/pewterCatalogExporter"
+PewterCatalogExporter.register()
+import "dev/comprehensiveCatalogContracts"
+Contracts.register("comprehensive-catalog", ComprehensiveCatalogContracts.run)
+import "dev/catalogMotionContracts"
+Contracts.register("catalog-motion", CatalogMotionContracts.run)
+import "dev/catalogAbilityContracts"
+Contracts.register("catalog-ability", CatalogAbilityContracts.run)
+import "dev/presentationContracts"
+Contracts.register("world-presentation", PresentationContracts.run)
 import "dev/harness_build"
 import "dev/harness_capture"
 import "dev/diagnostics"
@@ -214,6 +228,7 @@ local function updateGame()
 
     machine:update()
     machine:handleInput()
+    machine:get("overworld"):flushPendingPresentation()
     machine:draw()
 
     playdate.timer.updateTimers()

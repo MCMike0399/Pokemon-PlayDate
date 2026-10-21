@@ -14,6 +14,30 @@ Host-published run manifests may set `image_root: "frames"` for run-root `catalo
 
 Catalog rendering pushes/pops graphics context, explicitly zeros the draw offset, clears context clip/stencil, sets copy mode and deterministic text settings. It never advances animations/RNG/timers, mutates maps, switches zones, spawns sprites or invokes story predicates. It creates its own tile imagetable and reads shared character images without modifying their pixels or masks. Display offset is untouched. Context cleanup also occurs after errors. A fresh fixture is required before comparison because story changes to map definitions (such as removing starter balls) intentionally affect map images.
 
+## Current reviewed catalog
+
+The current baseline is [catalog-pewter](catalog-pewter/review.json):2494 images,
+including all1635 protected prior images and859 reviewed additions. The original
+[Viridian baseline](catalog-viridian/catalog.json) remains unchanged. Root checked
+1041 images against independent original-source transforms,859 before/after native
+image pairs and actual maps/poses/motion. The baseline normalizes only `image_root`
+to its flat layout; `catalog-native.json` preserves the native producer manifest.
+
+New lazy-region content uses `VisualCatalog.registerExporter(name, capabilities)`
+with explicit immutable inventory and ownership. It must export unvisited/evicted
+maps and exact source frames without materializing the live provider. A declared
+path/dimension/category/mask mismatch, missing/duplicate output or observed live
+state mutation fails. Supported restoration is narrow; unknown controller/model/
+weather mutations are explicitly reported as unsupported, not silently rewound.
+
+Ordinary `contracts` execution requires the named comprehensive suite's concrete
+859before/859after PNGs. The host preflights Pillow, waits for producer quiescence,
+checks native manifests and all1718 images, then compares complete RGBA/masks
+exactly. Its evidence includes source/build/process/request/result identities and
+hashes. Repeated exports within one process fail rather than reuse fixed paths.
+See [harness.md](harness.md). Added future-region art requires a new reviewed
+baseline; never regenerate an existing baseline just to silence a comparison.
+
 ## Local checks
 
 Create a development venv and install the pinned development dependency:

@@ -1,0 +1,161 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 1,
+        "player_pokemon": {
+          "species": "pikachu",
+          "level": 10
+        },
+        "trainer_name": "THUNDER WAVE TEST",
+        "enemy_party": [
+          {
+            "species": "sandshrew",
+            "level": 10,
+            "status": "sleep",
+            "status_turns": 3,
+            "sleep_duration": 3
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "THUNDER WAVE TEST wants to battle!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "THUNDER WAVE TEST sent out SANDSHREW!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press right",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIKACHU used THUNDER WAVE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "It doesn't affect SANDSHREW...",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-thunder-wave-ground",
+    {
+      "op": "assert",
+      "path": "battle.enemy.status",
+      "equals": "sleep"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.statusTurns",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.thunderWave",
+      "equals": 19
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 1
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SANDSHREW is fast asleep!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 1
+    }
+  ],
+  "outputs": [
+    "ability-thunder-wave-ground.png"
+  ]
+}

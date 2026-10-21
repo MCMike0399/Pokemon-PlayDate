@@ -1,3 +1,4 @@
+import "dev/catalogRuntime"
 -- Simulator-only, read-only catalog of actual production images.
 -- The host creates outputDir and publishes the returned table as catalog.json.
 local gfx <const> = playdate.graphics
@@ -51,14 +52,110 @@ local function same(a,b)
     for k in pairs(b) do if a[k]==nil then return false end end
     return true
 end
+local exporters={}
+local exporting=false
+local collecting=false
+local registering=false
+local protected
+local function protection()
+    if not protected then
+        protected=assert(json.decodeFile("dev/catalogProtected.json"),"reviewed catalog inventory missing")
+        assert(protected.schema==1 and #protected.images==1635,"reviewed catalog inventory changed")
+    end
+    return protected
+end
+local function pathOK(path)
+    return type(path)=="string" and #path<=255 and path:match("^[A-Za-z0-9_-]+%.png$")~=nil
+end
+local function rows(record)
+    local inventory=CatalogRuntime.guard(record.inventory)
+    assert(type(inventory)=="table" and type(inventory.images)=="table","exporter image inventory required")
+    assert(Party._array(inventory.images,16384),"bounded dense exporter inventory required")
+    local seen={}
+    for _,entry in ipairs(inventory.images) do
+        assert(pathOK(entry.path) and not seen[entry.path],"unsafe/duplicate exporter inventory path")
+        assert(Party._integer(entry.width,1,32768) and Party._integer(entry.height,1,32768),"explicit image dimensions required")
+        assert(type(entry.category)=="string" and type(entry.mask)=="boolean","explicit category and mask required")
+        seen[entry.path]=true
+    end
+    return Party._primitive(inventory)
+end
+function VisualCatalog.registerExporter(name,record)
+    assert(not exporting and not collecting and not registering,"cannot register during export")
+    assert(type(name)=="string" and #name<=64 and name:match("^[a-z][a-z0-9-]*$") and not exporters[name],"invalid/duplicate exporter name")
+    assert(type(record)=="table" and type(record.writer)=="function" and type(record.inventory)=="function","named writer/inventory protocol required")
+    for key,value in pairs(record) do
+        assert(key=="writer" or key=="inventory" or key=="ownsZone" or key=="ownsTile" or key=="ownsNPC","unknown exporter protocol field")
+        assert(type(value)=="function","exporter capabilities must be functions")
+    end
+    local entry={};for key,value in pairs(record) do entry[key]=value end
+    registering=true;local checked,problem=pcall(rows,entry);registering=false;assert(checked,problem);exporters[name]=entry
+    return function() assert(not exporting and not collecting and not registering,"cannot unregister during export");if exporters[name]==entry then exporters[name]=nil end end
+end
+function VisualCatalog.runExporter(name,consume)
+    assert(type(consume)=="function","image consumer required")
+    local record=assert(exporters[name],"unknown exporter")
+    local inventory=rows(record);local allowed,seen={},{}
+    for _,entry in ipairs(inventory.images) do allowed[entry.path]=entry end
+    assert(not collecting,"exporter already collecting");collecting=true
+    local values=table.pack(pcall(function() return CatalogRuntime.guard(function()
+        local sink={}
+        function sink.save(stem,image,category,mask)
+            local path=stem..".png"
+            local declared=assert(allowed[path],"undeclared exporter path: "..path)
+            assert(not seen[path],"duplicate exporter path: "..path)
+            local w,h=image:getSize()
+            assert(w==declared.width and h==declared.height and category==declared.category and (mask or false)==declared.mask,"exporter dimensions/metadata mismatch: "..path)
+            seen[path]=true;consume(stem,image,category,mask)
+        end
+        function sink.asset(stem,image,category,backgrounds)
+            sink.save(stem,image,category)
+            local w,h=image:getSize()
+            sink.save(stem.."__mask",image:getMaskImage() or gfx.image.new(w,h,gfx.kColorWhite),category,true)
+            if backgrounds then for _,bg in ipairs({"white","black","texture"}) do
+                local composite=render(w,h,bg=="black" and gfx.kColorBlack or gfx.kColorWhite,function()
+                    if bg=="texture" then for y=0,h-1,4 do for x=0,w-1,4 do if (x//4+y//4)%2==0 then gfx.fillRect(x,y,4,4) end end end end
+                    image:draw(0,0)
+                end)
+                sink.save(stem.."__"..bg,composite,category.."-background")
+            end end
+        end
+        local metadata=record.writer(sink)
+        for path in pairs(allowed) do assert(seen[path],"missing declared exporter output: "..path) end
+        return Party._primitive(metadata or {})
+    end) end))
+    collecting=false;assert(values[1],values[2]);return table.unpack(values,2,values.n)
+end
+local function owns(kind,value)
+    for _,record in pairs(exporters) do if record[kind] and record[kind](value) then return true end end
+    return false
+end
+local function legacyZone(key,zone) return protection().maps[key] or not owns("ownsZone",zone) end
+local function legacyNPC(key) return protection().npcs[key] or not owns("ownsNPC",key) end
+local function legacyTile(key) return protection().tiles[key] or not owns("ownsTile",key) end
+function VisualCatalog.expectedInventory()
+    local result={schema=1,images={},exporters={},protected_count=1635,review_status="additions unreviewed"}
+    local seen={}
+    local function add(entry)
+        assert(pathOK(entry.path) and not seen[entry.path],"duplicate/unsafe catalog path: "..tostring(entry.path))
+        seen[entry.path]=true;result.images[#result.images+1]=Party._primitive(entry)
+    end
+    for _,entry in ipairs(protection().images) do add(entry) end
+    for _,name in ipairs(keys(exporters)) do
+        local inventory=rows(exporters[name]);result.exporters[name]=inventory
+        for _,entry in ipairs(inventory.images) do add(entry) end
+    end
+    table.sort(result.images,function(a,b) return a.path<b.path end);return result
+end
+
 local function importedTiles()
     local registries,entries={},{}
     if WorldTiles then registries[WorldTiles]=true end
-    for _,zone in pairs(zoneRegistry) do registries[zone.registry]=true end
+    for key,zone in pairs(zoneRegistry) do if legacyZone(key,zone) then registries[zone.registry]=true end end
     for registry in pairs(registries) do
         for id=1,registry:maxID() do
             local entry=registry:entry(id)
-            if entry.kind~="base" then
+            if entry.kind~="base" and legacyTile(entry.key) then
                 assert(entry.kind=="grid","unsupported catalog tile kind")
                 assert(not entries[entry.key] or same(entries[entry.key],entry),"conflicting stable catalog tile key: "..entry.key)
                 entries[entry.key]=entry
@@ -76,7 +173,7 @@ end
 local function importedMapName(zone) return "map_imported_"..stableName(zone.stableID) end
 local originalNPC={oak=true,rival=true,mom=true,daisy=true}
 -- Pure inventory seam for root SDK contracts and independent host coverage.
-function VisualCatalog.additionInventory()
+local function additionInventory()
     local result={images={},tiles={},npcs={},maps={},event_art={},runtime_art={}}
     local function add(name,category,backgrounds)
         result.images[#result.images+1]={path=name..".png",category=category,mask=false}
@@ -109,7 +206,7 @@ function VisualCatalog.additionInventory()
         add("tile_imported_"..stableName(key),"imported-tile")
         result.tiles[#result.tiles+1]={key=key,collision=entries[key].collision,terrain=entries[key].terrain}
     end
-    for _,name in ipairs(keys(SpriteFactory.npc)) do if not originalNPC[name] then
+    for _,name in ipairs(keys(SpriteFactory.npc)) do if not originalNPC[name] and legacyNPC(name) then
         assert(#name<=100 and name:match("^[A-Za-z0-9_]+$"),"unsafe runtime NPC key")
         local facings={}
         for _,dir in ipairs({"down","up","left","right"}) do if SpriteFactory.npc[name][dir] then
@@ -125,7 +222,7 @@ function VisualCatalog.additionInventory()
         end
     end end
     for _,key in ipairs(keys(zoneRegistry)) do local zone=zoneRegistry[key]
-        if zone.imported then
+        if zone.imported and legacyZone(key,zone) then
             local prefix=importedMapName(zone)
             for _,suffix in ipairs({"","__viewport","__collision","__events"}) do
                 result.images[#result.images+1]={path=prefix..suffix..".png",category="map"}
@@ -137,10 +234,14 @@ function VisualCatalog.additionInventory()
     return result
 end
 
-function VisualCatalog.write(outputDir)
+function VisualCatalog.additionInventory() return additionInventory() end
+
+local function writeCatalog(outputDir)
     assert(playdate.isSimulator and playdate.simulator, "catalog requires Simulator")
     assert(type(outputDir) == "string" and outputDir:sub(1, 1) == "/", "absolute output directory required")
-    local manifest = { schema = 1, images = {}, missing = {}, maps = {}, tiles = {}, source_npcs = {}, event_art = {}, runtime_art = {},
+    local expected=VisualCatalog.expectedInventory()
+    local declarations,seen={},{};for _,entry in ipairs(expected.images) do declarations[entry.path]=entry end
+    local manifest = { expected_inventory=expected, exporters={}, schema = 1, images = {}, missing = {}, maps = {}, tiles = {}, source_npcs = {}, event_art = {}, runtime_art = {},
         added_inventory = VisualCatalog.additionInventory(),
         phase = { waterShifts = {0,1,2,3,4,3,2,1}, flowerFrames = {1,2,3,1}, map = "initial factory phase; current zone definitions" },
         limitations = { "Static catalog does not replace frame-sequence journeys.",
@@ -148,8 +249,12 @@ function VisualCatalog.write(outputDir)
             "Battle PNGs reproduce pinned pokered art exactly; historical importer revision remains unknown." } }
     local function save(name, image, category, mask)
         local filename = name .. ".png"
-        assert(#filename<=255 and not filename:find("/",1,true) and not filename:find("\\",1,true),"unsafe catalog filename")
+        assert(pathOK(filename) and not seen[filename],"unsafe/duplicate catalog filename: "..filename)
+        local declared=assert(declarations[filename],"undeclared catalog path: "..filename)
+        seen[filename]=true
         local w, h = image:getSize()
+        assert(w==declared.width and h==declared.height,"catalog dimensions disagree with declaration: "..filename)
+        assert(category==declared.category and (mask or false)==declared.mask,"catalog metadata differs from declaration: "..filename)
         playdate.simulator.writeToFile(image, outputDir .. "/" .. filename)
         manifest.images[#manifest.images + 1] = { path = filename, width = w, height = h, category = category, mask = mask or false }
     end
@@ -203,10 +308,12 @@ function VisualCatalog.write(outputDir)
             end
         end
         for _, name in ipairs(keys(SpriteFactory.npc)) do
+            if legacyNPC(name) then
             for _, dir in ipairs({"down", "up", "left", "right"}) do
                 local image=SpriteFactory.npc[name][dir]
                 if image then asset("npc_" .. name .. "_" .. dir,image,"character",true) end
             end
+        end
         end
         local source=sourceSprites()
         if source then
@@ -275,6 +382,7 @@ function VisualCatalog.write(outputDir)
         end
         for _, key in ipairs(keys(zoneRegistry)) do
             local zone = zoneRegistry[key]
+            if legacyZone(key,zone) then
             local prefix=zone.imported and importedMapName(zone) or "map_"..key
             local events={}
             local registryKeys={}
@@ -329,9 +437,22 @@ function VisualCatalog.write(outputDir)
                 registry_keys=keys(registryKeys), source_events=events, binding_issues=zone:getBindingIssues(),
                 width = zone.width, height = zone.height, doors = zone.doors,
                 coordinates = "zero-based movement cells; 32 Playdate pixels/cell", npcPolicy = "all definitions, including conditional; predicates not evaluated" }
+            end
         end
+        for _,name in ipairs(keys(exporters)) do
+            manifest.exporters[name]=VisualCatalog.runExporter(name,save)
+        end
+        for path in pairs(declarations) do assert(seen[path],"missing declared catalog output: "..path) end
     end)
     gfx.popContext()
     assert(ok, err)
+    table.sort(manifest.images,function(a,b) return a.path<b.path end)
     return manifest
+end
+function VisualCatalog.write(outputDir)
+    assert(not exporting,"catalog export already running")
+    exporting=true
+    local result=table.pack(pcall(function() return CatalogRuntime.guard(function() return writeCatalog(outputDir) end) end))
+    exporting=false
+    assert(result[1],result[2]);return table.unpack(result,2,result.n)
 end

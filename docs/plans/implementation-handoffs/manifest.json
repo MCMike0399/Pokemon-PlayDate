@@ -1,0 +1,47 @@
+{
+  "status": "frozen source handoffs; acceptance is separate in validation progress",
+  "packets": [
+    {
+      "packet": "pokemon-comprehensive-catalog",
+      "archive": "pokemon-comprehensive-catalog.tar.gz",
+      "sha256": "e9563f84135eb39f08a989c2dbfa258c8f57fa51191e5516a5b8d28e74b0aca0",
+      "bytes": 81913
+    },
+    {
+      "packet": "pokemon-catalog-motion-followup",
+      "archive": "pokemon-catalog-motion-followup.tar.gz",
+      "sha256": "8158c259171f4b0abd6e9787ac775874b5bcbca27acb69a374fdd0e2432f0f75",
+      "bytes": 8393
+    },
+    {
+      "packet": "pokemon-host-composed-ba8975d",
+      "archive": "pokemon-host-composed-ba8975d.tar.gz",
+      "sha256": "2b4184a29583c8f5f903e6bd45abd188b77d885b88810dbe7d2d428de18a7afc",
+      "bytes": 74121
+    },
+    {
+      "packet": "pokemon-early-abilities",
+      "archive": "pokemon-early-abilities.tar.gz",
+      "sha256": "70c9868b9ead416b8bc844fd1114cf85281a1030a7113c362560219231f1f049",
+      "bytes": 200425
+    },
+    {
+      "packet": "pokemon-early-abilities-followup-01",
+      "archive": "pokemon-early-abilities-followup-01.tar.gz",
+      "sha256": "c99433f98d6f432047b87e122357d8b0470a399c3abd863a4c898fa3920a5360",
+      "bytes": 118010
+    },
+    {
+      "packet": "pokemon-world-presentation",
+      "archive": "pokemon-world-presentation.tar.gz",
+      "sha256": "1049d7a9f128482559e68aaf3b060105ba823e713f942cd70f5185d1a374627d",
+      "bytes": 14570
+    },
+    {
+      "packet": "pokemon-mt-moon-slice",
+      "archive": "pokemon-mt-moon-slice.tar.gz",
+      "sha256": "c30ccf0403bc4a24581e6c8673f9e44898a49e7a9223fb55c7ce1969d469c02d",
+      "bytes": 387527
+    }
+  ]
+}

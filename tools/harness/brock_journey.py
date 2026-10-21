@@ -340,7 +340,22 @@ class BrockJourney(ParcelJourney):
             except ProtocolError:continue
             if projection[0]==target_id and not self.model().collision[event['y']][event['x']]:candidates.append((event,projection))
         if not candidates:raise ProtocolError('no supported source warp to '+target_id)
-        event,projection=min(candidates,key=lambda e:abs(e[0]['x']-self.position()[0])+abs(e[0]['y']-self.position()[1]))
+        # Adjacent warp cells can have different reachable approaches. A sign
+        # below one Forest exit makes its Manhattan-nearest cell reachable only
+        # through the other warp, which would already change maps. Choose an
+        # actual source-valid route with all other warp cells still blocked.
+        reachable=[]
+        model=self.model()
+        for event,projection in candidates:
+            point=(event['x'],event['y'])
+            try:route=model.path(self.position(),{point},self.occupied(),allow_warps={point})
+            except ProtocolError as error:
+                if str(error).startswith('no source-valid '):continue
+                raise
+            cost=sum((2 if step.kind=='ledge'else 1)+8*int(model.grass[step.destination[1]][step.destination[0]])for step in route)
+            reachable.append((cost,event,projection))
+        if not reachable:raise ProtocolError('no reachable source warp to '+target_id)
+        _,event,projection=min(reachable,key=lambda entry:entry[0])
         interior=self.state['zone_id']not in {PARCEL_NAMES['Route1'],PARCEL_NAMES['ViridianCity'],MAPS['Route2'],MAPS['ViridianForest'],MAPS['PewterCity']}
         self.navigate((event['x'],event['y']),transition=target_id)
         if self.state['zone_id']!=target_id:

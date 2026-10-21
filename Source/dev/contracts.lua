@@ -34,7 +34,7 @@ end
 function Contracts.run()
     local savedRNG = RulesRNG.snapshot()
     local savedOffsetX, savedOffsetY = playdate.display.getOffset()
-    local report = { ok = true, passed = 0, failed = 0, tests = {} }
+    local report = { ok = true, passed = 0, failed = 0, tests = {}, suites = {} }
     local function test(name, fn)
         local ok, err = pcall(fn)
         report.tests[#report.tests + 1] = { name = name, ok = ok, error = not ok and tostring(err) or nil }
@@ -363,6 +363,9 @@ function Contracts.run()
     end)
 
     for _, suite in ipairs(suites) do
+        local executed = { id = suite.name, ok = false, passed = 0, failed = 1 }
+        if suite.name == "comprehensive-catalog" then executed.artifact_qualifier = "catalog-invariance-v1" end
+        report.suites[#report.suites + 1] = executed
         local ok, child = pcall(suite.run)
         if not ok then
             test(suite.name .. ": execution", function() error(child) end)
@@ -377,7 +380,9 @@ function Contracts.run()
                 end)
                 if result.ok == true then passed = passed + 1 else failed = failed + 1 end
             end
+            executed.passed, executed.failed, executed.ok = passed, failed, failed == 0
             if child.passed ~= passed or child.failed ~= failed or child.ok ~= (failed == 0) then
+                executed.ok = false
                 test(suite.name .. ": report", function() error("inconsistent contract totals") end)
             end
         end

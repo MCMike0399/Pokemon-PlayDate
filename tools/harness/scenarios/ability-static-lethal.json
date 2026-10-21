@@ -1,0 +1,169 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "trainer_name": "STATIC TEST",
+        "enemy_party": [
+          {
+            "species": "pikachu",
+            "level": 5,
+            "hp": 1,
+            "status": "sleep",
+            "status_turns": 3,
+            "sleep_duration": 3
+          }
+        ],
+        "player_pokemon": {
+          "species": "rattata",
+          "level": 6
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "STATIC TEST wants to battle!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "STATIC TEST sent out PIKACHU!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIKACHU is fast asleep!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA used TACKLE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.enemy.hp",
+      "equals": 0,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIKACHU's Static!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "record ability-static-lethal 36",
+    "shot ability-static-popup",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA is paralyzed!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-static-status",
+    {
+      "op": "assert",
+      "path": "battle.player.status",
+      "equals": "paralyze"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 5
+    }
+  ],
+  "outputs": [
+    "ability-static-lethal-01.png",
+    "ability-static-popup.png",
+    "ability-static-status.png"
+  ]
+}

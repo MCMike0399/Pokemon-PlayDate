@@ -88,6 +88,13 @@ def finalize_captures(client, data, output):
     return manifest
 
 
+def qualify_catalog(client, data, output):
+    # Called only after successful producer/capture finalization. Keep host
+    # qualification failure distinct from an unconfirmed producer barrier.
+    from tools.harness import catalog_qualification
+    return catalog_qualification.finalize(output, data, getattr(client, 'evidence', output), getattr(client, 'identity', {}))
+
+
 def prepare(project, sdk, output, session):
     source = output / 'Source'
     shutil.copytree(project / 'Source', source)
@@ -166,8 +173,13 @@ def _run(args):
         raise ProtocolError('scenario must be a JSON object')
     from tools.harness import restarting
     restarting.validate(scenario, getattr(args, 'qualification', False))
+    if not args.build_only and any(group.get('journey', {}).get('name') == 'npc-motion-continue' for group in scenario.get('processes', [scenario])):
+        from tools.harness.motion_journey import visual_preflight
+        visual_preflight(scenario)
     try:
         metadata = prepare(PROJECT, sdk, output, session)
+        from tools.harness import catalog_qualification
+        catalog_qualification.prepare(output, scenario, launching=not args.build_only)
     except BaseException as error:
         atomic_json(output / 'outcome.json', {'ok': False, 'error': str(error), 'session_id': session})
         raise
@@ -225,6 +237,7 @@ def _run(args):
                 verify_png(output / 'frames' / path)
             finalize_captures(client, data, output)
             captures_finalized = True
+            qualify_catalog(client, data, output)
             atomic_json(output / 'outcome.json', {'ok': True, 'session_id': session})
             print(output)
             return 0

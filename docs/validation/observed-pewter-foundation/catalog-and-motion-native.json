@@ -1,0 +1,55 @@
+{
+  "status": "root native verification; live integration and first-render followup pending",
+  "runs": [
+    {
+      "name": "pokemon-catalog-normal-qualified-01",
+      "outcome": {
+        "ok": true,
+        "session_id": "ea024157e2514517bd1480dd90b0f09f"
+      }
+    },
+    {
+      "name": "pokemon-motion-save-continue-01",
+      "outcome": {
+        "ok": true,
+        "process_generations": 2,
+        "session_id": "5bbaf9ea48d54b59b7bf79f845654599"
+      }
+    },
+    {
+      "name": "pokemon-motion-south-gate-01",
+      "outcome": {
+        "ok": true,
+        "session_id": "0e2f966c03b54b558706ca83202a74a6"
+      }
+    },
+    {
+      "name": "pokemon-motion-pewter-city-01",
+      "outcome": {
+        "ok": true,
+        "session_id": "b78e27e200034490be8ea22ff1df2a9c"
+      }
+    },
+    {
+      "name": "pokemon-motion-pewter-mart-01",
+      "outcome": {
+        "ok": true,
+        "session_id": "b57aad97b9194ac4b41d6b83b510cfaf"
+      }
+    }
+  ],
+  "catalog": {
+    "sdk_passed": 523,
+    "paired_exact": 859,
+    "actual_paired_pngs": 1718,
+    "protected_exact": 1635,
+    "independent_source_rgba_exact": 1041,
+    "default_images": 2494
+  },
+  "motion": "Three source walkers pause/resume actual input; exact moving DTO and both streams across two independently confirmed process PIDs.",
+  "review": "Root viewed all8 native map viewports,120 directional poses ontexture, event-marker crops for all8 maps and actual7 moving tick crops perwalker; viewed first resumed world and prior-render Title boundary.",
+  "discovered_limitation": "Exact Continue semantic install boundary PNG02 still contains prior Title framebuffer. Snapshot proof remains valid; composed driver must separately capture/assert first rendered world PNG03 and its actual updated actor pose. No claim that Title PNG visually proves saved world.",
+  "archive_sha256": "e17a1752f6f79849da8d4abea6a801ec50d4dcffcf85b5bf993d84fda8d068a1",
+  "archive_bytes": 6120338,
+  "device_validation": false
+}

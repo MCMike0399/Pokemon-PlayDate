@@ -387,6 +387,9 @@ def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None,
     if scenario.get("journey", {}).get("name") == "battle-medicine":
         from tools.harness.battle_medicine_journey import run as run_medicine
         return run_medicine(client, scenario, evidence_dir)
+    if scenario.get("journey", {}).get("name") in {"npc-motion", "npc-motion-save", "npc-motion-continue"}:
+        from tools.harness.motion_journey import run as run_motion
+        return run_motion(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")

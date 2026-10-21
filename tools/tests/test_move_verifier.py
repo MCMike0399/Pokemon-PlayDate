@@ -151,6 +151,17 @@ class MoveFieldTests(unittest.TestCase):
         self.assertEqual('status-dispatch-review-required', inventory['pound']['status'])
         self.assertFalse(result['ok'])
 
+    def test_explicit_ohko_dispatch_still_requires_independent_runtime_evidence(self):
+        rows = moves(); rows['pound'].update(power=0, ohko=True)
+        result = verify({'fixture': species()}, rows, Oracle(fixture()))
+        inventory = {x['move']: x for x in result['runtime_semantics']}
+        self.assertEqual('requires-independent-runtime-contract', inventory['pound']['status'])
+        self.assertFalse(result['runtime_semantics_complete'])
+        rows['pound']['ohko'] = False
+        result = verify({'fixture': species()}, rows, Oracle(fixture()))
+        inventory = {x['move']: x for x in result['runtime_semantics']}
+        self.assertEqual('missing-damage-dispatch', inventory['pound']['status'])
+
 
 class SourceTests(unittest.TestCase):
     def setUp(self):

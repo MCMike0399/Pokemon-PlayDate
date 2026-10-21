@@ -1,8 +1,9 @@
 """Player decision policy; runtime journeys prove the actual item input flow."""
 import unittest
 
-from tools.harness.brock_journey import BrockJourney, choose_battle_medicine
+from tools.harness.brock_journey import BrockJourney, SourceGeometry, choose_battle_medicine
 from tools.harness.parcel_journey import Geometry
+from tools.harness.protocol import ProtocolError
 
 
 class BattleMedicinePolicyTests(unittest.TestCase):
@@ -87,6 +88,41 @@ class InteractionReplanningTests(unittest.TestCase):
         journey.step = step
         journey.interact(source_id=source)
         self.assertEqual(commands, [])
+
+
+class WarpApproachTests(unittest.TestCase):
+    def journey(self, blocked=False):
+        source, target = "pokered:VIRIDIAN_FOREST", "pokered:VIRIDIAN_FOREST_NORTH_GATE"
+        geometry = SourceGeometry(source, [
+            [1, 0, 0, 1],
+            [1, int(blocked), 1, 1],
+            [1, 0, 0, 1],
+        ], events={"objects": [], "background_events": [{"x": 2, "y": 1}],
+                   "warps": [{"x": 2, "y": 0}, {"x": 1, "y": 0}]})
+        journey = BrockJourney(None, "/private/tmp", {})
+        journey.state = {"zone_id": source, "player": {"x": 2, "y": 2}, "npcs": []}
+        journey.model = lambda: geometry
+        journey.warp_projection = lambda event: (target, (event["x"], 6))
+        chosen = []
+
+        def navigate(point, transition=None):
+            chosen.append(point)
+            journey.state.update(zone_id=transition, player={"x": point[0], "y": 6})
+
+        journey.navigate = navigate
+        return journey, target, chosen
+
+    def test_chooses_reachable_exit_without_crossing_another_warp(self):
+        journey, target, chosen = self.journey()
+        journey.warp(target)
+        self.assertEqual(chosen, [(1, 0)])
+        self.assertEqual(journey.state["zone_id"], target)
+
+    def test_no_reachable_exit_fails_before_sending_movement(self):
+        journey, target, chosen = self.journey(blocked=True)
+        with self.assertRaisesRegex(ProtocolError, "no reachable source warp"):
+            journey.warp(target)
+        self.assertEqual(chosen, [])
 
 
 if __name__ == "__main__":

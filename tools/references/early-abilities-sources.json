@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "files": {
+    "bw_ability_handlers.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/ability_handlers.c",
+      "sha256": "b97ede4c574b67f3c7d15e5149dd83f4a47dbc800f730421e6ed14455e2b135e"
+    },
+    "bw_btl_server_flow.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow.c",
+      "sha256": "f1498c627ae38274d7ecfd0e1f50585958753e1f876f71a5eac6633972066909"
+    },
+    "bw_btl_calc.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_calc.c",
+      "sha256": "7a85311212044df299b64ebe9de1996c1ac3a736a591217973c4cf0e71b6ba17"
+    },
+    "bw_btl_pokeparam.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_pokeparam.c",
+      "sha256": "f32695f748a235d17ad24557d929a74f00068f1aa3913f13974a0a9290dca452"
+    },
+    "bw_btl_field.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_field.c",
+      "sha256": "323a1e420f6b817bd6c6ec59c8adbdff499c8f055dcd7ed40711b55ef2b2b128"
+    },
+    "bw_battle_event.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/battle_event.c",
+      "sha256": "0b91e55c9f6a5cc21bea290e38de33b784e000b5c389bb3f339239a856b74646"
+    },
+    "bw_move_handlers.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/move_handlers.c",
+      "sha256": "94ac19013945f5cabb01cdd18678df2e6716a3f8e0f90efe77fb0173855f7fbe"
+    },
+    "bw_nitro_fx.h": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/lib/nitro/include/nitro/fx.h",
+      "sha256": "2ad9293dcab8264d54eb72f8c5c2f38e4e6b9a740eb1c0f95650479f1488ff98"
+    },
+    "ps_data_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/moves.ts",
+      "sha256": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7"
+    },
+    "ps_data_mods_gen8_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen8/moves.ts",
+      "sha256": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e"
+    },
+    "ps_data_mods_gen7_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen7/moves.ts",
+      "sha256": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc"
+    },
+    "ps_data_mods_gen6_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen6/moves.ts",
+      "sha256": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb"
+    },
+    "ps_data_mods_gen5_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/moves.ts",
+      "sha256": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
+    },
+    "ps_data_conditions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/conditions.ts",
+      "sha256": "d27aa18fade4d85152b4ce8a002b9c6801e5e08f1859db918e14695797875eda"
+    },
+    "ps_data_mods_gen5_conditions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/conditions.ts",
+      "sha256": "a45e44a9459209e082b2775cc1b4a24fc32ef9067d0909b8f9d75d7137b3a7dc"
+    },
+    "ps_data_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/abilities.ts",
+      "sha256": "e942ef6a75cdd50095f6b68c27e772ea91f2202714a30b04539ff17b7b93c065"
+    },
+    "ps_data_mods_gen8_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen8/abilities.ts",
+      "sha256": "da491e974abbc07c10267cd7ddd6713fea035be415c3d1e69c916d44b9f2ad51"
+    },
+    "ps_data_mods_gen7_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen7/abilities.ts",
+      "sha256": "9f9928a6477e78f95dcc6c0bdca686f812cbe4571c034080d4c9ab2136b9e776"
+    },
+    "ps_data_mods_gen6_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen6/abilities.ts",
+      "sha256": "01dd91f133cf9ee0215b3a8b04a3418d26c0f9a380781fb4966e5d7f2808e5f9"
+    },
+    "ps_data_mods_gen5_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/abilities.ts",
+      "sha256": "b0fa8dac88cbbde30d38eb7b8128af37baded1063f4dbec742061c0aee9059bb"
+    },
+    "ps_sim_battle.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/battle.ts",
+      "sha256": "966fe2263d943343bebc7bbf44ba5ec93454448276a6d45b497885d304dfda58"
+    },
+    "ps_sim_battle-actions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/battle-actions.ts",
+      "sha256": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4"
+    },
+    "ps_sim_pokemon.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/pokemon.ts",
+      "sha256": "42ebab9dcfc823b032d40dabb8aafc9e76276030f89bd9a0e98b5e7fb54cb607"
+    },
+    "ps_data_mods_gen5_scripts.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/scripts.ts",
+      "sha256": "09274fa360b0c7bff0696d246291b3d9104f7696581d8bdc89bea0365c153905"
+    },
+    "pokered_inventory.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/engine/items/inventory.asm",
+      "sha256": "410632e0a82e3491fd6d2898c337eb4a8e83ce6a1b31dad0a12bf887a27a3f7e"
+    },
+    "personal_b2w2": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Resources/byte/personal/personal_b2w2",
+      "sha256": "6df24e7f00dab32322d9d8f8b3209d30de1c89b0de88277081fe53434211830f"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import "battle/conditions"
+import "battle/effects"
 -- battle/battle.lua — Battle rules engine
 --
 -- The Battle owns a nested StateMachine with three phases:
@@ -35,7 +36,7 @@ end
 --   * modifier order with flooring at each step:
 --     crit -> random 85-100% -> STAB -> type -> burn
 --   * burn halves physical damage
-function calcDamage(attacker, defender, move, effectivePower)
+function calcDamage(attacker, defender, move, effectivePower, effects)
     if move.power == 0 then return { damage = 0, effectiveness = 1, isCrit = false, isSTAB = false } end
 
     -- Crit roll first: it changes which stat stages count (1/16 base rate)
@@ -58,6 +59,10 @@ function calcDamage(attacker, defender, move, effectivePower)
     end
     local atkStat = applyStageMod(atkBase, atkStage)
     local defStat = applyStageMod(defBase, defStage)
+    if effects then
+        atkStat=effects:attackStat(attacker,move,atkStat)
+        defStat=effects:defenseStat(defender,move,defStat)
+    end
 
     -- STAB (Same Type Attack Bonus)
     local isSTAB = not move.typeless and (attacker.type == move.type or attacker.type2 == move.type)
@@ -80,7 +85,7 @@ function calcDamage(attacker, defender, move, effectivePower)
         damage = math.floor(damage * 1.5)
     end
     damage = math.floor(damage * effectiveness)
-    if attacker.status == "burn" and move.category == "physical" then
+    if attacker.status == "burn" and move.category == "physical" and not (effects and effects:ignoresBurn(attacker)) then
         damage = math.floor(damage / 2)
     end
 
@@ -109,10 +114,11 @@ end
 
 -- Accuracy check: move accuracy scaled by attacker accuracy vs defender
 -- evasion stages. accuracy == 0 means the move never misses (Swift etc.)
-function checkAccuracy(move, attacker, defender)
+function checkAccuracy(move, attacker, defender, effects)
     if move.accuracy == 0 then return true end
     local stage = attacker.statStages.acc - defender.statStages.eva
-    local threshold = move.accuracy * accStageMult(stage)
+    local base=effects and effects:accuracy(attacker,defender,move) or move.accuracy
+    local threshold = math.min(100,math.floor(base * accStageMult(stage)))
     return RulesRNG.random(1, 100) <= threshold
 end
 
@@ -246,6 +252,7 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     self.selectionKind = nil
     self.captureResult = nil
     self.conditions = BattleConditions(self)
+    self.effects = BattleEffects(self)
     self.awardedEnemies = {}
     self.participants = {[playerPokemon]=true}
 
@@ -411,6 +418,7 @@ end
 function Battle:clearVolatiles()
     self:cancelPendingLearning()
     self.conditions:clearAll()
+    self.effects:close()
 end
 function Battle:enemyTurn()
     if self.conditions:locked(self.enemy) then return {side="enemy",move=moveData.rollout,key="rollout",continuation=true} end
@@ -515,10 +523,11 @@ function Battle:chooseParty(index)
     if forced and self.player:isAlive() then return false,"replacement-not-required" end
     if not forced and (not self.player:isAlive() or not self.enemy:isAlive()) then return false,"fainted" end
     if not forced and self.conditions:locked(self.player) then return false,"locked-move" end
-    if not forced and self.conditions:trapped(self.player) then return false,"trapped" end
+    if not forced and (self.conditions:trapped(self.player) or self.effects:withdrawBlocked(self.player)) then return false,"trapped" end
     local old=self.player
     assert(self.party:switch(index))
     self.conditions:clear(old)
+    self.effects:clear(old)
     old:onSwitchOut()
     self.player=chosen
     chosen:resetStages()
@@ -606,7 +615,8 @@ end
 
 function Battle:tryRun()
     if self:isAwaitingCommand() and self.conditions:locked(self.player) then return false,"locked-move" end
-    if self:isAwaitingCommand() and self.conditions:trapped(self.player) then return false,"trapped" end
+    if self:isAwaitingCommand() and not self.effects:sureEscape(self.player)
+       and (self.conditions:trapped(self.player) or self.effects:withdrawBlocked(self.player)) then return false,"trapped" end
     if not self:isAwaitingCommand() or self.outcome then return false, "wrong-phase" end
     if self.selectionKind then return false, "selection-open" end
     if not self.player:isAlive() or not self.enemy:isAlive() then return false, "fainted" end
@@ -619,20 +629,18 @@ function Battle:tryRun()
         return true
     end
 
-    self.runAttempts = self.runAttempts + 1
-
-    -- Gen III-V run formula: F = (A*128/B + 30*attempts) mod 256,
-    -- escape if rand(0,255) < F
-    local playerSpe = self.player.spe
-    local enemySpe = math.max(1, self.enemy.spe)
-    local runChance = math.floor(playerSpe * 128 / enemySpe + 30 * self.runAttempts) % 256
-
-    if RulesRNG.random(0, 255) < runChance then
+    local playerSpe,enemySpe=self.player.spe,math.max(1,self.enemy.spe)
+    local chance=((playerSpe*4096)//enemySpe)*128//4096 + 30*self.runAttempts
+    local escaped=self.effects:sureEscape(self.player) or playerSpe>enemySpe
+    if not escaped then escaped=RulesRNG.random(0,255)<chance end
+    if escaped then
         self:runScript(function()
+            if self.effects:sureEscape(self.player) then self:say(self.player.name .. "'s Run Away!") end
             self:say("Got away safely!")
             return "run"
         end)
     else
+        self.runAttempts=self.runAttempts+1
         self:runScript(function()
             self:say("Can't escape!")
             -- Enemy gets a free turn
@@ -773,8 +781,31 @@ function Battle:performMove(move)
         return nil
     end
 
+    -- Gen V C execution2097/PS hitStepTypeImmunity precedes accuracy.
+    -- Ordinary status moves ignore type charts; the generated explicit flag
+    -- enables Thunder Wave's type immunity without changing generic status.
+    if (move.category~="status" or move.typeImmunity) and not move.typeless
+       and opponentTargets[move.targetId or 10]
+       and TypeChart.getMatchup(move.type,defender.type,defender.type2)==0 then
+        if move.rollout then self.conditions:of(attacker).rollout=nil end
+        self:say("It doesn't affect " .. defender.name .. "...")
+        return nil
+    end
+
     -- One accuracy roll for the whole move (Gen V) — status moves miss too
-    if not checkAccuracy(move, attacker, defender) then
+    if move.ohko then
+        local hit,reason=self.effects:ohko(attacker,defender,move)
+        if not hit then
+            self:say(reason=="sturdy" and (defender.name .. " is protected by Sturdy!") or "But it failed!")
+            return nil
+        end
+        local receipt=self.effects:hit(attacker,defender,move,defender.hp)
+        self.lastDamage=receipt.removed
+        self:say("It's a one-hit KO!")
+        self.effects:afterHit(receipt)
+        return self:handleFaint()
+    end
+    if not checkAccuracy(move, attacker, defender, self.effects) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say(attacker.name .. "'s attack missed!")
         return nil
@@ -782,39 +813,34 @@ function Battle:performMove(move)
 
     if move.power > 0 then
         local effectiveness = move.typeless and 1 or TypeChart.getMatchup(move.type, defender.type, defender.type2)
-        if effectiveness == 0 then
-            if move.rollout then self.conditions:of(attacker).rollout=nil end
-            self:say("It doesn't affect " .. defender.name .. "...")
-            return nil
-        end
 
         -- Multi-hit: one accuracy roll, independent damage/crit per hit.
-        -- Gen V 2-5 distribution: 2 or 3 hits 1/3 each, 4 or 5 hits 1/6 each
-        local hits = 1
-        if move.minHits and move.maxHits and move.maxHits > 1 then
-            if move.minHits == 2 and move.maxHits == 5 then
-                local roll = RulesRNG.random(6)
-                if roll <= 2 then hits = 2
-                elseif roll <= 4 then hits = 3
-                elseif roll == 5 then hits = 4
-                else hits = 5 end
-            else
-                hits = RulesRNG.random(move.minHits, move.maxHits)
-            end
-        end
+        -- Gen V 2-5 distribution: 35/35/15/15 percent.
+        local hits = self:hitCount(move)
 
         if move.rollout and not self.conditions:locked(attacker) then self.conditions:of(attacker).rollout={hits=0} end
-        local power=self.conditions:basePower(attacker,move)
+        local power=self.effects:basePower(move,self.conditions:basePower(attacker,move))
         local total, landed, anyCrit = 0, 0, false
-        for _ = 1, hits do
-            local result = calcDamage(attacker, defender, move, power)
-            local before = defender.hp
-            defender:takeDamage(result.damage)
-            total = total + before - defender.hp
+        for hitNumber = 1, hits do
+            local result = calcDamage(attacker, defender, move, power,self.effects)
+            local receipt=self.effects:hit(attacker,defender,move,result.damage,hitNumber)
+            local before=receipt.before
+            total=total+receipt.removed
             landed = landed + 1
             anyCrit = anyCrit or result.isCrit
-            if before>defender.hp then self.conditions:rageHit(defender) end
-            if not defender:isAlive() then break end
+            self:say(defender.name .. " took " .. receipt.removed .. " damage!")
+            if result.isCrit then self:say("A critical hit!") end
+            if receipt.removed>0 then self.conditions:rageHit(defender) end
+            self.effects:announceEndure(receipt)
+            -- C DamageListCore: drain, secondary effects, contact reactions;
+            -- whole-move recoil follows DamageMultiHit, before terminal verdict.
+            if receipt.removed>0 and move.drain and move.drain>0 then
+                attacker:heal(math.max(1,math.floor(receipt.removed*move.drain/100+0.5)))
+                self:say(defender.name .. " had its energy drained!")
+            end
+            self:applyMoveSecondaries(move)
+            self.effects:afterHit(receipt)
+            if not defender:isAlive() or not attacker:isAlive() then break end
         end
         if move.rollout then
             local state=self.conditions:of(attacker);state.rollout.hits=state.rollout.hits+1
@@ -828,7 +854,6 @@ function Battle:performMove(move)
             self.shakeIntensity = 3
         end
 
-        self:say(defender.name .. " took " .. total .. " damage!")
         if landed > 1 then
             self:say("Hit " .. landed .. " times!")
         end
@@ -837,18 +862,12 @@ function Battle:performMove(move)
         elseif effectiveness < 1 then
             self:say("It's not very effective...")
         end
-        if anyCrit then
-            self:say("A critical hit!")
-        end
 
         -- Drain / recoil: % of damage dealt (negative = recoil)
-        if move.drain and move.drain > 0 then
-            attacker:heal(math.max(1, math.floor(total * move.drain / 100 + 0.5)))
-            self:say(defender.name .. " had its energy drained!")
-        elseif move.struggleRecoil then
+        if attacker:isAlive() and move.struggleRecoil then
             attacker:takeDamage(math.max(1, math.floor(attacker.maxHP / 4 + 0.5)))
             self:say(attacker.name .. " is damaged by recoil!")
-        elseif move.drain and move.drain < 0 then
+        elseif attacker:isAlive() and total>0 and move.drain and move.drain < 0 and not self.effects:recoilBlocked(attacker,move) then
             attacker:takeDamage(math.max(1, math.floor(total * -move.drain / 100 + 0.5)))
             self:say(attacker.name .. " is damaged by recoil!")
         end
@@ -874,6 +893,20 @@ function Battle:performMove(move)
     end
 
     return nil
+end
+
+function Battle:hitCount(move)
+    if not move.minHits or not move.maxHits or move.maxHits<=1 then return 1 end
+    if move.minHits==2 and move.maxHits==5 then
+        local roll=RulesRNG.random(0,99)
+        return roll<35 and 2 or (roll<70 and 3 or (roll<85 and 4 or 5))
+    end
+    if move.minHits==move.maxHits then return move.minHits end
+    return RulesRNG.random(move.minHits,move.maxHits)
+end
+
+function Battle:applyMoveSecondaries(move)
+    for _,effect in ipairs(move.secondaries or {}) do effect:apply(self) end
 end
 
 function Battle:applyMoveEffects(move)
@@ -944,6 +977,7 @@ function Battle:finishRound()
         if index then
             local old = self.enemy
             self.conditions:clear(old)
+    self.effects:clear(old)
             old:onSwitchOut()
             assert(self.enemyParty:switch(index))
             self.enemy = self.enemyParty:active()
@@ -973,11 +1007,14 @@ end
 function Battle:endOfRoundStatus()
     self.player.flinched, self.enemy.flinched = false, false
     local events=self.conditions:events()
+    for _,event in ipairs(self.effects:events()) do events[#events+1]=event end
     local tie={}
+    local tiedSide
     for _,a in ipairs(events) do
         for _,b in ipairs(events) do
             if a.side=="player" and b.side=="enemy" and a.order==b.order and effectiveSpeed(a.pokemon)==effectiveSpeed(b.pokemon) and not tie[a.order] then
-                tie[a.order]=RulesRNG.random(1,2)
+                tiedSide=tiedSide or RulesRNG.random(1,2)
+                tie[a.order]=tiedSide
             end
         end
     end
@@ -988,12 +1025,23 @@ function Battle:endOfRoundStatus()
         if sa~=sb then return sa>sb end
         return a.side~="enemy" and tie[a.order]~=2 or a.side=="enemy" and tie[a.order]==2
     end)
-    for _, event in ipairs(events) do
-        self.conditions:residual(event)
-        if not event.pokemon:isAlive() then
-            self:setDirection(event.side == "player" and "enemy" or "player")
-            local outcome = self:handleFaint(event.side)
-            if outcome ~= "replacement" then return outcome end
+    local weatherFaint
+    for index, event in ipairs(events) do
+        if event.owner=="effects" then self.effects:residual(event) else self.conditions:residual(event) end
+        if event.pokemon and not event.pokemon:isAlive() then
+            if event.kind=="sand" then weatherFaint=event.side
+            else
+                self:setDirection(event.side == "player" and "enemy" or "player")
+                local outcome = self:handleFaint(event.side)
+                if outcome ~= "replacement" then return outcome end
+            end
+        end
+        -- Weather is one field callback/cohort. Both active battlers take
+        -- weather before EXP, learning or the terminal verdict (Gen V).
+        if weatherFaint and (not events[index+1] or events[index+1].kind~="sand") then
+            self:setDirection(weatherFaint=="player" and "enemy" or "player")
+            local outcome=self:handleFaint(weatherFaint);weatherFaint=nil
+            if outcome~="replacement" then return outcome end
         end
     end
     return nil

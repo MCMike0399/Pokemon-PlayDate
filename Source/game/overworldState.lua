@@ -78,6 +78,7 @@ function ExploreSubstate:update()
     game.camera:follow(px, py, mw, mh)
     game.camera:apply()
     gfx.sprite.update()
+    self.owner:_presentedWorld()
 end
 
 function ExploreSubstate:handleInput()
@@ -156,6 +157,7 @@ function IrisOutSubstate:update()
     game.camera:follow(px, py, mw, mh)
     game.camera:apply()
     gfx.sprite.update()
+    self.owner:_presentedWorld()
 
     if self.timer >= IRIS_DURATION then
         local callback = self.callback
@@ -210,6 +212,7 @@ function DoorWarpSubstate:update()
     self.timer = self.timer + 1
     playdate.frameTimer.updateTimers()
     gfx.sprite.update()
+    self.owner:_presentedWorld()
 
     if self.timer >= DOOR_FADE_FRAMES then
         local door = self.door
@@ -263,6 +266,7 @@ end
 -- opts.respawn = true forces the zone spawn point (blackout, zone switch);
 -- opts.entry = {x, y, facing} places the player exactly there (door warps)
 function OverworldState:enter(opts)
+    self.presentationVisit = nil
     local game = self.game
 
     gfx.sprite.removeAll()
@@ -304,9 +308,12 @@ function OverworldState:enter(opts)
     -- StateMachine queues this overlay until enter/change completes, so the
     -- first Mart event is top before ordinary input, doors or encounters run.
     if KantoWorld then KantoWorld.onEnter(game,opts) end
+    self:_beginPresentationVisit(getOverworldView())
 end
 
 function OverworldState:exit()
+    self.presentationVisit = nil
+    self.builtView = nil
     self.savedActors=self.game.npcManager.motion:snapshot();self.savedActorsSession=self.game.session
     self:resume()
     local player = self.game.player
@@ -335,6 +342,7 @@ end
 function OverworldState:resume()
     for _, item in ipairs(self.pausedSprites or {}) do item.sprite:setUpdatesEnabled(item.enabled) end
     self.pausedSprites = nil
+    if self.presentationVisit then self.presentationVisit.pending = true end
 end
 
 function OverworldState:update()
@@ -344,6 +352,7 @@ function OverworldState:update()
     else
         self.game.camera:apply()
         gfx.sprite.update()
+        self:_presentedWorld()
     end
 end
 
@@ -353,4 +362,62 @@ end
 
 function OverworldState:draw()
     self.sub:draw()
+end
+
+-- A visit owns the view and actors built by enter. Presentation requests never
+-- survive an exit/session replacement or target a disposed/replaced view.
+function OverworldState:_beginPresentationVisit(view)
+    assert(view and view.zone == self.builtZone and not view.disposed, "world presentation requires the actual live view")
+    self.builtView = view
+    if self.presentationMachine ~= self.machine then
+        if self.presentationMachine then self.presentationMachine:off("changed", self.presentationListener) end
+        local machine = self.machine
+        self.presentationListener = function(kind)
+            -- A nested overlay can resume another overlay while still exposing
+            -- the same world. Its old fullscreen pixels must also be erased.
+            local visit = self.presentationVisit
+            if kind == "pop" and self.machine == machine and self:_ownsPresentation(visit) then visit.pending = true end
+        end
+        self.presentationMachine = machine
+        machine:on("changed", self.presentationListener)
+    end
+    self.presentationVisit = { view = view, zone = self.builtZone,
+        player = self.game.player, session = self.game.session, pending = true }
+end
+
+function OverworldState:_ownsPresentation(visit)
+    return visit and self.presentationVisit == visit and self.builtView == visit.view
+        and not visit.view.disposed and visit.zone == self.builtZone and visit.zone == currentZone
+        and self.game.player == visit.player and self.game.session == visit.session
+        and self.machine and self.machine.stack[1] == self
+end
+
+function OverworldState:_presentedWorld()
+    local visit = self.presentationVisit
+    if self:_ownsPresentation(visit) then visit.pending = false end
+end
+
+-- Called once after input, before root draw; never from draw. SDK Lua exposes
+-- one combined callback-update/redraw pass. Suppress callbacks only for this
+-- pending entry/resume presentation, restoring every original flag on failure.
+function OverworldState:flushPendingPresentation()
+    local visit = self.presentationVisit
+    if not visit or not visit.pending then return false end
+    if not self:_ownsPresentation(visit) then visit.pending = false; return false end
+    local states = {}
+    local ox, oy = gfx.getDrawOffset()
+    local ok, problem = pcall(function()
+        self.game.camera:apply()
+        for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
+            local enabled = sprite:updatesEnabled()
+            states[#states + 1] = { sprite = sprite, enabled = enabled }
+            if enabled then sprite:setUpdatesEnabled(false) end
+        end
+        gfx.sprite.addDirtyRect(0, 0, 400, 240)
+        gfx.sprite.update()
+    end)
+    for _, state in ipairs(states) do state.sprite:setUpdatesEnabled(state.enabled) end
+    if not ok then gfx.setDrawOffset(ox, oy); error(problem, 0) end
+    if self.presentationVisit == visit then visit.pending = false end
+    return true
 end

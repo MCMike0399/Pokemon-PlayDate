@@ -1,0 +1,214 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 42,
+        "trainer_name": "STURDY TEST",
+        "enemy_party": [
+          {
+            "species": "geodude",
+            "level": 12,
+            "ability_slot": "second",
+            "status": "sleep",
+            "status_turns": 3,
+            "sleep_duration": 3
+          }
+        ],
+        "player_pokemon": {
+          "species": "charmander",
+          "level": 16
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "STURDY TEST wants to battle!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "STURDY TEST sent out GEODUDE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 300
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press right",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CHARMANDER used DRAGON RAGE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.enemy.hp",
+      "equals": 1,
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.lastDamage",
+      "equals": 30
+    },
+    "record ability-sturdy-first-hit 36",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "GEODUDE took 30 damage!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "GEODUDE held on with Sturdy!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-sturdy-held",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "GEODUDE is fast asleep!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 300
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.dragonRage",
+      "equals": 9
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 300
+    },
+    "press right",
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CHARMANDER used DRAGON RAGE!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.enemy.hp",
+      "equals": 0,
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "GEODUDE took 1 damage!",
+      "frames": 300
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 300
+    },
+    "wait 12",
+    "shot ability-sturdy-second-hit"
+  ],
+  "outputs": [
+    "ability-sturdy-first-hit-01.png",
+    "ability-sturdy-held.png",
+    "ability-sturdy-second-hit.png"
+  ]
+}

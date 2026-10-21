@@ -220,6 +220,9 @@ end
 
 function ModifyStat:apply(battle)
     local pokemon = self.target:resolve(battle)
+    if battle.effects and not battle.effects:canDropStat(battle.attacker,pokemon,self.stat,self.stages) then
+        battle:say(pokemon.name .. "'s Keen Eye prevents accuracy loss!");return
+    end
     local oldStage = pokemon.statStages[self.stat] or 0
     local newStage = math.max(-6, math.min(6, oldStage + self.stages))
     pokemon.statStages[self.stat] = newStage
@@ -263,6 +266,7 @@ end
 function ApplyStatus:apply(battle)
     local pokemon = self.target:resolve(battle)
 
+    if not pokemon:isAlive() then return end
     -- Volatile conditions live next to the major status, not in it
     if self.status == "flinch" then
         pokemon.flinched = true   -- consumed by the engine on the next half-turn
@@ -311,10 +315,12 @@ function DirectDamage:apply(battle)
     end
     local damage = math.max(1, math.floor(self.amount:evaluate(battle)))
     local before = pokemon.hp
-    pokemon:takeDamage(damage)
+    local receipt=battle.effects and battle.effects:hit(battle.attacker,pokemon,move,damage)
+    if not receipt then pokemon:takeDamage(damage) end
     battle.lastDamage = before - pokemon.hp
     if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 then battle.conditions:rageHit(pokemon) end
     battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
+    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
 end
 
 Class("Heal")
@@ -343,11 +349,13 @@ function PsywaveDamage:apply(battle)
     end
     local amount = math.max(1, math.floor(RulesRNG.random(50, 150) * attacker.level / 100))
     local before = defender.hp
-    defender:takeDamage(amount)
+    local receipt=battle.effects and battle.effects:hit(attacker,defender,battle.currentMove,amount)
+    if not receipt then defender:takeDamage(amount) end
     battle.lastDamage = before - defender.hp
     if battle.conditions and battle.lastDamage>0 then battle.conditions:rageHit(defender) end
     battle.isFlashing, battle.flashTimer = true, 6
     battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
+    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
 end
 
 -- Dedicated effects delegate transient ownership to this battle only.
@@ -368,3 +376,25 @@ function PartialTrapEffect:apply(battle) battle.conditions:trap() end
 Class("EntryHazardEffect")
 function EntryHazardEffect:init(kind) self.kind=kind end
 function EntryHazardEffect:apply(battle) battle.conditions:hazard(self.kind) end
+
+-- Explicit generated secondary provenance. Eligibility precedes chance evaluation.
+Class("SecondaryEffect")
+function SecondaryEffect:init(target,effect) self.target=Target.from(target);self.effect=effect end
+function SecondaryEffect:apply(battle)
+    local target=self.target:resolve(battle)
+    if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target) then return end
+    self.effect:apply(battle)
+end
+Class("SandstormEffect")
+function SandstormEffect:apply(battle) battle.effects:setSandstorm() end
+
+Class("RandomMajorStatusEffect")
+function RandomMajorStatusEffect:init(target,statuses) self.target=Target.from(target);self.statuses=statuses end
+function RandomMajorStatusEffect:apply(battle)
+    ApplyStatus(self.target,self.statuses[RulesRNG.random(1,#self.statuses)]):apply(battle)
+end
+Class("WeatherHealEffect")
+function WeatherHealEffect:apply(battle)
+    local mon=battle.attacker
+    mon:heal(battle.effects:weatherHeal(mon));battle:say(mon.name .. " regained health!")
+end

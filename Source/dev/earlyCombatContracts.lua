@@ -68,8 +68,10 @@ function EarlyCombatContracts.run()
     end)
     test("Rage boosts per damaging hit, caps6 and ends before blocked next attempt",function()
         local b=fresh(Pokemon("onix",100));RulesRNG.seed(2);one(b,"player","rage");eq(b:getConditionsSnapshot().player.rage,true)
-        RulesRNG.seed(2);one(b,"enemy","doubleSlap");eq(b.player.statStages.atk,2,"two-hit Rage boosts")
-        b.player.statStages.atk=5;RulesRNG.seed(2);one(b,"enemy","doubleSlap");eq(b.player.statStages.atk,6)
+        -- Isolate Rage with a fixed two-hit move. Gen V's corrected 35/35/15/15
+        -- sampler makes the old seeded Double Slap fixture hit five times.
+        RulesRNG.seed(2);one(b,"enemy","doubleKick");eq(b.player.statStages.atk,2,"two-hit Rage boosts")
+        b.player.statStages.atk=5;RulesRNG.seed(2);one(b,"enemy","doubleKick");eq(b.player.statStages.atk,6)
         b.player.status,b.player.statusTurns,b.player.sleepDuration="sleep",1,1
         one(b,"player","rage");eq(b:getConditionsSnapshot().player.rage,false);eq(b.player.statStages.atk,6)
     end)

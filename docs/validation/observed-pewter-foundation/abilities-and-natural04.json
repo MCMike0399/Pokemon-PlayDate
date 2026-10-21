@@ -1,0 +1,51 @@
+{
+  "status": "integrated16ability andcatalog acceptance; campaign unfinished",
+  "archive_sha256": "13669e32ea8a3df3a10416bc1f934f551e826a2ea4e614cfd548a4b9c94d93bb",
+  "archive_bytes": 10456081,
+  "runs": [
+    {
+      "name": "pokemon-catalog-abilities-integrated-01",
+      "outcome": {}
+    },
+    {
+      "name": "pokemon-early-abilities-sdk-02",
+      "outcome": {
+        "captures_finalized": true,
+        "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+        "ok": false,
+        "session_id": "b5d59544c76f421686846c8a4c893482"
+      }
+    },
+    {
+      "name": "pokemon-early-abilities-sdk-03",
+      "outcome": {
+        "ok": true,
+        "session_id": "eb129623949d4f76a2e899df5340fb8c"
+      }
+    },
+    {
+      "name": "pokemon-brock-natural-04",
+      "outcome": {
+        "captures_finalized": true,
+        "error": "no source-valid Brock path in pokered:VIRIDIAN_FOREST: (2, 19)->[(2, 0)]",
+        "ok": false,
+        "session_id": "d49bbe6e0aae4c3a9323f946bb2cbbf4"
+      }
+    }
+  ],
+  "integrated_sdk_passed": 584,
+  "integrated_jobs_passed": 9,
+  "first_ability_sdk": {
+    "passed": 559,
+    "failed": 3,
+    "total": 562,
+    "new_ability_groups": 46
+  },
+  "repaired_ability_sdk_passed": 574,
+  "protected_exact": 1635,
+  "independent_source_rgba_exact": 1041,
+  "reviewed_baseline_images": 2494,
+  "root_visual_review": "Sturdy survival/secondKO, lethalStatic/status, ShieldDust, sand/ShedSkin/expiry, trappedParty, RunAway and GroundThunderWave panels inspected; allreadable/protectedartunchanged.",
+  "natural04": "All3Forest trainers defeated through realinput, medicine/learning/rewards; host selected unreachable exit2,0 behindsign instead of reachable1,0. Root path-selection repair/2regressions passed. No Brock natural acceptance yet.",
+  "post_suite_changes": "Party trapped rejection now states Your POKEMON is trapped; next native check pending. Presentation fix staged separately."
+}

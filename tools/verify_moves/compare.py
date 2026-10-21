@@ -147,7 +147,8 @@ def semantics_inventory(moves, oracle):
             status = 'known-runtime-gap'; reasons.append(SPECIAL_GAPS[key])
         elif row['category'] == 'status' and not row.get('effects'):
             status = 'status-dispatch-review-required'; reasons.append('no effects or dedicated dispatcher; verify intentional failure/no-op policy')
-        elif row['category'] != 'status' and row['power'] == 0 and not row.get('effects'):
+        elif (row['category'] != 'status' and row['power'] == 0
+              and not row.get('effects') and row.get('ohko') is not True):
             status = 'missing-damage-dispatch'; reasons.append('zero-base-power attack has no damage effect')
         source = oracle.moves.get(key)
         meta = oracle.meta.get(number(source, 'id'), {}) if source else {}

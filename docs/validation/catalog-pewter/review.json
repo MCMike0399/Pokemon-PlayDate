@@ -1,0 +1,25 @@
+{
+  "status": "root reviewed baseline; campaign completion is not claimed",
+  "images": 2494,
+  "protected_prior_images": 1635,
+  "new_images": 859,
+  "source_rgba_exact": 1041,
+  "paired_rgba_exact": 859,
+  "build_source_sha256": "27da9a66f22ff95112b7f8ece8b7951fbcb48dd636d628e1092715effd8fc969",
+  "sdk_version": "3.1.2",
+  "native_sdk_contracts": 584,
+  "root_review": [
+    "all8 native400x240 viewports",
+    "all120 directional poses on texture",
+    "event marker native glyph crops for all8 maps",
+    "actual3walker native movement frames and pause/resume",
+    "separate native battle ability UI captures"
+  ],
+  "remaining": [
+    "full campaign/postgame",
+    "all other95 ability IDs and held battle effects/acquisition",
+    "one-frame stale Title/overlay framebuffer repair under review",
+    "physical-device validation unavailable"
+  ],
+  "baseline_layout": "Flat asset copy; image_root normalized from native frames to dot. Native manifest preserved in catalog-native.json."
+}

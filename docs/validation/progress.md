@@ -6,31 +6,80 @@ owned task handoffs before changing files. Do not repeat the original audit.
 
 ## Current checkout / next continuation
 
-Push checkpoint after `6b37c78`: integrated Pewter, specimen attributes, NPC
-motion, midbattle learning/medicine and held-item menus. The user requested a push
-of the current checkout; this ledger describes that checkpoint. Full campaign
-unfinished. Three existing workers remain explicitly Sol6.1/medium; no
-inherited/substituted model/effort. Runtime lists statuses but no resolved-model
-metadata. Root alone owns Simulator; no root runtime is currently running.
+Remote main checkpoint: `ba8975d`, pushed clean at the user's request. The local feature checkpoint after that push
+contains the589-contract integration; git history identifies its revision. Full campaign remains unfinished. Three existing workers remain
+explicitly `gpt-6.1-sol` / `medium`; runtime lists statuses but does not expose
+resolved model metadata. Root alone owns Simulator. **Current root runtime: exec session18531**,
+`/private/tmp/pokemon-brock-natural-05`, actual2-process natural Brock→Save/Continue
+with the reachable-warp repair and first16 abilities. Poll before next launch;
+Source is frozen while it runs. All prior589/584suites and natural04 are terminal.
+No physical-device validation has been performed.
 
-`/private/tmp/pokemon-motion-held-integrated-01` finished **516/516 SDK and7/7
-jobs PASS**, including held Give/Take/INFO, full-bag cases, actual held Save/Continue,
-battle medicine and PC restart. All484 source-manifest entries match the live
-checkout exactly. Native Party/Bag/INFO captures were independently inspected.
-[Durable proof](observed-pewter-foundation/motion-held-integrated.json) includes
-the archived suite, traces, screenshots and identities. Production compile and
-13 specimen-generator/Brock-policy host cases pass at checkpoint. NPC02 staged
-489/489 and held staged497/497 also passed before composition. Expanded default
-catalog, motion real-input recipes and early16 ability effects remain staged;
-they are not part of this pushed implementation or acceptance claim.
-Natural03 is terminal: trainer1/medicine/learning/payout succeeded, then cached
-actor target became stale after a battle rebuilt NPCs. Root target+path now both
-replan after every real step;7 host policy/replanning cases pass. Natural04 pending. No worker
-may launch a runtime. No physical-device validation has been performed.
+Live Source now composes the named catalog exporter/guard, source NPC motion,
+held menus and **first16 normal GenV battle abilities**. Root's integrated
+`/private/tmp/pokemon-catalog-abilities-integrated-01` passed **584/584 SDK and9/9
+jobs**, including normal mandatory859 image pairs/1718 decodedPNGs, actual
+midstep Save/Continue with first rendered world PNG03/source-foreground check,
+and7 real-input ability witnesses (Sturdy, lethalStatic, ShieldDust, Sandstorm/
+ShedSkin/expiry, ArenaTrap, RunAway, GroundThunderWave). Root inspected11 actual
+native ability panels, map viewports,120 directional poses,8maps' event glyph
+crops and source walkers in motion. All1635 prior protected images and1041
+independent source RGBA expectations remain exact.
+
+Reviewed new [catalog baseline](catalog-pewter/review.json):2494 images, separate
+from unchanged1635 prior baseline. Flat baseline `image_root` is explicitly
+normalized; genuine native manifest is preserved. Final exact2494 comparison
+passes. [Durable latest evidence](observed-pewter-foundation/abilities-and-natural04.json)
+archives integrated9jobs plus initial failures and repaired runs. Earlier
+[catalog/motion evidence](observed-pewter-foundation/catalog-and-motion-native.json)
+retains ordinary523 SDK and4source motion native jobs.
+
+Initial ability02 was **559pass/3fail,562total**, including all46 new ability
+groups (worker estimate47 was wrong). Nil-currentMove Psywave broke two public
+DSL contracts; the old Rage test's seeded DoubleSlap became5hits under corrected
+35/35/15/15 sampling. Separate reviewed compatibility/type-order followup plus
+fixed-two-hit DoubleKick Rage fixture preserve strict expectations. Ability03
+**574/574PASS**. Live metadata generator/primary qualification passes26mechanic
+pins+5move pins+5CSV/15literals/424byte-exact rows;8host cases pass. Combined host
+protocol/restart/path/catalog/motion verification118/118PASS; verifier35/35PASS.
+Full B2W2 verifier still exits1 for54known runtime gaps/73status reviews/
+296unreviewed moves; learnset/scalar discrepancies0/151species/424moves. No waiver.
+
+Natural04 is terminal and preserved: all3Forest source trainers defeated, actual
+medicine/learning/payout/repeat checks. Host then chose unreachable exit(2,0)
+behind a sign; its only approach crosses other warp(1,0). Root now chooses among
+actual reachable source warp paths; no gameplay/collision/outcome override.
+Two regression cases pass (9Brock policy cases total). Natural05 is now running as the actual2-process `brock-restart.json`;
+no natural Brock completion claim yet.
+
+Pending after584suite: one-line Party trapped-reason text now explains the
+rejected switch, with real native scenario message assertion; rerun next suite.
+One-shot first-world/overlay presentation repair is now integrated after root
+review and staged589/589 SDK pass. Root viewed actual Title-before, exact midstep
+world, nestedPause/resume and uncovered world captures. Post-input rendering
+suppresses native callbacks only for pending entry/pop; no actor/timer/RNG tick
+and no extra normal pass. Integrated3job rerun **589/589SDK and3/3PASS**. Root inspected actual two-process
+PNG02(savedtick3) andPNG03(updatedtick4), both strict source-foreground qualified,
+plus clearer trappedParty message. All494Source manifest files match live exactly.
+[Durable presentation proof](observed-pewter-foundation/presentation-integrated.json).
+
+Next executable tasks:
+
+1. Finish and inspect current natural Brock05; then source5trainer/fullbag/blackout/failedsight coverage.
+2. Natural Brock05 through all5trainers/badge/TM34 and actualSave/Continue; source
+   five-trainer fixtures/full-bag retry/blackout/failedsight still require coverage.
+3. MtMoon runtime six-map packet is implementing a sealed immutable shared
+   content catalog/oneprovider/trainer/event owners, source seller/fossils/caves/
+   ladders. Review transaction/provider hooks and add exact sourcecatalog before
+   accepting that slice. False claimed fossil13,5 softlock was disproved with
+   actual actor-aware reachability; preserve original choreography.
+4. Next-traits worker researches persistent sex/provenance/Codec6 and next15normal
+   ability dependencies; all111 effects/held acquisition/effects remain required.
+5. Continue every later campaign/postgame milestone, not just this early slice.
 
 **Required user scope:** add abilities, held items and natures for original151,
 with GenV/B2W2 behavior; preserve Kanto/world/story/art/noFairy/noMega identity.
-Nature/slot/held persistence is now integrated, but battle effects and acquisition work
+Nature/slot/held persistence is now integrated, and first16 normal battle effects are integrated; remaining95 effects and acquisition
 remain required. Held Give/Take and nature/ability/item INFO are integrated. A data record does not prove its battle effect exists.
 
 Live implementation after the push:
@@ -45,7 +94,7 @@ Live implementation after the push:
   normal blackout halves money once; Brock badge/TM34 full-bag retry. Source NPC
   wandering is integrated with separate persisted world RNG, current-map actor
   snapshots, overlay pause and explicit legacy migration. Original continuous
-  map scrolling remains unfinished. Native motion journeys still await root runs.
+  map scrolling remains unfinished. Native motion/pause/Continue are now verified.
 - Healing OAM draws over the real source machine, explicit Viridian/Pewter
   matching anchors; flash-off/cancel restores map. Source palette-flash behavior
   remains an approximation requiring later work. Pure EventState.observe no
@@ -111,9 +160,9 @@ Current staged ownership:
 
 | Worker | Packet / remaining scope |
 |---|---|
-| harness | `pokemon-brock-journey-main6b37` installed; NPCMotion/legacy/view repair integrated; motion recipes/true midstep restart pending. |
-| rules_contracts | `pokemon-specimen-attributes` + followup01 integrated; phase2 Give/Take/UI integrated; early16 battle ability effects staged for root qualification. |
-| visual_catalog | `pokemon-comprehensive-catalog`: staged2494 inventory + source oracle; catalog guard followup and normal runner qualifier await integration. MtMoon six-map research packet staged. |
+| harness | Composed host/catalog/motion installed and verified584suite; one-shot entry/resume presentation packet pending root qualification. |
+| rules_contracts | `pokemon-specimen-attributes` + followup01 integrated; First16 ability +compatibility integrated574staged/584combined; next sex/held-acquisition/15ability source proposal in progress. |
+| visual_catalog | 2494 catalog integrated/reviewed. MtMoon six-map runtime candidate in progress; root owns final shared hooks/visual exporter acceptance. |
 
 Historical handoffs in [checkpoint archives](../plans/paused-handoffs/README.md)
 are not instructions to overwrite current shared files. Their latest root merges
