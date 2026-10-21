@@ -56,14 +56,14 @@ function ExploreSubstate:update()
     -- previous frame's sprite update, exactly like the old main loop).
     -- No pokemon yet (pre-starter intro) = no wild battles.
     if player.stepJustFinished and not DEBUG_FLAGS.noEncounters
-       and game:getPlayerPokemon() then
+       and game.session:party():firstUsable() then
         if currentZone:checkEncounter(player.gridX, player.gridY) then
             local px, py = player:getPixelCenter()
             local ox, oy = gfx.getDrawOffset()
             local rootMachine = self.owner.machine
             self.machine:change("irisOut", px + ox, py + oy, function()
-                rootMachine:change("battle",
-                    game:getPlayerPokemon(), currentZone:rollEncounter(game.session), nil)
+                assert(FieldBattle.start(game,
+                    game:getPlayerPokemon(), currentZone:rollEncounter(game.session), nil))
             end)
             return
         end
@@ -112,12 +112,12 @@ function ExploreSubstate:handleInput()
             local rootMachine = self.owner.machine
             local lines = npc:getDialogLines()
             local battleData = npc:getBattleData()
-            if battleData and not npc:hasInteracted() and game:getPlayerPokemon() then
+            if battleData and not npc:hasInteracted() and game.session:party():firstUsable() then
                 local session=game.session
                 rootMachine:push("dialog", lines, function()
-                    if game.session~=session or rootMachine:current()~=self.owner or not Specimen.isActiveSession(session) then return false,"stale-trainer-creation" end
+                    if game.session~=session or rootMachine:current()~=self.owner or not Specimen.isActiveSession(session) or not session:party():firstUsable() then return false,"stale-trainer-creation" end
                     local enemy = assert(Specimen.createForSession(session,battleData.species,battleData.level,"trainer"))
-                    rootMachine:change("battle", game:getPlayerPokemon(), enemy, npc)
+                    assert(FieldBattle.start(game, game:getPlayerPokemon(), enemy, npc))
                 end)
             else
                 rootMachine:push("dialog", lines)

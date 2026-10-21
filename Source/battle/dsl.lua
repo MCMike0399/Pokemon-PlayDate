@@ -274,6 +274,8 @@ function ApplyStatus:apply(battle)
     end
     if self.status == "confuse" then
         if pokemon.confusion then return end
+        local immunity=battle.effects and battle.effects:statusImmunity(pokemon,"confuse")
+        if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
         pokemon.confusion = RulesRNG.random(1, 4)   -- attacking turns of confusion
         battle:say(pokemon.name .. " became confused!")
         return
@@ -287,6 +289,8 @@ function ApplyStatus:apply(battle)
         if self.status=="badPoison" then battle:say("It doesn't affect "..pokemon.name.."...") end
         return
     end
+    local immunity=battle.effects and battle.effects:statusImmunity(pokemon,self.status)
+    if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
     -- Sample before committing durable fields; RNG exhaustion cannot leave an
     -- asleep Pokemon without its original duration.
     local duration = self.status == "sleep" and RulesRNG.random(1, 3) or 0
@@ -385,6 +389,12 @@ function SecondaryEffect:apply(battle)
     if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target) then return end
     self.effect:apply(battle)
 end
+Class("WeatherEffect")
+function WeatherEffect:init(id)
+    assert(id=="raindance" or id=="sandstorm","unsupported-weather")
+    self.id=id
+end
+function WeatherEffect:apply(battle) return battle.effects:setWeather(self.id) end
 Class("SandstormEffect")
 function SandstormEffect:apply(battle) battle.effects:setSandstorm() end
 
@@ -396,5 +406,15 @@ end
 Class("WeatherHealEffect")
 function WeatherHealEffect:apply(battle)
     local mon=battle.attacker
-    mon:heal(battle.effects:weatherHeal(mon));battle:say(mon.name .. " regained health!")
+    if not mon:isAlive() or mon.hp==mon.maxHP then battle:say("But it failed!");return false end
+    mon:heal(battle.effects:weatherHeal(mon));battle:say(mon.name .. " regained health!");return true
 end
+
+Class("WorrySeedEffect")
+function WorrySeedEffect:apply(battle)
+    local ok=battle.effects:worrySeed(battle.attacker,battle.defender)
+    if not ok then battle:say("But it failed!") end
+end
+
+Class("FocusEnergyEffect")
+function FocusEnergyEffect:apply(battle) battle.conditions:focusEnergy() end

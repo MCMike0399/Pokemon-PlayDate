@@ -9,8 +9,11 @@ local function zoneKey(stableID)
     error("unknown stable session zone: "..tostring(stableID))
 end
 local function newModel(context,seed)
-    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint=startLocation(),seed=seed or 1})
+    local session=GameSession.newSession(context:getSessionDependencies(),{location=startLocation(),checkpoint={zone_id="pallet_town",x=5,y=6,facing="down"},seed=seed or 1})
     assert(session:inventory():credit(3000)) -- pinned Blue InitPlayerData START_MONEY.
+    -- OakSpeech places one Potion in the item PC, not in the bag. This freshly
+    -- constructed model has not been published; loading never calls newModel.
+    session:itemStorage():_prepareCommit({version=1,slots={{id="potion",quantity=1}}})()
     return session
 end
 function GameContext:init(options)

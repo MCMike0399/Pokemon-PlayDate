@@ -239,7 +239,7 @@ function PartyBattleContracts.run()
             for remaining=0,duration do
                 local p=Pokemon("charmander",5)
                 p.status,p.statusTurns,p.sleepDuration="sleep",remaining,duration
-                local record=assert(PokemonCodec.encode(p));equal(record.version,5)
+                local record=assert(PokemonCodec.encode(p));equal(record.version,6)
                 local restored=assert(PokemonCodec.decode(record))
                 equal(restored.statusTurns,remaining);equal(restored.sleepDuration,duration)
                 local before=RulesRNG.snapshot();restored:onSwitchOut()
@@ -249,7 +249,7 @@ function PartyBattleContracts.run()
         local record=assert(PokemonCodec.encode(Pokemon("charmander",5)));record.version=2
         local restored,problem=PokemonCodec.decode(record);equal(restored,nil)
         assert(problem:find("unsupported%-pokemon%-record%-version"),problem)
-        record.version=3;record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil;record.sleepDuration=1
+        record.version=3;record.sex,record.sexProvenance=nil,nil;record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil;record.sleepDuration=1
         restored,problem=PokemonCodec.decode(record);equal(restored,nil);assert(problem:find("invalid%-sleep%-duration"),problem)
     end)
     test("Invalid sleep duration cannot partially switch or reset outgoing stages",function()
@@ -317,13 +317,13 @@ function PartyBattleContracts.run()
         equal(b:phase(),"forcedSwitch");equal(b.outcome,nil);equal(p.hp,0)
         equal(b:chooseParty(2),true);settle(b);equal(b:phase(),"command");equal(b.player,bench)
     end)
-    test("All424 generated moves carry pinned GenV target metadata including added Toxic",function()
+    test("All425 generated moves carry pinned GenV target metadata including added Toxic",function()
         local count=0
         for key,move in pairs(moveData) do
             assert(type(move.targetId)=="number" and math.tointeger(move.targetId) and move.targetId>=1 and move.targetId<=14,"missing target metadata: " .. key)
             count=count+1
         end
-        equal(count,424);equal(moveData.toxic.targetId,10);equal(moveData.recover.targetId,7);equal(moveData.tackle.targetId,10)
+        equal(count,425);equal(moveData.bide.targetId,7);equal(moveData.bide.damageRule,"bide");equal(moveData.toxic.targetId,10);equal(moveData.recover.targetId,7);equal(moveData.tackle.targetId,10)
         equal(moveData.struggle.targetId,10);equal(moveData.perishSong.targetId,12)
         equal(moveData.reflect.targetId,4);equal(moveData.haze.targetId,12)
     end)

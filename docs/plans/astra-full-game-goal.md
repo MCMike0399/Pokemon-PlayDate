@@ -1,10 +1,10 @@
 # Goal prompt: complete Pokémon Red/Blue for Playdate
 
-Use this document as the implementation goal in a new GPT-6 Astra session opened in this repository. Everything below is addressed to that session.
+Use this document as the persistent implementation goal for this repository. Everything below is addressed to the current root implementation agent.
 
 ---
 
-You are the lead architect, orchestrator, integrator, and independent validator of this project. Use **GPT-6 Astra for orchestration and final validation**, and **GPT-6.1 Sol subagents at medium reasoning effort for bounded research, implementation, content generation, debugging, and tests**.
+You are the lead architect, orchestrator, integrator, and independent validator of this project. Use **GPT-6.1 Sol as root orchestrator, integrator, and final validator**, and **GPT-6.1 Sol subagents at medium reasoning effort for bounded research, implementation, content generation, debugging, and tests**. The user explicitly confirmed this root-model override on2026-10-21, intentionally switched around6036974; it supersedes older Astra-only role wording throughout this document. Product scope is unchanged.
 
 **Goal:** Finish this existing Lua project as a complete, enjoyable, faithful Pokémon Red/Blue recreation for Playdate, from a new game through the Champion, credits, and original Kanto postgame. Preserve the carefully refined visual identity of the current project. First improve the development and validation harness enough that agents can reliably reproduce, inspect, debug, and verify their work; then use it to implement the complete game in integrated, playable milestones.
 
@@ -207,3 +207,23 @@ The full goal is complete only when:
 - The final deliverables include the playable `.pdx`, source/generation pipeline, reference manifests, developer/test instructions, campaign/content matrix, accepted evidence, and an honest list of any remaining nonblocking limitations.
 
 Begin now by verifying the checkout, establishing baseline evidence, assigning bounded Sol 6.1 tasks, and implementing the harness milestone. Planning is part of execution; it is not the final deliverable.
+
+
+## Acceptance priority reaffirmed2026-10-21
+
+Close Pallet-to-Brock before integrating broader campaign content. Fix authoritative
+replacement-opponent Pokédex entry/persistence, discover every nested Brock
+scenario in the serial suite, repair all host generator preservation failures
+without weakening scalar/effect checks, and implement FocusEnergy plus an explicit
+mechanics exposure checklist for each playable milestone. The checklist includes
+naturally reachable species, evolutions/levelups, trainer parties, items and
+abilities; intended content must not be removed to avoid a failing check.
+
+Acceptance needs actual input through intro/parcel, capture/party changes, Forest
+trainers, healing/medicine, learning, accepted natural evolution, Brock/badge/TM,
+full-bag retry, blackout recovery and actual process Save/Continue. Keep evolution
+cancellation coverage. Prove meaningful Bulbasaur and Charmander viability as well
+as Squirtle; a Squirtle-only route which cancels evolution is insufficient.
+Continue directly through MtMoon/Cerulean and all later campaign/postgame work
+after this gate. Brock is not the full objective. Verify runtime ownership from
+actual process/runner state; ledger PID/running statements are historical hints.

@@ -1,0 +1,69 @@
+{
+  "status": "failed natural run; no Brock acceptance",
+  "reason": "unknown battle phase: forcedSwitch",
+  "source_sha256": "a6fb4666f2ad7902ba9008919acb9683997c524fc003601713981bec93059707",
+  "starter": "bulbasaur",
+  "process_generations": 1,
+  "process": {
+    "durable_before": {},
+    "error": "unknown battle phase: forcedSwitch",
+    "evidence": "processes/0001",
+    "first_sequence": 1,
+    "fresh_ready": true,
+    "generation": 1,
+    "launched_ns": 1792596159000515000,
+    "pid": 82729,
+    "previous_exit_confirmed": true,
+    "previous_pid": null,
+    "ready_observed_ns": 1792596160913233000,
+    "ready_tick": 1,
+    "returncode": -9,
+    "status": "failed-exited"
+  },
+  "captures_finalized": true,
+  "actual_progress": [
+    "intro rival LOSS followed by legitimate lab recovery and parcel handoff",
+    "Route1 Potion sample, real shop stock and healing",
+    "Pidgey3 caught with ordinary PokeBall; stock6\u21925, party1\u21922, observed full48-frame ball sequence",
+    "field reorder and actual battle switches",
+    "Bulbasaur5\u21927 through real training; ten preparation encounters entered"
+  ],
+  "failure_boundary": {
+    "root_before_final_quiesce": "battle",
+    "phase": "forcedSwitch",
+    "message": "Choose a POKEMON!",
+    "party": [
+      {
+        "species": "bulbasaur",
+        "level": 7,
+        "hp": 0
+      },
+      {
+        "species": "pidgey",
+        "level": 3,
+        "hp": 6
+      }
+    ],
+    "root_after_quiesce": "party",
+    "battle_terminal": false,
+    "blackout": false
+  },
+  "reporting_defects": [
+    "journey.summary.outcome=loss is inherited intro-rival result, not final wild-battle terminal outcome",
+    "interrupted training entry copies previous battle last_battle_outcome; must be marked interrupted rather than victory"
+  ],
+  "root_review": [
+    "capture frames01/24/48 at native400x240",
+    "finalforcedSwitch and postquiesce party snapshots",
+    "finalizedprocess/PIDexit and source fingerprint"
+  ],
+  "not_proven": [
+    "Forest trainers on this run",
+    "accepted evolution",
+    "Brock/rewards",
+    "save/second-process Continue",
+    "Bulbasaur viability through Brock"
+  ],
+  "archive": "bulbasaur-natural01-interrupted.tar.gz",
+  "archive_sha256": "af07fcec5f46fd9b22852297601ec8f73d2f2a91425b6561c7471d155a388a67"
+}

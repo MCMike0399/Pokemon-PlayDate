@@ -219,7 +219,11 @@ class SourceTests(unittest.TestCase):
 class ParserAndCLITests(unittest.TestCase):
     def test_reads_actual_full_production_tables_without_execution(self):
         species_rows, move_rows = LuaParser().parse(), read_moves()
-        self.assertEqual(151, len(species_rows)); self.assertEqual(424, len(move_rows))
+        self.assertEqual(151, len(species_rows)); self.assertEqual(425, len(move_rows))
+        original = json.loads((Path(__file__).resolve().parents[1] / 'references/early-combat.json').read_text())
+        self.assertEqual(set(move_rows), set(original['original_keys']) | set(original['new_keys']) | {'bide'})
+        self.assertEqual({k: move_rows['bide'][k] for k in ('type','category','power','accuracy','pp','priority','targetId','contact','damageRule')},
+                         dict(type='normal',category='physical',power=0,accuracy=0,pp=10,priority=1,targetId=7,contact=True,damageRule='bide'))
         self.assertTrue(all(row.get('learnset') for row in species_rows.values()))
         self.assertEqual(2184, sum(len(row['learnset']) for row in species_rows.values()))
         for key in ('charm', 'psywave', 'stormThrow', 'struggle', 'toxic'):

@@ -1,0 +1,242 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 2,
+        "player_pokemon": {
+          "species": "squirtle",
+          "level": 31
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "battle metapod 100",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild METAPOD appeared!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    "seed 2",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press down",
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used SKULL BASH!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE lowered its head!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE's DEFENSE rose!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.charge_key",
+      "equals": "skullBash"
+    },
+    "shot skull-charge",
+    "record skull-charge-still 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used SKULL BASH!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD took 5 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 205
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.skullBash",
+      "equals": 14
+    },
+    "shot skullBash-hit",
+    "press a",
+    "record skullBash-impact 12",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.skullBash",
+      "equals": 14
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 5
+    },
+    "shot skullBash-complete"
+  ],
+  "outputs": [
+    "skull-charge.png",
+    "skullBash-hit.png",
+    "skullBash-complete.png",
+    "skull-charge-still-01.png",
+    "skullBash-impact-01.png"
+  ]
+}

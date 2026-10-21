@@ -193,11 +193,11 @@ function Story.check(game, overworldState)
        and player.gridY >= 8 then
         local session=game.session
         game.machine:push("dialog", RIVAL_CHALLENGE, function()
-            if game.session~=session or not Specimen.isActiveSession(session) or not game.machine:is("overworld") then return false,"stale-rival-creation" end
+            if game.session~=session or not Specimen.isActiveSession(session) or not game.machine:is("overworld") or not session:party():firstUsable() then return false,"stale-rival-creation" end
             local blue = game.npcManager:findByName("BLUE")
             local enemy = starterPokemon(game, Story.get(game).rivalStarter, "trainer")
             update(game,{stage="rival_fight"})
-            game.machine:change("battle", game:getPlayerPokemon(), enemy, blue)
+            assert(FieldBattle.start(game, game:getPlayerPokemon(), enemy, blue))
         end)
         return true
     end

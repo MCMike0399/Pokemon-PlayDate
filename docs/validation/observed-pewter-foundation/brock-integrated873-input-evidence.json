@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "archive": "brock-integrated873-input-evidence.tar.gz",
+  "sha256": "aa77e821b98013fdfbef9f7f4dabff1d9f590dced22b6c2933068fa1ff47df4d",
+  "bytes": 5673594,
+  "source_sha256": "cd1d3c0464ca348f7b418d6fa0ea767b5c9e315d3e4b39ce9b6d506e7a1de3c2",
+  "roots": [
+    "pokemon-brock-native-recipes-01",
+    "pokemon-brock-native-recipes-02",
+    "pokemon-brock-regression-current-01",
+    "pokemon-brock-regression-current-02"
+  ],
+  "unique_passed_native_cases": 22,
+  "selection": "12successful original +6repaired/catalog +3original regression +1freshTM retry, sameSource; failed/incomplete attempts also retained"
+}

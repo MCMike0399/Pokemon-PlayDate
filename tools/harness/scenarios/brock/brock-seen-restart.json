@@ -1,0 +1,469 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "intro": "skip",
+              "opening": false,
+              "zone": "reds_house_2f",
+              "seed": 1,
+              "player_pokemon": {
+                "species": "charmander",
+                "level": 100
+              },
+              "trainer_name": "DEX TEST",
+              "enemy_party": [
+                {
+                  "species": "pidgey",
+                  "level": 5
+                },
+                {
+                  "species": "geodude",
+                  "level": 5
+                },
+                {
+                  "species": "onix",
+                  "level": 5
+                }
+              ]
+            }
+          },
+          {
+            "op": "await",
+            "path": "battle.introPhase",
+            "equals": "ready",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "DEX TEST wants to battle!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "DEX TEST sent out PIDGEY!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "shot seen-initial-pidgey",
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.pidgey",
+            "equals": true
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.phase",
+            "equals": "command",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.menu.active",
+            "equals": true,
+            "frames": 300
+          },
+          "seed 1",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.inMoveSelect",
+            "equals": true,
+            "frames": 300
+          },
+          "press right",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "CHARMANDER used FLAMETHROWER!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "PIDGEY took 19 damage!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "PIDGEY fainted!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "DEX TEST sent out GEODUDE!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "shot seen-replacement-geodude",
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.geodude",
+            "equals": true
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.phase",
+            "equals": "command",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.menu.active",
+            "equals": true,
+            "frames": 300
+          },
+          "seed 1",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.inMoveSelect",
+            "equals": true,
+            "frames": 300
+          },
+          "press right",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "CHARMANDER used FLAMETHROWER!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "GEODUDE took 19 damage!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "It's not very effective...",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "GEODUDE fainted!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "DEX TEST sent out ONIX!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "shot seen-replacement-onix",
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.onix",
+            "equals": true
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.phase",
+            "equals": "command",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.menu.active",
+            "equals": true,
+            "frames": 300
+          },
+          "seed 1",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.inMoveSelect",
+            "equals": true,
+            "frames": 300
+          },
+          "press right",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "CHARMANDER used FLAMETHROWER!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "ONIX took 18 damage!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "It's not very effective...",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.message",
+            "equals": "ONIX fainted!",
+            "frames": 300
+          },
+          {
+            "op": "await",
+            "path": "battle.waiting",
+            "equals": true,
+            "frames": 300
+          },
+          "wait 12",
+          "press a",
+          {
+            "op": "await",
+            "path": "battle.phase",
+            "equals": "ended",
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 300
+          },
+          {
+            "op": "assert",
+            "path": "party.count",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.pidgey",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.geodude",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.onix",
+            "equals": true
+          },
+          "shot seen-before-save"
+        ],
+        [
+          "press b",
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          {
+            "op": "assert",
+            "path": "pause.phase",
+            "equals": "save"
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "dialog",
+            "frames": 300
+          },
+          {
+            "op": "assert",
+            "path": "pause.lastSave.ok",
+            "equals": true
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 300
+          },
+          "shot seen-saved-world"
+        ]
+      ],
+      "outputs": [
+        "seen-initial-pidgey.png",
+        "seen-replacement-geodude.png",
+        "seen-replacement-onix.png",
+        "seen-before-save.png",
+        "seen-saved-world.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "title",
+            "frames": 300
+          },
+          "shot seen-restart-title",
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 300
+          },
+          {
+            "op": "assert",
+            "path": "party.count",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.species",
+            "equals": "charmander"
+          },
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.pidgey",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.geodude",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.pokedex.seen.onix",
+            "equals": true
+          },
+          "wait 3",
+          "shot seen-restart-world"
+        ]
+      ],
+      "outputs": [
+        "seen-restart-title.png",
+        "seen-restart-world.png"
+      ]
+    }
+  ]
+}

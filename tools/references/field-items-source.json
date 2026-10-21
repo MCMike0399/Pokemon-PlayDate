@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "files": {
+    "gfx/town_map/town_map.png": {
+      "sha256": "181a6d94c7431ec439d22f00ee83294d8b307d8b55bae22e46a30f072cf6f0fa",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/gfx/town_map/town_map.png"
+    },
+    "gfx/town_map/town_map.rle": {
+      "sha256": "d034ce912040a8ab68be68833e21b433bac6dfb35d7da8d0e672cce3d58d62d1",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/gfx/town_map/town_map.rle"
+    },
+    "gfx/town_map/town_map_cursor.png": {
+      "sha256": "33c6e9b9022ee0d8f9fb6fc0869d76089dc1b915f2cf40cfbb5e38b89c78a3df",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/gfx/town_map/town_map_cursor.png"
+    },
+    "constants/map_constants.asm": {
+      "sha256": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/constants/map_constants.asm"
+    },
+    "data/maps/names.asm": {
+      "sha256": "6aee8a1dfa1f627e24340df5b6a2645896c625a896ae81be7c5b2a079094b217",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/names.asm"
+    },
+    "data/maps/town_map_entries.asm": {
+      "sha256": "c5f7e27610413bb57265eec403abc1b21a00f48b36d06a752724908be5c30456",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/town_map_entries.asm"
+    },
+    "data/maps/town_map_order.asm": {
+      "sha256": "be322585ebc8d9f589da45b0839942755f4ad9cc8977db109c635a66953e1aec",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/town_map_order.asm"
+    },
+    "engine/items/town_map.asm": {
+      "sha256": "e6e3df35c2cf2c66c4b30dbd3afeab50000969f49c60ebf9391e4ecffeab55ad",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/engine/items/town_map.asm"
+    },
+    "data/tilesets/escape_rope_tilesets.asm": {
+      "sha256": "2a296a4e87197acf3d6b38bc46a99e2f3a2d02020221190335daa577b5d56e1e",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/tilesets/escape_rope_tilesets.asm"
+    },
+    "engine/items/item_effects.asm": {
+      "sha256": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/engine/items/item_effects.asm"
+    },
+    "engine/overworld/special_warps.asm": {
+      "sha256": "b072500da4e168dfaf011dec0a89aae966d6308833a5f45b40252d264d998d39",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/engine/overworld/special_warps.asm"
+    },
+    "scripts/BluesHouse.asm": {
+      "sha256": "7c3a981b70074127febffbc7a4b4db512abd30739a07f46294b1dbc51debbcf1",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/scripts/BluesHouse.asm"
+    },
+    "text/BluesHouse.asm": {
+      "sha256": "baa462674728aa66492aecea12f535fd524410f2d1b6461ff35ac5872b41fee1",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/text/BluesHouse.asm"
+    },
+    "data/items/marts.asm": {
+      "sha256": "d227deffbe60d8c10f0602710c6fa966c80edc7b36cb4c6ee973e42787f66f89",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/items/marts.asm"
+    },
+    "data/maps/headers/PalletTown.asm": {
+      "sha256": "be2b496effb593c55e6a4056e005e3c0518c4e56f670f57121249b561461d144",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/PalletTown.asm"
+    },
+    "data/maps/headers/RedsHouse1F.asm": {
+      "sha256": "0942ee8a068595e7df52d84d8ce4f155ae63ed3fda8e5146d489955a60e2f9d2",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/RedsHouse1F.asm"
+    },
+    "data/maps/headers/RedsHouse2F.asm": {
+      "sha256": "d223c8367d44c952378d28e534eb7dec7d8ca540a91e8164d069974dabd6472a",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/RedsHouse2F.asm"
+    },
+    "data/maps/headers/BluesHouse.asm": {
+      "sha256": "0595dcfb73ea45d48c8cffd614b449d9d92629de5044d16f07dd469f97621866",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/BluesHouse.asm"
+    },
+    "data/maps/headers/OaksLab.asm": {
+      "sha256": "4db7b23143c30a72333d6535517cd63e017bcd7efe8f48f2afacbd563ef6e66c",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/OaksLab.asm"
+    },
+    "data/maps/headers/Route1.asm": {
+      "sha256": "b64b3376c6516f3edc6a884d9220791805745d6cb7564574a11b9ee457da535d",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/Route1.asm"
+    },
+    "data/maps/headers/ViridianCity.asm": {
+      "sha256": "f00734789d39eb6526b2fe54a4ad87af35253655e2d146f4a2ed3d6537f016b6",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianCity.asm"
+    },
+    "data/maps/headers/ViridianMart.asm": {
+      "sha256": "2865a96e291bdaf405e24220ae90f95d77155c1b9148d8551d5dffee17cf51e2",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianMart.asm"
+    },
+    "data/maps/headers/ViridianPokecenter.asm": {
+      "sha256": "c8b356c3e40ec10f729044475761a44f2dbc8aa5c559cf732651637e23659c4e",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianPokecenter.asm"
+    },
+    "data/maps/headers/Route2.asm": {
+      "sha256": "68f23142cf8b7e770062dbb680a5e1058a357e26794930183f569981f7365bfe",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/Route2.asm"
+    },
+    "data/maps/headers/ViridianForestSouthGate.asm": {
+      "sha256": "bad278cd3b4387a07499cd8ac196941b4537961c29a8dfd4dae3ef2607ebfc1a",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianForestSouthGate.asm"
+    },
+    "data/maps/headers/ViridianForest.asm": {
+      "sha256": "b88358a783427bf9e8fe956a3ebf9c8339dfa3d612b2c4f8067c95858ddc69b4",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianForest.asm"
+    },
+    "data/maps/headers/ViridianForestNorthGate.asm": {
+      "sha256": "8951b8c0d5360458a8bfd7097fd5878ae3497c5e0eb00c24436fc1ecc55cda87",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/ViridianForestNorthGate.asm"
+    },
+    "data/maps/headers/PewterCity.asm": {
+      "sha256": "c9314dde30c9d399cf6990e659b940c533ec72bee66142de9966fc7ad789bf37",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/PewterCity.asm"
+    },
+    "data/maps/headers/PewterGym.asm": {
+      "sha256": "2138fa4ea9b156ed17eb2fa69fa2e1dee3b9d20c085748b21c30e957f4327ed3",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/PewterGym.asm"
+    },
+    "data/maps/headers/PewterMart.asm": {
+      "sha256": "5ed9c4eb1d2f833e0d5ff4ed87e2374a7bd786ab2b51cbfcb97cd3f84c41f924",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/PewterMart.asm"
+    },
+    "data/maps/headers/PewterPokecenter.asm": {
+      "sha256": "fa4629613287f519f48ff0581cb4841402f80a89dc2bb7ca192fe4b494fc3ffb",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/headers/PewterPokecenter.asm"
+    },
+    "Makefile": {
+      "sha256": "ae29c23b88a65bc5a734296ebb45cee2e1fb6cba2663e3d29c81e3e1461cfec7",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/Makefile"
+    },
+    "gfx/font.asm": {
+      "sha256": "f07a3e3eb1db509677d47cfea71a89243c597e07fee5cd39f075dc32850341af",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/gfx/font.asm"
+    },
+    "engine/events/set_blackout_map.asm": {
+      "sha256": "d26f065fd9348ebca0761f7999b856107a61d68bea52c5c0cffc8e07f4121536",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/engine/events/set_blackout_map.asm"
+    },
+    "engine/events/pokecenter.asm": {
+      "sha256": "55903bede37954620e23375f2b387bb13b601bb8ae062f282a20eb7afd36c82c",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/engine/events/pokecenter.asm"
+    },
+    "data/maps/special_warps.asm": {
+      "sha256": "d96914d09a633328dd1a8a81bdf0e2d58a0ce82b3d988d1efb5a9ae5f7314283",
+      "url": "https://github.com/pret/pokered/blob/af519899719f0754965776faac0e836a3b906e6d/data/maps/special_warps.asm"
+    }
+  },
+  "archive_sha256": "e571972fc926dcb65d94fc989299d38109590aa945ed657bf215eac8561afd05",
+  "archive_url": "https://codeload.github.com/pret/pokered/tar.gz/af519899719f0754965776faac0e836a3b906e6d"
+}

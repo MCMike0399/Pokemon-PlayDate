@@ -1,0 +1,12 @@
+{
+  "PKHeX.Core/Resources/byte/personal/personal_rb": {
+    "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Resources/byte/personal/personal_rb",
+    "sha256": "e0e92b8fc460d8564aac1427a02cc3fa4f3917ab7ffed269ce5e6b706059768f",
+    "size": 4256
+  },
+  "PKHeX.Core/PersonalInfo/Info/PersonalInfo1.cs": {
+    "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/PersonalInfo/Info/PersonalInfo1.cs",
+    "sha256": "09665d9584b52e4c753d2df42d64be8b71792eeb008eddbddecafe309d9f5480",
+    "size": 5608
+  }
+}

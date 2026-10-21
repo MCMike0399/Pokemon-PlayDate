@@ -1,0 +1,378 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "seed": 42,
+              "intro": "skip",
+              "opening": false,
+              "zone": "blues_house",
+              "entry": {
+                "x": 6,
+                "y": 5,
+                "facing": "up"
+              },
+              "player_pokemon": {
+                "species": "squirtle",
+                "level": 16
+              },
+              "quest_flags": {
+                "EVENT_GOT_POKEDEX": true,
+                "EVENT_GOT_TOWN_MAP": false
+              },
+              "inventory": {
+                "money": 3000,
+                "slots": [
+                  {
+                    "id": "antidote",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "awakening",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "burnHeal",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "escapeRope",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "ether",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "greatBall",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "hyperPotion",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "iceHeal",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "maxElixir",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "maxEther",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "maxPotion",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "maxRevive",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "parlyzHeal",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "potion",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "revive",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "superPotion",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "ultraBall",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "fullHeal",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "elixir",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "fullRestore",
+                    "quantity": 1
+                  }
+                ]
+              }
+            }
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_GOT_TOWN_MAP",
+            "equals": false
+          },
+          "press b",
+          "press down",
+          "press down",
+          "press a",
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "bag.phase",
+            "equals": "message"
+          },
+          "shot field-rope-not-usable-here",
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.escapeRope",
+            "equals": 1
+          },
+          "press a",
+          "press up",
+          "press up",
+          "press up",
+          "press a",
+          "press down",
+          "press a",
+          {
+            "op": "assert",
+            "path": "bag.phase",
+            "equals": "toss"
+          },
+          "press down",
+          "press a",
+          {
+            "op": "assert",
+            "path": "bag.phase",
+            "equals": "message"
+          },
+          "press a",
+          "press b",
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_GOT_TOWN_MAP",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.townMap",
+            "equals": 1
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.townMap",
+            "equals": 1
+          },
+          "press b",
+          "press down",
+          "press down",
+          "press a",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "townMap"
+          },
+          {
+            "op": "assert",
+            "path": "town_map.current.id",
+            "equals": "BLUES_HOUSE"
+          },
+          "press up",
+          {
+            "op": "assert",
+            "path": "town_map.location",
+            "equals": "ROUTE_1"
+          },
+          "shot field-map-route1-selected",
+          "press down",
+          {
+            "op": "assert",
+            "path": "town_map.location",
+            "equals": "PALLET_TOWN"
+          },
+          "shot field-map-before-save",
+          "press b",
+          "press b",
+          "press b",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "pause.lastSave.ok",
+            "equals": true
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          }
+        ]
+      ],
+      "outputs": [
+        "field-map-before-save.png",
+        "field-rope-not-usable-here.png",
+        "field-map-route1-selected.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "zone_id",
+            "equals": "blues_house"
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_GOT_TOWN_MAP",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.escapeRope",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.townMap",
+            "equals": 1
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.townMap",
+            "equals": 1
+          },
+          "press b",
+          "press down",
+          "press down",
+          "press a",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "townMap"
+          },
+          "shot field-map-after-continue",
+          "press b",
+          "press b"
+        ]
+      ],
+      "outputs": [
+        "field-map-after-continue.png"
+      ]
+    }
+  ]
+}

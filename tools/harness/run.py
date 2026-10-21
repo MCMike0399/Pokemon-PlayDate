@@ -95,6 +95,11 @@ def qualify_catalog(client, data, output):
     return catalog_qualification.finalize(output, data, getattr(client, 'evidence', output), getattr(client, 'identity', {}))
 
 
+def qualify_field_items(client, data, output):
+    from tools.harness import field_item_qualification
+    return field_item_qualification.finalize(output, data, getattr(client, 'evidence', output), getattr(client, 'identity', {}))
+
+
 def prepare(project, sdk, output, session):
     source = output / 'Source'
     shutil.copytree(project / 'Source', source)
@@ -176,10 +181,15 @@ def _run(args):
     if not args.build_only and any(group.get('journey', {}).get('name') == 'npc-motion-continue' for group in scenario.get('processes', [scenario])):
         from tools.harness.motion_journey import visual_preflight
         visual_preflight(scenario)
+    if not args.build_only:
+        from tools.harness.brock_capture import visual_preflight as brock_visual_preflight
+        brock_visual_preflight(scenario)
     try:
         metadata = prepare(PROJECT, sdk, output, session)
         from tools.harness import catalog_qualification
         catalog_qualification.prepare(output, scenario, launching=not args.build_only)
+        from tools.harness import field_item_qualification
+        field_item_qualification.prepare(output, scenario, launching=not args.build_only)
     except BaseException as error:
         atomic_json(output / 'outcome.json', {'ok': False, 'error': str(error), 'session_id': session})
         raise
@@ -238,6 +248,7 @@ def _run(args):
             finalize_captures(client, data, output)
             captures_finalized = True
             qualify_catalog(client, data, output)
+            qualify_field_items(client, data, output)
             atomic_json(output / 'outcome.json', {'ok': True, 'session_id': session})
             print(output)
             return 0

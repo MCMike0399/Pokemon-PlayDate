@@ -1,0 +1,98 @@
+{
+  "name": "worry-seed-static",
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "party_pokemon": [
+          {
+            "species": "bulbasaur",
+            "level": 31
+          }
+        ],
+        "trainer_name": "CONTROLLED SEED TEST",
+        "enemy_party": [
+          {
+            "species": "pikachu",
+            "level": 5
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 180
+    },
+    "press right",
+    "press down",
+    {
+      "op": "assert",
+      "path": "battle.moveMenu.selected",
+      "equals": 4
+    },
+    "seed 14",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.player.pp.worrySeed",
+      "equals": 9,
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.effective_abilities.enemy",
+      "equals": 15,
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.ability_id",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.status",
+      "equals": "none"
+    },
+    "wait 12",
+    "shot worry-seed-static"
+  ],
+  "outputs": [
+    "worry-seed-static.png"
+  ]
+}

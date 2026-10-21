@@ -3,6 +3,7 @@ import "data/pokemonNames"
 import "data/growthData"
 import "domain/growth"
 import "data/specimenData"
+import "data/specimenTraits"
 import "domain/specimen"
 
 -- Gen I species with complete B2W2 level-up learnsets (version group 14).
@@ -3690,11 +3691,12 @@ end
 
 function Pokemon:init(species, level, attributes)
     checkedLevel(level)
-    local attributes = Specimen.attributes(attributes)
+    local attributes = Specimen.attributes(attributes,species)
     local data = assert(pokemonData[species], "unknown-species")
     Specimen.ability(species,attributes.abilitySlot)
     local maxHP = calcHP(data.baseHP, level)
     self.natureId, self.abilitySlot, self.heldItem = attributes.natureId, attributes.abilitySlot, attributes.heldItem
+    self.sex, self.sexProvenance = attributes.sex, attributes.sexProvenance
     self.species = species
     self.name = assert(PokemonNames[species], "missing canonical species name")
     self.dex = data.dex
@@ -3728,7 +3730,11 @@ function Pokemon:init(species, level, attributes)
 end
 
 function Pokemon:attributes()
-    return Specimen.attributes({natureId=self.natureId,abilitySlot=self.abilitySlot,heldItem=self.heldItem})
+    return Specimen.attributes({natureId=self.natureId,abilitySlot=self.abilitySlot,heldItem=self.heldItem,
+        sex=self.sex,sexProvenance=self.sexProvenance},self.species)
+end
+function Pokemon:getSex()
+    return self:attributes().sex
 end
 function Pokemon:ability()
     return Specimen.ability(self.species,self.abilitySlot)

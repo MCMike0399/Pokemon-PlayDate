@@ -52,6 +52,7 @@ function PCState:top()
     options[#options+1]="LOG OFF"
     self:showMenu(options,function(index)
         if index==1 then self:storageMenu()
+        elseif index==2 then assert(ItemPCState.open(self.game,{parent=self}))
         elseif index==#options then self:close()
         else self:showResult(false,"unavailable","That PC service is not available yet.","top") end
     end,function() self:close() end)

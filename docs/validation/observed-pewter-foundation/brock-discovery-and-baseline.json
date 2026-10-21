@@ -1,0 +1,36 @@
+{
+  "status": "supplementary gameplay+discovery evidence, notnaturalBrockacceptance",
+  "discovery_cases": 10,
+  "baseline_suite1": {
+    "passed": 7,
+    "failed": 1,
+    "failure": "Brock-only ready-handshake timeout; capturesnotfinalized, nopassclaimed"
+  },
+  "baseline_suite2": {
+    "passed": 1,
+    "failed": 0,
+    "case": "brock--source-trainer-5"
+  },
+  "gameplay_cases_proved": [
+    "fiveoriginaltrainerparties/payout/repeat",
+    "Brockbadge/TMfullbagrefusal+toss+retryexactonce",
+    "blackoutcheckpoint/healing/halfmoney/noTrainerreward",
+    "failedsightinert"
+  ],
+  "root_full_host": {
+    "tests": 355,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "generator_baseline_repair": true,
+    "original_early_combat_hashes_unchanged": true
+  },
+  "archive_sha256": "fd06e5119986939f176c9a3a48cf801062e6df18d026de5fcef340df018b29c9",
+  "archive_bytes": 1438128,
+  "remaining": [
+    "opponentseenreplacementfix",
+    "FocusEnergy/criticalmetadata",
+    "mechanicsexposurechecklistclosure",
+    "all3starter/capture/party/acceptednaturalevolution/restartproof"
+  ]
+}

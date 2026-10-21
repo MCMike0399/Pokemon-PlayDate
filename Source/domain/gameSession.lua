@@ -96,7 +96,7 @@ function GameSession:init(deps,options)
     local start=location(deps,assert(options.location,"starting location required"),payload)
     local checkpoint=location(deps,options.checkpoint or start,payload)
     local stream=RulesRNG.new(options.seed or 1)
-    state[self]={deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),
+    state[self]={deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
@@ -393,3 +393,24 @@ function GameSession:takeHeldItem(mon)
     if not plan then return false,reason end
     return commitHeldTransfer(plan)
 end
+
+-- Retain session, Pokemon and Inventory identities; no callbacks after commit.
+function GameSession:resolveTeaching(request,decision,slot)
+    local plan,why=Teaching._commitPlan(self,request,decision,slot)
+    if not plan then return false,why end
+    if plan.bagData then
+        local ok,problem=plan.bag:_replaceData(plan.bagData)
+        if not ok then return false,problem end
+        plan.pokemon.moves,plan.pokemon.pp=plan.moves,plan.pp
+    end
+    plan.request.status="complete"
+    return true,plan.result
+end
+
+-- Field transport commits only its private validated plan.
+function GameSession:useEscapeRope(request) return FieldItems._commit(self,request) end
+
+-- Item PC owns physical stacks separately from Pokémon boxes and the bag.
+function GameSession:itemStorage()return state[self].itemStorage end
+function GameSession:selectPCItem(operation,index)return PCItems.prepare(self,operation,index)end
+function GameSession:resolvePCItem(request,quantity,decision)return PCItems.resolve(self,request,quantity,decision)end

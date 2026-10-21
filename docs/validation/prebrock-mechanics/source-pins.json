@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "policy": "C reconstruction and independent maintained Gen5 simulator; not an independently matched retail ROM claim",
+  "references": [
+    {
+      "path": "/private/tmp/pokemon-early-abilities/references/mechanics/bw_move_handlers.c",
+      "sha256": "94ac19013945f5cabb01cdd18678df2e6716a3f8e0f90efe77fb0173855f7fbe",
+      "scope": "C reconstruction b279bbefa99bb2f6fbabcc95e4b6d3e939290353; HandlerFocusEnergy lines2614-2638"
+    },
+    {
+      "path": "/private/tmp/pokemon-early-abilities/references/mechanics/bw_btl_server_flow.c",
+      "sha256": "f1498c627ae38274d7ecfd0e1f50585958753e1f876f71a5eac6633972066909",
+      "scope": "same C revision; ServerEvent_CheckCritical lines6479-6511"
+    },
+    {
+      "path": "/private/tmp/pokemon-early-abilities/references/mechanics/bw_btl_calc.c",
+      "sha256": "7a85311212044df299b64ebe9de1996c1ac3a736a591217973c4cf0e71b6ba17",
+      "scope": "same C revision; BtlCalc_RollCritical lines112+"
+    },
+    {
+      "path": "/private/tmp/pokemon-early-abilities/references/mechanics/bw_btl_pokeparam.c",
+      "sha256": "f32695f748a235d17ad24557d929a74f00068f1aa3913f13974a0a9290dca452",
+      "scope": "same C revision; BattleMon_GetCritStage lines1025+"
+    },
+    {
+      "path": "/private/tmp/pokemon-early-combat/references/data_moves.ts",
+      "sha256": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+      "scope": "Pokemon Showdown 9b136a8c8cdb860a8ab96fa063f906604e352547; FocusEnergy lines5974-6003"
+    },
+    {
+      "path": "/private/tmp/pokemon-early-abilities/references/mechanics/ps_sim_battle-actions.ts",
+      "sha256": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4",
+      "scope": "same Showdown revision; Gen<=5 crit table lines1678-1696"
+    }
+  ]
+}

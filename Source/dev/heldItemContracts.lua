@@ -97,13 +97,13 @@ function HeldItemContracts.run()
         local game,p,bag=setup();assert(bag:add("potion",2));p.heldItem="townMap";local before=bag:toData();local rng=RulesRNG.snapshot()
         local ok,why=game.session:giveHeldItem(p,"potion");eq(ok,false);eq(why,"invalid-pokemon");same(bag:toData(),before);eq(p.heldItem,"townMap");same(RulesRNG.snapshot(),rng)
     end)
-    test("All49 holdable catalog IDs give and take; data support is not held battle effects",function()
+    test("Blue49 plus native Light Ball holdable catalog IDs give and take; data support is not held battle effects",function()
         local count=0
         for id,legal in pairs(SpecimenData.holdable)do if legal then
             local game,p,bag=setup();assert(bag:add(id,1));assert(game.session:giveHeldItem(p,id));eq(p.heldItem,id);eq(bag:quantity(id),0)
             assert(game.session:takeHeldItem(p));eq(p.heldItem,"none");eq(bag:quantity(id),1);count=count+1
         end end
-        eq(count,49)
+        eq(count,50)
     end)
     test("Actual identity remains target after party reorder; active identity is unchanged",function()
         local game,p,bag=setup();local q=Pokemon("squirtle",5);assert(game:recruit(q));assert(bag:add("potion",1));assert(game.session:party():swap(1,2))

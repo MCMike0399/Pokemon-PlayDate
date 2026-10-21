@@ -1,0 +1,2321 @@
+{
+  "schema": 1,
+  "legacy_revision": "b11414590b5f8f56915e5f60273ec5b8798b0f65",
+  "legacy_rows_sha256": "ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea",
+  "primary_snapshot_revision": "1c40818cce099f8c4463ba5073b95cc1fafb4502",
+  "primary_snapshot_move_file_sha256": "54744dc3e761cafe5cffa98948b9679c33af84b79efdd2d02b2fe172635dcb14",
+  "metadata_artifact_sha256": "c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd",
+  "source_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "source_sha256": {
+    "data/moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+    "data/mods/gen8/moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+    "data/mods/gen7/moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+    "data/mods/gen6/moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+    "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
+  },
+  "counts": {
+    "typed-secondary": 99,
+    "ohko-dispatch": 4,
+    "weather-producer": 3
+  },
+  "policy": "Only epoch0 may add absent targetId/ability metadata; complete epoch1 may add declared epoch2 critical metadata/Focus producer. Wrong or deleted current-epoch metadata and arbitrary effects reject. Exact declared payload pairs reverse to unchanged historical early-combat hashes. Epoch3 adds only five literal rule fields and the source-pinned GenV SweetScent Eva-1 correction; complete epoch3 inputs may not lose either. Legacy hashes remain unchanged. Epoch4 explicitly adds Bide117 for originalBlue TM34; exact added row is independently source-qualified and removed only from the historical424-row hash projection. Arbitrary extra rows and mutations of the added row reject. Epoch5 adds only Captivate oppositeSex attempt eligibility; its existing SpA-2 effect and every scalar remain unchanged. Per-rule introduction epochs protect complete old versions and reject current deletions. Epoch6 adds only SolarBeam/SkullBash chargeRule and PetalDance lockRule, with all prior scalar/effect bytes retained. Epoch7 introduces only RainDance WeatherEffect and Thunder/Hurricane weatherAccuracy booleans; exact payload inverse and current metadata checks preserve original scalar/effect hashes. Epoch8 adds only WorrySeed attemptRule and exact WorrySeedEffect producer; all existing fields and historical hashes remain protected.",
+  "transitions": {
+    "acid": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spd\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "acidSpray": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spd\" , -2 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spd\" , -2 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"spd\", -2)) } },",
+        "version": 1
+      }
+    ],
+    "airSlash": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "ancientPower": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , EffectSeq { ModifyStat ( ATTACKER , \"atk\" , 1 ) , ModifyStat ( ATTACKER , \"def\" , 1 ) , ModifyStat ( ATTACKER , \"spa\" , 1 ) , ModifyStat ( ATTACKER , \"spd\" , 1 ) , ModifyStat ( ATTACKER , \"spe\" , 1 ) } )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( ATTACKER , When ( Chance ( 10 ) , EffectSeq { ModifyStat ( ATTACKER , \"atk\" , 1 ) , ModifyStat ( ATTACKER , \"def\" , 1 ) , ModifyStat ( ATTACKER , \"spa\" , 1 ) , ModifyStat ( ATTACKER , \"spd\" , 1 ) , ModifyStat ( ATTACKER , \"spe\" , 1 ) } ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), EffectSeq{ ModifyStat(ATTACKER, \"atk\", 1), ModifyStat(ATTACKER, \"def\", 1), ModifyStat(ATTACKER, \"spa\", 1), ModifyStat(ATTACKER, \"spd\", 1), ModifyStat(ATTACKER, \"spe\", 1) }) } },",
+        "version": 1
+      }
+    ],
+    "astonish": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "auroraBeam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"atk\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"atk\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"atk\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "bite": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "blazeKick": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "blizzard": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"freeze\")) } },",
+        "version": 1
+      }
+    ],
+    "bodySlam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "boneClub": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "bounce": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "bubble": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "bubbleBeam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "bugBuzz": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spd\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "bulldoze": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "chargeBeam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 70 ) , ModifyStat ( ATTACKER , \"spa\" , 1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( ATTACKER , When ( Chance ( 70 ) , ModifyStat ( ATTACKER , \"spa\" , 1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(70), ModifyStat(ATTACKER, \"spa\", 1)) } },",
+        "version": 1
+      }
+    ],
+    "confusion": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "constrict": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "crossPoison": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "crunch": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ModifyStat(DEFENDER, \"def\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "crushClaw": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 50 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 50 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(50), ModifyStat(DEFENDER, \"def\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "darkPulse": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "discharge": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "dizzyPunch": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "dragonBreath": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "dragonRush": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "dynamicPunch": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "earthPower": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spd\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "ember": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "extrasensory": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "fakeOut": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "fireBlast": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "fireFang": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )",
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )",
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")), When(Chance(10), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "firePunch": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "fissure": [
+      {
+        "migration": "abilities-v1",
+        "kind": "ohko-dispatch",
+        "before": {
+          "effects": [
+            "DirectDamage ( DEFENDER , CurrentHPOf ( DEFENDER ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { DirectDamage(DEFENDER, CurrentHPOf(DEFENDER)) } },",
+        "version": 1
+      }
+    ],
+    "flameCharge": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( ATTACKER , \"spe\" , 1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( ATTACKER , When ( Chance ( 100 ) , ModifyStat ( ATTACKER , \"spe\" , 1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(ATTACKER, \"spe\", 1)) } },",
+        "version": 1
+      }
+    ],
+    "flameWheel": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "flamethrower": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "flareBlitz": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "flashCannon": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spd\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "guillotine": [
+      {
+        "migration": "abilities-v1",
+        "kind": "ohko-dispatch",
+        "before": {
+          "effects": [
+            "DirectDamage ( DEFENDER , CurrentHPOf ( DEFENDER ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { DirectDamage(DEFENDER, CurrentHPOf(DEFENDER)) } },",
+        "version": 1
+      }
+    ],
+    "gunkShot": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "headbutt": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "heartStamp": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "heatWave": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "hornDrill": [
+      {
+        "migration": "abilities-v1",
+        "kind": "ohko-dispatch",
+        "before": {
+          "effects": [
+            "DirectDamage ( DEFENDER , CurrentHPOf ( DEFENDER ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { DirectDamage(DEFENDER, CurrentHPOf(DEFENDER)) } },",
+        "version": 1
+      }
+    ],
+    "hurricane": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "hyperFang": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "iceBeam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"freeze\")) } },",
+        "version": 1
+      }
+    ],
+    "iceFang": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) )",
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) ) )",
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"freeze\")), When(Chance(10), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "icePunch": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"freeze\")) } },",
+        "version": 1
+      }
+    ],
+    "icicleCrash": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "icyWind": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "inferno": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "ironHead": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "ironTail": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ModifyStat(DEFENDER, \"def\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "lavaPlume": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"burn\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"burn\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"burn\")) } },",
+        "version": 1
+      }
+    ],
+    "leafTornado": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 50 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 50 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(50), ModifyStat(DEFENDER, \"acc\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "lick": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "lowSweep": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "metalClaw": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( ATTACKER , \"atk\" , 1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( ATTACKER , When ( Chance ( 10 ) , ModifyStat ( ATTACKER , \"atk\" , 1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(ATTACKER, \"atk\", 1)) } },",
+        "version": 1
+      }
+    ],
+    "meteorMash": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ModifyStat ( ATTACKER , \"atk\" , 1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( ATTACKER , When ( Chance ( 20 ) , ModifyStat ( ATTACKER , \"atk\" , 1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ModifyStat(ATTACKER, \"atk\", 1)) } },",
+        "version": 1
+      }
+    ],
+    "mirrorShot": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ModifyStat(DEFENDER, \"acc\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "moonlight": [
+      {
+        "migration": "abilities-v1",
+        "kind": "weather-producer",
+        "before": {
+          "effects": [
+            "Heal ( ATTACKER , Product ( MaxHPOf ( ATTACKER ) , 0.5 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "WeatherHealEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },",
+        "version": 1
+      }
+    ],
+    "mudBomb": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ModifyStat(DEFENDER, \"acc\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "mudShot": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "mudSlap": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"acc\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "muddyWater": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ModifyStat ( DEFENDER , \"acc\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ModifyStat(DEFENDER, \"acc\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "poisonFang": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 50 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 50 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(50), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "poisonJab": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "poisonSting": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "powderSnow": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"freeze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"freeze\")) } },",
+        "version": 1
+      }
+    ],
+    "psybeam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "psychic": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ModifyStat(DEFENDER, \"spd\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "razorShell": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 50 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 50 ) , ModifyStat ( DEFENDER , \"def\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(50), ModifyStat(DEFENDER, \"def\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "rockSlide": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "rockTomb": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ModifyStat ( DEFENDER , \"spe\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ModifyStat(DEFENDER, \"spe\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "rollingKick": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "sandstorm": [
+      {
+        "migration": "abilities-v1",
+        "kind": "weather-producer",
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "SandstormEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },",
+        "version": 1
+      }
+    ],
+    "shadowBall": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ModifyStat ( DEFENDER , \"spd\" , -1 ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ModifyStat(DEFENDER, \"spd\", -1)) } },",
+        "version": 1
+      }
+    ],
+    "sheerCold": [
+      {
+        "migration": "abilities-v1",
+        "kind": "ohko-dispatch",
+        "before": {
+          "effects": [
+            "DirectDamage ( DEFENDER , CurrentHPOf ( DEFENDER ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { DirectDamage(DEFENDER, CurrentHPOf(DEFENDER)) } },",
+        "version": 1
+      }
+    ],
+    "signalBeam": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "silverWind": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , EffectSeq { ModifyStat ( ATTACKER , \"atk\" , 1 ) , ModifyStat ( ATTACKER , \"def\" , 1 ) , ModifyStat ( ATTACKER , \"spa\" , 1 ) , ModifyStat ( ATTACKER , \"spd\" , 1 ) , ModifyStat ( ATTACKER , \"spe\" , 1 ) } )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( ATTACKER , When ( Chance ( 10 ) , EffectSeq { ModifyStat ( ATTACKER , \"atk\" , 1 ) , ModifyStat ( ATTACKER , \"def\" , 1 ) , ModifyStat ( ATTACKER , \"spa\" , 1 ) , ModifyStat ( ATTACKER , \"spd\" , 1 ) , ModifyStat ( ATTACKER , \"spe\" , 1 ) } ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), EffectSeq{ ModifyStat(ATTACKER, \"atk\", 1), ModifyStat(ATTACKER, \"def\", 1), ModifyStat(ATTACKER, \"spa\", 1), ModifyStat(ATTACKER, \"spd\", 1), ModifyStat(ATTACKER, \"spe\", 1) }) } },",
+        "version": 1
+      }
+    ],
+    "skyAttack": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "sludge": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "sludgeBomb": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "sludgeWave": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "smog": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 40 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 40 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(40), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "snore": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "spark": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "steamroller": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "stomp": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "synthesis": [
+      {
+        "migration": "abilities-v1",
+        "kind": "weather-producer",
+        "before": {
+          "effects": [
+            "Heal ( ATTACKER , Product ( MaxHPOf ( ATTACKER ) , 0.5 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "WeatherHealEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },",
+        "version": 1
+      }
+    ],
+    "thunder": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(30), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "thunderFang": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )",
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )",
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"paralyze\")), When(Chance(10), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "thunderPunch": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "thunderShock": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "thunderbolt": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 10 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(10), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "triAttack": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , RandomMajorStatusEffect ( DEFENDER , { \"burn\" , \"paralyze\" , \"freeze\" } ) ) )"
+          ]
+        },
+        "legacy_suffix": " },",
+        "version": 1
+      }
+    ],
+    "twineedle": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"poison\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"poison\")) } },",
+        "version": 1
+      }
+    ],
+    "twister": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "waterPulse": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"confuse\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"confuse\")) } },",
+        "version": 1
+      }
+    ],
+    "waterfall": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "zapCannon": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 100 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(100), ApplyStatus(DEFENDER, \"paralyze\")) } },",
+        "version": 1
+      }
+    ],
+    "zenHeadbutt": [
+      {
+        "migration": "abilities-v1",
+        "kind": "typed-secondary",
+        "before": {
+          "effects": [
+            "When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 20 ) , ApplyStatus ( DEFENDER , \"flinch\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(20), ApplyStatus(DEFENDER, \"flinch\")) } },",
+        "version": 1
+      }
+    ],
+    "focusEnergy": [
+      {
+        "migration": "critical-v2",
+        "version": 2,
+        "kind": "focus-energy-producer",
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "FocusEnergyEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "sweetScent": [
+      {
+        "migration": "prebrock-rules-v3",
+        "kind": "gen5-evasion-correction",
+        "version": 3,
+        "before": {
+          "effects": [
+            "ModifyStat ( DEFENDER , \"eva\" , -2 )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "ModifyStat ( DEFENDER , \"eva\" , -1 )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { ModifyStat(DEFENDER, \"eva\", -2) } },"
+      }
+    ],
+    "rainDance": [
+      {
+        "migration": "rain-v7",
+        "kind": "weather-producer",
+        "version": 7,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "WeatherEffect ( \"raindance\" )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "worrySeed": [
+      {
+        "migration": "worry-seed-v8",
+        "kind": "ability-override",
+        "version": 8,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "WorrySeedEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ]
+  },
+  "critical": {
+    "version": 2,
+    "nonzero": {
+      "karateChop": 1,
+      "razorWind": 1,
+      "razorLeaf": 1,
+      "skyAttack": 1,
+      "crabhammer": 1,
+      "slash": 1,
+      "crossChop": 1,
+      "blazeKick": 1,
+      "airCutter": 1,
+      "leafBlade": 1,
+      "nightSlash": 1,
+      "shadowClaw": 1,
+      "psychoCut": 1,
+      "crossPoison": 1,
+      "stoneEdge": 1,
+      "drillRun": 1
+    },
+    "forced_marker": {
+      "stormThrow": 6
+    },
+    "move_meta_sha256": "93b92d5bddf4fc1536ca0a647c20453bf92e6389010f33ca6fc4c5e9c54363be",
+    "independent_showdown_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+    "independent_all424_matches": true
+  },
+  "critical_counts": {
+    "metadata_rows": 16,
+    "effect_rows": 1
+  },
+  "rule_producers": {
+    "version": 3,
+    "fields": {
+      "electroBall": {
+        "powerRule": "electroBall"
+      },
+      "assurance": {
+        "powerRule": "assurance"
+      },
+      "endeavor": {
+        "damageRule": "endeavor"
+      },
+      "suckerPunch": {
+        "attemptRule": "suckerPunch"
+      },
+      "ragePowder": {
+        "attemptRule": "singlesRedirect"
+      },
+      "captivate": {
+        "attemptRule": "oppositeSex"
+      },
+      "solarBeam": {
+        "chargeRule": "solarBeam"
+      },
+      "skullBash": {
+        "chargeRule": "skullBash"
+      },
+      "petalDance": {
+        "lockRule": "rampage"
+      }
+    },
+    "primary_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+    "primary_locations": {
+      "electroBall": "data/mods/gen5/moves.ts:210",
+      "assurance": "data/moves.ts:643",
+      "endeavor": "data/moves.ts:4787",
+      "suckerPunch": "data/moves.ts:18392",
+      "ragePowder": "data/moves.ts:14595",
+      "sweetScent": "data/mods/gen5/moves.ts:903",
+      "captivate": "data/moves.ts:captivate onTryImmunity/onTryHit + Gen5 inheritance",
+      "solarBeam": "data/moves.ts:17220",
+      "skullBash": "data/moves.ts:16621 +data/mods/gen5/moves.ts:766",
+      "petalDance": "data/moves.ts:13288 +conditions.ts:253"
+    },
+    "epochs": {
+      "electroBall": 3,
+      "assurance": 3,
+      "endeavor": 3,
+      "suckerPunch": 3,
+      "ragePowder": 3,
+      "bide": 4,
+      "captivate": 5,
+      "solarBeam": 6,
+      "skullBash": 6,
+      "petalDance": 6
+    }
+  },
+  "added_moves": {
+    "bide": {
+      "epoch": 4,
+      "row": "Move{ name = \"BIDE\", type = \"normal\", category = \"physical\", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = true, hasSecondary = false, ohko = false, damageRule = \"bide\", priority = 1 },",
+      "move_id": 117,
+      "metadata": {
+        "contact": true,
+        "secondary": false,
+        "ohko": false,
+        "typeImmunity": false
+      },
+      "primary_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+      "primary_locations": [
+        "data/moves.ts:1264",
+        "sim/dex.ts:316",
+        "sim/dex-moves.ts:626",
+        "sim/battle-actions.ts:879,1091,1656",
+        "sim/pokemon.ts:2257"
+      ]
+    }
+  }
+}

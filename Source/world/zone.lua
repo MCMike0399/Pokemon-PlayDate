@@ -749,9 +749,10 @@ end
 function Zone:rollEncounter(session)
     if session~=nil then assert(Specimen.isActiveSession(session),"inactive-encounter-session") end
     assert(not self.imported or self:isSliceReady(), "unresolved imported species/encounter policy")
+    local encounter=session~=nil and assert(Specimen.planEncounter(session)) or nil
     local planned=RulesRNG.new(1);planned:restore(RulesRNG.snapshot())
     local function create(species,level)
-        local mon=assert(Specimen.create(species,level,"wild",planned))
+        local mon=assert(Specimen.create(species,level,"wild",planned,encounter))
         RulesRNG.restore(planned:snapshot())
         return mon
     end

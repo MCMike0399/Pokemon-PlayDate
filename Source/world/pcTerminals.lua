@@ -6,6 +6,11 @@ local terminals={
 }
 function PCTerminals.query(position)
     if type(position)~="table" then return nil end
+    -- Original source OpenRedsPC is relocated to the existing authored PC tile;
+    -- geometry/art remain unchanged. Bedroom PC opens only the personal service.
+    if position.zone_id=="reds_house_2f"and position.x==7 and position.y==3 and position.facing=="up"then
+        return {id="pokered:REDS_HOUSE_2F:hidden:1",zone_id=position.zone_id,x=7,y=2,personal=true}
+    end
     local id=terminals[position.zone_id]
     if id and position.x==13 and position.y==4 and position.facing=="up" then
         return {id=id,zone_id=position.zone_id,x=13,y=3}
@@ -19,6 +24,8 @@ function PCTerminals.tryInteract(game)
         or world.sub:getCurrent()~="explore" or not player or player.isMoving or player.isJumping
         or player.pendingEdgeDoor or player.pendingConnection or player.stepJustFinished then return false end
     local terminal=PCTerminals.query({zone_id=currentZone.stableID,x=player.gridX,y=player.gridY,facing=player.facing})
-    if not terminal or not machine:get("pc") then return false end
+    if not terminal then return false end
+    if terminal.personal then return ItemPCState.open(game,{terminal_id=terminal.id})end
+    if not machine:get("pc")then return false end
     machine:push("pc",{terminal_id=terminal.id});return true
 end

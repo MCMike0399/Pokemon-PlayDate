@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "archive_sha256": "4c02da77a874f07cfa4de163b3ac7a2553b4f390e7f717aa08afa487b20a7967",
+  "files": {
+    "showdown-pinned.tar.gz": "4c02da77a874f07cfa4de163b3ac7a2553b4f390e7f717aa08afa487b20a7967",
+    "package-lock.json": "3df42d84e867476bb396d300b65fe4e02e0b47c08beee8bd455cd9a0c52b7f0d",
+    "charge/probe.js": "fbcb1e6b51d9425821afc54ca7f4f0cb7b8b4cbe4b0679e31b09b875ab0cf106",
+    "charge/root-result.json": "3220d22375cd33a86afb7e0eb5b7b2f2b08fd320b239f518c782ba8080580a99",
+    "bide/probe.js": "8f423ade49950e8f95cf2afc626daf362503ff8ac2822c3e3e236911815f2d6b",
+    "bide/root-result.json": "0a7fda05d7df10b93068487922dec6161b74067a53561cff19dffcb31859d6f3",
+    "power/probe.js": "a8aa2502174385ac01b0a901cc3bd026e613186532212c4f6fcfe89c2415603e",
+    "power/root-result.json": "2809354b540a0ba2e0359a456f6d752ea6076d69fcb5a910a77bbc8d862f0d73",
+    "rain/probe.js": "e9f51a4b53253db2291e3ba471258c1879f5df523b732122a4701f809d47ae3b",
+    "rain/root-result.json": "b443ce0fe1a9600a37dcedab310bee4ade4d1b1d4dc03ddf71db43691270ca26",
+    "worry/probe.js": "0623ae4eaf51c823fefe7ca10a402375185e1a1338fa355d4360e6dbc8259d19",
+    "worry/root-result.json": "ea58e6b5ba9f4bd4b03dd8c7c591716115ba46a578ae9f79d2cbfcb111d6922f"
+  },
+  "status": "Root personally executed actual compiled pinned Gen5 engine. Rules oracles only, not Playdate SDK/native campaign acceptance.",
+  "normalization": "Original151 custom/illegal movesets and ability fixtures are explicitly documented inside each probe. IV0/EV0/Hardy unless charge probe explicitly IV31. PS default PP-Ups differs; compare decrements, not game base PP. Cosmetic wallclock log entries removed; mechanical logs retained.",
+  "reproduction": "Extract immutable source archive into private directory; npm ci --ignore-scripts --omit=dev --no-audit --no-fund; node build. Set each archived probe reference path/argv to that private source; never run simulator or start a server. Full node_modules excluded.",
+  "archive": "gen5-independent-root-oracles-01.tar.gz",
+  "artifact_sha256": "d7f5522ae8c66504b7758f527f67b8c5e627d387cc3fb0485dd1c9c180f4669d",
+  "bytes": 6620332
+}

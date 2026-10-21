@@ -3,31 +3,52 @@ HarnessDiagnostics = {}
 
 local function pokemon(mon)
     if not mon then return { present = false } end
-    local pp, maxPP, moves = {}, {}, {}
+    local pp, maxPP, moves, stages = {}, {}, {}, {}
     for i, key in ipairs(mon.moves or {}) do
         moves[i] = key
         maxPP[key] = moveData[key].maxPP
     end
     for key, value in pairs(mon.pp or {}) do pp[key] = value end
+    for _, stat in ipairs({"atk","def","spa","spd","spe","acc","eva"}) do
+        stages[stat] = mon.statStages[stat]
+    end
     return { present = true, species = mon.species, level = mon.level,
         nature_id=mon.natureId, ability_slot=mon.abilitySlot, ability_id=mon:ability(), held_item=mon.heldItem,
+        sex=mon:getSex(),sex_provenance=mon:attributes().sexProvenance,
         hp = mon.hp, maxHP = mon.maxHP, xp = mon.xp, status = mon.status or "none",
         types={mon.type,mon.type2},
         statusTurns = mon.statusTurns, sleepDuration = mon.sleepDuration or 0, confusion = mon.confusion or 0,
-        flinched = mon.flinched or false, pp = pp, maxPP = maxPP, moves = moves,
+        flinched = mon.flinched or false, pp = pp, maxPP = maxPP, moves = moves, stat_stages = stages,
         pending_evolution = mon.pendingEvolution ~= nil,
         pending_evolution_level = mon.pendingEvolution and mon.pendingEvolution.level or 0,
         pending_moves = #mon:getPendingMoveChoices(), pending_choices = mon:getPendingMoveChoices() }
 end
-local function moveInfo(key,index,mon,enemy)
+local function moveInfo(key,index,mon,enemy,effects,battle)
     local move=assert(moveData[key],"unknown observed move")
     local result={key=key,index=index,type=move.type,category=move.category,power=move.power,
-        accuracy=move.accuracy,priority=move.priority,pp=mon and mon.pp[key] or nil}
+        accuracy=move.accuracy,priority=move.priority,pp=mon and mon.pp[key] or nil,
+        power_rule=move.powerRule,damage_rule=move.damageRule,attempt_rule=move.attemptRule,charge_rule=move.chargeRule,lock_rule=move.lockRule}
     if mon and enemy then
         local offense,defense=move.category=="special" and "spa" or "atk",move.category=="special" and "spd" or "def"
         result.attack=applyStageMod(mon[offense],mon.statStages[offense])
         result.defense=applyStageMod(enemy[defense],enemy.statStages[defense])
-        if move.category=="physical" and mon.status=="burn" then result.attack=result.attack/2 end
+        if effects then
+            result.attack=effects:attackStat(mon,move,result.attack)
+            result.defense=effects:defenseStat(enemy,move,result.defense)
+        end
+        if move.category=="physical" and mon.status=="burn" and not (effects and effects:ignoresBurn(mon)) then
+            result.attack=result.attack/2
+        end
+        local threshold,mode=accuracyThreshold(move,mon,enemy,effects)
+        result.effective_accuracy=threshold
+        result.accuracy_mode=mode or (move.accuracy==0 and "always" or "ordinary")
+        result.ohko=move.ohko==true
+        if battle then
+            result.effective_power=battle:effectiveMovePower(move,mon,enemy)
+            local fixed=effects:fixedDamage(move,mon,enemy)
+            if fixed then result.fixed_damage=math.max(0,fixed) end
+            if result.effective_power>0 and move.category~="status" then result.crit_stage=effects:criticalStage(mon,move) end
+        end
         result.effectiveness=move.typeless and 1 or TypeChart.getMatchup(move.type,enemy.type,enemy.type2)
         result.stab=not move.typeless and (mon.type==move.type or mon.type2==move.type) and 1.5 or 1
     end
@@ -35,7 +56,7 @@ local function moveInfo(key,index,mon,enemy)
 end
 local function legalMoves(battle)
     local result={}
-    for _,choice in ipairs(battle:availableMoves(battle.player)) do result[#result+1]=moveInfo(choice.key,choice.index,battle.player,battle.enemy) end
+    for _,choice in ipairs(battle:availableMoves(battle.player)) do result[#result+1]=moveInfo(choice.key,choice.index,battle.player,battle.enemy,battle.effects,battle) end
     return result
 end
 local function learningSnapshot(state)
@@ -83,13 +104,18 @@ function HarnessDiagnostics.snapshot(game)
         performance={heap_kib=collectgarbage("count"),elapsed_ms=playdate.getCurrentTimeMilliseconds()},
         world_motion={rng=game.session:worldRngData(),live=game.npcManager.motion:snapshot(),captured=game.session:actorData(),
             paused=root:getCurrent()~="overworld"or root:depth()~=1 or world.sub:getCurrent()~="explore"},
+        item_pc=root:get("itemPC") and root:get("itemPC"):getSnapshot() or {phase="closed"},
+        home_rest=root:get("homeRest") and root:get("homeRest"):getSnapshot() or {phase="closed"},
+        town_map=root:get("townMap") and root:get("townMap"):getSnapshot() or {phase="closed"},
+        field_item=game.lastFieldItem or {kind="none"},
         pc = root:get("pc"):getSnapshot(),
         evolution = root:get("evolution"):getSnapshot(),
         frame = { tick = HarnessCapture.tick, phase = HarnessCapture.phase },
         root = root:getCurrent(), stack = root:stackNames(),
         overworld = world.sub:getCurrent(), zone = getCurrentZoneKey(),
         zone_id = currentZone and currentZone.stableID,
-        session = {party = party, inventory = inventory, flags = game.session:flags(), checkpoint = game.session:checkpoint()},
+        session = {item_storage=game.session:itemStorage():toData(),party = party, inventory = inventory, flags = game.session:flags(), checkpoint = game.session:checkpoint(),
+            pokedex = game.session:pokedex()},
         party = party, inventory = inventory,
         pause = ui(root:get("pause")), title = ui(root:get("title")),
         party_ui = ui(root:get("party")), bag = ui(root:get("bag")),
@@ -109,6 +135,7 @@ function HarnessDiagnostics.snapshot(game)
         battle = battle and { phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             conditions = battle:getConditionsSnapshot(),
             effects = battle.effects:snapshot(),
+            effective_abilities = {player=battle.effects:effectiveAbility(battle.player),enemy=battle.effects:effectiveAbility(battle.enemy)},
             learning = battle:getLearningSnapshot(),
             forced_switch = battle:needsForcedSwitch(), selection_kind = battle.selectionKind or "none",
             capture_result = battle.captureResult or {caught = false, checks = 0},

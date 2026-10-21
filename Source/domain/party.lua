@@ -157,3 +157,15 @@ function Party.fromData(data, decodePokemon)
     states[party] = { members = mons, active = data.active }
     return party
 end
+
+-- Internal controller construction scope. Restore even a previously fainted
+-- active member if admission fails; never reorder or recreate the roster.
+function Party:_withActiveForEntry(index, build)
+    local mon=self:get(index)
+    assert(mon and mon:isAlive() and type(build)=="function","invalid field lead")
+    local state=states[self];local previous=state.active
+    state.active=index
+    local result=table.pack(pcall(build,mon))
+    if not result[1] then state.active=previous;error(result[2],0) end
+    return table.unpack(result,2,result.n)
+end

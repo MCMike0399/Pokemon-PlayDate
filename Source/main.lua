@@ -23,9 +23,13 @@ import "battle/moves"
 import "domain/pokemonCodec"
 import "domain/saveStore"
 import "data/items"
+import "data/lightBall"
 import "domain/items"
 import "domain/worldMotion"
+import "domain/itemStorage"
+import "domain/pcItems"
 import "domain/gameSession"
+import "domain/teaching"
 import "domain/sessionCodec"
 import "data/captureData"
 import "domain/capture"
@@ -161,6 +165,40 @@ import "dev/abilityContracts"
 Contracts.register("early-abilities", AbilityContracts.run)
 import "dev/abilityCompatibilityContracts"
 Contracts.register("ability-compatibility", AbilityCompatibilityContracts.run)
+import "dev/brockMechanicsContracts"
+Contracts.register("brock-mechanics", BrockMechanicsContracts.run)
+import "game/townMapState"
+import "game/fieldItems"
+import "dev/brockMoveBatchContracts"
+Contracts.register("brock-move-batch01", BrockMoveBatchContracts.run)
+import "dev/brockMoveBatchErrataContracts"
+Contracts.register("brock-move-batch01-errata", BrockMoveBatchErrataContracts.run)
+import "dev/bideContracts"
+Contracts.register("bide", BideContracts.run)
+import "dev/traitContracts"
+Contracts.register("specimen-sex-light-ball", TraitContracts.run)
+import "dev/teachingContracts"
+Contracts.register("teaching",TeachingContracts.run)
+import "dev/bideTeachingContracts"
+Contracts.register("bide-teaching", BideTeachingContracts.run)
+import "dev/fieldItemContracts"
+Contracts.register("brock-field-items",FieldItemContracts.run)
+import "dev/sexAbilityContracts"
+Contracts.register("sex-abilities",SexAbilityContracts.run)
+import "dev/ownTempoContracts"
+Contracts.register("own-tempo",OwnTempoContracts.run)
+import "dev/chargeLockContracts"
+Contracts.register("charge-lock",ChargeLockContracts.run)
+import "dev/chargeOwnTempoContracts"
+Contracts.register("charge-own-tempo",ChargeOwnTempoContracts.run)
+import "dev/powerOrderContracts"
+Contracts.register("basepower-order",PowerOrderContracts.run)
+import "dev/rainContracts"
+Contracts.register("rain",RainContracts.run)
+import "dev/worrySeedContracts"
+Contracts.register("worry-seed",WorrySeedContracts.run)
+import "dev/brockIntegrationContracts"
+Contracts.register("brock-integration",BrockIntegrationContracts.run)
 import "dev/catalog"
 import "dev/pewterCatalogExporter"
 PewterCatalogExporter.register()
@@ -186,6 +224,15 @@ end
 
 -- Shared context: root machine, camera, npc manager, player, player pokemon.
 -- Global so dev tooling (autopilot, debug) can reach it.
+import "game/fieldBattle"
+import "game/homeRest"
+import "dev/homeLeadContracts"
+Contracts.register("home-lead",HomeLeadContracts.run)
+
+import "game/itemPCState"
+import "dev/itemPCContracts"
+Contracts.register("red-pc-items",ItemPCContracts.run)
+
 game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 
 local machine <const> = game.machine
@@ -203,6 +250,9 @@ machine:register("shop", ShopState(game))
 machine:register("event", EventState(game))
 machine:register("pokedex", PokedexState(game))
 machine:register("pc", PCState(game))
+machine:register("itemPC",ItemPCState(game))
+machine:register("townMap",TownMapState(game))
+machine:register("homeRest",HomeRestState(game))
 KantoWorld.install(game)
 PewterWorld.install(game)
 game.saves = GameSaves(game)

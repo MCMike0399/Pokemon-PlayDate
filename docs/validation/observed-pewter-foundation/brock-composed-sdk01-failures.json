@@ -1,0 +1,85 @@
+{
+  "status": "FAILED integrated SDK qualification; no overall acceptance",
+  "source_sha256": "61980c9964f42030c6d9d7e41e59e76b8fca42fc7a7ad598b60282fd22f8b929",
+  "compiled_source_sha256": "327049a22454f0ebf8e413bf98ff765d2830ca3f60aeeb890f49ed5dfc0e819b",
+  "revision": "1c40818cce099f8c4463ba5073b95cc1fafb4502",
+  "sdk_version": "3.1.2",
+  "passed": 855,
+  "failed": 17,
+  "failures": [
+    {
+      "name": "pc-ui: PC source top service name delegates flags and unsupported services do nothing",
+      "error": "dev/contracts.lua:380: game/pcState.lua:55: field-only"
+    },
+    {
+      "name": "brock-move-batch01: Medicine response fails Sucker Punch and consumes exactly one Potion",
+      "error": "dev/contracts.lua:380: dev/brockMoveBatchContracts.lua:205: stale-session"
+    },
+    {
+      "name": "bide: Full paralysis continuation aborts and only draws status chance",
+      "error": "dev/contracts.lua:380: dev/bideContracts.lua:3: value: expected nil, got bide"
+    },
+    {
+      "name": "bide: Frozen continuation aborts without extraPP and only thaw chance draw",
+      "error": "dev/contracts.lua:380: dev/bideContracts.lua:3: value: expected nil, got bide"
+    },
+    {
+      "name": "sex-abilities: Immunity17 shared DSL prevents poison toxic but leaves sleep and burn paths intact",
+      "error": "dev/contracts.lua:380: battle/battle.lua:178: battle script error: battle/dsl.lua:269: attempt to index a nil value (local 'pokemon')"
+    },
+    {
+      "name": "sex-abilities: Original Poison Steel immunity and ordinary Dark type eligibility remain distinct",
+      "error": "dev/contracts.lua:380: battle/battle.lua:178: battle script error: battle/dsl.lua:269: attempt to index a nil value (local 'pokemon')"
+    },
+    {
+      "name": "own-tempo: OwnTempo20 direct confusion prevention samples no duration RNG",
+      "error": "dev/contracts.lua:380: battle/battle.lua:178: battle script error: battle/dsl.lua:269: attempt to index a nil value (local 'pokemon')"
+    },
+    {
+      "name": "own-tempo: Oblivious counterpart remains confusion eligible with original duration sample",
+      "error": "dev/contracts.lua:380: battle/battle.lua:178: battle script error: battle/dsl.lua:269: attempt to index a nil value (local 'pokemon')"
+    },
+    {
+      "name": "own-tempo: OwnTempo GenV does not block Attack drops or unrelated status",
+      "error": "dev/contracts.lua:380: battle/battle.lua:178: battle script error: battle/dsl.lua:226: attempt to index a nil value (local 'pokemon')"
+    },
+    {
+      "name": "charge-lock: Charge begins against Ghost; Normal Skull release immunity spends no accuracy RNG",
+      "error": "dev/contracts.lua:380: dev/chargeLockContracts.lua:3: value: expected 2, got 4"
+    },
+    {
+      "name": "charge-lock: Charge and rampage faint/forced-switch/withdraw leave no stale lock",
+      "error": "dev/contracts.lua:380: dev/chargeLockContracts.lua:3: value: expected forcedSwitch, got command"
+    },
+    {
+      "name": "rain: Actual rain attacks hit with their real secondary/PP order; no accuracy draw",
+      "error": "dev/contracts.lua:380: dev/rainContracts.lua:2: value: expected 4, got 5"
+    },
+    {
+      "name": "rain: Forced faint replacement preserves field rain and doesn't advance its timer again",
+      "error": "dev/contracts.lua:380: dev/rainContracts.lua:2: value: expected forcedSwitch, got command"
+    },
+    {
+      "name": "home-lead: only new game checkpoint is Pallet5,6; existing valid saved checkpoints survive decode",
+      "error": "dev/contracts.lua:380: dev/homeLeadContracts.lua:112: domain/sessionCodec.lua:87: pre-starter session cannot own Pokemon"
+    },
+    {
+      "name": "red-pc-items: bedroom source terminal uses unchanged authored PC coordinate and all other facings reject",
+      "error": "dev/contracts.lua:380: dev/itemPCContracts.lua:146: assertion failed!"
+    },
+    {
+      "name": "red-pc-items: native bedroom input opens personal PC and withdraws original Potion only after quantity A",
+      "error": "dev/contracts.lua:380: dev/itemPCContracts.lua:151: assertion failed!"
+    },
+    {
+      "name": "red-pc-items: native quantity cancel, stale callbacks and actual toss NO do not transfer",
+      "error": "dev/contracts.lua:380: dev/itemPCContracts.lua:160: assertion failed!"
+    }
+  ],
+  "captures_finalized": true,
+  "diagnosis": "Three PC failures caused by root omitting the unchanged original pcTerminals patch;14 other errors diagnosed as invalid fixture state/direction/status-seed/speed-tie/phase/RNG assumptions. Narrow repairs pending independent rerun; no production battle bug confirmed.",
+  "archive": "brock-composed-sdk01-failures.tar.gz",
+  "archive_sha256": "d82e8709ac04438382530d6246a2849bec118aeee3963b5c92c175eddae3ab9d",
+  "bytes": 3398014,
+  "archive_scope": "complete identified Source, all raw/display frames, finalized runtime Data and numbered protocol/build/run evidence; no real player saves"
+}

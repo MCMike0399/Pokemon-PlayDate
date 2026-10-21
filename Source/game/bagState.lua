@@ -61,6 +61,7 @@ function BagState:enter(options)
 end
 
 function BagState:exit()
+    if self.fieldRequest then FieldItems.cancel(self.fieldRequest);self.fieldRequest=nil end
     self.visit=(self.visit or 0)+1
     self.active = false
     self.phase = "closed"
@@ -101,16 +102,44 @@ function BagState:useStone(id,index)
         else self:showMessage("That item could not be used.") end
     end)
 end
+function BagState:useMachine(id,index)
+    if not self.active or not self:isTop() or self.game.session~=self.session then return false,"stale-selection" end
+    local request,why=Teaching.prepare(self.session,self.session:party():get(index),id)
+    if not request then
+        self:showMessage(why=="already-known" and "That POKEMON already knows that move."
+            or why=="incompatible" and "That POKEMON can't learn this move."
+            or why=="progression-pending" and "Finish learning or evolving first."
+            or "That machine can't be used here.")
+        return false,why
+    end
+    local visit,session=self.visit,self.session
+    local ok,problem=LearningState.openTeaching(self.game,request,function()
+        if self.active and self.visit==visit and self.game.session==session then
+            self.phase="list";self.menu:hide()
+        end
+    end)
+    if not ok then Teaching.cancel(request);self:showMessage("That machine can't be used here.") end
+    return ok,problem
+end
 function BagState:chooseTarget(id)
     local item = ItemData.definitions[id]
-    if item.effect == "unsupported" and not Evolution.isStone(id) then self:showMessage("That item can't be used here."); return end
+    if id=="escapeRope"then return FieldItems.confirmEscape(self) end
+    if id=="townMap"then
+        local ok,reason=TownMapState.open(self.game)
+        if not ok then self:showMessage("That item can't be used here.")end
+        return ok,reason
+    end
+    if item.effect == "unsupported" and not Evolution.isStone(id) and not Teaching.isMachine(id) then self:showMessage("That item can't be used here."); return end
     if self.game.session:party():count() == 0 then self:showMessage("You have no POKEMON yet."); return end
-    local visit=self.visit
+    local visit,session=self.visit,self.session
+    local members=session:party():members()
     self.machine:push("party", {
         prompt = "Use on which POKEMON?",
         onSelect = function(index)
-            if not self.active or self.visit~=visit then return end
-            if Evolution.isStone(id) then self:useStone(id,index)
+            if not self.active or self.visit~=visit or self.session~=session or self.game.session~=session then return end
+            if session:party():get(index)~=members[index] then self:showMessage("That selection has changed. Try again.");return end
+            if Teaching.isMachine(id) then self:useMachine(id,index)
+            elseif Evolution.isStone(id) then self:useStone(id,index)
             elseif item.effect == "pp" and not item.allMoves then
                 local mon = self.game.session:party():get(index)
                 local options = {}
@@ -205,6 +234,10 @@ function BagState:draw()
         gfx.setColor(gfx.kColorBlack); gfx.drawRect(4, 174, 392, 62)
         gfx.drawTextInRect(self.message, 14, 184, 372, 42)
     elseif self.phase == "move" then self.menu:draw(12, 112, 376, 96)
+    elseif self.phase == "field-confirm" then
+        gfx.setColor(gfx.kColorWhite);gfx.fillRect(8,112,384,40)
+        gfx.setColor(gfx.kColorBlack);gfx.drawText("Use ESCAPE ROPE?",18,122)
+        self.menu:draw(208,152,180,60)
     elseif self.phase == "toss" then
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(8, 112, 384, 40)
         gfx.setColor(gfx.kColorBlack); gfx.drawText("Throw away one item?", 18, 122)

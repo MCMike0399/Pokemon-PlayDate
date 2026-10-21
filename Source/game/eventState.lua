@@ -373,6 +373,6 @@ function EventState:trainerReady()
         local party,reason=self.game.trainers:launch(self.trainerToken)
         if not party then self:fail(reason);return end
         self.trainerLaunching=true
-        self.machine:change("battle",self.game:getPlayerPokemon(),party:active(),self.trainerNPC,party)
+        assert(FieldBattle.start(self.game,self.game:getPlayerPokemon(),party:active(),self.trainerNPC,party))
     end)
 end

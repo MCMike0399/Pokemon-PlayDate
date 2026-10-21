@@ -1,0 +1,87 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "seed": 42,
+        "party_pokemon": [
+          {
+            "species": "gastly",
+            "level": 19
+          }
+        ],
+        "trainer_name": "CONTROLLED STATUS FIXTURE",
+        "enemy_party": [
+          {
+            "species": "slowpoke",
+            "level": 1,
+            "ability_slot": "second"
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 180
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 180
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 180
+    },
+    "press right",
+    "press down",
+    {
+      "op": "assert",
+      "path": "battle.moveMenu.selected",
+      "equals": 4
+    },
+    "seed 14",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.player.pp.confuseRay",
+      "equals": 9,
+      "frames": 180
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.enemy.confusion",
+      "equals": 0,
+      "frames": 180
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.confuseRay",
+      "equals": 9
+    },
+    "shot own-tempo-confuse-ray"
+  ],
+  "outputs": [
+    "own-tempo-confuse-ray.png"
+  ]
+}

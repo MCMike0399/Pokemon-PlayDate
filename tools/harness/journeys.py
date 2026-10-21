@@ -393,6 +393,9 @@ def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None,
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")
+    if config.get("name") == "brock-source-supplementary" and config.get("case") == "field-rope-input":
+        from tools.harness.field_rope_journey import run as run_rope
+        return run_rope(client, scenario, evidence_dir, build_evidence=build_evidence, capture_dir=capture_dir)
     if config.get("name") in {"brock-natural", "brock-continue", "brock-source-supplementary"}:
         from tools.harness.brock_journey import run as run_brock
         return run_brock(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)

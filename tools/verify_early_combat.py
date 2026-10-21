@@ -16,8 +16,16 @@ def projection(rows,keys,transform=lambda x:x):
     return digest(json.dumps({key:transform(rows[key]) for key in sorted(keys)},sort_keys=True,separators=(',',':')).encode())
 def check_moves(source,manifest):
     rows=dict(re.findall(r'^    (\w+) = (Move[^\n]+)$',Path(source).read_text(),re.M))
+    # Reverse only pinned, exact declared producer transitions. The historical
+    # scalar/effect/candidate hashes below are deliberately unchanged.
+    sys.path.insert(0,str(ROOT))
+    from tools.move_producer_contract import legacy_rows,producer_epoch,load_contract
     before=set(manifest['original_keys']);extra=set(manifest['new_keys'])
-    if set(rows)!=before|extra:raise ValueError('move roster drift: '+str(sorted(set(rows)^(before|extra))))
+    added=load_contract().get('added_moves',{})
+    epoch=producer_epoch(Path(source).read_text())
+    required={key for key,value in added.items()if epoch>=value['epoch']}
+    if set(rows)!=before|extra|required:raise ValueError('move roster drift: '+str(sorted(set(rows)^(before|extra|required))))
+    rows=legacy_rows(rows,producer_epoch(Path(source).read_text()))
     if projection(rows,before,scalar)!=manifest['original_scalars_sha256']:raise ValueError('an existing move scalar changed')
     unchanged=before-set(manifest['updated_keys'])
     if projection(rows,unchanged)!=manifest['unchanged_rows_sha256']:raise ValueError('an unowned move effect changed')

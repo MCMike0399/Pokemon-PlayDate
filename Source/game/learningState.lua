@@ -37,6 +37,19 @@ function LearningState.open(game, pokemon, onComplete, options)
     return true
 end
 
+-- Machine teaching is an explicit typed request from a current field Bag visit.
+-- It never becomes a durable level/evolution choice or a free-form resolver.
+function LearningState.openTeaching(game,request,onComplete)
+    if type(request)~="table" or type(request.is)~="function" or not request:is("TeachingRequest") then return false,"invalid-request" end
+    local bag=game.machine:get("bag")
+    if not bag or game.machine:current()~=bag or not bag.active or bag.session~=game.session
+        or bag.options.trySelect or bag.options.mode=="held" then return false,"field-bag-required" end
+    local state=game.machine:get("learning")
+    if state.active or request:getSnapshot().status~="prepared" then return false,"not-prepared" end
+    game.machine:push("learning",request,onComplete,{waitForRelease=true})
+    return true
+end
+
 -- Old UI callbacks become inert after exit or reentry.
 function LearningState:guard(callback)
     local visit, generation = self.visit, self.viewGeneration
@@ -47,7 +60,10 @@ end
 
 function LearningState:enter(pokemon, onComplete, options)
     options = openingOptions(options)
-    assert(pokemon and pokemon:is("Pokemon"), "LearningState requires a Pokemon")
+    local teaching=pokemon and pokemon:is("TeachingRequest") and pokemon
+    if teaching then pokemon=Teaching.pokemon(teaching) end
+    assert(pokemon and pokemon:is("Pokemon"), "LearningState requires a Pokemon or teaching request")
+    self.teaching,self.teachingSession=teaching,teaching and self.game.session or nil
     self.visit = self.visit + 1
     self.active = true
     self.waitForRelease = options.waitForRelease == true
@@ -61,6 +77,8 @@ function LearningState:enter(pokemon, onComplete, options)
 end
 
 function LearningState:exit()
+    if self.teaching then Teaching.cancel(self.teaching) end
+    self.teaching,self.teachingSession=nil,nil
     self.active = false
     self.waitForRelease = false
     self.visit = self.visit + 1
@@ -84,11 +102,33 @@ function LearningState:message(lines, kind)
     self.dialog:show(lines, self:guard(function() self.requestedAdvance = true end))
 end
 
+function LearningState:resolveChoice(decision,slot)
+    if not self.teaching then return self.pokemon:resolveMoveChoice(self.choiceId,decision,slot) end
+    local ok,result
+    if self.game.session~=self.teachingSession then ok,result=false,"stale-session"
+    else ok,result=Teaching.complete(self.teaching,decision,slot) end
+    if ok then return result end
+    Teaching.cancel(self.teaching)
+    return {kind="failed",move=self.pendingMove,reason=result}
+end
+
 function LearningState:nextChoice()
     self.viewGeneration = self.viewGeneration + 1
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
     self.dialog.isActive, self.dialog.onComplete = false, nil
     self.requestedAdvance = false
+    if self.teaching then
+        local preview=self.teaching:getSnapshot()
+        if preview.status~="prepared" then self.phase="idle";self.requestedClose="complete";return end
+        self.choiceId,self.pendingMove=0,preview.move
+        if #self.pokemon.moves<4 then
+            local result=self:resolveChoice("learn")
+            self.results[#self.results+1]=result
+            self:message({result.kind=="failed" and "That machine could not be used."
+                or self.pokemon.name.." learned "..moveData[self.pendingMove].name.."!"},result.kind)
+        else self:showAsk() end
+        return
+    end
     while true do
         local choice = self.pokemon:getPendingMoveChoices()[1]
         if not choice then
@@ -132,7 +172,7 @@ function LearningState:showStopConfirmation()
     self.phase = "stop"
     self.menu:show({"YES", "NO"}, self:guard(function(index)
         if index == 2 then self:showAsk(); return end
-        local result = self.pokemon:resolveMoveChoice(self.choiceId, "decline")
+        local result = self:resolveChoice("decline")
         self.results[#self.results + 1] = result
         self:message({self.pokemon.name .. " did not learn " .. moveData[self.pendingMove].name .. "."}, "declined")
     end), self:guard(function() self:showAsk() end))
@@ -161,8 +201,12 @@ function LearningState:showConfirmation()
     self.phase = "confirm"
     self.menu:show({"FORGET MOVE", "BACK"}, self:guard(function(index)
         if index == 2 then self:showReplacement(self.slot); return end
-        local result = self.pokemon:resolveMoveChoice(self.choiceId, "learn", self.slot)
+        if Teaching.protectedMove(self.pokemon.moves[self.slot]) then
+            self:message({"HM moves can't be forgotten here."},"protected-hm");return
+        end
+        local result = self:resolveChoice("learn", self.slot)
         self.results[#self.results + 1] = result
+        if result.kind=="failed" then self:message({"That machine could not be used."},"failed");return end
         self:message({self.pokemon.name .. " forgot " .. moveData[result.forgotten].name .. ".",
             self.pokemon.name .. " learned " .. moveData[result.move].name .. "!"}, "learned")
     end), self:guard(function() self:showReplacement(self.slot) end))
@@ -197,7 +241,7 @@ end
 
 function LearningState:getSnapshot()
     local line = self.dialog.lines[self.dialog.currentLine]
-    return {input_blocked = self.waitForRelease == true, phase = self.phase, move = self.pendingMove or "", choice_id = self.choiceId or 0,
+    return {mode=self.teaching and "machine" or "level", item=self.teaching and self.teaching:getSnapshot().item or "none", input_blocked = self.waitForRelease == true, phase = self.phase, move = self.pendingMove or "", choice_id = self.choiceId or 0,
         selected = self.menu.selectedIndex, message_kind = self.messageKind or "",
         dialog_ready = self.dialog.isActive and line ~= nil and self.dialog.charIndex >= #line,
         remaining = self.pokemon and #self.pokemon:getPendingMoveChoices() or 0,

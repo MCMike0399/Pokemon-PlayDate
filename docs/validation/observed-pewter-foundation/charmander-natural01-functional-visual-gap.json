@@ -1,0 +1,32 @@
+{
+  "status": "functional natural Charmander route and two-process Continue passed; explicit evolution animation/title/save-dialog capture pending",
+  "source_sha256": "a6fb4666f2ad7902ba9008919acb9683997c524fc003601713981bec93059707",
+  "process_pids": [
+    90347,
+    26503
+  ],
+  "process_generations": 2,
+  "actual_progress": [
+    "one seed-only initial reset; actual intro/parcel/capture/party/training/Forest/gym input",
+    "Pidgey5 captured; five party changes",
+    "Charmander naturally evolved at16; Charmeleon17 defeated Brock",
+    "Boulder Badge and one TM34 persisted; flags all three Forest trainers and both Gym trainers",
+    "actual owned process restart retained exact receipt including HP/PP/traits/party/inventory/money/checkpoint/flags"
+  ],
+  "root_inspected": [
+    "native ball frame24, actual medicine, Forest trainer, Gym reward world",
+    "both process receipts, initial-only fixture log and natural species change",
+    "single-image reopening and independent RGBA decode confirm saved/continued Gym images; identical SHA137747d0325e312edd4bacd0b9d0a857d501edd7fe72b0f2350ef73253a81d01,49774white/46226black"
+  ],
+  "defects": [
+    "old driver result none after evolution closed; true species change proves functional evolution only",
+    "no explicit natural evolution animation recording in old journey02 driver",
+    "learning summary repeats same DragonRage choice across phases"
+  ],
+  "next": "rerun final integrated build with journey03/04 plus explicit Title/Save-dialog captures; Bulbasaur rerun required",
+  "archive": "charmander-natural01-functional-visual-gap.tar.gz",
+  "archive_sha256": "f6605e8a117c9ae49f7e672f470312625221de800dc6e9115c7db8d9f06252c2",
+  "archive_scope": "selected finalized native/metadata/receipts/exact checkpoint packets plus every numbered request and all result SHA256; complete private run retained at /private/tmp/pokemon-three-starter-brock-01/02-brock--brock-restart-charmander",
+  "archive_bytes": 1193042,
+  "correction": "Initial multi-image preview appeared black. Root independently reopened/decoded original PNGs and withdrew that incorrect observation; no native rendering defect reproduced."
+}

@@ -41,11 +41,12 @@ def validate(scenario, qualification=False):
                 raise ProtocolError('process requests requires nonempty command arrays')
         else:
             journey=group['journey']
-            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location'}
+            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy'}
             if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue'}:
                 raise ProtocolError('unknown or malformed process journey')
             name=journey['name']
             if name.startswith('npc-motion'):
+                if set(journey)&{'training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy'}:raise ProtocolError('Brock options cannot mix with NPC motion')
                 from tools.harness.motion_journey import validate_config
                 validate_config(journey)
                 if name=='npc-motion-save' and index!=0:
@@ -54,14 +55,15 @@ def validate(scenario, qualification=False):
                     raise ProtocolError('motion Continue requires prior saved motion receipt')
             else:
                 if 'location' in journey:raise ProtocolError('location is only supported for NPC motion')
+                if journey.get('evolution_policy','accept')not in {'accept','cancel'}:raise ProtocolError('invalid Brock evolution policy')
                 if name=='brock-natural' and index!=0:
                     raise ProtocolError('new-game journey must be first process')
                 if name=='brock-continue' and (index==0 or groups[index-1].get('journey',{}).get('name') not in {'brock-natural','brock-continue'}):
                     raise ProtocolError('Continue journey requires prior saved journey receipt')
-                for name,low,high in [('seed',-2147483648,2147483647),('max_actions',1,20000),('max_steps',1,5000),('max_encounters',1,64)]:
+                for name,low,high in [('seed',-2147483648,2147483647),('max_actions',1,20000),('max_steps',1,5000),('max_encounters',1,64),('training_level',16,20),('max_training_battles',1,256),('max_capture_attempts',1,24),('max_blackouts',0,2)]:
                     if name in journey and (type(journey[name]) is not int or not low<=journey[name]<=high):
                         raise ProtocolError('invalid process journey bound: '+name)
-                if journey.get('starter','squirtle')!='squirtle':raise ProtocolError('Brock journey requires Squirtle')
+                if journey.get('starter','squirtle')not in {'squirtle','bulbasaur','charmander'}:raise ProtocolError('Brock journey requires an original Kanto starter')
         outputs = group.get('outputs', [])
         if not isinstance(outputs, list):
             raise ProtocolError('process outputs requires an array')
@@ -227,6 +229,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 runner.finalize_captures(client, data, output)
                 finalized = True
                 runner.qualify_catalog(client, data, output)
+                runner.qualify_field_items(client, data, output)
                 sequence = client.sequence
                 record['last_sequence'] = sequence
                 record['status'] = 'quiescent'; publish()

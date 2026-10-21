@@ -1,0 +1,457 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 2,
+        "player_pokemon": {
+          "species": "squirtle",
+          "level": 5
+        },
+        "inventory": {
+          "money": 3000,
+          "slots": [
+            {
+              "id": "tm34",
+              "quantity": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "pause",
+      "frames": 360
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "bag.phase",
+      "equals": "actions",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "party",
+      "frames": 360
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "learning",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.mode",
+      "equals": "machine",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.phase",
+      "equals": "message",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.move",
+      "equals": "bide",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "learning.dialog_ready",
+      "equals": true,
+      "frames": 360
+    },
+    "shot bide-tm34-learned",
+    {
+      "op": "assert",
+      "path": "party.members.1.moves.3",
+      "equals": "bide"
+    },
+    {
+      "op": "assert",
+      "path": "party.members.1.pp.bide",
+      "equals": 10
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.tm34",
+      "equals": 0
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "bag",
+      "frames": 360
+    },
+    "press b",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "battle rattata 2",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild RATTATA appeared!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "tailWhip": 0
+          }
+        }
+      }
+    },
+    "seed 2",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press down",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE used BIDE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE is storing energy!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_turns",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_damage",
+      "equals": 0
+    },
+    "shot bide-store1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA used TACKLE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE took 3 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_damage",
+      "equals": 3
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 16
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.conditions.player.bide_turns",
+      "equals": 2,
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE is storing energy!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "shot bide-store2",
+    {
+      "op": "assert",
+      "path": "battle.player.pp.bide",
+      "equals": 9
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA used TACKLE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE took 3 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_damage",
+      "equals": 6
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 13
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE unleashed energy!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "shot bide-unleash",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_turns",
+      "equals": 0
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA took 12 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "record bide-release 24",
+    "shot bide-release",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 13
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.bide",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "inventory.quantities.tm34",
+      "equals": 0
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA used TACKLE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "SQUIRTLE took 3 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    "shot bide-finished",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 10
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.bide",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.tackle",
+      "equals": 32
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.bide_turns",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 12
+    }
+  ],
+  "outputs": [
+    "bide-tm34-learned.png",
+    "bide-store1.png",
+    "bide-store2.png",
+    "bide-unleash.png",
+    "bide-release-01.png",
+    "bide-release.png",
+    "bide-finished.png"
+  ]
+}

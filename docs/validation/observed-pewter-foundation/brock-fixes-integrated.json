@@ -1,0 +1,40 @@
+{
+  "status": "bounded fixes accepted; Pallet-to-Brock and full campaign incomplete",
+  "source_revision": "1c40818cce099f8c4463ba5073b95cc1fafb4502",
+  "source_sha256": "a6fb4666f2ad7902ba9008919acb9683997c524fc003601713981bec93059707",
+  "sdk": "3.1.2",
+  "sdk_contracts": {
+    "failed": 0,
+    "ok": true,
+    "passed": 608
+  },
+  "runtime_jobs": 11,
+  "all_jobs_pass": true,
+  "source_consistent": true,
+  "catalog_exact": 2494,
+  "generator_host": {
+    "passed": 360,
+    "failed": 0,
+    "skipped": 0,
+    "legacy_oracles": "unchanged original hashes; exact106 v1 +17-row v2 metadata migration"
+  },
+  "playable_outcomes": [
+    "actual three-opponent trainer initial/replacement sendouts marked seen, bench not premarked in contracts",
+    "real save then different PID Continue retains all three species seen without owning them",
+    "Rattata7 Focus activation, repeated-use failure, nonstacking critical stages and actual critical message",
+    "all5 source trainer fights, fullbag TM retry, failed sight and checkpoint blackout supplemented by fixtures"
+  ],
+  "root_visual_review": [
+    "native Pidgey/Geodude/Onix sendout screens",
+    "actual saved world/Continue/world",
+    "Focus pumped/repeatfailed/critical native screens and36-frame recordings"
+  ],
+  "remaining": [
+    "three natural starter routes and accepted evolution/restart are RUNNING separately, not accepted here",
+    "full preBrock exposure checklist move/item/Route22 gaps remain",
+    "remaining campaign and original postgame"
+  ],
+  "archive": "brock-fixes-integrated.tar.gz",
+  "archive_sha256": "669669554255b9f7108ed1ed9ee4639f1f4f3ab230d15ef5db8d2a9da9633068",
+  "physical_device": "not tested"
+}

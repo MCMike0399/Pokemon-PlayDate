@@ -19,15 +19,14 @@ function BattleState:init(game)
 end
 
 function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
+    local plan,reason=FieldBattle.prepare(self.game,playerPokemon,enemyPokemon,npc,enemyParty)
+    assert(plan,reason)
+    local battle,scene=FieldBattle.construct(plan)
     self.npc = npc
     self.finished=false;self.epoch=(self.epoch or 0)+1;self.trainerToken=nil
+    self.battle,self.scene=battle,scene
     playdate.graphics.sprite.removeAll()
     self.game.camera:reset()
-    playerPokemon:resetStages()
-
-    self.battle = Battle(playerPokemon, enemyPokemon, npc and npc.name,
-        {party = self.game.session:party(), session = self.game.session, enemyParty = enemyParty})
-    self.scene = BattleScene(self.battle)
 
     if self.game.trainers and npc then
         self.trainerToken=self.game.trainers:currentBattleToken(npc)
@@ -38,7 +37,6 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     self.battle:on("battleEnd", function(won, kind)
         if self.battle==ownedBattle and self.game.session==ownedSession and self.epoch==epoch then self:finish(won,kind) end
     end)
-    assert(self.game.session:markSeen(enemyPokemon.species))
 end
 
 function BattleState:finish(won, kind)

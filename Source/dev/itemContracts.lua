@@ -34,7 +34,7 @@ function ItemContracts.run()
         equal(ItemData.definitions.pokeBall.price,200);equal(ItemData.definitions.parlyzHeal.price,200)
         equal(ItemData.definitions.nugget.sellPrice,5000);equal(ItemData.definitions.tm01.price,3000)
         for _,symbol in ipairs({"SURFBOARD","ITEM_2C","ITEM_32","COIN","POKEDEX","BOULDERBADGE","SAFARI_BALL"}) do equal(ItemData.bySymbol[symbol],nil,symbol) end
-        local count=0;for _ in pairs(ItemData.definitions) do count=count+1 end;equal(count,124)
+        local count,blue=0,0;for _,item in pairs(ItemData.definitions) do count=count+1;if item.numericId~=nil then blue=blue+1 end end;equal(blue,124);equal(count,125)
     end)
     test("Blue Viridian stock does not invent a Potion shelf",function()
         equal(table.concat(ItemData.marts.viridianMartClerkText,","),"pokeBall,antidote,parlyzHeal,burnHeal")

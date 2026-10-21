@@ -1,0 +1,237 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "seed": 42
+            }
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "session.item_storage.slots.1.id",
+            "equals": "potion"
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.potion",
+            "equals": 0
+          },
+          "move right 2",
+          "press up",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "itemPC"
+          },
+          "shot red-pc-personal-menu",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "item_pc.phase",
+            "equals": "quantity"
+          },
+          "shot red-pc-initial-potion-quantity",
+          "press b",
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.potion",
+            "equals": 0
+          },
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "item_pc.result.ok",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.potion",
+            "equals": 1
+          },
+          "shot red-pc-withdrew-original-potion",
+          "press b",
+          "press b",
+          "press b",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          "press b",
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "pause.lastSave.ok",
+            "equals": true
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "shot red-pc-saved-dialog",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          "shot red-pc-saved-world"
+        ]
+      ],
+      "outputs": [
+        "red-pc-personal-menu.png",
+        "red-pc-initial-potion-quantity.png",
+        "red-pc-withdrew-original-potion.png",
+        "red-pc-saved-dialog.png",
+        "red-pc-saved-world.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "title"
+          },
+          {
+            "op": "assert",
+            "path": "title.phase",
+            "equals": "menu"
+          },
+          "shot red-pc-title-continue",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.potion",
+            "equals": 1
+          },
+          "shot red-pc-continued-world",
+          "press a",
+          "press a",
+          {
+            "op": "assert",
+            "path": "item_pc.phase",
+            "equals": "message"
+          },
+          {
+            "op": "assert",
+            "path": "item_pc.result.reason",
+            "equals": "empty"
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.potion",
+            "equals": 1
+          },
+          "shot red-pc-no-regenerated-potion",
+          "press b",
+          "press b",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          }
+        ]
+      ],
+      "outputs": [
+        "red-pc-title-continue.png",
+        "red-pc-continued-world.png",
+        "red-pc-no-regenerated-potion.png"
+      ]
+    }
+  ]
+}

@@ -205,6 +205,13 @@ python3 tools/harness/suite.py --mutations --output /private/tmp/pokemon-suite-w
 python3 tools/harness/suite.py --list
 ```
 
+Nested scenario directories are discovered recursively. Top-level case names stay
+unchanged; nested cases use `--` between path components, e.g.
+`brock--source-trainer-1`, `brock--tm-full-retry`, `brock--blackout`,
+`brock--failed-sight`, `brock--brock-natural` and `brock--brock-restart`.
+All ten Brock cases appear in `--list`; duplicate flattened names fail explicitly.
+Plan-only reports prove selection/copying, never runtime acceptance.
+
 Select cases explicitly to rerun a bounded subset. Selection order is preserved;
 there is no implicit reuse or skipping of previous successes:
 

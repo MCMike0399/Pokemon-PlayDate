@@ -42,6 +42,232 @@
       "archive": "pokemon-mt-moon-slice.tar.gz",
       "sha256": "c30ccf0403bc4a24581e6c8673f9e44898a49e7a9223fb55c7ce1969d469c02d",
       "bytes": 387527
+    },
+    {
+      "packet": "pokemon-mt-moon-runtime",
+      "archive": "pokemon-mt-moon-runtime.tar.gz",
+      "sha256": "bc129cff1c3f62de1a107a830682d27b679ce6603dd8386b0b91581be7b8a388",
+      "bytes": 115443,
+      "status": "deferreduntilPalletBrockaccepted; runtimeunqualified/proposalonly"
+    },
+    {
+      "packet": "pokemon-next-traits-proposal",
+      "archive": "pokemon-next-traits-proposal.tar.gz",
+      "sha256": "6a94ee426e51083c3cc1ce87b0c11c871738aa232ef2119b8219dea5e2b50012",
+      "bytes": 29754,
+      "status": "deferreduntilPalletBrockaccepted; runtimeunqualified/proposalonly"
+    },
+    {
+      "packet": "pokemon-teaching-field-proposal",
+      "archive": "pokemon-teaching-field-proposal.tar.gz",
+      "sha256": "5bfb16959713b1027c0ecdad4c91c304d136adaae031e9559016c0575f16d2d5",
+      "bytes": 36942,
+      "status": "deferreduntilPalletBrockaccepted; runtimeunqualified/proposalonly"
+    },
+    {
+      "packet": "pokemon-brock-move-batch01",
+      "archive": "pokemon-brock-move-batch01.tar.gz",
+      "sha256": "a2fcd556f834c03acde67c1c1bcc7c31e21f64ef5603243e7e0e62b0975fb8f2",
+      "bytes": 91815,
+      "status": "staged candidate; native acceptance pending (journey discovery/host repairs separately qualified)"
+    },
+    {
+      "packet": "pokemon-brock-move-batch01-errata01",
+      "archive": "pokemon-brock-move-batch01-errata01.tar.gz",
+      "sha256": "d4f8ed914214cead3625de5d96135565405e96865a3b8cd60c5825b1569f0e09",
+      "bytes": 78342,
+      "status": "staged candidate; native acceptance pending (journey discovery/host repairs separately qualified)"
+    },
+    {
+      "packet": "pokemon-brock-traits-held-01",
+      "archive": "pokemon-brock-traits-held-01.tar.gz",
+      "sha256": "8422439053d8429950864a4e74602184790196e47750111f87865ff505311991",
+      "bytes": 375065,
+      "status": "staged candidate; native acceptance pending (journey discovery/host repairs separately qualified)"
+    },
+    {
+      "packet": "pokemon-brock-harness-journeys",
+      "archive": "pokemon-brock-harness-journeys.tar.gz",
+      "sha256": "bbd5a6c57f4ec24d6a28675241249184db80503b9f74597277d8ff98c870b69d",
+      "bytes": 117377,
+      "status": "staged candidate; native acceptance pending (journey discovery/host repairs separately qualified)"
+    },
+    {
+      "packet": "pokemon-root-producer-v5",
+      "archive": "pokemon-root-producer-v5.tar.gz",
+      "sha256": "713b96a440727567edb5c9285dc17dfa695dc133261620fc20b09cdadb3bd285",
+      "bytes": 48901,
+      "status": "root staged candidate; host/compile only, native acceptance pending"
+    },
+    {
+      "packet": "pokemon-root-teaching-01",
+      "archive": "pokemon-root-teaching-01.tar.gz",
+      "sha256": "c512e5c04ffd2c4cd4fbf382e21159c1de33ead568f519fc819881c31f283e3c",
+      "bytes": 68684,
+      "status": "root staged candidate; host/compile only, native acceptance pending"
+    },
+    {
+      "packet": "pokemon-brock-fixes-source-host",
+      "archive": "pokemon-brock-fixes-source-host.tar.gz",
+      "sha256": "a18bbafc4a1c5fc57b5eac9fb222237703403039e74bfc11b0bdc6c9362bc803",
+      "bytes": 3135146,
+      "source_sha256": "a6fb4666f2ad7902ba9008919acb9683997c524fc003601713981bec93059707",
+      "status": "complete accepted608SDK/11native Source snapshot; host01+02/381tests snapshot retains known forcedSwitch driver defect; no campaign acceptance"
+    },
+    {
+      "packet": "pokemon-brock-bide-01",
+      "archive": "pokemon-brock-bide-01.tar.gz",
+      "sha256": "3d5e563668727872925e32d5f5d4f2f6aa0046cfac6efb222f720038b4fe3f05",
+      "bytes": 80119,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-brock-sex-abilities-01",
+      "archive": "pokemon-brock-sex-abilities-01.tar.gz",
+      "sha256": "1c4754258532b236454317a41d84a8b81de3901b008c38b16a550ebc2c2b8713",
+      "bytes": 262273,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-brock-charge-lock-01",
+      "archive": "pokemon-brock-charge-lock-01.tar.gz",
+      "sha256": "da352a63a0ecec3cec38c289a4f56522ab90e39b94573446d2938d1ce4fa70d4",
+      "bytes": 107622,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-brock-charge-lock-recipes-errata01",
+      "archive": "pokemon-brock-charge-lock-recipes-errata01.tar.gz",
+      "sha256": "0128618934532f164607de44a61b9df1fa94c7f6ccc19b8a238f60b1ad7c9602",
+      "bytes": 1279,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-brock-power-order-errata-01",
+      "archive": "pokemon-brock-power-order-errata-01.tar.gz",
+      "sha256": "5776e4ed36644338702171c4bdbe406b62321a32d017db1f79b38ee0659c17ad",
+      "bytes": 177318,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-brock-field-items-01",
+      "archive": "pokemon-brock-field-items-01.tar.gz",
+      "sha256": "83ca4c1660e23f77d04d0d8addf037a0f4b95d116f19a4fc6fe531d9037589a0",
+      "bytes": 44754,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-home-lead-01",
+      "archive": "pokemon-home-lead-01.tar.gz",
+      "sha256": "c37ac64b3249aec3c11c0274425d26766720940ebb31652d3d1085cfbe7241ec",
+      "bytes": 772000,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-root-producer-v7",
+      "archive": "pokemon-root-producer-v7.tar.gz",
+      "sha256": "730704c7fadf2ef5a26711b1365701619518ab829fbcac11190b59628cc31072",
+      "bytes": 1564918,
+      "status": "staged/composed; new SDK/native acceptance pending; only declared owned files/patches may integrate",
+      "scope": "frozen source/patches/tests/pins/context; extracted engine/node_modules excluded; immutable PS tar is in observed root-oracles01"
+    },
+    {
+      "packet": "pokemon-brock-capture-05",
+      "archive": "pokemon-brock-capture-05.tar.gz",
+      "sha256": "2808930b71ec45df880a9117fcf6fc1da1fd86c85225e85987a65f4ed23e44d4",
+      "bytes": 31639,
+      "status": "frozen candidate; only manifest-owned files/narrow patches integrate; SDK/native acceptance remains pending"
+    },
+    {
+      "packet": "pokemon-brock-rain-01",
+      "archive": "pokemon-brock-rain-01.tar.gz",
+      "sha256": "30b3e57a620dd6f81055056f99ebb04f9ca28487c53cc307ff2246cb21191ffe",
+      "bytes": 61272,
+      "status": "frozen candidate; only manifest-owned files/narrow patches integrate; SDK/native acceptance remains pending"
+    },
+    {
+      "packet": "pokemon-brock-worry-seed-01",
+      "archive": "pokemon-brock-worry-seed-01.tar.gz",
+      "sha256": "dad5d4cb50adf7528189f69d5be6ec1a5d311c7c80569b3c1a5be25a7d6d1c5d",
+      "bytes": 156317,
+      "status": "frozen candidate; only manifest-owned files/narrow patches integrate; SDK/native acceptance remains pending"
+    },
+    {
+      "packet": "pokemon-red-pc-items-01",
+      "archive": "pokemon-red-pc-items-01.tar.gz",
+      "sha256": "b4519e9da2fec9e09f95d9705fb74644d5736407a3eaa390d154618c81220308",
+      "bytes": 67475,
+      "status": "frozen candidate; only manifest-owned files/narrow patches integrate; SDK/native acceptance remains pending"
+    },
+    {
+      "packet": "pokemon-root-producer-v8",
+      "archive": "pokemon-root-producer-v8.tar.gz",
+      "sha256": "04e28385f06eb616fca5e95412feab4999974865d3c7229562a6e9cad6e24400",
+      "bytes": 1565915,
+      "status": "frozen candidate; only manifest-owned files/narrow patches integrate; SDK/native acceptance remains pending"
+    },
+    {
+      "packet": "pokemon-root-producer-v9",
+      "archive": "pokemon-root-producer-v9.tar.gz",
+      "sha256": "b345812e3a0efcfe0268e00ad2f4cf201cdfd56d678224656c24bd4da8d5c7b2",
+      "bytes": 1571820,
+      "status": "frozen candidate; only manifest-owned files/narrow patches integrate; SDK/native acceptance remains pending"
+    },
+    {
+      "packet": "pokemon-brock-status-contract-errata-01",
+      "archive": "pokemon-brock-status-contract-errata-01.tar.gz",
+      "sha256": "905df81a75d1a95977f323c3a6ac73a2e1ce04c60bb2e18c22b07aa9d2c05dc6",
+      "bytes": 9427,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-home-pc-fixture-erratum-01",
+      "archive": "pokemon-home-pc-fixture-erratum-01.tar.gz",
+      "sha256": "c9aa88aea871f20d541b63228e4126a83830aa3c596c4879d71384ca42fc62c4",
+      "bytes": 13573,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-brock-sdk-fixtures-repair-01",
+      "archive": "pokemon-brock-sdk-fixtures-repair-01.tar.gz",
+      "sha256": "c59b0f57a260a0006f4daa30db66b32a0bca09fa2bcf06f84f82397ab8e026b6",
+      "bytes": 22668,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-brock-native-recipes-errata01",
+      "archive": "pokemon-brock-native-recipes-errata01.tar.gz",
+      "sha256": "23f87f88421b9fe932126ddb682058ddbe02a0a4cf5b17fe5a74bd86494ad6f3",
+      "bytes": 3275,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-brock-protect-01",
+      "archive": "pokemon-brock-protect-01.tar.gz",
+      "sha256": "e888795287434eba6f641e9ad4883e74cd2a04d3b81ec4aeec2f1717f3f61abf",
+      "bytes": 2105570,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-field-abilities-01",
+      "archive": "pokemon-field-abilities-01.tar.gz",
+      "sha256": "baaaf98c4c1a9121408a5969fbc2912cff6beb39ecf2c25a395db7efedf34b20",
+      "bytes": 60286,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
+    },
+    {
+      "packet": "pokemon-root-producer-v10",
+      "archive": "pokemon-root-producer-v10.tar.gz",
+      "sha256": "355d5a10b65cba405730d880888a5dbd67518b3f0b53b47640905d80e953b939",
+      "bytes": 1572082,
+      "status": "frozen; fixture errata integrated/873passed, field/Protect/sidev10 candidates native acceptance separate"
     }
   ]
 }

@@ -1,0 +1,275 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 2,
+        "player_pokemon": {
+          "species": "venusaur",
+          "level": 32
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "battle metapod 100",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild METAPOD appeared!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    "seed 2",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press down",
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "VENUSAUR used PETAL DANCE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD took 28 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 182
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.petalDance",
+      "equals": 9
+    },
+    "shot petalDance-hit",
+    "press a",
+    "record petalDance-impact 12",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "It's not very effective...",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "VENUSAUR used PETAL DANCE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD took 30 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 152
+    },
+    "press a",
+    "record petal-second-impact 12",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "It's not very effective...",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "VENUSAUR became confused!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.rampage_remaining",
+      "equals": 0
+    },
+    "shot petal-fatigue",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.petalDance",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 10
+    },
+    "shot petalDance-complete"
+  ],
+  "outputs": [
+    "petalDance-hit.png",
+    "petal-fatigue.png",
+    "petalDance-complete.png",
+    "petalDance-impact-01.png",
+    "petal-second-impact-01.png"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "status": "bounded integrated systems qualified; complete Brock/campaign gate remains OPEN",
+  "source_sha256": "cd1d3c0464ca348f7b418d6fa0ea767b5c9e315d3e4b39ce9b6d506e7a1de3c2",
+  "sdk_version": "3.1.2",
+  "sdk_passed": 873,
+  "sdk_failed": 0,
+  "main_host_passed": 455,
+  "main_host_skips": 0,
+  "production_compile": true,
+  "catalog_preserved": 2494,
+  "catalog_changed": 0,
+  "mandatory_catalog_pairs": 859,
+  "mandatory_catalog_pngs": 1718,
+  "town_map_exact_pixels_each": 23040,
+  "town_map_frames": 2,
+  "archive": "brock-integrated873-sdk.tar.gz",
+  "archive_sha256": "e178c3ea2fd2e203fa05c3185c5358fa7cba6387d017b75bb9b4dde791e3cb89",
+  "bytes": 3413727,
+  "playable_outcomes": [
+    "real TM34 Bag teaching and three-turn Bide",
+    "Captivate opposite/same/Oblivious and OwnTempo native panels",
+    "Solar/Skull charge and Petal rampage/fatigue",
+    "actual Rain recast/water/Thunder/Hurricane, Worry native/effective ability and cure",
+    "actual native RED PC Potion withdrawal/cancel/save/true Continue with no regeneration",
+    "Daisy fullbag failure/toss/retry/TownMap browsing/true Continue",
+    "actual Pewter Rope purchase/cancel/Forest checkpoint return/save",
+    "multi-opponent seen state true restart, Focus, blackout and fullbag Brock TM retry on same Source"
+  ],
+  "root_visual_review": [
+    "TownMap native400x240 plus whole-map pixel oracle",
+    "PC quantity window",
+    "Worry sleep cure/acquired Insomnia panel",
+    "Bide release/foe response frames01/12,24frames with2distinct upper battle frames",
+    "natural legacySource Wartortle17/Brock victory and saved/continued world source-pose proof"
+  ],
+  "not_accepted": [
+    "whole natural campaign on currentSource; Bulbasaur driver rerun/evolution96frame evidence",
+    "Route22 complete source integration; exposed remaining grind-tail moves/field abilities/IV-EV",
+    "Protect/side-condition candidates and mutation runtime qualification",
+    "physical Playdate or production memory/performance"
+  ],
+  "failure_history": [
+    "First same-feature integration855PASS17FAIL archived separately; original terminal patch omission+invalid fixtures repaired, no rules assertion cap loosened",
+    "Native recipes01:12PASS5FAIL before mechanics; original frozen recipes retained. Corrected legalcaption/moveopcode/explicitinitialfalse flag; recipes02 all6PASS",
+    "TM regression01 ready publish24.06sec missed20sec handshake: zero gameplay accepted. Fresh identified same20sec/default Source rerunPASS; timeout not hidden or raised"
+  ]
+}

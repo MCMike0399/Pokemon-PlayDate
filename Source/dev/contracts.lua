@@ -365,6 +365,7 @@ function Contracts.run()
     for _, suite in ipairs(suites) do
         local executed = { id = suite.name, ok = false, passed = 0, failed = 1 }
         if suite.name == "comprehensive-catalog" then executed.artifact_qualifier = "catalog-invariance-v1" end
+        if suite.name == "brock-field-items" then executed.artifact_qualifier = "field-map-v1" end
         report.suites[#report.suites + 1] = executed
         local ok, child = pcall(suite.run)
         if not ok then

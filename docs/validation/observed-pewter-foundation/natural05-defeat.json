@@ -1,0 +1,75 @@
+{
+  "status": "FAILED natural campaign attempt; not Brock acceptance",
+  "outcome": {
+    "captures_finalized": true,
+    "error": "unexpected actual battle result",
+    "ok": false,
+    "process_generations": 1,
+    "session_id": "c7e0f1ec06e84617bbd87b4761e2a357"
+  },
+  "owned_pid": 45755,
+  "verified_terminal": true,
+  "process_generations_completed": 1,
+  "generation2_ran": false,
+  "last_zone": "kanto_pewter_city",
+  "trainer_flags": {
+    "authored:oaks_lab:npc:2": true,
+    "pokered:VIRIDIAN_FOREST:objects:2": true,
+    "pokered:VIRIDIAN_FOREST:objects:3": true,
+    "pokered:VIRIDIAN_FOREST:objects:4": true
+  },
+  "blackout": {
+    "blackout": true,
+    "enemy_hp": 32,
+    "kind": "defeat",
+    "money_delta": -998,
+    "payout": 0,
+    "player_hp": 0,
+    "won": false
+  },
+  "post_blackout_player": {
+    "ability_id": 67,
+    "ability_slot": "second",
+    "confusion": 0,
+    "flinched": false,
+    "held_item": "none",
+    "hp": 30,
+    "level": 11,
+    "maxHP": 30,
+    "maxPP": {
+      "bubble": 30,
+      "tackle": 35,
+      "tailWhip": 30,
+      "withdraw": 40
+    },
+    "moves": [
+      "tackle",
+      "tailWhip",
+      "bubble",
+      "withdraw"
+    ],
+    "nature_id": 22,
+    "pending_choices": [],
+    "pending_evolution": false,
+    "pending_evolution_level": 0,
+    "pending_moves": 0,
+    "pp": {
+      "bubble": 30,
+      "tackle": 35,
+      "tailWhip": 30,
+      "withdraw": 40
+    },
+    "present": true,
+    "sleepDuration": 0,
+    "species": "squirtle",
+    "status": "none",
+    "statusTurns": 0,
+    "types": [
+      "water"
+    ],
+    "xp": 908
+  },
+  "diagnosis": "JrDiglett leftaccuracydebuffs; SandshrewRollout5,crit20,18,23; Bubble missedtwice, twoPotionscouldnotstopsequence. LoneLv11Squirtle/noreserves. Legitimate party/preparation strategy needs improvement; noforcedoutcome/gamealteration.",
+  "archive_sha256": "8a990c4184c0d79547fa99aecab7ce8da33e3fb8c5fff3e440f247edfc3c1940",
+  "archive_bytes": 8112838
+}

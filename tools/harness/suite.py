@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 import re
 from pathlib import Path
@@ -24,15 +25,30 @@ def available_jobs():
         {'name': 'contracts-catalog', 'commands': ['contracts', 'catalog', 'shot contracts-catalog']},
         {'name': 'qualification', 'qualification': True},
     ]
-    jobs += [{'name': path.stem, 'scenario': path}
-             for path in sorted((PROJECT / 'tools/harness/scenarios').glob('*.json'))]
+    root = PROJECT / 'tools/harness/scenarios'
+    for path in sorted(root.rglob('*.json'), key=lambda path: path.relative_to(root).as_posix()):
+        # Flat artifact-safe names preserve existing top-level CLI names and
+        # qualify nested cases by every source directory, e.g. brock--blackout.
+        name = '--'.join(path.relative_to(root).with_suffix('').parts)
+        jobs.append({'name': name, 'scenario': path})
+    _check_unique_jobs(jobs)
     return jobs
+
+
+def _check_unique_jobs(jobs):
+    seen = set()
+    for job in jobs:
+        name = job['name']
+        if name in seen:
+            raise ProtocolError('duplicate suite case name: ' + name)
+        seen.add(name)
 
 
 def select_jobs(only=None, mutations=False):
     available = available_jobs()
     if mutations:
         available.append({'name': 'mutations', 'mutations': True})
+    _check_unique_jobs(available)
     names = [name for value in (only or []) for name in value.split(',') if name]
     if len(names) != len(set(names)):
         raise ProtocolError('--only contains duplicate cases')
@@ -156,6 +172,21 @@ def inspect_job(job, destination, execution):
     return item
 
 
+def job_timeout(job, override=None):
+    """A bounded campaign budget; explicit CLI override always wins."""
+    if override is not None:
+        if type(override) not in (int, float) or not math.isfinite(override) or override <= 0:
+            raise ProtocolError('job timeout must be finite and positive')
+        return override
+    if job.get('scenario'):
+        scenario = load_json(job['scenario'])
+        journeys = [scenario.get('journey', {})]
+        journeys += [group.get('journey', {}) for group in scenario.get('processes', [])]
+        if any(journey.get('name') == 'brock-natural' for journey in journeys):
+            return 3600
+    return 240
+
+
 def execute_suite(args, launch=launch_job):
     jobs = select_jobs(args.only, args.mutations)
     output = Path(args.output).expanduser().resolve()
@@ -172,6 +203,7 @@ def execute_suite(args, launch=launch_job):
             scenario.write_bytes(content)
             job['scenario'] = scenario
             job['scenario_sha256'] = hashlib.sha256(content).hexdigest()
+        job['job_timeout_seconds'] = job_timeout(job, args.job_timeout)
         plan.append(job)
     summary = {'schema': 1, 'ok': False, 'complete': False, 'plan_only': args.plan_only,
                'started_utc': datetime.now(timezone.utc).isoformat(), 'output': str(output),
@@ -207,11 +239,12 @@ def execute_suite(args, launch=launch_job):
             atomic_json(wrapper / 'command.json', {'argv': command, 'job': job['name']})
             print(f'[{number}/{len(plan)}] {job["name"]}', flush=True)
             try:
-                execution = launch(command, wrapper, args.job_timeout)
+                execution = launch(command, wrapper, job['job_timeout_seconds'])
                 item = inspect_job(job, destination, execution)
             except BaseException as error:
                 item = {'name': job['name'], 'ok': False, 'error': str(error) or type(error).__name__,
                         'evidence': str(destination), 'interrupted': isinstance(error, (KeyboardInterrupt, SystemExit))}
+            item['job_timeout_seconds'] = job['job_timeout_seconds']
             item['host_logs'] = str(wrapper)
             if not item['ok']:
                 for stream in ('stdout', 'stderr'):
@@ -246,7 +279,7 @@ def main():
     parser.add_argument('--only', nargs='+', help='case names; space or comma separated, in requested order')
     parser.add_argument('--mutations', action='store_true', help='include actual isolated contract mutation qualification')
     parser.add_argument('--continue-on-failure', action='store_true', help='run remaining requested cases; final exit still fails')
-    parser.add_argument('--job-timeout', type=float, default=240, help='whole-job wall deadline; default 240 seconds')
+    parser.add_argument('--job-timeout', type=float, default=None, help='whole-job wall deadline override; default 3600s for brock-natural, 240s otherwise')
     parser.add_argument('--plan-only', action='store_true', help='write immutable scenario inputs/plan without launching')
     parser.add_argument('--list', action='store_true', help='list case names without launching')
     args = parser.parse_args()
@@ -256,7 +289,7 @@ def main():
             return 0
         if not args.output:
             parser.error('--output is required except with --list')
-        if args.job_timeout <= 0:
+        if args.job_timeout is not None and (not math.isfinite(args.job_timeout) or args.job_timeout <= 0):
             parser.error('--job-timeout must be positive')
         return execute_suite(args)
     except (OSError, ValueError, ProtocolError) as error:

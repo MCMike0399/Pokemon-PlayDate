@@ -50,7 +50,7 @@ local function normalize(record,deps)
     deps=GameSession._dependencies(deps)
     local data=copy(record)
     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true})
+        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true})
     assert(data.version==SessionCodec.VERSION and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
     object(data.title,{playerName=true,rivalName=true})
     assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
@@ -90,7 +90,13 @@ local function normalize(record,deps)
     assert(data.inventory.version==1,"unsupported-inventory-version"); array(data.inventory.slots,20)
     for _,slot in ipairs(data.inventory.slots) do object(slot,{id=true,quantity=true}) end
     assert(Inventory.fromData(deps.itemDefinitions,data.inventory),"invalid inventory")
-    return {deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
+    -- Old valid schema1 has no provenance for an initial Potion withdrawal.
+    -- Missing itemStorage migrates EMPTY, never an inferred reward/regrant.
+    local stored=data.itemStorage
+    if stored==nil then stored={version=1,slots={}}end
+    local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
+    ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
+    return {itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
         location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion}
 end
 function SessionCodec.encode(session,gate)
@@ -109,7 +115,7 @@ function SessionCodec.encode(session,gate)
             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
-            party=assert(current.party:toData(unique)),storage=assert(current.storage:toData(unique)),inventory=current.inventory:toData()}
+            party=assert(current.party:toData(unique)),storage=assert(current.storage:toData(unique)),inventory=current.inventory:toData(),itemStorage=current.itemStorage:toData()}
         normalize(data,current.deps)
         return data
     end)
@@ -126,7 +132,7 @@ function SessionCodec.decode(record,deps)
         local party=assert(Party.fromData(prepared.data.party,function(value) return pokemonFromWire(value,true) end))
         local storage=assert(Storage.fromData(prepared.data.storage,function(value) return pokemonFromWire(value,true) end))
         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
-        local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,intro=prepared.intro,
+        local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,itemStorage=assert(ItemStorage.fromData(prepared.deps.itemDefinitions,prepared.itemStorage)),intro=prepared.intro,
             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
             location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng})
         session:_installWorldMotion(prepared.worldMotion)

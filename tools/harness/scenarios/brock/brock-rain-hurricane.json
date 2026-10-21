@@ -1,0 +1,197 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 2,
+        "player_pokemon": {
+          "species": "pidgey",
+          "level": 53,
+          "nature_id": 0,
+          "ability_slot": "first",
+          "held_item": "none"
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    "battle wartortle 100",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild WARTORTLE appeared!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "fixture",
+      "options": {
+        "adjust_battle": {
+          "enemy_pp": {
+            "skullBash": 0,
+            "ironDefense": 0,
+            "hydroPump": 0
+          }
+        }
+      }
+    },
+    "seed 4",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press down",
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WARTORTLE used RAIN DANCE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "It started to rain!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIDGEY used HURRICANE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WARTORTLE took 21 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 207
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.hurricane",
+      "equals": 9
+    },
+    "shot rain-hurricane-hit",
+    "press a",
+    "record rain-hurricane-impact 12",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "Rain continues to fall.",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.weather",
+      "equals": "raindance"
+    },
+    {
+      "op": "assert",
+      "path": "battle.effects.turns",
+      "equals": 4
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 4
+    },
+    "shot rain-hurricane-complete"
+  ],
+  "outputs": [
+    "rain-hurricane-hit.png",
+    "rain-hurricane-complete.png",
+    "rain-hurricane-impact-01.png"
+  ]
+}
