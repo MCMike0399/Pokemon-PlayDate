@@ -1,0 +1,762 @@
+{
+  "schema": 1,
+  "status": "component evidence; campaign acceptance pending safe corrupt-save recovery and frozen all3 journeys",
+  "main_commit": "d9f57ea",
+  "main_source_sha256": "49832dd1c89953784f13c65a54f21a63771ae7b9b73ef16b405a8118932c8386",
+  "private_integrated_source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+  "sdk": {
+    "passed": 1059,
+    "failed": 0,
+    "host_full_integrated_status": "not yet run on this Source"
+  },
+  "remaining": [
+    "safe Title/NewGame corruption recovery",
+    "frozen all3 true-process Brock campaign acceptance",
+    "regional fidelity backlog including Route22",
+    "scheduled full mechanics/resource/release work"
+  ],
+  "archives": [
+    {
+      "archive": "correctness1059-sdk.tar.gz",
+      "sha256": "4cb80563c5df28c9107b89178dd234c3fb0c1535c5fdde2fa0c4f041f337b66a",
+      "bytes": 17415969,
+      "runs": [
+        {
+          "run": "/private/tmp/pokemon-root-rewards-correction-sdk-02",
+          "source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+          "outcome": {
+            "ok": true,
+            "session_id": "7bc3ca5b92b64a3ebf03e9a11dea5b44"
+          },
+          "source_overlay_files": 0
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-sdk-01",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "ok": true,
+            "session_id": "2c25a8519c724cc0a6ef519bbb02e277"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individual-roost-sdk-01",
+          "source_sha256": "a2db85c48668993e27036c46f714e931d52506641359e84ad812c4291245b714",
+          "outcome": {
+            "ok": true,
+            "session_id": "c9a3c56a292c4947adfad8f3080ec32f"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individual-roost-poison-sdk-01",
+          "source_sha256": "0d88392102725cd82a58ff82d71216b2e5dc6f3462be64c074a3f1066707e90b",
+          "outcome": {
+            "ok": true,
+            "session_id": "0e36b2a0d08746e9991b44803cf1a66f"
+          },
+          "source_overlay_files": 10
+        },
+        {
+          "run": "/private/tmp/pokemon-root-rewards-correction-sdk-01",
+          "source_sha256": "aa6fec9af2f66f6cf5779dd97b7bc76fd92491139a8076a5910b971a898ff5f8",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "05d73ff39aae463faf9af337d586cf84"
+          },
+          "source_overlay_files": 4
+        },
+        {
+          "run": "/private/tmp/pokemon-root-residual-reward-diagnostic-01",
+          "source_sha256": "40106b009a6eb5de66a8f6ec5d685aeebe1aa3aefa853295b44a9dc1f698148c",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "2afa0dbc0e22410793feb4363a39979c"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-title-save-baseline-sdk-01",
+          "source_sha256": "6644254cb815aeae13da31c93260c397cfef60b78e4d34689c1253e825a3e0d9",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "00d902b4e446456995bc3f835b6df453"
+          },
+          "source_overlay_files": 11
+        }
+      ],
+      "base_source_tree": "pokemon-root-rewards-correction-sdk-02",
+      "fault_catalog_pngs_excluded": false
+    },
+    {
+      "archive": "correctness1059-native.tar.gz",
+      "sha256": "6049fe6bde2060c9802fb8844eeddc5290c172d57cd0743bc3554557a751f339",
+      "bytes": 6249335,
+      "runs": [
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-native-01/01-brock--individuals-intro-squirtle",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:350: assertion story.stage expected done got goodbye",
+            "ok": false,
+            "session_id": "f5ece689074d485fb4175fdf9baf8d6e"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-native-01/02-brock--individuals-intro-bulbasaur",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:350: assertion story.stage expected done got goodbye",
+            "ok": false,
+            "session_id": "fe8bd8ccb94a4c24bff00310d7f72283"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-native-01/03-brock--individuals-intro-charmander",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "ok": true,
+            "session_id": "c2092da1474f4d969ba187ac9307950e"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-native-01/04-brock--individuals-save-continue",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "ok": true,
+            "process_generations": 2,
+            "session_id": "5632374540c9428e9b78f24995208490"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-intro-retry-01/01-brock--individuals-intro-squirtle",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "ok": true,
+            "session_id": "49d6b4e09bca43f19f59143b8d6c2b32"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-intro-retry-01/02-brock--individuals-intro-bulbasaur",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "ok": true,
+            "session_id": "5a01f13c4eac4a848e67b4ac1fd309a2"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-a-intro-retry-01/03-brock--individuals-intro-charmander",
+          "source_sha256": "56013355c8930253369d0e4d9213ab496e411f6e25356c2aa530d9266889cee2",
+          "outcome": {
+            "ok": true,
+            "session_id": "89a524de37314bac8274694a48e70cd2"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-native-01/01-brock--brock-roost-success",
+          "source_sha256": "a2db85c48668993e27036c46f714e931d52506641359e84ad812c4291245b714",
+          "outcome": {
+            "ok": true,
+            "session_id": "ec667fe65a2742d48e63c7ffab033d02"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-native-01/02-brock--brock-roost-full",
+          "source_sha256": "a2db85c48668993e27036c46f714e931d52506641359e84ad812c4291245b714",
+          "outcome": {
+            "ok": true,
+            "session_id": "baad281f7f1c465fa3fcab6162a2fbd7"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-native-01/03-brock--brock-roost-slower",
+          "source_sha256": "a2db85c48668993e27036c46f714e931d52506641359e84ad812c4291245b714",
+          "outcome": {
+            "ok": true,
+            "session_id": "14b4c5bfc351484794a732ebedaa1b86"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-native-01/poison-fang-fail31",
+          "source_sha256": "0d88392102725cd82a58ff82d71216b2e5dc6f3462be64c074a3f1066707e90b",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/fixtures.lua:40: invalid fixture PP",
+            "ok": false,
+            "session_id": "91dad21e242546f3ab7b1914e389a8b2"
+          },
+          "source_overlay_files": 10
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-native-01/poison-fang-proc30",
+          "source_sha256": "0d88392102725cd82a58ff82d71216b2e5dc6f3462be64c074a3f1066707e90b",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/fixtures.lua:40: invalid fixture PP",
+            "ok": false,
+            "session_id": "dc1673c64c6f4a02ab9cec9b7dec04d6"
+          },
+          "source_overlay_files": 10
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-native-02/poison-fang-fail31",
+          "source_sha256": "0d88392102725cd82a58ff82d71216b2e5dc6f3462be64c074a3f1066707e90b",
+          "outcome": {
+            "ok": true,
+            "session_id": "0a2e8378d7d14636a550971078ccdc6e"
+          },
+          "source_overlay_files": 10
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-native-02/poison-fang-proc30",
+          "source_sha256": "0d88392102725cd82a58ff82d71216b2e5dc6f3462be64c074a3f1066707e90b",
+          "outcome": {
+            "ok": true,
+            "session_id": "0496b1e331f24ea6958c5dd0f575e654"
+          },
+          "source_overlay_files": 10
+        },
+        {
+          "run": "/private/tmp/pokemon-root-rewards-hud-native-01",
+          "source_sha256": "aa6fec9af2f66f6cf5779dd97b7bc76fd92491139a8076a5910b971a898ff5f8",
+          "outcome": {
+            "ok": true,
+            "session_id": "16079efe970244af83ffa73d17d660d0"
+          },
+          "source_overlay_files": 4
+        },
+        {
+          "run": "/private/tmp/pokemon-root-rewards-hud-native-02",
+          "source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+          "outcome": {
+            "ok": true,
+            "session_id": "f0c7352474c94f7c98fe7425d57086e9"
+          },
+          "source_overlay_files": 2
+        }
+      ],
+      "base_source_tree": "pokemon-root-rewards-correction-sdk-02",
+      "fault_catalog_pngs_excluded": false
+    },
+    {
+      "archive": "correctness1059-faults.tar.gz",
+      "sha256": "72665ad8c420a012673e90624a01b9c075319c280d840abc5856eb4a80ae6461",
+      "bytes": 29612924,
+      "runs": [
+        {
+          "run": "/private/tmp/pokemon-root-individuals-mutants-sdk-01/ev252",
+          "source_sha256": "e266cac13ef93cb1bbe4a0f885ce8a6192fa78b78088b80f303a23dc52c6806e",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "43853bde73f548bb8ae9e024b4f6e90a"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-mutants-sdk-01/missing-v7",
+          "source_sha256": "b18a372ba864cb0c1e3b19e2be29ad7d875104446b6778d9de1fd696e64a5944",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "027a8af530bd4844a339f56bca56bf64"
+          },
+          "source_overlay_files": 15
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-mutants-sdk-01/omit-iv",
+          "source_sha256": "9d5b3628c73719deb62e9a02bed4032a8cf9fd93c0daacf11db0bea77a7241ce",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "8389b4232f574d5687825fd70c72b0d4"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-mutants-sdk-01/quarter-floor",
+          "source_sha256": "9a33fbb5e573d0a7f2d7b599fcbcef1deec307bd25fcd283d17371732fbaf788",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "f93fb279876a4df1a19f0edb87de75af"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-mutants-sdk-01/random-trainer",
+          "source_sha256": "989c50e0e84b3dfd6319780a0e99e6f53cdd3bff39bae55e6845deb5ef868aeb",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "58762866298545e19360f1f0b13df686"
+          },
+          "source_overlay_files": 15
+        },
+        {
+          "run": "/private/tmp/pokemon-root-individuals-mutants-sdk-01/revive-zero",
+          "source_sha256": "50c855db97a0d4b9aee5cfdcc78f9c9c0e6f4edc30e7029f330a40bad8ac1515",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "9b7f629953f2445e9598c1187eca1e23"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/drop-nested-context",
+          "source_sha256": "320a0ee45b57d6084d85e8bac91d0de6a5c0b5eac5b15f35bde8f647b03ba81f",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "97a1d98c9a7a47399d952b523aad515e"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/durable-types",
+          "source_sha256": "64cb5371869bb502efd1c73a56aaeb7472345f232a4ad6e851f96dcc59391d08",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "593e4e530d3c4540b0eaa83548506787"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/expiry-late",
+          "source_sha256": "daf4f2ff30d7f1bd89c878194db29b65e6e62926611bf6e030bbd281b3fadc11",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "6e203740e74b4d5d8d0bb547c54be163"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/floor-half",
+          "source_sha256": "1834d78ffdd71d9b7cff3753f0226049c1fd5131b9f6df5ff03bbc821132efee",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "63441a25492a4b16b3f0db249d072375"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/mark-full",
+          "source_sha256": "8e165c08a8ce616f2b2d2947c23982c577f43fd56a0d0bc3e0d3df16aaab9edd",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "2d80a780d2334ae5afa1f278d4f162c6"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/raw-ground",
+          "source_sha256": "6b4cab9537473f3ba73d9879e2bdca5a57af3f122c649155130922d9676aabff",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "9d6a4ef0e0424308bda0ea14304e2e2a"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/raw-immunity",
+          "source_sha256": "afbedb5136cad96fa69ed676a42170051d07ae135fe0dba976181470e85fbd41",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "fce9b461143249c2b9ec820b17e9d81f"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/raw-stab",
+          "source_sha256": "d461935433009750fd304fc30df342e9b60bf20c5ae106773303bd8daa079890",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "fff23166dda342a495a6a81a91447588"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-roost-mutants-sdk-01/skip-expiry",
+          "source_sha256": "941f0f93214be4d261d310463cab8a43a62bd377bb18ae2f7646dabae7c57d35",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "a83c1596707a427aaf41218c013d4774"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/control",
+          "source_sha256": "0d88392102725cd82a58ff82d71216b2e5dc6f3462be64c074a3f1066707e90b",
+          "outcome": {
+            "ok": true,
+            "session_id": "2c70d0e7d0f2493e8d5894b966a16643"
+          },
+          "source_overlay_files": 10
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/mutate-dead-stat",
+          "source_sha256": "36bcb9dee26d1090e980bc8e0505f65348f596478176ac625fe279432f932cf2",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "ab03dee5b7c64da4be8af33200daa643"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/ordinary-poison",
+          "source_sha256": "ed12c82ba810018f79d4ced639bddd2155c6752c69b39da5c5701dafc5d9afad",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "280376cb1baf42e79d760dbf88b1c8f6"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/poison50",
+          "source_sha256": "b9d627777d416d7866029e47c57596853ce7b9e6653ce3b85853a9fb293162a5",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "15fc76ea87a6499bb057e2dac104387a"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/roll-dead-stat",
+          "source_sha256": "66b584c0a94791a9b3b53fb9b9ad0f6ae0a39beffe2ef2c17bb3d5351be2986b",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "8d9315af065548a8a784bdcb3c16ba25"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/skip-lethal-condition",
+          "source_sha256": "dc2875728b415bd5d749419fd4b0a841cb092f737cacdf9820fa7a306d84824a",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "bb6a5ca832c04c2c83252bee265d68d3"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/skip-shielddust",
+          "source_sha256": "41a119b917d7ffc6d5f10fbfa95cd558444d8b0a8c19384dd5f98e5c8420dc13",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "577b8dca482046fbb68cbeb15582b8a5"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/suppress-self",
+          "source_sha256": "fb57f85bd1ea768749b9bf01b3963f49c0d589551e5ce8f74187816dc88fce69",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "adf2ef4486c840ce8f6fefa516aa02c5"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-poison-mutants-sdk-01/tri-skip-dead-choice",
+          "source_sha256": "ca4a0998d24f1bc48fb02d4f98e1d5970b748da1d3291e96803f44c74fcd5fde",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "8712e8676d8e4c3eb8f9bdb8f922554f"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/condition-early-xp",
+          "source_sha256": "c0695ec6d3317cc236a1dba3bbb31cc2c87561394bca8d411ae06d52f170dd37",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "0bc8f06c40194dc9a90b4a189eb74097"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/condition-first-faint-wins",
+          "source_sha256": "79440a16fbdf1bec86ca923c6fa208183274f5f21f8c138ad1ab6c7ab29d30a5",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "5e5b303b61544225b52e87aa4a1ed7d5"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/condition-no-early-matchup",
+          "source_sha256": "24db49dc802f5e7a6a996e684942ec88f96d70c04292de4eeb670679c62e4a26",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "5d2a51256ad04f039ec84f1417dda033"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/condition-poison-only",
+          "source_sha256": "c6767f3c93a901187dc37c72f8e77a0bc4edcc7ceb557aa6c0c2097ebb7dd4f2",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "0ac1d984a8e24be793e57cbe46c7ec97"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/control",
+          "source_sha256": "38c866739eea9d13b7cd6470075211b0f8c6ba4577a9c070ed4488a9b12f3ddc",
+          "outcome": {
+            "ok": true,
+            "session_id": "404c737e0f72457db38a3f905b43e312"
+          },
+          "source_overlay_files": 4
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/direct-blanket-defer",
+          "source_sha256": "843b31b8867b184176e289dc7c3a4ca4cd6f84280456b16853300086bab2cd8f",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "15a6b7c721c746cfa073981d507b5106"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/early-live",
+          "source_sha256": "b78643802979ef62aa38f03918c4b6dbfab801bbb924c1060f3072e696028174",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "dc246e12d7344d07a88eb2eb6188c1e2"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/exclude100",
+          "source_sha256": "5d59a1ddeaeee73f1947515f947a75850b571c4542610fe52620c4fbcb2e8219",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "f60125b429a9404abd5c568158c34c25"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/live-preflight",
+          "source_sha256": "40c8327635e7118dd6f3fe4a139e0593c56ac464e98f524ada8e9fb9e7dcd57a",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "3d5248b90e324b42a28b126e0fc4fce4"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/no-hud-hold",
+          "source_sha256": "567acd1c3baa7f08f7dea59d27544d97712fda1d4bbf4c2ab3bfde25abd6d949",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "fd446c3efb1e451190e6d84c59c008a4"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/no-immediate-cleanup",
+          "source_sha256": "458a9ba353ee4051b1135127a04b6cd253daa21ecea4ff384f409f8d9c81eb87",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "5026679902b247e3a31845e716ab6446"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/no-return-flush",
+          "source_sha256": "f413f83e68317a725b5ce17a15d121c4c15ba970674092599148f29eb691ea0e",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "d76cf4a240df429cb00c3f538efc5bb3"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/repeat-foe",
+          "source_sha256": "670df6c72aa7921037dc88f2ff809f630774866f8da9dcde50f373c3bf954f1d",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "8f287953085c45139713f2d135a390d0"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/split-ev",
+          "source_sha256": "c77fb72e78d40d650ed6c14601a16a9759d8ed5fe63e9eb4cbaf4dce95a92c9a",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "363542eba577463b8bfc4c968a9d96a2"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/total511",
+          "source_sha256": "29bcc28fc002ccdac11d18d7cea9f4ed3861f12587e6c310c0597ef929758fed",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "b4b0ec3dd02b4b3c8ca3f92dfc67dba6"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/weather-blanket-defer",
+          "source_sha256": "7cc71c6190c8beccab9b5887d9bbac3349f879eabedc664c34d68819c361af10",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "92438de2d2804367834e580460156165"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/wrong-order",
+          "source_sha256": "18cc3c086e23c0126462df6df4947dd0dc463f350e2e98332dbfbd22b59bc4e5",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "808aeb99ae6b4b70bdde2231756af4db"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-reward-faults-sdk-01/xp-before-ev",
+          "source_sha256": "1fd81ea73738f4aa51aeae7a4d3c16c7571325a8ddb04c80e374e6924d7db576",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "623ff74373f845f9b6f3faa7a888003b"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-weather-witness-sdk-01/control",
+          "source_sha256": "ced2c808d5698342c39726b969f19894661e6c29385ab70fc236374b8d5ccfe6",
+          "outcome": {
+            "ok": true,
+            "session_id": "feacda37c5d540128d8bc67b3f902069"
+          },
+          "source_overlay_files": 5
+        },
+        {
+          "run": "/private/tmp/pokemon-root-weather-witness-sdk-01/weather-blanket-defer",
+          "source_sha256": "2f5e03b4c448100083e8acada5d936c1a89a71c18a6354564a80285e195107a3",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "8719a19cc2aa477ba056f489f90d5f8c"
+          },
+          "source_overlay_files": 6
+        }
+      ],
+      "base_source_tree": "pokemon-root-rewards-correction-sdk-02",
+      "fault_catalog_pngs_excluded": true
+    }
+  ],
+  "archive_reconstruction": {
+    "verified_runs": 23,
+    "all_exact": true,
+    "evidence": "/private/tmp/pokemon-root-archive-reconstruct1059-01/qualification.json",
+    "note": "Host reconstruction verifies exact executed Source bytes; no additional Simulator run claimed."
+  },
+  "faults": {
+    "individuals": 6,
+    "roost_context": 9,
+    "poison_secondaries": 8,
+    "rewards_conditions": 17,
+    "rewards_qualification_control_cases": 1060,
+    "supplemental_weather_control_cases": 1061,
+    "strict_review": "Original weather nil-receipt error not counted; separate real1061control and explicit semantic failure qualify it. See archived pokemon-root-reward-faults-sdk-01/root-review.json."
+  }
+}

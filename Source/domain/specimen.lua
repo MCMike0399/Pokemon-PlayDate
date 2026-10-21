@@ -1,5 +1,5 @@
 -- Pure durable attributes and explicit creation. No battle effects/availability.
-Specimen={CREATION_VERSION=2}
+Specimen={CREATION_VERSION=3}
 local slots={first=true,second=true,hidden=true}
 local origins={wild=true,starter=true,trainer=true,gift=true,debug=true}
 local function object(value,allowed)
@@ -43,7 +43,7 @@ function Specimen.sexAttributes(species,sex,provenance)
 end
 function Specimen.attributes(attributes,species)
     if attributes==nil then attributes={natureId=0,abilitySlot="first",heldItem="none"} end
-    object(attributes,{natureId=true,abilitySlot=true,heldItem=true,sex=true,sexProvenance=true})
+    object(attributes,{natureId=true,abilitySlot=true,heldItem=true,sex=true,sexProvenance=true,ivs=true,evs=true})
     local nature=type(attributes.natureId)=="number" and math.tointeger(attributes.natureId) or nil
     assert(nature and SpecimenData.natures[nature],"invalid-nature")
     assert(slots[attributes.abilitySlot],"invalid-ability-slot")
@@ -56,7 +56,8 @@ function Specimen.attributes(attributes,species)
         sex,provenance=Specimen.defaultSex(species),{version=1,kind="constructor-default"}
     elseif provenance==nil then provenance={version=1,kind="explicit"} end
     sex,provenance=Specimen.sexAttributes(species,sex,provenance)
-    return {natureId=nature,abilitySlot=attributes.abilitySlot,heldItem=held,sex=sex,sexProvenance=provenance}
+    local iv,ev=IndividualStats.normalize(attributes.ivs==nil and IndividualStats.zero()or attributes.ivs,attributes.evs==nil and IndividualStats.zero()or attributes.evs)
+    return {natureId=nature,abilitySlot=attributes.abilitySlot,heldItem=held,sex=sex,sexProvenance=provenance,ivs=iv,evs=ev}
 end
 local encounters=setmetatable({},{__mode="k"})
 local function encounterInfo(token)
@@ -109,15 +110,28 @@ end
 local function writeRNG(rng,value)
     if rng==RulesRNG then rng.restore(value) else rng:restore(value) end
 end
+-- A policy names the campaign source, never a caller-chosen IV boost.
+function Specimen.blueTrainerPolicy(sourceId)
+    assert(type(sourceId)=="string" and #sourceId>=1 and #sourceId<=256 and not sourceId:find("[^ -~]"),"invalid-trainer-individual-source")
+    return {kind="blue-scripted-v1",sourceId=sourceId}
+end
+local function individualPolicy(origin,policy)
+    if origin~="trainer"then assert(policy==nil,"unexpected-individual-policy");return "random-normal-v1"end
+    object(policy,{kind=true,sourceId=true})
+    assert(policy.kind=="blue-scripted-v1","invalid-trainer-individual-policy")
+    Specimen.blueTrainerPolicy(policy.sourceId)
+    return policy.kind
+end
 -- Normal origins never roll hidden. Detached samples: normal slot, nature,
 -- sex byte; ordinary wild Pikachu alone then samples its approved held policy.
 -- Species/level/chance draws preceding this call are outside this transaction.
-function Specimen.create(species,level,origin,rng,encounter)
+function Specimen.create(species,level,origin,rng,encounter,policy)
     local ok,mon,receipt=pcall(function()
         assert(type(species)=="string" and pokemonData[species],"unknown-species")
         local normalized=type(level)=="number" and math.tointeger(level) or nil
         assert(normalized and normalized>=1 and normalized<=100,"invalid-specimen-level")
         assert(type(origin)=="string" and origins[origin],"invalid-specimen-origin")
+        local individualKind=individualPolicy(origin,policy)
         assert(encounter==nil or origin=="wild","unexpected-encounter-context")
         local context=encounter~=nil and encounterInfo(encounter) or nil
         local compound=context~=nil and context.ability==14
@@ -133,11 +147,16 @@ function Specimen.create(species,level,origin,rng,encounter)
                 and ItemData.definitions.lightBall.gen5Id==236,"missing-Light-Ball-acquisition-definition")
             heldRoll=planned:random(0,99);draws=4;held=Specimen.ordinaryPikachuItem(heldRoll,compound)
         end
+        local ivs=individualKind=="blue-scripted-v1" and IndividualStats.blueTrainer() or IndividualStats.zero()
+        if individualKind=="random-normal-v1"then
+            for _,key in ipairs({"hp","atk","def","spa","spd","spe"})do ivs[key]=planned:random(0,31)end
+            draws=draws+6
+        end
         local created=Pokemon(species,normalized,{natureId=nature,abilitySlot=slot,heldItem=held,sex=sex,
-            sexProvenance={version=1,kind="generated",protocol=2,origin=origin,byte=byte}})
+            sexProvenance={version=1,kind="generated",protocol=2,origin=origin,byte=byte},ivs=ivs,evs=IndividualStats.zero()})
         local after=planned:snapshot()
         local result={version=Specimen.CREATION_VERSION,origin=origin,draws=draws,abilitySlot=slot,natureId=nature,sex=sex,sexByte=byte,heldItem=held,heldRoll=heldRoll,heldPolicy=origin=="wild" and (compound and "compound-eyes" or "ordinary") or "none",
-            rngBefore=before,rngAfter=after,rawRolls=after.rolls-before.rolls}
+            rngBefore=before,rngAfter=after,rawRolls=after.rolls-before.rolls,individualPolicy=individualKind,individualSource=policy and policy.sourceId or nil,ivs=created:individuals().ivs,evs=created:individuals().evs}
         if encounter~=nil then encounterInfo(encounter) end
         writeRNG(rng,after) -- Pure construction/validation succeeded; commit continuation once.
         return created,result
@@ -152,12 +171,12 @@ function Specimen.isActiveSession(session)
     return session~=nil and GameSession~=nil and GameSession._state(session)~=nil
         and GameSession.activeRNGSession()==session
 end
-function Specimen.createForSession(session,species,level,origin)
+function Specimen.createForSession(session,species,level,origin,policy)
     if not Specimen.isActiveSession(session) then return nil,"inactive-specimen-session" end
     local encounter
     if origin=="wild" then
         local why;encounter,why=Specimen.planEncounter(session)
         if not encounter then return nil,why end
     end
-    return Specimen.create(species,level,origin,RulesRNG,encounter)
+    return Specimen.create(species,level,origin,RulesRNG,encounter,policy)
 end

@@ -10,6 +10,7 @@ import sys
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.verify_moves.compare import Oracle, verify
+from tools.verify_moves.runtime_coverage import load_runtime_coverage
 from tools.verify_moves.fetch_pokeapi import PinnedSources, SourceError
 from tools.verify_moves.parse_lua import LuaParser, ParseError, ROOT, read_moves
 
@@ -21,6 +22,8 @@ def main(argv=None):
     parser.add_argument('--cache', type=Path, help='directory containing the nine pinned CSVs')
     parser.add_argument('--pokemon', type=Path, default=ROOT / 'Source/data/pokemon.lua')
     parser.add_argument('--moves', type=Path, default=ROOT / 'Source/battle/moves.lua')
+    parser.add_argument('--runtime-project', type=Path, help='explicit runtime source tree for separately labeled private proof; default current checkout')
+    parser.add_argument('--runtime-evidence', type=Path, help='reviewed source+executed SDK subset registry; default checked-in snapshot')
     parser.add_argument('--output', type=Path, required=True, help='new JSON report; legacy reports are never rewritten')
     args = parser.parse_args(argv)
     if args.output.exists():
@@ -36,11 +39,12 @@ def main(argv=None):
             species = {key: species[key] for key in args.species}
         elif set(row['dex'] for row in species.values()) != set(range(1, 152)):
             raise ParseError('full roster must contain dex1..151 exactly')
-        report = verify(species, moves, Oracle(source.all()))
+        runtime = load_runtime_coverage(args.runtime_project or ROOT, moves, args.runtime_evidence)
+        report = verify(species, moves, Oracle(source.all()), runtime)
         report['sources'] = source.manifest
         report['production_inputs'] = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest()
-                                       for path in (args.pokemon, args.moves, ROOT / 'Source/battle/battle.lua', ROOT / 'Source/battle/dsl.lua')}
-        report['semantics_policy'] = 'Static gap inventory is not proof of runtime support. Every remaining move needs independent behavior contracts.'
+                                       for path in (args.pokemon, args.moves, (args.runtime_project or ROOT) / 'Source/battle/battle.lua', (args.runtime_project or ROOT) / 'Source/battle/dsl.lua')}
+        report['semantics_policy'] = 'Current reviewed handler+exact executed assertion hashes qualify only named subsets. Changed evidence becomes stale; no field-presence or historical static gap proves full runtime support.'
         code = 0 if report['ok'] else 1
         print(json.dumps(report['counts'], sort_keys=True))
         print('Learnset issue codes:', dict(Counter(issue['code'] for row in report['learnsets'] for issue in row['issues'])))

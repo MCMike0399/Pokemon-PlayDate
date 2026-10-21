@@ -1,0 +1,56 @@
+PoisonFangContracts={}
+local function eq(a,b,s)assert(a==b,(s or "value")..": expected "..tostring(b)..", got "..tostring(a))end
+local function own(p,keys)p.moves,p.pp={},{};for _,k in ipairs(keys)do p.moves[#p.moves+1]=k;p.pp[k]=moveData[k].pp end end
+local function settle(b)local n,t=0,{};while b:phase()=="script"and not b.pendingLearning do n=n+1;assert(n<250,"stuck: "..tostring(b.message));t[#t+1]=b.message;b.machine:get("script"):advance()end;assert(not b.pendingLearning,"unexpected learning");return table.concat(t,"|")end
+local function fresh(target)local b=Battle(Pokemon("nidoranF",45),target or Pokemon("magikarp",100));settle(b);own(b.player,{"poisonFang"});own(b.enemy,{"agility"});return b end
+local function act(b,seed)RulesRNG.seed(seed);assert(b:selectMove(1));return settle(b)end
+local function same(before)local n=RulesRNG.snapshot();eq(n.state,before.state);eq(n.rolls,before.rolls)end
+function PoisonFangContracts.run()
+ local report={ok=true,passed=0,failed=0,tests={}};local saved=RulesRNG.snapshot()
+ local function test(name,fn)local ok,why=pcall(fn);report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why)or nil};if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end end
+ test("Source learnset NidoranF45 Nidorina58 and exact GenV30badPoison payload",function()
+  assert(Pokemon("nidoranF",45):hasMove("poisonFang"));assert(not Pokemon("nidoranF",44):hasMove("poisonFang"));assert(Pokemon("nidorina",58):hasMove("poisonFang"));assert(not Pokemon("nidorina",57):hasMove("poisonFang"))
+  local m=moveData.poisonFang;eq(m.power,50);eq(m.pp,15);eq(m.accuracy,100);eq(m.contact,true);eq(m.protectable,true);eq(m.targetId,10);eq(#m.secondaries,1);local when=m.secondaries[1].effect;eq(when.cond.percent,30);eq(when.onPass.status,"badPoison")
+ end)
+ test("Actual30boundary poisons bad with first9tick while31boundary does not",function()
+  local b=fresh();local text=act(b,1);eq(b.enemy.status,"badPoison");eq(b.enemy.hp,128);eq(b.enemy.statusTurns,0);eq(b.enemy.sleepDuration,0);eq(b:getConditionsSnapshot().enemy.toxic_counter,1);eq(b.player.pp.poisonFang,14);eq(RulesRNG.snapshot().rolls,5);eq(RulesRNG.snapshot().state,1144108930);assert(text:find("badly poisoned",1,true))
+  b=fresh();act(b,107);eq(b.enemy.status,nil);eq(b.enemy.hp,137);eq(b:getConditionsSnapshot().enemy.toxic_counter,0);eq(RulesRNG.snapshot().rolls,5);eq(RulesRNG.snapshot().state,13087631)
+ end)
+ test("Already bad poison retains counter and second tick doubles independently of new chance",function()
+  local b=fresh();act(b,1);act(b,107);eq(b.enemy.status,"badPoison");eq(b.enemy.hp,97);eq(b:getConditionsSnapshot().enemy.toxic_counter,2);eq(b.player.pp.poisonFang,13);eq(RulesRNG.snapshot().rolls,5)
+ end)
+ test("ShieldDust suppresses chance while ordinary poison type and Immunity do not",function()
+  local b=fresh(Pokemon("caterpie",100));act(b,1);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,4)
+  b=fresh(Pokemon("nidorina",100,{natureId=0,abilitySlot="second",heldItem="none"}));act(b,1);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,5)
+  b=fresh(Pokemon("snorlax",100));act(b,1);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,5)
+ end)
+ test("Safeguard blocks toxic afterchance without counter or duration mutation",function()
+  local b=fresh();b:runScript(function()b:setDirection("enemy");SideConditionEffect("safeguard"):apply(b)end);settle(b);act(b,1);eq(b.enemy.status,nil);eq(b:getConditionsSnapshot().enemy.toxic_counter,0);eq(RulesRNG.snapshot().rolls,5)
+ end)
+ test("Already ordinary poison is not upgraded and retains ordinary residual damage",function()
+  local b=fresh();b.enemy.status="poison";act(b,1);eq(b.enemy.status,"poison");eq(b.enemy.hp,119);eq(b:getConditionsSnapshot().enemy.toxic_counter,0);eq(RulesRNG.snapshot().rolls,5)
+ end)
+ test("Steel immunity and actual Protect skip accuracy damage chance and status",function()
+  local b=fresh(Pokemon("magnemite",100));local hp=b.enemy.hp;act(b,1);eq(b.enemy.hp,hp);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,1)
+  b=fresh();own(b.enemy,{"protect"});hp=b.enemy.hp;act(b,1);eq(b.enemy.hp,hp);eq(b.enemy.status,nil);eq(b.player.pp.poisonFang,14);eq(RulesRNG.snapshot().rolls,1)
+ end)
+ test("Antidote cures persistent badpoison once and real reapplication restarts counter1",function()
+  local b=fresh();act(b,1);act(b,107);local bag=Inventory(ItemData.definitions);assert(bag:add("antidote",1));assert(Items.use(bag,"antidote",b.enemy));eq(bag:quantity("antidote"),0);eq(b.enemy.status,nil);eq(b.enemy.statusTurns,0);eq(b.enemy.sleepDuration,0)
+  act(b,1);eq(b.enemy.status,"badPoison");eq(b:getConditionsSnapshot().enemy.toxic_counter,1);eq(b.enemy.hp,75)
+ end)
+ test("Codec preserves badpoison major and new Battle starts transient counter at1",function()
+  local b=fresh();act(b,1);local decoded=assert(PokemonCodec.decode(assert(PokemonCodec.encode(b.enemy))));eq(decoded.status,"badPoison");eq(decoded.hp,128);local n=Battle(decoded,Pokemon("nidoranF",45));settle(n);n:runScript(function()return n:finishRound()end);settle(n);eq(n.player.hp,119);eq(n:getConditionsSnapshot().player.toxic_counter,1)
+ end)
+ test("Actual natural Butterfree34 single RagePowder failure then toxic leavesHP43",function()
+  local b=fresh(Pokemon("butterfree",34));own(b.enemy,{"ragePowder"});local text=act(b,1);eq(b.enemy.hp,43);eq(b.enemy.status,"badPoison");eq(b.enemy.pp.ragePowder,19);eq(b.player.pp.poisonFang,14);eq(RulesRNG.snapshot().rolls,5);assert(text:find("But it failed!",1,true));eq(b:getConditionsSnapshot().enemy.toxic_counter,1)
+ end)
+ test("Rejected zeroPP command cannot consume chance heal status or pending rule state",function()
+  local b=fresh();b.player.pp.poisonFang=0;local hp=b.enemy.hp;local before=RulesRNG.snapshot();eq(b:selectMove(1),false);eq(b.enemy.hp,hp);eq(b.enemy.status,nil);eq(b:getConditionsSnapshot().enemy.toxic_counter,0);same(before)
+ end)
+ test("Actual party withdrawal preserves badpoison and return resets its counter1",function()
+  local p,q=Pokemon("magikarp",100),Pokemon("squirtle",100);local party=Party();assert(party:add(p));assert(party:add(q));local e=Pokemon("nidoranF",45);local b=Battle(p,e,nil,{party=party});settle(b);own(p,{"agility"});own(e,{"poisonFang"});RulesRNG.seed(1);assert(b:selectMove(1));settle(b);eq(p.hp,128);eq(p.status,"badPoison");eq(b:getConditionsSnapshot().player.toxic_counter,1)
+  own(e,{"agility"});assert(b:chooseParty(2));settle(b);eq(b.player,q);eq(p.hp,128);eq(p.status,"badPoison");eq(b.conditions.members[p],nil)
+  assert(b:chooseParty(1));settle(b);eq(b.player,p);eq(p.hp,119);eq(p.status,"badPoison");eq(b:getConditionsSnapshot().player.toxic_counter,1);eq(p.statusTurns,0);eq(p.sleepDuration,0)
+ end)
+ RulesRNG.restore(saved);return report
+end

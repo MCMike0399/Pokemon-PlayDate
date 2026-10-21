@@ -1,0 +1,1191 @@
+{
+  "schema": 1,
+  "purpose": "separate erratum only; original frozen reports untouched; blanket promotion withdrawn",
+  "old_report_sha256": "121718231f0867b8a081b0aa39e648d7209180095520ceb9761178f89cf91983",
+  "current_source_sha256": "a2db85c48668993e27036c46f714e931d52506641359e84ad812c4291245b714",
+  "accepted950sdk_sha256": "338ebb0072b427ecaf36346192c97bed862688fb6db97fac4711cd07640fe669",
+  "rows": [
+    {
+      "move": "assurance",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "ASSURANCE",
+        "type": "dark",
+        "category": "physical",
+        "power": 50,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "powerRule": "assurance"
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMoveBatchContracts.lua",
+        "file_sha256": "06b1cc26b9190cb991df36d6f888e60ced5c0b97cf1026dc90bf8489dfb52b79",
+        "line": 123,
+        "name": "Assurance literal damage after faster TakeDown recoil doubles50to100",
+        "sdk_exact_name": "brock-move-batch01: Assurance literal damage after faster TakeDown recoil doubles50to100",
+        "sdk_pass": true,
+        "body": "test(\"Assurance literal damage after faster TakeDown recoil doubles50to100\",function()\n        local b=fresh();own(b.player,{\"assurance\"});own(b.enemy,{\"takeDown\"});RulesRNG.seed(2)\n        b:runScript(function()return b:resolveRound({turn(\"enemy\",\"takeDown\"),turn(\"player\",\"assurance\")})end);settle(b)\n        eq(b.player.hp,16);eq(b.enemy.hp,0);eq(b.lastDamage,131);eq(b.player.pp.assurance,9);eq(b.enemy.pp.takeDown,19);eq(RulesRNG.snapshot().rolls,6);eq(b.effects.round,nil)\n    end)\n    ",
+        "body_sha256": "fa27064acfcf8bc418f611218e2828239fa8534f7be13d48a4cfed471b4f1e3e"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "captivate",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "CAPTIVATE",
+        "type": "normal",
+        "category": "status",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 20,
+        "targetId": 11,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "attemptRule": "oppositeSex",
+        "effects": [
+          "ModifyStat ( DEFENDER , \"spa\" , -2 )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sexAbilityContracts.lua",
+        "file_sha256": "47242a84b16073db67083aec99ee9938d2d0f754adc2eff8936f0a423fc29497",
+        "line": 33,
+        "name": "Captivate opposite-sex female user also succeeds with one accuracy sample",
+        "sdk_exact_name": "sex-abilities: Captivate opposite-sex female user also succeeds with one accuracy sample",
+        "sdk_pass": true,
+        "body": "test(\"Captivate opposite-sex female user also succeeds with one accuracy sample\",function()\n  local b=cap(\"female\",nil,\"male\");act(b,\"captivate\",14);eq(b.enemy.statStages.spa,-2);eq(snapshot().rolls,1);eq(b.player.pp.captivate,19)\n end)\n ",
+        "body_sha256": "cec0e98291ab7204cd907cd7110e4a00050441b9aea6c2354846cc63afd3d058"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "dig",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "DIG",
+        "type": "ground",
+        "category": "physical",
+        "power": 80,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "No charge/semi-invulnerability rule. Current80ordinary damage is not Gen5Dig; technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "earthquake",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "EARTHQUAKE",
+        "type": "ground",
+        "category": "physical",
+        "power": 100,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 9,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "ordinary-source-path-with-conditional-gap",
+      "reason": "Ordinary100damage path exists; Dig/underground doubledamage missing. No meaningful exactEarthquake ordinarydamage case in accepted950 selected here; current996 Roost suite contains ordinarydamage/type interactions but does not prove underground semantics.",
+      "meaningful_case": null
+    },
+    {
+      "move": "electroBall",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "ELECTRO BALL",
+        "type": "electric",
+        "category": "special",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "powerRule": "electroBall"
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMoveBatchContracts.lua",
+        "file_sha256": "06b1cc26b9190cb991df36d6f888e60ced5c0b97cf1026dc90bf8489dfb52b79",
+        "line": 51,
+        "name": "Actual Electro Ball traverses scalar0 gate and literal seed2 damage63",
+        "sdk_exact_name": "brock-move-batch01: Actual Electro Ball traverses scalar0 gate and literal seed2 damage63",
+        "sdk_pass": true,
+        "body": "test(\"Actual Electro Ball traverses scalar0 gate and literal seed2 damage63\",function()\n        local b=fresh(Pokemon(\"pikachu\",100));b.player.spe,b.enemy.spe=99,100;local hp=b.enemy.hp;RulesRNG.seed(2)\n        use(b,\"electroBall\");eq(hp-b.enemy.hp,63);eq(b.lastDamage,63);eq(b.player.pp.electroBall,9);eq(RulesRNG.snapshot().rolls,3)\n    end)\n    ",
+        "body_sha256": "2877016e179b21d94b4377d43d39a61909ff445fb7f36452beeb0ac111265575"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "endeavor",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "ENDEAVOR",
+        "type": "normal",
+        "category": "physical",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 5,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "damageRule": "endeavor"
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMoveBatchContracts.lua",
+        "file_sha256": "06b1cc26b9190cb991df36d6f888e60ced5c0b97cf1026dc90bf8489dfb52b79",
+        "line": 68,
+        "name": "Endeavor positive HP difference is fixed50 independent of stages/type resistance/crit",
+        "sdk_exact_name": "brock-move-batch01: Endeavor positive HP difference is fixed50 independent of stages/type resistance/crit",
+        "sdk_pass": true,
+        "body": "test(\"Endeavor positive HP difference is fixed50 independent of stages/type resistance/crit\",function()\n        local b=fresh(Pokemon(\"rattata\",100),Pokemon(\"geodude\",100));b.player.hp,b.enemy.hp=30,80\n        b.player.statStages.atk=-6;b.enemy.statStages.def=6;RulesRNG.seed(1)\n        use(b,\"endeavor\");eq(b.enemy.hp,30);eq(b.lastDamage,50);eq(b.player.pp.endeavor,4);eq(RulesRNG.snapshot().rolls,1)\n    end)\n    ",
+        "body_sha256": "458105d934190624fdcf9ac41b877199c2ec81c268ffdfc6e645d0ed8131808a"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "explosion",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "EXPLOSION",
+        "type": "normal",
+        "category": "physical",
+        "power": 250,
+        "accuracy": 100,
+        "pp": 5,
+        "targetId": 9,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "Current250damage without user-faint producer/ordering. Technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "feint",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "FEINT",
+        "type": "normal",
+        "category": "physical",
+        "power": 30,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": true,
+        "protectable": false,
+        "priority": 2
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/protectContracts.lua",
+        "file_sha256": "b3958deb5aa49a334f1d714940c1cdf3a33e7978ebd3161bd9a3620d3254c7ef",
+        "line": 126,
+        "name": "Feint breaks real protection after accuracy, no contact reaction, preserving stall",
+        "sdk_exact_name": "protect: Feint breaks real protection after accuracy, no contact reaction, preserving stall",
+        "sdk_pass": true,
+        "body": "test(\"Feint breaks real protection after accuracy, no contact reaction, preserving stall\",function()\n  local b=fresh(Pokemon(\"pikachu\",100),Pokemon(\"squirtle\",100));own(b.player,{\"feint\"});own(b.enemy,{\"protect\"});RulesRNG.seed(2);local text=attempt(b)\n  assert(text:find(\"protection was broken\",1,true));assert(b.enemy.hp<b.enemy.maxHP);eq(b.player.pp.feint,9);eq(b.enemy.pp.protect,9);eq(b:getConditionsSnapshot().enemy.stall_counter,2);eq(RulesRNG.snapshot().rolls,4)\n  RulesRNG.seed(1);attempt(b);eq(b:getConditionsSnapshot().enemy.stall_counter,4);eq(b.player.pp.feint,8);eq(RulesRNG.snapshot().rolls,5)\n  -- Defending Static would roll (and this seed would proc) on a real contact\n  -- hit. GenV Feint is explicitly non-contact, including its breaking hit.\n  b=fresh(Pokemon(\"snorlax\",100),Pokemon(\"pikachu\",100));own(b.player,{\"feint\"});own(b.enemy,{\"protect\"});RulesRNG.seed(2);attempt(b)\n  eq(b.player.status,nil);eq(RulesRNG.snapshot().rolls,4);eq(b:getConditionsSnapshot().enemy.stall_counter,2)\n end)\n ",
+        "body_sha256": "02b9f9a74405fd5446cb21c2184b5108b534429178ddb423a007dc2b49a1b079"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "focusEnergy",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "FOCUS ENERGY",
+        "type": "normal",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 30,
+        "targetId": 7,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "effects": [
+          "FocusEnergyEffect ( )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+        "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+        "line": 66,
+        "name": "Rattata level7 natural initializer exposes real FocusEnergy producer",
+        "sdk_exact_name": "brock-mechanics: Rattata level7 natural initializer exposes real FocusEnergy producer",
+        "sdk_pass": true,
+        "body": "test(\"Rattata level7 natural initializer exposes real FocusEnergy producer\",function()\n        local p=Pokemon(\"rattata\",7);eq(p.moves[4],\"focusEnergy\");eq(moveData.focusEnergy.pp,30);eq(moveData.focusEnergy.accuracy,0)\n        local b=fresh(p);local before=RulesRNG.snapshot();direct(b,\"focusEnergy\");eq(p.pp.focusEnergy,29);eq(b:getConditionsSnapshot().player.focus_energy,true);eq(b.effects:criticalStage(p,moveData.tackle),2);sameRNG(before)\n    end)\n    ",
+        "body_sha256": "8bd1df4733f27f88e62146f6a9139ecfc525a2233c1fd453f1f1397544b3444e"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "furyCutter",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "FURY CUTTER",
+        "type": "bug",
+        "category": "physical",
+        "power": 20,
+        "accuracy": 95,
+        "pp": 20,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "No consecutive-use power/interruption producer. Current20ordinary damage only; technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "gyroBall",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "GYRO BALL",
+        "type": "steel",
+        "category": "physical",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 5,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "Currentpower0 without powerRule/effects; no speed-ratio damage execution. Technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "heavySlam",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "HEAVY SLAM",
+        "type": "steel",
+        "category": "physical",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "Currentpower0 without powerRule/effects; no weight-ratio damage execution. Technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "hurricane",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "HURRICANE",
+        "type": "flying",
+        "category": "special",
+        "power": 120,
+        "accuracy": 70,
+        "pp": 10,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": true,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "weatherAccuracy": true,
+        "secondaries": [
+          "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"confuse\" ) ) )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/rainContracts.lua",
+        "file_sha256": "f733ce0136d54dbfc45c793bdf6b18e75aeb5270680de687044567919cdc3e29",
+        "line": 87,
+        "name": "Actual rain attacks hit with their real secondary/PP order; no accuracy draw",
+        "sdk_exact_name": "rain: Actual rain attacks hit with their real secondary/PP order; no accuracy draw",
+        "sdk_pass": true,
+        "body": "test(\"Actual rain attacks hit with their real secondary/PP order; no accuracy draw\",function()\n  for _,key in ipairs({\"thunder\",\"hurricane\"})do\n   local b=fresh();own(b.player,{key});b.player.statStages.acc=-6;b.enemy.statStages.eva=6;weather(b,\"raindance\");RulesRNG.seed(2);assert(b:selectMove(1))\n   -- Seed2: AI1, crit2, variance3, chance4=16. Pause at the actual\n   -- secondary narration BEFORE slower Snorlax attempts Harden, proving no\n   -- accuracy draw. The enemy's real status gate then has its own RNG.\n   local message=key==\"hurricane\" and \"SNORLAX became confused!\" or \"SNORLAX is paralyzed!\";local n=0\n   while b:phase()==\"script\"and b.message~=message do n=n+1;assert(n<30,\"missing secondary boundary: \"..tostring(b.message));b.machine:get(\"script\"):advance()end\n   eq(b.message,message);eq(b.enemy.pp.harden,30);eq(RulesRNG.snapshot().rolls,key==\"hurricane\"and 5 or 4);eq(RulesRNG.snapshot().state,key==\"hurricane\"and 140734213 or 1969887316)\n   settle(b);assert(b.enemy.hp<b.enemy.maxHP);eq(b.player.pp[key],9)\n   if key==\"hurricane\"then\n    -- Duration5=1, confusion gate6=2 permits Harden; no self-hit variance.\n    eq(b.enemy.confusion,0);eq(b.enemy.pp.harden,29);eq(b.enemy.statStages.def,1);eq(RulesRNG.snapshot().rolls,6);eq(RulesRNG.snapshot().state,940422544)\n   else\n    -- Paralysis gate5=1 blocks Harden before its PP commit.\n    eq(b.enemy.status,\"paralyze\");eq(b.enemy.pp.harden,30);eq(b.enemy.statStages.def,0);eq(RulesRNG.snapshot().rolls,5);eq(RulesRNG.snapshot().state,140734213)\n   end\n  end\n end)\n ",
+        "body_sha256": "e65419966f35a47187489e7be0018bc97a9d5b1a55747055ed00dd62e8d2bde6"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "lightScreen",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "LIGHT SCREEN",
+        "type": "psychic",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 30,
+        "targetId": 4,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "effects": [
+          "SideConditionEffect ( \"lightScreen\" )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sideContracts.lua",
+          "file_sha256": "f31756b0efc517b9b2baba2e6b30a77c42498d76f97b6f2fa4e0cb6758c9246e",
+          "line": 18,
+          "name": "Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "sdk_exact_name": "sides: Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "sdk_pass": true,
+          "body": "test(\"Actual side producers tick5 5 4 once perround and refuse timer refresh\",function()\n  for _,v in ipairs({{\"lightScreen\",5},{\"safeguard\",5},{\"tailwind\",4}})do\n   local b=fresh();own(b.player,{v[1],\"harden\"});RulesRNG.seed(2);act(b);eq(b.conditions:sideTurns(b.player,v[1]),v[2]-1);eq(b.player.pp[v[1]],moveData[v[1]].pp-1);eq(RulesRNG.snapshot().rolls,1)\n   local text=act(b);assert(text:find(\"But it failed!\",1,true));eq(b.conditions:sideTurns(b.player,v[1]),v[2]-2)\n   for expected=v[2]-3,0,-1 do act(b,2);eq(b.conditions:sideTurns(b.player,v[1]),expected)end\n   eq(b.conditions.sides.player[v[1]],nil)\n  end\n end)\n ",
+          "body_sha256": "644d40e85d93e52bfd6b45c33976dc6c9bc328e161486b4fcff6f60f00e5c520"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sideContracts.lua",
+        "file_sha256": "f31756b0efc517b9b2baba2e6b30a77c42498d76f97b6f2fa4e0cb6758c9246e",
+        "line": 60,
+        "name": "LightScreen exact final modifier halves15 to7; physical fixed crit self bypass",
+        "sdk_exact_name": "sides: LightScreen exact final modifier halves15 to7; physical fixed crit self bypass",
+        "sdk_pass": true,
+        "body": "test(\"LightScreen exact final modifier halves15 to7; physical fixed crit self bypass\",function()\n  local b=fresh(Pokemon(\"squirtle\",50),Pokemon(\"snorlax\",50));side(b,\"lightScreen\",\"enemy\");local before=RulesRNG.snapshot()\n  eq(b.conditions:screenDamage(b.player,b.enemy,moveData.waterGun,15,false),7);eq(b.conditions:screenDamage(b.player,b.enemy,moveData.tackle,18,false),18);eq(b.conditions:screenDamage(b.player,b.enemy,moveData.waterGun,30,true),30);eq(b.conditions:screenDamage(b.enemy,b.enemy,moveData.waterGun,15,false),15);same(before)\n  RulesRNG.seed(2);eq(calcDamage(b.player,b.enemy,moveData.waterGun,40,b.effects).damage,6);eq(RulesRNG.snapshot().rolls,2)\n  RulesRNG.seed(1407677000);local critical=calcDamage(b.player,b.enemy,moveData.waterGun,40,b.effects);eq(critical.isCrit,true);eq(critical.damage,27);eq(RulesRNG.snapshot().rolls,2)\n  eq(b.conditions:screenDamage(b.player,b.enemy,moveData.dragonRage,40,false),40)\n  local hp=b.enemy.hp;b:runScript(function()b:setDirection(\"player\");b.currentMove=moveData.dragonRage;DirectDamage(DEFENDER,40):apply(b)end);settle(b);eq(hp-b.enemy.hp,40)\n end)\n ",
+        "body_sha256": "d99393b18b6934842a9f9d59b4d33fc4c025ccb2d1e50f8594f6c0b3490902c5"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "magnitude",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "MAGNITUDE",
+        "type": "ground",
+        "category": "physical",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 30,
+        "targetId": 9,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "Currentpower0 without powerRule/effects; no distribution/power producer. Technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "nightSlash",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "NIGHT SLASH",
+        "type": "dark",
+        "category": "physical",
+        "power": 70,
+        "accuracy": 100,
+        "pp": 15,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "critStage": 1
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+          "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+          "line": 92,
+          "name": "Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_exact_name": "brock-mechanics: Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_pass": true,
+          "body": "test(\"Each critical stage passes and fails literal roll endpoints through actual damage\",function()\n        local p,e=Pokemon(\"rattata\",100),Pokemon(\"pidgey\",100)\n        for stage,denom in ipairs({16,8,4,3,2})do\n            local move=Move{name=\"CRIT VECTOR\",type=\"normal\",category=\"physical\",power=40,accuracy=100,pp=10,critStage=stage-1}\n            RulesRNG.seed(seed(1,denom,1));eq(calcDamage(p,e,move).isCrit,true,\"stage\"..(stage-1)..\" success\")\n            RulesRNG.seed(seed(1,denom,denom));eq(calcDamage(p,e,move).isCrit,false,\"stage\"..(stage-1)..\" failure\")\n        end\n    end)\n    ",
+          "body_sha256": "3d13ecd2030b2f7767cbedeb1c9e01507dacd99b998b0891da6dd3f4873f1c63"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+        "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+        "line": 81,
+        "name": "All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_exact_name": "brock-mechanics: All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_pass": true,
+        "body": "test(\"All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp\",function()\n        local expected={karateChop=true,razorWind=true,razorLeaf=true,skyAttack=true,crabhammer=true,slash=true,crossChop=true,blazeKick=true,airCutter=true,leafBlade=true,nightSlash=true,shadowClaw=true,psychoCut=true,crossPoison=true,stoneEdge=true,drillRun=true};local count=0\n        for key,m in pairs(moveData)do eq(m.critStage,expected[key] and 1 or 0,key);if m.critStage>0 then count=count+1 end end\n        eq(count,16);eq(moveData.stormThrow.willCrit,true);eq(moveData.stormThrow.critStage,0)\n    end)\n    ",
+        "body_sha256": "056874153d4a598e39f6a1b9e7a2c2b27f96f5163368e8d0e23bdfa32c00f292"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "petalDance",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "PETAL DANCE",
+        "type": "grass",
+        "category": "special",
+        "power": 120,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 8,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "lockRule": "rampage"
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/chargeLockContracts.lua",
+        "file_sha256": "49570923d4c6a8fdc17f85c401b545c88d45ba4e13586dc02a648d2852abed3f",
+        "line": 118,
+        "name": "Petal Dance literal duration2 ends with fatigue3 after121+126 damage",
+        "sdk_exact_name": "charge-lock: Petal Dance literal duration2 ends with fatigue3 after121+126 damage",
+        "sdk_pass": true,
+        "body": "test(\"Petal Dance literal duration2 ends with fatigue3 after121+126 damage\",function()\n        local b=startRampage(2);eq(b.enemy.hp,309);eq(b.player.pp.petalDance,9);eq(RulesRNG.snapshot().rolls,5)\n        auto(b);eq(b.enemy.hp,183);eq(b.player.confusion,3);eq(b.conditions:lockedKey(b.player),nil);eq(b.player.pp.petalDance,9);eq(RulesRNG.snapshot().rolls,10)\n    end)\n    ",
+        "body_sha256": "f05bab2c27726ece434db3da83bb496e286386807e1752b8db648fda6225f859"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "protect",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "PROTECT",
+        "type": "normal",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 10,
+        "targetId": 7,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "priority": 4,
+        "effects": [
+          "ProtectEffect ( )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/protectContracts.lua",
+        "file_sha256": "b3958deb5aa49a334f1d714940c1cdf3a33e7978ebd3161bd9a3620d3254c7ef",
+        "line": 18,
+        "name": "First Protect priority4 blocks actual faster attack before accuracy/critical/contact draws",
+        "sdk_exact_name": "protect: First Protect priority4 blocks actual faster attack before accuracy/critical/contact draws",
+        "sdk_pass": true,
+        "body": "test(\"First Protect priority4 blocks actual faster attack before accuracy/critical/contact draws\",function()\n  local b=fresh(Pokemon(\"pikachu\",100),Pokemon(\"snorlax\",100));b.player.spe=1;RulesRNG.seed(2);local text=attempt(b)\n  eq(b.player.hp,b.player.maxHP);eq(b.player.pp.protect,9);eq(b.enemy.pp.tackle,34);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,1)\n  assert(text:find(\"protected itself\",1,true));eq(b:getConditionsSnapshot().player.protect,false);eq(b:getConditionsSnapshot().player.stall_counter,2);eq(b:getConditionsSnapshot().player.stall_remaining,1)\n end)\n ",
+        "body_sha256": "995439462632ad9eefe3cca141606876c505ff8e5b732d347aad7b70ba2f7ed0"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "ragePowder",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "RAGE POWDER",
+        "type": "bug",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 20,
+        "targetId": 7,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "attemptRule": "singlesRedirect",
+        "priority": 3
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMoveBatchContracts.lua",
+        "file_sha256": "06b1cc26b9190cb991df36d6f888e60ced5c0b97cf1026dc90bf8489dfb52b79",
+        "line": 154,
+        "name": "Rage Powder explicitly fails singles after PP without accuracy or random draws",
+        "sdk_exact_name": "brock-move-batch01: Rage Powder explicitly fails singles after PP without accuracy or random draws",
+        "sdk_pass": true,
+        "body": "test(\"Rage Powder explicitly fails singles after PP without accuracy or random draws\",function()\n        local b=fresh(Pokemon(\"butterfree\",100));local before=RulesRNG.snapshot();local text=use(b,\"ragePowder\")\n        assert(text:find(\"But it failed!\",1,true));eq(b.player.pp.ragePowder,19);eq(b.enemy.hp,b.enemy.maxHP);unchanged(before);eq(b.effects.round,nil)\n    end)\n    ",
+        "body_sha256": "86ca7e02ea2f7f8dcc8bd408d055469e49c685d936307a8bc7704ab0364423e1"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "rainDance",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "RAIN DANCE",
+        "type": "water",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 5,
+        "targetId": 12,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "effects": [
+          "WeatherEffect ( \"raindance\" )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/rainContracts.lua",
+        "file_sha256": "f733ce0136d54dbfc45c793bdf6b18e75aeb5270680de687044567919cdc3e29",
+        "line": 16,
+        "name": "Real RainDance PP4 no accuracy/duration draw and first residual leaves4",
+        "sdk_exact_name": "rain: Real RainDance PP4 no accuracy/duration draw and first residual leaves4",
+        "sdk_pass": true,
+        "body": "test(\"Real RainDance PP4 no accuracy/duration draw and first residual leaves4\",function()\n  local b=fresh();RulesRNG.seed(2);assert(b:selectMove(1));settle(b);eq(b.effects:snapshot().weather,\"raindance\");eq(b.effects:snapshot().turns,4);eq(b.player.pp.rainDance,4);eq(RulesRNG.snapshot().rolls,1);eq(b.player.hp,b.player.maxHP);eq(b.enemy.hp,b.enemy.maxHP)\n end)\n ",
+        "body_sha256": "0468fd201fc2b9ea326d3f0771c8c433b4a71a714391ac21e27b73fd09febb74"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "razorLeaf",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "RAZOR LEAF",
+        "type": "grass",
+        "category": "physical",
+        "power": 55,
+        "accuracy": 95,
+        "pp": 25,
+        "targetId": 11,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "critStage": 1
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+          "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+          "line": 92,
+          "name": "Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_exact_name": "brock-mechanics: Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_pass": true,
+          "body": "test(\"Each critical stage passes and fails literal roll endpoints through actual damage\",function()\n        local p,e=Pokemon(\"rattata\",100),Pokemon(\"pidgey\",100)\n        for stage,denom in ipairs({16,8,4,3,2})do\n            local move=Move{name=\"CRIT VECTOR\",type=\"normal\",category=\"physical\",power=40,accuracy=100,pp=10,critStage=stage-1}\n            RulesRNG.seed(seed(1,denom,1));eq(calcDamage(p,e,move).isCrit,true,\"stage\"..(stage-1)..\" success\")\n            RulesRNG.seed(seed(1,denom,denom));eq(calcDamage(p,e,move).isCrit,false,\"stage\"..(stage-1)..\" failure\")\n        end\n    end)\n    ",
+          "body_sha256": "3d13ecd2030b2f7767cbedeb1c9e01507dacd99b998b0891da6dd3f4873f1c63"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+        "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+        "line": 81,
+        "name": "All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_exact_name": "brock-mechanics: All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_pass": true,
+        "body": "test(\"All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp\",function()\n        local expected={karateChop=true,razorWind=true,razorLeaf=true,skyAttack=true,crabhammer=true,slash=true,crossChop=true,blazeKick=true,airCutter=true,leafBlade=true,nightSlash=true,shadowClaw=true,psychoCut=true,crossPoison=true,stoneEdge=true,drillRun=true};local count=0\n        for key,m in pairs(moveData)do eq(m.critStage,expected[key] and 1 or 0,key);if m.critStage>0 then count=count+1 end end\n        eq(count,16);eq(moveData.stormThrow.willCrit,true);eq(moveData.stormThrow.critStage,0)\n    end)\n    ",
+        "body_sha256": "056874153d4a598e39f6a1b9e7a2c2b27f96f5163368e8d0e23bdfa32c00f292"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "safeguard",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SAFEGUARD",
+        "type": "normal",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 25,
+        "targetId": 4,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "effects": [
+          "SideConditionEffect ( \"safeguard\" )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sideContracts.lua",
+          "file_sha256": "f31756b0efc517b9b2baba2e6b30a77c42498d76f97b6f2fa4e0cb6758c9246e",
+          "line": 18,
+          "name": "Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "sdk_exact_name": "sides: Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "sdk_pass": true,
+          "body": "test(\"Actual side producers tick5 5 4 once perround and refuse timer refresh\",function()\n  for _,v in ipairs({{\"lightScreen\",5},{\"safeguard\",5},{\"tailwind\",4}})do\n   local b=fresh();own(b.player,{v[1],\"harden\"});RulesRNG.seed(2);act(b);eq(b.conditions:sideTurns(b.player,v[1]),v[2]-1);eq(b.player.pp[v[1]],moveData[v[1]].pp-1);eq(RulesRNG.snapshot().rolls,1)\n   local text=act(b);assert(text:find(\"But it failed!\",1,true));eq(b.conditions:sideTurns(b.player,v[1]),v[2]-2)\n   for expected=v[2]-3,0,-1 do act(b,2);eq(b.conditions:sideTurns(b.player,v[1]),expected)end\n   eq(b.conditions.sides.player[v[1]],nil)\n  end\n end)\n ",
+          "body_sha256": "644d40e85d93e52bfd6b45c33976dc6c9bc328e161486b4fcff6f60f00e5c520"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sideContracts.lua",
+        "file_sha256": "f31756b0efc517b9b2baba2e6b30a77c42498d76f97b6f2fa4e0cb6758c9246e",
+        "line": 86,
+        "name": "Safeguard blocks opponent primary majors/confusion before duration but not flinch",
+        "sdk_exact_name": "sides: Safeguard blocks opponent primary majors/confusion before duration but not flinch",
+        "sdk_pass": true,
+        "body": "test(\"Safeguard blocks opponent primary majors/confusion before duration but not flinch\",function()\n  for _,status in ipairs({\"poison\",\"badPoison\",\"burn\",\"paralyze\",\"sleep\",\"freeze\",\"confuse\"})do\n   local b=fresh(nil,Pokemon(\"squirtle\",100));side(b,\"safeguard\",\"enemy\");RulesRNG.seed(2);setStatus(b,DEFENDER,status);eq(b.enemy.status,nil,status);eq(b.enemy.confusion,nil,status);eq(b.enemy.statusTurns,0,status);eq(RulesRNG.snapshot().rolls,0,status)\n  end\n  local b=fresh();side(b,\"safeguard\",\"enemy\");RulesRNG.seed(2);setStatus(b,DEFENDER,\"flinch\");eq(b.enemy.flinched,true);eq(RulesRNG.snapshot().rolls,0)\n end)\n ",
+        "body_sha256": "9d345ec15535a55cef285b2e5c5c478a355679f7970ebe018c9eeb0245d9c973"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "selfDestruct",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SELF DESTRUCT",
+        "type": "normal",
+        "category": "physical",
+        "power": 200,
+        "accuracy": 100,
+        "pp": 5,
+        "targetId": 9,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "Current200damage without user-faint producer/ordering. Technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "shadowClaw",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SHADOW CLAW",
+        "type": "ghost",
+        "category": "physical",
+        "power": 70,
+        "accuracy": 100,
+        "pp": 15,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "critStage": 1
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+          "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+          "line": 92,
+          "name": "Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_exact_name": "brock-mechanics: Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_pass": true,
+          "body": "test(\"Each critical stage passes and fails literal roll endpoints through actual damage\",function()\n        local p,e=Pokemon(\"rattata\",100),Pokemon(\"pidgey\",100)\n        for stage,denom in ipairs({16,8,4,3,2})do\n            local move=Move{name=\"CRIT VECTOR\",type=\"normal\",category=\"physical\",power=40,accuracy=100,pp=10,critStage=stage-1}\n            RulesRNG.seed(seed(1,denom,1));eq(calcDamage(p,e,move).isCrit,true,\"stage\"..(stage-1)..\" success\")\n            RulesRNG.seed(seed(1,denom,denom));eq(calcDamage(p,e,move).isCrit,false,\"stage\"..(stage-1)..\" failure\")\n        end\n    end)\n    ",
+          "body_sha256": "3d13ecd2030b2f7767cbedeb1c9e01507dacd99b998b0891da6dd3f4873f1c63"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+        "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+        "line": 81,
+        "name": "All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_exact_name": "brock-mechanics: All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_pass": true,
+        "body": "test(\"All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp\",function()\n        local expected={karateChop=true,razorWind=true,razorLeaf=true,skyAttack=true,crabhammer=true,slash=true,crossChop=true,blazeKick=true,airCutter=true,leafBlade=true,nightSlash=true,shadowClaw=true,psychoCut=true,crossPoison=true,stoneEdge=true,drillRun=true};local count=0\n        for key,m in pairs(moveData)do eq(m.critStage,expected[key] and 1 or 0,key);if m.critStage>0 then count=count+1 end end\n        eq(count,16);eq(moveData.stormThrow.willCrit,true);eq(moveData.stormThrow.critStage,0)\n    end)\n    ",
+        "body_sha256": "056874153d4a598e39f6a1b9e7a2c2b27f96f5163368e8d0e23bdfa32c00f292"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "skullBash",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SKULL BASH",
+        "type": "normal",
+        "category": "physical",
+        "power": 100,
+        "accuracy": 100,
+        "pp": 15,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "chargeRule": "skullBash"
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/chargeLockContracts.lua",
+        "file_sha256": "49570923d4c6a8fdc17f85c401b545c88d45ba4e13586dc02a648d2852abed3f",
+        "line": 39,
+        "name": "Skull Bash initial Defense+1 protects same turn and is not repeated on release",
+        "sdk_exact_name": "charge-lock: Skull Bash initial Defense+1 protects same turn and is not repeated on release",
+        "sdk_pass": true,
+        "body": "test(\"Skull Bash initial Defense+1 protects same turn and is not repeated on release\",function()\n        local b=fresh(\"skullBash\",Pokemon(\"squirtle\",100),Pokemon(\"rattata\",100));own(b.enemy,{\"tackle\"});b.player.statStages.spe=2;RulesRNG.seed(2)\n        assert(b:selectMove(1));settle(b);eq(b.player.statStages.def,1);eq(b.player.hp,165);eq(b.player.pp.skullBash,14);eq(b.enemy.hp,170)\n        auto(b);eq(b.player.statStages.def,1);eq(b.enemy.hp,59);eq(b.player.hp,126);eq(b.player.pp.skullBash,14);eq(RulesRNG.snapshot().rolls,11)\n    end)\n    ",
+        "body_sha256": "d68e33ce9c91f190903e22cebfa614c4e215361a1723b6c22ccddf7bbd7c86ce"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "slash",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SLASH",
+        "type": "normal",
+        "category": "physical",
+        "power": 70,
+        "accuracy": 100,
+        "pp": 20,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "critStage": 1
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+          "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+          "line": 92,
+          "name": "Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_exact_name": "brock-mechanics: Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_pass": true,
+          "body": "test(\"Each critical stage passes and fails literal roll endpoints through actual damage\",function()\n        local p,e=Pokemon(\"rattata\",100),Pokemon(\"pidgey\",100)\n        for stage,denom in ipairs({16,8,4,3,2})do\n            local move=Move{name=\"CRIT VECTOR\",type=\"normal\",category=\"physical\",power=40,accuracy=100,pp=10,critStage=stage-1}\n            RulesRNG.seed(seed(1,denom,1));eq(calcDamage(p,e,move).isCrit,true,\"stage\"..(stage-1)..\" success\")\n            RulesRNG.seed(seed(1,denom,denom));eq(calcDamage(p,e,move).isCrit,false,\"stage\"..(stage-1)..\" failure\")\n        end\n    end)\n    ",
+          "body_sha256": "3d13ecd2030b2f7767cbedeb1c9e01507dacd99b998b0891da6dd3f4873f1c63"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+        "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+        "line": 81,
+        "name": "All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_exact_name": "brock-mechanics: All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_pass": true,
+        "body": "test(\"All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp\",function()\n        local expected={karateChop=true,razorWind=true,razorLeaf=true,skyAttack=true,crabhammer=true,slash=true,crossChop=true,blazeKick=true,airCutter=true,leafBlade=true,nightSlash=true,shadowClaw=true,psychoCut=true,crossPoison=true,stoneEdge=true,drillRun=true};local count=0\n        for key,m in pairs(moveData)do eq(m.critStage,expected[key] and 1 or 0,key);if m.critStage>0 then count=count+1 end end\n        eq(count,16);eq(moveData.stormThrow.willCrit,true);eq(moveData.stormThrow.critStage,0)\n    end)\n    ",
+        "body_sha256": "056874153d4a598e39f6a1b9e7a2c2b27f96f5163368e8d0e23bdfa32c00f292"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "smackDown",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SMACK DOWN",
+        "type": "rock",
+        "category": "physical",
+        "power": 50,
+        "accuracy": 100,
+        "pp": 15,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "unsupported-specific-rule",
+      "reason": "Current50ordinarydamage without grounding/airborne cancellation owner. Technical/non-natural here.",
+      "meaningful_case": null
+    },
+    {
+      "move": "solarBeam",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SOLAR BEAM",
+        "type": "grass",
+        "category": "special",
+        "power": 120,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "sandWeakened": true,
+        "chargeRule": "solarBeam"
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/chargeLockContracts.lua",
+        "file_sha256": "49570923d4c6a8fdc17f85c401b545c88d45ba4e13586dc02a648d2852abed3f",
+        "line": 34,
+        "name": "Solar Beam charge then ordinary release123 spends once and only release samples damage",
+        "sdk_exact_name": "charge-lock: Solar Beam charge then ordinary release123 spends once and only release samples damage",
+        "sdk_pass": true,
+        "body": "test(\"Solar Beam charge then ordinary release123 spends once and only release samples damage\",function()\n        local b=fresh(\"solarBeam\");RulesRNG.seed(2);assert(b:selectMove(1));settle(b)\n        eq(b:getConditionsSnapshot().player.charge_key,\"solarBeam\");eq(b.enemy.hp,430);eq(b.player.pp.solarBeam,9);eq(RulesRNG.snapshot().rolls,1)\n        auto(b);eq(b:getConditionsSnapshot().player.charge_key,\"\");eq(b.enemy.hp,307);eq(b.player.pp.solarBeam,9);eq(RulesRNG.snapshot().rolls,5)\n    end)\n    ",
+        "body_sha256": "ce95ebb339c746507d9f7b5e543a4da3ad2f10475636f43961df37c7aa14aafe"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "stoneEdge",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "STONE EDGE",
+        "type": "rock",
+        "category": "physical",
+        "power": 100,
+        "accuracy": 80,
+        "pp": 5,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "critStage": 1
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": false,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+          "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+          "line": 92,
+          "name": "Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_exact_name": "brock-mechanics: Each critical stage passes and fails literal roll endpoints through actual damage",
+          "sdk_pass": true,
+          "body": "test(\"Each critical stage passes and fails literal roll endpoints through actual damage\",function()\n        local p,e=Pokemon(\"rattata\",100),Pokemon(\"pidgey\",100)\n        for stage,denom in ipairs({16,8,4,3,2})do\n            local move=Move{name=\"CRIT VECTOR\",type=\"normal\",category=\"physical\",power=40,accuracy=100,pp=10,critStage=stage-1}\n            RulesRNG.seed(seed(1,denom,1));eq(calcDamage(p,e,move).isCrit,true,\"stage\"..(stage-1)..\" success\")\n            RulesRNG.seed(seed(1,denom,denom));eq(calcDamage(p,e,move).isCrit,false,\"stage\"..(stage-1)..\" failure\")\n        end\n    end)\n    ",
+          "body_sha256": "3d13ecd2030b2f7767cbedeb1c9e01507dacd99b998b0891da6dd3f4873f1c63"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMechanicsContracts.lua",
+        "file_sha256": "0a9ddd66ed2d4a60d15dce854954df55a09a28111a56861774eea3d50c5d0ab9",
+        "line": 81,
+        "name": "All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_exact_name": "brock-mechanics: All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "sdk_pass": true,
+        "body": "test(\"All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp\",function()\n        local expected={karateChop=true,razorWind=true,razorLeaf=true,skyAttack=true,crabhammer=true,slash=true,crossChop=true,blazeKick=true,airCutter=true,leafBlade=true,nightSlash=true,shadowClaw=true,psychoCut=true,crossPoison=true,stoneEdge=true,drillRun=true};local count=0\n        for key,m in pairs(moveData)do eq(m.critStage,expected[key] and 1 or 0,key);if m.critStage>0 then count=count+1 end end\n        eq(count,16);eq(moveData.stormThrow.willCrit,true);eq(moveData.stormThrow.critStage,0)\n    end)\n    ",
+        "body_sha256": "056874153d4a598e39f6a1b9e7a2c2b27f96f5163368e8d0e23bdfa32c00f292"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "suckerPunch",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SUCKER PUNCH",
+        "type": "dark",
+        "category": "physical",
+        "power": 80,
+        "accuracy": 100,
+        "pp": 5,
+        "targetId": 10,
+        "contact": true,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "attemptRule": "suckerPunch",
+        "priority": 1
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMoveBatchContracts.lua",
+        "file_sha256": "06b1cc26b9190cb991df36d6f888e60ced5c0b97cf1026dc90bf8489dfb52b79",
+        "line": 96,
+        "name": "Sucker Punch public round hits pending damaging selection even slower",
+        "sdk_exact_name": "brock-move-batch01: Sucker Punch public round hits pending damaging selection even slower",
+        "sdk_pass": true,
+        "body": "test(\"Sucker Punch public round hits pending damaging selection even slower\",function()\n        local b=fresh();own(b.player,{\"suckerPunch\"});own(b.enemy,{\"tackle\"});b.player.spe,b.enemy.spe=10,100;local hp=b.enemy.hp;RulesRNG.seed(2)\n        assert(b:selectMove(1));local text=settle(b);assert(b.enemy.hp<hp);eq(b.player.pp.suckerPunch,4);eq(b.enemy.pp.tackle,34)\n        assert(text:find(\"used SUCKER PUNCH!\",1,true)<text:find(\"used TACKLE!\",1,true));eq(b.effects.round,nil)\n    end)\n    ",
+        "body_sha256": "0cac946782b429f482dfead5480c348cc3f6256c29200b59b24ee9ab737ec518"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "sweetScent",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "SWEET SCENT",
+        "type": "normal",
+        "category": "status",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 20,
+        "targetId": 11,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "effects": [
+          "ModifyStat ( DEFENDER , \"eva\" , -1 )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/brockMoveBatchContracts.lua",
+        "file_sha256": "06b1cc26b9190cb991df36d6f888e60ced5c0b97cf1026dc90bf8489dfb52b79",
+        "line": 150,
+        "name": "Sweet Scent actually lowers one GenV evasion stage, respects cap and PP",
+        "sdk_exact_name": "brock-move-batch01: Sweet Scent actually lowers one GenV evasion stage, respects cap and PP",
+        "sdk_pass": true,
+        "body": "test(\"Sweet Scent actually lowers one GenV evasion stage, respects cap and PP\",function()\n        local b=fresh();RulesRNG.seed(2);use(b,\"sweetScent\");eq(b.enemy.statStages.eva,-1);eq(b.player.pp.sweetScent,19);eq(RulesRNG.snapshot().rolls,1)\n        b.enemy.statStages.eva=-6;RulesRNG.seed(2);use(b,\"sweetScent\");eq(b.enemy.statStages.eva,-6);eq(RulesRNG.snapshot().rolls,1)\n    end)\n    ",
+        "body_sha256": "564d4c6b100b7cb43cebf088f6e8ae32ffa8b22e5ee0eebadd6d3eaf3766575d"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "tailwind",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "TAILWIND",
+        "type": "flying",
+        "category": "status",
+        "power": 0,
+        "accuracy": 0,
+        "pp": 30,
+        "targetId": 4,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": false,
+        "effects": [
+          "SideConditionEffect ( \"tailwind\" )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [
+        {
+          "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sideContracts.lua",
+          "file_sha256": "f31756b0efc517b9b2baba2e6b30a77c42498d76f97b6f2fa4e0cb6758c9246e",
+          "line": 18,
+          "name": "Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "sdk_exact_name": "sides: Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "sdk_pass": true,
+          "body": "test(\"Actual side producers tick5 5 4 once perround and refuse timer refresh\",function()\n  for _,v in ipairs({{\"lightScreen\",5},{\"safeguard\",5},{\"tailwind\",4}})do\n   local b=fresh();own(b.player,{v[1],\"harden\"});RulesRNG.seed(2);act(b);eq(b.conditions:sideTurns(b.player,v[1]),v[2]-1);eq(b.player.pp[v[1]],moveData[v[1]].pp-1);eq(RulesRNG.snapshot().rolls,1)\n   local text=act(b);assert(text:find(\"But it failed!\",1,true));eq(b.conditions:sideTurns(b.player,v[1]),v[2]-2)\n   for expected=v[2]-3,0,-1 do act(b,2);eq(b.conditions:sideTurns(b.player,v[1]),expected)end\n   eq(b.conditions.sides.player[v[1]],nil)\n  end\n end)\n ",
+          "body_sha256": "644d40e85d93e52bfd6b45c33976dc6c9bc328e161486b4fcff6f60f00e5c520"
+        }
+      ],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/sideContracts.lua",
+        "file_sha256": "f31756b0efc517b9b2baba2e6b30a77c42498d76f97b6f2fa4e0cb6758c9246e",
+        "line": 35,
+        "name": "Actual shared effectiveSpeed doubles BEFORE GenVparalysisfloor with minimum1",
+        "sdk_exact_name": "sides: Actual shared effectiveSpeed doubles BEFORE GenVparalysisfloor with minimum1",
+        "sdk_pass": true,
+        "body": "test(\"Actual shared effectiveSpeed doubles BEFORE GenVparalysisfloor with minimum1\",function()\n  local b=fresh();b.player.spe=7;eq(b:effectiveSpeed(b.player),7);b.player.status=\"paralyze\";eq(b:effectiveSpeed(b.player),1);side(b,\"tailwind\");eq(b:effectiveSpeed(b.player),3)\n  b.player.status=nil;eq(b:effectiveSpeed(b.player),14);b.player.spe=1;b.player.status=\"paralyze\";eq(b:effectiveSpeed(b.player),1)\n end)\n ",
+        "body_sha256": "87d8523a1ab202018be68dd6c974ff2c62dc396a1c4c3a2feb9fb5012636edc9"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "thunder",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "THUNDER",
+        "type": "electric",
+        "category": "special",
+        "power": 120,
+        "accuracy": 70,
+        "pp": 10,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": true,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "weatherAccuracy": true,
+        "secondaries": [
+          "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"paralyze\" ) ) )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/rainContracts.lua",
+        "file_sha256": "f733ce0136d54dbfc45c793bdf6b18e75aeb5270680de687044567919cdc3e29",
+        "line": 87,
+        "name": "Actual rain attacks hit with their real secondary/PP order; no accuracy draw",
+        "sdk_exact_name": "rain: Actual rain attacks hit with their real secondary/PP order; no accuracy draw",
+        "sdk_pass": true,
+        "body": "test(\"Actual rain attacks hit with their real secondary/PP order; no accuracy draw\",function()\n  for _,key in ipairs({\"thunder\",\"hurricane\"})do\n   local b=fresh();own(b.player,{key});b.player.statStages.acc=-6;b.enemy.statStages.eva=6;weather(b,\"raindance\");RulesRNG.seed(2);assert(b:selectMove(1))\n   -- Seed2: AI1, crit2, variance3, chance4=16. Pause at the actual\n   -- secondary narration BEFORE slower Snorlax attempts Harden, proving no\n   -- accuracy draw. The enemy's real status gate then has its own RNG.\n   local message=key==\"hurricane\" and \"SNORLAX became confused!\" or \"SNORLAX is paralyzed!\";local n=0\n   while b:phase()==\"script\"and b.message~=message do n=n+1;assert(n<30,\"missing secondary boundary: \"..tostring(b.message));b.machine:get(\"script\"):advance()end\n   eq(b.message,message);eq(b.enemy.pp.harden,30);eq(RulesRNG.snapshot().rolls,key==\"hurricane\"and 5 or 4);eq(RulesRNG.snapshot().state,key==\"hurricane\"and 140734213 or 1969887316)\n   settle(b);assert(b.enemy.hp<b.enemy.maxHP);eq(b.player.pp[key],9)\n   if key==\"hurricane\"then\n    -- Duration5=1, confusion gate6=2 permits Harden; no self-hit variance.\n    eq(b.enemy.confusion,0);eq(b.enemy.pp.harden,29);eq(b.enemy.statStages.def,1);eq(RulesRNG.snapshot().rolls,6);eq(RulesRNG.snapshot().state,940422544)\n   else\n    -- Paralysis gate5=1 blocks Harden before its PP commit.\n    eq(b.enemy.status,\"paralyze\");eq(b.enemy.pp.harden,30);eq(b.enemy.statStages.def,0);eq(RulesRNG.snapshot().rolls,5);eq(RulesRNG.snapshot().state,140734213)\n   end\n  end\n end)\n ",
+        "body_sha256": "e65419966f35a47187489e7be0018bc97a9d5b1a55747055ed00dd62e8d2bde6"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    },
+    {
+      "move": "worrySeed",
+      "old_status": "integrated-with-scoped-SDK-evidence",
+      "current_exact_Move": {
+        "name": "WORRY SEED",
+        "type": "grass",
+        "category": "status",
+        "power": 0,
+        "accuracy": 100,
+        "pp": 10,
+        "targetId": 10,
+        "contact": false,
+        "hasSecondary": false,
+        "ohko": false,
+        "breaksProtect": false,
+        "protectable": true,
+        "attemptRule": "worrySeed",
+        "effects": [
+          "WorrySeedEffect ( )"
+        ]
+      },
+      "current_row_same_as_950": true,
+      "natural_player_key": true,
+      "corrected_status": "implemented-scoped-assertions-accepted-not-exhaustive",
+      "additional_meaningful_cases": [],
+      "meaningful_case": {
+        "file": "/private/tmp/pokemon-brock-integration-03/Source/dev/worrySeedContracts.lua",
+        "file_sha256": "7b23e88377af097073dc8ec2e5b85c0c6e05c1c6458da4135c56a8f7b93de973",
+        "line": 43,
+        "name": "Actual WorrySeed attempt spends1PP/1accuracy and overrides Static without specimen mutation",
+        "sdk_exact_name": "worry-seed: Actual WorrySeed attempt spends1PP/1accuracy and overrides Static without specimen mutation",
+        "sdk_pass": true,
+        "body": "test(\"Actual WorrySeed attempt spends1PP/1accuracy and overrides Static without specimen mutation\",function()\n  local b=fresh();local before=assert(PokemonCodec.encode(b.enemy));local slot=b.enemy.abilitySlot\n  act(b,\"worrySeed\");eq(b.player.pp.worrySeed,9);eq(RulesRNG.snapshot().rolls,1);eq(b.effects:effectiveAbility(b.enemy),15)\n  eq(b.enemy:ability(),9);eq(b.enemy.abilitySlot,slot);same(assert(PokemonCodec.encode(b.enemy)),before)\n  act(b,\"worrySeed\");eq(b.player.pp.worrySeed,8);eq(RulesRNG.snapshot().rolls,0)\n end)\n ",
+        "body_sha256": "9c26bf728fad6bc989743ff494b693ef6891ac304054fedf17435255d66e9a98"
+      },
+      "reason": "Reviewer-selected exact executed test exercises the declared behavior. This is not fullmove/native certification; see literal body and known pending conditional branches. High-critical family proof is metadata/sharedcritical arithmetic, not a dedicated attack by everyfamily member."
+    }
+  ],
+  "counts": {
+    "reviewed": 34,
+    "scoped_implemented": 25,
+    "downgraded": 9
+  },
+  "no_wordmatching_promotion": true,
+  "no_new_runtime_executed": true
+}

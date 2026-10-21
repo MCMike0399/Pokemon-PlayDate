@@ -124,7 +124,8 @@ function ExploreSubstate:handleInput()
                 local session=game.session
                 rootMachine:push("dialog", lines, function()
                     if game.session~=session or rootMachine:current()~=self.owner or not Specimen.isActiveSession(session) or not session:party():firstUsable() then return false,"stale-trainer-creation" end
-                    local enemy = assert(Specimen.createForSession(session,battleData.species,battleData.level,"trainer"))
+                    local enemy = assert(Specimen.createForSession(session,battleData.species,battleData.level,"trainer",
+                        Specimen.blueTrainerPolicy(assert(npc.trainerID,"missing-authored-trainer-identity"))))
                     assert(FieldBattle.start(game, game:getPlayerPokemon(), enemy, npc))
                 end)
             else

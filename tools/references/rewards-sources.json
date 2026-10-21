@@ -1,0 +1,25 @@
+{
+  "revision": "b279bbefa99bb2f6fbabcc95e4b6d3e939290353",
+  "files": {
+    "poke_tool.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_tool.c",
+      "git_blob_sha1": "f8526cdc165e53bdd15dafd942e63d421beb9ad9",
+      "sha256": "8964093175e250425e22e442f3d977ae689fd235e4810fc0d2fffefcb2cbbad7"
+    },
+    "btl_server_flow_sub.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow_sub.c",
+      "git_blob_sha1": "8ec9b5cdbe35faec4d53dbdfa35780246457bc20",
+      "sha256": "224b984bfeb441a1761cb82cf11447b2507beda8a6e5644d1bbbf19cd9f9736a"
+    },
+    "btl_server_flow.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_server_flow.c",
+      "git_blob_sha1": "dd05315e658353278a85c0f82462fff5c866009b",
+      "sha256": "f1498c627ae38274d7ecfd0e1f50585958753e1f876f71a5eac6633972066909"
+    },
+    "btl_pokeparam.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_pokeparam.c",
+      "git_blob_sha1": "3ae5c53f98510d399baadfb8db5d210c88220f74",
+      "sha256": "f32695f748a235d17ad24557d929a74f00068f1aa3913f13974a0a9290dca452"
+    }
+  }
+}

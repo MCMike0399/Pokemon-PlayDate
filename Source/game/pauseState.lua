@@ -24,8 +24,14 @@ function PauseState:enter()
                 self.machine:pop() -- Capture only the settled overworld.
                 local ok, metadata = self.game.saves:save()
                 self.lastSave = {ok = ok, reason = metadata and metadata.reason}
-                self.machine:push("dialog", {ok and "RED saved the game!"
-                    or "Save failed. Your adventure is still in memory."})
+                local lines
+                if ok then
+                    lines={"RED saved the game!"}
+                    if metadata and metadata.archived then lines[#lines+1]="Previous save files were kept as a backup." end
+                else
+                    lines={"Save failed. Your adventure is still in memory.","Restart to review available save recovery."}
+                end
+                self.machine:push("dialog", lines)
             end, function() self:enter() end)
         else
             self.machine:pop()

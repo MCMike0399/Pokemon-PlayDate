@@ -105,7 +105,7 @@ function TrainerEvents:launch(token)
     local party=Party()
     local planned=RulesRNG.new(1);planned:restore(RulesRNG.snapshot())
     for _,mon in ipairs(value.definition.party) do
-        assert(party:add(assert(Specimen.create(mon.species,mon.level,"trainer",planned))))
+        assert(party:add(assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))))
     end
     RulesRNG.restore(planned:snapshot()) -- Entire detached team succeeded.
     value.party,value.phase=party,"battle"

@@ -45,7 +45,7 @@ class RainProducerTests(unittest.TestCase):
 
     def test_original424_hash_and_current_exact_metadata_and_payload_inverse(self):
         text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text)
-        self.assertEqual(epoch,10)
+        self.assertEqual(epoch,12)
         self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
         for key in ('thunder','hurricane'):
             changed=dict(rows);changed[key]=c.drop_fields(rows[key],('weatherAccuracy',))

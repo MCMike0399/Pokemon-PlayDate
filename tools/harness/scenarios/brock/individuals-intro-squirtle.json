@@ -1,0 +1,7 @@
+{
+  "journey": {
+    "name": "intro",
+    "starter": "squirtle",
+    "seed": 42
+  }
+}

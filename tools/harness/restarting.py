@@ -60,7 +60,7 @@ def validate(scenario, qualification=False):
                     raise ProtocolError('new-game journey must be first process')
                 if name=='brock-continue' and (index==0 or groups[index-1].get('journey',{}).get('name') not in {'brock-natural','brock-continue'}):
                     raise ProtocolError('Continue journey requires prior saved journey receipt')
-                for name,low,high in [('seed',-2147483648,2147483647),('max_actions',1,20000),('max_steps',1,5000),('max_encounters',1,64),('training_level',16,20),('max_training_battles',1,256),('max_capture_attempts',1,24),('max_blackouts',0,2)]:
+                for name,low,high in [('seed',-2147483648,2147483647),('max_actions',1,20000),('max_steps',1,5000),('max_encounters',1,64),('training_level',8,20),('max_training_battles',1,256),('max_capture_attempts',1,24),('max_blackouts',0,2)]:
                     if name in journey and (type(journey[name]) is not int or not low<=journey[name]<=high):
                         raise ProtocolError('invalid process journey bound: '+name)
                 if journey.get('starter','squirtle')not in {'squirtle','bulbasaur','charmander'}:raise ProtocolError('Brock journey requires an original Kanto starter')

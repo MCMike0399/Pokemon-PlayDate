@@ -43,7 +43,7 @@ class SideProducerTests(unittest.TestCase):
                 with self.subTest(change=(a,b)),self.assertRaisesRegex(ValueError,'unexpected changes'):generate(text.replace(a,b,1),p)
 
     def test_explicit_current_epoch_keeps_original424_inverse_hash(self):
-        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,10)
+        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,12)
         self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
         for key in KEYS:
             changed=dict(rows);changed[key]=rows[key].replace('SideConditionEffect("'+key+'")','NoEffect()')

@@ -183,7 +183,7 @@ def load_models(build):
 class BrockJourney(ParcelJourney):
     def __init__(self,client,evidence,config,build_evidence=None,capture_dir=None):
         if config.get('starter','squirtle')not in FAMILIES:raise ProtocolError('Brock driver requires an original Kanto starter')
-        for key,low,high in [('training_level',16,20),('max_training_battles',1,256),('max_capture_attempts',1,24),('max_blackouts',0,2)]:
+        for key,low,high in [('training_level',8,20),('max_training_battles',1,256),('max_capture_attempts',1,24),('max_blackouts',0,2)]:
             if key in config and (type(config[key])is not int or not low<=config[key]<=high):raise ProtocolError('invalid bounded Brock option: '+key)
         if config.get('evolution_policy','accept')not in {'accept','cancel'}:raise ProtocolError('invalid evolution policy')
         super().__init__(client,evidence,config)
@@ -191,6 +191,11 @@ class BrockJourney(ParcelJourney):
         self.build_evidence=Path(build_evidence or evidence);self.frames_dir=Path(capture_dir)if capture_dir else self.evidence/"frames";self.doors={};self.source_trainers={};self.learning_slot=None;self.allow_blackout=False;self.observed_moves={}
         self.training_mode=None;self.capture_pending=False;self.switch_back=False;self.switch_reset_attempts=set();self.blackouts=0;self.training_target=None
         self.summary.update(acceptance='pending',battles=[],learning=[],recoveries=[],natural=True,captures=[],party_changes=[],evolutions=[],training=[],blackouts=[])
+        self.summary['preparation_policy']={
+            'training_level':config.get('training_level',16),
+            'purpose':'deliberately trained evolution witness' if config.get('training_level',16)>=16 else 'bounded campaign-path preparation',
+            'normal_pacing_or_balance_certified':False,
+        }
 
     def dependencies(self):
         # Artifact output and immutable compiled Source may be in different
@@ -846,7 +851,7 @@ class BrockJourney(ParcelJourney):
         if not any(row['result'].get('caught')for row in self.summary['captures']):raise ProtocolError('natural acceptance requires actual capture')
         if not any(row.get('reason')=='preparation-switch'and row['kind']=='battle-switch'for row in self.summary['party_changes']):raise ProtocolError('natural acceptance requires actual party change')
         primary=self.party()[self.starter_index()-1]
-        if self.config.get('evolution_policy','accept')=='accept'and (primary['level']<16 or primary['species']==self.starter):raise ProtocolError('prepared starter evolution missing')
+        if self.config.get('training_level',16)>=16 and self.config.get('evolution_policy','accept')=='accept'and (primary['level']<16 or primary['species']==self.starter):raise ProtocolError('prepared starter evolution missing')
         self.save();self.write_receipt();self.summary.update(acceptance='Brock path completed and saved; restart acceptance pending',natural=True,forbidden_shortcuts=False)
 
     def save(self):

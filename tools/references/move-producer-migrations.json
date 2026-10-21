@@ -18,7 +18,7 @@
     "ohko-dispatch": 4,
     "weather-producer": 3
   },
-  "policy": "Only epoch0 may add absent targetId/ability metadata; complete epoch1 may add declared epoch2 critical metadata/Focus producer. Wrong or deleted current-epoch metadata and arbitrary effects reject. Exact declared payload pairs reverse to unchanged historical early-combat hashes. Epoch3 adds only five literal rule fields and the source-pinned GenV SweetScent Eva-1 correction; complete epoch3 inputs may not lose either. Legacy hashes remain unchanged. Epoch4 explicitly adds Bide117 for originalBlue TM34; exact added row is independently source-qualified and removed only from the historical424-row hash projection. Arbitrary extra rows and mutations of the added row reject. Epoch5 adds only Captivate oppositeSex attempt eligibility; its existing SpA-2 effect and every scalar remain unchanged. Per-rule introduction epochs protect complete old versions and reject current deletions. Epoch6 adds only SolarBeam/SkullBash chargeRule and PetalDance lockRule, with all prior scalar/effect bytes retained. Epoch7 introduces only RainDance WeatherEffect and Thunder/Hurricane weatherAccuracy booleans; exact payload inverse and current metadata checks preserve original scalar/effect hashes. Epoch8 adds only WorrySeed attemptRule and exact WorrySeedEffect producer; all existing fields and historical hashes remain protected. Epoch9 adds only two exact source-projected booleans on all425 rows and ProtectEffect. The original immutable ability metadata artifact and historical scalar/effect hashes remain unchanged. AddedBide must validate both exact new flags before projecting its unchanged legacy row. Epoch10 adds only LightScreen/Safeguard/Tailwind typed side-condition payloads; Gen5 PP30/25/30, all425 original scalars/targets/flags/prior fields and original historical hashes retained.",
+  "policy": "Only epoch0 may add absent targetId/ability metadata; complete epoch1 may add declared epoch2 critical metadata/Focus producer. Wrong or deleted current-epoch metadata and arbitrary effects reject. Exact declared payload pairs reverse to unchanged historical early-combat hashes. Epoch3 adds only five literal rule fields and the source-pinned GenV SweetScent Eva-1 correction; complete epoch3 inputs may not lose either. Legacy hashes remain unchanged. Epoch4 explicitly adds Bide117 for originalBlue TM34; exact added row is independently source-qualified and removed only from the historical424-row hash projection. Arbitrary extra rows and mutations of the added row reject. Epoch5 adds only Captivate oppositeSex attempt eligibility; its existing SpA-2 effect and every scalar remain unchanged. Per-rule introduction epochs protect complete old versions and reject current deletions. Epoch6 adds only SolarBeam/SkullBash chargeRule and PetalDance lockRule, with all prior scalar/effect bytes retained. Epoch7 introduces only RainDance WeatherEffect and Thunder/Hurricane weatherAccuracy booleans; exact payload inverse and current metadata checks preserve original scalar/effect hashes. Epoch8 adds only WorrySeed attemptRule and exact WorrySeedEffect producer; all existing fields and historical hashes remain protected. Epoch9 adds only two exact source-projected booleans on all425 rows and ProtectEffect. The original immutable ability metadata artifact and historical scalar/effect hashes remain unchanged. AddedBide must validate both exact new flags before projecting its unchanged legacy row. Epoch10 adds only LightScreen/Safeguard/Tailwind typed side-condition payloads; Gen5 PP30/25/30, all425 original scalars/targets/flags/prior fields and original historical hashes retained. Epoch11 replaces only the exact Roost generic floor-half payload with RoostEffect, owning successful half-up healing and transient effective typing; all425 scalars, PP10, target7, flags, other payloads and original historical hashes stay exact. Epoch12 corrects only PoisonFang from modern50-percent ordinary poison to source-pinned Gen5 30-percent badPoison; all scalar/PP/target/protection fields retained. Exact forward-only declared payload chains permit complete historical input migration; current-epoch rollback/deletion and undeclared intermediate payloads still reject. Original424 inverse and immutable oracles unchanged.",
   "transitions": {
     "acid": [
       {
@@ -1416,6 +1416,24 @@
         },
         "legacy_suffix": ", effects = { When(Chance(50), ApplyStatus(DEFENDER, \"poison\")) } },",
         "version": 1
+      },
+      {
+        "migration": "poison-fang-gen5-v12",
+        "kind": "gen5-toxic-secondary",
+        "version": 12,
+        "before": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 50 ) , ApplyStatus ( DEFENDER , \"poison\" ) ) )"
+          ]
+        },
+        "after": {
+          "effects": [],
+          "secondaries": [
+            "SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , \"badPoison\" ) ) )"
+          ]
+        },
+        "legacy_suffix": ", effects = { When(Chance(50), ApplyStatus(DEFENDER, \"poison\")) } },"
       }
     ],
     "poisonJab": [
@@ -2278,6 +2296,26 @@
           "secondaries": []
         },
         "legacy_suffix": " },"
+      }
+    ],
+    "roost": [
+      {
+        "migration": "roost-v11",
+        "kind": "successful-recovery-typing",
+        "version": 11,
+        "before": {
+          "effects": [
+            "Heal ( ATTACKER , Product ( MaxHPOf ( ATTACKER ) , 0.5 ) )"
+          ],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "RoostEffect ( )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": ", effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },"
       }
     ]
   },

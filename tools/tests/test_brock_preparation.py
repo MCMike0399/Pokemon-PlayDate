@@ -17,7 +17,11 @@ class PreparationTests(unittest.TestCase):
         for starter in FAMILIES:
             self.assertEqual(self.journey(starter=starter).starter,starter)
         for count in [1,254,255,256]:self.journey(max_training_battles=count)
-        for config in [dict(starter='pikachu'),dict(max_training_battles=True),dict(max_training_battles=257),dict(training_level=15),dict(max_blackouts=3),dict(evolution_policy='force')]:
+        for level in [8,12,15,16,20]:
+            journey=self.journey(training_level=level)
+            self.assertFalse(journey.summary['preparation_policy']['normal_pacing_or_balance_certified'])
+            self.assertEqual('evolution witness' in journey.summary['preparation_policy']['purpose'],level>=16)
+        for config in [dict(starter='pikachu'),dict(max_training_battles=True),dict(max_training_battles=257),dict(training_level=7),dict(max_blackouts=3),dict(evolution_policy='force')]:
             with self.subTest(config=config),self.assertRaises(ProtocolError):self.journey(**config)
     def test_fixed_dragon_rage_uses_actual_accuracy_pp_and_dragon_immunity(self):
         fixed=move('dragonRage',power=0,category='special',effective_accuracy=50)

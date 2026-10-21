@@ -1,0 +1,839 @@
+{
+  "schema": 1,
+  "rates": [
+    [
+      50,
+      5,
+      0
+    ],
+    [
+      60,
+      20,
+      0
+    ],
+    [
+      50,
+      5,
+      1
+    ],
+    [
+      60,
+      20,
+      5
+    ]
+  ],
+  "items": [
+    {
+      "ordinary_species": [
+        "clefairy",
+        "clefable"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [
+        "clefairy"
+      ],
+      "gen5Id": 81,
+      "gen5Symbol": "MOON_STONE",
+      "canonicalId": "moonStone",
+      "pokeApiId": 81,
+      "pokeApiIdentifier": "moon-stone",
+      "modern_pkhex_display": "Moon Stone",
+      "existing_blue_definition": true,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "stone",
+      "requiredSemantics": "Existing Moon Stone bag evolution; holding adds no combat boost.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "preserve existing Blue price"
+    },
+    {
+      "ordinary_species": [
+        "paras",
+        "parasect"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [
+        "paras"
+      ],
+      "gen5Id": 86,
+      "gen5Symbol": "TINY_MUSHROOM",
+      "canonicalId": "tinyMushroom",
+      "pokeApiId": 86,
+      "pokeApiIdentifier": "tiny-mushroom",
+      "modern_pkhex_display": "Tiny Mushroom",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "treasure",
+      "requiredSemantics": "No automatic combat effect; ordinary sale requires separately pinned GenV price.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "paras",
+        "parasect"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [
+        "paras"
+      ],
+      "gen5Id": 87,
+      "gen5Symbol": "BIG_MUSHROOM",
+      "canonicalId": "bigMushroom",
+      "pokeApiId": 87,
+      "pokeApiIdentifier": "big-mushroom",
+      "modern_pkhex_display": "Big Mushroom",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "treasure",
+      "requiredSemantics": "No automatic combat effect; ordinary sale requires separately pinned GenV price.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "shellder",
+        "cloyster"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 88,
+      "gen5Symbol": "PEARL",
+      "canonicalId": "pearl",
+      "pokeApiId": 88,
+      "pokeApiIdentifier": "pearl",
+      "modern_pkhex_display": "Pearl",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "treasure",
+      "requiredSemantics": "No automatic combat effect; do not invent collector NPC.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "shellder",
+        "cloyster"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 89,
+      "gen5Symbol": "BIG_PEARL",
+      "canonicalId": "bigPearl",
+      "pokeApiId": 89,
+      "pokeApiIdentifier": "big-pearl",
+      "modern_pkhex_display": "Big Pearl",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "treasure",
+      "requiredSemantics": "No automatic combat effect; do not invent collector NPC.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "staryu",
+        "starmie"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 90,
+      "gen5Symbol": "STARDUST",
+      "canonicalId": "stardust",
+      "pokeApiId": 90,
+      "pokeApiIdentifier": "stardust",
+      "modern_pkhex_display": "Stardust",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "treasure",
+      "requiredSemantics": "No automatic combat effect; sale-price source required.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "staryu",
+        "starmie"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 91,
+      "gen5Symbol": "STAR_PIECE",
+      "canonicalId": "starPiece",
+      "pokeApiId": 91,
+      "pokeApiIdentifier": "star-piece",
+      "modern_pkhex_display": "Star Piece",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "treasure",
+      "requiredSemantics": "No automatic combat effect; sale-price source required.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "vulpix",
+        "ninetales",
+        "growlithe",
+        "arcanine"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 152,
+      "gen5Symbol": "RAWST_BERRY",
+      "canonicalId": "rawstBerry",
+      "pokeApiId": 129,
+      "pokeApiIdentifier": "rawst-berry",
+      "modern_pkhex_display": "Rawst Berry",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "berry",
+      "requiredSemantics": "Held burn cure, consume once; reuse pure status effect planning.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "jynx"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 153,
+      "gen5Symbol": "ASPEAR_BERRY",
+      "canonicalId": "aspearBerry",
+      "pokeApiId": 130,
+      "pokeApiIdentifier": "aspear-berry",
+      "modern_pkhex_display": "Aspear Berry",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "berry",
+      "requiredSemantics": "Held freeze cure, consume once.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "clefairy",
+        "clefable"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [
+        "clefairy"
+      ],
+      "gen5Id": 154,
+      "gen5Symbol": "LEPPA_BERRY",
+      "canonicalId": "leppaBerry",
+      "pokeApiId": 131,
+      "pokeApiIdentifier": "leppa-berry",
+      "modern_pkhex_display": "Leppa Berry",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "berry",
+      "requiredSemantics": "Held PP restoration10, last-used empty slot then correct fallback; consume once.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "mew"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 157,
+      "gen5Symbol": "LUM_BERRY",
+      "canonicalId": "lumBerry",
+      "pokeApiId": 134,
+      "pokeApiIdentifier": "lum-berry",
+      "modern_pkhex_display": "Lum Berry",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "berry",
+      "requiredSemantics": "Held major-status/confusion cure; does not cure infatuation.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "ponyta",
+        "rapidash"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 191,
+      "gen5Symbol": "SHUCA_BERRY",
+      "canonicalId": "shucaBerry",
+      "pokeApiId": 168,
+      "pokeApiIdentifier": "shuca-berry",
+      "modern_pkhex_display": "Shuca Berry",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "resistBerry",
+      "requiredSemantics": "One super-effective Ground hit half damage, consume before damage.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "mankey",
+        "primeape"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 193,
+      "gen5Symbol": "PAYAPA_BERRY",
+      "canonicalId": "payapaBerry",
+      "pokeApiId": 170,
+      "pokeApiIdentifier": "payapa-berry",
+      "modern_pkhex_display": "Payapa Berry",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "resistBerry",
+      "requiredSemantics": "One super-effective Psychic hit half damage, consume before damage.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "sandshrew",
+        "sandslash",
+        "meowth",
+        "persian"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [
+        "sandshrew"
+      ],
+      "gen5Id": 217,
+      "gen5Symbol": "QUICK_CLAW",
+      "canonicalId": "quickClaw",
+      "pokeApiId": 194,
+      "pokeApiIdentifier": "quick-claw",
+      "modern_pkhex_display": "Quick Claw",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "order",
+      "requiredSemantics": "Quick Claw20percent action order within priority; no Speed-stat mutation.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "poliwhirl",
+        "poliwrath",
+        "slowbro"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 221,
+      "gen5Symbol": "KINGS_ROCK",
+      "canonicalId": "kingsRock",
+      "pokeApiId": 198,
+      "pokeApiIdentifier": "kings-rock",
+      "modern_pkhex_display": "King\u2019s Rock",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "flinch",
+      "requiredSemantics": "Kings Rock10percent supplemental flinch; innate-flinch/Stench/nonstack/Shield Dust/Inner Focus order.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "butterfree"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 222,
+      "gen5Symbol": "SILVER_POWDER",
+      "canonicalId": "silverPowder",
+      "pokeApiId": 199,
+      "pokeApiIdentifier": "silver-powder",
+      "modern_pkhex_display": "Silver Powder",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "typeBoost",
+      "requiredSemantics": "Bug power multiplier1.2 at correct GenV power phase.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "koffing",
+        "weezing"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 228,
+      "gen5Symbol": "SMOKE_BALL",
+      "canonicalId": "smokeBall",
+      "pokeApiId": 205,
+      "pokeApiIdentifier": "smoke-ball",
+      "modern_pkhex_display": "Smoke Ball",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "escape",
+      "requiredSemantics": "Smoke Ball sure wild escape/trapping bypass, not free voluntary switching.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "geodude",
+        "graveler",
+        "golem"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [
+        "geodude"
+      ],
+      "gen5Id": 229,
+      "gen5Symbol": "EVERSTONE",
+      "canonicalId": "everstone",
+      "pokeApiId": 206,
+      "pokeApiIdentifier": "everstone",
+      "modern_pkhex_display": "Everstone",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "evolution",
+      "requiredSemantics": "Everstone blocks non-item evolution except Kadabra; preserve actual item on cancelled/blocked evolution.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "chansey"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 231,
+      "gen5Symbol": "LUCKY_EGG",
+      "canonicalId": "luckyEgg",
+      "pokeApiId": 208,
+      "pokeApiIdentifier": "lucky-egg",
+      "modern_pkhex_display": "Lucky Egg",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "xp",
+      "requiredSemantics": "Lucky Egg1.5 recipient XP modifier; source exact GenV rounding before enabling.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "magnemite",
+        "magneton"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 233,
+      "gen5Symbol": "METAL_COAT",
+      "canonicalId": "metalCoat",
+      "pokeApiId": 210,
+      "pokeApiIdentifier": "metal-coat",
+      "modern_pkhex_display": "Metal Coat",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "typeBoost",
+      "requiredSemantics": "Steel power1.2; trade evolution Onix\u2192Steelix excluded by original151 graph.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "snorlax"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 234,
+      "gen5Symbol": "LEFTOVERS",
+      "canonicalId": "leftovers",
+      "pokeApiId": 211,
+      "pokeApiIdentifier": "leftovers",
+      "modern_pkhex_display": "Leftovers",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "residual",
+      "requiredSemantics": "Leftovers maxHP/16 recovery; source residual suborder before Shed Skin.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "horsea",
+        "seadra",
+        "dratini",
+        "dragonair",
+        "dragonite"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 235,
+      "gen5Symbol": "DRAGON_SCALE",
+      "canonicalId": "dragonScale",
+      "pokeApiId": 212,
+      "pokeApiIdentifier": "dragon-scale",
+      "modern_pkhex_display": "Dragon Scale",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "trade",
+      "requiredSemantics": "Dragon Scale has no passive combat boost; Kingdra remains outside roster.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "pikachu"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [
+        "pikachu"
+      ],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 236,
+      "gen5Symbol": "LIGHT_BALL",
+      "canonicalId": "lightBall",
+      "pokeApiId": 213,
+      "pokeApiIdentifier": "light-ball",
+      "modern_pkhex_display": "Light Ball",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "speciesStat",
+      "requiredSemantics": "Pikachu Attack+SpAttack2x; other species no benefit.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "diglett",
+        "dugtrio"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 237,
+      "gen5Symbol": "SOFT_SAND",
+      "canonicalId": "softSand",
+      "pokeApiId": 214,
+      "pokeApiIdentifier": "soft-sand",
+      "modern_pkhex_display": "Soft Sand",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "typeBoost",
+      "requiredSemantics": "Ground power1.2.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "fearow",
+        "doduo",
+        "dodrio"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 244,
+      "gen5Symbol": "SHARP_BEAK",
+      "canonicalId": "sharpBeak",
+      "pokeApiId": 221,
+      "pokeApiIdentifier": "sharp-beak",
+      "modern_pkhex_display": "Sharp Beak",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "typeBoost",
+      "requiredSemantics": "Flying power1.2.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "beedrill",
+        "tentacool",
+        "tentacruel"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 245,
+      "gen5Symbol": "POISON_BARB",
+      "canonicalId": "poisonBarb",
+      "pokeApiId": 222,
+      "pokeApiIdentifier": "poison-barb",
+      "modern_pkhex_display": "Poison Barb",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "typeBoost",
+      "requiredSemantics": "Poison power1.2.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "abra",
+        "kadabra",
+        "alakazam"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 248,
+      "gen5Symbol": "TWISTED_SPOON",
+      "canonicalId": "twistedSpoon",
+      "pokeApiId": 225,
+      "pokeApiIdentifier": "twisted-spoon",
+      "modern_pkhex_display": "Twisted Spoon",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "typeBoost",
+      "requiredSemantics": "Psychic power1.2.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "chansey"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 256,
+      "gen5Symbol": "LUCKY_PUNCH",
+      "canonicalId": "luckyPunch",
+      "pokeApiId": 233,
+      "pokeApiIdentifier": "lucky-punch",
+      "modern_pkhex_display": "Lucky Punch",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "crit",
+      "requiredSemantics": "Chansey crit-stage+2; actual GenV crit stages/Focus Energy producer needed.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "ditto"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 257,
+      "gen5Symbol": "METAL_POWDER",
+      "canonicalId": "metalPowder",
+      "pokeApiId": 234,
+      "pokeApiIdentifier": "metal-powder",
+      "modern_pkhex_display": "Metal Powder",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "speciesStat",
+      "requiredSemantics": "Untransformed Ditto Defense2x; preserve transformation condition.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "cubone",
+        "marowak"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 258,
+      "gen5Symbol": "THICK_CLUB",
+      "canonicalId": "thickClub",
+      "pokeApiId": 235,
+      "pokeApiIdentifier": "thick-club",
+      "modern_pkhex_display": "Thick Club",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "speciesStat",
+      "requiredSemantics": "Cubone/Marowak Attack2x; other species none.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "farfetchd"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 259,
+      "gen5Symbol": "STICK",
+      "canonicalId": "stick",
+      "pokeApiId": 236,
+      "pokeApiIdentifier": "stick",
+      "modern_pkhex_display": "Leek",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "crit",
+      "requiredSemantics": "Farfetchd Stick crit-stage+2; retain GenV Stick canonical name, not modern Leek rename.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [],
+      "third_slot_species": [
+        "muk"
+      ],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 272,
+      "gen5Symbol": "TOXIC_ORB",
+      "canonicalId": "toxicOrb",
+      "pokeApiId": 249,
+      "pokeApiIdentifier": "toxic-orb",
+      "modern_pkhex_display": "Toxic Orb",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": false,
+      "effectFamily": "orb",
+      "requiredSemantics": "Toxic Orb residual bad poison; third-slot-only acquisition disabled on ordinary Blue encounters.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "ditto"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 274,
+      "gen5Symbol": "QUICK_POWDER",
+      "canonicalId": "quickPowder",
+      "pokeApiId": 251,
+      "pokeApiIdentifier": "quick-powder",
+      "modern_pkhex_display": "Quick Powder",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "speciesStat",
+      "requiredSemantics": "Untransformed Ditto Speed2x; does not modify priority.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "slowpoke",
+        "lickitung"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 279,
+      "gen5Symbol": "LAGGING_TAIL",
+      "canonicalId": "laggingTail",
+      "pokeApiId": 256,
+      "pokeApiIdentifier": "lagging-tail",
+      "modern_pkhex_display": "Lagging Tail",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "order",
+      "requiredSemantics": "Lagging Tail last within same priority; no raw Speed-stat reduction.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "grimer",
+        "muk"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 281,
+      "gen5Symbol": "BLACK_SLUDGE",
+      "canonicalId": "blackSludge",
+      "pokeApiId": 258,
+      "pokeApiIdentifier": "black-sludge",
+      "modern_pkhex_display": "Black Sludge",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "residual",
+      "requiredSemantics": "Black Sludge Poison heal1/16, non-Poison damage1/8; Magic Guard damage gate.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [
+        "venomoth"
+      ],
+      "third_slot_species": [],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 295,
+      "gen5Symbol": "SHED_SHELL",
+      "canonicalId": "shedShell",
+      "pokeApiId": 272,
+      "pokeApiIdentifier": "shed-shell",
+      "modern_pkhex_display": "Shed Shell",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": true,
+      "effectFamily": "switch",
+      "requiredSemantics": "Shed Shell permits withdrawal from supported trapping; source exclusions/forced-state policy required.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [],
+      "third_slot_species": [
+        "paras",
+        "parasect"
+      ],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 580,
+      "gen5Symbol": "BALM_MUSHROOM",
+      "canonicalId": "balmMushroom",
+      "pokeApiId": 621,
+      "pokeApiIdentifier": "balm-mushroom",
+      "modern_pkhex_display": "Balm Mushroom",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": false,
+      "effectFamily": "treasure",
+      "requiredSemantics": "Balm Mushroom: no automatic combat effect; third-only acquisition disabled.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    },
+    {
+      "ordinary_species": [],
+      "third_slot_species": [
+        "clefairy",
+        "clefable"
+      ],
+      "current_wild_species": [],
+      "proposed_mtmoon_wild_species": [],
+      "gen5Id": 583,
+      "gen5Symbol": "COMET_SHARD",
+      "canonicalId": "cometShard",
+      "pokeApiId": 624,
+      "pokeApiIdentifier": "comet-shard",
+      "modern_pkhex_display": "Comet Shard",
+      "existing_blue_definition": false,
+      "ordinary_acquirable_if_species_is_wild": false,
+      "effectFamily": "treasure",
+      "requiredSemantics": "Comet Shard: no automatic combat effect; third-only acquisition disabled.",
+      "implementation_state": "proposal; existing49 holding ownership does not imply this automatic effect",
+      "price_state": "unqualified GenV buy/sell price: no guessed cost, no shops/gifts added"
+    }
+  ]
+}

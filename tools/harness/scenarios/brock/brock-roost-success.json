@@ -1,0 +1,219 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 2,
+        "player_pokemon": {
+          "species": "pidgeot",
+          "level": 44,
+          "hp": 1,
+          "nature_id": 0,
+          "ability_slot": "first",
+          "held_item": "none"
+        },
+        "trainer_name": "ROOST TEST",
+        "enemy_party": [
+          {
+            "species": "diglett",
+            "level": 40,
+            "nature_id": 0,
+            "ability_slot": "first",
+            "held_item": "none",
+            "pp": {
+              "earthPower": 0,
+              "dig": 0,
+              "slash": 0,
+              "earthquake": 10
+            }
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "ROOST TEST wants to battle!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "ROOST TEST sent out DIGLETT!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    "seed 23",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "shot roost-success-four-moves",
+    "press down",
+    "press right",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIDGEOT used ROOST!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIDGEOT regained health!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 65
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.roost",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.roost",
+      "equals": true
+    },
+    "shot roost-success-heal",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "DIGLETT used EARTHQUAKE!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIDGEOT took 39 damage!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 26
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.roost",
+      "equals": true
+    },
+    "shot roost-success-ground",
+    "press a",
+    "record roost-success-impact 12",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.conditions.player.roost",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.hp",
+      "equals": 26
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.earthquake",
+      "equals": 9
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 4
+    },
+    "shot roost-success-restored"
+  ],
+  "outputs": [
+    "roost-success-four-moves.png",
+    "roost-success-heal.png",
+    "roost-success-ground.png",
+    "roost-success-restored.png",
+    "roost-success-impact-01.png"
+  ]
+}

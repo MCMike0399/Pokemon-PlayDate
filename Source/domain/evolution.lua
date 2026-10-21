@@ -30,7 +30,7 @@ function Evolution.candidates(session,mon,trigger)
     if not owned(session,mon) then return nil,"not-owned-party-member" end
     local valid,problem=PokemonCodec.encode(mon)
     if not valid then return nil,problem end
-    if mon.maxHP~=calcHP(pokemonData[mon.species].baseHP,mon.level) then return nil,"invalid-derived-stats" end
+    if mon.maxHP~=mon:calculatedStats().maxHP then return nil,"invalid-derived-stats" end
     local rule,reason=ruleFor(mon,trigger)
     if not rule then return nil,reason end
     if trigger.kind=="level" then
@@ -95,7 +95,7 @@ function Evolution._commitPlan(session,request,itemDefinitions)
     local record,why=PokemonCodec.encode(mon)
     if not record then return nil,why end
     local target=pokemonData[r.target]
-    local nextMax=calcHP(target.baseHP,mon.level)
+    local nextMax=IndividualStats.calculate(target,mon.level,mon.natureId,mon.ivs,mon.evs).maxHP
     if mon.hp==0 then record.hp=0
     elseif nextMax>=mon.maxHP then record.hp=mon.hp+nextMax-mon.maxHP
     else record.hp=math.min(mon.hp,nextMax) end

@@ -1,6 +1,11 @@
 -- Read-only, JSON-safe semantic state. Never retain sprites or callbacks.
 HarnessDiagnostics = {}
 
+local function shownVitals(battle,mon)
+    local level,hp,maxHP=battle:presentationVitals(mon)
+    return {level=level,hp=hp,maxHP=maxHP}
+end
+
 local function pokemon(mon)
     if not mon then return { present = false } end
     local pp, maxPP, moves, stages = {}, {}, {}, {}
@@ -15,6 +20,8 @@ local function pokemon(mon)
     return { present = true, species = mon.species, level = mon.level,
         nature_id=mon.natureId, ability_slot=mon.abilitySlot, ability_id=mon:ability(), held_item=mon.heldItem,
         sex=mon:getSex(),sex_provenance=mon:attributes().sexProvenance,
+        individuals=mon:individuals(),canonical_stats=mon:calculatedStats(),
+        actual_stats={maxHP=mon.maxHP,atk=mon.atk,def=mon.def,spa=mon.spa,spd=mon.spd,spe=mon.spe},
         hp = mon.hp, maxHP = mon.maxHP, xp = mon.xp, status = mon.status or "none",
         types={mon.type,mon.type2},
         statusTurns = mon.statusTurns, sleepDuration = mon.sleepDuration or 0, confusion = mon.confusion or 0,
@@ -49,8 +56,15 @@ local function moveInfo(key,index,mon,enemy,effects,battle)
             if fixed then result.fixed_damage=math.max(0,fixed) end
             if result.effective_power>0 and move.category~="status" then result.crit_stage=effects:criticalStage(mon,move) end
         end
-        result.effectiveness=move.typeless and 1 or TypeChart.getMatchup(move.type,enemy.type,enemy.type2)
-        result.stab=not move.typeless and (mon.type==move.type or mon.type2==move.type) and 1.5 or 1
+        local sameType
+        if battle then
+            result.effectiveness=move.typeless and 1 or battle:typeMatchup(move.type,enemy)
+            sameType=battle:hasType(mon,move.type)
+        else
+            result.effectiveness=move.typeless and 1 or TypeChart.getMatchup(move.type,enemy.type,enemy.type2)
+            sameType=mon.type==move.type or mon.type2==move.type
+        end
+        result.stab=not move.typeless and sameType and 1.5 or 1
     end
     return result
 end
@@ -133,7 +147,8 @@ function HarnessDiagnostics.snapshot(game)
             lastTraversalBlock = player.lastTraversalBlock,
             pendingEdgeDoor = player.pendingEdgeDoor ~= nil, tile = tile and tile[player.gridX + 1] } or { present = false },
         pokemon = pokemon(game:getPlayerPokemon()),
-        battle = battle and { phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
+        battle = battle and { presentation={player=shownVitals(battle,battle.player),enemy=shownVitals(battle,battle.enemy),xp_gauge="authoritative-model"},
+            rewards=battle:getRewardSnapshot(), phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             conditions = battle:getConditionsSnapshot(),
             effects = battle.effects:snapshot(),
             effective_abilities = {player=battle.effects:effectiveAbility(battle.player),enemy=battle.effects:effectiveAbility(battle.enemy)},

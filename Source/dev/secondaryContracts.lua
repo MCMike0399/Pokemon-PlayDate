@@ -1,0 +1,67 @@
+SecondaryContracts={}
+local function eq(a,b,s)assert(a==b,(s or "value")..": expected "..tostring(b)..", got "..tostring(a))end
+local function own(p,keys)p.moves,p.pp={},{};for _,k in ipairs(keys)do p.moves[#p.moves+1]=k;p.pp[k]=moveData[k].pp end end
+local function settle(b)local n=0;while b:phase()=="script"and not b.pendingLearning do n=n+1;assert(n<300);b.machine:get("script"):advance()end;assert(not b.pendingLearning,"unexpected learning")end
+local function fresh(p,e)local b=Battle(p or Pokemon("nidoranF",45),e or Pokemon("butterfree",34));settle(b);own(b.player,{"poisonFang"});own(b.enemy,{"ragePowder"});b:setDirection("player");return b end
+local function effect(b,fn)b:runScript(function()b:setDirection("player");fn()end);settle(b)end
+local function same(before)local n=RulesRNG.snapshot();eq(n.state,before.state);eq(n.rolls,before.rolls)end
+function SecondaryContracts.run()
+ local report={ok=true,passed=0,failed=0,tests={}};local saved=RulesRNG.snapshot()
+ local function test(name,fn)local ok,why=pcall(fn);report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why)or nil};if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end end
+ test("Every102typed wrappers classify all99rows with46condition25flinch31stat",function()
+  local count,rows,kinds,selfCount=0,0,{condition=0,flinch=0,stat=0},0
+  for _,m in pairs(moveData)do if m.secondaries then rows=rows+1;for _,e in ipairs(m.secondaries)do count=count+1;assert(kinds[e.kind]);kinds[e.kind]=kinds[e.kind]+1;if e.target==ATTACKER then selfCount=selfCount+1 end end end end
+  eq(rows,99);eq(count,102);eq(kinds.condition,46);eq(kinds.flinch,25);eq(kinds.stat,31);eq(selfCount,6)
+ end)
+ test("Unsupported mixed sequence else and unknown payload reject before RNG mutation",function()
+  local b=fresh();local before=RulesRNG.snapshot()
+  eq(SecondaryEffect(Target("attacker"),ModifyStat(Target("attacker"),"atk",1)).kind,"stat")
+  eq(pcall(SecondaryEffect,DEFENDER,EffectSeq{ModifyStat(DEFENDER,"def",-1),ApplyStatus(DEFENDER,"poison")}),false)
+  eq(pcall(SecondaryEffect,DEFENDER,When(Chance(10),ModifyStat(DEFENDER,"def",-1),ApplyStatus(DEFENDER,"poison"))),false)
+  eq(pcall(SecondaryEffect,ATTACKER,When(Chance(10),ModifyStat(DEFENDER,"def",-1))),false)
+  eq(pcall(SecondaryEffect,ATTACKER,EffectSeq{ModifyStat(ATTACKER,"atk",1),ModifyStat(DEFENDER,"def",-1)}),false)
+  eq(pcall(SecondaryEffect,DEFENDER,EffectSeq{}),false);eq(pcall(SecondaryEffect,DEFENDER,NO_EFFECT),false);same(before);eq(b.enemy.status,nil);eq(b.enemy.statStages.def,0)
+ end)
+ test("Lethal actual PoisonFang samples one conditionchance but never poisons deadrecipient",function()
+  local b=fresh();b.enemy.hp=1;RulesRNG.seed(1);assert(b:selectMove(1));settle(b);eq(b.enemy.hp,0);eq(b.enemy.status,nil);eq(b.enemy.statusTurns,0);eq(b.enemy.sleepDuration,0);eq(b.player.pp.poisonFang,14);eq(RulesRNG.snapshot().rolls,5);eq(RulesRNG.snapshot().state,1144108930)
+ end)
+ test("Native lethal statdrop skipschance and cannot mutate deadtarget stages",function()
+  local b=fresh();own(b.player,{"crunch"});b.enemy.hp=1;RulesRNG.seed(1);assert(b:selectMove(1));settle(b);eq(b.enemy.hp,0);eq(b.enemy.statStages.def,0);eq(RulesRNG.snapshot().rolls,4);eq(RulesRNG.snapshot().state,984943658)
+ end)
+ test("Lethal actual flinch sampleschance and cannot set deadrecipient flag",function()
+  local b=fresh();own(b.player,{"bite"});b.enemy.hp=1;RulesRNG.seed(1);assert(b:selectMove(1));settle(b);eq(b.enemy.hp,0);eq(b.enemy.flinched,false);eq(RulesRNG.snapshot().rolls,5)
+ end)
+ test("Actual living attacker selfstat after defenderKO still samples and boosts",function()
+  local b=fresh();own(b.player,{"metalClaw"});b.enemy.hp=1;RulesRNG.seed(13);assert(b:selectMove(1));settle(b);eq(b.enemy.hp,0);eq(b.player.statStages.atk,1);eq(RulesRNG.snapshot().rolls,5);eq(RulesRNG.snapshot().state,1988514208)
+ end)
+ test("Dead selfstat recipient skipschance and direct ModifyStat cannot mutate it",function()
+  local b=fresh();b.player.hp=0;RulesRNG.seed(1);local before=RulesRNG.snapshot();effect(b,function()moveData.metalClaw.secondaries[1]:apply(b);ModifyStat(ATTACKER,"atk",1):apply(b)end);eq(b.player.statStages.atk,0);same(before)
+ end)
+ test("Live self fiveStat sequence bypasses own ShieldDust and samples once",function()
+  local b=fresh(Pokemon("caterpie",100));b.enemy.hp=0;RulesRNG.seed(1);effect(b,function()moveData.ancientPower.secondaries[1]:apply(b)end)
+  for _,k in ipairs({"atk","def","spa","spd","spe"})do eq(b.player.statStages[k],1)end;eq(RulesRNG.snapshot().rolls,1)
+ end)
+ test("Dead self fiveStat sequence has no draw and no childmutation",function()
+  local b=fresh();b.player.hp=0;RulesRNG.seed(1);effect(b,function()moveData.silverWind.secondaries[1]:apply(b)end);for _,k in ipairs({"atk","def","spa","spd","spe"})do eq(b.player.statStages[k],0)end;eq(RulesRNG.snapshot().rolls,0)
+ end)
+ test("Dead TriAttack retains successfulchance then statuschoice without deadmutation",function()
+  local b=fresh();own(b.player,{"triAttack"});b.enemy.hp=1;RulesRNG.seed(13);assert(b:selectMove(1));settle(b);eq(b.enemy.hp,0);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,6);eq(RulesRNG.snapshot().state,1817779242)
+ end)
+ test("ShieldDust rejects condition and TriAttack bothrolls evenonKO",function()
+  local b=fresh(nil,Pokemon("caterpie",100));b.enemy.hp=0;RulesRNG.seed(1);effect(b,function()moveData.poisonFang.secondaries[1]:apply(b);moveData.triAttack.secondaries[1]:apply(b)end);eq(b.enemy.status,nil);eq(RulesRNG.snapshot().rolls,0)
+ end)
+ test("Live TriAttack retains chosen chance then randomstatus protocol including existingstatus",function()
+  local b=fresh(nil,Pokemon("squirtle",100));RulesRNG.seed(1);effect(b,function()moveData.triAttack.secondaries[1]:apply(b)end);eq(b.enemy.status,"burn");eq(RulesRNG.snapshot().rolls,2)
+  b=fresh(nil,Pokemon("squirtle",100));b.enemy.status="poison";RulesRNG.seed(1);effect(b,function()moveData.triAttack.secondaries[1]:apply(b)end);eq(b.enemy.status,"poison");eq(RulesRNG.snapshot().rolls,2)
+ end)
+ test("Two independent Fang wrappers rolltwice afterKO but set no status orflinch",function()
+  local b=fresh();b.enemy.hp=0;RulesRNG.seed(1);effect(b,function()for _,e in ipairs(moveData.iceFang.secondaries)do e:apply(b)end end);eq(b.enemy.status,nil);eq(b.enemy.flinched,false);eq(RulesRNG.snapshot().rolls,2)
+ end)
+ test("Owner explicitkind validation preserves direct twoarg alive compatibility",function()
+  local b=fresh();b.enemy.hp=0;local before=RulesRNG.snapshot();eq(b.effects:allowsSecondary(b.player,b.enemy),false);eq(b.effects:allowsSecondary(b.player,b.enemy,"condition"),true);eq(b.effects:allowsSecondary(b.player,b.enemy,"flinch"),true);eq(b.effects:allowsSecondary(b.player,b.enemy,"stat"),false);eq(pcall(b.effects.allowsSecondary,b.effects,b.player,b.enemy,"guess"),false);same(before)
+ end)
+ test("Primary living ModifyStat unchanged and primary deadrecipient safely ignored",function()
+  local b=fresh();effect(b,function()ModifyStat(ATTACKER,"atk",1):apply(b)end);eq(b.player.statStages.atk,1);b.enemy.hp=0;local before=RulesRNG.snapshot();effect(b,function()ModifyStat(DEFENDER,"def",-1):apply(b)end);eq(b.enemy.statStages.def,0);same(before)
+ end)
+ RulesRNG.restore(saved);return report
+end

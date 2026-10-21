@@ -1,0 +1,7 @@
+{
+  "journey": {
+    "name": "intro",
+    "starter": "charmander",
+    "seed": 42
+  }
+}

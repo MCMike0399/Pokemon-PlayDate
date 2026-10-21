@@ -227,3 +227,30 @@ as Squirtle; a Squirtle-only route which cancels evolution is insufficient.
 Continue directly through MtMoon/Cerulean and all later campaign/postgame work
 after this gate. Brock is not the full objective. Verify runtime ownership from
 actual process/runner state; ledger PID/running statements are historical hints.
+
+## Scheduling refinement2026-10-21
+
+Track campaign-path acceptance, regional content/fidelity acceptance, and full
+mechanics/release completeness separately. All intended content and all-level
+learnsets remain mandatory; an obscure grind-tail rule does not automatically
+block the next connected campaign slice. Crashes, save failures, softlocks,
+ordinary progression and common behavior take priority. Whirlwind at17 is a
+nearby exposure to schedule explicitly. No level caps, content removal or weaker
+tests may substitute for completing deferred requirements.
+
+Close the current correctness batch (residual reward boundaries, already-staged
+dependencies, safe corrupt-save New Game recovery), then freeze Source for the
+three-starter Brock campaign journeys. Keep unrelated candidates private during
+acceptance. Accepted evolution may use deliberate training; identify that witness
+separately from ordinary campaign pacing and balance. After campaign-path
+acceptance, proceed directly to MtMoon/Cerulean while closing assigned regional
+and mechanics work. A Brock win certifies neither every early NPC interaction
+nor global battle completeness.
+
+Maintain one current coverage matrix sourced from the pinned Kanto inventory,
+with owners, dependencies, implementation/acceptance statuses, evidence and due
+milestones. Correct stale static mechanics classifications using reviewed
+production handlers and meaningful independent contracts. Measure production
+separately from harness: startup, map entry, battles and repeated transitions;
+remove measured development overhead and bound resource growth without changing
+pixels/behavior. Distinguish Lua/native allocation and Simulator/device evidence.

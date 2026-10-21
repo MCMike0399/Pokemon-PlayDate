@@ -1,6 +1,6 @@
 -- Gen V ability hooks owned by one actual Battle. No persistent volatile state.
 Class("BattleEffects")
-local function has(mon,t) return mon.type==t or mon.type2==t end
+local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function nativeAbility(mon) return mon and mon.ability and mon:ability() or 0 end
 local function alive(mon) return mon and mon:isAlive() end
 local function round(value,ratio) return (value*ratio+2047)//4096 end -- half down
@@ -206,18 +206,23 @@ function BattleEffects:attackStat(attacker,move,value)
     return value
 end
 function BattleEffects:defenseStat(defender,move,value)
-    if self:weatherId()=="sandstorm" and move.category=="special" and has(defender,"rock") then return round(value,6144) end
+    if self:weatherId()=="sandstorm" and move.category=="special" and has(self,defender,"rock") then return round(value,6144) end
     return value
 end
 function BattleEffects:ignoresBurn(mon) return self:effectiveAbility(mon)==62 end
 function BattleEffects:canDropStat(source,target,stat,delta)
     return not (source~=target and stat=="acc" and delta<0 and self:effectiveAbility(target)==51)
 end
-function BattleEffects:allowsSecondary(source,target)
-    return alive(target) and (source==target or self:effectiveAbility(target)~=19)
+function BattleEffects:allowsSecondary(source,target,kind)
+    assert(kind==nil or kind=="condition" or kind=="flinch" or kind=="stat","unsupported-secondary-kind")
+    if source~=target and self:effectiveAbility(target)==19 then return false end
+    -- Native condition/flinch chance precedes the dead-recipient payload gate;
+    -- native stat chance follows its live-recipient gate. No entropy-equivalence
+    -- claim with PS's generic lethal-stat draw; nil preserves old2arg behavior.
+    return kind=="condition" or kind=="flinch" or alive(target)
 end
 function BattleEffects:recoilBlocked(mon,move) return self:effectiveAbility(mon)==69 and not move.struggleRecoil end
-function BattleEffects:grounded(mon) return not has(mon,"flying") end
+function BattleEffects:grounded(mon) return not has(self,mon,"flying") end
 function BattleEffects:withdrawBlocked(mon)
     local other=mon==self.battle.player and self.battle.enemy or self.battle.player
     return alive(other) and self:effectiveAbility(other)==71 and self:grounded(mon)
@@ -249,7 +254,7 @@ function BattleEffects:afterHit(receipt)
     if (id==9 or id==38) and receipt.contact and receipt.before>0 and RulesRNG.random(0,99)<30 then
         -- Preserve native/Static chance-before-eligibility order, including KO.
         local status=id==9 and "paralyze" or "poison"
-        local eligible=status~="poison" or (not has(source,"poison") and not has(source,"steel")
+        local eligible=status~="poison" or (not has(self,source,"poison") and not has(self,source,"steel")
             and not self:statusImmunity(source,status))
         if alive(source) and not source.status and eligible then
             b:say(target.name .. (id==9 and "'s Static!" or "'s Poison Point!"))
@@ -263,7 +268,7 @@ function BattleEffects:announceEndure(receipt)
 end
 function BattleEffects:ohko(attacker,defender,move)
     if attacker.level<defender.level then return false,"level" end
-    if TypeChart.getMatchup(move.type,defender.type,defender.type2)==0 then return false,"immune" end
+    if self.battle:typeMatchup(move.type,defender)==0 then return false,"immune" end
     if self:effectiveAbility(defender)==5 then return false,"sturdy" end
     return RulesRNG.random(0,99)<move.accuracy+attacker.level-defender.level,"accuracy"
 end
@@ -309,7 +314,7 @@ function BattleEffects:residual(event)
             elseif self:weatherId()=="raindance" then b:say("Rain continues to fall.") end
         end
     elseif event.kind=="sand" and self:weatherId()=="sandstorm" and self:active(mon) and alive(mon) then
-        if not has(mon,"rock") and not has(mon,"ground") and not has(mon,"steel") and self:effectiveAbility(mon)~=8 then
+        if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 then
             self:damage(mon,math.max(1,mon.maxHP//16),"weather");b:say(mon.name .. " is buffeted by the sandstorm!")
         end
     elseif event.kind=="shedSkin" and self:active(mon) and alive(mon) and mon.status and self:effectiveAbility(mon)==61 then

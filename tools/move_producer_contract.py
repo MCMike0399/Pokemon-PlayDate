@@ -7,7 +7,7 @@ import hashlib,json,re
 from pathlib import Path
 from tools.verify_moves.parse_lua import Reader,TOKEN
 ROOT=Path(__file__).resolve().parents[1]
-CONTRACT_SHA256='4011094c5a3c8ae33feee6799daf223e4f4f361b3108d3a82966c4fc88da0231'
+CONTRACT_SHA256='886897fb9411a8cb1d0c65b25c95acf398be3f06acbd3939da833513a31d3d71'
 META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
 PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
@@ -138,7 +138,7 @@ def producer_epoch(text):
     marker=re.search(r'^-- move-producer-contract: (\d+)$',text,re.M)
     if marker:
         version=int(marker[1])
-        if version not in (1,2,3,4,5,6,7,8,9,10):raise ValueError('unsupported move producer epoch')
+        if version not in (1,2,3,4,5,6,7,8,9,10,11,12):raise ValueError('unsupported move producer epoch')
         return version
     if re.search(r'self\.protectable\s*=',text) or any(any(field in fields(row)for field in PROTECTION_FIELDS)for row in read_rows(text).values()):return 9
     if re.search(r'self\.(?:powerRule|damageRule|attemptRule)\s*=',text):return 3
@@ -171,7 +171,14 @@ def compatible(key,old,new,semantics,contract=None,epoch=0):
     if not same({k:v for k,v in left.items()if k not in PAYLOAD},{k:v for k,v in after.items()if k not in PAYLOAD}):return False
     if payload(left)==payload(after):return True
     transitions=(contract or load_contract())['transitions'].get(key,[])
-    return any(entry['version']>epoch and payload(left)==entry['before']and payload(after)==entry['after']for entry in transitions)
+    # Exact forward-only declared edges; never normalize arbitrary payloads.
+    # PoisonFang needs v0 legacy -> v1 typed -> v12 Gen5 correction in one run.
+    reachable=[(epoch,payload(left))]
+    for entry in sorted(transitions,key=lambda entry:entry['version']):
+        if any(version<entry['version'] and value==entry['before']for version,value in reachable):
+            if entry['after']==payload(after):return True
+            reachable.append((entry['version'],entry['after']))
+    return False
 
 def legacy_rows(rows,epoch=None):
     """Reverse exact declared v1 payloads, then retain ORIGINAL legacy hashes."""
@@ -192,6 +199,10 @@ def legacy_rows(rows,epoch=None):
         lowered=drop_fields(row,PRODUCER_FIELDS)
         entries=[entry for entry in contract['transitions'].get(key,[])if entry['version']<=version]
         if entries:
+            # A current file must retain this key's latest declared semantics.
+            # Accepting any historical 'after' would hide a v12->v1 rollback.
+            latest=max(entry['version']for entry in entries)
+            entries=[entry for entry in entries if entry['version']==latest]
             matches=[entry for entry in entries if payload(value)==entry['after']]
             if len(matches)!=1:raise ValueError('an unowned move effect changed: declared migration '+key)
             prefix,_=split_payload(lowered);lowered=prefix+matches[0]['legacy_suffix']

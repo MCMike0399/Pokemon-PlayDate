@@ -20,13 +20,18 @@ local function actors(fn)
     game.npcManager:clear();game.player:remove();game.player.grassOverlay:remove();game.player.exitArrow:remove();currentZone=previous
     if not ok then error(why,0) end
 end
+local function sameTrainerIndividuals(team)
+    for _,mon in ipairs(team:members())do
+        for key,value in pairs(IndividualStats.blueTrainer())do eq(mon.ivs[key],value);eq(mon.evs[key],0)end
+    end
+end
 function SpecimenTrainerContracts.run()
     local report={ok=true,passed=0,failed=0,tests={}};local rng=RulesRNG.snapshot()
     local function test(name,fn) local ok,why=pcall(fn);report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why) or nil};if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end end
     test("Actual source trainer creates both members through versioned normal factory",function()
         actors(function(game,owner,token,id)
             RulesRNG.seed(42);local player,bag=game.session:party(),game.session:inventory();local team=assert(owner:launch(token))
-            eq(team:count(),2);eq(team:get(1).species,"weedle");eq(team:get(2).species,"caterpie")
+            sameTrainerIndividuals(team);eq(team:count(),2);eq(team:get(1).species,"weedle");eq(team:get(2).species,"caterpie")
             eq(team:get(1).abilitySlot,"second");eq(team:get(1).natureId,22);eq(team:get(2).abilitySlot,"first");eq(team:get(2).natureId,0)
             eq(RulesRNG.snapshot().rolls,6);eq(owner:snapshot().phase,"battle");eq(game.session:party(),player);eq(game.session:inventory(),bag)
             eq(game.session:trainerDefeated(id),false);assert(owner:abortBattle(token))

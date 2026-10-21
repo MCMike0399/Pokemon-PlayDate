@@ -1,0 +1,25 @@
+{
+  "revision": "d2fea14b563f4b16fef7788b9699b20d5b3f410f",
+  "files": {
+    "personal_b2w2": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Resources/byte/personal/personal_b2w2",
+      "sha256": "6df24e7f00dab32322d9d8f8b3209d30de1c89b0de88277081fe53434211830f"
+    },
+    "PersonalInfo5B2W2.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/PersonalInfo/Info/PersonalInfo5B2W2.cs",
+      "sha256": "1387c7258b6b71d65e537fe49b52ef1543e02932889f6946f6aa0bb7b1155daf"
+    },
+    "poke_tool.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_tool.c",
+      "sha256": "8964093175e250425e22e442f3d977ae689fd235e4810fc0d2fffefcb2cbbad7"
+    },
+    "blue-core.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/engine/battle/core.asm",
+      "sha256": "36d8ff785fe642d61f6917156e70b78c36fd7cde6c0b8fb582e02f6552e786d0"
+    },
+    "blue-battle-constants.asm": {
+      "url": "https://raw.githubusercontent.com/pret/pokered/af519899719f0754965776faac0e836a3b906e6d/constants/battle_constants.asm",
+      "sha256": "db511a861aa64c631e43810315c2ce684cc107dfc94a958d1a34d51e99eafeeb"
+    }
+  }
+}

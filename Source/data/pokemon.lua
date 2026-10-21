@@ -3694,9 +3694,11 @@ function Pokemon:init(species, level, attributes)
     local attributes = Specimen.attributes(attributes,species)
     local data = assert(pokemonData[species], "unknown-species")
     Specimen.ability(species,attributes.abilitySlot)
-    local maxHP = calcHP(data.baseHP, level)
+    local stats = IndividualStats.calculate(data,level,attributes.natureId,attributes.ivs,attributes.evs)
+    local maxHP = stats.maxHP
     self.natureId, self.abilitySlot, self.heldItem = attributes.natureId, attributes.abilitySlot, attributes.heldItem
     self.sex, self.sexProvenance = attributes.sex, attributes.sexProvenance
+    self.ivs, self.evs = attributes.ivs, attributes.evs
     self.species = species
     self.name = assert(PokemonNames[species], "missing canonical species name")
     self.dex = data.dex
@@ -3705,11 +3707,11 @@ function Pokemon:init(species, level, attributes)
     self.level = level
     self.hp = maxHP
     self.maxHP = maxHP
-    self.atk = Specimen.stat(calcStat(data.baseAtk, level), self.natureId, "atk")
-    self.def = Specimen.stat(calcStat(data.baseDef, level), self.natureId, "def")
-    self.spa = Specimen.stat(calcStat(data.baseSpA, level), self.natureId, "spa")
-    self.spd = Specimen.stat(calcStat(data.baseSpD, level), self.natureId, "spd")
-    self.spe = Specimen.stat(calcStat(data.baseSpe, level), self.natureId, "spe")
+    self.atk = stats.atk
+    self.def = stats.def
+    self.spa = stats.spa
+    self.spd = stats.spd
+    self.spe = stats.spe
     self.statStages = { atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 }
     self.status = nil       -- major: burn/poison/paralyze/sleep/freeze
     self.statusTurns = 0    -- remaining blocked sleep attempts
@@ -3731,7 +3733,7 @@ end
 
 function Pokemon:attributes()
     return Specimen.attributes({natureId=self.natureId,abilitySlot=self.abilitySlot,heldItem=self.heldItem,
-        sex=self.sex,sexProvenance=self.sexProvenance},self.species)
+        sex=self.sex,sexProvenance=self.sexProvenance,ivs=self.ivs,evs=self.evs},self.species)
 end
 function Pokemon:getSex()
     return self:attributes().sex
@@ -3855,17 +3857,18 @@ function Pokemon:gainXP(amount)
     return self.level > oldLevel, result
 end
 
+function Pokemon:individuals()
+    local iv,ev=IndividualStats.normalize(self.ivs,self.evs)
+    return {version=1,ivs=iv,evs=ev}
+end
+function Pokemon:calculatedStats()
+    return IndividualStats.calculate(pokemonData[self.species],self.level,self.natureId,self.ivs,self.evs)
+end
 function Pokemon:recalcStats()
-    local data = pokemonData[self.species]
-    local oldMaxHP = self.maxHP
-    self.maxHP = calcHP(data.baseHP, self.level)
-    -- Heal the difference so HP grows on level up
-    self.hp = math.min(self.maxHP, self.hp + (self.maxHP - oldMaxHP))
-    self.atk = Specimen.stat(calcStat(data.baseAtk, self.level), self.natureId, "atk")
-    self.def = Specimen.stat(calcStat(data.baseDef, self.level), self.natureId, "def")
-    self.spa = Specimen.stat(calcStat(data.baseSpA, self.level), self.natureId, "spa")
-    self.spd = Specimen.stat(calcStat(data.baseSpD, self.level), self.natureId, "spd")
-    self.spe = Specimen.stat(calcStat(data.baseSpe, self.level), self.natureId, "spe")
+    local stats=self:calculatedStats()
+    local hp=IndividualStats.hpAfterRecalc(self.hp,self.maxHP,stats.maxHP)
+    self.maxHP,self.hp=stats.maxHP,hp
+    self.atk,self.def,self.spa,self.spd,self.spe=stats.atk,stats.def,stats.spa,stats.spd,stats.spe
 end
 
 -- Species-aware thresholds, including level 1 = 0 and level 100 maximum.

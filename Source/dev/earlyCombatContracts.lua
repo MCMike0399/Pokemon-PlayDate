@@ -171,7 +171,7 @@ function EarlyCombatContracts.run()
     end)
     test("Bad poison codec/JSON roundtrip and Antidote/Full Heal clear status/counters without changing schema",function()
         local mon=Pokemon("charmander",12);mon.status="badPoison"
-        local data=assert(PokemonCodec.encode(mon));eq(data.version,6)
+        local data=assert(PokemonCodec.encode(mon));eq(data.version,7)
         local copy=assert(PokemonCodec.decode(json.decode(json.encode(data))));eq(copy.status,"badPoison");eq(copy.statusTurns,0);eq(copy.sleepDuration,0)
         for _,id in ipairs({"antidote","fullHeal"}) do
             copy.status="badPoison";local bag=Inventory(ItemData.definitions);assert(bag:add(id,1));assert(Items.use(bag,id,copy));eq(copy.status,nil);eq(copy.statusTurns,0);eq(copy.sleepDuration,0);eq(bag:quantity(id),0)

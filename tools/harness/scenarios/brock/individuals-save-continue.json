@@ -1,0 +1,310 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "seed": 42,
+              "intro": "skip",
+              "zone": "reds_house_2f",
+              "entry": {
+                "x": 5,
+                "y": 3,
+                "facing": "up"
+              }
+            }
+          }
+        ],
+        [
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.hp",
+            "equals": 22
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.atk",
+            "equals": 9
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.def",
+            "equals": 24
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.spa",
+            "equals": 16
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.spd",
+            "equals": 7
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.spe",
+            "equals": 25
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.hp",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.atk",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.def",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.spa",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.spd",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.spe",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "rng.state",
+            "equals": 1139130650
+          },
+          {
+            "op": "assert",
+            "path": "rng.rolls",
+            "equals": 9
+          }
+        ],
+        [
+          "press left",
+          "wait 12",
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 4
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          "shot before-save"
+        ],
+        [
+          "press b",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "pause",
+            "frames": 180
+          }
+        ],
+        [
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          "wait 2",
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "dialog",
+            "frames": 180
+          }
+        ],
+        [
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "shot save-confirmation",
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 180
+          }
+        ],
+        [
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "reds_house_2f"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 4
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.species",
+            "equals": "squirtle"
+          },
+          "shot saved-exploration"
+        ]
+      ],
+      "outputs": [
+        "before-save.png",
+        "save-confirmation.png",
+        "saved-exploration.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "title",
+            "frames": 180
+          },
+          "shot fresh-process-continue-menu"
+        ],
+        [
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 180
+          }
+        ],
+        [
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.hp",
+            "equals": 22
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.atk",
+            "equals": 9
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.def",
+            "equals": 24
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.spa",
+            "equals": 16
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.spd",
+            "equals": 7
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.ivs.spe",
+            "equals": 25
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.hp",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.atk",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.def",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.spa",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.spd",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.individuals.evs.spe",
+            "equals": 0
+          },
+          {
+            "op": "assert",
+            "path": "rng.state",
+            "equals": 1139130650
+          },
+          {
+            "op": "assert",
+            "path": "rng.rolls",
+            "equals": 9
+          },
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "reds_house_2f"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 4
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "story.stage",
+            "equals": "done"
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.species",
+            "equals": "squirtle"
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.level",
+            "equals": 5
+          },
+          "shot continued-exploration"
+        ]
+      ],
+      "outputs": [
+        "fresh-process-continue-menu.png",
+        "continued-exploration.png"
+      ]
+    }
+  ]
+}

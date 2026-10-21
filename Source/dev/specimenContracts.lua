@@ -31,7 +31,7 @@ local function learn(game,mon)
     end
 end
 local function legacy(record,version)
-    local out=copy(record);out.version=version;out.sex,out.sexProvenance=nil,nil;out.natureId,out.abilitySlot,out.heldItem=nil,nil,nil
+    local out=copy(record);out.version=version;out.ivs,out.evs=nil,nil;out.sex,out.sexProvenance=nil,nil;out.natureId,out.abilitySlot,out.heldItem=nil,nil,nil
     if version==3 then out.pendingEvolution=nil end;return out
 end
 function SpecimenContracts.run()
@@ -78,21 +78,21 @@ function SpecimenContracts.run()
         for _,id in ipairs({"townMap","oaksParcel","tm01","hm01","expAll"}) do eq(pcall(Pokemon,"eevee",5,attributes(0,"first",id)),false,id) end
         for _,id in ipairs({"potion","pokeBall","moonStone"}) do eq(Pokemon("eevee",5,attributes(0,"first",id)).heldItem,id) end
     end)
-    test("Factory literal three-call vectors and continuation match independent PM oracle",function()
-        for _,v in ipairs({{1,"first",23,1622650073},{42,"second",22,1579310009},{12345,"first",23,2035175616}}) do
+    test("Factoryv3 literal nine-call vectors (old first-three retained) and continuation match independent PM oracle",function()
+        for _,v in ipairs({{1,"first",23,1458777923},{42,"second",22,1139130650},{12345,"first",23,1963079340}}) do
             local rng=RulesRNG.new(v[1]);local mon,receipt=Specimen.create("eevee",5,"wild",rng);assert(mon,receipt)
-            eq(mon.abilitySlot,v[2]);eq(mon.natureId,v[3]);eq(rng:snapshot().state,v[4]);eq(rng:snapshot().rolls,3)
-            eq(receipt.version,2);eq(receipt.origin,"wild");eq(receipt.draws,3);eq(receipt.rawRolls,3);eq(mon.heldItem,"none")
+            eq(mon.abilitySlot,v[2]);eq(mon.natureId,v[3]);eq(rng:snapshot().state,v[4]);eq(rng:snapshot().rolls,9)
+            eq(receipt.version,3);eq(receipt.origin,"wild");eq(receipt.draws,9);eq(receipt.rawRolls,9);eq(mon.heldItem,"none")
         end
     end)
-    test("Rejection sampling uses three API calls but honest four raw rolls",function()
+    test("Rejection sampling uses nine API calls but honest ten raw rolls",function()
         local rng=RulesRNG.new(671875339);local p,receipt=Specimen.create("eevee",5,"wild",rng);assert(p,receipt)
-        eq(p.abilitySlot,"first");eq(p.natureId,14);eq(receipt.draws,3);eq(receipt.rawRolls,4);eq(rng:snapshot().state,1865008398)
+        eq(p.abilitySlot,"first");eq(p.natureId,14);eq(receipt.draws,9);eq(receipt.rawRolls,10);eq(rng:snapshot().state,689632769)
     end)
     test("All ordinary origins roll only normal preferences even duplicate ability species",function()
         for _,origin in ipairs({"wild","starter","trainer","gift","debug"}) do
             for _,seed in ipairs({1,42}) do
-                local p=assert(Specimen.create("metapod",7,origin,RulesRNG.new(seed)))
+                local p=assert(Specimen.create("metapod",7,origin,RulesRNG.new(seed),nil,origin=="trainer" and Specimen.blueTrainerPolicy("contract:metapod")or nil))
                 assert(p.abilitySlot=="first" or p.abilitySlot=="second");eq(p:ability(),61)
                 eq(p.natureId,seed==1 and 23 or 22)
             end
@@ -108,13 +108,13 @@ function SpecimenContracts.run()
     test("Native MAX exhaustion after first draw rolls back entire creation",function()
         local rng=RulesRNG.new(42);local before=rng:snapshot();before.rolls=2147483646;rng:restore(before)
         local p,why=Specimen.create("eevee",5,"wild",rng);eq(p,nil);assert(why:find("exhausted",1,true),why);sameRNG(before,rng)
-        before.rolls=2147483644;rng:restore(before);p=assert(Specimen.create("eevee",5,"wild",rng));eq(rng:snapshot().rolls,2147483647)
+        before.rolls=2147483638;rng:restore(before);p=assert(Specimen.create("eevee",5,"wild",rng));eq(rng:snapshot().rolls,2147483647)
     end)
-    test("All151 Codec6 reconstruct chosen attributes without reroll or PP change",function()
+    test("All151 Codec7 reconstruct chosen attributes without reroll or PP change",function()
         local before=RulesRNG.snapshot()
         for species in pairs(pokemonData) do
             local p=Pokemon(species,50,attributes(15,"hidden","potion"));p.name="CUSTOM";p.hp=1;p.pp[p.moves[1]]=0
-            local data=assert(PokemonCodec.encode(p));eq(data.version,6);local again=assert(PokemonCodec.decode(data))
+            local data=assert(PokemonCodec.encode(p));eq(data.version,7);local again=assert(PokemonCodec.decode(data))
             same(assert(PokemonCodec.encode(again)),data);eq(again.spa,p.spa);eq(again.atk,p.atk);eq(again:ability(),p:ability())
         end
         sameRNG(before)
@@ -123,7 +123,7 @@ function SpecimenContracts.run()
         local p=Pokemon("charmander",6);p:gainXP(p:xpForLevel(7)-p.xp);p.name="OLD NAME";p.hp=0;p.status="sleep";p.statusTurns=0;p.sleepDuration=3;p.pp.scratch=2
         local old=legacy(assert(PokemonCodec.encode(p)),3);local before=RulesRNG.snapshot();local restored=assert(PokemonCodec.decode(old))
         eq(restored.natureId,0);eq(restored.abilitySlot,"first");eq(restored.heldItem,"none")
-        local upgraded=assert(PokemonCodec.encode(restored));eq(upgraded.version,6)
+        local upgraded=assert(PokemonCodec.encode(restored));eq(upgraded.version,7)
         for _,key in ipairs({"species","name","hp","level","xp","status","statusTurns","sleepDuration","moves","pp","pendingMoveChoices","nextMoveChoiceId"}) do same(upgraded[key],old[key],key) end
         sameRNG(before)
     end)
@@ -170,7 +170,7 @@ function SpecimenContracts.run()
     end)
     test("Wild aggregate commits species level and attribute rolls only after success",function()
         local zone=Zone({name="Specimen contract",tileRows={"Fo"},encounters={{species="rattata",minLevel=3,maxLevel=3,weight=1}}})
-        RulesRNG.seed(42);local mon=zone:rollEncounter();eq(mon.species,"rattata");eq(mon.level,3);eq(RulesRNG.snapshot().rolls,5)
+        RulesRNG.seed(42);local mon=zone:rollEncounter();eq(mon.species,"rattata");eq(mon.level,3);eq(RulesRNG.snapshot().rolls,11)
         zone.encounters[1].species="missing";local before=RulesRNG.snapshot();eq(pcall(zone.rollEncounter,zone),false);sameRNG(before)
         zone.encounters[1].species="rattata";before.rolls=2147483644;RulesRNG.restore(before);eq(pcall(zone.rollEncounter,zone),false);sameRNG(before)
     end)

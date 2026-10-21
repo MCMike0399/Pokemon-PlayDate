@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "distinct_pids": [
+    95751,
+    96032
+  ],
+  "proposal_sha256": "0d9682c3909ff78c6708a2207845184a3e404771e51257eb0a2cd477257c85e6",
+  "archive_index": 1,
+  "exact_original_files": {
+    "a": "ebbf120444e8522de18d1c021d8f36e9fe8ac112c97a4a4f0257dc9931b556a6",
+    "b": "d2351c28e3b95f86e2f45129a3f6dbcafc685d00506ed693a667ded6d340cb81",
+    "candidate": "f8276dcd2b712c71abf09ddc713bdf719a410bdcef6358a31cfe2c3be7a585de"
+  },
+  "verifier_manifest_sha256": "514000a25074ae3c86b4371eadaa93f4b4e23f1d22ba96e7aaa3359b8b55883e",
+  "prior_native_output": "/private/tmp/pokemon-root-title-save-recovery-native-01"
+}

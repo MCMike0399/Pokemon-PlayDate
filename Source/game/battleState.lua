@@ -43,6 +43,7 @@ function BattleState:finish(won, kind)
     if self.finished then return false,"already-finished" end
     local game = self.game
     kind = kind or (self.battle and self.battle.outcome) or (won and "victory" or "defeat")
+    assert(self.battle:flushRewards()) -- Before economic/learning/evolution/blackout return owners.
     local pokemon = game:getPlayerPokemon()
     local party=game.session:party()
     local blackout=party:allFainted()

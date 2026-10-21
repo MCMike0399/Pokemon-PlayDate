@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "scope": "reviewed-source-and-executed-SDK-subsets",
+  "acceptance_context": "private-root-verified-not-main",
+  "accepted_summary": {
+    "path": "docs/validation/coverage-evidence/private1059-summary.json",
+    "sha256": "939019cee6f57cb79bfd97ae8e1cea709c934b05e01608a1b2f8abae5cf518d5",
+    "source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+    "sdk_passed": 1059
+  },
+  "sdk_result_sha256": "f91e54116879025173d91904495f0e1f00b2b4a428a3ebdae78359b773220b0e",
+  "qualification": "Private changed Bide body+current actual29test suite, no main integration claim.",
+  "moves": {
+    "bide": {
+      "state": "verified_subset",
+      "capabilities": [
+        "fixed-damage-dispatch"
+      ],
+      "definition_sha256": "7041cb592532f6afa890ed480ab9ee2edc6d8b87679c07cfd8571ccf1ac334d5",
+      "owners": [
+        {
+          "path": "Source/battle/conditions.lua",
+          "start": "function BattleConditions:bide(",
+          "function_body": true,
+          "one_line": false,
+          "sha256": "d9168e8fa70f78bcb00e42c8e47368f69a8a022d5d2627907b963683666d66b3"
+        },
+        {
+          "path": "Source/battle/conditions.lua",
+          "start": "function BattleConditions:bideHit(",
+          "function_body": true,
+          "one_line": false,
+          "sha256": "ca5c4727ecace5cc6bbb538243f1a49fdf29c8a3ffda20542c5a99baf6f1a1b6"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "if move.damageRule==\"bide\"",
+          "exact_line": true,
+          "sha256": "6c97d498e1ec875e7fb1a1082ad1bc56abb9462b702f15b1ee7540e934d9af2b"
+        },
+        {
+          "path": "Source/battle/moves.lua",
+          "start": "self.damageRule =",
+          "exact_line": true,
+          "sha256": "c813cae239b1f77935767401fc70e591db93a538fc4f33b1967bb8fe6e985d99"
+        },
+        {
+          "path": "Source/battle/dsl.lua",
+          "start": "function DirectDamage:apply(",
+          "function_body": true,
+          "one_line": false,
+          "sha256": "adfd9066540b22962dcd577b7a1e8f50e0769cb39763b585bfeac9c49b1e6ed0"
+        },
+        {
+          "path": "Source/battle/effects.lua",
+          "start": "function BattleEffects:hit(",
+          "function_body": true,
+          "one_line": false,
+          "sha256": "4242964749f471fe320661d71e1c5b3aaf6ac1e9f0c884ab847d9cc8fe60edbf"
+        },
+        {
+          "path": "Source/battle/moves.lua",
+          "start": "self.pp =",
+          "exact_line": true,
+          "sha256": "633462a6d674ee1e048f767be1f382d7cd4128805302160ceeecff95f6fe92f2"
+        },
+        {
+          "path": "Source/battle/moves.lua",
+          "start": "self.maxPP =",
+          "exact_line": true,
+          "sha256": "2ee8f0aef86ec3deb48abf855e290fe5d280a1fd02e85902eddb1ca7ee3e2535"
+        },
+        {
+          "path": "Source/lib/rng.lua",
+          "whole_file": true,
+          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+        }
+      ],
+      "tests": [
+        {
+          "path": "Source/dev/bideContracts.lua",
+          "start": "test(\"Actual public Bide stores2rounds releases3rd for160 and spends PP only once\"",
+          "end": "test(\"Isolated stores and always-hit fixed release take no rules draws\"",
+          "sha256": "e84957948533b038ddd80bca5f7cafa666f70638ffb358398684ba0f913a4955",
+          "name": "Actual public Bide stores2rounds releases3rd for160 and spends PP only once",
+          "accepted_name": "bide: Actual public Bide stores2rounds releases3rd for160 and spends PP only once",
+          "executed": {
+            "name": "bide: Actual public Bide stores2rounds releases3rd for160 and spends PP only once",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Actual canonical Bide storage/release/PP assertion, not a zero-power no-op. Other scoped Bide tests/nativeC Protect policy retained."
+    }
+  },
+  "sdk_result": {
+    "path": "docs/validation/coverage-evidence/private1059-result.json",
+    "sha256": "f91e54116879025173d91904495f0e1f00b2b4a428a3ebdae78359b773220b0e",
+    "build_id": "d9f57eaba6b24d6eb42c9a8e57ac220f68a486d7:7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+    "source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+    "passed": 1059,
+    "failed": 0,
+    "suite_count": 75,
+    "suite_passed": 1039
+  }
+}

@@ -281,7 +281,7 @@ function CombatContracts.run()
         equal(b.player.hp, 0); equal(b.enemy.hp, 0); equal(b.outcome, "defeat")
     end)
 
-    test("Residuals resolve by poison/burn priority, speed and first fatal event", function()
+    test("Residual cohorts complete before matchup; later burn stops after terminal poison cohort", function()
         -- Level 100 isolates residual ordering from victory XP's legitimate
         -- level-up HP increase; progression has separate production contracts.
         local b = fresh(Pokemon("charmander", 100), Pokemon("squirtle", 100))
@@ -291,8 +291,10 @@ function CombatContracts.run()
         equal(b.outcome, "victory"); equal(b.enemy.hp, 0); equal(b.player.hp, 1, "battle ends before later burn event")
         local b = fresh(); b.player.status, b.enemy.status = "poison", "poison"
         b.player.hp, b.enemy.hp, b.player.spe, b.enemy.spe = 1, 1, 100, 1
+        local xp=b.player.xp
         b:runScript(function() return b:endOfRoundStatus() end); settle(b)
-        equal(b.outcome, "defeat"); equal(b.enemy.hp, 1)
+        equal(b.outcome, "defeat"); equal(b.enemy.hp, 0);equal(b.player.hp,0);equal(b.player.xp,xp)
+        for _,key in ipairs({"hp","atk","def","spa","spd","spe"})do equal(b.player.evs[key],0)end
     end)
 
     test("Terminal events distinguish run/victory/defeat and emit once", function()

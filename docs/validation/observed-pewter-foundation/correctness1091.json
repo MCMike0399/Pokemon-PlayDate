@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "status": "core correctness accepted on live Source; campaign-path acceptance pending frozen all3 journeys",
+  "base_commit": "d9f57ea",
+  "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "sdk": {
+    "passed": 1091,
+    "failed": 0
+  },
+  "host": {
+    "passed": 529,
+    "failed": 0,
+    "skipped": 0,
+    "main_rerun": true
+  },
+  "production_compile": "PASS",
+  "protected_catalog": {
+    "checked": 2494,
+    "exact": true
+  },
+  "native": {
+    "newgame_from_corrupt_files": "two actual processes; inspected Title/YES/opening/Save/backup/Continue/bedroom; exact binary archives independently verified",
+    "portable_same_source": "Source44bd, distinct confirmed-exited PIDs13283/13425, durable saves unchanged by Continue",
+    "expanded_recovery": "controlled real-owner setup then actual6/Repair/4/5-choice inputs, readable menu captures inspected"
+  },
+  "archives": [
+    {
+      "archive": "correctness1091-sdk-native.tar.gz",
+      "sha256": "c26a236ceb6656828b7da7b93e2a3f107b770b056a87d704bee510014ac9036f",
+      "bytes": 9171958,
+      "runs": [
+        {
+          "run": "/private/tmp/pokemon-root-correctness-integrated-sdk-01",
+          "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+          "outcome": {
+            "ok": true,
+            "session_id": "8b2625886d484adf8d30e574deb12198"
+          },
+          "source_overlay_files": 13
+        },
+        {
+          "run": "/private/tmp/pokemon-root-title-save-recovery-sdk-01",
+          "source_sha256": "3e58eb7324c424af90142874c9992d512bfa9997dd9a8ecc89a7bc4f15da3fcb",
+          "outcome": {
+            "captures_finalized": true,
+            "error": "runtime error: dev/harness.lua:384: runtime contracts failed",
+            "ok": false,
+            "session_id": "1d8ad3824121430398d2befd121fffd1"
+          },
+          "source_overlay_files": 9
+        },
+        {
+          "run": "/private/tmp/pokemon-root-title-save-recovery-sdk-02",
+          "source_sha256": "0869d026f9d208267870fb451828f2b6e000c86ca8f01fba3449871df14e7b15",
+          "outcome": {
+            "ok": true,
+            "session_id": "a181126994b54cad98453b7578497a7e"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-title-save-recovery-native-01",
+          "source_sha256": "0869d026f9d208267870fb451828f2b6e000c86ca8f01fba3449871df14e7b15",
+          "outcome": {
+            "ok": true,
+            "process_generations": 2,
+            "session_id": "b35660593fb34849b2917b60bce92e4f"
+          },
+          "source_overlay_files": 11
+        },
+        {
+          "run": "/private/tmp/pokemon-root-title-expanded-01/choices-5",
+          "source_sha256": "03e0639a5af4b2bea0763a528ccb28c5458b395a7845d415db5c944383cb8799",
+          "outcome": {
+            "ok": true,
+            "session_id": "f3ef2465c5a749a79e7fa535aaf40fdd"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-title-expanded-01/choices-6",
+          "source_sha256": "88fc85fbc60f88b35fb715c9bd372e79d3a848d4134e75b006fb6d1af1911165",
+          "outcome": {
+            "ok": true,
+            "session_id": "29a3f40ef2e14e1990bf9ed38bfb53f0"
+          },
+          "source_overlay_files": 14
+        },
+        {
+          "run": "/private/tmp/pokemon-root-save-recovery-portable-native-01",
+          "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+          "outcome": {
+            "ok": true,
+            "process_generations": 2,
+            "session_id": "08a9d9e7aadf4af0b96b2102ec670965"
+          },
+          "source_overlay_files": 13
+        }
+      ],
+      "base_source_tree": "pokemon-root-rewards-correction-sdk-02",
+      "fault_catalog_pngs_excluded": false
+    }
+  ],
+  "archive_base_dependency": {
+    "manifest": "correctness1059.json",
+    "source_tree": "pokemon-root-rewards-correction-sdk-02/Source"
+  },
+  "additional_evidence": [
+    {
+      "file": "pokemon-root-correctness-host-01.log",
+      "sha256": "211082dd8a964ff2e6c92d258728663f73ac9ab4dcf9c8dfcd7d4e2113d338ef"
+    },
+    {
+      "file": "pokemon-root-correctness-host-02.log",
+      "sha256": "a4f632e3f15807f3504d95922c80f977fde288a83767e67e60d65011ea9dc63b"
+    },
+    {
+      "file": "pokemon-root-main-correctness-host-01.log",
+      "sha256": "78b1019d8c065b7e76990694f67b39294bd60ee0ce6158b2b1c159c8a59c6590"
+    },
+    {
+      "file": "pokemon-root-correctness-catalog-compare-01.json",
+      "sha256": "581373d9b73db95ee309634668b2beb08fad877ce57ef27f7cb728c0123a51e8"
+    },
+    {
+      "file": "pokemon-title-save-native-reverified-01.json",
+      "sha256": "678ebc3a3337d1367b2c3ee195aef5fa692f075a03592822309abe46fcebc81a"
+    }
+  ],
+  "remaining": [
+    "current all3 campaign-path freeze",
+    "regional/event fidelity including Route22/visible NPCs/interiors",
+    "scheduled full mechanics and Moon/Cerulean progression",
+    "measured production optimization/resource/device/release work"
+  ],
+  "limits": [
+    "No full region/engine/campaign completion",
+    "SDK1087 first attempt1086PASS1 fixtureFAIL retained",
+    "Initial host missing pinned cache error retained; setup fixed without skips",
+    "Source-only tests added to carry prior immediate-cleanup and explicit-weather witnesses; no product rule added by those files"
+  ]
+}

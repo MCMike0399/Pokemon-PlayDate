@@ -26,6 +26,9 @@ function TitleState:refresh()
     elseif self.candidate and (self.metadata.hasCorruption or self.metadata.pendingCandidate) then
         add("REPAIR SAVE", "published")
     end
+    if self.metadata.proposalAvailable then add("RECOVER NEW SAVE", "proposal") end
+    if self.metadata.backupPublished then add("RESTORE BACKUP", "backup-published") end
+    if self.metadata.backupCandidate then add("RESTORE CANDIDATE", "backup-candidate") end
     add("NEW GAME", "new")
     self.actions = actions
     self.menu:show(options, function(index) self:choose(actions[index]) end)
@@ -39,7 +42,7 @@ function TitleState:choose(action)
         self.phase = "confirm-new"
         self.menu:show({"NO", "YES"}, function(index)
             if index == 1 then self.phase = "menu"; self:refresh(); return end
-            local ok = self.game:beginNewSession(RulesRNG.snapshot().seed)
+            local ok = self.game.saves:beginNewGame(RulesRNG.snapshot().seed)
             if ok then self.game.machine:push("dialog", Story.openingLines)
             else self:showMessage("The new adventure could not be started.") end
         end, function() self.phase = "menu"; self:refresh() end)
@@ -83,23 +86,37 @@ function TitleState:draw()
     gfx.setColor(gfx.kColorBlack)
     gfx.drawText("POKEMON BLUE", 20, 16)
     if self.phase == "menu" then
-        self.menu:draw(16, 50, 192, 92)
-        if self.candidate then
-            local mon = self.candidate:activePokemon()
-            gfx.drawText("PLAYER  RED", 224, 54)
-            gfx.drawText("POKEMON  " .. self.candidate:party():count(), 224, 78)
-            gfx.drawText("$" .. self.candidate:inventory():money(), 224, 102)
-            if mon then gfx.drawText(mon.name .. "  Lv" .. mon.level, 20, 158) end
-        elseif self.metadata.reason ~= "empty" then
-            gfx.drawTextInRect("Your save needs attention. It has not been overwritten.", 20, 154, 360, 64)
+        if #self.actions<=3 then
+            -- Preserve the established normal Title composition.
+            self.menu:draw(16, 50, 192, 92)
+            if self.candidate then
+                local mon=self.candidate:activePokemon()
+                gfx.drawText("PLAYER  RED",224,54)
+                gfx.drawText("POKEMON  "..self.candidate:party():count(),224,78)
+                gfx.drawText("$"..self.candidate:inventory():money(),224,102)
+                if mon then gfx.drawText(mon.name.."  Lv"..mon.level,20,158) end
+            elseif self.metadata.reason~="empty" then
+                gfx.drawTextInRect("Your save needs attention. It has not been overwritten.",20,154,360,64)
+            end
+        else
+            local height=16 + #self.actions * 20
+            self.menu:draw(16, 44, 204, height)
+            local infoY=44+height+8
+            if self.candidate then
+                local mon = self.candidate:activePokemon()
+                gfx.drawText("RED  POKEMON " .. self.candidate:party():count() .. "  $" .. self.candidate:inventory():money(), 20, infoY)
+                if mon then gfx.drawText(mon.name .. "  Lv" .. mon.level, 20, infoY+22) end
+            elseif self.metadata.reason ~= "empty" then
+                gfx.drawTextInRect("Your save needs attention. It has not been overwritten.", 20, infoY, 360, 240-infoY)
+            end
         end
     elseif self.phase == "message" then
         gfx.drawTextInRect(self.message .. "\n\nA: OK", 20, 60, 360, 160)
     else
         local text = self.phase == "confirm-new"
-            and "Start a new adventure?\nSaving it will replace your previous adventure."
-            or "Recover the available save?"
-        gfx.drawTextInRect(text, 20, 52, 360, 74)
+            and "Start a new adventure?\nOn SAVE, old save files will be kept as a backup before replacement."
+            or "Recover this save? Current save files will first be kept as a backup."
+        gfx.drawTextInRect(text, 20, 40, 360, 96)
         self.menu:draw(200, 140, 180, 60)
     end
 end

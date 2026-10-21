@@ -332,6 +332,174 @@
       "bytes": 29935,
       "manifest_sha256": "1d802d4bb383e4d20c1d8a15a439ae8938540fefb28716503148a91529457a52",
       "status": "frozen handoff; acceptance separate"
+    },
+    {
+      "packet": "pokemon-individuals-a-01",
+      "archive": "pokemon-individuals-a-01.tar.gz",
+      "sha256": "5d51d9173238dbfad8280fd3a9eba1c1320af20501045f12f6cb51e3001d4508",
+      "bytes": 959559,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-brock-roost-01",
+      "archive": "pokemon-brock-roost-01.tar.gz",
+      "sha256": "52f07561fdc4d2e242ab6df686def4a2d1b2718f5719853adafd98b4a9cbc696",
+      "bytes": 125672,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-roost-context-errata01",
+      "archive": "pokemon-roost-context-errata01.tar.gz",
+      "sha256": "4bb397c4b792be048c36c63efdbb7699b7059930bea2cd05d661538345650bd7",
+      "bytes": 9657,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-poison-fang-01",
+      "archive": "pokemon-poison-fang-01.tar.gz",
+      "sha256": "b47b6ae9c099df2dd17553dea66229d953466246b78fcb995d689c3843cc9178",
+      "bytes": 78684,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-first-gate-exposure-02",
+      "archive": "pokemon-first-gate-exposure-02.tar.gz",
+      "sha256": "6a54ada7c1339ad7f03cba892b5fbf48fd73dd686fbc5297fe824dc13e52c592",
+      "bytes": 313481,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-mirror-move-proposal-01",
+      "archive": "pokemon-mirror-move-proposal-01.tar.gz",
+      "sha256": "e17148fd8e568659e4cc6739ddfe78c3aeab019623ebdd62d60415c295a3eb2c",
+      "bytes": 127523,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-residual-reward-boundary-01",
+      "archive": "pokemon-residual-reward-boundary-01.tar.gz",
+      "sha256": "8781752c4f88cd74a6042470644d56d17bbaeb509391e8b6b417597c7feef44a",
+      "bytes": 83093,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-root-producer-v12",
+      "archive": "pokemon-root-producer-v12.tar.gz",
+      "sha256": "d1ec5641bf2763089d7f461f981208989735d5705e3e51624a3cd73faec0e4c5",
+      "bytes": 1592548,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-rewards-b-01",
+      "archive": "pokemon-rewards-b-01.tar.gz",
+      "sha256": "52dd9d65f6397ec9cb9156d8a2c7b37b8fa83b3dc38984ffb1d371a841f1f119",
+      "bytes": 913828,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-residual-reward-correction-01",
+      "archive": "pokemon-residual-reward-correction-01.tar.gz",
+      "sha256": "f203908d59a0c814b2d574fc9f3b1c358c5f74fb9b791fd21100c578a2275348",
+      "bytes": 803285,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-rewards-fixture-erratum-01",
+      "archive": "pokemon-rewards-fixture-erratum-01.tar.gz",
+      "sha256": "b01deb5e4083e4ead148a81f5accb73cdf01b4265ec6bdc9d3afd9d108293485",
+      "bytes": 15606,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-rewards-mutation-qualification-01",
+      "archive": "pokemon-rewards-mutation-qualification-01.tar.gz",
+      "sha256": "94623833a31493352b1eeff115e8bee212cf2a86965dff84e82e1b8f3f22923f",
+      "bytes": 4860,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-title-save-baseline-01",
+      "archive": "pokemon-title-save-baseline-01.tar.gz",
+      "sha256": "441043241a344e6887cb73ef55362625b218ef230256744787bd969900d593b8",
+      "bytes": 4999,
+      "status": "frozen handoff; independent acceptance tracked separately"
+    },
+    {
+      "packet": "pokemon-weather-reward-witness-01",
+      "archive": "pokemon-weather-reward-witness-01.tar.gz",
+      "sha256": "085b2ec419b583f00c98cde4b5b7d7b53dd7f350da47a5ff3985dbdc70608e12",
+      "bytes": 2129,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-title-save-recovery-01",
+      "archive": "pokemon-title-save-recovery-01.tar.gz",
+      "sha256": "aa9f453f40d52d722b9d10d16197592b2d95f7312a4cdec9d57e9d3e5692141e",
+      "bytes": 35634,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-title-save-recovery-handoff01",
+      "archive": "pokemon-title-save-recovery-handoff01.tar.gz",
+      "sha256": "516ddc05eca94f47601fe986ee1583af99a61595308c6631e5ec22df3a98b443",
+      "bytes": 25121,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-title-save-verifier-errata01",
+      "archive": "pokemon-title-save-verifier-errata01.tar.gz",
+      "sha256": "b06898d18569e8ee49164b959a35cd47d640c8712b156e51400e6b8559ce50d7",
+      "bytes": 11392,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-save-recovery-portable01",
+      "archive": "pokemon-save-recovery-portable01.tar.gz",
+      "sha256": "9e45e78fda18b81c5526d1fdbfc52cf22e0dac79adf48d4e8740b3ab244d82aa",
+      "bytes": 8527,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-current-coverage-01",
+      "archive": "pokemon-current-coverage-01.tar.gz",
+      "sha256": "ee6e3eeb131d8a1205e7cb67a167f99b92cdf4c7efe5dec0823fb4984f88c67a",
+      "bytes": 787744,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-runtime-evidence-chain-01",
+      "archive": "pokemon-runtime-evidence-chain-01.tar.gz",
+      "sha256": "174f6b33c4a9d8c3efbfbb37e8f5d2c1ea8f42651d30e56a0fe2cf23c9b80a76",
+      "bytes": 135194,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-coverage-current1091-01",
+      "archive": "pokemon-coverage-current1091-01.tar.gz",
+      "sha256": "43311a0b183f5d3ea650cc1ab8a91c30b709defa8cd434fd23bbfa66c2288c19",
+      "bytes": 314858,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-resource-readiness-probe-01",
+      "archive": "pokemon-resource-readiness-probe-01.tar.gz",
+      "sha256": "9ef7f1c344c1db505c740b46cb504c858303f1de2e8196ea1609a4b9bd941d7c",
+      "bytes": 1916747,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-production-import-gate-01",
+      "archive": "pokemon-production-import-gate-01.tar.gz",
+      "sha256": "131477b9dc0c3369f1d35a070574f5232ed3f73ddfd7e3baf4858e21ca9e6c6e",
+      "bytes": 3808606,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-whirlwind-flatter-proposal",
+      "archive": "pokemon-whirlwind-flatter-proposal.tar.gz",
+      "sha256": "95f33d42ca822748669d0467b9ddef936dd0e5a69b3472b216861e1126c9971e",
+      "bytes": 17949,
+      "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
     }
   ]
 }

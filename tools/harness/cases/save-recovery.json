@@ -1,0 +1,295 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "title"
+          },
+          "shot corrupt-title",
+          {
+            "op": "assert",
+            "path": "title.menu.options.1",
+            "equals": "NEW GAME"
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "title.phase",
+            "equals": "confirm-new"
+          },
+          "shot newgame-archive-confirm",
+          "press down",
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "dialog",
+            "frames": 300
+          },
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 1
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 2
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 3
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 4
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 5
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 6
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 7
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 8
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 9
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 10
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "story.stage",
+            "equals": "pre_oak"
+          },
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "reds_house_2f"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 5
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          "shot new-adventure-before-save",
+          "press b",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "pause"
+          },
+          "press down",
+          "press down",
+          "press down",
+          "press a",
+          {
+            "op": "assert",
+            "path": "pause.phase",
+            "equals": "save"
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "pause.lastSave.ok",
+            "equals": true
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "shot new-adventure-saved",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 1
+          },
+          "press a",
+          {
+            "op": "assert",
+            "path": "dialog.line",
+            "equals": 2
+          },
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 300
+          },
+          "shot archive-save-explanation",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          }
+        ]
+      ],
+      "outputs": [
+        "corrupt-title.png",
+        "newgame-archive-confirm.png",
+        "new-adventure-before-save.png",
+        "new-adventure-saved.png",
+        "archive-save-explanation.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "title"
+          },
+          {
+            "op": "assert",
+            "path": "title.menu.options.1",
+            "equals": "CONTINUE"
+          },
+          "shot restarted-continue-title",
+          "press a",
+          {
+            "op": "assert",
+            "path": "root",
+            "equals": "overworld"
+          },
+          {
+            "op": "assert",
+            "path": "story.stage",
+            "equals": "pre_oak"
+          },
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "reds_house_2f"
+          },
+          {
+            "op": "assert",
+            "path": "player.x",
+            "equals": 5
+          },
+          {
+            "op": "assert",
+            "path": "player.y",
+            "equals": 3
+          },
+          {
+            "op": "assert",
+            "path": "pokemon.present",
+            "equals": false
+          },
+          "shot restarted-new-adventure"
+        ]
+      ],
+      "outputs": [
+        "restarted-continue-title.png",
+        "restarted-new-adventure.png"
+      ]
+    }
+  ]
+}

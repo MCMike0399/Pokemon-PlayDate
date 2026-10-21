@@ -49,6 +49,16 @@ function Target.from(value)
     return value
 end
 
+-- Equivalent ordinary Target instances retain the public selector interface;
+-- custom selectors must share their actual descriptor, never a guessed side.
+local function secondaryTargetMatches(expected,actual)
+    if expected==nil or expected==actual then return true end
+    return type(expected)=="table" and type(actual)=="table"
+        and expected.resolve==Target.resolve and actual.resolve==Target.resolve
+        and (expected.side=="attacker" or expected.side=="defender")
+        and expected.side==actual.side
+end
+
 -- ============================================================
 -- NUMBERS — evaluate(battle) -> number
 -- ============================================================
@@ -134,22 +144,22 @@ function Never:check(_battle) return false end
 
 Class("Not")
 function Not:init(cond) self.cond = cond end
-function Not:check(battle) return not self.cond:check(battle) end
+function Not:check(subject,battle) return not self.cond:check(subject,battle) end
 
 Class("AllOf")
 function AllOf:init(...) self.conds = { ... } end
-function AllOf:check(battle)
+function AllOf:check(subject,battle)
     for _, cond in ipairs(self.conds) do
-        if not cond:check(battle) then return false end
+        if not cond:check(subject,battle) then return false end
     end
     return true
 end
 
 Class("AnyOf")
 function AnyOf:init(...) self.conds = { ... } end
-function AnyOf:check(battle)
+function AnyOf:check(subject,battle)
     for _, cond in ipairs(self.conds) do
-        if cond:check(battle) then return true end
+        if cond:check(subject,battle) then return true end
     end
     return false
 end
@@ -158,7 +168,8 @@ end
 -- level with For(target, cond) — the talk's "lifting" combinator.
 Class("HasType")
 function HasType:init(pokemonType) self.pokemonType = pokemonType end
-function HasType:check(pokemon)
+function HasType:check(pokemon,battle)
+    if battle then return battle:hasType(pokemon,self.pokemonType) end
     return pokemon.type == self.pokemonType or pokemon.type2 == self.pokemonType
 end
 
@@ -172,7 +183,7 @@ function For:init(target, cond)
     self.cond = cond
 end
 function For:check(battle)
-    return self.cond:check(self.target:resolve(battle))
+    return self.cond:check(self.target:resolve(battle),battle)
 end
 
 -- ============================================================
@@ -186,6 +197,13 @@ NO_EFFECT = NoEffect()   -- shared null object
 
 Class("EffectSeq")
 function EffectSeq:init(effects) self.effects = effects end
+function EffectSeq:secondaryKind(recipient)
+    assert(#self.effects>0,"empty-secondary-sequence")
+    for _,effect in ipairs(self.effects) do
+        assert(type(effect.secondaryKind)=="function" and effect:secondaryKind(recipient)=="stat","unsupported-mixed-secondary-sequence")
+    end
+    return "stat"
+end
 function EffectSeq:apply(battle)
     for _, effect in ipairs(self.effects) do
         effect:apply(battle)
@@ -197,6 +215,12 @@ function When:init(cond, onPass, onFail)
     self.cond = cond
     self.onPass = onPass
     self.onFail = onFail or NO_EFFECT
+end
+-- Secondary eligibility follows the typed payload, never move power/ID.
+function When:secondaryKind(recipient)
+    assert(self.onFail:is("NoEffect"),"unsupported-secondary-else")
+    assert(type(self.onPass.secondaryKind)=="function","unsupported-secondary-payload")
+    return self.onPass:secondaryKind(recipient)
 end
 function When:apply(battle)
     if self.cond:check(battle) then
@@ -218,8 +242,13 @@ function ModifyStat:init(target, stat, stages)
     self.stages = stages
 end
 
+function ModifyStat:secondaryKind(recipient)
+    assert(secondaryTargetMatches(recipient,self.target),"secondary-recipient-mismatch")
+    return "stat"
+end
 function ModifyStat:apply(battle)
     local pokemon = self.target:resolve(battle)
+    if not pokemon:isAlive() then return end
     if battle.effects and not battle.effects:canDropStat(battle.attacker,pokemon,self.stat,self.stages) then
         battle:say(pokemon.name .. "'s Keen Eye prevents accuracy loss!");return
     end
@@ -247,9 +276,9 @@ local STATUS_NAMES <const> = {
 }
 
 -- Gen V type immunities to major status
-local function immuneToStatus(pokemon, status)
+local function immuneToStatus(pokemon, status, battle)
     local function hasType(t)
-        return pokemon.type == t or pokemon.type2 == t
+        return battle:hasType(pokemon,t)
     end
     if status == "burn" then return hasType("fire") end
     if status == "poison" or status == "badPoison" then return hasType("poison") or hasType("steel") end
@@ -281,6 +310,11 @@ function ApplyStatus:preventedBySide(battle,pokemon)
     return false
 end
 
+function ApplyStatus:secondaryKind(recipient)
+    assert(secondaryTargetMatches(recipient,self.target),"secondary-recipient-mismatch")
+    assert(STATUS_NAMES[self.status] or self.status=="confuse" or self.status=="flinch","unsupported-secondary-status")
+    return self.status=="flinch" and "flinch" or "condition"
+end
 function ApplyStatus:apply(battle)
     local pokemon = self.target:resolve(battle)
 
@@ -304,7 +338,7 @@ function ApplyStatus:apply(battle)
         if self.status=="badPoison" then battle:say("But it failed!") end
         return
     end
-    if immuneToStatus(pokemon, self.status) then
+    if immuneToStatus(pokemon, self.status, battle) then
         if self.status=="badPoison" then battle:say("It doesn't affect "..pokemon.name.."...") end
         return
     end
@@ -332,7 +366,7 @@ function DirectDamage:apply(battle)
     local pokemon = self.target:resolve(battle)
     local move = battle.currentMove
     if pokemon == battle.defender and move and move.category ~= "status" and not move.typeless
-        and TypeChart.getMatchup(move.type, pokemon.type, pokemon.type2) == 0 then
+        and battle:typeMatchup(move.type,pokemon) == 0 then
         battle.lastDamage = 0
         battle:say("It doesn't affect " .. pokemon.name .. "...")
         return
@@ -346,6 +380,9 @@ function DirectDamage:apply(battle)
     battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
     if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
 end
+
+Class("RoostEffect")
+function RoostEffect:apply(battle) return battle.conditions:roost() end
 
 Class("Heal")
 function Heal:init(target, amount)
@@ -366,7 +403,7 @@ end
 Class("PsywaveDamage")
 function PsywaveDamage:apply(battle)
     local attacker, defender = battle.attacker, battle.defender
-    if TypeChart.getMatchup("psychic", defender.type, defender.type2) == 0 then
+    if battle:typeMatchup("psychic",defender) == 0 then
         battle.lastDamage = 0
         battle:say("It doesn't affect " .. defender.name .. "...")
         return
@@ -403,10 +440,16 @@ function EntryHazardEffect:apply(battle) battle.conditions:hazard(self.kind) end
 
 -- Explicit generated secondary provenance. Eligibility precedes chance evaluation.
 Class("SecondaryEffect")
-function SecondaryEffect:init(target,effect) self.target=Target.from(target);self.effect=effect end
+function SecondaryEffect:init(target,effect)
+    assert(type(effect.secondaryKind)=="function","unsupported-secondary-payload")
+    local resolved=Target.from(target)
+    local kind=effect:secondaryKind(resolved)
+    assert(kind=="condition" or kind=="flinch" or kind=="stat","unsupported-secondary-kind")
+    self.target=resolved;self.effect=effect;self.kind=kind
+end
 function SecondaryEffect:apply(battle)
     local target=self.target:resolve(battle)
-    if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target) then return end
+    if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target,self.kind) then return end
     self.effect:apply(battle)
 end
 Class("WeatherEffect")
@@ -420,6 +463,10 @@ function SandstormEffect:apply(battle) battle.effects:setSandstorm() end
 
 Class("RandomMajorStatusEffect")
 function RandomMajorStatusEffect:init(target,statuses) self.target=Target.from(target);self.statuses=statuses end
+function RandomMajorStatusEffect:secondaryKind(recipient)
+    assert(secondaryTargetMatches(recipient,self.target),"secondary-recipient-mismatch")
+    return "condition"
+end
 function RandomMajorStatusEffect:apply(battle)
     ApplyStatus(self.target,self.statuses[RulesRNG.random(1,#self.statuses)]):apply(battle)
 end

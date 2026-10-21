@@ -1,5 +1,6 @@
 import "battle/conditions"
 import "battle/effects"
+import "battle/rewards"
 -- battle/battle.lua — Battle rules engine
 --
 -- The Battle owns a nested StateMachine with three phases:
@@ -36,6 +37,15 @@ end
 --   * modifier order with flooring at each step:
 --     crit -> random 85-100% -> STAB -> type -> burn
 --   * burn halves physical damage
+-- Current battle types, distinct from durable specimen identity.
+local function typeHas(battle,pokemon,kind)
+    if battle then return battle:hasType(pokemon,kind) end
+    return pokemon.type==kind or pokemon.type2==kind
+end
+local function typeMatchup(battle,kind,pokemon)
+    if battle then return battle:typeMatchup(kind,pokemon) end
+    return TypeChart.getMatchup(kind,pokemon.type,pokemon.type2)
+end
 function calcDamage(attacker, defender, move, effectivePower, effects)
     if move.power == 0 and (not effectivePower or effectivePower <= 0) then return { damage = 0, effectiveness = 1, isCrit = false, isSTAB = false } end
 
@@ -67,10 +77,10 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
     end
 
     -- STAB (Same Type Attack Bonus)
-    local isSTAB = not move.typeless and (attacker.type == move.type or attacker.type2 == move.type)
+    local isSTAB = not move.typeless and typeHas(effects and effects.battle,attacker,move.type)
 
     -- Type effectiveness
-    local effectiveness = move.typeless and 1 or TypeChart.getMatchup(move.type, defender.type, defender.type2)
+    local effectiveness = move.typeless and 1 or typeMatchup(effects and effects.battle,move.type,defender)
 
     -- Base damage
     local level = attacker.level
@@ -271,6 +281,7 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     self.effects = BattleEffects(self)
     self.awardedEnemies = {}
     self.participants = {[playerPokemon]=true}
+    BattleRewards.attach(self)
 
     -- Directionality: set per half-turn, consumed by the DSL
     self.attacker = nil
@@ -447,6 +458,7 @@ end
 function Battle:emitEnd()
     if not self.outcome then return false, "not-ended" end
     if self.endEmitted then return false, "already-emitted" end
+    assert(self:flushRewards()) -- Canonical field stats before any return/evolution/rest callback.
     self.endEmitted = true
     self.emittingEnd = true
     local ok, problem = pcall(self.emit, self, "battleEnd", self.outcome == "victory", self.outcome)
@@ -457,7 +469,11 @@ function Battle:emitEnd()
     return true
 end
 
+function Battle:flushRewards()return BattleRewards.flush(self)end
+function Battle:getRewardSnapshot()return BattleRewards.snapshot(self)end
+function Battle:presentationVitals(mon)return BattleRewards.presentationVitals(self,mon)end
 function Battle:clearVolatiles()
+    assert(BattleRewards.close(self))
     self:cancelPendingLearning()
     self.conditions:clearAll()
     self.effects:close()
@@ -814,7 +830,7 @@ end
 -- User/user-or-ally and side/field targets remain valid without that battler.
 local opponentTargets = {[1]=true,[2]=true,[8]=true,[9]=true,[10]=true,[11]=true}
 function Battle:moveHasTarget(move)
-    if move.curse and self.attacker.type~="ghost" and self.attacker.type2~="ghost" then return true end
+    if move.curse and not self:hasType(self.attacker,"ghost") then return true end
     local target=move.targetId or 10
     if target==3 or target==15 then return false end -- No other ally in singles.
     if opponentTargets[target] then return self.defender:isAlive() end
@@ -850,7 +866,7 @@ function Battle:performMove(move)
     -- enables Thunder Wave's type immunity without changing generic status.
     if (move.category~="status" or move.typeImmunity) and not move.typeless
        and opponentTargets[move.targetId or 10]
-       and TypeChart.getMatchup(move.type,defender.type,defender.type2)==0 then
+       and self:typeMatchup(move.type,defender)==0 then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say("It doesn't affect " .. defender.name .. "...")
         self.conditions:moveFinished(move,false)
@@ -902,7 +918,7 @@ function Battle:performMove(move)
         return nil
     end
     if move.power > 0 or move.powerRule then
-        local effectiveness = move.typeless and 1 or TypeChart.getMatchup(move.type, defender.type, defender.type2)
+        local effectiveness = move.typeless and 1 or self:typeMatchup(move.type,defender)
 
         -- Multi-hit: one accuracy roll, independent damage/crit per hit.
         -- Gen V 2-5 distribution: 35/35/15/15 percent.
@@ -1011,7 +1027,7 @@ end
 -- Gen V singles faint order: when both sides fall, the side of the last
 -- fainted battler wins. Recoil follows target damage; no competitive Self-KO
 -- clause is added. A campaign win and local blackout can coexist.
-function Battle:handleFaint(lastFaintedSide)
+function Battle:_registerFaints(lastFaintedSide)
     if not self.player:isAlive() then self.conditions:clear(self.player);self.effects:clear(self.player) end
     if not self.enemy:isAlive() then self.conditions:clear(self.enemy);self.effects:clear(self.enemy) end
     if self.outcome then return self.outcome end
@@ -1020,30 +1036,38 @@ function Battle:handleFaint(lastFaintedSide)
     local defenderSide = self.attackerSide == "player" and "enemy" or "player"
     lastFaintedSide = lastFaintedSide or defenderSide
     local order = lastFaintedSide == "player" and {"enemy", "player"} or {"player", "enemy"}
+    local changed=false
     for _, side in ipairs(order) do
         local pokemon = side == "player" and self.player or self.enemy
         if not pokemon:isAlive() and not self.faintAnnounced[side] then
             self.faintAnnounced[side] = true
+            changed=true
             self:say(pokemon.name .. " fainted!")
         end
     end
+    return lastFaintedSide,changed
+end
+
+function Battle:_resolveFaintCheckpoint(lastFaintedSide)
+    if self.outcome then return self.outcome end
+    local playerAlive,enemyAlive=self.player:isAlive(),self.enemy:isAlive()
+    if playerAlive and enemyAlive then return nil end
     -- Every opposing identity awards at most once, including a nonfinal team
     -- member. Fainted recipients remain ineligible and never revive through XP.
     if not enemyAlive and not self.awardedEnemies[self.enemy] then
-        self.awardedEnemies[self.enemy] = true
-        self.xpAwarded = true
-        local recipients={}
-        if self.party then
-            for _,mon in ipairs(self.party:members()) do
-                if self.participants[mon] and mon:isAlive() then recipients[#recipients+1]=mon end
-            end
-        elseif playerAlive then recipients[1]=self.player end
-        for _,mon in ipairs(recipients) do
-            local xpGained=mon:calcExpGain(self.enemy,self.trainerName~=nil,#recipients)
-            if xpGained>0 then
-                self:say(mon.name .. " gained " .. xpGained .. " EXP!")
-                if mon:gainXP(xpGained) then self:say(mon.name .. " grew to Lv" .. mon.level .. "!") end
-                if #mon:getPendingMoveChoices() > 0 then coroutine.yield("learning", mon) end
+        local plan,why=BattleRewards.prepare(self,self.enemy);assert(plan,why)
+        local accepted,receipt=BattleRewards.commit(self,plan);assert(accepted,receipt)
+        local awarded={}
+        for _,row in ipairs(receipt.rows)do
+            awarded[#awarded+1]={mon=self.party and assert(self.party:get(row.index))or self.player,row=row}
+        end
+        for _,entry in ipairs(awarded)do
+            local mon,row=entry.mon,entry.row
+            if row.xp>0 then
+                self:say(mon.name .. " gained " .. row.xp .. " EXP!")
+                local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
+                if row.leveled then self:say(mon.name .. " grew to Lv" .. mon.level .. "!")end
+                if #mon:getPendingMoveChoices()>0 then coroutine.yield("learning",mon)end
             end
         end
     end
@@ -1058,6 +1082,14 @@ function Battle:handleFaint(lastFaintedSide)
         return "defeat"
     end
     return "replacement"
+end
+
+-- Direct moves and completed weather cohorts retain their immediate checkpoint.
+function Battle:handleFaint(lastFaintedSide)
+    local last=self:_registerFaints(lastFaintedSide)
+    if self.outcome then return self.outcome end
+    if not last then return nil end
+    return self:_resolveFaintCheckpoint(last)
 end
 
 function Battle:finishRound()
@@ -1075,7 +1107,7 @@ function Battle:finishRound()
             assert(self.enemyParty:switch(index))
             self.enemy = self.enemyParty:active()
             self.enemy:resetStages()
-            self.awardedEnemies[self.enemy]=nil
+            -- Earlier opposing identities retain their one-time reward marker.
             self.participants={}
             if self.player:isAlive() then self.participants[self.player]=true end
             self.faintAnnounced.enemy = nil
@@ -1127,23 +1159,43 @@ function Battle:endOfRoundStatus()
         local orientation=a.kind=="sideTimer" and sideTie[sideKey(a)] or tie[a.order]
         return a.side~="enemy" and orientation~=2 or a.side=="enemy" and orientation==2
     end)
-    local weatherFaint
-    for index, event in ipairs(events) do
-        if event.owner=="effects" then self.effects:residual(event) else self.conditions:residual(event) end
-        if event.pokemon and not event.pokemon:isAlive() then
-            if event.kind=="sand" then weatherFaint=event.side
+    -- Existing project event order is retained: weather0/1, ShedSkin5,
+    -- member conditions8..25 (including Roost), side timers26, rampage1000.
+    -- Native condition EXP waits until ALL callbacks or matchup between cohorts.
+    local function conditionStage(event)
+        return event and event.owner~="effects" and event.pokemon~=nil and event.order>=8 and event.order<=25
+    end
+    local weatherFaint,conditionFaint
+    for index,event in ipairs(events)do
+        local condition=conditionStage(event)
+        if event.owner=="effects"then self.effects:residual(event)else self.conditions:residual(event)end
+        if event.pokemon and not event.pokemon:isAlive()then
+            if event.kind=="sand"then weatherFaint=event.side
+            elseif condition then
+                self:setDirection(event.side=="player"and "enemy"or "player")
+                local last,changed=self:_registerFaints(event.side)
+                if changed then conditionFaint=last end
             else
-                self:setDirection(event.side == "player" and "enemy" or "player")
-                local outcome = self:handleFaint(event.side)
-                if outcome ~= "replacement" then return outcome end
+                self:setDirection(event.side=="player"and "enemy"or "player")
+                local outcome=self:handleFaint(event.side)
+                if outcome~="replacement"then return outcome end
             end
         end
-        -- Weather is one field callback/cohort. Both active battlers take
-        -- weather before EXP, learning or the terminal verdict (Gen V).
-        if weatherFaint and (not events[index+1] or events[index+1].kind~="sand") then
-            self:setDirection(weatherFaint=="player" and "enemy" or "player")
+        local nextEvent=events[index+1]
+        -- Weather remains its separate, already accepted whole-field cohort.
+        if weatherFaint and (not nextEvent or nextEvent.kind~="sand")then
+            self:setDirection(weatherFaint=="player"and "enemy"or "player")
             local outcome=self:handleFaint(weatherFaint);weatherFaint=nil
-            if outcome~="replacement" then return outcome end
+            if outcome~="replacement"then return outcome end
+        end
+        if condition and conditionFaint then
+            local stageEnd=not conditionStage(nextEvent)
+            local cohortEnd=stageEnd or nextEvent.order~=event.order or sub(nextEvent)~=sub(event)
+            if cohortEnd and (stageEnd or not self:hasUsablePlayer()or not self:hasUsableEnemy())then
+                self:setDirection(conditionFaint=="player"and "enemy"or "player")
+                local outcome=self:_resolveFaintCheckpoint(conditionFaint);conditionFaint=nil
+                if outcome~="replacement"then return outcome end
+            end
         end
     end
     return nil
@@ -1162,11 +1214,21 @@ function Battle:applyStatusDamage(pokemon)
 end
 
 -- Read-only diagnostics for concrete transient mechanics, never save data.
+function Battle:effectiveTypes(mon) return self.conditions:types(mon) end
+function Battle:hasType(mon,kind)
+    local first,second=self:effectiveTypes(mon)
+    return first==kind or second==kind
+end
+function Battle:typeMatchup(kind,mon)
+    local first,second=self:effectiveTypes(mon)
+    return TypeChart.getMatchup(kind,first,second)
+end
+
 function Battle:getConditionsSnapshot()
     local out={sides={}}
     for _,side in ipairs({"player","enemy"}) do
         local state=self.conditions.members[self[side]] or {};local hazards=self.conditions.sides[side]
-        out[side]={protect=state.protect==true,stall_counter=state.stall and state.stall.counter or 0,stall_remaining=state.stall and state.stall.remaining or 0,charge_key=state.charge and state.charge.key or "",rampage_key=state.rampage and state.rampage.key or "",rampage_remaining=state.rampage and state.rampage.remaining or 0,rampage_total=state.rampage and state.rampage.total or 0,bide_turns=state.bide and state.bide.turns or 0,bide_damage=state.bide and state.bide.total or 0,focus_energy=state.focusEnergy==true,mud_sport=state.mudSport==true,cursed=state.curse==true,rage=state.rage==true,
+        out[side]={roost=state.roost~=nil,protect=state.protect==true,stall_counter=state.stall and state.stall.counter or 0,stall_remaining=state.stall and state.stall.remaining or 0,charge_key=state.charge and state.charge.key or "",rampage_key=state.rampage and state.rampage.key or "",rampage_remaining=state.rampage and state.rampage.remaining or 0,rampage_total=state.rampage and state.rampage.total or 0,bide_turns=state.bide and state.bide.turns or 0,bide_damage=state.bide and state.bide.total or 0,focus_energy=state.focusEnergy==true,mud_sport=state.mudSport==true,cursed=state.curse==true,rage=state.rage==true,
             defense_curl=state.defenseCurl==true,rollout_hits=state.rollout and state.rollout.hits or 0,
             seeded=state.seed~=nil,trapped=self.conditions:trapped(self[side]),trap_turns=state.trap and state.trap.remaining or 0,
             toxic_counter=self[side].status=="badPoison" and (state.toxic or 0) or 0}

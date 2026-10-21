@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "sdk": {
+    "passed": 1091,
+    "failed": 0
+  },
+  "acceptance": "integrated-root-candidate-not-yet-main",
+  "actual_result": "docs/validation/coverage-evidence/current1091-result.json",
+  "actual_result_sha256": "7be14560c490601b0057a5cbf98b415ad5a3e0cde33f9628d5735382f51a57a3",
+  "build_id": "d9f57eaba6b24d6eb42c9a8e57ac220f68a486d7:44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "scope": "Root-reviewed combined correctness/Title source; scoped contracts only. Main copy/host/catalog/current all3 Brock freeze remain root acceptance.",
+  "bide_suite": {
+    "failed": 0,
+    "id": "bide",
+    "ok": true,
+    "passed": 29
+  },
+  "selected_actual_suites": [
+    {
+      "failed": 0,
+      "id": "battle-rewards-v1",
+      "ok": true,
+      "passed": 26
+    },
+    {
+      "failed": 0,
+      "id": "bide",
+      "ok": true,
+      "passed": 29
+    },
+    {
+      "failed": 0,
+      "id": "roost",
+      "ok": true,
+      "passed": 25
+    },
+    {
+      "failed": 0,
+      "id": "roost-predicates",
+      "ok": true,
+      "passed": 4
+    },
+    {
+      "failed": 0,
+      "id": "poison-fang",
+      "ok": true,
+      "passed": 12
+    },
+    {
+      "failed": 0,
+      "id": "title-recovery-probe",
+      "ok": true,
+      "passed": 8
+    },
+    {
+      "failed": 0,
+      "id": "title-recovery",
+      "ok": true,
+      "passed": 20
+    },
+    {
+      "failed": 0,
+      "id": "title-archive-safety",
+      "ok": true,
+      "passed": 2
+    },
+    {
+      "failed": 0,
+      "id": "reward-fault-guards",
+      "ok": true,
+      "passed": 1
+    },
+    {
+      "failed": 0,
+      "id": "weather-reward-witness",
+      "ok": true,
+      "passed": 1
+    }
+  ]
+}

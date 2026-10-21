@@ -137,7 +137,8 @@ end
 -- Normal B2W2 Lv5 initialization yields the protected intro pairs:
 -- Tackle/Growl, Scratch/Growl, or Tackle/Tail Whip. No special override.
 local function starterPokemon(game, species, origin)
-    local mon=assert(Specimen.createForSession(game.session,species,STARTER_LEVEL,origin or "starter"))
+    local mon=assert(Specimen.createForSession(game.session,species,STARTER_LEVEL,origin or "starter",
+        origin=="trainer" and Specimen.blueTrainerPolicy("authored:oaks_lab:npc:2") or nil))
     return mon
 end
 

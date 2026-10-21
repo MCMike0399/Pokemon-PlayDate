@@ -1,6 +1,6 @@
 -- Concrete Gen V transient owner for early-route moves. No durable Pokemon fields.
 Class("BattleConditions")
-local function has(mon,t) return mon.type==t or mon.type2==t end
+local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function alive(mon) return mon and mon:isAlive() end
 local function damage(owner,mon,n,cause)
     local amount=math.max(1,math.floor(n))
@@ -18,6 +18,27 @@ function BattleConditions:of(mon)
     return self.members[mon]
 end
 function BattleConditions:side(mon) return mon==self.battle.player and "player" or "enemy" end
+-- Read-only battle typing; durable Pokemon species types never change.
+function BattleConditions:types(mon)
+    local first,second=mon.type,mon.type2
+    local state=self.members[mon]
+    if state and state.roost then
+        if first=="flying" then first=nil end
+        if second=="flying" then second=nil end
+        if not first then first=second;second=nil end
+        if not first then first="normal" end -- GenV fallback, not GenIV ???.
+    end
+    return first,second
+end
+function BattleConditions:roost()
+    local b=self.battle;local mon=b.attacker
+    if not self:activeSide(mon) or mon~=b[b.attackerSide] or not alive(mon) then return false,"invalid-roost-user" end
+    if mon.hp>=mon.maxHP then b:say("But it failed!");return false,"full-hp" end
+    mon:heal((mon.maxHP+1)//2)
+    self:of(mon).roost={} -- Install after real healing, before narration yields.
+    b:say(mon.name .. " regained health!")
+    return true
+end
 local sideDurations <const> ={lightScreen=5,safeguard=5,tailwind=4}
 local sideSuborders <const> ={lightScreen=2,safeguard=3,tailwind=5}
 local sideNames <const> ={lightScreen="Light Screen",safeguard="Safeguard",tailwind="Tailwind"}
@@ -214,7 +235,7 @@ function BattleConditions:bide()
     if not alive(target) then b:say("But there was no target!");return nil end
     -- GenV release is a physical Normal fixed hit. Generic DirectDamage owns
     -- Ghost immunity, Sturdy, actual HP removed, Rage and contact reactions.
-    if TypeChart.getMatchup(b.currentMove.type,target.type,target.type2)~=0
+    if b:typeMatchup(b.currentMove.type,target)~=0
        and self:blocks(b.currentMove,mon,target) then return nil end
     DirectDamage(DEFENDER,stored.total*2):apply(b)
     if not target:isAlive() then return b:handleFaint() end
@@ -246,7 +267,7 @@ function BattleConditions:mudSport()
 end
 function BattleConditions:curse()
     local b=self.battle;local user,target=b.attacker,b.defender
-    if not has(user,"ghost") then
+    if not has(self,user,"ghost") then
         ModifyStat(ATTACKER,"spe",-1):apply(b);ModifyStat(ATTACKER,"atk",1):apply(b);ModifyStat(ATTACKER,"def",1):apply(b);return
     end
     local state=self:of(target)
@@ -270,7 +291,7 @@ function BattleConditions:rapidSpin()
 end
 function BattleConditions:leechSeed()
     local b=self.battle;local state=self:of(b.defender)
-    if has(b.defender,"grass") or state.seed then b:say("But it failed!");return end
+    if has(self,b.defender,"grass") or state.seed then b:say("But it failed!");return end
     state.seed=b.attackerSide;b:say(b.defender.name.." was seeded!")
 end
 function BattleConditions:trap()
@@ -299,14 +320,14 @@ function BattleConditions:entry(mon,side)
     for _,kind in ipairs(hazards.order or {}) do
         if alive(mon) then
             if kind=="stealthRock" and hazards.stealthRock then
-                damage(self,mon,mon.maxHP*TypeChart.getMatchup("rock",mon.type,mon.type2)/8)
+                damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)
                 b:say("Pointed stones dug into "..mon.name.."!")
-            elseif not has(mon,"flying") then
+            elseif not has(self,mon,"flying") then
                 if kind=="spikes" and hazards.spikes then
                     local divisor=({8,6,4})[hazards.spikes];damage(self,mon,mon.maxHP/divisor);b:say(mon.name.." was hurt by Spikes!")
                 elseif kind=="toxicSpikes" and hazards.toxicSpikes then
-                    if has(mon,"poison") then hazards.toxicSpikes=nil;if hazards.hazardOrigins then hazards.hazardOrigins.toxicSpikes=nil end;b:say(mon.name.." absorbed the poison spikes!")
-                    elseif not has(mon,"steel") and not mon.status
+                    if has(self,mon,"poison") then hazards.toxicSpikes=nil;if hazards.hazardOrigins then hazards.hazardOrigins.toxicSpikes=nil end;b:say(mon.name.." absorbed the poison spikes!")
+                    elseif not has(self,mon,"steel") and not mon.status
                         and not (b.effects and b.effects:statusImmunity(mon,"poison")) then
                         local status=hazards.toxicSpikes==2 and "badPoison" or "poison"
                         local origin=hazards.hazardOrigins and hazards.hazardOrigins.toxicSpikes
@@ -324,6 +345,7 @@ function BattleConditions:events()
         local mon=self.battle[side];local state=self:of(mon)
         local function add(kind,order) events[#events+1]={side=side,pokemon=mon,kind=kind,order=order} end
         if alive(mon) then
+            if state.roost then events[#events+1]={side=side,pokemon=mon,kind="roostEnd",order=25,record=state.roost} end
             if state.seed then add("seed",8) end
             if mon.status=="poison" or mon.status=="badPoison" then add("status",9) end
             if mon.status=="burn" then add("status",10) end
@@ -351,6 +373,11 @@ function BattleConditions:residual(event)
             self.sides[event.side][event.condition]=nil
             b:say((event.side=="player" and "Your " or "The opposing ")..sideNames[event.condition].." wore off!")
         end
+        return
+    end
+    if event.kind=="roostEnd" then
+        local state=self.members[event.pokemon]
+        if state and state.roost==event.record then state.roost=nil end
         return
     end
     local mon=event.pokemon;local state=self:of(mon)

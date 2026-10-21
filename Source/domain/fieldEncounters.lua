@@ -110,7 +110,8 @@ function FieldEncounters.resolve(token)
                 receipt.kind,receipt.reason="encounter","accepted"
                 receipt.creation={version=creation.version,origin=creation.origin,draws=creation.draws,rawRolls=creation.rawRolls,
                     abilitySlot=creation.abilitySlot,natureId=creation.natureId,sex=creation.sex,sexByte=creation.sexByte,
-                    heldItem=creation.heldItem,heldRoll=creation.heldRoll,heldPolicy=creation.heldPolicy}
+                    heldItem=creation.heldItem,heldRoll=creation.heldRoll,heldPolicy=creation.heldPolicy,
+                    individualPolicy=creation.individualPolicy,individualSource=creation.individualSource,ivs=creation.ivs,evs=creation.evs}
                 chosenPokemon=mon
             end
         end

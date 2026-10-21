@@ -19,7 +19,7 @@ function TraitContracts.run()
  test("151 exact B2W2 ratio inventory and valid pure constructor defaults",function()
   local counts={};local n=0;local before=RulesRNG.snapshot()
   for species in pairs(pokemonData)do local ratio=assert(SpecimenTraits.ratios[species]);counts[ratio]=(counts[ratio]or 0)+1;n=n+1
-   local p=Pokemon(species,5);eq(p:getSex(),Specimen.defaultSex(species));eq(p.sexProvenance.kind,"constructor-default");local old=assert(PokemonCodec.encode(p));old.version=5;old.sex,old.sexProvenance=nil,nil
+   local p=Pokemon(species,5);eq(p:getSex(),Specimen.defaultSex(species));eq(p.sexProvenance.kind,"constructor-default");local old=assert(PokemonCodec.encode(p));old.version=5;old.ivs,old.evs=nil,nil;old.sex,old.sexProvenance=nil,nil
    local again=assert(PokemonCodec.decode(old));eq(again:getSex(),Specimen.defaultSex(species));eq(again.sexProvenance.kind,"legacy-default")
   end
   eq(n,151);same(counts,{[0]=6,[31]=19,[63]=10,[127]=91,[191]=6,[254]=6,[255]=13});same(before,RulesRNG.snapshot())
@@ -29,11 +29,11 @@ function TraitContracts.run()
  end)
  test("Seed1 creation literal third sample records generated male Clefairy",function()
   local rng=RulesRNG.new(1);local p,r=Specimen.create("clefairy",5,"gift",rng);assert(p,r)
-  eq(p.abilitySlot,"first");eq(p.natureId,23);eq(p:getSex(),"male");eq(p.sexProvenance.byte,216);eq(r.version,2);eq(r.draws,3);eq(r.rawRolls,3);eq(rng:snapshot().state,1622650073)
+  eq(p.abilitySlot,"first");eq(p.natureId,23);eq(p:getSex(),"male");eq(p.sexProvenance.byte,216);eq(r.version,3);eq(r.draws,9);eq(r.rawRolls,9);eq(rng:snapshot().state,1458777923)
   eq(Pokemon("clefairy",5):getSex(),"female");local a=p:attributes();a.sexProvenance.byte=0;eq(p.sexProvenance.byte,216)
  end)
  test("Fixed sex and genderless creation still consume explicit independent third sample",function()
-  for _,species in ipairs({"nidoranF","nidoranM","staryu"})do local rng=RulesRNG.new(1);local p,r=Specimen.create(species,5,"trainer",rng);assert(p,r);eq(r.draws,3);eq(rng:snapshot().state,1622650073);eq(p:getSex(),Specimen.defaultSex(species))end
+  for _,species in ipairs({"nidoranF","nidoranM","staryu"})do local rng=RulesRNG.new(1);local p,r=Specimen.create(species,5,"trainer",rng,nil,Specimen.blueTrainerPolicy("contract:fixed-sex"));assert(p,r);eq(r.draws,3);eq(rng:snapshot().state,1622650073);eq(p:getSex(),Specimen.defaultSex(species))end
  end)
  test("Species sex and bounded provenance mutations reject without RNG",function()
   local p=assert(Specimen.create("pikachu",5,"gift",RulesRNG.new(1)));local data=assert(PokemonCodec.encode(p));local before=RulesRNG.snapshot()
@@ -43,7 +43,7 @@ function TraitContracts.run()
  end)
  test("Legacy3 4 5 preserve all prior fields with deterministic no-RNG assigned sex",function()
   for _,species in ipairs({"clefairy","pikachu","nidoranF","nidoranM","staryu"})do
-   for _,version in ipairs({3,4,5})do local p=Pokemon(species,20);p.name="OLD";p.hp=1;p.pp[p.moves[1]]=0;local data=assert(PokemonCodec.encode(p));data.version=version;data.sex,data.sexProvenance=nil,nil
+   for _,version in ipairs({3,4,5})do local p=Pokemon(species,20);p.name="OLD";p.hp=1;p.pp[p.moves[1]]=0;local data=assert(PokemonCodec.encode(p));data.version=version;data.ivs,data.evs=nil,nil;data.sex,data.sexProvenance=nil,nil
     if version<5 then data.natureId,data.abilitySlot,data.heldItem=nil,nil,nil end
     local before=RulesRNG.snapshot();local again=assert(PokemonCodec.decode(data));local encoded=assert(PokemonCodec.encode(again));eq(encoded.sex,Specimen.defaultSex(species));eq(encoded.sexProvenance.kind,"legacy-default")
     for key,value in pairs(data)do if key~="version"then same(encoded[key],value)end end;same(before,RulesRNG.snapshot())
@@ -56,11 +56,11 @@ function TraitContracts.run()
  end)
  test("Ordinary wild Pikachu exact five of100 outcomes with empty common slot",function()
   local found=0;for roll=0,99 do local id=Specimen.ordinaryPikachuItem(roll);if id=="lightBall"then found=found+1;assert(roll>=50 and roll<=54)else eq(id,"none")end end;eq(found,5)
-  for _,v in ipairs({{48,49,"none"},{91,50,"lightBall"},{86,54,"lightBall"},{70,55,"none"}})do local p,r=Specimen.create("pikachu",5,"wild",RulesRNG.new(v[1]));assert(p,r);eq(r.draws,4);eq(r.heldRoll,v[2]);eq(p.heldItem,v[3]);eq(r.heldItem,v[3])end
+  for _,v in ipairs({{48,49,"none"},{91,50,"lightBall"},{86,54,"lightBall"},{70,55,"none"}})do local p,r=Specimen.create("pikachu",5,"wild",RulesRNG.new(v[1]));assert(p,r);eq(r.draws,10);eq(r.heldRoll,v[2]);eq(p.heldItem,v[3]);eq(r.heldItem,v[3])end
  end)
  test("Nonwild Pikachu and other species never use this narrow held-acquisition sampler",function()
-  for _,origin in ipairs({"starter","trainer","gift","debug"})do local p,r=Specimen.create("pikachu",5,origin,RulesRNG.new(91));assert(p,r);eq(p.heldItem,"none");eq(r.draws,3);eq(r.heldRoll,nil)end
-  local p,r=Specimen.create("rattata",5,"wild",RulesRNG.new(91));assert(p,r);eq(p.heldItem,"none");eq(r.draws,3)
+  for _,origin in ipairs({"starter","trainer","gift","debug"})do local p,r=Specimen.create("pikachu",5,origin,RulesRNG.new(91),nil,origin=="trainer"and Specimen.blueTrainerPolicy("contract:nonwild")or nil);assert(p,r);eq(p.heldItem,"none");eq(r.draws,origin=="trainer"and 3 or 9);eq(r.heldRoll,nil)end
+  local p,r=Specimen.create("rattata",5,"wild",RulesRNG.new(91));assert(p,r);eq(p.heldItem,"none");eq(r.draws,9)
  end)
  test("Compound Eyes exact20percent boundaries and authoritative fainted physical slot1",function()
   local count=0;for roll=0,99 do if Specimen.ordinaryPikachuItem(roll,true)=="lightBall"then count=count+1;assert(roll>=60 and roll<=79)end end;eq(count,20)
@@ -71,14 +71,14 @@ function TraitContracts.run()
  test("Production Zone passes real slot1 lead through whole encounter transaction",function()
   local lead=Pokemon("butterfree",10);local game=owned(lead);assert(game.session:party():swap(1,2));assert(game.session:activateRNG());lead.hp=0
   local zone=Zone({name="held contract",tileRows={"Fo"},encounters={{species="pikachu",minLevel=5,maxLevel=5,weight=1}}})
-  RulesRNG.seed(1);local p=zone:rollEncounter(game.session);eq(p.heldItem,"lightBall");eq(RulesRNG.snapshot().rolls,6)
+  RulesRNG.seed(1);local p=zone:rollEncounter(game.session);eq(p.heldItem,"lightBall");eq(RulesRNG.snapshot().rolls,12)
  end)
  test("Actual Blue Forest chance slots creation and held acquisition match independent literal stream",function()
   local zone=PewterWorld.isolated("ViridianForest");local gx,gy
   for y=0,zone.height-1 do for x=0,zone.width-1 do if zone:isTallGrass(x,y)then gx,gy=x,y;break end end;if gx then break end end;assert(gx)
-  for _,v in ipairs({{19525,false,"lightBall",154,5,1172808654},{2583,false,"none",44,17,1108624865},{2583,true,"lightBall",44,17,1108624865}})do
+  for _,v in ipairs({{19525,false,"lightBall",154,5,1285017372},{2583,false,"none",44,17,823536374},{2583,true,"lightBall",44,17,823536374}})do
    local game=owned(v[2]and Pokemon("butterfree",10)or nil);if v[2]then assert(game.session:party():swap(1,2))end;assert(game.session:activateRNG());RulesRNG.seed(v[1])
-   assert(zone:checkEncounter(gx,gy));local p=zone:rollEncounter(game.session);eq(p.species,"pikachu");eq(p.level,3);eq(p.heldItem,v[3]);eq(p.sexProvenance.byte,v[4]);eq(p.natureId,v[5]);eq(RulesRNG.snapshot().rolls,7);eq(RulesRNG.snapshot().state,v[6])
+   assert(zone:checkEncounter(gx,gy));local p=zone:rollEncounter(game.session);eq(p.species,"pikachu");eq(p.level,3);eq(p.heldItem,v[3]);eq(p.sexProvenance.byte,v[4]);eq(p.natureId,v[5]);eq(RulesRNG.snapshot().rolls,13);eq(RulesRNG.snapshot().state,v[6])
   end
  end)
  test("Absent foreign inactive stale or nonwild encounter contexts reject before draws",function()

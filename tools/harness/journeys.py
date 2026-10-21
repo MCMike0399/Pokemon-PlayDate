@@ -232,6 +232,9 @@ class Journey:
             raise ProtocolError("rival_fixture must be win or loss")
         won, lost = self.battle("rival", strategy="status" if outcome == "loss" else "attack",
                                 expected=outcome or self.config.get("expected_outcome"))
+        # A confirmed lab victory can present its payout before exploration
+        # advances the goodbye gate. Finish that overlay before awaiting it.
+        self.dialog()
         self.await_value("story.stage", "done")
         self.require(zone="oaks_lab", **{"story.rivalOutcome": won})
         self.dialog()
@@ -393,6 +396,9 @@ def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None,
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")
+    if config.get("name") == "reward-hud":
+        from tools.harness.reward_hud import run as run_reward_hud
+        return run_reward_hud(client, scenario, evidence_dir)
     if config.get("name") == "brock-source-supplementary" and config.get("case") == "field-rope-input":
         from tools.harness.field_rope_journey import run as run_rope
         return run_rope(client, scenario, evidence_dir, build_evidence=build_evidence, capture_dir=capture_dir)

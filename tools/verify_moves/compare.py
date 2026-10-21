@@ -124,7 +124,8 @@ def compare_learnset(name, species, oracle, local_moves):
             'expected_learnset': expected or []}
 
 
-# Source-verified dispatcher gaps, not an exhaustive semantics allowlist.
+# Special semantics needing reviewed source + executed evidence. Names are
+# requirements, never an automatic present/missing implementation oracle.
 SPECIAL_GAPS = {
     'hyperBeam': 'recharge', 'gigaImpact': 'recharge', 'solarBeam': 'charge/weather',
     'fly': 'charge/invulnerability', 'dig': 'charge/invulnerability', 'dive': 'charge/invulnerability',
@@ -137,31 +138,55 @@ SPECIAL_GAPS = {
 }
 
 
-def semantics_inventory(moves, oracle):
+def semantics_inventory(moves, oracle, runtime=None):
     inventory = []
     for key, row in sorted(moves.items()):
         reasons = []
         status = 'requires-independent-runtime-contract'
+        context = (runtime or {}).get(key)
+        capabilities = set(context.get('capabilities', [])) if context else set()
         if key == 'splash': status = 'intentional-no-effect'
         elif key in SPECIAL_GAPS:
-            status = 'known-runtime-gap'; reasons.append(SPECIAL_GAPS[key])
+            status = 'special-semantics-review-required'; reasons.append(SPECIAL_GAPS[key])
         elif row['category'] == 'status' and not row.get('effects'):
             status = 'status-dispatch-review-required'; reasons.append('no effects or dedicated dispatcher; verify intentional failure/no-op policy')
         elif (row['category'] != 'status' and row['power'] == 0
               and not row.get('effects') and row.get('ohko') is not True):
-            status = 'missing-damage-dispatch'; reasons.append('zero-base-power attack has no damage effect')
+            status = 'damage-dispatch-review-required'; reasons.append('zero-base-power attack needs a reviewed dedicated dispatcher, not only a generated field')
         source = oracle.moves.get(key)
         meta = oracle.meta.get(number(source, 'id'), {}) if source else {}
         if meta.get('crit_rate') not in (None, '', '0'):
-            status = 'known-runtime-gap'; reasons.append('source crit-rate modifier has no engine field')
+            if not ({'critical-stage', 'forced-critical'} & capabilities):
+                if not reasons: status = 'critical-rate-review-required'
+                reasons.append('critical-rate semantics require reviewed owner and executed assertions')
+        if context:
+            if context['state'] == 'stale':
+                status = 'runtime-evidence-stale'; reasons = context['reasons']
+            elif context['state'] == 'source_gap':
+                status = 'known-runtime-gap'; reasons = [context['scope']]
+            elif context['state'] == 'source_only':
+                status = 'source-implemented-verification-pending'; reasons = [context['scope']]
+            else:
+                # Proof of critical-stage metadata does not prove RazorWind's
+                # separate charge rule. Retain every uncovered requirement.
+                requirement = SPECIAL_GAPS.get(key)
+                if requirement and requirement not in capabilities:
+                    pass
+                elif status == 'damage-dispatch-review-required' and not ({'fixed-damage-dispatch','variable-power-dispatch'} & capabilities):
+                    pass
+                elif status == 'status-dispatch-review-required' and not ({'status-dispatch','intentional-singles-failure'} & capabilities):
+                    pass
+                else:
+                    status = 'implemented-scoped-runtime-evidence'; reasons = []
         inventory.append({'move': key, 'status': status, 'reasons': reasons,
+                          'runtime_coverage': context, 'scope_limit': 'Scoped evidence is not whole-move or whole-engine acceptance.',
                           'reference_effect': oracle.effect_prose.get(number(source, 'effect_id')) if source else None,
                           'reference_meta': meta,
                           'reference_stat_changes': oracle.stat_changes.get(number(source, 'id'), []) if source else []})
     return inventory
 
 
-def verify(species, moves, oracle):
+def verify(species, moves, oracle, runtime=None):
     if not species or not moves: raise SourceError('cannot verify an empty roster or move library')
     learnsets = [compare_learnset(name, row, oracle, moves) for name, row in sorted(species.items(), key=lambda x: x[1]['dex'])]
     fields = []
@@ -175,14 +200,14 @@ def verify(species, moves, oracle):
         except SourceError as error:
             failures.append(issue('unknown-or-invalid-reference-move', message=str(error)))
         fields.append({'move': key, 'ok': not failures, 'issues': failures})
-    inventory = semantics_inventory(moves, oracle)
+    inventory = semantics_inventory(moves, oracle, runtime)
     gaps = [row for row in inventory if row['status'] in ('known-runtime-gap', 'missing-damage-dispatch')]
-    reviews = [row for row in inventory if row['status'] == 'status-dispatch-review-required']
+    reviews = [row for row in inventory if row['status'] in ('status-dispatch-review-required','damage-dispatch-review-required','special-semantics-review-required','critical-rate-review-required','source-implemented-verification-pending','runtime-evidence-stale')]
     return {'ok': all(row['ok'] for row in learnsets + fields) and not gaps and not reviews,
             'version_group': VERSION_GROUP, 'tie_policy': TIE_POLICY, 'learnsets': learnsets,
             'runtime_semantics_complete': False,
             'move_fields': fields, 'runtime_semantics': inventory,
             'counts': {'species': len(species), 'moves': len(moves),
                        'learnset_failures': sum(not row['ok'] for row in learnsets),
-                       'move_field_failures': sum(not row['ok'] for row in fields), 'known_runtime_gaps': len(gaps), 'status_dispatch_reviews': len(reviews),
+                       'move_field_failures': sum(not row['ok'] for row in fields), 'known_runtime_gaps': len(gaps), 'status_dispatch_reviews': sum(row['status']=='status-dispatch-review-required' for row in inventory), 'runtime_review_required': len(reviews), 'scoped_runtime_evidence': sum(row['status']=='implemented-scoped-runtime-evidence' for row in inventory), 'runtime_evidence_stale': sum(row['status']=='runtime-evidence-stale' for row in inventory),
                        'runtime_unreviewed': sum(row['status'] == 'requires-independent-runtime-contract' for row in inventory)}}

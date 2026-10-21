@@ -1,0 +1,7 @@
+{
+  "journey": {
+    "name": "intro",
+    "starter": "bulbasaur",
+    "seed": 42
+  }
+}

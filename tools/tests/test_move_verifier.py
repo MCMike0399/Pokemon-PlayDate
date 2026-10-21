@@ -160,7 +160,8 @@ class MoveFieldTests(unittest.TestCase):
         rows['pound']['ohko'] = False
         result = verify({'fixture': species()}, rows, Oracle(fixture()))
         inventory = {x['move']: x for x in result['runtime_semantics']}
-        self.assertEqual('missing-damage-dispatch', inventory['pound']['status'])
+        self.assertEqual('damage-dispatch-review-required', inventory['pound']['status'])
+        self.assertFalse(result['ok']); self.assertFalse(result['runtime_semantics_complete'])
 
 
 class SourceTests(unittest.TestCase):

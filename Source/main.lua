@@ -12,6 +12,8 @@ import "world/tilefactory"
 import "world/tileRegistry"
 import "world/spritefactory"
 import "world/zone"
+import "data/individualData"
+import "domain/individualStats"
 import "data/pokemon"
 import "data/pokemonArt"
 import "domain/party"
@@ -145,6 +147,14 @@ import "dev/battleLearningEvolutionContracts"
 Contracts.register("battleLearningEvolutionContracts", BattleLearningEvolutionContracts.run)
 import "dev/battleItemContracts"
 Contracts.register("battle-items", BattleItemContracts.run)
+import "dev/residualRewardProbe"
+Contracts.register("native-condition-witness",ResidualRewardProbe.run)
+import "dev/conditionCheckpointContracts"
+Contracts.register("condition-checkpoints-v1",ConditionCheckpointContracts.run)
+import "dev/rewardContracts"
+Contracts.register("battle-rewards-v1", RewardContracts.run)
+import "dev/individualContracts"
+Contracts.register("individual-stats-v1", IndividualContracts.run)
 import "dev/specimenContracts"
 Contracts.register("specimenContracts", SpecimenContracts.run)
 import "dev/specimenTrainerContracts"
@@ -203,6 +213,20 @@ import "dev/protectContracts"
 Contracts.register("protect",ProtectContracts.run)
 import "dev/sideContracts"
 Contracts.register("sides",SideContracts.run)
+import "dev/roostContracts"
+Contracts.register("roost",RoostContracts.run)
+import "dev/roostPredicateContracts"
+Contracts.register("roost-predicates",RoostPredicateContracts.run)
+import "dev/poisonFangContracts"
+Contracts.register("poison-fang",PoisonFangContracts.run)
+import "dev/secondaryContracts"
+Contracts.register("secondaries",SecondaryContracts.run)
+import "dev/titleRecoveryProbe"
+Contracts.register("title-recovery-probe",TitleRecoveryProbe.run)
+import "dev/titleRecoveryContracts"
+Contracts.register("title-recovery",TitleRecoveryContracts.run)
+import "dev/titleArchiveSafetyContracts"
+Contracts.register("title-archive-safety",TitleArchiveSafetyContracts.run)
 import "dev/catalog"
 import "dev/pewterCatalogExporter"
 PewterCatalogExporter.register()
@@ -240,6 +264,12 @@ Contracts.register("red-pc-items",ItemPCContracts.run)
 import "domain/fieldEncounters"
 import "dev/fieldEncounterContracts"
 Contracts.register("field-encounters",FieldEncounterContracts.run)
+
+import "dev/rewardFaultGuards"
+Contracts.register("reward-fault-guards",RewardFaultGuards.run)
+
+import "dev/weatherRewardWitness"
+Contracts.register("weather-reward-witness",WeatherRewardWitness.run)
 
 game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 

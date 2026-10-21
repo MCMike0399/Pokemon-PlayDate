@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+  "sdk": {
+    "passed": 1059,
+    "failed": 0
+  },
+  "acceptance": "private-root-verified-not-main",
+  "actual_result": "docs/validation/coverage-evidence/private1059-result.json",
+  "actual_result_sha256": "f91e54116879025173d91904495f0e1f00b2b4a428a3ebdae78359b773220b0e",
+  "bide_suite": {
+    "failed": 0,
+    "id": "bide",
+    "ok": true,
+    "passed": 29
+  }
+}

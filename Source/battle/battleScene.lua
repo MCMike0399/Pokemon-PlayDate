@@ -98,7 +98,7 @@ function BattleScene:enter()
                 local pp = self.battle.player.pp[moveKey] or 0
                 local label = move.name
                 -- Show type effectiveness icon next to move name
-                local mult = TypeChart.getMatchup(move.type, self.battle.enemy.type, self.battle.enemy.type2)
+                local mult = self.battle:typeMatchup(move.type,self.battle.enemy)
                 local icon = TypeChart.icon(mult)
                 if icon ~= "" then
                     label = label .. " " .. icon
@@ -320,8 +320,9 @@ function BattleScene:drawBattleField()
     -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
     -- so nothing pokes through the frame.
     local enemy = self.battle.enemy
+    local enemyLevel,enemyHP,enemyMaxHP=self.battle:presentationVitals(enemy)
     gfx.setFont(battleFont)
-    local enemyLabel = enemy.name .. "  Lv" .. enemy.level
+    local enemyLabel = enemy.name .. "  Lv" .. enemyLevel
     local enemyTextW, _ = gfx.getTextSize(enemyLabel)
     local eBoxW = math.max(140, enemyTextW + 20)
     gfx.setColor(gfx.kColorWhite)
@@ -336,13 +337,14 @@ function BattleScene:drawBattleField()
         eBarW = eBarW - 36
         gfx.drawText(statusLabels[enemy.status] or "???", eBarX + eBarW + 6, 23)
     end
-    self:drawHPBar(eBarX, 26, eBarW, 8, enemy.hp, enemy.maxHP)
+    self:drawHPBar(eBarX, 26, eBarW, 8, enemyHP, enemyMaxHP)
 
     -- Player info box (bottom-right): name/level, HP bar, HP numbers,
     -- and a thin XP gauge along the bottom edge
     local player = self.battle.player
+    local playerLevel,playerHP,playerMaxHP=self.battle:presentationVitals(player)
     gfx.setFont(battleFont)
-    local playerLabel = player.name .. "  Lv" .. player.level
+    local playerLabel = player.name .. "  Lv" .. playerLevel
     local playerTextW, _ = gfx.getTextSize(playerLabel)
     local pBoxW = math.max(150, playerTextW + 20)
     local pBoxX = 396 - pBoxW
@@ -359,8 +361,8 @@ function BattleScene:drawBattleField()
         pBarW = pBarW - 36
         gfx.drawText(statusLabels[player.status] or "???", pBarX + pBarW + 6, pBoxY + 22)
     end
-    self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, player.hp, player.maxHP)
-    local hpText = player.hp .. "/" .. player.maxHP
+    self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, playerHP, playerMaxHP)
+    local hpText = playerHP .. "/" .. playerMaxHP
     local hpTextW, _ = gfx.getTextSize(hpText)
     gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
     -- XP gauge
