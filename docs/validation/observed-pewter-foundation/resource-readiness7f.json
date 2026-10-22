@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "status": "root-executed instrumented Simulator measurements; no hardware/native-allocation or natural progression claim",
+  "base_source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+  "archive": "resource-readiness7f.tar.gz",
+  "sha256": "d026d7435802c6fe392eeb99cf85a8e73d52e316344607b53db20e8017e021dd",
+  "bytes": 713173,
+  "runs": [
+    {
+      "name": "harness-controlled",
+      "source_sha256": "3989198a8834ae73b08351961abb57f65e8ca2d265acbee1525bf123c1f9ff0d",
+      "compiled_source_sha256": "8045059fd517b4a771fedfa59ccca06509d41c759788becf3e1dbabc88aff2d3",
+      "mode": "harness",
+      "observer": "milestones",
+      "base_source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+      "ok": true
+    },
+    {
+      "name": "production-controlled",
+      "source_sha256": "3989198a8834ae73b08351961abb57f65e8ca2d265acbee1525bf123c1f9ff0d",
+      "compiled_source_sha256": "1c01756682632d1f3cf9a1e5381b6781205bb793a92c0c94ce09faa52f992344",
+      "mode": "production",
+      "observer": "milestones",
+      "base_source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+      "ok": true
+    },
+    {
+      "name": "production-idle",
+      "source_sha256": "3989198a8834ae73b08351961abb57f65e8ca2d265acbee1525bf123c1f9ff0d",
+      "compiled_source_sha256": "fe9d000c6c49fcc84da27cead3d8e3bfd2e9a531730a5047bb1f50504c12247a",
+      "mode": "production",
+      "observer": "milestones",
+      "base_source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+      "ok": true
+    },
+    {
+      "name": "production-imports-controlled",
+      "source_sha256": "3989198a8834ae73b08351961abb57f65e8ca2d265acbee1525bf123c1f9ff0d",
+      "compiled_source_sha256": "db76fb364f49b624759d49f4f27e614b2f343a89078166eb9e92e318cceeba1d",
+      "mode": "production",
+      "observer": "imports",
+      "base_source_sha256": "7f2f4eda2d8e3d1fd0c0d2b63eb7ad4a824a290d7bf1e42ae421a9f16e8e2979",
+      "ok": true
+    }
+  ],
+  "limit": "Controlled API setup/54 map entries across18 available maps; idle battle frames and unfinished exit, no fabricated victory/rewards. Lua heap/counters exclude native allocations. Import-gate optimization remains private and unaccepted.",
+  "archive_reconstruction": {
+    "verified": true,
+    "runs": 4,
+    "qualification_sha256": "f15bbc01cdcf7051c9281cecf67b247ed6247003c2dbbf21975d1d9ff61b66ba",
+    "method": "All4 archived Sources independently reconstructed from retained1059 baseline and per-run overlays; both compiled and pre-publication ordinary identities match."
+  }
+}

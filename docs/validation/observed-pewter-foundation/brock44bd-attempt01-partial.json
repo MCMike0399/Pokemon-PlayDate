@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "status": "Historical partial export: completed Squirtle and failed Bulbasaur. Full8case attempt subsequently user-interrupted; no all3 acceptance.",
+  "revision": "82cb2073d2e20f1a85cb3643428fc342a23c8e66",
+  "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "archive": "brock44bd-attempt01-partial.tar.gz",
+  "sha256": "21bad5d1e6b5b76e91285c11f9920b4d87c0c9d37ea9d4154f6f29bda9f7c3de",
+  "bytes": 78959667,
+  "cases": [
+    {
+      "case": "01-brock--brock-restart-bulbasaur",
+      "outcome": {
+        "captures_finalized": true,
+        "error": "step warp failed to activate",
+        "ok": false,
+        "process_generations": 1,
+        "session_id": "66cb7f6cffd94963aff0a11761cd76ec"
+      },
+      "pids": [
+        20932
+      ],
+      "compiled_source_sha256": "ee5e08333796ce188071feebb939606137d632bef0f74f41701b4a5dbb775372",
+      "source_overlay_files": 2
+    },
+    {
+      "case": "02-brock--brock-restart",
+      "outcome": {
+        "ok": true,
+        "process_generations": 2,
+        "session_id": "0bc29945a122469fb61a7911f3fe8f9d"
+      },
+      "pids": [
+        28966,
+        71246
+      ],
+      "compiled_source_sha256": "a9cb7cacf478e02f07c9251e435eff48d4dbeaf77db43217df5b66aa5a721eee",
+      "source_overlay_files": 2
+    }
+  ],
+  "root_squirtle_review_sha256": "95ab38539dbcd50a04956056199b0e2de85c282870604d4aa44bcf05c3c950ca",
+  "limits": [
+    "88real training battles intentionally witness evolution; no ordinary pacing/balance certification",
+    "failed originalBulbasaur retained; native warp proof/fresh retry pending",
+    "all3 campaign gate and remaining fullcampaign/postgame/resources still incomplete"
+  ],
+  "superseded_attempt_status": "brock44bd-user-interrupted.json"
+}

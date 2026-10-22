@@ -1,17 +1,20 @@
 # Full-game execution ledger
 
-**Active and incomplete:** [complete goal](../plans/astra-full-game-goal.md).
+**Paused at user request; incomplete:** [complete goal](../plans/astra-full-game-goal.md).
 GPT-6.1 Sol root owns integration and independent acceptance. All bounded workers
 are explicitly Sol6.1/medium; followups retain those settings. Runtime controls
 show identities/statuses, not resolved model/effort. Root alone owns Simulator.
 [Earlier history](progress-history-pre-correctness1091.md).
+All workers are idle/completed and all owned runner/Simulator processes stopped.
+No implementation resumes until the user resumes the goal.
 
 ## Current accepted correctness Source
 
 Live main working tree is **Source
 `44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc`**,
-based on `d9f57ea`; the integration commit is being recorded. Remote remains
-`ba8975d`; no new push is implied. Production compile PASS, **1091 SDK PASS/0 FAIL,
+implementation committed as `82cb207` (base `d9f57ea`). The user requested
+publishing the current work to main, including this checkpoint and frozen
+unaccepted handoffs; no private implementation is activated by archiving it. Production compile PASS, **1091 SDK PASS/0 FAIL,
 529 host PASS/0 skips**, and **2494/2494 catalog images exact**, masks/hidden RGB
 included. Root reviewed narrow patches, reran the integrated checks and inspected
 actual native evidence. These are component results, not campaign acceptance.
@@ -60,8 +63,42 @@ or general backup browser. Device validation remains unrun.
   support. Bide/SweetScent refresh follows actual1091 proof; unverified gaps stay
   visible. Whirlwind17 is a concrete next-region dependency.
 
-Freeze Source44bd during final campaign journeys; all unrelated work stays
-private. After campaign-path acceptance, proceed directly to Moon/Cerulean/Bill
+The8-case attempt at `/private/tmp/pokemon-root-brock-freeze82cb207-01`
+was stopped at user request: **1pass,1failure,1interrupted,5not run**. Source44bd
+remained frozen throughout. This is not an accepted all3 milestone.
+
+- Bulbasaur failed after a real Brock loss/blackout recovery: the host driver
+  selected its current Forest arrival warp as a zero-step route. Finalized failed
+  evidence remains failed. Private reentry repair reproduces the exact error in
+  0.009s;6regressions/74targeted host checks and independent host review pass.
+  Native return and a fresh full Bulbasaur2process journey remain unrun.
+- Squirtle PASS with confirmed-exited PIDs28966/71246: Brock/badge/TM, real
+  Save/Continue, complete diagnostic Session equality including both Brock foes
+  seen, unchanged durable files and exact saved/continued Gym PNG. Root inspected
+  readable evolution announcement/result and96frames showing both species;
+  IV/EV/nature/slot preserved.88 real preparation fights deliberately witness
+  evolution; they do not certify ordinary pacing or balance.
+- Charmander was interrupted by the user. Runner confirms failed-exited;
+  captures_finalized=false, so its retained files are diagnostics only. Five
+  supplementary cases never ran. No interrupted/not-run result gets credit.
+
+[Closed Bulbasaur/Squirtle evidence](observed-pewter-foundation/brock44bd-attempt01-partial.json),
+[interrupted attempt and exact suite record](observed-pewter-foundation/brock44bd-user-interrupted.json).
+
+When resumed, reconcile HEAD/ownership first. Apply only the3paths in the
+[host reentry repair](../plans/implementation-handoffs/pokemon-brock-warp-reentry-01.tar.gz)
+and the separate method-scoped
+[learning-panel capture patch](../plans/implementation-handoffs/pokemon-brock-learning-evidence-01.tar.gz).
+Do not replace one complete driver snapshot with the other. Root-private composed
+candidate `/private/tmp/pokemon-root-brock-driver-composed-01` passes78targeted
+host checks; learning adds only shots, with every old non-capture command and
+selection preserved in3traces. Native learning images remain unrun.
+
+Next actual work: native-warp-return.json with settled/explore shots, fresh full
+Bulbasaur and Charmander2process journeys, then the5unrun supplements. Preserve
+all original failed/interrupted status. Keep Source44bd frozen for the remaining
+campaign gate and accept only completed source-specific actual evidence.
+After campaign-path acceptance, proceed directly to Moon/Cerulean/Bill
 while closing regional and mechanics work. Champion, credits, original postgame,
 audio, naming/options, availability/trade policy, balance and release/device
 validation remain mandatory. Brock is never the final objective.
@@ -75,13 +112,16 @@ rendered images145 plateau on revisits; LRU2 does not itself bound those globals
 Detailed startup observation materially changes timing. These are Lua/counter
 observations, not native allocation/device fit.30FPS/33.33ms remains the target;
 transition spikes and device work are outstanding.
+[Executed resource evidence](observed-pewter-foundation/resource-readiness7f.json)
+retains all4 runs; root independently reconstructed every archived ordinary and
+compiled Source identity.
 
 | Owner | Private or next bounded work |
 |---|---|
-| root | Sole runtime owner; frozen all3Brock path and targeted retry/blackout/cancel/seen-restart evidence next. |
-| rules_contracts | Whirlwind/Flatter proposal with21 actualPS vectors; implementation not authorized/integrated yet. |
-| visual_catalog | Per-event coverage expansion; all future/indexed events remain distinct from playable acceptance. |
-| harness | Main-only production import gate frozen privately; before/after runtime/input/pixel acceptance pending. No cache rewrite. |
+| root | Paused. Remaining Brock acceptance and composed host patches above. |
+| rules_contracts | Frozen Whirlwind: producer13/root58host, root6host/compile;27SDK/3native unrun. Moon5move proposal has47actualPS cases, no implementation. Nearby Magnitude15/FuryCutter14–17/DigTM28 remain scheduled; not all later levels are grind-tail. |
+| visual_catalog | Frozen3642-row matrix: root74host, unintegrated. Object4 question: root compile/source check,21SDK/native unrun; museum escort proposal only. Cerulean source-only packet13host/91artifacts, no runtime or City story/healing acceptance. |
+| harness | Import gate remains private/unaccepted. Frozen current-owner Moon rebase review and growth-item proposal; Candy fainted exception/vitamin100/510 caps pinned. Friendship side effects remain an explicit model/scope gap. |
 
 Route22, Moon and Mirror candidates/proposals remain private. The import gate is
 outside this correctness batch. [Frozen handoffs](../plans/implementation-handoffs/manifest.json)

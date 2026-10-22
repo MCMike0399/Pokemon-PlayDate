@@ -1,0 +1,25 @@
+{
+  "archive_restored": true,
+  "runs": [
+    {
+      "run": "harness-controlled",
+      "ordinary": true,
+      "compiled": true
+    },
+    {
+      "run": "production-controlled",
+      "ordinary": true,
+      "compiled": true
+    },
+    {
+      "run": "production-idle",
+      "ordinary": true,
+      "compiled": true
+    },
+    {
+      "run": "production-imports-controlled",
+      "ordinary": true,
+      "compiled": true
+    }
+  ]
+}

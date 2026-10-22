@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "status": "USER PAUSED: Charmander interrupted,5remainingcases not run. Artifacts were not finalized; all retained images/traces are diagnostic only, never acceptance.",
+  "revision": "82cb2073d2e20f1a85cb3643428fc342a23c8e66",
+  "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "archive": "brock44bd-user-interrupted.tar.gz",
+  "sha256": "f47849a2ea6a2882e270a135eeb9e81ce81911137c9ee845261b6a2b82feefe0",
+  "bytes": 17977469,
+  "cases": [
+    {
+      "case": "03-brock--brock-restart-charmander",
+      "outcome": {
+        "captures_finalized": false,
+        "error": "",
+        "ok": false,
+        "process_generations": 1,
+        "session_id": "c5ca1c04b1484019907a08053e69c33f"
+      },
+      "pids": [
+        71503
+      ],
+      "compiled_source_sha256": "d37be91822442a575e07204c6a49d0804a43db05a47dceba16c6173a541350d6",
+      "source_overlay_files": 2
+    }
+  ],
+  "limits": [
+    "User-requested interruption, captures_finalized=false; no native/campaign acceptance",
+    "Original Bulbasaur failure and completed Squirtle are separately retained in partial archive",
+    "all3 campaign gate and remaining fullcampaign/postgame/resources still incomplete"
+  ]
+}

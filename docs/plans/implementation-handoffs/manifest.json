@@ -500,6 +500,90 @@
       "sha256": "95f33d42ca822748669d0467b9ddef936dd0e5a69b3472b216861e1126c9971e",
       "bytes": 17949,
       "status": "frozen handoff; acceptance separate; host-project/private-source-view validation copies excluded"
+    },
+    {
+      "packet": "pokemon-root-producer-v13",
+      "archive": "pokemon-root-producer-v13.tar.gz",
+      "sha256": "5ba3f4a5ed15a24fa783294580ee081d9acb6d1c6ca708a22607ec260df2334e",
+      "bytes": 46178,
+      "status": "private exact-data dependency; root58host qualified; runtime unaccepted, not integrated"
+    },
+    {
+      "packet": "pokemon-event-coverage-01",
+      "archive": "pokemon-event-coverage-01.tar.gz",
+      "sha256": "0e6730880cb5799ff8e2bdfb7d714d8bc0a41064919c858819b536184d8341f3",
+      "bytes": 608368,
+      "status": "private root-reviewed/root74host qualified; integration after current freeze, no campaign promotion"
+    },
+    {
+      "packet": "pokemon-brock-warp-reentry-01",
+      "archive": "pokemon-brock-warp-reentry-01.tar.gz",
+      "sha256": "be9bad8deb9f14a143866f19bb73260c8e53aa682833322b3fe38bc5a93e96a1",
+      "bytes": 47313,
+      "status": "private host repair, root74targeted PASS; native return/full Bulbasaur retry pending"
+    },
+    {
+      "packet": "pokemon-moon-current-review-01",
+      "archive": "pokemon-moon-current-review-01.tar.gz",
+      "sha256": "372323d9e4c3941cd42de349c2c7f374857637b13693d4bece5f9592bf0377b9",
+      "bytes": 67977,
+      "status": "root-reviewed current-owner readiness/source inventory only; no implementation/runtime acceptance"
+    },
+    {
+      "packet": "pokemon-pewter-npc-conversations-01",
+      "archive": "pokemon-pewter-npc-conversations-01.tar.gz",
+      "sha256": "a1a19eaa05fc0b9b0a4b305e0f3c55adaf8cb4c2f894698a209c435712b6bdfc",
+      "bytes": 9636,
+      "status": "source-qualified question/escort proposal only; object4 narrower candidate separately authorized"
+    },
+    {
+      "packet": "pokemon-brock-learning-evidence-01",
+      "archive": "pokemon-brock-learning-evidence-01.tar.gz",
+      "sha256": "ffc364971045526eb6d5da12bbd2e17a00264a06a5ad586b3643f6ee4ccaae0f",
+      "bytes": 6788,
+      "status": "private capture-only host patch;4tests/78composed hostPASS; native unrun"
+    },
+    {
+      "packet": "pokemon-whirlwind-01",
+      "archive": "pokemon-whirlwind-01.tar.gz",
+      "sha256": "7e82e300fda92fa1435e4cec6a00b795e5d90bb8464b4b5732fb0929c03f3d79",
+      "bytes": 186503,
+      "status": "private implementation; root compile/6host PASS;27SDK/3native UNRUN"
+    },
+    {
+      "packet": "pokemon-pewter-repel-question-01",
+      "archive": "pokemon-pewter-repel-question-01.tar.gz",
+      "sha256": "83236a9e5e86109b2ae19a175963b3d2ef47149ba5a3330cfb695412042b7b57",
+      "bytes": 26507,
+      "status": "private implementation; root compile/source check PASS;21SDK/native UNRUN"
+    },
+    {
+      "packet": "pokemon-moon-common-rules-proposal-01",
+      "archive": "pokemon-moon-common-rules-proposal-01.tar.gz",
+      "sha256": "045235c4117400d8c25a26656fbc1d6a7e8e6128b61ee995c6858953be0be67a",
+      "bytes": 40093,
+      "status": "research only;47actual pinnedPS cases, no implementation/runtime"
+    },
+    {
+      "packet": "pokemon-moon-growth-items-proposal-01",
+      "archive": "pokemon-moon-growth-items-proposal-01.tar.gz",
+      "sha256": "ca09bae7efd3a09855dfa203a661c9a9508b535daffba356c74af2db10b2864b",
+      "bytes": 4122681,
+      "status": "research only;primary C/reference witnesses, no SDK/runtime"
+    },
+    {
+      "packet": "pokemon-cerulean-arrival-source-01",
+      "archive": "pokemon-cerulean-arrival-source-01.tar.gz",
+      "sha256": "0ff57b90c1de9370135f3f9a5b040506aa6b47780596e7337eca6632f9354178",
+      "bytes": 129260,
+      "status": "source preparation only;13host checks, no runtime registration/playability"
+    },
+    {
+      "packet": "pokemon-warp-independent-review-01",
+      "archive": "pokemon-warp-independent-review-01.tar.gz",
+      "sha256": "47733b965e78626a889f1c8d0186c720f9ab09d1402efb968ed43342e99069e1",
+      "bytes": 4831,
+      "status": "independent host review only; native/full Bulbasaur retry pending"
     }
   ]
 }
