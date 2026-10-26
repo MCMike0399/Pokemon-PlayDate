@@ -107,7 +107,10 @@ function FieldAcquisitionContracts.run()
                 local byte <const> = result.pokemon.sexProvenance.byte
                 eq(result.pokemon:getSex(),sex=="male" and "female" or "male")
                 assert(sex=="male" and byte>=1 and byte<ratio or sex=="female" and byte>=ratio and byte<=253)
-                eq(RulesRNG.snapshot().rolls,14)
+                -- Pikachu alone has the separately approved held-item draw.
+                local heldDraw <const> = species == "pikachu" and 1 or 0
+                eq(result.receipt.creation.draws, 10 + heldDraw)
+                eq(RulesRNG.snapshot().rolls, 14 + heldDraw)
             end
             for _,species in ipairs({"nidoranF","nidoranM","staryu"}) do
                 local result <const> = attempt(game,zone(species),81)
