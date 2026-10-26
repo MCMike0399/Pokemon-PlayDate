@@ -20,8 +20,12 @@ class RuntimeSDKEvidenceTests(unittest.TestCase):
   f=self.p/self.registry['sdk_result']['path'];f.write_text(json.dumps(self.raw));digest=hashlib.sha256(f.read_bytes()).hexdigest();self.registry['sdk_result']['sha256']=digest;self.registry['sdk_result_sha256']=digest
  def reject(self):
   with self.assertRaises(SourceError):self.load()
- def test_current_actual_result_binds48_records(self):
-  result=self.load();self.assertEqual(len(result),48);self.assertEqual(result['protect']['state'],'verified_subset');self.assertEqual(result['protect']['evidence']['sdk_build_id'],self.raw['build_id'])
+ def test_current_projection_binds50_records(self):
+  result=self.load();self.assertEqual(len(result),50);self.assertEqual(result['protect']['state'],'verified_subset');self.assertEqual(result['protect']['evidence']['sdk_build_id'],self.raw['build_id'])
+ def test_projection_raw_provenance_cannot_be_replaced_even_when_rehashed(self):
+  self.raw['raw_provenance']['sha256']='0'*64;self.repin();self.reject()
+ def test_projection_requires_explicit_format(self):
+  self.raw['evidence_format']='raw';self.repin();self.reject()
  def test_private1059_separate(self):
   result=load_runtime_coverage(ROOT,self.moves,ROOT/'tools/references/runtime-move-coverage-private1059.json');self.assertEqual(set(result),{'bide'});self.assertEqual(result['bide']['evidence']['acceptance_context'],'private-root-verified-not-main')
  def test_unpinned_byte_change(self):

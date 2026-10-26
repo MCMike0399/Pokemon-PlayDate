@@ -2,12 +2,12 @@
   "schema": 1,
   "scope": "reviewed-source-and-executed-SDK-subsets",
   "accepted_summary": {
-    "path": "docs/validation/coverage-evidence/current1091-summary.json",
-    "sha256": "32f34c1e483168b8c5ef76f8a86d0fd32001d43657b140a327bceda738decf78",
-    "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
-    "sdk_passed": 1091
+    "path": "docs/validation/coverage-evidence/candidate1250-summary.json",
+    "sha256": "09215ebe8d621a600ee8462aff73fa3f78e3852a2095385ad1f2c06c38a772fb",
+    "source_sha256": "4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae",
+    "sdk_passed": 1250
   },
-  "sdk_result_sha256": "7be14560c490601b0057a5cbf98b415ad5a3e0cde33f9628d5735382f51a57a3",
+  "sdk_result_sha256": "958e28ac9f34f8406fc1c100f58c5188c26d1ba5310f5f4a4b0cba68f62066b3",
   "qualification": "Current sourcebody hashes +exact executed assertions, never generated metadata alone; metadata hash is drift guard only. Fullruntime semantics remains false.",
   "moves": {
     "assurance": {
@@ -61,7 +61,7 @@
           "path": "Source/dev/brockMoveBatchContracts.lua",
           "start": "test(\"Assurance literal damage after faster TakeDown recoil doubles50to100\"",
           "end": "test(\"Assurance own hit doesn't double itself and preexisting injury isn't this-turn damage\"",
-          "sha256": "fa27064acfcf8bc418f611218e2828239fa8534f7be13d48a4cfed471b4f1e3e",
+          "sha256": "e450f6e45ad76abcba2729d761093533a3f7b6f076f025c9dd325a35b03b87ae",
           "name": "Assurance literal damage after faster TakeDown recoil doubles50to100",
           "accepted_name": "brock-move-batch01: Assurance literal damage after faster TakeDown recoil doubles50to100",
           "executed": {
@@ -84,7 +84,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "a44ae3e5880211768c12d8ea79437fee4c4ee37799543dedbe297ca310ef81d5"
+          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -564,7 +564,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "a44ae3e5880211768c12d8ea79437fee4c4ee37799543dedbe297ca310ef81d5"
+          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2317,7 +2317,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "a44ae3e5880211768c12d8ea79437fee4c4ee37799543dedbe297ca310ef81d5"
+          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -4577,7 +4577,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "a44ae3e5880211768c12d8ea79437fee4c4ee37799543dedbe297ca310ef81d5"
+          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -9433,17 +9433,512 @@
       ],
       "tests": [],
       "scope": "Source explicitly rejects ally target3/15 in singles after PP; no exact direct HelpingHand SDK/native proof yet."
+    },
+    "whirlwind": {
+      "state": "verified_subset",
+      "capabilities": [
+        "status-dispatch",
+        "forced-switch-scoped"
+      ],
+      "definition_sha256": "079fc163ea1cbb51de7db67f794d1db31f9a03ef187589a640f3fd075fc5660a",
+      "owners": [
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:forceSwitch(",
+          "function_body": true,
+          "sha256": "e89109bbabd334f0e241459e67b4e1200dc068c99a07d7aaf9ba9d30797bf5fb"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:eligibleForcedReplacements(",
+          "function_body": true,
+          "sha256": "950b17be7c378e440078b385ccef522cf64a483258146d432602661c49ea6b91"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:resolveTurn(",
+          "function_body": true,
+          "sha256": "368908e135efebb867ebeb5aee43abd6eff7fb0aa7213da3a388cb06ac5cbda0"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:performMove(",
+          "function_body": true,
+          "sha256": "b5750d0e45f45eedc1764f6aee9ac06da0e5bf5afc06da738b5b7309ec8fbde4"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:applyMoveEffects(",
+          "function_body": true,
+          "sha256": "94fa0f075b3cb800b78b7b9bf688187c4a2b82d592211d46550618899657de92"
+        },
+        {
+          "path": "Source/battle/dsl.lua",
+          "start": "function ForceSwitchEffect:apply(",
+          "function_body": true,
+          "sha256": "505f6cd8342bf2f99570d1cc0dba99f44444f619738d6483f56f5ecd9aa9c940"
+        },
+        {
+          "path": "Source/battle/effects.lua",
+          "start": "function BattleEffects:canAttempt(",
+          "function_body": true,
+          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+        },
+        {
+          "path": "Source/battle/moveSupport.lua",
+          "whole_file": true,
+          "sha256": "32964a5a35d40d6790138a87df2211695ee57d0eb09fda52f783c9c9e39a4fa6"
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "whole_file": true,
+          "sha256": "2fe030ff1a5122bcb15e672a45e2060af4e421de4de26bf65ee9dc7adb5bf0f9"
+        }
+      ],
+      "tests": [
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Root-generated Whirlwind retains all scalars and has one typed opposing effect\"",
+          "end": "test(\"Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG\"",
+          "name": "Root-generated Whirlwind retains all scalars and has one typed opposing effect",
+          "accepted_name": "whirlwind: Root-generated Whirlwind retains all scalars and has one typed opposing effect",
+          "sha256": "461e57eb56177aedf8a2d225792a0afa232c88f81962da81d498ea9a404d50fd",
+          "executed": {
+            "name": "whirlwind: Root-generated Whirlwind retains all scalars and has one typed opposing effect",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG\"",
+          "end": "test(\"Typed force effect outside the owned script or after close changes nothing\"",
+          "name": "Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG",
+          "accepted_name": "whirlwind: Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG",
+          "sha256": "4c81828824e8e9486005cfbc15518e1477a4c1269b11ba8f44f1d25420c2c011",
+          "executed": {
+            "name": "whirlwind: Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Typed force effect outside the owned script or after close changes nothing\"",
+          "end": "test(\"Missing/forged queued actors are rejected before context direction status PP or RNG\"",
+          "name": "Typed force effect outside the owned script or after close changes nothing",
+          "accepted_name": "whirlwind: Typed force effect outside the owned script or after close changes nothing",
+          "sha256": "431be672cddad8eef97bcffc4caf570909cf9a7fca2fb963e7d86bafe2367dcb",
+          "executed": {
+            "name": "whirlwind: Typed force effect outside the owned script or after close changes nothing",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Missing/forged queued actors are rejected before context direction status PP or RNG\"",
+          "end": "test(\"Equal/lower-level wild targets exit through run once without XP EV or prizes\"",
+          "name": "Missing/forged queued actors are rejected before context direction status PP or RNG",
+          "accepted_name": "whirlwind: Missing/forged queued actors are rejected before context direction status PP or RNG",
+          "sha256": "14383a00d1a2921efa4ccd8deb121db5b70681f530a054fdffd17d80170e974b",
+          "executed": {
+            "name": "whirlwind: Missing/forged queued actors are rejected before context direction status PP or RNG",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Equal/lower-level wild targets exit through run once without XP EV or prizes\"",
+          "end": "test(\"Wild enemy Whirlwind ends encounter rather than selecting an owned reserve\"",
+          "name": "Equal/lower-level wild targets exit through run once without XP EV or prizes",
+          "accepted_name": "whirlwind: Equal/lower-level wild targets exit through run once without XP EV or prizes",
+          "sha256": "629c2c70a4fcff94bcaa65895b6a8fd13128046a804e1d9bfb3c52ea43e3e84f",
+          "executed": {
+            "name": "whirlwind: Equal/lower-level wild targets exit through run once without XP EV or prizes",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Wild enemy Whirlwind ends encounter rather than selecting an owned reserve\"",
+          "end": "test(\"Higher-level wild target fails after one accuracy roll and one PP without escape lottery\"",
+          "name": "Wild enemy Whirlwind ends encounter rather than selecting an owned reserve",
+          "accepted_name": "whirlwind: Wild enemy Whirlwind ends encounter rather than selecting an owned reserve",
+          "sha256": "8a1694e803e239454fdf296577eac3863b5cd1f6d794f46fd48f06ac139e9f07",
+          "executed": {
+            "name": "whirlwind: Wild enemy Whirlwind ends encounter rather than selecting an owned reserve",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Higher-level wild target fails after one accuracy roll and one PP without escape lottery\"",
+          "end": "test(\"Trainer with no living reserve fails after PP and accuracy without a replacement draw\"",
+          "name": "Higher-level wild target fails after one accuracy roll and one PP without escape lottery",
+          "accepted_name": "whirlwind: Higher-level wild target fails after one accuracy roll and one PP without escape lottery",
+          "sha256": "b0dfee57d1c251adf18cc6bb96075966e9bbdc594b5b5279611bda2d03482c9d",
+          "executed": {
+            "name": "whirlwind: Higher-level wild target fails after one accuracy roll and one PP without escape lottery",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Trainer with no living reserve fails after PP and accuracy without a replacement draw\"",
+          "end": "test(\"One trainer reserve samples once and uses dragged-out narration through opponent entry\"",
+          "name": "Trainer with no living reserve fails after PP and accuracy without a replacement draw",
+          "accepted_name": "whirlwind: Trainer with no living reserve fails after PP and accuracy without a replacement draw",
+          "sha256": "7f4793131382e14a1366d142e04a1f1934a2193340847dc34749a03ce500e931",
+          "executed": {
+            "name": "whirlwind: Trainer with no living reserve fails after PP and accuracy without a replacement draw",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"One trainer reserve samples once and uses dragged-out narration through opponent entry\"",
+          "end": "test(\"Two usable trainer reserves follow stable actual party indices with literal RNG vectors\"",
+          "name": "One trainer reserve samples once and uses dragged-out narration through opponent entry",
+          "accepted_name": "whirlwind: One trainer reserve samples once and uses dragged-out narration through opponent entry",
+          "sha256": "9f36981f439a2d4134e02c5e859349ae6a51ba5893453046a1e92efd7d148a8d",
+          "executed": {
+            "name": "whirlwind: One trainer reserve samples once and uses dragged-out narration through opponent entry",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Two usable trainer reserves follow stable actual party indices with literal RNG vectors\"",
+          "end": "test(\"Miss samples accuracy only and does not select or mutate an opponent\"",
+          "name": "Two usable trainer reserves follow stable actual party indices with literal RNG vectors",
+          "accepted_name": "whirlwind: Two usable trainer reserves follow stable actual party indices with literal RNG vectors",
+          "sha256": "283d99b94fc7b897a4fbf3f03d2cc476dc15eb209ae0e0ed3c105728c8ad3d92",
+          "executed": {
+            "name": "whirlwind: Two usable trainer reserves follow stable actual party indices with literal RNG vectors",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Miss samples accuracy only and does not select or mutate an opponent\"",
+          "end": "test(\"Normal-type Whirlwind is not stopped by a Ghost status target\"",
+          "name": "Miss samples accuracy only and does not select or mutate an opponent",
+          "accepted_name": "whirlwind: Miss samples accuracy only and does not select or mutate an opponent",
+          "sha256": "0e89e451961d075fd6d1929978a807e80cf7ab412098b2a9a27f48da542433eb",
+          "executed": {
+            "name": "whirlwind: Miss samples accuracy only and does not select or mutate an opponent",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Normal-type Whirlwind is not stopped by a Ghost status target\"",
+          "end": "test(\"Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP\"",
+          "name": "Normal-type Whirlwind is not stopped by a Ghost status target",
+          "accepted_name": "whirlwind: Normal-type Whirlwind is not stopped by a Ghost status target",
+          "sha256": "7598bda603793d9ba69b585efa135297c28afca1bd08d3b2dbe2897bfc953e82",
+          "executed": {
+            "name": "whirlwind: Normal-type Whirlwind is not stopped by a Ghost status target",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP\"",
+          "end": "test(\"Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP\"",
+          "name": "Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP",
+          "accepted_name": "whirlwind: Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP",
+          "sha256": "fe3e98a45f927870f43cada1167b3bbc56ebf99501cf453ec3ae16ae17cc4f3e",
+          "executed": {
+            "name": "whirlwind: Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP\"",
+          "end": "test(\"A displaced queued actual actor never begins action or lends PP/status/action to incoming\"",
+          "name": "Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP",
+          "accepted_name": "whirlwind: Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP",
+          "sha256": "0eb4bac7933c8c491f122d09130c5c39ae05929e30eb045f1fa225d7559e66ca",
+          "executed": {
+            "name": "whirlwind: Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"A displaced queued actual actor never begins action or lends PP/status/action to incoming\"",
+          "end": "test(\"Public commands keep invalid index/phase rejection RNG and models unchanged\"",
+          "name": "A displaced queued actual actor never begins action or lends PP/status/action to incoming",
+          "accepted_name": "whirlwind: A displaced queued actual actor never begins action or lends PP/status/action to incoming",
+          "sha256": "099843113d84dc0fbe43c94df01c56f041c79bb37dd7c70401e7c481d84da86b",
+          "executed": {
+            "name": "whirlwind: A displaced queued actual actor never begins action or lends PP/status/action to incoming",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Public commands keep invalid index/phase rejection RNG and models unchanged\"",
+          "end": "test(\"Actual binding/Arena Trap do not prevent trainer forced displacement\"",
+          "name": "Public commands keep invalid index/phase rejection RNG and models unchanged",
+          "accepted_name": "whirlwind: Public commands keep invalid index/phase rejection RNG and models unchanged",
+          "sha256": "130fb2e3133733d4aea7f95136232e770e4663beda21d4a8ba12d08265070b1b",
+          "executed": {
+            "name": "whirlwind: Public commands keep invalid index/phase rejection RNG and models unchanged",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Actual binding/Arena Trap do not prevent trainer forced displacement\"",
+          "end": "test(\"Actual entry marks only dragged opponent seen and preserves unseen bench identities\"",
+          "name": "Actual binding/Arena Trap do not prevent trainer forced displacement",
+          "accepted_name": "whirlwind: Actual binding/Arena Trap do not prevent trainer forced displacement",
+          "sha256": "d524518706c8fd0507f49004c925d1cf509092167a2883d50909b9b6a7f3011a",
+          "executed": {
+            "name": "whirlwind: Actual binding/Arena Trap do not prevent trainer forced displacement",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Actual entry marks only dragged opponent seen and preserves unseen bench identities\"",
+          "end": "test(\"Forced owned replacement preserves major status/HP/PP and resets original sleep and stages\"",
+          "name": "Actual entry marks only dragged opponent seen and preserves unseen bench identities",
+          "accepted_name": "whirlwind: Actual entry marks only dragged opponent seen and preserves unseen bench identities",
+          "sha256": "1bbf072c7abd8df5fc778ada529c6a0f101d8b66c9770284db510b621547ee60",
+          "executed": {
+            "name": "whirlwind: Actual entry marks only dragged opponent seen and preserves unseen bench identities",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Forced owned replacement preserves major status/HP/PP and resets original sleep and stages\"",
+          "end": "test(\"Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue\"",
+          "name": "Forced owned replacement preserves major status/HP/PP and resets original sleep and stages",
+          "accepted_name": "whirlwind: Forced owned replacement preserves major status/HP/PP and resets original sleep and stages",
+          "sha256": "f3c9c5eac2e4ff892f2a74b98cbb5c5acb1ab94d558e21eca578248f4976d6b5",
+          "executed": {
+            "name": "whirlwind: Forced owned replacement preserves major status/HP/PP and resets original sleep and stages",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue\"",
+          "end": "test(\"Phaze clears real Roost/ability override while side timers and rain persist\"",
+          "name": "Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue",
+          "accepted_name": "whirlwind: Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue",
+          "sha256": "4269a052c5d91a38be869c376f40c85836ea20599522f708f86899845c3f7a68",
+          "executed": {
+            "name": "whirlwind: Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Phaze clears real Roost/ability override while side timers and rain persist\"",
+          "end": "test(\"Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning\"",
+          "name": "Phaze clears real Roost/ability override while side timers and rain persist",
+          "accepted_name": "whirlwind: Phaze clears real Roost/ability override while side timers and rain persist",
+          "sha256": "877a1695f46050136583bd99a6fa212e1e7e4ed19c63899fd5e8d391e7e41c23",
+          "executed": {
+            "name": "whirlwind: Phaze clears real Roost/ability override while side timers and rain persist",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning\"",
+          "end": "test(\"Entry hazard faint uses actual incoming identity before XP/learning and normal replacement\"",
+          "name": "Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning",
+          "accepted_name": "whirlwind: Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning",
+          "sha256": "08ebdb6cb96dab7e6deb381e256a9aac9d1ace210444c2423478283945566060",
+          "executed": {
+            "name": "whirlwind: Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Entry hazard faint uses actual incoming identity before XP/learning and normal replacement\"",
+          "end": "test(\"Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers\"",
+          "name": "Entry hazard faint uses actual incoming identity before XP/learning and normal replacement",
+          "accepted_name": "whirlwind: Entry hazard faint uses actual incoming identity before XP/learning and normal replacement",
+          "sha256": "8171d97619ab2ac67215f52eead44ccf37f272575fb566851d7b9bab00082dd8",
+          "executed": {
+            "name": "whirlwind: Entry hazard faint uses actual incoming identity before XP/learning and normal replacement",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers\"",
+          "end": "test(\"Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners\"",
+          "name": "Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers",
+          "accepted_name": "whirlwind: Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers",
+          "sha256": "8e51b13bfcbd7e4962a3544763e742f50ff4c0043508d520bd5e16f6ce204e6d",
+          "executed": {
+            "name": "whirlwind: Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners\"",
+          "end": "test(\"Ordinary effect booleans are not terminal outcomes in the shared status pipeline\"",
+          "name": "Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners",
+          "accepted_name": "whirlwind: Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners",
+          "sha256": "b0a58d13a3fbd0a966aaf624afb503b1e1b475f0a0e255427836d69157eeed57",
+          "executed": {
+            "name": "whirlwind: Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Ordinary effect booleans are not terminal outcomes in the shared status pipeline\"",
+          "end": "test(\"Named Helping Hand singles attempt fails without an ally or move RNG and spends PP\"",
+          "name": "Ordinary effect booleans are not terminal outcomes in the shared status pipeline",
+          "accepted_name": "whirlwind: Ordinary effect booleans are not terminal outcomes in the shared status pipeline",
+          "sha256": "6f6ada25d5a1b005303d2a2a792145fff8ea4a683a2a96c2315d38a12103a59e",
+          "executed": {
+            "name": "whirlwind: Ordinary effect booleans are not terminal outcomes in the shared status pipeline",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/whirlwindContracts.lua",
+          "start": "test(\"Named Helping Hand singles attempt fails without an ally or move RNG and spends PP\"",
+          "end": "RulesRNG.restore(saved)\n",
+          "name": "Named Helping Hand singles attempt fails without an ally or move RNG and spends PP",
+          "accepted_name": "whirlwind: Named Helping Hand singles attempt fails without an ally or move RNG and spends PP",
+          "sha256": "629114dace1b94c21881cbb110e1a3b31ee671e255b28adc5566b6c84125d345",
+          "executed": {
+            "name": "whirlwind: Named Helping Hand singles attempt fails without an ally or move RNG and spends PP",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation, Protect, priority and switch lifecycle assertions. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls."
+    },
+    "roar": {
+      "state": "verified_subset",
+      "capabilities": [
+        "status-dispatch",
+        "forced-switch-scoped"
+      ],
+      "definition_sha256": "a001d0c823399c8f433b6ba81344705d1e9c1d4261a8ec7d228ba7c58500d355",
+      "owners": [
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:forceSwitch(",
+          "function_body": true,
+          "sha256": "e89109bbabd334f0e241459e67b4e1200dc068c99a07d7aaf9ba9d30797bf5fb"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:eligibleForcedReplacements(",
+          "function_body": true,
+          "sha256": "950b17be7c378e440078b385ccef522cf64a483258146d432602661c49ea6b91"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:resolveTurn(",
+          "function_body": true,
+          "sha256": "368908e135efebb867ebeb5aee43abd6eff7fb0aa7213da3a388cb06ac5cbda0"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:performMove(",
+          "function_body": true,
+          "sha256": "b5750d0e45f45eedc1764f6aee9ac06da0e5bf5afc06da738b5b7309ec8fbde4"
+        },
+        {
+          "path": "Source/battle/battle.lua",
+          "start": "function Battle:applyMoveEffects(",
+          "function_body": true,
+          "sha256": "94fa0f075b3cb800b78b7b9bf688187c4a2b82d592211d46550618899657de92"
+        },
+        {
+          "path": "Source/battle/dsl.lua",
+          "start": "function ForceSwitchEffect:apply(",
+          "function_body": true,
+          "sha256": "505f6cd8342bf2f99570d1cc0dba99f44444f619738d6483f56f5ecd9aa9c940"
+        },
+        {
+          "path": "Source/battle/effects.lua",
+          "start": "function BattleEffects:canAttempt(",
+          "function_body": true,
+          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+        },
+        {
+          "path": "Source/battle/moveSupport.lua",
+          "whole_file": true,
+          "sha256": "32964a5a35d40d6790138a87df2211695ee57d0eb09fda52f783c9c9e39a4fa6"
+        },
+        {
+          "path": "Source/dev/moveFailureContracts.lua",
+          "whole_file": true,
+          "sha256": "d93d74743691885d9d1c28646cd7cedc80502c98849485e5f389f755160b3a37"
+        }
+      ],
+      "tests": [
+        {
+          "path": "Source/dev/moveFailureContracts.lua",
+          "start": "test(\"Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind\"",
+          "end": "test(\"Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity\"",
+          "name": "Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind",
+          "accepted_name": "move-failure: Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind",
+          "sha256": "dcd08c5d1bf8af2a674ce585098b302be2f9a6a5ae1286c1734c8485a1471a7a",
+          "executed": {
+            "name": "move-failure: Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/moveFailureContracts.lua",
+          "start": "test(\"Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity\"",
+          "end": "test(\"Roar wild escape is run without rewards; higher level and trainer without reserves fail normally\"",
+          "name": "Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity",
+          "accepted_name": "move-failure: Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity",
+          "sha256": "4f0bc9d77404e427a4d687f31fb86fafd38d0e6c4c338774db03126a6c06169e",
+          "executed": {
+            "name": "move-failure: Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity",
+            "ok": true
+          }
+        },
+        {
+          "path": "Source/dev/moveFailureContracts.lua",
+          "start": "test(\"Roar wild escape is run without rewards; higher level and trainer without reserves fail normally\"",
+          "end": "RulesRNG.restore(saved)\n",
+          "name": "Roar wild escape is run without rewards; higher level and trainer without reserves fail normally",
+          "accepted_name": "move-failure: Roar wild escape is run without rewards; higher level and trainer without reserves fail normally",
+          "sha256": "f8adf3dbbd5d6b130e5216213a6456d2281fa85e1854ee11fabcfa444ff35413",
+          "executed": {
+            "name": "move-failure: Roar wild escape is run without rewards; higher level and trainer without reserves fail normally",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation; Roar-specific Soundproof gate. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls."
     }
   },
   "sdk_result": {
-    "path": "docs/validation/coverage-evidence/current1091-result.json",
-    "sha256": "7be14560c490601b0057a5cbf98b415ad5a3e0cde33f9628d5735382f51a57a3",
-    "build_id": "d9f57eaba6b24d6eb42c9a8e57ac220f68a486d7:44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
-    "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
-    "passed": 1091,
+    "path": "docs/validation/coverage-evidence/candidate1250-contracts-projection.json",
+    "sha256": "958e28ac9f34f8406fc1c100f58c5188c26d1ba5310f5f4a4b0cba68f62066b3",
+    "build_id": "9cc65c4b1fed0d1e1bdace128ce2900bb571f4a5:4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae",
+    "source_sha256": "4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae",
+    "passed": 1250,
     "failed": 0,
-    "suite_count": 80,
-    "suite_passed": 1071
+    "suite_count": 86,
+    "suite_passed": 1230,
+    "raw_provenance": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/00001-result.json",
+      "sha256": "63890cf75a394d62342dd25a9fb7da39b62b45ce9c2b0bcd37b3aae1ab1e3231",
+      "size_bytes": 1215286
+    }
   },
-  "acceptance_context": "integrated-root-candidate1091-not-yet-main"
+  "acceptance_context": "private-foundation-candidate1250-not-main-or-milestone"
 }

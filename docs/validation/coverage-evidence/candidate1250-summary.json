@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "source_sha256": "4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae",
+  "candidate_commit": "9cc65c4b1fed0d1e1bdace128ce2900bb571f4a5",
+  "build_id": "9cc65c4b1fed0d1e1bdace128ce2900bb571f4a5:4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae",
+  "session_id": "86ca4e585b9f4249abbcb45d0b93f3cf",
+  "compiled_source_sha256": "f8d1b463b32b70adbcf011ec1be77ee782f81a95049cfd63e32e4c0cb3dc3873",
+  "sdk": {
+    "passed": 1250,
+    "failed": 0
+  },
+  "acceptance": "private-foundation-candidate-not-main-or-milestone",
+  "contracts_projection": "docs/validation/coverage-evidence/candidate1250-contracts-projection.json",
+  "contracts_projection_sha256": "958e28ac9f34f8406fc1c100f58c5188c26d1ba5310f5f4a4b0cba68f62066b3",
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/00001-result.json",
+    "sha256": "63890cf75a394d62342dd25a9fb7da39b62b45ce9c2b0bcd37b3aae1ab1e3231",
+    "size_bytes": 1215286
+  },
+  "scope": "Root-executed exact candidate Source. Scoped component SDK evidence only; main remains Source 44bd25 and Charmander/all-starter milestone acceptance is pending. Full campaign and full mechanics remain unfinished.",
+  "source_identity_check": "Independent path/NUL/file-byte SHA256 reconstruction equals git candidate 9cc65c4 and root build.",
+  "reviewed_refresh": {
+    "owner_records": [
+      "captivate",
+      "endeavor",
+      "ragePowder",
+      "suckerPunch"
+    ],
+    "assertion_records": [
+      "assurance"
+    ],
+    "reason": "canAttempt adds only Roar Soundproof guard before unchanged attempt rules. Assurance now supplies actual actor via turn(b,side,key); literal HP/damage/PP/RNG assertions unchanged. Each exact curated named assertion succeeded in native 1250 report.",
+    "unverified_left_stale": [
+      "dig",
+      "earthquake",
+      "explosion",
+      "furyCutter",
+      "gyroBall",
+      "heavySlam",
+      "magnitude",
+      "selfDestruct",
+      "smackDown",
+      "helpingHand"
+    ]
+  },
+  "additional_scopes": "Whirlwind 27 and move-failure 6 are 33 scoped SDK cases in total, including unsupported-move loud failure tests; they are not 33 separate phazing mechanics cases or full mechanics certification. Helping Hand remains unpromoted in this bounded refresh despite a new named singles test.",
+  "artifact_qualifications": {
+    "outcome.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/outcome.json",
+      "sha256": "5c157c5defb20a5e556e8c9eb0558d375a7da6825ae6796c2454f8ac15055767",
+      "summary": {
+        "ok": true
+      }
+    },
+    "comparison.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/comparison.json",
+      "sha256": "ae206f3e263a102a3553a36ae9f101479cbae62d201ae824413001e5e68ab9be",
+      "summary": {
+        "equal": true,
+        "missing_inventory_equal": true,
+        "checked": 2494,
+        "failures": [],
+        "mode": "protected-preservation",
+        "protected_equal": true,
+        "protected_checked": 2494,
+        "added_unreviewed": [],
+        "added_files_valid": true,
+        "comparison_ok": true,
+        "review_complete": true
+      }
+    },
+    "catalog-invariance-qualification.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/catalog-invariance-qualification.json",
+      "sha256": "6019c6acf6889df7911d13a183c6572a57ef529420b592d3baec00e3a133ede1",
+      "summary": {
+        "actual_pngs": 1718,
+        "checked_pairs": 859,
+        "failures": [],
+        "ok": true,
+        "quiescent": true
+      }
+    },
+    "field-map-qualification.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/field-map-qualification.json",
+      "sha256": "0acb1b52de5424eeda866aeb2a1a762b7ef1009756b229d29a23aec5a50dbef2",
+      "summary": {
+        "ok": true,
+        "quiescent": true
+      }
+    }
+  }
+}

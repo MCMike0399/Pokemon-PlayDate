@@ -46,7 +46,7 @@ def evidence_path(project, name):
     return resolved
 
 def executed_tests(project, record, summary, accepted):
-    """Bind curated claims to one immutable, complete actual contract result.
+    """Bind curated claims to one complete native contract result or explicit projection.
 
     Raw contract replies precede the harness terminal barrier; quiescence is
     deliberately not inferred here. This is scoped SDK evidence, not a journey.
@@ -58,6 +58,16 @@ def executed_tests(project, record, summary, accepted):
         if digest!=pin['sha256'] or digest!=record['sdk_result_sha256']:
             raise SourceError('actual SDK result hash differs')
         result=json.loads(raw)
+        if 'raw_provenance' in pin or 'evidence_format' in result:
+            provenance=result.get('raw_provenance',{})
+            if (result.get('evidence_format')!='contracts-projection-v1'
+                    or provenance!=pin.get('raw_provenance')
+                    or set(provenance)!={'path','sha256','size_bytes'}
+                    or not isinstance(provenance['path'],str) or not Path(provenance['path']).is_absolute()
+                    or not isinstance(provenance['sha256'],str) or len(provenance['sha256'])!=64
+                    or any(c not in '0123456789abcdef' for c in provenance['sha256'])
+                    or type(provenance['size_bytes'])is not int or provenance['size_bytes']<=0):
+                raise SourceError('invalid contracts projection raw provenance')
         source=summary['source_sha256']
         if (pin['source_sha256']!=source or result.get('build_id')!=pin['build_id']
                 or pin['build_id'].rsplit(':',1)[-1]!=source):
