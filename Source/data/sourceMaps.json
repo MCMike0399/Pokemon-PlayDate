@@ -147,9 +147,7 @@
       "width": 20
     },
     "ViridianCity": {
-      "blocked_connections": [
-        "north:ROUTE_2"
-      ],
+      "blocked_connections": [],
       "connection_sources": {
         "down": "ViridianCity header south offset +5 blocks"
       },

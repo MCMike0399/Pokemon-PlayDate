@@ -44,7 +44,7 @@ class SourceMapActivationInputs(unittest.TestCase):
     def test_connection_witnesses_have_real_available_targets_and_source_offsets(self):
         compact = self.fixture['data/sourceMapCache/compact.json']['maps']
         city = compact['ViridianCity']
-        self.assertIn('north:ROUTE_2', city['blocked_connections'])
+        self.assertNotIn('north:ROUTE_2', city['blocked_connections'])
         self.assertEqual(next(c for c in city['connections'] if c['direction'] == 'west')['entry_lateral_adjustment_cells'], -8)
         route = compact['Route22']
         self.assertEqual(next(c for c in route['connections'] if c['direction'] == 'east')['entry_lateral_adjustment_cells'], 8)
