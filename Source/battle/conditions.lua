@@ -87,7 +87,10 @@ function BattleConditions:preventsStatus(mon,status,origin)
 end
 function BattleConditions:clear(mon)
     self.members[mon]=nil
-    for _,state in pairs(self.members) do if state.trap and state.trap.source==mon then state.trap=nil end end
+    for _,state in pairs(self.members) do
+        if state.trap and state.trap.source==mon then state.trap=nil end
+        if state.infatuation and state.infatuation.source==mon then state.infatuation=nil end
+    end
 end
 function BattleConditions:locked(mon)
     local state=self.members[mon]
@@ -406,4 +409,36 @@ function BattleConditions:focusEnergy()
     local b=self.battle;local mon=b.attacker;local state=self:of(mon)
     if state.focusEnergy then b:say("But it failed!");return false end
     state.focusEnergy=true;b:say(mon.name .. " is getting pumped!");return true
+end
+
+-- Attraction is an identity-bound battle volatile, never a Pokemon/save field.
+function BattleConditions:infatuate(target, source)
+    local b = self.battle
+    if not b.effects:active(target) or not b.effects:active(source)
+        or target == source or not alive(target) or not alive(source) then return false end
+    local a, d = target:getSex(), source:getSex()
+    if a == "genderless" or d == "genderless" or a == d
+        or b.effects:effectiveAbility(target) == 12 then return false end
+    local state = self:of(target)
+    if state.infatuation then return false end
+    state.infatuation = {source=source}
+    b:say(target.name .. " fell in love with " .. source.name .. "!")
+    return true
+end
+
+-- BeforeMove priority2: after confusion, before paralysis and attempted PP.
+function BattleConditions:infatuationBlocks(mon)
+    local state = self.members[mon]
+    local attraction = state and state.infatuation
+    if not attraction then return false end
+    local b = self.battle
+    if not b.effects:active(mon) or not alive(mon)
+        or not b.effects:active(attraction.source) or not alive(attraction.source)
+        or b.effects:effectiveAbility(mon) == 12 then
+        state.infatuation = nil
+        return false
+    end
+    local blocked = RulesRNG.random(0, 1) == 0
+    b:say(mon.name .. (blocked and " is immobilized by love!" or " is in love!"))
+    return blocked
 end
