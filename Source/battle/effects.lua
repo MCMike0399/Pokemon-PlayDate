@@ -1,4 +1,5 @@
 -- Gen V ability hooks owned by one actual Battle. No persistent volatile state.
+import "battle/contactAbilities"
 Class("BattleEffects")
 local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function nativeAbility(mon) return mon and mon.ability and mon:ability() or 0 end
@@ -131,6 +132,7 @@ end
 -- All enabled HP-loss producers pass through this owner. HP payments and
 -- Struggle recoil are directDamage provenance, not Assurance's hurtThisTurn.
 function BattleEffects:damage(mon,amount,cause)
+    if ContactAbilities.preventDamage(self,mon,cause) then return 0 end
     local before=mon.hp
     mon:takeDamage(amount)
     local removed=before-mon.hp
@@ -335,7 +337,10 @@ function BattleEffects:allowsSecondary(source,target,kind)
     -- claim with PS's generic lethal-stat draw; nil preserves old2arg behavior.
     return kind=="condition" or kind=="flinch" or alive(target)
 end
-function BattleEffects:recoilBlocked(mon,move) return self:effectiveAbility(mon)==69 and not move.struggleRecoil end
+function BattleEffects:recoilBlocked(mon,move)
+    local id=self:effectiveAbility(mon)
+    return (id==69 or id==98) and not move.struggleRecoil
+end
 function BattleEffects:grounded(mon) return not has(self,mon,"flying") end
 function BattleEffects:withdrawBlocked(mon)
     local other=mon==self.battle.player and self.battle.enemy or self.battle.player
@@ -375,6 +380,7 @@ function BattleEffects:afterHit(receipt)
             ApplyStatus({resolve=function() return source end},status,{source={resolve=function() return target end},cause="ability"}):apply(b)
         end
     end
+    ContactAbilities.damagingHit(self,receipt)
     return true
 end
 function BattleEffects:announceEndure(receipt)
@@ -437,7 +443,7 @@ function BattleEffects:residual(event)
         mon:heal(math.max(1,mon.maxHP//8))
         if mon.hp>before then b:say(mon.name.." was healed by Dry Skin!") end
     elseif event.kind=="sand" and self:weatherId()=="sandstorm" and self:active(mon) and alive(mon) then
-        if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 then
+        if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 and not ContactAbilities.preventDamage(self,mon,"weather") then
             self:damage(mon,math.max(1,mon.maxHP//16),"weather");b:say(mon.name .. " is buffeted by the sandstorm!")
         end
     elseif event.kind=="shedSkin" and self:active(mon) and alive(mon) and mon.status and self:effectiveAbility(mon)==61 then

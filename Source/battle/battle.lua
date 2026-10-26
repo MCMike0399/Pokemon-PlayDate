@@ -595,6 +595,7 @@ commitActiveMember = function(self, side, index)
     local chosen = assert(party:get(index))
     assert(chosen ~= old and chosen:isAlive() and validSwitchSleep(old) and validSwitchSleep(chosen), "invalid active replacement")
     assert(party:switch(index))
+    ContactAbilities.withdraw(self.effects,old)
     self.conditions:clear(old)
     self.effects:clear(old)
     old:onSwitchOut()
@@ -923,6 +924,8 @@ function Battle:resolveTurn(turn)
         end
     end
 
+    if self.conditions:infatuationBlocks(attacker) then return interrupted() end
+
     if attacker.status == "paralyze" and RulesRNG.random(1, 4) == 1 then
         self:say(attacker.name .. " is paralyzed! It can't move!")
         return interrupted()
@@ -1070,6 +1073,7 @@ function Battle:performMove(move)
         local receipt=self.effects:hit(attacker,defender,move,defender.hp)
         self.lastDamage=receipt.removed
         self:say("It's a one-hit KO!")
+        ContactAbilities.secondaries(self.effects,attacker,defender,move)
         self.effects:afterHit(receipt)
         return self:handleFaint()
     end
@@ -1101,6 +1105,7 @@ function Battle:performMove(move)
             local result = calcDamage(attacker, defender, move, power,self.effects)
             local receipt=self.effects:hit(attacker,defender,move,result.damage,hitNumber)
             self.conditions:landedMove(move)
+            ContactAbilities.onHit(self.effects,receipt,result.isCrit)
             local before=receipt.before
             total=total+receipt.removed
             landed = landed + 1
@@ -1192,6 +1197,7 @@ end
 
 function Battle:applyMoveSecondaries(move)
     for _,effect in ipairs(move.secondaries or {}) do effect:apply(self) end
+    ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
 end
 
 function Battle:applyMoveEffects(move)
@@ -1368,7 +1374,7 @@ function Battle:endOfRoundStatus()
 end
 
 function Battle:applyStatusDamage(pokemon)
-    if not pokemon:isAlive() then return end
+    if not pokemon:isAlive() or ContactAbilities.preventDamage(self.effects,pokemon,"status") then return end
 
     if pokemon.status == "burn" then
         self.effects:damage(pokemon,math.max(1, math.floor(pokemon.maxHP / 8)),"status")

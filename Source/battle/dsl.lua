@@ -376,6 +376,7 @@ function ApplyStatus:apply(battle)
     pokemon.status = self.status
     pokemon.statusTurns = duration
     pokemon.sleepDuration = duration
+    if battle.effects then ContactAbilities.afterStatus(battle.effects,pokemon,self.statusSource:resolve(battle),self.status,self.statusCause) end
     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
 end
 
@@ -402,7 +403,11 @@ function DirectDamage:apply(battle)
     battle.lastDamage = before - pokemon.hp
     if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 then battle.conditions:rageHit(pokemon) end
     battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
-    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
+    if receipt then
+        battle.effects:announceEndure(receipt)
+        ContactAbilities.secondaries(battle.effects,battle.attacker,pokemon,battle.currentMove)
+        battle.effects:afterHit(receipt)
+    end
 end
 
 Class("RoostEffect")
@@ -440,7 +445,11 @@ function PsywaveDamage:apply(battle)
     if battle.conditions and battle.lastDamage>0 then battle.conditions:rageHit(defender) end
     battle.isFlashing, battle.flashTimer = true, 6
     battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
-    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
+    if receipt then
+        battle.effects:announceEndure(receipt)
+        ContactAbilities.secondaries(battle.effects,battle.attacker,defender,battle.currentMove)
+        battle.effects:afterHit(receipt)
+    end
 end
 
 -- Dedicated effects delegate transient ownership to this battle only.

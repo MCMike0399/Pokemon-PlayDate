@@ -323,11 +323,13 @@ function BattleConditions:entry(mon,side)
     for _,kind in ipairs(hazards.order or {}) do
         if alive(mon) then
             if kind=="stealthRock" and hazards.stealthRock then
-                damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)
-                b:say("Pointed stones dug into "..mon.name.."!")
+                if damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)>0 then
+                    b:say("Pointed stones dug into "..mon.name.."!")
+                end
             elseif not has(self,mon,"flying") then
                 if kind=="spikes" and hazards.spikes then
-                    local divisor=({8,6,4})[hazards.spikes];damage(self,mon,mon.maxHP/divisor);b:say(mon.name.." was hurt by Spikes!")
+                    local divisor=({8,6,4})[hazards.spikes]
+                    if damage(self,mon,mon.maxHP/divisor)>0 then b:say(mon.name.." was hurt by Spikes!") end
                 elseif kind=="toxicSpikes" and hazards.toxicSpikes then
                     if has(self,mon,"poison") then hazards.toxicSpikes=nil;if hazards.hazardOrigins then hazards.hazardOrigins.toxicSpikes=nil end;b:say(mon.name.." absorbed the poison spikes!")
                     elseif not has(self,mon,"steel") and not mon.status
@@ -390,17 +392,21 @@ function BattleConditions:residual(event)
         if rampage then self:endRampage(mon,rampage.interrupted and rampage.remaining==1) end
     elseif event.kind=="seed" and state.seed then
         local receiver=b[state.seed]
-        if alive(receiver) then receiver:heal(damage(self,mon,mon.maxHP/8));b:say(mon.name.."'s health was sapped by Leech Seed!") end
-    elseif event.kind=="curse" and state.curse then damage(self,mon,mon.maxHP/4);b:say(mon.name.." is afflicted by the curse!")
+        if alive(receiver) then
+            local removed=damage(self,mon,mon.maxHP/8)
+            if removed>0 then receiver:heal(removed);b:say(mon.name.."'s health was sapped by Leech Seed!") end
+        end
+    elseif event.kind=="curse" and state.curse then
+        if damage(self,mon,mon.maxHP/4)>0 then b:say(mon.name.." is afflicted by the curse!") end
     elseif event.kind=="trap" and state.trap then
         if not self:trapped(mon) then state.trap=nil;return end
-        damage(self,mon,mon.maxHP/16);state.trap.remaining=state.trap.remaining-1
-        b:say(mon.name.." is hurt by the binding!")
+        local removed=damage(self,mon,mon.maxHP/16);state.trap.remaining=state.trap.remaining-1
+        if removed>0 then b:say(mon.name.." is hurt by the binding!") end
         if state.trap.remaining==0 then state.trap=nil;b:say(mon.name.." was freed!") end
     elseif event.kind=="status" then
         if mon.status=="badPoison" then
-            state.toxic=math.min(15,(state.toxic or 0)+1);damage(self,mon,math.max(1,mon.maxHP//16)*state.toxic)
-            b:say(mon.name.." is hurt by poison!")
+            state.toxic=math.min(15,(state.toxic or 0)+1)
+            if damage(self,mon,math.max(1,mon.maxHP//16)*state.toxic)>0 then b:say(mon.name.." is hurt by poison!") end
         else state.toxic=nil;b:applyStatusDamage(mon) end
     end
 end
