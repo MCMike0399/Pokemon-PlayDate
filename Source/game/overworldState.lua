@@ -62,7 +62,21 @@ function ExploreSubstate:update()
         local session,zone=game.session,currentZone
         local plan,reason=FieldEncounters.prepare({session=session,party=session:party(),zone=zone,x=player.gridX,y=player.gridY})
         if plan then
-            local ok,result=FieldEncounters.resolve(plan);assert(ok,result)
+            local ok, result, gap = FieldEncounters.resolve(plan)
+            if gap then
+                game.lastEncounterAttempt = {kind="none", reason="unimplemented-acquisition", gap=gap}
+                game.lastEncounterSession = session
+                game.fieldAbilityGaps = game.fieldAbilityGaps or {}
+                game.fieldAbilityGaps[#game.fieldAbilityGaps + 1] = gap
+                if #game.fieldAbilityGaps > 12 then
+                    table.remove(game.fieldAbilityGaps, 1)
+                end
+                print("FIELD ability gap: " .. gap.hook)
+                player.stepJustFinished = false
+                self.owner.machine:push("dialog", {"But it failed!"})
+                return
+            end
+            assert(ok, result)
             game.lastEncounterAttempt=result.receipt;game.lastEncounterSession=session
             if result.kind=="encounter"then
                 local enemy=result.pokemon

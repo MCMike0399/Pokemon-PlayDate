@@ -249,6 +249,8 @@ import "dev/vermilionShipContracts"
 Contracts.register("vermilion-ship", function()
     return VermilionShipContracts.run(VermilionStoryFixture.withScene)
 end)
+import "dev/fieldAcquisitionContracts"
+Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
 
 -- @harness runtime
 harness = Harness

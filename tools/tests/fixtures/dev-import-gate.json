@@ -230,7 +230,8 @@
     "dev/vermilionStoryContracts",
     "dev/daycareContracts",
     "dev/vermilionPreparationContracts",
-    "dev/vermilionShipContracts"
+    "dev/vermilionShipContracts",
+    "dev/fieldAcquisitionContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -341,6 +342,7 @@
     "Contracts.register(\"vermilion-story\", function()",
     "Contracts.register(\"daycare\", DaycareContracts.run)",
     "Contracts.register(\"vermilion-preparation\", VermilionPreparationContracts.run)",
-    "Contracts.register(\"vermilion-ship\", function()"
+    "Contracts.register(\"vermilion-ship\", function()",
+    "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)"
   ]
 }
