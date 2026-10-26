@@ -1,0 +1,15 @@
+{
+  "journey": {
+    "name": "cerulean-supplementary",
+    "supplementary": true,
+    "case": "fossil-full-retry",
+    "starter": "squirtle",
+    "fossil": "dome",
+    "seed": 42,
+    "max_actions": 20000,
+    "max_steps": 5000,
+    "max_encounters": 64,
+    "max_blackouts": 1,
+    "max_transitions": 64
+  }
+}
