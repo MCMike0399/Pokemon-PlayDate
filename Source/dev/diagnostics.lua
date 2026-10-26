@@ -203,10 +203,22 @@ end
 -- Cache only a real successful disk Save/Continue, tied to its session identity.
 local boundaries = setmetatable({}, {__mode="k"})
 local function equal(a, b)
-    if type(a) ~= type(b) then return false end
-    if type(a) ~= "table" then return a == b end
-    for key, value in pairs(a) do if not equal(value, b[key]) then return false end end
-    for key in pairs(b) do if a[key] == nil then return false end end
+    if type(a) ~= type(b) then
+        return false
+    end
+    if type(a) ~= "table" then
+        return a == b
+    end
+    for key, value in pairs(a) do
+        if not equal(value, b[key]) then
+            return false
+        end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then
+            return false
+        end
+    end
     return true
 end
 local function armBoundary(game)

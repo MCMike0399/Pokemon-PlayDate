@@ -4,6 +4,7 @@ import "game/tutorialEscortData"
 import "game/tutorialDemo"
 import "game/tutorialEscortPlayer"
 TutorialEscort = {}
+local gfx <const> = playdate.graphics
 local data <const> = TutorialEscortData.get()
 local delta <const> = {up={0,-1}, down={0,1}, left={-1,0}, right={1,0}}
 function TutorialEscort.has(id)
@@ -247,7 +248,6 @@ function TutorialEscortState:draw()
     if self.phase == "tutorial-demo" then self.demo:draw(); return end
     EventState.redrawSprites()
     if self.phase ~= "hurry-choice" and self.phase ~= "blocked" and self.phase ~= "failed" then return end
-    local gfx = playdate.graphics
     gfx.pushContext()
     gfx.setDrawOffset(0,0)
     gfx.clearClipRect()

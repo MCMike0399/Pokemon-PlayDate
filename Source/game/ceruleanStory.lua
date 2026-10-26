@@ -1,6 +1,7 @@
 -- Bespoke Blue scenes. SourceEvents owns selection; EventState owns lifetime,
 -- GameSession owns commits and NPCMotion owns every scripted actor pose.
 CeruleanStory = {}
+local gfx <const> = playdate.graphics
 local CONTENT <const> = "ceruleanStory"
 local BILL <const> = "pokered:BILLS_HOUSE:objects:"
 local NERD <const> = "pokered:MT_MOON_B2F:objects:1"
@@ -180,7 +181,8 @@ function CeruleanStory.reconcileActors(game)
     local zone = currentZone
     local prior = game.npcManager.motion:snapshot()
     local flags = game.session:flags()
-    local descriptor = assert(SourceActors.describe(zone.stableID,WorldDeltas.export()))
+    local descriptor = SourceActors.describe(zone.stableID,WorldDeltas.export(),game)
+    if not descriptor then return end
     local payload = WorldMotionData.reconcile(prior,descriptor,flags)
     local poses = {}
     if zone.stableID == "pokered:MT_MOON_B2F" then
@@ -197,6 +199,7 @@ function CeruleanStory.reconcileActors(game)
             actor.phase,actor.tick,actor.delay_raw,actor.delay_left = actor.phase=="static" and "static" or "ready",0,0,0
         end
     end
+    SourceActors.refresh(game,zone)
     zone:spawnNPCs(game.npcManager)
     game.npcManager.motion:attach(game,zone,payload)
 end
@@ -388,7 +391,6 @@ end
 function CeruleanEventState:draw()
     CeruleanEventState.super.draw(self)
     if self:valid() and self.phase == "story-choice" then
-        local gfx = playdate.graphics
         gfx.pushContext()
         gfx.setDrawOffset(0,0)
         self.menu:draw(244,120,140,56)

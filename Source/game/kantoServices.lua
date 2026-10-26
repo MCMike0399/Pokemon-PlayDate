@@ -1,6 +1,7 @@
 -- Three bespoke Blue services. SourceEvents selects, EventState guards UI,
 -- and GameSession alone commits durable effects. Ordinary events stay separate.
 KantoServices = {}
+local gfx <const> = playdate.graphics
 local CONTENT <const> = "kantoServices"
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local MUSEUM <const> = "pokered:MUSEUM_1F:objects:1"
@@ -199,7 +200,6 @@ function KantoServicesState:draw()
     KantoServicesState.super.draw(self)
     if self:valid() and self.plan.scene == "kanto-service" and self.serviceMoney
         and (self.phase == "dialog" or self.phase == "service-choice") then
-        local gfx = playdate.graphics
         gfx.pushContext()
         gfx.setDrawOffset(0, 0)
         gfx.clearClipRect()
@@ -216,7 +216,6 @@ function KantoServicesState:draw()
         gfx.popContext()
     end
     if self:valid() and self.phase == "service-choice" then
-        local gfx = playdate.graphics
         gfx.pushContext()
         gfx.setDrawOffset(0, 0)
         gfx.clearClipRect()

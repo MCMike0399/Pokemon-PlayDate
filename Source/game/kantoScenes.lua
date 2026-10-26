@@ -24,34 +24,8 @@ function KantoScenes.actorMetadata(definition, event, game)
     return result
 end
 
--- Rebuild through the source spawner and existing motion owner. Reconciliation
--- preserves ordinary actors' full saved values, including their random timers.
-function KantoScenes.reconcileActors(game)
-    local zone = currentZone
-    local descriptor = SourceActors.describe(zone.stableID,WorldDeltas.export(),game)
-    if not descriptor then return end
-    local flags = game.session:flags()
-    local payload = WorldMotionData.reconcile(game.npcManager.motion:snapshot(),descriptor,flags)
-    local poses = {}
-    if zone.stableID == "pokered:MT_MOON_B2F" then
-        if flags.quest.EVENT_GOT_DOME_FOSSIL then poses[NERD]={x=13,y=7,facing="up"}
-        elseif flags.quest.EVENT_GOT_HELIX_FOSSIL then poses[NERD]={x=12,y=7,facing="up"} end
-    elseif zone.stableID == "pokered:BILLS_HOUSE" and flags.quest.EVENT_USED_CELL_SEPARATOR_ON_BILL then
-        poses[BILL.."2"] = flags.quest.EVENT_MET_BILL and {x=4,y=4,facing="down"} or {x=1,y=2,facing="down"}
-    end
-    local padding = SourceMaps.entry(assert(SourceMaps.nameForID(zone.stableID))).padding
-    for _, value in ipairs(payload.actors) do
-        local pose = poses[value.id]
-        if pose then
-            value.x,value.y,value.facing = pose.x+padding,pose.y,pose.facing
-            value.origin_x,value.target_x,value.origin_y,value.target_y = value.x,value.x,value.y,value.y
-            value.phase,value.tick,value.delay_raw,value.delay_left = value.phase=="static" and "static" or "ready",0,0,0
-        end
-    end
-    SourceActors.refresh(game,zone)
-    zone:spawnNPCs(game.npcManager)
-    game.npcManager.motion:attach(game,zone,payload)
-end
+-- Both scene entry points share the same runtime-aware pose reconciliation.
+KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
