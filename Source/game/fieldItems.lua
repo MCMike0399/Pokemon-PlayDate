@@ -106,10 +106,12 @@ function FieldItems.useEscape(game,request)
     local checkpointed,undo=pcall(WorldDeltas.checkpointRuntime)
     if not checkpointed then return false,"runtime-preflight-failed"end
     local previous={zone=currentZone,position=position(game),actors=game.npcManager.motion:snapshot(),rules=RulesRNG.toData(),worldRng=game.session:worldRngData()}
+    local traversal={world=game.session:worldData(),location=game.session:location(),
+        checkpoint=game.session:checkpoint(),actors=game.session:actorData(),fieldWorld=game.session:fieldWorldData()}
     p.status="transporting"
     local ok,result=pcall(function()
         switchZone(p.key)
-        game.machine:change("overworld",{entry={x=p.target.x,y=p.target.y,facing=p.target.facing},actors=p.actors})
+        game.machine:change("overworld",{entry={x=p.target.x,y=p.target.y,facing=p.target.facing},actors=p.actors,fieldReloadReason="escape"})
         p.readyToCommit=true
         local accepted,receipt=game.session:useEscapeRope(request)
         assert(accepted,receipt)
@@ -119,8 +121,9 @@ function FieldItems.useEscape(game,request)
     p.status="failed"
     local restored,problem=pcall(function()
         undo();currentZone=previous.zone
+        assert(game.session:captureTraversal(traversal))
         RulesRNG.restoreData(previous.rules);GameSession._state(p.session).worldRng:restoreData(previous.worldRng)
-        game.machine:change("overworld",{entry={x=previous.position.x,y=previous.position.y,facing=previous.position.facing},actors=previous.actors})
+        game.machine:change("overworld",{entry={x=previous.position.x,y=previous.position.y,facing=previous.position.facing},actors=previous.actors,fieldRestore=true})
     end)
     game.lastFieldItem={kind="escape-rope",ok=false,reason=tostring(result),restored=restored,rollback_error=not restored and tostring(problem)or nil}
     return false,"transition-failed"

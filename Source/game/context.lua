@@ -20,6 +20,8 @@ function GameContext:init(options)
     options=options or {}
     self.sessionLocationPolicy=options.sessionLocationPolicy
     self.machine=StateMachine(); self.camera=Camera(); self.npcManager=NPCManager(self); self.debugMenu=DebugMenu()
+    self.fieldWorld=FieldWorld
+    self.fieldDarkness=FieldWorld.darknessAdapter()
     self.player=nil; self.transitionLog={}
     -- Inactive: isolated contexts must not seize the live rules stream.
     self.session=newModel(self,options.seed or 1)
@@ -32,6 +34,7 @@ end
 function GameContext:getSessionDependencies()
     assert(ItemData and ItemData.definitions,"production item definitions required")
     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
+        resolvePlayerLocation=function(location,world) return WorldDeltas.resolvePlayerLocation(location,world,self.sessionLocationPolicy) end,
         resolveLocation=function(location,world) return WorldDeltas.resolveLocation(location,world,self.sessionLocationPolicy) end}
 end
 function GameContext:getPlayerPokemon() return self.session:activePokemon() end
@@ -138,7 +141,7 @@ function GameContext:returnToCheckpoint()
     local position=self.session:checkpoint()
     self:getSessionDependencies().resolveLocation(position,WorldDeltas.export())
     switchZone(zoneKey(position.zone_id))
-    self.machine:change("overworld",{entry={x=position.x,y=position.y,facing=position.facing}})
+    self.machine:change("overworld",{entry={x=position.x,y=position.y,facing=position.facing},fieldReloadReason="blackout"})
 end
 -- Explicit development fixture: replace the single fixture party, preserving
 -- starter acquisition history via the authoritative codec, never a loose owner.
@@ -165,4 +168,9 @@ function GameContext:resetActiveLevelForDebug(level)
     for key in pairs(mon) do mon[key]=nil end
     for key,value in pairs(replacement) do mon[key]=value end
     return mon
+end
+
+-- Prepared field transaction adapter; apply only with source reload ownership.
+function GameContext:commitFieldTerrain(before, after, position, actors)
+    return FieldMoveWorld.commit(self, before, after, position, actors)
 end

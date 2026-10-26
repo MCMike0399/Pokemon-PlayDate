@@ -22,6 +22,7 @@ import "domain/inventory"
 import "data/typechart"
 import "battle/dsl"
 import "battle/moves"
+import "data/fieldMoveBattleData"
 import "domain/pokemonCodec"
 import "domain/saveStore"
 import "data/items"
@@ -33,6 +34,9 @@ import "domain/pcItems"
 import "domain/gameSession"
 import "domain/teaching"
 import "domain/sessionCodec"
+import "domain/fieldMoves"
+import "game/fieldMoveWorld"
+import "domain/fieldWorld"
 import "data/captureData"
 import "domain/capture"
 import "game/sourceText"
@@ -58,6 +62,7 @@ import "game/saves"
 import "game/titleState"
 import "game/pauseState"
 import "game/partyState"
+import "game/fieldMoveState"
 import "game/bagState"
 import "game/shopState"
 import "data/pilotWorld"
@@ -142,6 +147,7 @@ machine:register("evolution", EvolutionState(game))
 machine:register("title", TitleState(game))
 machine:register("pause", PauseState(game))
 machine:register("party", PartyState(game))
+machine:register("fieldMove", FieldMoveState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
 machine:register("event", KantoServicesState(game))

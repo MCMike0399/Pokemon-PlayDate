@@ -154,3 +154,15 @@ function setOverworldTile(gx, gy, id)
     assert(currentZone, "no active world zone")
     return currentZone:setTile(gx, gy, id)
 end
+
+-- Scoped native-view ownership for prepared SDK contracts only.
+function WorldView.withIsolation(callback)
+    assert(HarnessBuild and HarnessBuild.enabled, "development view scope required")
+    local previous = activeView
+    activeView = nil
+    local ok, result = pcall(callback)
+    if activeView then activeView:dispose() end
+    activeView = previous
+    if not ok then error(result, 0) end
+    return result
+end

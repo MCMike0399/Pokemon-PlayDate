@@ -1,13 +1,11 @@
 """Primary pins and returned boundary schema only; no Lua/SDK emulation."""
-import ast
 import hashlib
 import json
 from pathlib import Path
-import subprocess
-import tempfile
 import unittest
 
 from tools.harness.protocol import ProtocolError
+from tools.harness.cerulean_journey import CODEC_FIELDS, validate_boundary_payload
 
 ROOT = Path(__file__).resolve().parents[2]
 PACKET = ROOT / 'docs/implementation/field-world-owner'
@@ -38,26 +36,9 @@ class FieldWorldDataTests(unittest.TestCase):
         self.assertEqual(schema['properties']['version'], {'const': 1})
         self.assertEqual(schema['properties']['mapPalOffset'], {'type': 'integer', 'enum': [0, 6]})
 
-    def boundary_validator(self):
-        # Apply the returned patch to a private copy, leaving the active driver
-        # alone. Only its Python envelope-schema function is evaluated.
-        with tempfile.TemporaryDirectory() as tmp:
-            target = Path(tmp) / 'tools/harness/cerulean_journey.py'
-            target.parent.mkdir(parents=True)
-            target.write_bytes((ROOT / 'tools/harness/cerulean_journey.py').read_bytes())
-            subprocess.run(['git', 'apply', str(PACKET / 'host-boundary.patch')], cwd=tmp, check=True)
-            tree = ast.parse(target.read_text())
-        nodes = [n for n in tree.body if
-                 (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'CODEC_FIELDS' for t in n.targets))
-                 or (isinstance(n, ast.FunctionDef) and n.name == 'validate_boundary_payload')]
-        namespace = {'ProtocolError': ProtocolError}
-        exec(compile(ast.Module(body=nodes, type_ignores=[]), '<returned-schema-patch>', 'exec'), namespace)
-        return namespace
-
-    def test_returned_host_patch_accepts_both_envelopes_and_rejects_invalid_field_data(self):
-        ns = self.boundary_validator()
-        check = ns['validate_boundary_payload']
-        old = {key: {} for key in ns['CODEC_FIELDS']}
+    def test_boundary_accepts_both_envelopes_and_rejects_invalid_field_data(self):
+        check = validate_boundary_payload
+        old = {key: {} for key in CODEC_FIELDS}
         old.update(version=1, pokemonEncoding='decimal-counters-v1')
         check(old)
         current = dict(old, version=2, fieldWorld={'version': 1, 'mapPalOffset': 6})

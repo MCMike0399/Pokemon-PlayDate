@@ -10,7 +10,8 @@ function FieldMoveWorld.commit(game, before, after, position, actors)
     local deps = game:getSessionDependencies()
     local checked, candidate = pcall(function()
         local world = deps.validateWorld(after)
-        deps.resolveLocation(position,world)
+        local resolvePlayer = deps.resolvePlayerLocation or deps.resolveLocation
+        resolvePlayer(position,world)
         deps.resolveLocation(session:checkpoint(),world)
         -- captureTraversal validates actors again after native application.
         if deps.validateActors then deps.validateActors(actors,world,position,session:flags()) end
