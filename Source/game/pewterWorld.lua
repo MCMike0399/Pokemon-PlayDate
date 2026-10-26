@@ -154,8 +154,7 @@ function PewterWorld.tryInteract(game)
     if player.isMoving or player.pendingEdgeDoor then player.lastTraversalBlock={kind="source-event",id="movement-active"};return true end
     if not SourceEvents.has(id) then player.lastTraversalBlock={kind="unimplemented-source-event",id=id};return true end
     if npc then
-        if game.npcManager.motion:requestInteraction(npc,id)then return true end
-        npc:faceTowards(player.gridX,player.gridY)
+        return SourceActors.interact(game, npc, id)
     end
     KantoWorld.dispatch(game,id);return true
 end

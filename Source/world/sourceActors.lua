@@ -185,6 +185,15 @@ end
 -- manifest maps. Root may rename the registration without installing two owners.
 SourceActors.describePewter = SourceActors.describeSource
 
+-- Settling and facing belong to NPCMotion for every tracked source actor.
+function SourceActors.interact(game, npc, id)
+    if game.npcManager.motion:requestInteraction(npc, id) then
+        return true
+    end
+    npc:faceTowards(game.player.gridX, game.player.gridY)
+    return SourceEvents.dispatch(game, id)
+end
+
 function SourceActors.trySight(game)
     local player = game.player
     if not game.trainers or not player or not currentZone

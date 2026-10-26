@@ -99,7 +99,9 @@ function KantoWorld.tryInteract(game)
     player.lastTraversalBlock=nil
     if player.isMoving or player.pendingEdgeDoor then block(player,"source-event","movement-active");return true end
     if not SourceEvents.has(id) then block(player,"unimplemented-source-event",id);return true end
-    if npc then npc:faceTowards(player.gridX,player.gridY) end
+    if npc then
+        return SourceActors.interact(game, npc, id)
+    end
     KantoWorld.dispatch(game,id)
     return true
 end
