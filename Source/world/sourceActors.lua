@@ -52,17 +52,30 @@ function SourceActors.describePewter(zoneID,world)
             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end
         end
+        local positions = SourceEvents.actorPositions(event.id)
+        for _,position in ipairs(positions) do
+            assert(position.x < surface.width and position.y < surface.height, "script position outside source map")
+            local cell = position.y * surface.width + position.x + 1
+            assert(not protected[cell], "script position on protected warp/connection cell")
+            spec.script_positions[cell] = true
+        end
         if PewterEvents.isPickup(event.id)then spec.visibility={{group="quest",id=PewterEvents.pickupFlag(event.id),equals=false}}
         elseif name=="PewterCity"and event.source_index==5 then spec.visibility={{group="trainers",id=TrainerEvents.BROCK,equals=false}}end
         specList[#specList+1]=spec
     end
-    local function canStand(spec,x,y,runtimeZone)
+    local function canWander(spec,x,y,runtimeZone)
         if x<0 or y<0 or x>=surface.width or y>=surface.height or (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1]~=0 then return false end
         if spec.role=="trainer"then return spec.script_positions[y*surface.width+x+1]==true end
         if spec.movement~="WALK"then return x==spec.x and y==spec.y end
         if math.abs(x-spec.x)>4 or math.abs(y-spec.y)>4 or protected[y*surface.width+x+1]then return false end
         if spec.selector=="UP_DOWN"and x~=spec.x or spec.selector=="LEFT_RIGHT"and y~=spec.y then return false end
         return true
+    end
+    local function canStand(spec,x,y,runtimeZone)
+        local cell = y * surface.width + x + 1
+        if spec.script_positions[cell] and not protected[cell] and x >= 0 and y >= 0 and x < surface.width and y < surface.height
+            and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0 then return true end
+        return canWander(spec,x,y,runtimeZone)
     end
     local function canStep(spec,x,y,tx,ty,runtimeZone)
         if not canStand(spec,x,y,runtimeZone)or not canStand(spec,tx,ty,runtimeZone)or math.abs(tx-x)+math.abs(ty-y)~=1 then return false end
@@ -73,5 +86,9 @@ function SourceActors.describePewter(zoneID,world)
         for _,pair in ipairs(rules.forbidden_tile_pairs)do if a==pair[1]and b==pair[2]or a==pair[2]and b==pair[1]then return false end end
         return true
     end
-    return {zone_id=zoneID,revision=surface.revision,width=surface.width,height=surface.height,actors=specList,canStand=canStand,canStep=canStep,protected=protected}
+    local function canWanderStep(spec,x,y,tx,ty,runtimeZone)
+        return canWander(spec,x,y,runtimeZone) and canWander(spec,tx,ty,runtimeZone) and canStep(spec,x,y,tx,ty,runtimeZone)
+    end
+    return {zone_id=zoneID,revision=surface.revision,width=surface.width,height=surface.height,actors=specList,
+        canStand=canStand,canStep=canStep,canWanderStep=canWanderStep,protected=protected}
 end

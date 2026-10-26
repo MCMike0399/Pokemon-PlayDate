@@ -234,6 +234,26 @@ function SourceEvents.itemIDs()
     return ids
 end
 function SourceEvents.descriptor(id) return copy(definitions()[id]) end
+-- Optional source metadata belongs to the actor's stable object descriptor.
+-- Scripts cannot supply an ad hoc placement exemption at execution time.
+function SourceEvents.validateActorPositions(id, positions)
+    assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$"), "stable source object ID required")
+    assert(Party._array(positions, 64), "bounded script position list required")
+    local seen = {}
+    for _, position in ipairs(positions) do
+        assert(type(position) == "table" and boundedInteger(position.x, 0, 1023)
+            and boundedInteger(position.y, 0, 1023), "bounded script position required")
+        for key in pairs(position) do assert(key == "x" or key == "y", "unknown script position field") end
+        local key = position.x .. ":" .. position.y
+        assert(not seen[key], "duplicate script position")
+        seen[key] = true
+    end
+    return copy(positions)
+end
+function SourceEvents.actorPositions(id)
+    local descriptor = definitions()[id]
+    return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_positions or {})
+end
 function SourceEvents.has(id, content)
     local d = definitions()[id]
     return d ~= nil and (content == nil or d.content == content)

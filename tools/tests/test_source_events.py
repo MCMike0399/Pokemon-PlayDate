@@ -34,11 +34,27 @@ def labels(value):
                     yield from labels(row)
 
 
+def validate_actor_positions(event_id, positions):
+    parts = event_id.split(':')
+    assert len(parts) == 4 and parts[0] == 'pokered' and parts[1]
+    assert parts[2] == 'objects' and parts[3].isdigit()
+    assert isinstance(positions, list) and len(positions) <= 64
+    seen = set()
+    for position in positions:
+        assert isinstance(position, dict) and set(position) == {'x', 'y'}
+        assert all(type(value) is int and 0 <= value <= 1023 for value in position.values())
+        point = (position['x'], position['y'])
+        assert point not in seen
+        seen.add(point)
+
+
 def validate(data):
     assert data['schema'] == 1 and data['source_revision'] == REVISION
     for event_id, event in data['events'].items():
         assert event_id.startswith('pokered:') and len(event_id.split(':')) == 4
         assert event['content'] in {'viridian', 'pewter'}
+        if 'script_positions' in event:
+            validate_actor_positions(event_id, event['script_positions'])
         text = json.loads((DATA / (event['content'] + 'Slice') / 'dialogue.json').read_text())['texts']
         assert set(labels(event)) <= text.keys(), event_id
         for d in descriptors(event):
@@ -127,6 +143,20 @@ class SourceEventDataTests(unittest.TestCase):
         self.assertEqual(entry['otherwise']['prefix'][1:], [{'op': 'move', 'direction': 'up', 'count': 2}, {'op': 'move', 'direction': 'left', 'count': 1}])
         self.assertEqual(entry['otherwise']['flag'], 'EVENT_GOT_OAKS_PARCEL')
         self.assertEqual(entry['otherwise']['full'], ['_ViridianMartClerkParcelQuestText'])
+
+    def test_explicit_actor_positions_are_bounded_and_stable_object_scoped(self):
+        event_id = 'pokered:PEWTER_MART:objects:3'
+        candidate = copy.deepcopy(self.data)
+        candidate['events'][event_id]['script_positions'] = [{'x': 7, 'y': 6}]
+        validate(candidate)
+        self.assertNotIn('script_positions', self.events[event_id])
+        for malformed in [None, {}, [{'x': True, 'y': 6}], [{'x': -1, 'y': 6}],
+                          [{'x': 7, 'y': 1024}], [{'x': 7, 'y': 6, 'bypass': True}],
+                          [{'x': 7, 'y': 6}] * 2, [{'x': 7, 'y': 6}] * 65]:
+            with self.subTest(malformed=malformed), self.assertRaises(AssertionError):
+                validate_actor_positions(event_id, malformed)
+        with self.assertRaises(AssertionError):
+            validate_actor_positions('pokered:PEWTER_MART:script:escort', [{'x': 7, 'y': 6}])
 
     def test_validator_rejects_unknown_text_and_unbounded_movement(self):
         mutated = copy.deepcopy(self.data)

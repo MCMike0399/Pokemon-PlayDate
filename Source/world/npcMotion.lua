@@ -73,6 +73,8 @@ end
 function NPCMotion:occupantAt(x,y)
     for _,actor in pairs(stores[self].actors)do
         local value=actor.value
+        local move = actor.script and actor.script.move
+        if move and (move.x==x and move.y==y or move.toX==x and move.toY==y) then return actor.npc end
         if not actor.spec.random then
             if actor.npc.gridX==x and actor.npc.gridY==y then return actor.npc end
         elseif value.x==x and value.y==y or value.phase=="moving"and value.origin_x==x and value.origin_y==y then return actor.npc end
@@ -131,7 +133,7 @@ function NPCMotion:tick()
     table.sort(ids,function(a,b)return s.specs[a].order==s.specs[b].order and a<b or s.specs[a].order<s.specs[b].order end)
     for _,id in ipairs(ids)do
         local actor=s.actors[id];local v,spec=actor.value,actor.spec
-        if spec.random and visible(s,actor)then
+        if spec.random and not actor.script and visible(s,actor)then
             if v.phase=="delay"then
                 v.delay_left=v.delay_left-1
                 if v.delay_left==0 then v.phase="ready";v.delay_raw=0 end
@@ -141,7 +143,7 @@ function NPCMotion:tick()
                 local tx,ty=v.x+d[1],v.y+d[2];local player=s.game.player
                 local occupied=s.manager:getNPCAt(tx,ty)
                 local playerBlocked=tx==player.gridX and ty==player.gridY or player.isMoving and tx==player.startPixelX/TILE_SIZE and ty==player.startPixelY/TILE_SIZE
-                if spec.movement=="WALK"and not occupied and not playerBlocked and s.descriptor.canStep(spec,v.x,v.y,tx,ty,s.zone)then
+                if spec.movement=="WALK"and not occupied and not playerBlocked and (s.descriptor.canWanderStep or s.descriptor.canStep)(spec,v.x,v.y,tx,ty,s.zone)then
                     v.origin_x,v.origin_y,v.target_x,v.target_y=v.x,v.y,tx,ty;v.x,v.y=tx,ty;v.phase="moving";v.tick=0
                 else v.delay_raw=s.session:worldRandom(0,127);v.delay_left=WorldMotionData.delay(v.delay_raw);v.phase="delay"end
                 self:_pose(actor)
@@ -157,4 +159,96 @@ function NPCMotion:tick()
         end
     end
     return false
+end
+
+-- Script leases are transient and opaque. Only this owner changes tracked actor
+-- poses; the event keeps the token until exit, including intervening dialogue.
+local function scriptLease(s, token)
+    for _, actor in pairs(s.actors) do
+        local lease = actor.script
+        if lease and lease.token == token and lease.epoch == s.epoch then return actor, lease end
+    end
+end
+local function scriptCurrent(s, lease)
+    local owner = lease.owner
+    return s.game.session == s.session and currentZone == s.zone
+        and s.game.player == lease.player and owner.epoch == lease.ownerEpoch
+        and owner:valid() and owner:isTop()
+end
+function NPCMotion:claimScript(npc, owner)
+    local s = stores[self]
+    local actor = s.byNPC[npc]
+    if not actor then return nil, "untracked-source-actor" end
+    if actor.script then return nil, "source-actor-already-claimed" end
+    if actor.value.phase == "moving" or npc.isMoving then return nil, "moving-source-actor" end
+    if not owner or owner.game ~= s.game or not owner:valid() or not owner:isTop()
+        or owner.session ~= s.session or owner.zone ~= s.zone then return nil, "stale-script-owner" end
+    if not actor.spec.random then
+        if not s.descriptor.canStand(actor.spec,npc.gridX,npc.gridY,s.zone)
+            or not actor.spec.faces[npc.facing] then return nil, "invalid-source-actor-pose" end
+        -- Trainer approach has its own existing owner and exposes its completed
+        -- position through the sprite. Adopt that same pose as snapshot() does.
+        actor.value = WorldMotionData.initial(actor.spec)
+        local value = actor.value
+        value.x,value.y,value.facing = npc.gridX,npc.gridY,npc.facing
+        value.origin_x,value.target_x,value.origin_y,value.target_y = value.x,value.x,value.y,value.y
+    end
+    local token = {}
+    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player}
+    if s.pending and s.pending.id == actor.value.id then s.pending = nil end
+    -- Interaction facing restoration must not undo the script's completed pose.
+    if s.interaction and s.interaction.id == actor.value.id then s.interaction = nil end
+    self:_pose(actor)
+    return token
+end
+function NPCMotion:startScriptStep(token, direction)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
+    if lease.move then return false, "script-cell-in-progress" end
+    local delta = dirs[direction]
+    local v, spec, npc = actor.value, actor.spec, actor.npc
+    if not delta or not spec.faces[direction] then return false, "missing-source-actor-facing" end
+    local x, y = v.x + delta[1], v.y + delta[2]
+    local cell = y * s.descriptor.width + x + 1
+    local player = s.game.player
+    local occupant = s.manager:getNPCAt(x,y)
+    if occupant and occupant ~= npc or x == player.gridX and y == player.gridY
+        or player.isMoving and x == player.startPixelX/TILE_SIZE and y == player.startPixelY/TILE_SIZE
+        or s.descriptor.protected[cell]
+        or not s.descriptor.canStep(spec,v.x,v.y,x,y,s.zone) then return false, "blocked-scripted-npc-move" end
+    -- Verify walking art before reserving or exposing an intermediate pose.
+    local ok = pcall(PewterSprites.stepImage,spec.sprite_source,direction,2)
+    if not ok then return false, "missing-source-actor-walking-art" end
+    lease.move = {x=v.x,y=v.y,toX=x,toY=y,direction=direction,tick=0}
+    npc.isMoving = true
+    return true
+end
+function NPCMotion:updateScript(token)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
+    local move = lease.move
+    if not move then return false, "no-script-cell" end
+    move.tick = move.tick + 1
+    local npc, v = actor.npc, actor.value
+    npc.facing = move.direction
+    npc:moveTo((move.x+(move.toX-move.x)*move.tick/8)*TILE_SIZE,
+        (move.y+(move.toY-move.y)*move.tick/8)*TILE_SIZE-8)
+    npc:setImage(PewterSprites.stepImage(actor.spec.sprite_source,move.direction,move.tick))
+    if move.tick < 8 then return false, "moving" end
+    v.x,v.y,v.facing = move.toX,move.toY,move.direction
+    v.origin_x,v.target_x,v.origin_y,v.target_y = v.x,v.x,v.y,v.y
+    lease.move = nil
+    self:_pose(actor)
+    return true
+end
+function NPCMotion:releaseScript(token)
+    local s = stores[self]
+    local actor = scriptLease(s, token)
+    if not actor then return false end
+    -- Incomplete interpolation never changed the completed durable cell.
+    actor.script = nil
+    self:_pose(actor)
+    return true
 end

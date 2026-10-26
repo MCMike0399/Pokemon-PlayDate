@@ -76,6 +76,7 @@ function EventState:enter(id,options)
     self.phase,self.waiting,self.index,self.committed="running","none",1,false
     self.ops,self.receipts,self.books={},{},{}
     self.npcMove,self.pendingWarp=nil,nil
+    self.npcLeases = {}
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
     if plan.scene=="oak-pokedex" then
@@ -128,6 +129,7 @@ function EventState:enter(id,options)
     self:advance()
 end
 function EventState:fail(reason)
+    self:cancelNPCMove()
     self.pendingWarp=nil
     self.serial=self.serial+1;self.phase,self.waiting="failed",tostring(reason)
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
@@ -398,64 +400,36 @@ function EventState:trainerReady()
     end)
 end
 
--- Stationary source actors use the same eight-frame cell timing as trainers.
--- Random walkers retain NPCMotion ownership; scripts cannot steal that owner.
+-- Reusable source movement has one pose owner. The bespoke Oak rival scene
+-- above remains separate; temporary actors cannot bypass source descriptors.
 function EventState:startNPCMove(step)
     local npc
     for _, actor in ipairs(self.game.npcManager.npcs) do
         if actor.def and actor.def.source_event_id == step.id then npc = actor; break end
     end
-    if not npc or npc.isMoving then self:fail("absent-or-moving-source-actor"); return end
-    local motion = self.game.npcManager.motion:actor(npc)
-    if motion and motion.phase ~= "static" then self:fail("npc-motion-owns-actor"); return end
-    local delta = DELTA[step.direction]
-    local x, y = npc.gridX + delta[1], npc.gridY + delta[2]
-    if not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] ~= 0
-        or self.game.npcManager:getNPCAt(x, y) or (self.player.gridX == x and self.player.gridY == y) then
-        self:fail("blocked-scripted-npc-move"); return
+    if not npc then self:fail("absent-source-actor"); return end
+    local owner = self.game.npcManager.motion
+    local token = self.npcLeases[step.id]
+    local reason
+    if not token then
+        token, reason = owner:claimScript(npc,self)
+        if not token then self:fail(reason); return end
+        self.npcLeases[step.id] = token
     end
-    if self.zone:isSliceReady() and self.zone:movementRule(npc.gridX,npc.gridY,step.direction).kind ~= "walk" then
-        self:fail("blocked-scripted-npc-pair"); return
-    end
-    -- Use the session's real actor validator before exposing a displaced pose.
-    if motion then
-        local payload = self.game.npcManager.motion:snapshot()
-        for _, actor in ipairs(payload.actors) do
-            if actor.id == step.id then
-                actor.x, actor.y, actor.facing = x, y, step.direction
-                actor.origin_x, actor.target_x = x, x
-                actor.origin_y, actor.target_y = y, y
-            end
-        end
-        local descriptor = SourceActors.describe(self.zone.stableID,WorldDeltas.export())
-        local ok = pcall(WorldMotionData.normalize,payload,descriptor,
-            {zone_id=self.zone.stableID,x=self.player.gridX,y=self.player.gridY,facing=self.player.facing},self.session:flags())
-        if not ok then self:fail("invalid-scripted-actor-pose"); return end
-    end
-    if not npc.images[step.direction] then self:fail("missing-source-actor-facing"); return end
-    self.npcMove = {npc=npc,x=npc.gridX,y=npc.gridY,toX=x,toY=y,facing=npc.facing,image=npc:getImage(),tick=0}
-    npc:setFacing(step.direction)
-    self.phase, self.waiting = "move-npc", step.id
+    local ok
+    ok, reason = owner:startScriptStep(token,step.direction)
+    if not ok then self:fail(reason); return end
+    self.npcMove = {token=token}
+    self.phase,self.waiting = "move-npc",step.id
 end
 function EventState:updateNPCMove()
-    local move = self.npcMove
-    move.tick = move.tick + 1
-    move.npc:moveTo((move.x + (move.toX - move.x) * move.tick / 8) * TILE_SIZE,
-        (move.y + (move.toY - move.y) * move.tick / 8) * TILE_SIZE - 8)
-    if move.tick == 8 then
-        move.npc.gridX, move.npc.gridY = move.toX, move.toY
-        self.npcMove = nil
-        self:advance()
-    end
+    local done,reason = self.game.npcManager.motion:updateScript(self.npcMove.token)
+    if done then self.npcMove=nil;self:advance()
+    elseif reason~="moving" then self:fail(reason) end
 end
 function EventState:cancelNPCMove()
-    local move = self.npcMove
-    if move and self.game.player == self.player and currentZone == self.zone then
-        move.npc.gridX, move.npc.gridY = move.x, move.y
-        move.npc:moveTo(move.x * TILE_SIZE,move.y * TILE_SIZE - 8)
-        move.npc:setFacing(move.facing)
-        move.npc:setImage(move.image)
-    end
+    for _,token in pairs(self.npcLeases or {}) do self.game.npcManager.motion:releaseScript(token) end
+    self.npcLeases = {}
     self.npcMove = nil
 end
 function EventState:prepareWarp(step)

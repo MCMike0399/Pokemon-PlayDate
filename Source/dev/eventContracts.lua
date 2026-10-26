@@ -309,7 +309,7 @@ function EventContracts.run()
         eq(#event.books,0);eq(game.npcManager:findByName("BLUE"),nil);eq(game.session:inventory():quantity("oaksParcel"),1)
         eq(game.session:questFlag("EVENT_GOT_POKEDEX"),false)
     end)
-    test("Reusable NPC operation uses native sprites and cancels only its incomplete cell",function()
+    test("Reusable NPC operation rejects untracked temporary actors without a descriptor bypass",function()
         local game,event=setup("reds_house_2f",5,3)
         local npc=NPC(3,3,"BLUE",{},nil,"rival","right")
         npc.def={source_event_id="contract:source-actor"};game.npcManager:addNPC(npc)
@@ -318,17 +318,12 @@ function EventContracts.run()
         event.ops={{op="move-npc",id="contract:source-actor",direction="right"}}
         event.index=1
         local image=npc:getImage()
-        completeDialog(game);eq(event.phase,"move-npc")
-        for _=1,4 do event:update() end
-        eq(npc.x,112);eq(npc.gridX,3)
+        completeDialog(game);eq(event.phase,"failed")
+        eq(event.waiting,"untracked-source-actor")
+        for _=1,8 do event:update() end
+        eq(npc.x,96);eq(npc.gridX,3);eq(npc:getImage(),image)
         game.machine:change("overworld")
         eq(npc.x,96);eq(npc.gridX,3);eq(npc:getImage(),image)
-        game.machine:push("event","pokered:ROUTE_1:objects:2")
-        event.ops={{op="move-npc",id="contract:source-actor",direction="right"}}
-        event.index=1
-        completeDialog(game)
-        for _=1,8 do event:update() end
-        eq(npc.gridX,4);eq(npc.x,128);eq(game.machine:getCurrent(),"overworld")
     end)
     test("Terminal warp waits for the real transaction receipt and abort invalidates its callback",function()
         local game,event=setup("reds_house_2f",5,3)
