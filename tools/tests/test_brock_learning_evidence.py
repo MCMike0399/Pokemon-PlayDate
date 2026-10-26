@@ -5,6 +5,42 @@ from tools.harness.brock_journey import BrockJourney
 from tools.harness.protocol import ProtocolError
 
 class LearningEvidenceTests(unittest.TestCase):
+ def test_release_gate_is_observed_before_decline_menu_navigation(self):
+  journey = BrockJourney(None, '/private/tmp', {})
+  journey.state = {'root': 'learning', 'learning': {
+   'phase': 'ask', 'input_blocked': True, 'selected': 1,
+   'move_info': {}, 'known_moves': [], 'dialog_ready': True,
+  }}
+  commands = []
+  captures = []
+  def send(command):
+   commands.append(command)
+   learning = journey.state.get('learning', {})
+   if command == 'wait 2':
+    learning['input_blocked'] = False
+   elif command == 'press down':
+    if learning['input_blocked']:
+     learning['input_blocked'] = False
+    else:
+     learning['selected'] = 2
+   elif command == 'press a':
+    if learning['phase'] == 'ask':
+     self.assertEqual(learning['selected'], 2)
+     learning.update(phase='stop', selected=1)
+    elif learning['phase'] == 'stop':
+     learning['phase'] = 'message'
+    else:
+     journey.state = {'root': 'battle'}
+   else:
+    self.fail('unexpected input ' + command)
+  journey.send = send
+  journey.checkpoint = lambda name: captures.append(copy.deepcopy(journey.state['learning']))
+  with patch('tools.harness.brock_journey.learn_decision', return_value=None):
+   journey.learning()
+  self.assertEqual(commands[:2], ['wait 2', 'press down'])
+  self.assertEqual(captures[0]['selected'], 2)
+  self.assertEqual(commands.count('press a'), 3)
+
  def trace(self,replacement=True,decline=False,failed_capture=False):
   j=BrockJourney(None,'/private/tmp',{});commands=[];captures=[];selections=[]
   phases=['message','ask','stop'if decline else'replace']+([]if decline else['confirm'])+['message','message'] if replacement else ['message']
