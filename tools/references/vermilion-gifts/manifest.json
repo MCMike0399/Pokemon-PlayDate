@@ -1,0 +1,11 @@
+{
+  "files": {
+    "constants/ram_constants.asm": "b4fbed09d7b966481e43a9690f3bc8cb27a700ddf7c60d61d8f0f3d40f8eb5cf",
+    "engine/events/oaks_aide.asm": "12a41675113518037f1b06fcaa95500cbe90511fff55b685d98da85c4ea60c2d",
+    "scripts/PokemonFanClub.asm": "abcd6ddebb18fe56e7effd0157958bb00069617c7c41c398660e18fb3d4d872f",
+    "scripts/Route11Gate2F.asm": "5370f6050c1c4eea856b5cf5a760fbbde29d6acfb5304ab49c26196b94babf1c",
+    "scripts/Route2Gate.asm": "b09f7271cf9ae406a94e674973c54c8a4d873bf3a760e1174440e16a4ffa4603",
+    "scripts/VermilionOldRodHouse.asm": "e379524ddd77af9111d77d8131c6672c431ca3432da46f707f02daa8d235a8b3"
+  },
+  "revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

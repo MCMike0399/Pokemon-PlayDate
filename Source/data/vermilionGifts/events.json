@@ -1,0 +1,116 @@
+{
+  "events": {
+    "pokered:POKEMON_FAN_CLUB:objects:5": {
+      "before": [
+        "_PokemonFanClubChairmanStoryText"
+      ],
+      "blocks": [
+        "bicycle",
+        "bikeVoucher"
+      ],
+      "completed": [
+        "_PokemonFanClubChairFinalText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_PokemonFanClubNoStoryText"
+      ],
+      "flag": "EVENT_GOT_BIKE_VOUCHER",
+      "full": [
+        "_PokemonFanClubBagFullText"
+      ],
+      "item": "bikeVoucher",
+      "kind": "bespoke",
+      "prompt": [
+        "_PokemonFanClubChairmanIntroText"
+      ],
+      "success": [
+        "_PokemonFanClubReceivedBikeVoucherText",
+        "_PokemonFanClubExplainBikeVoucherText"
+      ]
+    },
+    "pokered:ROUTE_11_GATE_2F:objects:2": {
+      "before": [
+        "_OaksAideHereYouGoText"
+      ],
+      "completed": [
+        "_Route11Gate2FOaksAideItemfinderDescriptionText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_OaksAideComeBackText"
+      ],
+      "flag": "EVENT_GOT_ITEMFINDER",
+      "full": [
+        "_OaksAideNoRoomText"
+      ],
+      "insufficient": [
+        "_OaksAideUhOhText"
+      ],
+      "item": "itemfinder",
+      "kind": "bespoke",
+      "prompt": [
+        "_OaksAideHiText"
+      ],
+      "success": [
+        "_OaksAideGotItemText",
+        "_Route11Gate2FOaksAideItemfinderDescriptionText"
+      ],
+      "threshold": 30
+    },
+    "pokered:ROUTE_2_GATE:objects:1": {
+      "before": [
+        "_OaksAideHereYouGoText"
+      ],
+      "completed": [
+        "_Route2GateOaksAideFlashExplanationText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_OaksAideComeBackText"
+      ],
+      "flag": "EVENT_GOT_HM05",
+      "full": [
+        "_OaksAideNoRoomText"
+      ],
+      "insufficient": [
+        "_OaksAideUhOhText"
+      ],
+      "item": "hm05",
+      "kind": "bespoke",
+      "prompt": [
+        "_OaksAideHiText"
+      ],
+      "success": [
+        "_OaksAideGotItemText",
+        "_Route2GateOaksAideFlashExplanationText"
+      ],
+      "threshold": 10
+    },
+    "pokered:VERMILION_OLD_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_VermilionOldRodHouseFishingGuruHowAreTheFishBitingText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_VermilionOldRodHouseFishingGuruThatsSoDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_OLD_ROD",
+      "full": [
+        "_VermilionOldRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "oldRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_VermilionOldRodHouseFishingGuruDoYouLikeToFishText"
+      ],
+      "success": [
+        "_VermilionOldRodHouseFishingGuruTakeThisText",
+        "_VermilionOldRodHouseFishingGuruFishingIsAWayOfLifeText"
+      ]
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

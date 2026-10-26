@@ -1,0 +1,38 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -86,6 +86,7 @@
+ import "game/tutorialEscort"
+ import "game/kantoScenes"
+ import "game/kantoServices"
++import "game/vermilionGifts"
+ import "game/pokedexState"
+ import "game/pcState"
+ import "game/evolutionState"
+@@ -123,6 +124,7 @@
+ CeruleanContent.installSigns()
+ KantoScenes.install()
+ KantoServices.install()
++VermilionGifts.install()
+ SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
+ SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
+     beforeSpawn=function(context)
+@@ -144,7 +146,7 @@
+ machine:register("party", PartyState(game))
+ machine:register("bag", BagState(game))
+ machine:register("shop", ShopState(game))
+-machine:register("event", KantoServicesState(game))
++machine:register("event", VermilionGiftsState(game))
+ machine:register("tutorial-escort", TutorialEscortState(game))
+ machine:register("pokedex", PokedexState(game))
+ machine:register("pc", PCState(game))
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -222,6 +222,8 @@
+ Contracts.register("kanto-scenes", KantoScenesContracts.run)
+ import "dev/kantoServicesContracts"
+ Contracts.register("kanto-services", KantoServicesContracts.run)
++import "dev/vermilionGiftsContracts"
++Contracts.register("vermilion-gifts", VermilionGiftsContracts.run)
+ import "dev/commonAbilityContracts"
+ Contracts.register("common-abilities", CommonAbilityContracts.run)
+ import "dev/ceruleanAmbientDialogueContracts"
