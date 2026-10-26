@@ -19,11 +19,22 @@ local function actors()
     return SourceMaps.record("data/sourceSlice/sprites.json").sprites
 end
 
+local function maps()
+    local names = {}
+    local prefix = "data/sourceSlice/"
+    for _, name in ipairs(SourceMaps.names("source")) do
+        if SourceMaps.entry(name).path:sub(1, #prefix) == prefix then
+            names[#names + 1] = name
+        end
+    end
+    return names
+end
+
 function CeruleanCatalogExporter.tiles()
     local metadata = SourceMaps.compact()
     local legacy = PewterCatalogExporter.legacyTiles()
     local result = {}
-    for _, name in ipairs(SourceMaps.names("source")) do
+    for _, name in ipairs(maps()) do
         for _, key in ipairs(metadata.maps[name].palette) do
             if not legacy[key] then result[key] = assert(metadata.tiles[key], "source palette tile missing") end
         end
@@ -117,14 +128,14 @@ function CeruleanCatalogExporter.inventory()
             end
         end
     end
-    local maps = SourceMaps.names("source")
-    assert(#maps == result.map_count, "explicit Cerulean map inventory changed")
+    local mapNames = maps()
+    assert(#mapNames == result.map_count, "explicit Cerulean map inventory changed")
     local tiles = keys(CeruleanCatalogExporter.tiles())
     assert(#tiles == result.tile_count, "explicit Cerulean tile inventory changed")
     for _, key in ipairs(tiles) do
         asset("tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
     end
-    for _, name in ipairs(maps) do
+    for _, name in ipairs(mapNames) do
         local descriptor = SourceMaps.descriptor(name)
         for _, kind in ipairs(mapKinds) do
             local viewport = kind == "viewport"
@@ -279,7 +290,7 @@ function CeruleanCatalogExporter.writer(sink)
         report.tiles[#report.tiles + 1] = { stable_key = key, path = name .. ".png",
             terrain = tile.terrain, collision = tile.collision }
     end
-    for _, name in ipairs(SourceMaps.names("source")) do report.maps[#report.maps + 1] = mapImages(name, sink) end
+    for _, name in ipairs(maps()) do report.maps[#report.maps + 1] = mapImages(name, sink) end
     for _, source in ipairs(keys(actors())) do
         local strip = CeruleanContent.sprite(source)
         sink.asset("cerulean-strip-" .. source, sourceStrip(source), "source-strip", true)
@@ -321,9 +332,13 @@ function CeruleanCatalogExporter.register()
     local tiles = CeruleanCatalogExporter.tiles()
     local npcs = {}
     for source in pairs(actors()) do npcs[CeruleanContent.key(source)] = true end
+    local ownedMaps = {}
+    for _, name in ipairs(maps()) do
+        ownedMaps[SourceMaps.entry(name).id] = true
+    end
     return VisualCatalog.registerExporter("cerulean", {
         inventory = CeruleanCatalogExporter.inventory, writer = CeruleanCatalogExporter.writer,
-        ownsZone = function(zone) return SourceMaps.nameForID(zone.stableID, "source") ~= nil end,
+        ownsZone = function(zone) return ownedMaps[zone.stableID] == true end,
         ownsTile = function(key) return tiles[key] ~= nil end,
         ownsNPC = function(key) return npcs[key] == true end,
     })
