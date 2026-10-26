@@ -1,0 +1,672 @@
+{
+  "dark_maps": [
+    "pokered:ROCK_TUNNEL_1F",
+    "pokered:ROCK_TUNNEL_B1F"
+  ],
+  "flash_white_frames": 3,
+  "maps": {
+    "pokered:CERULEAN_CITY": {
+      "height": 36,
+      "layout_sha256": "5d8a723600dca19fe3746690748cc6f0831c30010a5568cc5630453e5412f615",
+      "name": "CeruleanCity",
+      "sites": [
+        {
+          "block": 50,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 18,
+              "y": 28
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 19,
+              "y": 28
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 18,
+              "y": 29
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 19,
+              "y": 29
+            }
+          ],
+          "replacement": 109,
+          "targets": [
+            {
+              "x": 19,
+              "y": 28
+            }
+          ],
+          "x": 18,
+          "y": 28
+        }
+      ],
+      "tileset": "OVERWORLD",
+      "width": 40
+    },
+    "pokered:PEWTER_CITY": {
+      "height": 36,
+      "layout_sha256": "2b0acb694cdbf0915b5e77885d17a75b11b302d1990ed46b95b17b9a7d356da0",
+      "name": "PewterCity",
+      "sites": [
+        {
+          "block": 52,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 26,
+              "y": 4
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 27,
+              "y": 4
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 26,
+              "y": 5
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 27,
+              "y": 5
+            }
+          ],
+          "replacement": 111,
+          "targets": [
+            {
+              "x": 26,
+              "y": 4
+            }
+          ],
+          "x": 26,
+          "y": 4
+        }
+      ],
+      "tileset": "OVERWORLD",
+      "width": 40
+    },
+    "pokered:ROUTE_11": {
+      "height": 18,
+      "layout_sha256": "43d55be14d1f1254f6e5c5d8148f97c3db23955187842a4b7779cd60b2904cf7",
+      "name": "Route11",
+      "sites": [],
+      "tileset": "OVERWORLD",
+      "width": 60
+    },
+    "pokered:ROUTE_2": {
+      "height": 72,
+      "layout_sha256": "09c6caeadb7ed37a0ddc11982c12d627fac300a21b705d2d22780935b2cf1bc1",
+      "name": "Route2",
+      "sites": [
+        {
+          "block": 50,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 4,
+              "y": 10
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 5,
+              "y": 10
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 4,
+              "y": 11
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 5,
+              "y": 11
+            }
+          ],
+          "replacement": 109,
+          "targets": [
+            {
+              "x": 5,
+              "y": 10
+            }
+          ],
+          "x": 4,
+          "y": 10
+        },
+        {
+          "block": 50,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 14,
+              "y": 22
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 15,
+              "y": 22
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 14,
+              "y": 23
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 15,
+              "y": 23
+            }
+          ],
+          "replacement": 109,
+          "targets": [
+            {
+              "x": 15,
+              "y": 22
+            }
+          ],
+          "x": 14,
+          "y": 22
+        },
+        {
+          "block": 50,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 4,
+              "y": 38
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 5,
+              "y": 38
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 4,
+              "y": 39
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 5,
+              "y": 39
+            }
+          ],
+          "replacement": 109,
+          "targets": [
+            {
+              "x": 5,
+              "y": 38
+            }
+          ],
+          "x": 4,
+          "y": 38
+        },
+        {
+          "block": 52,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 12,
+              "y": 52
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 13,
+              "y": 52
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 12,
+              "y": 53
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 13,
+              "y": 53
+            }
+          ],
+          "replacement": 111,
+          "targets": [
+            {
+              "x": 12,
+              "y": 52
+            }
+          ],
+          "x": 12,
+          "y": 52
+        },
+        {
+          "block": 52,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 12,
+              "y": 60
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 13,
+              "y": 60
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 12,
+              "y": 61
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 13,
+              "y": 61
+            }
+          ],
+          "replacement": 111,
+          "targets": [
+            {
+              "x": 12,
+              "y": 60
+            }
+          ],
+          "x": 12,
+          "y": 60
+        },
+        {
+          "block": 52,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 12,
+              "y": 68
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 13,
+              "y": 68
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 12,
+              "y": 69
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 13,
+              "y": 69
+            }
+          ],
+          "replacement": 111,
+          "targets": [
+            {
+              "x": 12,
+              "y": 68
+            }
+          ],
+          "x": 12,
+          "y": 68
+        }
+      ],
+      "tileset": "OVERWORLD",
+      "width": 20
+    },
+    "pokered:ROUTE_24": {
+      "height": 36,
+      "layout_sha256": "7d3d9351ec0cc6898c86f5281ad7eb660d4095239483a4a1a7a59ae62a2bd0db",
+      "name": "Route24",
+      "sites": [],
+      "tileset": "OVERWORLD",
+      "width": 20
+    },
+    "pokered:ROUTE_25": {
+      "height": 18,
+      "layout_sha256": "53b7409d25bee7e28c76099861fe39397cc7b0a5c8fcb1b5820de4e0bc0a937b",
+      "name": "Route25",
+      "sites": [
+        {
+          "block": 96,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 26,
+              "y": 2
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 27,
+              "y": 2
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 26,
+              "y": 3
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 27,
+              "y": 3
+            }
+          ],
+          "replacement": 110,
+          "targets": [
+            {
+              "x": 26,
+              "y": 3
+            }
+          ],
+          "x": 26,
+          "y": 2
+        }
+      ],
+      "tileset": "OVERWORLD",
+      "width": 60
+    },
+    "pokered:ROUTE_5": {
+      "height": 36,
+      "layout_sha256": "cbd71c956de09300d05df8f239b66889489cdc89acaf3b96148cac8bd7f5bcab",
+      "name": "Route5",
+      "sites": [],
+      "tileset": "OVERWORLD",
+      "width": 20
+    },
+    "pokered:ROUTE_6": {
+      "height": 36,
+      "layout_sha256": "186f302692f3da99d5fab638ba3320a7f6dbbf90a8851636132a1836e15a9de6",
+      "name": "Route6",
+      "sites": [],
+      "tileset": "OVERWORLD",
+      "width": 20
+    },
+    "pokered:VERMILION_CITY": {
+      "height": 36,
+      "layout_sha256": "bf81c1399b34e7c0e4e924268d00f90fecd7c67d9a7a3af87db3f587ef92f2c8",
+      "name": "VermilionCity",
+      "sites": [
+        {
+          "block": 53,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 14,
+              "y": 18
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 15,
+              "y": 18
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 14,
+              "y": 19
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 15,
+              "y": 19
+            }
+          ],
+          "replacement": 76,
+          "targets": [
+            {
+              "x": 15,
+              "y": 18
+            }
+          ],
+          "x": 14,
+          "y": 18
+        }
+      ],
+      "tileset": "OVERWORLD",
+      "width": 40
+    },
+    "pokered:VERMILION_GYM": {
+      "height": 18,
+      "layout_sha256": "6469e306f4e9d7a2c4e6cde4bb04151e6305c789ed2da0bad5db2ebe6096e755",
+      "name": "VermilionGym",
+      "sites": [],
+      "tileset": "GYM",
+      "width": 10
+    },
+    "pokered:VIRIDIAN_CITY": {
+      "height": 36,
+      "layout_sha256": "e5a3fb7713a3b75cf3ecba9ede35fe71fa4bff0c910fc10b6659ef7b0dc101ae",
+      "name": "ViridianCity",
+      "sites": [
+        {
+          "block": 52,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 14,
+              "y": 4
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 15,
+              "y": 4
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 14,
+              "y": 5
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 15,
+              "y": 5
+            }
+          ],
+          "replacement": 111,
+          "targets": [
+            {
+              "x": 14,
+              "y": 4
+            }
+          ],
+          "x": 14,
+          "y": 4
+        },
+        {
+          "block": 52,
+          "cells": [
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+              "x": 8,
+              "y": 22
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+              "x": 9,
+              "y": 22
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 8,
+              "y": 23
+            },
+            {
+              "after": "pokered:OVERWORLD:cell:40-41-50-51",
+              "before": "pokered:OVERWORLD:cell:40-41-50-51",
+              "x": 9,
+              "y": 23
+            }
+          ],
+          "replacement": 111,
+          "targets": [
+            {
+              "x": 8,
+              "y": 22
+            }
+          ],
+          "x": 8,
+          "y": 22
+        }
+      ],
+      "tileset": "OVERWORLD",
+      "width": 40
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "tiles": {
+    "pokered:OVERWORLD:cell:2c-2c-2c-2c": {
+      "collision": 0,
+      "grid": [
+        "1.1.1.111.1.1.11",
+        ".1...1.1.1...1.1",
+        "1...111.1...111.",
+        ".1.111.1.1.111.1",
+        "1.111.1.1.111.1.",
+        ".1.1..11.1.1..11",
+        "..1..11...1..11.",
+        ".11111.1.11111.1",
+        "1.1.1.111.1.1.11",
+        ".1...1.1.1...1.1",
+        "1...111.1...111.",
+        ".1.111.1.1.111.1",
+        "1.111.1.1.111.1.",
+        ".1.1..11.1.1..11",
+        "..1..11...1..11.",
+        ".11111.1.11111.1"
+      ],
+      "key": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+      "terrain": {
+        "counter": false,
+        "foot_tile": 44,
+        "grass": false,
+        "land_passable": true,
+        "warp_tile": false,
+        "water_candidate": false
+      }
+    },
+    "pokered:OVERWORLD:cell:2d-2e-3d-3e": {
+      "collision": 1,
+      "grid": [
+        "1.1.1.1.1.#.#.1.",
+        ".1.2.2.1##2#2#.1",
+        "12#.#.2.#212.2#.",
+        ".#2#2#.12#2.1.2#",
+        "#21..2#.##12.2#.",
+        ".#21.###2#212#.1",
+        "###2####1##2##2.",
+        ".#2###2#121##1.1",
+        "1.#.##2222#.1.1.",
+        ".1.2.2#22#.1.1.1",
+        "121.1.#.1#1.1.1.",
+        ".1.1.1#.1#.1.1.1",
+        "1.1.2#.1.1#21.1.",
+        ".1.1#21.112#21.1",
+        "1.1.2##22##21.2.",
+        ".1.1.22##221.1.1"
+      ],
+      "key": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+      "terrain": {
+        "counter": false,
+        "foot_tile": 61,
+        "grass": false,
+        "land_passable": false,
+        "warp_tile": false,
+        "water_candidate": false
+      }
+    },
+    "pokered:OVERWORLD:cell:40-41-50-51": {
+      "collision": 1,
+      "grid": [
+        "1.1.1####2.1.1.1",
+        ".122#1...##21.1.",
+        "1.1#1...1.##121.",
+        ".12#...1.2.#212.",
+        "12#11.1...#.#2.1",
+        ".#22121.122#2#1.",
+        "1##12121#2#2##.1",
+        ".1##11122#1##21.",
+        "1#1#2121#2#2##21",
+        "#2#2121#1#2#2##1",
+        "##1#2#21###2###.",
+        "2##2#2##2#####21",
+        "12###########21.",
+        "212####22###212.",
+        "12122#2112#212.1",
+        ".1.112####211.11"
+      ],
+      "key": "pokered:OVERWORLD:cell:40-41-50-51",
+      "terrain": {
+        "counter": false,
+        "foot_tile": 80,
+        "grass": false,
+        "land_passable": false,
+        "warp_tile": false,
+        "water_candidate": false
+      }
+    }
+  },
+  "tree_frames": 8,
+  "tree_grid": [
+    "1.1.1.1.1.#.#.1.",
+    ".1.2.2.1##2#2#.1",
+    "12#.#.2.#212.2#.",
+    ".#2#2#.12#2.1.2#",
+    "#21..2#.##12.2#.",
+    ".#21.###2#212#.1",
+    "###2####1##2##2.",
+    ".#2###2#121##1.1",
+    "1.#.##2222#.1.1.",
+    ".1.2.2#22#.1.1.1",
+    "121.1.#.1#1.1.1.",
+    ".1.1.1#.1#.1.1.1",
+    "1.1.2#.1.1#21.1.",
+    ".1.1#21.112#21.1",
+    "1.1.2##22##21.2.",
+    ".1.1.22##221.1.1"
+  ]
+}
