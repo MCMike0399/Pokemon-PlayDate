@@ -22,7 +22,11 @@ function ComprehensiveCatalogContracts.run()
         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
     end
     test("Full inventory declares original1635 and859 additions with all8 unvisited maps",function()
-        local inventory=VisualCatalog.expectedInventory();eq(#inventory.images,2494);eq(#inventory.exporters.pewter.images,859)
+        local inventory=VisualCatalog.expectedInventory()
+        local additions=CeruleanCatalogExporter.inventory()
+        eq(#inventory.images,2494+#additions.images)
+        assert(CatalogRuntime.same(inventory.exporters.cerulean,additions),"explicit Cerulean inventory differs")
+        eq(#inventory.exporters.pewter.images,859)
         local paths={};for _,entry in ipairs(inventory.images) do assert(not paths[entry.path]);paths[entry.path]=true end
         for _,name in ipairs(PewterSlice.names()) do
             for _,kind in ipairs({"terrain","collision","actors","events","viewport"}) do assert(paths["pewter-"..name.."-"..kind..".png"]) end

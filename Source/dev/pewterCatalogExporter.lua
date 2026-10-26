@@ -8,6 +8,20 @@ local function verified(path)
     assert(record.schema==1 and record.source_revision=="af519899719f0754965776faac0e836a3b906e6d","unverified catalog source")
     return record
 end
+-- Project the accepted twelve palettes from shared metadata. The compact
+-- cache now contains later regions too; they belong to their named exporter.
+function PewterCatalogExporter.legacyTiles()
+    local metadata = SourceMaps.compact()
+    local tiles = {}
+    for _, profile in ipairs({ "viridian", "pewter" }) do
+        for _, name in ipairs(SourceMaps.names(profile)) do
+            for _, key in ipairs(metadata.maps[name].palette) do
+                tiles[key] = assert(metadata.tiles[key], "legacy palette tile missing")
+            end
+        end
+    end
+    return tiles
+end
 function PewterCatalogExporter.writer(sink)
     local report={schema=1,source_revision="af519899719f0754965776faac0e836a3b906e6d",images={},maps={},tiles={},missing={}}
     local function save(image,name,kind,extra)
@@ -25,7 +39,7 @@ function PewterCatalogExporter.writer(sink)
             save(assert(image:getMaskImage()),"pewter-mask-"..name.."-"..index,"mask",{source_id=strip.id,frame=index})
         end
     end
-    local metadata=PewterSlice.compact()
+    local metadata={tiles=PewterCatalogExporter.legacyTiles()}
     local protected=assert(json.decodeFile("dev/catalogProtected.json"))
     for _,key in ipairs(sortedKeys(metadata.tiles)) do
         local prefix="tile_imported_"..VisualCatalog.stableName(key)
@@ -166,7 +180,7 @@ function PewterCatalogExporter.inventory()
             add("pewter-mask-"..name.."-"..frame,32,32,"mask",true)
         end
     end
-    local protected=assert(json.decodeFile("dev/catalogProtected.json"));local tiles=PewterSlice.compact().tiles
+    local protected=assert(json.decodeFile("dev/catalogProtected.json"));local tiles=PewterCatalogExporter.legacyTiles()
     for _,key in ipairs(sortedKeys(tiles)) do if not protected.tiles[key] then
         asset("tile_imported_"..VisualCatalog.stableName(key),32,32,"imported-tile",false)
     end end
@@ -186,8 +200,13 @@ function PewterCatalogExporter.inventory()
 end
 function PewterCatalogExporter.register()
     local newNPC={pewterSuperNerd=true,pewterGramps=true,pewterLittleGirl=true,pewterCooltrainerF=true,pewterGymGuide=true,pewterPokeBall=true,pewterFairy=true}
-    local tiles=PewterSlice.compact().tiles
+    local tiles=PewterCatalogExporter.legacyTiles()
     return VisualCatalog.registerExporter("pewter",{writer=PewterCatalogExporter.writer,inventory=PewterCatalogExporter.inventory,
-        ownsZone=function(zone)local provider=WorldDeltas.definitionProvider();return provider and provider:owns(zone) or false end,
+        ownsZone=function(zone)
+            local name=SourceMaps.nameForID(zone.stableID)
+            if not name then return false end
+            local profile=SourceMaps.entry(name).profile
+            return profile=="viridian" or profile=="pewter"
+        end,
         ownsTile=function(key)return tiles[key]~=nil end,ownsNPC=function(key)return newNPC[key]==true end})
 end
