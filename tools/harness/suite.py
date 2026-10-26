@@ -16,7 +16,7 @@ import time
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.harness.protocol import OwnerLock, ProtocolError, atomic_json
-from tools.harness.run import PROJECT, fingerprint
+from tools.harness.run import PROJECT, fingerprint, validate_recent_interval
 
 
 def available_jobs():
@@ -189,6 +189,9 @@ def job_timeout(job, override=None):
 
 def execute_suite(args, launch=launch_job):
     jobs = select_jobs(args.only, args.mutations)
+    interval = validate_recent_interval(getattr(args, 'recent_interval', 1))
+    if interval > 1 and any(job.get('mutations') for job in jobs):
+        raise ProtocolError('--recent-interval > 1 is not supported by the separate mutation builder; select ordinary cases')
     output = Path(args.output).expanduser().resolve()
     output.mkdir(parents=True, exist_ok=False)
     inputs = output / 'inputs'
@@ -209,9 +212,10 @@ def execute_suite(args, launch=launch_job):
                'started_utc': datetime.now(timezone.utc).isoformat(), 'output': str(output),
                'failure_policy': 'continue' if args.continue_on_failure else 'abort',
                'job_timeout_seconds': args.job_timeout, 'requested': [job['name'] for job in plan],
-               'source_consistent': True, 'results': []}
+               'recent_interval': interval, 'source_consistent': True, 'results': []}
     atomic_json(output / 'suite-plan.json', {'jobs': [{key: str(value) if isinstance(value, Path) else value
-                                                    for key, value in job.items()} for job in plan]})
+                                                    for key, value in job.items()} for job in plan],
+                                               'recent_interval': interval})
     if args.plan_only:
         summary['complete'] = False
         summary['status'] = 'planned; no runtime validation performed'
@@ -229,6 +233,7 @@ def execute_suite(args, launch=launch_job):
                 command = [sys.executable, str(PROJECT / 'tools/rules-tests/mutations.py'), '--execute', '--output', str(destination)]
             else:
                 command = [sys.executable, str(PROJECT / 'tools/harness/run.py'), '--output', str(destination)]
+                command += ['--recent-interval', str(interval)]
                 if job.get('scenario'):
                     command += ['--scenario', str(job['scenario'])]
                 if job.get('qualification'):
@@ -276,6 +281,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', help='new suite evidence directory')
     parser.add_argument('--sdk')
+    parser.add_argument('--recent-interval', type=validate_recent_interval, default=1,
+                        help='forward recent-frame sampling interval to ordinary run.py jobs')
     parser.add_argument('--only', nargs='+', help='case names; space or comma separated, in requested order')
     parser.add_argument('--mutations', action='store_true', help='include actual isolated contract mutation qualification')
     parser.add_argument('--continue-on-failure', action='store_true', help='run remaining requested cases; final exit still fails')

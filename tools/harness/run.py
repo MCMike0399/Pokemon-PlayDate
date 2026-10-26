@@ -100,7 +100,20 @@ def qualify_field_items(client, data, output):
     return field_item_qualification.finalize(output, data, getattr(client, 'evidence', output), getattr(client, 'identity', {}))
 
 
-def prepare(project, sdk, output, session):
+def validate_recent_interval(value):
+    """Bound both CLI values and programmatic callers to an exact Lua integer."""
+    if isinstance(value, str):
+        try:
+            value = int(value)
+        except ValueError:
+            raise argparse.ArgumentTypeError('recent interval must be an integer') from None
+    if type(value) is not int or not 1 <= value <= 2147483647:
+        raise argparse.ArgumentTypeError('recent interval must be in 1..2147483647')
+    return value
+
+
+def prepare(project, sdk, output, session, recent_interval=1):
+    recent_interval = validate_recent_interval(recent_interval)
     source = output / 'Source'
     shutil.copytree(project / 'Source', source)
     # Workers may edit live Source during copy. Identify only the immutable
@@ -110,6 +123,8 @@ def prepare(project, sdk, output, session):
                        for path in sorted(source.rglob('*')) if path.is_file()}
     atomic_json(output / 'source-manifest.json', source_manifest)
     original_pdxinfo = (source / 'pdxinfo').read_text()
+    original_main = (source / 'main.lua').read_bytes()
+    (output / 'original-main.lua').write_bytes(original_main)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip()
     dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=project, text=True)
     metadata = {'protocol': 1, 'session_id': session, 'build_id': revision + ':' + source_hash,
@@ -119,12 +134,26 @@ def prepare(project, sdk, output, session):
                 'bundle_id': 'com.poc.pokemon.harness.' + session, 'enabled': True,
                 'data_dir': str(sdk / 'Disk/Data' / ('com.poc.pokemon.harness.' + session)),
                 'original_pdxinfo': original_pdxinfo,
+                'original_main_file': 'original-main.lua',
+                'capture_policy': {'recent_interval': recent_interval, 'recent_limit': 8,
+                                   'final_completed_sample': recent_interval > 1},
                 'source_hash_excludes': ['Source/dev/harness_build.lua'],
                 'generated_overlays': ['Source/dev/harness_build.lua', 'Source/pdxinfo']}
     (output / 'frames').mkdir()
     # JSON strings are Lua-compatible quoted strings for these machine-generated values.
     lua_values = []
-    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir'):
+    if recent_interval > 1:
+        metadata['recent_interval'] = recent_interval
+        metadata['generated_overlays'] += ['Source/dev/capture_policy.lua', 'Source/main.lua']
+        overlay = Path(__file__).with_name('capture_policy.lua').read_bytes()
+        target = source / 'dev/capture_policy.lua'
+        if target.exists():
+            raise ProtocolError('capture policy overlay would overwrite staged Source')
+        target.write_bytes(overlay)
+        (source / 'main.lua').write_bytes(original_main + b'\nimport "dev/capture_policy"\n')
+    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval'):
+        if key not in metadata:
+            continue
         value = metadata[key]
         encoded = 'true' if value is True else json.dumps(value, ensure_ascii=False)
         lua_values.append(f'    {key} = {encoded},')
@@ -185,7 +214,9 @@ def _run(args):
         from tools.harness.brock_capture import visual_preflight as brock_visual_preflight
         brock_visual_preflight(scenario)
     try:
-        metadata = prepare(PROJECT, sdk, output, session)
+        interval = validate_recent_interval(getattr(args, 'recent_interval', 1))
+        metadata = (prepare(PROJECT, sdk, output, session, recent_interval=interval)
+                    if interval > 1 else prepare(PROJECT, sdk, output, session))
         from tools.harness import catalog_qualification
         catalog_qualification.prepare(output, scenario, launching=not args.build_only)
         from tools.harness import field_item_qualification
@@ -304,6 +335,8 @@ def main():
     parser.add_argument('--timeout', type=float, default=60)
     parser.add_argument('--ready-timeout', type=float, default=20)
     parser.add_argument('--max-frames', type=int, default=1800)
+    parser.add_argument('--recent-interval', type=validate_recent_interval, default=1,
+                        help='diagnostic recent-frame sampling interval; default 1 keeps the original runtime path')
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--qualification', action='store_true', help='exercise real-runtime protocol faults, cancellation and ownership')
     args = parser.parse_args()

@@ -43,6 +43,48 @@ Use Client as a context manager or call close() when it owns its lock. It termin
 only that UUID directory on exit. The evidence directory and staged source are
 retained. `--build-only` compiles without launching or creating SDK Data.
 
+For long-run diagnosis, `--recent-interval N` optionally reduces only recurring
+recent PNG exports (integer 1..2147483647). The default is 1 and preserves the
+original runtime path. For N > 1, the runner copies `tools/harness/capture_policy.lua`
+to private `Source/dev`, then appends its import after every original main
+definition. Repository Source remains untouched. `source-manifest.json` and the
+base hash describe the original staged copy before overlays; `original-main.lua`
+retains its exact main bytes for reconstruction. `build.json` declares generated
+overlay paths and `capture_policy`; the compiled hash includes the exact overlay,
+configuration and appended main. Staging never rereads live Source after copying.
+
+The overlay samples completed ticks divisible by N using the existing eight-pair
+ring. Manifest publication forces the current completed tick if it was not already
+sampled. There are no duplicate sampled ticks, relabeled phases or synthesized
+offsets. Named shots, recordings and catalogs retain their original paths and
+cadence. Gameplay updates, input, HP and RNG are unchanged; this is neither a
+campaign shortcut nor a confirmed fix for the unconfirmed long-run timeout cause.
+An uncaught `Harness.afterFrame` exception in this optional overlay publishes an
+identity-matched primitive error/tick report, stops future updates and rethrows.
+It does not call snapshot code, manufacture captures or claim quiescence. Failed
+publication is logged; ordinary host failure/unfinalized handling still applies.
+
+Only the root runtime owner runs the native SDK witness (workers may build only):
+
+```sh
+source ~/Developer/Pokemon-PlayDate-env/env.sh
+python tools/harness/run.py --recent-interval 60 --scenario tools/harness/scenarios/capture-policy.json --output "$POKEMON_ENV/evidence/capture-policy-sdk-UNIQUE"
+python tools/harness/run.py --recent-interval 60 --scenario tools/harness/scenarios/brock/brock-natural-charmander.json --output "$POKEMON_ENV/evidence/charmander-policy-UNIQUE"
+```
+
+Run the witness at default 1 too for compatibility. Inspect `captures.json`:
+eight distinct increasing recent ticks, all completed; every nonfinal tick is
+divisible by 60 for the optional arm, and the last tick equals `capture_tick`.
+The four recording frames must remain consecutive completed ticks, and both named
+shots and all raw/presentation PNG pairs must exist. Compare phase and display
+offset metadata against the corresponding `trace.jsonl` snapshot; inspect the
+native PNGs. These are root-owned real-SDK checks, not assertions established by
+host staging tests. An afterFrame fault witness requires a separately declared
+staged fault injection; the normal witness does not claim error-path coverage.
+`suite.py --recent-interval N` forwards the policy to ordinary jobs and records it
+in the plan/summary. N > 1 with a selected mutation job is rejected because its
+separate source-identity builder does not support this overlay.
+
 ## Scenarios and timing
 
 A scenario contains `commands`, or `requests` (an array of command arrays), plus
