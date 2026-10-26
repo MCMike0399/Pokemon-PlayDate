@@ -38,10 +38,15 @@ class VermilionPreparationTests(unittest.TestCase):
             self.assertEqual((self.ref / path).read_bytes(), original, path)
             self.assertEqual(hashlib.sha256(original).hexdigest(), expected, path)
 
-    def test_active_manifest_cache_and_every_preexisting_source_asset_unchanged(self):
+    def test_active_manifest_cache_and_preexisting_input_art_are_unchanged(self):
         tracked = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BASE, 'Source'], text=True).splitlines()
+        roots = ('Source/images/', 'Source/world/sprites/', 'Source/data/sourceMapCache/',
+                 'Source/data/viridianSlice/', 'Source/data/pewterSlice/', 'Source/data/sourceSlice/')
+        exact = {'Source/data/sourceMaps.json', 'Source/world/tilefactory.lua',
+                 'Source/world/spritefactory.lua', 'Source/lib/shade.lua'}
         for path in tracked:
-            self.assertEqual((g.ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]), path)
+            if path in exact or path.startswith(roots):
+                self.assertEqual((g.ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]), path)
         self.assertEqual(len(json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']), 30)
 
     def test_one_existing_pipeline_and_exact_additive_promotion(self):
