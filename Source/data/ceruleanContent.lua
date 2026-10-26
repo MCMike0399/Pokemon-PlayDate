@@ -3,6 +3,7 @@
 CeruleanContent = {}
 local contentName <const> = "cerulean"
 local cached = {}
+local packages = {}
 local installed = false
 local signsInstalled = false
 local actorMetadata
@@ -23,8 +24,75 @@ local function copy(value)
     return result
 end
 
+local function equal(a, b)
+    if type(a) ~= type(b) then
+        return false
+    end
+    if type(a) ~= "table" then
+        return a == b
+    end
+    for key, value in pairs(a) do
+        if not equal(value, b[key]) then
+            return false
+        end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+
+local function immutableLookup(recordName, field, id)
+    local found = record(recordName)[field][id]
+    for _, package in pairs(packages) do
+        local candidate = package[recordName][field][id]
+        assert(not found or not candidate or equal(found, candidate), "conflicting immutable source package record")
+        found = found or candidate
+    end
+    return found
+end
+
+-- Adds immutable records to the existing source resolver. No second actor
+-- resolver, geometry provider or scene registration is created.
+function CeruleanContent.registerPackage(name, root)
+    assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
+    assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
+    local package = {}
+    for _, recordName in ipairs({"dialogue", "sprites", "events", "trainers"}) do
+        package[recordName] = SourceMaps.record(root .. recordName .. ".json")
+        assert(package[recordName].schema == 1
+            and package[recordName].source_revision == "af519899719f0754965776faac0e836a3b906e6d",
+            "unverified source package record")
+    end
+    -- Validate duplicate text/art before publishing the package or rendering.
+    for recordName, field in pairs({dialogue="texts", sprites="sprites"}) do
+        for id, value in pairs(package[recordName][field]) do
+            local previous = immutableLookup(recordName, field, id)
+            assert(not previous or equal(previous, value), "conflicting immutable source package record")
+        end
+    end
+    local events = copy(package.events.events)
+    for id, descriptor in pairs(package.events.signs) do
+        assert(not events[id], "duplicate source package event")
+        events[id] = copy(descriptor)
+    end
+    -- Script-selected rivals/leaders remain the scene owner's responsibility.
+    local trainers = {}
+    for id, descriptor in pairs(events) do
+        if descriptor.kind == "trainer" then
+            trainers[id] = copy(assert(package.trainers.trainers[id], "source package roster missing"))
+        end
+    end
+    SourceEvents.registerTextSource(name, CeruleanContent.text)
+    SourceEvents.registerTrainerSource(name, function() return copy(trainers) end)
+    SourceEvents.registerEventSource(name, events)
+    packages[name] = package
+end
+
 function CeruleanContent.text(label)
-    return copy(assert(record("dialogue").texts[label], "missing Blue source text: " .. tostring(label)))
+    return copy(assert(immutableLookup("dialogue", "texts", label), "missing Blue source text: " .. tostring(label)))
 end
 
 function CeruleanContent.trainers()
@@ -44,11 +112,11 @@ function CeruleanContent.signs()
 end
 
 function CeruleanContent.sprite(source)
-    return copy(assert(record("sprites").sprites[source], "missing Blue source sprite: " .. tostring(source)))
+    return copy(assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite: " .. tostring(source)))
 end
 
 function CeruleanContent.key(source)
-    assert(record("sprites").sprites[source], "unknown Blue source actor")
+    assert(immutableLookup("sprites", "sprites", source), "unknown Blue source actor")
     return "cerulean_" .. source:lower()
 end
 
@@ -100,7 +168,7 @@ function CeruleanContent.installArt(definition)
     end
     for source, key in pairs(selected) do
         if not rendered[key] then
-            local strip = record("sprites").sprites[source]
+            local strip = immutableLookup("sprites", "sprites", source)
             local images = {}
             for direction in pairs(strip.standing) do
                 images[direction] = CeruleanContent.poseImage(source, "stand", direction)
@@ -118,7 +186,7 @@ function CeruleanContent.stepImage(source, facing, tick)
     local standing = assert(SpriteFactory.npc[key], "source actor art not installed")
     if pose == "stand" then return assert(standing[facing], "source actor has no standing pose") end
     if not walks[source] then
-        local strip = record("sprites").sprites[source]
+        local strip = immutableLookup("sprites", "sprites", source)
         local images, alternate = {}, {}
         for direction in pairs(strip.walking) do
             images[direction] = CeruleanContent.poseImage(source, "walk", direction)
