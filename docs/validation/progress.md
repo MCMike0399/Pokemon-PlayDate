@@ -66,12 +66,13 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
   Misty, rivals, Rockets, museum/bike/Magikarp services and earlier tutorial/escort
   scenes are composed. Natural per-starter journey drivers are prepared.
 - Independent standards review repairs are composed. Spec review found missing
-  guard dialogue and exposed abilities: guards and Inner Focus/Dry Skin are
-  repaired privately; further ordinary entry/contact/residual hooks are in flight.
+  guard dialogue and exposed abilities: guards and ordinary entry/contact/residual ability hooks are repaired privately.
+  The third native pass reached 1583 successes; five escort cases exposed a frozen
+  ambient blocker. A source-backed route fix is composed and the fourth pass is live.
 - New visual exporter declares 2448 additions. Native scene, map, art and journey
-  acceptance remain pending. Museum opening may change protected collision
-  diagnostics; root must inspect actual differences and obtain goal-required
-  approval before accepting any protected image change.
+  acceptance remain pending. The user approved exactly the museum collision diagnostic update (two door cells,
+  2048 pixels); all other 2493 protected images match. Private baseline approval
+  is recorded; final native comparison and new-art review remain pending.
 
 ## 3. Open defects blocking progress
 
@@ -92,9 +93,9 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | Durable environment worktree at `30844ee`, plus pending suite registrations; native validation is next. |
-| `wip/kanto-entry-abilities` / worker | Closing ordinary entry/status/accuracy/crit/multihit ability hooks. |
-| `wip/kanto-contact-abilities` / worker | Closing ordinary contact/condition/residual ability hooks; separate root integration patch. |
+| `wip/cerulean-integration` / root | Durable environment worktree at `db65535`; fourth native pass is running. Main remains Source 2673 through Brock. |
+| `wip/kanto-entry-abilities` / worker | `e8844a3` composed; actual native entry cases passed after fixture repairs. |
+| `wip/kanto-contact-abilities` / worker | `a408642`/`3cc5925` composed; actual native contact cases passed after live-ledger fixture repairs. |
 | `wip/audio-rgbds-oracle` / worker | `dadb7b3` independently qualifies emitted bytes with isolated pinned Bison/RGBDS; no engine/APU claim. |
 | `wip/audio-offline-renderer` / worker | `8def326` prepares deterministic PCM mix/stems; listening and independent APU qualification pending. |
 | `wip/audio-sdk-probe` / worker | `7e8c496` prepares two compiled backend probes; runtime is root-only and unrun. |
