@@ -94,6 +94,27 @@ function SourceEventContracts.run()
         local state = observation(); state.intro = "choose"
         same(pcall(SourceEvents.plan,"pokered:ROUTE_1:objects:2",state),false)
     end)
+    test("new source signs use the shared registry and retain detached programs", function()
+        local records = assert(json.decodeFile("dev/sourceMapFixture.json"))
+        local sign = records["dev/source-map-extension/Route22.json"].events.background_events[1]
+        same(sign.id, "pokered:ROUTE_22:background_events:1")
+        SourceEvents._withSources(function()
+            local name = "source-sign-contract"
+            local descriptor = {kind="program", content=name,
+                steps={{op="dialog", labels={"_Route1SignText"}}}}
+            SourceEvents.registerEventSource(name, {[sign.id]=descriptor})
+            descriptor.steps[1].labels[1] = "_ChangedAfterRegistration"
+            local plan = SourceEvents.plan(sign.id, observation())
+            same(plan.id, sign.id)
+            same(plan.source_content, name)
+            same(plan.steps[1].labels, {"_Route1SignText"})
+            same(pcall(SourceEvents.registerEventSource, "duplicate-sign-contract",
+                {[sign.id]={kind="program", content="duplicate-sign-contract", steps={}}}), false)
+            same(pcall(SourceEvents.registerEventSource, "invalid-sign-contract",
+                {["pokered:ROUTE_22:unknown:1"]={kind="program", content="invalid-sign-contract", steps={}}}), false)
+        end)
+        same(SourceEvents.has(sign.id), false)
+    end)
     test("shared trainer reward transaction retains exact compatibility shape",function()
         local state = observation()
         local id = "pokered:PEWTER_GYM:objects:1"

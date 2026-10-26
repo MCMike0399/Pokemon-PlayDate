@@ -309,7 +309,9 @@ function SourceEvents.registerEventSource(name, events)
     assert(type(name) == "string" and type(events) == "table" and not eventSources[name], "named event source required")
     local current = definitions()
     for id, descriptor in pairs(events) do
-        assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$")
+        local stable = type(id) == "string" and (id:match("^pokered:[^:]+:objects:%d+$")
+            or id:match("^pokered:[^:]+:background_events:%d+$"))
+        assert(stable
             and not current[id] and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")
     end
