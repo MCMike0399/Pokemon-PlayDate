@@ -37,18 +37,39 @@ local function fresh(player, enemy, dependencies, trainer)
     return battle
 end
 
-local function attempt(battle, side, key, seed)
+-- A completed script leaves BattleScriptPhase, whose exit clears the round.
+-- Observe HP provenance before that exit, using the real coroutine/HP owners.
+local function observeRound(battle, action, observer)
+    local round
+    if observer then
+        battle.effects:beginRound()
+        round = battle.effects.round
+    end
+    local outcome = action()
+    if observer then
+        eq(battle.effects.round, round, "producer retains the observed round")
+        assert(round, "live round required for damage-ledger witness")
+        observer()
+    end
+    return outcome
+end
+
+local function attempt(battle, side, key, seed, observer)
     local actor = battle[side]
     own(actor, {key})
     RulesRNG.seed(seed or 14)
     battle:runScript(function()
-        return battle:resolveTurn({side=side, actor=actor, key=key, move=moveData[key]})
+        return observeRound(battle, function()
+            return battle:resolveTurn({side=side, actor=actor, key=key, move=moveData[key]})
+        end, observer)
     end)
     return settle(battle)
 end
 
-local function residual(battle)
-    battle:runScript(function() return battle:endOfRoundStatus() end)
+local function residual(battle, observer)
+    battle:runScript(function()
+        return observeRound(battle, function() return battle:endOfRoundStatus() end, observer)
+    end)
     return settle(battle)
 end
 
@@ -294,70 +315,99 @@ function ContactAbilityContracts.run()
     test("Magic Guard real Toxic ticks without HP loss or hurt-this-round ledger", function()
         local b=fresh(nil,mon("clefairy","second"))
         attempt(b,"player","toxic",2)
-        b.effects:beginRound(); local hp=b.enemy.hp
-        residual(b); residual(b)
-        eq(b.enemy.hp,hp); eq(b.enemy.status,"badPoison")
-        eq(b.conditions.members[b.enemy].toxic,2)
-        eq(b.effects:damagedThisRound(b.enemy),false)
-        attempt(b,"player","worrySeed",14); residual(b)
-        assert(b.enemy.hp<hp); eq(b.effects:damagedThisRound(b.enemy),true)
+        local hp=b.enemy.hp
+        for tick=1,2 do
+            residual(b,function()
+                eq(b.enemy.hp,hp,"Magic Guard Toxic HP")
+                eq(b.enemy.status,"badPoison","Magic Guard retains Toxic")
+                eq(b.conditions.members[b.enemy].toxic,tick,"protected Toxic counter")
+                eq(b.effects:damagedThisRound(b.enemy),false,"protected Toxic live ledger")
+            end)
+        end
+        attempt(b,"player","worrySeed",14)
+        eq(b.effects:effectiveAbility(b.enemy),15,"Worry Seed replaces Magic Guard")
+        residual(b,function()
+            assert(b.enemy.hp<hp,"Toxic damages after Worry Seed")
+            eq(b.conditions.members[b.enemy].toxic,3,"unprotected Toxic counter")
+            eq(b.effects:damagedThisRound(b.enemy),true,"unprotected Toxic live ledger")
+        end)
+        eq(b.effects.round,nil,"script exit clears Toxic round")
     end)
 
     test("Magic Guard actual burn poison and sand producers preserve status and HP ledger", function()
         for _, key in ipairs({"willOWisp","poisonPowder"}) do
             local b=fresh(nil,mon("clefairy","second"))
             attempt(b,"player",key,2)
-            assert(b.enemy.status); b.effects:beginRound(); local hp=b.enemy.hp
-            local text=residual(b)
-            eq(b.enemy.hp,hp); eq(b.effects:damagedThisRound(b.enemy),false)
+            assert(b.enemy.status); local hp=b.enemy.hp
+            local text=residual(b,function()
+                eq(b.enemy.hp,hp,key.." protected HP")
+                eq(b.effects:damagedThisRound(b.enemy),false,key.." live ledger")
+            end)
             assert(not text:find("is hurt",1,true))
         end
         local b=fresh(nil,mon("clefairy","second"))
         attempt(b,"player","sandstorm",14)
-        b.effects:beginRound(); local hp=b.enemy.hp
-        residual(b); eq(b.enemy.hp,hp); eq(b.effects:damagedThisRound(b.enemy),false)
+        local hp=b.enemy.hp
+        residual(b,function()
+            eq(b.enemy.hp,hp,"protected sand HP")
+            eq(b.effects:damagedThisRound(b.enemy),false,"protected sand live ledger")
+        end)
     end)
 
     test("Magic Guard real seed and binding producers retain conditions without draining HP", function()
         local b=fresh(nil,mon("clefairy","second"))
         attempt(b,"enemy","scratch",14)
         attempt(b,"player","leechSeed",2)
-        b.effects:beginRound(); local hp,receiver=b.enemy.hp,b.player.hp
-        residual(b)
-        eq(b.enemy.hp,hp); eq(b.player.hp,receiver)
-        eq(b.effects:damagedThisRound(b.enemy),false)
-        assert(b.conditions.members[b.enemy].seed)
+        local hp,receiver=b.enemy.hp,b.player.hp
+        residual(b,function()
+            eq(b.enemy.hp,hp,"protected seed HP"); eq(b.player.hp,receiver,"seed heals no HP")
+            eq(b.effects:damagedThisRound(b.enemy),false,"protected seed live ledger")
+            assert(b.conditions.members[b.enemy].seed)
+        end)
         local c=fresh(nil,mon("clefairy","second"))
         attempt(c,"player","bind",2)
         local duration=c.conditions.members[c.enemy].trap.remaining
-        c.effects:beginRound(); local health=c.enemy.hp
-        residual(c)
-        eq(c.enemy.hp,health); eq(c.conditions.members[c.enemy].trap.remaining,duration-1)
-        eq(c.effects:damagedThisRound(c.enemy),false)
+        local health=c.enemy.hp
+        residual(c,function()
+            eq(c.enemy.hp,health,"protected binding HP")
+            eq(c.conditions.members[c.enemy].trap.remaining,duration-1,"binding counter")
+            eq(c.effects:damagedThisRound(c.enemy),false,"protected binding live ledger")
+        end)
     end)
 
     test("Magic Guard recoil is prevented, direct hits and Struggle recoil still count correctly", function()
         local b=fresh(mon("clefairy","second"),mon("chansey",nil,nil,50))
-        b.effects:beginRound(); local hp=b.player.hp
-        attempt(b,"player","doubleEdge",14)
-        eq(b.player.hp,hp); assert(b.enemy.hp<b.enemy.maxHP)
-        eq(b.effects:damagedThisRound(b.player),false)
-        eq(b.effects:damagedThisRound(b.enemy),true)
-        attempt(b,"player","struggle",14)
-        eq(b.player.hp,hp-math.max(1,math.floor(b.player.maxHP/4+0.5)))
-        eq(b.effects:damagedThisRound(b.player),false)
-        attempt(b,"enemy","scratch",14)
-        eq(b.effects:damagedThisRound(b.player),true)
+        local hp=b.player.hp
+        attempt(b,"player","doubleEdge",14,function()
+            eq(b.player.hp,hp,"Magic Guard prevents ordinary recoil")
+            assert(b.enemy.hp<b.enemy.maxHP,"Double Edge deals real HP damage")
+            eq(b.effects:damagedThisRound(b.player),false,"protected recoil live ledger")
+            eq(b.effects:damagedThisRound(b.enemy),true,"Double Edge target live ledger")
+        end)
+        attempt(b,"player","struggle",14,function()
+            eq(b.player.hp,hp-math.max(1,math.floor(b.player.maxHP/4+0.5)),"Struggle recoil HP")
+            eq(b.effects:damagedThisRound(b.player),false,"Struggle recoil excluded from live ledger")
+            eq(b.effects:damagedThisRound(b.enemy),true,"Struggle target live ledger")
+        end)
+        local afterRecoil=b.player.hp
+        attempt(b,"enemy","scratch",14,function()
+            assert(b.player.hp<afterRecoil,"Scratch deals real HP damage to Magic Guard")
+            eq(b.effects:damagedThisRound(b.player),true,"Scratch target live ledger")
+        end)
+        eq(b.effects.round,nil,"script exit clears hit round")
     end)
 
     test("Magic Guard confusion self-hit remains real Move HP loss before attempted PP", function()
         local b=fresh(mon("clefairy","second"),mon("squirtle"))
         attempt(b,"enemy","confuseRay",14)
-        b.effects:beginRound(); local hp=b.player.hp
-        attempt(b,"player","harden",1)
-        assert(b.player.hp<hp); eq(b.player.pp.harden,30)
-        eq(b.effects:damagedThisRound(b.player),true)
-        eq(RulesRNG.snapshot().rolls,2)
+        local hp=b.player.hp
+        attempt(b,"player","harden",1,function()
+            assert(b.player.hp<hp,"Magic Guard permits confusion HP loss")
+            eq(b.player.pp.harden,30,"confusion precedes attempted PP")
+            eq(b.effects:damagedThisRound(b.player),true,"confusion self-hit live ledger")
+            eq(RulesRNG.snapshot().rolls,2,"confusion coin and damage variance")
+        end)
+        eq(b.effects.round,nil,"script exit clears confusion round")
     end)
 
     test("Consumed hit token and cancelled actual hit cannot later roll contact or set Anger Point", function()
