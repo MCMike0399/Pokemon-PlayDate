@@ -202,6 +202,8 @@ Contracts.register("scripted-npc", ScriptedNPCContracts.run)
 
 import "dev/genericActorContracts"
 Contracts.register("generic-actors", GenericActorContracts.run)
+import "dev/sourceMapActivationContracts"
+Contracts.register("source-map-activation", SourceMapActivationContracts.run)
 
 -- @harness runtime
 harness = Harness
