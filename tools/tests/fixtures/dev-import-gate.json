@@ -37,6 +37,8 @@
     "domain/sessionCodec",
     "data/captureData",
     "domain/capture",
+    "game/sourceText",
+    "ui/sourceTextFont",
     "ui/dialog",
     "ui/menu",
     "ui/debug",
@@ -181,7 +183,9 @@
     "dev/weatherRewardWitness",
     "dev/whirlwindContracts",
     "dev/moveFailureContracts",
-    "dev/sourceMapContracts"
+    "dev/sourceMapContracts",
+    "dev/sourceEventContracts",
+    "dev/sourceTextContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -267,6 +271,8 @@
     "Contracts.register(\"weather-reward-witness\",WeatherRewardWitness.run)",
     "Contracts.register(\"whirlwind\", WhirlwindContracts.run)",
     "Contracts.register(\"move-failure\", MoveFailureContracts.run)",
-    "Contracts.register(\"source-maps\", SourceMapContracts.run)"
+    "Contracts.register(\"source-maps\", SourceMapContracts.run)",
+    "Contracts.register(\"source-events\",SourceEventContracts.run)",
+    "Contracts.register(\"source-text\", SourceTextContracts.run)"
   ]
 }

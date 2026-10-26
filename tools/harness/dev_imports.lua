@@ -192,5 +192,10 @@ Contracts.register("move-failure", MoveFailureContracts.run)
 import "dev/sourceMapContracts"
 Contracts.register("source-maps", SourceMapContracts.run)
 
+import "dev/sourceEventContracts"
+Contracts.register("source-events",SourceEventContracts.run)
+import "dev/sourceTextContracts"
+Contracts.register("source-text", SourceTextContracts.run)
+
 -- @harness runtime
 harness = Harness

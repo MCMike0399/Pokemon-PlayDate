@@ -65,13 +65,9 @@ function KantoWorld.connection(game,zone,x,y,direction)
     return {to=value.to,toX=value.x,toY=value.y,facing=value.facing,connection=true,source=value.source}
 end
 function KantoWorld.dispatch(game,id)
-    assert(game.session:getIntro().stage=="done","Kanto events require completed original intro")
-    assert(SliceEvents.has(id) or PewterEvents and PewterEvents.has(id),"unimplemented source event: "..tostring(id))
-    assert(not game.player or not game.player.isMoving and not game.player.pendingEdgeDoor,"source event requires settled player")
-    assert(game.machine:getCurrent()=="overworld" and game.machine:get("event"),"root event executor required")
-    game.machine:push("event",id)
-    return true
+    return SourceEvents.dispatch(game,id)
 end
+
 function KantoWorld.onEnter(game,options)
     if options and options.fromDoor and currentZone.stableID==stable.ViridianMart then
         return KantoWorld.dispatch(game,"pokered:VIRIDIAN_MART:script:entry")
@@ -102,7 +98,7 @@ function KantoWorld.tryInteract(game)
     if not id then return false end
     player.lastTraversalBlock=nil
     if player.isMoving or player.pendingEdgeDoor then block(player,"source-event","movement-active");return true end
-    if not SliceEvents.has(id) then block(player,"unimplemented-source-event",id);return true end
+    if not SourceEvents.has(id) then block(player,"unimplemented-source-event",id);return true end
     if npc then npc:faceTowards(player.gridX,player.gridY) end
     KantoWorld.dispatch(game,id)
     return true

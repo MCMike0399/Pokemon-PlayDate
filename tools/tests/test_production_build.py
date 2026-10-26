@@ -68,9 +68,10 @@ class ProductionBuildTests(unittest.TestCase):
     def test_harness_compiled_inventory_keeps_every_original_dev_import(self):
         modules = pdz_modules(self.harness / 'Harness.pdx/main.pdz')
         expected = [name for name in BASELINE['imports'] if name.startswith('dev/')]
-        # catalog imports its runtime helper transitively; it was present at the baseline.
-        self.assertIn('dev/catalogRuntime', modules)
-        self.assertEqual([name for name in modules if name.startswith('dev/') and name != 'dev/catalogRuntime'],
+        # Explicitly reviewed helpers imported by the catalog and event suites.
+        transitive = {'dev/catalogRuntime', 'dev/sourceEventBaseline'}
+        self.assertTrue(transitive <= set(modules))
+        self.assertEqual([name for name in modules if name.startswith('dev/') and name not in transitive],
                          ['dev/harness_build'] + [name for name in expected if name != 'dev/harness_build'])
         staged = (self.harness / 'Source/main.lua').read_text()
         imports = re.findall(r'^import "([^"]+)"$', staged, re.M)

@@ -222,6 +222,9 @@ function SourceEvents.itemIDs()
         if type(value) ~= "table" then return end
         if value.item then found[value.item] = true end
         if value.op == "give-item" then found[value.id] = true end
+        for _, field in ipairs({ "items_equal", "items_min" }) do
+            for id in pairs(value[field] or {}) do found[id] = true end
+        end
         for _, child in pairs(value) do visit(child) end
     end
     visit(definitions())

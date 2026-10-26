@@ -105,7 +105,7 @@ function PewterWorld.trySight(game)
         local id=npc.def and npc.def.source_event_id
         if id and PewterSlice.trainer(id) and not game.session:trainerDefeated(id) then
             local steps,reason=game.trainers:approach(npc,"sight")
-            if steps then game.machine:push("event",id,{mode="sight"});return true end
+            if steps then SourceEvents.dispatch(game,id,{mode="sight"});return true end
             if reason=="occupied-trainer-approach" or reason=="blocked-trainer-approach" or reason=="blocked-trainer-pair" then
                 game.player.lastTraversalBlock={kind="trainer",id=reason}
             end
@@ -142,7 +142,7 @@ function PewterWorld.tryInteract(game)
     end
     if not id then return false end
     if player.isMoving or player.pendingEdgeDoor then player.lastTraversalBlock={kind="source-event",id="movement-active"};return true end
-    if not PewterEvents.has(id) then player.lastTraversalBlock={kind="unimplemented-source-event",id=id};return true end
+    if not SourceEvents.has(id) then player.lastTraversalBlock={kind="unimplemented-source-event",id=id};return true end
     if npc then
         if game.npcManager.motion:requestInteraction(npc,id)then return true end
         npc:faceTowards(player.gridX,player.gridY)
