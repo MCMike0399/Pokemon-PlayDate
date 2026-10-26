@@ -1,6 +1,6 @@
 {
   "gate": "5.1",
-  "complete": false,
+  "complete": true,
   "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
   "bulbasaur": {
     "passed": true,
@@ -35,9 +35,22 @@
     }
   ],
   "charmander": {
-    "passed": false,
-    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-20261026-02/acceptance-suite/01-brock--brock-restart-charmander",
-    "error": "command timeout; cancellation unconfirmed; captures_finalized=false"
+    "passed": true,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-charmander-no-modal-20261026-01/01-brock--brock-restart-charmander",
+    "training_level": 16,
+    "purpose": "natural evolution witness, not pacing proof",
+    "training_battles": 95,
+    "process_generations": 2,
+    "pids": [
+      83707,
+      56836
+    ],
+    "previous_exit_confirmed": true,
+    "captures_finalized": true,
+    "screenshots_reviewed": true,
+    "saved_continued_png_bytes_equal": true,
+    "saved_continued_png_sha256": "137747d0325e312edd4bacd0b9d0a857d501edd7fe72b0f2350ef73253a81d01",
+    "capture_recent_interval": 60
   },
   "squirtle": {
     "passed": true,
@@ -47,5 +60,39 @@
     "saved_continued_png_bytes_equal": true,
     "sampled_simulator_max_rss_mib": 209.015625
   },
-  "device_validated": false
+  "device_validated": false,
+  "prior_failed_charmander_runs": [
+    {
+      "passed": false,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-20261026-02/acceptance-suite/01-brock--brock-restart-charmander",
+      "error": "command timeout; cancellation unconfirmed; captures_finalized=false"
+    },
+    {
+      "evidence": "brock-charmander-retry-20261026-01",
+      "passed": false,
+      "error": "command timeout; captures unfinalized"
+    },
+    {
+      "evidence": "brock-charmander-policy60-20261026-01",
+      "passed": false,
+      "error": "command timeout; captures unfinalized; native startup modal observed"
+    }
+  ],
+  "host": {
+    "passed": 544,
+    "failed": 0,
+    "skipped": 0,
+    "evidence": "capture-policy-sdk-60-20261026-01/full-host.log"
+  },
+  "sdk": {
+    "passed": 1091,
+    "failed": 0,
+    "protected_catalog_exact": 2494,
+    "evidence": "m51-main-recheck-20261026-01"
+  },
+  "limitations": [
+    "All starter runs pin the same frozen Source; evidence revision and host tooling checkpoints differ.",
+    "Level-16 Charmander training is an evolution witness, not pacing or balance acceptance.",
+    "Simulator only; physical-device validation has not run."
+  ]
 }
