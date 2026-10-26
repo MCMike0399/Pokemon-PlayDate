@@ -1,6 +1,7 @@
 {
   "base_commit": "1339333891bb3bc9b6b91b182524043d1d3829fa",
   "imports": [
+    "dev/harness_build",
     "CoreLibs/object",
     "CoreLibs/graphics",
     "CoreLibs/sprites",
@@ -24,6 +25,7 @@
     "data/typechart",
     "battle/dsl",
     "battle/moves",
+    "data/fieldMoveBattleData",
     "domain/pokemonCodec",
     "domain/saveStore",
     "data/items",
@@ -35,6 +37,9 @@
     "domain/gameSession",
     "domain/teaching",
     "domain/sessionCodec",
+    "domain/fieldMoves",
+    "game/fieldMoveWorld",
+    "domain/fieldWorld",
     "data/captureData",
     "domain/capture",
     "game/sourceText",
@@ -60,6 +65,7 @@
     "game/titleState",
     "game/pauseState",
     "game/partyState",
+    "game/fieldMoveState",
     "game/bagState",
     "game/shopState",
     "data/pilotWorld",
@@ -175,7 +181,6 @@
     "dev/catalogMotionContracts",
     "dev/catalogAbilityContracts",
     "dev/presentationContracts",
-    "dev/harness_build",
     "dev/harness_capture",
     "dev/diagnostics",
     "dev/fixtures",
@@ -208,7 +213,9 @@
     "dev/commonAbilityContracts",
     "dev/ceruleanAmbientDialogueContracts",
     "dev/entryAbilityContracts",
-    "dev/contactAbilityContracts"
+    "dev/contactAbilityContracts",
+    "dev/fieldMoveContracts",
+    "dev/fieldWorldContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -312,6 +319,8 @@
     "Contracts.register(\"common-abilities\", CommonAbilityContracts.run)",
     "Contracts.register(\"cerulean-ambient-dialogue\", CeruleanAmbientDialogueContracts.run)",
     "Contracts.register(\"entry-abilities\", EntryAbilityContracts.run)",
-    "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)"
+    "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)",
+    "Contracts.register(\"field-moves\", FieldMoveContracts.run)",
+    "Contracts.register(\"field-world\", FieldWorldContracts.run)"
   ]
 }

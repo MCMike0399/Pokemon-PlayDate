@@ -253,17 +253,18 @@ function FieldMoveContracts.run()
             WorldDeltas.reset();eq(currentZone.collision[11][6],1)
         end)
     end)
-    test("Reload on source collision endpoint rejects without arbitrary relocation",function()
+    test("Reload preserves the player on the exact restored source tree endpoint",function()
         scene(function(g,mon,party)
             assert(FieldMoves.complete(assert(FieldMoves.prepare(g,party,mon,"cut"))))
             local endpoint={zone_id=currentZone.stableID,x=5,y=10,facing="down"}
             assert(g.session:captureTraversal({world=WorldDeltas.export(),location=endpoint,actors=g.npcManager.motion:snapshot()}))
-            local before=wire(g)
             local reset=FieldMoves.reloadWorld(g.session:worldData(),currentZone.stableID,0)
             local accepted=g.session:captureTraversal({world=reset,location=endpoint,actors=g.npcManager.motion:snapshot()})
-            eq(accepted,false);same(wire(g),before)
-            -- Root must resolve this existing source/codec policy conflict.
-            -- The packet neither claims source reload acceptance nor teleports.
+            eq(accepted,true)
+            same(g.session:worldData(),reset)
+            same(g.session:location(),endpoint)
+            -- The player-only resolver retains source position while normal
+            -- collision and strict checkpoint/actor validation remain intact.
             eq(g.session:location().x,5);eq(g.session:location().y,10)
         end)
     end)

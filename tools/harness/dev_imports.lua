@@ -230,6 +230,10 @@ import "dev/entryAbilityContracts"
 Contracts.register("entry-abilities", EntryAbilityContracts.run)
 import "dev/contactAbilityContracts"
 Contracts.register("contact-abilities", ContactAbilityContracts.run)
+import "dev/fieldMoveContracts"
+Contracts.register("field-moves", FieldMoveContracts.run)
+import "dev/fieldWorldContracts"
+Contracts.register("field-world", FieldWorldContracts.run)
 
 -- @harness runtime
 harness = Harness
