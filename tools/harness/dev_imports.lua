@@ -150,6 +150,10 @@ Contracts.register("title-archive-safety",TitleArchiveSafetyContracts.run)
 import "dev/catalog"
 import "dev/pewterCatalogExporter"
 PewterCatalogExporter.register()
+import "dev/ceruleanCatalogExporter"
+CeruleanCatalogExporter.register()
+import "dev/ceruleanCatalogContracts"
+Contracts.register("cerulean-catalog", CeruleanCatalogContracts.run)
 import "dev/comprehensiveCatalogContracts"
 Contracts.register("comprehensive-catalog", ComprehensiveCatalogContracts.run)
 import "dev/catalogMotionContracts"
