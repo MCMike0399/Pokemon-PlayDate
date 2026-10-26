@@ -1,6 +1,19 @@
 -- Owned normal grass attempts. Blue tables/rates, bounded B2W2 field effects.
 -- No implicit current game/zone, battle overrides, actor RNG, Repel or Egg owner.
-FieldEncounters={VERSION=1}
+FieldEncounters={VERSION=2}
+local rateUp <const> = {[35]=true,[71]=true,[99]=true}
+local rateDown <const> = {[1]=true,[73]=true,[95]=true}
+-- Blue bytes and authored unit rates retain their own denominator. Native
+-- rateDown truncates integer rates; unit policies keep their fractional units.
+function FieldEncounters.effectiveRate(rate,ability)
+    local value = rate.value
+    if rateUp[ability] then
+        value=value*2
+    elseif rateDown[ability] then
+        value=rate.kind=="byte" and value//2 or value/2
+    end
+    return math.min(value,rate.kind=="byte" and 256 or 1)
+end
 local plans=setmetatable({},{__mode="k"})
 local affected={[9]="static",[22]="intimidate",[51]="keen-eye"}
 local function copy(v)return Party._primitive(v)end
@@ -76,21 +89,25 @@ function FieldEncounters.resolve(token)
     local r=plans[token]
     if not r or r.done then return false,"stale-encounter-plan"end
     r.done=true
+    local acquisitionGap
     local ok,result=pcall(function()
         current(r)
         local chosenPokemon
         local planned=RulesRNG.new(1);planned:restore(r.rules)
-        local receipt={version=1,kind="none",reason="rate",policy="blue-tables-gen5-field-v1",ability=r.ability,
+        local specimen,field=Specimen.rollEncounterAbilities(r.specimen,planned)
+        local receipt={version=FieldEncounters.VERSION,kind="none",reason="rate",policy="blue-tables-gen5-field-v2",ability=r.ability,
             physical_lead={species=r.lead.species,level=r.lead.level,fainted=not r.lead:isAlive(),slot=1},
             usable_lead={index=r.usable,level=r.level},rules_before=r.rulesData,
             zone_id=r.zone.stableID,x=r.x,y=r.y,rate=copy(r.data.rate),repel_producer="unavailable",gate_active=false}
         if affected[r.ability]then
             receipt.gate=affected[r.ability];receipt.gate_roll=planned:random(0,99);receipt.gate_active=receipt.gate_roll>=50
         else receipt.gate="none"end
+        receipt.field=field
         local rate=r.data.rate
+        receipt.effective_rate=FieldEncounters.effectiveRate(rate,r.ability)
         local roll=rate.kind=="byte"and planned:random(0,255)or planned:random()
         receipt.rate_roll=roll
-        if roll<rate.value then
+        if roll<receipt.effective_rate then
             local candidates=r.ability==9 and receipt.gate_active and FieldEncounters.electricSlots(r.data.slots)or {}
             receipt.preferred_slots=copy(candidates)
             local index
@@ -105,7 +122,13 @@ function FieldEncounters.resolve(token)
             if receipt.gate_active and(r.ability==22 or r.ability==51)and r.level>=level+5 then
                 receipt.reason="ability-suppressed"
             else
-                local mon,creation=Specimen.create(slot.species,level,"wild",planned,r.specimen)
+                local gap <const> = Specimen.encounterGap(specimen)
+                if gap then
+                    acquisitionGap = {kind="field-acquisition-gap", hook=gap, ability=r.ability,
+                        leadSpecies=r.lead.species, species=slot.species}
+                    error("unimplemented-field-acquisition:" .. gap, 0)
+                end
+                local mon,creation=Specimen.create(slot.species,level,"wild",planned,specimen)
                 assert(mon,creation)
                 receipt.kind,receipt.reason="encounter","accepted"
                 receipt.creation={version=creation.version,origin=creation.origin,draws=creation.draws,rawRolls=creation.rawRolls,
@@ -120,6 +143,6 @@ function FieldEncounters.resolve(token)
         RulesRNG.restore(planned:snapshot())
         return {kind=receipt.kind,reason=receipt.reason,pokemon=chosenPokemon,receipt=receipt}
     end)
-    if not ok then return false,tostring(result)end
+    if not ok then return false,tostring(result),acquisitionGap end
     return true,result
 end

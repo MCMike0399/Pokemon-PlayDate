@@ -1,0 +1,77 @@
+FIELD acquisition implementation handoff — native acceptance pending root
+
+Base: exact 4deee81, branch wip/field-acquisition-abilities. The two existing
+owner files are byte-identical at frozen Cerulean 00000b3. Cherry-pick only this
+branch's implementation commit; no root uncommitted activation was copied.
+
+Source changes: domain/fieldEncounters.lua, domain/specimen.lua and the new
+dev/fieldAcquisitionContracts.lua. No new production import. Root must add:
+
+    import "dev/fieldAcquisitionContracts"
+    Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
+
+to tools/harness/dev_imports.lua. Run this suite and existing field-encounters,
+specimen/traits/individual/ownership/capture/party suites in the actual SDK.
+Fifteen new SDK groups are compiled, NOT executed or accepted by this worker.
+
+Behavior: physical slot 1 supplies its durable ability, sex and nature even if
+fainted; battle-active selection and volatile overrides are not consulted.
+Synchronize draws >=50 and overwrites an independently generated nature. Cute
+Charm draws <67 before the rate roll; failure additionally consumes the native
+generic 50% roll. For a mixed-sex target and sexed lead, its ordinary sex-byte
+draw supplies the discarded PID low byte, followed by one constrained draw:
+female 1..ratio-1, male ratio..253. Fixed-sex/genderless targets do not draw it.
+A genderless Cute Charm lead is impossible in the original151 ability data;
+the implementation leaves the target unforced if a future owner permits one.
+
+Rate dispatch: Illuminate35, Arena Trap71 and No Guard99 double; Stench1,
+White Smoke73 and Quick Feet95 halve. White Smoke has no original151 owner;
+Quick Feet is hidden Jolteon, not ordinarily acquired. Staryu, Diglett second,
+Machop second and Grimer are reachable normal owners. Rate changes consume no
+draws, preserve Blue byte/unit denominators, clamp at certainty, and truncate
+halved bytes. Sand Veil/Snow Cloak need field weather (no producer here);
+Sticky Hold/Suction Cups need fishing (not ordinary grass). Existing Static,
+Intimidate/Keen Eye and Compound Eyes paths retain their existing protocol.
+No Pickup or new held loot policy is invented. Other held rows remain separate.
+
+Protocol: field receipt v2; creation receipt v4 only for Synchronize/Cute Charm
+contexts. Unaffected creation stays v3 with its exact existing sequence. This
+is the project's bounded RulesRNG protocol, not a claim to reproduce all native
+PID/shiny/ability RNG words or the native fallback draw for unrelated abilities.
+Cute Charm's new durable sex provenance is kind field-cute-charm, protocol4,
+byte/leadSex/gateRoll. Specimen validates it. Existing codecs already delegate
+to Specimen and require no patch or migration: old generated protocol2 records
+retain their exact attributes and saved rules/world continuations, with no
+rerolls. Future ordinary attempts use the new effects from that continuation.
+Existing constructors, gifts, trainers, decode and evolution stay draw-pure.
+
+Deferred acquisition callbacks: Magnet Pull42, Pressure46, Hustle55 and Vital
+Spirit72. The actual accepted acquisition branch returns false, error string,
+{kind="field-acquisition-gap",hook=...,ability=...,leadSpecies=...,species=...}
+without committing rules/world draws or creating/recruiting anything. Low-level
+Specimen.create with an encounter token also rejects by the named error.
+Root must replace the resolve/assert pair in ExploreSubstate:update with this
+small integration patch before accepting reachable deferred leads:
+
+    local ok, result, gap = FieldEncounters.resolve(plan)
+    if gap then
+        game.lastEncounterAttempt = {kind="none", reason="unimplemented-acquisition", gap=gap}
+        game.lastEncounterSession = session
+        game.fieldAbilityGaps = game.fieldAbilityGaps or {}
+        game.fieldAbilityGaps[#game.fieldAbilityGaps+1] = gap
+        if #game.fieldAbilityGaps > 12 then table.remove(game.fieldAbilityGaps, 1) end
+        print("FIELD ability gap: " .. gap.hook)
+        player.stepJustFinished = false
+        self.owner.machine:push("dialog", {"But it failed!"})
+        return
+    end
+    assert(ok, result)
+
+Validation: 6 new primary-pin/protocol-boundary host tests + 13 existing specimen
+host tests passed, no skips. All actual referenced hashes verified at pokebw2
+b279bbefa99bb2f6fbabcc95e4b6d3e939290353 and PKHeX
+d2fea14b563f4b16fef7788b9699b20d5b3f410f; new field-acquisition-sources.json
+pins their four existing immutable input files. Host tests never execute Lua.
+Production compile and all-module pdc compile (including the new dev module)
+passed. Compile artifacts: ~/Developer/Pokemon-PlayDate-env/evidence/
+field-acquisition-20261026-01/. No Simulator/runtime, push or delegation.
