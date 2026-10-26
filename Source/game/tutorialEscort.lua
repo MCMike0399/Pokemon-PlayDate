@@ -17,9 +17,17 @@ function TutorialEscort.trigger(game)
     if currentZone.stableID == "pokered:VIRIDIAN_CITY" and not game.session:questFlag(data.tutorial.gate)
         and p.gridX == 19 and p.gridY == 9 then return data.actors.sleepy.id end
     if currentZone.stableID == "pokered:PEWTER_CITY" and not game.session:trainerDefeated(TrainerEvents.BROCK) then
+        local scene = game.machine:get("tutorial-escort")
+        local cancelled = scene and scene.cancelledTrigger
+        local suppressed = cancelled and cancelled.session == game.session
+            and cancelled.player == p and cancelled.zone == currentZone
         for _, cell in ipairs(data.escort.triggers) do
-            if p.gridX == cell[1] and p.gridY == cell[2] then return data.actors.escort.id end
+            if p.gridX == cell[1] and p.gridY == cell[2] then
+                if suppressed then return nil end
+                return data.actors.escort.id
+            end
         end
+        if scene then scene.cancelledTrigger = nil end
     end
 end
 function TutorialEscort.tryInteract(game)
@@ -58,6 +66,7 @@ function TutorialEscortState:enter(id)
     self.demo, self.actor, self.token, self.playerRoute, self.npcRoute = nil, nil, nil, nil, nil
     self.moveOrigin, self.npcMoving, self.playerMoving = nil, false, false
     self.initialPlayer, self.completed = TutorialEscortPlayer.capture(self.player), false
+    self.playerIntent, self.cancelledTrigger = nil, nil
     self.blockedTicks, self.returning, self.hidden = 0, false, false
     self.menu:hide()
     local pokedex = self.session:questFlag(data.tutorial.gate)
@@ -92,6 +101,7 @@ function TutorialEscortState:enter(id)
             if not self.token then self:fail(reason); return end
             self.npcLeases[id] = self.token
             self.phase = "escort-walk"
+            self.playerIntent = TutorialEscortPlayer.claim(self)
         end)
     end
 end
@@ -117,9 +127,17 @@ function TutorialEscortState:tryPlayerCell(direction)
     if direction == "wait" then return true end
     local d = assert(delta[direction])
     local x, y = self.player.gridX + d[1], self.player.gridY + d[2]
+    local occupant = self.game.npcManager:getNPCAt(x,y)
     if not self.zone.collision[y+1] or self.zone.collision[y+1][x+1] ~= 0
-        or self.game.npcManager:getNPCAt(x,y) then return false end
-    self:startMove(direction)
+        or occupant and (not self.playerIntent or occupant == self.actor) then return false end
+    if self.playerIntent then
+        self.moveOrigin = TutorialEscortPlayer.capture(self.player)
+        self.player:tryMove(d[1],d[2],self.playerIntent)
+        if not self.player.isMoving or self.player.isJumping or self.player.gridX ~= x or self.player.gridY ~= y then
+            self:fail("player-rejected-source-escort-step"); return false
+        end
+        self.waiting = direction
+    else self:startMove(direction) end
     if self.phase == "failed" then return false end
     self.playerMoving = true
     return true
@@ -127,6 +145,7 @@ end
 function TutorialEscortState:tickRoutes()
     local progress = false
     local motion = self.game.npcManager.motion
+    if self.token and not motion:isScriptOwner(self.token,self) then self:fail("stale-script-token"); return end
     if self.npcMoving then
         local done, reason = motion:updateScript(self.token)
         if done then
@@ -231,9 +250,14 @@ function TutorialEscortState:finish()
 end
 function TutorialEscortState:cancel()
     if not self:valid() or not self:isTop() then return end
+    if self.id == data.actors.escort.id then
+        self.cancelledTrigger = {session=self.session,player=self.player,zone=self.zone}
+    end
     self.machine:pop()
 end
 function TutorialEscortState:exit()
+    TutorialEscortPlayer.release(self.playerIntent)
+    self.playerIntent = nil
     if not self.completed and self:valid() then
         TutorialEscortPlayer.restore(self.player, self.initialPlayer)
         self.moveOrigin = nil

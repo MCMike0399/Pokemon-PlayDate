@@ -83,5 +83,31 @@ class TutorialEscortGeneratorTests(unittest.TestCase):
         recipe = data['texts']['_ViridianCityOldManHadMyCoffeeNowText']['recipe']
         self.assertTrue(any(r.get('text') == 'hurry?' for r in recipe))
 
+    def test_source_simulated_player_input_skips_sprite_collision(self):
+        # These are the pinned original instructions, not a Lua implementation
+        # assertion. The branch bypasses both sprite probes before tile checks.
+        source = generator.inputs()['home/overworld.asm'].decode()
+        land = source.split('CollisionCheckOnLand::', 1)[1].split('\n.noCollision', 1)[0]
+        branch = ('ld a, [wSimulatedJoypadStatesIndex]\n\tand a\n'
+                  '\tjr nz, .noCollision')
+        self.assertIn(branch, land)
+        self.assertLess(land.index(branch), land.index('wSpritePlayerStateData1CollisionData'))
+        self.assertLess(land.index(branch), land.index('call IsSpriteInFrontOfPlayer'))
+
+    def test_every_source_escort_route_crosses_unchanged_source_stay_actor(self):
+        source = generator.inputs()['data/maps/objects/PewterCity.asm'].decode()
+        self.assertIn('object_event  8, 15, SPRITE_COOLTRAINER_F, STAY, NONE', source)
+        delta = {'up': (0,-1), 'down': (0,1), 'left': (-1,0),
+                 'right': (1,0), 'wait': (0,0)}
+        for entry, route in generator.build()['escort']['player_routes'].items():
+            x, y = map(int, entry.split(','))
+            cells = []
+            for direction in route:
+                dx, dy = delta[direction]
+                x, y = x+dx, y+dy
+                cells.append((x,y))
+            self.assertIn((8,15), cells, entry)
+            self.assertEqual(cells[-1], (10,18))
+
 if __name__ == '__main__':
     unittest.main()

@@ -175,6 +175,13 @@ local function scriptCurrent(s, lease)
         and s.game.player == lease.player and owner.epoch == lease.ownerEpoch
         and owner:valid() and owner:isTop()
 end
+-- Read-only ownership check for a paired player script intent. Do not probe
+-- validity by advancing a cell or reapplying a pose.
+function NPCMotion:isScriptOwner(token, owner)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    return actor ~= nil and lease.owner == owner and scriptCurrent(s, lease) == true
+end
 function NPCMotion:claimScript(npc, owner)
     local s = stores[self]
     local actor = s.byNPC[npc]

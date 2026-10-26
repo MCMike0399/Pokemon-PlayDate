@@ -183,6 +183,29 @@ function TutorialEscortContracts.run()
             scene("PewterCity",cell[1],cell[2],function(g,s,m)
                 assert(type(m.faceScript)=="function" and type(m.resetScript)=="function", "apply root NPCMotion patch first")
                 local before = durable(g)
+                local beforeMotion = m:snapshot()
+                -- This actual source STAY actor at (8,15) caused all five
+                -- native failures. Never remove or relocate it for the route.
+                local blocker = assert(g.npcManager:getNPCAt(8,15))
+                eq(blocker.def.source_event_id,"pokered:PEWTER_CITY:objects:1")
+                local blockerPose = TutorialEscortPlayer.capture(blocker)
+                local walked, frames, tryMove, update = {},{},g.player.tryMove,g.player.update
+                g.player.tryMove = function(player,dx,dy,intent)
+                    local wasMoving = player.isMoving
+                    if player.gridX == 8 and player.gridY == 14 and dx == 0 and dy == 1 then
+                        tryMove(player,dx,dy) -- ordinary movement still collides
+                        eq(player.isMoving,false); eq(player.gridY,14)
+                    end
+                    tryMove(player,dx,dy,intent)
+                    if not wasMoving and player.isMoving then
+                        walked[#walked+1] = {dx,dy}
+                        frames[#walked] = 0
+                    end
+                end
+                g.player.update = function(player)
+                    if player.isMoving then frames[#walked] = frames[#walked]+1 end
+                    update(player)
+                end
                 TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5")
                 expectRouteRoot(g,s,"dialog","initial source invitation")
                 closeDialog(g)
@@ -200,10 +223,21 @@ function TutorialEscortContracts.run()
                 eq(s.waiting,"_PewterCityYoungsterGoTakeOnBrockText")
                 eq(g.player.gridX,10); eq(g.player.gridY,18)
                 eq(actor.gridX,12); eq(actor.gridY,18); eq(actor.facing,"left")
+                local expected = {}
+                local directions = {up={0,-1},down={0,1},left={-1,0},right={1,0}}
+                for _,direction in ipairs(TutorialEscortData.get().escort.player_routes[cell[1] .. "," .. cell[2]]) do
+                    if direction ~= "wait" then expected[#expected+1] = directions[direction] end
+                end
+                same(walked,expected)
+                for _,ticks in ipairs(frames) do eq(ticks,8) end
+                eq(s.playerIndex,#s.playerRoute+1)
+                eq(g.npcManager:getNPCAt(8,15),blocker)
+                same(TutorialEscortPlayer.capture(blocker),blockerPose)
                 closeDialog(g)
                 for _=1,100 do if g.machine:getCurrent()=="overworld" then break end; s:update() end
                 expectRouteRoot(g,s,"overworld","departure/reset after at most 100 route updates")
                 same(m:actor(actor),home)
+                same(m:snapshot(),beforeMotion)
                 eq(actor:isVisible(),true)
                 eq(m:updateScript(token),false)
                 same(durable(g),before)
@@ -213,6 +247,142 @@ function TutorialEscortContracts.run()
             end)
         end)
     end
+    test("escort intent rejects forgery, wrong route cell, overlays, stale sessions and reuse after cancel",function()
+        scene("PewterCity",37,19,function(g,s,m)
+            local before, motion = durable(g),m:snapshot()
+            TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5"); closeDialog(g)
+            local intent = assert(s.playerIntent)
+            -- First source input here is left. A right input cannot use the
+            -- permission, even though that adjacent cell is on the same map.
+            g.player:tryMove(1,0,intent); eq(g.player.isMoving,false)
+            g.player:tryMove(-1,0,{}); eq(g.player.isMoving,false)
+            eq(TutorialEscortPlayer.permits(intent,g.player,-1,0),true)
+            g.machine:push("pause")
+            g.player:tryMove(-1,0,intent); eq(g.player.isMoving,false)
+            g.machine:pop()
+            local session = g.session; g.session = {}
+            g.player:tryMove(-1,0,intent); eq(g.player.isMoving,false)
+            g.session = session
+            local route = s.playerRoute; s.playerRoute = {"right"}
+            g.player:tryMove(-1,0,intent); eq(g.player.isMoving,false)
+            s.playerRoute = route
+            -- Terrain still wins even for the exact authorized source cell.
+            local old = currentZone.collision[20][37]
+            currentZone.collision[20][37] = 1
+            g.player:tryMove(-1,0,intent); eq(g.player.isMoving,false)
+            currentZone.collision[20][37] = old
+            s:update()
+            eq(g.player.isMoving,true)
+            for _=1,3 do s:update() end
+            eq(g.player.moveFrames,3)
+            s:handleButton("b")
+            expectRouteRoot(g,s,"overworld","cancel during authorized interpolation")
+            eq(g.player.gridX,37); eq(g.player.gridY,19); eq(g.player.isMoving,false)
+            g.player:tryMove(-1,0,intent); eq(g.player.isMoving,false)
+            same(m:snapshot(),motion); same(durable(g),before)
+            TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5"); closeDialog(g)
+            g.player:tryMove(-1,0,intent); eq(g.player.isMoving,false)
+            s:cancel()
+        end)
+    end)
+    test("cancelled coordinate trigger permits walking out and rearms only after leaving trigger cells",function()
+        scene("PewterCity",37,18,function(g,s,m)
+            local before, motion = durable(g),m:snapshot()
+            eq(TutorialEscort.trigger(g),"pokered:PEWTER_CITY:objects:5")
+            TutorialEscort.dispatch(g,TutorialEscort.trigger(g)); closeDialog(g)
+            s:update(); s:handleButton("b")
+            eq(TutorialEscort.trigger(g),nil)
+            for _=1,5 do s:update(); eq(TutorialEscort.trigger(g),nil) end
+            -- Remain suppressed across the adjacent source trigger (37,19).
+            g.player:tryMove(0,1); eq(g.player.isMoving,true)
+            for _=1,8 do g.player:update() end
+            eq(TutorialEscort.trigger(g),nil)
+            g.player:tryMove(-1,0); eq(g.player.isMoving,true)
+            for _=1,8 do g.player:update() end
+            eq(TutorialEscort.trigger(g),nil) -- outside the trigger set; rearm
+            g.player:tryMove(1,0); eq(g.player.isMoving,true)
+            for _=1,8 do g.player:update() end
+            eq(TutorialEscort.trigger(g),"pokered:PEWTER_CITY:objects:5")
+            same(m:snapshot(),motion); same(durable(g),before)
+        end)
+    end)
+    test("different occupant overlaps only on source route without changing its pose or either RNG",function()
+        scene("PewterCity",37,19,function(g,s,m)
+            local extra = NPC(8,16,"BLOCKER",{},nil,"mom","down")
+            extra.def = {source_event_id="contract:escort:other-occupant"}
+            extra:setUpdatesEnabled(false); g.npcManager:addNPC(extra)
+            local pose, before = TutorialEscortPlayer.capture(extra),durable(g)
+            TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5"); closeDialog(g)
+            for _=1,2000 do if g.machine:getCurrent()=="dialog" then break end; s:update() end
+            expectRouteRoot(g,s,"dialog","different occupant arrival")
+            eq(g.player.gridX,10); eq(g.player.gridY,18)
+            eq(s.waiting,"_PewterCityYoungsterGoTakeOnBrockText")
+            same(TutorialEscortPlayer.capture(extra),pose)
+            eq(g.npcManager:getNPCAt(8,16),extra)
+            closeDialog(g)
+            for _=1,100 do if g.machine:getCurrent()=="overworld" then break end; s:update() end
+            expectRouteRoot(g,s,"overworld","different occupant reset")
+            same(durable(g),before)
+        end)
+    end)
+    test("already midstep WALK actor and its reservations remain frozen throughout escort",function()
+        scene("PewterCity",37,19,function(g,s,m)
+            -- Valid saved tick-three source WALK, restored through its real
+            -- owner. This actor is not moved aside or settled by the scene.
+            local payload = m:snapshot()
+            local walker
+            for _,v in ipairs(payload.actors) do
+                if v.id == "pokered:PEWTER_CITY:objects:4" then walker = v end
+            end
+            assert(walker)
+            walker.phase,walker.facing,walker.tick = "moving","right",3
+            walker.x,walker.y,walker.origin_x,walker.origin_y = 27,25,26,25
+            walker.target_x,walker.target_y = 27,25
+            walker.delay_raw,walker.delay_left = 0,0
+            m:attach(g,currentZone,payload)
+            local npc = assert(g.npcManager:getNPCAt(26,25))
+            eq(g.npcManager:getNPCAt(27,25),npc)
+            local pose, motion, before = TutorialEscortPlayer.capture(npc),m:snapshot(),durable(g)
+            local px,py = npc.x,npc.y
+            TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5"); closeDialog(g)
+            for _=1,2000 do
+                if g.machine:getCurrent()=="dialog" then break end
+                s:update(); m:tick()
+                same(TutorialEscortPlayer.capture(npc),pose)
+                eq(npc.x,px); eq(npc.y,py)
+            end
+            expectRouteRoot(g,s,"dialog","midstep actor arrival")
+            eq(g.player.gridX,10); eq(g.player.gridY,18)
+            closeDialog(g)
+            for _=1,100 do if g.machine:getCurrent()=="overworld" then break end; s:update() end
+            expectRouteRoot(g,s,"overworld","midstep actor reset")
+            same(m:snapshot(),motion); same(durable(g),before)
+            eq(g.npcManager:getNPCAt(26,25),npc); eq(g.npcManager:getNPCAt(27,25),npc)
+        end)
+    end)
+    test("replaced attachment revokes player intent even after guide has finished its route",function()
+        scene("PewterCity",37,19,function(g,s,m)
+            TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5"); closeDialog(g)
+            for _=1,2000 do
+                if not s.npcMoving and s.npcIndex > #s.npcRoute then break end
+                s:update()
+            end
+            eq(s.phase,"escort-walk"); eq(s.npcMoving,false)
+            assert(s.npcIndex > #s.npcRoute)
+            -- Stop on an ordinary completed cell without changing coordinates.
+            for _=1,8 do if not g.player.isMoving then break end; g.player:update() end
+            eq(g.player.isMoving,false)
+            local intent, token = s.playerIntent,s.token
+            eq(m:isScriptOwner(token,s),true)
+            m:attach(g,currentZone,m:snapshot())
+            eq(m:isScriptOwner(token,s),false)
+            local x,y = g.player.gridX,g.player.gridY
+            g.player:tryMove(0,1,intent)
+            eq(g.player.isMoving,false); eq(g.player.gridX,x); eq(g.player.gridY,y)
+            s:update(); eq(s.phase,"failed"); eq(s.waiting,"stale-script-token")
+            s:handleButton("b"); eq(g.machine:getCurrent(),"overworld")
+        end)
+    end)
     test("only the source guide can transit the arrival; actual door and autonomous paths stay protected",function()
         scene("PewterCity",37,18,function(g,s,m)
             local descriptor = SourceActors.describe(currentZone.stableID,WorldDeltas.export())
