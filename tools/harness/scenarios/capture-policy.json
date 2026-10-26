@@ -1,0 +1,16 @@
+{
+  "commands": [
+    "dismiss",
+    "wait 600",
+    "record policy-record 4",
+    "shot policy-named",
+    "move right 1",
+    "shot policy-moved",
+    {"op":"assert", "path":"root", "equals":"overworld"}
+  ],
+  "outputs": [
+    "policy-record-01.png", "policy-record-02.png",
+    "policy-record-03.png", "policy-record-04.png",
+    "policy-named.png", "policy-moved.png"
+  ]
+}
