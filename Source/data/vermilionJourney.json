@@ -68,8 +68,17 @@
     "vileplume",
     "weepinbell"
   ],
-  "daycare_inputs": [],
+  "daycare_inputs": [
+    "dev/daycareContracts.lua",
+    "game/daycare.lua",
+    "game/daycareState.lua"
+  ],
   "events": {
+    "pokered:DAYCARE:objects:1": {
+      "content": "daycare",
+      "kind": "bespoke",
+      "service": "daycare"
+    },
     "pokered:DIGLETTS_CAVE_ROUTE_11:objects:1": {
       "content": "vermilion",
       "kind": "program",
@@ -2490,11 +2499,12 @@
     }
   },
   "schema": 1,
-  "session_codec": 2,
+  "session_codec": 3,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
     "data/ceruleanContent.lua": "da537baba23fcc1c1943f072ef3b6efa4afde02a053113ae77fad113bf817fd2",
-    "data/ceruleanJourney.json": "aead5528f2e0a96bb369100b582b021723b3214c73f6757a1ce3003c20716bb8",
+    "data/ceruleanJourney.json": "521b733bb39865a9e4aed8995af55f0d1910de4650f41e9f7705422b5f619f63",
+    "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
     "data/fieldMoves.json": "f71b4c488909bfac1c2f37baa9d5cd820d63ce74f173b2e2c2881f7407ff5590",
     "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
     "data/machineData.lua": "ff06e8f40282d52004f5493d5d70a60fdedc6e18f4efa74a931c47c66c0cafb1",
@@ -2546,11 +2556,14 @@
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
+    "dev/daycareContracts.lua": "47b40369789d75ebd4f60778823d3213ab247f6f29fb2cc9f01df9fee9c6d197",
     "domain/fieldMoves.lua": "eba04efc4da0e24645612f81099158a41eeae6af31925f6da0cd31d20b973035",
     "domain/fieldWorld.lua": "c9831dca077bda30252d9f1521bd517436d25e03ed508be91a292eba87ca5f27",
-    "domain/sessionCodec.lua": "638390a58ee3e7b88dcead402e52906f3a6a36c22c3cbf29b0677b3b953311f9",
+    "domain/sessionCodec.lua": "f3541f4e2f4aeb04e36db2fa4b90090c22fc4ddc1ba323e8957f923f86fe6672",
     "domain/teaching.lua": "bb63d9751f93270ea2e73e2636d22e3c43199bbbff86410faa71a2d267d3e041",
     "game/bagState.lua": "5ddc859d28b66f8cc46fc3b1020388f4898eb865a0a162b1be30c5b295d2224c",
+    "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",
+    "game/daycareState.lua": "b6870bcb8a69ea54de4e6552186a9d68e0326b8b18f83fec4460dba6417b6ef9",
     "game/fieldMoveState.lua": "784027470f822d4adaf609c7f5719acf062f58b528662d6303c1b006ced2a5b0",
     "game/partyState.lua": "f420161e109b804a1360e056e71109917b909898daf53377722d31717c874a68",
     "game/saves.lua": "498a782c214ca282309b65be6152c1ff06f17c06c754e193c5118ec5affb799a",
@@ -2560,9 +2573,9 @@
     "game/vermilionStory.lua": "39c6a92a6634a5efe042359f37f0bd4b121687c0bc1ee8661b6ba15f20f99084",
     "game/vermilionStoryHooks.lua": "a2a2c2c2fde6ca36beb80b14180bd9e3f93a9ff399b812c48cbece67277979eb",
     "game/vermilionStoryIntent.lua": "28841920473c56606bcb20a7a20435f8d61f19824fc052e525c5d279fc0cdeae",
-    "game/vermilionStoryState.lua": "b0251ad463bb05e41e3781d88c0a1c16c21caadb13d4a8424fa1d59b37a5d23f",
+    "game/vermilionStoryState.lua": "52270f48c7b1848b7e1ef2f7fe96dab66ae8f6013f3d000bd1e10cabcab78114",
     "game/vermilionStoryTerrain.lua": "ea64898cc812994f231b66f7220435a021c89a67b6d9bf17bfee1bbe108d065d",
-    "main.lua": "ffc5443a6df418e051d03681134c2afdc459fefe64538adefba4e0af8ee345c2"
+    "main.lua": "360713c2c4895a09837fdbab0f9d6c08bc1acee1a52e3dc9d3cbb189a91ffba5"
   },
   "trainers": {
     "pokered:ROUTE_11:objects:1": {

@@ -2,7 +2,8 @@ Milestone 5.4 real-input driver preparation
 =========================================
 
 Branch: wip/vermilion-journey. Exact root f8d5ce88504f3439ace431ad8b8845ed5d9baa26
-was merged first (local merge 2486823). No Simulator, runtime process, push or
+was merged first (local merge 2486823). Root checkpoint bad5882 was then merged
+as aa77be1 on root's update. No Simulator, runtime process, push or
 delegation was used. These are executable candidates, not acceptance evidence.
 
 Owned additions only:
@@ -61,13 +62,17 @@ aide, then Route 11 and real Save. The second process selects actual Continue
 and compares the entire immutable canonical payload. A completed driver is
 still pending root screenshot inspection and acceptance.
 
-Read-only worker snapshots used: wip/daycare at 1886005 and the existing private
-Anne/Surge and FieldMoves/FieldWorld inputs. They were not merged. Day Care
+Initial read-only worker snapshot: wip/daycare at 1886005. Root subsequently
+composed it as b2100c9, field/scene lifecycle as 87163bf, and the complete
+checkpoint bad5882 is now merged. The one event chain is DaycareState ->
+VermilionStoryState -> VermilionGiftsState -> KantoServicesState. Day Care
 selection uses its exact story-choice and daycare-party controller phases.
 A real eligible nonstarter is deposited, real map travel banks completed-step
 XP, and paid withdrawal checks the held specimen, XP, traits and quoted charge.
 The canonical schema-3 Day Care field is preserved in Save/Continue receipts;
-the earlier schema-1/2 payloads retain their strict envelopes. SDK validation
+the earlier schema-1/2 payloads retain their strict envelopes. This driver now
+uses root's existing canonical boundary validator directly. Actual Teaching
+waits for learning.input_blocked to clear, matching root's 478fac7 fix. SDK validation
 owns complete nested Pokemon semantics.
 
 Remaining inputs are explicit and must not be bypassed:
@@ -76,12 +81,12 @@ Remaining inputs are explicit and must not be bypassed:
    source-owned padding, last-outdoor warps, hidden can dispatch, dock departure,
    and closed/open Gym terrain. Compose the single event subclass chain for
    Day Care, gifts and Anne/Surge. Integrate worker API patches through root.
-2. Integrate Day Care 1886005 modules/policy, session ownership, completed-step
-   hook and schema 3. The current projection declares daycare_inputs=[] and
-   preflight rejects that after the inactive-map check. Regeneration discovers
-   both committed modules and pins policy/events only after root composition.
-3. Integrate temporary Cut/map-reload/process-Continue behavior from its owner.
-   The host path model refreshes actual terrain at each transition; it never
+2. Day Care modules/policy, session ownership, completed-step hook and schema 3
+   are composed in bad5882. The regenerated projection pins those actual inputs
+   and policy/events. Actual service and restart behavior remain unrun.
+3. Field/scene transactions and lifecycle are composed in 87163bf. Root still
+   needs to run temporary Cut/map-reload/process-Continue witnesses. The host
+   path model refreshes actual terrain at each transition; it never
    changes production tiles, field state or a ledger.
 4. Select a feasible natural acquisition/training plan. The inherited path
    captures actual specimens, but this candidate does not claim it reaches ten
@@ -125,8 +130,9 @@ single runtime owner. Keep all durable outputs under that evidence directory.
 Host checks
 -----------
 
-67 tests passed, zero skips: new driver boundaries, existing Cerulean boundaries,
-and pinned Vermilion gifts/story/preparation generation. Log:
+After merging bad5882: 82 tests passed, zero skips: new driver boundaries, existing Cerulean boundaries,
+pinned Vermilion gifts/story/preparation generation, Day Care, and shared learning
+release boundaries. Log:
 ~/Developer/Pokemon-PlayDate-env/evidence/vermilion-journey-host-tests.txt
 
 Tests cover bounds/shortcut rejection, inactive maps before input, staged owner

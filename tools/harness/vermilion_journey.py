@@ -65,36 +65,10 @@ def validate_process_journey(config, index, previous):
         raise ProtocolError('Vermilion initial journey must be first process')
 
 
-def validate_boundary_payload(payload):
-    if not isinstance(payload, dict) or payload.get('version') != 3:
-        return cj.validate_boundary_payload(payload)
-    if set(payload) != cj.CODEC_FIELDS | {'fieldWorld', 'daycare'}:
-        raise ProtocolError('incomplete schema 3 Save/Continue payload')
-    legacy = copy.deepcopy(payload)
-    daycare = legacy.pop('daycare')
-    legacy['version'] = 2
-    cj.validate_boundary_payload(legacy)
-    if (not isinstance(daycare, dict) or set(daycare) - {'version', 'earned', 'pokemon'}
-            or type(daycare.get('version')) is not int or daycare['version'] != 1
-            or not isinstance(daycare.get('earned'), str) or not daycare['earned'].isascii()
-            or not daycare['earned'].isdigit() or str(int(daycare['earned'])) != daycare['earned']
-            or not 0 <= int(daycare['earned']) <= 1250000
-            or 'pokemon' in daycare and not isinstance(daycare['pokemon'], dict)
-            or 'pokemon' not in daycare and daycare['earned'] != '0'):
-        raise ProtocolError('invalid canonical Day Care wire record')
-
-
-def validate_campaign_receipt(state):
-    if not isinstance(state, dict) or not isinstance(state.get('codec'), dict):
-        raise ProtocolError('missing full campaign codec receipt')
-    validate_boundary_payload(state['codec'])
-    # Reuse the earlier receipt envelope checks without discarding any bytes in
-    # the actual receipt. SDK validation owns all nested Pokemon semantics.
-    legacy = copy.deepcopy(state)
-    if legacy['codec']['version'] == 3:
-        legacy['codec'].pop('daycare')
-        legacy['codec']['version'] = 2
-    cj.validate_receipt_state(legacy)
+# Root's canonical envelope validators include schemas 1, 2 and 3. Preserve
+# every owner field; do not maintain a second schema or a reduced receipt DTO.
+validate_boundary_payload = cj.validate_boundary_payload
+validate_campaign_receipt = cj.validate_receipt_state
 
 
 def validate_receipt_state(state):
@@ -186,21 +160,6 @@ class VermilionJourney(cj.CeruleanJourney):
         if self.vermilion_active:
             label = 'vermilion-' + label
         return super().capture_presentation(label, kind)
-
-    def codec_guard(self, boundary=None):
-        observed = self.observe(boundary or 'validate')
-        if (observed.get('version') != self.export['session_codec'] or observed.get('valid') is not True
-                or observed.get('roundtrip_equal') is not True):
-            raise ProtocolError('actual canonical codec validation failed')
-        if boundary:
-            payload = observed.get('payload')
-            validate_boundary_payload(payload)
-            if payload['version'] != self.export['session_codec']:
-                raise ProtocolError('boundary codec version differs')
-            return copy.deepcopy(payload)
-        if 'payload' in observed:
-            raise ProtocolError('validation cannot masquerade as a Save/Continue receipt')
-        return None
 
     def advance_event(self, stop_phase=None):
         if (self.vermilion_active and self.state.get('root') == 'party'
@@ -362,6 +321,9 @@ class VermilionJourney(cj.CeruleanJourney):
         for _ in range(160):
             if self.state.get('root') != 'learning':
                 break
+            if lookup(self.state, 'learning.input_blocked'):
+                self.send('wait 2')
+                continue
             phase = lookup(self.state, 'learning.phase')
             if phase == 'message':
                 if lookup(self.state, 'learning.dialog_ready'):

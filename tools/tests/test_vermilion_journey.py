@@ -229,6 +229,36 @@ class DecisionTests(unittest.TestCase):
         with self.assertRaises(ItemMenuReached):
             driver.teach_cut()
 
+    def test_teaching_waits_for_actual_input_release_before_advancing_message(self):
+        driver = journey()
+        driver.vermilion = {'cut_species': ['bulbasaur']}
+        mon = {'species': 'bulbasaur', 'moves': ['tackle']}
+        driver.state = {'root': 'overworld', 'session': {'party': {'members': [mon]},
+                         'inventory': {'slots': [{'id': 'hm01', 'quantity': 1}]}}}
+        # Explicit UI boundary publications, not a Pokemon/rules simulator.
+        trace = [
+            ('press b', {'root': 'pause', 'pause': {'phase': 'menu', 'selected': 2,
+                'menu': {'options': ['POKEMON', 'ITEM', 'RED', 'SAVE', 'CLOSE']}}}),
+            ('press a', {'root': 'bag', 'bag': {'phase': 'list', 'selected': 1}}),
+            ('press a', {'bag': {'phase': 'actions', 'menu': {'selected': 1}}}),
+            ('press a', {'root': 'party', 'party_ui': {'selected': 1}}),
+            ('press a', {'root': 'learning', 'learning': {'phase': 'message', 'dialog_ready': True,
+                                                       'input_blocked': True}}),
+            ('wait 2', {'learning': {'phase': 'message', 'dialog_ready': True, 'input_blocked': False}}),
+            ('press a', {'root': 'bag'}),
+            ('press b', {'root': 'overworld'}),
+        ]
+        def send(command):
+            expected, publication = trace.pop(0)
+            self.assertEqual(command, expected)
+            driver.state.update(copy.deepcopy(publication))
+            if len(trace) == 1:
+                mon['moves'] = ['tackle', 'cut']
+        driver.send = send
+        driver.checkpoint = lambda label: None
+        self.assertEqual(driver.teach_cut(), 1)
+        self.assertEqual(trace, [])
+
     def test_read_only_geometry_update_is_detached_and_rejects_other_map(self):
         driver = journey()
         from tools.harness.brock_journey import SourceGeometry
