@@ -5,9 +5,16 @@ local function eq(actual,expected)
 end
 local function same(a,b)
     eq(type(a),type(b))
-    if type(a)~="table" then eq(a,b);return end
-    for key,value in pairs(a) do same(value,b[key]) end
-    for key in pairs(b) do assert(a[key]~=nil,"extra field "..tostring(key)) end
+    if type(a) ~= "table" then
+        eq(a, b)
+        return
+    end
+    for key, value in pairs(a) do
+        same(value, b[key])
+    end
+    for key in pairs(b) do
+        assert(a[key] ~= nil, "extra field " .. tostring(key))
+    end
 end
 local function owned(species,slot,sex)
     local game <const> = GameContext()
@@ -29,7 +36,9 @@ local function prepare(game,area)
     return token
 end
 local function attempt(game,area,seed)
-    if seed then RulesRNG.seed(seed) end
+    if seed then
+        RulesRNG.seed(seed)
+    end
     local ok,result=FieldEncounters.resolve(prepare(game,area))
     assert(ok,result)
     return result
@@ -50,13 +59,21 @@ function FieldAcquisitionContracts.run()
         local ok,why=pcall(body)
         local active <const> = GameSession.activeRNGSession()
         if active~=owner then
-            if active then assert(active:deactivateRNG()) end
-            if owner then assert(owner:activateRNG()) end
+            if active then
+                assert(active:deactivateRNG())
+            end
+            if owner then
+                assert(owner:activateRNG())
+            end
         end
         RulesRNG.restore(before)
         report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why) or nil}
-        if ok then report.passed=report.passed+1
-        else report.failed=report.failed+1;report.ok=false end
+        if ok then
+            report.passed = report.passed + 1
+        else
+            report.failed = report.failed + 1
+            report.ok = false
+        end
     end
     test("Synchronize literal 49/50 gates retain the ordinary nature draw",function()
         local game <const> = owned("abra")
@@ -131,8 +148,11 @@ function FieldAcquisitionContracts.run()
             eq(result.receipt.physical_lead.fainted,true)
             eq(result.receipt.physical_lead.slot,1)
             eq(game.session:party():active(),reserve)
-            if species=="abra" then eq(result.pokemon.natureId,17)
-            else eq(result.pokemon:getSex(),"female") end
+            if species == "abra" then
+                eq(result.pokemon.natureId, 17)
+            else
+                eq(result.pokemon:getSex(), "female")
+            end
             same(world,game.session:worldRngData())
         end
     end)
@@ -184,9 +204,14 @@ function FieldAcquisitionContracts.run()
         local x,y
         for gy=0,area.height-1 do
             for gx=0,area.width-1 do
-                if area:isTallGrass(gx,gy) and area.collision[gy+1][gx+1]==0 then x,y=gx,gy;break end
+                if area:isTallGrass(gx, gy) and area.collision[gy + 1][gx + 1] == 0 then
+                    x, y = gx, gy
+                    break
+                end
             end
-            if x then break end
+            if x then
+                break
+            end
         end
         assert(x)
         RulesRNG.seed(253)
@@ -273,7 +298,9 @@ function FieldAcquisitionContracts.run()
             {"mankey","first","vital-spirit-level"}}) do
             local game <const> = owned(row[1],row[2])
             -- Hustle is Rattata's hidden slot; ordinary second is Guts.
-            if row[3]=="hustle-level" then game.session:party():get(1).abilitySlot="hidden" end
+            if row[3] == "hustle-level" then
+                game.session:party():get(1).abilitySlot = "hidden"
+            end
             RulesRNG.seed(93)
             local token <const> = assert(Specimen.planEncounter(game.session))
             eq(Specimen.encounterGap(token),row[3])
