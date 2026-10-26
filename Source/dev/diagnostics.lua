@@ -88,7 +88,7 @@ local function menu(value)
 end
 local function ui(state)
     return state and {phase = state.phase or "closed", selected = state.selected or (state.menu and state.menu.selectedIndex),
-        menu = menu(state.menu), lastSave = state.lastSave, message = state.message} or {phase = "closed"}
+        menu = menu(state.menu), lastSave = state.lastSave, message = state.message, lastResult = state.lastResult} or {phase = "closed"}
 end
 
 function HarnessDiagnostics.snapshot(game)
@@ -133,6 +133,7 @@ function HarnessDiagnostics.snapshot(game)
             pokedex = game.session:pokedex()},
         party = party, inventory = inventory,
         pause = ui(root:get("pause")), title = ui(root:get("title")),
+        field_move = ui(root:get("fieldMove")),
         party_ui = ui(root:get("party")), bag = ui(root:get("bag")),
         party_info = root:get("party"):getInfoSnapshot(),bag_held = root:get("bag"):getHeldSnapshot(),
         shop = root:get("shop") and root:get("shop"):getSnapshot() or {phase="closed"},
@@ -257,7 +258,9 @@ local function observeOwners(game)
         assert(equal(registered.rival_parties, selected), "unregistered rival variants")
         expected[id] = registered
     end
-    assert(equal(actual, expected), "registered trainer definitions differ from projection")
+    for id, definition in pairs(expected) do
+        assert(equal(actual[id], definition), "registered trainer definition differs: " .. id)
+    end
     for _, id in ipairs(export.events) do
         assert(SourceEvents.has(id), "unregistered projected event: " .. id)
     end
@@ -292,6 +295,40 @@ function HarnessDiagnostics.observe(game, kind)
         assert(equal(world, WorldDeltas.export()), "observation changed live world")
         assert(equal(rng, RulesRNG.snapshot()), "observation consumed rules RNG")
         return {kind="purity", valid=true, version=SessionCodec.VERSION}
+    end
+    if kind == "vermilion-owners" then
+        local export = assert(json.decodeFile("data/vermilionJourney.json"))
+        assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale Vermilion projection")
+        local actual = SourceEvents.trainerDefinitions()
+        for id, definition in pairs(export.trainers) do
+            assert(equal(actual[id], definition), "Vermilion trainer differs: " .. id)
+        end
+        for id in pairs(export.events) do
+            assert(SourceEvents.has(id), "unregistered Vermilion event: " .. id)
+        end
+        assert(SourceEvents.has("pokered:DAYCARE:objects:1"), "Day Care service not registered")
+        armBoundary(game)
+        return {kind=kind, valid=true, version=SessionCodec.VERSION}
+    end
+    if kind == "vermilion-daycare" then
+        local owner = Daycare.observe(game.session)
+        local quote = owner.pokemon and Daycare.plan(owner, "withdraw") or nil
+        return {kind=kind,owner=owner,withdrawal=quote}
+    end
+    if kind == "vermilion-world" then
+        local zone = assert(currentZone)
+        local cells = {}
+        local export = assert(json.decodeFile("data/vermilionJourney.json"))
+        if zone.stableID == "pokered:VERMILION_CITY" then
+            local padding = export.maps.VermilionCity.padding
+            for _, site in ipairs(export.cut_sites) do
+                for _, cell in ipairs(site.cells) do
+                    local x, y = cell.x+padding, cell.y
+                    cells[#cells+1] = {x=x,y=y,key=zone.registry:key(zone.tiles[y+1][x+1])}
+                end
+            end
+        end
+        return {kind=kind,zone_id=zone.stableID,cells=cells,collision=GameSession._copy(zone.collision)}
     end
     if kind == "owners" then return observeOwners(game) end
     armBoundary(game)
