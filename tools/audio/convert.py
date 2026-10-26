@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic host-only inspect/trace/check CLI; deliberately no render command."""
+"""Deterministic host-only inspect/trace/check CLI; opt-in offline render entry point."""
 import argparse
 import hashlib
 import json
@@ -23,7 +23,9 @@ def canonical(value):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('inspect', 'trace', 'check'))
+    parser.add_argument('command', choices=('inspect', 'trace', 'check', 'render'))
+    parser.add_argument('--ir', type=Path, help='render: closed schema-1 register trace')
+    parser.add_argument('--preview-ticks', type=int)
     parser.add_argument('--source', default=os.environ.get('POKERED_REFERENCE_DIR'))
     parser.add_argument('--revision', default=REVISION)
     parser.add_argument('--asset')
@@ -37,6 +39,14 @@ def main(argv=None):
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--against', type=Path, help='Prior inspect output directory to compare exactly')
     args = parser.parse_args(argv)
+    if args.command == 'render':
+        from tools.audio.render import main as render_main
+        if args.ir is None:
+            parser.error('render requires --ir')
+        forwarded = ['--ir', str(args.ir), '--output', str(args.output)]
+        if args.preview_ticks is not None:
+            forwarded += ['--preview-ticks', str(args.preview_ticks)]
+        return render_main(forwarded)
     if not args.source:
         parser.error('--source or POKERED_REFERENCE_DIR is required')
     try:
