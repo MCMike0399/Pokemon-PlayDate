@@ -86,8 +86,10 @@ class ProjectionTests(unittest.TestCase):
                 shutil.copyfile(SOURCE / relative, target)
             manifest_path = source / 'data/sourceMaps.json'
             manifest = json.loads(manifest_path.read_text())
-            candidate = json.loads((SOURCE / 'data/ceruleanSourceMaps.json').read_text())
-            manifest['maps'].update(candidate['maps'])
+            # The maps are installed in the common manifest. A real metadata
+            # change must invalidate the observed owner projection as well.
+            self.assertNotEqual(manifest['maps']['BillsHouse']['spawn']['facing'], 'left')
+            manifest['maps']['BillsHouse']['spawn']['facing'] = 'left'
             manifest_path.write_text(json.dumps(manifest))
             updated = project(source)
             self.assertEqual(updated['trainers'], original['trainers'])

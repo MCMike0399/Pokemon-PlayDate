@@ -229,9 +229,22 @@ function TrainerEvents:rewardPlan(id)
     return SourceEvents.rewardPlan(id,{flags=session:flags().quest,trainers=session:flags().trainers,items=items})
 end
 function TrainerEvents:snapshot()
-    local owner=owners[self];local value=owner.active and tokens[owner.active]
-    if not value or value.session~=owner.game.session then return {phase="idle"} end
-    return {id=value.definition.id,party=copy(value.definition.party),payout=value.definition.payout,phase=value.phase,pixelX=value.npc.x,pixelY=value.npc.y,gridX=value.npc.gridX,gridY=value.npc.gridY,step=value.index or 0,tick=value.tick or 0,total_steps=value.steps and #value.steps or 0,mode=value.mode}
+    local owner = owners[self]
+    local value = owner.active and tokens[owner.active]
+    if not value or value.session ~= owner.game.session then return {phase="idle"} end
+    local definition = {
+        id=value.definition.id,
+        party=copy(value.definition.party),
+        payout=value.definition.payout,
+    }
+    return {
+        id=definition.id, party=definition.party, payout=definition.payout,
+        definition=definition, phase=value.phase,
+        pixelX=value.npc.x, pixelY=value.npc.y,
+        gridX=value.npc.gridX, gridY=value.npc.gridY,
+        step=value.index or 0, tick=value.tick or 0,
+        total_steps=value.steps and #value.steps or 0, mode=value.mode,
+    }
 end
 TrainerEvents.BROCK,TrainerEvents.JR,TrainerEvents.LAB=BROCK,JR,LAB
 
