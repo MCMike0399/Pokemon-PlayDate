@@ -193,7 +193,8 @@
     "dev/ceruleanStoryContracts",
     "dev/ceruleanSceneContracts",
     "dev/ceruleanRoutesContracts",
-    "dev/tutorialEscortContracts"
+    "dev/tutorialEscortContracts",
+    "dev/kantoScenesContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -289,6 +290,7 @@
     "Contracts.register(\"cerulean-story\", function() return CeruleanStoryContracts.run(CeruleanSceneContracts.withScene) end)",
     "Contracts.register(\"cerulean-scenes\", CeruleanSceneContracts.run)",
     "Contracts.register(\"cerulean-routes\", CeruleanRoutesContracts.run)",
-    "Contracts.register(\"tutorial-escort\", TutorialEscortContracts.run)"
+    "Contracts.register(\"tutorial-escort\", TutorialEscortContracts.run)",
+    "Contracts.register(\"kanto-scenes\", KantoScenesContracts.run)"
   ]
 }

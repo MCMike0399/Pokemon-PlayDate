@@ -5,6 +5,7 @@ local contentName <const> = "cerulean"
 local cached = {}
 local installed = false
 local signsInstalled = false
+local actorMetadata
 local rendered = {}
 local walks = {}
 
@@ -101,17 +102,27 @@ function CeruleanContent.stepImage(source, facing, tick)
     return assert(standing[facing], "source actor has no standing pose")
 end
 
-local function metadata(definition, event)
-    -- Scene owners supply the remaining source hide/show policies. Do not
-    -- activate Bill/rivals/fossils by pretending their object rows are a scene.
+local function metadata(definition, event, runtimeGame)
+    local result = {visibility={}}
     if definition.name == "Museum1F" and event.source_index == 5 then
-        return { visibility = {{ group = "quest", id = "EVENT_GOT_OLD_AMBER", equals = false }} }
+        result.visibility[1] = {group="quest", id="EVENT_GOT_OLD_AMBER", equals=false}
     end
-    return {}
+    if actorMetadata then
+        local scene = actorMetadata(definition, event, runtimeGame)
+        for _, condition in ipairs(scene.visibility or {}) do
+            result.visibility[#result.visibility + 1] = copy(condition)
+        end
+    end
+    return result
 end
 
-function CeruleanContent.install()
-    if installed then return end
+function CeruleanContent.install(metadataResolver)
+    assert(metadataResolver == nil or type(metadataResolver) == "function", "actor metadata callback required")
+    if installed then
+        assert(metadataResolver == nil or metadataResolver == actorMetadata, "actor metadata resolver replaced")
+        return
+    end
+    actorMetadata = metadataResolver
     SourceEvents.registerTextSource(contentName, CeruleanContent.text)
     SourceEvents.registerTrainerSource(contentName, CeruleanContent.trainers)
     SourceEvents.registerEventSource(contentName, CeruleanContent.events())

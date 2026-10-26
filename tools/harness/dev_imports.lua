@@ -214,6 +214,8 @@ Contracts.register("cerulean-story", function() return CeruleanStoryContracts.ru
 Contracts.register("cerulean-scenes", CeruleanSceneContracts.run)
 Contracts.register("cerulean-routes", CeruleanRoutesContracts.run)
 Contracts.register("tutorial-escort", TutorialEscortContracts.run)
+import "dev/kantoScenesContracts"
+Contracts.register("kanto-scenes", KantoScenesContracts.run)
 
 -- @harness runtime
 harness = Harness

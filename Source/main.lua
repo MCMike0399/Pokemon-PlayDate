@@ -84,6 +84,7 @@ import "game/ceruleanStory"
 import "game/ceruleanRoutes"
 import "game/ceruleanRoutesState"
 import "game/tutorialEscort"
+import "game/kantoScenes"
 import "game/pokedexState"
 import "game/pcState"
 import "game/evolutionState"
@@ -116,6 +117,10 @@ import "domain/fieldEncounters"
 -- @harness imports-6
 
 -- @harness imports-7
+
+CeruleanContent.install(KantoScenes.actorMetadata)
+CeruleanContent.installSigns()
+KantoScenes.install()
 
 game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 
