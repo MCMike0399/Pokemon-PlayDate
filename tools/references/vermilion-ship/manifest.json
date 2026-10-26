@@ -1,0 +1,19 @@
+{
+  "files": {
+    "constants/map_constants.asm": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
+    "data/maps/headers/VermilionDock.asm": "d9792e33fb5a57731304961319030fbd9b8d1cff138e2f87a41d732e7045e7c1",
+    "engine/overworld/dust_smoke.asm": "8b705a05ab2c4705fd102ca8cb990380ef1ad137823c43c2aabfda6f99da242c",
+    "gfx/blocksets/ship_port.bst": "da9a4c4ccc2fb2751e0de751ba1d1aa48c5d785f804b8ab9ec19fa19a634d336",
+    "gfx/overworld/smoke.png": "331e33467b281e6e77c06e21a1c3b6e8f29cf96676eb8a3bb3d1b9e6039462e7",
+    "gfx/tilesets/ship_port.png": "8773b94732ca4fd54d67172701d6834e5d506aab757adcb72538f9b7aec437fa",
+    "home/copy2.asm": "c6c04890fd6af258775b9695c8bfba8b8ddf932aee3687f36f36799c1bb3be13",
+    "home/delay.asm": "6c20e81dbe56504a71026e52911f080c58176e45a2b5d1589b1c5dac5f11be4f",
+    "home/oam.asm": "601177b3dae9b5d9a399345214bcbab67611dc1c9b75940344f8f19c7c6970ff",
+    "home/overworld.asm": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a",
+    "home/palettes.asm": "5e6838b4a72662c880142ff8479755a35a69a71a09b1a6f49d2632674263bb75",
+    "maps/VermilionDock.blk": "33353b5c2105d8bbb55552e455826519ae6be1bc96dba573ade512d7e3f4cdf5",
+    "scripts/VermilionDock.asm": "0ebb952ac9cf70982ae2847e54f774fcbada5d0970802c32701957f2d10abd08"
+  },
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -10,7 +10,8 @@ import sys
 import tempfile
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tools.generate_kanto_maps import Reference, REVISION, decode_map, records, integer
+from tools.generate_kanto_maps import (Reference, REVISION, decode_map, records, integer,
+    decode_png, tile_grids, quadrant_ids, compose_grid, collision_tiles, CODES)
 from tools.generate_viridian_slice import sprite_data
 from tools.generate_source_map_cache import build as cache_build
 from tools.generate_cerulean_content import (canonical, digest, species, envelope,
@@ -77,14 +78,74 @@ def text_recipes(text):
     return result
 
 
-def proposed_pipeline(artifacts):
-    """Existing manifest + new entries through the existing cache generator."""
-    active = ROOT / 'Source/data/sourceMaps.json'
-    manifest = json.loads(active.read_bytes())
+def add_gym_door_block(reference, definition):
+    """Append original script-only Gym block $24 through the shared converters.
+
+    Preserve every layout cell, local tile ID and existing grid. The shared
+    cache builder then exports this unused-by-layout state grid normally.
+    """
+    if definition['name'] != 'VermilionGym' or definition['tileset']['constant'] != 'GYM':
+        raise ValueError('closed-door extension belongs only to VermilionGym')
+    blockset = reference.bytes(definition['tileset']['blockset'])
+    tiles = tile_grids(decode_png(reference.bytes(definition['tileset']['graphics'])))
+    allowed = set(collision_tiles(reference.text('data/tilesets/collision_tile_ids.asm'), 'Gym'))
+    existing = {tuple(grid['source_tile_ids']) for grid in definition['grids']}
+    added = []
+    for quadrant in range(4):
+        ids = tuple(quadrant_ids(blockset, 0x24, quadrant))
+        if ids in existing:
+            continue
+        grid = compose_grid(tiles, ids)
+        foot = ids[2]
+        key = 'pokered:GYM:cell:' + '-'.join(f'{value:02x}' for value in ids)
+        definition['grids'].append(dict(
+            id=len(definition['grids']) + 1, stable_id=key,
+            source_tile_ids=list(ids), grid=grid,
+            canonical_shade_sha256=digest(bytes(CODES.index(c) for row in grid for c in row)),
+            opaque=True, terrain=dict(foot_tile=foot, land_passable=foot in allowed,
+                grass=False, counter=foot in definition['tileset']['counter_tiles'],
+                water_candidate=False, warp_tile=False)))
+        existing.add(ids)
+        added.append(key)
+    return added
+
+
+def verify_installed_entries(artifacts, manifest=None):
+    """Verify owned entry fields while preserving root's activation metadata.
+
+    An uninstalled batch is valid preparation. All entries must be installed
+    together; a partial/colliding inventory is never repaired or overwritten.
+    Geometry, source hashes, paths and spawn remain as strict as Cerulean.
+    """
+    if manifest is None:
+        manifest = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
     additions = json.loads(artifacts['manifest-entries.json'])['maps']
-    if set(manifest['maps']) & set(additions):
-        raise ValueError('preparation overlaps active maps')
-    manifest['maps'].update(additions)
+    overlap = set(manifest['maps']) & set(additions)
+    if not overlap:
+        return False
+    if overlap != set(additions):
+        raise ValueError('partial installed Vermilion inventory')
+    for name, expected in additions.items():
+        actual = manifest['maps'][name]
+        for field, value in expected.items():
+            if actual.get(field) != value:
+                raise ValueError('installed Vermilion entry drift: ' + name + ':' + field)
+    return True
+
+
+def proposed_pipeline(artifacts, *, manifest=None):
+    """Build the shared proposal from either uninstalled or installed inventory.
+
+    Installed mode retains root-owned blockers, LAST_MAP and connection policy.
+    It never unions the region twice or writes the active manifest/cache.
+    """
+    if manifest is None:
+        manifest = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
+    else:
+        manifest = json.loads(canonical(manifest))
+    additions = json.loads(artifacts['manifest-entries.json'])['maps']
+    if not verify_installed_entries(artifacts, manifest):
+        manifest['maps'].update(additions)
     raw = canonical(manifest)
     with tempfile.TemporaryDirectory(prefix='vermilion-cache-') as temporary:
         stage = Path(temporary)
@@ -107,6 +168,7 @@ def build(reference_root):
         raise ValueError('Vermilion preparation pin revision/inventory differs')
     ref = Reference(reference_root, pin['files'])
     definitions = {name: decode_map(ref, name, **({'linked_layout_tail': ('maps/UndergroundPathWestEast.blk', 4)} if name == 'UndergroundPathNorthSouth' else {})) for name in MAPS}
+    add_gym_door_block(ref, definitions['VermilionGym'])
     songs = records(ref.text('data/maps/songs.asm'), 'db')
     for definition in definitions.values():
         song = songs[definition['source_map_id']]
@@ -309,7 +371,9 @@ def main():
         args.output.mkdir(parents=True, exist_ok=False)
         for name, data in artifacts.items():
             (args.output / name).write_bytes(data)
-    print(f'Verified {len(MAPS)} preparation maps; no active manifest changed')
+    installed = verify_installed_entries(artifacts)
+    mode = 'installed inventory' if installed else 'uninstalled proposal'
+    print(f'Verified {len(MAPS)} preparation maps ({mode}); no active manifest changed')
 
 if __name__ == '__main__':
     main()

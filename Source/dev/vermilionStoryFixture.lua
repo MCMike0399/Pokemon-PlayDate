@@ -42,6 +42,7 @@ function VermilionStoryFixture.withScene(name,options,fn)
     end)
     local cleaned,cleanupProblem=pcall(function()
         if g then
+            VermilionShip.onLeave(g, "fixture:cleanup")
             while g.machine:depth()>0 do g.machine:pop() end
             g.npcManager:clear()
             if g.player then g.player:remove();g.player.grassOverlay:remove();g.player.exitArrow:remove() end
