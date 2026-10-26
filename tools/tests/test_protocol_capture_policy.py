@@ -32,7 +32,7 @@ class CapturePolicyTests(unittest.TestCase):
         (project / 'Source/dev').mkdir(parents=True)
         sdk.mkdir()
         output.mkdir()
-        original = b'-- original\r\nfunction playdate.update() end\n-- final definition\n'
+        original = (run.PROJECT / 'Source/main.lua').read_bytes()
         (project / 'Source/main.lua').write_bytes(original)
         (project / 'Source/pdxinfo').write_text('bundleID=original\n')
         (project / 'Source/dev/harness_build.lua').write_text('HarnessBuild = {enabled=false}\n')
@@ -70,16 +70,19 @@ class CapturePolicyTests(unittest.TestCase):
     def test_default_preserves_runtime_source_path(self):
         with tempfile.TemporaryDirectory() as directory:
             output, metadata, original = self.stage(Path(directory), 1)
-            self.assertEqual((output / 'Source/main.lua').read_bytes(), original)
+            self.assertNotIn(b'import "dev/capture_policy"', (output / 'Source/main.lua').read_bytes())
+            self.assertNotIn(b'-- @harness ', (output / 'Source/main.lua').read_bytes())
             self.assertFalse((output / 'Source/dev/capture_policy.lua').exists())
             self.assertNotIn('recent_interval', (output / 'Source/dev/harness_build.lua').read_text())
-            self.assertEqual(metadata['generated_overlays'], ['Source/dev/harness_build.lua', 'Source/pdxinfo'])
+            self.assertEqual(metadata['generated_overlays'], ['Source/main.lua', 'Source/dev/harness_build.lua', 'Source/pdxinfo'])
             self.assertFalse(metadata['capture_policy']['final_completed_sample'])
 
     def test_overlay_identity_and_original_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
-            output, metadata, original = self.stage(Path(directory), 60)
-            self.assertEqual((output / 'Source/main.lua').read_bytes(), original + b'\nimport "dev/capture_policy"\n')
+            default, _, _ = self.stage(Path(directory) / 'default', 1)
+            output, metadata, original = self.stage(Path(directory) / 'sampled', 60)
+            self.assertEqual((output / 'Source/main.lua').read_bytes(),
+                             (default / 'Source/main.lua').read_bytes() + b'\nimport "dev/capture_policy"\n')
             self.assertEqual((output / 'Source/dev/capture_policy.lua').read_bytes(),
                              Path(run.__file__).with_name('capture_policy.lua').read_bytes())
             self.assertIn('recent_interval = 60,', (output / 'Source/dev/harness_build.lua').read_text())

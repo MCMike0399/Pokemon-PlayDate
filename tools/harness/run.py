@@ -145,7 +145,9 @@ def prepare(project, sdk, output, session, recent_interval=1):
     lua_values = []
     if recent_interval > 1:
         metadata['recent_interval'] = recent_interval
-        metadata['generated_overlays'] += ['Source/dev/capture_policy.lua', 'Source/main.lua']
+        metadata['generated_overlays'].append('Source/dev/capture_policy.lua')
+        if 'Source/main.lua' not in metadata['generated_overlays']:
+            metadata['generated_overlays'].append('Source/main.lua')
         overlay = Path(__file__).with_name('capture_policy.lua').read_bytes()
         target = source / 'dev/capture_policy.lua'
         if target.exists():
