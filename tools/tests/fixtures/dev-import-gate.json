@@ -1,6 +1,7 @@
 {
   "base_commit": "1339333891bb3bc9b6b91b182524043d1d3829fa",
   "imports": [
+    "dev/harness_build",
     "CoreLibs/object",
     "CoreLibs/graphics",
     "CoreLibs/sprites",
@@ -175,7 +176,6 @@
     "dev/catalogMotionContracts",
     "dev/catalogAbilityContracts",
     "dev/presentationContracts",
-    "dev/harness_build",
     "dev/harness_capture",
     "dev/diagnostics",
     "dev/fixtures",
@@ -208,7 +208,8 @@
     "dev/commonAbilityContracts",
     "dev/ceruleanAmbientDialogueContracts",
     "dev/entryAbilityContracts",
-    "dev/contactAbilityContracts"
+    "dev/contactAbilityContracts",
+    "dev/fieldAcquisitionContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -312,6 +313,7 @@
     "Contracts.register(\"common-abilities\", CommonAbilityContracts.run)",
     "Contracts.register(\"cerulean-ambient-dialogue\", CeruleanAmbientDialogueContracts.run)",
     "Contracts.register(\"entry-abilities\", EntryAbilityContracts.run)",
-    "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)"
+    "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)",
+    "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)"
   ]
 }
