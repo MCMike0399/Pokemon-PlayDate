@@ -109,10 +109,22 @@ def build(reference=REFERENCE):
         trainers[identity] = dict(id=identity,map_id=':'.join(identity.split(':')[:2]),name=name,
             sprite_source=sprite,source_flag=flag,party=party,payout=base*party[-1]['level'],
             sight_range_cells=0,talk_only=True,x=x,y=y)
+    # hidden_event arguments are (x,y); its macro emits y then x for the
+    # dispatcher. The dispatcher compares the tile in front of the player.
+    hidden = sources['data/events/hidden_events.asm']
+    pc_rows = hidden.split('hidden_events_for BILLS_HOUSE',1)[1].split('db -1',1)[0]
+    match = re.search(r'hidden_event\s+(\d+),\s*(\d+), BillsHousePC, SPRITE_FACING_UP',pc_rows)
+    assert match, 'pinned Bill PC target/facing missing'
+    pc_x, pc_y = int(match[1]), int(match[2])
+    dispatcher = sources['engine/overworld/hidden_events.asm']
+    assert 'call CheckIfCoordsInFrontOfPlayerMatch' in dispatcher
+    assert '.facingUp\n\tld a, [wYCoord]\n\tdec a' in dispatcher
+    pc = {'x':pc_x,'y':pc_y,'facing':'up','id':PC,'coordinate_role':'target'}
+    pc_player = {'x':pc_x,'y':pc_y+1,'facing':'up','id':PC}
     payload = dict(schema=1,source_revision=REVISION)
     return {'events.json':encoded(dict(payload,events=events)),
             'dialogue.json':encoded(dict(payload,texts=texts)),
-            'scenes.json':encoded(dict(payload,movement=movement,pc={'x':1,'y':4,'facing':'up','id':PC},
+            'scenes.json':encoded(dict(payload,movement=movement,pc=pc,pc_player=pc_player,
                 fossil_trigger={'x':13,'y':8,'id':MOON+'1'},
                 no_encounters_after_nerd={'x_min':11,'x_max':14,'y_min':5,'y_max':8})),
             'trainers.json':encoded(dict(payload,trainers=trainers))}

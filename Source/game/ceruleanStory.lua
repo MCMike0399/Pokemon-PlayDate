@@ -163,9 +163,14 @@ function CeruleanStory.trigger(session, zoneID, x, y)
     if zoneID == "pokered:MT_MOON_B2F" and x == trigger.x + padding(zoneID) and y == trigger.y
         and not session:trainerDefeated(NERD) then return trigger.id end
 end
-function CeruleanStory.pcInteraction(zoneID, x, y, facing)
+-- Driver/export pose is in SOURCE coordinates; callers add map padding once.
+-- scenes.pc retains the actual hidden-event TARGET, never a standing cell.
+function CeruleanStory.pcPlayer() return copy(load().scenes.pc_player) end
+function CeruleanStory.pcInteraction(zoneID, playerX, playerY, facing)
     local pc = load().scenes.pc
-    if zoneID == "pokered:BILLS_HOUSE" and x == pc.x + padding(zoneID) and y == pc.y and facing == pc.facing then return PC end
+    if zoneID ~= "pokered:BILLS_HOUSE" or facing ~= pc.facing then return nil end
+    local delta = ({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
+    if delta and playerX + delta[1] == pc.x + padding(zoneID) and playerY + delta[2] == pc.y then return PC end
 end
 
 -- Rebuild only through the source spawner and NPCMotion.attach. Persistent

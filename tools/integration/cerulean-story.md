@@ -100,8 +100,18 @@ payload during a transaction. Decoder validation itself remains read-only.
 
 - Before ordinary PC interaction: pass the player's runtime cell/facing to
   `CeruleanStory.pcInteraction(zoneID,x,y,facing)`; dispatch its returned ID using
-  SourceEvents. The source player stands at `(1,4)` facing up. This is a hidden
-  interaction at the player's cell, not a sign on the facing cell.
+  SourceEvents. The source player stands at `(1,5)` facing up and targets the
+  blocked PC cell `(1,4)`. The pinned hidden-event dispatcher calls
+  `CheckIfCoordsInFrontOfPlayerMatch`; it does not match the standing cell.
+  The API accepts **player** runtime coordinates and projects one facing cell
+  before comparing the padded source target. Passing the PC target `(1,4)` as
+  the player position, or passing a different facing, returns nil.
+  `CeruleanStory.pcPlayer()` returns `{id="pokered:BILLS_HOUSE:hidden_events:1",
+  x=1,y=5,facing="up"}` in **source** coordinates. Root's production diagnostics
+  should export this returned value as `bill_pc_player` for journey driver
+  `cc59fd3`; the driver adds map padding once. `scenes.pc` keeps the original
+  target coordinates and `coordinate_role="target"`; `scenes.pc_player` is the
+  generated standing-pose projection.
 - During settled exploration before ordinary encounters/trainer sight:
   `CeruleanStory.trigger(session,zoneID,x,y)` returns the Super Nerd stable ID
   only at source `(13,8)` before confirmed victory. Dispatch in normal talk mode;
@@ -168,3 +178,22 @@ all new modules, and both contract registrations. The 22 new SDK cases are
 (`host-checks.log`, `story-compile.log`, `story-build.json`). The host capture-policy
 test deliberately prints a mocked `smoke: FAIL` inside a passing error-path test;
 it did not launch a native runtime.
+
+
+Bill PC followup: the original `f30515e` standing-cell interpretation was wrong.
+This repair is based directly on pinned `engine/overworld/hidden_events.asm`,
+its facing-up Y decrement, the hidden-event macro's y-then-x storage, and Bill's
+required-up guard. It changes no source event identity or target coordinate,
+collision, root diagnostics, activation hooks, or existing API patch. All PC
+scene fixtures now stand at source `(1,5)`. New SDK checks reject standing on
+`(1,4)` and every wrong facing, and assert real floor/PC collision independently.
+
+Followup validation (2026-10-26): nine story source/generator tests and nine
+existing source-event tests passed (18 total, zero skips). Regeneration matches
+both vendored and external pinned source. A private SDK build compiled both
+updated contract suites, including the new real-map projection case; none were
+executed. Evidence: `~/Developer/Pokemon-PlayDate-env/evidence/bill-pc-target-build-20261026-01/`.
+Root can set `bill_pc_player = CeruleanStory.pcPlayer()` in its production export;
+include `game/ceruleanStory.lua` and `data/ceruleanStory/scenes.json` among that
+export's source hashes. No root diagnostics, journey driver, or shared API patch
+was changed in this repair.

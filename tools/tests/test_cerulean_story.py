@@ -45,6 +45,39 @@ class CeruleanStorySourceTests(unittest.TestCase):
         self.assertIn(story.PC, events)
         self.assertEqual(len(events), 8)
 
+    def test_bill_pc_target_and_player_projection_follow_pinned_dispatcher(self):
+        sources = story.verified(story.REFERENCE)
+        hidden = sources['data/events/hidden_events.asm']
+        macro = hidden.split('MACRO hidden_event\n',1)[1].split('ENDM',1)[0]
+        self.assertIn(r'db \2 ; y coord', macro)
+        self.assertIn(r'db \1 ; x coord', macro)
+        dispatcher = sources['engine/overworld/hidden_events.asm']
+        self.assertIn('call CheckIfCoordsInFrontOfPlayerMatch', dispatcher)
+        self.assertIn('.facingUp\n\tld a, [wYCoord]\n\tdec a', dispatcher)
+        bill_pc = sources['engine/events/hidden_events/bills_house_pc.asm']
+        self.assertIn('cp SPRITE_FACING_UP\n\tret nz', bill_pc)
+        scenes = json.loads(story.build()['scenes.json'])
+        self.assertEqual(scenes['pc'], {'id':story.PC,'x':1,'y':4,'facing':'up','coordinate_role':'target'})
+        self.assertEqual(scenes['pc_player'], {'id':story.PC,'x':1,'y':5,'facing':'up'})
+        # A standing-on-target export or a wrong-facing export must disagree
+        # with the generated projection. Runtime rejection is tested by SDK.
+        self.assertNotEqual({k:scenes['pc'][k] for k in ['id','x','y','facing']}, scenes['pc_player'])
+
+    def test_changed_hidden_dispatcher_or_bill_facing_fails_source_verification(self):
+        import shutil
+        mutations = [('engine/overworld/hidden_events.asm',b'call CheckIfCoordsInFrontOfPlayerMatch',b'call ArePlayerCoordsInArray'),
+                     ('engine/events/hidden_events/bills_house_pc.asm',b'cp SPRITE_FACING_UP',b'cp SPRITE_FACING_DOWN')]
+        for source, before, after in mutations:
+            with self.subTest(source=source), tempfile.TemporaryDirectory() as folder:
+                reference = Path(folder)/'reference'
+                shutil.copytree(story.REFERENCE, reference)
+                target = reference/source
+                raw = target.read_bytes()
+                self.assertIn(before,raw)
+                target.write_bytes(raw.replace(before,after,1))
+                with self.assertRaisesRegex(ValueError,'unverified pinned story source'):
+                    story.build(reference)
+
     def test_rosters_and_payouts_independent_source_rows(self):
         data = json.loads(story.build()['trainers.json'])['trainers']
         sources = story.verified(story.REFERENCE)

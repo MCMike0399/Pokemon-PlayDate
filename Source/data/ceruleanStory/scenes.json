@@ -39,10 +39,17 @@
     "y_min": 5
   },
   "pc": {
+    "coordinate_role": "target",
     "facing": "up",
     "id": "pokered:BILLS_HOUSE:hidden_events:1",
     "x": 1,
     "y": 4
+  },
+  "pc_player": {
+    "facing": "up",
+    "id": "pokered:BILLS_HOUSE:hidden_events:1",
+    "x": 1,
+    "y": 5
   },
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d"

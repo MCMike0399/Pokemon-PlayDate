@@ -17,6 +17,7 @@
     "data/trainers/pic_pointers_money.asm": "2552aaedfe77527e69e2d18995dee0f7a3a01b2a2a2cc259a6c5d17e606a8543",
     "data/text/text_2.asm": "ba97e54e9feafb22816b449841181b64234537bac9ccdef6aa3d79f4153e23b9",
     "scripts/Route25.asm": "2fa246dded86a865fbcbd872755674f5de9b85e48dcb4ffd5147caa17ae080ce",
-    "data/maps/objects/CeruleanCity.asm": "c28fa2a17d5649d7a6c0a03a3bfa6a25203e63ddd5cd7423c5b6b1ab5dae8cb3"
+    "data/maps/objects/CeruleanCity.asm": "c28fa2a17d5649d7a6c0a03a3bfa6a25203e63ddd5cd7423c5b6b1ab5dae8cb3",
+    "engine/overworld/hidden_events.asm": "fef85fd5061948d93e68210b59a19adda555079406d01747b0c61891d5fc92d8"
   }
 }

@@ -20,3 +20,12 @@ allow detached foundation contracts without activating another region.
 See [root integration](../../../tools/integration/cerulean-story.md) for actor
 visibility, collision exceptions, APIs, cancellation policy, root-only runtime
 checks, and current limits. These files establish preparation, not acceptance.
+
+
+Bill PC target semantics are pinned in `engine/overworld/hidden_events.asm`:
+`CheckForHiddenEvent` calls `CheckIfCoordsInFrontOfPlayerMatch`. The hidden-event
+macro accepts `(x,y)` and emits y before x; its BillsHouse `(1,4)` row is the PC
+**target**. Required-up interaction projects the standing player to `(1,5)`.
+`scenes.pc` preserves that source target; `scenes.pc_player` records the derived
+source standing pose returned by `CeruleanStory.pcPlayer()`. The runtime
+`pcInteraction` API receives player coordinates with map padding already applied.
