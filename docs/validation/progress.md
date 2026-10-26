@@ -5,8 +5,8 @@ Updated 2026-10-26. Follow [the full-game goal](../plans/full-game-goal.md).
 
 ## 1. Accepted revision and playable scope
 
-Accepted game Source is the tree committed in `82cb207`, unchanged through
-`f57d708`: `44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc`.
+Accepted code/tooling is `1339333`; later main commits update this ledger.
+Production Source is the tree committed in `82cb207`, unchanged through this gate: `44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc`.
 A player can complete the Pallet intro, deliver Oak’s parcel, capture Pokémon,
 use party/bag/storage/healing, traverse Viridian Forest and challenge Brock.
 Brock, badge and TM exist, but the current all-starter campaign gate is pending.
@@ -42,7 +42,9 @@ Evidence is under `~/Developer/Pokemon-PlayDate-env/evidence/` in
 - [ ] Charmander and Squirtle journeys with real exit/Continue. The first new
   Charmander attempt was stopped by root to replace the one-hour suite budget
   with four hours; it receives no acceptance credit.
-- [ ] Run TM full-bag retry, blackout, restarts, evolution accept and cancel.
+- [x] TM full-bag retry, blackout, restarts, evolution accept and cancel passed
+  on current main Source. Root inspected their key images; saved and continued
+  restart images are pixel-identical. Evidence: `brock-5.1-supplements-20261026-01`.
 - [ ] Inspect key native screenshots and commit accepted tooling and evidence.
 
 The historical Squirtle pass, Bulbasaur driver failure and interrupted Charmander
@@ -54,9 +56,13 @@ stopping at Brock. The full goal defines the completion criteria.
 ## 3. Open defects blocking progress
 
 The zero-step arrival-warp driver bug is repaired and the native return passes.
-Bulbasaur and its learning panels pass; Charmander, Squirtle and supplements
-remain pending.
-No production defect appeared in the 5.0 baseline or native return check.
+Bulbasaur and the five supplements pass; Charmander and Squirtle remain pending.
+The long Charmander attempt failed after natural evolution: command timeout,
+unconfirmed cancellation, and unfinalized captures. Frame 77835’s recent PNG is
+zero bytes; no Lua error was published. A fresh same-coordinate Pewter step
+passes. The root is running paired capture stress before the next long retry.
+The capture stall’s cause is not established. No production defect appeared
+in the baseline, native return or five supplementary checks.
 Unsupported moves, separate map/event pipelines and production dev imports are
 scheduled for 5.2. Missing later regions and full mechanics remain release work.
 
@@ -70,8 +76,10 @@ scheduled for 5.2. Missing later regions and full mechanics remain release work.
 | `wip/source-map-pipeline` / worker | Candidate `e137dcf`; followup replaces eager whole-map scans with generated compact metadata. |
 | `wip/production-dev-gate` / worker | Candidate `bc22795` complete; production launch and measurements pending. |
 | `wip/source-events` / worker | Candidate `38f44a1` complete; native acceptance pending. |
-| `wip/source-text` / worker | Prepare full source character handling, UTF-8 typing and pagination. |
-| `wip/foundations-integration` / root | Private composition at `28ddf98` under the environment’s `worktrees/foundations`. Main Source remains frozen. Combined compile passes; host evidence refresh awaits actual SDK run. |
+| `wip/source-text` / worker | Candidate `f216fc0` complete; native glyph and page checks pending. |
+| `wip/scripted-npc` / worker | Candidate `0c484f2` composed privately; SDK actor ownership checks pending. |
+| `wip/harness-long-stall` / worker | `2258b51` prepares paired capture stress. Source unchanged; root running it. |
+| `wip/foundations-integration` / root | Private composition at `f0e759b` under the environment’s `worktrees/foundations`. Main Source remains frozen. Combined compile passes; host evidence refresh awaits actual SDK run. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
 Task IDs and local orchestration state are retained in the evidence directory’s

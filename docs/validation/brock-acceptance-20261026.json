@@ -1,0 +1,46 @@
+{
+  "gate": "5.1",
+  "complete": false,
+  "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "bulbasaur": {
+    "passed": true,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-20261026-01/acceptance-suite/02-brock--brock-restart-bulbasaur",
+    "screenshots_reviewed": true
+  },
+  "supplementary": [
+    {
+      "case": "brock--tm-full-retry",
+      "passed": true,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-supplements-20261026-01/01-brock--tm-full-retry"
+    },
+    {
+      "case": "brock--blackout",
+      "passed": true,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-supplements-20261026-01/02-brock--blackout"
+    },
+    {
+      "case": "brock--brock-seen-restart",
+      "passed": true,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-supplements-20261026-01/03-brock--brock-seen-restart"
+    },
+    {
+      "case": "evolution-natural-level",
+      "passed": true,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-supplements-20261026-01/04-evolution-natural-level"
+    },
+    {
+      "case": "evolution-cancel-level",
+      "passed": true,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-supplements-20261026-01/05-evolution-cancel-level"
+    }
+  ],
+  "charmander": {
+    "passed": false,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-5.1-20261026-02/acceptance-suite/01-brock--brock-restart-charmander",
+    "error": "command timeout; cancellation unconfirmed; captures_finalized=false"
+  },
+  "squirtle": {
+    "status": "pending"
+  },
+  "device_validated": false
+}
