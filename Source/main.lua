@@ -79,6 +79,11 @@ import "game/eventText"
 import "game/eventArt"
 import "game/healingComposition"
 import "game/eventState"
+import "data/ceruleanContent"
+import "game/ceruleanStory"
+import "game/ceruleanRoutes"
+import "game/ceruleanRoutesState"
+import "game/tutorialEscort"
 import "game/pokedexState"
 import "game/pcState"
 import "game/evolutionState"
@@ -126,7 +131,8 @@ machine:register("pause", PauseState(game))
 machine:register("party", PartyState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
-machine:register("event", EventState(game))
+machine:register("event", CeruleanRoutesState(game))
+machine:register("tutorial-escort", TutorialEscortState(game))
 machine:register("pokedex", PokedexState(game))
 machine:register("pc", PCState(game))
 machine:register("itemPC",ItemPCState(game))

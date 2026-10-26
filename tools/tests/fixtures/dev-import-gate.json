@@ -188,7 +188,12 @@
     "dev/sourceTextContracts",
     "dev/scriptedNPCContracts",
     "dev/genericActorContracts",
-    "dev/sourceMapActivationContracts"
+    "dev/sourceMapActivationContracts",
+    "dev/ceruleanContentContracts",
+    "dev/ceruleanStoryContracts",
+    "dev/ceruleanSceneContracts",
+    "dev/ceruleanRoutesContracts",
+    "dev/tutorialEscortContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -279,6 +284,11 @@
     "Contracts.register(\"source-text\", SourceTextContracts.run)",
     "Contracts.register(\"scripted-npc\", ScriptedNPCContracts.run)",
     "Contracts.register(\"generic-actors\", GenericActorContracts.run)",
-    "Contracts.register(\"source-map-activation\", SourceMapActivationContracts.run)"
+    "Contracts.register(\"source-map-activation\", SourceMapActivationContracts.run)",
+    "Contracts.register(\"cerulean-content\", CeruleanContentContracts.run)",
+    "Contracts.register(\"cerulean-story\", function() return CeruleanStoryContracts.run(CeruleanSceneContracts.withScene) end)",
+    "Contracts.register(\"cerulean-scenes\", CeruleanSceneContracts.run)",
+    "Contracts.register(\"cerulean-routes\", CeruleanRoutesContracts.run)",
+    "Contracts.register(\"tutorial-escort\", TutorialEscortContracts.run)"
   ]
 }

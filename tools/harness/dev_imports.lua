@@ -204,6 +204,16 @@ import "dev/genericActorContracts"
 Contracts.register("generic-actors", GenericActorContracts.run)
 import "dev/sourceMapActivationContracts"
 Contracts.register("source-map-activation", SourceMapActivationContracts.run)
+import "dev/ceruleanContentContracts"
+import "dev/ceruleanStoryContracts"
+import "dev/ceruleanSceneContracts"
+import "dev/ceruleanRoutesContracts"
+import "dev/tutorialEscortContracts"
+Contracts.register("cerulean-content", CeruleanContentContracts.run)
+Contracts.register("cerulean-story", function() return CeruleanStoryContracts.run(CeruleanSceneContracts.withScene) end)
+Contracts.register("cerulean-scenes", CeruleanSceneContracts.run)
+Contracts.register("cerulean-routes", CeruleanRoutesContracts.run)
+Contracts.register("tutorial-escort", TutorialEscortContracts.run)
 
 -- @harness runtime
 harness = Harness
