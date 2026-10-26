@@ -19,7 +19,7 @@ local function rejects(fn)
     assert(not pcall(fn), "expected rejection")
 end
 
-local function scope(fn)
+local function scope(fn, factory)
     local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
     local oldStory = Story.currentContext()
     local oldOwner, oldRng = GameSession.activeRNGSession(), RulesRNG.toData()
@@ -28,7 +28,7 @@ local function scope(fn)
     local context = GameContext({ sessionLocationPolicy = PewterWorld.locationPolicy() })
     assert(context.session:setIntro({ stage = "done", starter = "squirtle", rivalStarter = "bulbasaur" }))
     local registry = TileRegistry()
-    local provider = PewterWorld.createProvider(context, registry)
+    local provider = (factory or PewterWorld.createProvider)(context, registry)
     zoneRegistry, zoneList, currentZone = {}, {}, nil
     local ok, problem = pcall(function()
         WorldDeltas._withDefinitionProvider(provider, function() fn(provider, registry, context) end)
@@ -44,6 +44,31 @@ local function scope(fn)
     if not ok then error(problem, 0) end
 end
 
+-- Pinned extension records only; no replacement SDK globals or campaign maps.
+local function extensionScope(fn)
+    local records = assert(json.decodeFile("dev/sourceMapFixture.json"))
+    SourceMaps._withRecords(records, function()
+        scope(fn, function(context, registry)
+            local profiles = SourceMaps.legacyProfiles({
+                dispatch = function() error("fixture cannot dispatch") end,
+                questFlag = function() return false end,
+                sourceFlag = function() return false end,
+            })
+            profiles.source.prepare = nil
+            local options = profiles.source.options
+            profiles.source.options = function()
+                local result = options()
+                result.objectDefinition = function(_, event)
+                    return { gridX = event.x, gridY = event.y, source_event_id = event.id,
+                        sprite = "oak", name = event.text_id }
+                end
+                return result
+            end
+            return SourceMaps.createProvider(profiles, registry)
+        end)
+    end)
+end
+
 function SourceMapContracts.run()
     local report = { ok = true, passed = 0, failed = 0, tests = {} }
     local function test(name, fn)
@@ -56,6 +81,108 @@ function SourceMapContracts.run()
             report.ok = false
         end
     end
+
+    test("first Viridian to Route22 connection validates a never-loaded destination", function()
+        extensionScope(function(provider, registry, context)
+            local city = provider:ensure("kanto_viridian_city")
+            local before, ids = provider:snapshot(), registry:maxID()
+            equal(zoneRegistry.fixture_Route22, nil)
+            local door = assert(KantoWorld.connection(context, city, 0, 16, "left"))
+            equal(door.to, "fixture_Route22")
+            equal(door.toX, 39)
+            equal(door.toY, 8)
+            equal(door.facing, "left")
+            equal(door.connection, true)
+            equal(door.source, SourceMaps.connection("ViridianCity", 0, 16, "left").source)
+            same(provider:snapshot(), before)
+            equal(registry:maxID(), ids)
+            equal(zoneRegistry.fixture_Route22, nil)
+            context.sessionLocationPolicy.sliceZones["pokered:ROUTE_22"] = nil
+            local blocked, reason = KantoWorld.connection(context, city, 0, 16, "left")
+            equal(blocked, nil)
+            equal(reason, "blocked-connection-arrival")
+            same(provider:snapshot(), before)
+        end)
+    end)
+
+    test("Viridian to Route22 connection survives eviction and reverses through Kanto", function()
+        extensionScope(function(provider, _, context)
+            local city = provider:ensure("kanto_viridian_city")
+            local route = provider:ensure("fixture_Route22")
+            local reverse = assert(KantoWorld.connection(context, route, 39, 8, "right"))
+            equal(reverse.to, "kanto_viridian_city")
+            equal(reverse.toX, 0)
+            equal(reverse.toY, 16)
+            provider:ensure("fixture_ViridianSchoolHouse")
+            provider:ensure("kanto_route2")
+            equal(provider:owns(route), false)
+            equal(zoneRegistry.fixture_Route22, nil)
+            local before = provider:snapshot()
+            local door = assert(KantoWorld.connection(context, city, 0, 16, "left"))
+            equal(door.to, "fixture_Route22")
+            equal(door.toX, 39)
+            equal(door.toY, 8)
+            same(provider:snapshot(), before)
+            equal(zoneRegistry.fixture_Route22, nil)
+        end)
+    end)
+
+    test("ordinary manifest connections retain source collision and intro guards", function()
+        extensionScope(function(provider, _, context)
+            local city = provider:ensure("kanto_viridian_city")
+            local function blocked(x, y, direction, expected)
+                local door, reason = KantoWorld.connection(context, city, x, y, direction)
+                equal(door, nil)
+                equal(reason, expected)
+            end
+            blocked(-1, 16, "left", "invalid-origin")
+            blocked(0, 16, "invalid", "invalid-origin")
+            city:setTile(0, 16, "base:3")
+            blocked(0, 16, "left", "blocked-origin")
+            local door, handled, reason = PewterWorld.connection(context, city, 0, 16, "left")
+            equal(door, nil)
+            equal(handled, true)
+            equal(reason, "blocked-origin")
+            city:setTile(0, 16, "base:2")
+            assert(context.session:setIntro({ stage = "pre_oak" }))
+            blocked(0, 16, "left", "intro-gate")
+        end)
+    end)
+
+    test("manifest arrival guards preserve Viridian errors and evicted terrain deltas", function()
+        extensionScope(function(provider, _, context)
+            local city = provider:ensure("kanto_viridian_city")
+            local route = provider:ensure("fixture_Route22")
+            local key = route.registry:key(route.tiles[9][40])
+            local function blocked(expected)
+                local door, reason = KantoWorld.connection(context, city, 0, 16, "left")
+                equal(door, nil)
+                equal(reason, expected)
+            end
+            route:setTile(39, 8, "base:3")
+            blocked("blocked-connection-arrival")
+            provider:ensure("fixture_ViridianSchoolHouse")
+            provider:ensure("kanto_route2")
+            equal(zoneRegistry.fixture_Route22, nil)
+            blocked("blocked-connection-arrival")
+            route = provider:ensure("fixture_Route22")
+            route:setTile(39, 8, key)
+            local npc = { gridX = 39, gridY = 8 }
+            route.npcDefs[#route.npcDefs + 1] = npc
+            blocked("occupied-connection-arrival")
+            npc.appearsIf = function() return false end
+            assert(KantoWorld.connection(context, city, 0, 16, "left"))
+            city:setTile(0, 16, "base:3")
+            local door, reason = KantoWorld.connection(context, route, 39, 8, "right")
+            equal(door, nil)
+            equal(reason, "blocked-source-arrival")
+            city:setTile(0, 16, "base:2")
+            city.npcDefs[#city.npcDefs + 1] = { gridX = 0, gridY = 16 }
+            door, reason = KantoWorld.connection(context, route, 39, 8, "right")
+            equal(door, nil)
+            equal(reason, "occupied-source-arrival")
+        end)
+    end)
 
     test("extra decoded maps load ordinary geometry from manifest/cache without regional inventories", function()
         local records = assert(json.decodeFile("dev/sourceMapFixture.json"))

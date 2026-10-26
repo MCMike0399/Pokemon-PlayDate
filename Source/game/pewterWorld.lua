@@ -58,40 +58,67 @@ local function target(game,key,x,y,direction)
     return {to=key,toX=x,toY=y,facing=direction,connection=true,source="pinned Route2/Pewter header connection"}
 end
 -- Second return distinguishes this module's explicit surfaces from old Kanto.
-function PewterWorld.connection(game,zone,x,y,direction)
+function PewterWorld.connection(game, zone, x, y, direction)
     local name = SourceMaps.nameForID(zone.stableID)
-    if not name then return nil,false end
+    if not name then return nil, false end
     local d = dirs[direction]
-    if not d then return nil,true,"invalid-direction" end
-    if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil,false end
-    -- Authored Pallet has a deliberate coordinate adapter in KantoSlice.
+    if not d then return nil, true, "invalid-direction" end
+    if type(x) ~= "number" or type(y) ~= "number" or x % 1 ~= 0 or y % 1 ~= 0
+        or x < 0 or y < 0 or x >= zone.width or y >= zone.height then
+        return nil, true, "invalid-origin"
+    end
+    if zone.collision[y + 1][x + 1] ~= 0 then return nil, true, "blocked-origin" end
+    if x + d[1] >= 0 and y + d[2] >= 0 and x + d[1] < zone.width and y + d[2] < zone.height then
+        return nil, false
+    end
+
     local descriptor = SourceMaps.descriptor(name)
-    if SourceMaps.entry(name).profile == "viridian" then
-        -- Keep the reviewed resident-zone occupancy/error contract. Its source
-        -- coordinates still come from SourceMaps.connection through the facade.
-        local deferred = true
-        local sourceDirection = ({up="north",down="south",left="west",right="east"})[direction]
-        for _, id in ipairs(descriptor.blocked_connections) do
-            if id:sub(1,#sourceDirection+1) == sourceDirection .. ":" then deferred = false end
-        end
-        if deferred then return nil,false end
-    end
+    -- Authored Pallet retains its reviewed coordinate adapter in KantoSlice.
     for _, c in ipairs(descriptor.connections) do
-        if c.target_map == "PALLET_TOWN" and direction == "down" then return nil,false end
+        if c.target_map == "PALLET_TOWN" and direction == "down" then return nil, false end
     end
-    if game.session:getIntro().stage~="done" then return nil,true,"intro-gate" end
-    local value = SourceMaps.connection(name,x,y,direction)
+    if not game or not game.session or game.session:getIntro().stage ~= "done" then
+        return nil, true, "intro-gate"
+    end
+
+    -- Preserve the old Viridian error vocabulary while sharing provider-backed
+    -- arrival validation with every ordinary manifest connection.
+    local sourceDirection = ({up="north", down="south", left="west", right="east"})[direction]
+    local legacyErrors = SourceMaps.entry(name).profile == "viridian"
+    for _, id in ipairs(descriptor.blocked_connections) do
+        if id:sub(1, #sourceDirection + 1) == sourceDirection .. ":" then legacyErrors = false end
+    end
+    local value = SourceMaps.connection(name, x, y, direction)
     if not value then
-        local sourceDirection = ({up="north",down="south",left="west",right="east"})[direction]
+        if legacyErrors then
+            return nil, true, "unimplemented-connection:" .. zone.stableID .. ":" .. direction
+        end
         for _, c in ipairs(descriptor.connections) do
             if c.direction == sourceDirection and SourceMaps.nameForID("pokered:" .. c.target_map) then
-                return nil,true,"blocked-source-arrival"
+                return nil, true, "blocked-source-arrival"
             end
         end
-        return nil,true,"unimplemented-source-exit:"..zone.stableID..":"..direction
+        return nil, true, "unimplemented-source-exit:" .. zone.stableID .. ":" .. direction
     end
-    local door,reason = target(game,value.to,value.x,value.y,direction)
-    return door,true,reason
+    -- Resolve against the complete authoritative world, including unloaded
+    -- destination deltas, before applying the existing arrival occupancy guard.
+    local provider = WorldDeltas.definitionProvider()
+    local loaded = zoneRegistry[value.to]
+    local destinationID = provider and provider:hasKey(value.to) and provider:descriptor(value.to).id
+        or (loaded and loaded.stableID)
+    local valid = pcall(WorldDeltas.resolveLocation,
+        { zone_id = destinationID, x = value.x, y = value.y, facing = direction },
+        WorldDeltas.export(), game.sessionLocationPolicy)
+    if not valid then
+        return nil, true, legacyErrors and "blocked-connection-arrival" or "blocked-source-arrival"
+    end
+    local door, reason = target(game, value.to, value.x, value.y, direction)
+    if legacyErrors then
+        if reason == "blocked-source-arrival" then reason = "blocked-connection-arrival" end
+        if reason == "occupied-source-arrival" then reason = "occupied-connection-arrival" end
+        if door then door.source = value.source end
+    end
+    return door, true, reason
 end
 function PewterWorld.trySight(game)
     if not game.trainers or game.machine:getCurrent()~="overworld" or game.player.isMoving or game.player.pendingEdgeDoor then return false end
