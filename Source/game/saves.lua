@@ -23,12 +23,20 @@ function GameSaves:_publishPayload(payload)
         self.store:cancelReplacement(request.ticket); self._replacement=nil
         return false,{reason="replacement-session-changed"}
     end
+    local ok, metadata
     if request then
-        local ok,metadata=self.store:replace(payload,request.ticket)
-        if ok then self._replacement=nil end
-        return ok,metadata
+        ok, metadata = self.store:replace(payload, request.ticket)
+        if ok then self._replacement = nil end
+    else
+        ok, metadata = self.store:save(payload)
     end
-    return self.store:save(payload)
+    -- Optional read-only observer is installed explicitly by the private
+    -- harness. Observe the actual verified disk boundary, never recapture play.
+    if ok and self.observeBoundary then
+        local saved, savedMetadata = self.store:load()
+        self.observeBoundary(self.game.session, "saved", saved, savedMetadata)
+    end
+    return ok, metadata
 end
 
 -- Called only by the YES branch of the Title confirmation. No writes happen
@@ -44,11 +52,16 @@ function GameSaves:beginNewGame(seed)
 end
 
 function GameSaves:continueGame()
-    local candidate, metadata = self:inspect()
-    if not candidate then return false, metadata end
+    local payload, metadata = self.store:load()
+    if not payload then return false, metadata end
+    local candidate, decodeProblem = SessionCodec.decode(payload, self.game:getSessionDependencies())
+    if not candidate then return false, {reason="invalid-session", error=decodeProblem, store=metadata} end
     local ok, problem = self.game:installSession(candidate)
     if ok then
         if self._replacement then self.store:cancelReplacement(self._replacement.ticket); self._replacement=nil end
+        if self.observeBoundary then
+            self.observeBoundary(candidate, "loaded", payload, metadata)
+        end
         self.game:offerPartyLearning()
     end
     return ok, ok and metadata or {reason = "cannot-install-session", error = problem}

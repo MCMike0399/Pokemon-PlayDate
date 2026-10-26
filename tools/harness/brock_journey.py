@@ -402,8 +402,12 @@ class BrockJourney(ParcelJourney):
             visited.add(current);self.send('press '+('right'if(current-1)%columns!=(index-1)%columns else 'down'))
         raise ProtocolError('move menu bound exceeded')
 
+    def advance_event(self,stop_phase=None):
+        return False
+
     def drain(self,stop_phase=None):
         for _ in range(1200):
+            if self.advance_event(stop_phase):continue
             root=self.state.get('root')
             if root=='battle':
                 if lookup(self.state,'battle.trainerName'):self.battle('source-trainer-'+str(len(self.summary['battles'])),expected='win')
@@ -467,9 +471,10 @@ class BrockJourney(ParcelJourney):
         if not target.inside((x,y))or target.collision[y][x]:raise ProtocolError('source warp arrival blocked')
         return target.name,(x,y)
 
-    def warp(self,target_id):
+    def warp(self,target_id,event_id=None):
         candidates=[]
         for event in self.model().events['warps']:
+            if event_id is not None and event['id']!=event_id:continue
             try:projection=self.warp_projection(event)
             except ProtocolError:continue
             if projection[0]==target_id and not self.model().collision[event['y']][event['x']]:candidates.append((event,projection))
@@ -522,8 +527,11 @@ class BrockJourney(ParcelJourney):
         self.summary['recoveries'].append({'kind':'Center','zone':center,'checkpoint':lookup(self.state,'session.checkpoint')})
         self.warp(city)
 
-    def buy_item(self,clerk,item,count,unit_price):
+    def require_shop_stock(self,clerk,item):
         require_shop_stock(clerk,item)
+
+    def buy_item(self,clerk,item,count,unit_price):
+        self.require_shop_stock(clerk,item)
         before=self.inventory()['money'];quantity=self.quantity(item)
         if before<unit_price*count:raise ProtocolError('observed money cannot fund requested source shop recovery')
         self.interact(source_id=clerk);self.require(root='shop',**{'shop.phase':'mode'})

@@ -30,10 +30,16 @@ class NoRuntime:
         raise AssertionError("host contract must not execute game input")
 
 
+def structural_payload():
+    # Host schema/receipt validation only; no claim of SDK-valid gameplay data.
+    return {**{key: {} for key in cj.CODEC_FIELDS - {"version", "pokemonEncoding"}},
+            "version": 1, "pokemonEncoding": "decimal-counters-v1"}
+
+
 def receipt_state():
     return {"starter": "squirtle", "fossil": "dome", "zone_id": "pokered:ROUTE_25",
             "player": {"x": 2, "y": 3, "facing": "down"}, "flags": {"quest": {}, "trainers": {}},
-            "inventory": {}, "party": {}, "checkpoint": {}, "codec": {"version": 8}}
+            "inventory": {}, "party": {}, "checkpoint": {}, "codec": structural_payload()}
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -95,7 +101,7 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_reuses_bounded_production_host_apis(self):
         for method in ("drain", "learning", "evolution", "navigate", "interact", "battle_medicine",
-                       "battle_switch", "train_to", "save", "recover_blackout"):
+                       "battle_switch", "train_to", "recover_blackout"):
             self.assertIs(getattr(cj.CeruleanJourney, method), getattr(BrockJourney, method))
 
 
@@ -154,9 +160,8 @@ class SourceContractTests(unittest.TestCase):
         export["sources"] = {"data/sourceMaps.json": "stale"}
         with self.assertRaises(ProtocolError):
             cj.validate_export(export, source)
-        # Actual current foundation has no declared goal 5.3 owner projection.
-        with self.assertRaises(ProtocolError):
-            self.source.read("data/ceruleanJourney.json")
+        projected = self.source.read("data/ceruleanJourney.json")
+        self.assertEqual(cj.validate_export(projected, self.source), projected)
 
 
 class NavigationTests(unittest.TestCase):
@@ -231,16 +236,19 @@ class ReceiptTests(unittest.TestCase):
 
     def test_codec_guard_rejects_invalid_roundtrip_version_and_aliasing(self):
         journey = cj.CeruleanJourney(NoRuntime(), "/unused", {"name": "cerulean-natural"})
-        journey.export = {"session_codec": 8}
-        codec = {"version": 8, "valid": True, "roundtrip_equal": True, "payload": {"party": ["immutable"]}}
-        journey.state = {"session_codec": codec}
-        payload = journey.codec_guard()
-        payload["party"].append("changed")
-        self.assertEqual(codec["payload"]["party"], ["immutable"])
+        journey.export = {"session_codec": 1}
+        codec = {"version": 1, "valid": True, "roundtrip_equal": True, "payload": structural_payload()}
+        journey.observe = lambda kind: codec
+        payload = journey.codec_guard("saved")
+        payload["party"]["changed"] = True
+        self.assertEqual(codec["payload"]["party"], {})
         for mutation in ({"version": 7}, {"valid": False}, {"roundtrip_equal": False}, {"payload": []}):
-            journey.state = {"session_codec": dict(codec, **mutation)}
+            journey.observe = lambda kind: dict(codec, **mutation)
             with self.subTest(mutation=mutation), self.assertRaises(ProtocolError):
-                journey.codec_guard()
+                journey.codec_guard("saved")
+        journey.observe = lambda kind: codec
+        with self.assertRaises(ProtocolError):
+            journey.codec_guard()  # validation cannot return a receipt payload
 
     def test_wrong_process_identity_and_incomplete_receipts_fail_before_io(self):
         state = receipt_state()
@@ -256,7 +264,7 @@ class ReceiptTests(unittest.TestCase):
 
 
 class RootRegistrationTests(unittest.TestCase):
-    def test_unapplied_patch_validates_all_real_scenarios_and_immutable_receipt(self):
+    def test_registered_dispatch_validates_real_scenarios_and_immutable_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             paths = ("brock_journey.py", "journeys.py", "restarting.py", "brock_capture.py")
@@ -264,7 +272,6 @@ class RootRegistrationTests(unittest.TestCase):
                 target = root / "tools/harness" / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(ROOT / "tools/harness" / name, target)
-            subprocess.run(["git", "apply", str(PATCH)], cwd=root, check=True, capture_output=True)
             def load(name):
                 spec = importlib.util.spec_from_file_location("cerulean_patch_test_" + name, root / "tools/harness" / (name + ".py"))
                 module = importlib.util.module_from_spec(spec)

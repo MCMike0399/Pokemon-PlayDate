@@ -1,6 +1,6 @@
 """Bounded goal 5.3 input driver. Runtime/process ownership stays with run.py.
 
-Requires the small, unapplied root API patch beside the scenarios. Geometry and
+Uses the reviewed root API hooks and explicit read-only observations. Geometry and
 the read-only owner export come from the identified staged build, never git HEAD.
 Missing story/diagnostic integration is an error, not permission to skip a scene.
 """
@@ -8,6 +8,7 @@ import copy
 import hashlib
 import heapq
 import json
+import re
 from pathlib import Path
 
 from tools.harness.brock_journey import BrockJourney, FAMILIES, NaturalBlackout, SourceGeometry, boolean_map
@@ -82,6 +83,21 @@ def validate_process_journey(config, index, previous):
                 raise ProtocolError("Continue configuration changes saved " + key)
 
 
+# Canonical current SessionCodec envelope, not a selected quest-state DTO.
+CODEC_FIELDS = {"version", "pokemonEncoding", "title", "intro", "questFlags", "trainerFlags",
+                "pokedex", "location", "checkpoint", "world", "party", "storage", "inventory",
+                "rng", "worldMotion", "itemStorage"}
+
+
+def validate_boundary_payload(payload):
+    if not isinstance(payload, dict) or set(payload) != CODEC_FIELDS:
+        raise ProtocolError("incomplete canonical Save/Continue payload")
+    if type(payload["version"]) is not int or payload["version"] < 1 or payload["pokemonEncoding"] != "decimal-counters-v1":
+        raise ProtocolError("invalid canonical Save/Continue encoding")
+    if any(not isinstance(payload[field], dict) for field in CODEC_FIELDS - {"version", "pokemonEncoding"}):
+        raise ProtocolError("invalid canonical Save/Continue owner record")
+
+
 def validate_receipt_state(state):
     fields = {"starter", "fossil", "zone_id", "player", "flags", "inventory", "party", "checkpoint", "codec"}
     if not isinstance(state, dict) or set(state) != fields:
@@ -96,6 +112,7 @@ def validate_receipt_state(state):
             raise ProtocolError("invalid saved player coordinate")
     if state["player"].get("facing") not in DIRECTIONS or not state["codec"]:
         raise ProtocolError("missing saved facing/codec payload")
+    validate_boundary_payload(state["codec"])
     for group in state["flags"].values():
         boolean_map(group, "saved flags")
 
@@ -159,7 +176,31 @@ def source_models(source):
 
 def validate_export(export, source):
     """Validate a root-produced read-only owner projection, never parse Lua."""
+    fields = {"schema", "source_revision", "sources", "events", "trainers", "rivals", "shops",
+              "session_codec", "bill_pc_player"}
+    if (not isinstance(export, dict) or set(export) != fields
+            or export.get("schema") != 1 or export.get("source_revision") != REVISION):
+        raise ProtocolError("malformed Cerulean owner projection")
+    if any(not isinstance(export[key], dict) for key in ("sources", "trainers", "rivals", "shops")):
+        raise ProtocolError("malformed Cerulean owner collections")
+    events = export["events"]
+    stable = re.compile(r"pokered:[A-Z0-9_]+:(?:(?:objects|background_events|hidden_events|hidden):[1-9][0-9]*|script:[a-z-]+)$")
+    if (not isinstance(events, list)
+            or any(not isinstance(value, str) or not stable.fullmatch(value) for value in events)
+            or len(events) != len(set(events))):
+        raise ProtocolError("invalid or duplicate registered event ID")
+    for stable_id, definition in export["trainers"].items():
+        if (not isinstance(definition, dict) or not stable.fullmatch(stable_id)
+                or definition.get("id") != stable_id or not definition.get("party")
+                or type(definition.get("payout")) is not int):
+            raise ProtocolError("invalid projected trainer definition")
+    if (set(export["rivals"]) != {BRIDGE_RIVAL, sid("ROUTE_22", 1)}
+            or any(set(variants) != set(FAMILIES) for variants in export["rivals"].values())):
+        raise ProtocolError("missing six registered rival counter teams")
     for relative, digest in export["sources"].items():
+        path_parts = Path(relative)
+        if path_parts.is_absolute() or ".." in path_parts.parts or relative == "data/ceruleanJourney.json":
+            raise ProtocolError("unsafe or recursive owner source dependency")
         if source.manifest.get(relative) != digest:
             raise ProtocolError("Cerulean owner projection has stale source: " + relative)
         path = source.build / "Source" / relative
@@ -229,19 +270,51 @@ class CeruleanJourney(BrockJourney):
         self.source_trainers.update(self.export["trainers"])
         self.source_trainers[BRIDGE_RIVAL] = self.export["rivals"][BRIDGE_RIVAL][self.starter]
         self.scenes = source.read("data/ceruleanStory/scenes.json")
-        self.codec_guard()
+        observed = self.observe("owners")
+        if observed != {"kind": "owners", "valid": True, "version": self.export["session_codec"]}:
+            raise ProtocolError("actual registered owners did not qualify")
         self.summary["cerulean_dependencies"] = {"build_id": self.client.identity["build_id"],
             "source_revision": REVISION, "owner_export_sha256": source.manifest["data/ceruleanJourney.json"],
             "status": "host contracts only; native and visual acceptance pending"}
         atomic_json(self.evidence / "cerulean-dependencies.json", self.summary["cerulean_dependencies"])
 
-    def codec_guard(self):
-        codec = lookup(self.state, "session_codec")
-        if not isinstance(codec, dict) or codec.get("version") != self.export["session_codec"]:
+    def observe(self, kind):
+        # Read-only request, charged to the same finite semantic action budget.
+        # Keep the large payload out of self.state and 30 FPS frame snapshots.
+        self.actions += 1
+        if self.actions > self.config.get("max_actions", 6000):
+            raise ProtocolError("Cerulean observation action bound exceeded")
+        result = self.client.send([{"op": "observe", "args": [kind]}], timeout=60, max_frames=1800)
+        self.state = result["snapshot"]
+        rows = result.get("results")
+        if not isinstance(rows, list) or len(rows) != 1 or rows[0].get("op") != "observe" or rows[0].get("status") != "ok":
+            raise ProtocolError("missing explicit read-only observation result")
+        value = rows[0].get("observation")
+        if not isinstance(value, dict) or value.get("kind") != kind:
+            raise ProtocolError("wrong read-only observation kind")
+        return value
+
+    def codec_guard(self, boundary=None):
+        codec = self.observe(boundary or "validate")
+        if codec.get("version") != self.export["session_codec"]:
             raise ProtocolError("missing root read-only SessionCodec diagnostic/version")
-        if codec.get("valid") is not True or codec.get("roundtrip_equal") is not True or not isinstance(codec.get("payload"), dict):
+        if codec.get("valid") is not True or codec.get("roundtrip_equal") is not True:
             raise ProtocolError("actual SessionCodec validation/roundtrip guard failed")
-        return copy.deepcopy(codec["payload"])
+        if boundary:
+            if not isinstance(codec.get("payload"), dict) or not codec["payload"]:
+                raise ProtocolError("missing complete Save/Continue boundary payload")
+            validate_boundary_payload(codec["payload"])
+            if codec["payload"]["version"] != self.export["session_codec"]:
+                raise ProtocolError("boundary payload codec version differs")
+            return copy.deepcopy(codec["payload"])
+        if "payload" in codec:
+            raise ProtocolError("fresh validation must not masquerade as a boundary receipt")
+        return None
+
+    def save(self):
+        super().save()
+        self.boundary_payload = self.codec_guard("saved")
+
 
     def advance_event(self, stop_phase=None):
         # Called by the small root Brock drain hook. Everything else stays with
@@ -533,8 +606,11 @@ class CeruleanJourney(BrockJourney):
                             forbidden_shortcuts=False)
 
     def receipt_state(self):
+        payload = getattr(self, "boundary_payload", None)
+        if not isinstance(payload, dict) or not payload:
+            raise ProtocolError("receipt requires an explicitly observed actual Save/Continue")
         state = super().receipt_state()
-        state.update(fossil=self.config.get("fossil", "dome"), codec=self.codec_guard())
+        state.update(fossil=self.config.get("fossil", "dome"), codec=copy.deepcopy(payload))
         return state
 
     def write_receipt(self):
@@ -568,6 +644,7 @@ class CeruleanJourney(BrockJourney):
         self.checkpoint("cerulean-title-continue")
         self.send("press a")
         self.drain()
+        self.boundary_payload = self.codec_guard("loaded")
         if self.receipt_state() != prior["state"]:
             raise ProtocolError("Continue differs from immutable Cerulean receipt/SessionCodec payload")
         self.fossil_exclusion()

@@ -41,8 +41,8 @@ def validate(scenario, qualification=False):
                 raise ProtocolError('process requests requires nonempty command arrays')
         else:
             journey=group['journey']
-            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy'}
-            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue'}:
+            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy','fossil','max_transitions'}
+            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue','cerulean-natural','cerulean-continue'}:
                 raise ProtocolError('unknown or malformed process journey')
             name=journey['name']
             if name.startswith('npc-motion'):
@@ -53,7 +53,11 @@ def validate(scenario, qualification=False):
                     raise ProtocolError('motion Save must be first process')
                 if name=='npc-motion-continue' and (index==0 or groups[index-1].get('journey',{}).get('name') not in {'npc-motion-save','npc-motion-continue'}):
                     raise ProtocolError('motion Continue requires prior saved motion receipt')
+            elif name.startswith('cerulean-'):
+                from tools.harness.cerulean_journey import validate_process_journey
+                validate_process_journey(journey,index,groups[index-1].get('journey',{}) if index else {})
             else:
+                if set(journey)&{'fossil','max_transitions'}:raise ProtocolError('Cerulean options cannot mix with Brock')
                 if 'location' in journey:raise ProtocolError('location is only supported for NPC motion')
                 if journey.get('evolution_policy','accept')not in {'accept','cancel'}:raise ProtocolError('invalid Brock evolution policy')
                 if name=='brock-natural' and index!=0:
@@ -82,8 +86,11 @@ def read_receipt(reference, metadata):
     if hashlib.sha256(raw).hexdigest()!=reference['sha256']:raise ProtocolError('prior journey receipt changed')
     try:packet=json.loads(raw)
     except (UnicodeDecodeError,ValueError) as error:raise ProtocolError('malformed prior journey receipt')from error
-    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
+    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
         raise ProtocolError('wrong-build or malformed prior journey receipt')
+    if packet["kind"]=="cerulean-saved":
+        from tools.harness.cerulean_journey import validate_receipt_state
+        validate_receipt_state(packet["state"])
     if packet["kind"]=="npc-motion-saved":
         from tools.harness.motion_journey import validate_receipt_state
         validate_receipt_state(packet["state"])
@@ -209,7 +216,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 atomic_json(evidence / 'process.json', record); publish()
                 if 'journey' in group:
                     from tools.harness import journeys
-                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue'} else None
+                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue'} else None
                     summary=journeys.run(client,{'journey':group['journey']},evidence,
                         build_evidence=output,prior_receipt=prior,capture_dir=output/'frames')
                     if not isinstance(summary,dict)or summary.get('ok') is not True:raise ProtocolError('process journey failed')

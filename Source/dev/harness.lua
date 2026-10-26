@@ -201,6 +201,9 @@ local function normalize(value)
     if op == "assert" or op == "await" then
         valid = type(value.path) == "string" and value.equals ~= nil
         if value.frames ~= nil then valid = valid and integer(value.frames, 1, 18000) end
+    elseif op == "observe" then
+        valid = #args == 1 and (args[1] == "owners" or args[1] == "validate" or args[1] == "purity"
+            or args[1] == "saved" or args[1] == "loaded")
     elseif op == "fixture" then
         local options = value.options or {}
         assert(type(options) == "table", "fixture options required")
@@ -370,6 +373,9 @@ function Harness.beforeFrame(game)
                 HarnessFixtures.reset(game, options)
             end
             complete = true
+        elseif command.op == "observe" then
+            command.observation = HarnessDiagnostics.observe(game, command.args[1])
+            complete = true
         elseif command.op == "quiesce" then
             assert(index == #commands and not Autopilot.isRecording(), "quiesce must be the final settled command")
             complete = true
@@ -426,7 +432,7 @@ function Harness.afterFrame(game, runtimeError)
             HarnessCapture.write(command.args[1])
         end
         entries[#entries + 1] = { command = index, op = command.op, tick = tick, status = failure and "error" or "ok",
-            outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts }
+            outcome = outcome, messages = messages, snapshot = snapshot, contracts = command.contracts, observation = command.observation }
         if failure then
             HarnessCapture.write("failure")
             finish(game, "error", failure); return

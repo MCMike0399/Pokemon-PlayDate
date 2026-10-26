@@ -4,7 +4,7 @@ from pathlib import Path
 from tools.harness.protocol import ProtocolError
 
 def visual_preflight(scenario):
-    if any(group.get('journey',{}).get('name')in {'brock-natural','brock-continue'}for group in scenario.get('processes',[scenario])):
+    if any(group.get('journey',{}).get('name')in {'brock-natural','brock-continue','cerulean-natural','cerulean-continue'}for group in scenario.get('processes',[scenario])):
         try:from PIL import Image
         except ImportError as error:raise ProtocolError('Brock presentation proof requires Pillow; install tools/requirements-dev.txt')from error
 
