@@ -4,6 +4,8 @@ import "game/sourceEventHandlers"
 SourceEvents = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local cached
+local eventSources = {}
+local mergedEvents
 local textSources, trainerSources = {}, {}
 local directions = { up = true, down = true, left = true, right = true }
 local function copy(value)
@@ -18,7 +20,16 @@ local function definitions()
         assert(data.schema == 1 and data.source_revision == REVISION, "unverified source events")
         cached = data.events
     end
-    return cached
+    if mergedEvents then return mergedEvents end
+    local result = copy(cached)
+    for _, events in pairs(eventSources) do
+        for id, descriptor in pairs(events) do
+            assert(not result[id], "duplicate source event")
+            result[id] = copy(descriptor)
+        end
+    end
+    mergedEvents = result
+    return result
 end
 local function dialog(labels, op)
     return { op = op or "dialog", labels = copy(labels) }
@@ -293,15 +304,52 @@ function SourceEvents.afterCommit(game, plan)
         end
     end
 end
+-- Install immutable event data separately from trainer rosters and text.
+function SourceEvents.registerEventSource(name, events)
+    assert(type(name) == "string" and type(events) == "table" and not eventSources[name], "named event source required")
+    local current = definitions()
+    for id, descriptor in pairs(events) do
+        assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$")
+            and not current[id] and type(descriptor) == "table" and descriptor.content == name,
+            "unique stable source object descriptor required")
+    end
+    eventSources[name] = copy(events)
+    mergedEvents = nil
+end
+
+-- Scoped SDK content fixtures; restores registrations even on failed assertions.
+function SourceEvents._withSources(fn)
+    local oldEvents, oldTrainers, oldText, oldMerged = eventSources, trainerSources, textSources, mergedEvents
+    eventSources, trainerSources, textSources = copy(eventSources), copy(trainerSources), copy(textSources)
+    local ok, result = pcall(fn)
+    eventSources, trainerSources, textSources, mergedEvents = oldEvents, oldTrainers, oldText, oldMerged
+    if not ok then error(result, 0) end
+    return result
+end
+
 function SourceEvents.registerTrainerSource(name, resolver)
     assert(type(name) == "string" and type(resolver) == "function", "named trainer source required")
-    assert(not trainerSources[name] or trainerSources[name] == resolver, "source trainer resolver replaced")
-    trainerSources[name] = resolver
+    assert(not trainerSources[name], "source trainer resolver replaced")
+    local definitions = copy(resolver())
+    for id, d in pairs(definitions) do
+        assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$") and d.id == id
+            and d.map_id == "pokered:" .. id:match("^pokered:([^:]+):"), "stable source trainer identity required")
+        assert(type(d.name) == "string" and type(d.sprite_source) == "string"
+            and boundedInteger(d.payout, 0, Inventory.MONEY_LIMIT)
+            and boundedInteger(d.sight_range_cells, 0, 16), "bounded source trainer content required")
+        assert(Party._array(d.party, 6) and #d.party > 0, "bounded source trainer party required")
+        for _, mon in ipairs(d.party) do
+            assert(pokemonData[mon.species] and boundedInteger(mon.level, 1, 100), "unresolved source trainer party")
+        end
+    end
+    -- Resolve once at installation; later caller mutations cannot change saves
+    -- or live encounters beneath their immutable definition identity.
+    trainerSources[name] = definitions
 end
 function SourceEvents.trainerDefinitions()
     local result = PewterSlice.trainers()
-    for _, resolver in pairs(trainerSources) do
-        for id, definition in pairs(resolver()) do
+    for _, definitions in pairs(trainerSources) do
+        for id, definition in pairs(definitions) do
             assert(not result[id] and definition.id == id, "duplicate or unstable source trainer")
             result[id] = copy(definition)
         end

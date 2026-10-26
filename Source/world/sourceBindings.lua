@@ -47,6 +47,9 @@ function SourceBindings.options(profile, options)
     elseif profile == "pewter" then
         result.objectDefinition = PewterBindings.object
         result.hasEvent = PewterEvents.has
+    elseif profile == "source" then
+        result.objectDefinition = SourceActors.objectDefinition
+        result.hasEvent = SourceEvents.has
     end
     return result
 end

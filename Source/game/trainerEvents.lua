@@ -39,7 +39,7 @@ function TrainerEvents:approach(npc,mode)
     if not d then return nil,"unsupported-trainer" end
     if game.session:trainerDefeated(d.id) then return nil,"already-defeated" end
     if not d.initial_lab and currentZone.stableID~=d.map_id then return nil,"wrong-source-trainer-zone" end
-    if not player or player.isMoving or player.pendingEdgeDoor or npc.isMoving then return nil,"movement-active" end
+    if not player or player.isMoving or player.pendingEdgeDoor or player.pendingConnection or npc.isMoving then return nil,"movement-active" end
     if game.npcManager:getNPCAt(npc.gridX,npc.gridY)~=npc then return nil,"absent-trainer" end
     local dx,dy=player.gridX-npc.gridX,player.gridY-npc.gridY
     local distance=math.abs(dx)+math.abs(dy)
@@ -52,9 +52,17 @@ function TrainerEvents:approach(npc,mode)
     if not direction or distance<1 or distance>d.sight_range_cells or dx~=direction[1]*distance or dy~=direction[2]*distance then return nil,"outside-source-sight" end
     if npc.x-game.camera.x>=400 or npc.x-game.camera.x+32<=0 or npc.y-game.camera.y>=240 or npc.y-game.camera.y+32<=0 then return nil,"trainer-offscreen" end
     local steps={}
+    local descriptor
+    local name = SourceMaps.nameForID(currentZone.stableID)
+    if name and SourceMaps.entry(name).profile == "source" then
+        descriptor = SourceActors.describe(currentZone.stableID, WorldDeltas.export())
+    end
     for i=1,distance-1 do
         local x,y=npc.gridX+direction[1]*i,npc.gridY+direction[2]*i
         if y<0 or x<0 or y>=currentZone.height or x>=currentZone.width or currentZone.collision[y+1][x+1]~=0 then return nil,"blocked-trainer-approach" end
+        if descriptor and descriptor.protected[y * currentZone.width + x + 1] then
+            return nil, "protected-trainer-approach"
+        end
         local occupant=game.npcManager:getNPCAt(x,y)
         if occupant and occupant~=npc then return nil,"occupied-trainer-approach" end
         if currentZone:isSliceReady() and currentZone:movementRule(x-direction[1],y-direction[2],npc.facing).kind~="walk" then return nil,"blocked-trainer-pair" end
@@ -62,7 +70,7 @@ function TrainerEvents:approach(npc,mode)
     end
     return steps
 end
-function TrainerEvents:prepare(npc,mode)
+function TrainerEvents:prepare(npc,mode,scriptOwner)
     local owner=owners[self];local game=owner.game
     if owner.active then
         if info(self,owner.active) then return nil,"trainer-already-active" end
@@ -72,8 +80,16 @@ function TrainerEvents:prepare(npc,mode)
     local d=assert(definition(self,idOf(npc)))
     local token={};tokens[token]={owner=self,session=game.session,definition=d,npc=npc,zone=currentZone,player=game.player,
         phase="approach",steps=steps,index=1,tick=0,origin={x=npc.gridX,y=npc.gridY,facing=npc.facing,image=npc:getImage()},mode=mode}
+    local name = SourceMaps.nameForID(d.map_id)
+    if name and SourceMaps.entry(name).profile == "source" then
+        local motion = game.npcManager.motion
+        local lease, problem = motion:claimScript(npc, scriptOwner)
+        if not lease then tokens[token] = nil; return nil, problem end
+        tokens[token].motion, tokens[token].lease = motion, lease
+    else
+        npc:faceTowards(game.player.gridX,game.player.gridY)
+    end
     owner.active=token
-    npc:faceTowards(game.player.gridX,game.player.gridY)
     return token
 end
 function TrainerEvents:updateApproach(token)
@@ -83,6 +99,20 @@ function TrainerEvents:updateApproach(token)
     local step=value.steps[value.index]
     if not step then value.phase="ready";return true end
     local npc=value.npc
+    if value.lease then
+        if value.tick == 0 then
+            local dx, dy = step.x - npc.gridX, step.y - npc.gridY
+            local direction = dx > 0 and "right" or dx < 0 and "left" or dy > 0 and "down" or "up"
+            local accepted, problem = value.motion:startScriptStep(value.lease, direction)
+            if not accepted then return false, problem end
+        end
+        local done, problem = value.motion:updateScript(value.lease)
+        if not done and problem ~= "moving" then return false, problem end
+        value.tick = value.tick + 1
+        if done then value.index, value.tick = value.index + 1, 0 end
+        if value.index > #value.steps then value.phase="ready"; return true end
+        return false, "moving"
+    end
     if value.tick==0 then
         if currentZone.collision[step.y+1][step.x+1]~=0 or game.npcManager:getNPCAt(step.x,step.y) then return false,"approach-changed" end
         value.fromX,value.fromY=npc.gridX,npc.gridY
@@ -108,6 +138,7 @@ function TrainerEvents:launch(token)
         assert(party:add(assert(Specimen.create(mon.species,mon.level,"trainer",planned,nil,Specimen.blueTrainerPolicy(value.definition.id)))))
     end
     RulesRNG.restore(planned:snapshot()) -- Entire detached team succeeded.
+    if value.lease then value.motion:releaseScript(value.lease); value.lease = nil end
     value.party,value.phase=party,"battle"
     return party
 end
@@ -157,7 +188,10 @@ end
 function TrainerEvents:cancel(token)
     local value,reason=info(self,token);if not value then return false,reason end
     if value.phase=="battle" then return false,"battle-owns-encounter" end
-    if currentZone==value.zone and owners[self].game.player==value.player then
+    if value.lease then
+        value.motion:releaseScript(value.lease)
+        value.lease = nil
+    elseif currentZone==value.zone and owners[self].game.player==value.player then
         local npc=value.npc;npc.gridX,npc.gridY=value.origin.x,value.origin.y
         npc:moveTo(npc.gridX*TILE_SIZE,npc.gridY*TILE_SIZE-8);npc:setFacing(value.origin.facing);npc:setImage(value.origin.image)
     end
@@ -204,6 +238,10 @@ function TrainerEvents:restoreReturnedTrainer()
     if not actor then return false end
     local occupied=owner.game.npcManager:getNPCAt(x,y)
     if occupied and occupied~=actor then return false end
+    local name = SourceMaps.nameForID(receipt.zone_id)
+    if name and SourceMaps.entry(name).profile == "source" then
+        return owner.game.npcManager.motion:restoreTrainerPose(actor,x,y,receipt.position.facing)
+    end
     actor.gridX,actor.gridY=x,y;actor:moveTo(x*TILE_SIZE,y*TILE_SIZE-8);actor:setFacing(receipt.position.facing)
     return true
 end

@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "purpose": "Synthetic actor metadata on pinned geometry; not campaign content",
+  "record": "dev/source-map-extension/ViridianSchoolHouse.json",
+  "content": "generic-actor-contract",
+  "objects": [
+    {
+      "id": "pokered:VIRIDIAN_SCHOOL_HOUSE:objects:1",
+      "sprite": "SPRITE_YOUNGSTER",
+      "movement": "WALK",
+      "range_or_facing": "RIGHT",
+      "x": 3,
+      "y": 5
+    },
+    {
+      "id": "pokered:VIRIDIAN_SCHOOL_HOUSE:objects:2",
+      "sprite": "SPRITE_YOUNGSTER",
+      "movement": "STAY",
+      "range_or_facing": "DOWN",
+      "x": 1,
+      "y": 2
+    }
+  ],
+  "events": {
+    "pokered:VIRIDIAN_SCHOOL_HOUSE:objects:1": {
+      "kind": "program",
+      "content": "generic-actor-contract",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterGymBrockPreBattleText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_SCHOOL_HOUSE:objects:2": {
+      "kind": "trainer",
+      "content": "generic-actor-contract",
+      "before": [
+        "_PewterGymBrockPreBattleText"
+      ],
+      "won": [
+        "_PewterGymBrockPreBattleText"
+      ],
+      "after": [
+        "_PewterGymBrockPreBattleText"
+      ]
+    }
+  },
+  "trainers": {
+    "pokered:VIRIDIAN_SCHOOL_HOUSE:objects:2": {
+      "id": "pokered:VIRIDIAN_SCHOOL_HOUSE:objects:2",
+      "map_id": "pokered:VIRIDIAN_SCHOOL_HOUSE",
+      "name": "FIXTURE TRAINER",
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "sight_range_cells": 4,
+      "payout": 60,
+      "party": [
+        {
+          "species": "weedle",
+          "level": 6
+        }
+      ]
+    }
+  }
+}

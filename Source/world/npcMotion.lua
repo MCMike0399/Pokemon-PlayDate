@@ -19,7 +19,7 @@ function NPCMotion:_pose(actor)
     if v.phase=="moving"then
         local t=v.tick/8;npc.facing=v.facing
         npc:moveTo((v.origin_x+(v.target_x-v.origin_x)*t)*TILE_SIZE,(v.origin_y+(v.target_y-v.origin_y)*t)*TILE_SIZE-8)
-        npc:setImage(v.tick>0 and PewterSprites.stepImage(actor.spec.sprite_source,v.facing,v.tick)or assert(npc.images[v.facing]))
+        npc:setImage(v.tick>0 and SourceActors.stepImage(actor.spec.sprite_source,v.facing,v.tick,actor.spec.content_profile)or assert(npc.images[v.facing]))
     else npc:moveTo(v.x*TILE_SIZE,v.y*TILE_SIZE-8);npc:setFacing(v.facing)end
 end
 function NPCMotion:attach(game,zone,payload,reconcile)
@@ -218,7 +218,7 @@ function NPCMotion:startScriptStep(token, direction)
         or s.descriptor.protected[cell]
         or not s.descriptor.canStep(spec,v.x,v.y,x,y,s.zone) then return false, "blocked-scripted-npc-move" end
     -- Verify walking art before reserving or exposing an intermediate pose.
-    local ok = pcall(PewterSprites.stepImage,spec.sprite_source,direction,2)
+    local ok = pcall(SourceActors.stepImage,spec.sprite_source,direction,2,spec.content_profile)
     if not ok then return false, "missing-source-actor-walking-art" end
     lease.move = {x=v.x,y=v.y,toX=x,toY=y,direction=direction,tick=0}
     npc.isMoving = true
@@ -235,7 +235,7 @@ function NPCMotion:updateScript(token)
     npc.facing = move.direction
     npc:moveTo((move.x+(move.toX-move.x)*move.tick/8)*TILE_SIZE,
         (move.y+(move.toY-move.y)*move.tick/8)*TILE_SIZE-8)
-    npc:setImage(PewterSprites.stepImage(actor.spec.sprite_source,move.direction,move.tick))
+    npc:setImage(SourceActors.stepImage(actor.spec.sprite_source,move.direction,move.tick,actor.spec.content_profile))
     if move.tick < 8 then return false, "moving" end
     v.x,v.y,v.facing = move.toX,move.toY,move.direction
     v.origin_x,v.target_x,v.origin_y,v.target_y = v.x,v.x,v.y,v.y
@@ -249,6 +249,28 @@ function NPCMotion:releaseScript(token)
     if not actor then return false end
     -- Incomplete interpolation never changed the completed durable cell.
     actor.script = nil
+    self:_pose(actor)
+    return true
+end
+
+-- A confirmed trainer return may restore a completed source pose, never an
+-- interpolation or an arbitrary scripted placement. Generic trainer rendering
+-- stays under this owner just like wandering and leased script movement.
+function NPCMotion:restoreTrainerPose(npc, x, y, facing)
+    local s = stores[self]
+    local actor = s.byNPC[npc]
+    if not actor or actor.spec.role ~= "trainer" or actor.script
+        or s.game.session ~= s.session or currentZone ~= s.zone
+        or not actor.spec.faces[facing]
+        or not Party._integer(x,0,s.descriptor.width-1) or not Party._integer(y,0,s.descriptor.height-1)
+        or not s.descriptor.canStand(actor.spec,x,y,s.zone) then return false end
+    local player = s.game.player
+    local occupant = s.manager:getNPCAt(x,y)
+    if occupant and occupant ~= npc or player.gridX == x and player.gridY == y then return false end
+    local value = WorldMotionData.initial(actor.spec)
+    value.x,value.y,value.facing = x,y,facing
+    value.origin_x,value.target_x,value.origin_y,value.target_y = x,x,y,y
+    actor.value = value
     self:_pose(actor)
     return true
 end
