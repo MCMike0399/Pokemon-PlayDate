@@ -43,9 +43,10 @@ function CeruleanStory.descriptors()
 end
 function CeruleanStory.trainers() return copy(load().trainers.trainers) end
 function CeruleanStory.text(label)
-    local record = assert(load().dialogue.texts[label], "missing bespoke story text")
-    if CeruleanContent and record.source ~= "data/text/text_2.asm" then return CeruleanContent.text(label) end
-    return copy(record)
+    local record = load().dialogue.texts[label]
+    if record and record.source == "data/text/text_2.asm" then return copy(record) end
+    if CeruleanContent then return CeruleanContent.text(label) end
+    return copy(assert(record, "missing bespoke story text: " .. tostring(label)))
 end
 function CeruleanStory.registerTrainers()
     local existing, missing = SourceEvents.trainerDefinitions(), {}
