@@ -5,7 +5,7 @@ Updated 2026-10-26. Follow [the full-game goal](../plans/full-game-goal.md).
 
 ## 1. Accepted revision and playable scope
 
-Accepted code/tooling is `b15139e`; the campaign gate is still incomplete.
+Accepted code/tooling is `28d3f18`; the campaign gate is still incomplete.
 Production Source is the tree committed in `82cb207`, unchanged through this gate: `44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc`.
 A player can complete the Pallet intro, deliver Oak’s parcel, capture Pokémon,
 use party/bag/storage/healing, traverse Viridian Forest and challenge Brock.
@@ -67,8 +67,15 @@ unconfirmed cancellation, and unfinalized captures. Frame 77835’s recent PNG i
 zero bytes; no Lua error was published. A fresh same-coordinate Pewter step
 passes. Both 4,096-capture stress arms passed, with and without explicit GC. The cause
 remains unknown; the long retry will record process memory. Capture code is unchanged.
-The capture stall’s cause is not established. No production defect appeared
-in the baseline, native return or five supplementary checks.
+A second long Charmander attempt also timed out after evolution/Gym trainer;
+no zero-byte recent PNG was found in that run. Cause remains unconfirmed.
+`28d3f18` adds an optional generated capture overlay without changing Source.
+Interval-1 and interval-60 SDK witnesses passed; all six named/recorded images
+were pixel-identical, and the final completed tick was retained in the eight-frame
+ring. A controlled afterFrame fault published its error and correctly failed
+without finalized captures. Fresh Charmander Save/Continue now runs with
+`--recent-interval 60`, host memory sampling and a read-only stall stack watcher.
+Evidence: `brock-charmander-policy60-20261026-01`.
 Unsupported moves, separate map/event pipelines and production dev imports are
 scheduled for 5.2. Missing later regions and full mechanics remain release work.
 
@@ -76,16 +83,17 @@ scheduled for 5.2. Missing later regions and full mechanics remain release work.
 
 | Branch / owner | Work and next step |
 |---|---|
-| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Accept 5.0 docs, then review Brock patches and run journeys. |
+| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Complete the running Charmander gate, then accept 5.1 and validate foundations. |
 | `wip/brock-driver` / worker | Completed; `188d0cf` integrated as `895a874`. |
 | `wip/move-failure-phazing` / worker | Candidate `025c5c9` complete; no runtime acceptance yet. |
-| `wip/source-map-pipeline` / worker | Candidate `e137dcf`; followup replaces eager whole-map scans with generated compact metadata. |
+| `wip/source-map-pipeline` / worker | Compact metadata/direct tile lookup plus common constructor are composed privately. |
+| `wip/generic-map-bindings` / worker | Active spec repair: remove regional descriptor/cache and hard-coded ordinary connection dependencies. |
 | `wip/production-dev-gate` / worker | Candidate `bc22795` complete; production launch and measurements pending. |
 | `wip/source-events` / worker | Candidate `38f44a1` complete; native acceptance pending. |
-| `wip/source-text` / worker | Candidate `f216fc0` complete; native glyph and page checks pending. |
-| `wip/scripted-npc` / worker | Candidate `0c484f2` composed privately; SDK actor ownership checks pending. |
+| `wip/source-text` / worker | Native glyph/page checks passed and root inspected them. Unsafe optional SDK getGlyph query removed; production uses pinned fallback. |
+| `wip/scripted-npc` / worker | Native ownership checks passed; readability repair `5528b6a` composed as `a019a00`, compile/host passed. |
 | `wip/harness-long-stall` / worker | `2258b51` prepares paired capture stress. Source unchanged; both synthetic capture arms passed. |
-| `wip/foundations-integration` / root | Private composition after `16e7d9d` under the environment’s `worktrees/foundations`. Main Source remains frozen. Native SDK reached 1244 passed / 4 failed; fixture repairs are prepared. Host evidence refresh and full native acceptance remain pending. |
+| `wip/foundations-integration` / root | Private composition at `a019a00` under the environment’s `worktrees/foundations`. Main Source remains frozen. Before readability edits: native 1250 passed, host 592 passed/zero skips, catalog 2494 exact. Current map-binding review repair and native journeys/performance acceptance remain pending. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
 Task IDs and local orchestration state are retained in the evidence directory’s
