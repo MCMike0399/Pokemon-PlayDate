@@ -27,7 +27,7 @@ class CaptivateProducerTests(unittest.TestCase):
             for before,after in [(', attemptRule = "oppositeSex"',''),('attemptRule = "oppositeSex"','attemptRule = true'),('attemptRule = "oppositeSex"','attemptRule = "suckerPunch"'),('"spa", -2','"spa", -1'),('accuracy = 100','accuracy = 99'),('pp = 20','pp = 19')]:
                 with self.subTest(change=(before,after)),self.assertRaisesRegex(ValueError,'unexpected changes'):generate(new.replace(before,after,1),p)
     def test_source_epoch_preservation_rejects_current_missing_rule(self):
-        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,12)
+        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,13)
         changed=dict(rows);changed['captivate']=c.drop_fields(changed['captivate'],('attemptRule',))
         with self.assertRaisesRegex(ValueError,'producer metadata'):c.legacy_rows(changed,epoch)
         self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')

@@ -2317,6 +2317,38 @@
         },
         "legacy_suffix": ", effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },"
       }
+    ],
+    "whirlwind": [
+      {
+        "version": 13,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "ForceSwitchEffect ( DEFENDER )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
+    ],
+    "roar": [
+      {
+        "version": 13,
+        "before": {
+          "effects": [],
+          "secondaries": []
+        },
+        "after": {
+          "effects": [
+            "ForceSwitchEffect ( DEFENDER )"
+          ],
+          "secondaries": []
+        },
+        "legacy_suffix": " },"
+      }
     ]
   },
   "critical": {

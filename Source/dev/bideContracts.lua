@@ -14,7 +14,7 @@ local function fresh(p,e)
     local b=Battle(p or Pokemon("rattata",100),e or Pokemon("rattata",100));settle(b);own(b.player,{"bide"});own(b.enemy,{"harden"});return b
 end
 local function attempt(b,side)
-    b:runScript(function()return b:resolveTurn({side=side or "player",key="bide",move=moveData.bide,continuation=b.conditions:lockedKey(b[side or "player"])=="bide"})end)
+    b:runScript(function()return b:resolveTurn({side=side or "player",actor=b[side or "player"],key="bide",move=moveData.bide,continuation=b.conditions:lockedKey(b[side or "player"])=="bide"})end)
     return settle(b)
 end
 local function auto(b)eq(b:phase(),"command");b:update();eq(b:phase(),"script");return settle(b)end

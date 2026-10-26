@@ -18,7 +18,7 @@ end
 local function fresh(p,e,opts)local b=Battle(p or mon("bulbasaur"),e or mon("pikachu"),nil,opts);settle(b);return b end
 local function act(b,key,seed,side)
  side=side or "player";if not b[side]:hasMove(key)then own(b[side],key)end;RulesRNG.seed(seed or 14)
- b:runScript(function()return b:resolveTurn({side=side,key=key,move=moveData[key]})end);return settle(b)
+ b:runScript(function()return b:resolveTurn({side=side,actor=b[side],key=key,move=moveData[key]})end);return settle(b)
 end
 local function replace(b,target)
  local source=target==b.player and b.enemy or b.player;local result,reason

@@ -83,7 +83,8 @@ end
 function BattleEffects:beginRound(turns)
     local round={pending={},damaged={}}
     for _,turn in ipairs(turns or {}) do
-        local mon=self.battle[turn.side]
+        local mon=turn.actor
+        assert(mon and mon==self.battle[turn.side],"actual pending actor required")
         round.pending[mon]={turn=turn,move=turn.move}
     end
     self.round=round
@@ -112,6 +113,11 @@ function BattleEffects:damage(mon,amount,cause)
     return removed
 end
 function BattleEffects:canAttempt(move,attacker,defender)
+    -- Roar is sound-based; Whirlwind is not. This does not claim general
+    -- Soundproof coverage for the other currently unsupported sound moves.
+    if self.battle.currentMoveKey == "roar" and self:effectiveAbility(defender) == 43 then
+        return false, "soundproof"
+    end
     if move.attemptRule=="worrySeed" then return self:worrySeedAttempt(attacker,defender) end
     if move.attemptRule=="oppositeSex" then
         -- GenV TryHit ability immunity precedes move-specific sex immunity.

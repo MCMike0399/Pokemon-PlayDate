@@ -23,7 +23,7 @@ local function fresh(player, enemy, trainer)
 end
 local function one(battle, side, key)
     battle:runScript(function()
-        return battle:resolveTurn({side = side, key = key, move = moveData[key]})
+        return battle:resolveTurn({side = side, actor=battle[side], key = key, move = moveData[key]})
     end)
     return settle(battle)
 end

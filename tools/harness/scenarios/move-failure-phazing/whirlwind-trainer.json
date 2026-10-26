@@ -1,0 +1,238 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 1,
+        "player_pokemon": {
+          "species": "pidgey",
+          "level": 17,
+          "nature_id": 0,
+          "ability_slot": "first",
+          "held_item": "none"
+        },
+        "trainer_name": "WHIRLWIND TEST",
+        "enemy_party": [
+          {
+            "species": "rattata",
+            "level": 5,
+            "pp": {
+              "tackle": 0,
+              "tailWhip": 30,
+              "quickAttack": 0
+            }
+          },
+          {
+            "species": "caterpie",
+            "level": 5,
+            "pp": {
+              "tackle": 0,
+              "stringShot": 40
+            }
+          }
+        ]
+      }
+    },
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WHIRLWIND TEST wants to battle!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "WHIRLWIND TEST sent out RATTATA!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.moves.4",
+      "equals": "whirlwind"
+    },
+    "seed 1",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press down",
+    "press right",
+    "shot whirlwind-native-natural-move",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "RATTATA used TAIL WHIP!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIDGEY's DEFENSE fell!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "PIDGEY used WHIRLWIND!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "CATERPIE was dragged out!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.enemy.species",
+      "equals": "caterpie"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.hp",
+      "equals": 19
+    },
+    {
+      "op": "assert",
+      "path": "battle.force_switch.success",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "battle.force_switch.index",
+      "equals": 2
+    },
+    {
+      "op": "assert",
+      "path": "battle.force_switch.incoming",
+      "equals": "caterpie"
+    },
+    {
+      "op": "assert",
+      "path": "session.pokedex.seen.caterpie",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.whirlwind",
+      "equals": 19
+    },
+    {
+      "op": "assert",
+      "path": "battle.rewards.awards",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 3
+    },
+    "shot whirlwind-trainer-dragged",
+    "record whirlwind-trainer-front 12",
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 3
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.species",
+      "equals": "caterpie"
+    },
+    {
+      "op": "assert",
+      "path": "battle.enemy.pp.stringShot",
+      "equals": 40
+    },
+    {
+      "op": "assert",
+      "path": "battle.rewards.awards",
+      "equals": 0
+    },
+    "shot whirlwind-trainer-command"
+  ],
+  "outputs": [
+    "whirlwind-native-natural-move.png",
+    "whirlwind-trainer-dragged.png",
+    "whirlwind-trainer-command.png"
+  ]
+}

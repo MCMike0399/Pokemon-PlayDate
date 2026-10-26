@@ -190,6 +190,18 @@ end
 -- EFFECTS — apply(battle); may battle:say(...) to narrate
 -- ============================================================
 
+-- Trainer displacement/wild escape share the battle's actual party owner.
+Class("ForceSwitchEffect")
+function ForceSwitchEffect:init(target)
+    local selector = Target.from(target)
+    assert(type(selector) == "table" and selector.resolve == Target.resolve and selector.side == "defender",
+        "opposing force-switch Target required")
+    self.target = selector
+end
+function ForceSwitchEffect:apply(battle)
+    return battle:forceSwitch(self.target:resolve(battle))
+end
+
 Class("NoEffect")
 function NoEffect:apply(_battle) end
 

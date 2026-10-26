@@ -17,7 +17,7 @@ def generate(text,folder):
 class RoostProducerTests(unittest.TestCase):
  def test_one_exact_payload_migrates_without_scalar_or_metadata_changes_and_repeats(self):
   with tempfile.TemporaryDirectory()as tmp:
-   p=Path(tmp);old=c.read_rows(prior())['roost'];text=generate(prior(),p);row=c.read_rows(text)['roost'];self.assertEqual(c.producer_epoch(text),12)
+   p=Path(tmp);old=c.read_rows(prior())['roost'];text=generate(prior(),p);row=c.read_rows(text)['roost'];self.assertEqual(c.producer_epoch(text),13)
    self.assertEqual(c.split_payload(row)[0],c.split_payload(old)[0]);self.assertEqual(c.payload(row),{'effects':['RoostEffect ( )'],'secondaries':[]})
    f=c.fields(row)
    # Zero priority is omitted by the existing exact producer format; Move's
@@ -34,7 +34,7 @@ class RoostProducerTests(unittest.TestCase):
     with self.subTest(change=(a,b)),self.assertRaisesRegex(ValueError,'unexpected changes'):generate(text.replace(a,b,1),p)
     self.assertEqual((p/'output.lua').read_text(),'PRESERVE PRIOR OUTPUT')
  def test_exact_current_inverse_retains_original424_hash_and_rejects_unowned_effects(self):
-  text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,12)
+  text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,13)
   self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
   for replacement in (LEGACY,'NoEffect()','RoostEffect(), NoEffect()'):
    changed=dict(rows);changed['roost']=rows['roost'].replace('RoostEffect()',replacement)

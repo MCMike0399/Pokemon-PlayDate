@@ -1,0 +1,184 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "reds_house_2f",
+        "seed": 1,
+        "player_pokemon": {
+          "species": "growlithe",
+          "level": 1,
+          "nature_id": 0,
+          "ability_slot": "first",
+          "held_item": "none"
+        }
+      }
+    },
+    "battle metapod 1",
+    {
+      "op": "await",
+      "path": "battle.introPhase",
+      "equals": "ready",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "A wild METAPOD appeared!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.phase",
+      "equals": "command",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.menu.active",
+      "equals": true,
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.moves.2",
+      "equals": "roar"
+    },
+    "seed 14",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.inMoveSelect",
+      "equals": true,
+      "frames": 360
+    },
+    "press right",
+    "shot roar-native-natural-move",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD used HARDEN!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD's DEFENSE rose!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "GROWLITHE used ROAR!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    "press a",
+    {
+      "op": "await",
+      "path": "battle.message",
+      "equals": "METAPOD was blown away!",
+      "frames": 360
+    },
+    {
+      "op": "await",
+      "path": "battle.waiting",
+      "equals": true,
+      "frames": 360
+    },
+    "wait 12",
+    {
+      "op": "assert",
+      "path": "battle.force_switch.success",
+      "equals": true
+    },
+    {
+      "op": "assert",
+      "path": "battle.force_switch.reason",
+      "equals": "wild-escape"
+    },
+    {
+      "op": "assert",
+      "path": "battle.player.pp.roar",
+      "equals": 19
+    },
+    {
+      "op": "assert",
+      "path": "battle.rewards.awards",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    "shot roar-wild-blown-away",
+    "record roar-wild-exit-wait 12",
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    "press a",
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.kind",
+      "equals": "run"
+    },
+    {
+      "op": "assert",
+      "path": "last_battle_outcome.won",
+      "equals": false
+    },
+    {
+      "op": "assert",
+      "path": "inventory.money",
+      "equals": 3000
+    },
+    "shot roar-wild-return"
+  ],
+  "outputs": [
+    "roar-native-natural-move.png",
+    "roar-wild-blown-away.png",
+    "roar-wild-return.png"
+  ]
+}

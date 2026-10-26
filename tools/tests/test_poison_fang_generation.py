@@ -20,7 +20,7 @@ def generate(text,path):
 class PoisonFangProducerTests(unittest.TestCase):
  def test_one_exact_gen5_secondary_change_with_all_prior_scalar_metadata_retained(self):
   with tempfile.TemporaryDirectory()as tmp:
-   p=Path(tmp);old=c.read_rows(prior())['poisonFang'];text=generate(prior(),p);row=c.read_rows(text)['poisonFang'];self.assertEqual(c.producer_epoch(text),12)
+   p=Path(tmp);old=c.read_rows(prior())['poisonFang'];text=generate(prior(),p);row=c.read_rows(text)['poisonFang'];self.assertEqual(c.producer_epoch(text),13)
    self.assertEqual(c.split_payload(row)[0],c.split_payload(old)[0]);self.assertEqual(c.payload(row),{'effects':[],'secondaries':['SecondaryEffect ( DEFENDER , When ( Chance ( 30 ) , ApplyStatus ( DEFENDER , "badPoison" ) ) )']})
    for key,value in dict(power=50,accuracy=100,pp=15,type='poison',category='physical',targetId=10,contact=True,protectable=True).items():self.assertEqual(c.fields(row)[key],value)
    self.assertEqual(generate(text,p),text)
@@ -37,9 +37,12 @@ class PoisonFangProducerTests(unittest.TestCase):
    for old in [legacy().replace('Chance(50)','Chance(49)'),prior().replace('secondaries = { '+OLD+' }','effects = { When(Chance(50), ApplyStatus(DEFENDER, "poison")) }')]:
     with self.subTest(input=old),self.assertRaisesRegex(ValueError,'unexpected changes'):generate(old,p)
  def test_original424_inverse_oracle_unchanged_and_current_effect_rollback_rejects(self):
-  text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,12)
+  text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,13)
   self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
   changed=dict(rows);changed['poisonFang']=rows['poisonFang'].replace(NEW,OLD)
   # The same bytes are valid genuine v11 history, never a v12 rollback.
-  self.assertEqual(c.digest(json.dumps(c.legacy_rows(changed,11),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
+  historical=dict(changed)
+  for key in ('whirlwind','roar'):
+   prefix,_=c.split_payload(historical[key]);historical[key]=prefix+c.load_contract()['transitions'][key][0]['legacy_suffix']
+  self.assertEqual(c.digest(json.dumps(c.legacy_rows(historical,11),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
   with self.assertRaisesRegex(ValueError,'unowned move effect'):c.legacy_rows(changed,epoch)

@@ -1,0 +1,1296 @@
+{
+  "schema": 1,
+  "oracle": {
+    "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+    "source_sha256": {
+      "data/moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+      "data/mods/gen8/moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+      "data/mods/gen7/moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+      "data/mods/gen6/moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+      "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
+    }
+  },
+  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified.",
+  "moves": {
+    "pound": {
+      "handler": "standard-damage"
+    },
+    "karateChop": {
+      "handler": "standard-damage"
+    },
+    "doubleSlap": {
+      "handler": "standard-damage"
+    },
+    "cometPunch": {
+      "handler": "standard-damage"
+    },
+    "megaPunch": {
+      "handler": "standard-damage"
+    },
+    "payDay": {
+      "gap": "coin reward transaction not implemented"
+    },
+    "firePunch": {
+      "handler": "standard-damage"
+    },
+    "icePunch": {
+      "handler": "standard-damage"
+    },
+    "thunderPunch": {
+      "handler": "standard-damage"
+    },
+    "scratch": {
+      "handler": "standard-damage"
+    },
+    "viceGrip": {
+      "handler": "standard-damage"
+    },
+    "guillotine": {
+      "handler": "engine-dsl"
+    },
+    "razorWind": {
+      "gap": "onTryMove"
+    },
+    "swordsDance": {
+      "handler": "dsl"
+    },
+    "gust": {
+      "handler": "standard-damage"
+    },
+    "wingAttack": {
+      "handler": "standard-damage"
+    },
+    "whirlwind": {
+      "handler": "engine-dsl"
+    },
+    "bind": {
+      "handler": "engine-dsl"
+    },
+    "slam": {
+      "handler": "standard-damage"
+    },
+    "vineWhip": {
+      "handler": "standard-damage"
+    },
+    "stomp": {
+      "handler": "standard-damage"
+    },
+    "doubleKick": {
+      "handler": "standard-damage"
+    },
+    "megaKick": {
+      "handler": "standard-damage"
+    },
+    "jumpKick": {
+      "gap": "onMoveFail"
+    },
+    "rollingKick": {
+      "handler": "standard-damage"
+    },
+    "sandAttack": {
+      "handler": "dsl"
+    },
+    "headbutt": {
+      "handler": "standard-damage"
+    },
+    "hornAttack": {
+      "handler": "standard-damage"
+    },
+    "furyAttack": {
+      "handler": "standard-damage"
+    },
+    "hornDrill": {
+      "handler": "engine-dsl"
+    },
+    "tackle": {
+      "handler": "standard-damage"
+    },
+    "bodySlam": {
+      "handler": "standard-damage"
+    },
+    "wrap": {
+      "handler": "engine-dsl"
+    },
+    "takeDown": {
+      "handler": "standard-damage"
+    },
+    "thrash": {
+      "gap": "rampage lock and fatigue not implemented"
+    },
+    "doubleEdge": {
+      "handler": "standard-damage"
+    },
+    "tailWhip": {
+      "handler": "dsl"
+    },
+    "poisonSting": {
+      "handler": "standard-damage"
+    },
+    "twineedle": {
+      "handler": "standard-damage"
+    },
+    "pinMissile": {
+      "handler": "standard-damage"
+    },
+    "leer": {
+      "handler": "dsl"
+    },
+    "bite": {
+      "handler": "standard-damage"
+    },
+    "growl": {
+      "handler": "dsl"
+    },
+    "roar": {
+      "handler": "engine-dsl"
+    },
+    "sing": {
+      "handler": "dsl"
+    },
+    "supersonic": {
+      "handler": "engine-dsl"
+    },
+    "sonicBoom": {
+      "handler": "engine-dsl"
+    },
+    "disable": {
+      "gap": "volatileStatus, onTryHit"
+    },
+    "acid": {
+      "handler": "standard-damage"
+    },
+    "ember": {
+      "handler": "standard-damage"
+    },
+    "flamethrower": {
+      "handler": "standard-damage"
+    },
+    "mist": {
+      "gap": "sideCondition"
+    },
+    "waterGun": {
+      "handler": "standard-damage"
+    },
+    "hydroPump": {
+      "handler": "standard-damage"
+    },
+    "iceBeam": {
+      "handler": "standard-damage"
+    },
+    "blizzard": {
+      "handler": "engine-dsl"
+    },
+    "psybeam": {
+      "handler": "standard-damage"
+    },
+    "bubbleBeam": {
+      "handler": "standard-damage"
+    },
+    "auroraBeam": {
+      "handler": "standard-damage"
+    },
+    "hyperBeam": {
+      "gap": "recharge turn not implemented"
+    },
+    "peck": {
+      "handler": "standard-damage"
+    },
+    "drillPeck": {
+      "handler": "standard-damage"
+    },
+    "submission": {
+      "handler": "standard-damage"
+    },
+    "lowKick": {
+      "gap": "basePowerCallback"
+    },
+    "counter": {
+      "gap": "damageCallback, onTry"
+    },
+    "seismicToss": {
+      "handler": "engine-dsl"
+    },
+    "absorb": {
+      "handler": "standard-damage"
+    },
+    "megaDrain": {
+      "handler": "standard-damage"
+    },
+    "leechSeed": {
+      "handler": "engine-dsl"
+    },
+    "growth": {
+      "handler": "engine-dsl"
+    },
+    "razorLeaf": {
+      "handler": "standard-damage"
+    },
+    "solarBeam": {
+      "handler": "engine-dsl"
+    },
+    "poisonPowder": {
+      "handler": "engine-dsl"
+    },
+    "stunSpore": {
+      "handler": "engine-dsl"
+    },
+    "sleepPowder": {
+      "handler": "engine-dsl"
+    },
+    "petalDance": {
+      "handler": "engine-dsl"
+    },
+    "stringShot": {
+      "handler": "dsl"
+    },
+    "dragonRage": {
+      "handler": "engine-dsl"
+    },
+    "fireSpin": {
+      "handler": "engine-dsl"
+    },
+    "thunderShock": {
+      "handler": "standard-damage"
+    },
+    "thunderbolt": {
+      "handler": "standard-damage"
+    },
+    "thunderWave": {
+      "handler": "dsl"
+    },
+    "thunder": {
+      "handler": "engine-dsl"
+    },
+    "rockThrow": {
+      "handler": "standard-damage"
+    },
+    "earthquake": {
+      "handler": "standard-damage"
+    },
+    "fissure": {
+      "handler": "engine-dsl"
+    },
+    "dig": {
+      "gap": "onTryMove"
+    },
+    "confusion": {
+      "handler": "standard-damage"
+    },
+    "psychic": {
+      "handler": "standard-damage"
+    },
+    "hypnosis": {
+      "handler": "dsl"
+    },
+    "meditate": {
+      "handler": "dsl"
+    },
+    "agility": {
+      "handler": "dsl"
+    },
+    "quickAttack": {
+      "handler": "standard-damage"
+    },
+    "rage": {
+      "handler": "engine-dsl"
+    },
+    "teleport": {
+      "gap": "missing status effect"
+    },
+    "nightShade": {
+      "handler": "engine-dsl"
+    },
+    "mimic": {
+      "gap": "onHit"
+    },
+    "screech": {
+      "handler": "dsl"
+    },
+    "doubleTeam": {
+      "handler": "dsl"
+    },
+    "recover": {
+      "handler": "dsl"
+    },
+    "harden": {
+      "handler": "dsl"
+    },
+    "minimize": {
+      "gap": "volatileStatus"
+    },
+    "smokescreen": {
+      "handler": "dsl"
+    },
+    "confuseRay": {
+      "handler": "engine-dsl"
+    },
+    "withdraw": {
+      "handler": "dsl"
+    },
+    "defenseCurl": {
+      "handler": "engine-dsl"
+    },
+    "barrier": {
+      "handler": "dsl"
+    },
+    "lightScreen": {
+      "handler": "engine-dsl"
+    },
+    "haze": {
+      "gap": "onHitField"
+    },
+    "reflect": {
+      "gap": "sideCondition"
+    },
+    "focusEnergy": {
+      "handler": "engine-dsl"
+    },
+    "metronome": {
+      "gap": "onHit"
+    },
+    "mirrorMove": {
+      "gap": "onTryHit"
+    },
+    "selfDestruct": {
+      "gap": "selfdestruct"
+    },
+    "eggBomb": {
+      "handler": "standard-damage"
+    },
+    "lick": {
+      "handler": "standard-damage"
+    },
+    "smog": {
+      "handler": "standard-damage"
+    },
+    "sludge": {
+      "handler": "standard-damage"
+    },
+    "boneClub": {
+      "handler": "standard-damage"
+    },
+    "fireBlast": {
+      "handler": "standard-damage"
+    },
+    "waterfall": {
+      "handler": "standard-damage"
+    },
+    "clamp": {
+      "handler": "engine-dsl"
+    },
+    "swift": {
+      "handler": "standard-damage"
+    },
+    "skullBash": {
+      "handler": "engine-dsl"
+    },
+    "spikeCannon": {
+      "handler": "standard-damage"
+    },
+    "constrict": {
+      "handler": "standard-damage"
+    },
+    "amnesia": {
+      "handler": "dsl"
+    },
+    "kinesis": {
+      "handler": "dsl"
+    },
+    "softBoiled": {
+      "handler": "dsl"
+    },
+    "highJumpKick": {
+      "gap": "onMoveFail"
+    },
+    "glare": {
+      "handler": "dsl"
+    },
+    "dreamEater": {
+      "gap": "onTryImmunity"
+    },
+    "poisonGas": {
+      "handler": "dsl"
+    },
+    "barrage": {
+      "handler": "standard-damage"
+    },
+    "leechLife": {
+      "handler": "standard-damage"
+    },
+    "lovelyKiss": {
+      "handler": "dsl"
+    },
+    "skyAttack": {
+      "gap": "onTryMove"
+    },
+    "transform": {
+      "gap": "onHit"
+    },
+    "bubble": {
+      "handler": "standard-damage"
+    },
+    "dizzyPunch": {
+      "handler": "standard-damage"
+    },
+    "spore": {
+      "handler": "engine-dsl"
+    },
+    "splash": {
+      "handler": "intentional-no-effect"
+    },
+    "acidArmor": {
+      "handler": "dsl"
+    },
+    "crabhammer": {
+      "handler": "standard-damage"
+    },
+    "explosion": {
+      "gap": "selfdestruct"
+    },
+    "furySwipes": {
+      "handler": "standard-damage"
+    },
+    "bonemerang": {
+      "handler": "standard-damage"
+    },
+    "rest": {
+      "gap": "onTry, onHit"
+    },
+    "rockSlide": {
+      "handler": "standard-damage"
+    },
+    "hyperFang": {
+      "handler": "standard-damage"
+    },
+    "sharpen": {
+      "handler": "dsl"
+    },
+    "conversion": {
+      "gap": "onHit"
+    },
+    "triAttack": {
+      "handler": "standard-damage"
+    },
+    "superFang": {
+      "handler": "engine-dsl"
+    },
+    "slash": {
+      "handler": "standard-damage"
+    },
+    "substitute": {
+      "gap": "volatileStatus, onTryHit, onHit"
+    },
+    "mindReader": {
+      "gap": "onTryHit, onHit"
+    },
+    "nightmare": {
+      "gap": "volatileStatus"
+    },
+    "flameWheel": {
+      "handler": "standard-damage"
+    },
+    "snore": {
+      "gap": "onTry"
+    },
+    "curse": {
+      "handler": "engine-dsl"
+    },
+    "flail": {
+      "gap": "basePowerCallback"
+    },
+    "conversion2": {
+      "gap": "onHit"
+    },
+    "reversal": {
+      "gap": "basePowerCallback"
+    },
+    "spite": {
+      "gap": "onHit"
+    },
+    "powderSnow": {
+      "handler": "standard-damage"
+    },
+    "protect": {
+      "handler": "engine-dsl"
+    },
+    "machPunch": {
+      "handler": "standard-damage"
+    },
+    "scaryFace": {
+      "handler": "dsl"
+    },
+    "feintAttack": {
+      "handler": "standard-damage"
+    },
+    "bellyDrum": {
+      "gap": "onHit"
+    },
+    "sludgeBomb": {
+      "handler": "standard-damage"
+    },
+    "mudSlap": {
+      "handler": "standard-damage"
+    },
+    "spikes": {
+      "handler": "engine-dsl"
+    },
+    "zapCannon": {
+      "handler": "standard-damage"
+    },
+    "foresight": {
+      "gap": "volatileStatus, onTryHit"
+    },
+    "destinyBond": {
+      "gap": "volatileStatus, onPrepareHit"
+    },
+    "perishSong": {
+      "gap": "onHitField"
+    },
+    "icyWind": {
+      "handler": "standard-damage"
+    },
+    "detect": {
+      "gap": "stallingMove, volatileStatus, onPrepareHit, onHit"
+    },
+    "boneRush": {
+      "handler": "standard-damage"
+    },
+    "lockOn": {
+      "gap": "onTryHit, onHit"
+    },
+    "outrage": {
+      "gap": "rampage lock and fatigue not implemented"
+    },
+    "sandstorm": {
+      "handler": "engine-dsl"
+    },
+    "gigaDrain": {
+      "handler": "standard-damage"
+    },
+    "endure": {
+      "gap": "stallingMove, volatileStatus, onPrepareHit, onHit"
+    },
+    "rollout": {
+      "handler": "engine-dsl"
+    },
+    "falseSwipe": {
+      "gap": "onDamagePriority, onDamage"
+    },
+    "swagger": {
+      "gap": "compound effect order or target behavior not implemented"
+    },
+    "spark": {
+      "handler": "standard-damage"
+    },
+    "furyCutter": {
+      "gap": "basePowerCallback"
+    },
+    "meanLook": {
+      "gap": "onHit"
+    },
+    "sleepTalk": {
+      "gap": "onTry, onHit"
+    },
+    "safeguard": {
+      "handler": "engine-dsl"
+    },
+    "magnitude": {
+      "gap": "onModifyMove, onUseMoveMessage"
+    },
+    "dynamicPunch": {
+      "handler": "standard-damage"
+    },
+    "megahorn": {
+      "handler": "standard-damage"
+    },
+    "dragonBreath": {
+      "handler": "standard-damage"
+    },
+    "batonPass": {
+      "gap": "onHit, selfSwitch"
+    },
+    "encore": {
+      "gap": "volatileStatus"
+    },
+    "pursuit": {
+      "gap": "basePowerCallback, onModifyMove"
+    },
+    "rapidSpin": {
+      "handler": "engine-dsl"
+    },
+    "sweetScent": {
+      "handler": "dsl"
+    },
+    "ironTail": {
+      "handler": "standard-damage"
+    },
+    "metalClaw": {
+      "handler": "standard-damage"
+    },
+    "vitalThrow": {
+      "handler": "standard-damage"
+    },
+    "synthesis": {
+      "handler": "engine-dsl"
+    },
+    "moonlight": {
+      "handler": "engine-dsl"
+    },
+    "crossChop": {
+      "handler": "standard-damage"
+    },
+    "twister": {
+      "handler": "standard-damage"
+    },
+    "rainDance": {
+      "handler": "engine-dsl"
+    },
+    "sunnyDay": {
+      "gap": "weather"
+    },
+    "crunch": {
+      "handler": "standard-damage"
+    },
+    "mirrorCoat": {
+      "gap": "damageCallback, onTry"
+    },
+    "psychUp": {
+      "gap": "onHit"
+    },
+    "extremeSpeed": {
+      "handler": "standard-damage"
+    },
+    "ancientPower": {
+      "handler": "standard-damage"
+    },
+    "shadowBall": {
+      "handler": "standard-damage"
+    },
+    "futureSight": {
+      "gap": "onTry"
+    },
+    "whirlpool": {
+      "handler": "engine-dsl"
+    },
+    "fakeOut": {
+      "gap": "onTry"
+    },
+    "uproar": {
+      "gap": "onTryHit"
+    },
+    "stockpile": {
+      "gap": "onTry, volatileStatus"
+    },
+    "spitUp": {
+      "gap": "basePowerCallback, onTry, onAfterMove"
+    },
+    "swallow": {
+      "gap": "onTry, onHit"
+    },
+    "heatWave": {
+      "handler": "standard-damage"
+    },
+    "hail": {
+      "gap": "weather"
+    },
+    "flatter": {
+      "gap": "compound effect order or target behavior not implemented"
+    },
+    "willOWisp": {
+      "handler": "dsl"
+    },
+    "memento": {
+      "gap": "selfdestruct"
+    },
+    "focusPunch": {
+      "gap": "focus charge and interruption callbacks not implemented"
+    },
+    "followMe": {
+      "gap": "volatileStatus, onTry"
+    },
+    "charge": {
+      "gap": "volatileStatus"
+    },
+    "taunt": {
+      "gap": "volatileStatus"
+    },
+    "helpingHand": {
+      "handler": "singles-no-target"
+    },
+    "trick": {
+      "gap": "onTryImmunity, onHit"
+    },
+    "rolePlay": {
+      "gap": "onTryHit, onHit"
+    },
+    "ingrain": {
+      "gap": "volatileStatus"
+    },
+    "superpower": {
+      "handler": "standard-damage"
+    },
+    "magicCoat": {
+      "gap": "volatileStatus"
+    },
+    "recycle": {
+      "gap": "onHit"
+    },
+    "revenge": {
+      "gap": "basePowerCallback"
+    },
+    "brickBreak": {
+      "gap": "onTryHit"
+    },
+    "yawn": {
+      "gap": "volatileStatus, onTryHit"
+    },
+    "knockOff": {
+      "gap": "onAfterHit"
+    },
+    "endeavor": {
+      "handler": "engine-dsl"
+    },
+    "imprison": {
+      "gap": "volatileStatus"
+    },
+    "refresh": {
+      "gap": "onHit"
+    },
+    "grudge": {
+      "gap": "volatileStatus"
+    },
+    "dive": {
+      "gap": "onTryMove"
+    },
+    "camouflage": {
+      "gap": "onHit"
+    },
+    "featherDance": {
+      "handler": "dsl"
+    },
+    "blazeKick": {
+      "handler": "standard-damage"
+    },
+    "mudSport": {
+      "handler": "engine-dsl"
+    },
+    "slackOff": {
+      "handler": "dsl"
+    },
+    "hyperVoice": {
+      "handler": "standard-damage"
+    },
+    "poisonFang": {
+      "handler": "standard-damage"
+    },
+    "crushClaw": {
+      "handler": "standard-damage"
+    },
+    "meteorMash": {
+      "handler": "standard-damage"
+    },
+    "astonish": {
+      "handler": "standard-damage"
+    },
+    "aromatherapy": {
+      "gap": "onHit"
+    },
+    "fakeTears": {
+      "handler": "dsl"
+    },
+    "airCutter": {
+      "handler": "standard-damage"
+    },
+    "odorSleuth": {
+      "gap": "volatileStatus, onTryHit"
+    },
+    "rockTomb": {
+      "handler": "standard-damage"
+    },
+    "silverWind": {
+      "handler": "standard-damage"
+    },
+    "metalSound": {
+      "handler": "dsl"
+    },
+    "tickle": {
+      "handler": "dsl"
+    },
+    "cosmicPower": {
+      "handler": "dsl"
+    },
+    "signalBeam": {
+      "handler": "standard-damage"
+    },
+    "shadowPunch": {
+      "handler": "standard-damage"
+    },
+    "extrasensory": {
+      "handler": "standard-damage"
+    },
+    "skyUppercut": {
+      "handler": "standard-damage"
+    },
+    "sandTomb": {
+      "handler": "engine-dsl"
+    },
+    "sheerCold": {
+      "handler": "engine-dsl"
+    },
+    "muddyWater": {
+      "handler": "standard-damage"
+    },
+    "bulletSeed": {
+      "handler": "standard-damage"
+    },
+    "aerialAce": {
+      "handler": "standard-damage"
+    },
+    "icicleSpear": {
+      "handler": "standard-damage"
+    },
+    "ironDefense": {
+      "handler": "dsl"
+    },
+    "block": {
+      "gap": "onHit"
+    },
+    "dragonClaw": {
+      "handler": "standard-damage"
+    },
+    "bounce": {
+      "gap": "onTryMove"
+    },
+    "mudShot": {
+      "handler": "standard-damage"
+    },
+    "covet": {
+      "gap": "onAfterHit"
+    },
+    "magicalLeaf": {
+      "handler": "standard-damage"
+    },
+    "waterSport": {
+      "gap": "volatileStatus"
+    },
+    "calmMind": {
+      "handler": "dsl"
+    },
+    "leafBlade": {
+      "handler": "standard-damage"
+    },
+    "dragonDance": {
+      "handler": "dsl"
+    },
+    "rockBlast": {
+      "handler": "standard-damage"
+    },
+    "shockWave": {
+      "handler": "standard-damage"
+    },
+    "waterPulse": {
+      "handler": "standard-damage"
+    },
+    "roost": {
+      "handler": "engine-dsl"
+    },
+    "gravity": {
+      "gap": "pseudoWeather"
+    },
+    "miracleEye": {
+      "gap": "volatileStatus, onTryHit"
+    },
+    "wakeUpSlap": {
+      "gap": "basePowerCallback, onHit"
+    },
+    "hammerArm": {
+      "handler": "standard-damage"
+    },
+    "gyroBall": {
+      "gap": "basePowerCallback"
+    },
+    "healingWish": {
+      "gap": "onTryHit, selfdestruct"
+    },
+    "brine": {
+      "gap": "onBasePower"
+    },
+    "naturalGift": {
+      "gap": "onModifyType, onPrepareHit"
+    },
+    "feint": {
+      "handler": "engine-dsl"
+    },
+    "pluck": {
+      "gap": "onHit"
+    },
+    "tailwind": {
+      "handler": "engine-dsl"
+    },
+    "acupressure": {
+      "gap": "onHit"
+    },
+    "closeCombat": {
+      "handler": "standard-damage"
+    },
+    "payback": {
+      "gap": "basePowerCallback"
+    },
+    "assurance": {
+      "handler": "engine-dsl"
+    },
+    "fling": {
+      "gap": "onPrepareHit"
+    },
+    "trumpCard": {
+      "gap": "basePowerCallback"
+    },
+    "wringOut": {
+      "gap": "basePowerCallback"
+    },
+    "gastroAcid": {
+      "gap": "volatileStatus, onTryHit"
+    },
+    "luckyChant": {
+      "gap": "sideCondition"
+    },
+    "meFirst": {
+      "gap": "onTryHit"
+    },
+    "copycat": {
+      "gap": "onHit"
+    },
+    "powerSwap": {
+      "gap": "onHit"
+    },
+    "guardSwap": {
+      "gap": "onHit"
+    },
+    "punishment": {
+      "gap": "basePowerCallback"
+    },
+    "lastResort": {
+      "gap": "onTry"
+    },
+    "worrySeed": {
+      "handler": "engine-dsl"
+    },
+    "suckerPunch": {
+      "handler": "engine-dsl"
+    },
+    "toxicSpikes": {
+      "handler": "engine-dsl"
+    },
+    "aquaRing": {
+      "gap": "volatileStatus"
+    },
+    "magnetRise": {
+      "gap": "volatileStatus, onTry"
+    },
+    "flareBlitz": {
+      "handler": "standard-damage"
+    },
+    "auraSphere": {
+      "handler": "standard-damage"
+    },
+    "rockPolish": {
+      "handler": "dsl"
+    },
+    "poisonJab": {
+      "handler": "standard-damage"
+    },
+    "darkPulse": {
+      "handler": "standard-damage"
+    },
+    "nightSlash": {
+      "handler": "standard-damage"
+    },
+    "aquaTail": {
+      "handler": "standard-damage"
+    },
+    "seedBomb": {
+      "handler": "standard-damage"
+    },
+    "airSlash": {
+      "handler": "standard-damage"
+    },
+    "xScissor": {
+      "handler": "standard-damage"
+    },
+    "bugBuzz": {
+      "handler": "standard-damage"
+    },
+    "dragonPulse": {
+      "handler": "standard-damage"
+    },
+    "dragonRush": {
+      "handler": "standard-damage"
+    },
+    "powerGem": {
+      "handler": "standard-damage"
+    },
+    "vacuumWave": {
+      "handler": "standard-damage"
+    },
+    "braveBird": {
+      "handler": "standard-damage"
+    },
+    "earthPower": {
+      "handler": "standard-damage"
+    },
+    "switcheroo": {
+      "gap": "onTryImmunity, onHit"
+    },
+    "gigaImpact": {
+      "gap": "recharge turn not implemented"
+    },
+    "nastyPlot": {
+      "handler": "dsl"
+    },
+    "bulletPunch": {
+      "handler": "standard-damage"
+    },
+    "avalanche": {
+      "gap": "basePowerCallback"
+    },
+    "iceShard": {
+      "handler": "standard-damage"
+    },
+    "shadowClaw": {
+      "handler": "standard-damage"
+    },
+    "thunderFang": {
+      "handler": "standard-damage"
+    },
+    "iceFang": {
+      "handler": "standard-damage"
+    },
+    "fireFang": {
+      "handler": "standard-damage"
+    },
+    "mudBomb": {
+      "handler": "standard-damage"
+    },
+    "psychoCut": {
+      "handler": "standard-damage"
+    },
+    "zenHeadbutt": {
+      "handler": "standard-damage"
+    },
+    "mirrorShot": {
+      "handler": "standard-damage"
+    },
+    "flashCannon": {
+      "handler": "standard-damage"
+    },
+    "discharge": {
+      "handler": "standard-damage"
+    },
+    "lavaPlume": {
+      "handler": "standard-damage"
+    },
+    "leafStorm": {
+      "handler": "standard-damage"
+    },
+    "powerWhip": {
+      "handler": "standard-damage"
+    },
+    "crossPoison": {
+      "handler": "standard-damage"
+    },
+    "gunkShot": {
+      "handler": "standard-damage"
+    },
+    "ironHead": {
+      "handler": "standard-damage"
+    },
+    "magnetBomb": {
+      "handler": "standard-damage"
+    },
+    "stoneEdge": {
+      "handler": "standard-damage"
+    },
+    "captivate": {
+      "handler": "engine-dsl"
+    },
+    "stealthRock": {
+      "handler": "engine-dsl"
+    },
+    "bugBite": {
+      "gap": "onHit"
+    },
+    "chargeBeam": {
+      "handler": "standard-damage"
+    },
+    "woodHammer": {
+      "handler": "standard-damage"
+    },
+    "aquaJet": {
+      "handler": "standard-damage"
+    },
+    "doubleHit": {
+      "handler": "standard-damage"
+    },
+    "wideGuard": {
+      "gap": "sideCondition, onTry, onHitSide, stallingMove"
+    },
+    "wonderRoom": {
+      "gap": "pseudoWeather"
+    },
+    "psyshock": {
+      "gap": "overrideDefensiveStat"
+    },
+    "ragePowder": {
+      "handler": "engine-dsl"
+    },
+    "telekinesis": {
+      "gap": "volatileStatus, onTry"
+    },
+    "smackDown": {
+      "gap": "volatileStatus"
+    },
+    "flameBurst": {
+      "handler": "engine-dsl"
+    },
+    "sludgeWave": {
+      "handler": "standard-damage"
+    },
+    "quiverDance": {
+      "handler": "dsl"
+    },
+    "heavySlam": {
+      "gap": "basePowerCallback"
+    },
+    "synchronoise": {
+      "gap": "onTryImmunity"
+    },
+    "electroBall": {
+      "handler": "engine-dsl"
+    },
+    "soak": {
+      "gap": "onHit"
+    },
+    "flameCharge": {
+      "handler": "standard-damage"
+    },
+    "coil": {
+      "handler": "dsl"
+    },
+    "lowSweep": {
+      "handler": "standard-damage"
+    },
+    "acidSpray": {
+      "handler": "standard-damage"
+    },
+    "afterYou": {
+      "gap": "onHit"
+    },
+    "round": {
+      "gap": "basePowerCallback, onTry"
+    },
+    "chipAway": {
+      "gap": "ignoreDefensive, ignoreEvasion"
+    },
+    "clearSmog": {
+      "gap": "onHit"
+    },
+    "storedPower": {
+      "gap": "basePowerCallback"
+    },
+    "quickGuard": {
+      "gap": "sideCondition, onTry, onHitSide, stallingMove"
+    },
+    "allySwitch": {
+      "gap": "onHit"
+    },
+    "shellSmash": {
+      "handler": "dsl"
+    },
+    "healPulse": {
+      "gap": "compound effect order or target behavior not implemented"
+    },
+    "hex": {
+      "gap": "basePowerCallback"
+    },
+    "skyDrop": {
+      "gap": "onModifyMove, onMoveFail, onTry, onTryHit, onHit"
+    },
+    "circleThrow": {
+      "gap": "forceSwitch"
+    },
+    "acrobatics": {
+      "gap": "basePowerCallback"
+    },
+    "reflectType": {
+      "gap": "onHit"
+    },
+    "retaliate": {
+      "gap": "onBasePower"
+    },
+    "finalGambit": {
+      "gap": "damageCallback, selfdestruct"
+    },
+    "bestow": {
+      "gap": "onHit"
+    },
+    "inferno": {
+      "handler": "standard-damage"
+    },
+    "bulldoze": {
+      "handler": "standard-damage"
+    },
+    "dragonTail": {
+      "gap": "forceSwitch"
+    },
+    "workUp": {
+      "handler": "dsl"
+    },
+    "drillRun": {
+      "handler": "standard-damage"
+    },
+    "heartStamp": {
+      "handler": "standard-damage"
+    },
+    "razorShell": {
+      "handler": "standard-damage"
+    },
+    "leafTornado": {
+      "handler": "standard-damage"
+    },
+    "steamroller": {
+      "handler": "standard-damage"
+    },
+    "psystrike": {
+      "gap": "overrideDefensiveStat"
+    },
+    "hurricane": {
+      "handler": "engine-dsl"
+    },
+    "icicleCrash": {
+      "handler": "standard-damage"
+    },
+    "charm": {
+      "handler": "dsl"
+    },
+    "psywave": {
+      "handler": "engine-dsl"
+    },
+    "stormThrow": {
+      "handler": "engine-dsl"
+    },
+    "struggle": {
+      "handler": "engine-dsl"
+    },
+    "toxic": {
+      "handler": "engine-dsl"
+    },
+    "bide": {
+      "handler": "engine-dsl"
+    }
+  },
+  "limitations": {
+    "growth": "Sun has no current producer; sunny Growth doubling remains pending with Sun.",
+    "blizzard": "Hail has no current producer; Hail accuracy remains pending with Hail.",
+    "flameBurst": "Singles damage only; adjacent ally splash is doubles-only."
+  }
+}

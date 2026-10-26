@@ -151,6 +151,7 @@ function HarnessDiagnostics.snapshot(game)
             rewards=battle:getRewardSnapshot(), phase = battle:phase(), message = battle.message, lastDamage = battle.lastDamage,
             conditions = battle:getConditionsSnapshot(),
             effects = battle.effects:snapshot(),
+            force_switch = battle:getForceSwitchSnapshot(), move_gaps = battle:getMoveGaps(),
             effective_abilities = {player=battle.effects:effectiveAbility(battle.player),enemy=battle.effects:effectiveAbility(battle.enemy)},
             learning = battle:getLearningSnapshot(),
             forced_switch = battle:needsForcedSwitch(), selection_kind = battle.selectionKind or "none",

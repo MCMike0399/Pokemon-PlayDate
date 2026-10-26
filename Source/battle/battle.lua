@@ -1,3 +1,5 @@
+import "battle/moveSupport"
+
 import "battle/conditions"
 import "battle/effects"
 import "battle/rewards"
@@ -159,7 +161,7 @@ Class("BattleForcedSwitchPhase"):extends(State)
 -- the script on a message until the player confirms with A.
 Class("BattleScriptPhase"):extends(State)
 
-local commitFight
+local commitFight,commitActiveMember
 local MESSAGE_MIN_FRAMES <const> = 10
 -- Opaque receipts bind one learning overlay to one suspended production script.
 local learningReceipts = setmetatable({}, {__mode = "k"})
@@ -280,7 +282,9 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     self.conditions = BattleConditions(self)
     self.effects = BattleEffects(self)
     self.awardedEnemies = {}
-    self.participants = {[playerPokemon]=true}
+    self.participantSets = {[enemyPokemon]={[playerPokemon]=true}}
+    self.participants = self.participantSets[enemyPokemon]
+    self.phazeResult = nil
     BattleRewards.attach(self)
 
     -- Directionality: set per half-turn, consumed by the DSL
@@ -326,10 +330,12 @@ end
 
 -- Discovery belongs to actual opponent entry, never team construction/bench.
 -- Mark immediately before its visible announcement, including replacements.
-function Battle:opponentEntered()
+function Battle:opponentEntered(cause)
+    assert(cause==nil or cause=="phaze","invalid opponent-entry cause")
     if self.enemyParty then assert(self.enemyParty:active()==self.enemy,"opponent entry active mismatch") end
     if self.session then assert(self.session:markSeen(self.enemy.species)) end
-    if self.trainerName then self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
+    if cause=="phaze" then self:say(self.enemy.name.." was dragged out!")
+    elseif self.trainerName then self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
     else self:say("A wild " .. self.enemy.name .. " appeared!") end
 end
 
@@ -344,7 +350,7 @@ function Battle:update()
             -- A real learning choice may replace the slot while the volatile
             -- stores the move identity. Continue without forging a learned slot.
             assert(moveData[key],"locked move definition missing")
-            commitFight(self,{side="player",move=moveData[key],key=key,continuation=true})
+            commitFight(self,{side="player",actor=self.player,move=moveData[key],key=key,continuation=true})
         end
     end
 end
@@ -480,11 +486,11 @@ function Battle:clearVolatiles()
 end
 function Battle:enemyTurn()
     local locked=self.conditions:lockedKey(self.enemy)
-    if locked then return {side="enemy",move=moveData[locked],key=locked,continuation=true} end
+    if locked then return {side="enemy",actor=self.enemy,move=moveData[locked],key=locked,continuation=true} end
     local choices = self:availableMoves(self.enemy)
-    if #choices == 0 then return {side = "enemy", move = moveData.struggle} end
+    if #choices == 0 then return {side = "enemy", actor=self.enemy, move = moveData.struggle} end
     local choice = choices[RulesRNG.random(1, #choices)]
-    return {side = "enemy", move = choice.move, key = choice.key}
+    return {side = "enemy", actor=self.enemy, move = choice.move, key = choice.key}
 end
 
 function Battle:selectStruggle()
@@ -512,7 +518,7 @@ function Battle:selectMove(moveIndex)
         if not locked and not self.player:hasPP(key) then return false, "no-pp" end
     end
     assert(playerMove, "Struggle definition must be generated")
-    local playerTurn = {side = "player", move = playerMove, key = key, continuation=locked~=nil}
+    local playerTurn = {side = "player", actor=self.player, move = playerMove, key = key, continuation=locked~=nil}
     return commitFight(self,playerTurn)
 end
 
@@ -576,6 +582,116 @@ local function validSwitchSleep(mon)
     local duration=type(mon.sleepDuration)=="number" and math.tointeger(mon.sleepDuration) or nil
     return duration and remaining and duration>=1 and duration<=3 and remaining>=0 and remaining<=duration
 end
+-- One non-yielding active-member commit shared by voluntary choice, faint
+-- replacement and random phazing. Callers own their distinct phase/turn rules.
+commitActiveMember = function(self, side, index)
+    local party
+    if side == "player" then party = self.party else party = self.enemyParty end
+    local old = self[side]
+    assert((side == "player" or side == "enemy") and party and party:active() == old, "active party mismatch")
+    local chosen = assert(party:get(index))
+    assert(chosen ~= old and chosen:isAlive() and validSwitchSleep(old) and validSwitchSleep(chosen), "invalid active replacement")
+    assert(party:switch(index))
+    self.conditions:clear(old)
+    self.effects:clear(old)
+    old:onSwitchOut()
+    self[side] = chosen
+    chosen:resetStages()
+    if side == "enemy" then
+        self.participantSets[chosen] = self.participantSets[chosen] or {}
+        self.participants = self.participantSets[chosen]
+        self.xpAwarded = self.awardedEnemies[chosen] == true
+    end
+    if self.player:isAlive() then self.participants[self.player] = true end
+    self.faintAnnounced[side] = nil
+    self.selectionKind = nil
+    self:clearHitPresentation()
+    return old, chosen
+end
+
+-- Pure stable-order bench query. Voluntary lock/trap rules intentionally do
+-- not apply to forced displacement. No fake Substitute/Ingrain producer state.
+function Battle:eligibleForcedReplacements(target)
+    if type(target) ~= "table" or type(target.is) ~= "function" or not target:is("Pokemon") then
+        return nil, "invalid-target"
+    end
+    if self.outcome or self.effects.closed or not target:isAlive() then return nil, "inactive-target" end
+    local side = target == self.player and "player" or (target == self.enemy and "enemy" or nil)
+    if not side then return nil, "foreign-target" end
+    if not validSwitchSleep(target) then return nil, "invalid-sleep-duration" end
+    local party
+    if side == "player" then party = self.party else party = self.enemyParty end
+    if not party then return {}, side end
+    if party:active() ~= target then return nil, "active-party-mismatch" end
+    local choices = {}
+    for index, mon in ipairs(party:members()) do
+        if mon ~= target and mon:isAlive() then
+            if not validSwitchSleep(mon) then return nil, "invalid-sleep-duration" end
+            choices[#choices + 1] = index
+        end
+    end
+    return choices, side
+end
+
+function Battle:getForceSwitchSnapshot()
+    if not self.phazeResult then return { present = false } end
+    local copy = { present = true }
+    for key, value in pairs(self.phazeResult) do copy[key] = value end
+    return copy
+end
+
+-- Only the current owned script can apply this typed effect. Terminal return
+-- is nil|'run'; no generic effect boolean becomes a battle outcome.
+function Battle:forceSwitch(target)
+    local script = self.machine:current()
+    local source, sourceSide = self.attacker, self.attackerSide
+    if self:phase() ~= "script" or script.cancelled or script.co ~= coroutine.running()
+        or self.outcome or self.effects.closed or not source or not source:isAlive()
+        or (sourceSide ~= "player" and sourceSide ~= "enemy") or self[sourceSide] ~= source
+        or target ~= self.defender or target ~= self[sourceSide == "player" and "enemy" or "player"] then
+        return nil
+    end
+    local choices, targetSide = self:eligibleForcedReplacements(target)
+    if not choices then
+        self:say("But it failed!")
+        return nil
+    end
+    local result = {
+        cause = "phaze", sourceSide = sourceSide, targetSide = targetSide,
+        outgoing = target.species, incoming = "", index = 0, wild = self.trainerName == nil,
+    }
+    self.phazeResult = result
+    if not self.trainerName then
+        if target.level > source.level then
+            result.success, result.reason = false, "higher-level"
+            self:say("But it failed!")
+            return nil
+        end
+        result.success, result.reason = true, "wild-escape"
+        self:say(target.name .. " was blown away!")
+        return "run"
+    end
+    if #choices == 0 then
+        result.success, result.reason = false, "no-reserve"
+        self:say("But it failed!")
+        return nil
+    end
+    local index = choices[RulesRNG.random(1, #choices)]
+    local _, incoming = commitActiveMember(self, targetSide, index)
+    result.success, result.reason = true, "trainer-replacement"
+    result.incoming, result.index = incoming.species, index
+    if targetSide == "enemy" then
+        self:opponentEntered("phaze")
+    else
+        self:say(incoming.name .. " was dragged out!")
+    end
+    self.conditions:entry(incoming, targetSide)
+    self.effects:entry(incoming)
+    -- Keep the original move's source orientation for actual faint/XP handling.
+    self:setDirection(sourceSide)
+    return nil
+end
+
 function Battle:chooseParty(index)
     local forced=self:needsForcedSwitch()
     if self.outcome or (not forced and not self:isAwaitingCommand()) then return false,"wrong-phase" end
@@ -594,16 +710,7 @@ function Battle:chooseParty(index)
     if not forced and (self.conditions:trapped(self.player) or self.effects:withdrawBlocked(self.player)) then return false,"trapped" end
     local old=self.player
     self.effects:beginRound()
-    assert(self.party:switch(index))
-    self.conditions:clear(old)
-    self.effects:clear(old)
-    old:onSwitchOut()
-    self.player=chosen
-    chosen:resetStages()
-    self.participants[chosen]=true
-    self.faintAnnounced.player=nil
-    self.selectionKind=nil
-    self:clearHitPresentation()
+    commitActiveMember(self,"player",index)
     self:runScript(function()
         if not forced then self:say(old.name .. ", come back!") end
         self:say("Go! " .. chosen.name .. "!")
@@ -740,6 +847,11 @@ function Battle:resolveRound(turns)
 end
 
 function Battle:resolveTurn(turn)
+    assert(type(turn)=="table" and (turn.side=="player" or turn.side=="enemy")
+        and turn.actor and turn.actor:is("Pokemon"),"actual queued actor required")
+    -- Displaced actors never lend their action to a replacement, and are
+    -- rejected before direction/context/status/PP/RNG changes.
+    if turn.actor~=self[turn.side] or self.outcome or self.effects.closed then return nil end
     self:setDirection(turn.side)
     local attacker = self.attacker
     self.effects:beginAction(turn,attacker)
@@ -837,6 +949,24 @@ function Battle:moveHasTarget(move)
     return target==4 or target==5 or target==6 or target==7 or target==12 or target==13 or target==14
 end
 
+-- Keep a bounded, transient diagnostic in addition to the Simulator dev log.
+-- Neither this receipt nor the support inventory owns battle outcomes or saves.
+function Battle:recordMoveGap(key, reason)
+    local entry = { move = key, reason = reason, side = self.attackerSide }
+    self.moveGaps = self.moveGaps or {}
+    self.moveGaps[#self.moveGaps + 1] = entry
+    if #self.moveGaps > 12 then table.remove(self.moveGaps, 1) end
+    print("[move-gap] " .. key .. ": " .. reason)
+end
+
+function Battle:getMoveGaps()
+    local copy = {}
+    for i, entry in ipairs(self.moveGaps or {}) do
+        copy[i] = { move = entry.move, reason = entry.reason, side = entry.side }
+    end
+    return copy
+end
+
 function Battle:performMove(move)
     local attacker, defender = self.attacker, self.defender
     self.currentMove = move
@@ -845,6 +975,26 @@ function Battle:performMove(move)
         if definition == move then self.currentMoveKey = key; break end
     end
     self.lastDamage = 0
+
+    local handler = self.currentMoveKey and MoveSupport.handlers[self.currentMoveKey]
+    local gap = self.currentMoveKey and MoveSupport.gaps[self.currentMoveKey]
+    if not handler then
+        gap = gap or "unreviewed move dispatch"
+    elseif move.category == "status" and handler ~= "intentional-no-effect"
+        and handler ~= "singles-no-target" and not move.attemptRule then
+        local concrete = false
+        for _, effect in ipairs(move.effects or {}) do
+            if not effect:is("NoEffect") then concrete = true end
+        end
+        if not concrete then gap = "missing status effect" end
+    end
+    if gap then
+        self:recordMoveGap(self.currentMoveKey or move.name, gap)
+        self:say(attacker.name .. " used " .. move.name .. "!")
+        self:say("But it failed!")
+        self.conditions:moveFinished(move, false)
+        return nil
+    end
 
     if move.damageRule=="bide" then return self.conditions:bide() end
 
@@ -885,7 +1035,11 @@ function Battle:performMove(move)
     -- consumed at the actual attempt, and no failure here samples damage RNG.
     local permitted,attemptReason=self.effects:canAttempt(move,attacker,defender)
     if not permitted then
-        self:say(attemptReason=="oblivious" and (defender.name.." is protected by Oblivious!") or "But it failed!")
+        if attemptReason == "soundproof" then
+            self:say(defender.name .. " is protected by Soundproof!")
+        else
+            self:say(attemptReason=="oblivious" and (defender.name.." is protected by Oblivious!") or "But it failed!")
+        end
         self.conditions:moveFinished(move,false)
         return nil
     end
@@ -979,7 +1133,8 @@ function Battle:performMove(move)
             self:say(attacker.name .. " is damaged by recoil!")
         end
 
-        self:applyMoveEffects(move)
+        local effectOutcome=self:applyMoveEffects(move)
+        if effectOutcome=="run" then return effectOutcome end
         self.conditions:moveFinished(move,true)
 
         if not defender:isAlive() then
@@ -992,9 +1147,13 @@ function Battle:performMove(move)
         end
     else
         -- Status / fixed-damage move: effects carry the whole payload
-        self:applyMoveEffects(move)
-        if not defender:isAlive() then return self:handleFaint() end
-        if not attacker:isAlive() then
+        if self.currentMoveKey == "splash" then self:say("But nothing happened!") end
+        local effectOutcome=self:applyMoveEffects(move)
+        if effectOutcome=="run" then return effectOutcome end
+        -- A force-switch payload may have replaced the old local defender.
+        -- Entry-hazard faints use the actual current identity and rewards owner.
+        if not self.defender:isAlive() then return self:handleFaint() end
+        if not self.attacker:isAlive() then
             self:setDirection(self.attackerSide=="player" and "enemy" or "player")
             return self:handleFaint()
         end
@@ -1020,7 +1179,8 @@ end
 function Battle:applyMoveEffects(move)
     if not move.effects then return end
     for _, effect in ipairs(move.effects) do
-        effect:apply(self)   -- DSL effects narrate themselves via battle:say
+        local outcome=effect:apply(self) -- DSL effects narrate via battle:say.
+        if outcome=="run" then return outcome end
     end
 end
 
@@ -1100,19 +1260,7 @@ function Battle:finishRound()
     while not self.enemy:isAlive() and self.enemyParty and self.enemyParty:firstUsable() do
         local index = self.enemyParty:firstUsable()
         if index then
-            local old = self.enemy
-            self.conditions:clear(old)
-    self.effects:clear(old)
-            old:onSwitchOut()
-            assert(self.enemyParty:switch(index))
-            self.enemy = self.enemyParty:active()
-            self.enemy:resetStages()
-            -- Earlier opposing identities retain their one-time reward marker.
-            self.participants={}
-            if self.player:isAlive() then self.participants[self.player]=true end
-            self.faintAnnounced.enemy = nil
-            self.xpAwarded = false
-            self:clearHitPresentation()
+            commitActiveMember(self,"enemy",index)
             self:opponentEntered()
             self.conditions:entry(self.enemy,"enemy")
             self.effects:entry(self.enemy)

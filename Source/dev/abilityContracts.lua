@@ -15,7 +15,7 @@ end
 local function battle(p,e,trainer,deps) local b=Battle(p,e,trainer,deps);settle(b);return b end
 local function act(b,side,key)
     local p=side=="player" and b.player or b.enemy;own(p,{key})
-    b:runScript(function() return b:resolveTurn({side=side,key=key,move=moveData[key]}) end)
+    b:runScript(function() return b:resolveTurn({side=side,actor=b[side],key=key,move=moveData[key]}) end)
     return settle(b)
 end
 local function script(b,fn) b:runScript(fn);return settle(b) end

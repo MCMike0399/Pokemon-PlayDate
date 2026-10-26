@@ -14,7 +14,7 @@ local function settle(b)
 end
 local function battle(p,e,opts)local b=Battle(p,e,nil,opts);settle(b);return b end
 local function act(b,key,seed)
- own(b.player,key);RulesRNG.seed(seed or 14);b:runScript(function()return b:resolveTurn({side="player",key=key,move=moveData[key]})end);return settle(b)
+ own(b.player,key);RulesRNG.seed(seed or 14);b:runScript(function()return b:resolveTurn({side="player",actor=b.player,key=key,move=moveData[key]})end);return settle(b)
 end
 local function cap(attackerSex,defenderSpecies,defenderSex,slot)
  return battle(mon("pikachu","first",attackerSex),mon(defenderSpecies or "charmander",slot or "first",defenderSex))
@@ -132,7 +132,7 @@ function SexAbilityContracts.run()
  test("Immunity real enemy replacement cures stored poison before next command",function()
   local p=Pokemon("pikachu",100);own(p,"sonicBoom");local e=Pokemon("rattata",5);e.hp=1;local q=Pokemon("snorlax",5);q.status="badPoison";local team=Party();assert(team:add(e));assert(team:add(q))
   local b=Battle(p,e,"CONTRACT",{enemyParty=team});settle(b);eq(q.status,"badPoison");RulesRNG.seed(43)
-  b:runScript(function()local outcome=b:resolveTurn({side="player",key="sonicBoom",move=moveData.sonicBoom});if outcome=="replacement"then return b:finishRound()end;return outcome end);local text=settle(b)
+  b:runScript(function()local outcome=b:resolveTurn({side="player",actor=b.player,key="sonicBoom",move=moveData.sonicBoom});if outcome=="replacement"then return b:finishRound()end;return outcome end);local text=settle(b)
   eq(b.enemy,q);eq(q.status,nil);eq(q.statusTurns,0);assert(text:find("Immunity",1,true))
  end)
  test("Snorlax without Immunity keeps its preexisting poison on entry",function()

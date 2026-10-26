@@ -58,7 +58,7 @@ class ProtectionProducerTests(unittest.TestCase):
                 with self.subTest(change=(a,b)),self.assertRaisesRegex(ValueError,'unexpected changes'):generate(text.replace(a,b,1),p)
 
     def test_current_exact_inverse_keeps_original424_oracle_and_validates_bide_flags_first(self):
-        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);self.assertEqual(c.producer_epoch(text),12)
+        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);self.assertEqual(c.producer_epoch(text),13)
         self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,c.producer_epoch(text)),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
         for field in c.PROTECTION_FIELDS:
             changed=dict(rows);changed['bide']=c.drop_fields(rows['bide'],(field,))

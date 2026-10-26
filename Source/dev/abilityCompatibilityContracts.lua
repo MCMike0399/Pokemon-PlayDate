@@ -10,7 +10,7 @@ local function fresh(p,e) local b=Battle(p,e);settle(b);return b end
 local function effect(b,fn) b:runScript(fn);return settle(b) end
 local function attempt(b,key)
     local p=b.player;p.moves={key};p.pp={[key]=moveData[key].pp}
-    b:runScript(function() return b:resolveTurn({side="player",key=key,move=moveData[key]}) end);return settle(b)
+    b:runScript(function() return b:resolveTurn({side="player",actor=b.player,key=key,move=moveData[key]}) end);return settle(b)
 end
 local function unchanged(r) local now=RulesRNG.snapshot();eq(now.state,r.state,"RNG state");eq(now.rolls,r.rolls,"RNG rolls") end
 local function seed(low,high,value) for i=1,100000 do if RulesRNG.new(i):random(low,high)==value then return i end end;error("no fixture seed") end

@@ -21,7 +21,7 @@ end
 local function one(b,side,key,continuation)
     local mon=b[side]
     if not mon:hasMove(key) then own(mon,{key}) end
-    b:runScript(function() return b:resolveTurn({side=side,key=key,move=moveData[key],continuation=continuation}) end)
+    b:runScript(function() return b:resolveTurn({side=side,actor=b[side],key=key,move=moveData[key],continuation=continuation}) end)
     return settle(b)
 end
 local function round(b) b:runScript(function() return b:finishRound() end);return settle(b) end
