@@ -83,6 +83,36 @@ function CeruleanSceneContracts.run(withScene)
         report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(problem) or nil}
         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
     end
+    test("pinned Cerulean swimmer stands on water without opening player collision or script entry",function()
+        withScene("CeruleanGym",{x=4,y=3,facing="up"},function(g)
+            local world = WorldDeltas.export()
+            local descriptor = SourceActors.describe(currentZone.stableID,world)
+            local spec
+            for _, actor in ipairs(descriptor.actors) do
+                if actor.id == "pokered:CERULEAN_GYM:objects:3" then spec = actor end
+            end
+            assert(spec and spec.blocked_home)
+            eq(spec.x,9); eq(spec.y,7) -- Source (8,7), plus one padding cell.
+            eq(currentZone.collision[8][10],1)
+            eq(descriptor.canStand(spec,9,7,currentZone),true)
+            eq(descriptor.canStep(spec,8,7,9,7,currentZone),false)
+            eq(descriptor.canWanderStep(spec,9,7,8,7,currentZone),false)
+            local snapshot = g.npcManager.motion:snapshot()
+            assert(g.session:captureTraversal({world=world,actors=snapshot,
+                location={zone_id=currentZone.stableID,x=g.player.gridX,y=g.player.gridY,facing=g.player.facing}}))
+            local wire = assert(SessionCodec.encode(g.session,{root="overworld",overworld="explore",settled=true}))
+            assert(SessionCodec.decode(wire,g:getSessionDependencies()))
+            local invalid = Party._primitive(snapshot)
+            for _, value in ipairs(invalid.actors) do
+                if value.id == spec.id then
+                    value.x,value.origin_x,value.target_x = 10,10,10
+                end
+            end
+            assert(not pcall(WorldMotionData.normalize,invalid,descriptor,
+                {zone_id=currentZone.stableID,x=g.player.gridX,y=g.player.gridY,facing=g.player.facing},g.session:flags()))
+            eq(currentZone.collision[8][10],1)
+        end)
+    end)
     for _, yes in ipairs({true,false}) do
         test("Bill source "..(yes and "YES" or "NO").." input enters machine then requires separate PC interaction",function()
             withScene("BillsHouse",{x=6,y=6,facing="up"},function(g)

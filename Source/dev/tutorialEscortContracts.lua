@@ -195,6 +195,22 @@ function TutorialEscortContracts.run()
             eq(descriptor.canStep(spec,15,18,16,18,currentZone),true)
             eq(descriptor.canWanderStep(spec,15,18,16,18,currentZone),false)
             eq(descriptor.canStep(spec,16,18,16,17,currentZone),false)
+            local martArrival = 18*descriptor.width+23+1
+            local martDoor = 17*descriptor.width+23+1
+            assert(descriptor.protected[martArrival] and descriptor.protected[martDoor])
+            assert(spec.script_transit[martArrival])
+            eq(spec.script_transit[martDoor],nil)
+            eq(descriptor.canStep(spec,24,18,23,18,currentZone),true)
+            eq(descriptor.canWanderStep(spec,24,18,23,18,currentZone),false)
+            eq(descriptor.canStep(spec,23,18,23,17,currentZone),false)
+            for _, actor in ipairs(descriptor.actors) do
+                if actor ~= spec then
+                    eq(actor.script_transit and actor.script_transit[arrival],nil)
+                    eq(actor.script_transit and actor.script_transit[martArrival],nil)
+                    eq(descriptor.canStand(actor,16,18,currentZone),false)
+                    eq(descriptor.canStand(actor,23,18,currentZone),false)
+                end
+            end
             eq(TutorialEscortData.transitAllowed("pokered:PEWTER_CITY:objects:4",16,18),false)
         end)
     end)

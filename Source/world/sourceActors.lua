@@ -109,10 +109,11 @@ function SourceActors.describeSource(zoneID, world, game)
     local provider=assert(WorldDeltas.definitionProvider(),"source actor surface provider missing")
     local surface=provider:surface(zoneID,world);local d=SourceMaps.padded(name)
     local rules=Party._primitive(d.directional_rules)
-    local specList,protected={},{}
+    local specList,protected,warps={},{},{}
     local function protect(x,y)if x>=0 and y>=0 and x<surface.width and y<surface.height then protected[y*surface.width+x+1]=true end end
     for _,warp in ipairs(d.events.warps)do
         protect(warp.x,warp.y)
+        warps[warp.y*surface.width+warp.x+1] = true
         if SourceMaps.isDoor(name,warp.x,warp.y)then protect(warp.x,warp.y+1)end
     end
     for _,connection in ipairs(d.connections)do
@@ -142,7 +143,11 @@ function SourceActors.describeSource(zoneID, world, game)
         for _,position in ipairs(positions) do
             assert(position.x < surface.width and position.y < surface.height, "script position outside source map")
             local cell = position.y * surface.width + position.x + 1
-            local transit = TutorialEscortData and TutorialEscortData.transitAllowed(event.id, position.x, position.y)
+            -- The pinned guide route crosses the Mart arrival before its Gym
+            -- departure. Both are leased route cells, never actual warps.
+            local transit = event.id == "pokered:PEWTER_CITY:objects:5"
+                and position.y == 18 and (position.x == 16 or position.x == 23)
+                and protected[cell] and not warps[cell]
             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
             if transit then
                 spec.script_transit = spec.script_transit or {}
@@ -158,6 +163,13 @@ function SourceActors.describeSource(zoneID, world, game)
             spec.script_collision_positions[cell] = true
         end
         spec.visibility = Party._primitive(metadata.visibility or {})
+        -- Source objects may stand on a machine, counter or water tile that
+        -- blocks the player. Only the original STAY home gets this permission;
+        -- world deltas and script routes cannot create new blocked homes.
+        local home = event.y * surface.width + event.x + 1
+        spec.blocked_home = event.movement == "STAY" and not protected[home]
+            and d.collision[event.y+1][event.x+1] == 1
+            and surface.collision[event.y+1][event.x+1] == 1
         local descriptor = SourceEvents.descriptor(event.id)
         if profile ~= "pewter" and descriptor and descriptor.kind == "pickup" then
             spec.visibility[#spec.visibility + 1] = {group="quest", id=descriptor.flag, equals=false}
@@ -174,6 +186,9 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     local function canStand(spec,x,y,runtimeZone)
         local cell = y * surface.width + x + 1
+        if spec.blocked_home and x == spec.x and y == spec.y
+            and x >= 0 and y >= 0 and x < surface.width and y < surface.height
+            and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 1 then return true end
         if spec.script_positions[cell] and (not protected[cell] or spec.script_transit and spec.script_transit[cell]) and x >= 0 and y >= 0 and x < surface.width and y < surface.height
             and ((runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0
                 or spec.script_collision_positions[cell]) then return true end
@@ -181,6 +196,11 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     local function canStep(spec,x,y,tx,ty,runtimeZone)
         if not canStand(spec,x,y,runtimeZone)or not canStand(spec,tx,ty,runtimeZone)or math.abs(tx-x)+math.abs(ty-y)~=1 then return false end
+        -- Standing at a pinned blocked home does not authorize entering it.
+        -- Bill's separately declared script collision poses retain their policy.
+        local target = ty * surface.width + tx + 1
+        if (runtimeZone and runtimeZone.collision or surface.collision)[ty+1][tx+1] ~= 0
+            and not spec.script_collision_positions[target] then return false end
         local a=runtimeZone and runtimeZone:terrainAt(x,y).foot_tile or surface.feet[y+1][x+1]
         local b=runtimeZone and runtimeZone:terrainAt(tx,ty).foot_tile or surface.feet[ty+1][tx+1]
         local direction=tx>x and "RIGHT"or tx<x and "LEFT"or ty>y and "DOWN"or "UP"

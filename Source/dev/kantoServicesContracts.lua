@@ -129,6 +129,46 @@ function KantoServicesContracts.run(withScene)
     local function center(fn)
         withScene("MtMoonPokecenter", {x=10, y=5, facing="down"}, fn)
     end
+    for _, home in ipairs({
+        {map="Museum1F", id="pokered:MUSEUM_1F:objects:5", x=16, y=2, player={x=9,y=4}},
+        {map="MtMoonPokecenter", id="pokered:MT_MOON_POKECENTER:objects:5", x=7, y=2, player={x=10,y=5}},
+    }) do
+        test(home.id .. " retains its pinned blocked STAY home without opening terrain", function()
+            withScene(home.map, home.player, function(g)
+                local world = WorldDeltas.export()
+                local descriptor = SourceActors.describe(currentZone.stableID, world)
+                local spec
+                for _, actor in ipairs(descriptor.actors) do
+                    if actor.id == home.id then spec = actor end
+                end
+                assert(spec and spec.blocked_home)
+                eq(spec.x,home.x); eq(spec.y,home.y)
+                eq(currentZone.collision[home.y+1][home.x+1],1)
+                eq(descriptor.canStand(spec,home.x,home.y,currentZone),true)
+                eq(descriptor.canStand(spec,home.x+1,home.y,currentZone),false)
+                eq(descriptor.canStep(spec,home.x-1,home.y,home.x,home.y,currentZone),false)
+                eq(descriptor.canWanderStep(spec,home.x,home.y,home.x+1,home.y,currentZone),false)
+                eq(descriptor.canStand(spec,-1,home.y,currentZone),false)
+                -- Newly blocking ordinary floor cannot create a home exception.
+                local ordinary = descriptor.actors[1]
+                assert(not ordinary.blocked_home)
+                local changed = {collision=Party._primitive(currentZone.collision)}
+                changed.collision[ordinary.y+1][ordinary.x+1] = 1
+                eq(descriptor.canStand(ordinary,ordinary.x,ordinary.y,changed),false)
+                local snapshot = g.npcManager.motion:snapshot()
+                local rng, worldRng = RulesRNG.toData(), g.session:worldRngData()
+                assert(g.session:captureTraversal({world=world,actors=snapshot,
+                    location={zone_id=currentZone.stableID,x=g.player.gridX,y=g.player.gridY,facing=g.player.facing}}))
+                local decoded = restore(g)
+                same(decoded:actorData(),snapshot)
+                g.npcManager.motion:attach(g,currentZone,decoded:actorData())
+                same(g.npcManager.motion:snapshot(),snapshot)
+                same(RulesRNG.toData(),rng); same(decoded:worldRngData(),worldRng)
+                same(WorldDeltas.export(),world)
+                eq(currentZone.collision[home.y+1][home.x+1],1)
+            end)
+        end)
+    end
     for _, x in ipairs({9, 10}) do
         test("museum source trigger " .. x .. " charges 50 once, survives codec, resets only in Pewter", function()
             withScene("Museum1F", {x=x, y=4}, function(g)
