@@ -215,6 +215,13 @@ function DoorWarpSubstate:init(owner)
 end
 
 function DoorWarpSubstate:enter(door)
+    if VermilionStory and not VermilionStory.allowDoor(self.owner.game,door) then
+        self.owner.game.player.stepJustFinished=false
+        self.owner.game.player.pendingEdgeDoor=nil
+        self.owner.game.player.pendingConnection=nil
+        self.machine:change("explore")
+        return
+    end
     self.timer = 0
     self.door = door
 end
@@ -231,7 +238,7 @@ function DoorWarpSubstate:update()
         local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
         local provider = WorldDeltas.definitionProvider()
         local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
-        SourceEvents.worldHook("onLeave", self.owner.game, destination)
+        SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
         switchZone(door.to)
         self.owner.machine:change("overworld", {
             entry = { x = door.toX, y = door.toY, facing = facing },

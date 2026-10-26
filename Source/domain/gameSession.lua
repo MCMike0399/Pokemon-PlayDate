@@ -295,7 +295,7 @@ function GameSession:transact(expected,changes)
     return true
 end
 -- Badge bits are represented by stable quest flags in the existing codec.
-local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE"}
+local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE",thunder="BADGE_THUNDER"}
 function GameSession:hasBadge(name)
     local id=assert(badgeFlags[name],"unsupported badge name")
     return self:questFlag(id)
@@ -524,4 +524,90 @@ end
 -- Existing source-scene owners call this after a successful same-map commit.
 function GameSession:invalidateFieldWorldContext()
     state[self].fieldEpoch = nextFieldEpoch()
+end
+
+local function sceneEqual(a, b)
+    if type(a) ~= type(b) then
+        return false
+    end
+    if type(a) ~= "table" then
+        return a == b
+    end
+    for key, value in pairs(a) do
+        if not sceneEqual(value, b[key]) then
+            return false
+        end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+
+local sceneIntents = setmetatable({}, {__mode = "k"})
+function GameSession:forkWorldRNG()
+    local stream = RulesRNG.new(1)
+    stream:restoreData(self:worldRngData())
+    local token = {}
+    sceneIntents[token] = {
+        session = self,
+        epoch = state[self].sceneEpoch or 0,
+        fieldEpoch = self:fieldWorldEpoch(),
+    }
+    return stream, token
+end
+
+function GameSession:transactScene(expected, changes, scene)
+    local current = state[self]
+    local ticket = type(scene) == "table" and sceneIntents[scene.token]
+    if not ticket or ticket.session ~= self
+        or ticket.epoch ~= (current.sceneEpoch or 0)
+        or ticket.fieldEpoch ~= self:fieldWorldEpoch() then
+        return false, "stale-scene-intent"
+    end
+    -- A ticket allows one attempt, including a rejected validation.
+    sceneIntents[scene.token] = nil
+    local ok, prepared = pcall(function()
+        assert(GameSession.activeRNGSession() == self, "inactive-scene-session")
+        object(scene, {beforeWorld=true, world=true, beforeRng=true,
+            rng=true, location=true, token=true})
+        assert(sceneEqual(WorldDeltas.export(), scene.beforeWorld), "stale-scene-world")
+        assert(sceneEqual(self:worldRngData(), scene.beforeRng), "stale-scene-world-rng")
+        local candidate = world(current.deps, scene.world)
+        local position = location(current.deps, scene.location, candidate, true)
+        local checkpoint = location(current.deps, current.checkpoint, candidate)
+        local stream = RulesRNG.new(1)
+        stream:restoreData(rngData(scene.rng))
+        return {
+            world = candidate,
+            location = position,
+            checkpoint = checkpoint,
+            stream = stream,
+            actors = WorldMotionData.empty(),
+        }
+    end)
+    if not ok then
+        return false, tostring(prepared)
+    end
+    -- Native application returns an undo. No callback or yield separates it
+    -- from the session transaction, which retains bag and party identities.
+    local applied, undo = pcall(WorldDeltas.apply, prepared.world)
+    if not applied then
+        return false, tostring(undo)
+    end
+    local accepted, reason = self:transact(expected, changes)
+    if not accepted then
+        undo()
+        return false, reason
+    end
+    current.world = prepared.world
+    current.location = prepared.location
+    current.checkpoint = prepared.checkpoint
+    current.worldRng = prepared.stream
+    current.currentActors = prepared.actors
+    current.sceneEpoch = (current.sceneEpoch or 0) + 1
+    self:invalidateFieldWorldContext()
+    return true
 end

@@ -145,8 +145,10 @@ function SourceActors.describeSource(zoneID, world, game)
             local cell = position.y * surface.width + position.x + 1
             -- The pinned guide route crosses the Mart arrival before its Gym
             -- departure. Both are leased route cells, never actual warps.
-            local transit = event.id == "pokered:PEWTER_CITY:objects:5"
+            local transit = (event.id == "pokered:PEWTER_CITY:objects:5"
                 and position.y == 18 and (position.x == 16 or position.x == 23)
+                or event.id == "pokered:SS_ANNE_2F:objects:2"
+                and position.x == event.x and position.y == event.y+1)
                 and protected[cell] and not warps[cell]
             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
             if transit then

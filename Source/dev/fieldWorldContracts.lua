@@ -173,6 +173,30 @@ local function reload(g)
 end
 
 function FieldWorldContracts.run(test)
+    test("field-world: lifecycle invalidation rejects a retained scene RNG intent", function()
+        scene(function(g)
+            local before = wire(g)
+            local runtime = WorldDeltas.export()
+            local rng = RulesRNG.toData()
+            local stream, token = g.session:forkWorldRNG()
+            same(stream:toData(), g.session:worldRngData())
+            g.session:invalidateFieldWorldContext()
+            local accepted, reason = g.session:transactScene({}, {}, {
+                token = token,
+                beforeWorld = runtime,
+                world = runtime,
+                beforeRng = stream:toData(),
+                rng = stream:toData(),
+                location = g.session:location(),
+            })
+            eq(accepted, false)
+            eq(reason, "stale-scene-intent")
+            same(wire(g), before)
+            same(WorldDeltas.export(), runtime)
+            same(RulesRNG.toData(), rng)
+        end)
+    end)
+
     test("field-world: Cut reload under player preserves position and allows real step off", function()
         scene(function(g)
             g.machine:pop()
