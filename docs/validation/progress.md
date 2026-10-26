@@ -67,12 +67,14 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
   scenes are composed. Natural per-starter journey drivers are prepared.
 - Independent standards review repairs are composed. Spec review found missing
   guard dialogue and exposed abilities: guards and ordinary entry/contact/residual ability hooks are repaired privately.
-  The third native pass reached 1583 successes; five escort cases exposed a frozen
-  ambient blocker. A source-backed route fix is composed and the fourth pass is live.
+  The fourth native pass passed all 1596 contracts. The frozen ambient blocker
+  is resolved through an owned source-script movement intent. Center healing was
+  extended to the pinned standard layout; its actual blackout supplement passed.
 - New visual exporter declares 2448 additions. Native scene, map, art and journey
   acceptance remain pending. The user approved exactly the museum collision diagnostic update (two door cells,
   2048 pixels); all other 2493 protected images match. Private baseline approval
-  is recorded; final native comparison and new-art review remain pending.
+  is recorded and the approved protected comparison passes. All 18 new map
+  viewports and source-strip families were inspected; scene motion review remains.
 
 ## 3. Open defects blocking progress
 
@@ -93,7 +95,10 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | Durable environment worktree at `db65535`; fourth native pass is running. Main remains Source 2673 through Brock. |
+| `wip/cerulean-integration` / root | Durable environment worktree at `c6882b6`; fresh Squirtle New Game → Bill/restart journey is live. Ticket, TM11, both fossil retries, blackout and observation restart witnesses pass. Other starter journeys remain unrun. |
+| `wip/vermilion-content` / worker | Preparing 5.4 maps and ordinary content only; no main activation. |
+| `wip/field-cut-flash` / worker | Preparing next field HM owners and root integration patch. |
+| `wip/anne-surge-scenes` / worker | Preparing Captain/rival/boarding and Surge puzzle/reward scenes. |
 | `wip/kanto-entry-abilities` / worker | `e8844a3` composed; actual native entry cases passed after fixture repairs. |
 | `wip/kanto-contact-abilities` / worker | `a408642`/`3cc5925` composed; actual native contact cases passed after live-ledger fixture repairs. |
 | `wip/audio-rgbds-oracle` / worker | `dadb7b3` independently qualifies emitted bytes with isolated pinned Bison/RGBDS; no engine/APU claim. |
