@@ -1,4 +1,5 @@
 """Independent RGBDS macro execution when present; explicit audited fallback otherwise."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -12,7 +13,7 @@ from .source import AudioError
 FIXTURE = Path(__file__).resolve().parents[1]/'references/audio/bytes.json'
 
 
-def qualify_bytes(catalog):
+def qualify_bytes(catalog, *, require_independent=False):
     raw = FIXTURE.read_bytes()
     fixture = json.loads(raw)
     if fixture['revision'] != catalog.source.revision:
@@ -46,8 +47,23 @@ def qualify_bytes(catalog):
               'limitation': 'RGBDS rgbasm and rgblink required for independent byte execution; no packages installed.',
               'fixture_sha256': hashlib.sha256(raw).hexdigest(),
               'macro_cases': len(fixture['commands']), 'header_cases': len(fixture['headers']), 'wave5': wave_report}
+    result['status'] = 'audit-only'
+    result['missing_tools'] = [name for name, path in (('rgbasm', assembler), ('rgblink', linker)) if not path]
     if not assembler or not linker:
+        if require_independent:
+            raise AudioError('independent byte qualification unavailable: missing '+', '.join(result['missing_tools']))
         return result
+    tool_report = {}
+    for name, path in (('rgbasm', assembler), ('rgblink', linker)):
+        try:
+            version = subprocess.check_output([path, '--version'], stderr=subprocess.STDOUT).decode().strip()
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise AudioError(f'{name} version probe failed: {exc}') from exc
+        if version != f'{name} v1.0.4':
+            raise AudioError(f'{name}: required v1.0.4, found {version!r}')
+        tool_report[name] = {'path': str(Path(path).resolve()), 'version': version,
+                             'sha256': hashlib.sha256(Path(path).read_bytes()).hexdigest()}
+
     # Execute the original macros in an isolated 32KiB ROM, never the game ROM.
     preamble = ['DEF _BLUE EQU 1', 'DEF NUM_MUSIC_CHANS EQU 4', 'DEF NUM_CHANNELS EQU 8',
                 'INCLUDE "macros/const.asm"', 'INCLUDE "macros/data.asm"',
@@ -56,6 +72,7 @@ def qualify_bytes(catalog):
         preamble.append(f'DEF {name} EQU {value}')
     catalog.source.read('macros/const.asm')
     catalog.source.read('macros/data.asm')
+    emitted_report = {}
     for family in (1, 2, 3):
         # Original first files after wave5, not a handwritten prefix translation.
         paths = {1: ['start_menu_1', 'pokeflute'], 2: ['press_ab_2'], 3: ['start_menu_3', 'cut_3']}[family]
@@ -73,8 +90,49 @@ def qualify_bytes(catalog):
             emitted = (tmp/'fixture.gb').read_bytes()
             if emitted[:len(expected)] != expected or emitted[len(expected):len(expected)+16].hex() != wave_report[str(family)]:
                 raise AudioError(f'independent RGBDS byte mismatch, audio{family}')
-    result.update(method='isolated original RGBDS macros and wave5 source prefixes', independent_execution=True,
+            emitted_report[str(family)] = {
+                'fixture_asm_sha256': hashlib.sha256((tmp/'fixture.asm').read_bytes()).hexdigest(),
+                'compared_bytes': len(expected)+16,
+                'compared_sha256': hashlib.sha256(emitted[:len(expected)+16]).hexdigest(),
+                'emitted_sha256': hashlib.sha256(emitted).hexdigest()}
+    result.update(status='pass', tools=tool_report, emitted=emitted_report, method='isolated original RGBDS macros and wave5 source prefixes', independent_execution=True,
                   limitation='Macro/prefix byte comparison only; not independent engine/register execution.',
                   rgbasm_version=subprocess.check_output([assembler, '--version']).decode().strip(),
                   rgblink_version=subprocess.check_output([linker, '--version']).decode().strip())
     return result
+
+
+def main(argv=None):
+    """Strict standalone byte qualification; audit-only is an explicit opt-in."""
+    import os
+    from .catalog import Catalog
+    from .source import Source
+
+    parser = argparse.ArgumentParser(description=main.__doc__)
+    parser.add_argument('--source', default=os.environ.get('POKERED_REFERENCE_DIR'))
+    parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--audit-only', action='store_true')
+    args = parser.parse_args(argv)
+    if not args.source:
+        parser.error('--source or POKERED_REFERENCE_DIR is required')
+    try:
+        catalog = Catalog(Source(args.source))
+        result = qualify_bytes(catalog)
+        result['revision'] = catalog.source.revision
+        result['consumed_sha256'] = dict(sorted(catalog.source.hashes.items()))
+        result['oracle_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        if not args.audit_only and not result['independent_execution']:
+            result['status'] = 'blocked'
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(result, indent=2, sort_keys=True)+'\n')
+        if result['status'] == 'blocked':
+            print('independent byte qualification unavailable: missing '+', '.join(result['missing_tools']))
+            return 2
+        return 0
+    except (AudioError, OSError, ValueError) as exc:
+        print(f'audio byte qualification: {exc}')
+        return 2
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

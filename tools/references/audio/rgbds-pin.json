@@ -1,0 +1,29 @@
+{
+  "archive_sha256": "17a92be6ef6b3c15b90ef01808359d981c5399b19d7ba17aa36e676aa0911e04",
+  "archive_url": "https://github.com/gbdev/rgbds/releases/download/v1.0.4/rgbds-source.tar.gz",
+  "build": {
+    "bison": "bison (GNU Bison) 2.3",
+    "blocker": "Bison 2.3 is not supported; src/bison.sh requires Bison >=3; release source has no generated parser.cpp or script.cpp.",
+    "command": "/usr/bin/make -j2 rgbasm rgblink CXX=/usr/bin/clang++ CXXFLAGS='-O3 -flto -DNDEBUG' VERSION_STRING=v1.0.4 Q=",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "exit_code": 2,
+    "log_sha256": "987c47994b92157bc6a8bea4072e17f4e5bc5f65ed5bbb24bf5b458058b2502b",
+    "make": "GNU Make 3.81",
+    "required_cxxflags": "-std=c++20 -I include -fno-exceptions -fno-rtti",
+    "working_directory": "~/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds"
+  },
+  "consumed_binaries": {
+    "rgbasm": null,
+    "rgblink": null
+  },
+  "independent_execution": false,
+  "pokered_requirements_sha256": {
+    ".rgbds-version": "d1b77b88f4b9f675a900e4143ac768a21218623cfe1703ca43162388c3271bd6",
+    "INSTALL.md": "79fb0e5e4316afa5d7d5f2dee10cd6b7a1f1b7be10c289b8325f5d8d49def4a9"
+  },
+  "pokered_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "release_url": "https://github.com/gbdev/rgbds/releases/tag/v1.0.4",
+  "revision": "f7b8207322aa9e3714ef0d98d01989f320103026",
+  "schema": 1,
+  "version": "1.0.4"
+}

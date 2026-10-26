@@ -1,0 +1,74 @@
+{
+  "actual_emitted_byte_comparisons": 0,
+  "blocker": "RGBDS source build requires Bison >=3; only Bison 2.3 available",
+  "candidate_commit": "9c5ec44",
+  "changed_code_sha256": {
+    "tools/audio/oracle.py": "3ec12b4da5fb5ae76be17a2b9ed0ed796cb0e7816de334f16934ab1a21fc7ccf",
+    "tools/tests/test_audio_oracle.py": "29f4d507cfd260a410812acca5b8ae9befb54586ba93dabe0aa9403299cef01b"
+  },
+  "consumed_binary_sha256": {
+    "rgbasm": null,
+    "rgblink": null
+  },
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle",
+  "evidence_sha256": {
+    "isolated-toolchain-tests.log": "87767fa30d41489d7f13f40543ccfabd3d65eb9b368968f08dc8cfc34e36ce3f",
+    "isolated-toolchain.json": "ae0b68d3154991cd32793da06b04cf88cd931eaf7efe7e19d54bd5d6b24016a5",
+    "isolated-toolchain.log": "d622f334c798155a7673f6231e567d8bc469e72def4fb4016bbe67b469d57c63",
+    "runs.json": "4bd5095ed6d42ef34788e3bc681d499025a5b866a65cec1bad6c475879bd125f",
+    "tests.json": "154226c04bb61009883680af6a276d0a7e4e581fe062a086a1e3f8e18bd6d053",
+    "without-toolchain-tests.log": "07d10f7d04b4b2644b652036be4efe0f958978436012e3c39de6b1cbd901a36c",
+    "without-toolchain.json": "ae0b68d3154991cd32793da06b04cf88cd931eaf7efe7e19d54bd5d6b24016a5",
+    "without-toolchain.log": "d622f334c798155a7673f6231e567d8bc469e72def4fb4016bbe67b469d57c63"
+  },
+  "header_cases_audited": 4,
+  "host_tests": {
+    "isolated-toolchain": {
+      "exit_code": 0,
+      "skips": 0,
+      "tests": 31
+    },
+    "without-toolchain": {
+      "exit_code": 0,
+      "skips": 0,
+      "tests": 31
+    }
+  },
+  "independent_execution": false,
+  "limits": [
+    "No successful RGBDS build or consumed binaries",
+    "Original macro/source-prefix RGBDS API path remains unqualified",
+    "No engine/register execution, APU, PCM or audio fidelity acceptance"
+  ],
+  "macro_cases_audited": 22,
+  "schema": 1,
+  "status": "blocked",
+  "strict_cli": {
+    "isolated-toolchain": {
+      "PATH": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds:/usr/bin:/bin:/usr/sbin:/sbin",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "tools.audio.oracle",
+        "--output",
+        "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/isolated-toolchain.json"
+      ],
+      "exit_code": 2,
+      "status": "blocked"
+    },
+    "without-toolchain": {
+      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "tools.audio.oracle",
+        "--output",
+        "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/without-toolchain.json"
+      ],
+      "exit_code": 2,
+      "status": "blocked"
+    }
+  },
+  "toolchain_pin_sha256": "9facae2c30da780fb02135dead1f5b7794b389811f6feb682e9cad76f8cfd195",
+  "wave5_banks_audited": 3
+}
