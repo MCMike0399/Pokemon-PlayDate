@@ -265,6 +265,11 @@ function SourceEvents.actorPositions(id)
     local descriptor = definitions()[id]
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_positions or {})
 end
+-- Player movement and autonomous wandering retain original collision.
+function SourceEvents.actorCollisionPositions(id)
+    local descriptor = definitions()[id]
+    return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_collision_positions or {})
+end
 function SourceEvents.has(id, content)
     local d = definitions()[id]
     return d ~= nil and (content == nil or d.content == content)
@@ -310,7 +315,8 @@ function SourceEvents.registerEventSource(name, events)
     local current = definitions()
     for id, descriptor in pairs(events) do
         local stable = type(id) == "string" and (id:match("^pokered:[^:]+:objects:%d+$")
-            or id:match("^pokered:[^:]+:background_events:%d+$"))
+            or id:match("^pokered:[^:]+:background_events:%d+$")
+            or id:match("^pokered:[^:]+:hidden_events:%d+$"))
         assert(stable
             and not current[id] and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")

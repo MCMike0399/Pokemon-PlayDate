@@ -194,7 +194,7 @@ function NPCMotion:claimScript(npc, owner)
         value.origin_x,value.target_x,value.origin_y,value.target_y = value.x,value.x,value.y,value.y
     end
     local token = {}
-    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player}
+    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player, origin=copy(actor.value)}
     if s.pending and s.pending.id == actor.value.id then s.pending = nil end
     -- Interaction facing restoration must not undo the script's completed pose.
     if s.interaction and s.interaction.id == actor.value.id then s.interaction = nil end
@@ -243,10 +243,11 @@ function NPCMotion:updateScript(token)
     self:_pose(actor)
     return true
 end
-function NPCMotion:releaseScript(token)
+function NPCMotion:releaseScript(token, rollback)
     local s = stores[self]
-    local actor = scriptLease(s, token)
+    local actor, lease = scriptLease(s, token)
     if not actor then return false end
+    if rollback then actor.value = copy(lease.origin) end
     -- Incomplete interpolation never changed the completed durable cell.
     actor.script = nil
     self:_pose(actor)
@@ -271,6 +272,29 @@ function NPCMotion:restoreTrainerPose(npc, x, y, facing)
     value.x,value.y,value.facing = x,y,facing
     value.origin_x,value.target_x,value.origin_y,value.target_y = x,x,y,y
     actor.value = value
+    self:_pose(actor)
+    return true
+end
+
+-- Source scene placement is a lease operation, never a direct sprite write.
+function NPCMotion:placeScript(token, x, y)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
+    if lease.move then return false, "script-cell-in-progress" end
+    if not Party._integer(x,0,s.descriptor.width-1) or not Party._integer(y,0,s.descriptor.height-1)
+        or s.descriptor.protected[y*s.descriptor.width+x+1]
+        or not actor.spec.script_positions[y*s.descriptor.width+x+1]
+        or not s.descriptor.canStand(actor.spec,x,y,s.zone) then return false, "invalid-source-script-placement" end
+    local occupant = s.manager:getNPCAt(x,y)
+    local player = s.game.player
+    if occupant and occupant ~= actor.npc or player.gridX == x and player.gridY == y
+        or player.isMoving and player.startPixelX/TILE_SIZE == x and player.startPixelY/TILE_SIZE == y then
+        return false, "occupied-source-script-placement"
+    end
+    local v = actor.value
+    v.x,v.y = x,y
+    v.origin_x,v.target_x,v.origin_y,v.target_y = x,x,y,y
     self:_pose(actor)
     return true
 end

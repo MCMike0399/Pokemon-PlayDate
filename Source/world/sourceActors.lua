@@ -144,6 +144,12 @@ function SourceActors.describeSource(zoneID, world)
             spec.script_positions[cell] = true
         end
         local metadata = resolver.metadata and resolver.metadata(d, event) or {}
+        spec.script_collision_positions = {}
+        for _, position in ipairs(SourceEvents.actorCollisionPositions(event.id)) do
+            local cell = position.y * surface.width + position.x + 1
+            assert(spec.script_positions[cell] and not protected[cell], "collision exception outside source script positions")
+            spec.script_collision_positions[cell] = true
+        end
         spec.visibility = Party._primitive(metadata.visibility or {})
         local descriptor = SourceEvents.descriptor(event.id)
         if profile ~= "pewter" and descriptor and descriptor.kind == "pickup" then
@@ -162,7 +168,8 @@ function SourceActors.describeSource(zoneID, world)
     local function canStand(spec,x,y,runtimeZone)
         local cell = y * surface.width + x + 1
         if spec.script_positions[cell] and not protected[cell] and x >= 0 and y >= 0 and x < surface.width and y < surface.height
-            and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0 then return true end
+            and ((runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0
+                or spec.script_collision_positions[cell]) then return true end
         return canWander(spec,x,y,runtimeZone)
     end
     local function canStep(spec,x,y,tx,ty,runtimeZone)

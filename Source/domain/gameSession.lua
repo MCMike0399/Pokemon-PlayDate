@@ -221,7 +221,7 @@ function GameSession:transact(expected,changes)
     return true
 end
 -- Badge bits are represented by stable quest flags in the existing codec.
-local badgeFlags={boulder="BADGE_BOULDER"}
+local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE"}
 function GameSession:hasBadge(name)
     local id=assert(badgeFlags[name],"unsupported badge name")
     return self:questFlag(id)
