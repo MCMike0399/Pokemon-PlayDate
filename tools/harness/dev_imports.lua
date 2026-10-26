@@ -226,6 +226,10 @@ import "dev/commonAbilityContracts"
 Contracts.register("common-abilities", CommonAbilityContracts.run)
 import "dev/ceruleanAmbientDialogueContracts"
 Contracts.register("cerulean-ambient-dialogue", CeruleanAmbientDialogueContracts.run)
+import "dev/entryAbilityContracts"
+Contracts.register("entry-abilities", EntryAbilityContracts.run)
+import "dev/contactAbilityContracts"
+Contracts.register("contact-abilities", ContactAbilityContracts.run)
 
 -- @harness runtime
 harness = Harness

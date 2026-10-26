@@ -15,11 +15,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools.generate_kanto_maps import Reference, REVISION, decode_map, records, integer
 from tools.generate_viridian_slice import sprite_data
-from tools.generate_source_map_cache import canonical
 
 ROOT = Path(__file__).resolve().parents[1]
 PIN = ROOT / 'tools/references/cerulean-content.json'
 OUTPUT = ROOT / 'Source/data/sourceSlice'
+
+
+def canonical(value):
+    # SDK JSON must receive literal UTF-8, including static runtime records.
+    return (json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode()
 MAPS = (
     'Route22', 'Route3', 'MtMoon1F', 'MtMoonB1F', 'MtMoonB2F', 'Route4',
     'MtMoonPokecenter', 'CeruleanCity', 'CeruleanGym', 'CeruleanPokecenter',

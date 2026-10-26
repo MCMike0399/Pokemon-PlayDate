@@ -387,7 +387,7 @@
         {
           "op": "cont",
           "source_line": 26,
-          "text": "for just \u00a5500!"
+          "text": "for just ¥500!"
         },
         {
           "op": "cont",
@@ -602,7 +602,7 @@
         {
           "op": "text",
           "source_line": 14,
-          "text": "Right, \u00a550!"
+          "text": "Right, ¥50!"
         },
         {
           "op": "line",
@@ -657,7 +657,7 @@
         {
           "op": "text",
           "source_line": 6,
-          "text": "It's \u00a550 for a"
+          "text": "It's ¥50 for a"
         },
         {
           "op": "line",

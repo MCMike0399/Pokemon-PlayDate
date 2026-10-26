@@ -18,7 +18,7 @@ PC = 'pokered:BILLS_HOUSE:hidden_events:1'
 
 
 def encoded(value):
-    return (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    return (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + '\n').encode()
 
 
 def verified(reference):

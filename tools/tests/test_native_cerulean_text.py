@@ -55,7 +55,11 @@ class NativeCeruleanTextTests(unittest.TestCase):
                 continue
             original = subprocess.check_output([
                 'git', 'show', 'a316baf:Source/data/sourceSlice/' + name], cwd=content.ROOT)
-            self.assertEqual(raw, original, name)
+            if name in ('trainers.json', 'scripts.json'):
+                self.assertEqual(json.loads(raw), json.loads(original), name)
+                self.assertNotIn(b'\\u', raw)
+            else:
+                self.assertEqual(raw, original, name)
         before = json.loads(subprocess.check_output([
             'git', 'show', 'a316baf:Source/data/tutorialEscort/scenes.json'], cwd=content.ROOT))
         after = tutorial.build()

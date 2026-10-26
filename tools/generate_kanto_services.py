@@ -17,7 +17,7 @@ IDS = {'museum': 'pokered:MUSEUM_1F:objects:1',
 
 
 def encoded(value):
-    return (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    return (json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + '\n').encode()
 
 
 def verified(reference):

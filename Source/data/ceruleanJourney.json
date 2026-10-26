@@ -398,7 +398,7 @@
     "data/sourceEvents.json": "3a2595132641b1b89149211e96ee2d241dc2e9030792499c56237b8a94aa1008",
     "data/sourceMaps.json": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c",
     "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
-    "data/sourceSlice/trainers.json": "829044568df39d016deaab3ae1507d9de095a8fc3f9569265a41a3a46c723a36",
+    "data/sourceSlice/trainers.json": "d57e41eaa26bc725236407d19d4c32c914dd3ed8ed47eb236504738761e9460e",
     "domain/sessionCodec.lua": "08ef57bd47fd06e8c1738e6e77918dba895fe5702ff9fad1c3621c5f8833a111",
     "game/ceruleanRoutes.lua": "5b563e8835a599f21a5ae741a4edc5d3cdb6299c36c00ae1fabea75c37a1aa4c",
     "game/ceruleanStory.lua": "644587cd1c991cd46affa7d092b87f1404db4858db6627b653b5bcb35ef94faf",

@@ -677,7 +677,7 @@
         {
           "op": "text",
           "source_line": 869,
-          "text": "<PLAYER> got \u00a5@"
+          "text": "<PLAYER> got ¥@"
         },
         {
           "op": "control",

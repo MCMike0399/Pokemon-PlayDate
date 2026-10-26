@@ -206,7 +206,9 @@
     "dev/kantoScenesContracts",
     "dev/kantoServicesContracts",
     "dev/commonAbilityContracts",
-    "dev/ceruleanAmbientDialogueContracts"
+    "dev/ceruleanAmbientDialogueContracts",
+    "dev/entryAbilityContracts",
+    "dev/contactAbilityContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -308,6 +310,8 @@
     "Contracts.register(\"kanto-scenes\", KantoScenesContracts.run)",
     "Contracts.register(\"kanto-services\", KantoServicesContracts.run)",
     "Contracts.register(\"common-abilities\", CommonAbilityContracts.run)",
-    "Contracts.register(\"cerulean-ambient-dialogue\", CeruleanAmbientDialogueContracts.run)"
+    "Contracts.register(\"cerulean-ambient-dialogue\", CeruleanAmbientDialogueContracts.run)",
+    "Contracts.register(\"entry-abilities\", EntryAbilityContracts.run)",
+    "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)"
   ]
 }
