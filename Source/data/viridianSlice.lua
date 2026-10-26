@@ -1,6 +1,6 @@
 -- Explicit four-map slice. Source coordinates remain inspectable after padding.
 KantoSlice = {}
-import "world/sourceMaps"
+import "world/sourceMapProvider"
 local names, zoneKeys = {}, {}
 for _, name in ipairs(SourceMaps.names("viridian")) do
     names[name] = true
@@ -48,15 +48,25 @@ function KantoSlice.specs(name,definitions)
     return specs
 end
 function KantoSlice.create(name,options)
-    options=options or {};local definitions={}
-    for n in pairs(names) do definitions[n]=KantoSlice.padded(n) end
-    local config={};for k,v in pairs(options) do config[k]=v end
-    local defaults={Route1={x=10,y=35,facing="up"},ViridianCity={x=20,y=35,facing="up"},ViridianMart={x=5,y=7,facing="up"},ViridianPokecenter={x=3,y=7,facing="up"}}
-    config.spawn=config.spawn or defaults[name]
-    config.sliceBindings=KantoSlice.specs(name,definitions)
-    config.destinations={};for n,d in pairs(definitions) do config.destinations[zoneKeys[n]]=d end
-    local zone=Zone.fromMapDefinition(definitions[name],options.registry or WorldTiles,config)
-    return zone
+    assert(names[name], "map outside explicit slice")
+    options = options or {}
+    local function definitions(current, definition)
+        local result = {}
+        for target in pairs(names) do result[target] = SourceMaps.destination(target) end
+        if current then result[current] = definition end
+        return result
+    end
+    local adapter = {
+        specs = function(current, definition) return KantoSlice.specs(current, definitions(current, definition)) end,
+        options = function()
+            local config = {}
+            for key, value in pairs(options) do config[key] = value end
+            config.destinations = {}
+            for target, definition in pairs(definitions()) do config.destinations[zoneKeys[target]] = definition end
+            return config
+        end,
+    }
+    return SourceMaps.createZone(name, adapter, options.registry or WorldTiles)
 end
 function KantoSlice.connection(name,x,y,direction,intro)
     assert(intro=="done","original Pallet exit remains gated by completed intro")

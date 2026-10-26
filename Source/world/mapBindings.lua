@@ -21,7 +21,7 @@ function MapBindings.prepare(definition, specs, options)
     for _,event in ipairs(definition.events.objects) do
         local spec=source(event.id,"objects",event)
         local key=SliceSprites.key(event.sprite)
-        assert(SpriteFactory.npc[key], "original sprite must be installed before source binding: "..key)
+        if not options.isolatedCatalog then assert(SpriteFactory.npc[key], "original sprite must be installed before source binding: "..key) end
         if spec.status=="bound" then assert(SliceEvents.has(event.id), "unimplemented bound source event") end
         local id, canInteract=event.id, spec.status=="bound"
         local def={ gridX=event.x,gridY=event.y,name=event.text_id,sprite=key,source_event_id=id,

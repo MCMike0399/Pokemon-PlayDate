@@ -206,6 +206,111 @@ function SourceMapContracts.run()
         end)
     end)
 
+    test("isolated facades match every live manifest map without touching live ownership or predicates", function()
+        scope(function(provider)
+            local before = provider:snapshot()
+            local ledger = provider:export()
+            local count, ids = #zoneList, WorldTiles:maxID()
+            local sprites = playdate.graphics.sprite.spriteCount()
+            local npcArt = {}
+            for key, value in pairs(SpriteFactory.npc) do npcArt[key] = value end
+            local createProvider, sliceInstall, pewterInstall = SourceMaps.createProvider, SliceSprites.install, PewterSprites.installFor
+            local ensure, materialize, pin = ImportedMaps.ensure, ImportedMaps._ensure, ImportedMaps.pin
+            local registered = {}
+            for key, zone in pairs(zoneRegistry) do registered[key] = zone end
+            local function forbidden() error("isolated construction invoked live preparation") end
+            SourceMaps.createProvider, SliceSprites.install, PewterSprites.installFor = forbidden, forbidden, forbidden
+            ImportedMaps.ensure, ImportedMaps._ensure, ImportedMaps.pin = forbidden, forbidden, forbidden
+            local ok, problem = pcall(function()
+                local registries = {}
+                for _, name in ipairs(SourceMaps.names()) do
+                    local isolated = PewterWorld.isolated(name)
+                    assert(isolated.registry ~= WorldTiles and not registries[isolated.registry], "fresh registry required per isolated map")
+                    registries[isolated.registry] = true
+                    same(isolated.spawn, SourceMaps.entry(name).spawn)
+                    equal(isolated:isSliceReady(), true)
+                    -- A second construction with rejecting readers detects any
+                    -- eager evaluation of visibility/story predicates.
+                    local profiles = SourceMaps.legacyProfiles({ dispatch = forbidden, questFlag = forbidden, sourceFlag = forbidden })
+                    SourceMaps.createZone(name, profiles[SourceMaps.entry(name).profile], TileRegistry(), { isolatedCatalog = true })
+                    same(provider:snapshot(), before)
+                    same(provider:export(), ledger)
+                    equal(#zoneList, count)
+                    for key, zone in pairs(zoneRegistry) do equal(zone, registered[key]) end
+                    for key, zone in pairs(registered) do equal(zoneRegistry[key], zone) end
+                    equal(WorldTiles:maxID(), ids)
+                    equal(playdate.graphics.sprite.spriteCount(), sprites)
+                    for key, value in pairs(SpriteFactory.npc) do equal(value, npcArt[key]) end
+                    for key, value in pairs(npcArt) do equal(SpriteFactory.npc[key], value) end
+                end
+            end)
+            SourceMaps.createProvider, SliceSprites.install, PewterSprites.installFor = createProvider, sliceInstall, pewterInstall
+            ImportedMaps.ensure, ImportedMaps._ensure, ImportedMaps.pin = ensure, materialize, pin
+            if not ok then error(problem, 0) end
+            for _, name in ipairs(SourceMaps.names()) do
+                local isolated = PewterWorld.isolated(name)
+                local live = provider:ensure(SourceMaps.entry(name).key)
+                equal(isolated.stableID, live.stableID)
+                equal(isolated:exportDeltas().definition_revision, live:exportDeltas().definition_revision)
+                equal(isolated.width, live.width)
+                equal(isolated.height, live.height)
+                same(isolated.doors, live.doors)
+                same(isolated.encounters, live.encounters)
+                same(isolated:getBindingIssues(), live:getBindingIssues())
+                equal(#isolated.npcDefs, #live.npcDefs)
+                for i, npc in ipairs(isolated.npcDefs) do
+                    for key, value in pairs(npc) do
+                        if type(value) ~= "function" then same(value, live.npcDefs[i][key]) end
+                    end
+                end
+                for y = 0, isolated.height - 1 do
+                    for x = 0, isolated.width - 1 do
+                        equal(isolated.registry:key(isolated.tiles[y + 1][x + 1]), live.registry:key(live.tiles[y + 1][x + 1]))
+                        equal(isolated.collision[y + 1][x + 1], live.collision[y + 1][x + 1])
+                        same(isolated:terrainAt(x, y), live:terrainAt(x, y))
+                        same(isolated:sourceEventsAt(x, y), live:sourceEventsAt(x, y))
+                    end
+                end
+            end
+        end)
+    end)
+
+    test("all construction facades read manifest defaults and preserve explicit compatibility options", function()
+        local entry = SourceMaps.entry
+        SourceMaps.entry = function(name)
+            local result = entry(name)
+            result.spawn = { x = result.spawn.x - 1, y = result.spawn.y - 1, facing = "left" }
+            return result
+        end
+        local ok, problem = pcall(function()
+            scope(function(provider)
+                for _, name in ipairs(SourceMaps.names()) do
+                    local expected = SourceMaps.entry(name).spawn
+                    same(provider:ensure(SourceMaps.entry(name).key).spawn, expected)
+                    same(PewterWorld.isolated(name).spawn, expected)
+                    if SourceMaps.entry(name).profile == "viridian" then
+                        local function forbidden() error("compatibility callback evaluated during construction") end
+                        local options = { registry = TileRegistry(), dispatch = forbidden, questFlag = forbidden,
+                            isolatedCatalog = true, terrainFixture = true }
+                        local zone = KantoSlice.create(name, options)
+                        same(zone.spawn, expected)
+                        equal(zone.terrainFixture, true)
+                        equal(zone.registry, options.registry)
+                        equal(options.spawn, nil)
+                        equal(options.sliceBindings, nil)
+                        options.spawn = { x = expected.x, y = expected.y, facing = "right" }
+                        local override = KantoSlice.create(name, options)
+                        same(override.spawn, options.spawn)
+                        override.spawn.x = -1
+                        equal(options.spawn.x, expected.x)
+                    end
+                end
+            end)
+        end)
+        SourceMaps.entry = entry
+        if not ok then error(problem, 0) end
+    end)
+
     test("Pewter compact descriptors retain all prior identities palettes rows and blockers", function()
         scope(function(provider)
             for _, original in pairs(PewterSlice.compact().maps) do

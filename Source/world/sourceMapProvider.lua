@@ -9,6 +9,53 @@ local function copy(value)
     return result
 end
 
+local function ensureKeys(registry, tiles)
+    local entries, seen = {}, {}
+    for _, tile in ipairs(tiles) do
+        if not registry:has(tile.key) and not seen[tile.key] then
+            seen[tile.key] = true
+            entries[#entries + 1] = SourceMaps.tile(tile.key)
+        end
+    end
+    if #entries > 0 then registry:registerBatch(entries) end
+end
+
+-- Shared construction only: no provider registration, cache ownership or pinning.
+-- Profiles supply bespoke bindings; the manifest supplies identity and defaults.
+function SourceMaps.createZone(name, adapter, registry, overrides, desired)
+    local entry = SourceMaps.entry(name)
+    local definition = SourceMaps.padded(name)
+    local options = {}
+    for key, value in pairs(adapter.options(name, definition)) do options[key] = value end
+    for key, value in pairs(overrides or {}) do options[key] = value end
+    registry = registry or options.registry or WorldTiles
+    assert(options.registry == nil or options.registry == registry, "source profile registry differs")
+    options.registry = registry
+    options.spawn = copy(options.spawn or entry.spawn)
+    if not options.isolatedCatalog and adapter.prepare then adapter.prepare(name, definition) end
+    options.sliceBindings = adapter.specs(name, definition)
+    -- Retain each reviewed adapter's terrain/source representation.
+    if entry.profile == "pewter" then
+        options.compactTerrain = true
+        definition.source_refs = nil
+    end
+    local zone = Zone.fromMapDefinition(definition, registry, options)
+    if desired and desired.tile_count > 0 then
+        ensureKeys(registry, desired.tiles)
+        zone:applyDeltas(desired)
+    end
+    return zone
+end
+
+function SourceMaps.isolated(name)
+    local function forbidden() error("catalog source events cannot execute") end
+    -- Catalog exporters may inspect visibility later; retain the historical
+    -- all-false flag projection without reading live story/session predicates.
+    local function absent() return false end
+    local profiles = SourceMaps.legacyProfiles({ dispatch = forbidden, questFlag = absent, sourceFlag = absent })
+    return SourceMaps.createZone(name, profiles[SourceMaps.entry(name).profile], TileRegistry(), { isolatedCatalog = true })
+end
+
 function SourceMaps.createProvider(profiles, registry)
     registry = registry or WorldTiles
     assert(type(profiles) == "table", "explicit bespoke source binding profiles required")
@@ -24,42 +71,14 @@ function SourceMaps.createProvider(profiles, registry)
         local _, entry = profile(name)
         if entry.resident then residentKeys[entry.key] = true end
     end
-    local function ensureKeys(tiles)
-        local entries, seen = {}, {}
-        for _, tile in ipairs(tiles) do
-            if not registry:has(tile.key) and not seen[tile.key] then
-                seen[tile.key] = true
-                entries[#entries + 1] = SourceMaps.tile(tile.key)
-            end
-        end
-        if #entries > 0 then registry:registerBatch(entries) end
-    end
     return ImportedMaps(data, {
         registry = registry,
         residentKeys = residentKeys,
-        ensureKeys = ensureKeys,
+        ensureKeys = function(tiles) ensureKeys(registry, tiles) end,
         release = function(zone) zone:disposeView() end,
         create = function(name, desired)
-            local adapter, entry = profile(name)
-            local definition = SourceMaps.padded(name)
-            if adapter.prepare then adapter.prepare(name, definition) end
-            local options = {}
-            for key, value in pairs(adapter.options(name, definition)) do options[key] = value end
-            assert(options.registry == nil or options.registry == registry, "source profile registry differs")
-            options.registry = registry
-            options.spawn = copy(entry.spawn)
-            options.sliceBindings = adapter.specs(name, definition)
-            -- Retain each reviewed adapter's terrain/source representation.
-            if entry.profile == "pewter" then
-                options.compactTerrain = true
-                definition.source_refs = nil
-            end
-            local zone = Zone.fromMapDefinition(definition, registry, options)
-            if desired.tile_count > 0 then
-                ensureKeys(desired.tiles)
-                zone:applyDeltas(desired)
-            end
-            return zone
+            local adapter = profile(name)
+            return SourceMaps.createZone(name, adapter, registry, { spawn = SourceMaps.entry(name).spawn }, desired)
         end,
     })
 end

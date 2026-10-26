@@ -2,29 +2,6 @@
 -- existing WorldDeltas and zoneRegistry retain their world authority.
 PewterWorld={}
 local installed=setmetatable({},{__mode="k"})
-local starts={Route2={8,71},ViridianForestSouthGate={5,7},ViridianForest={16,47},ViridianForestNorthGate={5,7},PewterCity={18,35},PewterGym={5,13},PewterMart={5,7},PewterPokecenter={3,7}}
-local function ensureKeys(registry,tiles)
-    local entries,seen={},{}
-    for _,tile in ipairs(tiles) do if not registry:has(tile.key) and not seen[tile.key] then
-        seen[tile.key]=true;entries[#entries+1]=PewterSlice.tile(tile.key)
-    end end
-    if #entries>0 then registry:registerBatch(entries) end
-end
-local function create(game,name,registry,desired,isolated)
-    local d=PewterSlice.padded(name);local start=assert(starts[name])
-    if not isolated then PewterSprites.installFor(d) end
-    local dispatch=function(id) assert(not isolated,"catalog source events cannot execute");return KantoWorld.dispatch(game,id) end
-    local quest=function(id)return not isolated and game.session:questFlag(id) or false end
-    local sourceFlag=function(id)return not isolated and game.trainers:sourceFlag(id) or false end
-    local config={registry=registry,bindingAdapter=PewterBindings,compactTerrain=true,isolatedCatalog=isolated or false,
-        spawn={x=start[1],y=start[2],facing="up"},sliceBindings=PewterSlice.specs(name,d),dispatch=dispatch,questFlag=quest,sourceFlag=sourceFlag}
-    -- Source refs are provenance for the external generator, not a retained
-    -- per-cell Lua table in a live Zone. The full immutable JSON remains on disk.
-    d.source_refs=nil
-    local zone=Zone.fromMapDefinition(d,registry,config)
-    if desired and desired.tile_count>0 then ensureKeys(registry,desired.tiles);zone:applyDeltas(desired) end
-    return zone
-end
 function PewterWorld.locationPolicy()
     local policy = { sliceZones = {} }
     for _, name in ipairs(SourceMaps.names()) do
@@ -61,7 +38,7 @@ function PewterWorld.install(game)
     return provider
 end
 function PewterWorld.isolated(name)
-    return create(nil,name,TileRegistry(),nil,true)
+    return SourceMaps.isolated(name)
 end
 local dirs={up={0,-1},down={0,1},left={-1,0},right={1,0}}
 local function target(game,key,x,y,direction)
