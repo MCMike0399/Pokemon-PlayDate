@@ -39,10 +39,12 @@ end
 function SourceTextContracts.run()
     local report = {ok = true, passed = 0, failed = 0, tests = {}, glyphs = {}}
     local function test(name, fn)
+        Contracts.progress("source-text",name,"running")
         gfx.pushContext()
         gfx.setFont(gfx.getSystemFont())
         local ok, problem = pcall(fn)
         gfx.popContext()
+        Contracts.progress("source-text",name,"returned")
         report.tests[#report.tests + 1] = {name = name, ok = ok, error = not ok and tostring(problem) or nil}
         if ok then report.passed = report.passed + 1
         else report.failed = report.failed + 1; report.ok = false end
@@ -113,6 +115,7 @@ function SourceTextContracts.run()
     end)
 
     for char, entry in pairs(SourceTextFont.data().glyphs) do
+        Contracts.progress("source-text",string.format("glyph lookup U+%04X",utf8.codepoint(char)),"running")
         local present = gfx.getSystemFont():getGlyph(char) ~= nil
         local name = string.format("Source glyph U+%04X matches pinned pixels; SDK default glyph %s",
             utf8.codepoint(char), present and "present" or "absent")
