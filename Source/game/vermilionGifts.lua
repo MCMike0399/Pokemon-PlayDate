@@ -12,7 +12,9 @@ local function definitions()
     end
     return cached
 end
-function VermilionGifts.descriptors() return GameSession._copy(definitions()) end
+function VermilionGifts.descriptors()
+    return GameSession._copy(definitions())
+end
 function VermilionGifts.text(label)
     if not texts then
         local value = assert(json.decodeFile("data/vermilionPreparation/dialogue.json"))
@@ -45,7 +47,9 @@ function VermilionGifts.observe(session)
     local ids = {}
     for _, d in pairs(definitions()) do
         ids[d.item] = true
-        for _, id in ipairs(d.blocks or {}) do ids[id] = true end
+        for _, id in ipairs(d.blocks or {}) do
+            ids[id] = true
+        end
     end
     for id in pairs(ids) do
         items[id] = assert(bag:quantity(id))
@@ -53,7 +57,11 @@ function VermilionGifts.observe(session)
         canAdd[id] = probe:add(id, 1) == true
     end
     local owned = 0
-    for _, value in pairs(session:pokedex().owned) do if value then owned = owned + 1 end end
+    for _, value in pairs(session:pokedex().owned) do
+        if value then
+            owned = owned + 1
+        end
+    end
     return {intro=session:getIntro().stage, flags=session:flags().quest,
         items=items, can_add=canAdd, owned=owned}
 end
@@ -69,7 +77,9 @@ function VermilionGifts.plan(id, observation, decision)
             wOaksAideRewardItemName=ItemData.definitions[d.item].name,
             hOaksAideRequirement=d.threshold or 0, hOaksAideNumMonsOwned=s.owned}}
     local complete = s.flags[d.flag] == true
-    for _, item in ipairs(d.blocks or {}) do complete = complete or s.items[item] > 0 end
+    for _, item in ipairs(d.blocks or {}) do
+        complete = complete or s.items[item] > 0
+    end
     if complete then
         result.status, result.before = "already-complete", GameSession._copy(d.completed)
     elseif decision == nil then
@@ -83,7 +93,9 @@ function VermilionGifts.plan(id, observation, decision)
         local tx = SourceEvents.compile({kind="program",steps={
             {op="give-item",id=d.item,quantity=1}, {op="set-flag",id=d.flag,value=true},
         }}, s, id)
-        for _, item in ipairs(d.blocks or {}) do tx.expected.items[item] = s.items[item] end
+        for _, item in ipairs(d.blocks or {}) do
+            tx.expected.items[item] = s.items[item]
+        end
         result.expected, result.changes = tx.expected, tx.changes
         result.owned = d.threshold and s.owned or nil
         result.before, result.success = GameSession._copy(d.before), GameSession._copy(d.success)
@@ -108,8 +120,13 @@ function VermilionGiftsState:advance()
     if not self.plan or self.plan.scene ~= "vermilion-gift" then
         return VermilionGiftsState.super.advance(self)
     end
-    if not self:valid() or not self:isTop() then return end
-    if self.giftStarted then self:finish(); return end
+    if not self:valid() or not self:isTop() then
+        return
+    end
+    if self.giftStarted then
+        self:finish()
+        return
+    end
     self.giftStarted = true
     self:giftDecision(nil)
 end
@@ -120,7 +137,9 @@ function VermilionGiftsState:giftDecision(decision)
         if plan.status == "choice" then
             -- Inherit the guarded YES/NO controller, including B=NO and epoch /
             -- serial invalidation. EventState remains the only pipeline.
-            self:serviceChoice({"YES", "NO"}, function(yes) self:giftDecision(yes) end)
+            self:serviceChoice({"YES", "NO"}, function(yes)
+                self:giftDecision(yes)
+            end)
         elseif plan.expected then
             local ok, reason = VermilionGifts.commit(self.session, plan)
             if ok then
@@ -128,8 +147,16 @@ function VermilionGiftsState:giftDecision(decision)
                 self:serviceText(plan.success)
             elseif reason == "bag-full" or reason == "unique-key-item" then
                 self:serviceText(plan.full)
-            else self:fail(reason) end
-        else self:finish() end
+            else
+                self:fail(reason)
+            end
+        else
+            self:finish()
+        end
     end
-    if #plan.before > 0 then self:serviceText(plan.before, continue) else continue() end
+    if #plan.before > 0 then
+        self:serviceText(plan.before, continue)
+    else
+        continue()
+    end
 end
