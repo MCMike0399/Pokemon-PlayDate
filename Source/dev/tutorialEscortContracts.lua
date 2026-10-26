@@ -19,6 +19,38 @@ local function closeDialog(g)
     dialog.dialog.onComplete()
     dialog:handleInput()
 end
+-- Capture before fixture teardown discards the live controller and leases.
+-- In particular, a route timeout must identify the inner stopping point rather
+-- than only rethrowing "expected dialog" from the scene wrapper.
+local function routeContext(g, s)
+    local function pose(actor)
+        if not actor then return "absent" end
+        return {x=actor.gridX,y=actor.gridY,moving=actor.isMoving == true,
+            pixelX=actor.x,pixelY=actor.y,facing=actor.facing}
+    end
+    local function nextCell(actor, route, index)
+        local direction = route and route[index]
+        local d = ({up={0,-1},down={0,1},left={-1,0},right={1,0}})[direction]
+        if not actor or not d then return {direction=direction or "done"} end
+        local x,y = actor.gridX+d[1],actor.gridY+d[2]
+        local occupant = g.npcManager:getNPCAt(x,y)
+        return {direction=direction,x=x,y=y,
+            collision=s.zone.collision[y+1] and s.zone.collision[y+1][x+1] or "outside",
+            occupant=occupant and occupant.def and occupant.def.source_event_id or (occupant and "unnamed" or "none")}
+    end
+    return json.encode({root=g.machine:getCurrent(),phase=s.phase,waiting=s.waiting,
+        valid=s:valid() == true,top=s:isTop() == true,retryPhase=s.retryPhase or "none",
+        blockedTicks=s.blockedTicks,playerIndex=s.playerIndex,npcIndex=s.npcIndex,
+        playerMoving=s.playerMoving,npcMoving=s.npcMoving,
+        player=pose(g.player),guide=pose(s.actor),playerFrames=g.player.moveFrames,
+        playerOriginX=g.player.startPixelX,playerOriginY=g.player.startPixelY,
+        playerNext=nextCell(g.player,s.playerRoute,s.playerIndex),
+        guideNext=nextCell(s.actor,s.npcRoute,s.npcIndex)})
+end
+local function expectRouteRoot(g,s,expected,point)
+    assert(g.machine:getCurrent() == expected,
+        point .. ": expected " .. expected .. "; escort-context=" .. routeContext(g,s))
+end
 local function scene(map, x, y, fn)
     local oldZone, oldStory, oldOwner = currentZone, Story.currentContext(), GameSession.activeRNGSession()
     local rng, count, original = RulesRNG.toData(), gfx.sprite.spriteCount(), SourceEvents.actorPositions
@@ -152,6 +184,7 @@ function TutorialEscortContracts.run()
                 assert(type(m.faceScript)=="function" and type(m.resetScript)=="function", "apply root NPCMotion patch first")
                 local before = durable(g)
                 TutorialEscort.dispatch(g,"pokered:PEWTER_CITY:objects:5")
+                expectRouteRoot(g,s,"dialog","initial source invitation")
                 closeDialog(g)
                 local actor, token = s.actor,s.token
                 local home = m:actor(actor)
@@ -163,13 +196,13 @@ function TutorialEscortContracts.run()
                     if g.machine:getCurrent()=="dialog" then break end
                     s:update()
                 end
-                eq(g.machine:getCurrent(),"dialog")
+                expectRouteRoot(g,s,"dialog","arrival after at most 2001 route updates")
                 eq(s.waiting,"_PewterCityYoungsterGoTakeOnBrockText")
                 eq(g.player.gridX,10); eq(g.player.gridY,18)
                 eq(actor.gridX,12); eq(actor.gridY,18); eq(actor.facing,"left")
                 closeDialog(g)
                 for _=1,100 do if g.machine:getCurrent()=="overworld" then break end; s:update() end
-                eq(g.machine:getCurrent(),"overworld")
+                expectRouteRoot(g,s,"overworld","departure/reset after at most 100 route updates")
                 same(m:actor(actor),home)
                 eq(actor:isVisible(),true)
                 eq(m:updateScript(token),false)
