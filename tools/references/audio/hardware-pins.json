@@ -1,0 +1,15 @@
+{
+  "repository": "https://github.com/gbdev/pandocs",
+  "revision": "abeda621759a8e2b322b368eacf4d31ec48eb4df",
+  "role": "Primary GBdev-authored technical documentation; not an executed hardware oracle",
+  "files": {
+    "hardware-Audio_details.md": {
+      "url": "https://raw.githubusercontent.com/gbdev/pandocs/abeda621759a8e2b322b368eacf4d31ec48eb4df/src/Audio_details.md",
+      "sha256": "e45d7b36c252e675ebc89287d4c59800cd4da110ca11b9a7d7857ad7400a8829"
+    },
+    "hardware-Audio_Registers.md": {
+      "url": "https://raw.githubusercontent.com/gbdev/pandocs/abeda621759a8e2b322b368eacf4d31ec48eb4df/src/Audio_Registers.md",
+      "sha256": "dd597e14330bea2681e6ecf8126de43e08a2404bad72880baa7f0be2cc163f4c"
+    }
+  }
+}

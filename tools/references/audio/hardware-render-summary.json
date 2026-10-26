@@ -1,0 +1,296 @@
+{
+  "acceptance": "host math only; independent APU oracle, listening and SDK feasibility pending",
+  "bound_rejections": [
+    {
+      "error": "nonclosing trace status 'bound'; bound is not a loop",
+      "last_tick": 119999,
+      "status": "bound",
+      "trace": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-parser/review-qualification/fixtures/01-audio3-Music_Dungeon1-default-0-128.json"
+    },
+    {
+      "error": "nonclosing trace status 'bound'; bound is not a loop",
+      "last_tick": 119999,
+      "status": "bound",
+      "trace": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-parser/review-qualification/fixtures/07-audio1-Music_Lavender-default-0-128.json"
+    }
+  ],
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-offline-renderer-v1/final",
+  "hardware_pins_sha256": "11f0e8672b24be6a1c8a7216e08944177f60be937f20aa1375718514f336aa51",
+  "mutations": [
+    {
+      "detected": true,
+      "mutation": "pulse period corrupted",
+      "tests": 1
+    },
+    {
+      "detected": true,
+      "mutation": "pulse duty replaced with silence",
+      "tests": 1
+    },
+    {
+      "detected": true,
+      "mutation": "noise shift update suppressed",
+      "tests": 1
+    },
+    {
+      "detected": true,
+      "mutation": "source clock rounded per tick",
+      "tests": 1
+    },
+    {
+      "detected": true,
+      "mutation": "DAC sign inverted",
+      "tests": 1
+    }
+  ],
+  "renderer_sha256": "cc743a7674f2740330e5f361158fd59601f9b24237c67152adc778db88889431",
+  "renders": [
+    {
+      "asset": "audio1:Music_PalletTown",
+      "files": {
+        "mix.wav": {
+          "bytes": 531656,
+          "sha256": "c1488be924fabaa5a977a20d494e1e45f0ab9674521520a30356e06978767940"
+        },
+        "noise.wav": {
+          "bytes": 531656,
+          "sha256": "3b43d16c8883b577fa3e87891cdc3ff2b5f52613c833752afd8ea321c416fb57"
+        },
+        "pulse1.wav": {
+          "bytes": 531656,
+          "sha256": "6e1a650394a037f105350580e58ae0892d6112176d025f2ade65970bacb0f111"
+        },
+        "pulse2.wav": {
+          "bytes": 531656,
+          "sha256": "25469409cd395d2d27f27a7597050798be5fee17d9d55c5b3fba1582ab9c4d9a"
+        },
+        "wave.wav": {
+          "bytes": 531656,
+          "sha256": "5e2f7591ee7f1e85dc818b06e21706f7ae5bb184be26c7067988c85c472e48b2"
+        }
+      },
+      "ir_sha256": "7f10c66f296276350c5d7672598e6607c032e55095285e6d8170aadbd3548826",
+      "loop": {
+        "end_hardware_state_sha256": null,
+        "end_sample_floor": 5051075,
+        "end_sample_remainder": 1057600,
+        "hardware_state_equal": null,
+        "intro_samples": 798159,
+        "loop_samples": 4252916,
+        "sample_grid_closes": false,
+        "score_end_tick": 6841,
+        "score_start_tick": 1081,
+        "seamless": false,
+        "start_hardware_state_sha256": null,
+        "start_sample_floor": 798159,
+        "start_sample_remainder": 4064064,
+        "state_comparison_complete": false,
+        "status": "candidate_only_pending_phase_and_listening"
+      },
+      "name": "pallet",
+      "preview": true,
+      "samples": 132903,
+      "trace_status": "repeat",
+      "trace_ticks": 6841
+    },
+    {
+      "asset": "audio1:Music_Routes3",
+      "files": {
+        "mix.wav": {
+          "bytes": 531656,
+          "sha256": "a67094af83186d404d893be35336466965db9acf9baae2780b54791a381b38a7"
+        },
+        "noise.wav": {
+          "bytes": 531656,
+          "sha256": "501dfb8ec5774f50e14db760b1bbfdce073ec89ac5a41c4b7e0f0f4f865a0e8f"
+        },
+        "pulse1.wav": {
+          "bytes": 531656,
+          "sha256": "549a1ad34930b3ffef119576f1d39736f503249f0222032cce6092ad1a18ce44"
+        },
+        "pulse2.wav": {
+          "bytes": 531656,
+          "sha256": "2b4257644d5b6521d1f7371a141609b645e5296141cfa30f2e7ca4e6bab6d365"
+        },
+        "wave.wav": {
+          "bytes": 531656,
+          "sha256": "dea04667f7e0cd566acb64a003bfd353a81e629efc2d52c87b24b006d080af02"
+        }
+      },
+      "ir_sha256": "2186f71a328e55f6d06e7cff03438604d51878e7506bb2fdfdb90fbf43820f80",
+      "loop": {
+        "end_hardware_state_sha256": null,
+        "end_sample_floor": 8083492,
+        "end_sample_remainder": 1893632,
+        "hardware_state_equal": null,
+        "intro_samples": 215599,
+        "loop_samples": 7867893,
+        "sample_grid_closes": false,
+        "score_end_tick": 10948,
+        "score_start_tick": 292,
+        "seamless": false,
+        "start_hardware_state_sha256": null,
+        "start_sample_floor": 215599,
+        "start_sample_remainder": 744704,
+        "state_comparison_complete": false,
+        "status": "candidate_only_pending_phase_and_listening"
+      },
+      "name": "route3",
+      "preview": true,
+      "samples": 132903,
+      "trace_status": "repeat",
+      "trace_ticks": 10948
+    },
+    {
+      "asset": "audio2:Music_WildBattle",
+      "files": {
+        "mix.wav": {
+          "bytes": 531656,
+          "sha256": "4f40cf730a03b58a73655de7cb4190c5ea3c527767b1be33659366fde928e83f"
+        },
+        "noise.wav": {
+          "bytes": 531656,
+          "sha256": "a0c769fdc43b0240f9f6757b4b61b6b73e278f20aeb67f96aec0a8d9a78b944a"
+        },
+        "pulse1.wav": {
+          "bytes": 531656,
+          "sha256": "1f1743c9662daf57312973c10432b76f7f98572478d83345d884543036f05a4b"
+        },
+        "pulse2.wav": {
+          "bytes": 531656,
+          "sha256": "b9cf58482d7ce4507728dcee5aac00f807f5dd0a1835e33e3f1e95d530bd2d9e"
+        },
+        "wave.wav": {
+          "bytes": 531656,
+          "sha256": "b853a468aa02657a25b0959674feef16b95a9b628fad549765ed01c8d30631d3"
+        }
+      },
+      "ir_sha256": "3dd35dccbb0dd0f369adbfca19e487322ca9604a43087fb0e4b057493b052d3d",
+      "loop": {
+        "end_hardware_state_sha256": null,
+        "end_sample_floor": 14513811,
+        "end_sample_remainder": 3176256,
+        "hardware_state_equal": null,
+        "intro_samples": 691837,
+        "loop_samples": 13821974,
+        "sample_grid_closes": false,
+        "score_end_tick": 19657,
+        "score_start_tick": 937,
+        "seamless": false,
+        "start_hardware_state_sha256": null,
+        "start_sample_floor": 691837,
+        "start_sample_remainder": 364352,
+        "state_comparison_complete": false,
+        "status": "candidate_only_pending_phase_and_listening"
+      },
+      "name": "battle",
+      "preview": true,
+      "samples": 132903,
+      "trace_status": "repeat",
+      "trace_ticks": 19657
+    },
+    {
+      "asset": "audio2:SFX_Cry00_2",
+      "files": {
+        "mix.wav": {
+          "bytes": 115224,
+          "sha256": "68a720d1261a8635689ce7ae04af33181eeee25d8ee1eb3ba40e775ca1d5649c"
+        },
+        "noise.wav": {
+          "bytes": 115224,
+          "sha256": "5cbb0a7f1a0090781ed181db4f2f7364fb033a62da7daae6142a5534c261a277"
+        },
+        "pulse1.wav": {
+          "bytes": 115224,
+          "sha256": "26edd0a26c26caf53ddbea143094678b7ad170794cbdf924cd5ba5f3fa2c59d6"
+        },
+        "pulse2.wav": {
+          "bytes": 115224,
+          "sha256": "fa5a6a6d767702b081c6556c853da1feddafcf1ad8278fd187db57a312e7f078"
+        },
+        "wave.wav": {
+          "bytes": 115224,
+          "sha256": "f3e278cd4aecf11ba2594277f3ff38d94f0f1da5d0aed3c3c1a78a366d8b98cc"
+        }
+      },
+      "ir_sha256": "027128f33b5865a63a36b2385284d56830f7aa01f858698937182959c7f978e8",
+      "loop": null,
+      "name": "cry",
+      "preview": false,
+      "samples": 28795,
+      "trace_status": "ended",
+      "trace_ticks": 39
+    },
+    {
+      "asset": "audio1:SFX_Pokeflute",
+      "files": {
+        "mix.wav": {
+          "bytes": 1704160,
+          "sha256": "b65ff9b2411d33fc4721c18cb72a6a58950bc7d0a717ccc61ab7e982bd1ee8c7"
+        },
+        "noise.wav": {
+          "bytes": 1704160,
+          "sha256": "c5f24bb3934299aa4105a16a8c1d928f9d5689fb906f4ad9f159b333d7d264b7"
+        },
+        "pulse1.wav": {
+          "bytes": 1704160,
+          "sha256": "c5f24bb3934299aa4105a16a8c1d928f9d5689fb906f4ad9f159b333d7d264b7"
+        },
+        "pulse2.wav": {
+          "bytes": 1704160,
+          "sha256": "c5f24bb3934299aa4105a16a8c1d928f9d5689fb906f4ad9f159b333d7d264b7"
+        },
+        "wave.wav": {
+          "bytes": 1704160,
+          "sha256": "b65ff9b2411d33fc4721c18cb72a6a58950bc7d0a717ccc61ab7e982bd1ee8c7"
+        }
+      },
+      "ir_sha256": "17a8946df4a841e0a51e4d1c13d403d16a75f7b0343ebfd9555d26a8a55be726",
+      "loop": null,
+      "name": "flute",
+      "preview": false,
+      "samples": 426029,
+      "trace_status": "ended",
+      "trace_ticks": 577
+    },
+    {
+      "asset": "audio2:SFX_Caught_Mon",
+      "files": {
+        "mix.wav": {
+          "bytes": 759068,
+          "sha256": "f702be87e621714f3b974d85ed6963b5225509734b578d77e9482a4c34bdba9d"
+        },
+        "noise.wav": {
+          "bytes": 759068,
+          "sha256": "482a39f0a64414f1f48517143a83971206f7b4da4a7396d9ea5add9dcd482831"
+        },
+        "pulse1.wav": {
+          "bytes": 759068,
+          "sha256": "482a39f0a64414f1f48517143a83971206f7b4da4a7396d9ea5add9dcd482831"
+        },
+        "pulse2.wav": {
+          "bytes": 759068,
+          "sha256": "482a39f0a64414f1f48517143a83971206f7b4da4a7396d9ea5add9dcd482831"
+        },
+        "wave.wav": {
+          "bytes": 759068,
+          "sha256": "f702be87e621714f3b974d85ed6963b5225509734b578d77e9482a4c34bdba9d"
+        }
+      },
+      "ir_sha256": "683297da65edb29c82555c86db2c19b847f78d1f384e7ef4936c8b48afa8ece1",
+      "loop": null,
+      "name": "battle-flute",
+      "preview": false,
+      "samples": 189756,
+      "trace_status": "ended",
+      "trace_ticks": 257
+    }
+  ],
+  "source_base": "9c5ec44",
+  "tests": {
+    "parser": 27,
+    "renderer": 15,
+    "skips": 0,
+    "total": 42
+  }
+}
