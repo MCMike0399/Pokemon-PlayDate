@@ -15,6 +15,7 @@ import uuid
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.harness.protocol import Client, OwnerLock, ProtocolError, atomic_json
+from tools.harness.build import overlay_imports
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -120,7 +121,7 @@ def prepare(project, sdk, output, session):
                 'data_dir': str(sdk / 'Disk/Data' / ('com.poc.pokemon.harness.' + session)),
                 'original_pdxinfo': original_pdxinfo,
                 'source_hash_excludes': ['Source/dev/harness_build.lua'],
-                'generated_overlays': ['Source/dev/harness_build.lua', 'Source/pdxinfo']}
+                'generated_overlays': ['Source/main.lua', 'Source/dev/harness_build.lua', 'Source/pdxinfo']}
     (output / 'frames').mkdir()
     # JSON strings are Lua-compatible quoted strings for these machine-generated values.
     lua_values = []
@@ -129,6 +130,7 @@ def prepare(project, sdk, output, session):
         encoded = 'true' if value is True else json.dumps(value, ensure_ascii=False)
         lua_values.append(f'    {key} = {encoded},')
     (source / 'dev/harness_build.lua').write_text('HarnessBuild = {\n' + '\n'.join(lua_values) + '\n}\n')
+    overlay_imports(source)
     pdxinfo = source / 'pdxinfo'
     lines = pdxinfo.read_text().splitlines()
     pdxinfo.write_text('\n'.join('bundleID=' + metadata['bundle_id'] if line.startswith('bundleID=') else line for line in lines) + '\n')

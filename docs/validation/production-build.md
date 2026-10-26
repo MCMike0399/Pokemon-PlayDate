@@ -1,0 +1,64 @@
+# Production and harness build boundary
+
+`make compile` uses `tools/build.py` to copy Source into a private build tree
+without `Source/dev`, then compiles and publishes a fresh `.pdx`. Existing output
+is replaced so stale dev artifacts cannot survive a previous harness build.
+`make build` and `make deploy` use this same compile target.
+
+Do not use `pdc Source` for production: SDK 3.1.2 compiles even unreferenced Lua
+files into standalone `.pdz` files. A runtime false guard also leaves imported
+modules inside `main.pdz`.
+
+The checked-in entry point has no dev imports or dev-global dereferences.
+Private harness staging inserts `tools/harness/dev_imports.lua` at explicit
+slots, imports the generated `HarnessBuild` configuration first, and assigns the
+local harness hook. Original production import and contract-registration order
+is preserved. Missing, duplicate or unknown slots fail before compilation.
+The original source manifest and base hash precede overlays; the compiled hash
+includes the exact overlaid entry point and configuration.
+
+Run the artifact checks with the SDK environment loaded:
+
+```sh
+source ~/Developer/Pokemon-PlayDate-env/env.sh
+python3 -m unittest tools.tests.test_production_build -v
+make test-harness
+```
+
+The artifact checks decode every compressed Lua record in the actual production
+and harness `main.pdz` files. They also check stale-file removal, the frozen
+baseline's complete ordered imports/registrations, and byte equality for every
+non-entry source asset. New SDK suites must update the overlay and its explicit
+baseline fixture together. These checks do not execute SDK tests or establish
+visual acceptance. Root must still run the contracts/catalog and normal journeys.
+The coverage matrix's Source snapshot becomes stale after this change; root
+must regenerate/review it during integration without promoting old evidence.
+
+## Root-only startup and memory comparison
+
+The following probes compile by default. Only root may append `--execute`, after
+the ongoing 5.1 freeze ends. Use fresh durable evidence directories and run
+serially; runtime execution holds the normal global Simulator and private Data
+locks, launches the exact SDK binary, and terminates only its owned PID.
+
+```sh
+python3 tools/harness/startup_probe.py --mode production --output ~/Developer/Pokemon-PlayDate-env/evidence/dev-gate-production-01 --execute
+python3 tools/harness/startup_probe.py --mode harness --output ~/Developer/Pokemon-PlayDate-env/evidence/dev-gate-harness-01 --execute
+```
+
+Compare `startup-probe.json`: `startup_ms`, `heap_kib_before_gc`,
+`heap_kib_after_gc` and `first_frame_heap_kib`. Each report must match its
+`build.json` session/mode and report Simulator execution. Source, SDK and revision
+must match the intended candidate. Repeat fresh pairs to assess startup noise.
+For a before/after claim, also run the same observer against a separately
+preserved parent entry point; production-versus-harness alone is a mode comparison.
+
+The identical observer begins before imports, samples after GameSaves startup,
+performs two explicitly labeled full GC passes, and runs one ordinary frame.
+It stops all update producers before atomic report publication. These are
+instrumented Simulator Lua-heap measurements, excluding native allocations and
+device capacity; first-frame harness capture work is included. Production uses
+normal time-based RNG seeding, harness uses its normal test initialization.
+No workload, movement, capture catalog or synthetic player input is added.
+Probe bundles have unique IDs and private saves; their source and runtime Data
+remain in the evidence directory. Compile success is not runtime acceptance.

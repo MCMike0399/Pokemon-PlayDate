@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -208,7 +209,8 @@ class ProtocolTests(unittest.TestCase):
         project = self.root / 'project'
         source = project / 'Source'
         (source / 'dev').mkdir(parents=True)
-        (source / 'main.lua').write_text('original staged bytes')
+        original = '-- original staged bytes\n' + (runner.PROJECT / 'Source/main.lua').read_text()
+        (source / 'main.lua').write_text(original)
         (source / 'pdxinfo').write_text('bundleID=original\n')
         (source / 'dev/harness_build.lua').write_text('default config')
         expected_hash = runner.fingerprint(project)
@@ -226,7 +228,10 @@ class ProtocolTests(unittest.TestCase):
             metadata = runner.prepare(project, sdk, output, 'session')
         self.assertEqual(metadata['source_sha256'], expected_hash)
         self.assertNotEqual(metadata['source_sha256'], runner.fingerprint(project))
-        self.assertEqual((output / 'Source/main.lua').read_text(), 'original staged bytes')
+        self.assertIn('-- original staged bytes\n', (output / 'Source/main.lua').read_text())
+        self.assertNotIn('live source changed', (output / 'Source/main.lua').read_text())
+        self.assertEqual(json.loads((output / 'source-manifest.json').read_text())['main.lua'],
+                         hashlib.sha256(original.encode()).hexdigest())
         self.assertEqual(metadata['compiled_source_sha256'], runner.fingerprint(output, exclude_generated=False))
 
     def test_atomic_json_overwrites_complete_object(self):

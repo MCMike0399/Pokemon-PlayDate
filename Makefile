@@ -11,7 +11,7 @@ clean:
 	rm -rf $(PRODUCT)
 
 compile:
-	"$(PDC)" Source $(PRODUCT)
+	python3 tools/build.py --sdk "$(SDK)" --output "$(PRODUCT)"
 
 run:
 	open -a "$(SDK)/bin/Playdate Simulator.app" $(PRODUCT)
