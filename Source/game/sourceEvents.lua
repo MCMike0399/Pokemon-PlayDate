@@ -134,6 +134,16 @@ function SourceEvents.validateStep(step)
     if op == "dialog" or op == "receipt" or op == "confirmed-dialog" then
         assert(type(step.labels) == "table" and #step.labels > 0 and #step.labels <= 12, "bounded source labels required")
         for _, label in ipairs(step.labels) do assert(type(label) == "string" and #label <= 128, "source label required") end
+    elseif op == "random-dialog" then
+        assert(Party._array(step.choices, 16) and #step.choices > 0, "bounded source byte choices required")
+        local nextByte = 0
+        for _, choice in ipairs(step.choices) do
+            assert(type(choice) == "table" and choice.min == nextByte
+                and boundedInteger(choice.max, nextByte, 255), "complete ordered source byte partition required")
+            SourceEvents.validateStep({op="dialog", labels=choice.labels})
+            nextByte = choice.max + 1
+        end
+        assert(nextByte == 256, "source byte partition must cover all 256 values")
     elseif op == "move" or op == "move-npc" then
         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
         if op == "move-npc" then assert(type(step.id) == "string", "stable source actor ID required") end

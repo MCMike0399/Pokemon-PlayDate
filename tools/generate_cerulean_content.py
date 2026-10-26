@@ -115,6 +115,49 @@ def dialogue(label):
     return dict(kind='program', steps=[dict(op='dialog', labels=[label])])
 
 
+def source_byte_dialog(body, pointer):
+    """Decode only the pinned single-read, descending carry-test text shape.
+
+    hRandomAdd changes globally over time; these are separate interactions, not
+    a paired script sharing a saved byte. Use one session WorldRNG byte at the
+    controller operation, never a planner draw. These bodies contain no cry;
+    reject added commands rather than silently dropping future sound metadata.
+    """
+    clean = '\n'.join(line.split(';', 1)[0].strip() for line in body.splitlines()
+                      if line.split(';', 1)[0].strip())
+    prefix = 'text_asm\nldh a, [hRandomAdd]\n'
+    if not clean.startswith(prefix):
+        raise ValueError('source byte dialog must read hRandomAdd exactly once')
+    control, texts = re.split(r'\.end:?\njp TextScriptEnd\n', clean[len(prefix):])
+    branches, remaining, expected_local, upper = [], control, None, 256
+    pattern = re.compile(r'(?:\.(\w+):?\n)?cp (\d+)\njr c, \.(\w+)\n'
+                         r'ld hl, \.(\w+)\ncall PrintText\njr \.end\n')
+    while match := pattern.match(remaining):
+        local, threshold, next_local, text = match.groups()
+        threshold = int(threshold)
+        if local != expected_local or not 0 < threshold < upper:
+            raise ValueError('invalid descending source byte partition')
+        branches.append(dict(min=threshold, max=upper - 1, local=text))
+        expected_local, upper = next_local, threshold
+        remaining = remaining[match.end():]
+    fallback = re.fullmatch(r'\.(\w+):?\nld hl, \.(\w+)\ncall PrintText\n', remaining)
+    if not fallback or fallback[1] != expected_local or not 1 <= len(branches) <= 15:
+        raise ValueError('unsupported source byte dialog control flow')
+    branches.append(dict(min=0, max=upper - 1, local=fallback[2]))
+    text_pattern = re.compile(r'\.(\w+):\ntext_far (_\w+)\ntext_end(?:\n|$)')
+    matches = list(text_pattern.finditer(texts))
+    if ''.join(m[0] for m in matches) != texts:
+        raise ValueError('unsupported source byte text commands (retain sound/cry cues explicitly)')
+    labels = {m[1]: m[2] for m in matches}
+    if len(labels) != len(branches) or set(labels) != {b['local'] for b in branches}:
+        raise ValueError('source byte text targets differ')
+    choices = [dict(min=b['min'], max=b['max'], labels=[labels[b['local']]])
+               for b in reversed(branches)]
+    return dict(kind='program', steps=[dict(op='random-dialog', choices=choices,
+        source=dict(path='scripts/CeruleanCity.asm', pointer=pointer, byte='hRandomAdd',
+                    sampling='one independent session world byte per controller operation', cry_cues=[]))])
+
+
 def conditional(flag, yes, no):
     return dict(kind='cases', cases=[{'when': {'flags': {flag: True}}, 'then': dialogue(yes)}],
                 otherwise=dialogue(no))
@@ -277,6 +320,8 @@ def build(reference_root):
             elif event['kind'] == 'item':
                 descriptor = dict(kind='pickup', item=item_map[event['extra'][0]],
                                   flag='PICKUP:' + event['id'], success=['_FoundItemText'], full=['_NoMoreRoomForItemText'])
+            elif pointer in ('CeruleanCityCooltrainerF1Text', 'CeruleanCitySlowbroText'):
+                descriptor = source_byte_dialog(body, pointer)
             elif pointer == 'CeruleanMartClerkText':
                 descriptor = dict(kind='program', steps=[dict(op='shop', id='ceruleanMartClerkText')])
             elif pointer == 'BikeShopYoungsterText':

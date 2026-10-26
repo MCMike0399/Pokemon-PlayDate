@@ -154,7 +154,7 @@ class CeruleanContentTests(unittest.TestCase):
             for event in self.maps[name]['events']['objects']:
                 if event['source_index'] in indexes:
                     self.assertIn(event['id'], gaps)
-        self.assertEqual(len(self.events['events']), 81)
+        self.assertEqual(len(self.events['events']), 83)
         self.assertEqual(len(self.events['signs']), 16)
 
     def test_both_guard_objects_bind_the_same_pinned_ordinary_text(self):

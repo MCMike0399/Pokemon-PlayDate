@@ -76,6 +76,7 @@ function EventState:enter(id,options)
     self.phase,self.waiting,self.index,self.committed="running","none",1,false
     self.ops,self.receipts,self.books={},{},{}
     self.npcMove,self.pendingWarp=nil,nil
+    self.randomDialogPose=nil
     self.npcLeases = {}
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
@@ -121,7 +122,7 @@ function EventState:enter(id,options)
         elseif step.op=="warp" then
             assert(index==#plan.steps,"warp must terminate source plan")
             self.ops[#self.ops+1]=step
-        elseif step.op=="shop" or step.op=="heal" then self.ops[#self.ops+1]=step
+        elseif step.op=="shop" or step.op=="heal" or step.op=="random-dialog" then self.ops[#self.ops+1]=step
         else error("unsupported slice operation: "..tostring(step.op)) end
     end
     if plan.scene=="oak-pokedex" then self.ops[#self.ops+1]={op="oak-depart"} end
@@ -166,6 +167,27 @@ function EventState:advance()
     local step=self.ops[self.index];self.index=self.index+1
     if not step then self:commit();return end
     if step.op=="pages" then self:dialog(step.pages,function() self:advance() end)
+    elseif step.op=="random-dialog" then
+        -- Selection belongs to execution, after valid/top guards. Source
+        -- hRandomAdd is sampled separately on each interaction, not shared by
+        -- these NPCs. Use the persistent world stream, never the rules stream.
+        SourceEvents.validateStep(step)
+        if not self.randomDialogPose then
+            for _,npc in ipairs(self.game.npcManager.npcs) do
+                if npc.def and npc.def.source_event_id==self.id then
+                    local pose=self.game.npcManager.motion:actor(npc)
+                    if pose then self.randomDialogPose={npc=npc,pose=pose} end
+                    break
+                end
+            end
+        end
+        local byte=self.session:worldRandom(0,255)
+        for _,choice in ipairs(step.choices) do
+            if byte<=choice.max then
+                self:source(choice.labels,function() self:advance() end)
+                return
+            end
+        end
     elseif step.op=="move" then self:startMove(step.direction)
     elseif step.op=="move-npc" then self:startNPCMove(step)
     elseif step.op=="warp" then self:prepareWarp(step)
@@ -344,6 +366,16 @@ function EventState:exit()
     end
     self.moveOrigin=nil;self.phase,self.waiting="closed","none"
     self.game.npcManager.motion:finishInteraction(self.id)
+    -- STAY actors do not get NPCMotion's wandering interaction token. Restore
+    -- only this operation's unchanged logical actor pose, like nurse facing.
+    -- A replaced context, removed actor or completed scripted move wins.
+    local saved=self.randomDialogPose
+    if saved and self.game.session==self.session and self.game.player==self.player and currentZone==self.zone then
+        local pose=self.game.npcManager.motion:actor(saved.npc)
+        if pose and pose.id==saved.pose.id and pose.x==saved.pose.x and pose.y==saved.pose.y
+            and pose.facing==saved.pose.facing then saved.npc:setFacing(pose.facing) end
+    end
+    self.randomDialogPose=nil
     gfx.sprite.addDirtyRect(0,0,400,240)
 end
 function EventState:getSnapshot()
