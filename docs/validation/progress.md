@@ -96,9 +96,10 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
 | `wip/cerulean-integration` / root | Durable environment worktree at `c6882b6`; fresh Squirtle New Game → Bill/restart journey is live. Ticket, TM11, both fossil retries, blackout and observation restart witnesses pass. Other starter journeys remain unrun. |
-| `wip/vermilion-content` / worker | Preparing 5.4 maps and ordinary content only; no main activation. |
-| `wip/field-cut-flash` / worker | Preparing next field HM owners and root integration patch. |
-| `wip/anne-surge-scenes` / worker | Preparing Captain/rival/boarding and Surge puzzle/reward scenes. |
+| `wip/vermilion-integration` / root | Private `4c85150` composes 35 prepared maps, Cut/Flash, quest gifts and Anne/Surge scenes. The active 30-map manifest is unchanged; shared API patches and native acceptance remain pending. |
+| Field-world worker | Preparing temporary Cut reload ownership and persisted Flash darkness. |
+| Day Care worker | Preparing the source-backed deposited-specimen service and separate owner patch. |
+| Anne/Surge worker | Finishing source ship departure presentation and the closed Gym-door tile dependency. |
 | `wip/kanto-entry-abilities` / worker | `e8844a3` composed; actual native entry cases passed after fixture repairs. |
 | `wip/kanto-contact-abilities` / worker | `a408642`/`3cc5925` composed; actual native contact cases passed after live-ledger fixture repairs. |
 | `wip/audio-rgbds-oracle` / worker | `dadb7b3` independently qualifies emitted bytes with isolated pinned Bison/RGBDS; no engine/APU claim. |
