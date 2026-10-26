@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REVISION = "af519899719f0754965776faac0e836a3b906e6d"
 MANIFEST = ROOT / "Source/data/sourceMaps.json"
-VOID_KEYS = {"viridian": "adapter:viridian-slice:void", "pewter": "adapter:pewter:void"}
+VOID_KEYS = {"source": "adapter:source:void", "viridian": "adapter:viridian-slice:void", "pewter": "adapter:pewter:void"}
 
 
 def require(condition, message):
@@ -45,7 +45,11 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
     require(isinstance(manifest.get("maps"), dict) and manifest["maps"], "empty source inventory")
     header = {"schema": 1, "source_revision": REVISION,
               "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest()}
-    compact = dict(header, maps={}, tiles={})
+    door_tiles = manifest["door_tiles"]
+    require(isinstance(door_tiles, dict) and all(isinstance(name, str) and isinstance(ids, list)
+            and all(integer(tile, 0, 255) for tile in ids) for name, ids in door_tiles.items()),
+            "invalid shared door tiles")
+    compact = dict(header, maps={}, tiles={}, door_tiles=door_tiles)
     atlas = dict(header, tiles={})
     identities, keys = set(), set()
     for name, entry in sorted(manifest["maps"].items()):
@@ -81,6 +85,9 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
                       "width": entry["width"], "height": height, "padding": entry["padding"],
                       "palette": [grid["stable_id"] for grid in grids], "tile_rows": [], "blocked": {},
                       "source_map_constant": definition["source_map_constant"],
+                      "last_outdoor": entry.get("last_outdoor"),
+                      "connection_sources": entry.get("connection_sources", {}),
+                      "blocked_connections": entry.get("blocked_connections", []),
                       "warps": [], "connections": definition["connections"], "tileset": definition["tileset"]}
         for row, collision in zip(definition["tile_ids"], definition["collision"]):
             require(len(row) == width and len(collision) == width, "source row width differs")
@@ -91,7 +98,12 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
             padded = [len(grids)] * entry["width"]
             padded[entry["padding"]:entry["padding"] + width] = row
             descriptor["tile_rows"].append("".join(f"{tile:02x}" for tile in padded))
-        blocked = entry["blocked_events"]
+        blocked = list(entry.get("blocked_events", []))
+        available = {item["id"] for item in manifest["maps"].values()}
+        for event in definition["events"]["warps"]:
+            destination = event["destination"]
+            if destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
+                blocked.append(event["id"])
         require(isinstance(blocked, list) and len(set(blocked)) == len(blocked), "duplicate blocked surface event")
         surfaces, all_events = set(), set()
         for kind, events in definition["events"].items():
@@ -121,6 +133,30 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
             atlas["tiles"][key] = tile
             compact["tiles"][key] = {field: value for field, value in tile.items() if field != "grid"}
         compact["maps"][name] = descriptor
+    # LAST_MAP is stateful in the source. Infer its ordinary unique OVERWORLD
+    # ingress; an ambiguous context requires an explicit manifest override (or
+    # ultimately a bespoke runtime script), never a regional Lua name branch.
+    for name, descriptor in compact["maps"].items():
+        dynamic = [warp for warp in descriptor["warps"] if warp["destination"]["kind"] == "last_outdoor_map"]
+        if not dynamic:
+            continue
+        candidates = set()
+        for other_name, other in compact["maps"].items():
+            if other["tileset"]["constant"] != "OVERWORLD":
+                continue
+            for event in dynamic:
+                index = event["destination"]["warp_index"]
+                if index < 1 or index > len(other["warps"]):
+                    continue
+                ingress = other["warps"][index - 1]["destination"]
+                if ingress.get("map") == descriptor["source_map_constant"]:
+                    candidates.add(other_name)
+        context = descriptor["last_outdoor"]
+        if context is None:
+            require(len(candidates) == 1, "LAST_MAP needs explicit manifest context: " + name)
+            context = next(iter(candidates))
+        require(context in candidates, "LAST_MAP context has no matching source ingress: " + name)
+        descriptor["last_outdoor"] = context
     return {"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)}
 
 

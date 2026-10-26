@@ -59,21 +59,39 @@ local function target(game,key,x,y,direction)
 end
 -- Second return distinguishes this module's explicit surfaces from old Kanto.
 function PewterWorld.connection(game,zone,x,y,direction)
-    local name=PewterSlice.nameForID(zone.stableID)
-    if zone.stableID=="pokered:VIRIDIAN_CITY" and direction=="up" and y==0 then
-        if game.session:getIntro().stage~="done" then return nil,true,"intro-gate" end
-        local door,reason=target(game,"kanto_route2",x-10,71,"up");return door,true,reason
-    end
+    local name = SourceMaps.nameForID(zone.stableID)
     if not name then return nil,false end
-    local d=dirs[direction];if not d then return nil,true,"invalid-direction" end
+    local d = dirs[direction]
+    if not d then return nil,true,"invalid-direction" end
     if x+d[1]>=0 and y+d[2]>=0 and x+d[1]<zone.width and y+d[2]<zone.height then return nil,false end
+    -- Authored Pallet has a deliberate coordinate adapter in KantoSlice.
+    local descriptor = SourceMaps.descriptor(name)
+    if SourceMaps.entry(name).profile == "viridian" then
+        -- Keep the reviewed resident-zone occupancy/error contract. Its source
+        -- coordinates still come from SourceMaps.connection through the facade.
+        local deferred = true
+        local sourceDirection = ({up="north",down="south",left="west",right="east"})[direction]
+        for _, id in ipairs(descriptor.blocked_connections) do
+            if id:sub(1,#sourceDirection+1) == sourceDirection .. ":" then deferred = false end
+        end
+        if deferred then return nil,false end
+    end
+    for _, c in ipairs(descriptor.connections) do
+        if c.target_map == "PALLET_TOWN" and direction == "down" then return nil,false end
+    end
     if game.session:getIntro().stage~="done" then return nil,true,"intro-gate" end
-    local key,tx,ty
-    if name=="Route2" and direction=="up" and y==0 then key,tx,ty="kanto_pewter_city",x+10,35
-    elseif name=="Route2" and direction=="down" and y==71 then key,tx,ty="kanto_viridian_city",x+10,0
-    elseif name=="PewterCity" and direction=="down" and y==35 then key,tx,ty="kanto_route2",x-10,0
-    else return nil,true,"unimplemented-source-exit:"..zone.stableID..":"..direction end
-    local door,reason=target(game,key,tx,ty,direction);return door,true,reason
+    local value = SourceMaps.connection(name,x,y,direction)
+    if not value then
+        local sourceDirection = ({up="north",down="south",left="west",right="east"})[direction]
+        for _, c in ipairs(descriptor.connections) do
+            if c.direction == sourceDirection and SourceMaps.nameForID("pokered:" .. c.target_map) then
+                return nil,true,"blocked-source-arrival"
+            end
+        end
+        return nil,true,"unimplemented-source-exit:"..zone.stableID..":"..direction
+    end
+    local door,reason = target(game,value.to,value.x,value.y,direction)
+    return door,true,reason
 end
 function PewterWorld.trySight(game)
     if not game.trainers or game.machine:getCurrent()~="overworld" or game.player.isMoving or game.player.pendingEdgeDoor then return false end

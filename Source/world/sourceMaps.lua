@@ -4,6 +4,7 @@ SourceMaps = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
 local compact, tileGrids
+local recordOverrides
 local rawCache = setmetatable({}, { __mode = "v" })
 
 local function copy(value)
@@ -19,7 +20,7 @@ local function catalogue()
         local ids, keys = {}, {}
         for name, entry in pairs(data.maps) do
             assert(type(name) == "string" and not ids[entry.id] and not keys[entry.key], "duplicate source map identity")
-            assert(entry.profile == "viridian" or entry.profile == "pewter", "unknown source binding profile")
+            assert(entry.profile == "viridian" or entry.profile == "pewter" or entry.profile == "source", "unknown source binding profile")
             ids[entry.id], keys[entry.key] = true, true
         end
         manifest = data.maps
@@ -28,7 +29,7 @@ local function catalogue()
 end
 
 function SourceMaps.record(path)
-    local data = assert(json.decodeFile(path), "missing pinned source record: " .. path)
+    local data = assert(recordOverrides and recordOverrides[path] and copy(recordOverrides[path]) or json.decodeFile(path), "missing pinned source record: " .. path)
     assert(data.schema == 1 and data.source_revision == revision, "unverified source record: " .. path)
     return data
 end
@@ -125,7 +126,7 @@ function SourceMaps.padded(name)
         local grid = {}
         for y = 1, 16 do grid[y] = string.rep("#", 16) end
         local id = #data.grids + 1
-        local key = entry.profile == "viridian" and "adapter:viridian-slice:void" or "adapter:pewter:void"
+        local key = ({ viridian = "adapter:viridian-slice:void", pewter = "adapter:pewter:void", source = "adapter:source:void" })[entry.profile]
         data.grids[id] = { id = id, stable_id = key, grid = grid, terrain = {
             foot_tile = -1, land_passable = false, grass = false, counter = false,
             warp_tile = false, water_candidate = false, adapter_padding = true,
@@ -153,4 +154,89 @@ function SourceMaps.padded(name)
     data.dimensions.cells = { entry.width, height }
     data.dimensions.playdate_pixels = { entry.width * 32, height * 32 }
     return data
+end
+
+-- Ordinary geometry is projected from the same cache used by ImportedMaps.
+function SourceMaps.descriptor(name)
+    return copy(assert(compactData().maps[name], "unknown source map"))
+end
+
+function SourceMaps.cell(name, x, y)
+    local data = compactData()
+    local d = assert(data.maps[name], "unknown source map")
+    assert(type(x) == "number" and x % 1 == 0 and x >= 0 and x < d.width
+        and type(y) == "number" and y % 1 == 0 and y >= 0 and y < d.height, "source cell outside map")
+    local id = assert(tonumber(d.tile_rows[y + 1]:sub(x * 2 + 1, x * 2 + 2), 16))
+    local cell = copy(assert(data.tiles[d.palette[id]]))
+    if d.blocked[tostring(y * d.width + x + 1)] then cell.collision = 1 end
+    return cell
+end
+
+function SourceMaps.isDoor(name, x, y)
+    local d = assert(compactData().maps[name])
+    local foot = SourceMaps.cell(name, x, y).terrain.foot_tile
+    for _, id in ipairs(compactData().door_tiles[d.tileset.constant] or {}) do
+        if id == foot then return true end
+    end
+    return false
+end
+
+function SourceMaps.warpSpec(name, event)
+    local entry = SourceMaps.entry(name)
+    local destination = event.destination
+    local target = destination.kind == "last_outdoor_map" and compactData().maps[name].last_outdoor
+        or SourceMaps.nameForID("pokered:" .. tostring(destination.map))
+    if not target then
+        return { status = "blocked", reason = entry.profile == "viridian"
+            and "source event outside implemented parcel handlers" or "original target map outside reviewed Pewter slice" }
+    end
+    local d = assert(compactData().maps[target], "LAST_MAP context outside manifest")
+    local arrival = assert(d.warps[destination.warp_index], "source target warp index absent")
+    local advance = SourceMaps.isDoor(target, arrival.x, arrival.y) and 1 or 0
+    local x, y = arrival.x, arrival.y + advance
+    assert(y < d.height and SourceMaps.cell(target, x, y).collision == 0, "original warp arrival is blocked")
+    if entry.profile == "viridian" then
+        return { status = "bound", to = d.key, toX = x, toY = y,
+            facing = advance == 1 and "down" or "up", source_target_map = d.source_map_constant,
+            source_target_warp = destination.warp_index, source_target_x = arrival.x, source_target_y = arrival.y,
+            arrival_advance = advance, reason = "explicit LAST_MAP resolves only to original Viridian exterior" }
+    end
+    return { status = "bound", to = d.key, toX = x, toY = y, facing = advance == 1 and "down" or nil,
+        preserveFacing = advance == 0, target_name = target, target_warp = destination.warp_index,
+        source_target_x = arrival.source_x, source_target_y = arrival.source_y, arrival_advance = advance }
+end
+
+local directions = { up = "north", down = "south", left = "west", right = "east" }
+function SourceMaps.connection(name, x, y, direction)
+    local d = assert(compactData().maps[name], "unknown source map")
+    local vertical = direction == "up" or direction == "down"
+    local boundary = direction == "up" and y == 0 or direction == "down" and y == d.height - 1
+        or direction == "left" and x == 0 or direction == "right" and x == d.width - 1
+    if not boundary then return nil end
+    for _, connection in ipairs(d.connections) do
+        if connection.direction == directions[direction] then
+            local target = SourceMaps.nameForID("pokered:" .. connection.target_map)
+            if not target then return nil end
+            local other = compactData().maps[target]
+            local adjustment = connection.entry_lateral_adjustment_cells
+            local tx = vertical and x - d.padding + adjustment + other.padding
+                or (direction == "left" and other.width - other.padding - 1 or other.padding)
+            local ty = vertical and (direction == "up" and other.height - 1 or 0) or y + adjustment
+            if tx < other.padding or tx >= other.padding + other.source_width or ty < 0 or ty >= other.height then return nil end
+            return { to = other.key, x = tx, y = ty, facing = direction,
+                source = d.connection_sources[direction] or "pinned source header connection" }
+        end
+    end
+end
+
+-- Scoped immutable-record adapter for SDK fixtures. Restores both record source
+-- and all caches even when a contract fails; never installs campaign locations.
+function SourceMaps._withRecords(records, fn)
+    local oldManifest, oldCompact, oldGrids, oldRaw, oldOverrides = manifest, compact, tileGrids, rawCache, recordOverrides
+    manifest, compact, tileGrids = nil, nil, nil
+    rawCache, recordOverrides = setmetatable({}, { __mode = "v" }), records
+    local ok, result = pcall(fn)
+    manifest, compact, tileGrids, rawCache, recordOverrides = oldManifest, oldCompact, oldGrids, oldRaw, oldOverrides
+    if not ok then error(result, 0) end
+    return result
 end

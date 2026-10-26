@@ -1,12 +1,55 @@
 {
+  "door_tiles": {
+    "FACILITY": [
+      67,
+      88,
+      27
+    ],
+    "FOREST": [
+      58
+    ],
+    "FOREST_GATE": [
+      59
+    ],
+    "GATE": [
+      59
+    ],
+    "HOUSE": [
+      84
+    ],
+    "LAB": [
+      52
+    ],
+    "LOBBY": [
+      28,
+      56,
+      26
+    ],
+    "MANSION": [
+      26,
+      28,
+      83
+    ],
+    "MART": [
+      94
+    ],
+    "MUSEUM": [
+      59
+    ],
+    "OVERWORLD": [
+      27,
+      88
+    ],
+    "PLATEAU": [
+      59,
+      27
+    ],
+    "SHIP": [
+      30
+    ]
+  },
   "maps": {
     "PewterCity": {
-      "blocked_events": [
-        "pokered:PEWTER_CITY:warps:1",
-        "pokered:PEWTER_CITY:warps:2",
-        "pokered:PEWTER_CITY:warps:4",
-        "pokered:PEWTER_CITY:warps:6"
-      ],
       "height": 36,
       "id": "pokered:PEWTER_CITY",
       "key": "kanto_pewter_city",
@@ -22,10 +65,10 @@
       "width": 40
     },
     "PewterGym": {
-      "blocked_events": [],
       "height": 14,
       "id": "pokered:PEWTER_GYM",
       "key": "kanto_pewter_gym",
+      "last_outdoor": "PewterCity",
       "padding": 1,
       "path": "data/pewterSlice/PewterGym.json",
       "profile": "pewter",
@@ -38,10 +81,10 @@
       "width": 13
     },
     "PewterMart": {
-      "blocked_events": [],
       "height": 8,
       "id": "pokered:PEWTER_MART",
       "key": "kanto_pewter_mart",
+      "last_outdoor": "PewterCity",
       "padding": 2,
       "path": "data/pewterSlice/PewterMart.json",
       "profile": "pewter",
@@ -54,10 +97,10 @@
       "width": 13
     },
     "PewterPokecenter": {
-      "blocked_events": [],
       "height": 8,
       "id": "pokered:PEWTER_POKECENTER",
       "key": "kanto_pewter_center",
+      "last_outdoor": "PewterCity",
       "padding": 0,
       "path": "data/pewterSlice/PewterPokecenter.json",
       "profile": "pewter",
@@ -70,7 +113,9 @@
       "width": 14
     },
     "Route1": {
-      "blocked_events": [],
+      "connection_sources": {
+        "up": "Route1 header north offset -5 blocks"
+      },
       "height": 36,
       "id": "pokered:ROUTE_1",
       "key": "kanto_route1",
@@ -87,12 +132,6 @@
       "width": 20
     },
     "Route2": {
-      "blocked_events": [
-        "pokered:ROUTE_2:warps:1",
-        "pokered:ROUTE_2:warps:3",
-        "pokered:ROUTE_2:warps:4",
-        "pokered:ROUTE_2:warps:5"
-      ],
       "height": 72,
       "id": "pokered:ROUTE_2",
       "key": "kanto_route2",
@@ -108,11 +147,12 @@
       "width": 20
     },
     "ViridianCity": {
-      "blocked_events": [
-        "pokered:VIRIDIAN_CITY:warps:3",
-        "pokered:VIRIDIAN_CITY:warps:4",
-        "pokered:VIRIDIAN_CITY:warps:5"
+      "blocked_connections": [
+        "north:ROUTE_2"
       ],
+      "connection_sources": {
+        "down": "ViridianCity header south offset +5 blocks"
+      },
       "height": 36,
       "id": "pokered:VIRIDIAN_CITY",
       "key": "kanto_viridian_city",
@@ -129,7 +169,6 @@
       "width": 40
     },
     "ViridianForest": {
-      "blocked_events": [],
       "height": 48,
       "id": "pokered:VIRIDIAN_FOREST",
       "key": "kanto_viridian_forest",
@@ -145,10 +184,10 @@
       "width": 34
     },
     "ViridianForestNorthGate": {
-      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE",
       "key": "kanto_forest_north_gate",
+      "last_outdoor": "Route2",
       "padding": 1,
       "path": "data/pewterSlice/ViridianForestNorthGate.json",
       "profile": "pewter",
@@ -161,10 +200,10 @@
       "width": 13
     },
     "ViridianForestSouthGate": {
-      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE",
       "key": "kanto_forest_south_gate",
+      "last_outdoor": "Route2",
       "padding": 1,
       "path": "data/pewterSlice/ViridianForestSouthGate.json",
       "profile": "pewter",
@@ -177,10 +216,10 @@
       "width": 13
     },
     "ViridianMart": {
-      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_MART",
       "key": "kanto_viridian_mart",
+      "last_outdoor": "ViridianCity",
       "padding": 2,
       "path": "data/viridianSlice/ViridianMart.json",
       "profile": "viridian",
@@ -194,10 +233,10 @@
       "width": 13
     },
     "ViridianPokecenter": {
-      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_POKECENTER",
       "key": "kanto_viridian_center",
+      "last_outdoor": "ViridianCity",
       "padding": 0,
       "path": "data/viridianSlice/ViridianPokecenter.json",
       "profile": "viridian",

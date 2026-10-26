@@ -1,4 +1,4 @@
-import "world/sourceMaps"
+import "world/sourceBindings"
 
 -- One provider/cache for every manifest map. The caller supplies the existing
 -- bespoke binding profiles; this module never owns story/session dispatch.
@@ -32,10 +32,12 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
     assert(options.registry == nil or options.registry == registry, "source profile registry differs")
     options.registry = registry
     options.spawn = copy(options.spawn or entry.spawn)
+    options.hasEvent = options.hasEvent or function() return false end
     if not options.isolatedCatalog and adapter.prepare then adapter.prepare(name, definition) end
-    options.sliceBindings = adapter.specs(name, definition)
+    options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
+    options.bindingAdapter = SourceBindings
     -- Retain each reviewed adapter's terrain/source representation.
-    if entry.profile == "pewter" then
+    if entry.profile ~= "viridian" then
         options.compactTerrain = true
         definition.source_refs = nil
     end
@@ -63,7 +65,7 @@ function SourceMaps.createProvider(profiles, registry)
     local function profile(name)
         local entry = SourceMaps.entry(name)
         local adapter = assert(profiles[entry.profile], "missing bespoke source binding profile")
-        assert(type(adapter.specs) == "function" and type(adapter.options) == "function", "explicit source specs/options required")
+        assert(type(adapter.options) == "function", "explicit source content options required")
         return adapter, entry
     end
     local residentKeys = {}
@@ -90,35 +92,28 @@ function SourceMaps.legacyProfiles(dependencies)
         and type(dependencies.questFlag) == "function" and type(dependencies.sourceFlag) == "function",
         "explicit source dispatch and flag readers required")
     local dispatch, quest, sourceFlag = dependencies.dispatch, dependencies.questFlag, dependencies.sourceFlag
-    local function viridianDefinitions(name, definition)
-        local definitions, destinations = {}, {}
-        for _, target in ipairs(SourceMaps.names("viridian")) do
-            local projection = SourceMaps.destination(target)
-            definitions[target] = projection
-            destinations[SourceMaps.entry(target).key] = projection
-        end
-        if name then definitions[name] = definition end
-        return definitions, destinations
-    end
     return {
-        viridian = {
-            specs = function(name, definition)
-                return KantoSlice.specs(name, viridianDefinitions(name, definition))
-            end,
+        source = {
+            -- Reuse immutable NPC/trainer/art resolvers, never their geometry.
+            -- Unknown source art fails explicitly until its resolver is added.
             options = function()
-                local _, destinations = viridianDefinitions()
-                return { bindingAdapter = MapBindings, destinations = destinations,
+                return SourceBindings.options("pewter", { dispatch = dispatch, questFlag = quest, sourceFlag = sourceFlag })
+            end,
+            prepare = function(_, definition) PewterSprites.installFor(definition) end,
+        },
+        viridian = {
+            options = function()
+                return SourceBindings.options("viridian", {
                     dispatch = function(id)
                         dispatch(id)
                         return nil
-                    end, questFlag = quest }
+                    end, questFlag = quest })
             end,
             prepare = function() SliceSprites.install() end,
         },
         pewter = {
-            specs = PewterSlice.specs,
             options = function()
-                return { bindingAdapter = PewterBindings, dispatch = dispatch, questFlag = quest, sourceFlag = sourceFlag }
+                return SourceBindings.options("pewter", { dispatch = dispatch, questFlag = quest, sourceFlag = sourceFlag })
             end,
             prepare = function(_, definition) PewterSprites.installFor(definition) end,
         },

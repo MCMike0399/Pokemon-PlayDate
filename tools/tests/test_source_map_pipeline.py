@@ -94,6 +94,10 @@ class GeneratedSourceCacheTests(unittest.TestCase):
         self.assertNotIn(b'"grid":', self.artifacts["compact.json"])
         self.assertNotIn(b'"source_refs":', self.artifacts["compact.json"])
 
+    def test_shared_door_foot_rules_preserve_the_pinned_source_table(self):
+        original = json.loads((ROOT / 'Source/data/pewterSlice/doors.json').read_bytes())
+        self.assertEqual(self.compact['door_tiles'], original['tilesets'])
+
     def test_each_compact_cell_and_shared_grid_matches_the_pinned_input(self):
         for name, entry in self.manifest["maps"].items():
             raw = json.loads((ROOT / "Source" / entry["path"]).read_text())
@@ -193,7 +197,7 @@ class GeneratedSourceCacheTests(unittest.TestCase):
             elif mutation == "padding":
                 entry["padding"] = 1
             elif mutation == "blocker":
-                entry["blocked_events"].append("pokered:PEWTER_CITY:objects:1")
+                entry.setdefault("blocked_events", []).append("pokered:PEWTER_CITY:objects:1")
             elif mutation == "profile":
                 entry["profile"] = "unknown"
             elif mutation == "revision":
@@ -231,3 +235,23 @@ class GeneratedSourceCacheTests(unittest.TestCase):
             manifest_path.write_text(json.dumps(manifest))
             with self.assertRaisesRegex(ValueError, "shared source grid differs"):
                 build(manifest_path, source)
+
+
+class SourceMapExtensionTests(unittest.TestCase):
+    def test_sdk_fixture_is_reproducible_from_pinned_extra_maps_without_regional_metadata(self):
+        import os
+        from tools.source_map_fixture import records
+        from tools.generate_source_map_cache import canonical
+        reference = os.environ.get('POKERED_REFERENCE_DIR')
+        self.assertTrue(reference, 'source the project environment before host checks')
+        fixture = records(reference)
+        self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(fixture))
+        compact = fixture['data/sourceMapCache/compact.json']
+        self.assertEqual(len(compact['maps']), 14)
+        self.assertNotIn('pokered:VIRIDIAN_CITY:warps:3', compact['maps']['ViridianCity']['blocked'].values())
+        for name in ('Route22', 'ViridianSchoolHouse'):
+            d = fixture[f'dev/source-map-extension/{name}.json']
+            self.assertEqual(d['source_revision'], fixture['data/sourceMaps.json']['source_revision'])
+            self.assertEqual(compact['maps'][name]['connections'], d['connections'])
+            self.assertEqual(fixture['data/sourceMaps.json']['maps'][name]['profile'], 'source')
+            self.assertNotIn(name, json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps'])

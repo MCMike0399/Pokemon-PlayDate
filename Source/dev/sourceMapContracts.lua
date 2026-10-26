@@ -57,6 +57,89 @@ function SourceMapContracts.run()
         end
     end
 
+    test("extra decoded maps load ordinary geometry from manifest/cache without regional inventories", function()
+        local records = assert(json.decodeFile("dev/sourceMapFixture.json"))
+        local before = #SourceMaps.names()
+        local sprites, ids, count = playdate.graphics.sprite.spriteCount(), WorldTiles:maxID(), #zoneList
+        local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
+        local read = SourceMaps.record
+        SourceMaps.record = function(path)
+            assert(path ~= "data/pewterSlice/descriptors.json" and path ~= "data/pewterSlice/compact.json"
+                and path ~= "data/pewterSlice/tile-grids.json" and path ~= "data/pewterSlice/doors.json",
+                "ordinary extension read regional metadata")
+            return read(path)
+        end
+        local ok, problem = pcall(function()
+            SourceMaps._withRecords(records, function()
+                equal(#SourceMaps.names(), 14)
+                local profiles = SourceMaps.legacyProfiles({ dispatch = function() error("fixture cannot dispatch") end,
+                    questFlag = function() return false end, sourceFlag = function() return false end })
+                -- Test content adapter supplies only inert NPC data. Geometry,
+                -- connections, warps, encounters and cells use production code.
+                profiles.source.prepare = nil
+                local base = profiles.source.options
+                profiles.source.options = function()
+                    local options = base()
+                    options.objectDefinition = function(_, event)
+                        return {gridX=event.x,gridY=event.y,source_event_id=event.id,sprite="oak",name=event.text_id}
+                    end
+                    return options
+                end
+                zoneRegistry, zoneList, currentZone = {}, {}, nil
+                local provider = SourceMaps.createProvider(profiles, TileRegistry())
+                local loaded, failure = pcall(function()
+                    equal(#provider:inventory(), 14)
+                    local school = provider:ensure("fixture_ViridianSchoolHouse")
+                    local route = provider:ensure("fixture_Route22")
+                    equal(school.width, 13)
+                    equal(school.stableID, "pokered:VIRIDIAN_SCHOOL_HOUSE")
+                    equal(route.stableID, "pokered:ROUTE_22")
+                    local definition = SourceMaps.padded("ViridianCity")
+                    local warp = SourceMaps.warpSpec("ViridianCity", definition.events.warps[3])
+                    equal(warp.to, "fixture_ViridianSchoolHouse")
+                    equal(warp.toX, school.spawn.x + records["dev/source-map-extension/ViridianSchoolHouse.json"].events.warps[1].x)
+                    local door = assert(school:getEdgeDoorAt(6,7,"down"))
+                    equal(door.to, "kanto_viridian_city")
+                    equal(door.toX, 21)
+                    equal(door.toY, 16)
+                    local connection = assert(SourceMaps.connection("Route22",39,8,"right"))
+                    equal(connection.to,"kanto_viridian_city")
+                    equal(connection.x,0)
+                    equal(connection.y,16)
+                    WorldDeltas._withDefinitionProvider(provider, function()
+                        local context = { sessionLocationPolicy = PewterWorld.locationPolicy(),
+                            session = { getIntro = function() return {stage="done"} end } }
+                        local door, handled = PewterWorld.connection(context,route,39,8,"right")
+                        equal(handled,true)
+                        equal(assert(door).to,"kanto_viridian_city")
+                        equal(door.toX,0)
+                        equal(door.toY,16)
+                    end)
+                    local inverse = assert(SourceMaps.connection("ViridianCity",0,16,"left"))
+                    equal(inverse.to,"fixture_Route22")
+                    equal(inverse.x,39)
+                    equal(inverse.y,8)
+                    local surface = provider:surface(route.stableID,provider:export())
+                    for y=0,route.height-1 do
+                        for x=0,route.width-1 do
+                            equal(route.collision[y+1][x+1],surface.collision[y+1][x+1])
+                            equal(route.registry:key(route.tiles[y+1][x+1]),SourceMaps.cell("Route22",x,y).key)
+                        end
+                    end
+                end)
+                provider:disposeCache()
+                if not loaded then error(failure,0) end
+            end)
+        end)
+        SourceMaps.record = read
+        zoneRegistry,zoneList,currentZone = oldRegistry,oldList,oldZone
+        equal(#SourceMaps.names(),before)
+        equal(playdate.graphics.sprite.spriteCount(),sprites)
+        equal(WorldTiles:maxID(),ids)
+        equal(#zoneList,count)
+        if not ok then error(problem,0) end
+    end)
+
     test("both live installation facades share all twelve definitions and resident Viridian Zones", function()
         local provider = WorldDeltas.definitionProvider()
         equal(PewterWorld.install(game), provider)
@@ -313,7 +396,7 @@ function SourceMapContracts.run()
 
     test("Pewter compact descriptors retain all prior identities palettes rows and blockers", function()
         scope(function(provider)
-            for _, original in pairs(PewterSlice.compact().maps) do
+            for _, original in pairs(assert(json.decodeFile("data/pewterSlice/compact.json")).maps) do
                 local descriptor = provider:descriptor(original.id)
                 for _, field in ipairs({ "id", "key", "revision", "width", "height", "padding", "source_width", "palette", "tile_rows", "blocked" }) do
                     same(descriptor[field], original[field])
