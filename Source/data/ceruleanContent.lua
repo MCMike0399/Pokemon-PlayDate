@@ -52,9 +52,42 @@ function CeruleanContent.key(source)
     return "cerulean_" .. source:lower()
 end
 
-local function frame(source, index)
-    local strip = record("sprites").sprites[source]
-    return SpriteFactory.makeSprite(assert(strip.frames[tostring(index)], "missing original actor frame"), { 0, 0 })
+-- Pure world-pose policy shared with the catalog. Raw source frames remain
+-- four-shade provenance, not a replacement for the protected BLUE family.
+function CeruleanContent.poseImage(source, pose, facing)
+    assert(pose == "stand" or pose == "walk" or pose == "alternate", "unknown source pose")
+    assert(facing == "down" or facing == "up" or facing == "left" or facing == "right",
+        "unknown source facing")
+    if source == "SPRITE_BLUE" and pose == "stand" then
+        return assert(SpriteFactory.npc.rival[facing], "protected BLUE pose missing")
+    end
+    local strip = CeruleanContent.sprite(source)
+    local direction = strip.fixed and "down" or facing == "right" and "left" or facing
+    local index = (pose == "stand" and strip.standing or strip.walking)[direction]
+    local grid = assert(strip.frames[tostring(index)], "missing original actor frame")
+    local image
+    if source == "SPRITE_BLUE" then
+        -- Existing BLUE uses greyhair and the legacy omitted-phase renderer.
+        -- SDK 3.1.2 renders omitted phase differently from explicit zero. Keep
+        -- its additive strides in that family; never normalize protected art.
+        local greyhair = {}
+        for row, cells in ipairs(grid) do greyhair[row] = cells:gsub("1", ".") end
+        image = SpriteFactory.makeSprite(greyhair)
+    else
+        image = SpriteFactory.makeSprite(grid, {0,0})
+    end
+    if not strip.fixed and (facing == "right"
+        or pose == "alternate" and (facing == "down" or facing == "up")) then
+        image = SpriteFactory.flipped(image)
+    end
+    return image
+end
+
+function CeruleanContent.poseAtTick(tick)
+    assert(type(tick) == "number" and tick % 1 == 0 and tick >= 1 and tick <= 8,
+        "bounded source animation tick required")
+    local phase = (tick // 2) % 4
+    return phase == 1 and "walk" or phase == 3 and "alternate" or "stand"
 end
 
 function CeruleanContent.installArt(definition)
@@ -69,8 +102,10 @@ function CeruleanContent.installArt(definition)
         if not rendered[key] then
             local strip = record("sprites").sprites[source]
             local images = {}
-            for direction, index in pairs(strip.standing) do images[direction] = frame(source, index) end
-            if images.left then images.right = SpriteFactory.flipped(images.left) end
+            for direction in pairs(strip.standing) do
+                images[direction] = CeruleanContent.poseImage(source, "stand", direction)
+            end
+            if images.left then images.right = CeruleanContent.poseImage(source, "stand", "right") end
             rendered[key] = images
         end
         SpriteFactory.npc[key] = rendered[key]
@@ -78,14 +113,15 @@ function CeruleanContent.installArt(definition)
 end
 
 function CeruleanContent.stepImage(source, facing, tick)
-    assert(type(tick) == "number" and tick % 1 == 0 and tick >= 1 and tick <= 8, "bounded source animation tick required")
+    local pose = CeruleanContent.poseAtTick(tick)
     local key = CeruleanContent.key(source)
     local standing = assert(SpriteFactory.npc[key], "source actor art not installed")
+    if pose == "stand" then return assert(standing[facing], "source actor has no standing pose") end
     if not walks[source] then
         local strip = record("sprites").sprites[source]
         local images, alternate = {}, {}
-        for direction, index in pairs(strip.walking) do
-            images[direction] = frame(source, index)
+        for direction in pairs(strip.walking) do
+            images[direction] = CeruleanContent.poseImage(source, "walk", direction)
             alternate[direction] = (direction == "down" or direction == "up")
                 and SpriteFactory.flipped(images[direction]) or images[direction]
         end
@@ -96,10 +132,7 @@ function CeruleanContent.stepImage(source, facing, tick)
         walks[source] = { images = images, alternate = alternate }
     end
     local frames = walks[source]
-    local phase = (tick // 2) % 4
-    if phase == 1 then return assert(frames.images[facing], "source actor has no walking pose") end
-    if phase == 3 then return assert(frames.alternate[facing], "source actor has no alternate pose") end
-    return assert(standing[facing], "source actor has no standing pose")
+    return assert((pose == "walk" and frames.images or frames.alternate)[facing], "source actor has no walking pose")
 end
 
 local function metadata(definition, event, runtimeGame)

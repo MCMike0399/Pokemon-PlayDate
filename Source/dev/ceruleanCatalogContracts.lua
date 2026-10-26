@@ -116,6 +116,114 @@ function CeruleanCatalogContracts.run()
         end
         eq(stripCount, 28); eq(frameCount, 124); eq(poseCount, 240)
     end)
+    test("BLUE pure poses preserve canonical objects and greyhair legacy strides", function()
+        local before = CatalogRuntime.snapshot()
+        local strip = CeruleanContent.sprite("SPRITE_BLUE")
+        local make = SpriteFactory.makeSprite
+        local protectedCopies = {}
+        for direction, image in pairs(SpriteFactory.npc.rival) do
+            protectedCopies[direction] = image:copy()
+            protectedCopies[direction]:setMaskImage(image:getMaskImage():copy())
+        end
+        local calls = 0
+        SpriteFactory.makeSprite = function(grid, phase)
+            calls = calls + 1
+            eq(phase, nil)
+            for _, row in ipairs(grid) do assert(not row:find("1", 1, true), "BLUE light grey was retained") end
+            return make(grid, phase)
+        end
+        local ok, problem = pcall(function()
+            for _, direction in ipairs({"down", "up", "left", "right"}) do
+                local canonical = SpriteFactory.npc.rival[direction]
+                local callsBefore = calls
+                local stand = CeruleanContent.poseImage("SPRITE_BLUE", "stand", direction)
+                eq(stand, canonical)
+                imageEqual(stand, canonical)
+                eq(calls, callsBefore)
+                local sourceDirection = direction == "right" and "left" or direction
+                local raw = strip.frames[tostring(strip.walking[sourceDirection])]
+                -- Literal greyhair policy, independent of the production helper.
+                local grid = {}
+                for y, row in ipairs(raw) do
+                    local cells = {}
+                    for x = 1, 16 do
+                        local cell = row:sub(x,x)
+                        cells[x] = cell == "1" and "." or cell
+                    end
+                    grid[y] = table.concat(cells)
+                end
+                local walk = make(grid) -- deliberately omitted legacy phase
+                local alternate = walk
+                if direction == "right" then
+                    walk = SpriteFactory.flipped(walk)
+                    alternate = walk
+                elseif direction == "down" or direction == "up" then
+                    alternate = SpriteFactory.flipped(walk)
+                end
+                imageEqual(CeruleanContent.poseImage("SPRITE_BLUE", "walk", direction), walk)
+                imageEqual(CeruleanContent.poseImage("SPRITE_BLUE", "alternate", direction), alternate)
+            end
+        end)
+        SpriteFactory.makeSprite = make
+        assert(ok, problem)
+        eq(calls, 8)
+        for direction, image in pairs(protectedCopies) do imageEqual(SpriteFactory.npc.rival[direction], image) end
+        assert(CatalogRuntime.same(before, CatalogRuntime.snapshot()), "pure BLUE poses mutated live state")
+    end)
+    test("Other source actors retain explicit-zero world-pose rendering", function()
+        local make = SpriteFactory.makeSprite
+        local calls = 0
+        SpriteFactory.makeSprite = function(grid, phase)
+            calls = calls + 1
+            assert(type(phase) == "table", "new actor omitted explicit phase")
+            eq(phase[1], 0); eq(phase[2], 0)
+            return make(grid, phase)
+        end
+        local ok, problem = pcall(function()
+            for _, pose in ipairs(CeruleanCatalogExporter.poses()) do
+                if pose.source ~= "SPRITE_BLUE" then
+                    eq(pose.phase_policy, "explicit-zero")
+                    CeruleanContent.poseImage(pose.source, pose.pose, pose.direction)
+                else
+                    eq(pose.phase_policy, "legacy-omitted")
+                    eq(pose.mapping, "greyhair")
+                    eq(pose.image_policy, pose.pose == "stand" and "protected-canonical-rival" or "source-frame")
+                    local ticks = pose.pose == "stand" and {1,4,5,8} or pose.pose == "walk" and {2,3} or {6,7}
+                    eq(#pose.native_ticks, #ticks)
+                    for index, tick in ipairs(ticks) do eq(pose.native_ticks[index], tick) end
+                end
+            end
+        end)
+        SpriteFactory.makeSprite = make
+        assert(ok, problem)
+        eq(calls, 240-12)
+    end)
+    test("BLUE installed runtime and exported poses share the eight-tick policy", function()
+        local key = CeruleanContent.key("SPRITE_BLUE")
+        local previous = SpriteFactory.npc[key]
+        local protected = SpriteFactory.npc.rival
+        local before = CatalogRuntime.snapshot()
+        local ok, problem = pcall(function()
+            CeruleanContent.installArt({ source_revision = "af519899719f0754965776faac0e836a3b906e6d",
+                events = { objects = {{sprite="SPRITE_BLUE"}} } })
+            local installed = SpriteFactory.npc[key]
+            for _, direction in ipairs({"down", "up", "left", "right"}) do
+                eq(installed[direction], protected[direction])
+                for tick, pose in ipairs({"stand", "walk", "walk", "stand", "stand", "alternate", "alternate", "stand"}) do
+                    eq(CeruleanContent.poseAtTick(tick), pose)
+                    local actual = CeruleanContent.stepImage("SPRITE_BLUE", direction, tick)
+                    if pose == "stand" then eq(actual, protected[direction]) end
+                    imageEqual(actual, CeruleanContent.poseImage("SPRITE_BLUE", pose, direction))
+                end
+            end
+            eq(SpriteFactory.npc.rival, protected)
+            rejects(function() CeruleanContent.poseAtTick(0) end, "bounded source animation tick")
+            rejects(function() CeruleanContent.poseAtTick(9) end, "bounded source animation tick")
+        end)
+        SpriteFactory.npc[key] = previous
+        assert(ok, problem)
+        assert(CatalogRuntime.same(before, CatalogRuntime.snapshot()), "BLUE runtime witness leaked live state")
+    end)
     for _, name in ipairs(SourceMaps.names("source")) do
         test("Private unvisited map terrain and collision: " .. name, function()
             local before = CatalogRuntime.snapshot()
@@ -183,8 +291,14 @@ function CeruleanCatalogContracts.run()
                     frames = frames+1
                 elseif category == "cerulean-character" then
                     local pose = assert(poseByName[stem])
-                    local expected = CeruleanCatalogExporter.frame(pose.source, pose.source_frame)
-                    if pose.flip_x then expected = SpriteFactory.flipped(expected) end
+                    local expected
+                    if pose.source == "SPRITE_BLUE" then
+                        expected = CeruleanContent.poseImage(pose.source, pose.pose, pose.direction)
+                        if pose.pose == "stand" then eq(image, SpriteFactory.npc.rival[pose.direction]) end
+                    else
+                        expected = CeruleanCatalogExporter.frame(pose.source, pose.source_frame)
+                        if pose.flip_x then expected = SpriteFactory.flipped(expected) end
+                    end
                     imageEqual(image, expected)
                     poses = poses+1
                 elseif category == "imported-tile" then

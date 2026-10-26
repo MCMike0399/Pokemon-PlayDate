@@ -7,6 +7,7 @@ import unittest
 import tempfile
 
 from PIL import Image
+from tools import generate_overworld_sprites as protected_sprites
 
 ROOT = Path(__file__).resolve().parents[2]
 REVISION = 'af519899719f0754965776faac0e836a3b906e6d'
@@ -127,6 +128,34 @@ class CeruleanCatalogInputTests(unittest.TestCase):
                     self.assertIn(str(strip['standing'][actual_direction]), strip['frames'])
                     if strip['walking']:
                         self.assertIn(str(strip['walking'][actual_direction]), strip['frames'])
+
+    def test_blue_world_family_has_the_same_pinned_input_and_greyhair_stands(self):
+        strip = record('Source/data/sourceSlice/sprites.json')['sprites']['SPRITE_BLUE']
+        pin = protected_sprites.load_manifest()
+        protected = pin['characters']['rival']
+        self.assertEqual(pin['commit'], REVISION)
+        self.assertEqual(strip['sha256'], protected['sha256'])
+        self.assertEqual(protected['mapping'], 'greyhair')
+        image = pinned_image(self.reference, strip['source'], self.pins)
+        canonical = protected_sprites.parse_grids(
+            (ROOT / 'Source/world/sprites/rival.lua').read_text(), 'rival')
+        greyhair = {255: '.', 170: '.', 85: '2', 0: '#'}
+        for direction, index in strip['standing'].items():
+            expected = [''.join(greyhair[image.getpixel((x, index*16+y))] for x in range(16))
+                        for y in range(16)]
+            self.assertEqual(canonical[direction], expected)
+            self.assertEqual(protected_sprites.mask_bytes(canonical[direction]),
+                             protected_sprites.mask_bytes(expected))
+        # Additive walking inputs stay source-backed, with both white source
+        # shades collapsed before the production mask is computed. Raw inputs
+        # continue to be checked by the unmodified four-shade oracle above.
+        for index in strip['walking'].values():
+            expected = [''.join(greyhair[image.getpixel((x, index*16+y))] for x in range(16))
+                        for y in range(16)]
+            mapped = [row.replace('1', '.') for row in strip['frames'][str(index)]]
+            self.assertEqual(mapped, expected)
+            self.assertIn('2', ''.join(mapped))
+            self.assertEqual(set(protected_sprites.mask_bytes(mapped)), {0, 255})
 
     def test_all_new_terrain_grids_match_independent_pillow_source_quadrants(self):
         checked = set()

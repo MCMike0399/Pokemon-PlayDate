@@ -31,8 +31,8 @@ function CeruleanCatalogExporter.tiles()
     return result
 end
 
--- Use the same factory/phase and mirror policy as CeruleanContent's immutable
--- frame renderer. Do not call installArt/stepImage: both own runtime caches.
+-- Raw source-frame provenance stays explicit-zero and four-shade. World
+-- poses below use the pure production policy, never installArt/stepImage caches.
 function CeruleanCatalogExporter.frame(source, index)
     local strip = CeruleanContent.sprite(source)
     assert(type(index) == "number" and index % 1 == 0, "integer source frame required")
@@ -56,7 +56,11 @@ function CeruleanCatalogExporter.poses()
                         name = "cerulean-pose-" .. source .. "-" .. pose .. "-" .. direction,
                         source = source, source_id = strip.id, source_path = strip.source,
                         source_sha256 = strip.sha256, source_frame = index, flip_x = flip,
-                        pose = pose, direction = direction, phase_policy = "explicit-zero",
+                        pose = pose, direction = direction,
+                        phase_policy = source == "SPRITE_BLUE" and "legacy-omitted" or "explicit-zero",
+                        mapping = source == "SPRITE_BLUE" and "greyhair" or strip.mapping,
+                        image_policy = source == "SPRITE_BLUE" and pose == "stand"
+                            and "protected-canonical-rival" or "source-frame",
                         native_ticks = pose == "stand" and {1,4,5,8} or pose == "walk" and {2,3} or {6,7},
                         walking_available = next(strip.walking) ~= nil,
                         direction_policy = strip.fixed and "fixed-down-image; no directional source frames"
@@ -211,8 +215,7 @@ local function mapImages(name, sink)
                 local strip = CeruleanContent.sprite(def.source_sprite)
                 local direction = def.facing
                 local index = strip.standing[strip.fixed and "down" or direction == "right" and "left" or direction]
-                local image = CeruleanCatalogExporter.frame(def.source_sprite, assert(index, "missing source actor direction"))
-                if not strip.fixed and direction == "right" then image = SpriteFactory.flipped(image) end
+                local image = CeruleanContent.poseImage(def.source_sprite, "stand", direction)
                 image:draw(def.gridX*TILE_SIZE, def.gridY*TILE_SIZE-8)
                 actorRows[#actorRows + 1] = { id = def.source_event_id, sprite = def.source_sprite,
                     x = def.gridX, y = def.gridY, direction = direction, frame = index,
@@ -267,7 +270,7 @@ end
 
 function CeruleanCatalogExporter.writer(sink)
     local report = { schema = 1, source_revision = revision, maps = {}, tiles = {}, characters = {},
-        strips = {}, tutorial = {}, missing = {}, phase_policy = "explicit-zero",
+        strips = {}, tutorial = {}, missing = {}, phase_policy = "explicit-zero; BLUE world poses retain legacy-omitted",
         review_status = "all new assets unreviewed; root native inspection required" }
     for _, key in ipairs(keys(CeruleanCatalogExporter.tiles())) do
         local tile = SourceMaps.tile(key)
@@ -289,8 +292,7 @@ function CeruleanCatalogExporter.writer(sink)
             walking = strip.walking, fixed = strip.fixed, mapping = strip.mapping }
     end
     for _, pose in ipairs(CeruleanCatalogExporter.poses()) do
-        local image = CeruleanCatalogExporter.frame(pose.source, pose.source_frame)
-        if pose.flip_x then image = SpriteFactory.flipped(image) end
+        local image = CeruleanContent.poseImage(pose.source, pose.pose, pose.direction)
         sink.asset(pose.name, image, "cerulean-character", true)
         report.characters[#report.characters + 1] = pose
     end
