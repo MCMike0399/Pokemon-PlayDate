@@ -220,6 +220,8 @@ Contracts.register("cerulean-routes", CeruleanRoutesContracts.run)
 Contracts.register("tutorial-escort", TutorialEscortContracts.run)
 import "dev/kantoScenesContracts"
 Contracts.register("kanto-scenes", KantoScenesContracts.run)
+import "dev/kantoServicesContracts"
+Contracts.register("kanto-services", KantoServicesContracts.run)
 
 -- @harness runtime
 harness = Harness

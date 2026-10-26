@@ -87,6 +87,7 @@
     "game/ceruleanRoutesState",
     "game/tutorialEscort",
     "game/kantoScenes",
+    "game/kantoServices",
     "game/pokedexState",
     "game/pcState",
     "game/evolutionState",
@@ -202,7 +203,8 @@
     "dev/ceruleanSceneContracts",
     "dev/ceruleanRoutesContracts",
     "dev/tutorialEscortContracts",
-    "dev/kantoScenesContracts"
+    "dev/kantoScenesContracts",
+    "dev/kantoServicesContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -301,6 +303,7 @@
     "Contracts.register(\"cerulean-scenes\", CeruleanSceneContracts.run)",
     "Contracts.register(\"cerulean-routes\", CeruleanRoutesContracts.run)",
     "Contracts.register(\"tutorial-escort\", TutorialEscortContracts.run)",
-    "Contracts.register(\"kanto-scenes\", KantoScenesContracts.run)"
+    "Contracts.register(\"kanto-scenes\", KantoScenesContracts.run)",
+    "Contracts.register(\"kanto-services\", KantoServicesContracts.run)"
   ]
 }
