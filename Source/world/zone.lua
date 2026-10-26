@@ -515,6 +515,16 @@ function Zone.fromMapDefinition(definition, registry, options)
         spawn = deepCopy(spawn), npcs = slicePlan and slicePlan.npcs, doors = slicePlan and slicePlan.doors,
         encounters = slicePlan and slicePlan.encounters })
     zoneData[zone].slicePlan = slicePlan
+    -- pokered TryDoWildEncounter permits non-grass indoor land except FOREST.
+    -- FIRST_INDOOR_MAP is $25 at the pinned source revision. A missing grass
+    -- tile alone says nothing about encounters (Centers also use -1).
+    local firstIndoorMap <const> = 0x25
+    local sourceMapID <const> = definition.source_map_id
+    local tileset <const> = definition.tileset
+    zoneData[zone].sourceIndoorLand = integer(sourceMapID)
+        and sourceMapID >= firstIndoorMap and sourceMapID <= 255
+        and type(tileset) == "table" and type(tileset.constant) == "string"
+        and tileset.constant ~= "FOREST"
     return zone
 end
 
@@ -738,15 +748,25 @@ end
 
 -- Pure descriptor for the normal owned encounter-attempt boundary. Existing
 -- explicit checkEncounter/rollEncounter helpers below retain their old contracts.
-function Zone:encounterPolicyAt(x,y)
-    if not Party._integer(x,0,self.width-1)or not Party._integer(y,0,self.height-1)then return nil,"invalid-encounter-coordinate"end
-    if self.collision[y+1][x+1]~=0 or not self:isTallGrass(x,y)then return nil,"ineligible-terrain"end
+function Zone:encounterPolicyAt(x, y)
+    if not Party._integer(x, 0, self.width - 1) or not Party._integer(y, 0, self.height - 1) then
+        return nil, "invalid-encounter-coordinate"
+    end
+    local data <const> = zoneData[self]
+    local terrain <const> = data.terrain[y + 1][x + 1]
+    local indoorLand <const> = self.imported and data.sourceIndoorLand
+        and terrain.land_passable and not terrain.water_candidate
+    if self.collision[y + 1][x + 1] ~= 0 or not (terrain.grass == true or indoorLand) then
+        return nil, "ineligible-terrain"
+    end
     local rate
     if self.imported then
-        if not self:isSliceReady()then return nil,"unbound-encounter-policy"end
-        rate={kind="byte",value=zoneData[self].slicePlan.encounterRateByte}
-    else rate={kind="unit",value=self.encounterRate}end
-    return {rate=rate,slots=deepCopy(self.encounters)}
+        if not self:isSliceReady() then return nil, "unbound-encounter-policy" end
+        rate = { kind = "byte", value = data.slicePlan.encounterRateByte }
+    else
+        rate = { kind = "unit", value = self.encounterRate }
+    end
+    return { rate = rate, slots = deepCopy(self.encounters) }
 end
 
 -- Check wild encounter at grid position
