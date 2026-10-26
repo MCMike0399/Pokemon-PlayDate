@@ -1031,6 +1031,11 @@ function Battle:performMove(move)
         return nil
     end
 
+    if opponentTargets[move.targetId or 10] and self.effects:absorbsWater(attacker,defender,move) then
+        self.conditions:moveFinished(move,false)
+        return nil
+    end
+
     -- Move-specific failure after type immunity, before accuracy. PP has been
     -- consumed at the actual attempt, and no failure here samples damage RNG.
     local permitted,attemptReason=self.effects:canAttempt(move,attacker,defender)

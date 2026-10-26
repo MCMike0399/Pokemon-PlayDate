@@ -333,6 +333,9 @@ function ApplyStatus:apply(battle)
     if not pokemon:isAlive() then return end
     -- Volatile conditions live next to the major status, not in it
     if self.status == "flinch" then
+        -- Check the volatile payload, after the move's secondary chance draw.
+        -- Inner Focus does not suppress unrelated secondaries or their RNG.
+        if battle.effects and battle.effects:statusImmunity(pokemon,"flinch") then return end
         pokemon.flinched = true   -- consumed by the engine on the next half-turn
         return
     end

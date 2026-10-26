@@ -26,6 +26,7 @@ handlers[5],handlers[9],handlers[19],handlers[50],handlers[51],handlers[61],hand
 -- Captivate-only Oblivious dependency; Attract producer remains explicitly pending.
 handlers[12],handlers[17],handlers[38],handlers[79]={},{},{},{}
 handlers[20],handlers[15]={},{}
+handlers[39],handlers[87]={},{}
 function BattleEffects:init(battle)
     self.battle=battle;self.weather=nil;self.receipts=setmetatable({},{__mode="k"});self.closed=false;self.round=nil;self.abilityOverrides={}
 end
@@ -136,6 +137,16 @@ end
 function BattleEffects:fixedDamage(move,attacker,defender)
     if move.damageRule=="endeavor" then return defender.hp-attacker.hp end
 end
+-- Gen V TryHit: after type immunity/Protect, before accuracy and damage RNG.
+-- An absorbed hit creates no direct-hit receipt, secondaries or contact event.
+function BattleEffects:absorbsWater(source,target,move)
+    if source==target or not self:active(source) or not self:active(target)
+        or not alive(source) or not alive(target) or move.type~="water"
+        or self:effectiveAbility(target)~=87 then return false end
+    target:heal(math.max(1,target.maxHP//4))
+    self.battle:say(target.name.." absorbed the water with Dry Skin!")
+    return true
+end
 -- Move-defined power precedes conditional field modifiers (e.g. Mud Sport).
 function BattleEffects:movePower(move,power,attacker,defender)
     if move.powerRule=="electroBall" then
@@ -163,8 +174,10 @@ function BattleEffects:basePower(move,power,attacker,defender)
         local a,d=attacker:getSex(),defender:getSex()
         if a~="genderless" and d~="genderless" then ratio=chain(ratio,a==d and 5120 or 3072) end
     end
-    -- Pinned PS Gen5 BasePower callback priorities: Rivalry24, Mud Sport1,
+    -- Pinned PS Gen5 BasePower priorities: Rivalry24, Dry Skin17, Mud Sport1,
     -- Solar Beam0. Chain Q12 ratios first, then round the raw power once.
+    if power>0 and move.type=="fire" and self:active(defender) and alive(defender)
+        and self:effectiveAbility(defender)==87 then ratio=chain(ratio,5120) end
     if power>0 and move.type=="electric" then
         for _=1,self.battle.conditions:mudSportCount() do ratio=chain(ratio,1352) end
     end
@@ -174,6 +187,8 @@ function BattleEffects:basePower(move,power,attacker,defender)
 end
 -- Shared major-status query; no RNG or changes to persistent stats/status here.
 function BattleEffects:statusImmunity(mon,status)
+    if status=="flinch" and self:active(mon) and alive(mon)
+        and self:effectiveAbility(mon)==39 then return "Inner Focus" end
     if self:effectiveAbility(mon)==15 and (status=="sleep" or status=="yawn") then return "Insomnia" end
     if self:effectiveAbility(mon)==17 and (status=="poison" or status=="badPoison") then return "Immunity" end
     if self:effectiveAbility(mon)==20 and status=="confuse" then return "Own Tempo" end
@@ -304,6 +319,9 @@ function BattleEffects:events()
         local mon=self.battle[side]
         if alive(mon) then
             if self:weatherId()=="sandstorm" then events[#events+1]={kind="sand",order=1,side=side,pokemon=mon,owner="effects"} end
+            if self:effectiveAbility(mon)==87 and self:weatherId()=="raindance" then
+                events[#events+1]={kind="drySkin",order=1,side=side,pokemon=mon,owner="effects"}
+            end
             if self:effectiveAbility(mon)==61 and mon.status then events[#events+1]={kind="shedSkin",order=5,side=side,pokemon=mon,owner="effects"} end
         end
     end
@@ -319,6 +337,11 @@ function BattleEffects:residual(event)
                 b:say(id=="sandstorm" and "The sandstorm subsided." or "The rain stopped.")
             elseif self:weatherId()=="raindance" then b:say("Rain continues to fall.") end
         end
+    elseif event.kind=="drySkin" and self:weatherId()=="raindance" and self:active(mon) and alive(mon)
+        and self:effectiveAbility(mon)==87 then
+        local before=mon.hp
+        mon:heal(math.max(1,mon.maxHP//8))
+        if mon.hp>before then b:say(mon.name.." was healed by Dry Skin!") end
     elseif event.kind=="sand" and self:weatherId()=="sandstorm" and self:active(mon) and alive(mon) then
         if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 then
             self:damage(mon,math.max(1,mon.maxHP//16),"weather");b:say(mon.name .. " is buffeted by the sandstorm!")
