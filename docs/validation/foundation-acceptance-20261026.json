@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "milestone": "5.2",
-  "milestone_accepted": false,
+  "milestone_accepted": true,
   "component_acceptance": true,
   "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
   "sdk": {
@@ -76,8 +76,83 @@
     },
     "scope": "One instrumented Simulator run per mode, two full GC passes; Lua heap only. Gate-only pair isolates dev imports; integrated also includes map/event/text refactors. No native-allocation/device-capacity claim."
   },
-  "remaining_acceptance": [
-    "Merged-main contracts/catalog and real-input integration journeys including starters, restart, full-bag retry and blackout."
-  ],
-  "device_validated": false
+  "remaining_acceptance": [],
+  "device_validated": false,
+  "accepted_main_revision": "27443afcc63c9a103a6663876a36e9c67bd80673",
+  "merged_main": {
+    "sdk": {
+      "passed": 1274,
+      "failed": 0,
+      "protected_exact": 2494,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-sdk-20261026-01"
+    },
+    "host": {
+      "passed": 605,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-build-20261026-01/full-host.log"
+    },
+    "journeys": {
+      "passed": 9,
+      "source_consistent": true,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01",
+      "cases": [
+        {
+          "name": "brock--native-warp-return",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/01-brock--native-warp-return"
+        },
+        {
+          "name": "brock--tm-full-retry",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/02-brock--tm-full-retry"
+        },
+        {
+          "name": "brock--blackout",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/03-brock--blackout"
+        },
+        {
+          "name": "brock--brock-seen-restart",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/04-brock--brock-seen-restart"
+        },
+        {
+          "name": "evolution-natural-level",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/05-evolution-natural-level"
+        },
+        {
+          "name": "evolution-cancel-level",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/06-evolution-cancel-level"
+        },
+        {
+          "name": "brock--brock-restart-bulbasaur",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/07-brock--brock-restart-bulbasaur"
+        },
+        {
+          "name": "brock--brock-restart",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/08-brock--brock-restart"
+        },
+        {
+          "name": "brock--brock-restart-charmander",
+          "passed": true,
+          "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/09-brock--brock-restart-charmander"
+        }
+      ],
+      "screenshots_reviewed": true,
+      "starters": [
+        "bulbasaur",
+        "squirtle",
+        "charmander"
+      ]
+    }
+  },
+  "limitations": [
+    "Charmander level-16 preparation is an evolution witness, not pacing or balance proof.",
+    "Simulator only; physical device and full campaign are unfinished."
+  ]
 }
