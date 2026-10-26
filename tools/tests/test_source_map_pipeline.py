@@ -75,3 +75,159 @@ class SourceMapManifestTests(unittest.TestCase):
                 self.assertFalse(entry.get("resident", False))
             self.assertEqual(entry["key"], key)
             self.assertEqual(entry["spawn"], {"x": x, "y": y, "facing": "up"})
+
+
+class GeneratedSourceCacheTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from tools.generate_source_map_cache import build
+        cls.artifacts = build()
+        cls.compact = json.loads(cls.artifacts["compact.json"])
+        cls.atlas = json.loads(cls.artifacts["tile-grids.json"])["tiles"]
+        cls.manifest = json.loads((ROOT / "Source/data/sourceMaps.json").read_text())
+
+    def test_complete_generation_is_deterministic_and_checked_in_bytes_are_exact(self):
+        from tools.generate_source_map_cache import build, check
+        self.assertEqual(self.artifacts, build())
+        check(self.artifacts, ROOT / "Source/data/sourceMapCache")
+        self.assertEqual(set(self.compact["maps"]), set(self.manifest["maps"]))
+        self.assertNotIn(b'"grid":', self.artifacts["compact.json"])
+        self.assertNotIn(b'"source_refs":', self.artifacts["compact.json"])
+
+    def test_each_compact_cell_and_shared_grid_matches_the_pinned_input(self):
+        for name, entry in self.manifest["maps"].items():
+            raw = json.loads((ROOT / "Source" / entry["path"]).read_text())
+            descriptor = self.compact["maps"][name]
+            width, height = raw["dimensions"]["cells"]
+            for y in range(height):
+                row = descriptor["tile_rows"][y]
+                self.assertEqual(len(row), entry["width"] * 2)
+                for x in range(entry["width"]):
+                    key = descriptor["palette"][int(row[x * 2:x * 2 + 2], 16) - 1]
+                    tile = self.atlas[key]
+                    metadata = self.compact["tiles"][key]
+                    self.assertEqual(metadata, {field: value for field, value in tile.items() if field != "grid"})
+                    if entry["padding"] <= x < entry["padding"] + width:
+                        source_x = x - entry["padding"]
+                        grid = raw["grids"][raw["tile_ids"][y][source_x] - 1]
+                        self.assertEqual(key, grid["stable_id"])
+                        self.assertEqual(tile["grid"], grid["grid"])
+                        self.assertEqual(tile["terrain"], grid["terrain"])
+                        self.assertEqual(tile["collision"], raw["collision"][y][source_x])
+                    else:
+                        self.assertEqual(tile["grid"], ["#" * 16] * 16)
+                        self.assertEqual(tile["collision"], 1)
+
+    def test_accepted_pewter_descriptors_and_surface_blockers_are_identical(self):
+        old = json.loads((ROOT / "Source/data/pewterSlice/compact.json").read_text())
+        for name, original in old["maps"].items():
+            for field, value in original.items():
+                self.assertEqual(self.compact["maps"][name][field], value, (name, field))
+        city = self.compact["maps"]["ViridianCity"]
+        self.assertEqual(set(city["blocked"].values()), {
+            "pokered:VIRIDIAN_CITY:warps:3", "pokered:VIRIDIAN_CITY:warps:4", "pokered:VIRIDIAN_CITY:warps:5"})
+        for name, descriptor in self.compact["maps"].items():
+            if name != "ViridianCity" and self.manifest["maps"][name]["profile"] == "viridian":
+                self.assertEqual(descriptor["blocked"], {})
+
+    def test_destination_projections_preserve_every_source_warp_field_and_connection(self):
+        for name, entry in self.manifest["maps"].items():
+            raw = json.loads((ROOT / "Source" / entry["path"]).read_text())
+            descriptor = self.compact["maps"][name]
+            self.assertEqual(descriptor["source_map_constant"], raw["source_map_constant"])
+            self.assertEqual(descriptor["connections"], raw["connections"])
+            for actual, original in zip(descriptor["warps"], raw["events"]["warps"]):
+                expected = dict(original)
+                if entry["padding"] or entry["profile"] == "pewter":
+                    expected["source_x"], expected["source_y"] = original["x"], original["y"]
+                expected["x"] += entry["padding"]
+                self.assertEqual(actual, expected)
+            self.assertEqual(len(descriptor["warps"]), len(raw["events"]["warps"]))
+
+    def test_changed_extra_missing_or_symlinked_artifacts_are_rejected_without_repair(self):
+        import tempfile
+        from tools.generate_source_map_cache import check
+        for mutation in ("change", "extra", "missing", "symlink"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
+                output = Path(temporary) / "generated"
+                output.mkdir()
+                for name, content in self.artifacts.items():
+                    (output / name).write_bytes(content)
+                target = output / "compact.json"
+                if mutation == "change":
+                    target.write_bytes(target.read_bytes() + b" ")
+                elif mutation == "extra":
+                    (output / "extra.json").write_text("{}")
+                elif mutation == "missing":
+                    target.unlink()
+                else:
+                    target.unlink()
+                    target.symlink_to(ROOT / "Source/data/sourceMapCache/compact.json")
+                before = {p.name: p.read_bytes() for p in output.iterdir()}
+                with self.assertRaises(ValueError):
+                    check(self.artifacts, output)
+                self.assertEqual(before, {p.name: p.read_bytes() for p in output.iterdir()})
+
+    def test_unpinned_input_mutation_fails_without_writing(self):
+        import tempfile
+        from tools.generate_source_map_cache import build
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary)
+            entry = self.manifest["maps"]["PewterCity"]
+            path = source / entry["path"]
+            path.parent.mkdir(parents=True)
+            path.write_bytes((ROOT / "Source" / entry["path"]).read_bytes() + b" ")
+            with self.assertRaisesRegex(ValueError, "checksum"):
+                build(source_root=source)
+            self.assertEqual(list(source.rglob("compact.json")), [])
+
+    def test_manifest_identity_padding_blocker_and_profile_corruption_is_rejected(self):
+        import copy
+        import tempfile
+        from tools.generate_source_map_cache import build
+        for mutation in ("identity", "padding", "blocker", "profile", "revision", "path"):
+            manifest = copy.deepcopy(self.manifest)
+            entry = manifest["maps"]["PewterCity"]
+            if mutation == "identity":
+                entry["id"] = "pokered:WRONG"
+            elif mutation == "padding":
+                entry["padding"] = 1
+            elif mutation == "blocker":
+                entry["blocked_events"].append("pokered:PEWTER_CITY:objects:1")
+            elif mutation == "profile":
+                entry["profile"] = "unknown"
+            elif mutation == "revision":
+                manifest["source_revision"] = "wrong"
+            else:
+                entry["path"] = "../outside.json"
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
+                path = Path(temporary) / "manifest.json"
+                path.write_text(json.dumps(manifest))
+                with self.assertRaises(ValueError):
+                    build(path)
+
+    def test_shared_grid_corruption_is_rejected_even_if_input_pin_is_updated(self):
+        import copy
+        import tempfile
+        from tools.generate_source_map_cache import build
+        manifest = copy.deepcopy(self.manifest)
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "Source"
+            for entry in manifest["maps"].values():
+                path = source / entry["path"]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes((ROOT / "Source" / entry["path"]).read_bytes())
+            entry = manifest["maps"]["Route2"]
+            path = source / entry["path"]
+            raw = json.loads(path.read_text())
+            route1 = json.loads((ROOT / "Source/data/viridianSlice/Route1.json").read_text())
+            shared = {grid["stable_id"] for grid in route1["grids"]}
+            grid = next(grid for grid in raw["grids"] if grid["stable_id"] in shared)
+            row = grid["grid"][0]
+            grid["grid"][0] = ("." if row[0] == "#" else "#") + row[1:]
+            path.write_text(json.dumps(raw))
+            entry["source_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+            manifest_path = Path(temporary) / "manifest.json"
+            manifest_path.write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError, "shared source grid differs"):
+                build(manifest_path, source)

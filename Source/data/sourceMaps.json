@@ -1,12 +1,19 @@
 {
   "maps": {
     "PewterCity": {
+      "blocked_events": [
+        "pokered:PEWTER_CITY:warps:1",
+        "pokered:PEWTER_CITY:warps:2",
+        "pokered:PEWTER_CITY:warps:4",
+        "pokered:PEWTER_CITY:warps:6"
+      ],
       "height": 36,
       "id": "pokered:PEWTER_CITY",
       "key": "kanto_pewter_city",
       "padding": 0,
       "path": "data/pewterSlice/PewterCity.json",
       "profile": "pewter",
+      "source_sha256": "b2ad48a4f983270137e3f035bdb4f472bb842f6e349eff7a2475e7748bba402b",
       "spawn": {
         "facing": "up",
         "x": 18,
@@ -15,12 +22,14 @@
       "width": 40
     },
     "PewterGym": {
+      "blocked_events": [],
       "height": 14,
       "id": "pokered:PEWTER_GYM",
       "key": "kanto_pewter_gym",
       "padding": 1,
       "path": "data/pewterSlice/PewterGym.json",
       "profile": "pewter",
+      "source_sha256": "1cd4123b229ee4c398caabfa96346142e6588f1db67ccdbc3787e5f3d440afbe",
       "spawn": {
         "facing": "up",
         "x": 5,
@@ -29,12 +38,14 @@
       "width": 13
     },
     "PewterMart": {
+      "blocked_events": [],
       "height": 8,
       "id": "pokered:PEWTER_MART",
       "key": "kanto_pewter_mart",
       "padding": 2,
       "path": "data/pewterSlice/PewterMart.json",
       "profile": "pewter",
+      "source_sha256": "be98ba22c5ff261e89689c68171e8b2b554c5434649c195083c3e1a9359c5599",
       "spawn": {
         "facing": "up",
         "x": 5,
@@ -43,12 +54,14 @@
       "width": 13
     },
     "PewterPokecenter": {
+      "blocked_events": [],
       "height": 8,
       "id": "pokered:PEWTER_POKECENTER",
       "key": "kanto_pewter_center",
       "padding": 0,
       "path": "data/pewterSlice/PewterPokecenter.json",
       "profile": "pewter",
+      "source_sha256": "a48fd91ad82f959f7e8277c4e553870c64f9cbf27f4866fd3da5e2549872990e",
       "spawn": {
         "facing": "up",
         "x": 3,
@@ -57,6 +70,7 @@
       "width": 14
     },
     "Route1": {
+      "blocked_events": [],
       "height": 36,
       "id": "pokered:ROUTE_1",
       "key": "kanto_route1",
@@ -64,6 +78,7 @@
       "path": "data/viridianSlice/Route1.json",
       "profile": "viridian",
       "resident": true,
+      "source_sha256": "48f85a9d4476041b04528cc749dca00bdb495c22dc3b64bb425d0ea96cb6a56a",
       "spawn": {
         "facing": "up",
         "x": 10,
@@ -72,12 +87,19 @@
       "width": 20
     },
     "Route2": {
+      "blocked_events": [
+        "pokered:ROUTE_2:warps:1",
+        "pokered:ROUTE_2:warps:3",
+        "pokered:ROUTE_2:warps:4",
+        "pokered:ROUTE_2:warps:5"
+      ],
       "height": 72,
       "id": "pokered:ROUTE_2",
       "key": "kanto_route2",
       "padding": 0,
       "path": "data/pewterSlice/Route2.json",
       "profile": "pewter",
+      "source_sha256": "6c2dbcf348ec8313c96ae27667ef32d957f6b2fb0fafaddbc71b1633e6d18241",
       "spawn": {
         "facing": "up",
         "x": 8,
@@ -86,6 +108,11 @@
       "width": 20
     },
     "ViridianCity": {
+      "blocked_events": [
+        "pokered:VIRIDIAN_CITY:warps:3",
+        "pokered:VIRIDIAN_CITY:warps:4",
+        "pokered:VIRIDIAN_CITY:warps:5"
+      ],
       "height": 36,
       "id": "pokered:VIRIDIAN_CITY",
       "key": "kanto_viridian_city",
@@ -93,6 +120,7 @@
       "path": "data/viridianSlice/ViridianCity.json",
       "profile": "viridian",
       "resident": true,
+      "source_sha256": "4355f64b231c537aa4241110b5a0511048c7827188684d9f0825df2f719c9baa",
       "spawn": {
         "facing": "up",
         "x": 20,
@@ -101,12 +129,14 @@
       "width": 40
     },
     "ViridianForest": {
+      "blocked_events": [],
       "height": 48,
       "id": "pokered:VIRIDIAN_FOREST",
       "key": "kanto_viridian_forest",
       "padding": 0,
       "path": "data/pewterSlice/ViridianForest.json",
       "profile": "pewter",
+      "source_sha256": "31bfa8be1d1f27c979493bbb1178f08cb8ed1f84b087d91eb65156aefddc97b2",
       "spawn": {
         "facing": "up",
         "x": 16,
@@ -115,12 +145,14 @@
       "width": 34
     },
     "ViridianForestNorthGate": {
+      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_FOREST_NORTH_GATE",
       "key": "kanto_forest_north_gate",
       "padding": 1,
       "path": "data/pewterSlice/ViridianForestNorthGate.json",
       "profile": "pewter",
+      "source_sha256": "e228d7d712e4cb7336ceb014e294c41ae809cfb326fbb9c56bc9574411ab12c9",
       "spawn": {
         "facing": "up",
         "x": 5,
@@ -129,12 +161,14 @@
       "width": 13
     },
     "ViridianForestSouthGate": {
+      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_FOREST_SOUTH_GATE",
       "key": "kanto_forest_south_gate",
       "padding": 1,
       "path": "data/pewterSlice/ViridianForestSouthGate.json",
       "profile": "pewter",
+      "source_sha256": "65c171e8d25a8ab3dd1c05ba9e9c378e0bab31f7d2ddb509dd7619aeeafacb5a",
       "spawn": {
         "facing": "up",
         "x": 5,
@@ -143,6 +177,7 @@
       "width": 13
     },
     "ViridianMart": {
+      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_MART",
       "key": "kanto_viridian_mart",
@@ -150,6 +185,7 @@
       "path": "data/viridianSlice/ViridianMart.json",
       "profile": "viridian",
       "resident": true,
+      "source_sha256": "7b5fc9e38769a33a25562130aa2f25358cacb60ff7bb59d97603e56e056c90d7",
       "spawn": {
         "facing": "up",
         "x": 5,
@@ -158,6 +194,7 @@
       "width": 13
     },
     "ViridianPokecenter": {
+      "blocked_events": [],
       "height": 8,
       "id": "pokered:VIRIDIAN_POKECENTER",
       "key": "kanto_viridian_center",
@@ -165,6 +202,7 @@
       "path": "data/viridianSlice/ViridianPokecenter.json",
       "profile": "viridian",
       "resident": true,
+      "source_sha256": "56b858c77d2dfcb51c85b5d89d4f135149c93adef7cf24938da451600113d87f",
       "spawn": {
         "facing": "up",
         "x": 3,

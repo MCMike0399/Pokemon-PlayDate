@@ -137,6 +137,50 @@ function SourceMapContracts.run()
         end)
     end)
 
+    test("compact warp projections match source arrivals without retaining full destination maps", function()
+        for _, name in ipairs(SourceMaps.names("viridian")) do
+            local definition = SourceMaps.padded(name)
+            local projection = SourceMaps.destination(name)
+            equal(projection.source_map_constant, definition.source_map_constant)
+            same(projection.events.warps, definition.events.warps)
+            for _, warp in ipairs(projection.events.warps) do
+                for y = warp.y, math.min(warp.y + 1, definition.dimensions.cells[2] - 1) do
+                    equal(projection.collision[y + 1][warp.x + 1], definition.collision[y + 1][warp.x + 1])
+                end
+            end
+            equal(projection.grids, nil)
+            equal(projection.tile_ids, nil)
+            equal(projection.source_refs, nil)
+        end
+    end)
+
+    test("provider installation and direct tile lookup never load unrelated full map definitions", function()
+        scope(function(_, registry, context)
+            local definition = SourceMaps.definition
+            local loaded = {}
+            SourceMaps.definition = function(name)
+                loaded[name] = (loaded[name] or 0) + 1
+                return definition(name)
+            end
+            local ok, problem = pcall(function()
+                local provider = PewterWorld.createProvider(context, registry)
+                equal(next(loaded), nil)
+                equal(#provider:inventory(), 12)
+                equal(next(loaded), nil)
+                local route = provider:ensure("kanto_route1")
+                equal(loaded.Route1, 1)
+                equal(registry:has("adapter:pewter:void"), false)
+                route:setTile(10, 35, "adapter:pewter:void")
+                equal(registry:has("adapter:pewter:void"), true)
+                equal(loaded.Route1, 1)
+                for name in pairs(loaded) do equal(name, "Route1") end
+                provider:disposeCache()
+            end)
+            SourceMaps.definition = definition
+            if not ok then error(problem, 0) end
+        end)
+    end)
+
     test("every production Zone matches immutable cell keys native grids collision and foot surfaces", function()
         scope(function(provider, registry)
             for _, name in ipairs(SourceMaps.names()) do

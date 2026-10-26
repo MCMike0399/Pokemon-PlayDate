@@ -9,88 +9,27 @@ local function copy(value)
     return result
 end
 
-local function same(a, b)
-    if type(a) ~= type(b) then return false end
-    if type(a) ~= "table" then return a == b end
-    for key, value in pairs(a) do if not same(value, b[key]) then return false end end
-    for key in pairs(b) do if a[key] == nil then return false end end
-    return true
-end
-
-local function tileEntry(grid)
-    return { key = grid.stable_id, grid = copy(grid.grid),
-        collision = grid.terrain.land_passable and 0 or 1, terrain = copy(grid.terrain) }
-end
-
-local function descriptor(name, definition, specs)
-    local entry = SourceMaps.entry(name)
-    local result = {
-        name = name, id = entry.id, key = entry.key, revision = definition.source_revision,
-        width = entry.width, height = entry.height, padding = entry.padding,
-        source_width = definition.source_dimensions.cells[1], palette = {}, tile_rows = {}, blocked = {},
-    }
-    for i, grid in ipairs(definition.grids) do result.palette[i] = grid.stable_id end
-    assert(#result.palette <= 255, "source map compact palette overflow")
-    for y, row in ipairs(definition.tile_ids) do
-        local cells = {}
-        for x, id in ipairs(row) do cells[x] = string.format("%02x", id) end
-        result.tile_rows[y] = table.concat(cells)
-    end
-    -- Bound slice NPCs own occupancy through NPCManager, even when their script
-    -- is blocked. Only unresolved signs and warps add permanent surface blocks.
-    for _, kind in ipairs({ "warps", "background_events" }) do
-        for _, event in ipairs(definition.events[kind]) do
-            local spec = assert(specs[event.id], "missing explicit source surface binding")
-            assert(spec.status == "bound" or spec.status == "blocked", "invalid source surface binding")
-            if spec.status == "blocked" then
-                result.blocked[tostring(event.y * result.width + event.x + 1)] = event.id
-            end
-        end
-    end
-    return result
-end
-
 function SourceMaps.createProvider(profiles, registry)
     registry = registry or WorldTiles
     assert(type(profiles) == "table", "explicit bespoke source binding profiles required")
-    local data = { schema = 1, source_revision = SourceMaps.record("data/sourceMaps.json").source_revision,
-        maps = {}, tiles = {} }
+    local data = SourceMaps.compact()
     local function profile(name)
         local entry = SourceMaps.entry(name)
         local adapter = assert(profiles[entry.profile], "missing bespoke source binding profile")
         assert(type(adapter.specs) == "function" and type(adapter.options) == "function", "explicit source specs/options required")
         return adapter, entry
     end
-    local grids, residentKeys = {}, {}
+    local residentKeys = {}
     for _, name in ipairs(SourceMaps.names()) do
-        local adapter, entry = profile(name)
+        local _, entry = profile(name)
         if entry.resident then residentKeys[entry.key] = true end
-        local definition = SourceMaps.padded(name)
-        data.maps[name] = descriptor(name, definition, adapter.specs(name, definition))
-        for _, grid in ipairs(definition.grids) do
-            local entry = tileEntry(grid)
-            local previous = grids[entry.key]
-            assert(not previous or same(previous, entry), "shared source tile definition differs: " .. entry.key)
-            grids[entry.key] = entry
-            data.tiles[entry.key] = { key = entry.key, collision = entry.collision, terrain = entry.terrain }
-        end
     end
     local function ensureKeys(tiles)
         local entries, seen = {}, {}
         for _, tile in ipairs(tiles) do
             if not registry:has(tile.key) and not seen[tile.key] then
                 seen[tile.key] = true
-                local found
-                for _, name in ipairs(SourceMaps.names()) do
-                    for _, grid in ipairs(SourceMaps.padded(name).grids) do
-                        if grid.stable_id == tile.key then
-                            found = tileEntry(grid)
-                            break
-                        end
-                    end
-                    if found then break end
-                end
-                entries[#entries + 1] = assert(found, "unknown canonical source tile: " .. tile.key)
+                entries[#entries + 1] = SourceMaps.tile(tile.key)
             end
         end
         if #entries > 0 then registry:registerBatch(entries) end
@@ -132,17 +71,21 @@ function SourceMaps.legacyProfiles(dependencies)
         and type(dependencies.questFlag) == "function" and type(dependencies.sourceFlag) == "function",
         "explicit source dispatch and flag readers required")
     local dispatch, quest, sourceFlag = dependencies.dispatch, dependencies.questFlag, dependencies.sourceFlag
-    local function viridianDefinitions()
+    local function viridianDefinitions(name, definition)
         local definitions, destinations = {}, {}
-        for _, name in ipairs(SourceMaps.names("viridian")) do
-            definitions[name] = SourceMaps.padded(name)
-            destinations[SourceMaps.entry(name).key] = definitions[name]
+        for _, target in ipairs(SourceMaps.names("viridian")) do
+            local projection = SourceMaps.destination(target)
+            definitions[target] = projection
+            destinations[SourceMaps.entry(target).key] = projection
         end
+        if name then definitions[name] = definition end
         return definitions, destinations
     end
     return {
         viridian = {
-            specs = function(name) return KantoSlice.specs(name, viridianDefinitions()) end,
+            specs = function(name, definition)
+                return KantoSlice.specs(name, viridianDefinitions(name, definition))
+            end,
             options = function()
                 local _, destinations = viridianDefinitions()
                 return { bindingAdapter = MapBindings, destinations = destinations,

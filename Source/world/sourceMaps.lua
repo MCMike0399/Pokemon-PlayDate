@@ -3,6 +3,7 @@
 SourceMaps = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
+local compact, tileGrids
 local rawCache = setmetatable({}, { __mode = "v" })
 
 local function copy(value)
@@ -49,6 +50,55 @@ function SourceMaps.nameForID(id, profile)
     for name, entry in pairs(catalogue()) do
         if entry.id == id and (not profile or entry.profile == profile) then return name end
     end
+end
+
+-- Generated descriptors contain no art grids or full map definitions. This
+-- inventory remains cheap during provider installation and save validation.
+local function compactData()
+    if not compact then
+        local data = SourceMaps.record("data/sourceMapCache/compact.json")
+        for name, descriptor in pairs(data.maps) do
+            local entry = assert(catalogue()[name], "generated map outside source manifest")
+            for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
+                assert(descriptor[field] == entry[field], "generated source descriptor differs from manifest")
+            end
+        end
+        for name in pairs(catalogue()) do assert(data.maps[name], "generated source descriptor missing") end
+        compact = data
+    end
+    return compact
+end
+
+function SourceMaps.compact()
+    return copy(compactData())
+end
+
+function SourceMaps.tile(key)
+    if not tileGrids then
+        local data = SourceMaps.record("data/sourceMapCache/tile-grids.json")
+        assert(data.manifest_sha256 == compactData().manifest_sha256, "generated source cache revisions differ")
+        tileGrids = data.tiles
+    end
+    return copy(assert(tileGrids[key], "unknown canonical source tile: " .. tostring(key)))
+end
+
+-- Legacy warp binding needs target warp positions and arrival collision, not
+-- the target's source refs, terrain grids, objects, encounters or full layout.
+function SourceMaps.destination(name)
+    local data = compactData()
+    local descriptor = assert(data.maps[name], "unknown source destination")
+    local collision = {}
+    for _, warp in ipairs(descriptor.warps) do
+        for y = warp.y, math.min(warp.y + 1, descriptor.height - 1) do
+            local id = assert(tonumber(descriptor.tile_rows[y + 1]:sub(warp.x * 2 + 1, warp.x * 2 + 2), 16))
+            local tile = assert(data.tiles[descriptor.palette[id]])
+            collision[y + 1] = collision[y + 1] or {}
+            collision[y + 1][warp.x + 1] = tile.collision
+        end
+    end
+    return { source_map_constant = descriptor.source_map_constant,
+        dimensions = { cells = { descriptor.width, descriptor.height } },
+        events = { warps = copy(descriptor.warps) }, collision = collision }
 end
 
 function SourceMaps.definition(name)
