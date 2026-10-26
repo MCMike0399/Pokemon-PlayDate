@@ -50,7 +50,10 @@ def prepare(project, sdk, output, session, mode):
     if mode == 'harness':
         metadata = run.prepare(project, sdk, output, session)
     else:
-        stage_production(project, output)
+        if mode == 'legacy-production':
+            shutil.copytree(project / 'Source', output / 'Source')
+        else:
+            stage_production(project, output)
         bundle_id = 'com.poc.pokemon.startupprobe.' + session
         pdxinfo = output / 'Source/pdxinfo'
         pdxinfo.write_text('\n'.join('bundleID=' + bundle_id if line.startswith('bundleID=') else line
@@ -60,7 +63,7 @@ def prepare(project, sdk, output, session, mode):
                     'simulator': str(sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator'),
                     'revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip(),
                     'sdk_version': (sdk / 'VERSION.txt').read_text().strip(),
-                    'source_sha256': run.fingerprint(output, exclude_generated=False)}
+                    'source_sha256': run.fingerprint(project)}
     main = output / 'Source/main.lua'
     original = main.read_text()
     main.write_text(instrument(original, session, mode))
@@ -108,8 +111,9 @@ def execute(metadata, output, timeout):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--mode', choices=('production', 'harness'), required=True)
+    parser.add_argument('--mode', choices=('legacy-production', 'production', 'harness'), required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--project', type=Path, default=run.PROJECT, help='read-only source checkout to measure')
     parser.add_argument('--sdk')
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--timeout', type=float, default=30)
@@ -117,7 +121,7 @@ def main():
     sdk = run.sdk_path(args.sdk)
     output = Path(args.output).expanduser().resolve()
     with OwnerLock(run.runtime_lock_path(sdk)) if args.execute else nullcontext():
-        metadata = prepare(run.PROJECT, sdk, output, uuid.uuid4().hex, args.mode)
+        metadata = prepare(args.project.expanduser().resolve(), sdk, output, uuid.uuid4().hex, args.mode)
         if args.execute:
             execute(metadata, output, args.timeout)
     print(output)

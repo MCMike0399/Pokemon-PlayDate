@@ -9,7 +9,7 @@ import unittest
 import zlib
 
 from tools import build
-from tools.harness import run
+from tools.harness import run, startup_probe
 from tools.harness.build import overlay_imports
 
 PROJECT = Path(__file__).resolve().parents[2]
@@ -91,6 +91,16 @@ class ProductionBuildTests(unittest.TestCase):
         self.assertEqual(self.metadata['compiled_source_sha256'], run.fingerprint(self.harness, exclude_generated=False))
         manifest = json.loads((self.harness / 'source-manifest.json').read_text())
         self.assertEqual(manifest['main.lua'], hashlib.sha256((PROJECT / 'Source/main.lua').read_bytes()).hexdigest())
+
+    def test_startup_baseline_retains_dev_and_identifies_the_original_source(self):
+        output = self.root / 'legacy-startup-probe'
+        metadata = startup_probe.prepare(PROJECT, self.sdk, output, 'legacy-probe-test', 'legacy-production')
+        self.assertTrue((output / 'Source/dev').is_dir())
+        self.assertTrue((Path(metadata['bundle']) / 'dev').is_dir())
+        self.assertEqual(metadata['source_sha256'], run.fingerprint(PROJECT))
+        self.assertEqual(metadata['compiled_source_sha256'], run.fingerprint(output, exclude_generated=False))
+        self.assertEqual(metadata['probe_mode'], 'legacy-production')
+        self.assertIn('local startupProbeBegin', (output / 'Source/main.lua').read_text())
 
     def test_overlay_rejects_missing_or_duplicate_slots(self):
         with tempfile.TemporaryDirectory() as temporary:

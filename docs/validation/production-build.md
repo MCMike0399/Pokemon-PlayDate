@@ -62,3 +62,12 @@ normal time-based RNG seeding, harness uses its normal test initialization.
 No workload, movement, capture catalog or synthetic player input is added.
 Probe bundles have unique IDs and private saves; their source and runtime Data
 remain in the evidence directory. Compile success is not runtime acceptance.
+
+The probe also accepts `--project <checkout>` and `--mode legacy-production`.
+That baseline mode retains the old development modules and does not insert the
+new harness overlay. Measure the frozen pre-refactor checkout with that mode,
+and compare it to the gate-only worker checkout in production mode to isolate
+the import split. Both use the identical passive observer. Record the full
+source fingerprints; the compiled fingerprint separately includes the private
+bundle identity and observer. The complete foundation candidate is an additional
+measurement, not a substitute for that isolated before/after pair.
