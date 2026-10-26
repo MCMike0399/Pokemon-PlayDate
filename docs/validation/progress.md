@@ -5,14 +5,13 @@ Updated 2026-10-26. Follow [the full-game goal](../plans/full-game-goal.md).
 
 ## 1. Accepted revision and playable scope
 
-Accepted gameplay/tooling is `28d3f18`, followed by documentation checkpoints.
-Production Source remains the tree committed in `82cb207`:
-`44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc`.
-A player can start with any starter, deliver Oak’s parcel, capture Pokémon,
-use party/bag/storage/healing, cross Viridian Forest, defeat Brock, receive the
-Boulder Badge and TM34, save, exit the process and Continue. The rest of Kanto,
-audio and release work remain unfinished. Device validation has not run.
-Accepted local commits wait for an explicit request to push.
+Component-accepted code is `b7897bd`, with Source
+`2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
+The implemented route remains Pallet → Brock. The complete all-starter campaign
+proof below belongs to the preceding Source `44bd25…`; real-input preservation
+checks on the new foundation Source are still pending. New regions remain private.
+The remaining Kanto campaign, audio and release work are unfinished. Device
+validation has not run. Local commits wait for an explicit request to push.
 
 ## 2. Current milestone and checks
 
@@ -41,7 +40,7 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
 `brock-charmander-no-modal-20261026-01`, supplements in
 `brock-5.1-supplements-20261026-01`.
 
-**5.2 — Scale foundations: in progress; private implementation.**
+**5.2 — Scale foundations: in progress; components accepted, journeys pending.**
 
 - [x] Loud unsupported-move failure and Whirlwind/Roar prepared.
 - [x] Shared map manifest, loader, constructor, provider/cache, bindings,
@@ -49,16 +48,19 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
 - [x] Declarative events, scripted NPC leases, source text/pagination and
   production builds without dev modules prepared.
 - [x] Independent standards/spec reviews completed; concrete findings repaired.
-- [ ] Integrate final activation-seam repair and execute fresh SDK/catalog checks.
+- [x] Final repairs integrated: 1274 SDK contracts passed; all 2494 protected
+  images exact. Five native phazing/failure scenarios passed; root inspected them.
 - [ ] Native mechanics, real-input integration journeys, restart, blackout,
   full-bag retry and root screenshot inspection.
-- [ ] Startup/memory comparison, coverage refresh, full host suite without skips,
-  merge acceptance and main commit.
+- [x] Production startup/memory comparison, coverage refresh, production compile,
+  54 protocol checks and full host suite: 605 passed, zero skips.
+- [ ] Merged-main checks and real-input milestone acceptance.
 
-Earlier private Source `4f26ba…` passed 1250 SDK contracts and all 2494 images.
-That evidence does not qualify the newer candidate. On `9f3e37b`, 595 of 597 host
-tests passed with zero skips; both failures are stale Source-bound coverage pins.
-Refresh those only after fresh native evidence.
+[Foundation component summary](foundation-acceptance-20261026.json) pins exact
+evidence. Instrumented startup was 252 ms before, 202 ms with only dev gating,
+and 150 ms integrated. Post-GC Lua heap was 10.85, 8.79 and 6.05 MiB respectively.
+These are single Simulator observations, excluding native allocations/device limits.
+Earlier failed SDK/scenario runs are retained and receive no acceptance credit.
 
 ## 3. Open defects blocking progress
 
@@ -70,20 +72,20 @@ ini, the full two-process retry passed. Observed footprint was 63–72 MB, peak
 was submitted. This was an environment repair, not a game Source change.
 Diagnostic capture sampling remains optional, default interval 1.
 
-Private foundation activation seams and native acceptance remain pending.
+Foundation components passed; merged-main real-input preservation remains pending.
 Later regions, common mechanics, audio and release checks remain unfinished.
 
 ## 4. Work in flight
 
 | Branch / owner | Work and next step |
 |---|---|
-| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Brock accepted; continue foundation acceptance. |
-| `wip/foundations-integration` / root | Durable environment worktree at `9f3e37b`; integrate `f925cd5`, register its SDK suite, then fresh native acceptance. |
-| `wip/source-map-activation-seams` / worker | `f925cd5` repairs adapter/blocker/reciprocal-return seams; host/compile passed, eight SDK witnesses pending. |
+| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Brock accepted; run merged foundation checks and integration journeys. |
+| `wip/foundations-integration` / root | Components composed and accepted through `b7897bd`; main integration and journeys are next. |
+| `wip/source-map-activation-seams` / worker | Integrated with decoded-encounter, checkpoint-fixture and north-passage repairs; all native witnesses passed. |
 | `wip/cerulean-map-content` / worker | `48943b7` prepares 18 maps and ordinary content/art/music metadata. Candidate manifest remains inactive. |
-| `wip/cerulean-story` / worker | Preparing Bill/Ticket, Mt. Moon fossil choice and Misty reward scenes. |
+| `wip/cerulean-story` / worker | `f30515e` prepares Bill/Ticket, fossils and Misty; 22 native cases await composition. |
 | `wip/audio-pipeline-research` / worker | `9a1cf87` research complete; root reproduced its silent probe. No playback acceptance. |
-| `wip/audio-parser` / worker | Preparing host parser/register traces; no production audio hooks. |
+| `wip/audio-parser` / worker | `9c5ec44` complete: root ran 27 host tests and deterministic inspect; playback remains unimplemented. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
 Earlier foundation workers are composed privately; exact commits/task IDs remain

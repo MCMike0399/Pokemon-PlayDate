@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "milestone": "5.2",
+  "milestone_accepted": false,
+  "component_acceptance": true,
+  "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+  "sdk": {
+    "passed": 1274,
+    "failed": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03",
+    "native_revision": "58495ebbf67c2a49bb53293fc98d99b00bf136e8"
+  },
+  "protected_catalog": {
+    "exact": 2494,
+    "additions": 0
+  },
+  "host": {
+    "passed": 605,
+    "failed": 0,
+    "skipped": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-merge-build-20261026-01/full-host.log"
+  },
+  "protocol_host": {
+    "passed": 54,
+    "failed": 0
+  },
+  "native_mechanics": {
+    "cases": 5,
+    "passed": 5,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-native-mechanics-20261026-02",
+    "screenshots_reviewed": true
+  },
+  "source_text_screenshots_reviewed": true,
+  "startup": {
+    "before": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-startup-before-native-20261026-01",
+      "revision": "dcc991f2838a67361b8ca225e5ffbb309d5800df",
+      "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+      "measurements": {
+        "first_frame_heap_kib": 11111.624023438,
+        "heap_kib_after_gc": 11106.043945312,
+        "heap_kib_before_gc": 17016.51953125,
+        "mode": "legacy-production",
+        "session_id": "e6c6db4cb17643f19fcbf9965e523764",
+        "simulator": true,
+        "startup_ms": 252
+      }
+    },
+    "gate": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-startup-gate-native-20261026-01",
+      "revision": "bc2279558b153614dcc57b49066869f788d69dce",
+      "source_sha256": "1ba342ab571bad44e6acaaaf085ec9a2a4a7bc10dc3e3a92e9fc6bb039ceda38",
+      "measurements": {
+        "first_frame_heap_kib": 9009.4443359375,
+        "heap_kib_after_gc": 9003.8388671875,
+        "heap_kib_before_gc": 16844.41015625,
+        "mode": "production",
+        "session_id": "e5bef379e3f24a9a9a9c1615085f16d1",
+        "simulator": true,
+        "startup_ms": 202
+      }
+    },
+    "integrated": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-startup-integrated-native-20261026-01",
+      "revision": "9ed4d36f0ba0b13734f109435070eaa0486ed506",
+      "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+      "measurements": {
+        "first_frame_heap_kib": 6201.7216796875,
+        "heap_kib_after_gc": 6196.2802734375,
+        "heap_kib_before_gc": 12553.884765625,
+        "mode": "production",
+        "session_id": "36f046889e294d5a90b04f3df9f27753",
+        "simulator": true,
+        "startup_ms": 150
+      }
+    },
+    "scope": "One instrumented Simulator run per mode, two full GC passes; Lua heap only. Gate-only pair isolates dev imports; integrated also includes map/event/text refactors. No native-allocation/device-capacity claim."
+  },
+  "remaining_acceptance": [
+    "Merged-main contracts/catalog and real-input integration journeys including starters, restart, full-bag retry and blackout."
+  ],
+  "device_validated": false
+}
