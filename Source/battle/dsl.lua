@@ -358,7 +358,16 @@ function ApplyStatus:apply(battle)
         return
     end
     local immunity=battle.effects and battle.effects:statusImmunity(pokemon,self.status)
-    if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
+    if immunity then
+        -- These Gen5 SetStatus callbacks announce direct status moves only;
+        -- an immune secondary still consumed its chance but stays silent.
+        local directMove=self.statusCause=="move" and battle.currentMove
+            and battle.currentMove.category=="status"
+        if (immunity~="Vital Spirit" and immunity~="Water Veil") or directMove then
+            battle:say(pokemon.name.." is protected by "..immunity.."!")
+        end
+        return
+    end
     -- Sample before committing durable fields; RNG exhaustion cannot leave an
     -- asleep Pokemon without its original duration.
     if self:preventedBySide(battle,pokemon) then return end

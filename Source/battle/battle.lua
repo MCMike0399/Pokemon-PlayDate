@@ -55,6 +55,7 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
     -- is a battle-owned+2; move metadata supplies the inherent stage.
     local stage=effects and effects:criticalStage(attacker,move) or (move.critStage or 0)
     local isCrit = move.willCrit or RulesRNG.random(1, BattleEffects.criticalDenominator(stage)) == 1
+    if isCrit and effects then isCrit=effects:criticalAllowed(defender) end
 
     -- Pick offensive/defensive stats per the move's damage class
     local atkBase, defBase, atkStage, defStage
@@ -107,7 +108,10 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
 
     damage = math.max(1, damage)
     -- GenV final screen modifier follows minimum1, so a real hit may do0.
-    if effects then damage=effects.battle.conditions:screenDamage(attacker,defender,move,damage,isCrit) end
+    if effects then
+        damage=effects.battle.conditions:screenDamage(attacker,defender,move,damage,isCrit)
+        damage=effects:finalDamage(attacker,damage,isCrit)
+    end
 
     -- Immune = 0 damage
     if effectiveness == 0 then damage = 0 end
@@ -136,13 +140,13 @@ end
 -- separate level/ability/accuracy path; never advertise this as its chance.
 function accuracyThreshold(move, attacker, defender, effects)
     if move.ohko then return nil,"ohko" end
-    if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move)) then return 100 end
+    if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move,attacker,defender)) then return 100 end
     local stage = attacker.statStages.acc - defender.statStages.eva
     local base=effects and effects:accuracy(attacker,defender,move) or move.accuracy
     return math.max(0,math.min(100,math.floor(base * accStageMult(stage))))
 end
 function checkAccuracy(move, attacker, defender, effects)
-    if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move)) then return true end
+    if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move,attacker,defender)) then return true end
     local threshold,reason=accuracyThreshold(move,attacker,defender,effects)
     assert(threshold,reason)
     return RulesRNG.random(1, 100) <= threshold
@@ -322,8 +326,7 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
         else
             self:opponentEntered()
         end
-        self.effects:entry(self.player)
-        self.effects:entry(self.enemy)
+        self.effects:initialEntries()
         if not self.player:isAlive() then return self:hasUsablePlayer() and "forcedSwitch" or "defeat" end
     end)
 end
@@ -959,6 +962,14 @@ function Battle:recordMoveGap(key, reason)
     print("[move-gap] " .. key .. ": " .. reason)
 end
 
+-- Bounded callback diagnostics for abilities with genuinely unknown inputs.
+function Battle:recordAbilityGap(id,reason,actor)
+    self.abilityGaps=self.abilityGaps or {}
+    self.abilityGaps[#self.abilityGaps+1]={ability=id,reason=reason,species=actor.species}
+    if #self.abilityGaps>12 then table.remove(self.abilityGaps,1) end
+    print("[ability-gap] "..id..": "..reason)
+end
+
 function Battle:getMoveGaps()
     local copy = {}
     for i, entry in ipairs(self.moveGaps or {}) do
@@ -1168,6 +1179,8 @@ function Battle:performMove(move)
 end
 
 function Battle:hitCount(move)
+    local maximum=self.effects:multiHitMaximum(self.attacker,move)
+    if maximum then return maximum end
     if not move.minHits or not move.maxHits or move.maxHits<=1 then return 1 end
     if move.minHits==2 and move.maxHits==5 then
         local roll=RulesRNG.random(0,99)

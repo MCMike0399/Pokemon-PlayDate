@@ -56,7 +56,17 @@ function BattleEffects:worrySeed(source,target)
     if wake then self.battle:say(target.name.." woke up with Insomnia!") end
     return true
 end
-function BattleEffects:supported(id) return handlers[id]~=nil end
+-- Each ID below has a concrete callback below; this is dispatch inventory,
+-- never a blanket mechanics-acceptance claim.
+local commonHooks = {
+    [22]="entry", [108]="entry", [72]="statusImmunity", [41]="statusImmunity",
+    [99]="accuracyBypassesCheck", [75]="criticalAllowed", [92]="multiHitMaximum",
+    [97]="finalDamage", [43]="canAttempt",
+}
+function BattleEffects:supported(id) return handlers[id]~=nil or commonHooks[id]~=nil end
+function BattleEffects:livingAbility(mon,id)
+    return self:active(mon) and alive(mon) and self:effectiveAbility(mon)==id
+end
 function BattleEffects:active(mon) return not self.closed and (self.battle.player==mon or self.battle.enemy==mon) end
 local critDenominators <const> = {[0]=16,[1]=8,[2]=4,[3]=3,[4]=2}
 function BattleEffects.criticalDenominator(stage)
@@ -69,8 +79,24 @@ end
 
 -- Rain makes declared weather-sensitive attacks always hit, independently of
 -- accuracy/evasion/CompoundEyes/SandVeil; immunity still precedes this query.
-function BattleEffects:accuracyBypassesCheck(move)
-    return move.weatherAccuracy==true and self:weatherId()=="raindance"
+function BattleEffects:accuracyBypassesCheck(move,attacker,defender)
+    attacker,defender=attacker or self.battle.attacker,defender or self.battle.defender
+    return (move.weatherAccuracy==true and self:weatherId()=="raindance")
+        or self:livingAbility(attacker,99) or self:livingAbility(defender,99)
+end
+-- CriticalHit runs AFTER the critical trial, including guaranteed criticals.
+-- Shell Armor changes the result, never the number of critical RNG trials.
+function BattleEffects:criticalAllowed(target)
+    return not self:livingAbility(target,75)
+end
+function BattleEffects:multiHitMaximum(source,move)
+    if move.minHits and move.maxHits and self:livingAbility(source,92) then return move.maxHits end
+end
+-- Sniper is a final damage modifier after burn/minimum1, not a crit multiplier
+-- before random/STAB/type flooring. Critical hits already ignore Light Screen.
+function BattleEffects:finalDamage(source,damage,critical)
+    if critical and self:livingAbility(source,97) then return round(damage,6144) end
+    return damage
 end
 function BattleEffects:accuracy(attacker,defender,move)
     local ratio=4096;local a,d=handlers[self:effectiveAbility(attacker)],handlers[self:effectiveAbility(defender)]
@@ -113,10 +139,18 @@ function BattleEffects:damage(mon,amount,cause)
     end
     return removed
 end
+-- Pinned Gen5 sound flags, projected onto the actual generated move identities.
+-- Sonic Boom is deliberately absent. Unsupported moves still fail at their own
+-- dispatch gate; this guard is shared by all currently executable sound moves.
+local soundMoves = {
+    growl=true, roar=true, sing=true, supersonic=true, screech=true, snore=true,
+    uproar=true, metalSound=true, hyperVoice=true, bugBuzz=true, round=true,
+    perishSong=true,
+}
 function BattleEffects:canAttempt(move,attacker,defender)
-    -- Roar is sound-based; Whirlwind is not. This does not claim general
-    -- Soundproof coverage for the other currently unsupported sound moves.
-    if self.battle.currentMoveKey == "roar" and self:effectiveAbility(defender) == 43 then
+    local key=self.battle.currentMoveKey
+    if self:active(attacker) and alive(attacker)
+        and self:livingAbility(defender,43) and soundMoves[key] and moveData[key]==move then
         return false, "soundproof"
     end
     if move.attemptRule=="worrySeed" then return self:worrySeedAttempt(attacker,defender) end
@@ -187,17 +221,76 @@ function BattleEffects:basePower(move,power,attacker,defender)
 end
 -- Shared major-status query; no RNG or changes to persistent stats/status here.
 function BattleEffects:statusImmunity(mon,status)
+    if self:livingAbility(mon,72) and (status=="sleep" or status=="yawn") then return "Vital Spirit" end
+    if self:livingAbility(mon,41) and status=="burn" then return "Water Veil" end
     if status=="flinch" and self:active(mon) and alive(mon)
         and self:effectiveAbility(mon)==39 then return "Inner Focus" end
     if self:effectiveAbility(mon)==15 and (status=="sleep" or status=="yawn") then return "Insomnia" end
     if self:effectiveAbility(mon)==17 and (status=="poison" or status=="badPoison") then return "Immunity" end
     if self:effectiveAbility(mon)==20 and status=="confuse" then return "Own Tempo" end
 end
+-- Forewarn uses declared base power, never effective power, PP or damage.
+-- Gen5's fixed/variable-power attacks (including the reachable Low Kick) rank80.
+-- Missing definitions cannot silently masquerade as ordinary power0 attacks.
+function BattleEffects:forewarn(mon,target)
+    if not self:livingAbility(mon,108) or not self:active(target) or not alive(target)
+        or mon==target then return false end
+    local choices,best={},1
+    for _,key in ipairs(target.moves) do
+        local move=moveData[key]
+        if not move or type(move.power)~="number" or not move.category then
+            self.battle:recordAbilityGap(108,"forewarn-move-definition",mon)
+            self.battle:say("But it failed!")
+            return false
+        end
+        local power=move.power
+        if move.ohko then power=150
+        elseif key=="counter" or key=="metalBurst" or key=="mirrorCoat" then power=120
+        elseif power==1 or (power==0 and move.category~="status") then power=80 end
+        if power>best then choices,best={move},power
+        elseif power==best then choices[#choices+1]=move end
+    end
+    if #choices==0 then return false end
+    -- PS sample consumes one trial even for a unique maximum.
+    local selected=choices[RulesRNG.random(1,#choices)]
+    self.battle:say(mon.name.."'s Forewarn alerted it to "..target.name.."'s "..selected.name.."!")
+    return true
+end
+-- Only actual Start callbacks compete in entry ordering. Ordinary abilities do
+-- not invent a speed-tie draw when there is no second Start event to order.
+function BattleEffects:initialEntries()
+    local first,second=self.battle.player,self.battle.enemy
+    local a,d=self:effectiveAbility(first),self:effectiveAbility(second)
+    if self:active(first) and self:active(second) and alive(first) and alive(second)
+        and (a==22 or a==108) and (d==22 or d==108) then
+        local x,y=self.battle:effectiveSpeed(first),self.battle:effectiveSpeed(second)
+        if y>x or (x==y and RulesRNG.random(1,2)==2) then first,second=second,first end
+    end
+    self:entry(first)
+    self:entry(second)
+end
 function BattleEffects:entry(mon)
     if not self:active(mon) or not alive(mon) then return false end
-    if mon.status=="sleep" and self:statusImmunity(mon,"sleep")=="Insomnia" then
+    local other=mon==self.battle.player and self.battle.enemy or self.battle.player
+    if self:active(other) and alive(other) then
+        if self:effectiveAbility(mon)==22 then
+            -- Gen5 Inner Focus does NOT block Intimidate. Commit before yielding.
+            local old=other.statStages.atk
+            other.statStages.atk=math.max(-6,old-1)
+            self.battle:say(mon.name.."'s Intimidate!")
+            self.battle:say(other.name..(old>-6 and "'s ATTACK fell!" or "'s ATTACK won't go any lower!"))
+            return true
+        elseif self:effectiveAbility(mon)==108 then return self:forewarn(mon,other) end
+    end
+    local immunity=self:statusImmunity(mon,mon.status)
+    if mon.status=="burn" and immunity=="Water Veil" then
         mon.status,mon.statusTurns,mon.sleepDuration=nil,0,0
-        self.battle:say(mon.name.." woke up with Insomnia!")
+        self.battle:say(mon.name.."'s Water Veil cured its burn!")
+        return true
+    end
+    if mon.status=="sleep" and (immunity=="Insomnia" or immunity=="Vital Spirit") then
+        mon.status,mon.statusTurns,mon.sleepDuration=nil,0,0
+        self.battle:say(mon.name.." woke up with "..immunity.."!")
         return true
     end
     if self:statusImmunity(mon,mon.status)=="Immunity" then
@@ -291,6 +384,7 @@ function BattleEffects:ohko(attacker,defender,move)
     if attacker.level<defender.level then return false,"level" end
     if self.battle:typeMatchup(move.type,defender)==0 then return false,"immune" end
     if self:effectiveAbility(defender)==5 then return false,"sturdy" end
+    if self:accuracyBypassesCheck(move,attacker,defender) then return true,"accuracy" end
     return RulesRNG.random(0,99)<move.accuracy+attacker.level-defender.level,"accuracy"
 end
 -- Weather is a field lifetime, not owned by either current active Pokemon.
