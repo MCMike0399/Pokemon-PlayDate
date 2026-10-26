@@ -1,0 +1,112 @@
+{
+  "commands": [
+    {
+      "op": "fixture",
+      "options": {
+        "intro": "skip",
+        "opening": false,
+        "zone": "kanto_forest_north_gate",
+        "entry": {
+          "x": 6,
+          "y": 7,
+          "facing": "down"
+        },
+        "seed": 42,
+        "player_pokemon": {
+          "species": "bulbasaur",
+          "level": 11
+        }
+      }
+    },
+    {
+      "op": "await",
+      "path": "root",
+      "equals": "overworld",
+      "frames": 120
+    },
+    {
+      "op": "await",
+      "path": "overworld",
+      "equals": "explore",
+      "frames": 120
+    },
+    "press down",
+    "wait 15",
+    {
+      "op": "await",
+      "path": "zone_id",
+      "equals": "pokered:VIRIDIAN_FOREST",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "player.x",
+      "equals": 1
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 0
+    },
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "overworld"
+    },
+    {
+      "op": "assert",
+      "path": "overworld",
+      "equals": "explore"
+    },
+    {
+      "op": "assert",
+      "path": "player.settled",
+      "equals": true
+    },
+    "shot forest-arrival",
+    "wait 15",
+    {
+      "op": "assert",
+      "path": "zone_id",
+      "equals": "pokered:VIRIDIAN_FOREST"
+    },
+    "press right",
+    "wait 15",
+    {
+      "op": "await",
+      "path": "zone_id",
+      "equals": "pokered:VIRIDIAN_FOREST_NORTH_GATE",
+      "frames": 120
+    },
+    {
+      "op": "assert",
+      "path": "player.x",
+      "equals": 6
+    },
+    {
+      "op": "assert",
+      "path": "player.y",
+      "equals": 7
+    },
+    {
+      "op": "assert",
+      "path": "root",
+      "equals": "overworld"
+    },
+    {
+      "op": "assert",
+      "path": "overworld",
+      "equals": "explore"
+    },
+    {
+      "op": "assert",
+      "path": "player.settled",
+      "equals": true
+    },
+    "shot gate-real-step-return"
+  ],
+  "outputs": [
+    "forest-arrival.png",
+    "gate-real-step-return.png"
+  ]
+}

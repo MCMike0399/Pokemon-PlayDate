@@ -31,8 +31,12 @@ Evidence is under `~/Developer/Pokemon-PlayDate-env/evidence/` in
 
 **5.1 — Close Pallet → Brock: in progress.**
 
-- [ ] Verify and compose the frozen warp-reentry and learning-capture patches.
-- [ ] Run the native warp-return check.
+- [x] Verified both archive checksums and composed the narrow host patches in
+  `895a874`. Integrated full host suite: 539 passed, zero skips.
+- [x] Native warp return passed; root inspected both completed-frame images.
+  The frozen scenario asserted capture phase before the frame update; corrected
+  the scenario and checked finalized capture metadata instead. Original failed
+  run is retained under `brock-5.1-20261026-01/native-warp-return`.
 - [ ] Run natural Bulbasaur, Charmander and Squirtle journeys through Brock,
   each with a real process exit and Save/Continue.
 - [ ] Run TM full-bag retry, blackout, restarts, evolution accept and cancel.
@@ -46,9 +50,9 @@ stopping at Brock. The full goal defines the completion criteria.
 
 ## 3. Open defects blocking progress
 
-The host driver can choose a zero-step arrival warp after blackout; its frozen
-repair awaits review and native verification. Learning-panel captures also await
-composition. No new production defect appeared in the 5.0 baseline checks.
+The zero-step arrival-warp driver bug is repaired and the native return passes.
+Fresh full starter runs and learning-panel image inspection remain pending.
+No production defect appeared in the 5.0 baseline or native return check.
 Unsupported moves, separate map/event pipelines and production dev imports are
 scheduled for 5.2. Missing later regions and full mechanics remain release work.
 
@@ -57,7 +61,9 @@ scheduled for 5.2. Missing later regions and full mechanics remain release work.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Accept 5.0 docs, then review Brock patches and run journeys. |
-| `wip/brock-driver` / worker | Explicit `gpt-6.1-sol`, `reasoningEffort=medium`, provider `codex`; isolated git worktree. Recompose only host driver/scenario/test paths, run relevant host tests and return a commit. No Simulator access. |
+| `wip/brock-driver` / worker | Completed; `188d0cf` integrated as `895a874`. |
+| `wip/move-failure-phazing` / worker | Sol 6.1 / medium, provider `codex`. Prepare loud move failure plus Whirlwind/Roar; no runtime or integration before 5.1. |
+| `wip/source-map-pipeline` / worker | Sol 6.1 / medium, provider `codex`. Prepare shared source-map importer/provider/cache with exact compatibility. No runtime or integration before 5.1. |
 
 ## 5. Decisions since the user check-in
 
