@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "provenance": {
+    "run": "01-brock--brock-restart-bulbasaur",
+    "request": "03234-result.json",
+    "result_sha256": "f4ae476c4a70f34c4ebf9f6258ec195ad93d4b1a41fdca14f6b2de2d37cb67aa",
+    "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc"
+  },
+  "state": {
+    "root": "overworld",
+    "zone_id": "pokered:VIRIDIAN_FOREST",
+    "player": {
+      "facing": "down",
+      "isJumping": false,
+      "jumpOffset": 0,
+      "moveFrames": 0,
+      "moving": false,
+      "pendingEdgeDoor": false,
+      "pixelX": 32,
+      "pixelY": -8,
+      "settled": true,
+      "tile": 164,
+      "x": 1,
+      "y": 0
+    },
+    "npcs": [
+      {
+        "facing": "down",
+        "interacted": false,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "down",
+          "id": "pokered:VIRIDIAN_FOREST:objects:1",
+          "origin_x": 16,
+          "origin_y": 43,
+          "phase": "ready",
+          "target_x": 16,
+          "target_y": 43,
+          "tick": 0,
+          "x": 16,
+          "y": 43
+        },
+        "name": "TEXT_VIRIDIANFOREST_YOUNGSTER1",
+        "pixel_x": 512,
+        "pixel_y": 1368,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:1",
+        "x": 16,
+        "y": 43
+      },
+      {
+        "facing": "left",
+        "interacted": true,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "left",
+          "id": "pokered:VIRIDIAN_FOREST:objects:2",
+          "origin_x": 30,
+          "origin_y": 33,
+          "phase": "static",
+          "target_x": 30,
+          "target_y": 33,
+          "tick": 0,
+          "x": 30,
+          "y": 33
+        },
+        "name": "BUG CATCHER",
+        "pixel_x": 960,
+        "pixel_y": 1048,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:2",
+        "x": 30,
+        "y": 33
+      },
+      {
+        "facing": "left",
+        "interacted": true,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "left",
+          "id": "pokered:VIRIDIAN_FOREST:objects:3",
+          "origin_x": 30,
+          "origin_y": 19,
+          "phase": "static",
+          "target_x": 30,
+          "target_y": 19,
+          "tick": 0,
+          "x": 30,
+          "y": 19
+        },
+        "name": "BUG CATCHER",
+        "pixel_x": 960,
+        "pixel_y": 600,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:3",
+        "x": 30,
+        "y": 19
+      },
+      {
+        "facing": "left",
+        "interacted": true,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "left",
+          "id": "pokered:VIRIDIAN_FOREST:objects:4",
+          "origin_x": 2,
+          "origin_y": 18,
+          "phase": "static",
+          "target_x": 2,
+          "target_y": 18,
+          "tick": 0,
+          "x": 2,
+          "y": 18
+        },
+        "name": "BUG CATCHER",
+        "pixel_x": 64,
+        "pixel_y": 568,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:4",
+        "x": 2,
+        "y": 18
+      },
+      {
+        "facing": "down",
+        "interacted": false,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "down",
+          "id": "pokered:VIRIDIAN_FOREST:objects:5",
+          "origin_x": 25,
+          "origin_y": 11,
+          "phase": "static",
+          "target_x": 25,
+          "target_y": 11,
+          "tick": 0,
+          "x": 25,
+          "y": 11
+        },
+        "name": "TEXT_VIRIDIANFOREST_ANTIDOTE",
+        "pixel_x": 800,
+        "pixel_y": 344,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:5",
+        "x": 25,
+        "y": 11
+      },
+      {
+        "facing": "down",
+        "interacted": false,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "down",
+          "id": "pokered:VIRIDIAN_FOREST:objects:7",
+          "origin_x": 1,
+          "origin_y": 31,
+          "phase": "static",
+          "target_x": 1,
+          "target_y": 31,
+          "tick": 0,
+          "x": 1,
+          "y": 31
+        },
+        "name": "TEXT_VIRIDIANFOREST_POKE_BALL",
+        "pixel_x": 32,
+        "pixel_y": 984,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:7",
+        "x": 1,
+        "y": 31
+      },
+      {
+        "facing": "down",
+        "interacted": false,
+        "motion": {
+          "delay_left": 0,
+          "delay_raw": 0,
+          "facing": "down",
+          "id": "pokered:VIRIDIAN_FOREST:objects:8",
+          "origin_x": 27,
+          "origin_y": 40,
+          "phase": "ready",
+          "target_x": 27,
+          "target_y": 40,
+          "tick": 0,
+          "x": 27,
+          "y": 40
+        },
+        "name": "TEXT_VIRIDIANFOREST_YOUNGSTER5",
+        "pixel_x": 864,
+        "pixel_y": 1272,
+        "source_event_id": "pokered:VIRIDIAN_FOREST:objects:8",
+        "x": 27,
+        "y": 40
+      }
+    ]
+  }
+}

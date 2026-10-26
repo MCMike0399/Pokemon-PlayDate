@@ -214,22 +214,30 @@ class BrockJourney(ParcelJourney):
     def defeated(self,id):return boolean_map(lookup(self.state,'session.flags.trainers'),'trainers').get(id,False)
 
     def learning(self):
+        def capture():
+            entries=self.summary.setdefault('learning_captures',[])
+            phase=lookup(self.state,'learning.phase')
+            label='brock-learning-'+str(len(entries)+1).zfill(3)+'-'+phase
+            self.checkpoint(label)
+            entries.append({'name':label,'learning':copy.deepcopy(self.state['learning'])})
         for _ in range(160):
             if self.state.get('root')!='learning':return
             phase=lookup(self.state,'learning.phase')
             for info in sequence(lookup(self.state,'learning.known_moves')or [],'learning.known_moves'):self.observed_moves[info['key']]=info
             if phase=='message':
-                self.send('press a')if lookup(self.state,'learning.dialog_ready')else self.send('wait 3')
+                if lookup(self.state,'learning.dialog_ready'):
+                    capture();self.send('press a')
+                else:self.send('wait 3')
             elif phase=='ask':
                 pending=lookup(self.state,'learning.move_info');known=lookup(self.state,'learning.known_moves')
                 self.learning_slot=learn_decision(pending,known)
                 self.summary['learning'].append({'move':pending,'replace_slot':self.learning_slot,'battle_enemy':lookup(self.state,'battle.enemy.species')})
-                self.select('learning.selected',1 if self.learning_slot else 2);self.send('press a')
+                self.select('learning.selected',1 if self.learning_slot else 2);capture();self.send('press a')
             elif phase=='replace':
                 if self.learning_slot is None:raise ProtocolError('replacement appeared without explicit learning decision')
-                self.select('learning.selected',self.learning_slot);self.send('press a')
+                self.select('learning.selected',self.learning_slot);capture();self.send('press a')
             elif phase in {'confirm','stop'}:
-                self.select('learning.selected',1);self.send('press a')
+                self.select('learning.selected',1);capture();self.send('press a')
             elif phase=='idle':self.send('wait 2')
             else:raise ProtocolError('unknown explicit learning phase: '+str(phase))
         raise ProtocolError('learning exceeded bounded semantic inputs')
@@ -472,17 +480,32 @@ class BrockJourney(ParcelJourney):
         # actual source-valid route with all other warp cells still blocked.
         reachable=[]
         model=self.model()
+        interior=self.state['zone_id']not in {PARCEL_NAMES['Route1'],PARCEL_NAMES['ViridianCity'],MAPS['Route2'],MAPS['ViridianForest'],MAPS['PewterCity']}
         for event,projection in candidates:
             point=(event['x'],event['y'])
             try:route=model.path(self.position(),{point},self.occupied(),allow_warps={point})
             except ProtocolError as error:
                 if str(error).startswith('no source-valid '):continue
                 raise
+            reentry=None
+            if not route and not (interior and event['y']==model.height-1):
+                # Arrival suppression intentionally requires a new real step.
+                # Plan a reversible, ordinary step off this exact warp; another
+                # reachable warp may still be cheaper and is considered below.
+                exits=[]
+                for direction,(dx,dy) in DIRECTIONS.items():
+                    step=model.terrain_step(point,direction)
+                    if step is None or step.kind!='walk' or step.destination in (model.warps|model.signs|self.occupied()):continue
+                    back=next((model.terrain_step(step.destination,d)for d,(bx,by)in DIRECTIONS.items()if (bx,by)==(-dx,-dy)),None)
+                    if back is not None and back.kind=='walk' and back.destination==point:exits.append((step,back))
+                if not exits:continue
+                first,back=min(exits,key=lambda pair:int(model.grass[pair[0].destination[1]][pair[0].destination[0]]))
+                reentry=first.destination;route=[first,back] # Cost includes both real steps.
             cost=sum((2 if step.kind=='ledge'else 1)+8*int(model.grass[step.destination[1]][step.destination[0]])for step in route)
-            reachable.append((cost,event,projection))
+            reachable.append((cost,event,projection,reentry))
         if not reachable:raise ProtocolError('no reachable source warp to '+target_id)
-        _,event,projection=min(reachable,key=lambda entry:entry[0])
-        interior=self.state['zone_id']not in {PARCEL_NAMES['Route1'],PARCEL_NAMES['ViridianCity'],MAPS['Route2'],MAPS['ViridianForest'],MAPS['PewterCity']}
+        _,event,projection,reentry=min(reachable,key=lambda entry:entry[0])
+        if reentry is not None:self.navigate(reentry)
         self.navigate((event['x'],event['y']),transition=target_id)
         if self.state['zone_id']!=target_id:
             if not interior or event['y']!=self.model().height-1:raise ProtocolError('step warp failed to activate')
