@@ -25,8 +25,10 @@ foundation fixtures. Do not separately register the same trainer IDs again.
 `CeruleanStory.text(label)` uses `CeruleanContent.text` for shared map labels;
 shared-bank PC text comes from this candidate's independently pinned recipes.
 Items `ssTicket`, `domeFossil`, `helixFossil`, and `tm11` already exist. No item
-definition patch is necessary. `tm11` currently has effect `unsupported`;
-real TM teaching/BubbleBeam validation belongs to the root mechanics integration.
+definition patch is necessary. `Teaching.isMachine` routes machine items before their generic ItemData effect, so
+TM11 already uses the shared teaching transaction and original Blue compatibility.
+Native TM11/BubbleBeam use still needs the regional journey check; the generic
+`unsupported` ItemData tag is not evidence that machine teaching is missing.
 
 ## Narrow shared API patch
 
