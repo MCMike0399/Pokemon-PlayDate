@@ -37,6 +37,7 @@
     "domain/gameSession",
     "domain/teaching",
     "domain/sessionCodec",
+    "game/daycare",
     "domain/fieldMoves",
     "game/fieldMoveWorld",
     "domain/fieldWorld",
@@ -94,6 +95,13 @@
     "game/tutorialEscort",
     "game/kantoScenes",
     "game/kantoServices",
+    "game/vermilionGifts",
+    "game/vermilionStory",
+    "game/vermilionStoryTerrain",
+    "game/vermilionStoryIntent",
+    "game/vermilionStoryHooks",
+    "game/vermilionStoryState",
+    "game/daycareState",
     "game/pokedexState",
     "game/pcState",
     "game/evolutionState",
@@ -215,7 +223,11 @@
     "dev/entryAbilityContracts",
     "dev/contactAbilityContracts",
     "dev/fieldMoveContracts",
-    "dev/fieldWorldContracts"
+    "dev/fieldWorldContracts",
+    "dev/vermilionGiftsContracts",
+    "dev/vermilionStoryFixture",
+    "dev/vermilionStoryContracts",
+    "dev/daycareContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -321,6 +333,9 @@
     "Contracts.register(\"entry-abilities\", EntryAbilityContracts.run)",
     "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)",
     "Contracts.register(\"field-moves\", FieldMoveContracts.run)",
-    "Contracts.register(\"field-world\", FieldWorldContracts.run)"
+    "Contracts.register(\"field-world\", FieldWorldContracts.run)",
+    "Contracts.register(\"vermilion-gifts\", VermilionGiftsContracts.run)",
+    "Contracts.register(\"vermilion-story\", function()",
+    "Contracts.register(\"daycare\", DaycareContracts.run)"
   ]
 }

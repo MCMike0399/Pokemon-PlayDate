@@ -88,6 +88,9 @@ function ExploreSubstate:update()
     game.camera:follow(px, py, mw, mh)
     game.camera:apply()
     gfx.sprite.update()
+    if player.stepJustFinished then
+        game.session:daycareStep()
+    end
     self.owner:_presentedWorld()
 end
 
@@ -244,6 +247,10 @@ function DoorWarpSubstate:update()
             entry = { x = door.toX, y = door.toY, facing = facing },
             fromDoor = not door.connection,
         })
+        -- Connections skip Player's ordinary completed-step animation.
+        if door.connection then
+            self.owner.game.session:daycareStep()
+        end
     end
 end
 

@@ -19,7 +19,7 @@ function Daycare.install()
     SourceEvents.registerEventSource("daycare", Daycare.policy().events)
     SourceEvents.registerTextSource("daycare", Daycare.text)
 end
-Class("DaycareState"):extends(VermilionGiftsState)
+Class("DaycareState"):extends(VermilionStoryState)
 function DaycareState:enter(id, options)
     self.daycareStarted = false
     DaycareState.super.enter(self, id, options)

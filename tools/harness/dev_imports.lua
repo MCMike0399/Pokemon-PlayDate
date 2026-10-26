@@ -234,6 +234,15 @@ import "dev/fieldMoveContracts"
 Contracts.register("field-moves", FieldMoveContracts.run)
 import "dev/fieldWorldContracts"
 Contracts.register("field-world", FieldWorldContracts.run)
+import "dev/vermilionGiftsContracts"
+Contracts.register("vermilion-gifts", VermilionGiftsContracts.run)
+import "dev/vermilionStoryFixture"
+import "dev/vermilionStoryContracts"
+Contracts.register("vermilion-story", function()
+    return VermilionStoryContracts.run(VermilionStoryFixture.withScene)
+end)
+import "dev/daycareContracts"
+Contracts.register("daycare", DaycareContracts.run)
 
 -- @harness runtime
 harness = Harness

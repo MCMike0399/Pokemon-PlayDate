@@ -49,9 +49,24 @@ class FieldWorldDataTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(ProtocolError):
                 check(dict(current, fieldWorld=field))
         for invalid in (dict(old, fieldWorld=current['fieldWorld']), dict(old, version=2),
-                        dict(current, version=3)):
+                        dict(current, version=4)):
             with self.assertRaises(ProtocolError):
                 check(invalid)
+
+    def test_daycare_boundary_requires_canonical_earned_xp_and_retains_legacy_shapes(self):
+        old = {key: {} for key in CODEC_FIELDS}
+        old.update(version=1, pokemonEncoding='decimal-counters-v1')
+        current = dict(old, version=3, fieldWorld={'version': 1, 'mapPalOffset': 6},
+                       daycare={'version': 1, 'earned': '0'})
+        validate_boundary_payload(current)
+        for invalid in ({'version': 1, 'earned': 0}, {'version': 1, 'earned': '01'},
+                        {'version': 1, 'earned': '1'}, {'version': 2, 'earned': '0'},
+                        {'version': 1, 'earned': '1250001', 'pokemon': {}},
+                        {'version': 1, 'earned': '0', 'pokemon': []}):
+            with self.subTest(invalid=invalid), self.assertRaises(ProtocolError):
+                validate_boundary_payload(dict(current, daycare=invalid))
+        with self.assertRaises(ProtocolError):
+            validate_boundary_payload(dict(current, version=2))
 
 
 if __name__ == '__main__':

@@ -91,17 +91,32 @@ CODEC_FIELDS = {"version", "pokemonEncoding", "title", "intro", "questFlags", "t
 
 def validate_boundary_payload(payload):
     version = payload.get("version") if isinstance(payload, dict) else None
-    expected = CODEC_FIELDS | {"fieldWorld"} if version == 2 else CODEC_FIELDS
+    expected = CODEC_FIELDS
+    if version in (2, 3):
+        expected = expected | {"fieldWorld"}
+    if version == 3:
+        expected = expected | {"daycare"}
     if not isinstance(payload, dict) or set(payload) != expected:
         raise ProtocolError("incomplete canonical Save/Continue payload")
-    if type(payload["version"]) is not int or payload["version"] not in (1, 2) or payload["pokemonEncoding"] != "decimal-counters-v1":
+    if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3) or payload["pokemonEncoding"] != "decimal-counters-v1":
         raise ProtocolError("invalid canonical Save/Continue encoding")
-    if version == 2:
+    if version in (2, 3):
         field = payload["fieldWorld"]
         if (not isinstance(field, dict) or set(field) != {"version", "mapPalOffset"}
                 or type(field["version"]) is not int or field["version"] != 1
                 or type(field["mapPalOffset"]) is not int or field["mapPalOffset"] not in (0, 6)):
             raise ProtocolError("invalid canonical field world record")
+    if version == 3:
+        daycare = payload["daycare"]
+        if (not isinstance(daycare, dict)
+                or set(daycare) not in ({"version", "earned"}, {"version", "earned", "pokemon"})
+                or type(daycare["version"]) is not int or daycare["version"] != 1
+                or not isinstance(daycare["earned"], str)
+                or not re.fullmatch(r"0|[1-9][0-9]{0,6}", daycare["earned"])
+                or int(daycare["earned"]) > 1250000
+                or ("pokemon" in daycare and not isinstance(daycare["pokemon"], dict))
+                or ("pokemon" not in daycare and daycare["earned"] != "0")):
+            raise ProtocolError("invalid canonical Day Care record")
     owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
     if any(not isinstance(payload[field], dict) for field in owners):
         raise ProtocolError("invalid canonical Save/Continue owner record")

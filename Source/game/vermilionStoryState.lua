@@ -1,6 +1,6 @@
 -- The next bespoke layer in the one event-controller chain. All ordinary and
 -- earlier scenes retain their executor; no secondary progression/UI owner.
-Class("VermilionStoryState"):extends(KantoServicesState)
+Class("VermilionStoryState"):extends(VermilionGiftsState)
 local PENDING <const> = "VERMILION_SCENE_V1_DEPARTURE_PENDING"
 local function actor(state,id)
     for _, npc in ipairs(state.game.npcManager.npcs) do

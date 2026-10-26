@@ -118,13 +118,25 @@ function GameSession:init(deps,options)
     local start=location(deps,assert(options.location,"starting location required"),payload,true)
     local checkpoint=location(deps,options.checkpoint or start,payload)
     local stream=RulesRNG.new(options.seed or 1)
-    state[self]={deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
+    state[self]={daycare=Daycare.empty(),deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
         fieldWorld = {version = 1, mapPalOffset = 0},
         fieldEpoch = nextFieldEpoch(),
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
 function GameSession.newSession(deps,options) return GameSession(deps,options) end
+function GameSession:resolveDaycare(request, decision)
+    local ok, result = Daycare._resolve(self, request, decision)
+    if ok and result.kind ~= "cancelled" then
+        self:invalidateFieldWorldContext()
+    end
+    return ok, result
+end
+
+function GameSession:daycareStep()
+    return Daycare._step(self)
+end
+
 function GameSession:party() return state[self].party end
 function GameSession:storage() return state[self].storage end
 function GameSession:inventory() return state[self].inventory end

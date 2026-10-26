@@ -62,7 +62,7 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual(actual, project(SOURCE))
         self.assertEqual(actual, json.loads((SOURCE / 'data/ceruleanJourney.json').read_text()))
         self.assertEqual(actual['bill_pc_player']['y'], 5)
-        self.assertEqual(actual['session_codec'], 2)
+        self.assertEqual(actual['session_codec'], 3)
         for path, digest in actual['sources'].items():
             self.assertEqual(hashlib.sha256((SOURCE / path).read_bytes()).hexdigest(), digest)
         self.assertEqual(len(actual['rivals']), 2)

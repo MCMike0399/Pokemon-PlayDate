@@ -34,6 +34,7 @@ import "domain/pcItems"
 import "domain/gameSession"
 import "domain/teaching"
 import "domain/sessionCodec"
+import "game/daycare"
 import "domain/fieldMoves"
 import "game/fieldMoveWorld"
 import "domain/fieldWorld"
@@ -91,6 +92,13 @@ import "game/ceruleanRoutesState"
 import "game/tutorialEscort"
 import "game/kantoScenes"
 import "game/kantoServices"
+import "game/vermilionGifts"
+import "game/vermilionStory"
+import "game/vermilionStoryTerrain"
+import "game/vermilionStoryIntent"
+import "game/vermilionStoryHooks"
+import "game/vermilionStoryState"
+import "game/daycareState"
 import "game/pokedexState"
 import "game/pcState"
 import "game/evolutionState"
@@ -124,10 +132,23 @@ import "domain/fieldEncounters"
 
 -- @harness imports-7
 
-CeruleanContent.install(KantoScenes.actorMetadata)
+local function campaignActorMetadata(definition, event, runtimeGame)
+    local metadata = KantoScenes.actorMetadata(definition, event, runtimeGame)
+    local extra = VermilionStory.actorMetadata(event.id, runtimeGame)
+    for _, condition in ipairs(extra.visibility or {}) do
+        metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
+    end
+    return metadata
+end
+
+CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
+CeruleanContent.install(campaignActorMetadata)
 CeruleanContent.installSigns()
 KantoScenes.install()
 KantoServices.install()
+VermilionGifts.install()
+VermilionStory.install({reconcileActors=KantoScenes.reconcileActors})
+Daycare.install()
 SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
 SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
     beforeSpawn=function(context)
@@ -150,7 +171,7 @@ machine:register("party", PartyState(game))
 machine:register("fieldMove", FieldMoveState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
-machine:register("event", KantoServicesState(game))
+machine:register("event", DaycareState(game))
 machine:register("tutorial-escort", TutorialEscortState(game))
 machine:register("pokedex", PokedexState(game))
 machine:register("pc", PCState(game))
