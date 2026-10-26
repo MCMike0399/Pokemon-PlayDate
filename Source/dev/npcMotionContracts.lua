@@ -71,12 +71,35 @@ function NPCMotionContracts.run()
         eq(WorldTiles:maxID(),ids);eq(#zoneList,zones);same(RulesRNG.toData(),rng)
     end)
     test("all eight actor descriptors remain pure and describe exactly three source walkers",function()
-        local ids,zones=WorldTiles:maxID(),#zoneList;local rng=RulesRNG.toData();local world=WorldDeltas.export();local count,walkers=0,0
-        for _,entry in ipairs(WorldDeltas.definitionProvider():inventory())do
-            local d=assert(SourceActors.describe(entry.id,world))
-            for _,spec in ipairs(d.actors)do count=count+1;if spec.random and spec.movement=="WALK"then walkers=walkers+1 end end
+        local ids, zones = WorldTiles:maxID(), #zoneList
+        local rng = RulesRNG.toData()
+        local world = WorldDeltas.export()
+        local beforeWorld = Party._primitive(world)
+        local count, walkers = 0, 0
+        -- The unified map provider also contains legacy Viridian maps. Motion
+        -- descriptors still belong to the eight reviewed Pewter-profile maps.
+        local names = SourceMaps.names("pewter")
+        eq(#names, 8)
+        for _, name in ipairs(names) do
+            local entry = SourceMaps.entry(name)
+            local descriptor = assert(SourceActors.describe(entry.id, world), name)
+            eq(descriptor.zone_id, entry.id)
+            for _, spec in ipairs(descriptor.actors) do
+                count = count + 1
+                if spec.random and spec.movement == "WALK" then walkers = walkers + 1 end
+            end
         end
-        eq(count,29);eq(walkers,3);eq(WorldTiles:maxID(),ids);eq(#zoneList,zones);same(RulesRNG.toData(),rng)
+        local legacy = SourceMaps.names("viridian")
+        eq(#legacy, 4)
+        for _, name in ipairs(legacy) do
+            eq(SourceActors.describe(SourceMaps.entry(name).id, world), nil)
+        end
+        eq(count, 29)
+        eq(walkers, 3)
+        eq(WorldTiles:maxID(), ids)
+        eq(#zoneList, zones)
+        same(RulesRNG.toData(), rng)
+        same(world, beforeWorld)
     end)
     test("current actor values validate moving pose timers home bounds and protected Mart exit",function()
         local d,record,location=mart();local value=record.actors[2]

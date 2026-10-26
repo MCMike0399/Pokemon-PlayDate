@@ -175,11 +175,39 @@ function SourceTextContracts.run()
     end)
 
     test("Long paragraphs, explicit breaks and oversized words retain all content with unclipped pages", function()
-        local text = "POKéMON ¥1000 " .. string.rep("complete words stay together. ", 8)
-            .. "\fFinal paragraph.\n" .. string.rep("é", 65)
+        local paragraph = "POKéMON ¥1000 " .. string.rep("complete words stay together. ", 8)
+        local longWord = string.rep("é", 65)
+        local text = paragraph .. "\fFinal paragraph.\n" .. longWord
         local d = Dialog(); d:show({text})
         pageBounds(d, gfx.getFont())
-        equal(compact(table.concat(d.lines, " ")), compact(text))
+        local finalPage
+        for i, page in ipairs(d.lines) do
+            if page:find("Final", 1, true) then
+                assert(not finalPage, "final paragraph duplicated")
+                finalPage = i
+            end
+        end
+        assert(finalPage and finalPage > 1, "paragraph must start a fresh page")
+        -- Joining ordinary wrapped rows with spaces must preserve every word
+        -- intact, including their order and punctuation.
+        equal(compact(table.concat(d.lines, " ", 1, finalPage - 1)), compact(paragraph))
+        local rows = {}
+        for i = finalPage, #d.lines do
+            for row in (d.lines[i] .. "\n"):gmatch("(.-)\n") do rows[#rows + 1] = row end
+        end
+        equal(rows[1], "Final paragraph.") -- explicit newline survives
+        assert(SourceTextFont.width(longWord, gfx.getFont()) > 360)
+        assert(#rows > 2, "oversized word must wrap")
+        -- Only the oversized word may split. Recover it without introducing
+        -- spaces, and require every nonfinal fragment to fill its whole row.
+        for i = 2, #rows do
+            assert(utf8.len(rows[i]) and utf8.len(rows[i]) > 0, "empty or partial UTF-8 fragment")
+            equal((rows[i]:gsub("é", "")), "")
+            if i < #rows then
+                assert(SourceTextFont.width(rows[i] .. "é", gfx.getFont()) > 360, "unnecessary word split")
+            end
+        end
+        equal(table.concat(rows, "", 2), longWord)
         assert(#d.lines >= 4)
         for i, page in ipairs(d.lines) do
             d.currentLine = i; d.charIndex = #page; d.blinkTimer = 0
