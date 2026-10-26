@@ -5,13 +5,13 @@ Updated 2026-10-26. Follow [the full-game goal](../plans/full-game-goal.md).
 
 ## 1. Accepted revision and playable scope
 
-Component-accepted code is `b7897bd`, with Source
+Accepted code is `27443af`, with Source
 `2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
-The implemented route remains Pallet → Brock. The complete all-starter campaign
-proof below belongs to the preceding Source `44bd25…`; real-input preservation
-checks on the new foundation Source are still pending. New regions remain private.
-The remaining Kanto campaign, audio and release work are unfinished. Device
-validation has not run. Local commits wait for an explicit request to push.
+A player can finish Pallet → Brock with any starter, receive badge/TM, save,
+exit the actual process and Continue. All three journeys passed again after the
+foundation refactor. New regions remain private. Kanto beyond Brock, audio and
+release work are unfinished. Device validation has not run. Local commits wait
+for an explicit request to push.
 
 ## 2. Current milestone and checks
 
@@ -40,27 +40,38 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
 `brock-charmander-no-modal-20261026-01`, supplements in
 `brock-5.1-supplements-20261026-01`.
 
-**5.2 — Scale foundations: in progress; components accepted, journeys pending.**
+**5.2 — Scale foundations: done.**
 
-- [x] Loud unsupported-move failure and Whirlwind/Roar prepared.
-- [x] Shared map manifest, loader, constructor, provider/cache, bindings,
-  connections, actors and registered trainer dispatch prepared.
-- [x] Declarative events, scripted NPC leases, source text/pagination and
-  production builds without dev modules prepared.
-- [x] Independent standards/spec reviews completed; concrete findings repaired.
-- [x] Final repairs integrated: 1274 SDK contracts passed; all 2494 protected
-  images exact. Five native phazing/failure scenarios passed; root inspected them.
-- [ ] Native mechanics, real-input integration journeys, restart, blackout,
-  full-bag retry and root screenshot inspection.
-- [x] Production startup/memory comparison, coverage refresh, production compile,
-  54 protocol checks and full host suite: 605 passed, zero skips.
-- [ ] Merged-main checks and real-input milestone acceptance.
+- Shared map/provider/cache/bindings, source events, script leases, text and
+  production dev gating are integrated. Unsupported moves fail loudly; Whirlwind
+  and Roar have native trainer/wild success/failure witnesses.
+- On merged main: 1274 SDK contracts and 605 host tests passed, zero skips;
+  production compile and 54 protocol checks passed. All 2494 protected images
+  remain exact. Root inspected the new mechanics/text images.
+- All nine real-input cases passed on one frozen Source: three full natural
+  starter Brock/restart journeys, warp return, TM full-bag retry, blackout,
+  seen/trainer restart persistence, evolution accept and cancel. Root inspected
+  key images and confirmed distinct process generations and matching saves.
+- Instrumented startup: 252 ms before, 202 ms with only dev gating, 150 ms
+  integrated; post-GC Lua heap 10.85, 8.79 and 6.05 MiB. These are single
+  Simulator observations, excluding native allocations/device limits.
+- [Acceptance summary](foundation-acceptance-20261026.json) pins all evidence under
+  `m52-main-sdk-20261026-01`, `m52-main-build-20261026-01` and
+  `m52-main-journeys-20261026-01`. Earlier failures retain their failed status.
 
-[Foundation component summary](foundation-acceptance-20261026.json) pins exact
-evidence. Instrumented startup was 252 ms before, 202 ms with only dev gating,
-and 150 ms integrated. Post-GC Lua heap was 10.85, 8.79 and 6.05 MiB respectively.
-These are single Simulator observations, excluding native allocations/device limits.
-Earlier failed SDK/scenario runs are retained and receive no acceptance credit.
+**5.3 — Pewter → Cerulean: in progress on a private branch.**
+
+- Thirty shared source maps are installed privately, including eighteen new
+  maps, ordinary events, trainers, art and music metadata. Bill/Ticket, fossils,
+  Misty, rivals, Rockets, museum/bike/Magikarp services and earlier tutorial/escort
+  scenes are composed. Natural per-starter journey drivers are prepared.
+- Independent standards review repairs are composed. Spec review found missing
+  guard dialogue and exposed abilities: guards and Inner Focus/Dry Skin are
+  repaired privately; further ordinary entry/contact/residual hooks are in flight.
+- New visual exporter declares 2448 additions. Native scene, map, art and journey
+  acceptance remain pending. Museum opening may change protected collision
+  diagnostics; root must inspect actual differences and obtain goal-required
+  approval before accepting any protected image change.
 
 ## 3. Open defects blocking progress
 
@@ -72,20 +83,21 @@ ini, the full two-process retry passed. Observed footprint was 63–72 MB, peak
 was submitted. This was an environment repair, not a game Source change.
 Diagnostic capture sampling remains optional, default interval 1.
 
-Foundation components passed; merged-main real-input preservation remains pending.
+No open defect blocks accepted 5.2. Private Cerulean ability exposure and native
+acceptance remain pending.
 Later regions, common mechanics, audio and release checks remain unfinished.
 
 ## 4. Work in flight
 
 | Branch / owner | Work and next step |
 |---|---|
-| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Brock accepted; run merged foundation checks and integration journeys. |
-| `wip/foundations-integration` / root | Components composed and accepted through `b7897bd`; main integration and journeys are next. |
-| `wip/source-map-activation-seams` / worker | Integrated with decoded-encounter, checkpoint-fixture and north-passage repairs; all native witnesses passed. |
-| `wip/cerulean-map-content` / worker | `48943b7` prepares 18 maps and ordinary content/art/music metadata. Candidate manifest remains inactive. |
-| `wip/cerulean-story` / worker | `f30515e` prepares Bill/Ticket, fossils and Misty; 22 native cases await composition. |
-| `wip/audio-pipeline-research` / worker | `9a1cf87` research complete; root reproduced its silent probe. No playback acceptance. |
-| `wip/audio-parser` / worker | `9c5ec44` complete: root ran 27 host tests and deterministic inspect; playback remains unimplemented. |
+| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
+| `wip/cerulean-integration` / root | Durable environment worktree at `30844ee`, plus pending suite registrations; native validation is next. |
+| `wip/kanto-entry-abilities` / worker | Closing ordinary entry/status/accuracy/crit/multihit ability hooks. |
+| `wip/kanto-contact-abilities` / worker | Closing ordinary contact/condition/residual ability hooks; separate root integration patch. |
+| `wip/audio-rgbds-oracle` / worker | `dadb7b3` independently qualifies emitted bytes with isolated pinned Bison/RGBDS; no engine/APU claim. |
+| `wip/audio-offline-renderer` / worker | `8def326` prepares deterministic PCM mix/stems; listening and independent APU qualification pending. |
+| `wip/audio-sdk-probe` / worker | `7e8c496` prepares two compiled backend probes; runtime is root-only and unrun. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
 Earlier foundation workers are composed privately; exact commits/task IDs remain

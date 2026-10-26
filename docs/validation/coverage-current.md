@@ -1,36 +1,18 @@
 # Current whole-game coverage
 
-This snapshot describes **private foundation candidate `58495eb`, not an accepted
-milestone**. Its independently reconstructed Source SHA256 is
+This snapshot pins Source
 `2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
-Root executed that exact Source in the real SDK: **1274 passed, zero failed**;
-all **2494 protected catalog images** were exact, with no additions, and both
-native artifact qualifications passed.
-[Final candidate summary](coverage-evidence/candidate1274-summary.json).
+Its original native evidence was executed privately at `58495eb` and remains
+unchanged in the [candidate summary](coverage-evidence/candidate1274-summary.json).
+That exact Source is now accepted on main at `27443af`: 1274 SDK contracts,
+605 host tests, all 2494 protected images and nine integration journeys passed,
+including full Brock/process-restart runs for all three starters.
+[Main milestone summary](foundation-acceptance-20261026.json).
 
-Main milestone **5.1 is accepted at `9104499`** on Source `44bd25…`, covering all
-three starters and supplements. That acceptance belongs to the older Source.
-The newer private foundation candidate still needs its own integration journeys
-and milestone 5.2 acceptance. Full campaign, regional fidelity, full mechanics
-and physical-device acceptance remain unfinished. No new milestone row is promoted.
-
-[Current data](coverage-current.json) follows [the schema](coverage.schema.json)
-and [the full-game goal](../plans/full-game-goal.md). Source declarations and
-component tests do not establish playable campaign completion.
-
-Three acceptance layers stay independent:
-
-| Layer | Required acceptance | Insufficient evidence |
-|---|---|---|
-| `campaign_path` | Connected progression, required transactions, safe returns and real save/restart for the milestone | Inventory counts, fixture teleports or declarations |
-| `regional_fidelity` | Independent review of source controls, geometry, NPCs, text, items, encounters, puzzles, art and audio | A playable critical path or protected pixels alone |
-| `full_mechanics` | Reviewed rule portions with exact owner/assertion and actual SDK/native evidence, plus remaining original-151 requirements | Generated fields, nonempty effects or an aggregate contract count |
-
-Rows retain owners, acceptance dependencies, separate due milestones for all
-three layers, immutable source selectors, implementation/verification states,
-evidence IDs and limitations. `integrated` identifies a production portion;
-`sdk_scoped` identifies bounded component evidence. Neither means full mechanics
-or main acceptance. Scheduling never waives a newly exposed rules gap.
+The machine-readable snapshot retains its original evidence-execution context;
+this main acceptance does not relabel private packets or promote every inventory
+row from aggregate counts. Full campaign, regional fidelity, full mechanics and
+physical-device acceptance remain unfinished. Cerulean work is private.
 
 ## Inventory and scheduling
 
