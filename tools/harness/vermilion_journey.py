@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 from tools.harness import cerulean_journey as cj
-from tools.harness.brock_journey import BrockJourney, NaturalBlackout
+from tools.harness.brock_journey import BrockJourney, NaturalBlackout, training_lane, choose_battle_medicine
 from tools.harness.journeys import DIRECTIONS, lookup
 from tools.harness.parcel_journey import sequence
 from tools.harness.protocol import ProtocolError, atomic_json
@@ -29,7 +29,13 @@ GIFTS = {
 }
 NAMES = {'vermilion-natural', 'vermilion-continue', 'vermilion-supplementary', 'vermilion-supplementary-continue'}
 CASES = {key + '-full-retry' for key in GIFTS} | {'blackout', 'field-cut-reload'}
-BOUNDS = dict(cj.BOUNDS, max_puzzle_attempts=(1, 512))
+COLLECTION_BOUNDS = {
+    'vermilion_actions': (1, 60000), 'collection_steps': (1, 20000),
+    'collection_battles': (1, 400), 'collection_phase_battles': (1, 120),
+    'collection_balls': (1, 160), 'collection_ball_stock': (1, 40),
+    'collection_balls_per_battle': (1, 16), 'collection_money_reserve': (0, 3000),
+}
+BOUNDS = dict(cj.BOUNDS, max_puzzle_attempts=(1, 512), **COLLECTION_BOUNDS)
 PROJECTION = 'data/vermilionJourney.json'
 
 
@@ -45,7 +51,7 @@ def validate_config(config):
         raise ProtocolError('Vermilion fixtures require explicit supplementary classification')
     if supplementary and config.get('case') not in CASES or not supplementary and 'case' in config:
         raise ProtocolError('invalid Vermilion supplementary case')
-    adapted = {k: v for k, v in config.items() if k not in {'case', 'max_puzzle_attempts'}}
+    adapted = {k: v for k, v in config.items() if k not in {'case', 'max_puzzle_attempts'} | set(COLLECTION_BOUNDS)}
     adapted['name'] = 'cerulean-continue' if config['name'].endswith('continue') else 'cerulean-natural'
     adapted.pop('supplementary', None)
     cj.validate_config(adapted)
@@ -89,7 +95,7 @@ def validate_receipt_state(state):
 def validate_projection(source):
     export = source.read(PROJECTION)
     fields = {'schema', 'source_revision', 'sources', 'maps', 'events', 'trainers', 'scenes',
-              'cut_sites', 'cut_species', 'session_codec', 'daycare_inputs', 'registration'}
+              'cut_sites', 'cut_species', 'session_codec', 'daycare_inputs', 'registration', 'collection', 'shops'}
     if set(export) != fields or len(export['maps']) != 35 or not export['cut_species']:
         raise ProtocolError('incomplete Vermilion owner projection')
     required = {'main.lua', 'domain/sessionCodec.lua', 'data/sourceMaps.json',
@@ -122,10 +128,69 @@ def validate_projection(source):
     return export
 
 
+def validate_collection_owner(value):
+    if not isinstance(value, dict) or set(value) != {'kind', 'party', 'storage', 'owned'} or value['kind'] != 'vermilion-collection':
+        raise ProtocolError('missing canonical collection owners observation')
+    owned = cj.boolean_map(value['owned'], 'collection owned species')
+    party, storage = value['party'], value['storage']
+    if (not isinstance(party, dict) or not isinstance(party.get('members'), list)
+            or not 1 <= len(party['members']) <= 6 or party.get('version') != 1
+            or type(party.get('active')) is not int or not 1 <= party['active'] <= len(party['members'])
+            or not isinstance(storage, dict) or storage.get('version') != 1
+            or type(storage.get('active')) is not int or not 1 <= storage['active'] <= 12):
+        raise ProtocolError('malformed collection party/storage owners')
+    boxes = sequence(storage.get('boxes'), 'collection boxes')
+    if len(boxes) != 12:
+        raise ProtocolError('collection observation omits storage boxes')
+    for box in boxes:
+        if len(sequence(box, 'collection box members')) > 20:
+            raise ProtocolError('collection selected box exceeds capacity')
+    for mon in party['members'] + [m for box in boxes for m in sequence(box, 'box')]:
+        if not isinstance(mon, dict) or not isinstance(mon.get('species'), str) or not owned.get(mon['species']):
+            raise ProtocolError('collection specimen lacks canonical owned provenance')
+    return copy.deepcopy(value)
+
+
+def verify_capture_commit(before, after, species, result):
+    before, after = validate_collection_owner(before), validate_collection_owner(after)
+    if not isinstance(result, dict) or result.get('caught') is not True:
+        raise ProtocolError('capture commit requires an actual caught result')
+    if before['owned'].get(species):
+        raise ProtocolError('collection target was already owned')
+    expected_owned = dict(before['owned'], **{species: True})
+    if after['owned'] != expected_owned:
+        raise ProtocolError('capture did not commit exactly the new owned species')
+    destination = result.get('destination')
+    if (not isinstance(destination, dict) or type(destination.get('index')) is not int
+            or 'box' in destination and type(destination['box']) is not int):
+        raise ProtocolError('actual capture recruitment destination missing')
+    party_before, party_after = before['party']['members'], after['party']['members']
+    active = before['storage']['active']
+    if len(party_before) < 6:
+        if (destination != {'destination': 'party', 'index': len(party_before) + 1}
+                or len(party_after) != len(party_before) + 1 or party_after[:-1] != party_before
+                or party_after[-1]['species'] != species or before['storage'] != after['storage']
+                or before['party']['active'] != after['party']['active']):
+            raise ProtocolError('capture party commit differs from actual recruitment receipt')
+    else:
+        index = len(sequence(before['storage']['boxes'][active - 1], 'selected box')) + 1
+        if (index > 20 or destination != {'destination': 'storage', 'box': active, 'index': index}
+                or before['party'] != after['party'] or after['storage']['active'] != active):
+            raise ProtocolError('full-party capture lacks selected-box recruitment receipt')
+        for number, (prior, current) in enumerate(zip(before['storage']['boxes'], after['storage']['boxes']), 1):
+            prior, current = sequence(prior, 'prior box'), sequence(current, 'current box')
+            if number == active:
+                if len(current) != len(prior) + 1 or current[:-1] != prior or current[-1]['species'] != species:
+                    raise ProtocolError('capture did not append the actual selected-box specimen')
+            elif current != prior:
+                raise ProtocolError('capture changed another PC box')
+    return copy.deepcopy(destination)
+
+
 class VermilionJourney(cj.CeruleanJourney):
     def __init__(self, client, evidence, config, build_evidence=None, capture_dir=None):
         validate_config(config)
-        adapted = {k: v for k, v in config.items() if k not in {'case', 'supplementary', 'max_puzzle_attempts'}}
+        adapted = {k: v for k, v in config.items() if k not in {'case', 'supplementary', 'max_puzzle_attempts'} | set(COLLECTION_BOUNDS)}
         adapted['name'] = 'cerulean-natural'
         super().__init__(client, evidence, adapted, build_evidence, capture_dir)
         self.config = copy.deepcopy(config)
@@ -133,6 +198,11 @@ class VermilionJourney(cj.CeruleanJourney):
         self.vermilion_active = False
         self.cut_cells = []
         self.cut_witnesses = 0
+        self.acquisition_active = False
+        self.acquisition_targets = set()
+        self.collection = {'steps': 0, 'battles': 0, 'balls': 0, 'purchased': 0,
+                           'captures': [], 'phases': [], 'purchases': []}
+        self.summary['collection'] = self.collection
         self.summary.update(milestone='5.4', natural=not config.get('supplementary', False),
                             supplementary=config.get('supplementary', False), acceptance='unrun candidate',
                             driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
@@ -201,6 +271,7 @@ class VermilionJourney(cj.CeruleanJourney):
         return result
 
     def cross(self, direction, zone, destination):
+        self.count_collection_step()
         result = super().cross(direction, zone, destination)
         self.refresh_world()
         return result
@@ -210,6 +281,269 @@ class VermilionJourney(cj.CeruleanJourney):
         # transition rather than retaining the earlier host collision override.
         self.refresh_world()
         return super().travel(target_id, goal)
+
+    def begin_continuation(self):
+        if self.vermilion_active:
+            raise ProtocolError('Vermilion continuation initialized twice')
+        self.vermilion_active = True
+        # Only the 5.4 continuation receives this additional finite budget.
+        # Earlier New Game -> Bill uses the original, unchanged Brock bounds.
+        self.config = dict(self.config,
+            max_actions=self.config.get('max_actions', 6000) + self.config.get('vermilion_actions', 30000),
+            max_encounters=self.config.get('max_encounters', 64) + self.config.get('collection_battles', 180))
+
+    def count_collection_step(self):
+        if self.acquisition_active:
+            if self.collection['steps'] >= self.config.get('collection_steps', 12000):
+                raise ProtocolError('Vermilion collection physical step budget exhausted')
+            if self.collection['battles'] >= self.config.get('collection_battles', 180):
+                raise ProtocolError('Vermilion collection real battle budget exhausted before movement')
+            self.collection['steps'] += 1
+
+    def step(self, step):
+        self.count_collection_step()
+        return super().step(step)
+
+    def collection_owner(self):
+        return validate_collection_owner(self.observe('vermilion-collection'))
+
+    def battle(self, name, strategy='attack', expected=None):
+        if self.acquisition_active and not lookup(self.state, 'battle.trainerName'):
+            # EventState can still display the previous trainer ID after a wild
+            # encounter. Wild outcomes have no trainer receipt/payout; use the
+            # shared production input loop without Cerulean's trainer-ID guard.
+            return BrockJourney.battle(self, name, strategy, expected)
+        return super().battle(name, strategy, expected)
+
+    def training_battle(self):
+        if not self.acquisition_active:
+            return super().training_battle()
+        if self.collection['battles'] >= self.config.get('collection_battles', 180):
+            raise ProtocolError('Vermilion collection real battle budget exhausted')
+        self.collection['battles'] += 1
+        self.collection_battle_balls = 0
+        # Trainers retain the ordinary stable-team, PP, payout and outcome checks.
+        return self.battle('vermilion-collection-' + str(self.collection['battles']))
+
+    def battle_preparation_action(self, battle, options):
+        if not self.acquisition_active or battle.get('trainerName'):
+            return super().battle_preparation_action(battle, options)
+        species = battle['enemy']['species']
+        owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+        if species not in self.acquisition_targets or owned.get(species):
+            # Incidental non-target battles use actual attacks and PP. This also
+            # avoids pretending RUN can bypass a wild trapping ability.
+            return super().battle_preparation_action(battle, options)
+        if choose_battle_medicine(battle['player'], self.inventory()):
+            return False  # Existing battle loop selects and commits real medicine.
+        if self.collection['balls'] >= self.config.get('collection_balls', 80):
+            raise ProtocolError('Vermilion collection total ball budget exhausted')
+        if self.collection_battle_balls >= self.config.get('collection_balls_per_battle', 12):
+            raise ProtocolError('Vermilion collection per-encounter ball bound exhausted')
+        if self.quantity('pokeBall') < 1:
+            raise ProtocolError('collection ran out of actual purchased balls during an encounter')
+        if self.state['zone_id'] not in {v['id'] for v in self.vermilion['collection'].values()}:
+            raise ProtocolError('capture target encountered outside pinned collection maps')
+        before = self.collection_owner()
+        if len(before['party']['members']) == 6:
+            active = before['storage']['active']
+            if len(sequence(before['storage']['boxes'][active - 1], 'active box')) >= 20:
+                raise ProtocolError('selected PC box is full; no automatic overflow assumed')
+        positions = [i for i, v in enumerate(options, 1)
+                     if v == 'BAG' or isinstance(v, dict) and v.get('action') == 'bag']
+        if len(positions) != 1:
+            raise ProtocolError('collection requires exactly one actual battle BAG')
+        quantity = self.quantity('pokeBall')
+        self.select('battle.menu.selected', positions[0])
+        self.send('press a')
+        self.require(root='bag')
+        index = next((i for i, row in enumerate(self.inventory()['slots'], 1) if row['id'] == 'pokeBall'), None)
+        if index is None:
+            raise ProtocolError('actual collection ball slot disappeared')
+        self.select('bag.selected', index)
+        self.send('press a')
+        self.require(root='battle')
+        if self.quantity('pokeBall') != quantity - 1:
+            raise ProtocolError('actual collection ball consumption differs')
+        result = copy.deepcopy(lookup(self.state, 'battle.capture_result'))
+        if not isinstance(result, dict) or type(result.get('caught')) is not bool:
+            raise ProtocolError('actual collection capture result missing')
+        self.collection['balls'] += 1
+        self.collection_battle_balls += 1
+        record = {'species': species, 'zone_id': self.state['zone_id'], 'result': result,
+                  'before_quantity': quantity, 'after_quantity': self.quantity('pokeBall')}
+        after = self.collection_owner()
+        if result['caught']:
+            record['commit'] = verify_capture_commit(before, after, species, result)
+            self.collection['captures'].append(record)
+        elif (before['owned'] != after['owned'] or before['storage'] != after['storage']
+              or [m['species'] for m in before['party']['members']] != [m['species'] for m in after['party']['members']]):
+            raise ProtocolError('failed actual capture changed recruitment or owned species')
+        self.summary.setdefault('collection_throws', []).append(record)
+        self.send('record vermilion-collection-catch-' + str(self.collection['balls']) + ' 48')
+        return True
+
+    def require_shop_stock(self, clerk, item):
+        if self.vermilion_active and clerk in self.vermilion['shops']:
+            shop = self.vermilion['shops'][clerk]
+            if item not in shop['stock'] or type(shop['prices'].get(item)) is not int or shop['prices'][item] <= 0:
+                raise ProtocolError('collection purchase absent from actual shop owner')
+            return
+        return super().require_shop_stock(clerk, item)
+
+    def sell_collection_nugget(self, clerk):
+        price = self.vermilion['shops'][clerk]['sell_prices']['nugget']
+        quantity, money = self.quantity('nugget'), self.inventory()['money']
+        if quantity < 1 or type(price) is not int or price <= 0:
+            raise ProtocolError('collection funding requires an actual sellable Bridge Nugget')
+        self.interact(source_id=clerk)
+        self.require(root='shop', **{'shop.phase': 'mode'})
+        self.select('shop.menu.selected', 2)
+        self.send('press a')
+        index = next(i for i, slot in enumerate(self.inventory()['slots'], 1) if slot['id'] == 'nugget')
+        self.select('shop.selected', index)
+        self.require(**{'shop.item': 'nugget'})
+        self.send('press a')
+        self.require(**{'shop.phase': 'quantity', 'shop.quantity': 1})
+        self.send('press a')
+        self.require(**{'shop.phase': 'confirm'})
+        self.select('shop.menu.selected', 1)
+        self.send('press a')
+        self.require(**{'shop.phase': 'result', 'shop.result.ok': True, 'shop.result.total': price})
+        if self.quantity('nugget') != quantity - 1 or self.inventory()['money'] != money + price:
+            raise ProtocolError('actual Nugget sale did not commit exact item/money changes')
+        self.collection.setdefault('sales', []).append({'item': 'nugget', 'quantity': 1, 'price': price,
+                                                       'money_before': money, 'money_after': self.inventory()['money']})
+        self.send('press a', 'press b', 'press b')
+        self.drain()
+
+    def collection_supplies(self, mart):
+        clerk = self.zone(mart) + ':objects:1'
+        self.require_shop_stock(clerk, 'pokeBall')
+        price = self.vermilion['shops'][clerk]['prices']['pokeBall']
+        stock = self.quantity('pokeBall')
+        wanted = max(0, self.config.get('collection_ball_stock', 20) - stock)
+        remaining = max(0, self.config.get('collection_balls', 80) - self.collection['purchased'])
+        reserve = self.config.get('collection_money_reserve', 600)
+        affordable = max(0, self.inventory()['money'] - reserve) // price
+        if affordable < min(wanted, remaining) and self.quantity('nugget'):
+            self.travel(self.zone(mart))
+            self.sell_collection_nugget(clerk)
+            affordable = max(0, self.inventory()['money'] - reserve) // price
+        count = min(wanted, remaining, affordable)
+        if count:
+            self.travel(self.zone(mart))
+            # Path trainers can change money. Recheck the actual balance at clerk.
+            count = min(count, max(0, self.inventory()['money'] - reserve) // price)
+            if count:
+                money = self.inventory()['money']
+                self.buy_item(clerk, 'pokeBall', count, price)
+                self.collection['purchased'] += count
+                self.collection['purchases'].append({'clerk': clerk, 'count': count, 'price': price,
+                                                       'money_before': money, 'money_after': self.inventory()['money']})
+        if self.quantity('pokeBall') < self.config.get('collection_balls_per_battle', 12):
+            raise ProtocolError('insufficient real ball stock/funds; reserve and finite purchase budget preserved')
+
+    def collection_needs_healing(self):
+        active = self.party()[lookup(self.state, 'session.party.active') - 1]
+        damaging = [key for key in active['moves']
+                    if self.observed_moves.get(key, {}).get('category') in {'physical', 'special'}]
+        low_attack_pp = bool(damaging) and sum(active['pp'].get(key, 0) for key in damaging) < 3
+        return (active['hp'] * 4 < active['maxHP'] * 3 or active['status'] not in {None, 'none'}
+                or low_attack_pp or sum(active['pp'].values()) < 3)
+
+    def collection_lane(self, name):
+        model = self.model()
+        if name != 'DiglettsCave' or any(any(row) for row in model.grass):
+            return training_lane(model, self.position(), self.occupied())
+        # The source cache currently marks no cave floor as grass. Ask the
+        # actual Zone policy rather than inventing eligible terrain in the host.
+        value = self.observe('vermilion-encounter-terrain')
+        if value.get('zone_id') != self.state['zone_id']:
+            raise ProtocolError('collection encounter terrain belongs to another map')
+        cells = sequence(value.get('cells'), 'actual encounter cells')
+        if not cells:
+            raise ProtocolError('Diglett fallback requires root-owned eligible cave encounter terrain; actual Zone policy has no eligible cells')
+        if len(cells) > model.width * model.height:
+            raise ProtocolError('unbounded encounter terrain observation')
+        shadow = copy.deepcopy(model)
+        shadow.grass = [[False] * model.width for _ in range(model.height)]
+        seen = set()
+        for cell in cells:
+            if (not isinstance(cell, dict) or set(cell) != {'x', 'y'}
+                    or type(cell['x']) is not int or type(cell['y']) is not int):
+                raise ProtocolError('invalid actual encounter terrain cell')
+            point = (cell['x'], cell['y'])
+            if point in seen or not model.inside(point) or model.collision[point[1]][point[0]]:
+                raise ProtocolError('invalid or duplicate actual encounter terrain cell')
+            seen.add(point)
+            shadow.grass[point[1]][point[0]] = True
+        return training_lane(shadow, self.position(), self.occupied())
+
+    def collect(self, name, targets, center, mart, *, minimum_owned=None, required=True):
+        policy = self.vermilion['collection'][name]
+        if not set(targets) <= set(policy['targets']):
+            raise ProtocolError('collection target is not a pinned common Blue slot')
+        if 'bellsprout' in targets and not any(m['species'] == 'bellsprout' for m in self.party()) and len(self.party()) >= 6:
+            raise ProtocolError('Bellsprout must be secured before filling the party')
+        phase = {'map': name, 'targets': list(targets), 'owned_before': self.owned_count(), 'completed': False}
+        self.collection['phases'].append(phase)
+        initially_owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+        start_battles, start_steps = self.collection['battles'], self.collection['steps']
+        self.acquisition_active = True
+        self.acquisition_targets = set(targets)
+        previous_mode = self.training_mode
+        self.training_mode = 'vermilion-collection'
+        try:
+            self.heal_here(center)
+            self.collection_supplies(mart)
+            lane = None
+            for _ in range(min(3000, self.config.get('collection_steps', 12000))):
+                owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+                if all(owned.get(s) for s in targets) or minimum_owned is not None and self.owned_count() >= minimum_owned:
+                    phase['completed'] = True
+                    break
+                if (self.collection['battles'] - start_battles >= self.config.get('collection_phase_battles', 60)
+                        or self.collection['steps'] - start_steps >= 3000):
+                    break
+                try:
+                    if self.collection_needs_healing():
+                        self.heal_here(center)
+                        lane = None
+                    if self.quantity('pokeBall') < self.config.get('collection_balls_per_battle', 12):
+                        self.collection_supplies(mart)
+                        lane = None
+                    if self.state['zone_id'] != self.zone(name):
+                        self.travel(self.zone(name))
+                        lane = None
+                    # A real capture can also occur while walking from the
+                    # Center or Mart into this map; do not take another step.
+                    now_owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+                    if all(now_owned.get(s) for s in targets) or minimum_owned is not None and self.owned_count() >= minimum_owned:
+                        break
+                    if lane is None:
+                        lane = self.collection_lane(name)
+                    goal = lane[1] if self.position() == lane[0] else lane[0]
+                    self.navigate(goal)
+                except NaturalBlackout:
+                    self.recover_blackout()
+                    self.heal_here(center)
+                    lane = None
+            owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+            phase['completed'] = (all(owned.get(s) for s in targets)
+                                  or minimum_owned is not None and self.owned_count() >= minimum_owned)
+            receipts = {c['species'] for c in self.collection['captures'] if c.get('commit')}
+            if any(owned.get(s) and not initially_owned.get(s) and s not in receipts for s in targets):
+                raise ProtocolError('new collection owned flag lacks an actual capture commit receipt')
+            phase.update(owned_after=self.owned_count(), battles=self.collection['battles'] - start_battles,
+                         steps=self.collection['steps'] - start_steps)
+            if required and not phase['completed']:
+                raise ProtocolError('bounded natural acquisition did not obtain required common species: ' + name)
+        finally:
+            self.acquisition_active = False
+            self.acquisition_targets = set()
+            self.training_mode = previous_mode
+        self.checkpoint('vermilion-collection-' + name.lower() + '-' + str(len(self.collection['phases'])))
 
     def event_map(self, event):
         return event.rsplit(':', 2)[0]
@@ -291,8 +625,10 @@ class VermilionJourney(cj.CeruleanJourney):
         self.navigate(set(self.model().approaches(target)))
 
     def teach_cut(self):
-        index = next((i for i, mon in enumerate(self.party(), 1)
-                      if mon['species'] in self.vermilion['cut_species']), None)
+        index = next((i for i, mon in enumerate(self.party(), 1) if mon['species'] == 'bellsprout'), None)
+        if index is None:
+            index = next((i for i, mon in enumerate(self.party(), 1)
+                          if mon['species'] in self.vermilion['cut_species']), None)
         if index is None:
             raise ProtocolError('no actually owned compatible Cut user; requires natural capture, never an artificial species')
         if 'cut' in self.party()[index - 1]['moves']:
@@ -453,17 +789,22 @@ class VermilionJourney(cj.CeruleanJourney):
         # No save import exists here. The exact accepted Cerulean real-input path
         # runs first, in this same identified process and with the same RNG.
         super().natural()
-        self.vermilion_active = True
+        self.begin_continuation()
         self.summary['acceptance'] = '5.3 path saved; private 5.4 candidate in progress'
         self.travel(self.zone('CeruleanCity'))
         # The robbed-house Rocket is a real required battle, not a seeded flag.
         self.fight(cj.sid('CERULEAN_CITY', 2))
+        self.collect('Route24', ['bellsprout'], 'CeruleanPokecenter', 'CeruleanMart')
+        self.collect('Route24', ['caterpie', 'metapod', 'pidgey'], 'CeruleanPokecenter', 'CeruleanMart')
+        if not any(m['species'] == 'bellsprout' for m in self.party()):
+            raise ProtocolError('actual Cut-compatible Bellsprout did not remain in the party')
         self.travel(self.zone('Route5'))
         self.daycare_service()
         self.travel(self.zone('UndergroundPathRoute5'))
         self.travel(self.zone('UndergroundPathNorthSouth'))
         self.travel(self.zone('UndergroundPathRoute6'))
         self.travel(self.zone('Route6'))
+        self.collect('Route6', ['meowth'], 'VermilionPokecenter', 'VermilionMart')
         self.heal_here('VermilionPokecenter')
         self.gift('voucher')
         self.gift('rod')
@@ -492,6 +833,12 @@ class VermilionJourney(cj.CeruleanJourney):
         self.repeat_trainer(SURGE)
         self.checkpoint('vermilion-surge-badge-tm24')
         self.heal_here('VermilionPokecenter')
+        self.collect('Route11', ['sandshrew', 'spearow', 'drowzee'],
+                     'VermilionPokecenter', 'VermilionMart', minimum_owned=10, required=False)
+        if self.owned_count() < 10:
+            self.collect('DiglettsCave', ['diglett'], 'VermilionPokecenter', 'VermilionMart')
+        if self.owned_count() < 10:
+            raise ProtocolError('actual common captures did not reach the ten-species HM05 threshold')
         for name in ('DiglettsCaveRoute11', 'DiglettsCave', 'DiglettsCaveRoute2', 'Route2Gate'):
             self.travel(self.zone(name))
             self.checkpoint('vermilion-visit-' + name.lower())
@@ -588,8 +935,6 @@ class VermilionJourney(cj.CeruleanJourney):
         self.vermilion_active = True
         case = self.config['case']
         self.summary.update(natural=False, supplementary=True)
-        if case in {'hm05-full-retry', 'itemfinder-full-retry'}:
-            raise ProtocolError('supplementary fixture input missing: existing fixture API cannot supply 10/30 unique owned species; seen/duplicates do not qualify')
         if case == 'field-cut-reload':
             self.setup_fixture('VermilionCity', inventory={'money': 3000, 'slots': [{'id': 'hm01', 'quantity': 1}]},
                                quest_flags={'BADGE_CASCADE': True}, player_pokemon={'species': 'bulbasaur', 'level': 20})
@@ -627,8 +972,14 @@ class VermilionJourney(cj.CeruleanJourney):
         key = case.removesuffix('-full-retry')
         event, item, flag = GIFTS[key]
         name = next(n for n, e in self.map_manifest['maps'].items() if e['id'] == self.event_map(event))
-        self.setup_fixture(name, player_pokemon={'species': 'squirtle', 'level': 40},
-                           inventory={'money': 3000, 'slots': [{'id': i, 'quantity': 1} for i in cj.FULL_BAG]})
+        setup = {'inventory': {'money': 3000, 'slots': [{'id': i, 'quantity': 1} for i in cj.FULL_BAG]}}
+        if key in {'hm05', 'itemfinder'}:
+            setup['vermilion_aide_capacity'] = key
+        else:
+            setup['player_pokemon'] = {'species': 'squirtle', 'level': 40}
+        self.setup_fixture(name, **setup)
+        if key in {'hm05', 'itemfinder'}:
+            self.qualify_aide_fixture(key)
         if key == 'tm24':
             self.apply_world_observation(self.observe('vermilion-world'))
             self.puzzle()
@@ -647,7 +998,41 @@ class VermilionJourney(cj.CeruleanJourney):
         self.checkpoint('vermilion-supplementary-' + case)
         self.summary['acceptance'] = 'supplementary candidate only; no natural campaign credit'
 
+    def qualify_aide_fixture(self, key):
+        if not self.config.get('supplementary') or self.config.get('case') != key + '-full-retry':
+            raise ProtocolError('aide capacity setup cannot enter the natural journey')
+        threshold = self.vermilion['events'][GIFTS[key][0]]['threshold']
+        receipt = self.observe('vermilion-aide-fixture')
+        if (receipt.get('classification') != 'supplementary' or receipt.get('case') != key
+                or receipt.get('threshold') != threshold or receipt.get('owned') != threshold):
+            raise ProtocolError('missing actual supplementary aide recruitment receipt')
+        owner = self.collection_owner()
+        all_mons = owner['party']['members'] + [m for b in owner['storage']['boxes'] for m in sequence(b, 'fixture box')]
+        species = {m['species'] for m in all_mons}
+        owned = {s for s, flag in owner['owned'].items() if flag}
+        recruits = sequence(receipt.get('recruits'), 'aide recruitment receipts')
+        if (len(species) != threshold or len(all_mons) != threshold or species != owned
+                or len(owner['party']['members']) != 6 or len(recruits) != threshold - 1
+                or {r.get('species') for r in recruits} != species - {'squirtle'}):
+            raise ProtocolError('aide fixture threshold lacks distinct actually recruited specimens')
+        for record in recruits:
+            destination = record.get('destination')
+            if not isinstance(destination, dict):
+                raise ProtocolError('aide fixture recruitment destination missing')
+            if destination.get('destination') == 'party':
+                members = owner['party']['members']
+            elif destination.get('destination') == 'storage' and type(destination.get('box')) is int and 1 <= destination['box'] <= 12:
+                members = sequence(owner['storage']['boxes'][destination['box'] - 1], 'fixture recruited box')
+            else:
+                raise ProtocolError('invalid actual aide recruitment destination')
+            index = destination.get('index')
+            if type(index) is not int or not 1 <= index <= len(members) or members[index - 1]['species'] != record['species']:
+                raise ProtocolError('aide fixture receipt does not point to the actual specimen')
+        self.summary['aide_fixture'] = copy.deepcopy(receipt)
+
     def setup_fixture(self, name, **options):
+        if not self.config.get('supplementary'):
+            raise ProtocolError('Vermilion setup fixture requires explicit supplementary mode')
         entry = self.map_manifest['maps'][name]
         fixture = dict(intro='skip', opening=False, zone=entry['key'], entry=copy.deepcopy(entry['spawn']), **options)
         self.initializing = True

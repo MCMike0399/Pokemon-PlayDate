@@ -1,4 +1,348 @@
 {
+  "collection": {
+    "DiglettsCave": {
+      "id": "pokered:DIGLETTS_CAVE",
+      "rate_byte": 20,
+      "slots": [
+        {
+          "index": 0,
+          "level": 18,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 51
+        },
+        {
+          "index": 1,
+          "level": 19,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 51
+        },
+        {
+          "index": 2,
+          "level": 17,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 39
+        },
+        {
+          "index": 3,
+          "level": 20,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 25
+        },
+        {
+          "index": 4,
+          "level": 16,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 25
+        },
+        {
+          "index": 5,
+          "level": 15,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 25
+        },
+        {
+          "index": 6,
+          "level": 21,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 13
+        },
+        {
+          "index": 7,
+          "level": 22,
+          "species": "diglett",
+          "species_source": "DIGLETT",
+          "weight_256": 13
+        },
+        {
+          "index": 8,
+          "level": 29,
+          "species": "dugtrio",
+          "species_source": "DUGTRIO",
+          "weight_256": 11
+        },
+        {
+          "index": 9,
+          "level": 31,
+          "species": "dugtrio",
+          "species_source": "DUGTRIO",
+          "weight_256": 3
+        }
+      ],
+      "targets": [
+        "diglett"
+      ],
+      "weights": {
+        "diglett": 242,
+        "dugtrio": 14
+      }
+    },
+    "Route11": {
+      "id": "pokered:ROUTE_11",
+      "rate_byte": 15,
+      "slots": [
+        {
+          "index": 0,
+          "level": 14,
+          "species": "sandshrew",
+          "species_source": "SANDSHREW",
+          "weight_256": 51
+        },
+        {
+          "index": 1,
+          "level": 15,
+          "species": "spearow",
+          "species_source": "SPEAROW",
+          "weight_256": 51
+        },
+        {
+          "index": 2,
+          "level": 12,
+          "species": "sandshrew",
+          "species_source": "SANDSHREW",
+          "weight_256": 39
+        },
+        {
+          "index": 3,
+          "level": 9,
+          "species": "drowzee",
+          "species_source": "DROWZEE",
+          "weight_256": 25
+        },
+        {
+          "index": 4,
+          "level": 13,
+          "species": "spearow",
+          "species_source": "SPEAROW",
+          "weight_256": 25
+        },
+        {
+          "index": 5,
+          "level": 13,
+          "species": "drowzee",
+          "species_source": "DROWZEE",
+          "weight_256": 25
+        },
+        {
+          "index": 6,
+          "level": 15,
+          "species": "sandshrew",
+          "species_source": "SANDSHREW",
+          "weight_256": 13
+        },
+        {
+          "index": 7,
+          "level": 17,
+          "species": "spearow",
+          "species_source": "SPEAROW",
+          "weight_256": 13
+        },
+        {
+          "index": 8,
+          "level": 11,
+          "species": "drowzee",
+          "species_source": "DROWZEE",
+          "weight_256": 11
+        },
+        {
+          "index": 9,
+          "level": 15,
+          "species": "drowzee",
+          "species_source": "DROWZEE",
+          "weight_256": 3
+        }
+      ],
+      "targets": [
+        "sandshrew",
+        "spearow",
+        "drowzee"
+      ],
+      "weights": {
+        "drowzee": 64,
+        "sandshrew": 103,
+        "spearow": 89
+      }
+    },
+    "Route24": {
+      "id": "pokered:ROUTE_24",
+      "rate_byte": 25,
+      "slots": [
+        {
+          "index": 0,
+          "level": 7,
+          "species": "caterpie",
+          "species_source": "CATERPIE",
+          "weight_256": 51
+        },
+        {
+          "index": 1,
+          "level": 8,
+          "species": "metapod",
+          "species_source": "METAPOD",
+          "weight_256": 51
+        },
+        {
+          "index": 2,
+          "level": 12,
+          "species": "pidgey",
+          "species_source": "PIDGEY",
+          "weight_256": 39
+        },
+        {
+          "index": 3,
+          "level": 12,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT",
+          "weight_256": 25
+        },
+        {
+          "index": 4,
+          "level": 13,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT",
+          "weight_256": 25
+        },
+        {
+          "index": 5,
+          "level": 10,
+          "species": "abra",
+          "species_source": "ABRA",
+          "weight_256": 25
+        },
+        {
+          "index": 6,
+          "level": 14,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT",
+          "weight_256": 13
+        },
+        {
+          "index": 7,
+          "level": 13,
+          "species": "pidgey",
+          "species_source": "PIDGEY",
+          "weight_256": 13
+        },
+        {
+          "index": 8,
+          "level": 8,
+          "species": "abra",
+          "species_source": "ABRA",
+          "weight_256": 11
+        },
+        {
+          "index": 9,
+          "level": 12,
+          "species": "abra",
+          "species_source": "ABRA",
+          "weight_256": 3
+        }
+      ],
+      "targets": [
+        "bellsprout",
+        "caterpie",
+        "metapod",
+        "pidgey"
+      ],
+      "weights": {
+        "abra": 39,
+        "bellsprout": 63,
+        "caterpie": 51,
+        "metapod": 51,
+        "pidgey": 52
+      }
+    },
+    "Route6": {
+      "id": "pokered:ROUTE_6",
+      "rate_byte": 15,
+      "slots": [
+        {
+          "index": 0,
+          "level": 13,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT",
+          "weight_256": 51
+        },
+        {
+          "index": 1,
+          "level": 13,
+          "species": "pidgey",
+          "species_source": "PIDGEY",
+          "weight_256": 51
+        },
+        {
+          "index": 2,
+          "level": 15,
+          "species": "pidgey",
+          "species_source": "PIDGEY",
+          "weight_256": 39
+        },
+        {
+          "index": 3,
+          "level": 10,
+          "species": "meowth",
+          "species_source": "MEOWTH",
+          "weight_256": 25
+        },
+        {
+          "index": 4,
+          "level": 12,
+          "species": "meowth",
+          "species_source": "MEOWTH",
+          "weight_256": 25
+        },
+        {
+          "index": 5,
+          "level": 15,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT",
+          "weight_256": 25
+        },
+        {
+          "index": 6,
+          "level": 16,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT",
+          "weight_256": 13
+        },
+        {
+          "index": 7,
+          "level": 16,
+          "species": "pidgey",
+          "species_source": "PIDGEY",
+          "weight_256": 13
+        },
+        {
+          "index": 8,
+          "level": 14,
+          "species": "meowth",
+          "species_source": "MEOWTH",
+          "weight_256": 11
+        },
+        {
+          "index": 9,
+          "level": 16,
+          "species": "meowth",
+          "species_source": "MEOWTH",
+          "weight_256": 3
+        }
+      ],
+      "targets": [
+        "meowth"
+      ],
+      "weights": {
+        "bellsprout": 89,
+        "meowth": 64,
+        "pidgey": 103
+      }
+    }
+  },
   "cut_sites": [
     {
       "block": 53,
@@ -2500,17 +2844,68 @@
   },
   "schema": 1,
   "session_codec": 3,
+  "shops": {
+    "pokered:CERULEAN_MART:objects:1": {
+      "prices": {
+        "antidote": 100,
+        "awakening": 200,
+        "burnHeal": 250,
+        "parlyzHeal": 200,
+        "pokeBall": 200,
+        "potion": 300,
+        "repel": 350
+      },
+      "sell_prices": {
+        "nugget": 5000
+      },
+      "stock": [
+        "pokeBall",
+        "potion",
+        "repel",
+        "antidote",
+        "burnHeal",
+        "awakening",
+        "parlyzHeal"
+      ]
+    },
+    "pokered:VERMILION_MART:objects:1": {
+      "prices": {
+        "awakening": 200,
+        "iceHeal": 250,
+        "parlyzHeal": 200,
+        "pokeBall": 200,
+        "repel": 350,
+        "superPotion": 700
+      },
+      "sell_prices": {
+        "nugget": 5000
+      },
+      "stock": [
+        "pokeBall",
+        "superPotion",
+        "iceHeal",
+        "awakening",
+        "parlyzHeal",
+        "repel"
+      ]
+    }
+  },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
+    "battle/battle.lua": "c8b971b251503e0fabaee0767f36f0bd9bd26cce95db04260d1d39978d23221b",
+    "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
     "data/ceruleanContent.lua": "da537baba23fcc1c1943f072ef3b6efa4afde02a053113ae77fad113bf817fd2",
     "data/ceruleanJourney.json": "518ad513e58aa4505e43958cc3746fc8005dbd57707819adec4cc99e16363cf8",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
     "data/fieldMoves.json": "f71b4c488909bfac1c2f37baa9d5cd820d63ce74f173b2e2c2881f7407ff5590",
     "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
     "data/machineData.lua": "ff06e8f40282d52004f5493d5d70a60fdedc6e18f4efa74a931c47c66c0cafb1",
+    "data/pokemon.lua": "b60cd7cefa9124215d2b76b24959c993a5113248c3bce49cbd5715b551062e01",
     "data/sourceMapCache/compact.json": "414902df71b8dd783c7e2c4b0525bde19717e87e58fbebd2e5bb0d64f362eca7",
     "data/sourceMapCache/tile-grids.json": "c6240a7baf7a7e9f00df1e421356b8030bc8c6474baceb9544b67a0dac6feeb3",
     "data/sourceMaps.json": "47e295dd5e39d2894e39e6dccbd13b148525a9712478202a424201c4220294b4",
+    "data/sourceSlice/Route24.json": "4e8b06cecfceea87a00823383776f1102318ce41ebdc764e8e8800cb8bbf07d4",
+    "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
     "data/vermilionGifts/events.json": "3d1b58fd58971c94754635c767a0f101402db9aa89ddaa04bbf7232f4dc002b1",
     "data/vermilionPreparation/Daycare.json": "0a0d83afaa9d387af1d8831438155b32fa94087aedcfa1daccb191195f15e4cc",
     "data/vermilionPreparation/DiglettsCave.json": "f795f2e2ad4c38d7c9ccbcbc737c67234bc04cf5cbf2797d0f717a1fccfa1c37",
@@ -2557,9 +2952,16 @@
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
     "dev/daycareContracts.lua": "47b40369789d75ebd4f60778823d3213ab247f6f29fb2cc9f01df9fee9c6d197",
+    "dev/diagnostics.lua": "539d09801d8013a42117c86c145cd3c0e26fe0290a5118031fe7ab07bef3c949",
+    "dev/fixtures.lua": "9634a1e6944c853139ca1e160d9a3fc90a9d11b85842ea58592d66d57e0c4a98",
+    "domain/capture.lua": "ca5f58ce8c8e752d95ee5a033588703a75a3b1cdadc7001f550bed37f6f4ccd1",
+    "domain/fieldEncounters.lua": "c58d36ae02e0cc17234ddaf463dffadec1ecad7e085c0cf856ad4906981b94b6",
     "domain/fieldMoves.lua": "eba04efc4da0e24645612f81099158a41eeae6af31925f6da0cd31d20b973035",
     "domain/fieldWorld.lua": "c9831dca077bda30252d9f1521bd517436d25e03ed508be91a292eba87ca5f27",
+    "domain/gameSession.lua": "8cb5111625cfe580a943cb2ef84f08a06962f45b39cb03bd6b575065bd62e389",
     "domain/sessionCodec.lua": "f3541f4e2f4aeb04e36db2fa4b90090c22fc4ddc1ba323e8957f923f86fe6672",
+    "domain/specimen.lua": "e56a2ee920ee25c02d0b9ef3ce3257c560232ea59f89624e0c4315fbfe8acba3",
+    "domain/storage.lua": "970a31c0fc7b4bf3257ec630f372f16b2d69b950f5f87064175322e3a7c0ed81",
     "domain/teaching.lua": "bb63d9751f93270ea2e73e2636d22e3c43199bbbff86410faa71a2d267d3e041",
     "game/bagState.lua": "5ddc859d28b66f8cc46fc3b1020388f4898eb865a0a162b1be30c5b295d2224c",
     "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",
@@ -2575,7 +2977,9 @@
     "game/vermilionStoryIntent.lua": "28841920473c56606bcb20a7a20435f8d61f19824fc052e525c5d279fc0cdeae",
     "game/vermilionStoryState.lua": "084cfdd3ae23d32f84c34bbde7ad8b7251a323d876819e724084b0c97658ec29",
     "game/vermilionStoryTerrain.lua": "ea64898cc812994f231b66f7220435a021c89a67b6d9bf17bfee1bbe108d065d",
-    "main.lua": "3db6371007adc3798f016a6e7e9b3037c7160063722ceec014cf9e656d5a542e"
+    "main.lua": "3db6371007adc3798f016a6e7e9b3037c7160063722ceec014cf9e656d5a542e",
+    "world/sourceBindings.lua": "04bbc738185a2265cc384d1049c8c88c1b8669e20533e9228101da95998e5cd0",
+    "world/zone.lua": "e12974954d27cd729878cf189afccaf738cbb49fcaf684af129924d50f44557c"
   },
   "trainers": {
     "pokered:ROUTE_11:objects:1": {

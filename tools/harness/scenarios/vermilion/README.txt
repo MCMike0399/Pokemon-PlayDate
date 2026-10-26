@@ -1,143 +1,184 @@
-Milestone 5.4 real-input driver preparation
-=========================================
+Milestone 5.4 real-input journey preparation
+==========================================
 
-Branch: wip/vermilion-journey. Exact root f8d5ce88504f3439ace431ad8b8845ed5d9baa26
-was merged first (local merge 2486823). Root checkpoint bad5882 was then merged
-as aa77be1 on root's update. No Simulator, runtime process, push or
-delegation was used. These are executable candidates, not acceptance evidence.
+Branch: wip/vermilion-journey. Original packet: efb0753. Follow-up merged exact
+root eda74a916a3a00897cd301e5fbcdfcf9d133a836 first, as 4d2a689. Root already
+applied the original registration/observations and composed Day Care, schema 3,
+the one event inheritance chain, field/scene transactions and learning release.
+No Simulator/runtime, push or delegation was used in either worker packet.
+These are executable candidates, not accepted journeys.
 
-Owned additions only:
-- tools/harness/vermilion_journey.py
-- this directory (11 scenarios and the two unapplied root patches)
-- tools/generate_vermilion_journey.py and Source/data/vermilionJourney.json
-- tools/tests/test_vermilion_journey.py
+Owned files are the Vermilion driver, its generator/projection, this directory,
+and focused host tests. Shared drivers, run.py/suite.py, production owners/main,
+active manifest/cache, ledger and baselines were not edited by this follow-up.
 
-Root handoff
-------------
+Root integration
+----------------
 
-Apply root-registration.patch to journeys.py/restarting.py/brock_capture.py only
-when ready to register this driver. suite.py already discovers all 11 JSON cases
-recursively; it needs no edit. The patch adds dispatch, process validation and
-immutable receipt registration. It does not launch anything or import a save.
+The old root-registration.patch and root-observations.patch remain historical;
+DO NOT replay them on eda74a9. Three NEW patches are unapplied and target that
+exact checkpoint:
 
-root-observations.patch adds one small field_move UI snapshot (phase/menu/last
-result), explicit registered-owner qualification, detached current-map collision
-and four Cut cell keys, and the Day Care owner's detached record and withdrawal
-quote. All are read-only. No full codec enters a per-frame snapshot. Existing
-owners qualification checks every previously projected trainer, allowing the new
-registered trainers alongside it. Root must review this change on composition.
+    git apply tools/harness/scenarios/vermilion/root-collection-options.patch
+    git apply tools/harness/scenarios/vermilion/root-collection-observations.patch
+    git apply tools/harness/scenarios/vermilion/root-aide-capacity-fixture.patch
 
-Regenerate both projections after composition, in this order:
+The options patch adds the new bounded keys to process validation only for
+Vermilion names. Earlier journeys keep their existing accepted options/bounds.
+The observations patch adds detached Party/Storage/owned records, actual Zone
+encounter-eligible cells for the optional cave fallback, and an explicit aide
+fixture recruitment receipt. It performs no setters, traversal capture or RNG
+sampling. Full SessionCodec payloads remain exclusive to actual Save/Continue.
+
+The fixture patch adds exactly two supplementary capacity setups: hm05 at
+Route2Gate and itemfinder at Route11Gate2F. It preconstructs/checks fixed real
+species before reset, then calls GameSession:recruit for distinct specimens.
+Party fills to six, then recruitment goes to the selected PC box. The 30-species
+setup fills box 1 and selects box 2 through Storage's existing owner. No direct
+dex writes, generic owner setter, fabricated capture or imported save is added.
+Both fixtures retain the actual full bag and use the real gift controller,
+actual toss, reward retry, and repeat-interaction checks. Missing fixture support
+or mismatched actual specimens/receipts fails; it never becomes a pass.
+
+Regenerate projections AFTER root composition and map activation:
 
     source ~/Developer/Pokemon-PlayDate-env/env.sh
     python tools/generate_cerulean_journey.py
     python tools/generate_vermilion_journey.py
     python tools/generate_vermilion_journey.py --check
-    python -m unittest tools.tests.test_vermilion_journey -v
+    python -m unittest tools.tests.test_vermilion_journey tools.tests.test_vermilion_acquisition -v
 
-The projection describes declarations, not registration. It hashes 35 prepared
-map files, their descriptors, ordinary events/trainers, all Anne rival variants,
-gifts, field mechanics, machine compatibility, and relevant owner/wiring inputs.
-It rejects changed staged bytes and inactive maps before any runtime request.
-The base intentionally still has 30 active maps. Final composition must update
-its existing manifest/cache/provider/bindings through their owners, not this
-worker. Maps becoming active must match the reviewed prepared pins.
+Root still owns activation of the 65-map manifest/cache after ship b2a497b is
+composed. Current active manifest has 30 maps, so dependency preflight rejects
+this build before input. The projection pins actual wiring, codec, recruitment,
+PC/capture/encounter owners, machine compatibility, wild tables, shop stock and
+prices, Day Care, gifts, scenes and the 35 prepared map files. A declaration is
+not a runtime registration claim. Any changed staged owner bytes fail closed.
 
-Natural path and honest limits
-------------------------------
+Natural continuation and acquisition
+------------------------------------
 
-restart-{bulbasaur,charmander,squirtle}.json starts the entire existing
-CeruleanJourney New Game path in the same process. It retains the actual intro,
-Brock, fossil, Misty, Bridge, Bill and Ticket inputs, RNG, training, learning,
-evolution, battle PP/items, trainer receipts and payouts. No accepted 5.3 save
-was imported, copied or assumed. Root chooses the final runtime start. This
-branch deliberately offers no arbitrary save-import shortcut.
+restart-{bulbasaur,charmander,squirtle}.json runs the entire existing Cerulean
+New Game path in the SAME process, preserving its real intro/Brock/fossil/Misty/
+Bridge/Bill/Ticket choices, training, PP, items, rules RNG and source trainer
+receipts. No arbitrary 5.3 save import exists. Root chooses the final runtime
+start. The new acquisition code starts only after that unchanged path and the
+actual robbed-house Rocket battle.
 
-The continuation is robbed-house Rocket, Route 5, Day Care, Underground north/
-south, Route 6, Vermilion Center/Fan Club/Old Rod, every disconnected Anne cabin
-component plus kitchen/upper deck/bow, positional Anne rival, Captain HM01,
-actual Bag -> Teaching -> Cut, actual party field menu -> tree, ship departure,
-Surge's real switch interactions/battle/TM24, Diglett's Cave and Route 2 HM05
-aide, then Route 11 and real Save. The second process selects actual Continue
-and compares the entire immutable canonical payload. A completed driver is
-still pending root screenshot inspection and acceptance.
+Collection uses the pinned English Blue slots and production Bag ball commands:
 
-Initial read-only worker snapshot: wip/daycare at 1886005. Root subsequently
-composed it as b2100c9, field/scene lifecycle as 87163bf, and the complete
-checkpoint bad5882 is now merged. The one event chain is DaycareState ->
-VermilionStoryState -> VermilionGiftsState -> KantoServicesState. Day Care
-selection uses its exact story-choice and daycare-party controller phases.
-A real eligible nonstarter is deposited, real map travel banks completed-step
-XP, and paid withdrawal checks the held specimen, XP, traits and quoted charge.
-The canonical schema-3 Day Care field is preserved in Save/Continue receipts;
-the earlier schema-1/2 payloads retain their strict envelopes. This driver now
-uses root's existing canonical boundary validator directly. Actual Teaching
-waits for learning.input_blocked to clear, matching root's 478fac7 fix. SDK validation
-owns complete nested Pokemon semantics.
+1. Route24: secure Bellsprout FIRST, before filling the party. Actual MachineData
+   permits Bellsprout to learn Cut and excludes Rattata. Then collect missing
+   Caterpie, Metapod and Pidgey. Wild Metapod is caught directly; the plan does
+   not require evolution grinding, Abra, Pikachu or Clefairy.
+2. Keep the actual starter, Rattata and Bellsprout in the six-member party. The
+   existing Day Care service deposits an eligible nonstarter without an HM
+   (normally Rattata), earns real completed-step XP, and verifies paid withdrawal
+   against its actual quote and held specimen. Nothing is seeded or teleported.
+3. Routes5/6 and Underground traversal remain physical. Collect common Meowth
+   on Route6. With a full party, a successful capture must append its specimen to
+   the actual selected PC box and commit the new unique owned-species flag.
+4. Vermilion/Fan Club/Old Rod and every Anne cabin component, kitchen/deck/bow,
+   positional rival, Captain HM01, actual Teaching and party field-menu Cut,
+   departure, Surge cans/battle/TM24 retain their existing real-input path.
+5. AFTER Surge and BEFORE the Diglett/HM05 aide leg, collect missing common
+   Sandshrew/Spearow/Drowzee on Route11 until actual owned count is ten. The
+   earlier starter+evolution+Rattata plus four Route24 species and Meowth gives
+   eight; two Route11 catches suffice. Even without starter evolution, all
+   three Route11 catches suffice. No species count is inferred from this math:
+   the driver's only completion oracle is actual canonical ownership and capture
+   commit receipts. A real Diglett capture is the optional fallback if still short.
+6. Continue through Diglett's Cave and Route2 HM05 aide, Route11, actual Save,
+   process exit and actual Continue. Compare the full immutable canonical payload,
+   including fieldWorld and daycare. Root separately inspects native screens.
 
-Remaining inputs are explicit and must not be bypassed:
+Collection throws ordinary purchased Poke Balls at the actual live target from
+its existing HP; it does not risk an artificial weakening attack or edit HP.
+Non-target encounters use normal attacking decisions, real PP, learning and
+outcomes. No critical/RNG/capture result is predicted. Every throw consumes one
+actual ball. Caught=true alone cannot pass: the driver verifies the exact party
+or selected-box recruitment destination, preserved unrelated boxes, appended
+species, and exactly one new owned-species flag. Failed throws cannot recruit.
+It does not inherit Brock's reserve-only party+1 assertion for these captures.
 
-1. Activate the 35 prepared maps and source-bound exits/events/actors, including
-   source-owned padding, last-outdoor warps, hidden can dispatch, dock departure,
-   and closed/open Gym terrain. Compose the single event subclass chain for
-   Day Care, gifts and Anne/Surge. Integrate worker API patches through root.
-2. Day Care modules/policy, session ownership, completed-step hook and schema 3
-   are composed in bad5882. The regenerated projection pins those actual inputs
-   and policy/events. Actual service and restart behavior remain unrun.
-3. Field/scene transactions and lifecycle are composed in 87163bf. Root still
-   needs to run temporary Cut/map-reload/process-Continue witnesses. The host
-   path model refreshes actual terrain at each transition; it never
-   changes production tiles, field state or a ledger.
-4. Select a feasible natural acquisition/training plan. The inherited path
-   captures actual specimens, but this candidate does not claim it reaches ten
-   unique owned species or guarantees a Cut-compatible party for Squirtle. A
-   missing compatible user, eligible Day Care member, or HM05 threshold fails
-   closed. Seen species and duplicate specimens cannot count as unique owned.
-   No artificial species, HP edit, teleport or flag seeding can fix natural mode.
-5. Owned-species fixture support for the two aide full-bag supplements remains
-   unavailable. Existing fixture API can seed at most six actual party members;
-   it exposes seen, not owned, dex entries. hm05-full-retry and itemfinder-full-
-   retry are explicitly supplementary blocked candidates and raise with that
-   reason. No new fixture API or save editing is supplied here.
-6. Independently run all candidates on one integrated frozen build, inspect key
-   native screens and process generations. No native result is claimed here.
+Supply and safety policy
+------------------------
 
-Supplements
------------
+The actual Cerulean/Vermilion Mart stock prices Poke Balls at 200. Aim for 20 in
+stock and retain enough for the per-encounter budget before walking in grass.
+Purchases require current money, preserve a 600 reserve, and are capped. If the
+stock goal is unaffordable and the actual Bridge Nugget remains, use SELL in the
+real shop to sell ONE at its pinned 5000 price, verify the exact transaction,
+then buy balls. It is a player sale, not a reward/money fixture. Never sell an HM,
+quest item or protected specimen. Actual Centers provide free HP/status/PP
+restoration; healing and shopping travel remain physical and count toward the
+collection step/action budgets. Real blackout recovery retains existing checks.
 
-hm01/tm24/voucher/rod-full-retry use explicit initial fixtures, twenty actual
-bag slots, the actual scene/battle and owner reward transaction, an actual toss,
-then retry. Money/battle counts and repeated interaction prevent duplicate
-payout/item credit. TM24 requires a real Surge win and badge with the bag full.
-The two aide cases above are labeled supplementary and remain blocked.
+Default finite 5.4-only budgets (explicit in the three starter scenarios):
+- 30000 additional semantic actions for the whole continuation, after the prior
+  max_actions budget. New Game -> Bill keeps the original bound unchanged.
+- 12000 ordinary collection navigation/connection steps and 180 wild battles
+  total. The phase check stops further grass segments after 60 wild battles.
+- 80 total balls thrown, at most 80 purchased, at most 12 throws per encounter.
+- 20-ball stocking goal and a 600 cash reserve.
+- Each phase also checks 3000 ordinary navigation steps at settled segment
+  boundaries. Healing/shopping segments can cross a phase target; global step,
+  battle, ball and action limits still fail closed. Interior edge-door presses
+  retain the inherited transition and action bounds.
 
-blackout uses an explicit level-1 fixture, real Center checkpoint and actual
-Route 6 trainer loss; no HP/outcome edit. The inherited recovery checks actual
-half-money, undefeated trainer, restored HP/PP/status and checkpoint position.
+Config keys are bounded and reject booleans/out-of-range values. Optional Route11
+phase exhaustion can fall through to the actual Diglett fallback; exhaustion of
+a global budget, required target, funds, party slot or box capacity fails closed.
+Finite natural rolls cannot guarantee a particular run succeeds. No fixture or
+outcome repair replaces a failure. Extra incidental XP does not certify pacing.
 
-field-cut-reload uses an explicit compatible specimen/HM/badge fixture, actual
-Teaching and field menu Cut, a real Center round trip proving tree restoration,
-a second Cut and actual Save. The restarted process must Continue the exact
-payload, and temporary tree removal must be restored. It is not natural credit.
+Explicit remaining cave dependency
+---------------------------------
 
-Root-only eventual invocation (not executed by this worker):
+Current prepared DiglettsCave has a pinned wild table but NO cache tiles marked
+as grass. Current Zone:encounterPolicyAt requires that flag, so it exposes no
+eligible floor cells. The driver asks the actual Zone policy for the fallback's
+eligible cells; it does not invent grass or mutate production terrain. If root
+later supplies proper cave encounter eligibility, a detached host planning view
+uses those actual cells. Until then a needed Diglett fallback fails explicitly.
+The main Route24/6/11 common-species plan has real grass lanes and enough species
+without relying on that optional fallback. All of this remains unrun natively.
+
+Other supplements
+-----------------
+
+hm01/tm24/voucher/rod-full-retry retain their explicit setup, full bag, actual
+scene/battle reward, toss and retry. TM24 requires an actual Surge win and badge.
+blackout uses a level-1 supplementary specimen, actual Center checkpoint and
+Route6 trainer loss, retaining real half-money and HP/PP/checkpoint checks.
+field-cut-reload uses an explicit compatible specimen/HM/badge fixture but actual
+Teaching and field menu Cut, actual Center round trip/tree restoration, another
+Cut, actual Save, new process and Continue. None of these is natural credit.
+
+Checks and reproducibility
+--------------------------
+
+102 host tests passed, zero skips, including the existing Cerulean/Day Care/
+learning and Vermilion source checks. New boundaries include real Bag selection traces, full-party selected-box
+commits, missing owned flags, wrong box/index, duplicate/failed capture rejection,
+Bellsprout priority, finite budgets, actual prices, source-pin drift, real prepared
+grass lanes, honest cave eligibility, fixture classification, exact recruited
+10/30-species owners, immutable receipts, and all new patches applying to eda74a9.
+They do not execute Lua, predict RNG or emulate game outcomes.
+
+Compile the proposed overlays with actual SDK 3.1.2, without runtime:
+
+    python tools/harness/scenarios/vermilion/compile_capacity_overlay.py --output "$HOME/Developer/Pokemon-PlayDate-env/evidence/vermilion-capacity-compile-UNIQUE"
+
+Executed compile evidence:
+~/Developer/Pokemon-PlayDate-env/evidence/vermilion-acquisition-20261026/compile-02/candidate/build.json
+The metadata says runtime_executed=false and active_maps=30. This proves syntax/
+compilation only, not recruitment behavior or journey acceptance. Host log:
+~/Developer/Pokemon-PlayDate-env/evidence/vermilion-acquisition-20261026/host-tests.txt
+
+Root-only eventual invocation (NOT executed by this worker):
 
     python tools/harness/run.py --scenario tools/harness/scenarios/vermilion/restart-squirtle.json --output "$HOME/Developer/Pokemon-PlayDate-env/evidence/vermilion-root-squirtle-UNIQUE"
 
-Repeat for the other starter files and supplementary cases only under the
-single runtime owner. Keep all durable outputs under that evidence directory.
-
-Host checks
------------
-
-After merging bad5882: 82 tests passed, zero skips: new driver boundaries, existing Cerulean boundaries,
-pinned Vermilion gifts/story/preparation generation, Day Care, and shared learning
-release boundaries. Log:
-~/Developer/Pokemon-PlayDate-env/evidence/vermilion-journey-host-tests.txt
-
-Tests cover bounds/shortcut rejection, inactive maps before input, staged owner
-pin drift, corrupt map/counter pins, unique-owned aide gating, missing Cut user,
-Day Care eligibility, finite puzzle search, detached collision updates, codec
-boundary-only payloads, schema-3 envelope validation, immutable process receipts,
-and dispatch/read-only patches applying in isolated host copies. These tests do
-not emulate the SDK, battle outcomes or RNG, and confer no runtime acceptance.
+Repeat for the other starters/supplements under the single runtime owner after
+composition, activation, projection regeneration and frozen-build checks.

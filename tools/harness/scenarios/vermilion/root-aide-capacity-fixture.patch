@@ -1,0 +1,76 @@
+--- a/Source/dev/fixtures.lua
++++ b/Source/dev/fixtures.lua
+@@ -46,7 +46,7 @@
+ end
+ local function prepare(options)
+     fields(options, {seed=true,intro=true,zone=true,entry=true,opening=true,player_pokemon=true,
+-        party_pokemon=true,inventory=true,quest_flags=true,grant_xp=true,adjust_battle=true,pokedex_seen=true,trainer_name=true,enemy_party=true})
++        party_pokemon=true,inventory=true,quest_flags=true,grant_xp=true,adjust_battle=true,pokedex_seen=true,trainer_name=true,enemy_party=true,vermilion_aide_capacity=true})
+     assert(options.opening == nil or type(options.opening) == "boolean", "invalid opening fixture flag")
+     assert(options.grant_xp == nil or type(options.grant_xp) == "table", "invalid XP fixture")
+     assert(options.adjust_battle == nil or type(options.adjust_battle) == "table", "invalid battle fixture")
+@@ -59,6 +59,25 @@
+         assert(facing==nil or facing=="up" or facing=="down" or facing=="left" or facing=="right","invalid fixture facing")
+     end
+     local prepared = {}
++    if options.vermilion_aide_capacity ~= nil then
++        local key = options.vermilion_aide_capacity
++        local zones = {hm05="kanto_route_2_gate",itemfinder="kanto_route_11_gate_2f"}
++        assert((key=="hm05" or key=="itemfinder") and options.intro=="skip"
++            and options.zone==zones[key], "aide capacity is a supplementary two-case fixture")
++        assert(options.party_pokemon==nil and options.player_pokemon==nil
++            and options.quest_flags==nil and options.grant_xp==nil and options.enemy_party==nil
++            and options.adjust_battle==nil and options.pokedex_seen==nil,
++            "aide capacity fixture cannot mix with unrelated state edits")
++        prepared.aideKey, prepared.aideThreshold = key, key=="hm05" and 10 or 30
++        prepared.aideCandidates = {}
++        local species = {"bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard",
++            "squirtle","wartortle","blastoise","caterpie","metapod","butterfree","weedle","kakuna",
++            "beedrill","pidgey","pidgeotto","pidgeot","rattata","raticate","spearow","fearow",
++            "ekans","arbok","pikachu","raichu","sandshrew","sandslash","nidoranF","nidorina"}
++        for _, id in ipairs(species) do
++            prepared.aideCandidates[#prepared.aideCandidates+1] = preparePokemon({species=id,level=5})
++        end
++    end
+     if options.pokedex_seen ~= nil then
+         assert(Party._array(options.pokedex_seen,151), "Pokedex seen fixture requires a dense array")
+         prepared.pokedexSeen = {}
+@@ -153,6 +172,7 @@
+     for key, value in pairs(flagBaseline) do DEBUG_FLAGS[key] = value end
+     game.player = nil
+     game.lastBattleOutcome = nil
++    game.lastVermilionAideFixture = nil
+     game.transitionLog = {}
+     game.debugMenu = DebugMenu()
+     local world = machine:get("overworld")
+@@ -174,6 +194,29 @@
+         if prepared.questFlags then data.questFlags = prepared.questFlags end
+         assert(game:installSession(assert(SessionCodec.decode(data,game:getSessionDependencies()))))
+     end
++    if prepared.aideCandidates then
++        local session, receipts = game.session, {}
++        local function ownedCount()
++            local count = 0
++            for _, owned in pairs(session:pokedex().owned) do if owned then count=count+1 end end
++            return count
++        end
++        for _, mon in ipairs(prepared.aideCandidates) do
++            if ownedCount() >= prepared.aideThreshold then break end
++            if not session:pokedex().owned[mon.species] then
++                local storage = session:storage()
++                if session:party():count() >= Party.CAPACITY and storage:count() >= Storage.BOX_CAPACITY then
++                    assert(storage:selectBox(storage:activeBox()+1))
++                end
++                local ok, receipt = session:recruit(mon)
++                assert(ok, receipt)
++                receipts[#receipts+1] = {species=mon.species,destination=receipt}
++            end
++        end
++        assert(ownedCount()==prepared.aideThreshold, "aide fixture distinct recruitment threshold")
++        game.lastVermilionAideFixture = {classification="supplementary",case=prepared.aideKey,
++            threshold=prepared.aideThreshold,owned=ownedCount(),recruits=receipts}
++    end
+     for _, species in ipairs(prepared.pokedexSeen or {}) do assert(game.session:markSeen(species)) end
+     if options.grant_xp then
+         local mon = assert(game:getPlayerPokemon(), "XP fixture requires a player Pokemon")
+# End of unapplied root patch.

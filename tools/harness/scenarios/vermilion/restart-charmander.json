@@ -15,7 +15,15 @@
         "max_blackouts": 1,
         "max_transitions": 128,
         "max_puzzle_attempts": 240,
-        "evolution_policy": "accept"
+        "evolution_policy": "accept",
+        "vermilion_actions": 30000,
+        "collection_steps": 12000,
+        "collection_battles": 180,
+        "collection_phase_battles": 60,
+        "collection_balls": 80,
+        "collection_ball_stock": 20,
+        "collection_balls_per_battle": 12,
+        "collection_money_reserve": 600
       }
     },
     {

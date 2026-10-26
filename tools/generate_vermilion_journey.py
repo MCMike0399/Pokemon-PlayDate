@@ -90,6 +90,58 @@ def project(source):
                      'domain/fieldMoves.lua', 'domain/fieldWorld.lua', 'domain/teaching.lua',
                      'data/ceruleanContent.lua'):
         read(relative)
+    active_manifest = record('data/sourceMaps.json')
+    collection = {}
+    targets = {
+        'Route24': ['bellsprout', 'caterpie', 'metapod', 'pidgey'],
+        'Route6': ['meowth'],
+        'Route11': ['sandshrew', 'spearow', 'drowzee'],
+        'DiglettsCave': ['diglett'],
+    }
+    for name, candidates in targets.items():
+        relative = ('data/sourceSlice/' if name == 'Route24' else 'data/vermilionPreparation/') + name + '.json'
+        raw = record(relative)
+        if name == 'Route24' and (active_manifest['maps'][name]['path'] != relative
+                or active_manifest['maps'][name]['source_sha256'] != hashes[relative]):
+            raise ValueError('changed active Route24 source map pin')
+        table = raw['encounters']['grass']
+        weights = {}
+        for slot in table['slots']:
+            weights[slot['species']] = weights.get(slot['species'], 0) + slot['weight_256']
+        if (raw['encounters']['version'] != 'English Blue' or not 0 < table['rate_byte'] <= 255
+                or sum(weights.values()) != 256 or any(weights.get(species, 0) < 50 for species in candidates)):
+            raise ValueError('review changed common Blue acquisition slots: ' + name)
+        collection[name] = dict(id=raw['id'], rate_byte=table['rate_byte'], slots=table['slots'],
+                                targets=candidates, weights=weights)
+    if 'bellsprout' not in cut_species or 'rattata' in cut_species:
+        raise ValueError('review changed actual Cut compatibility')
+    # Project stock/prices from the production owner, not a second shop policy.
+    item_text = read('data/items.lua')
+    prices = dict((key, int(price)) for key, price in re.findall(
+        r'^        (\w+) = \{ \["id"\] = "\1"[^\n]*?\["price"\] = (\d+)', item_text, re.M))
+    shops = {}
+    earlier_events = record('data/sourceSlice/events.json')['events']
+    for stable, group in [('pokered:CERULEAN_MART:objects:1', earlier_events),
+                          ('pokered:VERMILION_MART:objects:1', events)]:
+        steps = group[stable]['steps']
+        if len(steps) != 1 or steps[0]['op'] != 'shop':
+            raise ValueError('review changed collection shop owner')
+        match = re.search(r'^        ' + re.escape(steps[0]['id']) + r' = \{([^\n]+)\}', item_text, re.M)
+        if not match:
+            raise ValueError('missing collection shop stock')
+        stock = re.findall(r'"(\w+)"', match[1])
+        if 'pokeBall' not in stock or prices['pokeBall'] <= 0:
+            raise ValueError('collection shop cannot supply ordinary balls')
+        nugget = re.search(r'^        nugget = [^\n]*?\["sellPrice"\] = (\d+)', item_text, re.M)
+        if not nugget:
+            raise ValueError('missing source Nugget sale price')
+        shops[stable] = dict(stock=stock, prices={key: prices[key] for key in stock},
+                             sell_prices={'nugget': int(nugget[1])})
+    for relative in ('domain/capture.lua', 'domain/storage.lua', 'battle/battle.lua',
+                     'domain/specimen.lua', 'domain/gameSession.lua', 'data/pokemon.lua', 'data/captureData.lua',
+                     'domain/fieldEncounters.lua', 'world/zone.lua', 'world/sourceBindings.lua',
+                     'dev/fixtures.lua', 'dev/diagnostics.lua'):
+        read(relative)
     # Existing worker modules are optional inputs until integrated. Their absence
     # is declared, never interpreted as an implemented service.
     daycare = [p.relative_to(source).as_posix() for p in sorted(source.rglob('*daycare*.lua'))]
@@ -106,7 +158,7 @@ def project(source):
                 maps=maps, events=events, trainers=trainers, scenes=scenes,
                 cut_sites=field['maps']['pokered:VERMILION_CITY']['sites'],
                 cut_species=sorted(cut_species), session_codec=int(codec[1]),
-                daycare_inputs=daycare, registration='declarations-only; runtime must qualify')
+                daycare_inputs=daycare, collection=collection, shops=shops, registration='declarations-only; runtime must qualify')
 
 
 def main():

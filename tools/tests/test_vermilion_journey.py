@@ -320,14 +320,15 @@ class DecisionTests(unittest.TestCase):
         self.assertEqual(driver.summary['daycare_service']['earned'], 8)
         self.assertEqual(driver.summary['daycare_service']['returned']['ivs'], second['ivs'])
 
-    def test_unavailable_owned_threshold_fixtures_fail_before_reset_or_input(self):
-        for case in ('hm05-full-retry', 'itemfinder-full-retry'):
-            driver = journey({'name': 'vermilion-supplementary', 'supplementary': True, 'case': case})
-            driver.dependencies = lambda: None
-            with self.subTest(case=case), self.assertRaisesRegex(ProtocolError, 'cannot supply 10/30 unique owned species'):
-                driver.supplementary()
+    def test_aide_capacity_requires_actual_explicit_recruitment_receipt(self):
+        for key in ('hm05', 'itemfinder'):
+            driver = journey({'name': 'vermilion-supplementary', 'supplementary': True, 'case': key + '-full-retry'})
+            event = vj.GIFTS[key][0]
+            driver.vermilion = {'events': {event: {'threshold': 10 if key == 'hm05' else 30}}}
+            driver.observe = lambda kind: {'kind': kind}  # Missing support cannot pass.
+            with self.subTest(key=key), self.assertRaisesRegex(ProtocolError, 'actual supplementary aide recruitment receipt'):
+                driver.qualify_aide_fixture(key)
             self.assertFalse(driver.initialized)
-            self.assertFalse(driver.summary['natural'])
 
     def test_codec_payload_only_requested_at_save_continue_boundaries(self):
         driver = journey()
@@ -379,6 +380,7 @@ class ReceiptAndPatchTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(subprocess.check_output(['git', 'show', 'f8d5ce8:tools/harness/' + name], cwd=ROOT))
             subprocess.run(['git', 'apply', str(CASES / 'root-registration.patch')], cwd=temporary, check=True, capture_output=True)
+            subprocess.run(['git', 'apply', str(CASES / 'root-collection-options.patch')], cwd=temporary, check=True, capture_output=True)
             def load(name):
                 spec = importlib.util.spec_from_file_location('vermilion_patch_' + name, temporary / 'tools/harness' / (name + '.py'))
                 module = importlib.util.module_from_spec(spec)
