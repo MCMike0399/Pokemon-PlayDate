@@ -310,6 +310,28 @@ function HarnessDiagnostics.observe(game, kind)
         armBoundary(game)
         return {kind=kind, valid=true, version=SessionCodec.VERSION}
     end
+    if kind == "vermilion-collection" then
+        local session = game.session
+        return {kind=kind,owned=session:pokedex().owned,
+            party=assert(session:party():toData(PokemonCodec.encode)),
+            storage=assert(session:storage():toData(PokemonCodec.encode))}
+    end
+    if kind == "vermilion-encounter-terrain" then
+        local zone, cells = assert(currentZone), {}
+        for y=0,zone.height-1 do
+            for x=0,zone.width-1 do
+                local policy = zone:encounterPolicyAt(x,y)
+                if policy and policy.rate.value > 0 then cells[#cells+1]={x=x,y=y} end
+            end
+        end
+        return {kind=kind,zone_id=zone.stableID,cells=cells}
+    end
+    if kind == "vermilion-aide-fixture" then
+        local result = GameSession._copy(assert(game.lastVermilionAideFixture,
+            "missing explicit supplementary Vermilion aide fixture"))
+        result.kind = kind
+        return result
+    end
     if kind == "vermilion-daycare" then
         local owner = Daycare.observe(game.session)
         local quote = owner.pokemon and Daycare.plan(owner, "withdraw") or nil

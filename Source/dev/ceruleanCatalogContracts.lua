@@ -86,7 +86,9 @@ function CeruleanCatalogContracts.run()
         local baseline = assert(json.decodeFile("dev/catalogProtected.json"))
         for _, entry in ipairs(baseline.images) do assert(not first[entry.path], "protected path claimed") end
         local global = VisualCatalog.expectedInventory()
-        eq(#global.images, 2494+2448); eq(#global.exporters.pewter.images, 859)
+        local vermilion = VermilionCatalogExporter.inventory()
+        eq(#global.images, 2494 + #inventory.images + #vermilion.images)
+        eq(#global.exporters.pewter.images, 859)
         local legacy = paths(global.exporters.pewter)
         for path in pairs(legacy) do assert(not first[path], "legacy Pewter path claimed") end
         inventory.images[1].width = 1

@@ -251,6 +251,12 @@ Contracts.register("vermilion-ship", function()
 end)
 import "dev/fieldAcquisitionContracts"
 Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
+import "dev/vermilionAbilityContracts"
+Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
+import "dev/vermilionCatalogExporter"
+VermilionCatalogExporter.register()
+import "dev/vermilionCatalogContracts"
+Contracts.register("vermilion-catalog", VermilionCatalogContracts.run)
 
 -- @harness runtime
 harness = Harness

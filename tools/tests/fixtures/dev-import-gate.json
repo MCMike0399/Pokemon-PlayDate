@@ -231,7 +231,10 @@
     "dev/daycareContracts",
     "dev/vermilionPreparationContracts",
     "dev/vermilionShipContracts",
-    "dev/fieldAcquisitionContracts"
+    "dev/fieldAcquisitionContracts",
+    "dev/vermilionAbilityContracts",
+    "dev/vermilionCatalogExporter",
+    "dev/vermilionCatalogContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -343,6 +346,9 @@
     "Contracts.register(\"daycare\", DaycareContracts.run)",
     "Contracts.register(\"vermilion-preparation\", VermilionPreparationContracts.run)",
     "Contracts.register(\"vermilion-ship\", function()",
-    "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)"
+    "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)",
+    "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)",
+    "VermilionCatalogExporter.register()",
+    "Contracts.register(\"vermilion-catalog\", VermilionCatalogContracts.run)"
   ]
 }
