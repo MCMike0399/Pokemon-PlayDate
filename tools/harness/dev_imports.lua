@@ -184,5 +184,13 @@ Contracts.register("reward-fault-guards",RewardFaultGuards.run)
 import "dev/weatherRewardWitness"
 Contracts.register("weather-reward-witness",WeatherRewardWitness.run)
 
+
+import "dev/whirlwindContracts"
+Contracts.register("whirlwind", WhirlwindContracts.run)
+import "dev/moveFailureContracts"
+Contracts.register("move-failure", MoveFailureContracts.run)
+import "dev/sourceMapContracts"
+Contracts.register("source-maps", SourceMapContracts.run)
+
 -- @harness runtime
 harness = Harness

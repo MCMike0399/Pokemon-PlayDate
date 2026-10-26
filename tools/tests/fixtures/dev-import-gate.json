@@ -178,7 +178,10 @@
     "domain/fieldEncounters",
     "dev/fieldEncounterContracts",
     "dev/rewardFaultGuards",
-    "dev/weatherRewardWitness"
+    "dev/weatherRewardWitness",
+    "dev/whirlwindContracts",
+    "dev/moveFailureContracts",
+    "dev/sourceMapContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -261,6 +264,9 @@
     "Contracts.register(\"red-pc-items\",ItemPCContracts.run)",
     "Contracts.register(\"field-encounters\",FieldEncounterContracts.run)",
     "Contracts.register(\"reward-fault-guards\",RewardFaultGuards.run)",
-    "Contracts.register(\"weather-reward-witness\",WeatherRewardWitness.run)"
+    "Contracts.register(\"weather-reward-witness\",WeatherRewardWitness.run)",
+    "Contracts.register(\"whirlwind\", WhirlwindContracts.run)",
+    "Contracts.register(\"move-failure\", MoveFailureContracts.run)",
+    "Contracts.register(\"source-maps\", SourceMapContracts.run)"
   ]
 }
