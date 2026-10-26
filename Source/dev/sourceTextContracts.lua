@@ -115,10 +115,7 @@ function SourceTextContracts.run()
     end)
 
     for char, entry in pairs(SourceTextFont.data().glyphs) do
-        Contracts.progress("source-text",string.format("glyph lookup U+%04X",utf8.codepoint(char)),"running")
-        local present = gfx.getSystemFont():getGlyph(char) ~= nil
-        local name = string.format("Source glyph U+%04X matches pinned pixels; SDK default glyph %s",
-            utf8.codepoint(char), present and "present" or "absent")
+        local name = string.format("Source glyph U+%04X matches pinned pixels", utf8.codepoint(char))
         test(name, function()
             local font = gfx.getFont()
             local image = render(function() SourceTextFont.draw(char, 0, 0, font) end)
@@ -131,7 +128,7 @@ function SourceTextContracts.run()
             end end
             assert(black > 0, "empty fallback: " .. char)
             report.glyphs[#report.glyphs + 1] = {character = char, codepoint = utf8.codepoint(char),
-                sdk_has_glyph = font:getGlyph(char) ~= nil, fallback_pixels = black}
+                source_fallback = true, fallback_pixels = black}
         end)
     end
     test("Native contact sheets label every source fallback glyph", function()

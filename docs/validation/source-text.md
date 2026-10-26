@@ -144,3 +144,8 @@ host output are retained under
 `~/Developer/Pokemon-PlayDate-env/evidence/source-text-preparation-20261026-01/`.
 The accepted coverage matrix is deliberately not regenerated for a private
 candidate; its current-Source fingerprint check is expected to reject this tree.
+
+Root native preparation found that SDK 3.1.2 `font:getGlyph("▷")` does not
+return. The optional presence annotations were removed; production never used
+that lookup. All 33 fallback pixel comparisons remain. Use the pinned fallback
+coverage rather than querying the default font for unsupported Unicode glyphs.
