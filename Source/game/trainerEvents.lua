@@ -26,7 +26,7 @@ local function definition(self,id)
 end
 function TrainerEvents:init(game)
     assert(game and game.session and game.npcManager,"authoritative trainer context required")
-    owners[self]={game=game,definitions=PewterSlice.trainers()}
+    owners[self]={game=game,definitions=SourceEvents.trainerDefinitions()}
 end
 function TrainerEvents:sourceFlag(id)
     local game=owners[self].game
@@ -145,13 +145,7 @@ function TrainerEvents:resolve(token,won,kind)
         if session:party():allFainted() and not d.initial_lab then final=final//2;receipt.blackout_money_applied=true end
         local expected={flags={},items={},trainers={[d.id]=false},money=money}
         local changes={flags={},items={},trainers={[d.id]=true},money={op=final>=money and "credit" or "debit",amount=math.abs(final-money)}}
-        if d.id==BROCK then
-            expected.trainers[JR]=session:trainerDefeated(JR)
-            changes.trainers[JR]=true;changes.flags.BADGE_BOULDER=true
-            for _,id in ipairs({"EVENT_1ST_ROUTE22_RIVAL_BATTLE","EVENT_ROUTE22_RIVAL_WANTS_BATTLE"}) do
-                expected.flags[id]=session:questFlag(id);changes.flags[id]=false
-            end
-        end
+        SourceEvents.victoryChanges(d.id,session,expected,changes)
         local accepted,problem=session:transact(expected,changes)
         if not accepted then return false,problem end
         receipt.payout,receipt.money_delta=d.payout,final-money
@@ -175,9 +169,12 @@ function TrainerEvents:abortBattle(token)
 end
 function TrainerEvents:rewardPlan(id)
     local session=owners[self].game.session
-    if id~=BROCK or not session:trainerDefeated(BROCK) or session:questFlag("EVENT_GOT_TM34") then return nil,"no-pending-tm-reward" end
-    return {expected={flags={EVENT_GOT_TM34=false},items={tm34=session:inventory():quantity("tm34")},trainers={[BROCK]=true}},
-        changes={flags={EVENT_GOT_TM34=true},items={{op="add",id="tm34",quantity=1}},trainers={}}}
+    local items={}
+    local descriptor=SourceEvents.descriptor(id)
+    if descriptor and descriptor.reward then
+        items[descriptor.reward.item]=session:inventory():quantity(descriptor.reward.item)
+    end
+    return SourceEvents.rewardPlan(id,{flags=session:flags().quest,trainers=session:flags().trainers,items=items})
 end
 function TrainerEvents:snapshot()
     local owner=owners[self];local value=owner.active and tokens[owner.active]

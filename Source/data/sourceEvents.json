@@ -1,0 +1,899 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "events": {
+    "pokered:OAKS_LAB:script:parcel-handoff": {
+      "content": "viridian",
+      "kind": "bespoke"
+    },
+    "pokered:PEWTER_CITY:background_events:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCityTrainerTipsText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:background_events:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCityPoliceNoticeSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:background_events:3": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_MartSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:background_events:4": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PokeCenterSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:background_events:5": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCityMuseumSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:background_events:6": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCityGymSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:background_events:7": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCitySignText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:objects:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCityCooltrainerFText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_CITY:objects:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterCityCooltrainerMText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_GYM:objects:1": {
+      "content": "pewter",
+      "kind": "trainer",
+      "before": [
+        "_PewterGymBrockPreBattleText"
+      ],
+      "won": [
+        "_PewterGymBrockReceivedBoulderBadgeText",
+        "_PewterGymBrockBoulderBadgeInfoText"
+      ],
+      "after": [
+        "_PewterGymBrockPostBattleAdviceText"
+      ],
+      "reward": {
+        "item": "tm34",
+        "flag": "EVENT_GOT_TM34",
+        "before": [
+          "_PewterGymBrockWaitTakeThisText"
+        ],
+        "success": [
+          "_PewterGymReceivedTM34Text",
+          "_TM34ExplanationText"
+        ],
+        "full": [
+          "_PewterGymTM34NoRoomText"
+        ],
+        "full_status": "tm-full-retry"
+      },
+      "victory": {
+        "trainers": {
+          "pokered:PEWTER_GYM:objects:2": true
+        },
+        "flags": {
+          "BADGE_BOULDER": true,
+          "EVENT_1ST_ROUTE22_RIVAL_BATTLE": false,
+          "EVENT_ROUTE22_RIVAL_WANTS_BATTLE": false
+        },
+        "guard_flags": [
+          "EVENT_1ST_ROUTE22_RIVAL_BATTLE",
+          "EVENT_ROUTE22_RIVAL_WANTS_BATTLE"
+        ]
+      }
+    },
+    "pokered:PEWTER_GYM:objects:2": {
+      "content": "pewter",
+      "kind": "trainer",
+      "before": [
+        "_PewterGymCooltrainerMBattleText"
+      ],
+      "won": [
+        "_PewterGymCooltrainerMEndBattleText"
+      ],
+      "after": [
+        "_PewterGymCooltrainerMAfterBattleText"
+      ]
+    },
+    "pokered:PEWTER_MART:objects:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "shop",
+          "id": "pewterMartClerkText"
+        }
+      ]
+    },
+    "pokered:PEWTER_MART:objects:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterMartYoungsterText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_MART:objects:3": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterMartSuperNerdText"
+          ]
+        }
+      ]
+    },
+    "pokered:PEWTER_POKECENTER:objects:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "heal",
+          "welcome": "_PokemonCenterWelcomeText",
+          "prompt": "_ShallWeHealYourPokemonText",
+          "before": "_NeedYourPokemonText",
+          "after": "_PokemonFightingFitText",
+          "farewell": "_PokemonCenterFarewellText",
+          "id": "pewterPokecenter",
+          "nurse_id": "pokered:PEWTER_POKECENTER:objects:1",
+          "checkpoint": {
+            "zone_id": "pokered:PEWTER_CITY",
+            "x": 13,
+            "y": 26,
+            "facing": "down"
+          }
+        }
+      ]
+    },
+    "pokered:PEWTER_POKECENTER:objects:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PewterPokecenterGentlemanText"
+          ]
+        }
+      ]
+    },
+    "pokered:ROUTE_1:background_events:1": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_Route1SignText"
+          ]
+        }
+      ]
+    },
+    "pokered:ROUTE_1:objects:1": {
+      "content": "viridian",
+      "kind": "gift",
+      "item": "potion",
+      "flag": "EVENT_GOT_POTION_SAMPLE",
+      "completed": [
+        "_Route1Youngster1AlsoGotPokeballsText"
+      ],
+      "success": [
+        "_Route1Youngster1GotPotionText"
+      ],
+      "full": [
+        "_Route1Youngster1NoRoomText"
+      ],
+      "prefix": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_Route1Youngster1MartSampleText"
+          ]
+        }
+      ],
+      "source": "scripts/Route1.asm:Route1Youngster1Text",
+      "fidelity": "intentional repair: set eligibility flag only after successful grant"
+    },
+    "pokered:ROUTE_1:objects:2": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_Route1Youngster2Text"
+          ]
+        }
+      ]
+    },
+    "pokered:ROUTE_2:background_events:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_Route2SignText"
+          ]
+        }
+      ]
+    },
+    "pokered:ROUTE_2:background_events:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_Route2DiglettsCaveSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:ROUTE_2:objects:1": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "moonStone",
+      "flag": "PICKUP:pokered:ROUTE_2:objects:1",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:ROUTE_2:objects:2": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "hpUp",
+      "flag": "PICKUP:pokered:ROUTE_2:objects:2",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:background_events:1": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianCitySignText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:background_events:2": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianCityTrainerTips1Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:background_events:3": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianCityTrainerTips2Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:background_events:4": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_MartSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:background_events:5": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_PokeCenterSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:background_events:6": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianCityGymSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:objects:1": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianCityYoungster1Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_CITY:objects:4": {
+      "content": "viridian",
+      "kind": "cases",
+      "source": "scripts/ViridianCity.asm:ViridianCityGirlText",
+      "cases": [
+        {
+          "when": {
+            "flags": {
+              "EVENT_GOT_POKEDEX": true
+            }
+          },
+          "then": {
+            "kind": "program",
+            "steps": [
+              {
+                "op": "dialog",
+                "labels": [
+                  "_ViridianCityGirlWhenIGoShopText"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "otherwise": {
+        "kind": "program",
+        "steps": [
+          {
+            "op": "dialog",
+            "labels": [
+              "_ViridianCityGirlHasntHadHisCoffeeYetText"
+            ]
+          }
+        ]
+      }
+    },
+    "pokered:VIRIDIAN_FOREST:background_events:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestTrainerTips1Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:background_events:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestUseAntidoteSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:background_events:3": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestTrainerTips2Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:background_events:4": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestTrainerTips3Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:background_events:5": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestTrainerTips4Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:background_events:6": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestLeavingSignText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:hidden:1": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "potion",
+      "flag": "PICKUP:pokered:VIRIDIAN_FOREST:hidden:1",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:hidden:2": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "antidote",
+      "flag": "PICKUP:pokered:VIRIDIAN_FOREST:hidden:2",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestYoungster1Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:2": {
+      "content": "pewter",
+      "kind": "trainer",
+      "before": [
+        "_ViridianForestYoungster2BattleText"
+      ],
+      "won": [
+        "_ViridianForestYoungster2EndBattleText"
+      ],
+      "after": [
+        "_ViridianForestYoungster2AfterBattleText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:3": {
+      "content": "pewter",
+      "kind": "trainer",
+      "before": [
+        "_ViridianForestYoungster3BattleText"
+      ],
+      "won": [
+        "_ViridianForestYoungster3EndBattleText"
+      ],
+      "after": [
+        "_ViridianForestYoungster3AfterBattleText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:4": {
+      "content": "pewter",
+      "kind": "trainer",
+      "before": [
+        "_ViridianForestYoungster4BattleText"
+      ],
+      "won": [
+        "_ViridianForestYoungster4EndBattleText"
+      ],
+      "after": [
+        "_ViridianForestYoungster4AfterBattleText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:5": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "antidote",
+      "flag": "PICKUP:pokered:VIRIDIAN_FOREST:objects:5",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:6": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "potion",
+      "flag": "PICKUP:pokered:VIRIDIAN_FOREST:objects:6",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:7": {
+      "content": "pewter",
+      "kind": "pickup",
+      "item": "pokeBall",
+      "flag": "PICKUP:pokered:VIRIDIAN_FOREST:objects:7",
+      "success": [
+        "_FoundItemText"
+      ],
+      "full": [
+        "_NoMoreRoomForItemText"
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST:objects:8": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestYoungster5Text"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST_NORTH_GATE:objects:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestNorthGateSuperNerdText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST_NORTH_GATE:objects:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestNorthGateGrampsText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST_SOUTH_GATE:objects:1": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestSouthGateGirlText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_FOREST_SOUTH_GATE:objects:2": {
+      "content": "pewter",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianForestSouthGateLittleGirlText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_MART:objects:1": {
+      "content": "viridian",
+      "kind": "cases",
+      "cases": [
+        {
+          "when": {
+            "flags": {
+              "EVENT_OAK_GOT_PARCEL": true
+            }
+          },
+          "then": {
+            "kind": "program",
+            "steps": [
+              {
+                "op": "shop",
+                "id": "viridianMartClerkText",
+                "stock": [
+                  "pokeBall",
+                  "antidote",
+                  "parlyzHeal",
+                  "burnHeal"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "when": {
+            "flags": {
+              "EVENT_GOT_OAKS_PARCEL": false
+            },
+            "items_equal": {
+              "oaksParcel": 0
+            }
+          },
+          "then": {
+            "kind": "gift",
+            "item": "oaksParcel",
+            "flag": "EVENT_GOT_OAKS_PARCEL",
+            "completed": [
+              "_ViridianMartClerkSayHiToOakText"
+            ],
+            "success": [
+              "_ViridianMartClerkParcelQuestText"
+            ]
+          }
+        }
+      ],
+      "otherwise": {
+        "kind": "program",
+        "steps": [
+          {
+            "op": "dialog",
+            "labels": [
+              "_ViridianMartClerkSayHiToOakText"
+            ]
+          }
+        ]
+      }
+    },
+    "pokered:VIRIDIAN_MART:objects:2": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianMartYoungsterText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_MART:objects:3": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianMartCooltrainerMText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_MART:script:entry": {
+      "content": "viridian",
+      "kind": "cases",
+      "cases": [
+        {
+          "when": {
+            "flags": {
+              "EVENT_OAK_GOT_PARCEL": true
+            }
+          },
+          "then": {
+            "kind": "program",
+            "status": "shop-available",
+            "steps": []
+          }
+        },
+        {
+          "when": {
+            "any": [
+              {
+                "flags": {
+                  "EVENT_GOT_OAKS_PARCEL": true
+                }
+              },
+              {
+                "items_min": {
+                  "oaksParcel": 1
+                }
+              }
+            ]
+          },
+          "then": {
+            "kind": "program",
+            "status": "already-complete",
+            "steps": []
+          }
+        }
+      ],
+      "otherwise": {
+        "kind": "gift",
+        "item": "oaksParcel",
+        "flag": "EVENT_GOT_OAKS_PARCEL",
+        "completed": [
+          "_ViridianMartClerkSayHiToOakText"
+        ],
+        "success": [
+          "_ViridianMartClerkParcelQuestText"
+        ],
+        "full": [
+          "_ViridianMartClerkParcelQuestText"
+        ],
+        "prefix": [
+          {
+            "op": "dialog",
+            "labels": [
+              "_ViridianMartClerkYouCameFromPalletTownText"
+            ]
+          },
+          {
+            "op": "move",
+            "direction": "up",
+            "count": 2
+          },
+          {
+            "op": "move",
+            "direction": "left",
+            "count": 1
+          }
+        ],
+        "source": "scripts/ViridianMart.asm:ViridianMartDefaultScript",
+        "fidelity": "intentional repair: failed GiveItem does not set parcel event"
+      }
+    },
+    "pokered:VIRIDIAN_POKECENTER:objects:1": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "heal",
+          "welcome": "_PokemonCenterWelcomeText",
+          "prompt": "_ShallWeHealYourPokemonText",
+          "before": "_NeedYourPokemonText",
+          "after": "_PokemonFightingFitText",
+          "farewell": "_PokemonCenterFarewellText",
+          "id": "viridianPokecenter"
+        }
+      ],
+      "source": "engine/events/pokecenter.asm:DisplayPokemonCenterDialogue_"
+    },
+    "pokered:VIRIDIAN_POKECENTER:objects:2": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianPokecenterGentlemanText"
+          ]
+        }
+      ]
+    },
+    "pokered:VIRIDIAN_POKECENTER:objects:3": {
+      "content": "viridian",
+      "kind": "program",
+      "steps": [
+        {
+          "op": "dialog",
+          "labels": [
+            "_ViridianPokecenterCooltrainerMText"
+          ]
+        }
+      ]
+    }
+  }
+}

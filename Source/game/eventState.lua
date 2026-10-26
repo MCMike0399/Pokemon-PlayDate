@@ -1,4 +1,4 @@
--- Finite controller for the explicitly implemented Blue parcel/Center slice.
+-- Finite executor for shared source plans and the bespoke authored Oak scene.
 -- Session owns durable state; Event owns only these temporary callbacks/actors.
 local gfx <const> = playdate.graphics
 Class("EventState"):extends(State)
@@ -17,7 +17,7 @@ function EventState.redrawSprites()
 end
 function EventState.observe(game,id,options)
     local bag=game.session:inventory();local items,canAdd={},{}
-    for _,id in ipairs({"potion","oaksParcel","tm34","moonStone","hpUp","antidote","pokeBall"}) do
+    for _,id in ipairs(SourceEvents.itemIDs()) do
         items[id]=bag:quantity(id)
         local candidate=assert(Inventory.fromData(ItemData.definitions,bag:toData()))
         canAdd[id]=candidate:add(id,1)==true
@@ -47,8 +47,7 @@ function EventState:dialog(pages,callback,receipt)
     self.machine:push("dialog",lines,self:guard(callback))
 end
 function EventState:pages(labels)
-    if self.content=="pewter" then return PewterEvents.pages(labels,self.plan.ram) end
-    return EventText.pages(labels)
+    return SourceEvents.pages(self.id,labels,self.plan.ram)
 end
 function EventState:source(labels,callback) self:dialog(self:pages(labels),callback) end
 function EventState:_queueDialog(labels)
@@ -59,22 +58,24 @@ function EventState:_queueDialog(labels)
     if #pages>0 then self.ops[#self.ops+1]={op="pages",pages=pages} end
 end
 function EventState:enter(id,options)
-    local extended=PewterEvents and PewterEvents.has(id)
-    assert(type(id)=="string" and (SliceEvents.has(id) or extended),"supported source event required")
+    assert(type(id)=="string" and SourceEvents.has(id),"supported source event required")
+    local content=SourceEvents.descriptor(id).content
+    local extended=content~="viridian"
     assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight"),"bounded source event options required")
-    self.content=extended and "pewter" or "viridian"
+    self.content=content
     if extended then assert(currentZone.stableID=="pokered:"..id:match("^pokered:([^:]+):"),"source event belongs to another map") end
     assert(self.game.player and not self.game.player.isMoving,"event requires settled player")
     local observation=EventState.observe(self.game,id,options)
     -- Receipt ownership changes only on this explicit controller entry, never
     -- during diagnostics, previews or repeated read-only observations.
     if extended and self.game.trainers then observation.receipt=self.game.trainers:takeReceipt(id) end
-    local plan=extended and PewterEvents.plan(id,observation) or SliceEvents.plan(id,observation)
+    local plan=SourceEvents.plan(id,observation)
     assert(type(plan.steps)=="table" and #plan.steps<=16,"event step limit")
     self.epoch=self.epoch+1;self.active=true;self.serial=0
     self.id,self.plan,self.session,self.player,self.zone=id,plan,self.game.session,self.game.player,currentZone
     self.phase,self.waiting,self.index,self.committed="running","none",1,false
     self.ops,self.receipts,self.books={},{},{}
+    self.npcMove,self.pendingWarp=nil,nil
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
     if plan.scene=="oak-pokedex" then
@@ -90,6 +91,7 @@ function EventState:enter(id,options)
             self:_queueDialog({"_OaksLabRivalGrampsText"})
             self.ops[#self.ops+1]={op="oak-arrive"}
         end
+        SourceEvents.validateStep(step)
         if step.op=="dialog" then
             assert(type(step.labels)=="table","source dialogue labels required")
             for _,label in ipairs(step.labels) do
@@ -103,7 +105,7 @@ function EventState:enter(id,options)
             assert(extended and observation.receipt and observation.receipt.won and self.session:trainerDefeated(id),"unconfirmed source victory receipt")
             self.ops[#self.ops+1]={op="pages",pages=self:pages(step.labels)}
         elseif step.op=="receipt" then
-            assert(extended and plan.expected,"source item receipt requires guarded commit")
+            assert(plan.expected,"source item receipt requires guarded commit")
             for _,page in ipairs(self:pages(step.labels)) do self.receipts[#self.receipts+1]=page end
         elseif step.op=="trainer" then
             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
@@ -111,6 +113,13 @@ function EventState:enter(id,options)
         elseif step.op=="move" then
             assert(DELTA[step.direction] and type(step.count)=="number" and step.count%1==0 and step.count>=1 and step.count<=8,"bounded movement required")
             for _=1,step.count do self.ops[#self.ops+1]={op="move",direction=step.direction} end
+        elseif step.op=="move-npc" then
+            for _=1,step.count do
+                self.ops[#self.ops+1]={op="move-npc",id=step.id,direction=step.direction}
+            end
+        elseif step.op=="warp" then
+            assert(index==#plan.steps,"warp must terminate source plan")
+            self.ops[#self.ops+1]=step
         elseif step.op=="shop" or step.op=="heal" then self.ops[#self.ops+1]=step
         else error("unsupported slice operation: "..tostring(step.op)) end
     end
@@ -119,18 +128,24 @@ function EventState:enter(id,options)
     self:advance()
 end
 function EventState:fail(reason)
+    self.pendingWarp=nil
     self.serial=self.serial+1;self.phase,self.waiting="failed",tostring(reason)
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
 end
 function EventState:finish()
-    if self:valid() and self:isTop() then self.phase,self.waiting="complete","none";self.machine:pop() end
+    if not self:valid() or not self:isTop() then return end
+    local warp=self.pendingWarp
+    self.pendingWarp=nil
+    self.phase,self.waiting="complete","none"
+    self.machine:pop()
+    if warp then self.machine:get("overworld").sub:change("doorWarp",warp) end
 end
 function EventState:commit()
     if self.plan.expected then
         local ok,reason=self.session:transact(self.plan.expected,self.plan.changes)
         if not ok then self:failureDialogue(reason);return end
         self.committed=true
-        if self.content=="pewter" then PewterEvents.afterCommit(self.game,self.plan) end
+        SourceEvents.afterCommit(self.game,self.plan)
         self:removeBooks()
         if #self.receipts>0 then self:dialog(self.receipts,function() self:finish() end,true);return end
     elseif self.plan.status=="bag-full" and not self.hasFailureText then self:failureDialogue("bag-full");return end
@@ -139,6 +154,7 @@ function EventState:commit()
 end
 function EventState:failureDialogue(reason)
     self.receipts={}
+    self.pendingWarp=nil
     if reason=="bag-full" then
         self:source(self.plan.failure_labels or {"_PokemartItemBagFullText"},function() self:finish() end)
     else self:fail(reason) end
@@ -149,6 +165,8 @@ function EventState:advance()
     if not step then self:commit();return end
     if step.op=="pages" then self:dialog(step.pages,function() self:advance() end)
     elseif step.op=="move" then self:startMove(step.direction)
+    elseif step.op=="move-npc" then self:startNPCMove(step)
+    elseif step.op=="warp" then self:prepareWarp(step)
     elseif step.op=="trainer" then self:startTrainer(step)
     elseif step.op=="shop" then
         self.phase,self.waiting="shop",step.id
@@ -265,6 +283,7 @@ function EventState:update()
     elseif self.phase=="trainer-approach" then
         local done,reason=self.game.trainers:updateApproach(self.trainerToken)
         if done then self:trainerReady() elseif reason~="moving" then self:fail(reason) end
+    elseif self.phase=="move-npc" then self:updateNPCMove()
     elseif self.phase=="move" then
         self.player:update()
         if not self.player.isMoving then self.moveOrigin=nil;self.player.stepJustFinished=false;self.player.pendingEdgeDoor=nil;self.player.pendingConnection=nil;self:advance() end
@@ -296,6 +315,8 @@ function EventState:exit()
     self.epoch=self.epoch+1;self.serial=self.serial+1;self.active=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
     self:removeTrainerBubble()
+    self:cancelNPCMove()
+    self.pendingWarp=nil
     if self.trainerToken and not self.trainerLaunching then self.game.trainers:cancel(self.trainerToken) end
     self.trainerToken,self.trainerNPC,self.trainerStep=nil,nil,nil;self.trainerLaunching=false
     if self.rival then self.game.npcManager:removeNPC(self.rival);self.rival=nil end
@@ -375,4 +396,99 @@ function EventState:trainerReady()
         self.trainerLaunching=true
         assert(FieldBattle.start(self.game,self.game:getPlayerPokemon(),party:active(),self.trainerNPC,party))
     end)
+end
+
+-- Stationary source actors use the same eight-frame cell timing as trainers.
+-- Random walkers retain NPCMotion ownership; scripts cannot steal that owner.
+function EventState:startNPCMove(step)
+    local npc
+    for _, actor in ipairs(self.game.npcManager.npcs) do
+        if actor.def and actor.def.source_event_id == step.id then npc = actor; break end
+    end
+    if not npc or npc.isMoving then self:fail("absent-or-moving-source-actor"); return end
+    local motion = self.game.npcManager.motion:actor(npc)
+    if motion and motion.phase ~= "static" then self:fail("npc-motion-owns-actor"); return end
+    local delta = DELTA[step.direction]
+    local x, y = npc.gridX + delta[1], npc.gridY + delta[2]
+    if not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] ~= 0
+        or self.game.npcManager:getNPCAt(x, y) or (self.player.gridX == x and self.player.gridY == y) then
+        self:fail("blocked-scripted-npc-move"); return
+    end
+    if self.zone:isSliceReady() and self.zone:movementRule(npc.gridX,npc.gridY,step.direction).kind ~= "walk" then
+        self:fail("blocked-scripted-npc-pair"); return
+    end
+    -- Use the session's real actor validator before exposing a displaced pose.
+    if motion then
+        local payload = self.game.npcManager.motion:snapshot()
+        for _, actor in ipairs(payload.actors) do
+            if actor.id == step.id then
+                actor.x, actor.y, actor.facing = x, y, step.direction
+                actor.origin_x, actor.target_x = x, x
+                actor.origin_y, actor.target_y = y, y
+            end
+        end
+        local descriptor = SourceActors.describe(self.zone.stableID,WorldDeltas.export())
+        local ok = pcall(WorldMotionData.normalize,payload,descriptor,
+            {zone_id=self.zone.stableID,x=self.player.gridX,y=self.player.gridY,facing=self.player.facing},self.session:flags())
+        if not ok then self:fail("invalid-scripted-actor-pose"); return end
+    end
+    if not npc.images[step.direction] then self:fail("missing-source-actor-facing"); return end
+    self.npcMove = {npc=npc,x=npc.gridX,y=npc.gridY,toX=x,toY=y,facing=npc.facing,image=npc:getImage(),tick=0}
+    npc:setFacing(step.direction)
+    self.phase, self.waiting = "move-npc", step.id
+end
+function EventState:updateNPCMove()
+    local move = self.npcMove
+    move.tick = move.tick + 1
+    move.npc:moveTo((move.x + (move.toX - move.x) * move.tick / 8) * TILE_SIZE,
+        (move.y + (move.toY - move.y) * move.tick / 8) * TILE_SIZE - 8)
+    if move.tick == 8 then
+        move.npc.gridX, move.npc.gridY = move.toX, move.toY
+        self.npcMove = nil
+        self:advance()
+    end
+end
+function EventState:cancelNPCMove()
+    local move = self.npcMove
+    if move and self.game.player == self.player and currentZone == self.zone then
+        move.npc.gridX, move.npc.gridY = move.x, move.y
+        move.npc:moveTo(move.x * TILE_SIZE,move.y * TILE_SIZE - 8)
+        move.npc:setFacing(move.facing)
+        move.npc:setImage(move.image)
+    end
+    self.npcMove = nil
+end
+function EventState:prepareWarp(step)
+    local target = zoneRegistry[step.to]
+    local provider = WorldDeltas.definitionProvider()
+    local descriptor = not target and provider and provider:hasKey(step.to) and provider:descriptor(step.to)
+    local stableID = target and target.stableID or descriptor and descriptor.id
+    if not stableID then self:fail("unknown-source-warp"); return end
+    local ok = pcall(WorldDeltas.resolveLocation,
+        {zone_id=stableID,x=step.toX,y=step.toY,facing=step.facing},WorldDeltas.export(),self.game.sessionLocationPolicy)
+    if not ok then self:fail("blocked-source-warp"); return end
+    if target == self.zone then
+        if self.game.npcManager:getNPCAt(step.toX,step.toY) then
+            self:fail("occupied-source-warp"); return
+        end
+    elseif target then
+        for _, npc in ipairs(target.npcDefs) do
+            if npc.gridX == step.toX and npc.gridY == step.toY and (not npc.appearsIf or npc.appearsIf()) then
+                self:fail("occupied-source-warp"); return
+            end
+        end
+    elseif descriptor then
+        -- Unloaded source actor positions come from the provider's immutable
+        -- surface, without resolving/registering a Zone during validation.
+        local actors = SourceActors.describe(stableID,WorldDeltas.export())
+        for _, actor in ipairs(actors and actors.actors or {}) do
+            if actor.x == step.toX and actor.y == step.toY and WorldMotionData.visible(actor,self.session:flags()) then
+                self:fail("occupied-source-warp"); return
+            end
+        end
+    end
+    -- The existing door transition owns the actual zone switch and fade. Wait
+    -- until the guarded transaction and its receipt have both completed.
+    self.pendingWarp = step
+    self:advance()
 end
