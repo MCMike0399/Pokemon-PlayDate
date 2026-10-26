@@ -181,17 +181,36 @@ function SourceMaps.isDoor(name, x, y)
     return false
 end
 
+local function blocksEvent(entry, id)
+    for _, blocked in ipairs(entry.blocked_events or {}) do
+        if blocked == id then return true end
+    end
+    return false
+end
+
+local function blockedWarp(entry)
+    return { status = "blocked", reason = entry.profile == "viridian"
+        and "source event outside implemented parcel handlers" or "original target map outside reviewed Pewter slice" }
+end
+
 function SourceMaps.warpSpec(name, event)
     local entry = SourceMaps.entry(name)
+    if blocksEvent(entry, event.id) then return blockedWarp(entry) end
     local destination = event.destination
     local target = destination.kind == "last_outdoor_map" and compactData().maps[name].last_outdoor
         or SourceMaps.nameForID("pokered:" .. tostring(destination.map))
     if not target then
-        return { status = "blocked", reason = entry.profile == "viridian"
-            and "source event outside implemented parcel handlers" or "original target map outside reviewed Pewter slice" }
+        return blockedWarp(entry)
     end
     local d = assert(compactData().maps[target], "LAST_MAP context outside manifest")
     local arrival = assert(d.warps[destination.warp_index], "source target warp index absent")
+    -- A closed ingress also closes its return warp. Check the warp tile itself
+    -- before the door's one-cell arrival advance, so an available room can be
+    -- constructed while its outside entrance remains explicitly unavailable.
+    if blocksEvent(SourceMaps.entry(target), arrival.id)
+        or d.blocked[tostring(arrival.y * d.width + arrival.x + 1)] then
+        return blockedWarp(entry)
+    end
     local advance = SourceMaps.isDoor(target, arrival.x, arrival.y) and 1 or 0
     local x, y = arrival.x, arrival.y + advance
     assert(y < d.height and SourceMaps.cell(target, x, y).collision == 0, "original warp arrival is blocked")
@@ -215,6 +234,9 @@ function SourceMaps.connection(name, x, y, direction)
     if not boundary then return nil end
     for _, connection in ipairs(d.connections) do
         if connection.direction == directions[direction] then
+            for _, blocked in ipairs(d.blocked_connections) do
+                if blocked == connection.direction .. ":" .. connection.target_map then return nil end
+            end
             local target = SourceMaps.nameForID("pokered:" .. connection.target_map)
             if not target then return nil end
             local other = compactData().maps[target]

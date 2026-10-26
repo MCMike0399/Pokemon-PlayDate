@@ -453,7 +453,7 @@ function Zone.fromMapDefinition(definition, registry, options)
         assert(collision == entries[definition.tile_ids[y][x]].collision, "imported collision/terrain mismatch")
     end)
     local bindings=options.bindingAdapter or MapBindings
-    assert(bindings==MapBindings or bindings==PewterBindings,"unreviewed source binding adapter")
+    assert(bindings==MapBindings or bindings==PewterBindings or bindings==SourceBindings,"unreviewed source binding adapter")
     local slicePlan = options.sliceBindings and bindings.prepare(definition, options.sliceBindings, options) or nil
     local issues, blocked, identities = {}, {}, {}
     local function issue(kind, id, x, y)

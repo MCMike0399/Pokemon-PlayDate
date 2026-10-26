@@ -1,0 +1,88 @@
+"""Activation witness inputs; behavioral checks execute only in the real SDK."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+
+from tools.generate_source_map_cache import build, canonical
+from tools.source_map_fixture import records
+
+ROOT = Path(__file__).resolve().parents[2]
+BASE = '9f3e37ba3c62daf40c229e802c61cec702c97cb3'
+
+
+class SourceMapActivationInputs(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        reference = os.environ.get('POKERED_REFERENCE_DIR')
+        if not reference:
+            raise RuntimeError('source the project environment before host checks')
+        cls.fixture = records(reference)
+
+    def test_sdk_witness_uses_the_exact_existing_pinned_extension_fixture(self):
+        self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(self.fixture))
+        maps = self.fixture['data/sourceMaps.json']['maps']
+        self.assertEqual(len(maps), 14)
+        self.assertEqual(maps['ViridianSchoolHouse']['profile'], 'source')
+        self.assertEqual(maps['Route22']['profile'], 'source')
+        active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
+        self.assertEqual(set(maps) - set(active), {'ViridianSchoolHouse', 'Route22'})
+        self.assertEqual(len(active), 12)
+
+    def test_warp_witness_coordinates_and_reciprocal_source_index_are_exact(self):
+        compact = self.fixture['data/sourceMapCache/compact.json']['maps']
+        school = compact['ViridianSchoolHouse']
+        self.assertEqual([(w['x'], w['y'], w['destination']['warp_index']) for w in school['warps']],
+                         [(4, 7, 3), (5, 7, 3)])
+        self.assertEqual(school['last_outdoor'], 'ViridianCity')
+        city = compact['ViridianCity']
+        self.assertEqual(city['warps'][2]['destination']['map'], 'VIRIDIAN_SCHOOL_HOUSE')
+        self.assertEqual((city['warps'][2]['x'], city['warps'][2]['y']), (21, 15))
+        self.assertNotIn('pokered:VIRIDIAN_CITY:warps:3', city['blocked'].values())
+
+    def test_connection_witnesses_have_real_available_targets_and_source_offsets(self):
+        compact = self.fixture['data/sourceMapCache/compact.json']['maps']
+        city = compact['ViridianCity']
+        self.assertIn('north:ROUTE_2', city['blocked_connections'])
+        self.assertEqual(next(c for c in city['connections'] if c['direction'] == 'west')['entry_lateral_adjustment_cells'], -8)
+        route = compact['Route22']
+        self.assertEqual(next(c for c in route['connections'] if c['direction'] == 'east')['entry_lateral_adjustment_cells'], 8)
+        self.assertEqual(next(c for c in compact['Route2']['connections'] if c['direction'] == 'south')['entry_lateral_adjustment_cells'], 10)
+
+    def test_shared_cache_encodes_blocked_available_warp_and_both_connection_directions(self):
+        # Verify the fixture's controlled blocker variant through the actual
+        # host cache generator. This checks inputs, not Lua runtime behavior.
+        fixture = json.loads(canonical(self.fixture))
+        manifest = fixture['data/sourceMaps.json']
+        manifest['maps']['ViridianCity']['blocked_events'] = ['pokered:VIRIDIAN_CITY:warps:3']
+        manifest['maps']['ViridianCity']['blocked_connections'].append('west:ROUTE_22')
+        manifest['maps']['Route22']['blocked_connections'] = ['east:VIRIDIAN_CITY']
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary)
+            for entry in manifest['maps'].values():
+                path = source / entry['path']
+                path.parent.mkdir(parents=True, exist_ok=True)
+                raw = canonical(fixture[entry['path']]) if entry['path'] in fixture else (ROOT / 'Source' / entry['path']).read_bytes()
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), entry['source_sha256'])
+                path.write_bytes(raw)
+            path = source / 'manifest.json'
+            path.write_bytes(canonical(manifest))
+            compact = json.loads(build(path, source)['compact.json'])['maps']
+        city = compact['ViridianCity']
+        self.assertEqual(city['blocked'][str(15 * city['width'] + 21 + 1)], 'pokered:VIRIDIAN_CITY:warps:3')
+        self.assertIn('west:ROUTE_22', city['blocked_connections'])
+        self.assertIn('east:VIRIDIAN_CITY', compact['Route22']['blocked_connections'])
+
+    def test_shipping_inventory_all_source_content_and_trainer_lease_path_are_unchanged(self):
+        subprocess.run(['git', 'diff', '--exit-code', BASE, '--',
+                        'Source/data', 'Source/images', 'Source/world/sprites',
+                        'Source/world/tilefactory.lua', 'Source/lib/shade.lua',
+                        'Source/game/trainerEvents.lua', 'Source/main.lua',
+                        'tools/harness/dev_imports.lua'], cwd=ROOT, check=True, capture_output=True)
+
+
+if __name__ == '__main__':
+    unittest.main()
