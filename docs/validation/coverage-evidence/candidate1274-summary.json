@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+  "candidate_commit": "58495ebbf67c2a49bb53293fc98d99b00bf136e8",
+  "maintenance_base_commit": "9ed4d36f0ba0b13734f109435070eaa0486ed506",
+  "build_id": "58495ebbf67c2a49bb53293fc98d99b00bf136e8:2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+  "session_id": "71d8598e2f2043e8863d52d040b102a7",
+  "compiled_source_sha256": "4aa143429ac40f609d4c02c08cf0a6a89864fdf44a08a6b240cf35da0cc9bc2d",
+  "sdk": {
+    "passed": 1274,
+    "failed": 0
+  },
+  "acceptance": "private-foundation-candidate-not-main-or-milestone",
+  "contracts_projection": "docs/validation/coverage-evidence/candidate1274-contracts-projection.json",
+  "contracts_projection_sha256": "9fb1ec609e2f740df6dc1c7877093dce6c16284c49182f145ea40f019aa09d23",
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/00001-result.json",
+    "sha256": "249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966",
+    "size_bytes": 1219334
+  },
+  "scope": "Root-executed final foundation candidate component evidence only. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements. This newer Source has no milestone 5.2 or all-starter journey acceptance; full campaign and full mechanics remain unfinished.",
+  "identity_proof": {
+    "source_git_tree": "693cbad1a2031cf611e08ee3a0649efdafb539d9",
+    "native_source_git_tree": "693cbad1a2031cf611e08ee3a0649efdafb539d9",
+    "original_manifest_files": 569,
+    "source_manifest_sha256": "984214bb6df8279a2604e42d57338b63e607a05cd6c79e5792173d48aaf05ffe",
+    "reconstruction": "Independent path/NUL/file-byte SHA256 over live files equals original native staged Source after restoring retained original-main.lua and original_pdxinfo; all original manifest hashes match; complete compiled staged tree hash also matches build.json.",
+    "reviewed_move_records_unchanged_from1250": 50,
+    "curated_test_entries_matched": 99,
+    "owner_or_assertion_hashes_rebound": 0
+  },
+  "historical_files_preserved": {
+    "docs/validation/coverage-evidence/candidate1250-contracts-projection.json": "958e28ac9f34f8406fc1c100f58c5188c26d1ba5310f5f4a4b0cba68f62066b3",
+    "docs/validation/coverage-evidence/candidate1250-summary.json": "09215ebe8d621a600ee8462aff73fa3f78e3852a2095385ad1f2c06c38a772fb",
+    "docs/validation/coverage-evidence/current1091-result.json": "7be14560c490601b0057a5cbf98b415ad5a3e0cde33f9628d5735382f51a57a3",
+    "docs/validation/coverage-evidence/current1091-summary.json": "32f34c1e483168b8c5ef76f8a86d0fd32001d43657b140a327bceda738decf78"
+  },
+  "artifact_qualifications": {
+    "catalog-invariance-qualification.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/catalog-invariance-qualification.json",
+      "sha256": "b5f4fc0190c754a59cd1aca17e54c55c42d126e6cbbc1551d31733cb26112b6d",
+      "qualification": {
+        "actual_pngs": 1718,
+        "build_id": "58495ebbf67c2a49bb53293fc98d99b00bf136e8:2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+        "checked_pairs": 859,
+        "compiled_source_sha256": "4aa143429ac40f609d4c02c08cf0a6a89864fdf44a08a6b240cf35da0cc9bc2d",
+        "evidence_directory": ".",
+        "executions": [
+          {
+            "command_index": 1,
+            "request_id": "00001-ca2e3e2a7d9b4dd99ab8182fa9684b5c",
+            "request_sequence": 1,
+            "request_sha256": "a2b3147532a7a1fbee54a722c367697db26c48782248c57245e467790fa94e61",
+            "result": "00001-result.json",
+            "result_sha256": "249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966",
+            "suite": {
+              "artifact_qualifier": "catalog-invariance-v1",
+              "failed": 0,
+              "id": "comprehensive-catalog",
+              "ok": true,
+              "passed": 7
+            }
+          }
+        ],
+        "failures": [],
+        "image_directories": {
+          "after": "frames/catalog-invariance-after",
+          "before": "frames/catalog-invariance-before"
+        },
+        "ok": true,
+        "process_generation": 1,
+        "process_pid": 85738,
+        "qualifier": "catalog-invariance-v1",
+        "quiescent": true,
+        "schema": 1,
+        "sdk_version": "3.1.2",
+        "session_id": "71d8598e2f2043e8863d52d040b102a7",
+        "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079"
+      }
+    },
+    "field-map-qualification.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/field-map-qualification.json",
+      "sha256": "00dff5e02a2aa044c4735e4e01d283797357305f073f0919c76fd3d62242d5c1",
+      "qualification": {
+        "build_id": "58495ebbf67c2a49bb53293fc98d99b00bf136e8:2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+        "compiled_source_sha256": "4aa143429ac40f609d4c02c08cf0a6a89864fdf44a08a6b240cf35da0cc9bc2d",
+        "executions": [
+          {
+            "request": "00001-request.json",
+            "request_id": "00001-ca2e3e2a7d9b4dd99ab8182fa9684b5c",
+            "request_sha256": "a2b3147532a7a1fbee54a722c367697db26c48782248c57245e467790fa94e61",
+            "result": "00001-result.json",
+            "result_sha256": "249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966",
+            "suite": {
+              "artifact_qualifier": "field-map-v1",
+              "failed": 0,
+              "id": "brock-field-items",
+              "ok": true,
+              "passed": 8
+            }
+          }
+        ],
+        "maps": [
+          {
+            "changed_pixels": 0,
+            "checked_pixels": 23040,
+            "path": "frames/field-town-map-forest.png",
+            "sha256": "5c52755c2e856ea84f4c8a327dc1001fea5eeccc649cab4ebfe00b764fcc7c13"
+          },
+          {
+            "changed_pixels": 0,
+            "checked_pixels": 23040,
+            "path": "frames/field-town-map-pallet-selected.png",
+            "sha256": "8628d4a65a08fe7df65cfe483533023adcdc8f30928a1f14c15669696dacecbe"
+          }
+        ],
+        "ok": true,
+        "process_generation": 1,
+        "process_pid": 85738,
+        "qualifier": "field-map-v1",
+        "quiescent": true,
+        "runtime_manifest_sha256": "4031f5978025315554cf4dcff376d9b882a4afaa173e4b69a1d7898373a15216",
+        "schema": 1,
+        "sdk_version": "3.1.2",
+        "session_id": "71d8598e2f2043e8863d52d040b102a7",
+        "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079"
+      }
+    }
+  },
+  "catalog_comparison": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/comparison.json",
+    "sha256": "ae206f3e263a102a3553a36ae9f101479cbae62d201ae824413001e5e68ab9be",
+    "summary": {
+      "equal": true,
+      "missing_inventory_equal": true,
+      "checked": 2494,
+      "failures": [],
+      "mode": "protected-preservation",
+      "protected_equal": true,
+      "protected_checked": 2494,
+      "added_unreviewed": [],
+      "added_files_valid": true,
+      "comparison_ok": true,
+      "review_complete": true
+    }
+  },
+  "terminal_artifacts": {
+    "00002-result.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/00002-result.json",
+      "sha256": "dc32e470c56aa7b5c43f55216630a97cacfa20e7c2afbcd2ea9e3d56775f5c8b",
+      "quiescent": true
+    },
+    "captures.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/captures.json",
+      "sha256": "aff61d838cda5cc7a693661d9e03577af929c97fee07bc440660710acd19f941",
+      "quiescent": true
+    }
+  },
+  "outcome": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/outcome.json",
+    "sha256": "8defa2c5f1e7330cc53d557e27e9783cb473c5c8b2b2bf7ae7752f29d036b83e",
+    "ok": true
+  },
+  "unverified_left_stale": [
+    "dig",
+    "earthquake",
+    "explosion",
+    "furyCutter",
+    "gyroBall",
+    "heavySlam",
+    "magnitude",
+    "selfDestruct",
+    "smackDown",
+    "helpingHand"
+  ]
+}

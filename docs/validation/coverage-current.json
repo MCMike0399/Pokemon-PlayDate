@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "9cc65c4b1fed0d1e1bdace128ce2900bb571f4a5",
-    "source_sha256": "4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae",
+    "commit": "58495ebbf67c2a49bb53293fc98d99b00bf136e8",
+    "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
     "policy_date": "2026-10-26",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "WholeoriginalBluecampaign/postgame, original151, GenVmechanics. Snapshot not timeless live truth.",
@@ -10,7 +10,7 @@
   },
   "accepted_milestone_rows": [],
   "schedule": {
-    "policy": "Currentbatch correctness+safeNewGame recovery then freezeall3Brock. Do not expand batch with Mirror/grindtail. No move deletion or artificial levelcap; pending fullmechanics remains release requirement.",
+    "policy": "Main milestone 5.1 is accepted on Source 44bd25. Finish root-owned foundation integration journeys and acceptance on the newer candidate before later regions. Keep every move and full-mechanics requirement; no artificial level cap.",
     "gates": [
       "system:current-reward-correctness",
       "system:safe-newgame-recovery",
@@ -28,7 +28,7 @@
     },
     "brock-freeze": {
       "order": 1,
-      "outcome": "Current batch correctness +safeNewGame recovery, then current integrated naturalall3 Brock/evolution/badge/TM/blackout/actualrestart freeze"
+      "outcome": "Main milestone 5.1 accepted at 9104499 on Source 44bd25. Final private foundation candidate still requires independent journey and milestone acceptance."
     },
     "moon-cerulean-bill": {
       "order": 2,
@@ -99,9 +99,9 @@
     },
     "runtime-scopes": {
       "path": "tools/references/runtime-move-coverage.json",
-      "sha256": "707695f1abd2ae90bc2c9d6f60b623fd7f24bf076dffa0c04305575c93af9306",
+      "sha256": "6ade4dc051440d3363f7cfe8bf5e0b5cb17dbbcec8a67d9c38ea099050d8e8e9",
       "kind": "private_verified",
-      "scope": "50 curated records: original 48 retained plus narrow Whirlwind/Roar subsets. Five supported drift records reviewed and rebound to named native 1250 successes; ten unverified records remain stale. No full mechanics or main acceptance."
+      "scope": "All 50 curated records unchanged from candidate 1250; every named curated assertion succeeded in native 1274. Ten unverified records remain stale. No new mechanics, regional or campaign acceptance."
     },
     "exposure-current": {
       "path": "docs/validation/coverage-evidence/exposure511.json",
@@ -131,43 +131,43 @@
       "path": "Source/battle/battle.lua",
       "sha256": "27b07760d1f2d7ba735fc345078bf94365e7549429c19cd31fae4f83495b2003",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "production-effects": {
       "path": "Source/battle/effects.lua",
       "sha256": "bf1d22cd32a193522fc6024e855e0a824e06ce40c838056eb695efd126c437fc",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "production-conditions": {
       "path": "Source/battle/conditions.lua",
       "sha256": "4a683f622781e48623e46170d88ca7ae6e1022997bc7c2f4ddd9a1751a742f90",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "production-dsl": {
       "path": "Source/battle/dsl.lua",
       "sha256": "5c2be3d6a5e4fddafd8a2a9a05440abbbff6ebdf0298038729e548c0c01fde29",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "production-moves": {
       "path": "Source/battle/moves.lua",
       "sha256": "c9ff133241f3fd447d94edf8a265b5eabb57c5dfe008c76a657d79fdb1ebb365",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "production-sessionCodec": {
       "path": "Source/domain/sessionCodec.lua",
       "sha256": "08ef57bd47fd06e8c1738e6e77918dba895fe5702ff9fad1c3621c5f8833a111",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "production-maps": {
       "path": "Source/data/maps.lua",
       "sha256": "fcfd2ead05a05e1d334a3d16862156b25c1334c408d7c90cfd7a8ec89781db16",
       "kind": "production",
-      "scope": "Candidate 9cc65c4 Source declaration pin only; no behavioral or main acceptance inferred. Reviewed bounded owners/assertions use runtime registry."
+      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
     },
     "held-native-index": {
       "path": "docs/validation/coverage-evidence/held-native-index.json",
@@ -196,8 +196,14 @@
     "candidate1250": {
       "path": "docs/validation/coverage-evidence/candidate1250-summary.json",
       "sha256": "09215ebe8d621a600ee8462aff73fa3f78e3852a2095385ad1f2c06c38a772fb",
+      "kind": "historical",
+      "scope": "Historical private candidate 9cc65c4: 1250 passing scoped SDK contracts on Source 4f26ba. Its summary retains the acceptance status at the time; current main milestone 5.1 is accepted separately at 9104499 on Source 44bd25."
+    },
+    "candidate1274": {
+      "path": "docs/validation/coverage-evidence/candidate1274-summary.json",
+      "sha256": "770bd3a97495225fce365c048d38162f69865f4001de93a68c7c822ba97dbb2c",
       "kind": "private_verified",
-      "scope": "Root-executed exact candidate Source. Scoped component SDK evidence only; main remains Source 44bd25 and Charmander/all-starter milestone acceptance is pending. Full campaign and full mechanics remain unfinished."
+      "scope": "Root-executed final foundation candidate component evidence only. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements. This newer Source has no milestone 5.2 or all-starter journey acceptance; full campaign and full mechanics remain unfinished."
     }
   },
   "source_inventory_summary": {
@@ -14317,7 +14323,7 @@
         ],
         "notes": "Current8provider+4registeredsource maps; map counts do not prove campaign. No competing region controllers."
       },
-      "notes": "Current8provider+4registeredsource maps; map counts do not prove campaign. No competing region controllers. Candidate 9cc65c4 shares manifest-driven source Zone construction and retains isolated facades; this refresh does not promote regional or campaign acceptance."
+      "notes": "Current8provider+4registeredsource maps; map counts do not prove campaign. No competing region controllers. Final native candidate 58495eb shares manifest-driven source Zone construction and retains isolated facades; this refresh does not promote regional or campaign acceptance."
     },
     {
       "id": "system:party-domain",
@@ -14462,36 +14468,39 @@
         "verification": "sdk_scoped",
         "evidence": [
           "current1091",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "regional_fidelity": {
         "implementation": "integrated",
         "verification": "sdk_scoped",
         "evidence": [
           "current1091",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "full_mechanics": {
         "implementation": "integrated",
         "verification": "sdk_scoped",
         "evidence": [
           "current1091",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
-      "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here.",
+      "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here.",
       "staged": {
         "implementation": "private_foundation_candidate",
-        "verification": "actual1250SDK-scoped",
+        "verification": "actual1274SDK-scoped",
         "evidence": [
-          "candidate1250"
+          "candidate1274"
         ],
-        "scope": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here."
+        "scope": "Unchanged named component scopes passed on final native Source. Main 5.1 acceptance belongs to Source 44bd25; private foundation journey/milestone acceptance remains pending."
       }
     },
     {
@@ -14514,36 +14523,39 @@
         "verification": "sdk_scoped",
         "evidence": [
           "current1091",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "regional_fidelity": {
         "implementation": "integrated",
         "verification": "sdk_scoped",
         "evidence": [
           "current1091",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "full_mechanics": {
         "implementation": "integrated",
         "verification": "sdk_scoped",
         "evidence": [
           "current1091",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
-      "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here.",
+      "notes": "Historical 1091 and candidate 1250 pass scoped component assertions. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. No milestone is accepted here.",
       "staged": {
         "implementation": "private_foundation_candidate",
-        "verification": "actual1250SDK-scoped",
+        "verification": "actual1274SDK-scoped",
         "evidence": [
-          "candidate1250"
+          "candidate1274"
         ],
-        "scope": "Historical 1091 and candidate 1250 pass scoped component assertions. Main remains Source 44bd25; Charmander/all-starter milestone acceptance remains pending. No milestone is accepted here."
+        "scope": "Unchanged named component scopes passed on final native Source. Main 5.1 acceptance belongs to Source 44bd25; private foundation journey/milestone acceptance remains pending."
       }
     },
     {
@@ -14568,7 +14580,7 @@
         "evidence": [
           "main950"
         ],
-        "notes": "Main Source 44bd25 still awaits Charmander/all-starter milestone acceptance. Candidate 1250 component evidence does not close it. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
+        "notes": "Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. Candidate 1274 component evidence does not qualify the new Source for campaign acceptance. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -14576,7 +14588,7 @@
         "evidence": [
           "main950"
         ],
-        "notes": "Main Source 44bd25 still awaits Charmander/all-starter milestone acceptance. Candidate 1250 component evidence does not close it. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
+        "notes": "Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. Candidate 1274 component evidence does not qualify the new Source for campaign acceptance. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
       },
       "full_mechanics": {
         "implementation": "partial",
@@ -14584,9 +14596,9 @@
         "evidence": [
           "main950"
         ],
-        "notes": "Main Source 44bd25 still awaits Charmander/all-starter milestone acceptance. Candidate 1250 component evidence does not close it. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
+        "notes": "Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. Candidate 1274 component evidence does not qualify the new Source for campaign acceptance. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
       },
-      "notes": "Main Source 44bd25 still awaits Charmander/all-starter milestone acceptance. Candidate 1250 component evidence does not close it. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
+      "notes": "Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements; this newer private foundation Source still needs its own journey and milestone acceptance. Candidate 1274 component evidence does not qualify the new Source for campaign acceptance. Earlier source evidence stays historical; no Route 22 or Mirror Move promotion."
     },
     {
       "id": "system:original-progression",
@@ -15810,9 +15822,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -16233,9 +16246,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -16686,9 +16700,10 @@
           "production-battle",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "ActualBide storage/release3rd/PP/receipt/protection scopes; nativeC-vsPS policy explicit. Not missing-damage-dispatch. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "ActualBide storage/release3rd/PP/receipt/protection scopes; nativeC-vsPS policy explicit. Not missing-damage-dispatch. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -16706,11 +16721,11 @@
       ],
       "staged": {
         "implementation": "private_foundation_candidate",
-        "verification": "actual1250SDK-Bide29",
+        "verification": "actual1274SDK-scoped",
         "evidence": [
-          "candidate1250"
+          "candidate1274"
         ],
-        "scope": "Same reviewed Bide subset rerun; no main or milestone acceptance."
+        "scope": "Unchanged named component scopes passed on final native Source. Main 5.1 acceptance belongs to Source 44bd25; private foundation journey/milestone acceptance remains pending."
       }
     },
     {
@@ -16850,9 +16865,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -17770,9 +17786,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -18663,9 +18680,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -18722,9 +18740,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -18781,9 +18800,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -20041,9 +20061,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -20289,9 +20310,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -20433,9 +20455,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -20846,9 +20869,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -21636,9 +21660,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -23286,9 +23311,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -24190,9 +24216,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -24425,9 +24452,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -24760,9 +24788,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -26597,9 +26626,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -26972,9 +27002,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -27578,9 +27609,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -27774,9 +27806,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -28250,9 +28283,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -28302,9 +28336,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -28402,9 +28437,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -28505,9 +28541,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -28959,7 +28996,8 @@
           "candidate1250",
           "runtime-scopes",
           "production-battle",
-          "production-moves"
+          "production-moves",
+          "candidate1274"
         ],
         "notes": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation; Roar-specific Soundproof gate. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls."
       },
@@ -29488,9 +29526,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -30013,9 +30052,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -30432,9 +30472,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -30492,9 +30533,10 @@
           "production-effects",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -30735,9 +30777,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -31295,9 +31338,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -31896,9 +31940,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": [
@@ -31998,9 +32043,10 @@
           "production-moves",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Definition exists. Exact behavior/PP/RNG/lifecycle not inferred from membership or effects count. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Definition exists. Exact behavior/PP/RNG/lifecycle not inferred from membership or effects count. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -32282,9 +32328,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -32610,9 +32657,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -32990,9 +33038,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -33271,9 +33320,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -34463,7 +34513,8 @@
           "candidate1250",
           "runtime-scopes",
           "production-battle",
-          "production-moves"
+          "production-moves",
+          "candidate1274"
         ],
         "notes": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation, Protect, priority and switch lifecycle assertions. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls."
       },
@@ -34831,9 +34882,10 @@
           "promotion-erratum",
           "current1091",
           "runtime-scopes",
-          "candidate1250"
+          "candidate1250",
+          "candidate1274"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1250 reran the named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
       },
       "notes": "",
       "capabilities": []
@@ -70876,6 +70928,6 @@
     "Source indexed counts \u2260 naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
     "104path-present/34promotion reports remain historical; exact34rowerratum overrides broad promotion.",
     "No all425/111 fullmechanics, campaigncompletion or physicaldevice claim.",
-    "950, 1059 and 1091 remain historical scoped evidence. Current candidate 9cc65c4 / Source 4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae has actual 1250 SDK passes. Main remains Source 44bd25; Charmander/all-starter acceptance remains pending."
+    "950, 1059, 1091 and candidate 1250 remain historical scoped evidence. Final native candidate 58495eb has 1274 passing SDK contracts. Main milestone 5.1 is accepted at 9104499 on Source 44bd25; this newer Source has no milestone 5.2 or all-starter acceptance."
   ]
 }

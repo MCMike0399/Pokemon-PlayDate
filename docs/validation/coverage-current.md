@@ -1,14 +1,18 @@
 # Current whole-game coverage
 
-This snapshot describes **private foundation candidate `9cc65c4`, not accepted main**.
-Its independently reconstructed Source SHA256 is
-`4f26ba79522681d67dca319311b0ad6285b195785a0f63900ae4c0e6406930ae`.
-Root executed that exact Source in the real SDK: **1250 passed, zero failed**;
-all **2494 protected catalog images** were exact, and both native artifact
-qualifications passed. [Candidate summary](coverage-evidence/candidate1250-summary.json).
-Main remains on Source `44bd25…`, waiting for Charmander and the current
-all-starter milestone gate. Full campaign, regional fidelity, full mechanics and
-physical-device acceptance remain unfinished. No milestone row is promoted.
+This snapshot describes **private foundation candidate `58495eb`, not an accepted
+milestone**. Its independently reconstructed Source SHA256 is
+`2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
+Root executed that exact Source in the real SDK: **1274 passed, zero failed**;
+all **2494 protected catalog images** were exact, with no additions, and both
+native artifact qualifications passed.
+[Final candidate summary](coverage-evidence/candidate1274-summary.json).
+
+Main milestone **5.1 is accepted at `9104499`** on Source `44bd25…`, covering all
+three starters and supplements. That acceptance belongs to the older Source.
+The newer private foundation candidate still needs its own integration journeys
+and milestone 5.2 acceptance. Full campaign, regional fidelity, full mechanics
+and physical-device acceptance remain unfinished. No new milestone row is promoted.
 
 [Current data](coverage-current.json) follows [the schema](coverage.schema.json)
 and [the full-game goal](../plans/full-game-goal.md). Source declarations and
@@ -43,8 +47,9 @@ remaining Kanto campaign. Authored Pallet and its interiors remain protected.
 Source-script declarations still need executable reachability review. Route 22,
 Mt. Moon and later regions are not installed or accepted by this refresh.
 
-Finish the root-owned Pallet → Brock gate, including Charmander and real
-Save/Continue, before accepting foundations or later regions. The goal retains
+The root accepted the Pallet → Brock gate with real Save/Continue for all three
+starters. Foundation integration journeys and acceptance on the newer Source
+remain pending before later regions. The goal retains
 every later region through League, credits and original postgame, all mechanics,
 audio, naming/options, resources and physical-device checks. Original Blue
 availability and technical support for 151 species remain distinct. No Mew
@@ -52,25 +57,33 @@ encounter, held-item loot or link policy is invented here.
 
 ## Live candidate evidence and preserved history
 
-The [compact contracts projection](coverage-evidence/candidate1250-contracts-projection.json)
+The [compact contracts projection](coverage-evidence/candidate1274-contracts-projection.json)
 is **not a raw packet**. It retains the complete native contracts reply unchanged:
-all 1250 test entries, all 86 suite records and their metadata, and build/session/
+all 1274 test entries, all 88 suite records and their metadata, and build/session/
 protocol/request identity. Catalog payload and unrelated snapshots/results are
-omitted. The original 1,215,286-byte packet remains at
-`~/Developer/Pokemon-PlayDate-env/evidence/m52-private-sdk-20261026-05/00001-result.json`,
-SHA256 `63890cf75a394d62342dd25a9fb7da39b62b45ce9c2b0bcd37b3aae1ab1e3231`.
-Both projection and summary explicitly pin that durable raw provenance. No new
-archive, screenshot or baseline is committed.
+omitted. The original 1,219,334-byte packet remains at
+`~/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/00001-result.json`,
+SHA256 `249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966`.
+Both projection and summary pin that durable raw provenance. The native
+qualification records match the exact packet, request, session, original Source
+and compiled Source; final capture publication confirms quiescence.
+
+This maintenance branch starts directly at `9ed4d36f0ba0b13734f109435070eaa0486ed506`.
+Its Source git tree equals native commit `58495ebbf67c2a49bb53293fc98d99b00bf136e8`.
+All 569 original file hashes match the native source manifest. Independent
+path/NUL/file-byte hashes of live Source and the reconstructed original staged
+Source agree; the complete compiled staged tree also matches its recorded hash.
 
 The [live runtime registry](../../tools/references/runtime-move-coverage.json)
-retains all 48 original scopes, states, capabilities and definition hashes.
-Its exact named tests were rerun successfully in the native 1250 report.
-Only five supported records needed reviewed drift updates:
+retains all **50 move records byte-for-byte at the parsed record level** from the
+1250 candidate, including all owners, assertions, definitions, scopes, states
+and capabilities. Every curated named assertion occurs with the same successful
+canonical test entry in the 1274 report. **No owner or assertion hash was rebound**
+and no record was promoted or downgraded to make a check pass. Only SDK/source
+provenance metadata is refreshed.
 
-- Captivate, Endeavor, Rage Powder and Sucker Punch: `canAttempt` adds a
-  Roar-only Soundproof guard before their unchanged attempt rules.
-- Assurance: the literal damage assertion now passes the actual queued actor;
-  HP, damage, PP and RNG expectations are unchanged.
+The earlier five reviewed drift updates (Captivate, Endeavor, Rage Powder,
+Sucker Punch and Assurance) remain exactly as established by the 1250 evidence.
 
 Ten unverified records retain their old hashes and remain **stale**: Dig,
 Earthquake, Explosion, Fury Cutter, Gyro Ball, Heavy Slam, Magnitude,
@@ -79,7 +92,7 @@ Self-Destruct, Smack Down and Helping Hand. The first nine retain declared
 are not rehashed into qualification. Helping Hand has a new named singles test,
 but this bounded refresh deliberately leaves its existing record unpromoted.
 
-Two additional records bring the curated registry to **50**. Whirlwind and Roar
+The original 48 records plus Whirlwind and Roar remain **50** curated records. Whirlwind and Roar
 have narrow runtime evidence for real wild escape/level failure, trainer reserve
 replacement, PP/RNG and actor cancellation; Roar includes its Soundproof guard.
 The native `whirlwind` suite has 27 cases and `move-failure` has six: **33 scoped
@@ -91,8 +104,10 @@ The [1091 registry](../../tools/references/runtime-move-coverage-current1091.jso
 is preserved byte-for-byte as static history alongside its unchanged
 [result](coverage-evidence/current1091-result.json) and
 [summary](coverage-evidence/current1091-summary.json). Historical assertions use
-that registry, while live Source checks use the candidate registry. Existing
-main950, private1059, natural journeys, failures, 511-event exposure and exact
+that registry, while live Source checks use the candidate registry. The [1250 projection](coverage-evidence/candidate1250-contracts-projection.json)
+and [1250 summary](coverage-evidence/candidate1250-summary.json) also remain
+byte-exact history. Existing main950, private1059, natural journeys, failures,
+511-event exposure and exact
 34-row promotion erratum remain unchanged and source-specific. The historical
 419-move detector is not today's mechanics truth.
 
@@ -119,15 +134,11 @@ move verifier still reports known gaps and unreviewed rules;
 Simulator, edits no Source or ledger, and grants no root acceptance. Simulator
 artifact and heap evidence does not establish physical-device behavior.
 
-Maintenance validation on this branch: fresh compile-only build succeeded;
-matrix validation passed all 1501 rows; the final identity/provenance/history
-checks passed 26 tests. The full host run executed 591 tests: 589 passed,
-two errors, **zero skips**. Both errors are capture-policy staging fixtures
-(`test_default_preserves_runtime_source_path` and
-`test_overlay_identity_and_original_bytes`): their synthetic main file lacks the
-candidate's required `imports-1` harness slot. They were reproduced separately
-and remain unchanged, outside this evidence maintenance scope. The full log is
-at `~/Developer/Pokemon-PlayDate-env/evidence/foundation-coverage-build-20261026-01/full-host.log`.
-The move verifier reports 151 species, 425 moves, zero scalar/learnset failures,
-39 scoped runtime rows, ten stale records, 100 requiring review and 285
-unreviewed; full runtime semantics remains false.
+Maintenance validation: fresh compile-only build succeeded; matrix validation
+passed all 1501 rows; focused checks passed **41 tests**; the full host suite
+passed **605 tests, zero failures, zero errors and zero skips**, using the env
+and that fresh bundle. Logs are retained under
+`~/Developer/Pokemon-PlayDate-env/evidence/foundation-final-coverage-build-20261026-01/`
+as `focused-host.log` and `full-host.log`. The earlier 1250-era host failures
+remain historical; this run does not rewrite their records. No Simulator,
+Source, ledger, baseline or main-branch change was made by this maintenance task.

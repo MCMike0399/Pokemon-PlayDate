@@ -7,7 +7,7 @@ from tools.verify_moves.parse_lua import ROOT, read_moves
 from tools.verify_moves.runtime_coverage import load_runtime_coverage
 
 
-class Candidate1250RefreshTests(unittest.TestCase):
+class CurrentFoundationCoverageTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.current = json.loads((ROOT / 'tools/references/runtime-move-coverage.json').read_text())
@@ -40,11 +40,11 @@ class Candidate1250RefreshTests(unittest.TestCase):
         projection = json.loads((ROOT / pin['path']).read_text())
         self.assertEqual(projection['evidence_format'], 'contracts-projection-v1')
         self.assertEqual(projection['raw_provenance'], pin['raw_provenance'])
-        self.assertEqual(pin['raw_provenance']['sha256'], '63890cf75a394d62342dd25a9fb7da39b62b45ce9c2b0bcd37b3aae1ab1e3231')
+        self.assertEqual(pin['raw_provenance']['sha256'], '249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966')
         self.assertEqual(pin['source_sha256'], fingerprint(ROOT))
-        self.assertTrue(pin['build_id'].startswith('9cc65c4b1fed0d1e1bdace128ce2900bb571f4a5:'))
+        self.assertTrue(pin['build_id'].startswith('58495ebbf67c2a49bb53293fc98d99b00bf136e8:'))
         report = projection['results'][0]['contracts']
-        self.assertEqual((report['passed'], report['failed'], len(report['tests'])), (1250, 0, 1250))
+        self.assertEqual((report['passed'], report['failed'], len(report['tests'])), (1274, 0, 1274))
         suites = {s['id']:s for s in report['suites']}
         self.assertEqual((suites['whirlwind']['passed'], suites['move-failure']['passed']), (27, 6))
         self.assertEqual(len(self.current['moves']['roar']['tests']), 3)
@@ -65,3 +65,39 @@ class Candidate1250RefreshTests(unittest.TestCase):
             self.assertEqual(row['full_mechanics']['verification'], 'sdk_scoped')
             self.assertEqual(row['campaign_path']['verification'], 'source_only')
             self.assertEqual(row['regional_fidelity']['verification'], 'unreviewed')
+
+    def test_all50_move_records_are_unchanged_from1250(self):
+        # Pin the complete prior reviewed set: no owner/assertion hashes or states rebound.
+        self.assertEqual(hashlib.sha256(json.dumps(self.current['moves'], sort_keys=True,
+                         separators=(',', ':')).encode()).hexdigest(), '5a90fa249dd9099a9f98963417a999ae3d3e0b60f1f2ae8df129541652edb6b6')
+
+    def test_historical_packets_remain_byte_exact(self):
+        expected = {'docs/validation/coverage-evidence/candidate1250-contracts-projection.json': '958e28ac9f34f8406fc1c100f58c5188c26d1ba5310f5f4a4b0cba68f62066b3', 'docs/validation/coverage-evidence/candidate1250-summary.json': '09215ebe8d621a600ee8462aff73fa3f78e3852a2095385ad1f2c06c38a772fb', 'docs/validation/coverage-evidence/current1091-result.json': '7be14560c490601b0057a5cbf98b415ad5a3e0cde33f9628d5735382f51a57a3', 'docs/validation/coverage-evidence/current1091-summary.json': '32f34c1e483168b8c5ef76f8a86d0fd32001d43657b140a327bceda738decf78'}
+        for path, digest in expected.items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+
+    def test_final_qualifications_bind_same_native_packet_and_source(self):
+        summary = json.loads((ROOT / self.current['accepted_summary']['path']).read_text())
+        self.assertEqual(summary['maintenance_base_commit'], '9ed4d36f0ba0b13734f109435070eaa0486ed506')
+        self.assertEqual(summary['candidate_commit'], '58495ebbf67c2a49bb53293fc98d99b00bf136e8')
+        proof = summary['identity_proof']
+        self.assertEqual(proof['source_git_tree'], proof['native_source_git_tree'])
+        self.assertEqual(proof['original_manifest_files'], 569)
+        self.assertEqual(proof['reviewed_move_records_unchanged_from1250'], 50)
+        self.assertEqual(proof['owner_or_assertion_hashes_rebound'], 0)
+        self.assertTrue(summary['outcome']['ok'])
+        comparison = summary['catalog_comparison']['summary']
+        self.assertTrue(comparison['comparison_ok'])
+        self.assertEqual(comparison['protected_checked'], 2494)
+        self.assertEqual(comparison['added_unreviewed'], [])
+        for item in summary['artifact_qualifications'].values():
+            qualified = item['qualification']
+            self.assertTrue(qualified['ok'])
+            self.assertTrue(qualified['quiescent'])
+            for field in ('build_id', 'session_id', 'source_sha256', 'compiled_source_sha256'):
+                self.assertEqual(qualified[field], summary[field])
+            for executed in qualified['executions']:
+                self.assertEqual(executed['result_sha256'], summary['raw_provenance']['sha256'])
+        matrix = json.loads((ROOT / 'docs/validation/coverage-current.json').read_text())
+        self.assertEqual(matrix['snapshot']['commit'], summary['candidate_commit'])
+        self.assertEqual(matrix['snapshot']['source_sha256'], summary['source_sha256'])
