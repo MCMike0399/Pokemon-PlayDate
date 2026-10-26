@@ -81,7 +81,7 @@ function PewterProviderContracts.run()
     end)
     test("unloaded checkpoint validation and inventory allocate no global or private render IDs",function()
         scope(function(g,p,registry)
-            local before=registry:maxID();eq(#p:inventory(),8);eq(#p:snapshot().cached,0)
+            local before=registry:maxID();eq(#p:inventory(),12);eq(#p:snapshot().cached,0)
             local location={zone_id="pokered:PEWTER_CITY",x=13,y=26,facing="down"}
             same(WorldDeltas.resolveLocation(location,{schema=1,zone_count=0,zones={}},g.sessionLocationPolicy),location)
             eq(registry:maxID(),before);eq(#p:snapshot().cached,0)

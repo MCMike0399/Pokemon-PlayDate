@@ -1,35 +1,18 @@
 -- Explicit four-map slice. Source coordinates remain inspectable after padding.
 KantoSlice = {}
-local names={Route1=true,ViridianCity=true,ViridianMart=true,ViridianPokecenter=true}
-local zoneKeys={Route1="kanto_route1",ViridianCity="kanto_viridian_city",ViridianMart="kanto_viridian_mart",ViridianPokecenter="kanto_viridian_center"}
-local cache={}
-local function copy(v) if type(v)~="table" then return v end;local r={};for k,x in pairs(v) do r[k]=copy(x) end;return r end
+import "world/sourceMaps"
+local names, zoneKeys = {}, {}
+for _, name in ipairs(SourceMaps.names("viridian")) do
+    names[name] = true
+    zoneKeys[name] = SourceMaps.entry(name).key
+end
 function KantoSlice.definition(name)
-    assert(names[name],"map outside explicit slice")
-    if not cache[name] then
-        local d=assert(json.decodeFile("data/viridianSlice/"..name..".json"))
-        assert(d.schema==1 and d.source_revision=="af519899719f0754965776faac0e836a3b906e6d","wrong source slice revision")
-        cache[name]=d
-    end
-    return copy(cache[name])
+    assert(names[name], "map outside explicit slice")
+    return SourceMaps.definition(name)
 end
 function KantoSlice.padded(name)
-    local d=KantoSlice.definition(name);local w,h=table.unpack(d.dimensions.cells)
-    local pad=math.max(0,(13-w)//2);local width=math.max(w,13)
-    d.source_dimensions=copy(d.dimensions);d.runtime_adapter.padding_cells={pad,0};d.runtime_adapter.source_name=name
-    if width==w then return d end
-    local grid={};for y=1,16 do grid[y]=string.rep("#",16) end
-    local id=#d.grids+1
-    d.grids[id]={id=id,stable_id="adapter:viridian-slice:void",grid=grid,terrain={foot_tile=-1,land_passable=false,grass=false,counter=false,warp_tile=false,water_candidate=false,adapter_padding=true}}
-    for y=1,h do
-        local tiles,collision={},{}
-        for x=1,width do tiles[x]=id;collision[x]=1 end
-        for x=1,w do tiles[x+pad]=d.tile_ids[y][x];collision[x+pad]=d.collision[y][x] end
-        d.tile_ids[y],d.collision[y]=tiles,collision
-    end
-    for _,events in pairs(d.events) do for _,event in ipairs(events) do event.source_x,event.source_y=event.x,event.y;event.x=event.x+pad end end
-    d.dimensions.cells={width,h};d.dimensions.playdate_pixels={width*32,h*32}
-    return d
+    assert(names[name], "map outside explicit slice")
+    return SourceMaps.padded(name)
 end
 function KantoSlice.specs(name,definitions)
     local d=definitions[name];local specs={}

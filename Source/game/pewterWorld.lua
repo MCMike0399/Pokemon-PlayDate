@@ -26,30 +26,38 @@ local function create(game,name,registry,desired,isolated)
     return zone
 end
 function PewterWorld.locationPolicy()
-    local policy=KantoWorld.locationPolicy()
-    for _,name in ipairs(PewterSlice.names()) do policy.sliceZones[PewterSlice.descriptor(name).id]=true end
+    local policy = { sliceZones = {} }
+    for _, name in ipairs(SourceMaps.names()) do
+        policy.sliceZones[SourceMaps.entry(name).id] = true
+    end
     return policy
 end
-function PewterWorld.createProvider(game,registry)
-    registry=registry or WorldTiles
-    if not game.trainers then game.trainers=TrainerEvents(game) end
-    return ImportedMaps(PewterSlice.compact(),{
-        registry=registry,
-        create=function(name,desired)return create(game,name,registry,desired,false)end,
-        ensureKeys=function(tiles)ensureKeys(registry,tiles)end,
-        release=function(zone)zone:disposeView()end,
+function PewterWorld.createProvider(game, registry)
+    if not game.trainers then game.trainers = TrainerEvents(game) end
+    local profiles = SourceMaps.legacyProfiles({
+        dispatch = function(id) return KantoWorld.dispatch(game, id) end,
+        questFlag = function(id) return game.session:questFlag(id) end,
+        sourceFlag = function(id) return game.trainers:sourceFlag(id) end,
     })
+    return SourceMaps.createProvider(profiles, registry or WorldTiles)
 end
 function PewterWorld.install(game)
-    if installed[game] then assert(WorldDeltas.definitionProvider()==installed[game],"Pewter world provider replaced");return installed[game] end
-    local policy=game.sessionLocationPolicy and game.sessionLocationPolicy.sliceZones
-    for _,name in ipairs(PewterSlice.names()) do local d=PewterSlice.descriptor(name)
-        assert(policy and policy[d.id]==true and not zoneRegistry[d.key],"explicit unloaded Pewter location policy required")
-        for _,zone in pairs(zoneRegistry) do assert(zone.stableID~=d.id,"Pewter stable map ID already owned") end
+    if installed[game] then
+        assert(WorldDeltas.definitionProvider() == installed[game], "source world provider replaced")
+        return installed[game]
     end
-    SourceActors.register("pewter",SourceActors.describePewter)
-    local provider=PewterWorld.createProvider(game)
-    WorldDeltas.installDefinitionProvider(provider);installed[game]=provider
+    local policy = game.sessionLocationPolicy and game.sessionLocationPolicy.sliceZones
+    for _, name in ipairs(SourceMaps.names()) do
+        local entry = SourceMaps.entry(name)
+        assert(policy and policy[entry.id] == true and not zoneRegistry[entry.key], "explicit unloaded source location policy required")
+        for _, zone in pairs(zoneRegistry) do
+            assert(zone.stableID ~= entry.id, "source stable map ID already owned")
+        end
+    end
+    SourceActors.register("pewter", SourceActors.describePewter)
+    local provider = PewterWorld.createProvider(game)
+    WorldDeltas.installDefinitionProvider(provider)
+    installed[game] = provider
     return provider
 end
 function PewterWorld.isolated(name)

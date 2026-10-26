@@ -1,15 +1,13 @@
 -- Eight reviewed source maps. Raw definitions are weakly cached, not eagerly
 -- constructed/registered. Existing zoneRegistry remains the sole Zone owner.
 PewterSlice={}
-local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
-local names={Route2=true,ViridianForestSouthGate=true,ViridianForest=true,ViridianForestNorthGate=true,PewterCity=true,PewterGym=true,PewterMart=true,PewterPokecenter=true}
-local rawCache=setmetatable({},{__mode="v"})
+import "world/sourceMaps"
+local names = {}
+for _, name in ipairs(SourceMaps.names("pewter")) do names[name] = true end
 local descriptors,trainerData,sprites,texts
 local function copy(v) if type(v)~="table" then return v end;local out={};for k,x in pairs(v) do out[k]=copy(x) end;return out end
 local function record(filename)
-    local d=assert(json.decodeFile("data/pewterSlice/"..filename..".json"),"missing pinned Pewter source data")
-    assert(d.schema==1 and d.source_revision==REVISION,"unverified Pewter source revision")
-    return d
+    return SourceMaps.record("data/pewterSlice/" .. filename .. ".json")
 end
 local function catalogue()
     if not descriptors then descriptors=record("descriptors").maps end
@@ -20,10 +18,8 @@ function PewterSlice.names()
 end
 function PewterSlice.descriptor(name) assert(names[name],"map outside Pewter slice");return copy(assert(catalogue()[name])) end
 function PewterSlice.definition(name)
-    assert(names[name],"map outside Pewter slice")
-    local d=rawCache[name]
-    if not d then d=record(name);assert(d.name==name and d.id==catalogue()[name].id,"Pewter map identity mismatch");rawCache[name]=d end
-    return copy(d)
+    assert(names[name], "map outside Pewter slice")
+    return SourceMaps.definition(name)
 end
 function PewterSlice.trainers()
     if not trainerData then
@@ -74,27 +70,14 @@ function PewterSlice.isDoor(name,x,y)
     return false
 end
 function PewterSlice.padded(name)
-    local d=PewterSlice.definition(name);local descriptor=PewterSlice.descriptor(name)
-    local width,height=table.unpack(d.dimensions.cells);local pad=descriptor.padding
-    d.source_dimensions=copy(d.dimensions);d.runtime_adapter.padding_cells={pad,0};d.runtime_adapter.source_name=name
-    if descriptor.width~=width then
-        local empty=PewterSlice.tile("adapter:pewter:void");local id=#d.grids+1
-        d.grids[id]={id=id,stable_id=empty.key,grid=empty.grid,terrain=empty.terrain}
-        for y=1,height do
-            local tiles,collision={},{}
-            for x=1,descriptor.width do tiles[x],collision[x]=id,1 end
-            for x=1,width do tiles[x+pad],collision[x+pad]=d.tile_ids[y][x],d.collision[y][x] end
-            d.tile_ids[y],d.collision[y]=tiles,collision
-        end
-    end
-    for _,events in pairs(d.events) do for _,event in ipairs(events) do event.source_x,event.source_y=event.x,event.y;event.x=event.x+pad end end
-    d.dimensions.cells={descriptor.width,height};d.dimensions.playdate_pixels={descriptor.width*32,height*32}
-    return d
+    assert(names[name], "map outside Pewter slice")
+    return SourceMaps.padded(name)
 end
-local constants={ROUTE_2="Route2",VIRIDIAN_FOREST_SOUTH_GATE="ViridianForestSouthGate",VIRIDIAN_FOREST="ViridianForest",VIRIDIAN_FOREST_NORTH_GATE="ViridianForestNorthGate",PEWTER_CITY="PewterCity",PEWTER_GYM="PewterGym",PEWTER_MART="PewterMart",PEWTER_POKECENTER="PewterPokecenter"}
-function PewterSlice.nameForID(id) return constants[id:match("^pokered:(.+)$")] end
+function PewterSlice.nameForID(id)
+    return SourceMaps.nameForID(id, "pewter")
+end
 function PewterSlice.warpSpec(name,event)
-    local destination=event.destination;local target=constants[destination.map]
+    local destination=event.destination;local target=SourceMaps.nameForID("pokered:" .. tostring(destination.map), "pewter")
     if destination.kind=="last_outdoor_map" then target=(name=="ViridianForestSouthGate" or name=="ViridianForestNorthGate") and "Route2" or "PewterCity" end
     if not target then return {status="blocked",reason="original target map outside reviewed Pewter slice"} end
     local d=PewterSlice.descriptor(target);local arrival=assert(d.warps[destination.warp_index],"source target warp index absent")

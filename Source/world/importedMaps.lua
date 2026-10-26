@@ -1,5 +1,5 @@
 -- Immutable definition validation + sparse durable deltas, independent of the
--- disposable two-Zone/view cache. Validation never calls the factory/registry.
+-- bounded Zone/view cache. Validation never calls the factory/registry.
 Class("ImportedMaps")
 local stores=setmetatable({},{__mode="k"})
 local function copy(v) if type(v)~="table" then return v end;local out={};for k,x in pairs(v) do out[k]=copy(x) end;return out end
@@ -62,6 +62,10 @@ function ImportedMaps:init(data,factory)
     assert(type(data)=="table" and data.schema==1 and data.source_revision=="af519899719f0754965776faac0e836a3b906e6d","unverified compact imported definitions")
     assert(type(factory)=="table" and type(factory.create)=="function" and type(factory.ensureKeys)=="function" and type(factory.release)=="function","explicit native imported factory required")
     local store={data=copy(data),factory=factory,byID={},byKey={},base={},ledger={},cache={},order={},pins={},count=0}
+    -- Preserve the four original eager Zone identities inside this same cache.
+    -- Other source maps share the existing two disposable actor/view slots.
+    store.resident = copy(factory.residentKeys or {})
+    store.residentCount = 0
     for id=1,37 do local entry=WorldTiles:entry(id);store.base[entry.key]={key=entry.key,collision=entry.collision,terrain=entry.terrain} end
     for name,d in pairs(store.data.maps) do
         assert(d.name==name and not store.byID[d.id] and not store.byKey[d.key] and type(d.revision)=="string","duplicate imported descriptor identity")
@@ -70,6 +74,10 @@ function ImportedMaps:init(data,factory)
         for _,key in ipairs(d.palette) do metadata(store,key) end
         for y=0,d.height-1 do for x=0,d.width-1 do rowKey(store,d,x,y) end end
         store.byID[d.id],store.byKey[d.key]=d,d;store.count=store.count+1
+    end
+    for key, resident in pairs(store.resident) do
+        assert(resident == true and store.byKey[key], "unknown resident source map")
+        store.residentCount = store.residentCount + 1
     end
     stores[self]=store
 end
@@ -113,11 +121,19 @@ function ImportedMaps:_ensure(key)
     end
     assert(not zoneRegistry[key],"imported registry key already owned")
     local evict
-    if #store.order>=2 then
-        for _,id in ipairs(store.order) do
-            if (store.pins[id] or 0)==0 and (not currentZone or currentZone.stableID~=id) then evict=id;break end
+    local dynamicCount = 0
+    for _, id in ipairs(store.order) do
+        if not store.resident[store.byID[id].key] then dynamicCount = dynamicCount + 1 end
+    end
+    if not store.resident[key] and dynamicCount >= 2 then
+        for _, id in ipairs(store.order) do
+            if not store.resident[store.byID[id].key] and (store.pins[id] or 0) == 0
+                and (not currentZone or currentZone.stableID ~= id) then
+                evict = id
+                break
+            end
         end
-        assert(evict,"all bounded imported Zone slots are in use")
+        assert(evict, "all bounded imported Zone slots are in use")
     end
     local desired=copy(store.ledger[d.id] or empty(d))
     local zone=assert(store.factory.create(d.name,desired),"imported Zone construction failed")
@@ -171,7 +187,7 @@ function ImportedMaps:mutate(zone,x,y,key)
 end
 function ImportedMaps:snapshot()
     local store=stores[self];local keys={};for _,id in ipairs(store.order) do keys[#keys+1]=store.byID[id].key end
-    return {capacity=2,cached=keys,delta_zones=self:export().zone_count}
+    return {capacity=2+store.residentCount,cached=keys,delta_zones=self:export().zone_count}
 end
 
 -- Capture private cache references before installation; the returned closure is
@@ -201,11 +217,23 @@ end
 
 -- Explicit actor/session teardown only. Sparse durable state is independent;
 -- ordinary eviction never invokes this reset or changes quest/trainer flags.
+-- Resident compatibility Zones retain the same lifetime as their former eager
+-- registrations; WorldDeltas.reset applies their terrain reset separately.
 function ImportedMaps:disposeCache()
     local store=stores[self]
     for _,count in pairs(store.pins) do assert(count==0,"imported actor/view still pinned during reset") end
-    for _,zone in pairs(store.cache) do store.factory.release(zone);removeRegistry(store,zone) end
-    store.cache,store.order,store.pins={},{},{}
+    local cache, order = {}, {}
+    for _, id in ipairs(store.order) do
+        local zone = store.cache[id]
+        if store.resident[store.byID[id].key] then
+            cache[id] = zone
+            order[#order + 1] = id
+        else
+            store.factory.release(zone)
+            removeRegistry(store, zone)
+        end
+    end
+    store.cache, store.order, store.pins = cache, order, {}
 end
 function ImportedMaps:inventory()
     local result={};for _,d in pairs(stores[self].data.maps) do
@@ -234,3 +262,6 @@ function ImportedMaps:surface(id,candidateWorld)
     end
     return {zone_id=id,revision=d.revision,width=d.width,height=d.height,collision=collision,feet=feet}
 end
+
+-- Shared source importer/factory used by both world installation facades.
+import "world/sourceMapProvider"

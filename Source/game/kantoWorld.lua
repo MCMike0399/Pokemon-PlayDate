@@ -14,36 +14,33 @@ function KantoWorld.locationPolicy()
     return {sliceZones=list}
 end
 function KantoWorld.install(game)
-    assert(game and game.machine and game.session,"Kanto traversal needs the authoritative context")
-    local policy=game.sessionLocationPolicy and game.sessionLocationPolicy.sliceZones
-    for _,id in pairs(stable) do assert(policy and policy[id]==true,"explicit Kanto save-location policy required") end
+    assert(game and game.machine and game.session, "Kanto traversal needs the authoritative context")
+    local policy = game.sessionLocationPolicy and game.sessionLocationPolicy.sliceZones
+    for _, id in pairs(stable) do
+        assert(policy and policy[id] == true, "explicit Kanto save-location policy required")
+    end
     if installed[game] then
         SliceSprites.install()
-        for key,zone in pairs(installed[game]) do assert(zoneRegistry[key]==zone,"installed Kanto map registry replaced") end
+        for key, zone in pairs(installed[game]) do
+            assert(zoneRegistry[key] == zone, "installed Kanto map registry replaced")
+        end
         return refs(installed[game])
     end
-    for _,name in ipairs(names) do
-        assert(not zoneRegistry[keys[name]],"Kanto registry key already belongs to another installation")
-        for _,zone in pairs(zoneRegistry) do assert(zone.stableID~=stable[name],"duplicate Kanto stable map ID") end
+    -- The legacy facade keeps its four stable Zone references, but their
+    -- construction, durable deltas and cache ownership now use one provider.
+    local provider = PewterWorld.install(game)
+    local zones = {}
+    local restoreCache = provider:checkpointRuntime()
+    local restoreTiles = WorldTiles:checkpointRuntime()
+    local ok, problem = pcall(function()
+        for _, name in ipairs(names) do zones[keys[name]] = provider:ensure(keys[name]) end
+    end)
+    if not ok then
+        restoreCache()
+        restoreTiles()
+        error(problem, 0)
     end
-    SliceSprites.install()
-    local function dispatch(id) KantoWorld.dispatch(game,id);return nil end
-    local function questFlag(id) return game.session:questFlag(id) end
-    -- Validate all four definitions, IDs, source bindings and collisions before
-    -- allocating global tile IDs or committing any map registration.
-    local preview=TileRegistry();local entries={}
-    for _,name in ipairs(names) do
-        local candidate=KantoSlice.create(name,{registry=preview,dispatch=dispatch,questFlag=questFlag})
-        assert(candidate.stableID==stable[name] and candidate.name==name,"source map filename/identity mismatch")
-        for _,entry in ipairs(KantoSlice.padded(name).grids) do
-            entries[#entries+1]={key=entry.stable_id,grid=entry.grid,collision=entry.terrain.land_passable and 0 or 1,terrain=entry.terrain}
-        end
-    end
-    WorldTiles:validateBatch(entries)
-    local zones={}
-    for _,name in ipairs(names) do zones[keys[name]]=KantoSlice.create(name,{registry=WorldTiles,dispatch=dispatch,questFlag=questFlag}) end
-    for _,name in ipairs(names) do registerZone(keys[name],zones[keys[name]]) end
-    installed[game]=zones
+    installed[game] = zones
     return refs(zones)
 end
 function KantoWorld.connection(game,zone,x,y,direction)
