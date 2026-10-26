@@ -80,7 +80,13 @@ function SliceContracts.run()
         local zone=KantoSlice.create("ViridianCity",options());eq(zone:isSliceReady(),true);eq(zone:isCampaignReady(),false)
         eq(zone.collision[16][22],1);eq(zone:bindingAt(21,15).id,"pokered:VIRIDIAN_CITY:warps:3")
         rejects(function() zone:getDoorAt(21,15) end)
-        local found=false;for _,issue in ipairs(zone:getBindingIssues()) do if issue.id=="north:ROUTE_2" then found=true end end;eq(found,true)
+        local northBlocked, westBlocked = false, false
+        for _, issue in ipairs(zone:getBindingIssues()) do
+            if issue.id == "north:ROUTE_2" then northBlocked = true end
+            if issue.id == "west:ROUTE_22" then westBlocked = true end
+        end
+        eq(northBlocked, false)
+        eq(westBlocked, true)
     end) end)
     test("conditional original NPC visibility owns occupancy without permanent collision",function() sprites(function()
         local gotDex=false;local opts=options();opts.questFlag=function() return gotDex end
