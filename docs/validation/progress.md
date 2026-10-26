@@ -49,7 +49,9 @@ Evidence is under `~/Developer/Pokemon-PlayDate-env/evidence/` in
 
 The historical Squirtle pass, Bulbasaur driver failure and interrupted Charmander
 run retain their original statuses. They do not satisfy this fresh gate.
-Level 16 training is an evolution witness, not evidence of normal pacing.
+Charmander retains the level-16 natural evolution witness. Squirtle and
+Bulbasaur use bounded level-8 preparation; evolution accept/cancel also have
+separate passing supplementary cases. These are not pacing or balance proof.
 After 5.1, continue through 5.2 foundations and every later milestone without
 stopping at Brock. The full goal defines the completion criteria.
 
@@ -60,7 +62,8 @@ Bulbasaur and the five supplements pass; Charmander and Squirtle remain pending.
 The long Charmander attempt failed after natural evolution: command timeout,
 unconfirmed cancellation, and unfinalized captures. Frame 77835’s recent PNG is
 zero bytes; no Lua error was published. A fresh same-coordinate Pewter step
-passes. The root is running paired capture stress before the next long retry.
+passes. Both 4,096-capture stress arms passed, with and without explicit GC. The cause
+remains unknown; the long retry will record process memory. Capture code is unchanged.
 The capture stall’s cause is not established. No production defect appeared
 in the baseline, native return or five supplementary checks.
 Unsupported moves, separate map/event pipelines and production dev imports are
