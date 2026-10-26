@@ -174,7 +174,7 @@ function CeruleanContentContracts.run()
             for _, grid in pairs(strip.frames) do
                 local rendered = SpriteFactory.makeSprite(grid, { 0, 0 })
                 local width, height = rendered:getSize()
-                assert(width == 32 and height == 32 and rendered:getMask(), "source sprite image/mask missing")
+                assert(width == 32 and height == 32 and rendered:getMaskImage(), "source sprite image/mask missing")
             end
         end
     end)

@@ -436,7 +436,7 @@ end
 local function settledWorld(game)
     local player, world = game.player, game.machine:get("overworld")
     return game.machine:getCurrent() == "overworld" and game.machine:depth() == 1
-        and world and world.sub:getCurrent() == "explore"
+        and world and world.sub and world.sub:getCurrent() == "explore"
         and game.session:getIntro().stage == "done" and player
         and not player.isMoving and not player.pendingEdgeDoor and not player.pendingConnection
 end

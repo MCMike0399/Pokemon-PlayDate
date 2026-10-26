@@ -580,12 +580,21 @@ function SourceMapContracts.run()
         if not ok then error(problem, 0) end
     end)
 
-    test("Pewter compact descriptors retain all prior identities palettes rows and blockers", function()
+    test("Pewter descriptors retain prior data except the declared museum openings", function()
         scope(function(provider)
             for _, original in pairs(assert(json.decodeFile("data/pewterSlice/compact.json")).maps) do
                 local descriptor = provider:descriptor(original.id)
                 for _, field in ipairs({ "id", "key", "revision", "width", "height", "padding", "source_width", "palette", "tile_rows", "blocked" }) do
-                    same(descriptor[field], original[field])
+                    local expected = original[field]
+                    if field == "blocked" and original.id == "pokered:PEWTER_CITY" then
+                        expected = GameSession._copy(expected)
+                        for cell, id in pairs(expected) do
+                            if id == "pokered:PEWTER_CITY:warps:1" or id == "pokered:PEWTER_CITY:warps:2" then
+                                expected[cell] = nil
+                            end
+                        end
+                    end
+                    same(descriptor[field], expected)
                 end
             end
         end)

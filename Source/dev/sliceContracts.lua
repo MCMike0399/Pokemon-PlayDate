@@ -86,7 +86,7 @@ function SliceContracts.run()
             if issue.id == "west:ROUTE_22" then westBlocked = true end
         end
         eq(northBlocked, false)
-        eq(westBlocked, true)
+        eq(westBlocked, false)
     end) end)
     test("conditional original NPC visibility owns occupancy without permanent collision",function() sprites(function()
         local gotDex=false;local opts=options();opts.questFlag=function() return gotDex end

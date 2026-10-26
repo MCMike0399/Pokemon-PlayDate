@@ -134,10 +134,15 @@ function CommonAbilityContracts.run()
 
     test("Protect blocks Water before Dry Skin healing with no accuracy/damage draws", function()
         local b = fresh()
-        attempt(b,"enemy","protect",2)
+        own(b.player,{"waterGun"})
+        own(b.enemy,{"protect"})
         b.enemy.hp=10
-        attempt(b,"player","waterGun")
-        eq(b.enemy.hp,10); eq(b.player.pp.waterGun,24); eq(RulesRNG.snapshot().rolls,0)
+        RulesRNG.seed(2)
+        assert(b:selectMove(1))
+        settle(b)
+        eq(b.enemy.hp,10); eq(b.player.pp.waterGun,24)
+        eq(b.enemy.pp.protect,9)
+        eq(RulesRNG.snapshot().rolls,1) -- Enemy selection only.
     end)
 
     test("Worry Seed removes water absorption without changing native Paras slot", function()
