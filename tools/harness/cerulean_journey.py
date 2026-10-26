@@ -682,6 +682,11 @@ class CeruleanJourney(BrockJourney):
                        intro="skip", opening=False,
                        player_pokemon={"species": self.starter, "level": 1 if case == "blackout" else 40},
                        inventory={"money": 3000, "slots": [] if case == "blackout" else [{"id": item, "quantity": 1} for item in FULL_BAG]})
+        if case in {"tm11-full-retry", "blackout"}:
+            # Misty's only approach lies in the junior trainer's sight line.
+            # Start at the normal safe spawn, then handle any real approach
+            # and battle while navigating; no defeat is supplied by a fixture.
+            options["entry"] = copy.deepcopy(self.map_manifest["maps"]["CeruleanGym"]["spawn"])
         if case == "blackout":
             options["player_pokemon"]["hp"] = 1
         self.initializing = True
