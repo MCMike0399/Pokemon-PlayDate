@@ -1,0 +1,11 @@
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -244,5 +244,8 @@
+ import "dev/daycareContracts"
+ Contracts.register("daycare", DaycareContracts.run)
+
++import "dev/vermilionAbilityContracts"
++Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
++
+ -- @harness runtime
+ harness = Harness

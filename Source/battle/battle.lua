@@ -430,15 +430,20 @@ end
 -- ============================================================
 
 -- Effective speed: stage-modified, quartered by paralysis (Gen V)
-local function effectiveSpeed(pokemon,conditions)
+local function effectiveSpeed(pokemon, conditions, effects)
     local speed = applyStageMod(pokemon.spe, pokemon.statStages.spe)
     if conditions then speed=conditions:speed(pokemon,speed) end
+    if effects then
+        speed = effects:speed(pokemon, speed)
+    end
     if pokemon.status == "paralyze" then
         speed = math.floor(speed / 4)
     end
     return math.max(1,speed)
 end
-function Battle:effectiveSpeed(pokemon) return effectiveSpeed(pokemon,self.conditions) end
+function Battle:effectiveSpeed(pokemon)
+    return effectiveSpeed(pokemon, self.conditions, self.effects)
+end
 -- Pure current-state power observation; shares the production pipeline.
 function Battle:effectiveMovePower(move,attacker,defender)
     if move.category=="status" or (move.power==0 and not move.powerRule) then return 0 end
@@ -1030,7 +1035,8 @@ function Battle:performMove(move)
     -- enables Thunder Wave's type immunity without changing generic status.
     if (move.category~="status" or move.typeImmunity) and not move.typeless
        and opponentTargets[move.targetId or 10]
-       and self:typeMatchup(move.type,defender)==0 then
+       and (self:typeMatchup(move.type,defender)==0
+            or self.effects:groundImmune(attacker, defender, move)) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say("It doesn't affect " .. defender.name .. "...")
         self.conditions:moveFinished(move,false)
@@ -1045,7 +1051,7 @@ function Battle:performMove(move)
         return nil
     end
 
-    if opponentTargets[move.targetId or 10] and self.effects:absorbsWater(attacker,defender,move) then
+    if opponentTargets[move.targetId or 10] and self.effects:absorbsMove(attacker,defender,move) then
         self.conditions:moveFinished(move,false)
         return nil
     end
@@ -1117,7 +1123,7 @@ function Battle:performMove(move)
             -- C DamageListCore: drain, secondary effects, contact reactions;
             -- whole-move recoil follows DamageMultiHit, before terminal verdict.
             if receipt.removed>0 and move.drain and move.drain>0 then
-                attacker:heal(math.max(1,math.floor(receipt.removed*move.drain/100+0.5)))
+                self.effects:drainHit(receipt)
                 self:say(defender.name .. " had its energy drained!")
             end
             self:applyMoveSecondaries(move)
@@ -1340,12 +1346,17 @@ function Battle:endOfRoundStatus()
     local weatherFaint,conditionFaint
     for index,event in ipairs(events)do
         local condition=conditionStage(event)
-        if event.owner=="effects"then self.effects:residual(event)else self.conditions:residual(event)end
-        if event.pokemon and not event.pokemon:isAlive()then
+        local reflectedFaintSide
+        if event.owner == "effects" then
+            self.effects:residual(event)
+        else
+            reflectedFaintSide = self.conditions:residual(event)
+        end
+        if event.pokemon and (not event.pokemon:isAlive() or reflectedFaintSide) then
             if event.kind=="sand"then weatherFaint=event.side
             elseif condition then
                 self:setDirection(event.side=="player"and "enemy"or "player")
-                local last,changed=self:_registerFaints(event.side)
+                local last,changed=self:_registerFaints(reflectedFaintSide or event.side)
                 if changed then conditionFaint=last end
             else
                 self:setDirection(event.side=="player"and "enemy"or "player")
