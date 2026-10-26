@@ -72,7 +72,12 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
   extended to the pinned standard layout; its actual blackout supplement passed.
 - The first natural Squirtle run reached Mt. Moon after Brock and level-16
   evolution, then exposed a driver release-gate bug. Fix `ab51b14` passes 50
-  main host checks; a fresh three-starter suite is live. The failed run earns no acceptance credit.
+  main host checks. The subsequent early trial was stopped for the reviewed
+  contract cleanup; final starter journeys wait for the combined native pass.
+- Physical-lead field effects passed 1612 native contracts after correcting
+  Pikachu's held-item draw expectation. Seven ordinary ability hooks and the
+  source indoor-land encounter repair are composed; their combined rerun is live.
+  The cave before-fix witness failed on all three Mt. Moon floors as expected.
 - New visual exporter declares 2448 additions. Native scene, map, art and journey
   acceptance remain pending. The user approved exactly the museum collision diagnostic update (two door cells,
   2048 pixels); all other 2493 protected images match. Private baseline approval
@@ -89,8 +94,9 @@ ini, the full two-process retry passed. Observed footprint was 63–72 MB, peak
 was submitted. This was an environment repair, not a game Source change.
 Diagnostic capture sampling remains optional, default interval 1.
 
-No open defect blocks accepted 5.2. Private Cerulean ability exposure and native
-acceptance remain pending.
+No open defect blocks accepted 5.2. Private Cerulean cave encounters, the repaired
+Protect fixtures and final native/campaign acceptance remain pending. Coverage
+fingerprints must be refreshed from the final native evidence, not blanket rehashed.
 Later regions, common mechanics, audio and release checks remain unfinished.
 
 ## 4. Work in flight
@@ -98,16 +104,9 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | `478fac7` retains frozen game Source and fixes only the driver. Three-starter suite: `m53-natural-all-starters-20261026-02`; current Squirtle run is live. |
-| `wip/vermilion-integration` / root | Private `bad5882` composes prepared maps, Cut/Flash lifecycle, quest gifts, Anne/Surge APIs and Day Care/schema 3. Active maps remain 30; native acceptance and 65-map activation are pending. Day Care build and 23 focused host/build checks pass. |
-| Cerulean spec reviewer | Independently checking the repaired candidate against the goal; static review only. |
-| Vermilion journey worker | Preparing natural starter journeys and bounded supplementary retries. |
-| Anne/Surge worker | Finishing source ship departure presentation and the closed Gym-door tile dependency. |
-| `wip/kanto-entry-abilities` / worker | `e8844a3` composed; actual native entry cases passed after fixture repairs. |
-| `wip/kanto-contact-abilities` / worker | `a408642`/`3cc5925` composed; actual native contact cases passed after live-ledger fixture repairs. |
-| `wip/audio-rgbds-oracle` / worker | `dadb7b3` independently qualifies emitted bytes with isolated pinned Bison/RGBDS; no engine/APU claim. |
-| `wip/audio-offline-renderer` / worker | `8def326` prepares deterministic PCM mix/stems; listening and independent APU qualification pending. |
-| `wip/audio-sdk-probe` / worker | `7e8c496` prepares two compiled backend probes; runtime is root-only and unrun. |
+| `wip/cerulean-integration` / root | `b1f0bd8`; combined cave/ability SDK run `m53-cave-and-abilities-sdk-20261026-01` is live. Repaired starter journeys run next. |
+| `wip/vermilion-integration` / root | Private `a07365b` has 65 shared maps, Cut/Flash, gifts, Anne/Surge/ship, Day Care/schema 3, natural collection and the 1702-image visual extension. Activation passed 84 host checks; collection/catalog passed 58. Native acceptance remains pending. |
+| `wip/audio-integration` / root | Host parser/rendering and independently assembled RGBDS bytes are composed; 60 host checks pass. Backend runtime probes, listening and APU qualification remain pending. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
 Earlier foundation workers are composed privately; exact commits/task IDs remain
@@ -120,3 +119,5 @@ in environment evidence at `brock-5.1-20261026-01/worker-tasks.json`.
 - Use worktree branches and durable environment evidence; no new tarballs.
 - Root independently accepts work and commits accepted steps to local main.
 - Continue all campaign/postgame milestones; push only when explicitly asked.
+- Pickup's exact B2W2 loot table is documented in `docs/research/pickup-policy.md`;
+  the explicit acquisition-policy question is pending. No new loot is authorized yet.
