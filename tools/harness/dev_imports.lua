@@ -197,5 +197,8 @@ Contracts.register("source-events",SourceEventContracts.run)
 import "dev/sourceTextContracts"
 Contracts.register("source-text", SourceTextContracts.run)
 
+import "dev/scriptedNPCContracts"
+Contracts.register("scripted-npc", ScriptedNPCContracts.run)
+
 -- @harness runtime
 harness = Harness

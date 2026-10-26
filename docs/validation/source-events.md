@@ -41,12 +41,12 @@ and sixteen cases per level. Future content adds data under stable IDs and may
 register named text and trainer data resolvers. Existing content adapters retain
 their reviewed text/RAM behavior.
 
-NPC movement uses native sprite positioning at eight frames per cell and rolls
-back an incomplete cell on cancellation. It requires a settled stationary actor,
-a legal walk pair, an unoccupied destination and (when attached) a pose accepted
-by WorldMotionData. Random walkers remain owned by NPCMotion and are explicitly
-rejected; transferring that authority needs a separate NPCMotion seam. This
-operation does not introduce a new walking-art family.
+NPC movement leases tracked actors from NPCMotion, which owns their source-art
+steps, reservations and completed poses. Scripts retain each lease across dialog
+and release it on completion, cancellation or failure. The incomplete cell rolls
+back; completed cells remain. Explicit stable-ID position metadata extends script
+placement while autonomous wandering keeps its original bounds. Read
+[scripted-npc.md](scripted-npc.md) when changing these ownership or pose rules.
 
 Warp is terminal. The destination is resolved through WorldDeltas before commit;
 loaded NPC occupancy and available unloaded source actor descriptors are checked.

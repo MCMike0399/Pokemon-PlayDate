@@ -185,7 +185,8 @@
     "dev/moveFailureContracts",
     "dev/sourceMapContracts",
     "dev/sourceEventContracts",
-    "dev/sourceTextContracts"
+    "dev/sourceTextContracts",
+    "dev/scriptedNPCContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -273,6 +274,7 @@
     "Contracts.register(\"move-failure\", MoveFailureContracts.run)",
     "Contracts.register(\"source-maps\", SourceMapContracts.run)",
     "Contracts.register(\"source-events\",SourceEventContracts.run)",
-    "Contracts.register(\"source-text\", SourceTextContracts.run)"
+    "Contracts.register(\"source-text\", SourceTextContracts.run)",
+    "Contracts.register(\"scripted-npc\", ScriptedNPCContracts.run)"
   ]
 }
