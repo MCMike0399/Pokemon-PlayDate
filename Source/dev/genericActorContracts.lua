@@ -45,8 +45,20 @@ local function scene(fn)
                     profiles.source = {options=function() return SourceBindings.options("source", deps) end,
                         prepare=SourceActors.installArt}
                     zoneRegistry, zoneList, currentZone = {}, {}, nil
+                    -- The codec also validates the real Pallet healing checkpoint.
+                    -- Keep authored locations available without importing the live
+                    -- provider's cached source Zones into this isolated provider.
+                    for _, key in ipairs(oldList) do
+                        local zone = oldRegistry[key]
+                        if not zone.imported then
+                            zoneRegistry[key] = zone
+                            zoneList[#zoneList + 1] = key
+                        end
+                    end
                     provider = SourceMaps.createProvider(profiles, TileRegistry())
                     WorldDeltas._withDefinitionProvider(provider, function()
+                        same(WorldDeltas.resolveLocation(g.session:checkpoint(), provider:export(),
+                            g.sessionLocationPolicy), g.session:checkpoint())
                         g.trainers = TrainerEvents(g)
                         currentZone = provider:ensure("fixture_ViridianSchoolHouse")
                         g.player = Player(3, 5, currentZone.collision, g.npcManager)
@@ -101,9 +113,11 @@ function GenericActorContracts.run()
             assert(g.session:captureTraversal({location={zone_id=currentZone.stableID,x=3,y=5,facing="up"},
                 world=WorldDeltas.export(), actors=motion:snapshot()}))
             local wire = assert(SessionCodec.encode(g.session, {root="overworld",overworld="explore",settled=true}))
+            same(wire.checkpoint, g.session:checkpoint())
             for _=1,7 do motion:tick() end
             local expected, worldRNG = motion:snapshot(), g.session:worldRngData()
             g.session = assert(SessionCodec.decode(wire, g:getSessionDependencies()))
+            same(g.session:checkpoint(), wire.checkpoint)
             motion:attach(g, currentZone, g.session:actorData())
             eq(npc.x,x); eq(npc.y,y); eq(npc:getImage(),image)
             for _=1,7 do motion:tick() end
@@ -114,7 +128,10 @@ function GenericActorContracts.run()
         scene(function(g, motion, provider)
             local descriptor = assert(SourceActors.describe(currentZone.stableID, provider:export()))
             local spec = descriptor.actors[1]
-            eq(descriptor.canStand(spec,6,7),false) -- exit warp
+            -- Pinned source exits (2,7)/(3,7), padded by two columns.
+            eq(descriptor.canStand(spec,4,7),false)
+            eq(descriptor.canStand(spec,5,7),false)
+            eq(descriptor.canStand(spec,6,7),true) -- adjacent ordinary floor
             eq(descriptor.canStand(spec,0,5),false) -- padded void
             g.player.gridX, g.player.gridY = 6,5
             motion:tick(); eq(motion:actor(g.npcManager.npcs[1]).phase,"delay")
@@ -128,7 +145,7 @@ function GenericActorContracts.run()
             rejects(function() motion:attach(g,currentZone,bad) end)
             same(motion:snapshot(),before)
             bad = Party._primitive(before)
-            bad.actors[1].x,bad.actors[1].origin_x,bad.actors[1].target_x = 6,6,6
+            bad.actors[1].x,bad.actors[1].origin_x,bad.actors[1].target_x = 4,4,4
             bad.actors[1].y,bad.actors[1].origin_y,bad.actors[1].target_y = 7,7,7
             rejects(function() motion:attach(g,currentZone,bad) end)
             same(motion:snapshot(),before)
@@ -195,7 +212,8 @@ function GenericActorContracts.run()
             currentZone.collision[4][4] = before
             local walker = g.npcManager.npcs[1]
             local descriptor = SourceActors.describe(currentZone.stableID,WorldDeltas.export())
-            eq(descriptor.protected[7*currentZone.width+6+1],true)
+            eq(descriptor.protected[7*currentZone.width+4+1],true)
+            eq(descriptor.protected[7*currentZone.width+5+1],true)
             eq(g.npcManager:getNPCAt(walker.gridX,walker.gridY),walker)
             g.player.isMoving = true
             local steps, reason = g.trainers:approach(npc,"sight")

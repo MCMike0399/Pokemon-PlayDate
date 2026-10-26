@@ -33,6 +33,17 @@ class GenericActorInputTests(unittest.TestCase):
         self.assertEqual(self.fixture['objects'][0]['movement'], 'WALK')
         self.assertEqual(self.fixture['objects'][0]['range_or_facing'], 'RIGHT')
 
+    def test_native_witness_coordinates_match_pinned_padded_geometry(self):
+        padding = self.entry['padding']
+        exits = {(w['x'] + padding, w['y']) for w in self.raw['events']['warps']}
+        self.assertEqual(exits, {(4, 7), (5, 7)})
+        # The old (6,7) warp assertion targeted ordinary passable floor.
+        self.assertNotIn((6, 7), exits)
+        self.assertEqual(self.raw['collision'][7][6 - padding], 0)
+        walker = self.fixture['objects'][0]
+        self.assertEqual((walker['x'] + padding, walker['y']), (5, 5))
+        self.assertEqual(self.raw['collision'][5][6 - padding], 0)
+
     def test_fixture_reuses_pinned_art_and_valid_roster_content(self):
         roster = json.loads((ROOT / 'Source/data/pewterSlice/trainers.json').read_text())
         self.assertEqual(roster['source_revision'], self.fixture['source_revision'])
