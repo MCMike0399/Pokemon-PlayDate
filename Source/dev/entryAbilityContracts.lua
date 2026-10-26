@@ -255,10 +255,15 @@ function EntryAbilityContracts.run()
 
     test("No Guard cannot bypass Protect or Ghost immunity",function()
         local b=fresh(mon("machop",25,"second"),mon("squirtle"))
-        attempt(b,"enemy","protect",1)
-        attempt(b,"player","tackle",1)
+        -- Protect requires an opposing selected move still queued. An isolated
+        -- resolveTurn intentionally fails that precondition; use a real round.
+        own(b.player,{"tackle"}); own(b.enemy,{"protect"}); RulesRNG.seed(1)
+        assert(b:selectMove(1)); local text=settle(b)
+        assert(text:find("SQUIRTLE protected itself!",1,true))
+        eq(b:phase(),"command"); eq(b.effects.round,nil)
         eq(b.enemy.hp,b.enemy.maxHP); eq(b.player.pp.tackle,34)
-        eq(RulesRNG.snapshot().rolls,0)
+        eq(b.enemy.pp.protect,9)
+        eq(RulesRNG.snapshot().rolls,1) -- Enemy selection only.
         b=fresh(mon("machop",25,"second"),mon("gastly"))
         attempt(b,"player","tackle",1)
         eq(b.enemy.hp,b.enemy.maxHP); eq(RulesRNG.snapshot().rolls,0)
@@ -283,15 +288,25 @@ function EntryAbilityContracts.run()
 
     test("Shell Armor rejects sampled critical after its trial, without favorable stage bypass",function()
         local b=fresh(mon("squirtle"),mon("shellder"))
+        eq(b.player.atk,29); eq(b.enemy.def,55); eq(b.enemy.maxHP,50)
+        -- IV/EV0, neutral L25: A29/D55/HP50. Seed1 draws accuracy7,
+        -- critical1/16, random93 (state1622650073). Shell Armor rejects that
+        -- sampled crit before stage bypass: A14/D110 -> base3 -> damage2.
+        -- Without armor: stages ignored -> base8 -> crit16 -> damage14.
+        -- Independent pinned-source arithmetic: test_entry_ability_witness_math.py.
         b.player.statStages.atk=-2; b.enemy.statStages.def=2
         local text=attempt(b,"player","tackle",1)
         eq(text:find("A critical hit!",1,true),nil)
         eq(b.enemy.hp,48); eq(b.player.pp.tackle,34)
         eq(RulesRNG.snapshot().rolls,3)
+        eq(RulesRNG.snapshot().state,1622650073)
+        eq(b.player.statStages.atk,-2); eq(b.enemy.statStages.def,2)
         replaceAbility(b,b.enemy); b.enemy.hp=b.enemy.maxHP
         text=attempt(b,"player","tackle",1)
         assert(text:find("A critical hit!",1,true))
-        eq(b.enemy.hp,37); eq(RulesRNG.snapshot().rolls,3)
+        eq(b.enemy.hp,36); eq(b.player.pp.tackle,34)
+        eq(RulesRNG.snapshot().rolls,3); eq(RulesRNG.snapshot().state,1622650073)
+        eq(b.player.statStages.atk,-2); eq(b.enemy.statStages.def,2)
     end)
 
     test("Skill Link actual Icicle Spear lands five independently rolled hits without count draw",function()
