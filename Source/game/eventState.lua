@@ -377,7 +377,7 @@ function EventState:startTrainer(step)
     local npc
     for _,actor in ipairs(self.game.npcManager.npcs) do if actor.def and actor.def.source_event_id==step.id then npc=actor;break end end
     if not npc then self:fail("absent-source-trainer");return end
-    local token,reason=self.game.trainers:prepare(npc,step.mode)
+    local token,reason=self.game.trainers:prepare(npc,step.mode,self)
     if not token then self:fail(reason);return end
     self.trainerToken,self.trainerNPC,self.trainerStep=token,npc,step;self.trainerLaunching=false
     self.phase,self.waiting="trainer-approach",step.id

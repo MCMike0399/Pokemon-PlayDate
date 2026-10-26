@@ -97,9 +97,9 @@ function SourceMaps.legacyProfiles(dependencies)
             -- Reuse immutable NPC/trainer/art resolvers, never their geometry.
             -- Unknown source art fails explicitly until its resolver is added.
             options = function()
-                return SourceBindings.options("pewter", { dispatch = dispatch, questFlag = quest, sourceFlag = sourceFlag })
+                return SourceBindings.options("source", { dispatch = dispatch, questFlag = quest, sourceFlag = sourceFlag })
             end,
-            prepare = function(_, definition) PewterSprites.installFor(definition) end,
+            prepare = SourceActors.installArt,
         },
         viridian = {
             options = function()

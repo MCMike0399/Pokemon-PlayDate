@@ -200,5 +200,8 @@ Contracts.register("source-text", SourceTextContracts.run)
 import "dev/scriptedNPCContracts"
 Contracts.register("scripted-npc", ScriptedNPCContracts.run)
 
+import "dev/genericActorContracts"
+Contracts.register("generic-actors", GenericActorContracts.run)
+
 -- @harness runtime
 harness = Harness

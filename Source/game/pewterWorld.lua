@@ -121,21 +121,9 @@ function PewterWorld.connection(game, zone, x, y, direction)
     return door, true, reason
 end
 function PewterWorld.trySight(game)
-    if not game.trainers or game.machine:getCurrent()~="overworld" or game.player.isMoving or game.player.pendingEdgeDoor then return false end
-    if not PewterSlice.nameForID(currentZone.stableID) then return false end
-    for _,npc in ipairs(game.npcManager.npcs) do
-        local id=npc.def and npc.def.source_event_id
-        if id and PewterSlice.trainer(id) and not game.session:trainerDefeated(id) then
-            local steps,reason=game.trainers:approach(npc,"sight")
-            if steps then SourceEvents.dispatch(game,id,{mode="sight"});return true end
-            if reason=="occupied-trainer-approach" or reason=="blocked-trainer-approach" or reason=="blocked-trainer-pair" then
-                game.player.lastTraversalBlock={kind="trainer",id=reason}
-            end
-        end
-    end
-    return false
+    return SourceActors.trySight(game)
 end
-local hidden
+
 function PewterWorld.hiddenAt(x,y)
     if not hidden then hidden=assert(json.decodeFile("data/pewterSlice/hidden-events.json")).events end
     for _,event in ipairs(hidden) do

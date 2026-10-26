@@ -186,7 +186,8 @@
     "dev/sourceMapContracts",
     "dev/sourceEventContracts",
     "dev/sourceTextContracts",
-    "dev/scriptedNPCContracts"
+    "dev/scriptedNPCContracts",
+    "dev/genericActorContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -275,6 +276,7 @@
     "Contracts.register(\"source-maps\", SourceMapContracts.run)",
     "Contracts.register(\"source-events\",SourceEventContracts.run)",
     "Contracts.register(\"source-text\", SourceTextContracts.run)",
-    "Contracts.register(\"scripted-npc\", ScriptedNPCContracts.run)"
+    "Contracts.register(\"scripted-npc\", ScriptedNPCContracts.run)",
+    "Contracts.register(\"generic-actors\", GenericActorContracts.run)"
   ]
 }
