@@ -56,6 +56,10 @@ function GameSaves:continueGame()
     if not payload then return false, metadata end
     local candidate, decodeProblem = SessionCodec.decode(payload, self.game:getSessionDependencies())
     if not candidate then return false, {reason="invalid-session", error=decodeProblem, store=metadata} end
+    if self.game.fieldWorld then
+        local prepared,reason=self.game.fieldWorld.prepareContinue(candidate)
+        if not prepared then return false,{reason="invalid-field-reload",error=reason} end
+    end
     local ok, problem = self.game:installSession(candidate)
     if ok then
         if self._replacement then self.store:cancelReplacement(self._replacement.ticket); self._replacement=nil end

@@ -1,0 +1,25 @@
+--- a/tools/harness/cerulean_journey.py
++++ b/tools/harness/cerulean_journey.py
+@@ -90,11 +90,19 @@
+ 
+ 
+ def validate_boundary_payload(payload):
+-    if not isinstance(payload, dict) or set(payload) != CODEC_FIELDS:
++    version = payload.get("version") if isinstance(payload, dict) else None
++    expected = CODEC_FIELDS | {"fieldWorld"} if version == 2 else CODEC_FIELDS
++    if not isinstance(payload, dict) or set(payload) != expected:
+         raise ProtocolError("incomplete canonical Save/Continue payload")
+-    if type(payload["version"]) is not int or payload["version"] < 1 or payload["pokemonEncoding"] != "decimal-counters-v1":
++    if type(payload["version"]) is not int or payload["version"] not in (1, 2) or payload["pokemonEncoding"] != "decimal-counters-v1":
+         raise ProtocolError("invalid canonical Save/Continue encoding")
+-    owners = CODEC_FIELDS - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
++    if version == 2:
++        field = payload["fieldWorld"]
++        if (not isinstance(field, dict) or set(field) != {"version", "mapPalOffset"}
++                or type(field["version"]) is not int or field["version"] != 1
++                or type(field["mapPalOffset"]) is not int or field["mapPalOffset"] not in (0, 6)):
++            raise ProtocolError("invalid canonical field world record")
++    owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
+     if any(not isinstance(payload[field], dict) for field in owners):
+         raise ProtocolError("invalid canonical Save/Continue owner record")
+     for field in ("questFlags", "trainerFlags"):

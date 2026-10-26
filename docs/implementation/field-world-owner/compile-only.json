@@ -1,0 +1,12 @@
+{
+  "base": "6a137379a7e8b85a7bc8a65eec7c563f58bed756",
+  "mode": "compile-only",
+  "sdk_version": "3.1.2",
+  "source_sha256": "fe463b9f9d0d211d04267afb0182b8959a5e68427435f815d3b6e31e6e25e2dc",
+  "composed_source_sha256": "36a9a832ec1c9e0a123e91151438b4b31b23268f54129151efd38071d89fa371",
+  "production_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/preparation/field-world-owner/final/production",
+  "sdk_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/preparation/field-world-owner/final/sdk-prepared",
+  "sdk_cases_prepared": 13,
+  "runtime_executed": false,
+  "device_executed": false
+}

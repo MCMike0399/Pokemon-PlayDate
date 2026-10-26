@@ -641,6 +641,10 @@ function WorldDeltas.resolveLocation(location, candidateWorld, options)
     assert(tile.collision == 0, "world location is blocked in candidate world")
     return { zone_id = zone.stableID, x = location.x, y = location.y, facing = location.facing }
 end
+-- Root opts into the source Cut occupancy policy for players only.
+function WorldDeltas.resolvePlayerLocation(location,candidateWorld,options)
+    return FieldWorld.resolvePlayerLocation(location,candidateWorld,options)
+end
 function WorldDeltas.apply(payload)
     local plans,_,providerPlan = prepareWorld(payload)
     local undo,registries={},{}
