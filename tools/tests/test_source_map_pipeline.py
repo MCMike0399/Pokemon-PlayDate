@@ -126,10 +126,13 @@ class GeneratedSourceCacheTests(unittest.TestCase):
                         self.assertEqual(tile["grid"], ["#" * 16] * 16)
                         self.assertEqual(tile["collision"], 1)
 
-    def test_accepted_pewter_descriptors_and_surface_blockers_are_identical(self):
+    def test_accepted_pewter_descriptors_preserve_surfaces_except_declared_museum_openings(self):
         old = json.loads((ROOT / "Source/data/pewterSlice/compact.json").read_text())
         for name, original in old["maps"].items():
             for field, value in original.items():
+                if name == "PewterCity" and field == "blocked":
+                    opened = {"pokered:PEWTER_CITY:warps:1", "pokered:PEWTER_CITY:warps:2"}
+                    value = {cell: event for cell, event in value.items() if event not in opened}
                 self.assertEqual(self.compact["maps"][name][field], value, (name, field))
         city = self.compact["maps"]["ViridianCity"]
         self.assertEqual(set(city["blocked"].values()), {

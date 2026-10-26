@@ -245,13 +245,8 @@
       "width": 14
     },
     "PewterCity": {
-      "blocked_connections": [
-        "east:ROUTE_3"
-      ],
-      "blocked_events": [
-        "pokered:PEWTER_CITY:warps:1",
-        "pokered:PEWTER_CITY:warps:2"
-      ],
+      "blocked_connections": [],
+      "blocked_events": [],
       "height": 36,
       "id": "pokered:PEWTER_CITY",
       "key": "kanto_pewter_city",
@@ -424,9 +419,7 @@
       "width": 90
     },
     "ViridianCity": {
-      "blocked_connections": [
-        "west:ROUTE_22"
-      ],
+      "blocked_connections": [],
       "connection_sources": {
         "down": "ViridianCity header south offset +5 blocks"
       },

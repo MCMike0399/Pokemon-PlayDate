@@ -74,14 +74,16 @@ function PewterProviderContracts.run()
     end)
     test("unimplemented source exits remain physical blockers and no NPC uses Oak fallback",function()
         local route=PewterWorld.isolated("Route2");eq(route.collision[10][13],1);local ok,problem=pcall(route.getDoorAt,route,12,9);assert(not ok and tostring(problem):find("unresolved source warp: pokered:ROUTE_2:warps:1",1,true))
-        local city=PewterWorld.isolated("PewterCity");eq(city.collision[8][15],1);ok,problem=pcall(city.getDoorAt,city,14,7);assert(not ok and tostring(problem):find("unresolved source warp: pokered:PEWTER_CITY:warps:1",1,true))
+        local city=PewterWorld.isolated("PewterCity")
+        eq(city.collision[8][15],0)
+        eq(assert(city:getDoorAt(14,7)).to,"kanto_museum_1f")
         for _,name in ipairs(PewterSlice.names()) do for _,def in ipairs(PewterWorld.isolated(name).npcDefs) do
             assert(def.sprite~="oak" and def.source_sprite and def.source_event_id,"missing explicit source NPC art/identity")
         end end
     end)
     test("unloaded checkpoint validation and inventory allocate no global or private render IDs",function()
         scope(function(g,p,registry)
-            local before=registry:maxID();eq(#p:inventory(),12);eq(#p:snapshot().cached,0)
+            local before=registry:maxID();eq(#p:inventory(),#SourceMaps.names());eq(#p:snapshot().cached,0)
             local location={zone_id="pokered:PEWTER_CITY",x=13,y=26,facing="down"}
             same(WorldDeltas.resolveLocation(location,{schema=1,zone_count=0,zones={}},g.sessionLocationPolicy),location)
             eq(registry:maxID(),before);eq(#p:snapshot().cached,0)

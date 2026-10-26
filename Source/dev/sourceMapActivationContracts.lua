@@ -153,14 +153,14 @@ function SourceMapActivationContracts.run()
         assert(south.to == "kanto_viridian_city" and south.x == 20 and south.y == 0)
     end)
 
-    test("private preparation keeps new campaign gates closed with all targets installed", function()
+    test("new campaign connections and museum ingresses use the installed shared projections", function()
         assert(#SourceMaps.names() == 30)
         assert(SourceMaps.entry("Route22") and SourceMaps.entry("Route3"))
-        assert(SourceMaps.connection("ViridianCity", 0, 16, "left") == nil)
-        assert(SourceMaps.connection("PewterCity", 39, 18, "right") == nil)
+        assert(SourceMaps.connection("ViridianCity", 0, 16, "left").to == "kanto_route_22")
+        assert(SourceMaps.connection("PewterCity", 39, 18, "right").to == "kanto_route_3")
         local city = SourceMaps.padded("PewterCity")
         for index = 1, 2 do
-            assert(SourceMaps.warpSpec("PewterCity", city.events.warps[index]).status == "blocked")
+            assert(SourceMaps.warpSpec("PewterCity", city.events.warps[index]).status == "bound")
         end
         for _, name in ipairs({ "Museum1F", "Museum2F" }) do
             assert(SourceMaps.entry(name), "museum geometry not installed")

@@ -32,6 +32,15 @@
 | Individual stats | Blue scripted trainers fixedDV$98/$88; B2W2 uses IV/EV and trainer difficulty | Approved staged normal six boundedIV draws; Blue fixed individual contribution maps16/18/16/16/16/16, EV0; Codec7 legacy0/0 | GenV stats with original campaign trainer identity, no invented difficulty or past training | Proposal source/C vectors verified; implementation/rewards/native acceptance pending; not exact GenI finalstats or nativeDS RNG |
 | Resource observations | Native Playdate capacity/frame target | Measure production and harness separately before optimizing | Harness instrumentation is not device evidence | Four600-frame opening probes pass; production postGC~10.35MiB Lua, sampledstartup~22.2MiB; native allocation/device/long-run unverified |
 
+Prepared during the Cerulean milestone, with native acceptance still pending:
+
+| Area | Original reference behavior | Project decision | Reason | Evidence/status |
+|---|---|---|---|---|
+| Catching demonstration | The original OLD_MAN branch guarantees capture and awards no Pokémon or Pokédex entry | Isolated native presentation uses the existing successful capture animation and a 30-tick bag pause | Preserve the lesson without changing player inventory, specimens or either RNG stream | Pinned source and prepared SDK cases; listening and native scene review pending |
+| Pewter escort | Source movement ignores occupancy and has a documented screen-X alignment bug | Eight-frame leased movement yields in the final aisle and supports guarded retry/cancellation | Preserve the source route without overlapping actors or reproducing the alignment bug | Pinned route transcription; native motion and cancellation acceptance pending |
+| Script placement | Bill enters machine cells; the guide crosses the Gym arrival mat | Only declared actor script positions may use those collision/transit exceptions | Keep player collision, ordinary wandering and actual warp tiles protected | Prepared scoped SDK witnesses; no general collision exemption |
+| Museum opening | The original museum doors are passable; the earlier bounded slice blocked them | Open only the declared source ingresses in the private campaign candidate | Extend source geography while retaining every tile and character grid | Protected collision diagnostic changes require native inspection and user approval; baseline remains unchanged |
+
 The abilities/held-items/natures decision extends the gameplay enhancement policy.
 It does not authorize later species, Fairy, Mega Evolution, a changed Kanto story,
 or replacement of the protected visual style. Existing saves need explicit

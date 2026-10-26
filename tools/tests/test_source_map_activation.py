@@ -47,7 +47,7 @@ class SourceMapActivationInputs(unittest.TestCase):
         private = fixture['data/sourceMaps.json']['maps']
         self.assertEqual(set(private) - set(installed), {'ViridianSchoolHouse'})
         self.assertEqual(private['Route22']['key'], 'fixture_Route22')
-        self.assertEqual(installed['ViridianCity']['blocked_connections'], ['west:ROUTE_22'])
+        self.assertEqual(installed['ViridianCity']['blocked_connections'], [])
         self.assertEqual(private['ViridianCity']['blocked_connections'], [])
 
     def test_warp_witness_coordinates_and_reciprocal_source_index_are_exact(self):

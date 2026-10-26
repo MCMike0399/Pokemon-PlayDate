@@ -1,5 +1,12 @@
 # Private map promotion from 7eae5e1
 
+Root composition update: the private branch now opens Route 3, Route 22 and both
+museum ingresses after installing the guide, rival and museum scene owners. Main
+remains frozen on the accepted foundation during its all-starter journeys. The
+opening changes museum collision diagnostics; no protected baseline is updated.
+Root must inspect the native catalog difference and obtain the goal's required
+approval for any protected image change before accepting that change on main.
+
 This implementation lives on `wip/cerulean-map-activation`, based exactly on
 `7eae5e1`. It changes neither main nor production Lua. It is map preparation,
 not campaign or Simulator acceptance.
@@ -27,7 +34,7 @@ become 30/31.
 
 The accepted north Viridian -> Route2 and reciprocal south connection remain
 open. Do not copy the stale north blocker from the removed candidate manifest.
-During private preparation, these declarations remain closed:
+The worker initially kept these declarations closed:
 
 - `maps.PewterCity.blocked_connections = ["east:ROUTE_3"]`.
 - `maps.ViridianCity.blocked_connections = ["west:ROUTE_22"]`.

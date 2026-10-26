@@ -62,7 +62,7 @@ class CeruleanContentTests(unittest.TestCase):
             self.assertEqual(entry['path'], f'data/sourceSlice/{name}.json')
             self.assertEqual(entry['source_sha256'], generator.digest(self.artifacts[name + '.json']))
 
-    def test_installed_cache_preserves_accepted_tiles_maps_and_closed_ingresses(self):
+    def test_installed_cache_preserves_tiles_and_changes_only_declared_region_gates(self):
         # Compare the immutable accepted input and tile bytes, independently of
         # the new generator. Manifest activation fields are checked explicitly.
         def accepted(path):
@@ -76,18 +76,22 @@ class CeruleanContentTests(unittest.TestCase):
                     continue
                 self.assertEqual(self.manifest['maps'][name][field], value, (name, field))
             for field, value in old['maps'][name].items():
-                if field != 'blocked_connections':
+                if field == 'blocked' and name == 'PewterCity':
+                    opened = {'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
+                    self.assertEqual(new['maps'][name][field],
+                                     {cell: event for cell, event in value.items() if event not in opened})
+                elif field != 'blocked_connections':
                     self.assertEqual(new['maps'][name][field], value, (name, field))
         old_tiles = accepted('Source/data/sourceMapCache/tile-grids.json')['tiles']
         new_tiles = json.loads((ROOT / 'Source/data/sourceMapCache/tile-grids.json').read_bytes())['tiles']
         for key, value in old_tiles.items():
             self.assertEqual(new_tiles[key], value, key)
         self.assertEqual(new_tiles, accepted('Source/data/ceruleanMapCache/tile-grids.json')['tiles'])
-        self.assertEqual(new['maps']['PewterCity']['blocked_connections'], ['east:ROUTE_3'])
-        self.assertEqual(new['maps']['ViridianCity']['blocked_connections'], ['west:ROUTE_22'])
+        self.assertEqual(new['maps']['PewterCity']['blocked_connections'], [])
+        self.assertEqual(new['maps']['ViridianCity']['blocked_connections'], [])
         self.assertNotIn('north:ROUTE_2', new['maps']['ViridianCity']['blocked_connections'])
-        self.assertTrue({'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
-                        <= set(new['maps']['PewterCity']['blocked'].values()))
+        self.assertFalse({'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
+                         & set(new['maps']['PewterCity']['blocked'].values()))
 
     def test_each_cell_uses_original_block_quadrants_and_original_png_pixels(self):
         # Independent geometry/art oracle: byte indexing and Pillow, rather than
