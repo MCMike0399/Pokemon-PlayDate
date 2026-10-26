@@ -12,7 +12,7 @@ PLAYDATE_SDK_PATH=~/Developer/PlaydateSDK make build
 
 # Individual steps
 make clean      # rm -rf PokemonPoC.pdx
-make compile    # pdc Source PokemonPoC.pdx
+make compile    # stage production Source without dev/, then compile PokemonPoC.pdx
 make run        # open Simulator with PokemonPoC.pdx
 
 # Deploy to a connected Playdate device (USB, unlocked)
@@ -20,6 +20,8 @@ make deploy     # compiles, enters data disk mode, copies .pdx, ejects & reboots
 ```
 
 The `deploy` target auto-detects the Playdate at `/dev/cu.usbmodemPD*`. It puts the device into Data Disk mode, waits for `/Volumes/PLAYDATE` to mount (up to 30s), copies the `.pdx` bundle, and ejects. The Playdate reboots automatically after eject.
+
+Production builds use `tools/build.py`; direct `pdc Source` includes unreferenced development modules. Harness staging inserts `tools/harness/dev_imports.lua` into its private entry point. When changing staging or imports, read [production-build.md](docs/validation/production-build.md).
 
 Before Simulator, harness, or visual work, read [the harness contract](docs/validation/harness.md). `make test-harness` runs host protocol tests; `make harness-smoke` runs an identified SDK session. The deeper suite is `python3 tools/harness/suite.py --mutations --output /private/tmp/pokemon-suite-UNIQUE`. Install `tools/requirements-dev.txt` in a venv for visual/generator checks.
 
@@ -113,7 +115,11 @@ NPC defs support story-conditional spawning and content: `appearsIf = function()
 - **Step doors** (`{ x, y, to, toX, toY, facing }`) fire when a step finishes on the tile — outside house doors and stairs. Stepping off and back on re-triggers (Gen 1 stairs behavior).
 - **Edge doors** (`{ x, y, edge="down", to, toX, toY, facing }`) are Gen 2/3-style exit gates: landing on the tile does nothing; the warp fires when the player stands on it and *walks in the edge direction* (into the room boundary). All interior exit mats are edge doors. `Player:tryMove` sets `player.pendingEdgeDoor` when a blocked move matches an edge door; `explore` consumes it and switches to `doorWarp`. The autopilot `move` command reports `edge-door <dir> at x,y` when this happens. While the player stands on an edge-door tile, `Player:updateExitArrow` shows a bobbing **exit arrow** sprite (`getExitArrows` builds the 4 directional images procedurally; z-index 102) in the void tile just past the door, pointing the exit direction — the Gen 2/3 "you can leave here" cursor. `Zone:getEdgeDoorAt(gx, gy, dir)` finds the door (nil `dir` matches any edge door at the tile, used to aim the arrow).
 
-The connected world reaches Brock in Pewter. Authored Pallet is adapted to imported Route 1 and Viridian (`data/viridianSlice.lua`, `KantoSlice`). Route 2, both Forest gates, Viridian Forest and Pewter’s City/Gym/Mart/Center use `data/pewterSlice.lua` (`PewterSlice`) through the lazy `world/importedMaps.lua` provider. `game/kantoWorld.lua` binds the connected campaign. These remain separate import paths pending the goal’s map-pipeline convergence; adding a source fixture alone does not make its events playable.
+The connected world reaches Brock in Pewter. `SourceMaps` loads the manifest in `data/sourceMaps.json`; `ImportedMaps` owns the shared provider, cache and durable delta ledger. `KantoSlice` and `PewterSlice` are compatibility facades over that pipeline. Four Viridian maps remain resident to preserve existing references, alongside two disposable map slots. Authored Pallet keeps its protected Zone adapter. `tools/generate_source_map_cache.py` verifies the manifest’s pinned decoded inputs and generates compact metadata and direct tile-grid lookup; full definitions load on demand. Adding source data does not bind its events automatically.
+
+`SourceEvents` plans stable-ID programs from `data/sourceEvents.json`; `EventState` executes bounded operations, while session and trainer owners commit durable changes and confirmed battle rewards. Ordinary dialogue, gifts, pickups, shops, healing and trainers use descriptors. Genuinely bespoke scripts are keyed in `sourceEventHandlers.lua`. When changing those plans or ownership, read [source-events.md](docs/validation/source-events.md).
+
+`SourceText` expands source recipes and numeric/RAM controls. `Dialog` measures and paginates complete paragraphs, and reveals only complete UTF-8 characters. `SourceTextFont` keeps ordinary SDK glyphs and supplies pinned extended glyphs. When changing text or fonts, read [source-text.md](docs/validation/source-text.md).
 
 Pallet Town has four interiors: `reds_house` (Mom, stairs to `reds_house_2f`), `blues_house` (Daisy), `oaks_lab` (Oak, plus BLUE until the intro ends). Interior rooms sit in a `Vd` void surround padded to at least 13x8 tiles because the camera clamp assumes the map is at least screen-sized (400x240 = 12.5x7.5 tiles). Interiors have no `encounters` and no tall grass, so no wild battles trigger indoors. After the intro, a rematch BLUE (`appearsIf` stage done, lv7 counter-pick via `battleData` function) waits outside his house.
 
