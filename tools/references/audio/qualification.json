@@ -1,0 +1,225 @@
+{
+  "acceptance": "host preparation only; no independent engine execution, PCM, playback, or audio acceptance",
+  "bounded_at_120000_ticks": [
+    "audio3:Music_Dungeon1",
+    "audio1:Music_Lavender"
+  ],
+  "byte_oracle": {
+    "fixture_sha256": "8f2418f22bc22a410ca22ef7acaab8ac3399d1309d47c8c71dfc435d92d43994",
+    "header_cases": 4,
+    "independent_execution": false,
+    "limitation": "RGBDS rgbasm and rgblink required for independent byte execution; no packages installed.",
+    "macro_cases": 22,
+    "method": "audited exact-byte fixtures",
+    "wave5": {
+      "1": "21e23328e122ffea1014dc10e3415173",
+      "2": "ec022091c0072081d0072091c0072ca1",
+      "3": "21e23328e122ff22f72422f73424f744"
+    }
+  },
+  "evidence_directory": "~/Developer/Pokemon-PlayDate-env/evidence/audio-parser/review-qualification",
+  "evidence_sha256": {
+    "byte-oracle.json": "05152a0d86107749bcd96959ee7a0aa5c23beff271f3d8b49cce81e5035da856",
+    "catalog.json": "1853e781d1ecb7c081299abcf0d15b704d3fbfa0132d28909fd194c39b582b92",
+    "check.json": "474ac333871025a770d1537a357ce81cdbd8246364bf4830d74d3dc2b80fd7ab",
+    "fixtures.json": "9e978d139f8eb8b97fe16d2b03ad07802f37e8b8a25c78c98d2fc12a07f5dc29"
+  },
+  "fixture_count": 24,
+  "fixture_outcomes": [
+    {
+      "asset": "audio1:Music_PkmnHealed",
+      "status": "ended",
+      "ticks": 136,
+      "variant": null
+    },
+    {
+      "asset": "audio3:Music_Dungeon1",
+      "status": "bound",
+      "ticks": 119999,
+      "variant": null
+    },
+    {
+      "asset": "audio1:SFX_Collision_1",
+      "status": "ended",
+      "ticks": 17,
+      "variant": null
+    },
+    {
+      "asset": "audio2:SFX_Cry01_2",
+      "status": "ended",
+      "ticks": 31,
+      "variant": null
+    },
+    {
+      "asset": "audio1:Music_PalletTown",
+      "status": "repeat",
+      "ticks": 6841,
+      "variant": null
+    },
+    {
+      "asset": "audio1:Music_Routes3",
+      "status": "repeat",
+      "ticks": 10948,
+      "variant": null
+    },
+    {
+      "asset": "audio1:Music_Cities1",
+      "status": "repeat",
+      "ticks": 6926,
+      "variant": null
+    },
+    {
+      "asset": "audio1:Music_Lavender",
+      "status": "bound",
+      "ticks": 119999,
+      "variant": null
+    },
+    {
+      "asset": "audio3:Music_PokemonTower",
+      "status": "repeat",
+      "ticks": 32833,
+      "variant": null
+    },
+    {
+      "asset": "audio2:Music_WildBattle",
+      "status": "repeat",
+      "ticks": 19657,
+      "variant": null
+    },
+    {
+      "asset": "audio2:Music_TrainerBattle",
+      "status": "repeat",
+      "ticks": 10753,
+      "variant": null
+    },
+    {
+      "asset": "audio2:Music_GymLeaderBattle",
+      "status": "repeat",
+      "ticks": 18272,
+      "variant": null
+    },
+    {
+      "asset": "audio2:Music_FinalBattle",
+      "status": "repeat",
+      "ticks": 22513,
+      "variant": null
+    },
+    {
+      "asset": "audio1:Music_MeetRival",
+      "status": "repeat",
+      "ticks": 58979,
+      "variant": null
+    },
+    {
+      "asset": "audio1:Music_MeetRival",
+      "status": "repeat",
+      "ticks": 58895,
+      "variant": "Music_RivalAlternateStart"
+    },
+    {
+      "asset": "audio1:Music_MeetRival",
+      "status": "repeat",
+      "ticks": 7660,
+      "variant": "Music_RivalAlternateTempo"
+    },
+    {
+      "asset": "audio1:Music_Cities1",
+      "status": "repeat",
+      "ticks": 55702,
+      "variant": "Music_Cities1AlternateTempo"
+    },
+    {
+      "asset": "audio2:SFX_Cry00_2",
+      "status": "ended",
+      "ticks": 32,
+      "variant": null
+    },
+    {
+      "asset": "audio2:SFX_Cry00_2",
+      "status": "ended",
+      "ticks": 39,
+      "variant": null
+    },
+    {
+      "asset": "audio1:SFX_Cry00_1",
+      "status": "ended",
+      "ticks": 29,
+      "variant": null
+    },
+    {
+      "asset": "audio3:SFX_Cry00_3",
+      "status": "ended",
+      "ticks": 47,
+      "variant": null
+    },
+    {
+      "asset": "audio1:SFX_Pokeflute",
+      "status": "ended",
+      "ticks": 577,
+      "variant": null
+    },
+    {
+      "asset": "audio2:SFX_Caught_Mon",
+      "status": "ended",
+      "ticks": 257,
+      "variant": "Music_PokeFluteInBattle"
+    },
+    {
+      "asset": "audio2:low-health",
+      "status": "repeat",
+      "ticks": null,
+      "variant": null
+    }
+  ],
+  "header_count": 362,
+  "host_tests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": [],
+    "tests": 27
+  },
+  "map_routes": 248,
+  "move_routes": 165,
+  "move_sentinel": {
+    "asset": "audio2:SFX_Battle_0B",
+    "length": 128,
+    "move": "",
+    "pitch": 0,
+    "purpose": "trailing source sentinel after NUM_ATTACKS assertion",
+    "symbol": "SFX_BATTLE_0B"
+  },
+  "opcode_coverage": {
+    "dn": 15,
+    "drum_note": 927,
+    "drum_speed": 36,
+    "duty_cycle": 277,
+    "duty_cycle_pattern": 253,
+    "dw": 27,
+    "execute_music": 43,
+    "noise_note": 863,
+    "note": 12842,
+    "note_type": 1194,
+    "octave": 3321,
+    "pitch_slide": 14,
+    "pitch_sweep": 106,
+    "rest": 2333,
+    "sound_call": 322,
+    "sound_loop": 215,
+    "sound_ret": 735,
+    "square_note": 1704,
+    "stereo_panning": 2,
+    "tempo": 88,
+    "toggle_perfect_pitch": 55,
+    "vibrato": 114,
+    "volume": 60
+  },
+  "reference_closure": {
+    "resolved": 2319,
+    "unresolved": []
+  },
+  "research_commit": "9a1cf8751470dd6c57c9ca118d53b96368ebe5d0",
+  "source_files": 402,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "species_cries": 151,
+  "unexercised_encountered_macros": []
+}
