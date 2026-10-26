@@ -386,7 +386,7 @@
   },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
-    "data/ceruleanContent.lua": "72d2480060a658e6034c4700c0914eaec861f6840e0a58fd410a47a5b409b9c9",
+    "data/ceruleanContent.lua": "c86ffd4ae82e17b92492e54e1420f0b02c1855ff8e99f112939ddf0be9447527",
     "data/ceruleanRoutes/scenes.json": "2d3d96278725c52eaad9011599868abdfc892ebde5fbadc3a8dff9aac6dc65ce",
     "data/ceruleanStory/events.json": "9c7910d423cd592cf3ed1291d87903c6c75e3fed80605ca50584f6ec5b619c83",
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
