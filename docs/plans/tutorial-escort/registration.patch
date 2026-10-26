@@ -1,0 +1,77 @@
+diff --git a/Source/main.lua b/Source/main.lua
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -79,6 +79,7 @@
+ import "game/eventArt"
+ import "game/healingComposition"
+ import "game/eventState"
++import "game/tutorialEscort"
+ import "game/pokedexState"
+ import "game/pcState"
+ import "game/evolutionState"
+@@ -127,6 +128,7 @@
+ machine:register("bag", BagState(game))
+ machine:register("shop", ShopState(game))
+ machine:register("event", EventState(game))
++machine:register("tutorial-escort", TutorialEscortState(game))
+ machine:register("pokedex", PokedexState(game))
+ machine:register("pc", PCState(game))
+ machine:register("itemPC",ItemPCState(game))
+diff --git a/Source/game/kantoWorld.lua b/Source/game/kantoWorld.lua
+--- a/Source/game/kantoWorld.lua
++++ b/Source/game/kantoWorld.lua
+@@ -75,6 +75,7 @@
+     return false -- Continue is an exact saved position; Center has no generic UP step.
+ end
+ function KantoWorld.tryInteract(game)
++    if TutorialEscort.tryInteract(game) then return true end
+     if HomeRest and HomeRest.tryInteract(game)then return true end
+     if FieldItems and FieldItems.tryDaisy(game)then return true end
+     if PCTerminals.tryInteract(game) then return true end
+diff --git a/Source/game/overworldState.lua b/Source/game/overworldState.lua
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -40,6 +40,8 @@
+     -- Intro storyline triggers (cutscene dialogs, the scripted rival
+     -- battle); they preempt doors and encounters
+     if Story.check(game, self.owner) then return end
++    local sceneID = TutorialEscort.trigger(game)
++    if sceneID then TutorialEscort.dispatch(game, sceneID); return end
+
+     -- Door warp check: landing on a step-triggered door/stairs tile
+     if player.stepJustFinished then
+diff --git a/Source/game/sourceEvents.lua b/Source/game/sourceEvents.lua
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -262,6 +262,7 @@
+     return copy(positions)
+ end
+ function SourceEvents.actorPositions(id)
++    if id == "pokered:PEWTER_CITY:objects:5" then return TutorialEscortData.actorPositions(id) end
+     local descriptor = definitions()[id]
+     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_positions or {})
+ end
+diff --git a/tools/harness/dev_imports.lua b/tools/harness/dev_imports.lua
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -197,6 +197,9 @@
+ import "dev/sourceTextContracts"
+ Contracts.register("source-text", SourceTextContracts.run)
+
++import "dev/tutorialEscortContracts"
++Contracts.register("tutorial-escort", TutorialEscortContracts.run)
++
+ import "dev/scriptedNPCContracts"
+ Contracts.register("scripted-npc", ScriptedNPCContracts.run)
+
+diff --git a/Source/dev/diagnostics.lua b/Source/dev/diagnostics.lua
+--- a/Source/dev/diagnostics.lua
++++ b/Source/dev/diagnostics.lua
+@@ -136,6 +136,7 @@
+         party_ui = ui(root:get("party")), bag = ui(root:get("bag")),
+         party_info = root:get("party"):getInfoSnapshot(),bag_held = root:get("bag"):getHeldSnapshot(),
+         shop = root:get("shop") and root:get("shop"):getSnapshot() or {phase="closed"},
++        tutorial_escort = root:get("tutorial-escort") and root:get("tutorial-escort"):getSnapshot() or {phase="closed"},
+         event = root:get("event") and root:get("event"):getSnapshot() or {phase="closed"},
+         pokedex = root:get("pokedex") and root:get("pokedex"):getSnapshot() or {phase="closed"},
+         story = { stage = Story.get(game).stage, starter = Story.get(game).starter or "none",

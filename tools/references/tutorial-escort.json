@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "files": [
+    {
+      "path": "scripts/ViridianCity.asm",
+      "sha256": "7cf10cb0a38cdb340f09f5637710cb405753a250a7bbe044ef6b66f9f8865142"
+    },
+    {
+      "path": "scripts/PewterCity.asm",
+      "sha256": "24d6d17f5d0668a6ef2c66e27796ae6c8b5dca049ff0e04381f42749670f3db4"
+    },
+    {
+      "path": "text/ViridianCity.asm",
+      "sha256": "d104fa629e8982e64b6d10bb8c9d94ccd6abd6a343f09d47abb28b34e7d77ef9"
+    },
+    {
+      "path": "text/PewterCity.asm",
+      "sha256": "43383db686f658f2aced4a4b5b22b6478720e2173071eef50a775aa4ee5de561"
+    },
+    {
+      "path": "data/maps/objects/ViridianCity.asm",
+      "sha256": "b1aa24caeb3ba6a6e59c8c7ad544303ada71bc851e4d35371a51a5dd580d93c0"
+    },
+    {
+      "path": "data/maps/objects/PewterCity.asm",
+      "sha256": "0c98a4b6dbfbbf25d50717d48ca521240e58a6dff89574589a08c5ad25247c81"
+    },
+    {
+      "path": "engine/events/pewter_guys.asm",
+      "sha256": "8a9acea96dd574622ad571d1729bcf2c98789e8c1da4fd4d9732cf26883808c8"
+    },
+    {
+      "path": "engine/overworld/auto_movement.asm",
+      "sha256": "51132df663914861ac176733a764788e1db1d96f27d830952279338cc7633379"
+    },
+    {
+      "path": "home/overworld.asm",
+      "sha256": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a"
+    },
+    {
+      "path": "home/map_objects.asm",
+      "sha256": "d16b4724ff9cceaa1c41cd9131d0578e4e2c3e4309d44dbbf395a88e28313307"
+    },
+    {
+      "path": "engine/battle/core.asm",
+      "sha256": "36d8ff785fe642d61f6917156e70b78c36fd7cde6c0b8fb582e02f6552e786d0"
+    },
+    {
+      "path": "engine/items/item_effects.asm",
+      "sha256": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1"
+    },
+    {
+      "path": "gfx/battle/oldmanb.png",
+      "sha256": "929e0204271bfbfafbfa871c0af2585330fd81248e738a8738c5375d858f0d13"
+    },
+    {
+      "path": "gfx/sprites/youngster.png",
+      "sha256": "210c4ff436a2b31988d8cb2aa78d3d0ce99de88aa4a1c1c6ef119d9fd92975a8"
+    },
+    {
+      "path": "gfx/sprites/gambler.png",
+      "sha256": "fcc5c4a73b59f1353e1d6c02d00f7d0b5e9f88134d586868935b58dc90b62eaf"
+    },
+    {
+      "path": "gfx/sprites/gambler_asleep.png",
+      "sha256": "bbf408d4ec735561c052f16fa891140f617d0aa0f1b5f54466838c2c82de7897"
+    },
+    {
+      "path": "gfx/pokemon/front/weedle.png",
+      "sha256": "86957890e770a47dbee95bb22839849dcb3dffb53ada83d5fb8d39a1f5528411"
+    }
+  ]
+}
