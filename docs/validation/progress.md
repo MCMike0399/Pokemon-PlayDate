@@ -37,8 +37,11 @@ Evidence is under `~/Developer/Pokemon-PlayDate-env/evidence/` in
   The frozen scenario asserted capture phase before the frame update; corrected
   the scenario and checked finalized capture metadata instead. Original failed
   run is retained under `brock-5.1-20261026-01/native-warp-return`.
-- [ ] Run natural Bulbasaur, Charmander and Squirtle journeys through Brock,
-  each with a real process exit and Save/Continue.
+- [x] Bulbasaur passed Brock, badge/TM and real exit/Continue on Source above.
+  Root inspected saved/continued Gym and learning panels.
+- [ ] Charmander and Squirtle journeys with real exit/Continue. The first new
+  Charmander attempt was stopped by root to replace the one-hour suite budget
+  with four hours; it receives no acceptance credit.
 - [ ] Run TM full-bag retry, blackout, restarts, evolution accept and cancel.
 - [ ] Inspect key native screenshots and commit accepted tooling and evidence.
 
@@ -51,7 +54,8 @@ stopping at Brock. The full goal defines the completion criteria.
 ## 3. Open defects blocking progress
 
 The zero-step arrival-warp driver bug is repaired and the native return passes.
-Fresh full starter runs and learning-panel image inspection remain pending.
+Bulbasaur and its learning panels pass; Charmander, Squirtle and supplements
+remain pending.
 No production defect appeared in the 5.0 baseline or native return check.
 Unsupported moves, separate map/event pipelines and production dev imports are
 scheduled for 5.2. Missing later regions and full mechanics remain release work.
@@ -62,8 +66,16 @@ scheduled for 5.2. Missing later regions and full mechanics remain release work.
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. Accept 5.0 docs, then review Brock patches and run journeys. |
 | `wip/brock-driver` / worker | Completed; `188d0cf` integrated as `895a874`. |
-| `wip/move-failure-phazing` / worker | Sol 6.1 / medium, provider `codex`. Prepare loud move failure plus Whirlwind/Roar; no runtime or integration before 5.1. |
-| `wip/source-map-pipeline` / worker | Sol 6.1 / medium, provider `codex`. Prepare shared source-map importer/provider/cache with exact compatibility. No runtime or integration before 5.1. |
+| `wip/move-failure-phazing` / worker | Candidate `025c5c9` complete; no runtime acceptance yet. |
+| `wip/source-map-pipeline` / worker | Candidate `e137dcf`; followup replaces eager whole-map scans with generated compact metadata. |
+| `wip/production-dev-gate` / worker | Candidate `bc22795` complete; production launch and measurements pending. |
+| `wip/source-events` / worker | Candidate `38f44a1` complete; native acceptance pending. |
+| `wip/source-text` / worker | Prepare full source character handling, UTF-8 typing and pagination. |
+| `wip/foundations-integration` / root | Private composition at `28ddf98` under the environment’s `worktrees/foundations`. Main Source remains frozen. Combined compile passes; host evidence refresh awaits actual SDK run. |
+
+All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
+Task IDs and local orchestration state are retained in the evidence directory’s
+`brock-5.1-20261026-01/worker-tasks.json`.
 
 ## 5. Decisions since the user check-in
 
