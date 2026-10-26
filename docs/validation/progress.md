@@ -70,6 +70,9 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
   The fourth native pass passed all 1596 contracts. The frozen ambient blocker
   is resolved through an owned source-script movement intent. Center healing was
   extended to the pinned standard layout; its actual blackout supplement passed.
+- The first natural Squirtle run reached Mt. Moon after Brock and level-16
+  evolution, then exposed a driver release-gate bug. Fix `ab51b14` passes 50
+  main host checks; a fresh three-starter suite is live. The failed run earns no acceptance credit.
 - New visual exporter declares 2448 additions. Native scene, map, art and journey
   acceptance remain pending. The user approved exactly the museum collision diagnostic update (two door cells,
   2048 pixels); all other 2493 protected images match. Private baseline approval
@@ -95,10 +98,10 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | Durable environment worktree at `c6882b6`; fresh Squirtle New Game → Bill/restart journey is live. Ticket, TM11, both fossil retries, blackout and observation restart witnesses pass. Other starter journeys remain unrun. |
-| `wip/vermilion-integration` / root | Private `4c85150` composes 35 prepared maps, Cut/Flash, quest gifts and Anne/Surge scenes. The active 30-map manifest is unchanged; shared API patches and native acceptance remain pending. |
-| Field-world worker | Preparing temporary Cut reload ownership and persisted Flash darkness. |
-| Day Care worker | Preparing the source-backed deposited-specimen service and separate owner patch. |
+| `wip/cerulean-integration` / root | `478fac7` retains frozen game Source and fixes only the driver. Three-starter suite: `m53-natural-all-starters-20261026-02`; current Squirtle run is live. |
+| `wip/vermilion-integration` / root | Private `bad5882` composes prepared maps, Cut/Flash lifecycle, quest gifts, Anne/Surge APIs and Day Care/schema 3. Active maps remain 30; native acceptance and 65-map activation are pending. Day Care build and 23 focused host/build checks pass. |
+| Cerulean spec reviewer | Independently checking the repaired candidate against the goal; static review only. |
+| Vermilion journey worker | Preparing natural starter journeys and bounded supplementary retries. |
 | Anne/Surge worker | Finishing source ship departure presentation and the closed Gym-door tile dependency. |
 | `wip/kanto-entry-abilities` / worker | `e8844a3` composed; actual native entry cases passed after fixture repairs. |
 | `wip/kanto-contact-abilities` / worker | `a408642`/`3cc5925` composed; actual native contact cases passed after live-ledger fixture repairs. |
