@@ -1,6 +1,7 @@
 """Qualification gates only: mocks here are never independent byte evidence."""
 import json
 import os
+import shutil
 from pathlib import Path
 import tempfile
 import unittest
@@ -18,6 +19,23 @@ class OracleQualificationTests(unittest.TestCase):
         if not root:
             raise RuntimeError('POKERED_REFERENCE_DIR required for oracle qualification tests')
         cls.catalog = Catalog(Source(root))
+
+    def test_path_qualification_matches_explicit_expectation(self):
+        expected = os.environ.get('AUDIO_EXPECT_INDEPENDENT',
+                                  '1' if shutil.which('rgbasm') and shutil.which('rgblink') else '0')
+        self.assertIn(expected, ('0', '1'))
+        report = qualify_bytes(self.catalog, require_independent=(expected == '1'))
+        self.assertEqual(report['independent_execution'], expected == '1')
+        self.assertEqual(report['status'], 'pass' if expected == '1' else 'audit-only')
+        if expected == '1':
+            self.assertEqual(set(report['emitted']), {'1', '2', '3'})
+            for tool in report['tools'].values():
+                self.assertEqual(len(tool['sha256']), 64)
+
+    def test_evidence_directory_never_overwrites_prior_run(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(FileExistsError):
+                qualify_bytes(self.catalog, evidence_dir=Path(tmp))
 
     def test_missing_tools_are_only_audit_evidence(self):
         with patch('tools.audio.oracle.shutil.which', return_value=None):

@@ -1,74 +1,187 @@
 {
-  "actual_emitted_byte_comparisons": 0,
-  "blocker": "RGBDS source build requires Bison >=3; only Bison 2.3 available",
+  "byte_oracle": {
+    "emitted": {
+      "1": {
+        "compared_bytes": 95,
+        "compared_sha256": "1cb5cc94744041d0a5fd21d3a2263abe6a9c484be8d117f68bb40a31581e5ea4",
+        "emitted_sha256": "4e07d2a4581cb7ebe788eca4764ebf6d2bdb7eda0d5438cc388d7120a4660b88",
+        "fixture_asm_sha256": "6ed767480cced52dccf9a947cf61a909b52350196b6cfba3053aaa05ff78b506"
+      },
+      "2": {
+        "compared_bytes": 95,
+        "compared_sha256": "c2cdfa2c3c4b5ed9b35b01f3bfd5c0c07c56d1c57550dbdf2f0211b965b47369",
+        "emitted_sha256": "a5bb4007d6987904bc1b2e552d7009e9ca230184c8bddd5b7ad8c0c7e367ef82",
+        "fixture_asm_sha256": "baee3905c539a7b94e47e334c9e717cc1a7638a324f37830100db003cf4cd5fb"
+      },
+      "3": {
+        "compared_bytes": 95,
+        "compared_sha256": "ac8fdfd5e37f02abd9b997f00d573a903e6ab32531a4ceed0671658418d4dbec",
+        "emitted_sha256": "91283dbecc64e74eb706e165a6355798b414055972a77b5f0f4b20288e018221",
+        "fixture_asm_sha256": "3a972519b513aab18c1a6de7e2273673defae7b80cc0506f275d2670e2a58eaa"
+      }
+    },
+    "fixture_sha256": "8f2418f22bc22a410ca22ef7acaab8ac3399d1309d47c8c71dfc435d92d43994",
+    "limitation": "Macro/prefix byte comparison only; not independent engine/register execution.",
+    "method": "isolated original RGBDS macros and wave5 source prefixes",
+    "revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "tools": {
+      "rgbasm": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds/rgbasm",
+        "sha256": "b0e0ba2a1ade1d55f2bbb26b05bcaa4a5bd5fad66b06d2c78aa57827660221f4",
+        "version": "rgbasm v1.0.4"
+      },
+      "rgblink": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds/rgblink",
+        "sha256": "69b7d7f42025cf452517043d6aff02267566371791eda02663f7e1fad156451b",
+        "version": "rgblink v1.0.4"
+      }
+    },
+    "wave5": {
+      "1": "21e23328e122ffea1014dc10e3415173",
+      "2": "ec022091c0072081d0072091c0072ca1",
+      "3": "21e23328e122ff22f72422f73424f744"
+    }
+  },
   "candidate_commit": "9c5ec44",
   "changed_code_sha256": {
-    "tools/audio/oracle.py": "3ec12b4da5fb5ae76be17a2b9ed0ed796cb0e7816de334f16934ab1a21fc7ccf",
-    "tools/tests/test_audio_oracle.py": "29f4d507cfd260a410812acca5b8ae9befb54586ba93dabe0aa9403299cef01b"
+    "tools/audio/oracle.py": "3f798dde65de05823c60d90b87703867b94069f15d5162658d0dc35968f83962",
+    "tools/tests/test_audio_oracle.py": "3a9ac5473f2abc99dbd7f0650eabcca0b3cddf09e3d764b12d6ff7cf3d4cc685"
   },
-  "consumed_binary_sha256": {
-    "rgbasm": null,
-    "rgblink": null
-  },
-  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle",
+  "compared_bytes_per_image": 95,
+  "comparison_images": 3,
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/qualified-bison-3.8.2",
   "evidence_sha256": {
-    "isolated-toolchain-tests.log": "87767fa30d41489d7f13f40543ccfabd3d65eb9b368968f08dc8cfc34e36ce3f",
-    "isolated-toolchain.json": "ae0b68d3154991cd32793da06b04cf88cd931eaf7efe7e19d54bd5d6b24016a5",
-    "isolated-toolchain.log": "d622f334c798155a7673f6231e567d8bc469e72def4fb4016bbe67b469d57c63",
-    "runs.json": "4bd5095ed6d42ef34788e3bc681d499025a5b866a65cec1bad6c475879bd125f",
-    "tests.json": "154226c04bb61009883680af6a276d0a7e4e581fe062a086a1e3f8e18bd6d053",
-    "without-toolchain-tests.log": "07d10f7d04b4b2644b652036be4efe0f958978436012e3c39de6b1cbd901a36c",
-    "without-toolchain.json": "ae0b68d3154991cd32793da06b04cf88cd931eaf7efe7e19d54bd5d6b24016a5",
+    "first-emitted/audio1/fixture.asm": "6ed767480cced52dccf9a947cf61a909b52350196b6cfba3053aaa05ff78b506",
+    "first-emitted/audio1/fixture.gb": "4e07d2a4581cb7ebe788eca4764ebf6d2bdb7eda0d5438cc388d7120a4660b88",
+    "first-emitted/audio1/fixture.o": "0a6aed4574a93a58324b2c8f50f1b09c8b70994caf5cecbf2b7e27c411c17dba",
+    "first-emitted/audio1/rgbasm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-emitted/audio1/rgblink.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-emitted/audio2/fixture.asm": "baee3905c539a7b94e47e334c9e717cc1a7638a324f37830100db003cf4cd5fb",
+    "first-emitted/audio2/fixture.gb": "a5bb4007d6987904bc1b2e552d7009e9ca230184c8bddd5b7ad8c0c7e367ef82",
+    "first-emitted/audio2/fixture.o": "eabd134241d72fd608a2795413bb39925fc58a9f513d4571f5eb96ae20acb06f",
+    "first-emitted/audio2/rgbasm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-emitted/audio2/rgblink.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-emitted/audio3/fixture.asm": "3a972519b513aab18c1a6de7e2273673defae7b80cc0506f275d2670e2a58eaa",
+    "first-emitted/audio3/fixture.gb": "91283dbecc64e74eb706e165a6355798b414055972a77b5f0f4b20288e018221",
+    "first-emitted/audio3/fixture.o": "84f715dd69f0a37976bd474e620aafec149897cb6be682377a97855a060e628c",
+    "first-emitted/audio3/rgbasm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first-emitted/audio3/rgblink.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "first.json": "394c38a81d44144162ea8b8b3cc21ff3709821ff2b8d97fe6dddf2a9ab18124b",
+    "first.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-emitted/audio1/fixture.asm": "6ed767480cced52dccf9a947cf61a909b52350196b6cfba3053aaa05ff78b506",
+    "isolated-toolchain-emitted/audio1/fixture.gb": "4e07d2a4581cb7ebe788eca4764ebf6d2bdb7eda0d5438cc388d7120a4660b88",
+    "isolated-toolchain-emitted/audio1/fixture.o": "31a9753d8ff30ba92f29baf780dd5cb93492d71a04232348647a943fec967698",
+    "isolated-toolchain-emitted/audio1/rgbasm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-emitted/audio1/rgblink.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-emitted/audio2/fixture.asm": "baee3905c539a7b94e47e334c9e717cc1a7638a324f37830100db003cf4cd5fb",
+    "isolated-toolchain-emitted/audio2/fixture.gb": "a5bb4007d6987904bc1b2e552d7009e9ca230184c8bddd5b7ad8c0c7e367ef82",
+    "isolated-toolchain-emitted/audio2/fixture.o": "168ea5fd7782152e1ac77026d2c0d4dbc1554a56fa978234f8232b155e0d8ae3",
+    "isolated-toolchain-emitted/audio2/rgbasm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-emitted/audio2/rgblink.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-emitted/audio3/fixture.asm": "3a972519b513aab18c1a6de7e2273673defae7b80cc0506f275d2670e2a58eaa",
+    "isolated-toolchain-emitted/audio3/fixture.gb": "91283dbecc64e74eb706e165a6355798b414055972a77b5f0f4b20288e018221",
+    "isolated-toolchain-emitted/audio3/fixture.o": "5e56bfb2ca04c63cdec38a226bb59b33ec4c009a2ea3fe789d686e5ae4a22a58",
+    "isolated-toolchain-emitted/audio3/rgbasm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-emitted/audio3/rgblink.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "isolated-toolchain-tests.log": "2a178bd20e114056cf6a2eeeb6bb5bf12020f2ecc649babf2bfbfaf8a3a63735",
+    "isolated-toolchain.json": "394c38a81d44144162ea8b8b3cc21ff3709821ff2b8d97fe6dddf2a9ab18124b",
+    "isolated-toolchain.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runs.json": "4899d9f017067f92f59fe81c37bcf693818cf016765a945bf48607f2c719c6dd",
+    "without-toolchain-tests.log": "35f7dd976188e8db38eb310a751bd474191966f57b5b119ab0612ffb987d1a50",
+    "without-toolchain.json": "9e60b3040bc6253bf7ee1ac731aea2dfb409ac02a1590b8f9317c17dc06484ed",
     "without-toolchain.log": "d622f334c798155a7673f6231e567d8bc469e72def4fb4016bbe67b469d57c63"
   },
-  "header_cases_audited": 4,
-  "host_tests": {
-    "isolated-toolchain": {
-      "exit_code": 0,
-      "skips": 0,
-      "tests": 31
-    },
-    "without-toolchain": {
-      "exit_code": 0,
-      "skips": 0,
-      "tests": 31
-    }
-  },
-  "independent_execution": false,
+  "header_cases": 4,
+  "independent_execution": true,
   "limits": [
-    "No successful RGBDS build or consumed binaries",
-    "Original macro/source-prefix RGBDS API path remains unqualified",
-    "No engine/register execution, APU, PCM or audio fidelity acceptance"
+    "Original macros and bounded source prefixes only; synthetic header pointers, not game-ROM addresses",
+    "No independent engine/register execution",
+    "No APU, PCM, playback or audio fidelity acceptance"
   ],
-  "macro_cases_audited": 22,
-  "schema": 1,
-  "status": "blocked",
-  "strict_cli": {
-    "isolated-toolchain": {
-      "PATH": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds:/usr/bin:/bin:/usr/sbin:/sbin",
-      "command": [
-        "/opt/homebrew/opt/python@3.14/bin/python3.14",
-        "-m",
-        "tools.audio.oracle",
-        "--output",
-        "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/isolated-toolchain.json"
-      ],
-      "exit_code": 2,
-      "status": "blocked"
+  "macro_cases": 22,
+  "pins_sha256": {
+    "bison-pin.json": "166d1ed30c04842a978a80e8bb311b1a29136a7bdd327fded839b6666cd63353",
+    "rgbds-pin.json": "e1d52431334ca74681a27211e08710b1d271ed8dfd81ff4063e854371a0fb54e"
+  },
+  "preserved_initial_commit": "b809130908da78a18d54eba941939b1f38c8c02d",
+  "schema": 2,
+  "status": "pass",
+  "validation": {
+    "clean_rebuild_identical_binaries": {
+      "rgbasm": true,
+      "rgblink": true
     },
-    "without-toolchain": {
-      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
-      "command": [
-        "/opt/homebrew/opt/python@3.14/bin/python3.14",
-        "-m",
-        "tools.audio.oracle",
-        "--output",
-        "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/without-toolchain.json"
-      ],
-      "exit_code": 2,
-      "status": "blocked"
+    "clean_rebuild_identical_emitted_comparisons": true,
+    "runs": {
+      "isolated-toolchain": {
+        "PATH": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds:/usr/bin:/bin:/usr/sbin:/sbin",
+        "command": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "tools.audio.oracle",
+          "--output",
+          "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/qualified-bison-3.8.2/isolated-toolchain.json",
+          "--evidence-dir",
+          "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/qualified-bison-3.8.2/isolated-toolchain-emitted"
+        ],
+        "environment": {
+          "AUDIO_EXPECT_INDEPENDENT": "1",
+          "PATH": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds:/usr/bin:/bin:/usr/sbin:/sbin",
+          "POKERED_REFERENCE_DIR": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/pokered"
+        },
+        "exit_code": 0,
+        "independent_execution": true,
+        "skips": 0,
+        "status": "pass",
+        "test_command": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/tests",
+          "-p",
+          "test_audio_*.py",
+          "-v"
+        ],
+        "test_exit_code": 0,
+        "tests": 33
+      },
+      "without-toolchain": {
+        "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+        "command": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "tools.audio.oracle",
+          "--output",
+          "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/qualified-bison-3.8.2/without-toolchain.json",
+          "--evidence-dir",
+          "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-rgbds-oracle/qualified-bison-3.8.2/without-toolchain-emitted"
+        ],
+        "environment": {
+          "AUDIO_EXPECT_INDEPENDENT": "0",
+          "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+          "POKERED_REFERENCE_DIR": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/pokered"
+        },
+        "exit_code": 2,
+        "independent_execution": false,
+        "skips": 0,
+        "status": "blocked",
+        "test_command": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/tests",
+          "-p",
+          "test_audio_*.py",
+          "-v"
+        ],
+        "test_exit_code": 0,
+        "tests": 33
+      }
     }
   },
-  "toolchain_pin_sha256": "9facae2c30da780fb02135dead1f5b7794b389811f6feb682e9cad76f8cfd195",
-  "wave5_banks_audited": 3
+  "wave5_banks": 3
 }

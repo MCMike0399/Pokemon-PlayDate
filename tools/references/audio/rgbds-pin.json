@@ -2,6 +2,36 @@
   "archive_sha256": "17a92be6ef6b3c15b90ef01808359d981c5399b19d7ba17aa36e676aa0911e04",
   "archive_url": "https://github.com/gbdev/rgbds/releases/download/v1.0.4/rgbds-source.tar.gz",
   "build": {
+    "bison": "bison (GNU Bison) 3.8.2",
+    "bison_pin": "bison-pin.json",
+    "bison_sha256": "4f2e3bcf5a0b238fde287ec617d5590da9b15aeaac10f1d6ded5aef1291ff17b",
+    "clean_command": "/usr/bin/make clean",
+    "clean_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command": "/usr/bin/make -j2 rgbasm rgblink CXX=/usr/bin/clang++ CXXFLAGS='-O3 -flto -DNDEBUG' VERSION_STRING=v1.0.4 Q=",
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "environment": {
+      "PATH": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/bison/3.8.2/install/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    },
+    "exit_code": 0,
+    "log_sha256": "296ec1b510c0552eb285224ce6e15a816c9e945bdc98c1e3a03da9690f11a513",
+    "make": "GNU Make 3.81",
+    "required_cxxflags": "-std=c++20 -I include -fno-exceptions -fno-rtti",
+    "working_directory": "~/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds"
+  },
+  "consumed_binaries": {
+    "rgbasm": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds/rgbasm",
+      "sha256": "b0e0ba2a1ade1d55f2bbb26b05bcaa4a5bd5fad66b06d2c78aa57827660221f4",
+      "version": "rgbasm v1.0.4"
+    },
+    "rgblink": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds/rgblink",
+      "sha256": "69b7d7f42025cf452517043d6aff02267566371791eda02663f7e1fad156451b",
+      "version": "rgblink v1.0.4"
+    }
+  },
+  "independent_execution": true,
+  "initial_blocked_build": {
     "bison": "bison (GNU Bison) 2.3",
     "blocker": "Bison 2.3 is not supported; src/bison.sh requires Bison >=3; release source has no generated parser.cpp or script.cpp.",
     "command": "/usr/bin/make -j2 rgbasm rgblink CXX=/usr/bin/clang++ CXXFLAGS='-O3 -flto -DNDEBUG' VERSION_STRING=v1.0.4 Q=",
@@ -12,11 +42,6 @@
     "required_cxxflags": "-std=c++20 -I include -fno-exceptions -fno-rtti",
     "working_directory": "~/Developer/Pokemon-PlayDate-env/toolchains/rgbds/v1.0.4/rgbds"
   },
-  "consumed_binaries": {
-    "rgbasm": null,
-    "rgblink": null
-  },
-  "independent_execution": false,
   "pokered_requirements_sha256": {
     ".rgbds-version": "d1b77b88f4b9f675a900e4143ac768a21218623cfe1703ca43162388c3271bd6",
     "INSTALL.md": "79fb0e5e4316afa5d7d5f2dee10cd6b7a1f1b7be10c289b8325f5d8d49def4a9"

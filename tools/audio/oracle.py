@@ -13,7 +13,10 @@ from .source import AudioError
 FIXTURE = Path(__file__).resolve().parents[1]/'references/audio/bytes.json'
 
 
-def qualify_bytes(catalog, *, require_independent=False):
+def qualify_bytes(catalog, *, require_independent=False, evidence_dir=None):
+    if evidence_dir is not None:
+        evidence_dir = Path(evidence_dir)
+        evidence_dir.mkdir(parents=True, exist_ok=False)
     raw = FIXTURE.read_bytes()
     fixture = json.loads(raw)
     if fixture['revision'] != catalog.source.revision:
@@ -83,10 +86,17 @@ def qualify_bytes(catalog, *, require_independent=False):
             tmp = Path(tmp)
             (tmp/'fixture.asm').write_text('\n'.join(lines)+'\n')
             try:
-                subprocess.run([assembler, '-I', str(catalog.source.root)+'/', '-o', str(tmp/'fixture.o'), str(tmp/'fixture.asm')], check=True, capture_output=True)
-                subprocess.run([linker, '-o', str(tmp/'fixture.gb'), str(tmp/'fixture.o')], check=True, capture_output=True)
+                assembled = subprocess.run([assembler, '-I', str(catalog.source.root)+'/', '-o', str(tmp/'fixture.o'), str(tmp/'fixture.asm')], check=True, capture_output=True)
+                linked = subprocess.run([linker, '-o', str(tmp/'fixture.gb'), str(tmp/'fixture.o')], check=True, capture_output=True)
             except subprocess.CalledProcessError as exc:
                 raise AudioError('RGBDS byte oracle failed: '+exc.stderr.decode()) from exc
+            if evidence_dir is not None:
+                bank_dir = evidence_dir/f'audio{family}'
+                bank_dir.mkdir()
+                for name in ('fixture.asm', 'fixture.o', 'fixture.gb'):
+                    shutil.copyfile(tmp/name, bank_dir/name)
+                (bank_dir/'rgbasm.log').write_bytes(assembled.stdout+assembled.stderr)
+                (bank_dir/'rgblink.log').write_bytes(linked.stdout+linked.stderr)
             emitted = (tmp/'fixture.gb').read_bytes()
             if emitted[:len(expected)] != expected or emitted[len(expected):len(expected)+16].hex() != wave_report[str(family)]:
                 raise AudioError(f'independent RGBDS byte mismatch, audio{family}')
@@ -112,12 +122,13 @@ def main(argv=None):
     parser.add_argument('--source', default=os.environ.get('POKERED_REFERENCE_DIR'))
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--audit-only', action='store_true')
+    parser.add_argument('--evidence-dir', type=Path, help='new directory retaining actual isolated RGBDS inputs/outputs')
     args = parser.parse_args(argv)
     if not args.source:
         parser.error('--source or POKERED_REFERENCE_DIR is required')
     try:
         catalog = Catalog(Source(args.source))
-        result = qualify_bytes(catalog)
+        result = qualify_bytes(catalog, evidence_dir=args.evidence_dir)
         result['revision'] = catalog.source.revision
         result['consumed_sha256'] = dict(sorted(catalog.source.hashes.items()))
         result['oracle_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
