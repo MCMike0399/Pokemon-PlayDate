@@ -209,7 +209,8 @@
     "dev/ceruleanAmbientDialogueContracts",
     "dev/entryAbilityContracts",
     "dev/contactAbilityContracts",
-    "dev/fieldAcquisitionContracts"
+    "dev/fieldAcquisitionContracts",
+    "dev/vermilionAbilityContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -314,6 +315,7 @@
     "Contracts.register(\"cerulean-ambient-dialogue\", CeruleanAmbientDialogueContracts.run)",
     "Contracts.register(\"entry-abilities\", EntryAbilityContracts.run)",
     "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)",
-    "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)"
+    "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)",
+    "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)"
   ]
 }
