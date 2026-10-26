@@ -1,0 +1,26 @@
+{
+  "bicycle": {
+    "flag": "EVENT_GOT_BICYCLE",
+    "item": "bicycle",
+    "offer_price": 1000000,
+    "voucher": "bikeVoucher"
+  },
+  "magikarp": {
+    "flag": "EVENT_BOUGHT_MAGIKARP",
+    "level": 5,
+    "price": 500,
+    "species": "magikarp"
+  },
+  "museum": {
+    "flag": "EVENT_BOUGHT_MUSEUM_TICKET",
+    "price": 50,
+    "reset_map": "pokered:PEWTER_CITY",
+    "trigger_x": [
+      9,
+      10
+    ],
+    "trigger_y": 4
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -1,0 +1,741 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_BikeShopBagFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 48,
+          "text": "You better make"
+        },
+        {
+          "op": "line",
+          "source_line": 49,
+          "text": "room for this!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 50
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopCantAffordText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 15,
+          "text": "Sorry! You can't"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "afford it!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 17
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopClerkDoYouLikeItText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 10,
+          "text": "It's a cool BIKE!"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "Do you want it?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 12
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopClerkHowDoYouLikeYourBicycleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 39,
+          "text": "How do you like"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "your new BICYCLE?"
+        },
+        {
+          "op": "para",
+          "source_line": 42,
+          "text": "You can take it"
+        },
+        {
+          "op": "line",
+          "source_line": 43,
+          "text": "on CYCLING ROAD"
+        },
+        {
+          "op": "cont",
+          "source_line": 44,
+          "text": "and in caves!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 45
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopClerkOhThatsAVoucherText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 20,
+          "text": "Oh, that's..."
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "A BIKE VOUCHER!"
+        },
+        {
+          "op": "para",
+          "source_line": 24,
+          "text": "OK! Here you go!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 25
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopClerkWelcomeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hi! Welcome to"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "our BIKE SHOP."
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "Have we got just"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "the BIKE for you!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 7
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopComeAgainText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 34,
+          "text": "Come back again"
+        },
+        {
+          "op": "line",
+          "source_line": 35,
+          "text": "some time!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 36
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopExchangedVoucherText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 28,
+          "text": "<PLAYER> exchanged"
+        },
+        {
+          "op": "line",
+          "source_line": 29,
+          "text": "the BIKE VOUCHER"
+        },
+        {
+          "op": "cont",
+          "source_line": 30,
+          "text": "for a BICYCLE.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 31
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopMiddleAgedWomanText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 53,
+          "text": "A plain city BIKE"
+        },
+        {
+          "op": "line",
+          "source_line": 54,
+          "text": "is good enough"
+        },
+        {
+          "op": "cont",
+          "source_line": 55,
+          "text": "for me!"
+        },
+        {
+          "op": "para",
+          "source_line": 57,
+          "text": "You can't put a"
+        },
+        {
+          "op": "line",
+          "source_line": 58,
+          "text": "shopping basket"
+        },
+        {
+          "op": "cont",
+          "source_line": 59,
+          "text": "on an MTB!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 60
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopYoungsterCoolBikeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 69,
+          "text": "Wow. Your BIKE is"
+        },
+        {
+          "op": "line",
+          "source_line": 70,
+          "text": "really cool!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 71
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BikeShopYoungsterTheseBikesAreExpensiveText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 63,
+          "text": "These BIKEs are"
+        },
+        {
+          "op": "line",
+          "source_line": 64,
+          "text": "cool, but they're"
+        },
+        {
+          "op": "cont",
+          "source_line": 65,
+          "text": "way expensive!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 66
+        }
+      ],
+      "source": "text/BikeShop.asm"
+    },
+    "_BoxIsFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 95,
+          "text": "There's no more"
+        },
+        {
+          "op": "line",
+          "source_line": 96,
+          "text": "room for #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 98,
+          "text": "The #MON BOX"
+        },
+        {
+          "op": "line",
+          "source_line": 99,
+          "text": "is full and can't"
+        },
+        {
+          "op": "cont",
+          "source_line": 100,
+          "text": "accept any more!"
+        },
+        {
+          "op": "para",
+          "source_line": 102,
+          "text": "Change the BOX at"
+        },
+        {
+          "op": "line",
+          "source_line": 103,
+          "text": "a #MON CENTER!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 104
+        }
+      ],
+      "source": "data/text/text_5.asm"
+    },
+    "_GotMonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 76,
+          "text": "<PLAYER> got"
+        },
+        {
+          "op": "line",
+          "source_line": 77,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 78,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 79,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 80
+        }
+      ],
+      "source": "data/text/text_5.asm"
+    },
+    "_MtMoonPokecenterMagikarpSalesmanIGotADealText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 20,
+          "text": "MAN: Hello, there!"
+        },
+        {
+          "op": "line",
+          "source_line": 21,
+          "text": "Have I got a deal"
+        },
+        {
+          "op": "cont",
+          "source_line": 22,
+          "text": "just for you!"
+        },
+        {
+          "op": "para",
+          "source_line": 24,
+          "text": "I'll let you have"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "a swell MAGIKARP"
+        },
+        {
+          "op": "cont",
+          "source_line": 26,
+          "text": "for just \u00a5500!"
+        },
+        {
+          "op": "cont",
+          "source_line": 27,
+          "text": "What do you say?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 28
+        }
+      ],
+      "source": "text/MtMoonPokecenter.asm"
+    },
+    "_MtMoonPokecenterMagikarpSalesmanNoMoneyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 37,
+          "text": "You'll need more"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "money than that!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 39
+        }
+      ],
+      "source": "text/MtMoonPokecenter.asm"
+    },
+    "_MtMoonPokecenterMagikarpSalesmanNoRefundsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 42,
+          "text": "MAN: Well, I don't"
+        },
+        {
+          "op": "line",
+          "source_line": 43,
+          "text": "give refunds!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 44
+        }
+      ],
+      "source": "text/MtMoonPokecenter.asm"
+    },
+    "_MtMoonPokecenterMagikarpSalesmanNoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 31,
+          "text": "No? I'm only"
+        },
+        {
+          "op": "line",
+          "source_line": 32,
+          "text": "doing this as a"
+        },
+        {
+          "op": "cont",
+          "source_line": 33,
+          "text": "favor to you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 34
+        }
+      ],
+      "source": "text/MtMoonPokecenter.asm"
+    },
+    "_Museum1FScientist1AmberIsFossilizedTreeSapText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 41,
+          "text": "AMBER is fossil-"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "ized tree sap."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 43
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1ComeAgainText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Come again!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 3
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1DoYouKnowWhatAmberIsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 24,
+          "text": "You can't sneak"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "in the back way!"
+        },
+        {
+          "op": "para",
+          "source_line": 27,
+          "text": "Oh, whatever!"
+        },
+        {
+          "op": "line",
+          "source_line": 28,
+          "text": "Do you know what"
+        },
+        {
+          "op": "cont",
+          "source_line": 29,
+          "text": "AMBER is?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 30
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1DontHaveEnoughMoneyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "You don't have"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "enough money."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 21
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1GoToOtherSideText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 46,
+          "text": "Please go to the"
+        },
+        {
+          "op": "line",
+          "source_line": 47,
+          "text": "other side!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 48
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1TakePlentyOfTimeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 51,
+          "text": "Take plenty of"
+        },
+        {
+          "op": "line",
+          "source_line": 52,
+          "text": "time to look!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 53
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1ThankYouText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 14,
+          "text": "Right, \u00a550!"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "Thank you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 16
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1TheresALabSomewhereText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 33,
+          "text": "There's a lab"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "somewhere trying"
+        },
+        {
+          "op": "cont",
+          "source_line": 35,
+          "text": "to resurrect"
+        },
+        {
+          "op": "cont",
+          "source_line": 36,
+          "text": "ancient #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 37,
+          "text": "from AMBER."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 38
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_Museum1FScientist1WouldYouLikeToComeInText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 6,
+          "text": "It's \u00a550 for a"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "child's ticket."
+        },
+        {
+          "op": "para",
+          "source_line": 9,
+          "text": "Would you like to"
+        },
+        {
+          "op": "line",
+          "source_line": 10,
+          "text": "come in?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 11
+        }
+      ],
+      "source": "text/Museum1F.asm"
+    },
+    "_SentToBoxText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 83,
+          "text": "There's no more"
+        },
+        {
+          "op": "line",
+          "source_line": 84,
+          "text": "room for #MON!"
+        },
+        {
+          "op": "cont",
+          "source_line": 85,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 86,
+          "symbol": "wBoxMonNicks"
+        },
+        {
+          "op": "text",
+          "source_line": 87,
+          "text": " was"
+        },
+        {
+          "op": "cont",
+          "source_line": 88,
+          "text": "sent to #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 89,
+          "text": "BOX @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 90,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 91,
+          "text": " on PC!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 92
+        }
+      ],
+      "source": "data/text/text_5.asm"
+    }
+  }
+}

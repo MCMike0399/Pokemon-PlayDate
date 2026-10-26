@@ -1,0 +1,18 @@
+{
+  "files": {
+    "data/maps/objects/BikeShop.asm": "66b162619195f51c81ed74e65f0c8975bd8ff354ce99ee0ac8ad793ee428105c",
+    "data/maps/objects/MtMoonPokecenter.asm": "f97773c233aacbec587f30b6f72b03d574c8fadc5ad4fd87b9698b62b1a88541",
+    "data/maps/objects/Museum1F.asm": "c0ef10f5ab778abf62596d93eb728789e962c649d2bb109b5236988b86a876e7",
+    "data/text/text_5.asm": "41a6a292a8a06c658d0ce1b6d540deba14f2f7702ff9cf0ca03af2fa1f706b25",
+    "engine/events/give_pokemon.asm": "99789f756812f8db1c99f3142126bc2f27cae3f8ee9144d8c5cd3326f6a3e50b",
+    "scripts/BikeShop.asm": "539f7465bffdff41009c0462aac03a7def8d241e44ea36ea363e6464d13d9756",
+    "scripts/MtMoonPokecenter.asm": "4068821768e84ab1590ab3383a7239ff59431b404da0fcf6bcaecff59038ae2c",
+    "scripts/Museum1F.asm": "74148f18d35626c2ee39d3e34a152ca0345704705d13e8c15c1f119a265b3e36",
+    "scripts/PewterCity.asm": "24d6d17f5d0668a6ef2c66e27796ae6c8b5dca049ff0e04381f42749670f3db4",
+    "text/BikeShop.asm": "e99d2d311a9f98cdd979db9e8cbac1da81ec53c64f5bd44d49a68911ff953938",
+    "text/MtMoonPokecenter.asm": "8cf1625f1ec5a18062ebc36bd7311d90bcdf78a128e50a4b4d6f3967d07c5091",
+    "text/Museum1F.asm": "76c5736c20c9dddfb93d0d652c06dc435a02742f0fed983fc553520e8a9c71ec"
+  },
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

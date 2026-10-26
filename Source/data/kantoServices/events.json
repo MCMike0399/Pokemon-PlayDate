@@ -1,0 +1,21 @@
+{
+  "events": {
+    "pokered:BIKE_SHOP:objects:1": {
+      "content": "kantoServices",
+      "kind": "bespoke",
+      "service": "bicycle"
+    },
+    "pokered:MT_MOON_POKECENTER:objects:4": {
+      "content": "kantoServices",
+      "kind": "bespoke",
+      "service": "magikarp"
+    },
+    "pokered:MUSEUM_1F:objects:1": {
+      "content": "kantoServices",
+      "kind": "bespoke",
+      "service": "museum"
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
