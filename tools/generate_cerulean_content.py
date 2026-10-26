@@ -9,7 +9,6 @@ import hashlib
 import json
 import re
 import sys
-import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -361,34 +360,18 @@ def build(reference_root):
     return output
 
 
-def candidate_manifest(artifacts):
-    """Extend the manifest without publishing or unblocking current exits."""
+def verify_installed_entries(artifacts):
+    """Check this region's entries without owning the common manifest/cache.
+
+    Root owns activation metadata (blockers, arrivals and connection sources).
+    The regional generator owns decoded identity, geometry, pins and spawn only.
+    """
     manifest = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
-    additions = json.loads(artifacts['manifest-entries.json'])['maps']
-    if set(manifest['maps']) & set(additions):
-        raise ValueError('candidate maps already exist in active inventory')
-    added_ids = {entry['id'] for entry in additions.values()}
-    for name, entry in manifest['maps'].items():
-        definition = json.loads((ROOT / 'Source' / entry['path']).read_bytes())
-        blocked = entry.get('blocked_events', [])[:]
-        for warp in definition['events']['warps']:
-            if 'pokered:' + warp['destination'].get('map', '') in added_ids:
-                blocked.append(warp['id'])
-        if blocked:
-            entry['blocked_events'] = sorted(set(blocked))
-        for connection in definition['connections']:
-            if 'pokered:' + connection['target_map'] in added_ids:
-                entry.setdefault('blocked_connections', []).append(connection['direction'] + ':' + connection['target_map'])
-    manifest['maps'].update(additions)
-    return (json.dumps(manifest, indent=2, sort_keys=True) + '\n').encode()
-
-
-def candidate_cache(manifest):
-    from tools.generate_source_map_cache import build
-    with tempfile.TemporaryDirectory() as directory:
-        path = Path(directory) / 'manifest.json'
-        path.write_bytes(manifest)
-        return build(path)
+    for name, expected in json.loads(artifacts['manifest-entries.json'])['maps'].items():
+        actual = manifest['maps'].get(name, {})
+        for field, value in expected.items():
+            if actual.get(field) != value:
+                raise ValueError('installed source entry drift: ' + name + ':' + field)
 
 
 def verify(artifacts, directory):
@@ -410,11 +393,7 @@ def main():
     artifacts = build(args.reference)
     if args.check:
         verify(artifacts, args.output)
-        manifest = candidate_manifest(artifacts)
-        if (ROOT / 'Source/data/ceruleanSourceMaps.json').read_bytes() != manifest:
-            raise ValueError('candidate manifest drift')
-        from tools.generate_source_map_cache import check
-        check(candidate_cache(manifest), ROOT / 'Source/data/ceruleanMapCache')
+        verify_installed_entries(artifacts)
     else:
         args.output.mkdir(parents=True, exist_ok=False)
         for name, data in artifacts.items():

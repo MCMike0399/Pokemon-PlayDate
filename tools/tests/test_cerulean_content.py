@@ -10,7 +10,7 @@ import unittest
 
 from PIL import Image
 from tools import generate_cerulean_content as generator
-from tools.generate_source_map_cache import check as cache_check
+from tools.generate_source_map_cache import build as cache_build, check as cache_check
 
 ROOT = generator.ROOT
 
@@ -29,14 +29,15 @@ class CeruleanContentTests(unittest.TestCase):
         cls.texts = json.loads(cls.artifacts['dialogue.json'])['texts']
         cls.scripts = json.loads(cls.artifacts['scripts.json'])
         cls.pin = json.loads(generator.PIN.read_bytes())
-        cls.manifest = json.loads((ROOT / 'Source/data/ceruleanSourceMaps.json').read_bytes())
+        cls.manifest = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
 
-    def test_generator_and_candidate_cache_are_exact_and_deterministic(self):
+    def test_generator_and_installed_cache_are_exact_and_deterministic(self):
         self.assertEqual(self.artifacts, generator.build(self.reference))
         generator.verify(self.artifacts, generator.OUTPUT)
-        manifest = generator.candidate_manifest(self.artifacts)
-        self.assertEqual(manifest, (ROOT / 'Source/data/ceruleanSourceMaps.json').read_bytes())
-        cache_check(generator.candidate_cache(manifest), ROOT / 'Source/data/ceruleanMapCache')
+        generator.verify_installed_entries(self.artifacts)
+        cache_check(cache_build(), ROOT / 'Source/data/sourceMapCache')
+        self.assertFalse((ROOT / 'Source/data/ceruleanSourceMaps.json').exists())
+        self.assertFalse((ROOT / 'Source/data/ceruleanMapCache').exists())
 
     def test_all_consumed_files_match_exact_revision_and_checked_pins(self):
         self.assertEqual(subprocess.check_output(['git', '-C', str(self.reference), 'rev-parse', 'HEAD'], text=True).strip(), generator.REVISION)
@@ -53,27 +54,40 @@ class CeruleanContentTests(unittest.TestCase):
                     'BillsHouse', 'Museum1F', 'Museum2F'}
         self.assertEqual(set(self.maps), expected)
         active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
-        self.assertEqual(set(self.manifest['maps']) - set(active['maps']), expected)
+        self.assertEqual(len(active['maps']), 30)
+        self.assertEqual({name for name, entry in active['maps'].items() if entry['profile'] == 'source'}, expected)
         for name in expected:
             entry = self.manifest['maps'][name]
             self.assertEqual(entry['profile'], 'source')
             self.assertEqual(entry['path'], f'data/sourceSlice/{name}.json')
             self.assertEqual(entry['source_sha256'], generator.digest(self.artifacts[name + '.json']))
 
-    def test_existing_manifest_cache_and_art_are_untouched(self):
-        paths = ['Source/data/sourceMaps.json', 'Source/data/sourceMapCache',
-                 'Source/data/viridianSlice', 'Source/data/pewterSlice', 'Source/world/sprites',
-                 'Source/world/tilefactory.lua', 'Source/lib/shade.lua', 'Source/images']
-        subprocess.run(['git', 'diff', '--exit-code', '9f3e37b', '--', *paths], cwd=ROOT, check=True, capture_output=True)
-
-    def test_candidate_preserves_every_old_blocked_surface_and_boundary_gate(self):
-        old = json.loads((ROOT / 'Source/data/sourceMapCache/compact.json').read_bytes())
-        new = json.loads((ROOT / 'Source/data/ceruleanMapCache/compact.json').read_bytes())
-        for name, descriptor in old['maps'].items():
-            self.assertEqual(new['maps'][name]['blocked'], descriptor['blocked'])
-        self.assertIn('east:ROUTE_3', new['maps']['PewterCity']['blocked_connections'])
-        self.assertIn('west:ROUTE_22', new['maps']['ViridianCity']['blocked_connections'])
-        self.assertIn('north:ROUTE_2', new['maps']['ViridianCity']['blocked_connections'])
+    def test_installed_cache_preserves_accepted_tiles_maps_and_closed_ingresses(self):
+        # Compare the immutable accepted input and tile bytes, independently of
+        # the new generator. Manifest activation fields are checked explicitly.
+        def accepted(path):
+            return json.loads(subprocess.check_output(['git', 'show', '7eae5e1:' + path], cwd=ROOT))
+        old_manifest = accepted('Source/data/sourceMaps.json')
+        old = accepted('Source/data/sourceMapCache/compact.json')
+        new = json.loads((ROOT / 'Source/data/sourceMapCache/compact.json').read_bytes())
+        for name, entry in old_manifest['maps'].items():
+            for field, value in entry.items():
+                if field == 'blocked_connections':
+                    continue
+                self.assertEqual(self.manifest['maps'][name][field], value, (name, field))
+            for field, value in old['maps'][name].items():
+                if field != 'blocked_connections':
+                    self.assertEqual(new['maps'][name][field], value, (name, field))
+        old_tiles = accepted('Source/data/sourceMapCache/tile-grids.json')['tiles']
+        new_tiles = json.loads((ROOT / 'Source/data/sourceMapCache/tile-grids.json').read_bytes())['tiles']
+        for key, value in old_tiles.items():
+            self.assertEqual(new_tiles[key], value, key)
+        self.assertEqual(new_tiles, accepted('Source/data/ceruleanMapCache/tile-grids.json')['tiles'])
+        self.assertEqual(new['maps']['PewterCity']['blocked_connections'], ['east:ROUTE_3'])
+        self.assertEqual(new['maps']['ViridianCity']['blocked_connections'], ['west:ROUTE_22'])
+        self.assertNotIn('north:ROUTE_2', new['maps']['ViridianCity']['blocked_connections'])
+        self.assertTrue({'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
+                        <= set(new['maps']['PewterCity']['blocked'].values()))
 
     def test_each_cell_uses_original_block_quadrants_and_original_png_pixels(self):
         # Independent geometry/art oracle: byte indexing and Pillow, rather than

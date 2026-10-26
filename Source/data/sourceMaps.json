@@ -49,7 +49,209 @@
     ]
   },
   "maps": {
+    "BikeShop": {
+      "height": 8,
+      "id": "pokered:BIKE_SHOP",
+      "key": "kanto_bike_shop",
+      "padding": 2,
+      "path": "data/sourceSlice/BikeShop.json",
+      "profile": "source",
+      "source_sha256": "e0f180c6e131f7fb62f9097eba19f339a02782d6fa54a8cd8c29da1a4dd7bb24",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "BillsHouse": {
+      "height": 8,
+      "id": "pokered:BILLS_HOUSE",
+      "key": "kanto_bills_house",
+      "padding": 2,
+      "path": "data/sourceSlice/BillsHouse.json",
+      "profile": "source",
+      "source_sha256": "8af66fee20494a656575b56a9dd2f0f498f735ac6a8b35dab7ac04297131ee35",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "CeruleanCity": {
+      "height": 36,
+      "id": "pokered:CERULEAN_CITY",
+      "key": "kanto_cerulean_city",
+      "padding": 0,
+      "path": "data/sourceSlice/CeruleanCity.json",
+      "profile": "source",
+      "source_sha256": "2441c343ee7aa251dc4183fd6a6ba6648b521b056c4d693bb4c2df7f3b6776e6",
+      "spawn": {
+        "facing": "up",
+        "x": 20,
+        "y": 35
+      },
+      "width": 40
+    },
+    "CeruleanGym": {
+      "height": 14,
+      "id": "pokered:CERULEAN_GYM",
+      "key": "kanto_cerulean_gym",
+      "padding": 1,
+      "path": "data/sourceSlice/CeruleanGym.json",
+      "profile": "source",
+      "source_sha256": "b19df4802cd5975ae46370cd7c2ed4654c0de2b2fb0a4c31a1152b054e12a7eb",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 13
+      },
+      "width": 13
+    },
+    "CeruleanMart": {
+      "height": 8,
+      "id": "pokered:CERULEAN_MART",
+      "key": "kanto_cerulean_mart",
+      "padding": 2,
+      "path": "data/sourceSlice/CeruleanMart.json",
+      "profile": "source",
+      "source_sha256": "3cd2799cd40004204bab144bf75714978ad9e789259acf5cdb8f6829651aad00",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 7
+      },
+      "width": 13
+    },
+    "CeruleanPokecenter": {
+      "height": 8,
+      "id": "pokered:CERULEAN_POKECENTER",
+      "key": "kanto_cerulean_pokecenter",
+      "padding": 0,
+      "path": "data/sourceSlice/CeruleanPokecenter.json",
+      "profile": "source",
+      "source_sha256": "09d6713c7bad4adc03286f5d946d6e45838e245aa33beb5aea26e204c9fd5efc",
+      "spawn": {
+        "facing": "up",
+        "x": 8,
+        "y": 7
+      },
+      "width": 14
+    },
+    "CeruleanTrashedHouse": {
+      "height": 8,
+      "id": "pokered:CERULEAN_TRASHED_HOUSE",
+      "key": "kanto_cerulean_trashed_house",
+      "padding": 2,
+      "path": "data/sourceSlice/CeruleanTrashedHouse.json",
+      "profile": "source",
+      "source_sha256": "6275e04e5834a973afd9c1068e55bf982838124407d84157ed0e2b9e5a3d0380",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "MtMoon1F": {
+      "height": 36,
+      "id": "pokered:MT_MOON_1F",
+      "key": "kanto_mt_moon_1f",
+      "padding": 0,
+      "path": "data/sourceSlice/MtMoon1F.json",
+      "profile": "source",
+      "source_sha256": "805ca53e3439e3d728d9d9fe7b49424a7573ffda92be401ae3204905151bebc0",
+      "spawn": {
+        "facing": "up",
+        "x": 21,
+        "y": 34
+      },
+      "width": 40
+    },
+    "MtMoonB1F": {
+      "height": 28,
+      "id": "pokered:MT_MOON_B1F",
+      "key": "kanto_mt_moon_b1f",
+      "padding": 0,
+      "path": "data/sourceSlice/MtMoonB1F.json",
+      "profile": "source",
+      "source_sha256": "e043f2302053cb6c0b241102f7663b676ed042b4d8754a1518b605cdfc9ae454",
+      "spawn": {
+        "facing": "up",
+        "x": 14,
+        "y": 27
+      },
+      "width": 28
+    },
+    "MtMoonB2F": {
+      "height": 36,
+      "id": "pokered:MT_MOON_B2F",
+      "key": "kanto_mt_moon_b2f",
+      "padding": 0,
+      "path": "data/sourceSlice/MtMoonB2F.json",
+      "profile": "source",
+      "source_sha256": "e9e9214768b79125acfc220a6b7636aeb180357f96bd3b8e5f9602ddfe70e930",
+      "spawn": {
+        "facing": "up",
+        "x": 20,
+        "y": 35
+      },
+      "width": 40
+    },
+    "MtMoonPokecenter": {
+      "height": 8,
+      "id": "pokered:MT_MOON_POKECENTER",
+      "key": "kanto_mt_moon_pokecenter",
+      "padding": 0,
+      "path": "data/sourceSlice/MtMoonPokecenter.json",
+      "profile": "source",
+      "source_sha256": "caf12336d8b7f442aef2b3db4a6971ea8c6484a413033b1a39cab946341da670",
+      "spawn": {
+        "facing": "up",
+        "x": 8,
+        "y": 7
+      },
+      "width": 14
+    },
+    "Museum1F": {
+      "height": 8,
+      "id": "pokered:MUSEUM_1F",
+      "key": "kanto_museum_1f",
+      "padding": 0,
+      "path": "data/sourceSlice/Museum1F.json",
+      "profile": "source",
+      "source_sha256": "2ec49e79f38ccb0a0cf0ad69988a0f4c652fd64ba9281fb50c1c0a28d255f99d",
+      "spawn": {
+        "facing": "up",
+        "x": 9,
+        "y": 7
+      },
+      "width": 20
+    },
+    "Museum2F": {
+      "height": 8,
+      "id": "pokered:MUSEUM_2F",
+      "key": "kanto_museum_2f",
+      "padding": 0,
+      "path": "data/sourceSlice/Museum2F.json",
+      "profile": "source",
+      "source_sha256": "1e50d0071255b4b0363ade26f8bd83007662ad38d197b54cb0cdb1892111a00d",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 14
+    },
     "PewterCity": {
+      "blocked_connections": [
+        "east:ROUTE_3"
+      ],
+      "blocked_events": [
+        "pokered:PEWTER_CITY:warps:1",
+        "pokered:PEWTER_CITY:warps:2"
+      ],
       "height": 36,
       "id": "pokered:PEWTER_CITY",
       "key": "kanto_pewter_city",
@@ -146,8 +348,85 @@
       },
       "width": 20
     },
+    "Route22": {
+      "height": 18,
+      "id": "pokered:ROUTE_22",
+      "key": "kanto_route_22",
+      "padding": 0,
+      "path": "data/sourceSlice/Route22.json",
+      "profile": "source",
+      "source_sha256": "31692547fe49bfc80e0c622b4643a3b654ef6a27e838723a7da98faa737dd43a",
+      "spawn": {
+        "facing": "up",
+        "x": 20,
+        "y": 15
+      },
+      "width": 40
+    },
+    "Route24": {
+      "height": 36,
+      "id": "pokered:ROUTE_24",
+      "key": "kanto_route_24",
+      "padding": 0,
+      "path": "data/sourceSlice/Route24.json",
+      "profile": "source",
+      "source_sha256": "4e8b06cecfceea87a00823383776f1102318ce41ebdc764e8e8800cb8bbf07d4",
+      "spawn": {
+        "facing": "up",
+        "x": 10,
+        "y": 35
+      },
+      "width": 20
+    },
+    "Route25": {
+      "height": 18,
+      "id": "pokered:ROUTE_25",
+      "key": "kanto_route_25",
+      "padding": 0,
+      "path": "data/sourceSlice/Route25.json",
+      "profile": "source",
+      "source_sha256": "b781d5122c7fdad349d9840f0f8a4a6420afdad5b595a7b38f1573a09a42dc59",
+      "spawn": {
+        "facing": "up",
+        "x": 36,
+        "y": 12
+      },
+      "width": 60
+    },
+    "Route3": {
+      "height": 18,
+      "id": "pokered:ROUTE_3",
+      "key": "kanto_route_3",
+      "padding": 0,
+      "path": "data/sourceSlice/Route3.json",
+      "profile": "source",
+      "source_sha256": "e2224bb0449d199d8ab9f6a92772dfe29c17664fe4a74b87d8c6fca02c14d55c",
+      "spawn": {
+        "facing": "up",
+        "x": 35,
+        "y": 13
+      },
+      "width": 70
+    },
+    "Route4": {
+      "height": 18,
+      "id": "pokered:ROUTE_4",
+      "key": "kanto_route_4",
+      "padding": 0,
+      "path": "data/sourceSlice/Route4.json",
+      "profile": "source",
+      "source_sha256": "df7a7f43b1958f76288abdaaa86705eb88b09fc1ff8bbae82ed0dc20cdba2214",
+      "spawn": {
+        "facing": "up",
+        "x": 11,
+        "y": 17
+      },
+      "width": 90
+    },
     "ViridianCity": {
-      "blocked_connections": [],
+      "blocked_connections": [
+        "west:ROUTE_22"
+      ],
       "connection_sources": {
         "down": "ViridianCity header south offset +5 blocks"
       },

@@ -19,10 +19,11 @@ class SourceMapManifestTests(unittest.TestCase):
     def test_exact_reviewed_inventory_and_unique_identities(self):
         self.assertEqual(self.manifest["schema"], 1)
         self.assertEqual(self.manifest["source_revision"], "af519899719f0754965776faac0e836a3b906e6d")
-        expected = set(self.pewter) | {"Route1", "ViridianCity", "ViridianMart", "ViridianPokecenter"}
+        additions = json.loads((ROOT / 'Source/data/sourceSlice/manifest-entries.json').read_bytes())['maps']
+        expected = set(additions) | set(self.pewter) | {"Route1", "ViridianCity", "ViridianMart", "ViridianPokecenter"}
         self.assertEqual(set(self.maps), expected)
-        self.assertEqual(len({entry["id"] for entry in self.maps.values()}), 12)
-        self.assertEqual(len({entry["key"] for entry in self.maps.values()}), 12)
+        self.assertEqual(len({entry["id"] for entry in self.maps.values()}), 30)
+        self.assertEqual(len({entry["key"] for entry in self.maps.values()}), 30)
 
     def test_original_map_inputs_authored_pallet_and_renderers_are_unchanged(self):
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
@@ -44,7 +45,7 @@ class SourceMapManifestTests(unittest.TestCase):
                 self.assertEqual(entry["width"], max(13, width))
                 self.assertEqual(entry["height"], height)
                 self.assertEqual(entry["padding"], max(0, (13 - width) // 2))
-                original = subprocess.check_output(["git", "show", f'{BASE}:Source/{entry["path"]}'], cwd=ROOT)
+                original = subprocess.check_output(["git", "show", f'{"7eae5e1" if entry["profile"] == "source" else BASE}:Source/{entry["path"]}'], cwd=ROOT)
                 self.assertEqual(hashlib.sha256(path.read_bytes()).digest(), hashlib.sha256(original).digest())
                 for events in raw["events"].values():
                     for event in events:
@@ -62,7 +63,10 @@ class SourceMapManifestTests(unittest.TestCase):
                   "ViridianForest": (16, 47), "ViridianForestNorthGate": (5, 7),
                   "PewterCity": (18, 35), "PewterGym": (5, 13),
                   "PewterMart": (5, 7), "PewterPokecenter": (3, 7)}
-        for name, entry in self.maps.items():
+        self.assertEqual(len(viridian), 4)
+        self.assertEqual(len(self.pewter), 8)
+        for name in set(viridian) | set(self.pewter):
+            entry = self.maps[name]
             if name in viridian:
                 key, x, y = viridian[name]
                 self.assertTrue(entry["resident"])
@@ -177,9 +181,12 @@ class GeneratedSourceCacheTests(unittest.TestCase):
         from tools.generate_source_map_cache import build
         with tempfile.TemporaryDirectory() as temporary:
             source = Path(temporary)
+            for entry in self.manifest['maps'].values():
+                path = source / entry['path']
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes((ROOT / 'Source' / entry['path']).read_bytes())
             entry = self.manifest["maps"]["PewterCity"]
             path = source / entry["path"]
-            path.parent.mkdir(parents=True)
             path.write_bytes((ROOT / "Source" / entry["path"]).read_bytes() + b" ")
             with self.assertRaisesRegex(ValueError, "checksum"):
                 build(source_root=source)
@@ -247,11 +254,16 @@ class SourceMapExtensionTests(unittest.TestCase):
         fixture = records(reference)
         self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(fixture))
         compact = fixture['data/sourceMapCache/compact.json']
-        self.assertEqual(len(compact['maps']), 14)
+        self.assertEqual(len(compact['maps']), 31)
         self.assertNotIn('pokered:VIRIDIAN_CITY:warps:3', compact['maps']['ViridianCity']['blocked'].values())
         for name in ('Route22', 'ViridianSchoolHouse'):
             d = fixture[f'dev/source-map-extension/{name}.json']
             self.assertEqual(d['source_revision'], fixture['data/sourceMaps.json']['source_revision'])
             self.assertEqual(compact['maps'][name]['connections'], d['connections'])
             self.assertEqual(fixture['data/sourceMaps.json']['maps'][name]['profile'], 'source')
-            self.assertNotIn(name, json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps'])
+            active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
+            if name == 'Route22':
+                self.assertIn(name, active)
+                self.assertNotEqual(active[name]['key'], fixture['data/sourceMaps.json']['maps'][name]['key'])
+            else:
+                self.assertNotIn(name, active)

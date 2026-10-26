@@ -1,5 +1,5 @@
 -- Root-run real SDK checks. This suite neither installs campaign content nor
--- opens exits. It exercises detached source records and shared planners.
+-- opens exits. It exercises installed records and shared production owners.
 import "data/ceruleanContent"
 CeruleanContentContracts = {}
 
@@ -32,35 +32,88 @@ function CeruleanContentContracts.run()
         else report.failed = report.failed + 1; report.ok = false end
     end
     local entries = SourceMaps.record("data/sourceSlice/manifest-entries.json").maps
-    local candidates = {
-        ["data/sourceMaps.json"] = SourceMaps.record("data/ceruleanSourceMaps.json"),
-        ["data/sourceMapCache/compact.json"] = SourceMaps.record("data/ceruleanMapCache/compact.json"),
-        ["data/sourceMapCache/tile-grids.json"] = SourceMaps.record("data/ceruleanMapCache/tile-grids.json"),
-    }
-    SourceMaps._withRecords(candidates, function()
-        for name, entry in pairs(entries) do
-            test("shared source projection: " .. name, function()
-                local raw = SourceMaps.definition(name)
-                local padded = SourceMaps.padded(name)
-                local descriptor = SourceMaps.descriptor(name)
-                same(SourceMaps.entry(name), entry)
-                assert(entry.profile == "source" and raw.name == name)
-                assert(descriptor.source_sha256 == entry.source_sha256)
-                assert(padded.dimensions.cells[1] == entry.width)
-                for y = 0, entry.height - 1 do
-                    for x = entry.padding, entry.padding + raw.dimensions.cells[1] - 1 do
-                        local cell = SourceMaps.cell(name, x, y)
-                        local grid = raw.grids[raw.tile_ids[y + 1][x - entry.padding + 1]]
-                        same(SourceMaps.tile(cell.key).grid, grid.grid)
-                        assert(cell.terrain.foot_tile == grid.terrain.foot_tile)
+    for name, entry in pairs(entries) do
+        test("shared source projection: " .. name, function()
+            local raw = SourceMaps.definition(name)
+            local padded = SourceMaps.padded(name)
+            local descriptor = SourceMaps.descriptor(name)
+            local installed = SourceMaps.entry(name)
+            for field, value in pairs(entry) do same(installed[field], value) end
+            assert(entry.profile == "source" and raw.name == name)
+            assert(descriptor.source_sha256 == entry.source_sha256)
+            assert(padded.dimensions.cells[1] == entry.width)
+            for y = 0, entry.height - 1 do
+                for x = entry.padding, entry.padding + raw.dimensions.cells[1] - 1 do
+                    local cell = SourceMaps.cell(name, x, y)
+                    local grid = raw.grids[raw.tile_ids[y + 1][x - entry.padding + 1]]
+                    same(SourceMaps.tile(cell.key).grid, grid.grid)
+                    assert(cell.terrain.foot_tile == grid.terrain.foot_tile)
+                end
+            end
+            for _, event in ipairs(raw.events.objects) do
+                local strip = CeruleanContent.sprite(event.sprite)
+                assert(strip.standing.down ~= nil, "source actor lacks standing pose")
+            end
+        end)
+    end
+    test("installed inventory constructs all thirty maps with actual actor and surface owners", function()
+        assert(#SourceMaps.names() == 30, "installed source inventory differs")
+        local registry = TileRegistry()
+        local function absent() return false end
+        local profiles = SourceMaps.legacyProfiles({
+            dispatch = function() error("map witness cannot dispatch") end,
+            questFlag = absent, sourceFlag = absent,
+        })
+        local provider = SourceMaps.createProvider(profiles, registry)
+        local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
+        zoneRegistry, zoneList, currentZone = {}, {}, nil
+        local ok, problem = pcall(function()
+            WorldDeltas._withDefinitionProvider(provider, function()
+                assert(#provider:inventory() == 30)
+                for _, name in ipairs(SourceMaps.names()) do
+                    local entry = SourceMaps.entry(name)
+                    local definition = SourceMaps.padded(name)
+                    local surface = provider:surface(entry.id, provider:export())
+                    local zone = provider:ensure(entry.key)
+                    assert(zone.stableID == entry.id and zone:isSliceReady())
+                    assert(surface.width == zone.width and surface.height == zone.height)
+                    assert(#zone.npcDefs == #definition.events.objects)
+                    local actors = SourceActors.describeSource(entry.id, provider:export())
+                    if entry.profile == "viridian" then
+                        assert(actors == nil, "legacy static actor policy changed")
+                    else
+                        assert(actors.zone_id == entry.id and #actors.actors == #definition.events.objects)
+                        for index, event in ipairs(definition.events.objects) do
+                            local actor = actors.actors[index]
+                            assert(actor.id == event.id and actor.x == event.x and actor.y == event.y)
+                            assert(zone.npcDefs[index].source_event_id == event.id)
+                        end
+                    end
+                    -- Every unresolved event/script stays visible in the real
+                    -- Zone diagnostics. Registration of a scene may close its
+                    -- gap later; merely installing its map never does.
+                    local issues = {}
+                    for _, issue in ipairs(zone:getBindingIssues()) do issues[issue.id] = issue end
+                    local options = profiles[entry.profile].options(name, definition)
+                    local specs = SourceBindings.specs(name, definition, options.hasEvent)
+                    for id, spec in pairs(specs) do
+                        if spec.status == "blocked" then
+                            assert(issues[id], "unreported source gap: " .. id)
+                        else
+                            assert(issues[id] == nil, "resolved source event reported as a gap: " .. id)
+                        end
+                    end
+                    for y = 0, zone.height - 1 do
+                        for x = 0, zone.width - 1 do
+                            assert(zone.collision[y + 1][x + 1] == surface.collision[y + 1][x + 1])
+                        end
                     end
                 end
-                for _, event in ipairs(raw.events.objects) do
-                    local strip = CeruleanContent.sprite(event.sprite)
-                    assert(strip.standing.down ~= nil, "source actor lacks standing pose")
-                end
             end)
-        end
+        end)
+        provider:disposeCache()
+        zoneRegistry, zoneList, currentZone = oldRegistry, oldList, oldZone
+        if not ok then error(problem, 0) end
     end)
 
     local events = CeruleanContent.events()
