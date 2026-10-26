@@ -299,19 +299,21 @@ function OverworldState:enter(opts)
     -- Opted in by root only. A retained visit returns from battle unchanged;
     -- real entries/reloads restore source blocks before constructing the view.
     if game.fieldWorld and not (opts and opts.fieldRestore)
-        and self.builtSession==game.session and self.builtZone
-        and (self.builtZone~=currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
-        local actors=opts and opts.actors
-        if not actors and self.builtZone==currentZone then actors=game.npcManager.motion:snapshot() end
-        local reason=opts and opts.fieldReloadReason or (self.builtZone==currentZone and "reload" or "map")
-        local accepted,problem=game.fieldWorld.enter(game,self.builtZone.stableID,
-            {zone_id=currentZone.stableID,x=pos.x,y=pos.y,facing=pos.facing or "down"},
-            actors or WorldMotionData.empty(),reason)
-        assert(accepted,problem)
+        and self.builtSession == game.session and self.builtZone
+        and (self.builtZone ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
+        local actors = opts and opts.actors
+        if not actors and self.builtZone == currentZone then
+            actors = game.npcManager.motion:snapshot()
+        end
+        local reason = opts and opts.fieldReloadReason or (self.builtZone == currentZone and "reload" or "map")
+        local accepted, problem = game.fieldWorld.enter(game, self.builtZone.stableID,
+            {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
+            actors or WorldMotionData.empty(), reason)
+        assert(accepted, problem)
     end
     gfx.sprite.removeAll()
     setupOverworld()
-    self.builtZone,self.builtSession=currentZone,game.session
+    self.builtZone, self.builtSession = currentZone, game.session
 
     game.player = Player(pos.x, pos.y, currentZone.collision, game.npcManager)
     if pos.facing then

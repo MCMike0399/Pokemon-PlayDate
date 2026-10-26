@@ -2,8 +2,11 @@
 Class("GameSession")
 local state=setmetatable({}, {__mode="k"})
 local activeRNGSession=nil
-local fieldEpoch=0
-local function nextFieldEpoch() fieldEpoch=fieldEpoch+1; return fieldEpoch end
+local fieldEpoch = 0
+local function nextFieldEpoch()
+    fieldEpoch = fieldEpoch + 1
+    return fieldEpoch
+end
 local stages={pre_oak=true,lab_greet=true,choose=true,pre_rival=true,rival_fight=true,goodbye=true,done=true}
 local counters={bulbasaur="charmander",charmander="squirtle",squirtle="bulbasaur"}
 local facings={up=true,down=true,left=true,right=true}
@@ -14,11 +17,12 @@ local function object(value,allowed)
 end
 -- wMapPalOffset belongs to the saved session, not a per-map flag.
 local function fieldData(value)
-    object(value,{version=true,mapPalOffset=true})
-    assert(value.version==1 and (value.mapPalOffset==0 or value.mapPalOffset==6),"invalid field world data")
-    return {version=1,mapPalOffset=value.mapPalOffset}
+    object(value, {version = true, mapPalOffset = true})
+    assert(value.version == 1 and (value.mapPalOffset == 0 or value.mapPalOffset == 6), "invalid field world data")
+    return {version = 1, mapPalOffset = value.mapPalOffset}
 end
-GameSession._fieldData=fieldData
+GameSession._fieldData = fieldData
+
 local function stable(id)
     return type(id)=="string" and #id>=1 and #id<=128 and id:match("^[A-Za-z0-9][A-Za-z0-9_:.%/-]*$")~=nil
 end
@@ -75,8 +79,8 @@ end
 local function location(deps,value,candidateWorld,player)
     object(value,{zone_id=true,x=true,y=true,facing=true})
     assert(stable(value.zone_id) and Party._integer(value.x,0,4095) and Party._integer(value.y,0,4095) and facings[value.facing],"invalid location fields")
-    local resolver=player and deps.resolvePlayerLocation or deps.resolveLocation
-    local resolved=resolver(copy(value),copy(candidateWorld))
+    local resolver = player and deps.resolvePlayerLocation or deps.resolveLocation
+    local resolved = resolver(copy(value), copy(candidateWorld))
     assert(type(resolved)=="table","unsupported/blocked session location")
     object(resolved,{zone_id=true,x=true,y=true,facing=true})
     assert(resolved.zone_id==value.zone_id and resolved.x==value.x and resolved.y==value.y and resolved.facing==value.facing,"resolver must validate without relocating")
@@ -90,11 +94,18 @@ end
 local function dependencies(deps)
     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
     assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
-    assert(deps.resolvePlayerLocation==nil or type(deps.resolvePlayerLocation)=="function","pure player location validator required")
+    assert(deps.resolvePlayerLocation == nil or type(deps.resolvePlayerLocation) == "function",
+        "pure player location validator required")
     local definitions={}
     for id,entry in pairs(assert(deps.itemDefinitions,"item definitions required")) do definitions[id]={keyItem=entry.keyItem} end
     Inventory(definitions) -- validates configuration without modifying callers.
-    return {itemDefinitions=definitions,validateWorld=deps.validateWorld,resolveLocation=deps.resolveLocation,validateActors=deps.validateActors,resolvePlayerLocation=deps.resolvePlayerLocation or deps.resolveLocation}
+    return {
+        itemDefinitions = definitions,
+        validateWorld = deps.validateWorld,
+        resolveLocation = deps.resolveLocation,
+        validateActors = deps.validateActors,
+        resolvePlayerLocation = deps.resolvePlayerLocation or deps.resolveLocation
+    }
 end
 -- Internal serialization seam; consumers use SessionCodec rather than mutating.
 GameSession._copy,GameSession._object,GameSession._flags=copy,object,flags
@@ -109,7 +120,9 @@ function GameSession:init(deps,options)
     local stream=RulesRNG.new(options.seed or 1)
     state[self]={deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
-        fieldWorld={version=1,mapPalOffset=0},fieldEpoch=nextFieldEpoch(),world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
+        fieldWorld = {version = 1, mapPalOffset = 0},
+        fieldEpoch = nextFieldEpoch(),
+        world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
 function GameSession.newSession(deps,options) return GameSession(deps,options) end
 function GameSession:party() return state[self].party end
@@ -300,22 +313,31 @@ end
 function GameSession:location() return copy(state[self].location) end
 function GameSession:checkpoint() return copy(state[self].checkpoint) end
 function GameSession:captureTraversal(snapshot)
-    local current=state[self]
-    local ok,prepared=pcall(function()
-        object(snapshot,{location=true,world=true,checkpoint=true,actors=true,fieldWorld=true})
-        local normalized=world(current.deps,assert(snapshot.world,"candidate world required"))
-        local position=location(current.deps,assert(snapshot.location,"candidate location required"),normalized,true)
-        local checkpoint=location(current.deps,snapshot.checkpoint or current.checkpoint,normalized)
-        local actors=GameSession._validateActors(current.deps,snapshot.actors or WorldMotionData.empty(),normalized,position,self:flags())
-        return {world=normalized,location=position,checkpoint=checkpoint,actors=actors,
-            fieldWorld=fieldData(snapshot.fieldWorld or current.fieldWorld)}
+    local current = state[self]
+    local ok, prepared = pcall(function()
+        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true})
+        local normalized = world(current.deps, assert(snapshot.world, "candidate world required"))
+        local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true)
+        local checkpoint = location(current.deps, snapshot.checkpoint or current.checkpoint, normalized)
+        local actors = GameSession._validateActors(current.deps,
+            snapshot.actors or WorldMotionData.empty(), normalized, position, self:flags())
+        return {
+            world = normalized,
+            location = position,
+            checkpoint = checkpoint,
+            actors = actors,
+            fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld)
+        }
     end)
-    if not ok then return false,tostring(prepared) end
-    current.world,current.location,current.checkpoint=prepared.world,prepared.location,prepared.checkpoint
-    current.currentActors=prepared.actors
-    current.fieldWorld,current.fieldEpoch=prepared.fieldWorld,nextFieldEpoch()
+    if not ok then
+        return false, tostring(prepared)
+    end
+    current.world, current.location, current.checkpoint = prepared.world, prepared.location, prepared.checkpoint
+    current.currentActors = prepared.actors
+    current.fieldWorld, current.fieldEpoch = prepared.fieldWorld, nextFieldEpoch()
     return true
 end
+
 function GameSession:setLocation(value,asCheckpoint)
     if asCheckpoint~=nil and type(asCheckpoint)~="boolean" then return false,"invalid-checkpoint-mode" end
     local current=state[self]
@@ -358,7 +380,8 @@ function GameSession._restore(deps,values)
     -- All values are privately constructed by SessionCodec after full preflight.
     local session=setmetatable({},GameSession)
     values.deps=dependencies(deps); values.rngActive=false
-    values.fieldWorld=fieldData(values.fieldWorld); values.fieldEpoch=nextFieldEpoch()
+    values.fieldWorld = fieldData(values.fieldWorld)
+    values.fieldEpoch = nextFieldEpoch()
     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
     return session
@@ -479,17 +502,26 @@ function GameSession:itemStorage()return state[self].itemStorage end
 function GameSession:selectPCItem(operation,index)return PCItems.prepare(self,operation,index)end
 function GameSession:resolvePCItem(request,quantity,decision)return PCItems.resolve(self,request,quantity,decision)end
 
-function GameSession:fieldWorldData() return copy(state[self].fieldWorld) end
-function GameSession:fieldWorldEpoch() return state[self].fieldEpoch end
+function GameSession:fieldWorldData()
+    return copy(state[self].fieldWorld)
+end
+
+function GameSession:fieldWorldEpoch()
+    return state[self].fieldEpoch
+end
+
 -- CAS changes only the persisted palette offset; reads never initialize or roll.
 function GameSession:clearFieldDarkness(expectedEpoch)
-    local current=state[self]
-    if current.fieldEpoch~=expectedEpoch or current.fieldWorld.mapPalOffset~=6 then return false,"stale-darkness" end
-    current.fieldWorld={version=1,mapPalOffset=0}
-    current.fieldEpoch=nextFieldEpoch()
+    local current = state[self]
+    if current.fieldEpoch ~= expectedEpoch or current.fieldWorld.mapPalOffset ~= 6 then
+        return false, "stale-darkness"
+    end
+    current.fieldWorld = {version = 1, mapPalOffset = 0}
+    current.fieldEpoch = nextFieldEpoch()
     return true
 end
+
 -- Existing source-scene owners call this after a successful same-map commit.
 function GameSession:invalidateFieldWorldContext()
-    state[self].fieldEpoch=nextFieldEpoch()
+    state[self].fieldEpoch = nextFieldEpoch()
 end
