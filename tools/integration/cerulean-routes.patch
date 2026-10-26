@@ -1,0 +1,65 @@
+--- a/Source/world/npcMotion.lua
++++ b/Source/world/npcMotion.lua
+@@ -277,7 +277,7 @@
+ end
+
+ -- Source scene placement is a lease operation, never a direct sprite write.
+-function NPCMotion:placeScript(token, x, y)
++function NPCMotion:placeScript(token, x, y, facing)
+     local s = stores[self]
+     local actor, lease = scriptLease(s, token)
+     if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
+@@ -292,8 +292,10 @@
+         or player.isMoving and player.startPixelX/TILE_SIZE == x and player.startPixelY/TILE_SIZE == y then
+         return false, "occupied-source-script-placement"
+     end
++    if facing ~= nil and not actor.spec.faces[facing] then return false, "missing-source-actor-facing" end
+     local v = actor.value
+     v.x,v.y = x,y
++    if facing then v.facing = facing end
+     v.origin_x,v.target_x,v.origin_y,v.target_y = x,x,y,y
+     self:_pose(actor)
+     return true
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -339,6 +339,20 @@
+         assert(type(d.name) == "string" and type(d.sprite_source) == "string"
+             and boundedInteger(d.payout, 0, Inventory.MONEY_LIMIT)
+             and boundedInteger(d.sight_range_cells, 0, 16), "bounded source trainer content required")
++        if d.rival_parties then
++            local count = 0
++            for starter, variant in pairs(d.rival_parties) do
++                assert(starter == "charmander" or starter == "squirtle" or starter == "bulbasaur",
++                    "unsupported session starter")
++                assert(boundedInteger(variant.payout, 0, Inventory.MONEY_LIMIT)
++                    and Party._array(variant.party, 6) and #variant.party > 0, "bounded rival variant required")
++                for _, mon in ipairs(variant.party) do
++                    assert(pokemonData[mon.species] and boundedInteger(mon.level, 1, 100), "unresolved rival party")
++                end
++                count = count + 1
++            end
++            assert(count == 3, "all three starter variants required")
++        end
+         assert(Party._array(d.party, 6) and #d.party > 0, "bounded source trainer party required")
+         for _, mon in ipairs(d.party) do
+             assert(pokemonData[mon.species] and boundedInteger(mon.level, 1, 100), "unresolved source trainer party")
+--- a/Source/game/battleState.lua
++++ b/Source/game/battleState.lua
+@@ -85,7 +85,16 @@
+     end
+     if game.trainers then game.trainers:restoreReturnedTrainer() end
+     game:offerPartyLearning(function()
+-        if not receipt or not receipt.won then return end
++        if not receipt then return end
++        if not receipt.won then
++            local descriptor = SourceEvents.descriptor(receipt.id)
++            if descriptor and descriptor.lost then
++                local lines = {}
++                for _, page in ipairs(SourceEvents.pages(receipt.id,descriptor.lost)) do lines[#lines+1] = page.text end
++                game.machine:push("dialog",lines)
++            end
++            return
++        end
+         if receipt.initial_lab then
+             if game.trainers:takeReceipt(TrainerEvents.LAB) then
+                 local lines={};for _,page in ipairs(PewterEvents.pages({"_MoneyForWinningText"},{wAmountMoneyWon=receipt.payout})) do lines[#lines+1]=page.text end

@@ -1,0 +1,366 @@
+{
+  "labels": [
+    "_CeruleanCityBikeShopSign",
+    "_CeruleanCityCooltrainerF1SlowbroPunchText",
+    "_CeruleanCityCooltrainerF1SlowbroUseSonicboomText",
+    "_CeruleanCityCooltrainerF1SlowbroWithdrawText",
+    "_CeruleanCityCooltrainerF2Text",
+    "_CeruleanCityCooltrainerMText",
+    "_CeruleanCityGuardText",
+    "_CeruleanCityGymSign",
+    "_CeruleanCityRivalDefeatedText",
+    "_CeruleanCityRivalIWentToBillsText",
+    "_CeruleanCityRivalPreBattleText",
+    "_CeruleanCityRivalVictoryText",
+    "_CeruleanCityRocketIBetterGetMovingText",
+    "_CeruleanCityRocketIGiveUpText",
+    "_CeruleanCityRocketIllReturnTheTMText",
+    "_CeruleanCityRocketReceivedTM28Text",
+    "_CeruleanCityRocketTM28NoRoomText",
+    "_CeruleanCityRocketText",
+    "_CeruleanCitySignText",
+    "_CeruleanCitySlowbroIgnoredOrdersText",
+    "_CeruleanCitySlowbroIsLoafingAroundText",
+    "_CeruleanCitySlowbroTookASnoozeText",
+    "_CeruleanCitySlowbroTurnedAwayText",
+    "_CeruleanCitySuperNerd1Text",
+    "_CeruleanCitySuperNerd2Text",
+    "_CeruleanCitySuperNerd3Text",
+    "_CeruleanCityTrainerTipsText",
+    "_Route22PokemonLeagueSignText",
+    "_Route22Rival1DefeatedText",
+    "_Route22Rival1VictoryText",
+    "_Route22Rival2DefeatedText",
+    "_Route22Rival2VictoryText",
+    "_Route22RivalAfterBattleText1",
+    "_Route22RivalAfterBattleText2",
+    "_Route22RivalBeforeBattleText1",
+    "_Route22RivalBeforeBattleText2",
+    "_Route24CooltrainerF1AfterBattleText",
+    "_Route24CooltrainerF1BattleText",
+    "_Route24CooltrainerF1EndBattleText",
+    "_Route24CooltrainerF2AfterBattleText",
+    "_Route24CooltrainerF2BattleText",
+    "_Route24CooltrainerF2EndBattleText",
+    "_Route24CooltrainerM1DefeatedText",
+    "_Route24CooltrainerM1JoinTeamRocketText",
+    "_Route24CooltrainerM1NoRoomText",
+    "_Route24CooltrainerM1ReceivedNuggetText",
+    "_Route24CooltrainerM1YouBeatOurContestText",
+    "_Route24CooltrainerM1YouCouldBecomeATopLeaderText",
+    "_Route24CooltrainerM1YouJustEarnedAPrizeText",
+    "_Route24CooltrainerM2AfterBattleText",
+    "_Route24CooltrainerM2BattleText",
+    "_Route24CooltrainerM2EndBattleText",
+    "_Route24CooltrainerM3AfterBattleText",
+    "_Route24CooltrainerM3BattleText",
+    "_Route24CooltrainerM3EndBattleText",
+    "_Route24Youngster1AfterBattleText",
+    "_Route24Youngster1BattleText",
+    "_Route24Youngster1EndBattleText",
+    "_Route24Youngster2AfterBattleText",
+    "_Route24Youngster2BattleText",
+    "_Route24Youngster2EndBattleText"
+  ],
+  "rivals": {
+    "cerulean": {
+      "class": "OPP_RIVAL1",
+      "id": "pokered:CERULEAN_CITY:objects:1",
+      "roster_by_rival_starter": {
+        "bulbasaur": 8,
+        "charmander": 9,
+        "squirtle": 7
+      },
+      "script_collision_positions": [],
+      "script_positions": [
+        {
+          "x": 20,
+          "y": 2
+        },
+        {
+          "x": 20,
+          "y": 3
+        },
+        {
+          "x": 20,
+          "y": 4
+        },
+        {
+          "x": 20,
+          "y": 5
+        },
+        {
+          "x": 20,
+          "y": 6
+        },
+        {
+          "x": 20,
+          "y": 7
+        },
+        {
+          "x": 20,
+          "y": 8
+        },
+        {
+          "x": 20,
+          "y": 9
+        },
+        {
+          "x": 20,
+          "y": 10
+        },
+        {
+          "x": 20,
+          "y": 11
+        },
+        {
+          "x": 21,
+          "y": 2
+        },
+        {
+          "x": 21,
+          "y": 3
+        },
+        {
+          "x": 21,
+          "y": 4
+        },
+        {
+          "x": 21,
+          "y": 5
+        },
+        {
+          "x": 21,
+          "y": 6
+        },
+        {
+          "x": 21,
+          "y": 7
+        },
+        {
+          "x": 21,
+          "y": 8
+        },
+        {
+          "x": 21,
+          "y": 9
+        },
+        {
+          "x": 21,
+          "y": 10
+        },
+        {
+          "x": 21,
+          "y": 11
+        }
+      ],
+      "sprite_source": "SPRITE_BLUE",
+      "variants": [
+        {
+          "approach": [
+            "down",
+            "down",
+            "down"
+          ],
+          "departure": [
+            "right",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "origin": {
+            "x": 20,
+            "y": 2
+          }
+        },
+        {
+          "approach": [
+            "down",
+            "down",
+            "down"
+          ],
+          "departure": [
+            "left",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "origin": {
+            "x": 21,
+            "y": 2
+          }
+        }
+      ]
+    },
+    "route22": {
+      "class": "OPP_RIVAL1",
+      "id": "pokered:ROUTE_22:objects:1",
+      "roster_by_rival_starter": {
+        "bulbasaur": 5,
+        "charmander": 6,
+        "squirtle": 4
+      },
+      "script_collision_positions": [],
+      "script_positions": [
+        {
+          "x": 25,
+          "y": 5
+        },
+        {
+          "x": 26,
+          "y": 5
+        },
+        {
+          "x": 27,
+          "y": 5
+        },
+        {
+          "x": 28,
+          "y": 4
+        },
+        {
+          "x": 28,
+          "y": 5
+        },
+        {
+          "x": 29,
+          "y": 4
+        },
+        {
+          "x": 29,
+          "y": 5
+        },
+        {
+          "x": 30,
+          "y": 4
+        },
+        {
+          "x": 30,
+          "y": 5
+        },
+        {
+          "x": 31,
+          "y": 4
+        },
+        {
+          "x": 31,
+          "y": 5
+        },
+        {
+          "x": 31,
+          "y": 6
+        },
+        {
+          "x": 31,
+          "y": 7
+        },
+        {
+          "x": 31,
+          "y": 8
+        },
+        {
+          "x": 31,
+          "y": 9
+        },
+        {
+          "x": 31,
+          "y": 10
+        }
+      ],
+      "sprite_source": "SPRITE_BLUE",
+      "variants": [
+        {
+          "approach": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "departure": [
+            "right",
+            "right",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "origin": {
+            "x": 25,
+            "y": 5
+          }
+        },
+        {
+          "approach": [
+            "right",
+            "right",
+            "right"
+          ],
+          "departure": [
+            "up",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "origin": {
+            "x": 25,
+            "y": 5
+          }
+        }
+      ]
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "source_toggle": "TOGGLE_CERULEAN_ROCKET",
+  "triggers": {
+    "cerulean": [
+      {
+        "x": 20,
+        "y": 6
+      },
+      {
+        "x": 21,
+        "y": 6
+      }
+    ],
+    "nugget": [
+      {
+        "x": 10,
+        "y": 15
+      }
+    ],
+    "route22": [
+      {
+        "x": 29,
+        "y": 4
+      },
+      {
+        "x": 29,
+        "y": 5
+      }
+    ],
+    "thief": [
+      {
+        "x": 30,
+        "y": 7
+      },
+      {
+        "x": 30,
+        "y": 9
+      }
+    ]
+  }
+}

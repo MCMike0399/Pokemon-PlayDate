@@ -21,7 +21,24 @@ local function definition(self,id)
         return {id=LAB,payout=175,initial_lab=true,talk_only=true,party={{species=assert(owner.game.session:getIntro().rivalStarter),level=5}},name="BLUE"}
     end
     local d=owners[self].definitions[id]
-    if d then d=copy(d) end
+    if d then
+        d = copy(d)
+        -- Resolve from the actual session starter into this encounter's private
+        -- definition. prepare() freezes it in its opaque token before any RNG.
+        if d.rival_parties then
+            local variant = assert(d.rival_parties[owner.game.session:getIntro().starter],
+                "rival encounter requires the session starter")
+            assert(Party._array(variant.party, 6) and #variant.party > 0,
+                "bounded rival team required")
+            for _, mon in ipairs(variant.party) do
+                assert(pokemonData[mon.species] and Party._integer(mon.level, 1, 100),
+                    "invalid rival team")
+            end
+            assert(Party._integer(variant.payout, 0, Inventory.MONEY_LIMIT), "invalid rival payout")
+            d.party, d.payout = copy(variant.party), variant.payout
+            d.rival_parties = nil
+        end
+    end
     return d
 end
 function TrainerEvents:init(game)
