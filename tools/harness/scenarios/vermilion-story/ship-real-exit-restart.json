@@ -1,0 +1,174 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "seed": 42,
+              "intro": "skip",
+              "zone": "SSAnne1F",
+              "entry": {
+                "x": 26,
+                "y": 1,
+                "facing": "up"
+              },
+              "quest_flags": {
+                "EVENT_GOT_HM01": true
+              },
+              "inventory": {
+                "slots": [
+                  {
+                    "id": "hm01",
+                    "quantity": 1
+                  },
+                  {
+                    "id": "ssTicket",
+                    "quantity": 1
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        [
+          "move up",
+          {
+            "op": "await",
+            "path": "session.flags.quest.EVENT_SS_ANNE_LEFT",
+            "equals": true,
+            "frames": 1800
+          },
+          {
+            "op": "await",
+            "path": "zone",
+            "equals": "VermilionCity",
+            "frames": 1800
+          },
+          {
+            "op": "await",
+            "path": "session.flags.quest.EVENT_WALKED_PAST_GUARD_AFTER_SS_ANNE_LEFT",
+            "equals": true,
+            "frames": 1800
+          },
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 600
+          },
+          "shot actual-ship-exit"
+        ],
+        [
+          "press b",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "pause",
+            "frames": 600
+          }
+        ],
+        [
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          {
+            "op": "await",
+            "path": "pause.phase",
+            "equals": "save",
+            "frames": 600
+          }
+        ],
+        [
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "dialog",
+            "frames": 600
+          }
+        ],
+        [
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 600
+          },
+          "press a",
+          "wait 2"
+        ],
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 600
+          },
+          "observe saved",
+          "shot saved-exploration"
+        ]
+      ],
+      "outputs": [
+        "actual-ship-exit.png",
+        "saved-exploration.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "title",
+            "frames": 600
+          },
+          "shot fresh-continue-menu"
+        ],
+        [
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 600
+          },
+          "observe loaded"
+        ],
+        [
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "VermilionCity"
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_SS_ANNE_LEFT",
+            "equals": true
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.hm01",
+            "equals": 1
+          },
+          {
+            "op": "assert",
+            "path": "session.inventory.quantities.ssTicket",
+            "equals": 1
+          },
+          "shot continued-departed-city"
+        ]
+      ],
+      "outputs": [
+        "fresh-continue-menu.png",
+        "continued-departed-city.png"
+      ]
+    }
+  ]
+}

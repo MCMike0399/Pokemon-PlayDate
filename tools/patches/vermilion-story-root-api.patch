@@ -1,0 +1,104 @@
+--- a/Source/domain/gameSession.lua
++++ b/Source/domain/gameSession.lua
+@@ -271,7 +271,7 @@
+     return true
+ end
+ -- Badge bits are represented by stable quest flags in the existing codec.
+-local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE"}
++local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE",thunder="BADGE_THUNDER"}
+ function GameSession:hasBadge(name)
+     local id=assert(badgeFlags[name],"unsupported badge name")
+     return self:questFlag(id)
+@@ -464,3 +464,54 @@
+ function GameSession:itemStorage()return state[self].itemStorage end
+ function GameSession:selectPCItem(operation,index)return PCItems.prepare(self,operation,index)end
+ function GameSession:resolvePCItem(request,quantity,decision)return PCItems.resolve(self,request,quantity,decision)end
++
++-- ROOT PATCH: append inside Source/domain/gameSession.lua, where state/copy/
++-- world/location/rngData/object are lexical owner helpers. Do not import this
++-- file as a gameplay module. It is reviewable patch input, not a second owner.
++local function sceneEqual(a,b)
++    if type(a)~=type(b) then return false end
++    if type(a)~="table" then return a==b end
++    for k,v in pairs(a) do if not sceneEqual(v,b[k]) then return false end end
++    for k in pairs(b) do if a[k]==nil then return false end end
++    return true
++end
++local sceneIntents=setmetatable({},{__mode="k"})
++function GameSession:forkWorldRNG()
++    local stream=RulesRNG.new(1)
++    stream:restoreData(self:worldRngData())
++    local token={}
++    sceneIntents[token]={session=self,epoch=state[self].sceneEpoch or 0}
++    return stream,token
++end
++function GameSession:transactScene(expected,changes,scene)
++    local current=state[self]
++    local ticket=type(scene)=="table" and sceneIntents[scene.token]
++    if not ticket or ticket.session~=self or ticket.epoch~=(current.sceneEpoch or 0) then
++        return false,"stale-scene-intent"
++    end
++    sceneIntents[scene.token]=nil -- One attempt, including validation failure.
++    local ok,prepared=pcall(function()
++        assert(GameSession.activeRNGSession()==self,"inactive-scene-session")
++        object(scene,{beforeWorld=true,world=true,beforeRng=true,rng=true,location=true,token=true})
++        assert(sceneEqual(WorldDeltas.export(),scene.beforeWorld),"stale-scene-world")
++        assert(sceneEqual(self:worldRngData(),scene.beforeRng),"stale-scene-world-rng")
++        local candidate=world(current.deps,scene.world)
++        local position=location(current.deps,scene.location,candidate)
++        local checkpoint=location(current.deps,current.checkpoint,candidate)
++        local stream=RulesRNG.new(1);stream:restoreData(rngData(scene.rng))
++        return {world=candidate,location=position,checkpoint=checkpoint,stream=stream,
++            actors=WorldMotionData.empty()}
++    end)
++    if not ok then return false,tostring(prepared) end
++    -- WorldDeltas preflights, applies with owner rollback, and returns an undo.
++    -- No callback/yield occurs between application and the session transaction.
++    local applied,undo=pcall(WorldDeltas.apply,prepared.world)
++    if not applied then return false,tostring(undo) end
++    local accepted,reason=self:transact(expected,changes)
++    if not accepted then undo();return false,reason end
++    -- Every fallible value was prepared; preserve retained session/bag identity.
++    current.world,current.location,current.checkpoint=prepared.world,prepared.location,prepared.checkpoint
++    current.worldRng,current.currentActors=prepared.stream,prepared.actors
++    current.sceneEpoch=(current.sceneEpoch or 0)+1
++    return true
++end
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -215,6 +215,12 @@
+ end
+
+ function DoorWarpSubstate:enter(door)
++    if VermilionStory and not VermilionStory.allowDoor(self.owner.game,door) then
++        self.owner.game.player.stepJustFinished=false
++        self.owner.game.player.pendingEdgeDoor=nil
++        self.owner.game.player.pendingConnection=nil
++        self.machine:change("explore");return
++    end
+     self.timer = 0
+     self.door = door
+ end
+@@ -231,7 +237,7 @@
+         local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
+         local provider = WorldDeltas.definitionProvider()
+         local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
+-        SourceEvents.worldHook("onLeave", self.owner.game, destination)
++        SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
+         switchZone(door.to)
+         self.owner.machine:change("overworld", {
+             entry = { x = door.toX, y = door.toY, facing = facing },
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -145,8 +145,10 @@
+             local cell = position.y * surface.width + position.x + 1
+             -- The pinned guide route crosses the Mart arrival before its Gym
+             -- departure. Both are leased route cells, never actual warps.
+-            local transit = event.id == "pokered:PEWTER_CITY:objects:5"
++            local transit = (event.id == "pokered:PEWTER_CITY:objects:5"
+                 and position.y == 18 and (position.x == 16 or position.x == 23)
++                or event.id == "pokered:SS_ANNE_2F:objects:2"
++                and position.x == event.x and position.y == event.y+1)
+                 and protected[cell] and not warps[cell]
+             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
+             if transit then

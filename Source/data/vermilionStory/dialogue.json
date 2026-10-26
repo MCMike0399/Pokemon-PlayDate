@@ -1,0 +1,1021 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_MoneyForWinningText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 869,
+          "text": "<PLAYER> got ¥@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd wAmountMoneyWon, 3 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 870
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 871
+        },
+        {
+          "op": "line",
+          "source_line": 872,
+          "text": "for winning!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 873
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_SSAnne2FRivalCutMasterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 51,
+          "text": "<RIVAL>: I heard"
+        },
+        {
+          "op": "line",
+          "source_line": 52,
+          "text": "there was a CUT"
+        },
+        {
+          "op": "cont",
+          "source_line": 53,
+          "text": "master on board."
+        },
+        {
+          "op": "para",
+          "source_line": 55,
+          "text": "But, he was just a"
+        },
+        {
+          "op": "line",
+          "source_line": 56,
+          "text": "seasick, old man!"
+        },
+        {
+          "op": "para",
+          "source_line": 58,
+          "text": "But, CUT itself is"
+        },
+        {
+          "op": "line",
+          "source_line": 59,
+          "text": "really useful!"
+        },
+        {
+          "op": "para",
+          "source_line": 61,
+          "text": "You should go see"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "him! Smell ya!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 63
+        }
+      ],
+      "source": "text/SSAnne2F.asm"
+    },
+    "_SSAnne2FRivalDefeatedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 35,
+          "text": "Humph!"
+        },
+        {
+          "op": "para",
+          "source_line": 37,
+          "text": "At least you're"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "raising your"
+        },
+        {
+          "op": "cont",
+          "source_line": 39,
+          "text": "#MON!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 40
+        }
+      ],
+      "source": "text/SSAnne2F.asm"
+    },
+    "_SSAnne2FRivalText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "<RIVAL>: Bonjour!"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "<PLAYER>!"
+        },
+        {
+          "op": "para",
+          "source_line": 15,
+          "text": "Imagine seeing"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "you here!"
+        },
+        {
+          "op": "para",
+          "source_line": 18,
+          "text": "<PLAYER>, were you"
+        },
+        {
+          "op": "line",
+          "source_line": 19,
+          "text": "really invited?"
+        },
+        {
+          "op": "para",
+          "source_line": 21,
+          "text": "So how's your"
+        },
+        {
+          "op": "line",
+          "source_line": 22,
+          "text": "#DEX coming?"
+        },
+        {
+          "op": "para",
+          "source_line": 24,
+          "text": "I already caught"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "40 kinds, pal!"
+        },
+        {
+          "op": "para",
+          "source_line": 27,
+          "text": "Different kinds"
+        },
+        {
+          "op": "line",
+          "source_line": 28,
+          "text": "are everywhere!"
+        },
+        {
+          "op": "para",
+          "source_line": 30,
+          "text": "Crawl around in"
+        },
+        {
+          "op": "line",
+          "source_line": 31,
+          "text": "grassy areas!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 32
+        }
+      ],
+      "source": "text/SSAnne2F.asm"
+    },
+    "_SSAnne2FRivalVictoryText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 43,
+          "text": "<PLAYER>! What are"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "you, seasick?"
+        },
+        {
+          "op": "para",
+          "source_line": 46,
+          "text": "You should shape"
+        },
+        {
+          "op": "line",
+          "source_line": 47,
+          "text": "up, pal!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 48
+        }
+      ],
+      "source": "text/SSAnne2F.asm"
+    },
+    "_SSAnneCaptainsRoomCaptainHM01NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 50,
+          "text": "Oh no! You have"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "no room for this!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 52
+        }
+      ],
+      "source": "text/SSAnneCaptainsRoom.asm"
+    },
+    "_SSAnneCaptainsRoomCaptainIFeelMuchBetterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 15,
+          "text": "CAPTAIN: Whew!"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "Thank you! I"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "feel much better!"
+        },
+        {
+          "op": "para",
+          "source_line": 19,
+          "text": "You want to see"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "my CUT technique?"
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "I could show you"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "if I wasn't ill..."
+        },
+        {
+          "op": "para",
+          "source_line": 25,
+          "text": "I know! You can"
+        },
+        {
+          "op": "line",
+          "source_line": 26,
+          "text": "have this!"
+        },
+        {
+          "op": "para",
+          "source_line": 28,
+          "text": "Teach it to your"
+        },
+        {
+          "op": "line",
+          "source_line": 29,
+          "text": "#MON and you"
+        },
+        {
+          "op": "cont",
+          "source_line": 30,
+          "text": "can see it CUT"
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "any time!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 32
+        }
+      ],
+      "source": "text/SSAnneCaptainsRoom.asm"
+    },
+    "_SSAnneCaptainsRoomCaptainNotSickAnymoreText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 42,
+          "text": "CAPTAIN: Whew!"
+        },
+        {
+          "op": "para",
+          "source_line": 44,
+          "text": "Now that I'm not"
+        },
+        {
+          "op": "line",
+          "source_line": 45,
+          "text": "sick any more, I"
+        },
+        {
+          "op": "cont",
+          "source_line": 46,
+          "text": "guess it's time."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 47
+        }
+      ],
+      "source": "text/SSAnneCaptainsRoom.asm"
+    },
+    "_SSAnneCaptainsRoomCaptainReceivedHM01Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 35,
+          "text": "<PLAYER> got"
+        },
+        {
+          "op": "line",
+          "source_line": 36,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 37,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 38,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 39
+        }
+      ],
+      "source": "text/SSAnneCaptainsRoom.asm"
+    },
+    "_SSAnneCaptainsRoomRubCaptainsBackText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "CAPTAIN: Ooargh..."
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "I feel hideous..."
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "Urrp! Seasick..."
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "<PLAYER> rubbed"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "the CAPTAIN's"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "back!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "Rub-rub..."
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "Rub-rub...@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 12
+        }
+      ],
+      "source": "text/SSAnneCaptainsRoom.asm"
+    },
+    "_TM24ExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 34
+        },
+        {
+          "op": "para",
+          "source_line": 36,
+          "text": "TM24 contains"
+        },
+        {
+          "op": "line",
+          "source_line": 37,
+          "text": "THUNDERBOLT!"
+        },
+        {
+          "op": "para",
+          "source_line": 39,
+          "text": "Teach it to an"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "electric #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 41
+        }
+      ],
+      "source": "text/VermilionGym_2.asm"
+    },
+    "_VermilionCitySailor1DoYouHaveATicketText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 30,
+          "text": "Welcome to S.S."
+        },
+        {
+          "op": "line",
+          "source_line": 31,
+          "text": "ANNE!"
+        },
+        {
+          "op": "para",
+          "source_line": 33,
+          "text": "Excuse me, do you"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "have a ticket?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 35
+        }
+      ],
+      "source": "text/VermilionCity.asm"
+    },
+    "_VermilionCitySailor1FlashedTicketText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 38,
+          "text": "<PLAYER> flashed"
+        },
+        {
+          "op": "line",
+          "source_line": 39,
+          "text": "the S.S.TICKET!"
+        },
+        {
+          "op": "para",
+          "source_line": 41,
+          "text": "Great! Welcome to"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "S.S.ANNE!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 43
+        }
+      ],
+      "source": "text/VermilionCity.asm"
+    },
+    "_VermilionCitySailor1ShipSetSailText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 57,
+          "text": "The ship set sail."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 58
+        }
+      ],
+      "source": "text/VermilionCity.asm"
+    },
+    "_VermilionCitySailor1WelcomeToSSAnneText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 25,
+          "text": "Welcome to S.S."
+        },
+        {
+          "op": "line",
+          "source_line": 26,
+          "text": "ANNE!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 27
+        }
+      ],
+      "source": "text/VermilionCity.asm"
+    },
+    "_VermilionCitySailor1YouNeedATicketText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 46,
+          "text": "<PLAYER> doesn't"
+        },
+        {
+          "op": "line",
+          "source_line": 47,
+          "text": "have the needed"
+        },
+        {
+          "op": "cont",
+          "source_line": 48,
+          "text": "S.S.TICKET."
+        },
+        {
+          "op": "para",
+          "source_line": 50,
+          "text": "Sorry!"
+        },
+        {
+          "op": "para",
+          "source_line": 52,
+          "text": "You need a ticket"
+        },
+        {
+          "op": "line",
+          "source_line": 53,
+          "text": "to get aboard."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 54
+        }
+      ],
+      "source": "text/VermilionCity.asm"
+    },
+    "_VermilionGymLTSurgePostBattleAdviceText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "A little word of"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "advice, kid!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "Electricity is"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "sure powerful!"
+        },
+        {
+          "op": "para",
+          "source_line": 8,
+          "text": "But, it's useless"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "against ground-"
+        },
+        {
+          "op": "cont",
+          "source_line": 10,
+          "text": "type #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 11
+        }
+      ],
+      "source": "text/VermilionGym_2.asm"
+    },
+    "_VermilionGymLTSurgePreBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hey, kid! What do"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "you think you're"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "doing here?"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "You won't live"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "long in combat!"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "That's for sure!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "I tell you kid,"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "electric #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "saved me during"
+        },
+        {
+          "op": "cont",
+          "source_line": 13,
+          "text": "the war!"
+        },
+        {
+          "op": "para",
+          "source_line": 15,
+          "text": "They zapped my"
+        },
+        {
+          "op": "line",
+          "source_line": 16,
+          "text": "enemies into"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "paralysis!"
+        },
+        {
+          "op": "para",
+          "source_line": 19,
+          "text": "The same as I'll"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "do to you!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 21
+        }
+      ],
+      "source": "text/VermilionGym.asm"
+    },
+    "_VermilionGymLTSurgeReceivedTM24Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 27,
+          "text": "<PLAYER> received "
+        },
+        {
+          "op": "line",
+          "source_line": 28,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 29,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 30,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 31
+        }
+      ],
+      "source": "text/VermilionGym_2.asm"
+    },
+    "_VermilionGymLTSurgeReceivedThunderBadgeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 49,
+          "text": "Whoa!"
+        },
+        {
+          "op": "para",
+          "source_line": 51,
+          "text": "You're the real"
+        },
+        {
+          "op": "line",
+          "source_line": 52,
+          "text": "deal, kid!"
+        },
+        {
+          "op": "para",
+          "source_line": 54,
+          "text": "Fine then, take"
+        },
+        {
+          "op": "line",
+          "source_line": 55,
+          "text": "the THUNDERBADGE!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 56
+        }
+      ],
+      "source": "text/VermilionGym_2.asm"
+    },
+    "_VermilionGymLTSurgeTM24NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 44,
+          "text": "Yo kid, make room"
+        },
+        {
+          "op": "line",
+          "source_line": 45,
+          "text": "in your pack!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 46
+        }
+      ],
+      "source": "text/VermilionGym_2.asm"
+    },
+    "_VermilionGymLTSurgeThunderBadgeInfoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 14,
+          "text": "The THUNDERBADGE"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "cranks up your"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "#MON's SPEED!"
+        },
+        {
+          "op": "para",
+          "source_line": 18,
+          "text": "It also lets your"
+        },
+        {
+          "op": "line",
+          "source_line": 19,
+          "text": "#MON FLY any"
+        },
+        {
+          "op": "cont",
+          "source_line": 20,
+          "text": "time, kid!"
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "You're special,"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "kid! Take this!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 24
+        }
+      ],
+      "source": "text/VermilionGym_2.asm"
+    },
+    "_VermilionGymTrashFailText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 745,
+          "text": "Nope! There's"
+        },
+        {
+          "op": "line",
+          "source_line": 746,
+          "text": "only trash here."
+        },
+        {
+          "op": "cont",
+          "source_line": 747,
+          "text": "Hey! The electric"
+        },
+        {
+          "op": "cont",
+          "source_line": 748,
+          "text": "locks were reset!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 749
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_VermilionGymTrashSuccessText1": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 720,
+          "text": "Hey! There's a"
+        },
+        {
+          "op": "line",
+          "source_line": 721,
+          "text": "switch under the"
+        },
+        {
+          "op": "cont",
+          "source_line": 722,
+          "text": "trash!"
+        },
+        {
+          "op": "cont",
+          "source_line": 723,
+          "text": "Turn it on!"
+        },
+        {
+          "op": "para",
+          "source_line": 725,
+          "text": "The 1st electric"
+        },
+        {
+          "op": "line",
+          "source_line": 726,
+          "text": "lock opened!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 727
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_VermilionGymTrashSuccessText2": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 730,
+          "text": "Hey! There's"
+        },
+        {
+          "op": "line",
+          "source_line": 731,
+          "text": "another switch"
+        },
+        {
+          "op": "cont",
+          "source_line": 732,
+          "text": "under the trash!"
+        },
+        {
+          "op": "cont",
+          "source_line": 733,
+          "text": "Turn it on!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 734
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_VermilionGymTrashSuccessText3": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 737,
+          "text": "The 2nd electric"
+        },
+        {
+          "op": "line",
+          "source_line": 738,
+          "text": "lock opened!"
+        },
+        {
+          "op": "para",
+          "source_line": 740,
+          "text": "The motorized door"
+        },
+        {
+          "op": "line",
+          "source_line": 741,
+          "text": "opened!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 742
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_VermilionGymTrashText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 715,
+          "text": "Nope, there's"
+        },
+        {
+          "op": "line",
+          "source_line": 716,
+          "text": "only trash here."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 717
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    }
+  }
+}

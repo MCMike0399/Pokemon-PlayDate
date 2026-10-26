@@ -1,0 +1,66 @@
+{
+  "effects": {
+    "gym-close": {
+      "block": 36,
+      "keys": [
+        "pokered:GYM:cell:20-21-30-31",
+        "pokered:GYM:cell:20-21-30-31",
+        "pokered:GYM:cell:11-11-11-11",
+        "pokered:GYM:cell:11-11-11-11"
+      ],
+      "map": "VermilionGym",
+      "targets": [
+        {
+          "x": 2,
+          "y": 2
+        }
+      ]
+    },
+    "gym-open": {
+      "block": 5,
+      "keys": [
+        "pokered:GYM:cell:11-11-11-11",
+        "pokered:GYM:cell:11-11-11-11",
+        "pokered:GYM:cell:11-11-11-11",
+        "pokered:GYM:cell:11-11-11-11"
+      ],
+      "map": "VermilionGym",
+      "targets": [
+        {
+          "x": 2,
+          "y": 2
+        }
+      ]
+    },
+    "ship-departed": {
+      "block": 13,
+      "keys": [
+        "pokered:SHIP_PORT:cell:14-14-14-14",
+        "pokered:SHIP_PORT:cell:14-14-14-14",
+        "pokered:SHIP_PORT:cell:14-14-14-14",
+        "pokered:SHIP_PORT:cell:14-14-14-14"
+      ],
+      "map": "VermilionDock",
+      "targets": [
+        {
+          "x": 5,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 2
+        },
+        {
+          "x": 7,
+          "y": 2
+        },
+        {
+          "x": 8,
+          "y": 2
+        }
+      ]
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
