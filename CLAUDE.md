@@ -83,6 +83,12 @@ Order matters. Key constraints:
 - **`world/player.lua`** — Grid movement with smooth interpolation (8 frames/step at 30fps). Walk animation: Gen 1 cadence (stride first half of step, standing second half) with the lead leg alternating per step via `walkToggle` (distinct side stride frames; X-flipped frames for up/down). Characters draw 8px above their tile (GB style) and a tall-grass overlay hides the legs while in grass; landing a step in grass shows a splayed rustle variant for 6 frames (`rustleFrames`). `stepJustFinished` flag triggers encounter checks.
 - **`world/camera.lua`** — Lerp follow (20%/frame) with `snapTo()` for instant positioning. `apply()`/`reset()` toggle the graphics draw offset.
 
+### Domain owners (`domain/`)
+
+`GameSession` owns durable party, storage, inventory, item storage, flags, Pokédex, checkpoint, world deltas and RNG state. `Party`, `Storage`, `Inventory` and `ItemStorage` enforce their collection invariants. `PokemonCodec` and `SessionCodec` validate persisted data; `SaveStore` owns checksummed slots and recovery archives. `DecimalInteger` preserves exact counters across SDK JSON.
+
+`Specimen` and `IndividualStats` own acquisition traits and IV/EV stats. `Growth`, `Evolution`, `Teaching`, `Capture`, `Items` and `PCItems` own their respective gameplay transactions. `FieldEncounters` owns encounter attempts; `WorldMotionData` validates persisted NPC motion; `NPCMotion` uses the independent world RNG. Keep state changes in these owners rather than adding parallel state to UI or map handlers.
+
 ### Zone System (`world/zone.lua` + `data/maps.lua`)
 
 Maps are defined declaratively with 2-char tile codes in string rows:
@@ -106,6 +112,8 @@ NPC defs support story-conditional spawning and content: `appearsIf = function()
 **Doors** come in two kinds, both distinct from `warps` (debug-menu teleport presets):
 - **Step doors** (`{ x, y, to, toX, toY, facing }`) fire when a step finishes on the tile — outside house doors and stairs. Stepping off and back on re-triggers (Gen 1 stairs behavior).
 - **Edge doors** (`{ x, y, edge="down", to, toX, toY, facing }`) are Gen 2/3-style exit gates: landing on the tile does nothing; the warp fires when the player stands on it and *walks in the edge direction* (into the room boundary). All interior exit mats are edge doors. `Player:tryMove` sets `player.pendingEdgeDoor` when a blocked move matches an edge door; `explore` consumes it and switches to `doorWarp`. The autopilot `move` command reports `edge-door <dir> at x,y` when this happens. While the player stands on an edge-door tile, `Player:updateExitArrow` shows a bobbing **exit arrow** sprite (`getExitArrows` builds the 4 directional images procedurally; z-index 102) in the void tile just past the door, pointing the exit direction — the Gen 2/3 "you can leave here" cursor. `Zone:getEdgeDoorAt(gx, gy, dir)` finds the door (nil `dir` matches any edge door at the tile, used to aim the arrow).
+
+The connected world reaches Brock in Pewter. Authored Pallet is adapted to imported Route 1 and Viridian (`data/viridianSlice.lua`, `KantoSlice`). Route 2, both Forest gates, Viridian Forest and Pewter’s City/Gym/Mart/Center use `data/pewterSlice.lua` (`PewterSlice`) through the lazy `world/importedMaps.lua` provider. `game/kantoWorld.lua` binds the connected campaign. These remain separate import paths pending the goal’s map-pipeline convergence; adding a source fixture alone does not make its events playable.
 
 Pallet Town has four interiors: `reds_house` (Mom, stairs to `reds_house_2f`), `blues_house` (Daisy), `oaks_lab` (Oak, plus BLUE until the intro ends). Interior rooms sit in a `Vd` void surround padded to at least 13x8 tiles because the camera clamp assumes the map is at least screen-sized (400x240 = 12.5x7.5 tiles). Interiors have no `encounters` and no tall grass, so no wild battles trigger indoors. After the intro, a rematch BLUE (`appearsIf` stage done, lv7 counter-pick via `battleData` function) waits outside his house.
 
@@ -134,7 +142,7 @@ Overworld character sprites (player **and** NPCs) are generated at runtime by `S
 - Globals are localized with `<const>` for performance: `local gfx <const> = playdate.graphics`
 - Pokemon sprites lazy-load from `Source/images/pokemon/{species}-front.png` and `{species}-back.png`
 - Overworld sprites (player + NPCs) are generated at runtime by `SpriteFactory` — no PNGs; see the Sprite System section above. (Pokémon battle front/back sprites still lazy-load from `Source/images/pokemon/`.)
-- Wild encounters only trigger on tall grass tiles with 15% chance per step
+- Wild grass encounters use `FieldEncounters` and each zone’s explicit policy: imported Blue rate bytes and weighted slots, or authored unit rates. Lead-ability effects use the same transaction.
 - Screen shake uses `playdate.display.setOffset()` — must be reset to (0,0) on battle exit
 - The debug menu is accessible from the Playdate system menu during overworld state
 

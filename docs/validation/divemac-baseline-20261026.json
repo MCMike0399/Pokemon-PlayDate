@@ -1,0 +1,35 @@
+{
+  "milestone": "5.0",
+  "revision": "f57d708dd090951a67f93c84c0c968a499654b03",
+  "source_sha256": "44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc",
+  "sdk_version": "3.1.2",
+  "smoke": {
+    "ok": true,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m50-smoke-20261026-01"
+  },
+  "host": {
+    "passed": 529,
+    "skipped": 0,
+    "failed": 0,
+    "elapsed_seconds": 33.896
+  },
+  "sdk": {
+    "passed": 1091,
+    "failed": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m50-contracts-catalog-20261026-01"
+  },
+  "catalog": {
+    "equal": true,
+    "missing_inventory_equal": true,
+    "checked": 2494,
+    "failures": [],
+    "mode": "protected-preservation",
+    "protected_equal": true,
+    "protected_checked": 2494,
+    "added_unreviewed": [],
+    "added_files_valid": true,
+    "comparison_ok": true,
+    "review_complete": true
+  },
+  "device_validated": false
+}
