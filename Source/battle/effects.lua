@@ -1,5 +1,6 @@
 -- Gen V ability hooks owned by one actual Battle. No persistent volatile state.
 import "battle/contactAbilities"
+import "battle/ordinaryAbilities"
 Class("BattleEffects")
 local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function nativeAbility(mon) return mon and mon.ability and mon:ability() or 0 end
@@ -29,7 +30,13 @@ handlers[12],handlers[17],handlers[38],handlers[79]={},{},{},{}
 handlers[20],handlers[15]={},{}
 handlers[39],handlers[87]={},{}
 function BattleEffects:init(battle)
-    self.battle=battle;self.weather=nil;self.receipts=setmetatable({},{__mode="k"});self.closed=false;self.round=nil;self.abilityOverrides={}
+    self.ordinaryAbilities = OrdinaryAbilities(self)
+    self.battle = battle
+    self.weather = nil
+    self.receipts = setmetatable({}, { __mode = "k" })
+    self.closed = false
+    self.round = nil
+    self.abilityOverrides = {}
 end
 -- Volatile identity-keyed ability changes never alter specimen slots/provenance.
 function BattleEffects:effectiveAbility(mon)
@@ -51,6 +58,7 @@ function BattleEffects:worrySeed(source,target)
     if self:effectiveAbility(target)==121 then return false,"unchangeable-ability" end
     local wake=target.status=="sleep"
     self.abilityOverrides[target]=15
+    self.ordinaryAbilities:clear(target)
     -- Commit the persistent cure before any presentation yield/cancellation.
     if wake then target.status,target.statusTurns,target.sleepDuration=nil,0,0 end
     self.battle:say(target.name.." acquired Insomnia!")
@@ -63,6 +71,8 @@ local commonHooks = {
     [22]="entry", [108]="entry", [72]="statusImmunity", [41]="statusImmunity",
     [99]="accuracyBypassesCheck", [75]="criticalAllowed", [92]="multiHitMaximum",
     [97]="finalDamage", [43]="canAttempt",
+    [101]="basePower", [18]="absorbsMove", [29]="canDropStat",
+    [64]="drainHit", [11]="absorbsMove", [33]="speed", [26]="grounded",
 }
 function BattleEffects:supported(id) return handlers[id]~=nil or commonHooks[id]~=nil end
 function BattleEffects:livingAbility(mon,id)
@@ -175,14 +185,37 @@ function BattleEffects:fixedDamage(move,attacker,defender)
 end
 -- Gen V TryHit: after type immunity/Protect, before accuracy and damage RNG.
 -- An absorbed hit creates no direct-hit receipt, secondaries or contact event.
-function BattleEffects:absorbsWater(source,target,move)
-    if source==target or not self:active(source) or not self:active(target)
-        or not alive(source) or not alive(target) or move.type~="water"
-        or self:effectiveAbility(target)~=87 then return false end
-    target:heal(math.max(1,target.maxHP//4))
-    self.battle:say(target.name.." absorbed the water with Dry Skin!")
-    return true
+function BattleEffects:absorbsWater(source, target, move)
+    if move.type ~= "water" then
+        return false
+    end
+    return self.ordinaryAbilities:absorb(source, target, move)
 end
+
+function BattleEffects:absorbsMove(source, target, move)
+    return self.ordinaryAbilities:absorb(source, target, move)
+end
+
+function BattleEffects:drainHit(receipt)
+    return self.ordinaryAbilities:drainHit(receipt)
+end
+
+function BattleEffects:drainSeed(drained, receiver, amount)
+    return self.ordinaryAbilities:drain(drained, receiver, amount, "leechSeed")
+end
+
+function BattleEffects:speed(mon, value)
+    return self.ordinaryAbilities:speed(mon, value)
+end
+
+-- Ground immunity is evaluated with the actual current types/ability before
+-- Protect and accuracy. Ground status moves such as Sand Attack bypass it.
+function BattleEffects:groundImmune(source, target, move)
+    return move.type == "ground" and move.category ~= "status"
+        and self:active(source) and source:isAlive()
+        and self:livingAbility(target, 26)
+end
+
 -- Move-defined power precedes conditional field modifiers (e.g. Mud Sport).
 function BattleEffects:movePower(move,power,attacker,defender)
     if move.powerRule=="electroBall" then
@@ -210,7 +243,8 @@ function BattleEffects:basePower(move,power,attacker,defender)
         local a,d=attacker:getSex(),defender:getSex()
         if a~="genderless" and d~="genderless" then ratio=chain(ratio,a==d and 5120 or 3072) end
     end
-    -- Pinned PS Gen5 BasePower priorities: Rivalry24, Dry Skin17, Mud Sport1,
+    ratio = self.ordinaryAbilities:technicianRatio(attacker, power, ratio)
+    -- Pinned PS Gen5 priorities: Rivalry24, Technician19, Dry Skin17, Mud Sport1,
     -- Solar Beam0. Chain Q12 ratios first, then round the raw power once.
     if power>0 and move.type=="fire" and self:active(defender) and alive(defender)
         and self:effectiveAbility(defender)==87 then ratio=chain(ratio,5120) end
@@ -278,9 +312,16 @@ function BattleEffects:entry(mon)
         if self:effectiveAbility(mon)==22 then
             -- Gen5 Inner Focus does NOT block Intimidate. Commit before yielding.
             local old=other.statStages.atk
-            other.statStages.atk=math.max(-6,old-1)
+            local allowed, prevention = self:canDropStat(mon, other, "atk", -1)
+            if allowed then
+                other.statStages.atk = math.max(-6, old - 1)
+            end
             self.battle:say(mon.name.."'s Intimidate!")
-            self.battle:say(other.name..(old>-6 and "'s ATTACK fell!" or "'s ATTACK won't go any lower!"))
+            if not allowed then
+                self.battle:say(other.name .. "'s " .. prevention .. " prevents stat loss!")
+            else
+                self.battle:say(other.name .. (old > -6 and "'s ATTACK fell!" or "'s ATTACK won't go any lower!"))
+            end
             return true
         elseif self:effectiveAbility(mon)==108 then return self:forewarn(mon,other) end
     end
@@ -316,6 +357,7 @@ end
 function BattleEffects:attackStat(attacker,move,value)
     local h=handlers[self:effectiveAbility(attacker)]
     value=h and h.attack and h.attack(self,attacker,move,value) or value
+    value = self.ordinaryAbilities:attackStat(attacker, move, value)
     -- B2W2 item attack modifier, after stat stages; never durable stats/power.
     if attacker.species=="pikachu" and attacker.heldItem=="lightBall"
         and (move.category=="physical" or move.category=="special") then return value*2 end
@@ -326,8 +368,17 @@ function BattleEffects:defenseStat(defender,move,value)
     return value
 end
 function BattleEffects:ignoresBurn(mon) return self:effectiveAbility(mon)==62 end
-function BattleEffects:canDropStat(source,target,stat,delta)
-    return not (source~=target and stat=="acc" and delta<0 and self:effectiveAbility(target)==51)
+function BattleEffects:canDropStat(source, target, stat, delta)
+    if source == target or delta >= 0 then
+        return true
+    end
+    if self:livingAbility(target, 29) then
+        return false, "Clear Body"
+    end
+    if stat == "acc" and self:livingAbility(target, 51) then
+        return false, "Keen Eye"
+    end
+    return true
 end
 function BattleEffects:allowsSecondary(source,target,kind)
     assert(kind==nil or kind=="condition" or kind=="flinch" or kind=="stat","unsupported-secondary-kind")
@@ -341,7 +392,9 @@ function BattleEffects:recoilBlocked(mon,move)
     local id=self:effectiveAbility(mon)
     return (id==69 or id==98) and not move.struggleRecoil
 end
-function BattleEffects:grounded(mon) return not has(self,mon,"flying") end
+function BattleEffects:grounded(mon)
+    return not has(self, mon, "flying") and not self:livingAbility(mon, 26)
+end
 function BattleEffects:withdrawBlocked(mon)
     local other=mon==self.battle.player and self.battle.enemy or self.battle.player
     return alive(other) and self:effectiveAbility(other)==71 and self:grounded(mon)
@@ -455,9 +508,17 @@ function BattleEffects:residual(event)
     end
 end
 function BattleEffects:clear(mon)
+    self.ordinaryAbilities:clear(mon)
     self.abilityOverrides[mon]=nil
     if self.round then self.round.pending[mon]=nil;self.round.damaged[mon]=nil end
     for receipt in pairs(self.receipts) do if receipt.source==mon or receipt.target==mon then self.receipts[receipt]=nil end end
 end
-function BattleEffects:close() self.abilityOverrides={};self:endRound();self.closed=true;self.weather=nil;self.receipts=setmetatable({},{__mode="k"}) end
+function BattleEffects:close()
+    self.ordinaryAbilities:close()
+    self.abilityOverrides = {}
+    self:endRound()
+    self.closed = true
+    self.weather = nil
+    self.receipts = setmetatable({}, { __mode = "k" })
+end
 function BattleEffects:snapshot() return {weather=self:weatherId(),turns=self.weather and self.weather.turns or 0} end

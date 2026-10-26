@@ -216,9 +216,9 @@ function EffectSeq:secondaryKind(recipient)
     end
     return "stat"
 end
-function EffectSeq:apply(battle)
+function EffectSeq:apply(battle, secondary)
     for _, effect in ipairs(self.effects) do
-        effect:apply(battle)
+        effect:apply(battle, secondary)
     end
 end
 
@@ -234,11 +234,11 @@ function When:secondaryKind(recipient)
     assert(type(self.onPass.secondaryKind)=="function","unsupported-secondary-payload")
     return self.onPass:secondaryKind(recipient)
 end
-function When:apply(battle)
+function When:apply(battle, secondary)
     if self.cond:check(battle) then
-        self.onPass:apply(battle)
+        self.onPass:apply(battle, secondary)
     else
-        self.onFail:apply(battle)
+        self.onFail:apply(battle, secondary)
     end
 end
 
@@ -258,11 +258,21 @@ function ModifyStat:secondaryKind(recipient)
     assert(secondaryTargetMatches(recipient,self.target),"secondary-recipient-mismatch")
     return "stat"
 end
-function ModifyStat:apply(battle)
+function ModifyStat:apply(battle, secondary)
     local pokemon = self.target:resolve(battle)
     if not pokemon:isAlive() then return end
-    if battle.effects and not battle.effects:canDropStat(battle.attacker,pokemon,self.stat,self.stages) then
-        battle:say(pokemon.name .. "'s Keen Eye prevents accuracy loss!");return
+    if battle.effects then
+        local allowed, prevention = battle.effects:canDropStat(battle.attacker, pokemon, self.stat, self.stages)
+        if not allowed then
+            -- Gen V suppresses Clear Body's fail narration for secondaries.
+            -- The chance trial already ran in the typed SecondaryEffect owner.
+            if prevention == "Clear Body" and secondary then
+                return
+            end
+            local loss = prevention == "Keen Eye" and "accuracy loss!" or "stat loss!"
+            battle:say(pokemon.name .. "'s " .. prevention .. " prevents " .. loss)
+            return
+        end
     end
     local oldStage = pokemon.statStages[self.stat] or 0
     local newStage = math.max(-6, math.min(6, oldStage + self.stages))
@@ -483,7 +493,7 @@ end
 function SecondaryEffect:apply(battle)
     local target=self.target:resolve(battle)
     if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target,self.kind) then return end
-    self.effect:apply(battle)
+    self.effect:apply(battle, true)
 end
 Class("WeatherEffect")
 function WeatherEffect:init(id)

@@ -326,7 +326,7 @@ function BattleConditions:entry(mon,side)
                 if damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)>0 then
                     b:say("Pointed stones dug into "..mon.name.."!")
                 end
-            elseif not has(self,mon,"flying") then
+            elseif b.effects:grounded(mon) then
                 if kind=="spikes" and hazards.spikes then
                     local divisor=({8,6,4})[hazards.spikes]
                     if damage(self,mon,mon.maxHP/divisor)>0 then b:say(mon.name.." was hurt by Spikes!") end
@@ -391,10 +391,19 @@ function BattleConditions:residual(event)
         local rampage=state.rampage
         if rampage then self:endRampage(mon,rampage.interrupted and rampage.remaining==1) end
     elseif event.kind=="seed" and state.seed then
-        local receiver=b[state.seed]
-        if alive(receiver) then
-            local removed=damage(self,mon,mon.maxHP/8)
-            if removed>0 then receiver:heal(removed);b:say(mon.name.."'s health was sapped by Leech Seed!") end
+        local receiverSide = state.seed
+        local receiver = b[receiverSide]
+        if b.effects:active(mon) and alive(receiver) then
+            local removed = damage(self, mon, mon.maxHP / 8)
+            if removed > 0 then
+                b.effects:drainSeed(mon, receiver, removed)
+                b:say(mon.name .. "'s health was sapped by Leech Seed!")
+                -- Liquid Ooze may KO the recipient rather than event.pokemon.
+                -- Return its actual side to the existing residual faint cohort.
+                if not receiver:isAlive() then
+                    return receiverSide
+                end
+            end
         end
     elseif event.kind=="curse" and state.curse then
         if damage(self,mon,mon.maxHP/4)>0 then b:say(mon.name.." is afflicted by the curse!") end
