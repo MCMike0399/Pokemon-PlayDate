@@ -20,9 +20,13 @@ function VermilionPreparationContracts.run()
         for id in pairs(ItemData.definitions) do items[id] = 0; canAdd[id] = not full end
         return {intro="done", flags={}, items=items, can_add=canAdd, trainers={}, mode="talk"}
     end
-    test("preparation never activates the thirty-map manifest", function()
-        assert(#SourceMaps.names() == 30)
-        for _, entry in pairs(entries) do assert(not SourceMaps.nameForID(entry.id)) end
+    test("installed batch resolves through the shared sixty-five-map manifest", function()
+        assert(#SourceMaps.names() == 65)
+        for name, entry in pairs(entries) do
+            assert(SourceMaps.nameForID(entry.id) == name)
+            local installed = SourceMaps.entry(name)
+            assert(installed.path == entry.path and installed.source_sha256 == entry.source_sha256)
+        end
     end)
     for _, group in ipairs({events.events, events.signs}) do
         for id, descriptor in pairs(group) do
@@ -77,7 +81,7 @@ function VermilionPreparationContracts.run()
             local layout = HealingComposition.layout({stableID=d.id})
             assert(layout.monitor.x == 56 and layout.monitor.y == 8 and #layout.balls == 6)
         end)
-        assert(#SourceMaps.names() == 30, "private source records leaked")
+        assert(#SourceMaps.names() == 65, "private source records leaked")
     end)
     return report
 end

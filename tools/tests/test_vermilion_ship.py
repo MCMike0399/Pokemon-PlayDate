@@ -139,11 +139,19 @@ class VermilionShipSources(unittest.TestCase):
         self.assertIn(key, compact['maps']['VermilionGym']['palette'])
         preparation.verify(self.prepared, preparation.OUTPUT)
 
-    def test_active_thirty_map_manifest_and_cache_are_unchanged(self):
-        paths = ['Source/data/sourceMaps.json', 'Source/data/sourceMapCache/compact.json', 'Source/data/sourceMapCache/tile-grids.json']
-        for path in paths:
-            self.assertEqual((ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]))
-        self.assertEqual(len(json.loads((ROOT / paths[0]).read_bytes())['maps']), 30)
+    def test_active_inventory_preserves_old_entries_and_every_existing_grid(self):
+        path = 'Source/data/sourceMaps.json'
+        previous = json.loads(subprocess.check_output(['git', 'show', BASE + ':' + path]))
+        active = json.loads((ROOT / path).read_bytes())
+        self.assertEqual(len(active['maps']), 65)
+        for name, entry in previous['maps'].items():
+            self.assertEqual(active['maps'][name], entry, name)
+        path = 'Source/data/sourceMapCache/tile-grids.json'
+        previous = json.loads(subprocess.check_output(['git', 'show', BASE + ':' + path]))['tiles']
+        active = json.loads((ROOT / path).read_bytes())['tiles']
+        for key, grid in previous.items():
+            self.assertEqual(active[key], grid, key)
+        self.assertIn('pokered:GYM:cell:20-21-30-31', active)
 
     def test_all_ship_json_is_literal_utf8_and_deterministic(self):
         self.assertEqual(self.artifacts, ship.build())

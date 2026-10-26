@@ -21,6 +21,7 @@ class VermilionInstalledInventory(unittest.TestCase):
 
     def test_uninstalled_and_fully_installed_inputs_build_the_same_shared_proposal(self):
         active = json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())
+        active['maps'] = {name: entry for name, entry in active['maps'].items() if name not in g.MAPS}
         self.assertFalse(g.verify_installed_entries(self.artifacts, active))
         self.assertTrue(g.verify_installed_entries(self.artifacts, self.promoted))
         expected = {name: raw for name, raw in self.artifacts.items() if name.startswith('proposed-')}
@@ -90,14 +91,14 @@ class VermilionInstalledInventory(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'artifact drift'):
             g.verify(changed, g.OUTPUT)
 
-    def test_installed_proposal_never_changes_the_current_active_thirty_map_files(self):
+    def test_installed_proposal_never_changes_the_current_active_map_files(self):
         paths = [g.ROOT / 'Source/data/sourceMaps.json',
                  g.ROOT / 'Source/data/sourceMapCache/compact.json',
                  g.ROOT / 'Source/data/sourceMapCache/tile-grids.json']
         before = [path.read_bytes() for path in paths]
         g.proposed_pipeline(self.artifacts, manifest=self.promoted)
         self.assertEqual([path.read_bytes() for path in paths], before)
-        self.assertEqual(len(json.loads(before[0])['maps']), 30)
+        self.assertEqual(len(json.loads(before[0])['maps']), 65)
 
 if __name__ == '__main__':
     unittest.main()

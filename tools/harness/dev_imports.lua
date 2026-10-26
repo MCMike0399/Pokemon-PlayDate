@@ -243,6 +243,12 @@ Contracts.register("vermilion-story", function()
 end)
 import "dev/daycareContracts"
 Contracts.register("daycare", DaycareContracts.run)
+import "dev/vermilionPreparationContracts"
+Contracts.register("vermilion-preparation", VermilionPreparationContracts.run)
+import "dev/vermilionShipContracts"
+Contracts.register("vermilion-ship", function()
+    return VermilionShipContracts.run(VermilionStoryFixture.withScene)
+end)
 
 -- @harness runtime
 harness = Harness

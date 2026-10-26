@@ -96,6 +96,7 @@
     "game/kantoScenes",
     "game/kantoServices",
     "game/vermilionGifts",
+    "game/vermilionShip",
     "game/vermilionStory",
     "game/vermilionStoryTerrain",
     "game/vermilionStoryIntent",
@@ -227,7 +228,9 @@
     "dev/vermilionGiftsContracts",
     "dev/vermilionStoryFixture",
     "dev/vermilionStoryContracts",
-    "dev/daycareContracts"
+    "dev/daycareContracts",
+    "dev/vermilionPreparationContracts",
+    "dev/vermilionShipContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -336,6 +339,8 @@
     "Contracts.register(\"field-world\", FieldWorldContracts.run)",
     "Contracts.register(\"vermilion-gifts\", VermilionGiftsContracts.run)",
     "Contracts.register(\"vermilion-story\", function()",
-    "Contracts.register(\"daycare\", DaycareContracts.run)"
+    "Contracts.register(\"daycare\", DaycareContracts.run)",
+    "Contracts.register(\"vermilion-preparation\", VermilionPreparationContracts.run)",
+    "Contracts.register(\"vermilion-ship\", function()"
   ]
 }

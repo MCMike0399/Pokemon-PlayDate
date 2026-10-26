@@ -38,19 +38,23 @@ class VermilionPreparationTests(unittest.TestCase):
             self.assertEqual((self.ref / path).read_bytes(), original, path)
             self.assertEqual(hashlib.sha256(original).hexdigest(), expected, path)
 
-    def test_active_manifest_cache_and_preexisting_input_art_are_unchanged(self):
+    def test_preexisting_input_art_and_old_manifest_entries_are_unchanged(self):
         tracked = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BASE, 'Source'], text=True).splitlines()
-        roots = ('Source/images/', 'Source/world/sprites/', 'Source/data/sourceMapCache/',
+        roots = ('Source/images/', 'Source/world/sprites/',
                  'Source/data/viridianSlice/', 'Source/data/pewterSlice/', 'Source/data/sourceSlice/')
-        exact = {'Source/data/sourceMaps.json', 'Source/world/tilefactory.lua',
+        exact = {'Source/world/tilefactory.lua',
                  'Source/world/spritefactory.lua', 'Source/lib/shade.lua'}
         for path in tracked:
             if path in exact or path.startswith(roots):
                 self.assertEqual((g.ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]), path)
-        self.assertEqual(len(json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']), 30)
+        active = json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())
+        previous = json.loads(subprocess.check_output(['git', 'show', BASE + ':Source/data/sourceMaps.json']))
+        self.assertEqual(len(active['maps']), 65)
+        for name, entry in previous['maps'].items():
+            self.assertEqual(active['maps'][name], entry, name)
 
     def test_one_existing_pipeline_and_exact_additive_promotion(self):
-        active = json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())
+        active = json.loads(subprocess.check_output(['git', 'show', BASE + ':Source/data/sourceMaps.json']))
         proposed = json.loads(self.artifacts['proposed-source-maps.json'])
         additions = json.loads(self.artifacts['manifest-entries.json'])['maps']
         self.assertEqual(len(additions), 35)

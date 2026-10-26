@@ -154,7 +154,7 @@ function SourceMapActivationContracts.run()
     end)
 
     test("new campaign connections and museum ingresses use the installed shared projections", function()
-        assert(#SourceMaps.names() == 30)
+        assert(#SourceMaps.names() == 65)
         assert(SourceMaps.entry("Route22") and SourceMaps.entry("Route3"))
         assert(SourceMaps.connection("ViridianCity", 0, 16, "left").to == "kanto_route_22")
         assert(SourceMaps.connection("PewterCity", 39, 18, "right").to == "kanto_route_3")

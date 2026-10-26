@@ -54,8 +54,9 @@ class CeruleanContentTests(unittest.TestCase):
                     'BillsHouse', 'Museum1F', 'Museum2F'}
         self.assertEqual(set(self.maps), expected)
         active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
-        self.assertEqual(len(active['maps']), 30)
-        self.assertEqual({name for name, entry in active['maps'].items() if entry['profile'] == 'source'}, expected)
+        self.assertEqual(len(active['maps']), 65)
+        self.assertEqual({name for name, entry in active['maps'].items()
+                          if entry['path'].startswith('data/sourceSlice/')}, expected)
         for name in expected:
             entry = self.manifest['maps'][name]
             self.assertEqual(entry['profile'], 'source')
@@ -76,8 +77,10 @@ class CeruleanContentTests(unittest.TestCase):
                     continue
                 self.assertEqual(self.manifest['maps'][name][field], value, (name, field))
             for field, value in old['maps'][name].items():
-                if field == 'blocked' and name == 'PewterCity':
-                    opened = {'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
+                if field == 'blocked' and name in {'PewterCity', 'Route2'}:
+                    opened = ({'pokered:PEWTER_CITY:warps:1', 'pokered:PEWTER_CITY:warps:2'}
+                              if name == 'PewterCity' else
+                              {f'pokered:ROUTE_2:warps:{index}' for index in (1, 3, 4, 5)})
                     self.assertEqual(new['maps'][name][field],
                                      {cell: event for cell, event in value.items() if event not in opened})
                 elif field != 'blocked_connections':
@@ -86,7 +89,8 @@ class CeruleanContentTests(unittest.TestCase):
         new_tiles = json.loads((ROOT / 'Source/data/sourceMapCache/tile-grids.json').read_bytes())['tiles']
         for key, value in old_tiles.items():
             self.assertEqual(new_tiles[key], value, key)
-        self.assertEqual(new_tiles, accepted('Source/data/ceruleanMapCache/tile-grids.json')['tiles'])
+        for key, value in accepted('Source/data/ceruleanMapCache/tile-grids.json')['tiles'].items():
+            self.assertEqual(new_tiles[key], value, key)
         self.assertEqual(new['maps']['PewterCity']['blocked_connections'], [])
         self.assertEqual(new['maps']['ViridianCity']['blocked_connections'], [])
         self.assertNotIn('north:ROUTE_2', new['maps']['ViridianCity']['blocked_connections'])
