@@ -1,0 +1,33 @@
+{
+  "processes": [
+    {
+      "journey": {
+        "name": "vermilion-natural",
+        "starter": "bulbasaur",
+        "fossil": "dome",
+        "seed": 42,
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64,
+        "training_level": 16,
+        "max_training_battles": 256,
+        "max_capture_attempts": 24,
+        "max_blackouts": 1,
+        "max_transitions": 128,
+        "max_puzzle_attempts": 240,
+        "evolution_policy": "accept"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "name": "vermilion-continue",
+        "starter": "bulbasaur",
+        "fossil": "dome",
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64
+      }
+    }
+  ]
+}

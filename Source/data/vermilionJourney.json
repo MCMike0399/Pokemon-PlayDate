@@ -1,0 +1,3911 @@
+{
+  "cut_sites": [
+    {
+      "block": 53,
+      "cells": [
+        {
+          "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+          "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+          "x": 14,
+          "y": 18
+        },
+        {
+          "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+          "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+          "x": 15,
+          "y": 18
+        },
+        {
+          "after": "pokered:OVERWORLD:cell:40-41-50-51",
+          "before": "pokered:OVERWORLD:cell:40-41-50-51",
+          "x": 14,
+          "y": 19
+        },
+        {
+          "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+          "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+          "x": 15,
+          "y": 19
+        }
+      ],
+      "replacement": 76,
+      "targets": [
+        {
+          "x": 15,
+          "y": 18
+        }
+      ],
+      "x": 14,
+      "y": 18
+    }
+  ],
+  "cut_species": [
+    "beedrill",
+    "bellsprout",
+    "bulbasaur",
+    "charizard",
+    "charmander",
+    "charmeleon",
+    "farfetchd",
+    "gloom",
+    "ivysaur",
+    "kingler",
+    "krabby",
+    "lickitung",
+    "mew",
+    "oddish",
+    "paras",
+    "parasect",
+    "pinsir",
+    "sandshrew",
+    "sandslash",
+    "scyther",
+    "tangela",
+    "tentacool",
+    "tentacruel",
+    "venusaur",
+    "victreebel",
+    "vileplume",
+    "weepinbell"
+  ],
+  "daycare_inputs": [],
+  "events": {
+    "pokered:DIGLETTS_CAVE_ROUTE_11:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_DiglettsCaveRoute11GamblerText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:DIGLETTS_CAVE_ROUTE_2:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_DiglettsCaveRoute2FishingGuruText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:POKEMON_FAN_CLUB:background_events:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_PokemonFanClubSign1Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:POKEMON_FAN_CLUB:background_events:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_PokemonFanClubSign2Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:POKEMON_FAN_CLUB:objects:5": {
+      "before": [
+        "_PokemonFanClubChairmanStoryText"
+      ],
+      "blocks": [
+        "bicycle",
+        "bikeVoucher"
+      ],
+      "completed": [
+        "_PokemonFanClubChairFinalText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_PokemonFanClubNoStoryText"
+      ],
+      "flag": "EVENT_GOT_BIKE_VOUCHER",
+      "full": [
+        "_PokemonFanClubBagFullText"
+      ],
+      "item": "bikeVoucher",
+      "kind": "bespoke",
+      "prompt": [
+        "_PokemonFanClubChairmanIntroText"
+      ],
+      "success": [
+        "_PokemonFanClubReceivedBikeVoucherText",
+        "_PokemonFanClubExplainBikeVoucherText"
+      ]
+    },
+    "pokered:POKEMON_FAN_CLUB:objects:6": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_PokemonFanClubReceptionistText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_11:background_events:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_Route11DiglettsCaveSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_11:objects:1": {
+      "after": [
+        "_Route11Gambler1AfterBattleText"
+      ],
+      "before": [
+        "_Route11Gambler1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Gambler1EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:10": {
+      "after": [
+        "_Route11Youngster4AfterBattleText"
+      ],
+      "before": [
+        "_Route11Youngster4BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Youngster4EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:2": {
+      "after": [
+        "_Route11Gambler2AfterBattleText"
+      ],
+      "before": [
+        "_Route11Gambler2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Gambler2EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:3": {
+      "after": [
+        "_Route11Youngster1AfterBattleText"
+      ],
+      "before": [
+        "_Route11Youngster1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Youngster1EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:4": {
+      "after": [
+        "_Route11SuperNerd1AfterBattleText"
+      ],
+      "before": [
+        "_Route11SuperNerd1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11SuperNerd1EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:5": {
+      "after": [
+        "_Route11Youngster2AfterBattleText5"
+      ],
+      "before": [
+        "_Route11Youngster2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Youngster2EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:6": {
+      "after": [
+        "_Route11Gambler3AfterBattleText"
+      ],
+      "before": [
+        "_Route11Gambler3BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Gambler3EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:7": {
+      "after": [
+        "_Route11Gambler4AfterBattleText"
+      ],
+      "before": [
+        "_Route11Gambler4BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Gambler4EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:8": {
+      "after": [
+        "_Route11Youngster3AfterBattleText"
+      ],
+      "before": [
+        "_Route11Youngster3BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11Youngster3EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11:objects:9": {
+      "after": [
+        "_Route11SuperNerd2AfterBattleText"
+      ],
+      "before": [
+        "_Route11SuperNerd2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route11SuperNerd2EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_11_GATE_1F:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_Route11Gate1FGuardText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_11_GATE_2F:objects:2": {
+      "before": [
+        "_OaksAideHereYouGoText"
+      ],
+      "completed": [
+        "_Route11Gate2FOaksAideItemfinderDescriptionText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_OaksAideComeBackText"
+      ],
+      "flag": "EVENT_GOT_ITEMFINDER",
+      "full": [
+        "_OaksAideNoRoomText"
+      ],
+      "insufficient": [
+        "_OaksAideUhOhText"
+      ],
+      "item": "itemfinder",
+      "kind": "bespoke",
+      "prompt": [
+        "_OaksAideHiText"
+      ],
+      "success": [
+        "_OaksAideGotItemText",
+        "_Route11Gate2FOaksAideItemfinderDescriptionText"
+      ],
+      "threshold": 30
+    },
+    "pokered:ROUTE_2_GATE:objects:1": {
+      "before": [
+        "_OaksAideHereYouGoText"
+      ],
+      "completed": [
+        "_Route2GateOaksAideFlashExplanationText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_OaksAideComeBackText"
+      ],
+      "flag": "EVENT_GOT_HM05",
+      "full": [
+        "_OaksAideNoRoomText"
+      ],
+      "insufficient": [
+        "_OaksAideUhOhText"
+      ],
+      "item": "hm05",
+      "kind": "bespoke",
+      "prompt": [
+        "_OaksAideHiText"
+      ],
+      "success": [
+        "_OaksAideGotItemText",
+        "_Route2GateOaksAideFlashExplanationText"
+      ],
+      "threshold": 10
+    },
+    "pokered:ROUTE_2_GATE:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_Route2GateYoungsterText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_2_TRADE_HOUSE:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_Route2TradeHouseScientistText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_5:background_events:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_Route5UndergroundPathSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_6:background_events:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_Route6UndergroundPathSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:ROUTE_6:objects:1": {
+      "after": [
+        "_Route6CooltrainerAfterBattleText"
+      ],
+      "before": [
+        "_Route6CooltrainerM1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route6CooltrainerM1EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_6:objects:2": {
+      "after": [
+        "_Route6CooltrainerAfterBattleText"
+      ],
+      "before": [
+        "_Route6CooltrainerF1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route6CooltrainerF1EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_6:objects:3": {
+      "after": [
+        "_Route6Youngster1AfterBattleText"
+      ],
+      "before": [
+        "_Route6Youngster1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route6Youngster1EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_6:objects:4": {
+      "after": [
+        "_Route6CooltrainerM2AfterBattleText"
+      ],
+      "before": [
+        "_Route6CooltrainerM2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route6CooltrainerM2EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_6:objects:5": {
+      "after": [
+        "_Route6CooltrainerF2AfterBattleText"
+      ],
+      "before": [
+        "_Route6CooltrainerF2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route6CooltrainerF2EndBattleText"
+      ]
+    },
+    "pokered:ROUTE_6:objects:6": {
+      "after": [
+        "_Route6Youngster2AfterBattleText"
+      ],
+      "before": [
+        "_Route6Youngster2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_Route6Youngster2EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_1F:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FWaiterText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_1F:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FSailorText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:1": {
+      "after": [
+        "_SSAnne1FRoomsGentleman1AfterBattleText"
+      ],
+      "before": [
+        "_SSAnne1FRoomsGentleman1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne1FRoomsGentleman1EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:10": {
+      "content": "vermilion",
+      "flag": "PICKUP:pokered:SS_ANNE_1F_ROOMS:objects:10",
+      "full": [
+        "_NoMoreRoomForItemText"
+      ],
+      "item": "tm08",
+      "kind": "pickup",
+      "success": [
+        "_FoundItemText"
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:11": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FRoomsGentleman3Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:2": {
+      "after": [
+        "_SSAnne1FRoomsGentleman2AfterBattleText"
+      ],
+      "before": [
+        "_SSAnne1FRoomsGentleman2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne1FRoomsGentleman2EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:3": {
+      "after": [
+        "_SSAnne1FRoomsYoungsterAfterBattleText"
+      ],
+      "before": [
+        "_SSAnne1FRoomsYoungsterBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne1FRoomsYoungsterEndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:4": {
+      "after": [
+        "_SSAnne1FRoomsCooltrainerFAfterBattleText"
+      ],
+      "before": [
+        "_SSAnne1FRoomsCooltrainerFBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne1FRoomsCooltrainerFEndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:5": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FRoomsGirl1Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:6": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FRoomsMiddleAgedManText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:7": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FRoomsLittleGirlText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:9": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FRoomsGirl2Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FWaiterText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F:objects:2": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "lost": [
+        "_SSAnne2FRivalVictoryText"
+      ],
+      "scene_script": "rival",
+      "script_positions": [
+        {
+          "x": 36,
+          "y": 5
+        },
+        {
+          "x": 36,
+          "y": 6
+        },
+        {
+          "x": 36,
+          "y": 7
+        },
+        {
+          "x": 36,
+          "y": 8
+        },
+        {
+          "x": 36,
+          "y": 9
+        },
+        {
+          "x": 36,
+          "y": 10
+        },
+        {
+          "x": 36,
+          "y": 11
+        },
+        {
+          "x": 36,
+          "y": 12
+        },
+        {
+          "x": 37,
+          "y": 7
+        },
+        {
+          "x": 37,
+          "y": 8
+        },
+        {
+          "x": 37,
+          "y": 9
+        },
+        {
+          "x": 37,
+          "y": 10
+        },
+        {
+          "x": 37,
+          "y": 11
+        },
+        {
+          "x": 37,
+          "y": 12
+        }
+      ],
+      "victory": {
+        "flags": {
+          "EVENT_BEAT_SS_ANNE_RIVAL": true,
+          "VERMILION_SCENE_V1_RIVAL_SHOWN": false
+        },
+        "guard_flags": [
+          "EVENT_BEAT_SS_ANNE_RIVAL",
+          "VERMILION_SCENE_V1_RIVAL_SHOWN"
+        ]
+      }
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:1": {
+      "after": [
+        "_SSAnne2FRoomsGentleman1AfterBattleText"
+      ],
+      "before": [
+        "_SSAnne2FRoomsGentleman1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne2FRoomsGentleman1EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:10": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsGentleman5Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:11": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsLittleBoyText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:12": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsBrunetteGirlText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:13": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsBeautyText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:2": {
+      "after": [
+        "_SSAnne2FRoomsFisherAfterBattleText"
+      ],
+      "before": [
+        "_SSAnne2FRoomsFisherBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne2FRoomsFisherEndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:3": {
+      "after": [
+        "_SSAnne2FRoomsGentleman2AfterBattleText"
+      ],
+      "before": [
+        "_SSAnne2FRoomsGentleman2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne2FRoomsGentleman2EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:4": {
+      "after": [
+        "_SSAnne2FRoomsCooltrainerFAfterBattleText"
+      ],
+      "before": [
+        "_SSAnne2FRoomsCooltrainerFBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnne2FRoomsCooltrainerFEndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:6": {
+      "content": "vermilion",
+      "flag": "PICKUP:pokered:SS_ANNE_2F_ROOMS:objects:6",
+      "full": [
+        "_NoMoreRoomForItemText"
+      ],
+      "item": "maxEther",
+      "kind": "pickup",
+      "success": [
+        "_FoundItemText"
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:7": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsGentleman4Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:8": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsGrampsText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:9": {
+      "content": "vermilion",
+      "flag": "PICKUP:pokered:SS_ANNE_2F_ROOMS:objects:9",
+      "full": [
+        "_NoMoreRoomForItemText"
+      ],
+      "item": "rareCandy",
+      "kind": "pickup",
+      "success": [
+        "_FoundItemText"
+      ]
+    },
+    "pokered:SS_ANNE_3F:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne3FSailorText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:1": {
+      "after": [
+        "_SSAnneB1FRoomsSailor1AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneB1FRoomsSailor1BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneB1FRoomsSailor1EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:10": {
+      "content": "vermilion",
+      "flag": "PICKUP:pokered:SS_ANNE_B1F_ROOMS:objects:10",
+      "full": [
+        "_NoMoreRoomForItemText"
+      ],
+      "item": "tm44",
+      "kind": "pickup",
+      "success": [
+        "_FoundItemText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:11": {
+      "content": "vermilion",
+      "flag": "PICKUP:pokered:SS_ANNE_B1F_ROOMS:objects:11",
+      "full": [
+        "_NoMoreRoomForItemText"
+      ],
+      "item": "maxPotion",
+      "kind": "pickup",
+      "success": [
+        "_FoundItemText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:2": {
+      "after": [
+        "_SSAnneB1FRoomsSailor2AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneB1FRoomsSailor2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneB1FRoomsSailor2EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:3": {
+      "after": [
+        "_SSAnneB1FRoomsSailor3AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneB1FRoomsSailor3BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneB1FRoomsSailor3EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:4": {
+      "after": [
+        "_SSAnneB1FRoomsSailor4AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneB1FRoomsSailor4BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneB1FRoomsSailor4EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:5": {
+      "after": [
+        "_SSAnneB1FRoomsSailor5AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneB1FRoomsSailor5BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneB1FRoomsSailor5EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:6": {
+      "after": [
+        "_SSAnneB1FRoomsFisherAfterBattleText"
+      ],
+      "before": [
+        "_SSAnneB1FRoomsFisherBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneB1FRoomsFisherEndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:7": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneB1FRoomsSuperNerdText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:9": {
+      "content": "vermilion",
+      "flag": "PICKUP:pokered:SS_ANNE_B1F_ROOMS:objects:9",
+      "full": [
+        "_NoMoreRoomForItemText"
+      ],
+      "item": "ether",
+      "kind": "pickup",
+      "success": [
+        "_FoundItemText"
+      ]
+    },
+    "pokered:SS_ANNE_BOW:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneBowSuperNerdText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_BOW:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneBowSailor1Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_BOW:objects:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneBowCooltrainerMText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_BOW:objects:4": {
+      "after": [
+        "_SSAnneBowSailor2AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneBowSailor2BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneBowSailor2EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_BOW:objects:5": {
+      "after": [
+        "_SSAnneBowSailor3AfterBattleText"
+      ],
+      "before": [
+        "_SSAnneBowSailor3BattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_SSAnneBowSailor3EndBattleText"
+      ]
+    },
+    "pokered:SS_ANNE_CAPTAINS_ROOM:background_events:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneCaptainsRoomTrashText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_CAPTAINS_ROOM:background_events:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneCaptainsRoomSeasickBookText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_CAPTAINS_ROOM:objects:1": {
+      "content": "vermilionStory",
+      "item": "hm01",
+      "kind": "bespoke",
+      "scene_script": "captain"
+    },
+    "pokered:SS_ANNE_KITCHEN:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook1Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_KITCHEN:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook2Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_KITCHEN:objects:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook3Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_KITCHEN:objects:4": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook4Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_KITCHEN:objects:5": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook5Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_KITCHEN:objects:6": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook6Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:UNDERGROUND_PATH_ROUTE_6:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_UndergroundPathRoute6GirlText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCitySignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityNoticeSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_MartSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:4": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_PokeCenterSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:5": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityPokemonFanClubSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:6": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityGymSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:background_events:7": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityHarborSignText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityBeautyText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:objects:3": {
+      "content": "vermilionStory",
+      "item": "ssTicket",
+      "kind": "bespoke",
+      "scene_script": "boarding"
+    },
+    "pokered:VERMILION_CITY:objects:4": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityGambler2Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:objects:6": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCitySailor2Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_DOCK:hidden_events:1": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "departure"
+    },
+    "pokered:VERMILION_GYM:hidden_events:10": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 6
+    },
+    "pokered:VERMILION_GYM:hidden_events:11": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 7
+    },
+    "pokered:VERMILION_GYM:hidden_events:12": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 8
+    },
+    "pokered:VERMILION_GYM:hidden_events:13": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 9
+    },
+    "pokered:VERMILION_GYM:hidden_events:14": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 10
+    },
+    "pokered:VERMILION_GYM:hidden_events:15": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 11
+    },
+    "pokered:VERMILION_GYM:hidden_events:16": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 12
+    },
+    "pokered:VERMILION_GYM:hidden_events:17": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 13
+    },
+    "pokered:VERMILION_GYM:hidden_events:18": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 14
+    },
+    "pokered:VERMILION_GYM:hidden_events:4": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 0
+    },
+    "pokered:VERMILION_GYM:hidden_events:5": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 1
+    },
+    "pokered:VERMILION_GYM:hidden_events:6": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 2
+    },
+    "pokered:VERMILION_GYM:hidden_events:7": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 3
+    },
+    "pokered:VERMILION_GYM:hidden_events:8": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 4
+    },
+    "pokered:VERMILION_GYM:hidden_events:9": {
+      "content": "vermilionStory",
+      "kind": "bespoke",
+      "scene_script": "trash",
+      "trash_index": 5
+    },
+    "pokered:VERMILION_GYM:objects:1": {
+      "after": [
+        "_VermilionGymLTSurgePostBattleAdviceText"
+      ],
+      "before": [
+        "_VermilionGymLTSurgePreBattleText"
+      ],
+      "content": "vermilionStory",
+      "kind": "trainer",
+      "lost": [
+        "_VermilionGymLTSurgeReceivedThunderBadgeText"
+      ],
+      "reward": {
+        "before": [
+          "_VermilionGymLTSurgeThunderBadgeInfoText"
+        ],
+        "flag": "EVENT_GOT_TM24",
+        "full": [
+          "_VermilionGymLTSurgeTM24NoRoomText"
+        ],
+        "full_status": "bag-full",
+        "item": "tm24",
+        "success": [
+          "_VermilionGymLTSurgeReceivedTM24Text",
+          "_TM24ExplanationText"
+        ]
+      },
+      "victory": {
+        "flags": {
+          "BADGE_THUNDER": true,
+          "EVENT_BEAT_LT_SURGE": true
+        },
+        "guard_flags": [
+          "BADGE_THUNDER",
+          "EVENT_BEAT_LT_SURGE"
+        ],
+        "trainers": {
+          "pokered:VERMILION_GYM:objects:2": true,
+          "pokered:VERMILION_GYM:objects:3": true,
+          "pokered:VERMILION_GYM:objects:4": true
+        }
+      },
+      "won": [
+        "_VermilionGymLTSurgeReceivedThunderBadgeText"
+      ]
+    },
+    "pokered:VERMILION_GYM:objects:2": {
+      "after": [
+        "_VermilionGymGentlemanAfterBattleText"
+      ],
+      "before": [
+        "_VermilionGymGentlemanBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_VermilionGymGentlemanEndBattleText"
+      ]
+    },
+    "pokered:VERMILION_GYM:objects:3": {
+      "after": [
+        "_VermilionGymSuperNerdAfterBattleText"
+      ],
+      "before": [
+        "_VermilionGymSuperNerdBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_VermilionGymSuperNerdEndBattleText"
+      ]
+    },
+    "pokered:VERMILION_GYM:objects:4": {
+      "after": [
+        "_VermilionGymSailorAfterBattleText"
+      ],
+      "before": [
+        "_VermilionGymSailorBattleText"
+      ],
+      "content": "vermilion",
+      "kind": "trainer",
+      "won": [
+        "_VermilionGymSailorEndBattleText"
+      ]
+    },
+    "pokered:VERMILION_GYM:objects:5": {
+      "cases": [
+        {
+          "then": {
+            "kind": "program",
+            "steps": [
+              {
+                "labels": [
+                  "_VermilionGymGymGuideBeatLTSurgeText"
+                ],
+                "op": "dialog"
+              }
+            ]
+          },
+          "when": {
+            "flags": {
+              "EVENT_BEAT_LT_SURGE": true
+            }
+          }
+        }
+      ],
+      "content": "vermilion",
+      "kind": "cases",
+      "otherwise": {
+        "kind": "program",
+        "steps": [
+          {
+            "labels": [
+              "_VermilionGymGymGuideChampInMakingText"
+            ],
+            "op": "dialog"
+          }
+        ]
+      }
+    },
+    "pokered:VERMILION_MART:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "id": "vermilionMartClerkText",
+          "op": "shop"
+        }
+      ]
+    },
+    "pokered:VERMILION_MART:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionMartCooltrainerMText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_MART:objects:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionMartCooltrainerFText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_OLD_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_VermilionOldRodHouseFishingGuruHowAreTheFishBitingText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_VermilionOldRodHouseFishingGuruThatsSoDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_OLD_ROD",
+      "full": [
+        "_VermilionOldRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "oldRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_VermilionOldRodHouseFishingGuruDoYouLikeToFishText"
+      ],
+      "success": [
+        "_VermilionOldRodHouseFishingGuruTakeThisText",
+        "_VermilionOldRodHouseFishingGuruFishingIsAWayOfLifeText"
+      ]
+    },
+    "pokered:VERMILION_PIDGEY_HOUSE:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionPidgeyHouseYoungsterText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_PIDGEY_HOUSE:objects:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionPidgeyHouseLetterText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_POKECENTER:objects:1": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "after": "_PokemonFightingFitText",
+          "before": "_NeedYourPokemonText",
+          "checkpoint": {
+            "facing": "down",
+            "x": 11,
+            "y": 4,
+            "zone_id": "pokered:VERMILION_CITY"
+          },
+          "farewell": "_PokemonCenterFarewellText",
+          "id": "VermilionPokecenter",
+          "nurse_id": "pokered:VERMILION_POKECENTER:objects:1",
+          "op": "heal",
+          "prompt": "_ShallWeHealYourPokemonText",
+          "welcome": "_PokemonCenterWelcomeText"
+        }
+      ]
+    },
+    "pokered:VERMILION_POKECENTER:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionPokecenterFishingGuruText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_POKECENTER:objects:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "steps": [
+        {
+          "labels": [
+            "_VermilionPokecenterSailorText"
+          ],
+          "op": "dialog"
+        }
+      ]
+    }
+  },
+  "maps": {
+    "Daycare": {
+      "height": 8,
+      "id": "pokered:DAYCARE",
+      "key": "kanto_daycare",
+      "padding": 2,
+      "path": "data/vermilionPreparation/Daycare.json",
+      "profile": "source",
+      "source_sha256": "0a0d83afaa9d387af1d8831438155b32fa94087aedcfa1daccb191195f15e4cc",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "DiglettsCave": {
+      "height": 36,
+      "id": "pokered:DIGLETTS_CAVE",
+      "key": "kanto_digletts_cave",
+      "padding": 0,
+      "path": "data/vermilionPreparation/DiglettsCave.json",
+      "profile": "source",
+      "source_sha256": "f795f2e2ad4c38d7c9ccbcbc737c67234bc04cf5cbf2797d0f717a1fccfa1c37",
+      "spawn": {
+        "facing": "up",
+        "x": 20,
+        "y": 35
+      },
+      "width": 40
+    },
+    "DiglettsCaveRoute11": {
+      "height": 8,
+      "id": "pokered:DIGLETTS_CAVE_ROUTE_11",
+      "key": "kanto_digletts_cave_route_11",
+      "padding": 2,
+      "path": "data/vermilionPreparation/DiglettsCaveRoute11.json",
+      "profile": "source",
+      "source_sha256": "15d5d2cb00bc604417d64ed17609a7985930c921d3d0f93509c25e33fd713017",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 6
+      },
+      "width": 13
+    },
+    "DiglettsCaveRoute2": {
+      "height": 8,
+      "id": "pokered:DIGLETTS_CAVE_ROUTE_2",
+      "key": "kanto_digletts_cave_route_2",
+      "padding": 2,
+      "path": "data/vermilionPreparation/DiglettsCaveRoute2.json",
+      "profile": "source",
+      "source_sha256": "dd24a97eb8f23592a338f3be82fe766d24be98e6be77339e77cc7b81002cee44",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 6
+      },
+      "width": 13
+    },
+    "PokemonFanClub": {
+      "height": 8,
+      "id": "pokered:POKEMON_FAN_CLUB",
+      "key": "kanto_pokemon_fan_club",
+      "padding": 2,
+      "path": "data/vermilionPreparation/PokemonFanClub.json",
+      "profile": "source",
+      "source_sha256": "a77543fd93e83640a8390df790aaa10967d26d6df3bac2fb7b1634a9d1da00e2",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "Route11": {
+      "height": 18,
+      "id": "pokered:ROUTE_11",
+      "key": "kanto_route_11",
+      "padding": 0,
+      "path": "data/vermilionPreparation/Route11.json",
+      "profile": "source",
+      "source_sha256": "04fbbf5d15d2c54d728c286c5808bc54b7a36d4d2fe448eaf191ea40009705ac",
+      "spawn": {
+        "facing": "up",
+        "x": 30,
+        "y": 17
+      },
+      "width": 60
+    },
+    "Route11Gate1F": {
+      "height": 10,
+      "id": "pokered:ROUTE_11_GATE_1F",
+      "key": "kanto_route_11_gate_1f",
+      "padding": 2,
+      "path": "data/vermilionPreparation/Route11Gate1F.json",
+      "profile": "source",
+      "source_sha256": "4eab86a991f4617024370abfabef7377a983c4ae4701560cc94cfb808b6770f0",
+      "spawn": {
+        "facing": "up",
+        "x": 5,
+        "y": 8
+      },
+      "width": 13
+    },
+    "Route11Gate2F": {
+      "height": 8,
+      "id": "pokered:ROUTE_11_GATE_2F",
+      "key": "kanto_route_11_gate_2f",
+      "padding": 2,
+      "path": "data/vermilionPreparation/Route11Gate2F.json",
+      "profile": "source",
+      "source_sha256": "dbf8ca9fab91093e1b777230a666f1bf4969a3f704ee28e1a89abebf1403e5a8",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "Route2Gate": {
+      "height": 8,
+      "id": "pokered:ROUTE_2_GATE",
+      "key": "kanto_route_2_gate",
+      "padding": 1,
+      "path": "data/vermilionPreparation/Route2Gate.json",
+      "profile": "source",
+      "source_sha256": "f42026eadaf178f0911dee752d577347b15a5d07e34fd7ec6ba171510c3352ff",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 7
+      },
+      "width": 13
+    },
+    "Route2TradeHouse": {
+      "height": 8,
+      "id": "pokered:ROUTE_2_TRADE_HOUSE",
+      "key": "kanto_route_2_trade_house",
+      "padding": 2,
+      "path": "data/vermilionPreparation/Route2TradeHouse.json",
+      "profile": "source",
+      "source_sha256": "e1a977e112696a3623b4ce786d3c21f60d6bd98d6736847fe7442cd460b953d8",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "Route5": {
+      "height": 36,
+      "id": "pokered:ROUTE_5",
+      "key": "kanto_route_5",
+      "padding": 0,
+      "path": "data/vermilionPreparation/Route5.json",
+      "profile": "source",
+      "source_sha256": "3a96fcafed4f36163088ade3410f30ec3993f7407a7450e31020e0e92efc0b41",
+      "spawn": {
+        "facing": "up",
+        "x": 10,
+        "y": 35
+      },
+      "width": 20
+    },
+    "Route5Gate": {
+      "height": 6,
+      "id": "pokered:ROUTE_5_GATE",
+      "key": "kanto_route_5_gate",
+      "padding": 2,
+      "path": "data/vermilionPreparation/Route5Gate.json",
+      "profile": "source",
+      "source_sha256": "0e9936aacf4442c2fd3d4e5dfa71d89c0e90ece3561fd4663c72301c327d1eb6",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 5
+      },
+      "width": 13
+    },
+    "Route6": {
+      "height": 36,
+      "id": "pokered:ROUTE_6",
+      "key": "kanto_route_6",
+      "padding": 0,
+      "path": "data/vermilionPreparation/Route6.json",
+      "profile": "source",
+      "source_sha256": "979667594e57924bb02e33ffc4cd2147d48be9df17b02c94543e9b87b59e3c46",
+      "spawn": {
+        "facing": "up",
+        "x": 9,
+        "y": 35
+      },
+      "width": 20
+    },
+    "Route6Gate": {
+      "height": 6,
+      "id": "pokered:ROUTE_6_GATE",
+      "key": "kanto_route_6_gate",
+      "padding": 2,
+      "path": "data/vermilionPreparation/Route6Gate.json",
+      "profile": "source",
+      "source_sha256": "883af51696df47f78e82480a259545a8011b7cf3b2654fd662d194c84ad546fd",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 5
+      },
+      "width": 13
+    },
+    "SSAnne1F": {
+      "height": 18,
+      "id": "pokered:SS_ANNE_1F",
+      "key": "kanto_ss_anne_1f",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnne1F.json",
+      "profile": "source",
+      "source_sha256": "56c83e1811dbe2197dbf73e8b8a21cf92a1cb01d9543f8559226bf776a428f02",
+      "spawn": {
+        "facing": "up",
+        "x": 36,
+        "y": 15
+      },
+      "width": 40
+    },
+    "SSAnne1FRooms": {
+      "height": 16,
+      "id": "pokered:SS_ANNE_1F_ROOMS",
+      "key": "kanto_ss_anne_1f_rooms",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnne1FRooms.json",
+      "profile": "source",
+      "source_sha256": "a529066951ac64313c591182c55ae6226a11164d42950b7368faaa5a2afa593d",
+      "spawn": {
+        "facing": "up",
+        "x": 2,
+        "y": 15
+      },
+      "width": 24
+    },
+    "SSAnne2F": {
+      "height": 18,
+      "id": "pokered:SS_ANNE_2F",
+      "key": "kanto_ss_anne_2f",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnne2F.json",
+      "profile": "source",
+      "source_sha256": "1ea3ba48fe1bab83718e11ff96df5da23e784eedb2c237703f96732d9a6a5cf1",
+      "spawn": {
+        "facing": "up",
+        "x": 20,
+        "y": 13
+      },
+      "width": 40
+    },
+    "SSAnne2FRooms": {
+      "height": 16,
+      "id": "pokered:SS_ANNE_2F_ROOMS",
+      "key": "kanto_ss_anne_2f_rooms",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnne2FRooms.json",
+      "profile": "source",
+      "source_sha256": "6dbfbb99b36851cb33987c924902f5877ca591f3a2bde869ad16f0d1786b0f8f",
+      "spawn": {
+        "facing": "up",
+        "x": 11,
+        "y": 15
+      },
+      "width": 24
+    },
+    "SSAnne3F": {
+      "height": 6,
+      "id": "pokered:SS_ANNE_3F",
+      "key": "kanto_ss_anne_3f",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnne3F.json",
+      "profile": "source",
+      "source_sha256": "266a725f97d44561ce1a0afb993ffc5cceceb598e4c1f72584d02ebc0e571242",
+      "spawn": {
+        "facing": "up",
+        "x": 10,
+        "y": 3
+      },
+      "width": 20
+    },
+    "SSAnneB1F": {
+      "height": 8,
+      "id": "pokered:SS_ANNE_B1F",
+      "key": "kanto_ss_anne_b1f",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnneB1F.json",
+      "profile": "source",
+      "source_sha256": "cd9db684e8a9bec26ca4c6ab4ea845a1d491e10504deb98c3eb5ce4dab4841ed",
+      "spawn": {
+        "facing": "up",
+        "x": 15,
+        "y": 5
+      },
+      "width": 30
+    },
+    "SSAnneB1FRooms": {
+      "height": 16,
+      "id": "pokered:SS_ANNE_B1F_ROOMS",
+      "key": "kanto_ss_anne_b1f_rooms",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnneB1FRooms.json",
+      "profile": "source",
+      "source_sha256": "9a5b9a29b33ef854255859b00d49e42830f644618c7594fca240ce873758ff81",
+      "spawn": {
+        "facing": "up",
+        "x": 11,
+        "y": 15
+      },
+      "width": 24
+    },
+    "SSAnneBow": {
+      "height": 14,
+      "id": "pokered:SS_ANNE_BOW",
+      "key": "kanto_ss_anne_bow",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnneBow.json",
+      "profile": "source",
+      "source_sha256": "bc075955bc6d32edd9ba357d33701d370843029f93e99f696182f73fe777a1c7",
+      "spawn": {
+        "facing": "up",
+        "x": 10,
+        "y": 11
+      },
+      "width": 20
+    },
+    "SSAnneCaptainsRoom": {
+      "height": 8,
+      "id": "pokered:SS_ANNE_CAPTAINS_ROOM",
+      "key": "kanto_ss_anne_captains_room",
+      "padding": 3,
+      "path": "data/vermilionPreparation/SSAnneCaptainsRoom.json",
+      "profile": "source",
+      "source_sha256": "0a7e07376c6b2a1abe2a8adf8782f25669489fe8b601a278f94d530542da9b99",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "SSAnneKitchen": {
+      "height": 16,
+      "id": "pokered:SS_ANNE_KITCHEN",
+      "key": "kanto_ss_anne_kitchen",
+      "padding": 0,
+      "path": "data/vermilionPreparation/SSAnneKitchen.json",
+      "profile": "source",
+      "source_sha256": "5ff589b51dc3743612e8e2744882a369266e27007b94b03a406e56754fba23c4",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 13
+      },
+      "width": 14
+    },
+    "UndergroundPathNorthSouth": {
+      "height": 48,
+      "id": "pokered:UNDERGROUND_PATH_NORTH_SOUTH",
+      "key": "kanto_underground_path_north_south",
+      "padding": 2,
+      "path": "data/vermilionPreparation/UndergroundPathNorthSouth.json",
+      "profile": "source",
+      "source_sha256": "46c006b81dff2c1f992e77baa34ce975604bbadcef293e978a7197e1e3249754",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 47
+      },
+      "width": 13
+    },
+    "UndergroundPathRoute5": {
+      "height": 8,
+      "id": "pokered:UNDERGROUND_PATH_ROUTE_5",
+      "key": "kanto_underground_path_route_5",
+      "padding": 2,
+      "path": "data/vermilionPreparation/UndergroundPathRoute5.json",
+      "profile": "source",
+      "source_sha256": "39fc1e887f6b4b7e61224ce24fca6ff5b40d10b91ae7e6620c90a55f40a2f29c",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 7
+      },
+      "width": 13
+    },
+    "UndergroundPathRoute6": {
+      "height": 8,
+      "id": "pokered:UNDERGROUND_PATH_ROUTE_6",
+      "key": "kanto_underground_path_route_6",
+      "padding": 2,
+      "path": "data/vermilionPreparation/UndergroundPathRoute6.json",
+      "profile": "source",
+      "source_sha256": "e4f5dff2618b25fbaa460dc1ff9dbf4efc401b1a9d0fde79ea864342399222f0",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 7
+      },
+      "width": 13
+    },
+    "VermilionCity": {
+      "height": 36,
+      "id": "pokered:VERMILION_CITY",
+      "key": "kanto_vermilion_city",
+      "padding": 0,
+      "path": "data/vermilionPreparation/VermilionCity.json",
+      "profile": "source",
+      "source_sha256": "01c2494f63213f589c0ed5bc0ac3891ee20dbf9ac1a080b18e47d01884b55e9d",
+      "spawn": {
+        "facing": "up",
+        "x": 19,
+        "y": 35
+      },
+      "width": 40
+    },
+    "VermilionDock": {
+      "height": 12,
+      "id": "pokered:VERMILION_DOCK",
+      "key": "kanto_vermilion_dock",
+      "padding": 0,
+      "path": "data/vermilionPreparation/VermilionDock.json",
+      "profile": "source",
+      "source_sha256": "de3b49d9b0e6d5856c578ac824612b40db38f7c3620fe827ed3323a7f95e7b37",
+      "spawn": {
+        "facing": "up",
+        "x": 26,
+        "y": 9
+      },
+      "width": 28
+    },
+    "VermilionGym": {
+      "height": 18,
+      "id": "pokered:VERMILION_GYM",
+      "key": "kanto_vermilion_gym",
+      "padding": 1,
+      "path": "data/vermilionPreparation/VermilionGym.json",
+      "profile": "source",
+      "source_sha256": "cdc04efaba9fcb9800dc0f011bc933b9e9a2abcffe8d0e311ecfb83f1d5b0082",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 17
+      },
+      "width": 13
+    },
+    "VermilionMart": {
+      "height": 8,
+      "id": "pokered:VERMILION_MART",
+      "key": "kanto_vermilion_mart",
+      "padding": 2,
+      "path": "data/vermilionPreparation/VermilionMart.json",
+      "profile": "source",
+      "source_sha256": "93595fbc1154292032ade759a35936506a9eecbbf71e9213263438ce2d1e5737",
+      "spawn": {
+        "facing": "up",
+        "x": 7,
+        "y": 7
+      },
+      "width": 13
+    },
+    "VermilionOldRodHouse": {
+      "height": 8,
+      "id": "pokered:VERMILION_OLD_ROD_HOUSE",
+      "key": "kanto_vermilion_old_rod_house",
+      "padding": 2,
+      "path": "data/vermilionPreparation/VermilionOldRodHouse.json",
+      "profile": "source",
+      "source_sha256": "9551579382dcc32da52cc922d5719daf86833024ce6f05f8122bad5723530c65",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "VermilionPidgeyHouse": {
+      "height": 8,
+      "id": "pokered:VERMILION_PIDGEY_HOUSE",
+      "key": "kanto_vermilion_pidgey_house",
+      "padding": 2,
+      "path": "data/vermilionPreparation/VermilionPidgeyHouse.json",
+      "profile": "source",
+      "source_sha256": "4c43415f0b809f0c4ba4b7589bd549ec8db4b6f0f5e5c957ac38961b74200b6c",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    },
+    "VermilionPokecenter": {
+      "height": 8,
+      "id": "pokered:VERMILION_POKECENTER",
+      "key": "kanto_vermilion_pokecenter",
+      "padding": 0,
+      "path": "data/vermilionPreparation/VermilionPokecenter.json",
+      "profile": "source",
+      "source_sha256": "c21c122dc5ae44c06404d0526417deaf23d1ddaa95ba0350544371fed33bbf32",
+      "spawn": {
+        "facing": "up",
+        "x": 8,
+        "y": 7
+      },
+      "width": 14
+    },
+    "VermilionTradeHouse": {
+      "height": 8,
+      "id": "pokered:VERMILION_TRADE_HOUSE",
+      "key": "kanto_vermilion_trade_house",
+      "padding": 2,
+      "path": "data/vermilionPreparation/VermilionTradeHouse.json",
+      "profile": "source",
+      "source_sha256": "bdf2379d3d94ac7de5c4d6d0b398ee141995e26a2e871f383cc836653d04d08f",
+      "spawn": {
+        "facing": "up",
+        "x": 6,
+        "y": 7
+      },
+      "width": 13
+    }
+  },
+  "registration": "declarations-only; runtime must qualify",
+  "scenes": {
+    "boarding": {
+      "facing": "down",
+      "id": "pokered:VERMILION_CITY:objects:3",
+      "x": 18,
+      "y": 30
+    },
+    "departure": {
+      "from_x": 26,
+      "from_y": 0,
+      "from_zone": "pokered:SS_ANNE_1F",
+      "id": "pokered:VERMILION_DOCK:hidden_events:1",
+      "to_x": 14,
+      "to_y": 2,
+      "to_zone": "pokered:VERMILION_DOCK"
+    },
+    "dock": {
+      "block_x": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "block_y": 2,
+      "erased_block": 13
+    },
+    "gym_door": {
+      "block_x": 2,
+      "block_y": 2,
+      "closed_block": 36,
+      "open_block": 5
+    },
+    "rival": {
+      "id": "pokered:SS_ANNE_2F:objects:2",
+      "variants": [
+        {
+          "approach": [
+            "down",
+            "down",
+            "down"
+          ],
+          "departure": [
+            "right",
+            "down",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "end": {
+            "x": 36,
+            "y": 7
+          },
+          "facing": "down",
+          "origin": {
+            "x": 36,
+            "y": 4
+          },
+          "trigger": {
+            "x": 36,
+            "y": 8
+          }
+        },
+        {
+          "approach": [
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "departure": [
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "end": {
+            "x": 36,
+            "y": 8
+          },
+          "facing": "right",
+          "origin": {
+            "x": 36,
+            "y": 4
+          },
+          "trigger": {
+            "x": 37,
+            "y": 8
+          }
+        }
+      ]
+    },
+    "trash": {
+      "cans": [
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:4",
+          "index": 0,
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:5",
+          "index": 1,
+          "x": 1,
+          "y": 9
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:6",
+          "index": 2,
+          "x": 1,
+          "y": 11
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:7",
+          "index": 3,
+          "x": 3,
+          "y": 7
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:8",
+          "index": 4,
+          "x": 3,
+          "y": 9
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:9",
+          "index": 5,
+          "x": 3,
+          "y": 11
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:10",
+          "index": 6,
+          "x": 5,
+          "y": 7
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:11",
+          "index": 7,
+          "x": 5,
+          "y": 9
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:12",
+          "index": 8,
+          "x": 5,
+          "y": 11
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:13",
+          "index": 9,
+          "x": 7,
+          "y": 7
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:14",
+          "index": 10,
+          "x": 7,
+          "y": 9
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:15",
+          "index": 11,
+          "x": 7,
+          "y": 11
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:16",
+          "index": 12,
+          "x": 9,
+          "y": 7
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:17",
+          "index": 13,
+          "x": 9,
+          "y": 9
+        },
+        {
+          "id": "pokered:VERMILION_GYM:hidden_events:18",
+          "index": 14,
+          "x": 9,
+          "y": 11
+        }
+      ],
+      "count": 15,
+      "first_mask": 14,
+      "selector": "pinned-blue-mask-swap-underflow-zero",
+      "table": [
+        [
+          2,
+          1,
+          3,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          2,
+          4,
+          0
+        ],
+        [
+          2,
+          1,
+          5,
+          0,
+          0
+        ],
+        [
+          3,
+          0,
+          4,
+          6,
+          0
+        ],
+        [
+          4,
+          1,
+          3,
+          5,
+          7
+        ],
+        [
+          3,
+          2,
+          4,
+          8,
+          0
+        ],
+        [
+          3,
+          3,
+          7,
+          9,
+          0
+        ],
+        [
+          4,
+          4,
+          6,
+          8,
+          10
+        ],
+        [
+          3,
+          5,
+          7,
+          11,
+          0
+        ],
+        [
+          3,
+          6,
+          10,
+          12,
+          0
+        ],
+        [
+          4,
+          7,
+          9,
+          11,
+          13
+        ],
+        [
+          3,
+          8,
+          10,
+          14,
+          0
+        ],
+        [
+          2,
+          9,
+          13,
+          0,
+          0
+        ],
+        [
+          3,
+          10,
+          12,
+          14,
+          0
+        ],
+        [
+          2,
+          11,
+          13,
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "schema": 1,
+  "session_codec": 2,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "sources": {
+    "data/ceruleanContent.lua": "da537baba23fcc1c1943f072ef3b6efa4afde02a053113ae77fad113bf817fd2",
+    "data/ceruleanJourney.json": "aead5528f2e0a96bb369100b582b021723b3214c73f6757a1ce3003c20716bb8",
+    "data/fieldMoves.json": "f71b4c488909bfac1c2f37baa9d5cd820d63ce74f173b2e2c2881f7407ff5590",
+    "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
+    "data/machineData.lua": "ff06e8f40282d52004f5493d5d70a60fdedc6e18f4efa74a931c47c66c0cafb1",
+    "data/sourceMapCache/compact.json": "4e7b7570d7be18bdf3331d6b53b426df2b3d1ab7002efc24138131d77a4aa432",
+    "data/sourceMapCache/tile-grids.json": "be31ef82ad6ea9230e22f2fc9ee0194b59d716539811d4e6c75440b521b4c3f0",
+    "data/sourceMaps.json": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c",
+    "data/vermilionGifts/events.json": "3d1b58fd58971c94754635c767a0f101402db9aa89ddaa04bbf7232f4dc002b1",
+    "data/vermilionPreparation/Daycare.json": "0a0d83afaa9d387af1d8831438155b32fa94087aedcfa1daccb191195f15e4cc",
+    "data/vermilionPreparation/DiglettsCave.json": "f795f2e2ad4c38d7c9ccbcbc737c67234bc04cf5cbf2797d0f717a1fccfa1c37",
+    "data/vermilionPreparation/DiglettsCaveRoute11.json": "15d5d2cb00bc604417d64ed17609a7985930c921d3d0f93509c25e33fd713017",
+    "data/vermilionPreparation/DiglettsCaveRoute2.json": "dd24a97eb8f23592a338f3be82fe766d24be98e6be77339e77cc7b81002cee44",
+    "data/vermilionPreparation/PokemonFanClub.json": "a77543fd93e83640a8390df790aaa10967d26d6df3bac2fb7b1634a9d1da00e2",
+    "data/vermilionPreparation/Route11.json": "04fbbf5d15d2c54d728c286c5808bc54b7a36d4d2fe448eaf191ea40009705ac",
+    "data/vermilionPreparation/Route11Gate1F.json": "4eab86a991f4617024370abfabef7377a983c4ae4701560cc94cfb808b6770f0",
+    "data/vermilionPreparation/Route11Gate2F.json": "dbf8ca9fab91093e1b777230a666f1bf4969a3f704ee28e1a89abebf1403e5a8",
+    "data/vermilionPreparation/Route2Gate.json": "f42026eadaf178f0911dee752d577347b15a5d07e34fd7ec6ba171510c3352ff",
+    "data/vermilionPreparation/Route2TradeHouse.json": "e1a977e112696a3623b4ce786d3c21f60d6bd98d6736847fe7442cd460b953d8",
+    "data/vermilionPreparation/Route5.json": "3a96fcafed4f36163088ade3410f30ec3993f7407a7450e31020e0e92efc0b41",
+    "data/vermilionPreparation/Route5Gate.json": "0e9936aacf4442c2fd3d4e5dfa71d89c0e90ece3561fd4663c72301c327d1eb6",
+    "data/vermilionPreparation/Route6.json": "979667594e57924bb02e33ffc4cd2147d48be9df17b02c94543e9b87b59e3c46",
+    "data/vermilionPreparation/Route6Gate.json": "883af51696df47f78e82480a259545a8011b7cf3b2654fd662d194c84ad546fd",
+    "data/vermilionPreparation/SSAnne1F.json": "56c83e1811dbe2197dbf73e8b8a21cf92a1cb01d9543f8559226bf776a428f02",
+    "data/vermilionPreparation/SSAnne1FRooms.json": "a529066951ac64313c591182c55ae6226a11164d42950b7368faaa5a2afa593d",
+    "data/vermilionPreparation/SSAnne2F.json": "1ea3ba48fe1bab83718e11ff96df5da23e784eedb2c237703f96732d9a6a5cf1",
+    "data/vermilionPreparation/SSAnne2FRooms.json": "6dbfbb99b36851cb33987c924902f5877ca591f3a2bde869ad16f0d1786b0f8f",
+    "data/vermilionPreparation/SSAnne3F.json": "266a725f97d44561ce1a0afb993ffc5cceceb598e4c1f72584d02ebc0e571242",
+    "data/vermilionPreparation/SSAnneB1F.json": "cd9db684e8a9bec26ca4c6ab4ea845a1d491e10504deb98c3eb5ce4dab4841ed",
+    "data/vermilionPreparation/SSAnneB1FRooms.json": "9a5b9a29b33ef854255859b00d49e42830f644618c7594fca240ce873758ff81",
+    "data/vermilionPreparation/SSAnneBow.json": "bc075955bc6d32edd9ba357d33701d370843029f93e99f696182f73fe777a1c7",
+    "data/vermilionPreparation/SSAnneCaptainsRoom.json": "0a7e07376c6b2a1abe2a8adf8782f25669489fe8b601a278f94d530542da9b99",
+    "data/vermilionPreparation/SSAnneKitchen.json": "5ff589b51dc3743612e8e2744882a369266e27007b94b03a406e56754fba23c4",
+    "data/vermilionPreparation/UndergroundPathNorthSouth.json": "46c006b81dff2c1f992e77baa34ce975604bbadcef293e978a7197e1e3249754",
+    "data/vermilionPreparation/UndergroundPathRoute5.json": "39fc1e887f6b4b7e61224ce24fca6ff5b40d10b91ae7e6620c90a55f40a2f29c",
+    "data/vermilionPreparation/UndergroundPathRoute6.json": "e4f5dff2618b25fbaa460dc1ff9dbf4efc401b1a9d0fde79ea864342399222f0",
+    "data/vermilionPreparation/VermilionCity.json": "01c2494f63213f589c0ed5bc0ac3891ee20dbf9ac1a080b18e47d01884b55e9d",
+    "data/vermilionPreparation/VermilionDock.json": "de3b49d9b0e6d5856c578ac824612b40db38f7c3620fe827ed3323a7f95e7b37",
+    "data/vermilionPreparation/VermilionGym.json": "cdc04efaba9fcb9800dc0f011bc933b9e9a2abcffe8d0e311ecfb83f1d5b0082",
+    "data/vermilionPreparation/VermilionMart.json": "93595fbc1154292032ade759a35936506a9eecbbf71e9213263438ce2d1e5737",
+    "data/vermilionPreparation/VermilionOldRodHouse.json": "9551579382dcc32da52cc922d5719daf86833024ce6f05f8122bad5723530c65",
+    "data/vermilionPreparation/VermilionPidgeyHouse.json": "4c43415f0b809f0c4ba4b7589bd549ec8db4b6f0f5e5c957ac38961b74200b6c",
+    "data/vermilionPreparation/VermilionPokecenter.json": "c21c122dc5ae44c06404d0526417deaf23d1ddaa95ba0350544371fed33bbf32",
+    "data/vermilionPreparation/VermilionTradeHouse.json": "bdf2379d3d94ac7de5c4d6d0b398ee141995e26a2e871f383cc836653d04d08f",
+    "data/vermilionPreparation/events.json": "6815c25fd0705ec4dbba59a55112c845afe2520602719b21c407ce48602e23fc",
+    "data/vermilionPreparation/manifest-entries.json": "9c685e1793f0cabe411d547cd11cafb96acadb9aba3814977e4e47b2f8510ad9",
+    "data/vermilionPreparation/packages.json": "167bcfa7c3ee3d95590665c531485f81ea15fb8f3eb25506bfb3d375fcb62373",
+    "data/vermilionPreparation/reservations.json": "d7d60c6942420771dae128c0ced1f41c71a72832d4385cceba064e6722700c43",
+    "data/vermilionPreparation/trainers.json": "6ac1c6a49a3cf913f795660d95b2be9c8bce943e55984e36d38b107bc3fd6da3",
+    "data/vermilionStory/events.json": "b9998b9b17f79470b62f5726ddeb6fb3479dfa1f1d72b117f36309212ce6bbfc",
+    "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
+    "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
+    "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
+    "domain/fieldMoves.lua": "eba04efc4da0e24645612f81099158a41eeae6af31925f6da0cd31d20b973035",
+    "domain/fieldWorld.lua": "c9831dca077bda30252d9f1521bd517436d25e03ed508be91a292eba87ca5f27",
+    "domain/sessionCodec.lua": "638390a58ee3e7b88dcead402e52906f3a6a36c22c3cbf29b0677b3b953311f9",
+    "domain/teaching.lua": "bb63d9751f93270ea2e73e2636d22e3c43199bbbff86410faa71a2d267d3e041",
+    "game/bagState.lua": "5ddc859d28b66f8cc46fc3b1020388f4898eb865a0a162b1be30c5b295d2224c",
+    "game/fieldMoveState.lua": "784027470f822d4adaf609c7f5719acf062f58b528662d6303c1b006ced2a5b0",
+    "game/partyState.lua": "f420161e109b804a1360e056e71109917b909898daf53377722d31717c874a68",
+    "game/saves.lua": "498a782c214ca282309b65be6152c1ff06f17c06c754e193c5118ec5affb799a",
+    "game/sourceEvents.lua": "6f79a8ff4c29a82fb3feab8e7191819655e083caadfe73c448d05964cb4632bc",
+    "game/trainerEvents.lua": "57227fc6e13e9427340bb7fd1613700eb3244084c1c40f7d831450eee069758b",
+    "game/vermilionGifts.lua": "c1acedb198b1348dbdcbbaf44f464269aaf777c9b4a1e555a1ca242ca38a4765",
+    "game/vermilionStory.lua": "39c6a92a6634a5efe042359f37f0bd4b121687c0bc1ee8661b6ba15f20f99084",
+    "game/vermilionStoryHooks.lua": "a2a2c2c2fde6ca36beb80b14180bd9e3f93a9ff399b812c48cbece67277979eb",
+    "game/vermilionStoryIntent.lua": "28841920473c56606bcb20a7a20435f8d61f19824fc052e525c5d279fc0cdeae",
+    "game/vermilionStoryState.lua": "b0251ad463bb05e41e3781d88c0a1c16c21caadb13d4a8424fa1d59b37a5d23f",
+    "game/vermilionStoryTerrain.lua": "ea64898cc812994f231b66f7220435a021c89a67b6d9bf17bfee1bbe108d065d",
+    "main.lua": "ffc5443a6df418e051d03681134c2afdc459fefe64538adefba4e0af8ee345c2"
+  },
+  "trainers": {
+    "pokered:ROUTE_11:objects:1": {
+      "base_money": 70,
+      "class_source": "OPP_GAMBLER",
+      "facing_source": "DOWN",
+      "id": "pokered:ROUTE_11:objects:1",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 7000,
+      "name": "GAMBLER",
+      "party": [
+        {
+          "level": 18,
+          "species": "poliwag",
+          "species_source": "POLIWAG"
+        },
+        {
+          "level": 18,
+          "species": "horsea",
+          "species_source": "HORSEA"
+        }
+      ],
+      "payout": 1260,
+      "roster_id": 1,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_0",
+      "source_object_index": 1,
+      "sprite_source": "SPRITE_GAMBLER",
+      "talk_only": false,
+      "x": 10,
+      "y": 14
+    },
+    "pokered:ROUTE_11:objects:10": {
+      "base_money": 15,
+      "class_source": "OPP_YOUNGSTER",
+      "facing_source": "UP",
+      "id": "pokered:ROUTE_11:objects:10",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 1500,
+      "name": "YOUNGSTER",
+      "party": [
+        {
+          "level": 18,
+          "species": "nidoranM",
+          "species_source": "NIDORAN_M"
+        },
+        {
+          "level": 18,
+          "species": "nidorino",
+          "species_source": "NIDORINO"
+        }
+      ],
+      "payout": 270,
+      "roster_id": 12,
+      "sight_range_cells": 4,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_9",
+      "source_object_index": 10,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 22,
+      "y": 12
+    },
+    "pokered:ROUTE_11:objects:2": {
+      "base_money": 70,
+      "class_source": "OPP_GAMBLER",
+      "facing_source": "DOWN",
+      "id": "pokered:ROUTE_11:objects:2",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 7000,
+      "name": "GAMBLER",
+      "party": [
+        {
+          "level": 18,
+          "species": "bellsprout",
+          "species_source": "BELLSPROUT"
+        },
+        {
+          "level": 18,
+          "species": "oddish",
+          "species_source": "ODDISH"
+        }
+      ],
+      "payout": 1260,
+      "roster_id": 2,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_1",
+      "source_object_index": 2,
+      "sprite_source": "SPRITE_GAMBLER",
+      "talk_only": false,
+      "x": 26,
+      "y": 9
+    },
+    "pokered:ROUTE_11:objects:3": {
+      "base_money": 15,
+      "class_source": "OPP_YOUNGSTER",
+      "facing_source": "LEFT",
+      "id": "pokered:ROUTE_11:objects:3",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 1500,
+      "name": "YOUNGSTER",
+      "party": [
+        {
+          "level": 21,
+          "species": "ekans",
+          "species_source": "EKANS"
+        }
+      ],
+      "payout": 315,
+      "roster_id": 9,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_2",
+      "source_object_index": 3,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 13,
+      "y": 5
+    },
+    "pokered:ROUTE_11:objects:4": {
+      "base_money": 50,
+      "class_source": "OPP_ENGINEER",
+      "facing_source": "DOWN",
+      "id": "pokered:ROUTE_11:objects:4",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 5000,
+      "name": "ENGINEER",
+      "party": [
+        {
+          "level": 21,
+          "species": "magnemite",
+          "species_source": "MAGNEMITE"
+        }
+      ],
+      "payout": 1050,
+      "roster_id": 2,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_3",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_SUPER_NERD",
+      "talk_only": false,
+      "x": 36,
+      "y": 11
+    },
+    "pokered:ROUTE_11:objects:5": {
+      "base_money": 15,
+      "class_source": "OPP_YOUNGSTER",
+      "facing_source": "UP",
+      "id": "pokered:ROUTE_11:objects:5",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 1500,
+      "name": "YOUNGSTER",
+      "party": [
+        {
+          "level": 19,
+          "species": "sandshrew",
+          "species_source": "SANDSHREW"
+        },
+        {
+          "level": 19,
+          "species": "zubat",
+          "species_source": "ZUBAT"
+        }
+      ],
+      "payout": 285,
+      "roster_id": 10,
+      "sight_range_cells": 4,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_4",
+      "source_object_index": 5,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 22,
+      "y": 4
+    },
+    "pokered:ROUTE_11:objects:6": {
+      "base_money": 70,
+      "class_source": "OPP_GAMBLER",
+      "facing_source": "DOWN",
+      "id": "pokered:ROUTE_11:objects:6",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 7000,
+      "name": "GAMBLER",
+      "party": [
+        {
+          "level": 18,
+          "species": "voltorb",
+          "species_source": "VOLTORB"
+        },
+        {
+          "level": 18,
+          "species": "magnemite",
+          "species_source": "MAGNEMITE"
+        }
+      ],
+      "payout": 1260,
+      "roster_id": 3,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_5",
+      "source_object_index": 6,
+      "sprite_source": "SPRITE_GAMBLER",
+      "talk_only": false,
+      "x": 45,
+      "y": 7
+    },
+    "pokered:ROUTE_11:objects:7": {
+      "base_money": 70,
+      "class_source": "OPP_GAMBLER",
+      "facing_source": "UP",
+      "id": "pokered:ROUTE_11:objects:7",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 7000,
+      "name": "GAMBLER",
+      "party": [
+        {
+          "level": 18,
+          "species": "growlithe",
+          "species_source": "GROWLITHE"
+        },
+        {
+          "level": 18,
+          "species": "vulpix",
+          "species_source": "VULPIX"
+        }
+      ],
+      "payout": 1260,
+      "roster_id": 4,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_6",
+      "source_object_index": 7,
+      "sprite_source": "SPRITE_GAMBLER",
+      "talk_only": false,
+      "x": 33,
+      "y": 3
+    },
+    "pokered:ROUTE_11:objects:8": {
+      "base_money": 15,
+      "class_source": "OPP_YOUNGSTER",
+      "facing_source": "RIGHT",
+      "id": "pokered:ROUTE_11:objects:8",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 1500,
+      "name": "YOUNGSTER",
+      "party": [
+        {
+          "level": 17,
+          "species": "rattata",
+          "species_source": "RATTATA"
+        },
+        {
+          "level": 17,
+          "species": "rattata",
+          "species_source": "RATTATA"
+        },
+        {
+          "level": 17,
+          "species": "raticate",
+          "species_source": "RATICATE"
+        }
+      ],
+      "payout": 255,
+      "roster_id": 11,
+      "sight_range_cells": 4,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_7",
+      "source_object_index": 8,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 43,
+      "y": 5
+    },
+    "pokered:ROUTE_11:objects:9": {
+      "base_money": 50,
+      "class_source": "OPP_ENGINEER",
+      "facing_source": "LEFT",
+      "id": "pokered:ROUTE_11:objects:9",
+      "map_id": "pokered:ROUTE_11",
+      "money_source_bcd3": 5000,
+      "name": "ENGINEER",
+      "party": [
+        {
+          "level": 18,
+          "species": "magnemite",
+          "species_source": "MAGNEMITE"
+        },
+        {
+          "level": 18,
+          "species": "magnemite",
+          "species_source": "MAGNEMITE"
+        },
+        {
+          "level": 18,
+          "species": "magneton",
+          "species_source": "MAGNETON"
+        }
+      ],
+      "payout": 900,
+      "roster_id": 3,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route11.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route11.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_11_TRAINER_8",
+      "source_object_index": 9,
+      "sprite_source": "SPRITE_SUPER_NERD",
+      "talk_only": false,
+      "x": 45,
+      "y": 16
+    },
+    "pokered:ROUTE_6:objects:1": {
+      "base_money": 20,
+      "class_source": "OPP_JR_TRAINER_M",
+      "facing_source": "RIGHT",
+      "id": "pokered:ROUTE_6:objects:1",
+      "map_id": "pokered:ROUTE_6",
+      "money_source_bcd3": 2000,
+      "name": "JR.TRAINER\u2642",
+      "party": [
+        {
+          "level": 20,
+          "species": "squirtle",
+          "species_source": "SQUIRTLE"
+        }
+      ],
+      "payout": 400,
+      "roster_id": 4,
+      "sight_range_cells": 0,
+      "source": {
+        "objects": "data/maps/objects/Route6.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route6.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_6_TRAINER_0",
+      "source_object_index": 1,
+      "sprite_source": "SPRITE_COOLTRAINER_M",
+      "talk_only": false,
+      "x": 10,
+      "y": 21
+    },
+    "pokered:ROUTE_6:objects:2": {
+      "base_money": 20,
+      "class_source": "OPP_JR_TRAINER_F",
+      "facing_source": "LEFT",
+      "id": "pokered:ROUTE_6:objects:2",
+      "map_id": "pokered:ROUTE_6",
+      "money_source_bcd3": 2000,
+      "name": "JR.TRAINER\u2640",
+      "party": [
+        {
+          "level": 16,
+          "species": "rattata",
+          "species_source": "RATTATA"
+        },
+        {
+          "level": 16,
+          "species": "pikachu",
+          "species_source": "PIKACHU"
+        }
+      ],
+      "payout": 320,
+      "roster_id": 2,
+      "sight_range_cells": 0,
+      "source": {
+        "objects": "data/maps/objects/Route6.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route6.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_6_TRAINER_1",
+      "source_object_index": 2,
+      "sprite_source": "SPRITE_COOLTRAINER_F",
+      "talk_only": false,
+      "x": 11,
+      "y": 21
+    },
+    "pokered:ROUTE_6:objects:3": {
+      "base_money": 10,
+      "class_source": "OPP_BUG_CATCHER",
+      "facing_source": "RIGHT",
+      "id": "pokered:ROUTE_6:objects:3",
+      "map_id": "pokered:ROUTE_6",
+      "money_source_bcd3": 1000,
+      "name": "BUG CATCHER",
+      "party": [
+        {
+          "level": 16,
+          "species": "weedle",
+          "species_source": "WEEDLE"
+        },
+        {
+          "level": 16,
+          "species": "caterpie",
+          "species_source": "CATERPIE"
+        },
+        {
+          "level": 16,
+          "species": "weedle",
+          "species_source": "WEEDLE"
+        }
+      ],
+      "payout": 160,
+      "roster_id": 10,
+      "sight_range_cells": 4,
+      "source": {
+        "objects": "data/maps/objects/Route6.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route6.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_6_TRAINER_2",
+      "source_object_index": 3,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 0,
+      "y": 15
+    },
+    "pokered:ROUTE_6:objects:4": {
+      "base_money": 20,
+      "class_source": "OPP_JR_TRAINER_M",
+      "facing_source": "LEFT",
+      "id": "pokered:ROUTE_6:objects:4",
+      "map_id": "pokered:ROUTE_6",
+      "money_source_bcd3": 2000,
+      "name": "JR.TRAINER\u2642",
+      "party": [
+        {
+          "level": 16,
+          "species": "spearow",
+          "species_source": "SPEAROW"
+        },
+        {
+          "level": 16,
+          "species": "raticate",
+          "species_source": "RATICATE"
+        }
+      ],
+      "payout": 320,
+      "roster_id": 5,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route6.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route6.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_6_TRAINER_3",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_COOLTRAINER_M",
+      "talk_only": false,
+      "x": 11,
+      "y": 31
+    },
+    "pokered:ROUTE_6:objects:5": {
+      "base_money": 20,
+      "class_source": "OPP_JR_TRAINER_F",
+      "facing_source": "LEFT",
+      "id": "pokered:ROUTE_6:objects:5",
+      "map_id": "pokered:ROUTE_6",
+      "money_source_bcd3": 2000,
+      "name": "JR.TRAINER\u2640",
+      "party": [
+        {
+          "level": 16,
+          "species": "pidgey",
+          "species_source": "PIDGEY"
+        },
+        {
+          "level": 16,
+          "species": "pidgey",
+          "species_source": "PIDGEY"
+        },
+        {
+          "level": 16,
+          "species": "pidgey",
+          "species_source": "PIDGEY"
+        }
+      ],
+      "payout": 320,
+      "roster_id": 3,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route6.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route6.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_6_TRAINER_4",
+      "source_object_index": 5,
+      "sprite_source": "SPRITE_COOLTRAINER_F",
+      "talk_only": false,
+      "x": 11,
+      "y": 30
+    },
+    "pokered:ROUTE_6:objects:6": {
+      "base_money": 10,
+      "class_source": "OPP_BUG_CATCHER",
+      "facing_source": "LEFT",
+      "id": "pokered:ROUTE_6:objects:6",
+      "map_id": "pokered:ROUTE_6",
+      "money_source_bcd3": 1000,
+      "name": "BUG CATCHER",
+      "party": [
+        {
+          "level": 20,
+          "species": "butterfree",
+          "species_source": "BUTTERFREE"
+        }
+      ],
+      "payout": 200,
+      "roster_id": 11,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/Route6.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/Route6.asm"
+      },
+      "source_flag": "EVENT_BEAT_ROUTE_6_TRAINER_5",
+      "source_object_index": 6,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 19,
+      "y": 26
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:1": {
+      "base_money": 70,
+      "class_source": "OPP_GENTLEMAN",
+      "facing_source": "LEFT",
+      "id": "pokered:SS_ANNE_1F_ROOMS:objects:1",
+      "map_id": "pokered:SS_ANNE_1F_ROOMS",
+      "money_source_bcd3": 7000,
+      "name": "GENTLEMAN",
+      "party": [
+        {
+          "level": 18,
+          "species": "growlithe",
+          "species_source": "GROWLITHE"
+        },
+        {
+          "level": 18,
+          "species": "growlithe",
+          "species_source": "GROWLITHE"
+        }
+      ],
+      "payout": 1260,
+      "roster_id": 1,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnne1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_8_TRAINER_0",
+      "source_object_index": 1,
+      "sprite_source": "SPRITE_GENTLEMAN",
+      "talk_only": false,
+      "x": 2,
+      "y": 3
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:2": {
+      "base_money": 70,
+      "class_source": "OPP_GENTLEMAN",
+      "facing_source": "UP",
+      "id": "pokered:SS_ANNE_1F_ROOMS:objects:2",
+      "map_id": "pokered:SS_ANNE_1F_ROOMS",
+      "money_source_bcd3": 7000,
+      "name": "GENTLEMAN",
+      "party": [
+        {
+          "level": 19,
+          "species": "nidoranM",
+          "species_source": "NIDORAN_M"
+        },
+        {
+          "level": 19,
+          "species": "nidoranF",
+          "species_source": "NIDORAN_F"
+        }
+      ],
+      "payout": 1330,
+      "roster_id": 2,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnne1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_8_TRAINER_1",
+      "source_object_index": 2,
+      "sprite_source": "SPRITE_GENTLEMAN",
+      "talk_only": false,
+      "x": 11,
+      "y": 4
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:3": {
+      "base_money": 15,
+      "class_source": "OPP_YOUNGSTER",
+      "facing_source": "UP",
+      "id": "pokered:SS_ANNE_1F_ROOMS:objects:3",
+      "map_id": "pokered:SS_ANNE_1F_ROOMS",
+      "money_source_bcd3": 1500,
+      "name": "YOUNGSTER",
+      "party": [
+        {
+          "level": 21,
+          "species": "nidoranM",
+          "species_source": "NIDORAN_M"
+        }
+      ],
+      "payout": 315,
+      "roster_id": 8,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnne1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_8_TRAINER_2",
+      "source_object_index": 3,
+      "sprite_source": "SPRITE_YOUNGSTER",
+      "talk_only": false,
+      "x": 11,
+      "y": 14
+    },
+    "pokered:SS_ANNE_1F_ROOMS:objects:4": {
+      "base_money": 15,
+      "class_source": "OPP_LASS",
+      "facing_source": "LEFT",
+      "id": "pokered:SS_ANNE_1F_ROOMS:objects:4",
+      "map_id": "pokered:SS_ANNE_1F_ROOMS",
+      "money_source_bcd3": 1500,
+      "name": "LASS",
+      "party": [
+        {
+          "level": 18,
+          "species": "pidgey",
+          "species_source": "PIDGEY"
+        },
+        {
+          "level": 18,
+          "species": "nidoranF",
+          "species_source": "NIDORAN_F"
+        }
+      ],
+      "payout": 270,
+      "roster_id": 11,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnne1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_8_TRAINER_3",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_COOLTRAINER_F",
+      "talk_only": false,
+      "x": 13,
+      "y": 11
+    },
+    "pokered:SS_ANNE_2F:objects:2": {
+      "id": "pokered:SS_ANNE_2F:objects:2",
+      "map_id": "pokered:SS_ANNE_2F",
+      "name": "BLUE",
+      "party": [
+        {
+          "level": 19,
+          "species": "pidgeotto"
+        },
+        {
+          "level": 16,
+          "species": "raticate"
+        },
+        {
+          "level": 18,
+          "species": "kadabra"
+        },
+        {
+          "level": 20,
+          "species": "wartortle"
+        }
+      ],
+      "payout": 1300,
+      "rival_parties": {
+        "bulbasaur": {
+          "party": [
+            {
+              "level": 19,
+              "species": "pidgeotto"
+            },
+            {
+              "level": 16,
+              "species": "raticate"
+            },
+            {
+              "level": 18,
+              "species": "kadabra"
+            },
+            {
+              "level": 20,
+              "species": "charmeleon"
+            }
+          ],
+          "payout": 1300
+        },
+        "charmander": {
+          "party": [
+            {
+              "level": 19,
+              "species": "pidgeotto"
+            },
+            {
+              "level": 16,
+              "species": "raticate"
+            },
+            {
+              "level": 18,
+              "species": "kadabra"
+            },
+            {
+              "level": 20,
+              "species": "wartortle"
+            }
+          ],
+          "payout": 1300
+        },
+        "squirtle": {
+          "party": [
+            {
+              "level": 19,
+              "species": "pidgeotto"
+            },
+            {
+              "level": 16,
+              "species": "raticate"
+            },
+            {
+              "level": 18,
+              "species": "kadabra"
+            },
+            {
+              "level": 20,
+              "species": "ivysaur"
+            }
+          ],
+          "payout": 1300
+        }
+      },
+      "sight_range_cells": 0,
+      "source_flag": "EVENT_BEAT_SS_ANNE_RIVAL",
+      "sprite_source": "SPRITE_BLUE",
+      "talk_only": true
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:1": {
+      "base_money": 70,
+      "class_source": "OPP_GENTLEMAN",
+      "facing_source": "RIGHT",
+      "id": "pokered:SS_ANNE_2F_ROOMS:objects:1",
+      "map_id": "pokered:SS_ANNE_2F_ROOMS",
+      "money_source_bcd3": 7000,
+      "name": "GENTLEMAN",
+      "party": [
+        {
+          "level": 23,
+          "species": "pikachu",
+          "species_source": "PIKACHU"
+        }
+      ],
+      "payout": 1610,
+      "roster_id": 3,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnne2FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne2FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_9_TRAINER_0",
+      "source_object_index": 1,
+      "sprite_source": "SPRITE_GENTLEMAN",
+      "talk_only": false,
+      "x": 10,
+      "y": 2
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:2": {
+      "base_money": 35,
+      "class_source": "OPP_FISHER",
+      "facing_source": "LEFT",
+      "id": "pokered:SS_ANNE_2F_ROOMS:objects:2",
+      "map_id": "pokered:SS_ANNE_2F_ROOMS",
+      "money_source_bcd3": 3500,
+      "name": "FISHERMAN",
+      "party": [
+        {
+          "level": 17,
+          "species": "goldeen",
+          "species_source": "GOLDEEN"
+        },
+        {
+          "level": 17,
+          "species": "tentacool",
+          "species_source": "TENTACOOL"
+        },
+        {
+          "level": 17,
+          "species": "goldeen",
+          "species_source": "GOLDEEN"
+        }
+      ],
+      "payout": 595,
+      "roster_id": 1,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnne2FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne2FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_9_TRAINER_1",
+      "source_object_index": 2,
+      "sprite_source": "SPRITE_FISHER",
+      "talk_only": false,
+      "x": 13,
+      "y": 4
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:3": {
+      "base_money": 70,
+      "class_source": "OPP_GENTLEMAN",
+      "facing_source": "RIGHT",
+      "id": "pokered:SS_ANNE_2F_ROOMS:objects:3",
+      "map_id": "pokered:SS_ANNE_2F_ROOMS",
+      "money_source_bcd3": 7000,
+      "name": "GENTLEMAN",
+      "party": [
+        {
+          "level": 17,
+          "species": "growlithe",
+          "species_source": "GROWLITHE"
+        },
+        {
+          "level": 17,
+          "species": "ponyta",
+          "species_source": "PONYTA"
+        }
+      ],
+      "payout": 1190,
+      "roster_id": 5,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnne2FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne2FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_9_TRAINER_2",
+      "source_object_index": 3,
+      "sprite_source": "SPRITE_GENTLEMAN",
+      "talk_only": false,
+      "x": 0,
+      "y": 14
+    },
+    "pokered:SS_ANNE_2F_ROOMS:objects:4": {
+      "base_money": 15,
+      "class_source": "OPP_LASS",
+      "facing_source": "DOWN",
+      "id": "pokered:SS_ANNE_2F_ROOMS:objects:4",
+      "map_id": "pokered:SS_ANNE_2F_ROOMS",
+      "money_source_bcd3": 1500,
+      "name": "LASS",
+      "party": [
+        {
+          "level": 18,
+          "species": "rattata",
+          "species_source": "RATTATA"
+        },
+        {
+          "level": 18,
+          "species": "pikachu",
+          "species_source": "PIKACHU"
+        }
+      ],
+      "payout": 270,
+      "roster_id": 12,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnne2FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnne2FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_9_TRAINER_3",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_COOLTRAINER_F",
+      "talk_only": false,
+      "x": 2,
+      "y": 11
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:1": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "DOWN",
+      "id": "pokered:SS_ANNE_B1F_ROOMS:objects:1",
+      "map_id": "pokered:SS_ANNE_B1F_ROOMS",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 21,
+          "species": "shellder",
+          "species_source": "SHELLDER"
+        }
+      ],
+      "payout": 630,
+      "roster_id": 3,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnneB1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneB1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_10_TRAINER_0",
+      "source_object_index": 1,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 0,
+      "y": 13
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:2": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "DOWN",
+      "id": "pokered:SS_ANNE_B1F_ROOMS:objects:2",
+      "map_id": "pokered:SS_ANNE_B1F_ROOMS",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 17,
+          "species": "horsea",
+          "species_source": "HORSEA"
+        },
+        {
+          "level": 17,
+          "species": "shellder",
+          "species_source": "SHELLDER"
+        },
+        {
+          "level": 17,
+          "species": "tentacool",
+          "species_source": "TENTACOOL"
+        }
+      ],
+      "payout": 510,
+      "roster_id": 4,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnneB1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneB1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_10_TRAINER_1",
+      "source_object_index": 2,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 2,
+      "y": 11
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:3": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "LEFT",
+      "id": "pokered:SS_ANNE_B1F_ROOMS:objects:3",
+      "map_id": "pokered:SS_ANNE_B1F_ROOMS",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 18,
+          "species": "tentacool",
+          "species_source": "TENTACOOL"
+        },
+        {
+          "level": 18,
+          "species": "staryu",
+          "species_source": "STARYU"
+        }
+      ],
+      "payout": 540,
+      "roster_id": 5,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnneB1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneB1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_10_TRAINER_2",
+      "source_object_index": 3,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 12,
+      "y": 3
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:4": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "DOWN",
+      "id": "pokered:SS_ANNE_B1F_ROOMS:objects:4",
+      "map_id": "pokered:SS_ANNE_B1F_ROOMS",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 17,
+          "species": "horsea",
+          "species_source": "HORSEA"
+        },
+        {
+          "level": 17,
+          "species": "horsea",
+          "species_source": "HORSEA"
+        },
+        {
+          "level": 17,
+          "species": "horsea",
+          "species_source": "HORSEA"
+        }
+      ],
+      "payout": 510,
+      "roster_id": 6,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnneB1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneB1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_10_TRAINER_3",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 22,
+      "y": 2
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:5": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "RIGHT",
+      "id": "pokered:SS_ANNE_B1F_ROOMS:objects:5",
+      "map_id": "pokered:SS_ANNE_B1F_ROOMS",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 20,
+          "species": "machop",
+          "species_source": "MACHOP"
+        }
+      ],
+      "payout": 600,
+      "roster_id": 7,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/SSAnneB1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneB1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_10_TRAINER_4",
+      "source_object_index": 5,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 0,
+      "y": 2
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:6": {
+      "base_money": 35,
+      "class_source": "OPP_FISHER",
+      "facing_source": "RIGHT",
+      "id": "pokered:SS_ANNE_B1F_ROOMS:objects:6",
+      "map_id": "pokered:SS_ANNE_B1F_ROOMS",
+      "money_source_bcd3": 3500,
+      "name": "FISHERMAN",
+      "party": [
+        {
+          "level": 17,
+          "species": "tentacool",
+          "species_source": "TENTACOOL"
+        },
+        {
+          "level": 17,
+          "species": "staryu",
+          "species_source": "STARYU"
+        },
+        {
+          "level": 17,
+          "species": "shellder",
+          "species_source": "SHELLDER"
+        }
+      ],
+      "payout": 595,
+      "roster_id": 2,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnneB1FRooms.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneB1FRooms.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_10_TRAINER_5",
+      "source_object_index": 6,
+      "sprite_source": "SPRITE_FISHER",
+      "talk_only": false,
+      "x": 0,
+      "y": 4
+    },
+    "pokered:SS_ANNE_BOW:objects:4": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "DOWN",
+      "id": "pokered:SS_ANNE_BOW:objects:4",
+      "map_id": "pokered:SS_ANNE_BOW",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 18,
+          "species": "machop",
+          "species_source": "MACHOP"
+        },
+        {
+          "level": 18,
+          "species": "shellder",
+          "species_source": "SHELLDER"
+        }
+      ],
+      "payout": 540,
+      "roster_id": 1,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnneBow.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneBow.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_5_TRAINER_0",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 4,
+      "y": 4
+    },
+    "pokered:SS_ANNE_BOW:objects:5": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "UP",
+      "id": "pokered:SS_ANNE_BOW:objects:5",
+      "map_id": "pokered:SS_ANNE_BOW",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 17,
+          "species": "machop",
+          "species_source": "MACHOP"
+        },
+        {
+          "level": 17,
+          "species": "tentacool",
+          "species_source": "TENTACOOL"
+        }
+      ],
+      "payout": 510,
+      "roster_id": 2,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/SSAnneBow.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/SSAnneBow.asm"
+      },
+      "source_flag": "EVENT_BEAT_SS_ANNE_5_TRAINER_1",
+      "source_object_index": 5,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 10,
+      "y": 8
+    },
+    "pokered:VERMILION_GYM:objects:1": {
+      "id": "pokered:VERMILION_GYM:objects:1",
+      "map_id": "pokered:VERMILION_GYM",
+      "name": "LT.SURGE",
+      "party": [
+        {
+          "level": 21,
+          "species": "voltorb"
+        },
+        {
+          "level": 18,
+          "species": "pikachu"
+        },
+        {
+          "level": 24,
+          "species": "raichu"
+        }
+      ],
+      "payout": 2376,
+      "sight_range_cells": 0,
+      "source_flag": "EVENT_BEAT_LT_SURGE",
+      "sprite_source": "SPRITE_ROCKER",
+      "talk_only": true
+    },
+    "pokered:VERMILION_GYM:objects:2": {
+      "base_money": 70,
+      "class_source": "OPP_GENTLEMAN",
+      "facing_source": "LEFT",
+      "id": "pokered:VERMILION_GYM:objects:2",
+      "map_id": "pokered:VERMILION_GYM",
+      "money_source_bcd3": 7000,
+      "name": "GENTLEMAN",
+      "party": [
+        {
+          "level": 23,
+          "species": "pikachu",
+          "species_source": "PIKACHU"
+        }
+      ],
+      "payout": 1610,
+      "roster_id": 3,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/VermilionGym.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/VermilionGym.asm"
+      },
+      "source_flag": "EVENT_BEAT_VERMILION_GYM_TRAINER_0",
+      "source_object_index": 2,
+      "sprite_source": "SPRITE_GENTLEMAN",
+      "talk_only": false,
+      "x": 9,
+      "y": 6
+    },
+    "pokered:VERMILION_GYM:objects:3": {
+      "base_money": 25,
+      "class_source": "OPP_ROCKER",
+      "facing_source": "LEFT",
+      "id": "pokered:VERMILION_GYM:objects:3",
+      "map_id": "pokered:VERMILION_GYM",
+      "money_source_bcd3": 2500,
+      "name": "ROCKER",
+      "party": [
+        {
+          "level": 20,
+          "species": "voltorb",
+          "species_source": "VOLTORB"
+        },
+        {
+          "level": 20,
+          "species": "magnemite",
+          "species_source": "MAGNEMITE"
+        },
+        {
+          "level": 20,
+          "species": "voltorb",
+          "species_source": "VOLTORB"
+        }
+      ],
+      "payout": 500,
+      "roster_id": 1,
+      "sight_range_cells": 2,
+      "source": {
+        "objects": "data/maps/objects/VermilionGym.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/VermilionGym.asm"
+      },
+      "source_flag": "EVENT_BEAT_VERMILION_GYM_TRAINER_1",
+      "source_object_index": 3,
+      "sprite_source": "SPRITE_SUPER_NERD",
+      "talk_only": false,
+      "x": 3,
+      "y": 8
+    },
+    "pokered:VERMILION_GYM:objects:4": {
+      "base_money": 30,
+      "class_source": "OPP_SAILOR",
+      "facing_source": "RIGHT",
+      "id": "pokered:VERMILION_GYM:objects:4",
+      "map_id": "pokered:VERMILION_GYM",
+      "money_source_bcd3": 3000,
+      "name": "SAILOR",
+      "party": [
+        {
+          "level": 21,
+          "species": "pikachu",
+          "species_source": "PIKACHU"
+        },
+        {
+          "level": 21,
+          "species": "pikachu",
+          "species_source": "PIKACHU"
+        }
+      ],
+      "payout": 630,
+      "roster_id": 8,
+      "sight_range_cells": 3,
+      "source": {
+        "objects": "data/maps/objects/VermilionGym.asm",
+        "parties": "data/trainers/parties.asm",
+        "script": "scripts/VermilionGym.asm"
+      },
+      "source_flag": "EVENT_BEAT_VERMILION_GYM_TRAINER_2",
+      "source_object_index": 4,
+      "sprite_source": "SPRITE_SAILOR",
+      "talk_only": false,
+      "x": 0,
+      "y": 10
+    }
+  }
+}
