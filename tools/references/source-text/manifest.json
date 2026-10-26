@@ -1,0 +1,13 @@
+{
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "upstream": "https://github.com/pret/pokered",
+  "scope": "English charmap before Japanese kana section, including unused literal symbols; Japanese localization aliases excluded",
+  "files": {
+    "constants/charmap.asm": "64dab17f94a5312c1a09de651c94455fa0e7549cfd6340a2ff1394a50b933ef7",
+    "gfx/font/font.png": "80faa0c5778c172ca83dd7ad90aa9e79ad8923fb579c69e8a10240b00ad19606",
+    "gfx/font/font_battle_extra.png": "b2ba189d1c9314909d867ba72fdb5e57a9e5be1cb4bce99203e093bcc46d2a83",
+    "gfx/font/font_extra.png": "323964a2067b08a20d9609e4377e327cd6eaae4cc4c5668d4f9abfaad9aae984",
+    "gfx/pokedex/pokedex.png": "30505e1ef13ad478d352aea4c30cf22698dc9dbc198fe85e4567217609791b1c",
+    "gfx/town_map/up_arrow.png": "2ef4da33f47e22f1221720a432c0f07875e57194ec81dcecfeb13b85721deafa"
+  }
+}

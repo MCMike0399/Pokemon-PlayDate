@@ -1,0 +1,4 @@
+{
+  "description": "Root integrates and registers SourceTextContracts before running. Native contracts export source-text-glyphs-*, source-text-typing-*, source-text-pages-* and source-text-symbols-complete PNGs. Inspect those actual SDK images; contract success alone is not visual acceptance.",
+  "commands": ["contracts"]
+}
