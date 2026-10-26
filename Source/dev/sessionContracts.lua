@@ -106,7 +106,7 @@ function SessionContracts.run()
         local session,pokemon=starter()
         local original=data(session); local rng=RulesRNG.toData(); local world=WorldDeltas.export()
         local changes={
-            function(d) d.version=2 end,
+            function(d) d.version=SessionCodec.VERSION+1 end,
             function(d) d.pokemonEncoding="unknown" end,
             function(d) d.title.playerName="ASH" end,
             function(d) d.intro.rivalStarter="bulbasaur" end,
