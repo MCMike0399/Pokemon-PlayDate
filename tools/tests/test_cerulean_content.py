@@ -154,8 +154,36 @@ class CeruleanContentTests(unittest.TestCase):
             for event in self.maps[name]['events']['objects']:
                 if event['source_index'] in indexes:
                     self.assertIn(event['id'], gaps)
-        self.assertEqual(len(self.events['events']), 79)
+        self.assertEqual(len(self.events['events']), 81)
         self.assertEqual(len(self.events['signs']), 16)
+
+    def test_both_guard_objects_bind_the_same_pinned_ordinary_text(self):
+        # Follow the actual object -> text ID -> pointer -> text_far chain.
+        # Visibility switches actors, not dialogue branches or scene ownership.
+        objects = (self.reference / 'data/maps/objects/CeruleanCity.asm').read_text()
+        rows = re.findall(r'^\s*object_event\s+(.+)$', objects, re.M)
+        script = (self.reference / 'scripts/CeruleanCity.asm').read_text()
+        # The table has duplicate pointer values, so index by the text constant.
+        pointers = {constant: pointer for pointer, constant in re.findall(
+            r'^\s*dw_const\s+(\w+),\s*(TEXT_\w+)\s*$', script, re.M)}
+        body = re.search(r'^CeruleanCityGuardText:\s*\n(.*?)(?=^\w+:)', script, re.M | re.S)[1]
+        self.assertEqual(body.split(), ['text_far', '_CeruleanCityGuardText', 'text_end'])
+        expected = {'content': 'cerulean', 'kind': 'program',
+                    'steps': [{'op': 'dialog', 'labels': ['_CeruleanCityGuardText']}]}
+        gaps = {gap['id'] for gap in self.scripts['gaps']}
+        for index, x in ((6, 28), (11, 27)):
+            with self.subTest(index=index):
+                args = [value.strip() for value in rows[index - 1].split(';', 1)[0].split(',')]
+                self.assertEqual(args[:3], [str(x), '12', 'SPRITE_GUARD'])
+                self.assertEqual(pointers[args[5]], 'CeruleanCityGuardText')
+                event_id = f'pokered:CERULEAN_CITY:objects:{index}'
+                event = self.maps['CeruleanCity']['events']['objects'][index - 1]
+                self.assertEqual((event['id'], event['text_id']), (event_id, args[5]))
+                self.assertEqual(self.scripts['text_pointers']['CeruleanCity'][args[5]],
+                                 'CeruleanCityGuardText')
+                self.assertNotIn(index, generator.BESPOKE['CeruleanCity'])
+                self.assertNotIn(event_id, gaps)
+                self.assertEqual(self.events['events'].get(event_id), expected)
 
     def test_text_recipes_retain_exact_original_lines_and_all_descriptor_labels_resolve(self):
         for record in self.texts.values():

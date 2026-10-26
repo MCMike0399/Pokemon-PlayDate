@@ -31,8 +31,7 @@ MAPS = (
 BESPOKE = {
     'Route22': {1: 'first rival approach/counter-pick/departure', 2: 'late rival; outside milestone'},
     'MtMoonB2F': {1: 'Super Nerd battle and fossil choice', 6: 'Dome Fossil choice', 7: 'Helix Fossil choice'},
-    'CeruleanCity': {1: 'rival approach/counter-pick/departure', 2: 'robbery Rocket and TM28 reward',
-                     6: 'robbed-house guard progression', 11: 'robbed-house guard progression'},
+    'CeruleanCity': {1: 'rival approach/counter-pick/departure', 2: 'robbery Rocket and TM28 reward'},
     'CeruleanGym': {1: 'Misty battle, Cascade Badge and TM11 reward'},
     'BikeShop': {1: 'voucher/bicycle exchange and price choice'},
     'BillsHouse': {1: 'Bill Pokemon/cell separator', 2: 'Bill human/ticket reward', 3: 'Bill scene visitor'},
