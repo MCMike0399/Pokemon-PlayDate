@@ -212,7 +212,7 @@ def validate_export(export, source):
             raise ProtocolError("unsafe or recursive owner source dependency")
         if source.manifest.get(relative) != digest:
             raise ProtocolError("Cerulean owner projection has stale source: " + relative)
-        path = source.build / "Source" / relative
+        path = source.build / "original-main.lua" if relative == "main.lua" else source.build / "Source" / relative
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
             raise ProtocolError("Cerulean owner projection source bytes changed")
     for required in ("data/sourceMaps.json", "domain/sessionCodec.lua", "data/items.lua",

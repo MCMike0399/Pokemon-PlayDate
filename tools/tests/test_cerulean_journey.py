@@ -112,6 +112,7 @@ class SourceContractTests(unittest.TestCase):
         cls.build = Path(cls.temporary.name)
         # This is ordinary data staging, not a pretend SDK or game runtime.
         shutil.copytree(ROOT / "Source", cls.build / "Source")
+        shutil.copyfile(cls.build / "Source/main.lua", cls.build / "original-main.lua")
         manifest = {p.relative_to(cls.build / "Source").as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                     for p in (cls.build / "Source").rglob("*") if p.is_file()}
         (cls.build / "source-manifest.json").write_text(json.dumps(manifest))
@@ -162,6 +163,14 @@ class SourceContractTests(unittest.TestCase):
             cj.validate_export(export, source)
         projected = self.source.read("data/ceruleanJourney.json")
         self.assertEqual(cj.validate_export(projected, self.source), projected)
+        archived = self.build / "original-main.lua"
+        original = archived.read_bytes()
+        try:
+            archived.write_bytes(original + b"\n-- archive drift\n")
+            with self.assertRaises(ProtocolError):
+                cj.validate_export(projected, self.source)
+        finally:
+            archived.write_bytes(original)
 
 
 class NavigationTests(unittest.TestCase):
