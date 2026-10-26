@@ -204,7 +204,9 @@
     "dev/ceruleanRoutesContracts",
     "dev/tutorialEscortContracts",
     "dev/kantoScenesContracts",
-    "dev/kantoServicesContracts"
+    "dev/kantoServicesContracts",
+    "dev/commonAbilityContracts",
+    "dev/ceruleanAmbientDialogueContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -304,6 +306,8 @@
     "Contracts.register(\"cerulean-routes\", CeruleanRoutesContracts.run)",
     "Contracts.register(\"tutorial-escort\", TutorialEscortContracts.run)",
     "Contracts.register(\"kanto-scenes\", KantoScenesContracts.run)",
-    "Contracts.register(\"kanto-services\", KantoServicesContracts.run)"
+    "Contracts.register(\"kanto-services\", KantoServicesContracts.run)",
+    "Contracts.register(\"common-abilities\", CommonAbilityContracts.run)",
+    "Contracts.register(\"cerulean-ambient-dialogue\", CeruleanAmbientDialogueContracts.run)"
   ]
 }

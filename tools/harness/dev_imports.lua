@@ -222,6 +222,10 @@ import "dev/kantoScenesContracts"
 Contracts.register("kanto-scenes", KantoScenesContracts.run)
 import "dev/kantoServicesContracts"
 Contracts.register("kanto-services", KantoServicesContracts.run)
+import "dev/commonAbilityContracts"
+Contracts.register("common-abilities", CommonAbilityContracts.run)
+import "dev/ceruleanAmbientDialogueContracts"
+Contracts.register("cerulean-ambient-dialogue", CeruleanAmbientDialogueContracts.run)
 
 -- @harness runtime
 harness = Harness
