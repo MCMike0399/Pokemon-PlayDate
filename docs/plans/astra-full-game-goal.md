@@ -1,5 +1,7 @@
 # Goal prompt: complete Pokémon Red/Blue for Playdate
 
+> **Superseded 2026-10-26 by [full-game-goal.md](full-game-goal.md).** Kept as history; its product decisions are carried forward there.
+
 Use this document as the persistent implementation goal for this repository. Everything below is addressed to the current root implementation agent.
 
 ---

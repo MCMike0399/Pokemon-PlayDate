@@ -23,7 +23,7 @@ The `deploy` target auto-detects the Playdate at `/dev/cu.usbmodemPD*`. It puts 
 
 Before Simulator, harness, or visual work, read [the harness contract](docs/validation/harness.md). `make test-harness` runs host protocol tests; `make harness-smoke` runs an identified SDK session. The deeper suite is `python3 tools/harness/suite.py --mutations --output /private/tmp/pokemon-suite-UNIQUE`. Install `tools/requirements-dev.txt` in a venv for visual/generator checks.
 
-For full-game implementation or resuming after compaction, read [the execution ledger](docs/validation/progress.md) and [the complete goal](docs/plans/astra-full-game-goal.md). Implementation and independent acceptance are tracked separately; the full campaign remains unfinished.
+For full-game implementation or resuming after compaction, read [the goal](docs/plans/full-game-goal.md) and then [the execution ledger](docs/validation/progress.md). The older [Astra goal](docs/plans/astra-full-game-goal.md) is superseded history. Implementation and independent acceptance are tracked separately; the full campaign remains unfinished.
 
 ## Architecture
 

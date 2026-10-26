@@ -1,6 +1,8 @@
 # Full-game execution ledger
 
-**Paused at user request; incomplete:** [complete goal](../plans/astra-full-game-goal.md).
+**Goal replaced 2026-10-26:** follow [full-game-goal.md](../plans/full-game-goal.md), whose first step rewrites this ledger. Work moved to DiveMac.
+
+**Paused at user request; incomplete:** [previous goal](../plans/astra-full-game-goal.md).
 GPT-6.1 Sol root owns integration and independent acceptance. All bounded workers
 are explicitly Sol6.1/medium; followups retain those settings. Runtime controls
 show identities/statuses, not resolved model/effort. Root alone owns Simulator.
