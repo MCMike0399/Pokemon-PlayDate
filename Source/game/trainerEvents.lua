@@ -47,6 +47,7 @@ function TrainerEvents:init(game)
 end
 function TrainerEvents:sourceFlag(id)
     local game=owners[self].game
+    if owners[self].definitions[id] then return game.session:trainerDefeated(id) end
     for stable,d in pairs(owners[self].definitions) do if d.source_flag==id then return game.session:trainerDefeated(stable) end end
     return game.session:questFlag(id)
 end
@@ -230,7 +231,7 @@ end
 function TrainerEvents:snapshot()
     local owner=owners[self];local value=owner.active and tokens[owner.active]
     if not value or value.session~=owner.game.session then return {phase="idle"} end
-    return {id=value.definition.id,phase=value.phase,pixelX=value.npc.x,pixelY=value.npc.y,gridX=value.npc.gridX,gridY=value.npc.gridY,step=value.index or 0,tick=value.tick or 0,total_steps=value.steps and #value.steps or 0,mode=value.mode}
+    return {id=value.definition.id,party=copy(value.definition.party),payout=value.definition.payout,phase=value.phase,pixelX=value.npc.x,pixelY=value.npc.y,gridX=value.npc.gridX,gridY=value.npc.gridY,step=value.index or 0,tick=value.tick or 0,total_steps=value.steps and #value.steps or 0,mode=value.mode}
 end
 TrainerEvents.BROCK,TrainerEvents.JR,TrainerEvents.LAB=BROCK,JR,LAB
 

@@ -7,10 +7,10 @@ function SourceActors.register(name,describe)
     assert(not providers[name]or providers[name]==describe,"actor provider replaced")
     providers[name]=describe
 end
-function SourceActors.describe(zoneID,world)
+function SourceActors.describe(zoneID,world,game)
     local found
     for _,describe in pairs(providers)do
-        local descriptor=describe(zoneID,world)
+        local descriptor=describe(zoneID,world,game)
         if descriptor then assert(not found,"overlapping actor descriptor providers");found=descriptor end
     end
     return found
@@ -65,10 +65,13 @@ function SourceActors.objectDefinition(d, event, spec, options)
     if not options.isolatedCatalog then assert(SpriteFactory.npc[key], "source actor art not installed") end
     local trainer = SourceEvents.trainerDefinitions()[event.id]
     local descriptor = SourceEvents.descriptor(event.id)
-    local metadata = resolver.metadata and resolver.metadata(d, event) or {}
-    local visibility = Party._primitive(metadata.visibility or {})
-    if descriptor and descriptor.kind == "pickup" then
-        visibility[#visibility + 1] = {group="quest", id=descriptor.flag, equals=false}
+    local function visibilityFor(game)
+        local metadata = resolver.metadata and resolver.metadata(d, event, game) or {}
+        local visibility = Party._primitive(metadata.visibility or {})
+        if descriptor and descriptor.kind == "pickup" then
+            visibility[#visibility + 1] = {group="quest", id=descriptor.flag, equals=false}
+        end
+        return visibility
     end
     local def = { gridX=event.x, gridY=event.y, name=trainer and trainer.name or event.text_id,
         sprite=key, source_event_id=event.id, source_sprite=event.sprite,
@@ -78,26 +81,25 @@ function SourceActors.objectDefinition(d, event, spec, options)
             assert(spec.status == "bound" and options.hasEvent(event.id), "unimplemented source interaction")
             return options.dispatch(event.id)
         end }
-    if #visibility > 0 then
-        def.appearsIf = function()
-            for _, condition in ipairs(visibility) do
-                local value
-                if condition.group == "quest" then value = options.questFlag(condition.id)
-                else
-                    assert(condition.group == "trainers" and options.trainerFlag, "explicit trainer flag reader required")
-                    value = options.trainerFlag(condition.id)
-                end
-                if (value == true) ~= condition.equals then return false end
+    def.appearsIf = function()
+        for _, condition in ipairs(visibilityFor(options.runtimeGame)) do
+            local value
+            if condition.group == "quest" then value = options.questFlag(condition.id)
+            else
+                local reader = options.trainerFlag or options.sourceFlag
+                assert(condition.group == "trainers" and reader, "explicit trainer flag reader required")
+                value = reader(condition.id)
             end
-            return true
+            if (value == true) ~= condition.equals then return false end
         end
+        return true
     end
     return def
 end
 
 -- Every ordinary manifest map uses this descriptor builder. Immutable content
 -- resolvers supply art and exceptional visibility; geometry stays shared.
-function SourceActors.describeSource(zoneID, world)
+function SourceActors.describeSource(zoneID, world, game)
     local name = SourceMaps.nameForID(zoneID)
     if not name then return nil end
     local profile = SourceMaps.entry(name).profile
@@ -140,10 +142,15 @@ function SourceActors.describeSource(zoneID, world)
         for _,position in ipairs(positions) do
             assert(position.x < surface.width and position.y < surface.height, "script position outside source map")
             local cell = position.y * surface.width + position.x + 1
-            assert(not protected[cell], "script position on protected warp/connection cell")
+            local transit = TutorialEscortData and TutorialEscortData.transitAllowed(event.id, position.x, position.y)
+            assert(not protected[cell] or transit, "script position on protected warp/connection cell")
+            if transit then
+                spec.script_transit = spec.script_transit or {}
+                spec.script_transit[cell] = true
+            end
             spec.script_positions[cell] = true
         end
-        local metadata = resolver.metadata and resolver.metadata(d, event) or {}
+        local metadata = resolver.metadata and resolver.metadata(d, event, game) or {}
         spec.script_collision_positions = {}
         for _, position in ipairs(SourceEvents.actorCollisionPositions(event.id)) do
             local cell = position.y * surface.width + position.x + 1
@@ -167,7 +174,7 @@ function SourceActors.describeSource(zoneID, world)
     end
     local function canStand(spec,x,y,runtimeZone)
         local cell = y * surface.width + x + 1
-        if spec.script_positions[cell] and not protected[cell] and x >= 0 and y >= 0 and x < surface.width and y < surface.height
+        if spec.script_positions[cell] and (not protected[cell] or spec.script_transit and spec.script_transit[cell]) and x >= 0 and y >= 0 and x < surface.width and y < surface.height
             and ((runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0
                 or spec.script_collision_positions[cell]) then return true end
         return canWander(spec,x,y,runtimeZone)
@@ -230,12 +237,37 @@ function SourceActors.trySight(game)
     return false
 end
 
+-- Fixtures own an empty namespace, including on nested scopes. Restore the
+-- exact production resolver table on both success and error.
 function SourceActors._withContent(fn)
     local old = contentResolvers
     contentResolvers = {}
-    for profile, resolver in pairs(old) do contentResolvers[profile] = resolver end
     local ok, result = pcall(fn)
     contentResolvers = old
     if not ok then error(result, 0) end
     return result
+end
+
+-- Cached Zones keep geometry, while runtime spawns refresh content predicates.
+-- Isolated/catalog construction never receives this context or reads live Story.
+function SourceActors.refresh(game, zone)
+    local name = SourceMaps.nameForID(zone.stableID)
+    if not name or SourceMaps.entry(name).profile ~= "source" then return end
+    local d = SourceMaps.padded(name)
+    local events = {}
+    for _, event in ipairs(d.events.objects) do events[event.id] = event end
+    local definitions = {}
+    for _, def in ipairs(zone.npcDefs) do
+        local event = events[def.source_event_id]
+        if event then
+            definitions[#definitions + 1] = SourceActors.objectDefinition(d, event,
+                {status=SourceEvents.has(event.id) and "bound" or "blocked"}, {
+                    runtimeGame=game, hasEvent=SourceEvents.has,
+                    dispatch=function(id) return SourceEvents.dispatch(game,id) end,
+                    questFlag=function(id) return game.session:questFlag(id) end,
+                    trainerFlag=function(id) return game.session:trainerDefeated(id) end,
+                })
+        else definitions[#definitions + 1] = def end
+    end
+    zone.npcDefs = definitions
 end

@@ -23,7 +23,7 @@ function NPCMotion:_pose(actor)
     else npc:moveTo(v.x*TILE_SIZE,v.y*TILE_SIZE-8);npc:setFacing(v.facing)end
 end
 function NPCMotion:attach(game,zone,payload,reconcile)
-    local s=stores[self];local world=WorldDeltas.export();local descriptor=SourceActors.describe(zone.stableID,world)
+    local s=stores[self];local world=WorldDeltas.export();local descriptor=SourceActors.describe(zone.stableID,world,game)
     if not descriptor then self:clear();return end
     local flags=game.session:flags();local location={zone_id=zone.stableID,x=game.player.gridX,y=game.player.gridY,facing=game.player.facing}
     local migration
@@ -215,7 +215,7 @@ function NPCMotion:startScriptStep(token, direction)
     local occupant = s.manager:getNPCAt(x,y)
     if occupant and occupant ~= npc or x == player.gridX and y == player.gridY
         or player.isMoving and x == player.startPixelX/TILE_SIZE and y == player.startPixelY/TILE_SIZE
-        or s.descriptor.protected[cell]
+        or s.descriptor.protected[cell] and not (spec.script_transit and spec.script_transit[cell])
         or not s.descriptor.canStep(spec,v.x,v.y,x,y,s.zone) then return false, "blocked-scripted-npc-move" end
     -- Verify walking art before reserving or exposing an intermediate pose.
     local ok = pcall(SourceActors.stepImage,spec.sprite_source,direction,2,spec.content_profile)
@@ -240,6 +240,34 @@ function NPCMotion:updateScript(token)
     v.x,v.y,v.facing = move.toX,move.toY,move.direction
     v.origin_x,v.target_x,v.origin_y,v.target_y = v.x,v.x,v.y,v.y
     lease.move = nil
+    self:_pose(actor)
+    return true
+end
+-- Reset may run during overlay exit, after removal from the stack. Identity
+-- and attachment guards still apply; facing and movement require top ownership.
+function NPCMotion:faceScript(token, facing)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or not scriptCurrent(s, lease) or lease.move
+        or not actor.spec.faces[facing] then return false end
+    actor.value.facing = facing
+    self:_pose(actor)
+    return true
+end
+function NPCMotion:resetScript(token)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or s.game.session ~= s.session or currentZone ~= s.zone
+        or s.game.player ~= lease.player or lease.owner.epoch ~= lease.ownerEpoch
+        or not lease.owner:valid() then return false end
+    local origin, player = lease.origin, s.game.player
+    local occupant = s.manager:getNPCAt(origin.x, origin.y)
+    if occupant and occupant ~= actor.npc
+        or player.gridX == origin.x and player.gridY == origin.y
+        or player.isMoving and player.startPixelX/TILE_SIZE == origin.x and player.startPixelY/TILE_SIZE == origin.y
+        or not s.descriptor.canStand(actor.spec, origin.x, origin.y, s.zone) then return false end
+    lease.move = nil
+    actor.value = copy(origin)
     self:_pose(actor)
     return true
 end
@@ -277,7 +305,7 @@ function NPCMotion:restoreTrainerPose(npc, x, y, facing)
 end
 
 -- Source scene placement is a lease operation, never a direct sprite write.
-function NPCMotion:placeScript(token, x, y)
+function NPCMotion:placeScript(token, x, y, facing)
     local s = stores[self]
     local actor, lease = scriptLease(s, token)
     if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
@@ -292,8 +320,10 @@ function NPCMotion:placeScript(token, x, y)
         or player.isMoving and player.startPixelX/TILE_SIZE == x and player.startPixelY/TILE_SIZE == y then
         return false, "occupied-source-script-placement"
     end
+    if facing ~= nil and not actor.spec.faces[facing] then return false, "missing-source-actor-facing" end
     local v = actor.value
     v.x,v.y = x,y
+    if facing then v.facing = facing end
     v.origin_x,v.target_x,v.origin_y,v.target_y = x,x,y,y
     self:_pose(actor)
     return true

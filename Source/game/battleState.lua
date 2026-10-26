@@ -63,6 +63,7 @@ function BattleState:finish(won, kind)
     if Evolution then assert(Evolution.afterBattle(game.session,kind)) end
     game.lastBattleOutcome = {kind = kind, won = won, blackout = blackout,
         player_hp = pokemon.hp, enemy_hp = self.battle and self.battle.enemy.hp or nil,
+        trainer_id=receipt and receipt.id or nil,
         payout=receipt and receipt.payout or 0,money_delta=game.session:inventory():money()-beforeMoney}
     if won and self.npc and not self.trainerToken then
         self.npc:markInteracted()
@@ -85,7 +86,16 @@ function BattleState:finish(won, kind)
     end
     if game.trainers then game.trainers:restoreReturnedTrainer() end
     game:offerPartyLearning(function()
-        if not receipt or not receipt.won then return end
+        if not receipt then return end
+        if not receipt.won then
+            local descriptor = SourceEvents.descriptor(receipt.id)
+            if descriptor and descriptor.lost then
+                local lines = {}
+                for _, page in ipairs(SourceEvents.pages(receipt.id,descriptor.lost)) do lines[#lines+1] = page.text end
+                game.machine:push("dialog",lines)
+            end
+            return
+        end
         if receipt.initial_lab then
             if game.trainers:takeReceipt(TrainerEvents.LAB) then
                 local lines={};for _,page in ipairs(PewterEvents.pages({"_MoneyForWinningText"},{wAmountMoneyWon=receipt.payout})) do lines[#lines+1]=page.text end
