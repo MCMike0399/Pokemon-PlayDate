@@ -31,7 +31,7 @@ def check_native_witness(output):
         if process['status'] != 'exited' or not process['fresh_ready'] or not process['previous_exit_confirmed']:
             raise ProtocolError('native witness lacks confirmed restart lifecycle')
         found, purities = [], 0
-        for path in sorted((output / process['evidence']).glob('*-result.json')):
+        for path in sorted((output / process['evidence']).glob('[0-9][0-9][0-9][0-9][0-9]-result.json')):
             packet = json.loads(path.read_text())
             if packet.get('build_id') != run['build_id'] or packet.get('session_id') != run['session_id'] or packet.get('status') != 'ok':
                 raise ProtocolError('native witness result identity/status mismatch')

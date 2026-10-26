@@ -21,5 +21,21 @@
     "one-frame stale Title/overlay framebuffer repair under review",
     "physical-device validation unavailable"
   ],
-  "baseline_layout": "Flat asset copy; image_root normalized from native frames to dot. Native manifest preserved in catalog-native.json."
+  "baseline_layout": "Flat asset copy; image_root normalized from native frames to dot. Native manifest preserved in catalog-native.json.",
+  "approved_changes": [
+    {
+      "date": "2026-10-26",
+      "path": "pewter-PewterCity-collision.png",
+      "reason": "Two source museum doors become passable; collision diagnostic only.",
+      "user_approval": "Explicit user approval in this session: Approve this diagnostic update (Recommended).",
+      "changed_pixels": 2048,
+      "alpha_pixels": 0,
+      "before_sha256": "1915344fcb727381a0327de38487793df65cb622b65cfd361663f6e74efb1369",
+      "after_sha256": "20ffa8fcbbe65e920916829b15f74e0413eb6febd864b2d8873dd527d09cc77d",
+      "before_artifact": "../catalog-pewter-history/pewter-PewterCity-collision-before-museum-20261026.png",
+      "native_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-private-catalog-20261026-01",
+      "native_source_sha256": "49ea71a83102814744a07493d9dcdbe8cb257b1f67723e504386abc707f181ef",
+      "protected_other_images_exact": 2493
+    }
+  ]
 }

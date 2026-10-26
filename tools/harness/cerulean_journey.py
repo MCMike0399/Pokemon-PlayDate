@@ -94,8 +94,17 @@ def validate_boundary_payload(payload):
         raise ProtocolError("incomplete canonical Save/Continue payload")
     if type(payload["version"]) is not int or payload["version"] < 1 or payload["pokemonEncoding"] != "decimal-counters-v1":
         raise ProtocolError("invalid canonical Save/Continue encoding")
-    if any(not isinstance(payload[field], dict) for field in CODEC_FIELDS - {"version", "pokemonEncoding"}):
+    owners = CODEC_FIELDS - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
+    if any(not isinstance(payload[field], dict) for field in owners):
         raise ProtocolError("invalid canonical Save/Continue owner record")
+    for field in ("questFlags", "trainerFlags"):
+        value = payload[field]
+        # The SDK encodes an empty Lua table as []; preserve the wire payload
+        # exactly and accept only that empty-map representation.
+        if value == []:
+            continue
+        if not isinstance(value, dict) or any(type(flag) is not bool for flag in value.values()):
+            raise ProtocolError("invalid canonical Save/Continue flag record")
 
 
 def validate_receipt_state(state):
