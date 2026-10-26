@@ -5,7 +5,7 @@ Updated 2026-10-26. Follow [the full-game goal](../plans/full-game-goal.md).
 
 ## 1. Accepted revision and playable scope
 
-Accepted code/tooling is `1339333`; later main commits update this ledger.
+Accepted code/tooling is `b15139e`; the campaign gate is still incomplete.
 Production Source is the tree committed in `82cb207`, unchanged through this gate: `44bd25bac9b1968cc8691eedc05ecd104faf708796602a492f997dccd1ae9ddc`.
 A player can complete the Pallet intro, deliver Oak’s parcel, capture Pokémon,
 use party/bag/storage/healing, traverse Viridian Forest and challenge Brock.
@@ -39,7 +39,10 @@ Evidence is under `~/Developer/Pokemon-PlayDate-env/evidence/` in
   run is retained under `brock-5.1-20261026-01/native-warp-return`.
 - [x] Bulbasaur passed Brock, badge/TM and real exit/Continue on Source above.
   Root inspected saved/continued Gym and learning panels.
-- [ ] Charmander and Squirtle journeys with real exit/Continue. The first new
+- [x] Squirtle passed Brock, badge/TM and real exit/Continue with bounded
+  preparation. Saved/continued PNGs are byte-identical; root inspected the saved
+  world. Evidence: `brock-squirtle-20261026-01`.
+- [ ] Charmander journey with real exit/Continue. The first new
   Charmander attempt was stopped by root to replace the one-hour suite budget
   with four hours; it receives no acceptance credit.
 - [x] TM full-bag retry, blackout, restarts, evolution accept and cancel passed
@@ -58,7 +61,7 @@ stopping at Brock. The full goal defines the completion criteria.
 ## 3. Open defects blocking progress
 
 The zero-step arrival-warp driver bug is repaired and the native return passes.
-Bulbasaur and the five supplements pass; Charmander and Squirtle remain pending.
+Bulbasaur, Squirtle and the five supplements pass; Charmander remains pending.
 The long Charmander attempt failed after natural evolution: command timeout,
 unconfirmed cancellation, and unfinalized captures. Frame 77835’s recent PNG is
 zero bytes; no Lua error was published. A fresh same-coordinate Pewter step
@@ -81,8 +84,8 @@ scheduled for 5.2. Missing later regions and full mechanics remain release work.
 | `wip/source-events` / worker | Candidate `38f44a1` complete; native acceptance pending. |
 | `wip/source-text` / worker | Candidate `f216fc0` complete; native glyph and page checks pending. |
 | `wip/scripted-npc` / worker | Candidate `0c484f2` composed privately; SDK actor ownership checks pending. |
-| `wip/harness-long-stall` / worker | `2258b51` prepares paired capture stress. Source unchanged; root running it. |
-| `wip/foundations-integration` / root | Private composition at `f0e759b` under the environment’s `worktrees/foundations`. Main Source remains frozen. Combined compile passes; host evidence refresh awaits actual SDK run. |
+| `wip/harness-long-stall` / worker | `2258b51` prepares paired capture stress. Source unchanged; both synthetic capture arms passed. |
+| `wip/foundations-integration` / root | Private composition after `16e7d9d` under the environment’s `worktrees/foundations`. Main Source remains frozen. Native SDK reached 1244 passed / 4 failed; fixture repairs are prepared. Host evidence refresh and full native acceptance remain pending. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
 Task IDs and local orchestration state are retained in the evidence directory’s

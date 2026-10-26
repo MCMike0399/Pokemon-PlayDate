@@ -40,7 +40,12 @@
     "error": "command timeout; cancellation unconfirmed; captures_finalized=false"
   },
   "squirtle": {
-    "status": "pending"
+    "passed": true,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/brock-squirtle-20261026-01/01-brock--brock-restart",
+    "training_level": 8,
+    "screenshots_reviewed": true,
+    "saved_continued_png_bytes_equal": true,
+    "sampled_simulator_max_rss_mib": 209.015625
   },
   "device_validated": false
 }
