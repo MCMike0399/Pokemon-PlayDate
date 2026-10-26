@@ -3,6 +3,16 @@
 Contracts = {}
 local suites = {}
 
+-- A bounded checkpoint survives a native SDK stall before the final reply.
+function Contracts.progress(suite, name, status)
+    if not HarnessBuild or not HarnessBuild.enabled then return end
+    local file = assert(playdate.file.open("contract-progress.tmp", playdate.file.kFileWrite))
+    file:write(json.encode({suite=suite,name=name,status=status,
+        time_ms=playdate.getCurrentTimeMilliseconds(),heap_kib=collectgarbage("count")}))
+    file:close()
+    assert(playdate.file.rename("contract-progress.tmp","contract-progress.json"))
+end
+
 function Contracts.register(name, run)
     assert(type(name) == "string" and type(run) == "function", "contract suite requires a name and function")
     for _, suite in ipairs(suites) do assert(suite.name ~= name, "duplicate contract suite: " .. name) end
@@ -367,7 +377,9 @@ function Contracts.run()
         if suite.name == "comprehensive-catalog" then executed.artifact_qualifier = "catalog-invariance-v1" end
         if suite.name == "brock-field-items" then executed.artifact_qualifier = "field-map-v1" end
         report.suites[#report.suites + 1] = executed
+        Contracts.progress(suite.name,nil,"running")
         local ok, child = pcall(suite.run)
+        Contracts.progress(suite.name,nil,"returned")
         if not ok then
             test(suite.name .. ": execution", function() error(child) end)
         elseif type(child) ~= "table" or type(child.tests) ~= "table" or #child.tests == 0 then

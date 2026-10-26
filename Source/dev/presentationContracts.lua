@@ -65,7 +65,10 @@ end
 function PresentationContracts.run()
     local report={ok=true,passed=0,failed=0,tests={}}
     local function test(name,fn)
-        local ok,problem=pcall(fn);report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(problem)or nil}
+        Contracts.progress("world-presentation",name,"running")
+        local ok,problem=pcall(fn)
+        Contracts.progress("world-presentation",name,"returned")
+        report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(problem)or nil}
         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
     end
     test("first entry presentation replaces actual Title framebuffer at exact decoded midstep pose without a logical tick",function()
