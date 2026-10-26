@@ -59,7 +59,8 @@ function EventState:_queueDialog(labels)
 end
 function EventState:enter(id,options)
     assert(type(id)=="string" and SourceEvents.has(id),"supported source event required")
-    local content=SourceEvents.descriptor(id).content
+    local descriptor=SourceEvents.descriptor(id)
+    local content=descriptor.content
     local extended=content~="viridian"
     assert(options==nil or type(options)=="table" and (options.mode==nil or options.mode=="talk" or options.mode=="sight"),"bounded source event options required")
     self.content=content
@@ -98,6 +99,10 @@ function EventState:enter(id,options)
             assert(type(step.labels)=="table","source dialogue labels required")
             for _,label in ipairs(step.labels) do
                 if label=="_Route1Youngster1NoRoomText" or label=="_PokemartItemBagFullText" then self.hasFailureText=true end
+                local failureLabels = descriptor.reward and descriptor.reward.full or descriptor.full or {}
+                for _, failureLabel in ipairs(failureLabels) do
+                    if label == failureLabel then self.hasFailureText = true end
+                end
                 if plan.scene=="oak-pokedex" and label=="_OaksLabRivalLeaveItAllToMeText" then
                     self.ops[#self.ops+1]={op="oak-face-player"}
                 end

@@ -45,7 +45,7 @@ BESPOKE = {
 
 
 SHARED_TEXT = {
-    '_FoundItemText', '_NoMoreRoomForItemText', '_MoneyForWinningText',
+    '_FoundItemText', '_NoMoreRoomForItemText', '_MoneyForWinningText', '_PokemartItemBagFullText',
     '_PokemonCenterWelcomeText', '_ShallWeHealYourPokemonText', '_NeedYourPokemonText',
     '_PokemonFightingFitText', '_PokemonCenterFarewellText', '_MartSignText', '_PokeCenterSignText',
 }
