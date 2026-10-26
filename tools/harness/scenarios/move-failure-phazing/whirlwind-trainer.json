@@ -106,6 +106,11 @@
       "frames": 360
     },
     {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 1
+    },
+    {
       "op": "await",
       "path": "battle.waiting",
       "equals": true,
@@ -120,6 +125,11 @@
       "frames": 360
     },
     {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
+    },
+    {
       "op": "await",
       "path": "battle.waiting",
       "equals": true,
@@ -132,6 +142,11 @@
       "path": "battle.message",
       "equals": "PIDGEY used WHIRLWIND!",
       "frames": 360
+    },
+    {
+      "op": "assert",
+      "path": "rng.rolls",
+      "equals": 2
     },
     {
       "op": "await",
@@ -197,14 +212,14 @@
     {
       "op": "assert",
       "path": "rng.rolls",
-      "equals": 3
+      "equals": 4
     },
     "shot whirlwind-trainer-dragged",
     "record whirlwind-trainer-front 12",
     {
       "op": "assert",
       "path": "rng.rolls",
-      "equals": 3
+      "equals": 4
     },
     "press a",
     {
@@ -234,5 +249,6 @@
     "whirlwind-native-natural-move.png",
     "whirlwind-trainer-dragged.png",
     "whirlwind-trainer-command.png"
-  ]
+  ],
+  "description": "Four rules draws: enemy move selection, Tail Whip accuracy, Whirlwind accuracy, reserve selection. Captures must consume none."
 }
