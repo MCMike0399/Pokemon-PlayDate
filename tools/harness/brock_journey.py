@@ -222,6 +222,9 @@ class BrockJourney(ParcelJourney):
             entries.append({'name':label,'learning':copy.deepcopy(self.state['learning'])})
         for _ in range(160):
             if self.state.get('root')!='learning':return
+            if lookup(self.state,'learning.input_blocked'):
+                self.send('wait 2')
+                continue
             phase=lookup(self.state,'learning.phase')
             for info in sequence(lookup(self.state,'learning.known_moves')or [],'learning.known_moves'):self.observed_moves[info['key']]=info
             if phase=='message':
