@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools.generate_kanto_maps import Reference, REVISION, decode_map, records, integer
-from tools.generate_viridian_slice import sprite_data, text_recipes
+from tools.generate_viridian_slice import sprite_data
 from tools.generate_source_map_cache import canonical
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,6 +93,34 @@ def sections(text):
     matches = list(re.finditer(r'^(\w+)::?\s*$', text, re.M))
     return {m[1]: text[m.end():matches[i + 1].start() if i + 1 < len(matches) else len(text)]
             for i, m in enumerate(matches)}
+
+
+def text_recipes(text):
+    """Keep imported underscore recipes inside their actual global ASM body.
+
+    Unprefixed globals also end a body, whether exported (::) or private (:).
+    Preserve unsupported commands as controls for the explicit runtime error.
+    """
+    result, label = {}, None
+    for number, line in enumerate(text.splitlines(), 1):
+        clean = line.split(';', 1)[0].strip()
+        found = re.fullmatch(r'(\w+)::?', line.split(';', 1)[0].rstrip())
+        if found:
+            label = found[1] if found[1].startswith('_') else None
+            if label:
+                result[label] = []
+            continue
+        if not label or not clean:
+            continue
+        match = re.fullmatch(r'(text|line|cont|para|next)\s+"(.*)"', clean)
+        if match:
+            row = dict(op=match[1], text=match[2], source_line=number)
+        elif clean.startswith('text_ram '):
+            row = dict(op='text_ram', symbol=clean.split()[1], source_line=number)
+        else:
+            row = dict(op='control', source=clean, source_line=number)
+        result[label].append(row)
+    return result
 
 
 def direct_labels(body):
@@ -376,7 +404,10 @@ def build(reference_root):
     rival_parties = {name: tables[name] for name in ('OPP_RIVAL1', 'OPP_RIVAL2')}
     output = {name + '.json': canonical(d) for name, d in definitions.items()}
     output.update({
-        'dialogue.json': canonical(envelope(texts=texts)),
+        # SDK JSON decodes \u00xx escapes as single bytes. Dialogue must be
+        # literal UTF-8, including the shared payout's yen and source accents.
+        'dialogue.json': (json.dumps(envelope(texts=texts), ensure_ascii=False,
+                                    sort_keys=True, separators=(',', ':')) + '\n').encode(),
         'sprites.json': canonical(envelope(sprites=sprites)),
         'trainers.json': canonical(envelope(trainers=trainers, rival_classes=rival_parties)),
         'events.json': canonical(envelope(events=events, signs=signs)),

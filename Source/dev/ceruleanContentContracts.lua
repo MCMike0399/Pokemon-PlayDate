@@ -141,7 +141,19 @@ function CeruleanContentContracts.run()
         if type(value) == "string" and value:sub(1, 1) == "_" then
             local pages = EventText.pagesFrom({ value }, CeruleanContent.text,
                 { wStringBuffer = "TEST ITEM", wAmountMoneyWon = 100 })
-            assert(#pages > 0, "empty source dialogue")
+            if value == "_MtMoonPokecenterClipboardText" then
+                -- The pinned source deliberately opens and closes an empty box.
+                -- Qualify this exact body; every other label must have text.
+                local record = CeruleanContent.text(value)
+                assert(record.source == "text/MtMoonPokecenter.asm")
+                same(record.recipe, {
+                    { op = "control", source = "text_start", source_line = 47 },
+                    { op = "control", source = "done", source_line = 48 },
+                })
+                assert(#pages == 0, "source clipboard gained invented dialogue")
+            else
+                assert(#pages > 0, "empty source dialogue: " .. value)
+            end
         elseif type(value) == "table" then
             for _, item in pairs(value) do checkText(item) end
         end
@@ -149,6 +161,41 @@ function CeruleanContentContracts.run()
     test("ordinary event and sign text uses real source text renderer", function()
         checkText(events)
         checkText(CeruleanContent.signs())
+    end)
+    test("source bank payout and RAM names remain literal valid UTF-8", function()
+        local ram = { player = "RÉD", rival = "BLÜE", wAmountMoneyWon = 175 }
+        local pages = EventText.pagesFrom({ "_MoneyForWinningText" }, CeruleanContent.text, ram)
+        assert(#pages == 1 and pages[1].text == "RÉD got ¥175 for winning!")
+        assert(utf8.len(pages[1].text))
+        assert(SourceText.expand("<PLAYER> / <RIVAL>", ram) == "RÉD / BLÜE")
+        for _, symbol in ipairs({ "wPlayerName", "wRivalName" }) do
+            local value = symbol == "wPlayerName" and ram.player or ram.rival
+            local resolved = EventText.pagesFrom({ "_NameWitness" }, function()
+                return { source = "native RAM witness", recipe = { { op = "text_ram", symbol = symbol } } }
+            end, { [symbol] = value })
+            assert(#resolved == 1 and resolved[1].text == value and utf8.len(resolved[1].text))
+        end
+    end)
+    test("tutorial sleepy recipe ends before Fisher global and renders source paragraphs", function()
+        local texts = SourceMaps.record("data/tutorialEscort/scenes.json").texts
+        local pages = EventText.pagesFrom({ "_ViridianCityOldManSleepyPrivatePropertyText" },
+            function(label) return texts[label] end)
+        assert(#pages == 2)
+        assert(pages[1].text == "You can't go through here!")
+        assert(pages[2].text == "This is private property!")
+    end)
+    test("source renderer still rejects unknown controls and invalid UTF-8 RAM", function()
+        local function resolve()
+            return { source = "native invalid witness", recipe = {
+                { op = "control", source = "unsupported_control" },
+            } }
+        end
+        assert(not pcall(EventText.pagesFrom, { "_InvalidWitness" }, resolve))
+        assert(not pcall(SourceText.expand, "<PLAYER>", { player = string.char(255) }))
+        assert(not pcall(SourceText.expand, "<RIVAL>", { rival = string.char(255) }))
+        assert(not pcall(EventText.pagesFrom, { "_InvalidWitness" }, function()
+            return { source = "native invalid witness", recipe = { { op = "text_ram", symbol = "wPlayerName" } } }
+        end, { wPlayerName = string.char(255) }))
     end)
     test("source content copies do not mutate immutable definitions", function()
         local first = CeruleanContent.trainers()

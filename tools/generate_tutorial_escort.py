@@ -12,7 +12,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image
-from tools.generate_viridian_slice import text_recipes
+from tools.generate_cerulean_content import text_recipes
 
 ROOT = Path(__file__).resolve().parents[1]
 PIN = ROOT / 'tools/references/tutorial-escort.json'
@@ -95,7 +95,7 @@ def build(directory=INPUT):
 
 
 def encoded(directory=INPUT):
-    return (json.dumps(build(directory), indent=2, sort_keys=True) + '\n').encode()
+    return (json.dumps(build(directory), ensure_ascii=False, indent=2, sort_keys=True) + '\n').encode()
 
 
 def main():
