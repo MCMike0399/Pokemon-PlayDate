@@ -405,59 +405,90 @@ end
 function EventState:startNPCMove(step)
     local npc
     for _, actor in ipairs(self.game.npcManager.npcs) do
-        if actor.def and actor.def.source_event_id == step.id then npc = actor; break end
+        if actor.def and actor.def.source_event_id == step.id then
+            npc = actor
+            break
+        end
     end
-    if not npc then self:fail("absent-source-actor"); return end
+    if not npc then
+        self:fail("absent-source-actor")
+        return
+    end
     local owner = self.game.npcManager.motion
     local token = self.npcLeases[step.id]
     local reason
     if not token then
-        token, reason = owner:claimScript(npc,self)
-        if not token then self:fail(reason); return end
+        token, reason = owner:claimScript(npc, self)
+        if not token then
+            self:fail(reason)
+            return
+        end
         self.npcLeases[step.id] = token
     end
     local ok
-    ok, reason = owner:startScriptStep(token,step.direction)
-    if not ok then self:fail(reason); return end
-    self.npcMove = {token=token}
-    self.phase,self.waiting = "move-npc",step.id
+    ok, reason = owner:startScriptStep(token, step.direction)
+    if not ok then
+        self:fail(reason)
+        return
+    end
+    self.npcMove = { token = token }
+    self.phase, self.waiting = "move-npc", step.id
 end
+
 function EventState:updateNPCMove()
-    local done,reason = self.game.npcManager.motion:updateScript(self.npcMove.token)
-    if done then self.npcMove=nil;self:advance()
-    elseif reason~="moving" then self:fail(reason) end
+    local done, reason = self.game.npcManager.motion:updateScript(self.npcMove.token)
+    if done then
+        self.npcMove = nil
+        self:advance()
+    elseif reason ~= "moving" then
+        self:fail(reason)
+    end
 end
+
 function EventState:cancelNPCMove()
-    for _,token in pairs(self.npcLeases or {}) do self.game.npcManager.motion:releaseScript(token) end
+    for _, token in pairs(self.npcLeases or {}) do
+        self.game.npcManager.motion:releaseScript(token)
+    end
     self.npcLeases = {}
     self.npcMove = nil
 end
+
 function EventState:prepareWarp(step)
     local target = zoneRegistry[step.to]
     local provider = WorldDeltas.definitionProvider()
     local descriptor = not target and provider and provider:hasKey(step.to) and provider:descriptor(step.to)
     local stableID = target and target.stableID or descriptor and descriptor.id
-    if not stableID then self:fail("unknown-source-warp"); return end
+    if not stableID then
+        self:fail("unknown-source-warp")
+        return
+    end
     local ok = pcall(WorldDeltas.resolveLocation,
-        {zone_id=stableID,x=step.toX,y=step.toY,facing=step.facing},WorldDeltas.export(),self.game.sessionLocationPolicy)
-    if not ok then self:fail("blocked-source-warp"); return end
+        { zone_id = stableID, x = step.toX, y = step.toY, facing = step.facing },
+        WorldDeltas.export(), self.game.sessionLocationPolicy)
+    if not ok then
+        self:fail("blocked-source-warp")
+        return
+    end
     if target == self.zone then
-        if self.game.npcManager:getNPCAt(step.toX,step.toY) then
-            self:fail("occupied-source-warp"); return
+        if self.game.npcManager:getNPCAt(step.toX, step.toY) then
+            self:fail("occupied-source-warp")
+            return
         end
     elseif target then
         for _, npc in ipairs(target.npcDefs) do
             if npc.gridX == step.toX and npc.gridY == step.toY and (not npc.appearsIf or npc.appearsIf()) then
-                self:fail("occupied-source-warp"); return
+                self:fail("occupied-source-warp")
+                return
             end
         end
     elseif descriptor then
         -- Unloaded source actor positions come from the provider's immutable
         -- surface, without resolving/registering a Zone during validation.
-        local actors = SourceActors.describe(stableID,WorldDeltas.export())
+        local actors = SourceActors.describe(stableID, WorldDeltas.export())
         for _, actor in ipairs(actors and actors.actors or {}) do
-            if actor.x == step.toX and actor.y == step.toY and WorldMotionData.visible(actor,self.session:flags()) then
-                self:fail("occupied-source-warp"); return
+            if actor.x == step.toX and actor.y == step.toY and WorldMotionData.visible(actor, self.session:flags()) then
+                self:fail("occupied-source-warp")
+                return
             end
         end
     end
