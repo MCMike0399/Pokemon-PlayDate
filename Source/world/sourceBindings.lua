@@ -1,6 +1,22 @@
 import "world/sourceMaps"
 SourceBindings = {}
 
+-- Ordinary decoded maps retain pokered constants. Historical regional inputs
+-- also carry runtime keys; resolve both forms without changing the source data.
+local speciesAliases <const> = { NIDORAN_F = "nidoranF", NIDORAN_M = "nidoranM", MR_MIME = "mr" }
+local function encounterSpecies(slot)
+    local species = slot.species
+    if slot.species_source ~= nil then
+        local source = slot.species_source
+        assert(type(source) == "string" and source:match("^[A-Z_]+$"), "invalid source encounter species")
+        local resolved = speciesAliases[source] or source:lower()
+        assert(species == nil or species == resolved, "source encounter species mismatch")
+        species = resolved
+    end
+    assert(type(species) == "string" and pokemonData[species], "unresolved Blue encounter species")
+    return species
+end
+
 function SourceBindings.specs(name, d, hasEvent)
     local profile = SourceMaps.entry(name).profile
     local viridian = profile == "viridian"
@@ -105,9 +121,10 @@ function SourceBindings.prepare(d, specs, options)
     for id in pairs(specs) do assert(expected[id], "unknown source binding ID") end
     local encounters, total = {}, 0
     for _, slot in ipairs(d.encounters.grass.slots) do
-        assert(pokemonData[slot.species] and slot.level % 1 == 0 and slot.level >= 1 and slot.level <= 100
+        local species = encounterSpecies(slot)
+        assert(slot.level % 1 == 0 and slot.level >= 1 and slot.level <= 100
             and slot.weight_256 % 1 == 0 and slot.weight_256 > 0, "unresolved Blue encounter")
-        encounters[#encounters + 1] = { species = slot.species, minLevel = slot.level, maxLevel = slot.level, weight = slot.weight_256 }
+        encounters[#encounters + 1] = { species = species, minLevel = slot.level, maxLevel = slot.level, weight = slot.weight_256 }
         total = total + slot.weight_256
     end
     assert(#encounters == 0 and d.encounters.grass.rate_byte == 0 or #encounters == 10 and total == 256, "invalid Blue encounter weights")
@@ -121,6 +138,10 @@ function SourceBindings.prepare(d, specs, options)
             directional_rules = GameSession._copy(d.directional_rules) }
         result.scope = "pewter-slice-only"
         result.scopeStatus = "bounded Route2/Forest/Pewter slice; campaign and remaining source controls incomplete"
+        if entry.profile == "source" then
+            result.scope = "source-map-only"
+            result.scopeStatus = "ordinary source geometry and encounters; campaign and source scripts incomplete"
+        end
     end
     return result
 end

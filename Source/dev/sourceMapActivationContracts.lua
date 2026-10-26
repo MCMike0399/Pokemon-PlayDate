@@ -90,12 +90,20 @@ function SourceMapActivationContracts.run()
         blockSchool(records)
         scope(records, function()
             local school = construct("ViridianSchoolHouse")
-            assert(school:getEdgeDoorAt(4, 7, "down") == nil, "return crossed a blocked ingress")
-            assert(school:getEdgeDoorAt(5, 7, "down") == nil, "second return crossed a blocked ingress")
             for _, event in ipairs(SourceMaps.padded("ViridianSchoolHouse").events.warps) do
                 local spec = SourceMaps.warpSpec("ViridianSchoolHouse", event)
                 assert(spec.status == "blocked" and spec.reason == "original target map outside reviewed Pewter slice")
                 assert(school.collision[event.y + 1][event.x + 1] == 1)
+                assert(school:bindingAt(event.x, event.y).id == event.id)
+                for _, door in ipairs(school.doors) do
+                    assert(door.source_event_id ~= event.id, "return crossed a blocked ingress")
+                end
+                -- Blocked source door queries deliberately fail loudly. A nil
+                -- result would hide an unsupported warp from callers.
+                for _, query in ipairs({ school.getDoorAt, school.getEdgeDoorAt }) do
+                    local ok, problem = pcall(query, school, event.x, event.y, "down")
+                    assert(not ok and tostring(problem):find("unresolved source warp: " .. event.id, 1, true))
+                end
             end
         end)
     end)
@@ -128,11 +136,20 @@ function SourceMapActivationContracts.run()
     end)
 
     test("vertical source gate is enforced while the original opposite direction stays valid", function()
-        scope(fixture(), function()
+        local records = fixture()
+        records["data/sourceMapCache/compact.json"].maps.ViridianCity.blocked_connections = { "north:ROUTE_2" }
+        scope(records, function()
             assert(SourceMaps.connection("ViridianCity", 20, 0, "up") == nil)
             local reverse = assert(SourceMaps.connection("Route2", 10, 71, "down"))
             assert(reverse.to == "kanto_viridian_city" and reverse.x == 20 and reverse.y == 0)
         end)
+    end)
+
+    test("production Viridian and Route2 keep both accepted campaign connections", function()
+        local north = assert(SourceMaps.connection("ViridianCity", 20, 0, "up"))
+        assert(north.to == "kanto_route2" and north.x == 10 and north.y == 71)
+        local south = assert(SourceMaps.connection("Route2", 10, 71, "down"))
+        assert(south.to == "kanto_viridian_city" and south.x == 20 and south.y == 0)
     end)
 
     test("unknown binding adapters still fail the real Zone constructor", function()

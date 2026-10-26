@@ -82,6 +82,64 @@ function SourceMapContracts.run()
         end
     end
 
+    test("production Kanto and Pewter traversal preserve Viridian Route2 round trip", function()
+        scope(function(provider, _, context)
+            local city = provider:ensure("kanto_viridian_city")
+            local north = assert(KantoWorld.connection(context, city, 20, 0, "up"))
+            equal(north.to, "kanto_route2")
+            equal(north.toX, 10)
+            equal(north.toY, 71)
+            equal(north.facing, "up")
+            local route = provider:ensure(north.to)
+            local south, handled = PewterWorld.connection(context, route, north.toX, north.toY, "down")
+            assert(handled and south, "accepted Route2 return was blocked")
+            equal(south.to, "kanto_viridian_city")
+            equal(south.toX, 20)
+            equal(south.toY, 0)
+            equal(south.facing, "down")
+            same(assert(KantoWorld.connection(context, route, 10, 71, "down")), south)
+        end)
+    end)
+
+    test("ordinary decoded Blue encounters resolve all Route22 slots without mutating source", function()
+        extensionScope(function(provider)
+            local before = SourceMaps.definition("Route22")
+            local route = provider:ensure("fixture_Route22")
+            local species = { "rattata", "nidoranF", "rattata", "nidoranF", "rattata",
+                "nidoranF", "spearow", "spearow", "nidoranM", "nidoranM" }
+            local levels = { 3, 3, 4, 4, 2, 2, 3, 5, 3, 4 }
+            local weights = { 51, 51, 39, 25, 25, 25, 13, 13, 11, 3 }
+            equal(#route.encounters, 10)
+            for index, slot in ipairs(route.encounters) do
+                equal(slot.species, species[index])
+                equal(slot.minLevel, levels[index])
+                equal(slot.maxLevel, levels[index])
+                equal(slot.weight, weights[index])
+            end
+            same(SourceMaps.definition("Route22"), before)
+            local definition = SourceMaps.padded("Route22")
+            local specs = SourceBindings.specs("Route22", definition, function() return false end)
+            local options = { dispatch = function() error("fixture cannot dispatch") end,
+                questFlag = function() return false end,
+                objectDefinition = function(_, event)
+                    return { gridX = event.x, gridY = event.y, source_event_id = event.id }
+                end }
+            local plan = SourceBindings.prepare(definition, specs, options)
+            equal(plan.encounterRateByte, 25)
+            equal(plan.scope, "source-map-only")
+            equal(plan.specs[definition.script.source].status, "blocked")
+            local function rejectsSpecies(message)
+                local ok, problem = pcall(SourceBindings.prepare, definition, specs, options)
+                assert(not ok and tostring(problem):find(message, 1, true), "expected species validation failure")
+            end
+            definition.encounters.grass.slots[1].species_source = "UNIMPLEMENTED_SPECIES"
+            rejectsSpecies("unresolved Blue encounter species")
+            definition.encounters.grass.slots[1].species_source = "RATTATA"
+            definition.encounters.grass.slots[1].species = "spearow"
+            rejectsSpecies("source encounter species mismatch")
+        end)
+    end)
+
     test("first Viridian to Route22 connection validates a never-loaded destination", function()
         extensionScope(function(provider, registry, context)
             local city = provider:ensure("kanto_viridian_city")
