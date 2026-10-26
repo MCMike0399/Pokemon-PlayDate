@@ -210,7 +210,8 @@
     "dev/entryAbilityContracts",
     "dev/contactAbilityContracts",
     "dev/fieldAcquisitionContracts",
-    "dev/vermilionAbilityContracts"
+    "dev/vermilionAbilityContracts",
+    "dev/caveEncounterContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -316,6 +317,7 @@
     "Contracts.register(\"entry-abilities\", EntryAbilityContracts.run)",
     "Contracts.register(\"contact-abilities\", ContactAbilityContracts.run)",
     "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)",
-    "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)"
+    "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)",
+    "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)"
   ]
 }

@@ -234,6 +234,8 @@ import "dev/fieldAcquisitionContracts"
 Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
 import "dev/vermilionAbilityContracts"
 Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
+import "dev/caveEncounterContracts"
+Contracts.register("cave-encounters", CaveEncounterContracts.run)
 
 -- @harness runtime
 harness = Harness
