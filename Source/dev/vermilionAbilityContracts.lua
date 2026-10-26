@@ -54,6 +54,28 @@ local function attempt(battle, side, key, seed)
     return settle(battle)
 end
 
+local function protectedRound(battle, key)
+    -- Protect needs a real opposing move still queued when it executes.
+    -- Public selection registers both actions and keeps the normal round cleanup.
+    own(battle.player, { key })
+    own(battle.enemy, { "protect" })
+    RulesRNG.seed(2)
+    assert(battle:selectMove(1))
+    local text = settle(battle)
+    local protection = battle.enemy.name .. " protected itself!"
+    local _, firstEnd = text:find(protection, 1, true)
+    assert(firstEnd, "Protect did not succeed")
+    assert(text:find(protection, firstEnd + 1, true), "Protect did not block the queued attack")
+    assert(not text:find("But it failed!", 1, true))
+    eq(battle:phase(), "command")
+    eq(battle.effects.round, nil, "round cleanup")
+    eq(battle.conditions.members[battle.enemy].protect, nil, "Protect cleanup")
+    eq(battle.player.pp[key], moveData[key].maxPP - 1)
+    eq(battle.enemy.pp.protect, moveData.protect.maxPP - 1)
+    eq(RulesRNG.snapshot().rolls, 1, "enemy selection only; no hit or ability trials")
+    eq(next(battle.effects.receipts), nil)
+end
+
 local function residual(battle)
     battle:runScript(function()
         return battle:endOfRoundStatus()
@@ -148,12 +170,10 @@ function VermilionAbilityContracts.run()
 
     test("Technician Protect stops the hit before new damage or receipts", function()
         local b = fresh(mon("meowth", 14, "second"), mon("shellder"))
-        attempt(b, "enemy", "protect")
         local hp = b.enemy.hp
-        attempt(b, "player", "furySwipes")
+        protectedRound(b, "furySwipes")
         eq(b.enemy.hp, hp)
         eq(next(b.effects.receipts), nil)
-        eq(RulesRNG.snapshot().rolls, 0)
     end)
 
     test("Flash Fire actual Ember absorbs repeatedly with PP only, no RNG or receipt", function()
@@ -188,10 +208,10 @@ function VermilionAbilityContracts.run()
 
     test("Flash Fire Protect precedes activation; absent ability takes actual damage", function()
         local b = fireBattle()
-        attempt(b, "enemy", "protect")
-        attempt(b, "player", "ember")
+        local protectedHP = b.enemy.hp
+        protectedRound(b, "ember")
+        eq(b.enemy.hp, protectedHP)
         eq(b.effects.ordinaryAbilities.flashFire[b.enemy], nil)
-        eq(RulesRNG.snapshot().rolls, 0)
         local plain = fresh(mon("charmander"), mon("ponyta", 25, "first"))
         local hp = plain.enemy.hp
         attempt(plain, "player", "ember")
@@ -440,8 +460,7 @@ function VermilionAbilityContracts.run()
     test("Water Absorb respects Protect, absence and actual Worry Seed override", function()
         local b = fresh(mon("squirtle"), mon("poliwag", 18, "first"))
         b.enemy.hp = 10
-        attempt(b, "enemy", "protect")
-        attempt(b, "player", "waterGun")
+        protectedRound(b, "waterGun")
         eq(b.enemy.hp, 10)
         local absent = fresh(mon("squirtle", 10), mon("poliwag", 25, "second"))
         local hp = absent.enemy.hp
@@ -575,13 +594,11 @@ function VermilionAbilityContracts.run()
 
     test("Liquid Ooze Protect produces no drain and a lethal reflected hit does not revive its user", function()
         local b = fresh(mon("oddish"), mon("tentacool", 17, "second"))
-        attempt(b, "enemy", "protect")
         local hp = b.player.hp
         local enemyHP = b.enemy.hp
-        attempt(b, "player", "absorb")
+        protectedRound(b, "absorb")
         eq(b.player.hp, hp)
         eq(b.enemy.hp, enemyHP)
-        eq(RulesRNG.snapshot().rolls, 0)
         b = fresh(mon("oddish"), mon("tentacool", 17, "second"))
         b.player.hp = 1
         attempt(b, "player", "absorb")
