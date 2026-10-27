@@ -15,15 +15,25 @@ local function same(a, b)
     return true
 end
 FieldMoves.same = same
-function FieldMoves.data()
+local function readData()
     if not source then
         source = assert(json.decodeFile("data/fieldMoves.json"))
         assert(source.schema == 1 and source.source_revision == revision, "unverified field move data")
     end
-    return copy(source)
+    return source
+end
+function FieldMoves.data()
+    return copy(readData())
 end
 function FieldMoves.tile(key)
-    return FieldMoves.data().tiles[key]
+    return copy(readData().tiles[key])
+end
+-- Keep per-frame effect reads bounded as the source-map inventory grows.
+function FieldMoves.effectData()
+    local data = readData()
+    return copy({tree_grid = data.tree_grid, tree_frames = data.tree_frames,
+        grass_leaf = data.grass_leaf, grass_animation = data.grass_animation,
+        grass_frames = data.grass_frames, flash_white_frames = data.flash_white_frames})
 end
 function FieldMoves.known(mon)
     local result = {}
@@ -47,11 +57,20 @@ local function boundary(game, party, state)
         and player and not player.isMoving and not player.isJumping and not player.stepJustFinished
         and not player.pendingEdgeDoor and not player.pendingConnection
 end
-local function occupied(game, cells)
+local function occupied(game, cells, allowPlayer)
     for _, cell in ipairs(cells) do
-        if game.player.gridX == cell.x and game.player.gridY == cell.y then return true end
-        if game.npcManager:getNPCAt(cell.x, cell.y) then return true end
-        if #currentZone:sourceEventsAt(cell.x, cell.y) > 0 then return true end
+        if not allowPlayer and game.player.gridX == cell.x and game.player.gridY == cell.y then
+            return true
+        end
+        if game.npcManager:getNPCAt(cell.x, cell.y) then
+            return true
+        end
+        if #currentZone:sourceEventsAt(cell.x, cell.y) > 0 then
+            return true
+        end
+        if currentZone:getDoorAt(cell.x, cell.y) or currentZone:getEdgeDoorAt(cell.x, cell.y) then
+            return true
+        end
     end
     return false
 end
@@ -77,9 +96,20 @@ local function replace(world, zone, cells)
     out.zone_count = #out.zones
     return WorldDeltas.validate(out)
 end
+local function cutSites(spec)
+    local sites = {}
+    for _, site in ipairs(spec.sites) do
+        sites[#sites + 1] = site
+    end
+    for _, site in ipairs(spec.grass_sites or {}) do
+        sites[#sites + 1] = site
+    end
+    return sites
+end
+
 function FieldMoves.cutPlan(game)
     local zone = currentZone
-    local data = FieldMoves.data()
+    local data = readData()
     local spec = data.maps[zone.stableID]
     if not zone.imported or not spec then return nil, "nothing-to-cut" end
     local provider = WorldDeltas.definitionProvider()
@@ -88,7 +118,7 @@ function FieldMoves.cutPlan(game)
     if descriptor.revision ~= revision or descriptor.source_width ~= spec.width
         or descriptor.height ~= spec.height or descriptor.name ~= spec.name then return nil, "source-map-mismatch" end
     local fx, fy = game.player:getFacingTile()
-    for _, site in ipairs(spec.sites) do
+    for _, site in ipairs(cutSites(spec)) do
         for _, target in ipairs(site.targets) do
             if fx == target.x + descriptor.padding and fy == target.y then
                 local cells = copy(site.cells)
@@ -102,11 +132,21 @@ function FieldMoves.cutPlan(game)
                 -- Only changed quadrants are mutation endpoints; standing on an
                 -- unchanged quadrant in this source block is legal.
                 local endpoints = {}
-                for _, cell in ipairs(cells) do if cell.before ~= cell.after then endpoints[#endpoints+1] = cell end end
-                if occupied(game, endpoints) then return nil, "occupied-target" end
+                for _, cell in ipairs(cells) do
+                    if cell.before ~= cell.after then
+                        endpoints[#endpoints + 1] = cell
+                    end
+                end
+                -- The player may already be standing in this grass block.
+                -- Trees retain their blocked-endpoint occupancy policy.
+                if occupied(game, endpoints, site.kind == "grass") then
+                    return nil, "occupied-target"
+                end
                 local before = WorldDeltas.export()
-                return {before=before, after=replace(before, zone, cells), cells=cells,
-                        target={x=fx,y=fy}, endpoints=endpoints}
+                return {
+                    before = before, after = replace(before, zone, cells), cells = cells,
+                    target = {x = fx, y = fy}, endpoints = endpoints, kind = site.kind or "tree"
+                }
             end
         end
     end
@@ -114,7 +154,7 @@ function FieldMoves.cutPlan(game)
 end
 function FieldMoves.validDarknessInput(zoneID, input)
     local eligible = false
-    for _, id in ipairs(FieldMoves.data().dark_maps) do if id == zoneID then eligible = true end end
+    for _, id in ipairs(readData().dark_maps) do if id == zoneID then eligible = true end end
     return eligible and type(input) == "table" and input.zone_id == zoneID
         and input.source_revision == revision and input.offset == 6
         and type(input.epoch) == "number" and input.epoch % 1 == 0 and input.epoch >= 1
@@ -172,7 +212,9 @@ local function valid(p, state)
     for i, mon in ipairs(roster) do if mon ~= p.roster[i] then return false end end
     local record = monRecord(p.session,p.mon,p.key)
     if not record or not same(record,p.record) then return false end
-    if p.key == "cut" then return not occupied(g,p.plan.endpoints) end
+    if p.key == "cut" then
+        return not occupied(g, p.plan.endpoints, p.plan.kind == "grass")
+    end
     return g.fieldDarkness == p.plan.adapter and same(p.plan.adapter:read(g),p.plan.input)
 end
 function FieldMoves.isCurrent(token, state)
@@ -182,7 +224,10 @@ end
 function FieldMoves.preview(token)
     local p = requests[token]
     if not p then return nil end
-    return {key=p.key, name=p.mon.name, target=copy(p.plan.target), cells=copy(p.plan.cells)}
+    return {
+        key = p.key, kind = p.plan.kind, name = p.mon.name,
+        target = copy(p.plan.target), cells = copy(p.plan.cells)
+    }
 end
 function FieldMoves.cancel(token)
     local p = requests[token]
@@ -209,14 +254,14 @@ end
 -- Root invokes this on map reload/Continue, never merely on overlay/battle return.
 function FieldMoves.reloadWorld(world, zoneID, padding)
     local out = copy(world)
-    local spec = FieldMoves.data().maps[zoneID]
+    local spec = readData().maps[zoneID]
     if not spec then return out end
     for index, record in ipairs(out.zones) do
         if record.zone_id == zoneID then
             assert(record.definition_revision == revision, "wrong cut reset revision")
             local byCell, remove = {}, {}
             for _, tile in ipairs(record.tiles) do byCell[tile.y..":"..tile.x] = tile.key end
-            for _, site in ipairs(spec.sites) do
+            for _, site in ipairs(cutSites(spec)) do
                 local matches, changed = true, false
                 for _, cell in ipairs(site.cells) do
                     local id = cell.y..":"..(cell.x + padding)

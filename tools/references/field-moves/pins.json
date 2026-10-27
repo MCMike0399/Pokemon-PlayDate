@@ -12,7 +12,11 @@
     "Route6",
     "VermilionCity",
     "VermilionGym",
-    "Route11"
+    "Route11",
+    "Route1",
+    "Route22",
+    "Route3",
+    "Route4"
   ],
   "pokered": {
     "engine/overworld/cut.asm": "9062c09d8a39fc0be5abccc6cd35ac422e18c9ab477464d9c91b8316bea57693",
@@ -55,7 +59,18 @@
     "maps/Route6.blk": "186f302692f3da99d5fab638ba3320a7f6dbbf90a8851636132a1836e15a9de6",
     "maps/VermilionCity.blk": "bf81c1399b34e7c0e4e924268d00f90fecd7c67d9a7a3af87db3f587ef92f2c8",
     "maps/VermilionGym.blk": "6469e306f4e9d7a2c4e6cde4bb04151e6305c789ed2da0bad5db2ebe6096e755",
-    "maps/Route11.blk": "43d55be14d1f1254f6e5c5d8148f97c3db23955187842a4b7779cd60b2904cf7"
+    "maps/Route11.blk": "43d55be14d1f1254f6e5c5d8148f97c3db23955187842a4b7779cd60b2904cf7",
+    "home/oam.asm": "601177b3dae9b5d9a399345214bcbab67611dc1c9b75940344f8f19c7c6970ff",
+    "engine/battle/animations.asm": "188abd046daf4f1c8482ed5cc541ffa85edf0681b5205f08dea0e1344b017e4b",
+    "gfx/battle/move_anim_1.png": "e20aa6f79fe613052f1356c385ffab8340c8b4f7f4277e0c1c574223be192d14",
+    "data/maps/headers/Route1.asm": "b64b3376c6516f3edc6a884d9220791805745d6cb7564574a11b9ee457da535d",
+    "maps/Route1.blk": "328b8ad2dee6852d9f332f18af80a6210bb0f9204597ad082ac6e569e226d482",
+    "data/maps/headers/Route22.asm": "3f86459c6a57f5fd64b8f8013a2e1713d46c4708d72b95a0a6816538661c5f56",
+    "maps/Route22.blk": "93efad02d03b93a1fcc6e60379086e5712d1785383ad055cf4b097fea9b7fff8",
+    "data/maps/headers/Route3.asm": "d0df69562f4501b6d84908351bd58449bcaa10d4d71efb854b3ee22706b6ece3",
+    "maps/Route3.blk": "189694e837f01c7d22e06253ed49302ff666a744bd173119e4c01b5b2c781038",
+    "data/maps/headers/Route4.asm": "7b3e58e2d3985cb6c76d109c47fb0538f400daef2281a19796007bc9ca5d337d",
+    "maps/Route4.blk": "dcdd83b25091fbbfa9229e497b86dd80017476675fd764f9c077194050750677"
   },
   "showdown": {
     "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",

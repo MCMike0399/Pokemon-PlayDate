@@ -42,7 +42,8 @@ function FieldMoveState:enter(token, party)
     self.token, self.party, self.session = token, party, self.game.session
     self.phase, self.frame, self.active = "confirm", 0, true
     self.preview = assert(FieldMoves.preview(token))
-    self.ground = nil
+    self.effect = FieldMoves.effectData()
+    self.ground, self.grassGround, self.grassFrames = nil, {}, nil
     local visit = self.visit
     local function current()
         return self.active and self.visit == visit and self:isTop() and self.game.session == self.session
@@ -90,6 +91,7 @@ function FieldMoveState:exit()
     self.menu:hide()
     self.menu.onSelect, self.menu.onCancel = nil, nil
     self.token, self.party, self.session, self.treeFrames = nil, nil, nil, nil
+    self.grassFrames, self.grassGround, self.effect = nil, nil, nil
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
 end
 
@@ -104,9 +106,13 @@ function FieldMoveState:update()
     if self.phase ~= "effect" then
         return
     end
-    local frames = self.preview.key == "cut" and FieldMoves.data().tree_frames or FieldMoves.data().flash_white_frames
-    -- frame 0 is presented on the A press; commit after the eighth/third
-    -- presented frame. No terrain changes if the overlay is interrupted.
+    local data = self.effect
+    local frames = data.flash_white_frames
+    if self.preview.key == "cut" then
+        frames = self.preview.kind == "grass" and data.grass_frames or data.tree_frames
+    end
+    -- Frame zero is presented on the A press. Commit after all source effect
+    -- frames; an interrupted overlay leaves terrain and the session unchanged.
     self.frame = self.frame + 1
     if self.frame < frames then
         return
@@ -128,8 +134,8 @@ function FieldMoveState:handleInput()
     end
 end
 
-local function treeFrames()
-    local grid, frames = FieldMoves.data().tree_grid, {}
+local function treeFrames(grid)
+    local frames = {}
     for _, palette in ipairs({0xe4, 0x80}) do
         local rows = {}
         for y, row in ipairs(grid) do
@@ -157,6 +163,59 @@ local function treeFrames()
     return frames
 end
 
+-- The source leaf is an 8x8 OAM tile, not a synthetic terrain cell.
+-- Pad only for the existing 16x16 renderer; the mask removes all padding and
+-- original color-zero pixels before either OAM palette is applied.
+local function grassFrames(leaf)
+    local frames = {}
+    for _, palette in ipairs({0xe4, 0x80}) do
+        local rows = {}
+        local mask = gfx.image.new(32, 32, gfx.kColorBlack)
+        gfx.pushContext(mask)
+        gfx.setColor(gfx.kColorWhite)
+        for y = 1, 16 do
+            local row = ""
+            for x = 1, 16 do
+                local code = y <= 8 and x <= 8 and leaf[y]:sub(x, x) or "."
+                local index = assert(({["."] = 0, ["1"] = 1, ["2"] = 2, ["#"] = 3})[code])
+                local shade = (palette >> (index * 2)) & 3
+                row = row .. (".12#"):sub(shade + 1, shade + 1)
+                if code ~= "." then
+                    gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)
+                end
+            end
+            rows[y] = row
+        end
+        gfx.popContext()
+        local padded = TileFactory.renderGrid(rows, nil, {0, 0})
+        padded:setMaskImage(mask)
+        local image = gfx.image.new(16, 16, gfx.kColorClear)
+        gfx.pushContext(image)
+        padded:draw(0, 0)
+        gfx.popContext()
+        frames[palette] = image
+    end
+    return frames
+end
+
+local function drawGrass(state, ox, oy)
+    state.grassFrames = state.grassFrames or grassFrames(state.effect.grass_leaf)
+    for _, cell in ipairs(state.preview.cells) do
+        local key = cell.after
+        if not state.grassGround[key] then
+            state.grassGround[key] = TileFactory.renderGrid(assert(FieldMoves.tile(key)).grid, nil, {0, 0})
+        end
+        state.grassGround[key]:draw(cell.x * 32 + ox, cell.y * 32 + oy)
+    end
+    local animation = state.effect.grass_animation[state.frame + 1]
+    local target = state.preview.target
+    for _, entry in ipairs(animation.entries) do
+        local flip = entry.flip == "x" and gfx.kImageFlippedX or gfx.kImageFlippedY
+        state.grassFrames[animation.palette]:draw(target.x * 32 + ox + entry.x * 2,
+            target.y * 32 + oy + entry.y * 2, flip)
+    end
+end
+
 function FieldMoveState:draw()
     if not self.active then
         return
@@ -168,8 +227,10 @@ function FieldMoveState:draw()
             -- GBPalWhiteOutWithDelay3, not an invented circular light radius.
             gfx.setColor(gfx.kColorWhite)
             gfx.fillRect(0, 0, 400, 240)
+        elseif self.preview.kind == "grass" then
+            drawGrass(self, ox, oy)
         else
-            self.treeFrames = self.treeFrames or treeFrames()
+            self.treeFrames = self.treeFrames or treeFrames(self.effect.tree_grid)
             local target = self.preview.target
             local x, y = target.x * 32 + ox, target.y * 32 + oy
             for _, cell in ipairs(self.preview.cells) do
