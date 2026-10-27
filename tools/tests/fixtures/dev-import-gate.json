@@ -30,10 +30,12 @@
     "domain/saveStore",
     "data/items",
     "data/lightBall",
+    "data/pickupData",
     "domain/items",
     "domain/worldMotion",
     "domain/itemStorage",
     "domain/pcItems",
+    "domain/pickup",
     "domain/gameSession",
     "domain/teaching",
     "domain/sessionCodec",
@@ -235,7 +237,8 @@
     "dev/vermilionAbilityContracts",
     "dev/vermilionCatalogExporter",
     "dev/vermilionCatalogContracts",
-    "dev/caveEncounterContracts"
+    "dev/caveEncounterContracts",
+    "dev/pickupContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -351,6 +354,7 @@
     "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)",
     "VermilionCatalogExporter.register()",
     "Contracts.register(\"vermilion-catalog\", VermilionCatalogContracts.run)",
-    "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)"
+    "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)",
+    "Contracts.register(\"pickup\", PickupContracts.run)"
   ]
 }

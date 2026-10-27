@@ -260,5 +260,8 @@ Contracts.register("vermilion-catalog", VermilionCatalogContracts.run)
 import "dev/caveEncounterContracts"
 Contracts.register("cave-encounters", CaveEncounterContracts.run)
 
+import "dev/pickupContracts"
+Contracts.register("pickup", PickupContracts.run)
+
 -- @harness runtime
 harness = Harness
