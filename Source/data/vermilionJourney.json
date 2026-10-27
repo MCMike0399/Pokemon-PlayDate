@@ -3355,7 +3355,7 @@
     "game/sourceEvents.lua": "8952d51b9155536c16adfc75692bb8d8bd8253047bf77ee2a799afe39aa8f84e",
     "game/trainerEvents.lua": "57227fc6e13e9427340bb7fd1613700eb3244084c1c40f7d831450eee069758b",
     "game/vermilionGifts.lua": "c1acedb198b1348dbdcbbaf44f464269aaf777c9b4a1e555a1ca242ca38a4765",
-    "game/vermilionStory.lua": "39c6a92a6634a5efe042359f37f0bd4b121687c0bc1ee8661b6ba15f20f99084",
+    "game/vermilionStory.lua": "e00b8c7ced96d6ad630c4515d722c422b865fc2c745d60d677741046cb7a2af6",
     "game/vermilionStoryHooks.lua": "0bdef828c9b38804baef3588a3c3485b3b8816d051acde6cd266bc758e1e221b",
     "game/vermilionStoryIntent.lua": "31bf40875b5d9940b81fdc3a463a6aca67c3a7e94878a69086c658138862c440",
     "game/vermilionStoryState.lua": "084cfdd3ae23d32f84c34bbde7ad8b7251a323d876819e724084b0c97658ec29",

@@ -43,7 +43,12 @@ function VermilionStory.plan(id, state)
         and not state.flags.EVENT_WALKED_PAST_GUARD_AFTER_SS_ANNE_LEFT then
         return {status="ready",scene="vermilion-story",scene_script="city-exit",steps={}}
     end
-    if id == VermilionStory.SURGE then return SourceEvents.compile(copy(d),state,id) end
+    if id == VermilionStory.SURGE then
+        local plan = SourceEvents.compile(copy(d), state, id)
+        plan.ram = plan.ram or {}
+        plan.ram.wStringBuffer = ItemData.definitions.tm24.name
+        return plan
+    end
     if id == VermilionStory.RIVAL then
         if state.receipt then
             assert(state.receipt.id == id and state.receipt.won and state.trainers[id],"unconfirmed Anne rival receipt")
