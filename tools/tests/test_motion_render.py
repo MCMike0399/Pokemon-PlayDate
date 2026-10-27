@@ -12,6 +12,10 @@ class MotionRenderTests(unittest.TestCase):
         for name in ['sprites.json','descriptors.json','PewterMart.json']:
             path=source/name;shutil.copyfile(Path.cwd()/'Source/data/pewterSlice'/name,path)
             hashes['data/pewterSlice/'+name]=hashlib.sha256(path.read_bytes()).hexdigest()
+        for relative in ['data/sourceMaps.json']:
+            path = root/'Source'/relative
+            shutil.copyfile(Path.cwd()/'Source'/relative, path)
+            hashes[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
         (root/'source-manifest.json').write_text(json.dumps(hashes))
         data=json.loads((source/'sprites.json').read_text());mapping=data['mapping']['SPRITE_YOUNGSTER'];strip=data['sprites'][mapping['name']]
         sprite=raster(strip['frames'][str(strip['standing']['down'])])

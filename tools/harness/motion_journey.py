@@ -217,14 +217,51 @@ def verify_rendered_poses(build_evidence,png,state):
     build_evidence=Path(build_evidence)
     hashes=json.loads((build_evidence/'source-manifest.json').read_text())
     def source(relative):
-        path=build_evidence/'Source'/relative;raw=path.read_bytes()
+        path = (build_evidence / 'Source' / relative).resolve()
+        if not path.is_relative_to((build_evidence / 'Source').resolve()) or relative not in hashes:
+            raise ProtocolError('missing/unsafe rendered pose source input: ' + relative)
+        try:
+            raw = path.read_bytes()
+        except OSError as error:
+            raise ProtocolError('missing rendered pose source input: ' + relative) from error
         if hashlib.sha256(raw).hexdigest()!=hashes.get(relative):raise ProtocolError('rendered pose source input drift: '+relative)
         return json.loads(raw)
-    descriptors=source('data/pewterSlice/descriptors.json')['maps']
-    names=[name for name,d in descriptors.items()if d['id']==state['zone_id']]
-    if len(names)!=1:raise ProtocolError('unidentified first-world source map')
-    events={event['id']:event for event in source('data/pewterSlice/'+names[0]+'.json')['events']['objects']}
-    sprites=source('data/pewterSlice/sprites.json')
+    from tools.generate_source_map_cache import REVISION
+
+    def qualified(relative):
+        data = source(relative)
+        if data.get('schema') != 1 or data.get('source_revision') != REVISION:
+            raise ProtocolError('unverified rendered pose source record: ' + relative)
+        return data
+
+    manifest = qualified('data/sourceMaps.json')['maps']
+    names = [name for name, entry in manifest.items() if entry['id'] == state['zone_id']]
+    if len(names) != 1:
+        raise ProtocolError('unidentified first-world source map')
+    name = names[0]
+    entry = manifest[name]
+    profile = entry['profile']
+    if profile not in ('pewter', 'source', 'viridian'):
+        raise ProtocolError('unsupported rendered pose source profile: ' + str(profile))
+    if state.get('zone', entry['key']) != entry['key']:
+        raise ProtocolError('first-world source map runtime identity differs')
+    definition = qualified(entry['path'])
+    if (hashes[entry['path']] != entry['source_sha256']
+            or definition.get('name') != name or definition.get('id') != entry['id']):
+        raise ProtocolError('first-world decoded source map identity/pin differs')
+    events = {}
+    for event in definition['events']['objects']:
+        if event['id'] in events or event['id'] != entry['id'] + ':objects:' + str(event['source_index']):
+            raise ProtocolError('first-world decoded source object identity differs')
+        events[event['id']] = event
+    # These are immutable content packages, not regional map-name inventories.
+    # Duplicate art must agree, as in the production immutable package resolver.
+    packages = ['data/sourceSlice/sprites.json', 'data/vermilionPreparation/sprites.json'] if profile == 'source' else [
+        'data/' + ('pewterSlice' if profile == 'pewter' else 'viridianSlice') + '/sprites.json']
+    sprites = [qualified(packages[0])]
+    for path in packages[1:]:
+        if path in hashes or (build_evidence / 'Source' / path).exists():
+            sprites.append(qualified(path))
     with Image.open(png)as opened:
         if opened.size!=(400,240)or opened.format!='PNG':raise ProtocolError('invalid first-world PNG')
         image=opened.convert('RGBA')
@@ -232,15 +269,50 @@ def verify_rendered_poses(build_evidence,png,state):
     proofs=[]
     for npc in state['npcs']:
         motion=npc.get('motion');identity=npc.get('source_event_id')
-        if not identity:continue
+        if not identity:
+            if motion is not None:
+                raise ProtocolError('first-world actor source identity missing')
+            continue
         if not isinstance(motion,dict)or identity not in events:raise ProtocolError('first-world actor source identity missing')
-        binding=sprites['mapping'][events[identity]['sprite']];strip=sprites['sprites'][binding['name']]
-        direction=npc['facing'];tick=motion['tick'];phase=(tick//2)%4 if motion['phase']=='moving'else 0
-        pose='walk' if phase==1 else 'alternate' if phase==3 else 'stand'
-        fixed=strip['fixed']and pose=='stand';lookup_direction='down'if fixed else'left'if direction=='right'else direction
-        frame=strip['standing'if pose=='stand'else'walking'][lookup_direction]
-        expected=raster(strip['frames'][str(frame)])
-        flip=not fixed and (direction=='right'or pose=='alternate'and direction in ('up','down'))
+        sprite = events[identity]['sprite']
+        strip = None
+        for package in sprites:
+            if profile == 'pewter':
+                binding = package['mapping'].get(sprite)
+                if binding is not None:
+                    strip = package['sprites'][binding['name']]
+            else:
+                key = sprite.removeprefix('SPRITE_').lower() if profile == 'viridian' else sprite
+                candidate = package['sprites'].get(key)
+                if strip is not None and candidate is not None and strip != candidate:
+                    raise ProtocolError('conflicting immutable source sprite: ' + sprite)
+                strip = strip if strip is not None else candidate
+        if strip is None:
+            raise ProtocolError('missing first-world source sprite: ' + sprite)
+        direction = npc['facing']
+        tick = motion['tick']
+        if direction not in ('up', 'down', 'left', 'right') or type(tick) is not int or (
+                motion['phase'] == 'moving' and not 1 <= tick <= 8):
+            raise ProtocolError('invalid first-world source pose phase/facing: ' + identity)
+        phase = (tick // 2) % 4 if motion['phase'] == 'moving' else 0
+        pose = 'walk' if phase == 1 else 'alternate' if phase == 3 else 'stand'
+        if profile == 'source' and sprite == 'SPRITE_BLUE':
+            # Raw faithful grids are NOT production BLUE: protected standing and
+            # greyhair strides use the SDK's legacy omitted dither phase. This
+            # helper has no protected native phase witness to qualify it against.
+            raise ProtocolError('unqualified source pose policy: SPRITE_BLUE ' + pose +
+                                ' ' + direction + ' (protected greyhair/legacy-omitted) in ' + identity)
+        fixed = strip['fixed'] and pose == 'stand'
+        lookup_direction = 'down' if fixed else 'left' if direction == 'right' else direction
+        try:
+            frame = strip['standing' if pose == 'stand' else 'walking'][lookup_direction]
+            grid = strip['frames'][str(frame)]
+            if len(grid) != 16 or any(len(row) != 16 or set(row) - set('.12#') for row in grid):
+                raise ValueError('invalid grid')
+            expected = raster(grid)
+        except (KeyError, ValueError) as error:
+            raise ProtocolError('unqualified source pose frame: ' + identity + ' ' + pose + ' ' + direction) from error
+        flip = not fixed and (direction == 'right' or pose == 'alternate' and direction in ('up', 'down'))
         if flip:expected=expected.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
         left,top=round(npc['pixel_x'])-cx,round(npc['pixel_y'])-cy;checked=0
         for y in range(32):
