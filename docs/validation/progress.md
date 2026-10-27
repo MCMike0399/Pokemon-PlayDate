@@ -98,7 +98,7 @@ Diagnostic capture sampling remains optional, default interval 1.
 
 No open defect blocks accepted 5.2. Private Cerulean component checks are green;
 final natural/campaign acceptance remains pending. Vermilion still needs native
-acceptance, the remaining regional dialogue and grass Cut, plus reviewed approval
+acceptance of its composed dialogue, grass Cut and Pickup, plus reviewed approval
 for its Route2 collision diagnostic. That approval has not been granted.
 Later regions, common mechanics, audio and release checks remain unfinished.
 
@@ -108,7 +108,7 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
 | `wip/cerulean-integration` / root | `f7f35c2`, unchanged Source from `b1f0bd8`; 1659 SDK and 716 root host checks pass. `m53-natural-final-20261026-03` is live on Squirtle, followed by Bulbasaur and Charmander. |
-| `wip/vermilion-integration` / root | Private `095598f` has 65 shared maps, Cut/Flash, gifts, Anne/Surge/ship, Day Care/schema 3, natural collection and the 1702-image visual extension. Activation passed 84 host checks; collection/catalog passed 58. Dialogue and grass Cut repairs are assigned; approved Pickup packet awaits integration. Native acceptance remains pending. |
+| `wip/vermilion-integration` / root | Private `e6267c8` composes 65 maps, Cut/Flash, source grass Cut, dialogue, Anne/Surge/ship, Day Care/schema 3, natural collection and approved Pickup. Its visual extension now declares 1736 images. Latest composition compiles and passes 47 focused host checks; native acceptance remains pending. |
 | `wip/audio-integration` / root | Host parser/rendering and independently assembled RGBDS bytes are composed; 60 host checks pass. Backend runtime probes, listening and APU qualification remain pending. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
