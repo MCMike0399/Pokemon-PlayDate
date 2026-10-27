@@ -169,3 +169,33 @@ function Party:_withActiveForEntry(index, build)
     if not result[1] then state.active=previous;error(result[2],0) end
     return table.unpack(result,2,result.n)
 end
+
+-- Session-only atomic exchange: source remove-and-append ordering, with a
+-- prebuilt roster so even a last-member exchange never exposes an empty party.
+-- Keep the old active object's identity if it survives and remains usable.
+function Party:_prepareExchange(index, outgoing, incoming)
+    local current <const> = states[self]
+    if self:get(index) ~= outgoing or owners[outgoing] ~= self then
+        return nil, "stale-party-member"
+    end
+    if not valid(incoming) or not incoming:isAlive() or owners[incoming] then
+        return nil, "invalid-replacement"
+    end
+    local members <const> = {}
+    local activeObject <const> = current.members[current.active]
+    local active
+    for _, mon in ipairs(current.members) do
+        if mon ~= outgoing then
+            members[#members + 1] = mon
+            if mon == activeObject and mon:isAlive() then active = #members end
+        end
+    end
+    members[#members + 1] = incoming
+    active = active or #members
+    local candidate <const> = {members=members, active=active}
+    return function()
+        owners[outgoing] = nil
+        owners[incoming] = self
+        states[self] = candidate
+    end
+end

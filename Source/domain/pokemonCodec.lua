@@ -1,10 +1,10 @@
 -- Authoritative durable record for the current Pokemon model. No battle resume.
 -- Import after data/pokemon, battle/moves. Caller restricts session saves to
 -- outside battle; stat stages/confusion/flinch are intentionally transient.
-PokemonCodec = { VERSION = 7 }
+PokemonCodec = { VERSION = 8 }
 local MAX_INTEGER = 2147483647 -- Installed SDK signed-int ceiling; no float counter coercion.
 local statuses = { none=true, burn=true, poison=true,badPoison=true, paralyze=true, sleep=true, freeze=true }
-local fields = {version=true,species=true,name=true,level=true,xp=true,hp=true,status=true,statusTurns=true,sleepDuration=true,
+local fields = {acquisition=true,version=true,species=true,name=true,level=true,xp=true,hp=true,status=true,statusTurns=true,sleepDuration=true,
     moves=true,pp=true,pendingMoveChoices=true,nextMoveChoiceId=true,pendingEvolution=true,natureId=true,abilitySlot=true,heldItem=true,sex=true,sexProvenance=true,ivs=true,evs=true}
 local choiceFields = {id=true,move=true,level=true,sourceOrder=true,sourceMoveId=true,reason=true}
 local function integer(n, low, high)
@@ -23,8 +23,10 @@ local function array(value, low, high)
 end
 local function checked(record)
     assert(object(record,fields),"invalid-record-fields")
-    assert(record.version==PokemonCodec.VERSION or record.version==6 or record.version==5 or record.version==4 or record.version==3,"unsupported-pokemon-record-version")
+    assert(record.version==PokemonCodec.VERSION or record.version==7 or record.version==6 or record.version==5 or record.version==4 or record.version==3,"unsupported-pokemon-record-version")
     assert(type(record.species)=="string" and pokemonData[record.species],"unknown-species")
+    if record.version<8 then assert(record.acquisition==nil,"legacy-acquisition-field") end
+    local acquisition <const> = NPCTrades.provenance(record.acquisition, record.species)
     if record.version<6 then assert(record.sex==nil and record.sexProvenance==nil,"legacy-sex-fields") end
     local attributes
     if record.version==3 or record.version==4 then
@@ -94,13 +96,13 @@ local function checked(record)
         assert(eligible,"invalid-evolution-source")
         evolution={species=value.species,level=value.level}
     end
-    return {version=PokemonCodec.VERSION,species=record.species,name=record.name,level=record.level,xp=record.xp,hp=record.hp,
+    return {acquisition=acquisition,version=PokemonCodec.VERSION,species=record.species,name=record.name,level=record.level,xp=record.xp,hp=record.hp,
         status=record.status,statusTurns=record.statusTurns,sleepDuration=record.sleepDuration,moves=moves,pp=pp,pendingMoveChoices=pending,nextMoveChoiceId=record.nextMoveChoiceId,pendingEvolution=evolution,
         natureId=attributes.natureId,abilitySlot=attributes.abilitySlot,heldItem=attributes.heldItem,sex=attributes.sex,sexProvenance=attributes.sexProvenance,ivs=attributes.ivs,evs=attributes.evs}
 end
 function PokemonCodec.encode(mon)
     if type(mon)~="table" or type(mon.is)~="function" or not mon:is("Pokemon") then return nil,"invalid-pokemon" end
-    local ok,data=pcall(checked,{version=PokemonCodec.VERSION,species=mon.species,name=mon.name,level=mon.level,xp=mon.xp,hp=mon.hp,
+    local ok,data=pcall(checked,{acquisition=mon.acquisition,version=PokemonCodec.VERSION,species=mon.species,name=mon.name,level=mon.level,xp=mon.xp,hp=mon.hp,
         status=mon.status or "none",statusTurns=mon.statusTurns,sleepDuration=mon.sleepDuration,moves=mon.moves,pp=mon.pp,
         pendingMoveChoices=mon.pendingMoveChoices,nextMoveChoiceId=mon.nextMoveChoiceId,pendingEvolution=mon.pendingEvolution,
         natureId=mon.natureId,abilitySlot=mon.abilitySlot,heldItem=mon.heldItem,sex=mon.sex,sexProvenance=mon.sexProvenance,ivs=mon.ivs,evs=mon.evs})
@@ -119,6 +121,7 @@ function PokemonCodec.decode(record)
     mon.sleepDuration=data.sleepDuration
     mon.moves,mon.pp=data.moves,data.pp
     mon.pendingMoveChoices,mon.nextMoveChoiceId=data.pendingMoveChoices,data.nextMoveChoiceId
+    mon.acquisition=data.acquisition
     mon.pendingEvolution=data.pendingEvolution
     mon:resetStages()
     return mon

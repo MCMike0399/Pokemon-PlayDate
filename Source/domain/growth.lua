@@ -1,4 +1,4 @@
--- B2W2 growth and conscious-participant, original-OT, unboosted scaled battle XP.
+-- B2W2 growth and conscious-participant scaled battle XP, with explicit local outsider provenance.
 -- Import data/growthData before this module. No floats or wide native products.
 Growth = {}
 local function integer(value, low, high, label)
@@ -31,12 +31,23 @@ local function multiplyDivide(a, b, d)
     end
     return quotient
 end
-function Growth.battleAward(baseEXP, opponentLevel, recipientLevel, trainer, participants)
+-- Native fixed_round after level scaling, before the final award cap. Only
+-- local-language outsiders are authorized; no foreign-language multiplier.
+function Growth.outsiderAward(award, outsider)
+    award = integer(award, 0, 1000000, "scaled award")
+    assert(type(outsider) == "boolean", "outsider flag must be boolean")
+    -- fixed_round(x, 0x1800) keeps a 0x800 fraction rounded down. Splitting
+    -- the exact Q12 product avoids signed int32 overflow before the cap.
+    local boosted <const> = outsider and (award + award // 2) or award
+    return math.min(100000, boosted)
+end
+function Growth.battleAward(baseEXP, opponentLevel, recipientLevel, trainer, participants, outsider)
     baseEXP = integer(baseEXP, 1, 395, "Gen V original151 base EXP")
     opponentLevel = integer(opponentLevel, 1, 100, "opponent level")
     recipientLevel = integer(recipientLevel, 1, 100, "recipient level")
     assert(type(trainer) == "boolean", "trainer flag must be boolean")
     participants = integer(participants == nil and 1 or participants, 1, 6, "conscious participants")
+    assert(outsider == nil or type(outsider) == "boolean", "outsider flag must be boolean")
     if recipientLevel == 100 then return 0 end
     local z = baseEXP * opponentLevel // 5
     if trainer then z = z * 3 // 2 end
@@ -44,5 +55,6 @@ function Growth.battleAward(baseEXP, opponentLevel, recipientLevel, trainer, par
     local x, y = opponentLevel * 2 + 10, opponentLevel + recipientLevel + 10
     -- Floor the Q12-root products independently, then the ratio, then add one.
     -- Intentionally no cartridge unsigned32 overflow glitch emulation.
-    return math.min(100000, multiplyDivide(GrowthData.scaledPower[x], z, GrowthData.scaledPower[y]) + 1)
+    local award <const> = multiplyDivide(GrowthData.scaledPower[x], z, GrowthData.scaledPower[y]) + 1
+    return Growth.outsiderAward(award, outsider == true)
 end

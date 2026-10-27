@@ -1,7 +1,7 @@
 -- Pure durable attributes and explicit creation. No battle effects/availability.
 Specimen={CREATION_VERSION=3,FIELD_CREATION_VERSION=4}
 local slots={first=true,second=true,hidden=true}
-local origins={wild=true,starter=true,trainer=true,gift=true,debug=true}
+local origins={wild=true,starter=true,trainer=true,gift=true,debug=true,["npc-trade"]=true}
 local function object(value,allowed)
     assert(type(value)=="table" and getmetatable(value)==nil,"invalid-specimen-attributes")
     for key in pairs(value) do assert(allowed[key],"unknown-specimen-attribute: "..tostring(key)) end

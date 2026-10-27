@@ -698,3 +698,36 @@ function GameSession:transactSourceEffects(expected, changes)
     current.dex = result.dex
     return true
 end
+
+-- The sole authoritative trade transaction. Preparation allocates and validates
+-- the complete incoming specimen, roster, flags, dex and detached continuation.
+-- Publication has no yield, callback, recruitment or capacity-dependent work.
+function GameSession:resolveNPCTrade(request, context)
+    local ok, prepared = pcall(function()
+        local plan <const> = NPCTrades._plan(self, request, context)
+        local current <const> = state[self]
+        local combined <const> = copy(current.questFlags)
+        combined[plan.offer.flag] = true
+        plan.flags = flags(combined, 4096)
+        local pokedex <const> = self:pokedex()
+        pokedex.seen[plan.incoming.species] = true
+        pokedex.owned[plan.incoming.species] = true
+        plan.dex = dex(pokedex)
+        -- Validate restoration before publication. The second restore below
+        -- receives the same private validated snapshot and cannot call user code.
+        local stream <const> = RulesRNG.new(1)
+        stream:restore(plan.rng)
+        plan.actors = WorldMotionData.empty()
+        plan.result = {sourceId=plan.offer.sourceId, tradeIndex=plan.offer.index,
+            pokemon=plan.incoming, specimen=plan.receipt}
+        return plan
+    end)
+    if not ok then return false, tostring(prepared) end
+    local current <const> = state[self]
+    RulesRNG.restore(prepared.rng)
+    prepared.swap()
+    current.questFlags, current.dex = prepared.flags, prepared.dex
+    current.currentActors = prepared.actors
+    prepared.request.status = "committed"
+    return true, prepared.result
+end
