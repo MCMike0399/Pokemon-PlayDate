@@ -132,6 +132,9 @@ function EventState:enter(id,options)
         elseif step.op=="trainer" then
             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
             self.ops[#self.ops+1]=step
+        elseif step.op=="face-player" then
+            SourceEvents.validateStep(step)
+            self.ops[#self.ops+1]=step
         elseif step.op=="move" then
             assert(DELTA[step.direction] and type(step.count)=="number" and step.count%1==0 and step.count>=1 and step.count<=8,"bounded movement required")
             for _=1,step.count do self.ops[#self.ops+1]={op="move",direction=step.direction} end
@@ -221,6 +224,10 @@ function EventState:advance()
         self:advance()
     elseif step.op == "show-pokemon" then
         self:showPokemon(step)
+    elseif step.op=="face-player" then
+        self.player.facing=step.direction
+        self.player:updateSprite()
+        self:advance()
     elseif step.op=="move" then self:startMove(step.direction)
     elseif step.op=="move-npc" then self:startNPCMove(step)
     elseif step.op=="warp" then self:prepareWarp(step)

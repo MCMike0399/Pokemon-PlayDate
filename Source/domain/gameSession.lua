@@ -717,7 +717,6 @@ function GameSession:resolveNPCTrade(request, context)
         -- receives the same private validated snapshot and cannot call user code.
         local stream <const> = RulesRNG.new(1)
         stream:restore(plan.rng)
-        plan.actors = WorldMotionData.empty()
         plan.result = {sourceId=plan.offer.sourceId, tradeIndex=plan.offer.index,
             pokemon=plan.incoming, specimen=plan.receipt}
         return plan
@@ -727,7 +726,7 @@ function GameSession:resolveNPCTrade(request, context)
     RulesRNG.restore(prepared.rng)
     prepared.swap()
     current.questFlags, current.dex = prepared.flags, prepared.dex
-    current.currentActors = prepared.actors
     prepared.request.status = "committed"
+    self:invalidateFieldWorldContext()
     return true, prepared.result
 end

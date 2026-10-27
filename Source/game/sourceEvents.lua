@@ -152,6 +152,8 @@ function SourceEvents.validateStep(step)
         assert(pokemonData[step.species], "known source display species required")
         SourceEvents.validateStep(assert(step.audio, "source display cry required"))
         assert(step.audio.species == step.species, "source display cry identity required")
+    elseif op == "face-player" then
+        assert(directions[step.direction], "bounded player facing required")
     elseif op == "move" or op == "move-npc" then
         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
         if op == "move-npc" then assert(type(step.id) == "string", "stable source actor ID required") end

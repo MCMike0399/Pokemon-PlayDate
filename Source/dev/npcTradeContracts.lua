@@ -13,8 +13,12 @@ end
 local function fresh(offer, level)
     local g <const> = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
     assert(g.session:setIntro({stage="done", starter="squirtle", rivalStarter="bulbasaur"}))
+    local starter <const> = Pokemon("squirtle", 5)
+    assert(g.session:recruit(starter))
     local mon <const> = Pokemon(offer.wanted, level or 15)
     assert(g.session:recruit(mon))
+    assert(g.session:storage():deposit(g.session:party(), 1))
+    assert(g.session:storage():release(1, starter))
     assert(g.session:activateRNG())
     return g, g.session, mon
 end
@@ -263,6 +267,13 @@ function NPCTradeContracts.run()
                 local offer <const> = NPCTrades.offer(scene.id)
                 local outgoing <const> = Pokemon(offer.wanted, 15)
                 assert(g:recruit(outgoing))
+                assert(g.session:captureTraversal({
+                    location={zone_id=currentZone.stableID, x=g.player.gridX,
+                        y=g.player.gridY, facing=g.player.facing},
+                    world=WorldDeltas.export(), actors=g.npcManager.motion:snapshot(),
+                }))
+                local actors <const> = g.session:actorData()
+                local fieldEpoch <const> = g.session:fieldWorldEpoch()
                 local before <const> = wire(g.session)
                 assert(SourceEvents.dispatch(g, scene.id))
                 drain(g)
@@ -283,6 +294,8 @@ function NPCTradeContracts.run()
                 eq(g.machine:getCurrent(), "overworld")
                 assert(g.session:questFlag(offer.flag))
                 eq(Party._owner(outgoing), nil)
+                same(g.session:actorData(), actors)
+                assert(g.session:fieldWorldEpoch() ~= fieldEpoch)
                 local complete <const> = wire(g.session)
                 duplicate(1)
                 same(complete, wire(g.session))
@@ -385,6 +398,8 @@ function NPCTradeContracts.run()
         local g, s, mon = fresh(offer)
         mon.name, mon.heldItem, mon.hp = "TRAINER", "lightBall", 1
         local record <const> = assert(PokemonCodec.encode(mon))
+        record.acquisition = nil
+        eq(PokemonCodec.decode(record), nil)
         record.version, record.acquisition = 7, nil
         local before <const> = s:rngData()
         local restored <const> = assert(PokemonCodec.decode(record))

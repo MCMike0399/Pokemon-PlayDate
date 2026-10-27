@@ -26,6 +26,9 @@ local function checked(record)
     assert(record.version==PokemonCodec.VERSION or record.version==7 or record.version==6 or record.version==5 or record.version==4 or record.version==3,"unsupported-pokemon-record-version")
     assert(type(record.species)=="string" and pokemonData[record.species],"unknown-species")
     if record.version<8 then assert(record.acquisition==nil,"legacy-acquisition-field") end
+    if record.version == 8 then
+        assert(type(record.acquisition) == "table", "required-acquisition-provenance")
+    end
     local acquisition <const> = NPCTrades.provenance(record.acquisition, record.species)
     if record.version<6 then assert(record.sex==nil and record.sexProvenance==nil,"legacy-sex-fields") end
     local attributes
@@ -102,7 +105,11 @@ local function checked(record)
 end
 function PokemonCodec.encode(mon)
     if type(mon)~="table" or type(mon.is)~="function" or not mon:is("Pokemon") then return nil,"invalid-pokemon" end
-    local ok,data=pcall(checked,{acquisition=mon.acquisition,version=PokemonCodec.VERSION,species=mon.species,name=mon.name,level=mon.level,xp=mon.xp,hp=mon.hp,
+    local acquisition = mon.acquisition
+    if acquisition == nil then
+        acquisition = {version=1, kind="neutral"}
+    end
+    local ok,data=pcall(checked,{acquisition=acquisition,version=PokemonCodec.VERSION,species=mon.species,name=mon.name,level=mon.level,xp=mon.xp,hp=mon.hp,
         status=mon.status or "none",statusTurns=mon.statusTurns,sleepDuration=mon.sleepDuration,moves=mon.moves,pp=mon.pp,
         pendingMoveChoices=mon.pendingMoveChoices,nextMoveChoiceId=mon.nextMoveChoiceId,pendingEvolution=mon.pendingEvolution,
         natureId=mon.natureId,abilitySlot=mon.abilitySlot,heldItem=mon.heldItem,sex=mon.sex,sexProvenance=mon.sexProvenance,ivs=mon.ivs,evs=mon.evs})
