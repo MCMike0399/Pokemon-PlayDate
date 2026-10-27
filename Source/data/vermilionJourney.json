@@ -3334,7 +3334,7 @@
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
-    "dev/daycareContracts.lua": "47b40369789d75ebd4f60778823d3213ab247f6f29fb2cc9f01df9fee9c6d197",
+    "dev/daycareContracts.lua": "3863a0ca1e3add51cfac324f157ffcad37c50e7c4ea05b382181e2ebf38353ae",
     "dev/diagnostics.lua": "c4bc4c1bcd346de8b6038f4ac95632bf445e4a6c63f02d464ece718eebd90a0a",
     "dev/fixtures.lua": "b58335badeaf91cd93ac077519559ba0df9eb38490cfb48dec3a799b20e4b6f4",
     "domain/capture.lua": "ca5f58ce8c8e752d95ee5a033588703a75a3b1cdadc7001f550bed37f6f4ccd1",

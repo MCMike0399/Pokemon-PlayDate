@@ -6,5 +6,13 @@ moveData.cut = Move{ name="CUT", type="normal", category="physical", power=50,
 moveData.flash = Move{ name="FLASH", type="normal", category="status", power=0,
     accuracy=100, pp=20, targetId=10, contact=false, protectable=true,
     effects={ ModifyStat(DEFENDER, "acc", -1) } }
+assert(moveData.fly == nil and moveData.surf == nil and moveData.strength == nil,
+    "HM move registration already owned")
+moveData.fly = Move{ name="FLY", type="flying", category="physical", power=90,
+    accuracy=95, pp=15, targetId=10, contact=true, protectable=true }
+moveData.surf = Move{ name="SURF", type="water", category="special", power=95,
+    accuracy=100, pp=15, targetId=9, contact=false, protectable=true }
+moveData.strength = Move{ name="STRENGTH", type="normal", category="physical", power=80,
+    accuracy=100, pp=15, targetId=10, contact=true, protectable=true }
 -- Intentionally leave MoveSupport untouched. Its existing unknown-dispatch guard
 -- says "But it failed!" and records a gap until the battle owner reviews support.

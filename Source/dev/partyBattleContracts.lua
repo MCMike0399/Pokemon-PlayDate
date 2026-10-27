@@ -4,7 +4,7 @@ local function equal(actual,wanted,label)
     assert(actual==wanted,(label or "value") .. ": expected " .. tostring(wanted) .. ", got " .. tostring(actual))
 end
 
--- The generated catalog remains exactly 425 named rows. Cut and Flash are
+-- The generated catalog remains exactly 425 named rows. Five Blue HMs are
 -- separately installed runtime extensions, never generated metadata rows.
 local generatedKeys <const> = [[
 pound karateChop doubleSlap cometPunch megaPunch payDay firePunch icePunch thunderPunch scratch
@@ -64,6 +64,12 @@ function PartyBattleContracts.generatedCatalog()
             accuracy=95, pp=30, targetId=10, contact=true, protectable=true},
         flash = {name="FLASH", type="normal", category="status", power=0,
             accuracy=100, pp=20, targetId=10, contact=false, protectable=true},
+        fly = {name="FLY", type="flying", category="physical", power=90,
+            accuracy=95, pp=15, targetId=10, contact=true, protectable=true},
+        surf = {name="SURF", type="water", category="special", power=95,
+            accuracy=100, pp=15, targetId=9, contact=false, protectable=true},
+        strength = {name="STRENGTH", type="normal", category="physical", power=80,
+            accuracy=100, pp=15, targetId=10, contact=true, protectable=true},
     }
     local added = 0
     for key, move in pairs(moveData) do
@@ -89,7 +95,7 @@ function PartyBattleContracts.generatedCatalog()
             added = added + 1
         end
     end
-    equal(added, 2)
+    equal(added, 5)
     return generated
 end
 

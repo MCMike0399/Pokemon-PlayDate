@@ -50,6 +50,13 @@ def build(inputs=INPUT):
     cut, flash = (move(ps['data/moves.ts'], key) for key in ('cut', 'flash'))
     assert 'accuracy: 95,' in cut and 'basePower: 50,' in cut and 'pp: 30,' in cut
     assert 'accuracy: 100,' in flash and 'accuracy: -1,' in flash and 'pp: 20,' in flash
+    fly = move(ps['data/moves.ts'], 'fly')
+    surf = move(ps['data/moves.ts'], 'surf')
+    strength = move(ps['data/moves.ts'], 'strength')
+    assert 'accuracy: 95,' in fly and 'basePower: 90,' in fly and 'pp: 15,' in fly
+    assert 'accuracy: 100,' in surf and 'pp: 15,' in surf and 'target: "allAdjacent"' in surf
+    assert 'basePower: 95,' in move(ps['data/mods/gen5/moves.ts'], 'surf')
+    assert 'accuracy: 100,' in strength and 'basePower: 80,' in strength and 'pp: 15,' in strength
     swaps = [tuple(integer(v) for v in row['args']) for row in
              records(reference.text('data/tilesets/cut_tree_blocks.asm'), 'db') if len(row['args']) == 2]
     constants = map_constants(reference)
@@ -142,6 +149,14 @@ moveData.cut = Move{ name="CUT", type="normal", category="physical", power=50,
 moveData.flash = Move{ name="FLASH", type="normal", category="status", power=0,
     accuracy=100, pp=20, targetId=10, contact=false, protectable=true,
     effects={ ModifyStat(DEFENDER, "acc", -1) } }
+assert(moveData.fly == nil and moveData.surf == nil and moveData.strength == nil,
+    "HM move registration already owned")
+moveData.fly = Move{ name="FLY", type="flying", category="physical", power=90,
+    accuracy=95, pp=15, targetId=10, contact=true, protectable=true }
+moveData.surf = Move{ name="SURF", type="water", category="special", power=95,
+    accuracy=100, pp=15, targetId=9, contact=false, protectable=true }
+moveData.strength = Move{ name="STRENGTH", type="normal", category="physical", power=80,
+    accuracy=100, pp=15, targetId=10, contact=true, protectable=true }
 -- Intentionally leave MoveSupport untouched. Its existing unknown-dispatch guard
 -- says "But it failed!" and records a gap until the battle owner reviews support.
 '''
