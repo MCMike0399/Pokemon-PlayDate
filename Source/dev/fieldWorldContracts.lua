@@ -42,13 +42,15 @@ local function scene(fn)
         WorldDeltas._withDefinitionProvider(provider, function()
             WorldView.withIsolation(function()
                 local mon = Pokemon("bulbasaur", 5)
+                local flashMon <const> = Pokemon("pikachu", 5)
                 assert(g:recruit(mon))
+                assert(g:recruit(flashMon))
                 assert(g.session:setIntro({stage = "done", starter = "bulbasaur", rivalStarter = "charmander"}))
                 local bag = g.session:inventory()
                 assert(bag:add("hm01", 1))
                 assert(bag:add("hm05", 1))
                 assert(Teaching.complete(assert(Teaching.prepare(g.session, mon, "hm01")), "learn"))
-                assert(Teaching.complete(assert(Teaching.prepare(g.session, mon, "hm05")), "learn"))
+                assert(Teaching.complete(assert(Teaching.prepare(g.session, flashMon, "hm05")), "learn"))
                 assert(g.session:setQuestFlag("BADGE_CASCADE", true))
                 assert(g.session:setQuestFlag("BADGE_BOULDER", true))
                 currentZone = provider:ensure(SourceMaps.entry("Route2").key)
@@ -172,7 +174,24 @@ local function reload(g)
     return FieldWorld.commit(g, before, {world = world, location = location(g), actors = g.npcManager.motion:snapshot()})
 end
 
-function FieldWorldContracts.run(test)
+function FieldWorldContracts.run()
+    local report <const> = {ok = true, passed = 0, failed = 0, tests = {}}
+    local function test(name, fn)
+        local ok, problem = pcall(fn)
+        Autopilot.resetControls()
+        report.tests[#report.tests + 1] = {
+            name = name,
+            ok = ok,
+            error = not ok and tostring(problem) or nil
+        }
+        if ok then
+            report.passed = report.passed + 1
+        else
+            report.failed = report.failed + 1
+            report.ok = false
+        end
+    end
+
     test("field-world: lifecycle invalidation rejects a retained scene RNG intent", function()
         scene(function(g)
             local before = wire(g)
@@ -535,4 +554,5 @@ function FieldWorldContracts.run(test)
             eq(SessionCodec.validate(old, g:getSessionDependencies()), false)
         end)
     end)
+    return report
 end

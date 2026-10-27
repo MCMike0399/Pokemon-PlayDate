@@ -10,21 +10,39 @@ end
 local function plan(s,id,decision) return VermilionGifts.plan(id,VermilionGifts.observe(s),decision) end
 local function fresh()
     local g=GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
+    assert(g:recruit(Pokemon("squirtle", 5)))
     assert(g.session:setIntro({stage="done",starter="squirtle",rivalStarter="bulbasaur"}))
     return g
 end
 local function owned(s,count)
-    local ids={}
-    for id in pairs(pokemonData) do ids[#ids+1]=id end
-    table.sort(ids)
-    for i=1,count do
-        if s:party():count()==Party.CAPACITY and s:storage():count()==Storage.BOX_CAPACITY then
-            assert(s:storage():selectBox(s:storage():activeBox()+1))
+    -- Count the starter already recruited by both fresh and native scenes.
+    -- Put existing ownership first so ids[count + 1] is still a new species.
+    local dex <const> = s:pokedex()
+    local ids <const> = {}
+    local remaining <const> = {}
+    for id in pairs(pokemonData) do
+        if dex.owned[id] then
+            ids[#ids + 1] = id
+        else
+            remaining[#remaining + 1] = id
         end
-        assert(s:recruit(Pokemon(ids[i],5)))
+    end
+    table.sort(ids)
+    table.sort(remaining)
+    local existing <const> = #ids
+    assert(existing <= count, "fixture already exceeds owned threshold")
+    for _, id in ipairs(remaining) do
+        ids[#ids + 1] = id
+    end
+    for i = existing + 1, count do
+        if s:party():count() == Party.CAPACITY and s:storage():count() == Storage.BOX_CAPACITY then
+            assert(s:storage():selectBox(s:storage():activeBox() + 1))
+        end
+        assert(s:recruit(Pokemon(ids[i], 5)))
     end
     -- More seen than owned. Duplicate specimens do not increase this count.
     for i=count+1,math.min(count+10,#ids) do assert(s:markSeen(ids[i])) end
+    eq(VermilionGifts.observe(s).owned, count)
     return ids
 end
 local function full(s)

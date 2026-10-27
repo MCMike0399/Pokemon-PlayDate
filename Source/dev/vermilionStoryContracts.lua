@@ -132,6 +132,9 @@ function VermilionStoryContracts.run(withScene)
                     same(snapshot.party,expected.party);eq(snapshot.payout,1300)
                     local changed=chosen=="squirtle" and "charmander" or "squirtle"
                     local counters={charmander="squirtle",squirtle="bulbasaur",bulbasaur="charmander"}
+                    -- Change history only after acquiring that starter. The
+                    -- trainer token must keep the team selected before this.
+                    assert(g:recruit(Pokemon(changed, 5)))
                     assert(g.session:setIntro({stage="done",starter=changed,rivalStarter=counters[changed]}))
                     same(g.trainers:snapshot().party,expected.party)
                     local team,battle=launch(g,event,token)

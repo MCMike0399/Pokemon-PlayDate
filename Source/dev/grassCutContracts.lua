@@ -43,13 +43,15 @@ local function scene(fn, entry)
         WorldDeltas._withDefinitionProvider(provider, function()
             WorldView.withIsolation(function()
                 local mon = Pokemon("bulbasaur", 5)
+                local flashMon <const> = Pokemon("pikachu", 5)
                 assert(g:recruit(mon))
+                assert(g:recruit(flashMon))
                 assert(g.session:setIntro({stage = "done", starter = "bulbasaur", rivalStarter = "charmander"}))
                 local bag = g.session:inventory()
                 assert(bag:add("hm01", 1))
                 assert(bag:add("hm05", 1))
                 assert(Teaching.complete(assert(Teaching.prepare(g.session, mon, "hm01")), "learn"))
-                assert(Teaching.complete(assert(Teaching.prepare(g.session, mon, "hm05")), "learn"))
+                assert(Teaching.complete(assert(Teaching.prepare(g.session, flashMon, "hm05")), "learn"))
                 assert(g.session:setQuestFlag("BADGE_CASCADE", true))
                 assert(g.session:setQuestFlag("BADGE_BOULDER", true))
                 currentZone = provider:ensure(SourceMaps.entry("Route6").key)
@@ -182,7 +184,24 @@ local function findTile(world, x, y)
     end
 end
 
-function GrassCutContracts.run(test)
+function GrassCutContracts.run()
+    local report <const> = {ok = true, passed = 0, failed = 0, tests = {}}
+    local function test(name, fn)
+        local ok, problem = pcall(fn)
+        Autopilot.resetControls()
+        report.tests[#report.tests + 1] = {
+            name = name,
+            ok = ok,
+            error = not ok and tostring(problem) or nil
+        }
+        if ok then
+            report.passed = report.passed + 1
+        else
+            report.failed = report.failed + 1
+            report.ok = false
+        end
+    end
+
     test("grass-cut: Route6 actual Zone replaces only the aligned source 2x2 block including player's grass", function()
         scene(function(g, mon, party)
             mon.hp, mon.pp.cut = 0, 0
@@ -548,4 +567,5 @@ function GrassCutContracts.run(test)
             same(FieldWorld.reloadWorld(partial, {currentZone.stableID}), partial)
         end)
     end)
+    return report
 end
