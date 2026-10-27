@@ -1,8 +1,7 @@
-"""Live candidate evidence is separate from immutable 1091 history."""
+"""Preserved 1274 foundation evidence remains separate from live Cerulean."""
 import hashlib
 import json
 import unittest
-from tools.harness.run import fingerprint
 from tools.verify_moves.parse_lua import ROOT, read_moves
 from tools.verify_moves.runtime_coverage import load_runtime_coverage
 
@@ -10,7 +9,7 @@ from tools.verify_moves.runtime_coverage import load_runtime_coverage
 class CurrentFoundationCoverageTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.current = json.loads((ROOT / 'tools/references/runtime-move-coverage.json').read_text())
+        cls.current = json.loads((ROOT / 'tools/references/runtime-move-coverage-candidate1274.json').read_text())
         cls.history = json.loads((ROOT / 'tools/references/runtime-move-coverage-current1091.json').read_text())
 
     def test_original48_scopes_preserved_and_only_reviewed_drift_rebound(self):
@@ -41,7 +40,7 @@ class CurrentFoundationCoverageTests(unittest.TestCase):
         self.assertEqual(projection['evidence_format'], 'contracts-projection-v1')
         self.assertEqual(projection['raw_provenance'], pin['raw_provenance'])
         self.assertEqual(pin['raw_provenance']['sha256'], '249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966')
-        self.assertEqual(pin['source_sha256'], fingerprint(ROOT))
+        self.assertEqual(pin['source_sha256'], '2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079')
         self.assertTrue(pin['build_id'].startswith('58495ebbf67c2a49bb53293fc98d99b00bf136e8:'))
         report = projection['results'][0]['contracts']
         self.assertEqual((report['passed'], report['failed'], len(report['tests'])), (1274, 0, 1274))
@@ -59,7 +58,7 @@ class CurrentFoundationCoverageTests(unittest.TestCase):
         matrix = json.loads((ROOT / 'docs/validation/coverage-current.json').read_text())
         self.assertEqual(len(matrix['rows']), 1501)
         self.assertEqual(matrix['accepted_milestone_rows'], [])
-        self.assertEqual(matrix['snapshot']['acceptance_context'], 'private-foundation-candidate-not-main-or-milestone')
+        self.assertEqual(matrix['snapshot']['acceptance_context'], 'private-cerulean-candidate-not-main-or-milestone')
         for key in ('whirlwind', 'roar'):
             row = next(r for r in matrix['rows'] if r['id'] == 'move:' + key)
             self.assertEqual(row['full_mechanics']['verification'], 'sdk_scoped')
@@ -99,5 +98,6 @@ class CurrentFoundationCoverageTests(unittest.TestCase):
             for executed in qualified['executions']:
                 self.assertEqual(executed['result_sha256'], summary['raw_provenance']['sha256'])
         matrix = json.loads((ROOT / 'docs/validation/coverage-current.json').read_text())
-        self.assertEqual(matrix['snapshot']['commit'], summary['candidate_commit'])
-        self.assertEqual(matrix['snapshot']['source_sha256'], summary['source_sha256'])
+        self.assertNotEqual(matrix['snapshot']['source_sha256'], summary['source_sha256'])
+        self.assertEqual(matrix['evidence']['candidate1274']['sha256'], self.current['accepted_summary']['sha256'])
+        self.assertEqual(matrix['evidence']['candidate1274']['kind'], 'historical')

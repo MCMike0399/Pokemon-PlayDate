@@ -1,126 +1,138 @@
 # Current whole-game coverage
 
-This snapshot pins Source
-`2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
-Its original native evidence was executed privately at `58495eb` and remains
-unchanged in the [candidate summary](coverage-evidence/candidate1274-summary.json).
-That exact Source is now accepted on main at `27443af`: 1274 SDK contracts,
-605 host tests, all 2494 protected images and nine integration journeys passed,
-including full Brock/process-restart runs for all three starters.
-[Main milestone summary](foundation-acceptance-20261026.json).
+The live snapshot is the **private Cerulean candidate `b1f0bd8`**, Source
+`3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320`.
+Accepted main game code remains `27443af`, Source
+`2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`,
+through Brock and milestone 5.2. Its acceptance is recorded separately in the
+[foundation summary](foundation-acceptance-20261026.json).
 
-The machine-readable snapshot retains its original evidence-execution context;
-this main acceptance does not relabel private packets or promote every inventory
-row from aggregate counts. Full campaign, regional fidelity, full mechanics and
-physical-device acceptance remain unfinished. Cerulean work is private.
+Root's three natural Cerulean starter/restart journeys are in progress and are
+**not accepted by this refresh**. No milestone 5.3, all-starter, full mechanics,
+release, visual or physical-device acceptance is granted here.
 
-## Inventory and scheduling
+## Inventory and independent layers
 
 All **1501 rows** remain: 248 map slots, 425 moves, 111 ability IDs, 151 species,
 125 item definitions, 38 indexed native held-item entries, 375 audio sources and
-28 systems. These are inventory sizes, not implemented or playable totals.
-The immutable inventory distinguishes 222 ordinary named map slots, 22 unused
-aliases, four copy/alias slots, 223 unique headers/object tables, 805 warps,
-201 background declarations, 918 object declarations and 391 trainer-party rows
-including unused content. Unused declarations do not become reachable fights.
+28 systems. Campaign path, regional fidelity and full mechanics remain separate;
+`accepted_milestone_rows` remains empty. Inventory counts never mean playability.
 
-The candidate converges existing source-map/event paths; it does not add the
-remaining Kanto campaign. Authored Pallet and its interiors remain protected.
-Source-script declarations still need executable reachability review. Route 22,
-Mt. Moon and later regions are not installed or accepted by this refresh.
+The frozen shared manifest declares thirty installed maps, eighteen added since
+accepted main. Those eighteen campaign rows now say private, partial and
+source-only. This records installation without certifying event reachability or
+regional fidelity. The three Mt. Moon rows additionally record the narrow actual
+`cave-encounters` boundary successes: non-grass land accepts Blue byte 9 and
+rejects byte 10 with the pinned slots and RNG continuation. Blocked/water cells,
+zero-rate Centers, unbound fixtures, stale plans, Forest and outdoor non-grass
+controls remain covered separately in that eight-case suite. None is a natural
+journey or complete map acceptance.
 
-The root accepted the Pallet → Brock gate with real Save/Continue for all three
-starters. Foundation integration journeys and acceptance on the newer Source
-remain pending before later regions. The goal retains
-every later region through League, credits and original postgame, all mechanics,
-audio, naming/options, resources and physical-device checks. Original Blue
-availability and technical support for 151 species remain distinct. No Mew
-encounter, held-item loot or link policy is invented here.
+The immutable source inventory still distinguishes 222 ordinary named slots,
+22 unused aliases, four copy/alias slots, 223 unique headers/object tables,
+805 warps, 201 background declarations, 918 object declarations and 391
+trainer-party rows including unused content. Unused declarations do not become
+reachable fights. Authored Pallet and its interiors remain protected. Later Kanto,
+League, credits, original postgame, audio, naming/options, resources and device
+work remain in the goal. Original Blue availability and technical support for
+151 species remain distinct; no Mew encounter, held-item loot or link policy is
+invented here.
 
-## Live candidate evidence and preserved history
+## Actual native evidence and Source identity
 
-The [compact contracts projection](coverage-evidence/candidate1274-contracts-projection.json)
-is **not a raw packet**. It retains the complete native contracts reply unchanged:
-all 1274 test entries, all 88 suite records and their metadata, and build/session/
-protocol/request identity. Catalog payload and unrelated snapshots/results are
-omitted. The original 1,219,334-byte packet remains at
-`~/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/00001-result.json`,
-SHA256 `249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966`.
-Both projection and summary pin that durable raw provenance. The native
-qualification records match the exact packet, request, session, original Source
-and compiled Source; final capture publication confirms quiescence.
+The [compact projection](coverage-evidence/cerulean1659-contracts-projection.json)
+retains every original contracts test and suite entry, reply metadata and
+protocol/request/build/session identity: **1659 passed, 0 failed**, 103 suites
+containing 1639 assertions plus twenty original assertions outside named suites.
+It is explicitly a projection, not a raw packet. The original raw packet remains at
+`~/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/00001-result.json`
+(2,597,103 bytes), SHA256
+`814d4737855b85625a9055be7e06709e5e3e9dff2cd6fc385bdcd16d79f6234a`.
+The raw contracts reply is not quiescent; that fact is preserved.
 
-This maintenance branch starts directly at `9ed4d36f0ba0b13734f109435070eaa0486ed506`.
-Its Source git tree equals native commit `58495ebbf67c2a49bb53293fc98d99b00bf136e8`.
-All 569 original file hashes match the native source manifest. Independent
-path/NUL/file-byte hashes of live Source and the reconstructed original staged
-Source agree; the complete compiled staged tree also matches its recorded hash.
+The [compact provenance and scope summary](coverage-evidence/cerulean1659-summary.json)
+pins the raw report and run/build/source manifests. Before changing the snapshot,
+maintenance independently compared all 634 original file hashes to live/frozen
+Source, checked the Source git trees, reconstructed original staged bytes using
+the saved main/pdxinfo and verified the path/NUL/file-byte fingerprint. The
+compiled staged tree independently matches
+`df59ed9cef12feb02fcb01651461ca6d844b9dab34de597c8504cb2641e9c420`.
+Generated harness identity is excluded only as documented by the runner;
+its original file hash still matches the source manifest. This is actual executed
+Source identity, not a reported count or a new runtime launch.
+
+## Reviewed mechanics scopes
 
 The [live runtime registry](../../tools/references/runtime-move-coverage.json)
-retains all **50 move records byte-for-byte at the parsed record level** from the
-1250 candidate, including all owners, assertions, definitions, scopes, states
-and capabilities. Every curated named assertion occurs with the same successful
-canonical test entry in the 1274 report. **No owner or assertion hash was rebound**
-and no record was promoted or downgraded to make a check pass. Only SDK/source
-provenance metadata is refreshed.
+retains the original **50** curated move scopes, declared states, capabilities,
+definition hashes and exact assertion records. Every original curated assertion
+has the identical successful canonical entry in the new raw report.
 
-The earlier five reviewed drift updates (Captivate, Endeavor, Rage Powder,
-Sucker Punch and Assurance) remain exactly as established by the 1250 evidence.
+Nine changed owner selections were personally reviewed against accepted Source
+`27443af`: `canAttempt`, `performMove`, `resolveTurn`, `accuracyBypassesCheck`,
+the critical-stage and Protect dispatch fragments, `ModifyStat:apply`,
+`worrySeed` and `DirectDamage:apply`. Only those selections were rebound in
+verified records. The summary identifies each affected move, old/new body hash,
+named actual successes, supplemental branch witnesses and review limitations.
+Soundproof, No Guard, Shell Armor, absorption ordering, Clear Body, Flash Fire
+cleanup and fixed-damage Stench witnesses supplement existing bounded assertions;
+they do not turn the aggregate report into broad move certification.
 
-Ten unverified records retain their old hashes and remain **stale**: Dig,
+Ten unverified records retain their **old hashes and stale status**: Dig,
 Earthquake, Explosion, Fury Cutter, Gyro Ball, Heavy Slam, Magnitude,
-Self-Destruct, Smack Down and Helping Hand. The first nine retain declared
-`source_gap`; Helping Hand retains `source_only`. Shared dispatch/actor changes
-are not rehashed into qualification. Helping Hand has a new named singles test,
-but this bounded refresh deliberately leaves its existing record unpromoted.
+Self-Destruct, Smack Down and Helping Hand. The first nine still declare
+`source_gap`; Helping Hand still declares `source_only`. Its newer singles
+assertion does not promote the old record. Critical-family proof remains
+metadata/shared arithmetic, not an actual attack by each family member;
+Razor Wind and Sky Attack charge behavior remain unverified. Whirlwind/Roar
+retain their narrow wild/trainer/PP/RNG/actor scopes and the existing 27-case
+`whirlwind` and six-case `move-failure` suite distinction, including failure
+controls. Unknown interactions remain open.
 
-The original 48 records plus Whirlwind and Roar remain **50** curated records. Whirlwind and Roar
-have narrow runtime evidence for real wild escape/level failure, trainer reserve
-replacement, PP/RNG and actor cancellation; Roar includes its Soundproof guard.
-The native `whirlwind` suite has 27 cases and `move-failure` has six: **33 scoped
-cases total**, including loud-failure controls, not 33 phazing-only cases or
-exhaustive mechanics certification. Their campaign and regional layers remain
-unpromoted. Unknown interactions and remaining mechanics still require proof.
+Twenty-five battle ability rows now record **partial, SDK-scoped** evidence tied
+to selected literal named assertions in the summary: Inner Focus, Dry Skin,
+Intimidate, Forewarn, Vital Spirit, Water Veil, No Guard, Shell Armor, Skill Link,
+Sniper, Soundproof, Effect Spore, Cute Charm, Synchronize, Stench, Anger Point,
+Natural Cure, Magic Guard, Technician, Flash Fire, Clear Body, Liquid Ooze,
+Water Absorb, Swift Swim and Levitate. The seven ordinary hooks span OrdinaryAbilities and
+the existing battle owners. No ability gets exhaustive mechanics or acquisition
+acceptance. Dry Skin sun behavior and broad combinations remain unverified.
 
-The [1091 registry](../../tools/references/runtime-move-coverage-current1091.json)
-is preserved byte-for-byte as static history alongside its unchanged
-[result](coverage-evidence/current1091-result.json) and
-[summary](coverage-evidence/current1091-summary.json). Historical assertions use
-that registry, while live Source checks use the candidate registry. The [1250 projection](coverage-evidence/candidate1250-contracts-projection.json)
-and [1250 summary](coverage-evidence/candidate1250-summary.json) also remain
-byte-exact history. Existing main950, private1059, natural journeys, failures,
-511-event exposure and exact
-34-row promotion erratum remain unchanged and source-specific. The historical
-419-move detector is not today's mechanics truth.
+Physical-lead field evidence remains a separate scope: Synchronize nature gates,
+Cute Charm sex/fallback gates, and rate doubling for Illuminate/Arena Trap/No Guard.
+Illuminate and Arena Trap receive only that partial rate evidence. Rate-down
+arithmetic covers Stench/White Smoke/Quick Feet, but the actual encounter witness
+uses Stench; White Smoke/Quick Feet actual encounter paths remain unverified.
+Magnet Pull slots and Pressure/Hustle/Vital Spirit level callbacks still fail by
+name as deferred acquisition gaps. Hidden acquisition and additional held-item
+loot are not authorized or certified.
 
-## Validation
+## Preserved history and validation
 
-The runtime validator binds claims to named production bodies/fragments, exact
-meaningful assertion bodies, complete canonical test entries and byte-pinned
-SDK evidence. Source/build identity, Boolean success, report completeness and
-suite/test totals must agree. Projections additionally require matching explicit
-raw provenance; they never impersonate a raw packet. Definition hashes remain
-drift guards. Changed unreviewed owners/assertions become stale. Existing
-integrity and mutation tests remain required.
+The [1274 registry](../../tools/references/runtime-move-coverage-candidate1274.json),
+[1274 projection](coverage-evidence/candidate1274-contracts-projection.json) and
+[1274 summary](coverage-evidence/candidate1274-summary.json) remain byte-exact
+history. Earlier 1250, 1091, main950 and private1059 evidence, natural journeys,
+failures, 511-event exposure and the exact 34-row promotion erratum remain
+unchanged and source-specific. The historical 419-move detector is not today's
+mechanics truth. Historical tests target their historical registry; live checks
+continue to reject unreviewed owner/assertion drift and forged SDK provenance.
 
-```
+Use the pinned caches from the environment script; do not fetch changing inputs.
+
+```sh
 source ~/Developer/Pokemon-PlayDate-env/env.sh
 python tools/check_coverage_matrix.py --project "$PWD" --matrix docs/validation/coverage-current.json
-python -m unittest tools.tests.test_candidate1250_refresh tools.tests.test_current1091_refresh tools.tests.test_runtime_sdk_evidence tools.tests.test_runtime_move_coverage tools.tests.test_coverage_matrix -v
+python -m unittest tools.tests.test_cerulean1659_refresh tools.tests.test_candidate1250_refresh tools.tests.test_current1091_refresh tools.tests.test_runtime_sdk_evidence tools.tests.test_runtime_move_coverage tools.tests.test_coverage_matrix -v
 ```
 
-Run the full host suite with verified reference caches and a fresh compile-only
-bundle as described in [host-tests.md](host-tests.md), with zero skips. The full
-move verifier still reports known gaps and unreviewed rules;
-`runtime_semantics_complete` remains false. This maintenance task launches no
-Simulator, edits no Source or ledger, and grants no root acceptance. Simulator
-artifact and heap evidence does not establish physical-device behavior.
-
-Maintenance validation: fresh compile-only build succeeded; matrix validation
-passed all 1501 rows; focused checks passed **41 tests**; the full host suite
-passed **605 tests, zero failures, zero errors and zero skips**, using the env
-and that fresh bundle. Logs are retained under
-`~/Developer/Pokemon-PlayDate-env/evidence/foundation-final-coverage-build-20261026-01/`
-as `focused-host.log` and `full-host.log`. The earlier 1250-era host failures
-remain historical; this run does not rewrite their records. No Simulator,
-Source, ledger, baseline or main-branch change was made by this maintenance task.
+Maintenance validation and logs are retained under
+`~/Developer/Pokemon-PlayDate-env/evidence/cerulean-current-coverage-build-20261026-01/`.
+A fresh compile-only bundle succeeded; matrix validation retained all 1501 rows.
+The focused suite passed **47 tests**. The full host suite passed **716 tests**,
+with zero failures, errors or skips, using that fresh bundle and verified pinned
+cache. Logs are `focused-host.log` and `full-host.log`. Source-map cache, move
+support and Cerulean journey generator checks also passed. The full move verifier
+retains explicit gaps and `runtime_semantics_complete=false`.
+Maintenance launched no runtime/Simulator and changed no Source, ledger, goal,
+baseline, protected assets or main branch.
