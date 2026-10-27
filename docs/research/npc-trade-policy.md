@@ -1,6 +1,10 @@
 # NPC trade contract and policy packet
 
 Research: 2026-10-26. **Proposal only; acquisition choices below need approval.**
+The user subsequently chose **require taking the offered mon's held item first**.
+Do not include, delete or automatically refund that item. The canonical nine
+exchanges with the established Gen V trait/outsider rules are being prepared;
+offline trade-evolution accessibility remains a separate, unapproved choice.
 The [goal](../plans/full-game-goal.md#1-what-we-are-building) fixes English Blue
 world/content, Gen V rules/learnsets/individuals, original 151, and **the nine used
 NPC trades** (§5.7). Keeping them is settled. No link/network play, extra Pokémon
