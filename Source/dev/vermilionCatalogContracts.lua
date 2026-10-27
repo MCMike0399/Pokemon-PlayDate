@@ -70,6 +70,73 @@ local function pixelsEqual(a, b)
     end
 end
 
+-- Leaf opacity follows OBJ color zero, independent of the actor flood mask.
+local function grassLeafPixels(image, palette)
+    local leaf <const> = FieldMoves.effectData().grass_leaf
+    local codes <const> = {["."] = 0, ["1"] = 1, ["2"] = 2, ["#"] = 3}
+    local mask <const> = assert(image:getMaskImage())
+    local width, height = image:getSize()
+    equal(width, 16)
+    equal(height, 16)
+    for y = 0, 15 do
+        for x = 0, 15 do
+            local code <const> = leaf[y // 2 + 1]:sub(x // 2 + 1, x // 2 + 1)
+            equal(mask:sample(x, y), code == "." and gfx.kColorBlack or gfx.kColorWhite)
+            if code ~= "." then
+                local shade <const> = (palette >> (codes[code] * 2)) & 3
+                equal(image:sample(x, y), color((".12#"):sub(shade + 1, shade + 1), x, y))
+            end
+        end
+    end
+end
+
+-- Independent closed form of cut2.asm's four sweeps, pair swaps and Y drops.
+-- This oracle never reads the generated animation positions or sampling helper.
+local function grassPresentationPixels(image, sourceFrame)
+    local field <const> = FieldMoves.data()
+    local ground <const> = field.tiles["pokered:OVERWORLD:cell:2c-2c-2c-2c"].grid
+    local codes <const> = {["."] = 0, ["1"] = 1, ["2"] = 2, ["#"] = 3}
+    local velocities <const> = {1, 2, -2, -1}
+    local sweep, tick = sourceFrame // 8, sourceFrame % 8 + 1
+    local palette <const> = sourceFrame % 2 == 0 and 128 or 228
+    local leaves = {}
+    for index = 0, 3 do
+        local original <const> = (index + 2 * (sweep % 2)) % 4
+        local swapped <const> = (original + 2) % 4
+        leaves[#leaves + 1] = {
+            x = 32 + 2 * ((original % 2) * 8 + 8 * (((sweep + 1) // 2) * velocities[original + 1]
+                + (sweep // 2) * velocities[swapped + 1]) + tick * velocities[index + 1]),
+            y = 16 + 2 * ((original // 2) * 8 + (sourceFrame // 16) * 2),
+            flipX = original % 2 == 0
+        }
+    end
+    local width, height = image:getSize()
+    equal(width, 128)
+    equal(height, 96)
+    for y = 0, height - 1 do
+        for x = 0, width - 1 do
+            local expected = gfx.kColorWhite
+            if x >= 32 and x < 96 and y >= 16 and y < 80 then
+                local gx, gy = (x - 32) % 32, (y - 16) % 32
+                expected = color(ground[gy // 2 + 1]:sub(gx // 2 + 1, gx // 2 + 1), gx, gy)
+            end
+            for _, leaf in ipairs(leaves) do
+                local lx, ly = x - leaf.x, y - leaf.y
+                if lx >= 0 and lx < 16 and ly >= 0 and ly < 16 then
+                    local sx <const> = leaf.flipX and 15 - lx or lx
+                    local sy <const> = leaf.flipX and ly or 15 - ly
+                    local code <const> = field.grass_leaf[sy // 2 + 1]:sub(sx // 2 + 1, sx // 2 + 1)
+                    if code ~= "." then
+                        local shade <const> = (palette >> (codes[code] * 2)) & 3
+                        expected = color((".12#"):sub(shade + 1, shade + 1), sx, sy)
+                    end
+                end
+            end
+            equal(image:sample(x, y), expected)
+        end
+    end
+end
+
 function VermilionCatalogContracts.run()
     local report = {ok = true, passed = 0, failed = 0, tests = {}}
     local function test(name, callback)
@@ -92,6 +159,11 @@ function VermilionCatalogContracts.run()
             mapCount = mapCount + 1
         end
         equal(mapCount, inventory.map_count)
+        equal(#inventory.images, 1736)
+        equal(#inventory.shared_images, 1450)
+        equal(inventory.grass_leaf_palette_count, 2)
+        equal(inventory.grass_source_sample_count, 8)
+        equal(inventory.grass_native_update_count, 16)
         for path in pairs(additions) do
             assert(not previous[path] and not legacy[path] and not protected[path], "earlier path reclaimed")
         end
@@ -199,6 +271,11 @@ function VermilionCatalogContracts.run()
             saved[#saved + 1] = {owner = owner, key = key, value = owner[key]}
             owner[key] = function() error("catalog attempted live progression: " .. key) end
         end
+        forbid(FieldMoveState, "prepareGrassPresentation")
+        forbid(FieldMoveState, "drawGrassPresentation")
+        forbid(FieldMoves, "prepare")
+        forbid(FieldMoves, "complete")
+        forbid(FieldMoves, "cancel")
         forbid(Story, "get")
         forbid(Story, "isActive")
         forbid(CeruleanContent, "installArt")
@@ -329,6 +406,13 @@ function VermilionCatalogContracts.run()
                         end
                         equal(image:sample(x, y), expected)
                     end end
+                elseif category == "grass-source-art" then
+                    grassLeafPixels(image, assert(tonumber(stem:match("(%d+)$"))))
+                elseif category == "grass-source-presentation" then
+                    grassPresentationPixels(image, assert(tonumber(stem:match("(%d+)$"))))
+                elseif category == "grass-native-presentation" then
+                    local update <const> = assert(tonumber(stem:match("(%d+)$")))
+                    grassPresentationPixels(image, update * 2 + 1)
                 elseif category == "cut-source-art" then
                     local palette <const> = assert(tonumber(stem:match("(%d+)$")))
                     local opacity <const> = assert(image:getMaskImage())
@@ -347,6 +431,15 @@ function VermilionCatalogContracts.run()
         assert(ok, metadata)
         equal(count, #exporter.inventory().images)
         equal(#metadata.maps, exporter.inventory().map_count)
+        equal(metadata.grass.source_position_count, 32)
+        equal(metadata.grass.native_update_count, 16)
+        equal(#metadata.grass.source_samples, 8)
+        equal(#metadata.grass.native_samples, 16)
+        for index, sample in ipairs(metadata.grass.native_samples) do
+            equal(sample.native_update, index - 1)
+            equal(sample.source_frame, index * 2 - 1)
+            equal(sample.source_position, index * 2)
+        end
         for _, map in ipairs(metadata.maps) do
             local definition <const> = SourceMaps.padded(map.name)
             equal(#map.actors, #definition.events.objects)

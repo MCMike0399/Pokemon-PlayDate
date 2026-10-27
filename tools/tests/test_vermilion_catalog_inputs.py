@@ -11,6 +11,7 @@ from tools.tests.test_cerulean_catalog_inputs import pinned_image, record, SHADE
 
 ROOT = Path(__file__).resolve().parents[2]
 PACKAGE = 'Source/data/vermilionPreparation/'
+GRASS_SOURCE_FRAMES = (0, 7, 8, 15, 16, 23, 24, 31)
 SHIP_FRAMES = (0, 4, 124, 130, 137, 138, 258, 770, 1153, 1154, 1156, 1276, 1280, 1283)
 
 
@@ -71,6 +72,13 @@ def inventory():
         asset(images, 'vermilion-cut-palette-' + str(palette), 32, 32, 'cut-source-art')
     for frame in range(record('Source/data/fieldMoves.json')['tree_frames']):
         add(images, 'vermilion-cut-frame-' + str(frame), 64, 32, 'cut-presentation')
+    field = record('Source/data/fieldMoves.json')
+    for palette in (228, 128):
+        asset(images, 'vermilion-grass-leaf-palette-' + str(palette), 16, 16, 'grass-source-art')
+    for frame in GRASS_SOURCE_FRAMES:
+        add(images, 'vermilion-grass-source-frame-' + str(frame), 128, 96, 'grass-source-presentation')
+    for update in range(field['grass_frames'] // 2):
+        add(images, 'vermilion-grass-native-update-' + str(update), 128, 96, 'grass-native-presentation')
     return images, shared, new_tiles
 
 
@@ -101,7 +109,13 @@ class VermilionCatalogInputs(unittest.TestCase):
         self.assertEqual(len(maps), 35)
         # Reviewed host declaration fingerprint, computed from primary inputs.
         digest = hashlib.sha256(json.dumps(sorted(images.values(), key=lambda e: e['path']), sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        self.assertEqual(digest, 'ed4c3443850b40809237d923b45545e28c0de58b3a4c97d504b80c5d4aeda645')
+        self.assertEqual(digest, 'e4c7d7340fefc9a5043cbd2e82d8f45be0685a6d45bab91ecf2a8fc370bb5065')
+        old = {path: entry for path, entry in images.items() if not path.startswith('vermilion-grass-')}
+        old_digest = hashlib.sha256(json.dumps(sorted(old.values(), key=lambda e: e['path']), sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        self.assertEqual(old_digest, 'ed4c3443850b40809237d923b45545e28c0de58b3a4c97d504b80c5d4aeda645')
+        self.assertEqual(len(old), 1702)
+        self.assertEqual(len(images) - len(old), 2 * 5 + 8 + 32 // 2)
+        self.assertEqual(len(images), 1736)
         self.assertEqual(len(tiles), 190)
 
     def test_all_34_actor_strips_and_pose_indices_match_pinned_pngs(self):

@@ -1,4 +1,8 @@
 """Primary bytes, generated grids and bounded source inventory; no Lua execution."""
+import hashlib
+import os
+from pathlib import Path
+
 import json
 import unittest
 
@@ -68,3 +72,24 @@ class GrassCutDataTests(unittest.TestCase):
                          'source': 'engine/overworld/cut.asm', 'playback': 'pending-audio-owner'})
         self.assertIn('ld a, SFX_CUT\n\tcall PlaySound',
                       (gen.INPUT / 'pokered/engine/overworld/cut.asm').read_text())
+
+    def test_primary_clock_is_one_vblank_per_source_position(self):
+        reference = Path(os.environ['POKERED_REFERENCE_DIR'])
+        raw = (reference / 'home/vblank.asm').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), '8ec851d6eadb1137352f42312068cebc26b28d188bc63358c53c22086e83a8ca')
+        delay = raw.decode().split('DelayFrame::', 1)[1]
+        self.assertIn('Wait for the next vblank interrupt.', delay)
+        self.assertIn('ldh [hVBlankOccurred], a', delay)
+        self.assertIn('halt', delay)
+        self.assertIn('jr nz, .halt', delay)
+        cut = (gen.INPUT / 'pokered/engine/overworld/cut2.asm').read_text()
+        grass = cut.split('\n.grass\n', 1)[1].split('AnimCutGrass_UpdateOAMEntries:', 1)[0]
+        self.assertIn('ld c, 2', grass)
+        self.assertEqual(grass.count('ld c, $8'), 2)
+        self.assertEqual(grass.count('call AnimCutGrass_UpdateOAMEntries'), 2)
+        update = cut.split('AnimCutGrass_UpdateOAMEntries:', 1)[1].split('AnimCutGrass_SwapOAMEntries:', 1)[0]
+        self.assertEqual(update.count('call DelayFrame'), 1)
+        self.assertEqual(len(self.data['grass_animation']), 2 * 2 * 8)
+        self.assertEqual(len(self.data['grass_animation']) // 2, 16)
+        ship = json.loads((gen.ROOT / 'Source/data/vermilionShip/timing.json').read_bytes())
+        self.assertEqual((ship['source_hz'], ship['native_hz']), (60, 30))

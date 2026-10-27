@@ -43,7 +43,10 @@ function FieldMoveState:enter(token, party)
     self.phase, self.frame, self.active = "confirm", 0, true
     self.preview = assert(FieldMoves.preview(token))
     self.effect = FieldMoves.effectData()
-    self.ground, self.grassGround, self.grassFrames = nil, {}, nil
+    self.ground, self.grassPresentation = nil, nil
+    if self.preview.kind == "grass" then
+        self.grassPresentation = FieldMoveState.prepareGrassPresentation(self.effect, self.preview)
+    end
     local visit = self.visit
     local function current()
         return self.active and self.visit == visit and self:isTop() and self.game.session == self.session
@@ -91,7 +94,7 @@ function FieldMoveState:exit()
     self.menu:hide()
     self.menu.onSelect, self.menu.onCancel = nil, nil
     self.token, self.party, self.session, self.treeFrames = nil, nil, nil, nil
-    self.grassFrames, self.grassGround, self.effect = nil, nil, nil
+    self.grassPresentation, self.effect = nil, nil
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
 end
 
@@ -109,10 +112,12 @@ function FieldMoveState:update()
     local data = self.effect
     local frames = data.flash_white_frames
     if self.preview.key == "cut" then
-        frames = self.preview.kind == "grass" and data.grass_frames or data.tree_frames
+        frames = self.preview.kind == "grass" and data.grass_frames // 2 or data.tree_frames
     end
-    -- Frame zero is presented on the A press. Commit after all source effect
-    -- frames; an interrupted overlay leaves terrain and the session unchanged.
+    -- Grass has 32 single-VBlank source positions at nominal 60 Hz, paired
+    -- into 16 production 30 Hz updates. Tree/Flash retain their existing 8/3.
+    -- Frame zero is presented on the A press; commit after the final interval.
+    -- An interrupted overlay leaves terrain and the session unchanged.
     self.frame = self.frame + 1
     if self.frame < frames then
         return
@@ -198,20 +203,41 @@ local function grassFrames(leaf)
     return frames
 end
 
-local function drawGrass(state, ox, oy)
-    state.grassFrames = state.grassFrames or grassFrames(state.effect.grass_leaf)
-    for _, cell in ipairs(state.preview.cells) do
-        local key = cell.after
-        if not state.grassGround[key] then
-            state.grassGround[key] = TileFactory.renderGrid(assert(FieldMoves.tile(key)).grid, nil, {0, 0})
+-- Zero-based source sample at the END of each two-VBlank native interval.
+-- Native updates 0..15 present source frames 1,3,...31 (positions 2..32).
+function FieldMoveState.grassSourceFrame(nativeUpdate)
+    assert(Party._integer(nativeUpdate, 0, 15), "bounded grass native update required")
+    return nativeUpdate * 2 + 1
+end
+
+-- Explicit preparation boundary for gameplay enter and catalog bootstrap.
+-- Drawing never allocates a missing art cache or consults a field token.
+function FieldMoveState.prepareGrassPresentation(effect, preview)
+    assert(effect.grass_frames == 32 and #effect.grass_animation == 32, "source grass timing required")
+    local ground, tiles = {}, {}
+    for _, cell in ipairs(preview.cells) do
+        local key <const> = cell.after
+        if not tiles[key] then
+            tiles[key] = TileFactory.renderGrid(assert(FieldMoves.tile(key)).grid, nil, {0, 0})
         end
-        state.grassGround[key]:draw(cell.x * 32 + ox, cell.y * 32 + oy)
+        ground[#ground + 1] = {x = cell.x, y = cell.y, image = tiles[key]}
     end
-    local animation = state.effect.grass_animation[state.frame + 1]
-    local target = state.preview.target
+    return {
+        palettes = grassFrames(effect.grass_leaf), ground = ground,
+        animation = effect.grass_animation, target = {x = preview.target.x, y = preview.target.y}
+    }
+end
+
+function FieldMoveState.drawGrassPresentation(presentation, sourceFrame, ox, oy)
+    assert(Party._integer(sourceFrame, 0, 31), "bounded grass source frame required")
+    for _, cell in ipairs(presentation.ground) do
+        cell.image:draw(cell.x * 32 + ox, cell.y * 32 + oy)
+    end
+    local animation <const> = presentation.animation[sourceFrame + 1]
+    local target <const> = presentation.target
     for _, entry in ipairs(animation.entries) do
-        local flip = entry.flip == "x" and gfx.kImageFlippedX or gfx.kImageFlippedY
-        state.grassFrames[animation.palette]:draw(target.x * 32 + ox + entry.x * 2,
+        local flip <const> = entry.flip == "x" and gfx.kImageFlippedX or gfx.kImageFlippedY
+        presentation.palettes[animation.palette]:draw(target.x * 32 + ox + entry.x * 2,
             target.y * 32 + oy + entry.y * 2, flip)
     end
 end
@@ -228,7 +254,8 @@ function FieldMoveState:draw()
             gfx.setColor(gfx.kColorWhite)
             gfx.fillRect(0, 0, 400, 240)
         elseif self.preview.kind == "grass" then
-            drawGrass(self, ox, oy)
+            FieldMoveState.drawGrassPresentation(self.grassPresentation,
+                FieldMoveState.grassSourceFrame(self.frame), ox, oy)
         else
             self.treeFrames = self.treeFrames or treeFrames(self.effect.tree_grid)
             local target = self.preview.target

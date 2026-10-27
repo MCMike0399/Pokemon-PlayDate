@@ -1,5 +1,8 @@
 # Grass Cut completion for private 5.4
 
+Current follow-up: [grass clock and catalog](timing-catalog.md), based on root
+`61891d7`, supersedes the original timing/catalog notes below.
+
 Exact parent: `095598fe59b56a4db9c943dbf6b057f33d89b48e` (65 source maps,
 field/scene readability cleanup). Branch: `wip/cut-grass`.
 This packet is implemented and compile-checked, **not native/campaign accepted**.

@@ -6,6 +6,7 @@ local shared <const> = CeruleanCatalogExporter
 local root <const> = "data/vermilionPreparation/"
 local kinds <const> = {"terrain", "viewport", "collision", "actors", "events"}
 local shipFrames <const> = {0, 4, 124, 130, 137, 138, 258, 770, 1153, 1154, 1156, 1276, 1280, 1283}
+local grassSourceFrames <const> = {0, 7, 8, 15, 16, 23, 24, 31}
 local prepared
 
 local function keys(source)
@@ -142,6 +143,18 @@ function VermilionCatalogExporter.inventory()
     for frame = 0, field.tree_frames - 1 do
         add(result.images, "vermilion-cut-frame-" .. frame, 64, 32, "cut-presentation")
     end
+    result.grass_leaf_palette_count = 2
+    result.grass_source_sample_count = #grassSourceFrames
+    result.grass_native_update_count = field.grass_frames // 2
+    for _, palette in ipairs({228, 128}) do
+        asset(result.images, "vermilion-grass-leaf-palette-" .. palette, 16, 16, "grass-source-art", true)
+    end
+    for _, frame in ipairs(grassSourceFrames) do
+        add(result.images, "vermilion-grass-source-frame-" .. frame, 128, 96, "grass-source-presentation")
+    end
+    for update = 0, result.grass_native_update_count - 1 do
+        add(result.images, "vermilion-grass-native-update-" .. update, 128, 96, "grass-native-presentation")
+    end
     table.sort(result.images, function(a, b) return a.path < b.path end)
     table.sort(result.shared_images, function(a, b) return a.path < b.path end)
     return result
@@ -152,6 +165,12 @@ function VermilionCatalogExporter.writer(sink)
     local report = {schema = 1, source_revision = "af519899719f0754965776faac0e836a3b906e6d",
         maps = {}, tiles = {}, strips = {}, characters = VermilionCatalogExporter.poses(),
         shared_images = VermilionCatalogExporter.inventory().shared_images, ship = {}, cut = {},
+        grass = {source_hz = 60, native_hz = 30, source_position_count = 32,
+            native_update_count = 16, source_samples = {}, native_samples = {},
+            leaf_source = "gfx/battle/move_anim_1.png", leaf_tile = 6,
+            palette_values = {228, 128}, frame_numbering = "zero-based; positions are frame + 1",
+            sampling = "second source position per two-VBlank native interval",
+            crop = "128x96; aligned 2x2 replacement at 32,16; facing target at 32,16"},
         review_status = "unreviewed; root native size/motion/purity inspection required",
         phase_policy = "explicit-zero; shared BLUE world poses retain protected legacy-omitted"}
     for _, key in ipairs(keys(VermilionCatalogExporter.tiles())) do
@@ -202,6 +221,21 @@ function VermilionCatalogExporter.writer(sink)
         report.cut[#report.cut + 1] = {frame = frame - 1, palette = frame % 2 == 1 and 128 or 228,
             split_shift = frame * 2, crop = "64x32; target at 16,0; production ground and clipped split tree"}
     end
+    for _, palette in ipairs({228, 128}) do
+        sink.asset("vermilion-grass-leaf-palette-" .. palette, prepared.grass.palettes[palette], "grass-source-art", true)
+    end
+    for _, frame in ipairs(grassSourceFrames) do
+        sink.save("vermilion-grass-source-frame-" .. frame, prepared.grassSourceFrames[frame], "grass-source-presentation")
+        report.grass.source_samples[#report.grass.source_samples + 1] = {source_frame = frame, source_position = frame + 1}
+    end
+    for index, image in ipairs(prepared.grassNativeFrames) do
+        local update <const> = index - 1
+        local frame <const> = FieldMoveState.grassSourceFrame(update)
+        sink.save("vermilion-grass-native-update-" .. update, image, "grass-native-presentation")
+        report.grass.native_samples[#report.grass.native_samples + 1] = {
+            native_update = update, source_frame = frame, source_position = frame + 1
+        }
+    end
     return report
 end
 
@@ -210,7 +244,7 @@ function VermilionCatalogExporter.register()
     -- Warm immutable production art only during bootstrap. This private draw
     -- record has no game/session/token and cannot execute field progression.
     local field <const> = FieldMoves.data()
-    local cut = {active = true, phase = "effect", frame = 0,
+    local cut = {active = true, phase = "effect", frame = 0, effect = FieldMoves.effectData(),
         preview = {key = "cut", target = {x = 0.5, y = 0},
             cells = {{x = 0.5, y = 0, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"}}}}
     local frames = {}
@@ -218,7 +252,29 @@ function VermilionCatalogExporter.register()
         cut.frame = frame
         frames[#frames + 1] = shared.render(64, 32, gfx.kColorWhite, function() FieldMoveState.draw(cut) end)
     end
-    prepared = {ship = VermilionShipArt.images(), cut = cut, cutFrames = frames}
+    local grass <const> = FieldMoveState.prepareGrassPresentation(FieldMoves.effectData(), {
+        target = {x = 1, y = 0.5},
+        cells = {
+            {x = 1, y = 0.5, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"},
+            {x = 2, y = 0.5, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"},
+            {x = 1, y = 1.5, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"},
+            {x = 2, y = 1.5, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"}
+        }
+    })
+    local sourceFrames, nativeFrames = {}, {}
+    local function renderGrass(sourceFrame)
+        return shared.render(128, 96, gfx.kColorWhite, function()
+            FieldMoveState.drawGrassPresentation(grass, sourceFrame, 0, 0)
+        end)
+    end
+    for _, frame in ipairs(grassSourceFrames) do
+        sourceFrames[frame] = renderGrass(frame)
+    end
+    for update = 0, field.grass_frames // 2 - 1 do
+        nativeFrames[#nativeFrames + 1] = renderGrass(FieldMoveState.grassSourceFrame(update))
+    end
+    prepared = {ship = VermilionShipArt.images(), cut = cut, cutFrames = frames,
+        grass = grass, grassSourceFrames = sourceFrames, grassNativeFrames = nativeFrames}
     VermilionShipTimeline.data()
     local tiles <const> = VermilionCatalogExporter.tiles()
     local maps, npcs = {}, {}
