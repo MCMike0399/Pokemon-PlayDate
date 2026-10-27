@@ -644,3 +644,57 @@ function GameSession:resolvePickupBattle(battle, won, kind)
     end
     return true, plan.report
 end
+
+-- Repeating source dialogue may clear flags or add a seen entry. Item/reward
+-- grants retain their separate one-time transaction and inventory guards.
+function GameSession:transactSourceEffects(expected, changes)
+    local current <const> = state[self]
+    local ok, result = pcall(function()
+        object(expected, {flags=true, seen=true, items=true})
+        object(changes, {flags=true, seen=true, items=true})
+        assert(next(expected.items or {}) == nil and next(changes.items or {}) == nil,
+            "source effects cannot transfer items")
+        local required <const> = flags(expected.flags, 32)
+        local writes <const> = flags(changes.flags, 32)
+        local seenRequired <const> = expected.seen or {}
+        local seenWrites <const> = changes.seen or {}
+        object(seenRequired, pokemonData)
+        object(seenWrites, pokemonData)
+        local count = 0
+        for id, value in pairs(required) do
+            if (current.questFlags[id] == true) ~= value then
+                error("stale-flag", 0)
+            end
+            count = count + 1
+        end
+        for id in pairs(writes) do
+            assert(required[id] ~= nil, "unguarded source flag")
+        end
+        for species, value in pairs(seenRequired) do
+            assert(type(value) == "boolean", "boolean seen guard required")
+            if (current.dex.seen[species] == true) ~= value then
+                error("stale-seen", 0)
+            end
+            count = count + 1
+        end
+        for species, value in pairs(seenWrites) do
+            assert(value == true and seenRequired[species] ~= nil, "guarded seen addition required")
+        end
+        assert(count > 0 and count <= 32, "bounded source effect guards required")
+        local combined <const> = copy(current.questFlags)
+        local discovered <const> = copy(current.dex)
+        for id, value in pairs(writes) do
+            combined[id] = value
+        end
+        for species in pairs(seenWrites) do
+            discovered.seen[species] = true
+        end
+        return {flags=flags(combined, 4096), dex=dex(discovered)}
+    end)
+    if not ok then
+        return false, tostring(result)
+    end
+    current.questFlags = result.flags
+    current.dex = result.dex
+    return true
+end

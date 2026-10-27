@@ -471,6 +471,158 @@
         }
       ]
     },
+    "pokered:POKEMON_FAN_CLUB:objects:1": {
+      "cases": [
+        {
+          "then": {
+            "guard_flags": [
+              "EVENT_PIKACHU_FAN_BOAST",
+              "EVENT_SEEL_FAN_BOAST"
+            ],
+            "kind": "program",
+            "steps": [
+              {
+                "labels": [
+                  "_PokemonFanClubPikachuFanBetterText"
+                ],
+                "op": "dialog"
+              },
+              {
+                "id": "EVENT_PIKACHU_FAN_BOAST",
+                "op": "set-flag",
+                "value": false
+              }
+            ],
+            "transaction": "source-effects"
+          },
+          "when": {
+            "flags": {
+              "EVENT_PIKACHU_FAN_BOAST": true
+            }
+          }
+        }
+      ],
+      "content": "vermilion",
+      "kind": "cases",
+      "otherwise": {
+        "guard_flags": [
+          "EVENT_PIKACHU_FAN_BOAST",
+          "EVENT_SEEL_FAN_BOAST"
+        ],
+        "kind": "program",
+        "steps": [
+          {
+            "labels": [
+              "_PokemonFanClubPikachuFanNormalText"
+            ],
+            "op": "dialog"
+          },
+          {
+            "id": "EVENT_SEEL_FAN_BOAST",
+            "op": "set-flag",
+            "value": true
+          }
+        ],
+        "transaction": "source-effects"
+      },
+      "restore_interaction_facing": true
+    },
+    "pokered:POKEMON_FAN_CLUB:objects:2": {
+      "cases": [
+        {
+          "then": {
+            "guard_flags": [
+              "EVENT_SEEL_FAN_BOAST",
+              "EVENT_PIKACHU_FAN_BOAST"
+            ],
+            "kind": "program",
+            "steps": [
+              {
+                "labels": [
+                  "_PokemonFanClubSeelFanBetterText"
+                ],
+                "op": "dialog"
+              },
+              {
+                "id": "EVENT_SEEL_FAN_BOAST",
+                "op": "set-flag",
+                "value": false
+              }
+            ],
+            "transaction": "source-effects"
+          },
+          "when": {
+            "flags": {
+              "EVENT_SEEL_FAN_BOAST": true
+            }
+          }
+        }
+      ],
+      "content": "vermilion",
+      "kind": "cases",
+      "otherwise": {
+        "guard_flags": [
+          "EVENT_SEEL_FAN_BOAST",
+          "EVENT_PIKACHU_FAN_BOAST"
+        ],
+        "kind": "program",
+        "steps": [
+          {
+            "labels": [
+              "_PokemonFanClubSeelFanNormalText"
+            ],
+            "op": "dialog"
+          },
+          {
+            "id": "EVENT_PIKACHU_FAN_BOAST",
+            "op": "set-flag",
+            "value": true
+          }
+        ],
+        "transaction": "source-effects"
+      },
+      "restore_interaction_facing": true
+    },
+    "pokered:POKEMON_FAN_CLUB:objects:3": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_PokemonFanClubPikachuText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "cue": "cry",
+          "op": "source-audio",
+          "owner": "SourceAudio",
+          "species": "pikachu",
+          "wait_for_completion": true
+        }
+      ]
+    },
+    "pokered:POKEMON_FAN_CLUB:objects:4": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_PokemonFanClubSeelText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "cue": "cry",
+          "op": "source-audio",
+          "owner": "SourceAudio",
+          "species": "seel",
+          "wait_for_completion": true
+        }
+      ]
+    },
     "pokered:POKEMON_FAN_CLUB:objects:5": {
       "before": [
         "_PokemonFanClubChairmanStoryText"
@@ -986,6 +1138,26 @@
         }
       ]
     },
+    "pokered:SS_ANNE_1F_ROOMS:objects:8": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne1FRoomsWigglytuffText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "cue": "cry",
+          "op": "source-audio",
+          "owner": "SourceAudio",
+          "species": "wigglytuff",
+          "wait_for_completion": false
+        }
+      ]
+    },
     "pokered:SS_ANNE_1F_ROOMS:objects:9": {
       "content": "vermilion",
       "kind": "program",
@@ -1186,6 +1358,34 @@
         "_SSAnne2FRoomsCooltrainerFEndBattleText"
       ]
     },
+    "pokered:SS_ANNE_2F_ROOMS:objects:5": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_SSAnne2FRoomsGentleman3Text"
+          ],
+          "op": "dialog"
+        },
+        {
+          "audio": {
+            "cue": "cry",
+            "op": "source-audio",
+            "owner": "SourceAudio",
+            "source": "engine/menus/pokedex.asm:ShowPokedexDataInternal",
+            "species": "snorlax",
+            "status_bit": "wStatusFlags2.BIT_NO_AUDIO_FADE_OUT",
+            "volume_after": 119,
+            "volume_before": 51,
+            "wait_for_completion": false
+          },
+          "op": "show-pokemon",
+          "species": "snorlax"
+        }
+      ]
+    },
     "pokered:SS_ANNE_2F_ROOMS:objects:6": {
       "content": "vermilion",
       "flag": "PICKUP:pokered:SS_ANNE_2F_ROOMS:objects:6",
@@ -1357,6 +1557,26 @@
             "_SSAnneB1FRoomsSuperNerdText"
           ],
           "op": "dialog"
+        }
+      ]
+    },
+    "pokered:SS_ANNE_B1F_ROOMS:objects:8": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneB1FRoomsMachokeText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "cue": "cry",
+          "op": "source-audio",
+          "owner": "SourceAudio",
+          "species": "machoke",
+          "wait_for_completion": false
         }
       ]
     },
@@ -1536,6 +1756,87 @@
         }
       ]
     },
+    "pokered:SS_ANNE_KITCHEN:objects:7": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_SSAnneKitchenCook7MainCourseIsText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "choices": [
+            {
+              "labels": [
+                "SSAnneKitchenCook7PrimeBeefSteakText"
+              ],
+              "max": 15,
+              "min": 0
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7EelsAuBarbecueText"
+              ],
+              "max": 31,
+              "min": 16
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7PrimeBeefSteakText"
+              ],
+              "max": 47,
+              "min": 32
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7EelsAuBarbecueText"
+              ],
+              "max": 63,
+              "min": 48
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7PrimeBeefSteakText"
+              ],
+              "max": 79,
+              "min": 64
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7EelsAuBarbecueText"
+              ],
+              "max": 95,
+              "min": 80
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7PrimeBeefSteakText"
+              ],
+              "max": 111,
+              "min": 96
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7EelsAuBarbecueText"
+              ],
+              "max": 127,
+              "min": 112
+            },
+            {
+              "labels": [
+                "SSAnneKitchenCook7SalmonDuSaladText"
+              ],
+              "max": 255,
+              "min": 128
+            }
+          ],
+          "op": "random-dialog"
+        }
+      ]
+    },
     "pokered:UNDERGROUND_PATH_ROUTE_6:objects:1": {
       "content": "vermilion",
       "kind": "program",
@@ -1644,6 +1945,42 @@
         }
       ]
     },
+    "pokered:VERMILION_CITY:objects:2": {
+      "cases": [
+        {
+          "then": {
+            "kind": "program",
+            "steps": [
+              {
+                "labels": [
+                  "_VermilionCityGambler1SSAnneDepartedText"
+                ],
+                "op": "dialog"
+              }
+            ]
+          },
+          "when": {
+            "flags": {
+              "EVENT_SS_ANNE_LEFT": true
+            }
+          }
+        }
+      ],
+      "content": "vermilion",
+      "kind": "cases",
+      "otherwise": {
+        "kind": "program",
+        "steps": [
+          {
+            "labels": [
+              "_VermilionCityGambler1DidYouSeeText"
+            ],
+            "op": "dialog"
+          }
+        ]
+      },
+      "restore_interaction_facing": true
+    },
     "pokered:VERMILION_CITY:objects:3": {
       "content": "vermilionStory",
       "item": "ssTicket",
@@ -1657,6 +1994,32 @@
         {
           "labels": [
             "_VermilionCityGambler2Text"
+          ],
+          "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_CITY:objects:5": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_VermilionCityMachopText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "cue": "cry",
+          "op": "source-audio",
+          "owner": "SourceAudio",
+          "species": "machop",
+          "wait_for_completion": true
+        },
+        {
+          "labels": [
+            "_VermilionCityMachopStompingTheLandFlatText"
           ],
           "op": "dialog"
         }
@@ -1955,6 +2318,26 @@
             "_VermilionPidgeyHouseYoungsterText"
           ],
           "op": "dialog"
+        }
+      ]
+    },
+    "pokered:VERMILION_PIDGEY_HOUSE:objects:2": {
+      "content": "vermilion",
+      "kind": "program",
+      "restore_interaction_facing": true,
+      "steps": [
+        {
+          "labels": [
+            "_VermilionPidgeyHousePidgeyText"
+          ],
+          "op": "dialog"
+        },
+        {
+          "cue": "cry",
+          "op": "source-audio",
+          "owner": "SourceAudio",
+          "species": "pidgey",
+          "wait_for_completion": true
         }
       ]
     },
@@ -2895,9 +3278,9 @@
     "battle/battle.lua": "a07df74f037f6016e5afd40c7afdc80ffc9c2e0987e4c07c1a3d74137f7e16fd",
     "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
     "data/ceruleanContent.lua": "da537baba23fcc1c1943f072ef3b6efa4afde02a053113ae77fad113bf817fd2",
-    "data/ceruleanJourney.json": "cc14d84934c7f118a8fe6ae7b46e09c36e30cd35eb706c2e0babac47682d1fed",
+    "data/ceruleanJourney.json": "303f92c729a52b19645972e604e016d6399947b785e638eef58deea7436eee3d",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
-    "data/fieldMoves.json": "f71b4c488909bfac1c2f37baa9d5cd820d63ce74f173b2e2c2881f7407ff5590",
+    "data/fieldMoves.json": "b3196cb8a8fd91a398f3f2e85276c4a2cbaa88259b46231ac192089123602d50",
     "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
     "data/machineData.lua": "ff06e8f40282d52004f5493d5d70a60fdedc6e18f4efa74a931c47c66c0cafb1",
     "data/pokemon.lua": "b60cd7cefa9124215d2b76b24959c993a5113248c3bce49cbd5715b551062e01",
@@ -2942,10 +3325,10 @@
     "data/vermilionPreparation/VermilionPidgeyHouse.json": "4c43415f0b809f0c4ba4b7589bd549ec8db4b6f0f5e5c957ac38961b74200b6c",
     "data/vermilionPreparation/VermilionPokecenter.json": "c21c122dc5ae44c06404d0526417deaf23d1ddaa95ba0350544371fed33bbf32",
     "data/vermilionPreparation/VermilionTradeHouse.json": "bdf2379d3d94ac7de5c4d6d0b398ee141995e26a2e871f383cc836653d04d08f",
-    "data/vermilionPreparation/events.json": "6815c25fd0705ec4dbba59a55112c845afe2520602719b21c407ce48602e23fc",
+    "data/vermilionPreparation/events.json": "9cf06d2468f2ee7e79a1a2b9f175f4101074a636581b249598c51e6518cdd635",
     "data/vermilionPreparation/manifest-entries.json": "fcef7085db7265545acf42dfd8e707505f6f44452d5ee67a02b784721ef4272c",
     "data/vermilionPreparation/packages.json": "167bcfa7c3ee3d95590665c531485f81ea15fb8f3eb25506bfb3d375fcb62373",
-    "data/vermilionPreparation/reservations.json": "d7d60c6942420771dae128c0ced1f41c71a72832d4385cceba064e6722700c43",
+    "data/vermilionPreparation/reservations.json": "05fa6f870827075b6adbb15c79324d133d9c7ea92996cde798dcf3dad24b7433",
     "data/vermilionPreparation/trainers.json": "6ac1c6a49a3cf913f795660d95b2be9c8bce943e55984e36d38b107bc3fd6da3",
     "data/vermilionStory/events.json": "b9998b9b17f79470b62f5726ddeb6fb3479dfa1f1d72b117f36309212ce6bbfc",
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
@@ -2956,9 +3339,9 @@
     "dev/fixtures.lua": "b58335badeaf91cd93ac077519559ba0df9eb38490cfb48dec3a799b20e4b6f4",
     "domain/capture.lua": "ca5f58ce8c8e752d95ee5a033588703a75a3b1cdadc7001f550bed37f6f4ccd1",
     "domain/fieldEncounters.lua": "c58d36ae02e0cc17234ddaf463dffadec1ecad7e085c0cf856ad4906981b94b6",
-    "domain/fieldMoves.lua": "eba04efc4da0e24645612f81099158a41eeae6af31925f6da0cd31d20b973035",
+    "domain/fieldMoves.lua": "b229722bb96d2fe51368f0eaa24801e26b3d8e5cdd5cd1f16a0499f2763b3653",
     "domain/fieldWorld.lua": "c9831dca077bda30252d9f1521bd517436d25e03ed508be91a292eba87ca5f27",
-    "domain/gameSession.lua": "c909a0ea77daa6dd0cd13ea5803daf3787690c85a1d5c3872d4992b758ff709a",
+    "domain/gameSession.lua": "aef1bc8975cfe8446434a8f0752ef558f8fef2ba2e178f13ee400ddc7cac8d0f",
     "domain/sessionCodec.lua": "f3541f4e2f4aeb04e36db2fa4b90090c22fc4ddc1ba323e8957f923f86fe6672",
     "domain/specimen.lua": "e56a2ee920ee25c02d0b9ef3ce3257c560232ea59f89624e0c4315fbfe8acba3",
     "domain/storage.lua": "970a31c0fc7b4bf3257ec630f372f16b2d69b950f5f87064175322e3a7c0ed81",
@@ -2966,10 +3349,10 @@
     "game/bagState.lua": "5ddc859d28b66f8cc46fc3b1020388f4898eb865a0a162b1be30c5b295d2224c",
     "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",
     "game/daycareState.lua": "b6870bcb8a69ea54de4e6552186a9d68e0326b8b18f83fec4460dba6417b6ef9",
-    "game/fieldMoveState.lua": "07ba3975c2440fc3720d0fe02cc4b7028e179d484f35b19808d45f91a6ac4e97",
+    "game/fieldMoveState.lua": "9ddf2535ac2d8fa2ccdd2d670341837eb3ea9696f4e5b89b85f6442662a538f5",
     "game/partyState.lua": "f420161e109b804a1360e056e71109917b909898daf53377722d31717c874a68",
     "game/saves.lua": "498a782c214ca282309b65be6152c1ff06f17c06c754e193c5118ec5affb799a",
-    "game/sourceEvents.lua": "6f79a8ff4c29a82fb3feab8e7191819655e083caadfe73c448d05964cb4632bc",
+    "game/sourceEvents.lua": "8952d51b9155536c16adfc75692bb8d8bd8253047bf77ee2a799afe39aa8f84e",
     "game/trainerEvents.lua": "57227fc6e13e9427340bb7fd1613700eb3244084c1c40f7d831450eee069758b",
     "game/vermilionGifts.lua": "c1acedb198b1348dbdcbbaf44f464269aaf777c9b4a1e555a1ca242ca38a4765",
     "game/vermilionStory.lua": "39c6a92a6634a5efe042359f37f0bd4b121687c0bc1ee8661b6ba15f20f99084",

@@ -238,7 +238,9 @@
     "dev/vermilionCatalogExporter",
     "dev/vermilionCatalogContracts",
     "dev/caveEncounterContracts",
-    "dev/pickupContracts"
+    "dev/pickupContracts",
+    "dev/grassCutContracts",
+    "dev/vermilionAmbientContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -355,6 +357,8 @@
     "VermilionCatalogExporter.register()",
     "Contracts.register(\"vermilion-catalog\", VermilionCatalogContracts.run)",
     "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)",
-    "Contracts.register(\"pickup\", PickupContracts.run)"
+    "Contracts.register(\"pickup\", PickupContracts.run)",
+    "Contracts.register(\"grass-cut\", GrassCutContracts.run)",
+    "Contracts.register(\"vermilion-ambient\", VermilionAmbientContracts.run)"
   ]
 }
