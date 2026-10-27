@@ -44,6 +44,70 @@ BESPOKE = {
     'Daycare': {1: 'deposit/withdraw, party ownership, growth and payment; next service packet'},
 }
 
+
+def ambient_program(pointer):
+    """Explicit translations of bounded primary programs, never text discovery.
+
+    Trades, link reception and binocular services retain their reservations.
+    Audio operations preserve source order and waits as an unimplemented seam.
+    """
+    def program(*steps, **fields):
+        return dict(kind='program', steps=list(steps), **fields)
+
+    def dialog(label):
+        return dict(op='dialog', labels=[label])
+
+    def cry(mon, wait=False):
+        return dict(op='source-audio', cue='cry', species=mon,
+                    wait_for_completion=wait, owner='SourceAudio')
+
+    for fan, other in [('Pikachu', 'Seel'), ('Seel', 'Pikachu')]:
+        if pointer == f'PokemonFanClub{fan}FanText':
+            own = f'EVENT_{fan.upper()}_FAN_BOAST'
+            opposite = f'EVENT_{other.upper()}_FAN_BOAST'
+            fields = dict(transaction='source-effects', guard_flags=[own, opposite])
+            return dict(kind='cases', cases=[dict(when=dict(flags={own: True}),
+                then=program(dialog(f'_PokemonFanClub{fan}FanBetterText'),
+                             dict(op='set-flag', id=own, value=False), **fields))],
+                otherwise=program(dialog(f'_PokemonFanClub{fan}FanNormalText'),
+                                  dict(op='set-flag', id=opposite, value=True), **fields))
+    if pointer == 'VermilionCityGambler1Text':
+        return conditional('EVENT_SS_ANNE_LEFT',
+                           '_VermilionCityGambler1SSAnneDepartedText',
+                           '_VermilionCityGambler1DidYouSeeText')
+    cries = {
+        'PokemonFanClubPikachuText': ('pikachu', True),
+        'PokemonFanClubSeelText': ('seel', True),
+        'VermilionCityMachopText': ('machop', True),
+        'VermilionPidgeyHousePidgeyText': ('pidgey', True),
+        'SSAnne1FRoomsWigglytuffText': ('wigglytuff', False),
+        'SSAnneB1FRoomsMachokeText': ('machoke', False),
+    }
+    if pointer in cries:
+        mon, wait = cries[pointer]
+        steps = [dialog('_' + pointer), cry(mon, wait)]
+        if mon == 'machop':
+            steps.append(dialog('_VermilionCityMachopStompingTheLandFlatText'))
+        return program(*steps)
+    if pointer == 'SSAnne2FRoomsGentleman3Text':
+        return program(dialog('_SSAnne2FRoomsGentleman3Text'),
+                       dict(op='show-pokemon', species='snorlax', audio=dict(
+                           op='source-audio', cue='cry', species='snorlax',
+                           wait_for_completion=False, owner='SourceAudio',
+                           source='engine/menus/pokedex.asm:ShowPokedexDataInternal',
+                           volume_before=0x33, volume_after=0x77,
+                           status_bit='wStatusFlags2.BIT_NO_AUDIO_FADE_OUT')))
+    if pointer == 'SSAnneKitchenCook7Text':
+        # bit 7 wins; otherwise bit 4 selects eels. Every byte has one result.
+        choices = []
+        for low in range(0, 128, 16):
+            suffix = 'EelsAuBarbecueText' if low & 16 else 'PrimeBeefSteakText'
+            choices.append(dict(min=low, max=low + 15, labels=['SSAnneKitchenCook7' + suffix]))
+        choices.append(dict(min=128, max=255, labels=['SSAnneKitchenCook7SalmonDuSaladText']))
+        return program(dialog('_SSAnneKitchenCook7MainCourseIsText'),
+                       dict(op='random-dialog', choices=choices))
+    return None
+
 def sections(text):
     """Every column-zero global label (private/exported) ends the prior body.
 
@@ -183,7 +247,8 @@ def build(reference_root):
     scripts, texts, trainers, events, signs, gaps = {}, {}, {}, {}, {}, []
     supplemental = ['data/items/marts.asm', 'engine/events/oaks_aide.asm', 'data/events/trades.asm', 'engine/events/in_game_trades.asm',
                     'engine/events/pokecenter.asm', 'data/events/hidden_item_coords.asm',
-                    'data/maps/toggleable_objects.asm', 'home/overworld_text.asm']
+                    'data/maps/toggleable_objects.asm', 'home/overworld_text.asm',
+                    'engine/events/display_pokedex.asm', 'engine/menus/pokedex.asm']
     for path in supplemental:
         scripts[path] = ref.text(path)
     text_paths = [f'text/{name}.asm' for name in MAPS if name not in NO_LOCAL_TEXT]
@@ -269,6 +334,9 @@ def build(reference_root):
                 descriptor = dict(kind='program', steps=[dict(op='shop', id='vermilionMartClerkText')])
             elif pointer == 'VermilionGymGymGuideText':
                 descriptor = conditional('EVENT_BEAT_LT_SURGE', '_VermilionGymGymGuideBeatLTSurgeText', '_VermilionGymGymGuideChampInMakingText')
+            elif ambient_program(pointer) is not None and not reason:
+                descriptor = ambient_program(pointer)
+                descriptor['restore_interaction_facing'] = True
             elif ordinary and not reason:
                 descriptor = dict(kind='program', steps=[dict(op='dialog', labels=ordinary)])
             elif 'script_pokecenter_nurse' in body:
