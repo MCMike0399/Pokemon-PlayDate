@@ -254,7 +254,6 @@ Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
 import "dev/vermilionAbilityContracts"
 Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
 import "dev/vermilionCatalogExporter"
-VermilionCatalogExporter.register()
 import "dev/vermilionCatalogContracts"
 Contracts.register("vermilion-catalog", VermilionCatalogContracts.run)
 import "dev/caveEncounterContracts"
@@ -266,6 +265,9 @@ import "dev/grassCutContracts"
 Contracts.register("grass-cut", GrassCutContracts.run)
 import "dev/vermilionAmbientContracts"
 Contracts.register("vermilion-ambient", VermilionAmbientContracts.run)
+
+-- @harness content-ready
+VermilionCatalogExporter.register()
 
 -- @harness runtime
 harness = Harness

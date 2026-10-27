@@ -354,11 +354,11 @@
     "Contracts.register(\"vermilion-ship\", function()",
     "Contracts.register(\"field-acquisition\", FieldAcquisitionContracts.run)",
     "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)",
-    "VermilionCatalogExporter.register()",
     "Contracts.register(\"vermilion-catalog\", VermilionCatalogContracts.run)",
     "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)",
     "Contracts.register(\"pickup\", PickupContracts.run)",
     "Contracts.register(\"grass-cut\", GrassCutContracts.run)",
-    "Contracts.register(\"vermilion-ambient\", VermilionAmbientContracts.run)"
+    "Contracts.register(\"vermilion-ambient\", VermilionAmbientContracts.run)",
+    "VermilionCatalogExporter.register()"
   ]
 }

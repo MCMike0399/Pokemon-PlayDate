@@ -152,6 +152,7 @@ KantoServices.install()
 VermilionGifts.install()
 VermilionStory.install({reconcileActors=KantoScenes.reconcileActors})
 Daycare.install()
+-- @harness content-ready
 SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
 SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
     beforeSpawn=function(context)

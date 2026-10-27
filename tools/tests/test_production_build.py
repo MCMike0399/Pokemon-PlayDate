@@ -74,6 +74,11 @@ class ProductionBuildTests(unittest.TestCase):
         self.assertEqual([name for name in modules if name.startswith('dev/') and name not in transitive],
                          ['dev/harness_build'] + [name for name in expected if name != 'dev/harness_build'])
         staged = (self.harness / 'Source/main.lua').read_text()
+        package = staged.index('CeruleanContent.registerPackage("vermilion",')
+        exporter = staged.index('VermilionCatalogExporter.register()')
+        context = staged.index('game = GameContext(')
+        self.assertLess(package, exporter)
+        self.assertLess(exporter, context)
         imports = re.findall(r'^import "([^"]+)"$', staged, re.M)
         self.assertEqual(imports, ['dev/harness_build'] + [name for name in BASELINE['imports'] if name != 'dev/harness_build'])
         self.assertEqual([line for line in staged.splitlines() if line.startswith('Contracts.register(')
