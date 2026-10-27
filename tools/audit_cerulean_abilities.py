@@ -37,7 +37,7 @@ def inventory(root=ROOT, level_cap=22):
 
     manifest = json.loads((data / 'sourceMaps.json').read_text())
     for entry in manifest['maps'].values():
-        if entry['profile'] != 'source':
+        if entry['profile'] != 'source' or not entry['path'].startswith('data/sourceSlice/'):
             continue
         definition = json.loads((root / 'Source' / entry['path']).read_text())
         for medium in ('grass', 'water'):

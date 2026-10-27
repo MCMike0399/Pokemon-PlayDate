@@ -24,12 +24,12 @@ class SourceMapActivationInputs(unittest.TestCase):
     def test_sdk_witness_uses_the_exact_existing_pinned_extension_fixture(self):
         self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(self.fixture))
         maps = self.fixture['data/sourceMaps.json']['maps']
-        self.assertEqual(len(maps), 31)
+        self.assertEqual(len(maps), 66)
         self.assertEqual(maps['ViridianSchoolHouse']['profile'], 'source')
         self.assertEqual(maps['Route22']['profile'], 'source')
         active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
         self.assertEqual(set(maps) - set(active), {'ViridianSchoolHouse'})
-        self.assertEqual(len(active), 30)
+        self.assertEqual(len(active), 65)
         self.assertNotEqual(maps['Route22']['path'], active['Route22']['path'])
         self.assertEqual(active['Route22']['key'], 'kanto_route_22')
 
