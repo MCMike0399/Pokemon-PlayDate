@@ -34,7 +34,52 @@ function ItemContracts.run()
         equal(ItemData.definitions.pokeBall.price,200);equal(ItemData.definitions.parlyzHeal.price,200)
         equal(ItemData.definitions.nugget.sellPrice,5000);equal(ItemData.definitions.tm01.price,3000)
         for _,symbol in ipairs({"SURFBOARD","ITEM_2C","ITEM_32","COIN","POKEDEX","BOULDERBADGE","SAFARI_BALL"}) do equal(ItemData.bySymbol[symbol],nil,symbol) end
-        local count,blue=0,0;for _,item in pairs(ItemData.definitions) do count=count+1;if item.numericId~=nil then blue=blue+1 end end;equal(blue,124);equal(count,125)
+        local legacy <const> = {}
+        local count, blue = 0, 0
+        for id in ([[
+masterBall ultraBall greatBall pokeBall townMap bicycle moonStone antidote burnHeal iceHeal
+awakening parlyzHeal fullRestore maxPotion hyperPotion superPotion potion escapeRope repel oldAmber
+fireStone thunderStone waterStone hpUp protein iron carbos calcium rareCandy domeFossil helixFossil
+secretKey bikeVoucher xAccuracy leafStone cardKey nugget pokeDoll fullHeal revive maxRevive
+guardSpec superRepel maxRepel direHit freshWater sodaPop lemonade ssTicket goldTeeth xAttack xDefend
+xSpeed xSpecial coinCase oaksParcel itemfinder silphScope pokeFlute liftKey expAll oldRod goodRod
+superRod ppUp ether maxEther elixir maxElixir hm01 hm02 hm03 hm04 hm05 tm01 tm02 tm03 tm04 tm05 tm06
+tm07 tm08 tm09 tm10 tm11 tm12 tm13 tm14 tm15 tm16 tm17 tm18 tm19 tm20 tm21 tm22 tm23 tm24 tm25 tm26
+tm27 tm28 tm29 tm30 tm31 tm32 tm33 tm34 tm35 tm36 tm37 tm38 tm39 tm40 tm41 tm42 tm43 tm44 tm45 tm46
+tm47 tm48 tm49 tm50 lightBall
+]]):gmatch("%S+") do
+            assert(legacy[id] == nil, "duplicate legacy item " .. id)
+            local item <const> = assert(ItemData.definitions[id], "missing legacy item " .. id)
+            legacy[id] = true
+            count = count + 1
+            if item.numericId ~= nil then blue = blue + 1 end
+        end
+        equal(blue, 124)
+        equal(count, 125)
+        local additions <const> = {
+            sunStone={80,80,2100,"SUN_STONE"}, heartScale={93,93,100,"HEART_SCALE"},
+            kingsRock={221,198,100,"KINGS_ROCK"}, ironBall={278,255,200,"IRON_BALL"},
+            prismScale={537,580,500,"PRISM_SCALE"}, leftovers={234,211,200,"LEFTOVERS"},
+        }
+        local added = 0
+        for id, item in pairs(ItemData.definitions) do
+            if not legacy[id] then
+                local expected <const> = assert(additions[id], "unexpected item " .. id)
+                equal(item.id, id)
+                equal(item.gen5Id, expected[1])
+                equal(item.pokeApiId, expected[2])
+                equal(item.price, expected[3])
+                equal(item.sellPrice, expected[3] // 2)
+                equal(item.symbol, expected[4])
+                equal(ItemData.bySymbol[item.symbol], id)
+                equal(item.numericId, nil)
+                equal(item.keyItem, false)
+                equal(item.category, "item")
+                equal(item.effect, "unsupported")
+                added = added + 1
+            end
+        end
+        equal(added, 6)
     end)
     test("Blue Viridian stock does not invent a Potion shelf",function()
         equal(table.concat(ItemData.marts.viridianMartClerkText,","),"pokeBall,antidote,parlyzHeal,burnHeal")

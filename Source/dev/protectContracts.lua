@@ -11,7 +11,17 @@ function ProtectContracts.run()
  local saved=RulesRNG.snapshot();local report={ok=true,passed=0,failed=0,tests={}}
  local function test(name,fn)local ok,why=pcall(fn);report.tests[#report.tests+1]={name=name,ok=ok,error=not ok and tostring(why)or nil};if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end end
  test("All425 protection flags are typed with332 protectable and Feint sole breaker",function()
-  local count,protected,breaks=0,0,0;for k,m in pairs(moveData)do count=count+1;eq(type(m.protectable),"boolean",k);eq(type(m.breaksProtect),"boolean",k);if m.protectable then protected=protected+1 end;if m.breaksProtect then breaks=breaks+1;eq(k,"feint")end end
+  local count, protected, breaks = 0, 0, 0
+  for key, move in pairs(PartyBattleContracts.generatedCatalog()) do
+      count = count + 1
+      eq(type(move.protectable), "boolean", key)
+      eq(type(move.breaksProtect), "boolean", key)
+      if move.protectable then protected = protected + 1 end
+      if move.breaksProtect then
+          breaks = breaks + 1
+          eq(key, "feint")
+      end
+  end
   eq(count,425);eq(protected,332);eq(breaks,1);eq(moveData.protect.priority,4);eq(moveData.protect.pp,10);eq(moveData.protect.targetId,7);eq(#moveData.protect.effects,1)
   eq(moveData.feint.power,30);eq(moveData.feint.priority,2);eq(moveData.feint.targetId,10);eq(moveData.feint.contact,false);eq(moveData.feint.protectable,false)
  end)

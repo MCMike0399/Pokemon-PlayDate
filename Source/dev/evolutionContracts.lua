@@ -208,7 +208,18 @@ function EvolutionContracts.run()
         local zone=getCurrentZoneKey()
         local ok,why=pcall(function()
         local game,mon=pendingGame("bulbasaur",15,16);ui(game);local state=BattleState(game);game.machine:register("battle",state)
-        local enemy=Pokemon("rattata",5);mon.hp,enemy.hp=0,0;state.battle=Battle(mon,enemy,nil,{session=game.session});state:finish(true,"victory")
+        local enemy <const> = Pokemon("rattata", 5)
+        assert(FieldBattle.start(game, mon, enemy))
+        local battle <const> = state.battle
+        mon.hp, enemy.hp = 0, 0 -- Final recoil after admission, not an invalid field entry.
+        battle:runScript(function() return "victory" end)
+        local advances = 0
+        while battle:phase() == "script" do
+            advances = advances + 1
+            assert(advances <= 200, "terminal fixture did not settle")
+            battle.machine:get("script"):advance()
+        end
+        assert(battle:emitEnd())
         eq(game.lastBattleOutcome.blackout,true);eq(game.lastBattleOutcome.player_hp,0);eq(game.lastBattleOutcome.enemy_hp,0);eq(game.lastBattleOutcome.kind,"victory")
         eq(game.machine:getCurrent(),"evolution");eq(mon.hp,mon.maxHP);eq(mon.species,"bulbasaur")
         beginAnimation(game.machine:current());runAnimation(game);eq(mon.species,"ivysaur");eq(mon.hp,45)

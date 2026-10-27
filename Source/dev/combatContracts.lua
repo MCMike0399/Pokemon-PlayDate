@@ -40,18 +40,23 @@ local function fingerprint(battle)
     end
     return table.concat(fields, "|")
 end
-local function exitContext(player, enemy)
+local function exitContext(player, enemy, npc)
     -- Actual context/controller, with a minimal world State callback instead
     -- of rebuilding the global map while a contract command is executing.
     local game = GameContext()
     assert(game:recruit(player))
+    assert(game.session:setIntro({stage="done", starter="charmander", rivalStarter="squirtle"}))
     local entry
     game.machine:register("overworld", {enter = function(_, options) entry = options end})
     game.machine:register("learning", LearningState(game))
     local state = BattleState(game)
     game.machine:register("battle", state)
     game.machine:change("overworld")
-    state.battle = fresh(player, enemy)
+    if npc then npc:bindSession(game, "contract:terminal-trainer") end
+    assert(FieldBattle.start(game, player, enemy, npc))
+    equal(state.battle.session, game.session)
+    equal(state.battle.party, game.session:party())
+    settle(state.battle)
     return game, state, function() return entry end
 end
 
@@ -366,11 +371,14 @@ function CombatContracts.run()
     test("Ordinary battle return preserves major status/sleep0 while clearing battle transients", function()
         for _, status in ipairs({"poison", "burn", "paralyze", "freeze", "sleep"}) do
             local p, e = Pokemon("charmander", 5), Pokemon("squirtle", 5)
+            local game, state, entry = exitContext(p, e)
             p.status, p.statusTurns, p.confusion, p.flinched, p.statStages.atk = status, 0, 2, true, -6
             p.sleepDuration = status == "sleep" and 3 or 0
             e.confusion, e.flinched, e.statStages.def = 2, true, 6
-            local game, state, entry = exitContext(p, e)
-            state:finish(false, "run")
+            local battle <const> = state.battle
+            battle:runScript(function() return "run" end)
+            settle(battle)
+            equal(battle.endEmitted, true)
             equal(p.status, status); equal(p.statusTurns, 0); equal(p.confusion, nil); equal(p.flinched, false)
             equal(p.statStages.atk, 0); equal(e.statStages.def, 0); equal(e.confusion, nil)
             equal(game.machine:getCurrent(), "overworld"); equal(entry(), nil)
@@ -380,14 +388,17 @@ function CombatContracts.run()
 
     test("Blackout restores supported player even when terminal narrative is victory", function()
         local p, e = Pokemon("charmander", 5), Pokemon("squirtle", 5)
-        p.hp, p.status, p.statusTurns, p.pp.scratch = 0, "sleep", 0, 0
+        p.status, p.statusTurns, p.pp.scratch = "sleep", 0, 0
         p.sleepDuration = 3
-        local game, state, entry = exitContext(p, e)
         local npc = NPC(1000, 1000, "TEST", {}, nil, "rival"); npc:remove(); npc.def = {}
-        npc:bindSession(game,"contract:terminal-trainer")
-        state.npc = npc; assert(game.session:setIntro({stage="rival_fight",starter="charmander",rivalStarter="squirtle"}))
+        local game, state, entry = exitContext(p, e, npc)
+        assert(game.session:setIntro({stage="rival_fight",starter="charmander",rivalStarter="squirtle"}))
         local xp = p.xp
-        state:finish(true, "victory")
+        p.hp = 0 -- Faint after admitted entry, as in a final recoil victory.
+        local battle <const> = state.battle
+        battle:runScript(function() return "victory" end)
+        settle(battle)
+        assert(battle:emitEnd())
         equal(npc.interacted, true); equal(npc.def.interacted, nil); equal(game.session:trainerDefeated("contract:terminal-trainer"), true); equal(Story.get(game).rivalOutcome, true)
         equal(Story.get(game).stage, "goodbye"); equal(entry().respawn, true)
         equal(p.hp, p.maxHP); equal(p.status, nil); equal(p.statusTurns, 0); equal(p.pp.scratch, moveData.scratch.maxPP)
@@ -399,8 +410,8 @@ function CombatContracts.run()
 
     test("Forced battle exit clears stages/volatiles/listeners without curing major status", function()
         local p, e = Pokemon("charmander", 5), Pokemon("squirtle", 5)
-        p.status, p.statusTurns, p.confusion, p.flinched, p.statStages.atk = "poison", 0, 2, true, 3
         local _, state = exitContext(p, e)
+        p.status, p.statusTurns, p.confusion, p.flinched, p.statStages.atk = "poison", 0, 2, true, 3
         local b = state.battle; local calls = 0; b:on("battleEnd", function() calls = calls + 1 end)
         state:exit(); b:emit("battleEnd", true, "victory")
         equal(calls, 0); equal(p.status, "poison"); equal(p.statusTurns, 0)

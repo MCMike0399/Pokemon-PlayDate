@@ -283,7 +283,7 @@ function PickupContracts.run()
         same(RulesRNG.snapshot(), before)
     end)
     test("Pickup actual receipt cannot replay or rebind; Continue has no battle receipt", function()
-        local game = owned()
+        local game = owned({mon(), mon("squirtle")})
         local b = battleFor(game)
         assert(finish(game, b, "victory", seedFor(0,98)))
         local before = RulesRNG.snapshot()
@@ -357,7 +357,7 @@ function PickupContracts.run()
     test("Pickup actual private SaveStore reload preserves all six held IDs and both RNGs", function()
         assert(HarnessBuild and HarnessBuild.enabled
             and HarnessBuild.bundle_id:match("^com%.poc%.pokemon%.harness%."), "private harness bundle required")
-        local game = owned({mon(nil, 11), mon(), mon(), mon(), mon(), mon()})
+        local game = owned({mon("squirtle", 11), mon(), mon(), mon(), mon(), mon()})
         local ids = {"sunStone", "heartScale", "kingsRock", "ironBall", "prismScale", "leftovers"}
         for index, id in ipairs(ids) do game.session:party():get(index).heldItem = id end
         RulesRNG.seed(16777217)
@@ -371,7 +371,9 @@ function PickupContracts.run()
         end
         local dependencies = game:getSessionDependencies()
         local store = SessionCodec.store(prefix, dependencies)
-        assert(SessionCodec.save(store, game.session, {root="overworld", overworld="explore", settled=true}))
+        local saved, problem = SessionCodec.save(store, game.session,
+            {root="overworld", overworld="explore", settled=true})
+        assert(saved, type(problem) == "table" and json.encode(problem) or problem)
         local continued = assert(SessionCodec.load(SessionCodec.store(prefix, dependencies), dependencies))
         for index, id in ipairs(ids) do eq(continued:party():get(index).heldItem, id) end
         same(continued:rngData(), beforeRules)

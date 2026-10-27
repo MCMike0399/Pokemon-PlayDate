@@ -580,12 +580,12 @@ function SourceMapContracts.run()
         if not ok then error(problem, 0) end
     end)
 
-    test("Pewter descriptors retain prior data except the declared museum openings", function()
+    test("Pewter descriptors retain prior data except declared museum and four Route2 openings", function()
         scope(function(provider)
             for _, original in pairs(assert(json.decodeFile("data/pewterSlice/compact.json")).maps) do
                 local descriptor = provider:descriptor(original.id)
-                for _, field in ipairs({ "id", "key", "revision", "width", "height", "padding", "source_width", "palette", "tile_rows", "blocked" }) do
-                    local expected = original[field]
+                for field, value in pairs(original) do
+                    local expected = value
                     if field == "blocked" and original.id == "pokered:PEWTER_CITY" then
                         expected = GameSession._copy(expected)
                         for cell, id in pairs(expected) do
@@ -593,6 +593,26 @@ function SourceMapContracts.run()
                                 expected[cell] = nil
                             end
                         end
+                    end
+                    if field == "blocked" and original.id == "pokered:ROUTE_2" then
+                        -- These exact source warp cells now bind installed maps.
+                        -- This is no approval of the changed collision diagnostic;
+                        -- its protected-image approval gate remains open at root.
+                        expected = GameSession._copy(expected)
+                        local resolved <const> = {
+                            ["193"] = "pokered:ROUTE_2:warps:1",
+                            ["396"] = "pokered:ROUTE_2:warps:3",
+                            ["717"] = "pokered:ROUTE_2:warps:4",
+                            ["796"] = "pokered:ROUTE_2:warps:5",
+                        }
+                        local count = 0
+                        for cell, id in pairs(resolved) do
+                            equal(expected[cell], id)
+                            equal(descriptor.blocked[cell], nil)
+                            expected[cell] = nil
+                            count = count + 1
+                        end
+                        equal(count, 4)
                     end
                     same(descriptor[field], expected)
                 end

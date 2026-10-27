@@ -26,7 +26,14 @@ function BideContracts.run()
         if ok then report.passed=report.passed+1 else report.failed=report.failed+1;report.ok=false end
     end
     test("Added Bide117 exact GenV metadata preserves425 rows and prior forced-critical distinction",function()
-        local count=0;for _,m in pairs(moveData)do count=count+1;eq(type(m.contact),"boolean");eq(type(m.hasSecondary),"boolean");eq(type(m.ohko),"boolean")end;eq(count,425)
+        local count = 0
+        for _, move in pairs(PartyBattleContracts.generatedCatalog()) do
+            count = count + 1
+            eq(type(move.contact), "boolean")
+            eq(type(move.hasSecondary), "boolean")
+            eq(type(move.ohko), "boolean")
+        end
+        eq(count, 425)
         local m=moveData.bide;eq(m.category,"physical");eq(m.type,"normal");eq(m.power,0);eq(m.accuracy,0);eq(m.pp,10);eq(m.priority,1)
         eq(m.targetId,7);eq(m.contact,true);eq(m.damageRule,"bide");eq(m.typeless,false);eq(moveData.stormThrow.willCrit,true)
     end)

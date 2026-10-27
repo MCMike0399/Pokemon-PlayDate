@@ -72,10 +72,26 @@ function PewterProviderContracts.run()
         eq(door.toX,3);eq(door.toY,44);eq(door.facing,"down");eq(south:getDoorAt(5,7),nil)
         local gym=PewterWorld.isolated("PewterGym");eq(gym:getEdgeDoorAt(5,13,"down").toY,18)
     end)
-    test("unimplemented source exits remain physical blockers and no NPC uses Oak fallback",function()
-        local route=PewterWorld.isolated("Route2");eq(route.collision[10][13],1);local ok,problem=pcall(route.getDoorAt,route,12,9);assert(not ok and tostring(problem):find("unresolved source warp: pokered:ROUTE_2:warps:1",1,true))
+    test("resolved Route2 exits open exact source cells; remaining Pewter blockers and explicit NPC art stay",function()
+        local route <const> = PewterWorld.isolated("Route2")
+        local resolved <const> = {
+            {12, 9, "kanto_digletts_cave_route_2"},
+            {15, 19, "kanto_route_2_trade_house"},
+            {16, 35, "kanto_route_2_gate"},
+            {15, 39, "kanto_route_2_gate"},
+        }
+        for _, exit in ipairs(resolved) do
+            eq(route.collision[exit[2] + 1][exit[1] + 1], 0)
+            eq(assert(route:getDoorAt(exit[1], exit[2])).to, exit[3])
+        end
+        -- Protected diagnostic approval for these four openings remains pending.
         local city=PewterWorld.isolated("PewterCity")
         eq(city.collision[8][15],0)
+        for _, cell in ipairs({{29, 13}, {7, 29}}) do
+            eq(city.collision[cell[2] + 1][cell[1] + 1], 1)
+            local ok, problem = pcall(city.getDoorAt, city, cell[1], cell[2])
+            assert(not ok and tostring(problem):find("unresolved source warp:", 1, true))
+        end
         eq(assert(city:getDoorAt(14,7)).to,"kanto_museum_1f")
         for _,name in ipairs(PewterSlice.names()) do for _,def in ipairs(PewterWorld.isolated(name).npcDefs) do
             assert(def.sprite~="oak" and def.source_sprite and def.source_event_id,"missing explicit source NPC art/identity")
