@@ -1,0 +1,34 @@
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -152,6 +152,8 @@
+         assert(pokemonData[step.species], "known source display species required")
+         SourceEvents.validateStep(assert(step.audio, "source display cry required"))
+         assert(step.audio.species == step.species, "source display cry identity required")
++    elseif op == "face-player" then
++        assert(directions[step.direction], "bounded player facing required")
+     elseif op == "move" or op == "move-npc" then
+         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
+         if op == "move-npc" then assert(type(step.id) == "string", "stable source actor ID required") end
+--- a/Source/game/eventState.lua
++++ b/Source/game/eventState.lua
+@@ -132,6 +132,9 @@
+         elseif step.op=="trainer" then
+             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
+             self.ops[#self.ops+1]=step
++        elseif step.op=="face-player" then
++            SourceEvents.validateStep(step)
++            self.ops[#self.ops+1]=step
+         elseif step.op=="move" then
+             assert(DELTA[step.direction] and type(step.count)=="number" and step.count%1==0 and step.count>=1 and step.count<=8,"bounded movement required")
+             for _=1,step.count do self.ops[#self.ops+1]={op="move",direction=step.direction} end
+@@ -221,6 +224,10 @@
+         self:advance()
+     elseif step.op == "show-pokemon" then
+         self:showPokemon(step)
++    elseif step.op=="face-player" then
++        self.player.facing=step.direction
++        self.player:updateSprite()
++        self:advance()
+     elseif step.op=="move" then self:startMove(step.direction)
+     elseif step.op=="move-npc" then self:startNPCMove(step)
+     elseif step.op=="warp" then self:prepareWarp(step)
