@@ -27,7 +27,9 @@ local function prepare(g, offer, mon)
 end
 local function offers()
     local result <const> = {}
-    for _, offer in pairs(NPCTrades.policy().trades) do result[#result + 1] = offer end
+    for _, offer in pairs(NPCTrades.policy().trades) do
+        result[#result + 1] = offer
+    end
     table.sort(result, function(a, b) return a.index < b.index end)
     return result
 end
@@ -163,8 +165,12 @@ function NPCTradeContracts.run()
     local function test(name, fn)
         local ok, problem = pcall(fn)
         report.tests[#report.tests + 1] = {name=name, ok=ok, error=not ok and tostring(problem) or nil}
-        if ok then report.passed = report.passed + 1
-        else report.failed = report.failed + 1; report.ok = false end
+        if ok then
+            report.passed = report.passed + 1
+        else
+            report.failed = report.failed + 1
+            report.ok = false
+        end
     end
     for _, offer in ipairs(offers()) do
         test(offer.nickname .. " exact object, normal traits, OTID draw order, healthy last-member", function()
@@ -191,34 +197,52 @@ function NPCTradeContracts.run()
             local ok, result = s:resolveNPCTrade(request, g)
             assert(ok, result)
             local incoming <const> = result.pokemon
-            eq(incoming, s:party():get(1)); eq(s:party():count(), 1)
-            eq(Party._owner(outgoing), nil); eq(Party._owner(incoming), s:party())
-            eq(incoming.species, offer.offered); eq(incoming.name, offer.nickname)
-            eq(incoming.level, 37); eq(incoming.xp, incoming:xpForLevel(37))
-            eq(incoming.hp, incoming.maxHP); eq(incoming.status, nil)
-            eq(incoming.heldItem, "none"); eq(incoming.acquisition.otId, expectedID)
+            eq(incoming, s:party():get(1))
+            eq(s:party():count(), 1)
+            eq(Party._owner(outgoing), nil)
+            eq(Party._owner(incoming), s:party())
+            eq(incoming.species, offer.offered)
+            eq(incoming.name, offer.nickname)
+            eq(incoming.level, 37)
+            eq(incoming.xp, incoming:xpForLevel(37))
+            eq(incoming.hp, incoming.maxHP)
+            eq(incoming.status, nil)
+            eq(incoming.heldItem, "none")
+            eq(incoming.acquisition.otId, expectedID)
             eq(incoming.sexProvenance.origin, "npc-trade")
-            eq(incoming.acquisition.otName, "TRAINER"); eq(incoming.acquisition.tradeIndex, offer.index)
-            for _, key in ipairs({"natureId", "abilitySlot", "sex"}) do eq(incoming[key], expected[key]) end
-            same(incoming.ivs, expected.ivs); same(incoming.evs, IndividualStats.zero())
+            eq(incoming.acquisition.otName, "TRAINER")
+            eq(incoming.acquisition.tradeIndex, offer.index)
+            for _, key in ipairs({"natureId", "abilitySlot", "sex"}) do
+                eq(incoming[key], expected[key])
+            end
+            same(incoming.ivs, expected.ivs)
+            same(incoming.evs, IndividualStats.zero())
             local moves <const> = {}
             for _, entry in ipairs(pokemonData[offer.offered].learnset) do
                 if entry.level >= 1 and entry.level <= 37 then
                     local present = false
                     for _, key in ipairs(moves) do
-                        if key == entry.move then present = true end
+                        if key == entry.move then
+                            present = true
+                        end
                     end
                     if not present then
-                        if #moves == 4 then table.remove(moves, 1) end
+                        if #moves == 4 then
+                            table.remove(moves, 1)
+                        end
                         moves[#moves + 1] = entry.move
                     end
                 end
             end
             same(incoming.moves, moves)
-            for _, key in ipairs(moves) do eq(incoming.pp[key], moveData[key].maxPP) end
+            for _, key in ipairs(moves) do
+                eq(incoming.pp[key], moveData[key].maxPP)
+            end
             same(s:rngData(), stream:toData())
-            assert(s:questFlag(offer.flag)); assert(s:pokedex().seen[incoming.species])
-            assert(s:pokedex().owned[incoming.species]); assert(NPCTrades.isOutsider(incoming))
+            assert(s:questFlag(offer.flag))
+            assert(s:pokedex().seen[incoming.species])
+            assert(s:pokedex().owned[incoming.species])
+            assert(NPCTrades.isOutsider(incoming))
             local completed <const> = wire(s)
             eq(s:resolveNPCTrade(request, g), false)
             eq(NPCTrades.prepare(s, offer.sourceId, incoming, g), nil)
@@ -260,7 +284,7 @@ function NPCTradeContracts.run()
         {name="Route11Gate2F", id="pokered:ROUTE_11_GATE_2F:objects:1"},
     }
     for _, scene in ipairs(currentScenes) do
-        test(scene.name .. " actual dispatcher, guarded selection, cable flavor, receipt and repeat", function()
+        test(scene.name .. " actual picker cancellation, stale reentry, species/item guards and successful trade", function()
             worldScene(scene.name, nil, function(g)
                 g.machine:register("event", NPCTradeState(g))
                 g.machine:register("party", PartyState(g))
@@ -282,6 +306,71 @@ function NPCTradeContracts.run()
                 event:handleButton("b")
                 drain(g)
                 same(before, wire(g.session))
+
+                -- Close through PartyState so the guarded callback runs only
+                -- after the event has regained the top of the real stack.
+                assert(SourceEvents.dispatch(g, scene.id))
+                drain(g)
+                event:handleButton("a")
+                eq(g.machine:getCurrent(), "party")
+                local picker <const> = g.machine:get("party")
+                local staleSelect <const> = picker.options.onSelect
+                local staleCancel <const> = picker.options.onCancel
+                picker:close()
+                eq(g.machine:getCurrent(), "dialog")
+                eq(event.waiting, "_NoTrade" .. offer.dialogue .. "Text")
+                eq(event.tradeRequest, nil)
+                local cancelledSerial <const> = event.serial
+                staleSelect(3)
+                staleCancel()
+                eq(event.serial, cancelledSerial)
+                same(before, wire(g.session))
+                drain(g)
+                eq(g.machine:getCurrent(), "overworld")
+                same(g.session:actorData(), actors)
+
+                -- Reentry reuses this executor object. Old picker callbacks
+                -- must remain inert even while that executor is top again.
+                assert(SourceEvents.dispatch(g, scene.id))
+                drain(g)
+                eq(event.phase, "service-choice")
+                local reentryEpoch <const> = event.epoch
+                local reentrySerial <const> = event.serial
+                staleSelect(3)
+                staleCancel()
+                eq(event.epoch, reentryEpoch)
+                eq(event.serial, reentrySerial)
+                eq(event.phase, "service-choice")
+                eq(g.machine:getCurrent(), "event")
+                same(before, wire(g.session))
+                event:handleButton("a")
+                eq(g.machine:getCurrent(), "party")
+                picker:close(1)
+                eq(g.machine:getCurrent(), "dialog")
+                eq(event.waiting, "_WrongMon" .. offer.dialogue .. "Text")
+                eq(event.tradeRequest, nil)
+                drain(g)
+                eq(g.machine:getCurrent(), "overworld")
+                same(before, wire(g.session))
+
+                outgoing.heldItem = "lightBall"
+                local held <const> = wire(g.session)
+                assert(SourceEvents.dispatch(g, scene.id))
+                drain(g)
+                event:handleButton("a")
+                eq(g.machine:getCurrent(), "party")
+                picker:close(3)
+                eq(g.machine:getCurrent(), "dialog")
+                eq(event.waiting, "trade-held-item")
+                eq(event.tradeRequest, nil)
+                same(held, wire(g.session))
+                drain(g)
+                eq(g.machine:getCurrent(), "overworld")
+                eq(outgoing.heldItem, "lightBall")
+                same(held, wire(g.session))
+                outgoing.heldItem = "none"
+                same(before, wire(g.session))
+
                 assert(SourceEvents.dispatch(g, scene.id))
                 drain(g)
                 event:handleButton("a")
@@ -313,12 +402,15 @@ function NPCTradeContracts.run()
         local other <const> = Pokemon("mew", 15)
         assert(s:recruit(other))
         local request, reason = NPCTrades.prepare(s, offer.sourceId, other, g)
-        eq(request, nil); eq(reason, "wrong-species")
+        eq(request, nil)
+        eq(reason, "wrong-species")
         mon.heldItem = "lightBall"
         local held <const> = wire(s)
         request, reason = NPCTrades.prepare(s, offer.sourceId, mon, g)
-        eq(request, nil); eq(reason, "take-held-item-first")
-        same(held, wire(s)); eq(mon.heldItem, "lightBall")
+        eq(request, nil)
+        eq(reason, "take-held-item-first")
+        same(held, wire(s))
+        eq(mon.heldItem, "lightBall")
         assert(before.party.members[1].acquisition.kind == "neutral")
     end)
     test("full bag Take failure preserves offered item and trade exclusion", function()
@@ -327,33 +419,55 @@ function NPCTradeContracts.run()
         local added = 0
         for id in pairs(ItemData.definitions) do
             if id ~= "lightBall" and added < Inventory.CAPACITY then
-                if s:inventory():add(id, 1) then added = added + 1 end
+                if s:inventory():add(id, 1) then
+                    added = added + 1
+                end
             end
         end
         eq(s:inventory():count(), Inventory.CAPACITY)
         local before <const> = wire(s)
         eq(s:takeHeldItem(mon), false)
         eq(NPCTrades.prepare(s, offer.sourceId, mon, g), nil)
-        eq(mon.heldItem, "lightBall"); same(before, wire(s))
+        eq(mon.heldItem, "lightBall")
+        same(before, wire(s))
     end)
     test("cancel retires request without RNG or durable changes", function()
         local g, s, mon = fresh(offer)
         local before <const> = wire(s)
         local request <const> = prepare(g, offer, mon)
         assert(NPCTrades.cancel(request))
-        eq(NPCTrades.cancel(request), false); eq(s:resolveNPCTrade(request, g), false)
+        eq(NPCTrades.cancel(request), false)
+        eq(s:resolveNPCTrade(request, g), false)
         same(before, wire(s))
     end)
     local mutations <const> = {
-        hp=function(g, s, mon) mon.hp = mon.hp - 1 end,
-        pp=function(g, s, mon) mon.pp[mon.moves[1]] = mon.pp[mon.moves[1]] - 1 end,
-        moves=function(g, s, mon) mon.moves[1], mon.moves[2] = mon.moves[2], mon.moves[1] end,
-        held=function(g, s, mon) mon.heldItem = "lightBall" end,
-        rng=function() RulesRNG.random(0, 255) end,
-        roster=function(g, s) assert(s:recruit(Pokemon("mew", 5))) end,
-        reorder=function(g, s) assert(s:party():swap(1, 2)) end,
-        field=function(g, s) s:invalidateFieldWorldContext() end,
-        context=function(g) g.session = GameContext().session end,
+        hp=function(g, s, mon)
+            mon.hp = mon.hp - 1
+        end,
+        pp=function(g, s, mon)
+            mon.pp[mon.moves[1]] = mon.pp[mon.moves[1]] - 1
+        end,
+        moves=function(g, s, mon)
+            mon.moves[1], mon.moves[2] = mon.moves[2], mon.moves[1]
+        end,
+        held=function(g, s, mon)
+            mon.heldItem = "lightBall"
+        end,
+        rng=function()
+            RulesRNG.random(0, 255)
+        end,
+        roster=function(g, s)
+            assert(s:recruit(Pokemon("mew", 5)))
+        end,
+        reorder=function(g, s)
+            assert(s:party():swap(1, 2))
+        end,
+        field=function(g, s)
+            s:invalidateFieldWorldContext()
+        end,
+        context=function(g)
+            g.session = GameContext().session
+        end,
     }
     for name, mutate in pairs(mutations) do
         test("terminal stale " .. name .. " preserves changed state and exact ownership", function()
@@ -364,26 +478,35 @@ function NPCTradeContracts.run()
             local before <const> = wire(s)
             eq(s:resolveNPCTrade(request, g), false)
             eq(s:resolveNPCTrade(request, g), false)
-            same(before, wire(s)); eq(Party._owner(mon), s:party())
+            same(before, wire(s))
+            eq(Party._owner(mon), s:party())
             eq(s:questFlag(offer.flag), false)
         end)
     end
     test("full party all 240 PC slots, source append order and survivor active identity", function()
         local g, s, mon = fresh(offer)
-        for _ = 2, 6 do assert(s:recruit(Pokemon("mew", 5))) end
+        for _ = 2, 6 do
+            assert(s:recruit(Pokemon("mew", 5)))
+        end
         assert(s:party():switch(3))
         local members <const> = s:party():members()
         for box = 1, Storage.BOX_COUNT do
             assert(s:storage():selectBox(box))
-            for _ = 1, Storage.BOX_CAPACITY do assert(s:recruit(Pokemon("mew", 5))) end
+            for _ = 1, Storage.BOX_CAPACITY do
+                assert(s:recruit(Pokemon("mew", 5)))
+            end
         end
         local storage <const> = wire(s).storage
         local request <const> = prepare(g, offer, mon)
         local ok, result = s:resolveNPCTrade(request, g)
         assert(ok, result)
-        eq(s:party():count(), 6); eq(s:party():active(), members[3])
-        for index = 1, 5 do eq(s:party():get(index), members[index + 1]) end
-        eq(s:party():get(6), result.pokemon); same(storage, wire(s).storage)
+        eq(s:party():count(), 6)
+        eq(s:party():active(), members[3])
+        for index = 1, 5 do
+            eq(s:party():get(index), members[index + 1])
+        end
+        eq(s:party():get(6), result.pokemon)
+        same(storage, wire(s).storage)
     end)
     test("last usable outgoing uses healthy appended replacement", function()
         local g, s, mon = fresh(offer)
@@ -391,8 +514,10 @@ function NPCTradeContracts.run()
         fainted.hp = 0
         assert(s:recruit(fainted))
         local ok, result = s:resolveNPCTrade(prepare(g, offer, mon), g)
-        assert(ok, result); eq(s:party():active(), result.pokemon)
-        eq(s:party():get(1), fainted); eq(s:party():allFainted(), false)
+        assert(ok, result)
+        eq(s:party():active(), result.pokemon)
+        eq(s:party():get(1), fainted)
+        eq(s:party():allFainted(), false)
     end)
     test("legacy v7 codec migration preserves every attribute and RNG without outsider inference", function()
         local g, s, mon = fresh(offer)
@@ -404,14 +529,19 @@ function NPCTradeContracts.run()
         local before <const> = s:rngData()
         local restored <const> = assert(PokemonCodec.decode(record))
         local migrated <const> = assert(PokemonCodec.encode(restored))
-        eq(migrated.version, 8); eq(migrated.acquisition.kind, "neutral")
+        eq(migrated.version, 8)
+        eq(migrated.acquisition.kind, "neutral")
         migrated.version, migrated.acquisition = 7, nil
-        same(record, migrated); same(before, s:rngData()); eq(NPCTrades.isOutsider(restored), false)
+        same(record, migrated)
+        same(before, s:rngData())
+        eq(NPCTrades.isOutsider(restored), false)
     end)
     test("trade provenance survives ordinary evolution descendants and rejects forged history", function()
         local seelOffer
         for _, candidate in ipairs(offers()) do
-            if candidate.offered == "seel" then seelOffer = candidate end
+            if candidate.offered == "seel" then
+                seelOffer = candidate
+            end
         end
         local g, s, mon = fresh(seelOffer, 37)
         local ok, result = s:resolveNPCTrade(prepare(g, seelOffer, mon), g)
@@ -419,7 +549,8 @@ function NPCTradeContracts.run()
         local evolved <const> = assert(PokemonCodec.encode(result.pokemon))
         evolved.species, evolved.hp = "dewgong", 1
         local loaded <const> = assert(PokemonCodec.decode(evolved))
-        assert(NPCTrades.isOutsider(loaded)); eq(loaded.name, "SAILOR")
+        assert(NPCTrades.isOutsider(loaded))
+        eq(loaded.name, "SAILOR")
         local bad <const> = assert(PokemonCodec.encode(loaded))
         bad.acquisition.tradeIndex = 2
         eq(PokemonCodec.decode(bad), nil)
@@ -455,7 +586,9 @@ function NPCTradeContracts.run()
         local prefix <const> = "npc-trades-" .. HarnessBuild.session_id .. "-" .. invocation
         local failRename = false
         local adapter <const> = {read=fs.read, write=fs.write, rename=function(from, to)
-            if failRename then return false, "injected-publication-failure" end
+            if failRename then
+                return false, "injected-publication-failure"
+            end
             return fs.rename(from, to)
         end}
         local store <const> = SaveStore(prefix, function(data) return SessionCodec.validate(data, deps) end, adapter)
@@ -475,7 +608,9 @@ function NPCTradeContracts.run()
         end
         local complete <const> = wire(s)
         eq(complete.version, 3)
-        for _, current in ipairs(list) do assert(s:questFlag(current.flag)) end
+        for _, current in ipairs(list) do
+            assert(s:questFlag(current.flag))
+        end
         failRename = true
         eq(store:save(complete), false)
         same(original, assert(store:load()))
@@ -488,11 +623,17 @@ function NPCTradeContracts.run()
         assert(store:save(complete))
         local reloaded <const> = assert(SessionCodec.decode(assert(store:load()), deps))
         same(complete, wire(reloaded))
-        for _, current in ipairs(list) do assert(reloaded:questFlag(current.flag)) end
+        for _, current in ipairs(list) do
+            assert(reloaded:questFlag(current.flag))
+        end
     end)
     local active <const> = GameSession.activeRNGSession()
-    if active then active:deactivateRNG() end
-    if priorOwner then priorOwner:activateRNG() end
+    if active then
+        active:deactivateRNG()
+    end
+    if priorOwner then
+        priorOwner:activateRNG()
+    end
     RulesRNG.restoreData(priorRNG)
     return report
 end

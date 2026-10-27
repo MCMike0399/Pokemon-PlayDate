@@ -28,8 +28,13 @@ function NPCTradeState:advance()
     if not self.plan or self.plan.scene ~= "npc-trade" then
         return NPCTradeState.super.advance(self)
     end
-    if not self:valid() or not self:isTop() then return end
-    if self.tradeStarted then self:finish(); return end
+    if not self:valid() or not self:isTop() then
+        return
+    end
+    if self.tradeStarted then
+        self:finish()
+        return
+    end
     self.tradeStarted = true
     local offer <const> = assert(NPCTrades.offer(self.id))
     self.plan.ram = {wInGameTradeGiveMonName=offer.wantedName,
@@ -40,7 +45,11 @@ function NPCTradeState:advance()
     end
     self:tradeText("WannaTrade", function()
         self:serviceChoice({"YES", "NO"}, function(yes)
-            if yes then self:tradeSelect() else self:tradeText("NoTrade") end
+            if yes then
+                self:tradeSelect()
+            else
+                self:tradeText("NoTrade")
+            end
         end)
     end)
 end
@@ -52,12 +61,15 @@ function NPCTradeState:tradeSelect()
             local mon <const> = self.session:party():get(index)
             local request, reason = NPCTrades.prepare(self.session, self.id, mon, self.tradeContext)
             if not request then
-                if reason == "wrong-species" then self:tradeText("WrongMon")
+                if reason == "wrong-species" then
+                    self:tradeText("WrongMon")
                 elseif reason == "take-held-item-first" then
                     self:dialog({{label="trade-held-item", text="Open POKEMON, choose ITEM, then TAKE its held item first."}}, function()
                         self:finish()
                     end)
-                else self:fail(reason) end
+                else
+                    self:fail(reason)
+                end
                 return
             end
             self.tradeRequest = request
@@ -73,18 +85,33 @@ function NPCTradeState:tradeSelect()
                 self:serviceText({"_ConnectCableText"}, function()
                     local ok, result = self.session:resolveNPCTrade(request, self.tradeContext)
                     self.tradeRequest = nil
-                    if not ok then self:fail(result); return end
+                    if not ok then
+                        self:fail(result)
+                        return
+                    end
                     self:serviceText({"_TradedForText"}, function()
                         self:tradeText("Thanks")
                     end)
                 end)
             end)
         end),
-        onCancel=self:guard(function() self:tradeText("NoTrade") end),
+        onCancel=nil,
     })
+    -- Selection and cancellation are alternatives for one picker visit. A
+    -- second guard would increment the serial and invalidate onSelect.
+    local party <const> = self.machine:get("party")
+    local epoch, serial = self.epoch, self.serial
+    party.options.onCancel = function()
+        if self:valid() and self:isTop() and self.epoch == epoch and self.serial == serial then
+            self.serial = self.serial + 1
+            self:tradeText("NoTrade")
+        end
+    end
 end
 function NPCTradeState:exit()
-    if self.tradeRequest then NPCTrades.cancel(self.tradeRequest) end
+    if self.tradeRequest then
+        NPCTrades.cancel(self.tradeRequest)
+    end
     self.tradeRequest, self.tradeContext = nil, nil
     NPCTradeState.super.exit(self)
 end
