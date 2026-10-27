@@ -3349,7 +3349,7 @@
     "game/bagState.lua": "5ddc859d28b66f8cc46fc3b1020388f4898eb865a0a162b1be30c5b295d2224c",
     "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",
     "game/daycareState.lua": "b6870bcb8a69ea54de4e6552186a9d68e0326b8b18f83fec4460dba6417b6ef9",
-    "game/fieldMoveState.lua": "9ddf2535ac2d8fa2ccdd2d670341837eb3ea9696f4e5b89b85f6442662a538f5",
+    "game/fieldMoveState.lua": "a8c0cdd510d9f1f6adbdc47b250a69587b8a95c9711b5f483020691e145873dd",
     "game/partyState.lua": "f420161e109b804a1360e056e71109917b909898daf53377722d31717c874a68",
     "game/saves.lua": "498a782c214ca282309b65be6152c1ff06f17c06c754e193c5118ec5affb799a",
     "game/sourceEvents.lua": "8952d51b9155536c16adfc75692bb8d8bd8253047bf77ee2a799afe39aa8f84e",
