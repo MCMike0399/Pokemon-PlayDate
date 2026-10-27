@@ -19,7 +19,14 @@ function TraitContracts.run()
  test("151 exact B2W2 ratio inventory and valid pure constructor defaults",function()
   local counts={};local n=0;local before=RulesRNG.snapshot()
   for species in pairs(pokemonData)do local ratio=assert(SpecimenTraits.ratios[species]);counts[ratio]=(counts[ratio]or 0)+1;n=n+1
-   local p=Pokemon(species,5);eq(p:getSex(),Specimen.defaultSex(species));eq(p.sexProvenance.kind,"constructor-default");local old=assert(PokemonCodec.encode(p));old.version=5;old.ivs,old.evs=nil,nil;old.sex,old.sexProvenance=nil,nil
+   local p=Pokemon(species,5)
+   eq(p:getSex(),Specimen.defaultSex(species))
+   eq(p.sexProvenance.kind,"constructor-default")
+   local old=assert(PokemonCodec.encode(p))
+   old.version=5
+   old.acquisition=nil
+   old.ivs,old.evs=nil,nil
+   old.sex,old.sexProvenance=nil,nil
    local again=assert(PokemonCodec.decode(old));eq(again:getSex(),Specimen.defaultSex(species));eq(again.sexProvenance.kind,"legacy-default")
   end
   eq(n,151);same(counts,{[0]=6,[31]=19,[63]=10,[127]=91,[191]=6,[254]=6,[255]=13});same(before,RulesRNG.snapshot())
@@ -43,7 +50,16 @@ function TraitContracts.run()
  end)
  test("Legacy3 4 5 preserve all prior fields with deterministic no-RNG assigned sex",function()
   for _,species in ipairs({"clefairy","pikachu","nidoranF","nidoranM","staryu"})do
-   for _,version in ipairs({3,4,5})do local p=Pokemon(species,20);p.name="OLD";p.hp=1;p.pp[p.moves[1]]=0;local data=assert(PokemonCodec.encode(p));data.version=version;data.ivs,data.evs=nil,nil;data.sex,data.sexProvenance=nil,nil
+   for _,version in ipairs({3,4,5})do
+    local p=Pokemon(species,20)
+    p.name="OLD"
+    p.hp=1
+    p.pp[p.moves[1]]=0
+    local data=assert(PokemonCodec.encode(p))
+    data.version=version
+    data.acquisition=nil
+    data.ivs,data.evs=nil,nil
+    data.sex,data.sexProvenance=nil,nil
     if version<5 then data.natureId,data.abilitySlot,data.heldItem=nil,nil,nil end
     local before=RulesRNG.snapshot();local again=assert(PokemonCodec.decode(data));local encoded=assert(PokemonCodec.encode(again));eq(encoded.sex,Specimen.defaultSex(species));eq(encoded.sexProvenance.kind,"legacy-default")
     for key,value in pairs(data)do if key~="version"then same(encoded[key],value)end end;same(before,RulesRNG.snapshot())

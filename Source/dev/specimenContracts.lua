@@ -31,8 +31,23 @@ local function learn(game,mon)
     end
 end
 local function legacy(record,version)
-    local out=copy(record);out.version=version;out.ivs,out.evs=nil,nil;out.sex,out.sexProvenance=nil,nil;out.natureId,out.abilitySlot,out.heldItem=nil,nil,nil
-    if version==3 then out.pendingEvolution=nil end;return out
+    local out <const> = copy(record)
+    out.version = version
+    -- Acquisition provenance first exists in v8; historical records omit it.
+    out.acquisition = nil
+    if version < 7 then
+        out.ivs, out.evs = nil, nil
+    end
+    if version < 6 then
+        out.sex, out.sexProvenance = nil, nil
+    end
+    if version < 5 then
+        out.natureId, out.abilitySlot, out.heldItem = nil, nil, nil
+    end
+    if version == 3 then
+        out.pendingEvolution = nil
+    end
+    return out
 end
 function SpecimenContracts.run()
     local report={ok=true,passed=0,failed=0,tests={}};local saved=RulesRNG.snapshot()
@@ -110,11 +125,13 @@ function SpecimenContracts.run()
         local p,why=Specimen.create("eevee",5,"wild",rng);eq(p,nil);assert(why:find("exhausted",1,true),why);sameRNG(before,rng)
         before.rolls=2147483638;rng:restore(before);p=assert(Specimen.create("eevee",5,"wild",rng));eq(rng:snapshot().rolls,2147483647)
     end)
-    test("All151 Codec7 reconstruct chosen attributes without reroll or PP change",function()
+    test("All151 current codec reconstruct chosen attributes without reroll or PP change",function()
         local before=RulesRNG.snapshot()
         for species in pairs(pokemonData) do
             local p=Pokemon(species,50,attributes(15,"hidden","potion"));p.name="CUSTOM";p.hp=1;p.pp[p.moves[1]]=0
-            local data=assert(PokemonCodec.encode(p));eq(data.version,7);local again=assert(PokemonCodec.decode(data))
+            local data=assert(PokemonCodec.encode(p))
+            eq(data.version,PokemonCodec.VERSION)
+            local again=assert(PokemonCodec.decode(data))
             same(assert(PokemonCodec.encode(again)),data);eq(again.spa,p.spa);eq(again.atk,p.atk);eq(again:ability(),p:ability())
         end
         sameRNG(before)
@@ -123,7 +140,8 @@ function SpecimenContracts.run()
         local p=Pokemon("charmander",6);p:gainXP(p:xpForLevel(7)-p.xp);p.name="OLD NAME";p.hp=0;p.status="sleep";p.statusTurns=0;p.sleepDuration=3;p.pp.scratch=2
         local old=legacy(assert(PokemonCodec.encode(p)),3);local before=RulesRNG.snapshot();local restored=assert(PokemonCodec.decode(old))
         eq(restored.natureId,0);eq(restored.abilitySlot,"first");eq(restored.heldItem,"none")
-        local upgraded=assert(PokemonCodec.encode(restored));eq(upgraded.version,7)
+        local upgraded=assert(PokemonCodec.encode(restored))
+        eq(upgraded.version,PokemonCodec.VERSION)
         for _,key in ipairs({"species","name","hp","level","xp","status","statusTurns","sleepDuration","moves","pp","pendingMoveChoices","nextMoveChoiceId"}) do same(upgraded[key],old[key],key) end
         sameRNG(before)
     end)
@@ -141,6 +159,44 @@ function SpecimenContracts.run()
             local record=copy(data);for k,v in pairs(bad) do record[k]=v end;eq(PokemonCodec.decode(record),nil)
         end
         local missing=copy(data);missing.natureId=nil;eq(PokemonCodec.decode(missing),nil);sameRNG(before)
+    end)
+    test("Historical3 through7 require absent acquisition and migrate to neutral; v8 requires provenance",function()
+        local mon <const> = Pokemon("charmander",50,attributes(15,"hidden","potion"))
+        mon.ivs.atk = 31
+        mon.evs.spe = 252
+        mon:recalcStats()
+        mon.hp = 0
+        local data <const> = assert(PokemonCodec.encode(mon))
+        local before <const> = RulesRNG.snapshot()
+        for version = 3, 7 do
+            local old <const> = legacy(data,version)
+            local restored <const> = assert(PokemonCodec.decode(old))
+            local upgraded <const> = assert(PokemonCodec.encode(restored))
+            eq(upgraded.version,PokemonCodec.VERSION)
+            same(upgraded.acquisition,{version=1,kind="neutral"})
+            for key, value in pairs(old) do
+                if key ~= "version" then
+                    same(upgraded[key],value,key)
+                end
+            end
+            if version == 7 then
+                for _, field in ipairs({"ivs","evs","sex","sexProvenance"}) do
+                    local missing <const> = copy(old)
+                    missing[field] = nil
+                    eq(PokemonCodec.decode(missing),nil)
+                end
+            end
+            old.acquisition = copy(data.acquisition)
+            local rejected, problem = PokemonCodec.decode(old)
+            eq(rejected,nil)
+            assert(problem:find("legacy-acquisition-field",1,true),problem)
+        end
+        local missing <const> = copy(data)
+        missing.acquisition = nil
+        local rejected, problem = PokemonCodec.decode(missing)
+        eq(rejected,nil)
+        assert(problem:find("required-acquisition-provenance",1,true),problem)
+        sameRNG(before)
     end)
     test("Session JSON roundtrip preserves owned hidden specimen nature item sleep and nickname",function()
         local p=Pokemon("pikachu",12,attributes(22,"hidden","potion"));p.name="SPARK";p.status="sleep";p.statusTurns=0;p.sleepDuration=3;p.hp=1

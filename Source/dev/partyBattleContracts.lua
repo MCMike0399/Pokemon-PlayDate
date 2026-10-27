@@ -330,12 +330,13 @@ function PartyBattleContracts.run()
         local before=RulesRNG.snapshot();e:onSwitchOut()
         equal(e.statusTurns,3);equal(e.sleepDuration,3);sameRNG(RulesRNG.snapshot(),before)
     end)
-    test("Codec5 preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
+    test("Current codec preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
         for duration=1,3 do
             for remaining=0,duration do
                 local p=Pokemon("charmander",5)
                 p.status,p.statusTurns,p.sleepDuration="sleep",remaining,duration
-                local record=assert(PokemonCodec.encode(p));equal(record.version,7)
+                local record=assert(PokemonCodec.encode(p))
+                equal(record.version,PokemonCodec.VERSION)
                 local restored=assert(PokemonCodec.decode(record))
                 equal(restored.statusTurns,remaining);equal(restored.sleepDuration,duration)
                 local before=RulesRNG.snapshot();restored:onSwitchOut()
@@ -345,7 +346,12 @@ function PartyBattleContracts.run()
         local record=assert(PokemonCodec.encode(Pokemon("charmander",5)));record.version=2
         local restored,problem=PokemonCodec.decode(record);equal(restored,nil)
         assert(problem:find("unsupported%-pokemon%-record%-version"),problem)
-        record.version=3;record.ivs,record.evs=nil,nil;record.sex,record.sexProvenance=nil,nil;record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil;record.sleepDuration=1
+        record.version=3
+        record.acquisition=nil
+        record.ivs,record.evs=nil,nil
+        record.sex,record.sexProvenance=nil,nil
+        record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil
+        record.sleepDuration=1
         restored,problem=PokemonCodec.decode(record);equal(restored,nil);assert(problem:find("invalid%-sleep%-duration"),problem)
     end)
     test("Invalid sleep duration cannot partially switch or reset outgoing stages",function()

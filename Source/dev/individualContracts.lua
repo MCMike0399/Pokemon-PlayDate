@@ -77,17 +77,42 @@ function IndividualContracts.run()
  test("exhaustion inside appended IVs leaves entire original RNG unchanged",function()
   for room=3,8 do local rng=RulesRNG.new(42);local data=rng:snapshot();data.rolls=2147483647-room;rng:restore(data);local p,why=Specimen.create("eevee",5,"gift",rng);eq(p,nil);assert(why:find("exhausted",1,true));same(rng:snapshot(),data)end
  end)
- test("Codec7 strict required individual records roundtrip through real SDK JSON",function()
+ test("Current codec strict required individual records roundtrip through real SDK JSON",function()
   local p=Pokemon("bulbasaur",100,attrs(six({31,30,29,28,27,26}),six({255,255,0,0,0,0}),3));p.hp=0
-  local record=assert(PokemonCodec.encode(p));eq(record.version,7);local before=RulesRNG.snapshot();local restored=assert(PokemonCodec.decode(json.decode(json.encode(record))));same(assert(PokemonCodec.encode(restored)),record);eq(restored.hp,0);same(before,RulesRNG.snapshot())
+  local record=assert(PokemonCodec.encode(p))
+  eq(record.version,PokemonCodec.VERSION)
+  local before=RulesRNG.snapshot()
+  local restored=assert(PokemonCodec.decode(json.decode(json.encode(record))))
+  same(assert(PokemonCodec.encode(restored)),record)
+  eq(restored.hp,0)
+  same(before,RulesRNG.snapshot())
   for _,field in ipairs({"ivs","evs"})do local bad=cp(record);bad[field]=nil;eq(PokemonCodec.decode(bad),nil)end
   local bad=cp(record);bad.ivs.hp=32;eq(PokemonCodec.decode(bad),nil);bad=cp(record);bad.evs.spe=1;eq(PokemonCodec.decode(bad),nil)
  end)
  test("old3through6 migrate strict zero with no HP PP XP sleep or identity history reroll",function()
   local mon=Pokemon("charmander",15);mon.name="OLD";mon.hp=0;mon.pp.scratch=0;mon.status="sleep";mon.statusTurns=0;mon.sleepDuration=3
-  for _,version in ipairs({3,4,5,6})do local old=assert(PokemonCodec.encode(mon));old.version=version;old.ivs,old.evs=nil,nil
-   if version<6 then old.sex,old.sexProvenance=nil,nil end;if version<5 then old.natureId,old.abilitySlot,old.heldItem=nil,nil,nil end
-   local before=RulesRNG.snapshot();local restored=assert(PokemonCodec.decode(old));same(restored.ivs,IndividualStats.zero());same(restored.evs,IndividualStats.zero());eq(restored.hp,0);eq(restored.xp,mon.xp);eq(restored.pp.scratch,0);eq(restored.sleepDuration,3);eq(restored.name,"OLD");eq(assert(PokemonCodec.encode(restored)).version,7);same(before,RulesRNG.snapshot())
+  for _,version in ipairs({3,4,5,6})do
+   local old=assert(PokemonCodec.encode(mon))
+   old.version=version
+   old.acquisition=nil
+   old.ivs,old.evs=nil,nil
+   if version < 6 then
+    old.sex,old.sexProvenance=nil,nil
+   end
+   if version < 5 then
+    old.natureId,old.abilitySlot,old.heldItem=nil,nil,nil
+   end
+   local before=RulesRNG.snapshot()
+   local restored=assert(PokemonCodec.decode(old))
+   same(restored.ivs,IndividualStats.zero())
+   same(restored.evs,IndividualStats.zero())
+   eq(restored.hp,0)
+   eq(restored.xp,mon.xp)
+   eq(restored.pp.scratch,0)
+   eq(restored.sleepDuration,3)
+   eq(restored.name,"OLD")
+   eq(assert(PokemonCodec.encode(restored)).version,PokemonCodec.VERSION)
+   same(before,RulesRNG.snapshot())
    old.ivs=IndividualStats.zero();eq(PokemonCodec.decode(old),nil)
   end
  end)
