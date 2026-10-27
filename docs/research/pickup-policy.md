@@ -1,4 +1,8 @@
-# Pickup policy choice — proposed, not approved
+# Pickup policy — approved acquisition extension
+
+The user approved choice A on 2026-10-26: use the unchanged B2W2 table and
+eligibility below. Implementation and native acceptance remain separate;
+this approval does not claim Pickup is available on accepted main yet.
 
 2026-10-26. Research only, on `wip/pickup-policy`. Read the full-game goal,
 progress and exact audit `edba4e5ad8f007dc8eb560098935d074dc64c891`.
@@ -6,16 +10,16 @@ The audit's private 5.4 candidate is `bad58824b0db68344ebfb11dd5ec22f5fe4ad613`;
 ordinary Route 5/6 Meowth can have Pickup (53). Deliberately adding Gen V
 abilities/natures/held items did **not** approve a new Kanto loot economy.
 
-## Recommended choice A: explicitly approve the native B2W2 field table
+## Approved choice A: the native B2W2 field table
 
 Use the complete table below, its native eligibility and 10% chance, without
 substitution, level caps, rerolls, or probability changes. This is a **proposed
 Kanto acquisition extension**, not a correction to original Blue rewards.
 It adds renewable medicine, money, candy and stones, plus six currently undefined
-items. King’s Rock is possible from level 11, so this is an ordinary progression
-decision. Root should present this scope to the user before seeking approval.
+items. King’s Rock is possible from level 11. The user reviewed and approved
+this acquisition scope explicitly.
 
-If approved, a separate implementation must add the missing definitions,
+The implementation must add the missing definitions,
 safe held-item/save/transfer support and applicable effects before exposing them.
 Holding medicine does not automatically use it. Unsupported manual uses must
 remain explicit failures; King’s Rock flinch, Iron Ball speed/grounding and
@@ -24,9 +28,9 @@ target among the original 151; Heart Scale does not authorize a new move tutor.
 Keep existing Blue prices and item-use/access policies unless separately changed;
 this would be an intentional hybrid economy, not full B2W2 economy fidelity.
 Record the acquisition extension and retained Blue economy in the fidelity ledger
-only after approval; this research does not edit it.
+as the approved policy; implementation still requires independent acceptance.
 
-**Until approval and implementation:** at an eligible ordinary-win callback with
+**Until implementation is accepted:** at an eligible ordinary-win callback with
 at least one legal, empty-handed Pickup party member, show e.g.
 “MEOWTH’s Pickup: But it failed!” and record an ability-53/post-battle-policy gap
 with holder/outcome context. Do this at the callback, before a chance roll; do not
@@ -34,7 +38,7 @@ pretend a missing implementation was a legitimate 90% miss. Award no item, chang
 no held slot and consume no Pickup RNG. Held-item-ineligible members and excluded
 outcomes must not produce this warning. This gate is proposed, not implemented.
 
-**Reasonable alternative B:** deliberately exclude field-generated Pickup loot
+**Alternative B, not selected:** deliberately exclude field-generated Pickup loot
 from this Blue recreation. Retain the same visible callback failure/dev gap as
 an explicit policy deviation; add no loot items or replacement probabilities.
 This preserves existing acquisition, but knowingly leaves an obtainable ability’s
@@ -163,7 +167,8 @@ from the linked arrays and checked probability totals; cross-checked all 25 IDs/
 names against existing pinned Gen V item-index CSVs; verified the five Showdown
 ability-chain hashes; statically compared all candidate storage/use/held support.
 No table entries or eligibility facts remain unresolved within these pinned
-sources. User acquisition-policy approval and implementation remain open.
+sources. User approval is recorded above; root integration and native acceptance
+remain pending.
 No ROM rebuild, Lua emulation, SDK/Simulator/runtime, visual or campaign validation
 was run. No production code, world data, imports, ledgers, coverage or baselines
 were changed; no push or further delegation. This document grants no approval.
