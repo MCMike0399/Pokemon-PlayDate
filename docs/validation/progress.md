@@ -73,7 +73,9 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
 - The first natural Squirtle run reached Mt. Moon after Brock and level-16
   evolution, then exposed a driver release-gate bug. Fix `ab51b14` passes 50
   main host checks. The subsequent early trial was stopped for the reviewed
-  contract cleanup; the final three-starter suite is now live.
+  contract cleanup. A later run reached Route25 after Misty/Bridge, then blacked
+  out with depleted PP, poison and no Potions. Real Center/restock and bounded
+  checkpoint recovery were added to the driver; the unchanged-Source retry is live.
 - Physical-lead field effects passed 1612 native contracts after correcting
   Pikachu's held-item draw expectation. Seven ordinary ability hooks and the
   source indoor-land encounter repair passed all 1659 native contracts, zero failures.
@@ -107,8 +109,8 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | `f7f35c2`, unchanged Source from `b1f0bd8`; 1659 SDK and 716 root host checks pass. `m53-natural-final-20261026-03` is live on Squirtle, followed by Bulbasaur and Charmander. |
-| `wip/vermilion-integration` / root | Private `e6267c8` composes 65 maps, Cut/Flash, source grass Cut, dialogue, Anne/Surge/ship, Day Care/schema 3, natural collection and approved Pickup. Its visual extension now declares 1736 images. Latest composition compiles and passes 47 focused host checks; native acceptance remains pending. |
+| `wip/cerulean-integration` / root | `869d7b3`, unchanged Source from `b1f0bd8`; 1659 SDK and 716 root host checks pass. Resource repair passes 127 worker/40 root host checks; `m53-natural-resourced-20261026-04` is live on Squirtle, then Bulbasaur/Charmander. |
+| `wip/vermilion-integration` / root | Private `75d4a8c` has 65 maps and composed HMs, grass Cut, dialogue, ship, Day Care, collection and approved Pickup; visual extension: 1736 images. First native composition: 1972 passed/63 failed. Fixture/count/owner repairs are assigned; Surge reward RAM is fixed with 55 focused host checks. Native acceptance remains pending. |
 | `wip/audio-integration` / root | Host parser/rendering and independently assembled RGBDS bytes are composed; 60 host checks pass. Backend runtime probes, listening and APU qualification remain pending. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
