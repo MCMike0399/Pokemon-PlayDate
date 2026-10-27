@@ -57,7 +57,9 @@ end
 -- Shield Dust and Inner Focus stay at their real secondary/payload gates.
 function ContactAbilities.secondaries(effects, source, target, move)
     if not effects:active(source) or not effects:active(target)
-        or effects:effectiveAbility(source) ~= 1 or not move or move.category == "status" then return end
+        or not move or move.category == "status" then return end
+    if effects:effectiveAbility(source) ~= 1
+        and not PickupHeld.has(effects, source, "kingsRock") then return end
     for _, secondary in ipairs(move.secondaries or {}) do
         if secondary.kind == "flinch" then return end
     end

@@ -25,6 +25,7 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     self.npc = npc
     self.finished=false;self.epoch=(self.epoch or 0)+1;self.trainerToken=nil
     self.battle,self.scene=battle,scene
+    assert(self.game.session:beginPickupBattle(battle, npc and 1 or 0))
     playdate.graphics.sprite.removeAll()
     self.game.camera:reset()
 
@@ -59,10 +60,13 @@ function BattleState:finish(won, kind)
             assert(game.session:halveMoneyOnBlackout(game.session:inventory():money()))
         end
     end
+    local pickupOK, pickupReceipt = game.session:resolvePickupBattle(self.battle, won, kind)
+    assert(pickupOK, pickupReceipt)
     self.finished=true
     if Evolution then assert(Evolution.afterBattle(game.session,kind)) end
     game.lastBattleOutcome = {kind = kind, won = won, blackout = blackout,
         player_hp = pokemon.hp, enemy_hp = self.battle and self.battle.enemy.hp or nil,
+        pickup = pickupReceipt,
         trainer_id=receipt and receipt.id or nil,
         payout=receipt and receipt.payout or 0,money_delta=game.session:inventory():money()-beforeMoney}
     if won and self.npc and not self.trainerToken then

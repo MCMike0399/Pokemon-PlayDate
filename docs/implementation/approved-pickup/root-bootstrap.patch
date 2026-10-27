@@ -1,0 +1,60 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -27,10 +27,12 @@
+ import "domain/saveStore"
+ import "data/items"
+ import "data/lightBall"
++import "data/pickupData"
+ import "domain/items"
+ import "domain/worldMotion"
+ import "domain/itemStorage"
+ import "domain/pcItems"
++import "domain/pickup"
+ import "domain/gameSession"
+ import "domain/teaching"
+ import "domain/sessionCodec"
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -260,5 +260,8 @@
+ import "dev/caveEncounterContracts"
+ Contracts.register("cave-encounters", CaveEncounterContracts.run)
+ 
++import "dev/pickupContracts"
++Contracts.register("pickup", PickupContracts.run)
++
+ -- @harness runtime
+ harness = Harness
+--- a/tools/tests/fixtures/dev-import-gate.json
++++ b/tools/tests/fixtures/dev-import-gate.json
+@@ -30,10 +30,12 @@
+     "domain/saveStore",
+     "data/items",
+     "data/lightBall",
++    "data/pickupData",
+     "domain/items",
+     "domain/worldMotion",
+     "domain/itemStorage",
+     "domain/pcItems",
++    "domain/pickup",
+     "domain/gameSession",
+     "domain/teaching",
+     "domain/sessionCodec",
+@@ -235,7 +237,8 @@
+     "dev/vermilionAbilityContracts",
+     "dev/vermilionCatalogExporter",
+     "dev/vermilionCatalogContracts",
+-    "dev/caveEncounterContracts"
++    "dev/caveEncounterContracts",
++    "dev/pickupContracts"
+   ],
+   "registrations": [
+     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
+@@ -351,6 +354,7 @@
+     "Contracts.register(\"vermilion-abilities\", VermilionAbilityContracts.run)",
+     "VermilionCatalogExporter.register()",
+     "Contracts.register(\"vermilion-catalog\", VermilionCatalogContracts.run)",
+-    "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)"
++    "Contracts.register(\"cave-encounters\", CaveEncounterContracts.run)",
++    "Contracts.register(\"pickup\", PickupContracts.run)"
+   ]
+ }

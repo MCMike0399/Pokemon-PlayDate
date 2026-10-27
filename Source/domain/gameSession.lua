@@ -623,3 +623,24 @@ function GameSession:transactScene(expected, changes, scene)
     self:invalidateFieldWorldContext()
     return true
 end
+
+-- One field-battle receipt, then detached planning; no bag-capacity dependency.
+function GameSession:beginPickupBattle(battle, fieldType)
+    return Pickup._bind(self, battle, fieldType)
+end
+
+function GameSession:resolvePickupBattle(battle, won, kind)
+    local ok, plan = pcall(Pickup._plan, self, battle, won, kind)
+    if not ok then
+        return false, tostring(plan)
+    end
+    -- The production restore validates before assignment and cannot yield.
+    -- All following assignments are existing primitive Pokemon fields.
+    if plan.rng then
+        RulesRNG.restore(plan.rng)
+    end
+    for _, award in ipairs(plan.awards) do
+        award.mon.heldItem = award.item
+    end
+    return true, plan.report
+end

@@ -1403,6 +1403,8 @@ function Battle:hasType(mon,kind)
     return first==kind or second==kind
 end
 function Battle:typeMatchup(kind,mon)
+    local held = self.effects and PickupHeld.matchup(self.effects, kind, mon)
+    if held ~= nil then return held end
     local first,second=self:effectiveTypes(mon)
     return TypeChart.getMatchup(kind,first,second)
 end
