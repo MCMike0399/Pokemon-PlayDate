@@ -101,8 +101,12 @@ function ExploreSubstate:update()
     local mw, mh = getMapPixelSize()
     game.camera:follow(px, py, mw, mh)
     game.camera:apply()
+    -- Only a cell completed by this ordinary exploration pass earns XP.
+    -- A sprite-only/script pass may leave stepJustFinished set on entry;
+    -- overlays, idle callbacks and stale completion flags must not earn it.
+    local wasMoving = player.isMoving and player:updatesEnabled()
     gfx.sprite.update()
-    if player.stepJustFinished then
+    if wasMoving and not player.isMoving and player.stepJustFinished then
         game.session:daycareStep()
     end
     self.owner:_presentedWorld()
