@@ -75,7 +75,11 @@ Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
   main host checks. The subsequent early trial was stopped for the reviewed
   contract cleanup. A later run reached Route25 after Misty/Bridge, then blacked
   out with depleted PP, poison and no Potions. Real Center/restock and bounded
-  checkpoint recovery were added to the driver; the unchanged-Source retry is live.
+  checkpoint recovery were added to the driver. The retry completed Bill/Ticket and
+  saved on Route25, then failed screenshot qualification before Continue: its
+  saved viewport contains no visible NPC. The shared source-map pose loader is
+  repaired; a real visible-actor save location is being prepared. No failed run
+  receives campaign acceptance credit.
 - Physical-lead field effects passed 1612 native contracts after correcting
   Pikachu's held-item draw expectation. Seven ordinary ability hooks and the
   source indoor-land encounter repair passed all 1659 native contracts, zero failures.
@@ -109,8 +113,8 @@ Later regions, common mechanics, audio and release checks remain unfinished.
 | Branch / owner | Work and next step |
 |---|---|
 | `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | `869d7b3`, unchanged Source from `b1f0bd8`; 1659 SDK and 716 root host checks pass. Resource repair passes 127 worker/40 root host checks; `m53-natural-resourced-20261026-04` is live on Squirtle, then Bulbasaur/Charmander. |
-| `wip/vermilion-integration` / root | Private `75d4a8c` has 65 maps and composed HMs, grass Cut, dialogue, ship, Day Care, collection and approved Pickup; visual extension: 1736 images. First native composition: 1972 passed/63 failed. Fixture/count/owner repairs are assigned; Surge reward RAM is fixed with 55 focused host checks. Native acceptance remains pending. |
+| `wip/cerulean-integration` / root | `489a439`, unchanged Source from `b1f0bd8`; 1659 SDK and 716 root host checks pass. Resource-aware Squirtle run reached the final save but failed visible-actor screenshot qualification. Loader repair passes 22 root host checks; all three fresh journeys remain pending. |
+| `wip/vermilion-integration` / root | Private `380104e` has 65 maps, HMs, grass Cut, dialogue, ship, Day Care, collection, approved Pickup, nine trades and gate guards; visual extension: 1736 images. Latest completed SDK run: 2144 passed/19 failed. Codec fixtures and trade callbacks are repaired; a native diagnostic rerun is active. Remaining field, Day Care and trainer-text failures are under diagnosis. Native acceptance remains pending. |
 | `wip/audio-integration` / root | Host parser/rendering and independently assembled RGBDS bytes are composed; 60 host checks pass. Backend runtime probes, listening and APU qualification remain pending. |
 
 All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
