@@ -1,9 +1,10 @@
 -- Actual SDK witnesses prepared for root. Compilation is not execution evidence.
 DaycareContracts = {}
+local gfx <const> = playdate.graphics
 local GATE <const> = {root="overworld", overworld="explore", settled=true}
 local ID <const> = "pokered:DAYCARE:objects:1"
-local function eq(a, b)
-    assert(a == b, tostring(a) .. " ~= " .. tostring(b))
+local function eq(a, b, context)
+    assert(a == b, (context or "value") .. ": expected " .. tostring(b) .. ", got " .. tostring(a))
 end
 local function same(a, b)
     if type(a) ~= "table" or type(b) ~= "table" then
@@ -52,6 +53,141 @@ local function drain(g)
         state:handleInput()
     end
     error("Day Care dialogue did not settle")
+end
+local function worldScene(name, entry, fn)
+    local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
+    local oldStory, oldRNG, oldOwner = Story.currentContext(), RulesRNG.toData(), GameSession.activeRNGSession()
+    local oldWorld = WorldDeltas.export()
+    local count, ids = gfx.sprite.spriteCount(), WorldTiles:maxID()
+    local ox, oy = gfx.getDrawOffset()
+    local screen, sprites, sets = gfx.getWorkingImage():copy(), {}, {}
+    for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
+        sprites[sprite] = {visible = sprite:isVisible(), enabled = sprite:updatesEnabled()}
+        sprite:setVisible(false)
+        sprite:setUpdatesEnabled(false)
+    end
+    for key, value in pairs(SpriteFactory.npc) do
+        sets[key] = value
+    end
+    local g = GameContext({sessionLocationPolicy = PewterWorld.locationPolicy()})
+    local registry = TileRegistry()
+    local provider = PewterWorld.createProvider(g, registry)
+    zoneRegistry, zoneList = {}, {}
+    local oldProvider = WorldDeltas.definitionProvider()
+    for _, key in ipairs(oldList) do
+        local zone = oldRegistry[key]
+        if not oldProvider or not oldProvider:owns(zone) then
+            zoneRegistry[key] = zone
+            zoneList[#zoneList + 1] = key
+        end
+    end
+    local ok, problem = pcall(function()
+        WorldDeltas._withDefinitionProvider(provider, function()
+            WorldView.withIsolation(function()
+                assert(g:recruit(Pokemon("squirtle", 5)))
+                assert(g:recruit(Pokemon("pidgey", 5)))
+                assert(g.session:setIntro({stage="done", starter="squirtle", rivalStarter="bulbasaur"}))
+                currentZone = provider:ensure(SourceMaps.entry(name).key)
+                Story.bind(g)
+                g.machine:register("overworld", OverworldState(g))
+                g.machine:register("dialog", DialogState(g))
+                g.machine:register("pause", PauseState(g))
+                g.machine:register("tutorial-escort", TutorialEscortState(g))
+                g.machine:change("overworld", {entry=entry})
+                assert(g.session:activateRNG())
+                local owner = g.machine:get("overworld")
+                assert(owner:isTop(), "Day Care fixture must own the root world")
+                eq(owner.sub:getCurrent(), "explore", "Day Care fixture substate")
+                assert(g.player:updatesEnabled(), "Day Care fixture Player callbacks must be enabled")
+                fn(g, owner, provider)
+            end)
+        end)
+    end)
+    if g then
+        while #g.machine.stack > 0 do
+            local state = table.remove(g.machine.stack)
+            pcall(state.exit, state)
+        end
+        g.npcManager:clear()
+        if g.player then
+            g.player:remove()
+            g.player.grassOverlay:remove()
+            g.player.exitArrow:remove()
+            if g.player.jumpShadow then
+                g.player.jumpShadow:remove()
+            end
+        end
+    end
+    provider:disposeCache()
+    zoneRegistry, zoneList, currentZone = oldRegistry, oldList, oldZone
+    Story.bind(oldStory)
+    WorldDeltas.apply(oldWorld)
+    local owner = GameSession.activeRNGSession()
+    if owner ~= oldOwner then
+        if owner then
+            owner:deactivateRNG()
+        end
+        if oldOwner then
+            oldOwner:activateRNG()
+        end
+    end
+    RulesRNG.restoreData(oldRNG)
+    for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
+        if not sprites[sprite] then
+            sprite:remove()
+        end
+    end
+    local present = {}
+    for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
+        present[sprite] = true
+    end
+    for sprite, state in pairs(sprites) do
+        if not present[sprite] then
+            sprite:add()
+        end
+        sprite:setVisible(state.visible)
+        sprite:setUpdatesEnabled(state.enabled)
+    end
+    for key in pairs(SpriteFactory.npc) do
+        if not sets[key] then
+            SpriteFactory.npc[key] = nil
+        end
+    end
+    for key, value in pairs(sets) do
+        SpriteFactory.npc[key] = value
+    end
+    gfx.setDrawOffset(0, 0)
+    screen:draw(0, 0)
+    gfx.setDrawOffset(ox, oy)
+    eq(gfx.sprite.spriteCount(), count)
+    eq(WorldTiles:maxID(), ids)
+    if not ok then
+        error(problem, 0)
+    end
+end
+
+local function frames(g, count)
+    for _ = 1, count do
+        g.machine:update()
+    end
+end
+local function ordinaryStep(g, dx, dy, earned)
+    local player = g.player
+    eq(g.machine:getCurrent(), "overworld", "ordinary step root")
+    eq(g.machine:get("overworld").sub:getCurrent(), "explore", "ordinary step substate")
+    assert(player:updatesEnabled(), "ordinary Player callbacks must be enabled")
+    eq(player.isMoving, false, "ordinary step starts settled")
+    eq(Daycare.observe(g.session).earned, earned, "ordinary step initial XP")
+    player:tryMove(dx, dy)
+    assert(player.isMoving, "ordinary step must start through real collision checks")
+    for tick = 1, 8 do
+        frames(g, 1)
+        eq(g.player, player, "ordinary step retains Player")
+        eq(g.machine:getCurrent(), "overworld", "ordinary step retains root at tick " .. tick)
+        eq(player.moveFrames, tick, "ordinary Player callback tick")
+        eq(player.isMoving, tick < 8, "ordinary eight-frame movement")
+        eq(Daycare.observe(g.session).earned, earned + (tick == 8 and 1 or 0), "completed-step XP at tick " .. tick)
+    end
 end
 function DaycareContracts.run()
     local report = {ok=true, passed=0, failed=0, tests={}}
@@ -187,24 +323,55 @@ function DaycareContracts.run()
         assert(other:party():swap(2, 3))
         eq(other:resolveDaycare(request, true), false)
     end)
-    test("last member, last usable and all five Blue HM moves are rejected", function()
-        local g, s, mon = fresh()
-        for _, key in ipairs(Daycare.policy().hm_moves) do
-            mon.moves = {key}
-            mon.pp = {[key]=moveData[key].maxPP}
-            eq(Daycare.plan(Daycare.observe(s), "deposit", 2).status, "hm-move")
-        end
-        mon.moves = {"scratch"}
-        mon.pp = {scratch=moveData.scratch.maxPP}
+    -- Keep unsupported HM registrations visible as contextual native failures.
+    -- Never forge a codec-invalid moveset to reach the service guard.
+    for _, fixture in ipairs({
+        {move="cut", item="hm01", species="bulbasaur"},
+        {move="fly", item="hm02", species="pidgey"},
+        {move="surf", item="hm03", species="squirtle"},
+        {move="strength", item="hm04", species="charmander"},
+        {move="flash", item="hm05", species="bulbasaur"},
+    }) do
+        test("Blue HM rejection after compatible teaching: " .. fixture.move, function()
+            local g, s, mon = fresh(fixture.species, 5)
+            assert(MachineData.compatibility[mon.species][fixture.item], "HM fixture species must be compatible")
+            assert(moveData[fixture.move], "root HM move registration required: " .. fixture.move)
+            assert(s:inventory():add(fixture.item, 1))
+            local request, reason = Teaching.prepare(s, mon, fixture.item)
+            assert(request, "compatible HM teaching failed: " .. tostring(reason))
+            assert(Teaching.complete(request, "learn"))
+            assert(mon:hasMove(fixture.move), "HM must be acquired by real teaching")
+            assert(PokemonCodec.encode(mon), "taught HM fixture must be codec-valid")
+            local before, rng, world = wire(s), s:rngData(), s:worldRngData()
+            local rejected, plan = Daycare.prepare(s, "deposit", 2)
+            eq(plan.status, "hm-move", fixture.move .. " deposit guard")
+            eq(s:resolveDaycare(rejected, true), false, "HM deposit rejects atomically")
+            same(before, wire(s))
+            same(rng, s:rngData())
+            same(world, s:worldRngData())
+            eq(s:party():get(2), mon, "HM rejection preserves identity")
+            eq(s:inventory():quantity(fixture.item), 1, "HM remains reusable")
+        end)
+    end
+    test("last member and last usable are rejected without changing party or payment", function()
+        local g, s = fresh()
         s:party():get(1).hp = 0
-        eq(Daycare.plan(Daycare.observe(s), "deposit", 2).status, "last-usable")
+        local before = wire(s)
+        local request, plan = Daycare.prepare(s, "deposit", 2)
+        eq(plan.status, "last-usable")
+        eq(s:resolveDaycare(request, true), false)
+        same(before, wire(s))
         s:party():get(1).hp = 1
         deposit(s)
         eq(Daycare.plan(Daycare.observe(s), "deposit", 1).status, "occupied")
-        local request = Daycare.prepare(s, "withdraw")
+        request = Daycare.prepare(s, "withdraw")
         assert(s:resolveDaycare(request, true))
         assert(s:storage():deposit(s:party(), 2))
-        eq(Daycare.plan(Daycare.observe(s), "deposit", 1).status, "last-member")
+        before = wire(s)
+        request, plan = Daycare.prepare(s, "deposit", 1)
+        eq(plan.status, "last-member")
+        eq(s:resolveDaycare(request, true), false)
+        same(before, wire(s))
     end)
     test("actual SDK JSON/codec held-mon roundtrip and old-save empty migration", function()
         local g, s = fresh()
@@ -271,8 +438,7 @@ function DaycareContracts.run()
         local g, s, mon = fresh("pidgey", 99)
         deposit(s)
         local held = GameSession._state(s).daycare
-        -- Explicit high-XP fixture; the next two actual owner calls prove cap.
-        held.earned = mon:xpForLevel(100) - mon.xp - 1
+        steps(s, mon:xpForLevel(100) - mon.xp - 1)
         s:daycareStep()
         s:daycareStep()
         eq(held.earned, mon:xpForLevel(100) - mon.xp)
@@ -282,7 +448,7 @@ function DaycareContracts.run()
         assert(s:resolveDaycare(request, true))
         local _, other, low = fresh("pidgey", 1)
         deposit(other)
-        GameSession._state(other).daycare.earned = low:xpForLevel(100) - low.xp
+        steps(other, low:xpForLevel(100) - low.xp)
         local _, quote = Daycare.prepare(other, "withdraw")
         eq(quote.fee, 9999)
     end)
@@ -297,34 +463,109 @@ function DaycareContracts.run()
         assert(s:resolveDaycare(request, true))
     end)
     test("real Player/Explore completed steps count once; blocked, idle and other sprite updates do not", function()
-        KantoServicesContracts.withScene("Daycare", {x=2, y=5}, function(g)
+        worldScene("Daycare", {x=4, y=5, facing="right"}, function(g, owner)
             local s = g.session
-            assert(s:recruit(Pokemon("pidgey", 5)))
             deposit(s)
-            local owner = OverworldState(g)
-            owner.machine = g.machine
-            owner.sub:change("explore")
-            g.player:tryMove(1, 0)
-            assert(g.player.isMoving)
-            for _ = 1, 24 do
-                owner.sub:update()
-            end
-            eq(Daycare.observe(s).earned, 1)
+            ordinaryStep(g, 1, 0, 0)
+            frames(g, 24)
+            eq(Daycare.observe(s).earned, 1, "idle updates")
             g.player:tryMove(0, -1)
-            eq(g.player.isMoving, false)
-            for _ = 1, 24 do
-                owner.sub:update()
-            end
-            eq(Daycare.observe(s).earned, 1)
+            eq(g.player.isMoving, false, "pinned Day Care counter blocks upward step")
+            frames(g, 24)
+            eq(Daycare.observe(s).earned, 1, "blocked updates")
             g.player:tryMove(-1, 0)
-            for _ = 1, 24 do
-                playdate.graphics.sprite.update()
+            assert(g.player.isMoving, "out-of-Explore sprite-only step starts")
+            for _ = 1, 8 do
+                gfx.sprite.update()
             end
-            eq(Daycare.observe(s).earned, 1)
-            for _ = 1, 24 do
-                owner.sub:update()
+            eq(g.player.isMoving, false, "sprite-only Player movement completes")
+            eq(Daycare.observe(s).earned, 1, "sprite-only completion grants no XP")
+            frames(g, 24)
+            eq(Daycare.observe(s).earned, 1, "Explore never retroactively counts sprite-only movement")
+            ordinaryStep(g, 1, 0, 1)
+            eq(Daycare.observe(s).earned, 2, "next ordinary step still counts")
+        end)
+    end)
+    test("dialogue and pause freeze an ordinary midstep; resume completes it exactly once", function()
+        worldScene("Daycare", {x=4, y=5, facing="right"}, function(g)
+            deposit(g.session)
+            g.player:tryMove(1, 0)
+            frames(g, 3)
+            eq(g.player.moveFrames, 3, "real midstep before overlays")
+            for _, overlay in ipairs({"dialog", "pause"}) do
+                if overlay == "dialog" then
+                    g.machine:push(overlay, {"Day Care overlay witness."})
+                else
+                    g.machine:push(overlay)
+                end
+                eq(g.player:updatesEnabled(), false, "overlay suspends Player")
+                frames(g, 12)
+                eq(g.player.moveFrames, 3, "overlay preserves midstep")
+                eq(Daycare.observe(g.session).earned, 0, "overlay grants no XP")
+                g.machine:pop()
+                assert(g.player:updatesEnabled(), "resume restores Player callbacks")
             end
-            eq(Daycare.observe(s).earned, 1)
+            frames(g, 5)
+            eq(g.player.isMoving, false, "resumed real step completes")
+            eq(Daycare.observe(g.session).earned, 1, "resumed completion counts once")
+            frames(g, 12)
+            eq(Daycare.observe(g.session).earned, 1, "resume adds no arrival XP")
+        end)
+    end)
+    test("ordinary exit-mat step counts once; edge warp and arrival add no XP", function()
+        worldScene("Daycare", {x=4, y=6, facing="down"}, function(g, owner)
+            deposit(g.session)
+            local door = assert(currentZone:getEdgeDoorAt(4, 7, "down"), "pinned Day Care edge door required")
+            assert(not door.connection, "door fixture must be an ordinary warp")
+            ordinaryStep(g, 0, 1, 0)
+            frames(g, 1)
+            eq(currentZone.stableID, "pokered:DAYCARE", "landing on exit mat does not warp")
+            g.player:tryMove(0, 1)
+            eq(g.player.pendingEdgeDoor, door, "actual Player queues edge warp")
+            eq(g.player.isMoving, false, "edge warp has no completed ordinary cell")
+            frames(g, 24)
+            eq(currentZone.stableID, "pokered:ROUTE_5", "real door destination")
+            eq(g.machine:get("overworld"), owner, "warp retains registered controller")
+            eq(owner.sub:getCurrent(), "explore", "warp settles in Explore")
+            eq(Daycare.observe(g.session).earned, 1, "warp arrival has no extra XP")
+        end)
+    end)
+    test("real connection handoff counts once without granting repeated arrival XP", function()
+        worldScene("Route6", {x=9, y=35, facing="down"}, function(g, owner)
+            deposit(g.session)
+            local player = g.player
+            player:tryMove(0, 1)
+            assert(player.pendingEdgeDoor and player.pendingEdgeDoor.connection, "source Route 6 connection required")
+            eq(player.isMoving, false, "connection has no ordinary interpolation")
+            frames(g, 24)
+            eq(currentZone.stableID, "pokered:VERMILION_CITY", "connection destination")
+            eq(owner.sub:getCurrent(), "explore", "connection settles in Explore")
+            eq(Daycare.observe(g.session).earned, 1, "completed connection counts once")
+            frames(g, 12)
+            eq(Daycare.observe(g.session).earned, 1, "connection arrival and idle add no XP")
+        end)
+    end)
+    test("source escort uses actual Player updates without earning Day Care XP", function()
+        worldScene("PewterCity", {x=34, y=16, facing="down"}, function(g)
+            deposit(g.session)
+            assert(TutorialEscort.dispatch(g, "pokered:PEWTER_CITY:objects:5"))
+            drain(g)
+            local scene = g.machine:get("tutorial-escort")
+            eq(scene.phase, "escort-walk", "real source escort owns script movement")
+            eq(g.player:updatesEnabled(), false, "script advances Player explicitly beneath overlay")
+            local originX, originY = g.player.gridX, g.player.gridY
+            for _ = 1, 128 do
+                frames(g, 1)
+                assert(scene.phase ~= "failed", "source escort failed: " .. tostring(scene.waiting))
+                eq(Daycare.observe(g.session).earned, 0, "scripted Player/NPC updates grant no XP")
+                if scene.playerIndex > 1 then break end
+            end
+            assert(scene.playerIndex > 1, "real source escort must complete a Player cell")
+            assert(g.player.gridX ~= originX or g.player.gridY ~= originY, "script must actually move Player")
+            scene:cancel()
+            frames(g, 1)
+            eq(g.machine:getCurrent(), "overworld", "script cancellation resumes world")
+            eq(Daycare.observe(g.session).earned, 0, "script return adds no XP")
         end)
     end)
     -- Real controller witnesses use the shared source map fixture, not a fake
