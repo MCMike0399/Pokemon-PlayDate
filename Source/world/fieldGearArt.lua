@@ -165,3 +165,83 @@ function FieldGearArt.fishingFrame(tick, response, facing)
     assert(type(tick) == "number" and tick % 1 == 0 and tick >= 0, "zero-based native fishing tick required")
     return FieldGearArt.fishingSourceFrame(tick * 2 + 1, response, facing)
 end
+
+-- The existing catalog sink owns masks/composites/publication. These additions
+-- expose only distinct new art and useful directional placement samples.
+function FieldGearArt.catalogInventory()
+    local result = {}
+    local function add(name, width, height, category)
+        result[#result + 1] = {name=name, width=width, height=height, category=category}
+    end
+    for _, pose in ipairs({"stand", "walk", "alternate"}) do
+        for _, facing in ipairs(directions) do
+            -- Side alternate is exactly the same image as side walk.
+            if pose ~= "alternate" or facing == "up" or facing == "down" then
+                add("field-gear-bike-" .. pose .. "-" .. facing, 32, 32, "field-gear-character")
+            end
+        end
+    end
+    for _, facing in ipairs(directions) do
+        add("field-gear-fishing-" .. facing, 32, 32, "field-gear-character")
+    end
+    for _, name in ipairs({"vertical", "left", "right"}) do
+        add("field-gear-rod-" .. name, 16, 16, "field-gear-overlay")
+    end
+    for _, phase in ipairs({"cast", "shake", "bubble"}) do
+        for _, facing in ipairs(directions) do
+            add("field-gear-fishing-" .. phase .. "-" .. facing, 64, 96, "field-gear-placement")
+        end
+    end
+    return result
+end
+
+local function placement(tick, facing)
+    local frame <const> = FieldGearArt.fishingFrame(tick, 1, facing)
+    local image <const> = gfx.image.new(64, 96, gfx.kColorClear)
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    local ok, problem = pcall(function()
+        frame.character:draw(16, 40 + frame.playerOffsetY)
+        if frame.rod then
+            frame.rod.image:draw(16 + frame.rod.x, 40 + frame.rod.y)
+        end
+        if frame.exclamation then
+            frame.exclamation.image:draw(16 + frame.exclamation.x, 40 + frame.exclamation.y)
+        end
+    end)
+    gfx.popContext()
+    assert(ok, problem)
+    return image
+end
+
+function FieldGearArt.catalogAssets()
+    FieldGearArt.prepare()
+    local result = {}
+    local function add(name, image, category)
+        result[#result + 1] = {name=name, image=image, category=category}
+    end
+    for _, pose in ipairs({"stand", "walk", "alternate"}) do
+        for _, facing in ipairs(directions) do
+            if pose ~= "alternate" or facing == "up" or facing == "down" then
+                add("field-gear-bike-" .. pose .. "-" .. facing,
+                    FieldGearArt.bicycle(facing, pose), "field-gear-character")
+            end
+        end
+    end
+    for _, facing in ipairs(directions) do
+        add("field-gear-fishing-" .. facing, FieldGearArt.fishing(facing), "field-gear-character")
+    end
+    add("field-gear-rod-vertical", images.rods.fd, "field-gear-overlay")
+    add("field-gear-rod-left", images.rods.fe, "field-gear-overlay")
+    add("field-gear-rod-right", images.rods.right, "field-gear-overlay")
+    for _, sample in ipairs({{phase="cast", tick=5}, {phase="shake", tick=55}, {phase="bubble", tick=70}}) do
+        for _, facing in ipairs(directions) do
+            add("field-gear-fishing-" .. sample.phase .. "-" .. facing,
+                placement(sample.tick, facing), "field-gear-placement")
+        end
+    end
+    return result
+end
