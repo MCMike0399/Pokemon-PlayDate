@@ -426,15 +426,6 @@ end
 -- Menus/dialogue retain world rendering and tile animation, while movement,
 -- encounter/door triggers and actor update callbacks wait for the overlay.
 function OverworldState:pause()
-    if self.game.player then
-        self.game.player.running = false
-    end
-    local explore = self.sub and self.sub:get("explore")
-    if explore then
-        explore.bFrames = nil
-        explore.bRunning = false
-        explore.pauseOnSettle = false
-    end
     self.pausedSprites = {}
     local function suspend(sprite)
         if sprite and sprite.updatesEnabled then
