@@ -83,8 +83,10 @@ Contracts.register("specimenTrainerContracts", SpecimenTrainerContracts.run)
 import "dev/specimenOwnershipContracts"
 Contracts.register("specimen-ownership", SpecimenOwnershipContracts.run)
 import "dev/npcMotionContracts"
+if SourceMaps.nameForID("pokered:WARDENS_HOUSE") then
 import "dev/strengthBoulderContracts"
 Contracts.register("strength-boulder", StrengthBoulderContracts.run)
+end
 Contracts.register("npcMotionContracts", NPCMotionContracts.run)
 import "dev/npcMotionLegacyContracts"
 Contracts.register("npcMotionLegacyContracts", NPCMotionLegacyContracts.run)
@@ -287,10 +289,16 @@ Contracts.register("npc-trades", NPCTradeContracts.run)
 import "dev/saffronGuardContracts"
 Contracts.register("saffron-guards", SaffronGuardContracts.run)
 
+if SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
 import "dev/fieldTravelContracts"
 Contracts.register("field-travel", FieldTravelContracts.run)
+end
 
+if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
 import "dev/sourceEncounterContracts"
 Contracts.register("source-encounters", SourceEncounterContracts.run)
+end
+if SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
 import "dev/fieldGearContracts"
 Contracts.register("field-gear", FieldGearContracts.run)
+end

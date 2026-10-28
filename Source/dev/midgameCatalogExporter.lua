@@ -143,7 +143,10 @@ function MidgameCatalogExporter.inventory()
         result.directional_pose_count = result.directional_pose_count + 1
         asset(pose.name, 32, 32, "midgame-character", true)
     end
-    asset("midgame-unidentified-ghost", 96, 96, "midgame-battle-art", true)
+    if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
+        asset("midgame-unidentified-ghost", 96, 96, "midgame-battle-art", true)
+    end
+    if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
     result.field_gear_assets = #FieldGearArt.catalogInventory()
     for _, entry in ipairs(FieldGearArt.catalogInventory()) do
         add(entry.name, entry.width, entry.height, entry.category)
@@ -151,6 +154,7 @@ function MidgameCatalogExporter.inventory()
         for _, background in ipairs({"white", "black", "texture"}) do
             add(entry.name .. "__" .. background, entry.width, entry.height, entry.category .. "-background")
         end
+    end
     end
     table.sort(result.images, function(a, b)
         return a.path < b.path
@@ -195,18 +199,22 @@ function MidgameCatalogExporter.writer(sink)
     for _, pose in ipairs(report.characters) do
         sink.asset(pose.name, CeruleanContent.poseImage(pose.source, pose.pose, pose.direction), "midgame-character", true)
     end
+    if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
     sink.asset("midgame-unidentified-ghost", assert(playdate.graphics.image.new("images/title/ghost")), "midgame-battle-art", true)
+    end
+    if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
     report.field_gear = {images={}, reused_exclamation="pewter-exclamation.png",
         timing=FieldGearArt.data().timing, rod_directions=FieldGearArt.data().rod.directions}
     for _, entry in ipairs(FieldGearArt.catalogAssets()) do
         sink.asset(entry.name, entry.image, entry.category, true)
         report.field_gear.images[#report.field_gear.images + 1] = entry.name .. ".png"
     end
+    end
     return report
 end
 
 function MidgameCatalogExporter.register()
-    FieldGearArt.prepare()
+    if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then FieldGearArt.prepare() end
     local maps, npcs = {}, {}
     local tiles <const> = MidgameCatalogExporter.tiles()
     for _, name in ipairs(MidgameCatalogExporter.maps()) do

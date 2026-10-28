@@ -2,38 +2,38 @@
 HideoutTowerController = {}
 function HideoutTowerController.enter(state)
     RocketHideoutStoryController.enter(state)
-    TowerStoryController.enter(state)
-    MidgameGymStoryController.enter(state)
-    SilphStoryController.enter(state)
+    if TowerStoryController then TowerStoryController.enter(state) end
+    if MidgameGymStoryController then MidgameGymStoryController.enter(state) end
+    if SilphStoryController then SilphStoryController.enter(state) end
     CeladonServicesController.enter(state)
 end
 function HideoutTowerController.advance(state)
-    return RocketHideoutStoryController.advance(state) or TowerStoryController.advance(state)
-        or MidgameGymStoryController.advance(state) or SilphStoryController.advance(state)
+    return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
+        or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
         or CeladonServicesController.advance(state)
 end
 function HideoutTowerController.update(state)
     RocketHideoutStoryController.update(state)
 end
 function HideoutTowerController.handleButton(state, button)
-    return RocketHideoutStoryController.handleButton(state, button) or SilphStoryController.handleButton(state, button)
+    return RocketHideoutStoryController.handleButton(state, button) or (SilphStoryController and SilphStoryController.handleButton(state, button))
         or CeladonServicesController.handleButton(state, button)
 end
 function HideoutTowerController.draw(state)
     RocketHideoutStoryController.draw(state)
-    SilphStoryController.draw(state)
+    if SilphStoryController then SilphStoryController.draw(state) end
     CeladonServicesController.draw(state)
 end
 function HideoutTowerController.cancel(state)
     RocketHideoutStoryController.exit(state)
-    TowerStoryController.exit(state)
-    SilphStoryController.exit(state)
+    if TowerStoryController then TowerStoryController.exit(state) end
+    if SilphStoryController then SilphStoryController.exit(state) end
 end
 function HideoutTowerController.afterExit(state)
     local id = state.id or ""
     if not (id:match("^pokered:ROCKET_HIDEOUT_") or id:match("^pokered:GAME_CORNER:")
-        or id == TowerStory.RIVAL or id == TowerStory.FUJI or id == TowerStory.HOUSE_FUJI or TowerStory.rocket(id)
-        or SnorlaxStory.definition(id)) then
+        or TowerStory and (id == TowerStory.RIVAL or id == TowerStory.FUJI or id == TowerStory.HOUSE_FUJI or TowerStory.rocket(id))
+        or SnorlaxStory and SnorlaxStory.definition(id)) then
         return
     end
     if state.game.session == state.session and currentZone == state.zone then

@@ -35,7 +35,6 @@ import "domain/pcItems"
 import "domain/pickup"
 import "domain/coinWallet"
 import "domain/safariGame"
-import "domain/safariBattle"
 import "domain/fieldTravel"
 import "domain/fieldCycling"
 import "domain/fieldFishing"
@@ -63,9 +62,6 @@ import "battle/battleScene"
 import "game/story"
 import "data/maps"
 import "game/fieldTravelWorld"
-import "game/fieldTravelRequests"
-import "game/fieldGearRequests"
-import "game/fieldTravelRuntime"
 import "game/context"
 import "game/overworldState"
 import "game/dialogState"
@@ -77,9 +73,6 @@ import "game/titleState"
 import "game/pauseState"
 import "game/partyState"
 import "game/fieldMoveState"
-import "game/fieldTravelState"
-import "world/fieldGearArt"
-import "game/fieldGearState"
 import "game/bagState"
 import "game/shopState"
 import "data/pilotWorld"
@@ -154,14 +147,7 @@ import "domain/fieldEncounters"
 import "game/rocketHideoutStory"
 import "game/rocketHideoutStoryWorld"
 import "game/rocketHideoutStoryController"
-import "game/towerStory"
-import "game/snorlaxStory"
-import "game/towerStoryController"
 import "game/midgameGymStory"
-import "game/midgameGymStoryController"
-import "game/silphStory"
-import "game/silphStoryWorld"
-import "game/silphStoryController"
 import "game/midgameStoryWarps"
 import "game/celadonServices"
 import "game/celadonServicesController"
@@ -184,12 +170,6 @@ end
 CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
 CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
     return HideoutTowerContent.package("midgameEast", events, trainers)
-end)
-CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
-    return HideoutTowerContent.package("midgameSouth", events, trainers)
-end)
-CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
-    return HideoutTowerContent.package("midgameSaffron", events, trainers)
 end)
 CeruleanContent.install(campaignActorMetadata)
 CeruleanContent.installSigns()
@@ -225,8 +205,6 @@ machine:register("pause", PauseState(game))
 machine:register("options", OptionsState(game))
 machine:register("party", PartyState(game))
 machine:register("fieldMove", FieldMoveState(game))
-machine:register("fieldTravel", FieldTravelState(game))
-machine:register("fieldGear", FieldGearState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
 machine:register("event", NPCTradeState(game))

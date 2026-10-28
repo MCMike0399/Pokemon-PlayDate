@@ -7,15 +7,19 @@ local fieldKeyActions = {
         return TownMapState.open(bag.game)
     end,
     bicycle = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
         return FieldGearState.open(bag.game, bag, "bicycle")
     end,
     oldRod = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
         return FieldGearState.open(bag.game, bag, "oldRod")
     end,
     goodRod = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
         return FieldGearState.open(bag.game, bag, "goodRod")
     end,
     superRod = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
         return FieldGearState.open(bag.game, bag, "superRod")
     end,
 }

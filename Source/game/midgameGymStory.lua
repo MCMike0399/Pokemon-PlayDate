@@ -13,7 +13,14 @@ function MidgameGymStory.descriptors()
         assert(data.schema == 1 and data.source_revision == REVISION, "unverified gym story data")
         cached = data.events
     end
-    return copy(cached)
+    local installed = {}
+    for id, descriptor in pairs(cached) do
+        local mapID = id:match("^(pokered:[^:]+):")
+        if SourceMaps.nameForID(mapID) then
+            installed[id] = copy(descriptor)
+        end
+    end
+    return installed
 end
 function MidgameGymStory.plan(id, observation)
     local descriptor <const> = assert(MidgameGymStory.descriptors()[id])
@@ -65,6 +72,9 @@ function MidgameGymStory.install()
                 return MidgameGymStory.plan(stableID, observation)
             end
         end
+    end
+    if not SourceMaps.nameForID("pokered:FIGHTING_DOJO") then
+        return
     end
     SourceEvents.registerWorldHooks(MidgameGymStory.MASTER, {
         explore = function(game)

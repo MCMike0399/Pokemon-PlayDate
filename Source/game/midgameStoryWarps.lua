@@ -14,5 +14,7 @@ function MidgameStoryWarps.install()
         end
     end
     register(RocketHideoutStory, "pokered:ROCKET_HIDEOUT_ELEVATOR")
-    register(SilphStoryWorld, "pokered:SILPH_CO_ELEVATOR")
+    if SilphStoryWorld and SourceMaps.nameForID("pokered:SILPH_CO_ELEVATOR") then
+        register(SilphStoryWorld, "pokered:SILPH_CO_ELEVATOR")
+    end
 end

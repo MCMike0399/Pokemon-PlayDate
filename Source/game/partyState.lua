@@ -43,7 +43,7 @@ function PartyState:actions()
     self.phase = "actions"
     local mon = self.session:party():get(self.selected)
     local fields = FieldMoves and FieldMoves.known(mon) or {}
-    if FieldTravel then
+    if FieldTravel and self.game.machine:get("fieldTravel") then
         for _, key in ipairs(FieldTravel.known(mon)) do
             fields[#fields + 1] = key
         end

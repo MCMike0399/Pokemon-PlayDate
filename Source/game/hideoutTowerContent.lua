@@ -20,7 +20,8 @@ function HideoutTowerContent.package(name, events, trainerData)
             events[id] = RocketHideoutStory.decorate(id, events[id])
         end
     end
-    if name == "midgameEast" or name == "midgameSouth" then
+    if TowerStory and SourceMaps.nameForID("pokered:POKEMON_TOWER_1F")
+        and (name == "midgameEast" or name == "midgameSouth") then
         include(TowerStory.descriptors("midgameSouth", "midgameEast"))
         include(SnorlaxStory.descriptors("midgameSouth"))
     end
@@ -32,7 +33,7 @@ function HideoutTowerContent.package(name, events, trainerData)
         events[id] = value
     end
     include(MidgameGymStory.descriptors())
-    if name == "midgameSaffron" then
+    if SilphStory and name == "midgameSaffron" then
         include(SilphStory.descriptors())
     end
     for id, descriptor in pairs(additions) do
@@ -48,7 +49,7 @@ function HideoutTowerContent.package(name, events, trainerData)
             trainers[id] = copy(trainerData.trainers[id])
         end
     end
-    if name == "midgameSouth" then
+    if TowerStory and name == "midgameSouth" then
         local class = assert(trainerData.rival_classes.OPP_RIVAL2, "content lacks source Rival2 classes")
         local variants = {}
         for starter, index in pairs(TowerStory.scenes().rival.rival_party_indices) do
@@ -61,7 +62,7 @@ function HideoutTowerContent.package(name, events, trainerData)
             source_flag = "EVENT_BEAT_POKEMON_TOWER_RIVAL", party = copy(variants.charmander.party),
             payout = variants.charmander.payout, rival_parties = variants}
     end
-    if name == "midgameSaffron" then
+    if SilphStory and name == "midgameSaffron" then
         local class = assert(trainerData.rival_classes.OPP_RIVAL2)
         local variants = {}
         for starter, index in pairs({charmander = 7, squirtle = 8, bulbasaur = 9}) do
@@ -79,8 +80,19 @@ function HideoutTowerContent.package(name, events, trainerData)
 end
 function HideoutTowerContent.actorMetadata(id, game)
     local result = {visibility = {}}
-    for _, extra in ipairs({RocketHideoutStory.actorMetadata(id, game), TowerStory.actorMetadata(id, game),
-        SnorlaxStory.actorMetadata(id), MidgameGymStory.actorMetadata(id), SilphStory.actorMetadata(id, game), CeladonServices.actorMetadata(id)}) do
+    local values = {RocketHideoutStory.actorMetadata(id, game),
+        MidgameGymStory.actorMetadata(id), CeladonServices.actorMetadata(id)}
+    if TowerStory and SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
+        values[#values + 1] = TowerStory.actorMetadata(id, game)
+        values[#values + 1] = SnorlaxStory.actorMetadata(id)
+    elseif id == "pokered:MR_FUJIS_HOUSE:objects:5" then
+        -- Fuji is not home before the parked Tower rescue.
+        values[#values + 1] = {visibility={{group="quest", id="EVENT_RESCUED_MR_FUJI", equals=true}}}
+    end
+    if SilphStory and SourceMaps.nameForID("pokered:SILPH_CO_1F") then
+        values[#values + 1] = SilphStory.actorMetadata(id, game)
+    end
+    for _, extra in ipairs(values) do
         for _, condition in ipairs(extra.visibility or {}) do
             result.visibility[#result.visibility + 1] = copy(condition)
         end
@@ -93,8 +105,12 @@ function HideoutTowerContent.install()
         reconcileWorld = RocketHideoutStoryWorld.reconcile,
         reconcileActors = KantoScenes.reconcileActors,
     })
-    TowerStory.install("midgameSouth", {reconcileActors = KantoScenes.reconcileActors})
-    SnorlaxStory.install("midgameSouth")
+    if TowerStory and SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
+        TowerStory.install("midgameSouth", {reconcileActors=KantoScenes.reconcileActors})
+        SnorlaxStory.install("midgameSouth")
+    end
     MidgameGymStory.install()
-    SilphStory.install({reconcileActors = KantoScenes.reconcileActors})
+    if SilphStory and SourceMaps.nameForID("pokered:SILPH_CO_1F") then
+        SilphStory.install({reconcileActors=KantoScenes.reconcileActors})
+    end
 end
