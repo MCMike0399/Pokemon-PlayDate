@@ -1,7 +1,7 @@
 # Full-game execution ledger
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
-Progress: **65 / 222 source maps playable on main. Current milestone: 5.5.**
+Progress: **65 / 222 source maps playable on main. Current milestone: 5.5a.**
 5.4 elapsed: **7.89 h**; current pace: **106.46 maps/day**.
 [Milestone times](milestone-times.json) include waits and provider limits.
 
@@ -101,3 +101,23 @@ Showcase: `/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/milestone-5.
 (84.9 seconds, original native frame timing, clearly labelled supplemental scenes, silent).
 Final-build checks: 2090 SDK, 918 host, all three actual process continuations.
 Audio remains unaccepted; the full-game goal is unfinished. Nothing pushed.
+
+## Device startup check — 2026-10-28
+
+Progress remains **65/222 playable maps on main; current checkpoint 5.5a**.
+The physical Playdate still requested a restart after the first startup fix.
+Its error log identified a ten-second startup stall while validating world data.
+Main now validates sparse changes without rebuilding every map cell, and the next
+build separates context setup from initial loading with a visible loading screen.
+The revised loading build passed 2090 SDK checks, 54 harness host checks and all
+2494 protected image comparisons in
+`evidence/device-loading-fix-sdk-20261028-01`. It has not yet been tested on the device.
+
+The production Simulator resource check at
+`evidence/device-deferred-context-resources-20261028-01/startup-probe.json`
+measured 10696.66 KiB Lua heap after GC at the earned checkpoint,
+11420.60 KiB after map loading and 11432.33 KiB after battle start.
+Worst measured updates were 170 ms for the selected map load and 5 ms for battle
+start. These include observer overhead and do not measure physical-device RAM.
+The three private 5.5a journeys stopped before meaningful gameplay; they grant
+no acceptance. Their tooling failures are being repaired separately.

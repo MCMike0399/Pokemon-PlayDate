@@ -53,11 +53,11 @@ def instrument(text, session, mode, checkpoint=False):
     # Same observer in both modes, starting before any import. No dev dependency.
     before = 'local startupProbeBegin = playdate.getCurrentTimeMilliseconds()\n'
     if checkpoint:
-        return before + text + '''
-import "probe/checkpoint_config"
-CheckpointResourceConfig.startup_ms = playdate.getCurrentTimeMilliseconds() - startupProbeBegin
-import "probe/checkpoint_resource"
-'''
+        imports = '\nimport "probe/checkpoint_config"\nimport "probe/checkpoint_resource"\n'
+        after = 'CheckpointResourceConfig.startup_ms = playdate.getCurrentTimeMilliseconds() - startupProbeBegin\nCheckpointResourceProbe.install()\n'
+        if 'GameBootstrap.start' in text:
+            after = '\nGameBootstrap.afterReady(function()\n' + after + '\nend)\n'
+        return before + text + imports + after
     after = '''
 local startupProbe = {
     session_id = SESSION, mode = MODE,
@@ -80,6 +80,8 @@ function playdate.update()
     assert(playdate.file.rename("startup-probe.tmp", "startup-probe.json"))
 end
 '''.replace('SESSION', json.dumps(session)).replace('MODE', json.dumps(mode))
+    if 'GameBootstrap.start' in text:
+        after = '\nGameBootstrap.afterReady(function()\n' + after + '\nend)\n'
     return before + text + after
 
 
