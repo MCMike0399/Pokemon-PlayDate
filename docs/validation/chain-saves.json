@@ -76,6 +76,25 @@
           "bytes": 4357
         }
       ]
+    },
+    {
+      "starter": "charmander",
+      "from_milestone": "5.3",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-chained-journeys-20261028-01/03-cerulean--restart-charmander/processes/0001/runtime-data",
+      "resume_tool_failure": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-chained-journeys-20261028-01/03-cerulean--restart-charmander",
+      "source": "actual save written after Bill/Ticket; screenshot check failed afterward",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "1a7c9da6c45818780afbcd3417b3dcc259c84ced0a78cac64b2119ee3c50057c",
+          "bytes": 7847
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "e7d48f00c13900ef458789577d836b82895b0e6c2d5d145fc57005d8fdfa4fbb",
+          "bytes": 4355
+        }
+      ]
     }
   ]
 }
