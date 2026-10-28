@@ -2,7 +2,7 @@
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
 Progress: **30 / 222 source maps playable on main. Current milestone: 5.4.**
-Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **5.24 h**.
+Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **6.09 h**.
 [Wall-clock times per milestone](milestone-times.json) include waits and provider limits.
 The reduced 5.4 set uses Bulbasaur for optional content and the other starters
 for the critical path. Both journey JSON files already live in `Source/dev`, outside production. Cleanup of remaining bundles waits until journeys stop. Quality workers run alongside journeys; root does not
@@ -74,7 +74,7 @@ Audio is active as a quality track; later campaign work remains parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 5.4 remains unaccepted. The current saved-checkpoint set is `m54-progress-retry-<starter>-20261028-05`, with continue-on-failure. Fixed Anne waypoints, actual Super Potion use and Center visits replace planner changes and grinding. Earned captures, Day Care progress and HM01 saves are retained. Trades and guards are removed; the approved Route2 collision image is retained. |
+| `wip/vermilion-integration` | 5.4 remains unaccepted. The current saved-checkpoint set is `m54-progress-retry-<starter>-20261028-07`, with continue-on-failure. Fixed Anne waypoints, actual Super Potion use and Center visits replace planner changes and grinding. Earned captures, Day Care progress and HM01 saves are retained. Trades and guards are removed; the approved Route2 collision image is retained. |
 | Play quality | Three Sol/medium workers prepare map shade proposals, battle presentation/options and native synth audio. HP/EXP animation, trainer entry, title art, running, options and audio hooks are isolated on `wip/play-quality-native`; native visual/audio checks remain pending before release integration. The user rejected the whitened-ground proposal. The visual target is now the original GB four-shade tonal structure reproduced in 1-bit. New comparisons start with Route1, Route24 and the Cerulean Center. The user chose GB grey as the reference; Bayer is the closest measured 1-bit reproduction. Its ten-second native walking run passed. The mapping is prepared separately, with Pallet, interiors and sprites unchanged; catalog review remains pending before release integration. |
 | Trades and Saffron guards | Preserved on `parked/npc-trades-saffron-20261028`, removed from the 5.4 release. |
 
@@ -90,7 +90,7 @@ finished starter saves and showcase clip remain pending.
 The latest three saved-checkpoint runs reached the Gym. The driver ignored
 purchased Super Potions because it only selected ordinary Potions. It now uses
 actual stronger medicine and visits the Center between Gym trainers. The next
-set is `m54-progress-retry-<starter>-20261028-05`, with continue-on-failure.
+set is `m54-progress-retry-<starter>-20261028-07`, with continue-on-failure.
 No preparation grinding was added. The prior played runs logged no missing
 move or ability effects; Squirtle's earlier checksum failure did not reach play.
 
@@ -103,6 +103,20 @@ Both journey data files are already under `Source/dev`.
 Native GB-tone motion: `evidence/gb-tone-native-clip-20261028-02/native-proposed-motion.mp4`
 contains 300 native 400x240 frames at 30 FPS (10 seconds), with source/frame hashes.
 It is a visual witness, not a campaign completion claim.
+
+Bulbasaur and Charmander beat Surge in retry 06 and saved their real badge/TM24
+progress. Their later failures were cave routing/Run decisions, not missing game
+effects. Diglett's Cave now has fixed corridor waypoints; the driver fights when
+Arena Trap prevents escape and reuses learned Cut and earned rewards.
+
+The isolated quality build passed actual input checks in
+`evidence/quality-input-native-20261028-03`: fresh title, Town Map registration,
+A+B opening and manual Bag sort. A startup omission was fixed so an empty save
+also shows the title. These are supplemental UI checks, not natural item grants.
+The four additional SDK behavior cases and full changed-tone catalog still need
+root execution. Three production preview bundles with accepted 5.3 saves are
+prepared at `evidence/player-packages/quality-preview-20261028`, but remain
+unpublished while final quality checks are pending.
 
 ## 5. Decisions
 
