@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "581e29e64008cc5e8cdd408350dac364926f12ee",
-    "source_sha256": "0d0d1e25b94cd6be5ddd229ffec250b9d5693666895d59d39ec4c447318956da",
+    "commit": "5ca352982a1a29d97b9b8e037252ce0a920524e9",
+    "source_sha256": "938ef88230a28fcd88131af09016f1b67bc48996cb4ad884e62297d4006170c3",
     "policy_date": "2026-10-28",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Current private 5.4 Source: 65 installed maps. Whole original Blue campaign/postgame, original151, GenV mechanics. Source inventory only; no Vermilion milestone or native acceptance.",
@@ -129,21 +129,21 @@
     },
     "production-battle": {
       "path": "Source/battle/battle.lua",
-      "sha256": "2970be8fdf9d4f349d1332b4d27cbd385bfb5eb7d6184eba4b6350783682cc3e",
+      "sha256": "747fb4ac537dbd17a51a97539b475fd05a83ae40784af998dce32fb940cc53a5",
       "kind": "production",
       "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
       "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-effects": {
       "path": "Source/battle/effects.lua",
-      "sha256": "574845de5045d1d76846bea1fa962ebe19407751f9255f0a140766480578aeab",
+      "sha256": "4419cd34fb74e3ebd1d051576cbe5b27192efe0f6b89239b5650c249a3b3ee89",
       "kind": "production",
       "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
       "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-conditions": {
       "path": "Source/battle/conditions.lua",
-      "sha256": "e855ec5a01221bf017edee4eb05df28b56badb62979fd936f351e01566e9b085",
+      "sha256": "18b5c3af98ce89a3db2bca2f6ed4adf52222e8c53d4760145f59935885326e1d",
       "kind": "production",
       "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
       "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
@@ -164,7 +164,7 @@
     },
     "production-sessionCodec": {
       "path": "Source/domain/sessionCodec.lua",
-      "sha256": "08ef57bd47fd06e8c1738e6e77918dba895fe5702ff9fad1c3621c5f8833a111",
+      "sha256": "f3541f4e2f4aeb04e36db2fa4b90090c22fc4ddc1ba323e8957f923f86fe6672",
       "kind": "production",
       "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
       "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
@@ -220,7 +220,7 @@
     },
     "production-sourceMaps": {
       "path": "Source/data/sourceMaps.json",
-      "sha256": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c",
+      "sha256": "47e295dd5e39d2894e39e6dccbd13b148525a9712478202a424201c4220294b4",
       "kind": "source",
       "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
       "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
