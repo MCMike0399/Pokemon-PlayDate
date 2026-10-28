@@ -131,7 +131,7 @@
     "spinners": {
       "pokered:ROCKET_HIDEOUT_B2F": [
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1001",
           "path": [
             "left",
             "left"
@@ -141,7 +141,7 @@
           "y": 9
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:2",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1002",
           "path": [
             "right",
             "right",
@@ -153,7 +153,7 @@
           "y": 11
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:3",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1003",
           "path": [
             "right",
             "right",
@@ -169,7 +169,7 @@
           "y": 15
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:4",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1004",
           "path": [
             "up",
             "right",
@@ -186,7 +186,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:5",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1005",
           "path": [
             "left",
             "left"
@@ -196,7 +196,7 @@
           "y": 19
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:6",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1006",
           "path": [
             "up",
             "up",
@@ -209,7 +209,7 @@
           "y": 22
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:7",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1007",
           "path": [
             "right",
             "right",
@@ -223,7 +223,7 @@
           "y": 14
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:8",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1008",
           "path": [
             "up",
             "up"
@@ -233,7 +233,7 @@
           "y": 22
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:9",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1009",
           "path": [
             "up",
             "up",
@@ -245,7 +245,7 @@
           "y": 24
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:10",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1010",
           "path": [
             "left",
             "left",
@@ -259,7 +259,7 @@
           "y": 9
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:11",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1011",
           "path": [
             "up"
           ],
@@ -268,7 +268,7 @@
           "y": 12
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:12",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1012",
           "path": [
             "up",
             "up",
@@ -280,7 +280,7 @@
           "y": 15
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:13",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1013",
           "path": [
             "left",
             "left",
@@ -294,7 +294,7 @@
           "y": 19
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:14",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1014",
           "path": [
             "up",
             "up",
@@ -312,7 +312,7 @@
           "y": 23
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:15",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1015",
           "path": [
             "down",
             "down"
@@ -322,7 +322,7 @@
           "y": 14
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:16",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1016",
           "path": [
             "down",
             "down"
@@ -332,7 +332,7 @@
           "y": 22
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:17",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1017",
           "path": [
             "left",
             "left",
@@ -348,7 +348,7 @@
           "y": 9
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:18",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1018",
           "path": [
             "up",
             "left",
@@ -365,7 +365,7 @@
           "y": 10
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:19",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1019",
           "path": [
             "up",
             "up",
@@ -387,7 +387,7 @@
           "y": 15
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:20",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1020",
           "path": [
             "right",
             "right",
@@ -401,7 +401,7 @@
           "y": 17
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:21",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1021",
           "path": [
             "up",
             "up",
@@ -417,7 +417,7 @@
           "y": 19
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:22",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1022",
           "path": [
             "right",
             "right",
@@ -429,7 +429,7 @@
           "y": 25
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:23",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1023",
           "path": [
             "down",
             "down",
@@ -445,7 +445,7 @@
           "y": 14
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:24",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1024",
           "path": [
             "right",
             "right",
@@ -459,7 +459,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:25",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1025",
           "path": [
             "down",
             "down"
@@ -469,7 +469,7 @@
           "y": 18
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:26",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1026",
           "path": [
             "left",
             "left",
@@ -487,7 +487,7 @@
           "y": 9
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:27",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1027",
           "path": [
             "up",
             "up",
@@ -507,7 +507,7 @@
           "y": 11
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:28",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1028",
           "path": [
             "up",
             "up",
@@ -529,7 +529,7 @@
           "y": 13
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:29",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1029",
           "path": [
             "right",
             "right",
@@ -541,7 +541,7 @@
           "y": 17
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:30",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1030",
           "path": [
             "down",
             "down",
@@ -552,7 +552,7 @@
           "y": 10
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:31",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1031",
           "path": [
             "right"
           ],
@@ -561,7 +561,7 @@
           "y": 12
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:32",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1032",
           "path": [
             "right",
             "right",
@@ -573,7 +573,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:33",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1033",
           "path": [
             "left",
             "left",
@@ -585,7 +585,7 @@
           "y": 18
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:34",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1034",
           "path": [
             "left",
             "left",
@@ -604,7 +604,7 @@
           "y": 19
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:35",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1035",
           "path": [
             "left",
             "left",
@@ -618,7 +618,7 @@
           "y": 22
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:36",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1036",
           "path": [
             "left",
             "left",
@@ -641,7 +641,7 @@
           "y": 23
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:37",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1037",
           "path": [
             "up",
             "up"
@@ -651,7 +651,7 @@
           "y": 17
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:38",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1038",
           "path": [
             "down",
             "down"
@@ -661,7 +661,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:39",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1039",
           "path": [
             "up"
           ],
@@ -670,7 +670,7 @@
           "y": 14
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:40",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1040",
           "path": [
             "up",
             "up",
@@ -681,7 +681,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:41",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1041",
           "path": [
             "up",
             "up",
@@ -694,7 +694,7 @@
           "y": 18
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:42",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1042",
           "path": [
             "left",
             "left",
@@ -709,7 +709,7 @@
           "y": 10
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:43",
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1043",
           "path": [
             "left",
             "left",
@@ -736,7 +736,7 @@
       ],
       "pokered:ROCKET_HIDEOUT_B3F": [
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1001",
           "path": [
             "right",
             "right",
@@ -748,7 +748,7 @@
           "y": 13
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:2",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1002",
           "path": [
             "right",
             "right",
@@ -768,7 +768,7 @@
           "y": 19
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:3",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1003",
           "path": [
             "right",
             "right",
@@ -784,7 +784,7 @@
           "y": 18
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:4",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1004",
           "path": [
             "left",
             "left"
@@ -794,7 +794,7 @@
           "y": 11
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:5",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1005",
           "path": [
             "right",
             "right",
@@ -810,7 +810,7 @@
           "y": 17
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:6",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1006",
           "path": [
             "up",
             "up",
@@ -829,7 +829,7 @@
           "y": 20
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:7",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1007",
           "path": [
             "right",
             "right",
@@ -841,7 +841,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:8",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1008",
           "path": [
             "right",
             "right"
@@ -851,7 +851,7 @@
           "y": 11
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:9",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1009",
           "path": [
             "right",
             "right",
@@ -863,7 +863,7 @@
           "y": 15
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:10",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1010",
           "path": [
             "up",
             "up",
@@ -877,7 +877,7 @@
           "y": 17
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:11",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1011",
           "path": [
             "up",
             "up",
@@ -893,7 +893,7 @@
           "y": 19
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:12",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1012",
           "path": [
             "right",
             "right"
@@ -903,7 +903,7 @@
           "y": 16
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:13",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1013",
           "path": [
             "down",
             "down",
@@ -915,7 +915,7 @@
           "y": 18
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:14",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1014",
           "path": [
             "up",
             "up"
@@ -925,7 +925,7 @@
           "y": 13
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:15",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1015",
           "path": [
             "down",
             "down",
@@ -937,7 +937,7 @@
           "y": 12
         },
         {
-          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:16",
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1016",
           "path": [
             "up"
           ],

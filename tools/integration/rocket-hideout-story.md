@@ -23,7 +23,7 @@ It adds Giovanni's confirmed-victory flag and pickup gates.
   visible only after `EVENT_ROCKET_DROPPED_LIFT_KEY` and until collected.
 - `pokered:GAME_CORNER:background_events:1`: actual poster, (9,4).
 - `pokered:ROCKET_HIDEOUT_ELEVATOR:background_events:1`: panel, (1,1).
-- B2F `hidden_events:1..43`, B3F `hidden_events:1..16`: reserved synthetic
+- B2F `hidden_events:1001..1043`, B3F `hidden_events:1001..1016`: reserved synthetic
   trigger identities in the exact source movement-table order. These are not
   fabricated hidden items. Coordinates and decoded paths are in `scenes.json`.
 

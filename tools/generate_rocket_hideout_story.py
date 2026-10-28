@@ -53,7 +53,7 @@ def build(reference):
             for direction, length in reversed(pairs):
                 path.extend([direction.lower()] * int(length))
             assert 0 < len(path) <= 64
-            decoded.append(dict(id=f'pokered:ROCKET_HIDEOUT_B{floor}F:hidden_events:{index}',
+            decoded.append(dict(id=f'pokered:ROCKET_HIDEOUT_B{floor}F:hidden_events:{1000 + index}',
                                 x=int(x), y=int(y), path=path, source_label=label))
         routes[f'pokered:ROCKET_HIDEOUT_B{floor}F'] = decoded
     # These are source 1-based warp numbers, NOT object list indices.
