@@ -217,7 +217,7 @@ class MidgameJourney(vj.VermilionJourney):
             self.heal_here('CeruleanPokecenter' if move == 'flash' else 'FuchsiaPokecenter')
         self.navigate((13, 4))
         self.face('up')
-        self.send('wait 1', 'press a')
+        self.send('wait 1', 'press a', 'wait 2')
         self.require(root='pc', **{'pc.phase': 'top'})
         self.select('pc.menu.selected', 1)
         self.send('press a')
@@ -506,7 +506,7 @@ class MidgameJourney(vj.VermilionJourney):
                       and not any(move in HMS for move in members[i - 1]['moves'])), None)
         if index is None:
             raise ProtocolError('no non-starter without learned HMs can be stored for Lapras')
-        self.send('wait 1', 'press a')
+        self.send('wait 1', 'press a', 'wait 2')
         self.require(root='pc', **{'pc.phase': 'top'})
         self.select('pc.menu.selected', 1)
         self.send('press a')
