@@ -289,3 +289,8 @@ Contracts.register("saffron-guards", SaffronGuardContracts.run)
 
 import "dev/fieldTravelContracts"
 Contracts.register("field-travel", FieldTravelContracts.run)
+
+import "dev/sourceEncounterContracts"
+Contracts.register("source-encounters", SourceEncounterContracts.run)
+import "dev/fieldGearContracts"
+Contracts.register("field-gear", FieldGearContracts.run)
