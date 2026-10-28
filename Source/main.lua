@@ -1,5 +1,7 @@
 import "CoreLibs/object"
 import "CoreLibs/graphics"
+import "game/bootstrap"
+GameBootstrap.showLoading()
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
 import "CoreLibs/frameTimer"
@@ -191,77 +193,85 @@ SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
     end,
 })
 
-game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
+local function initialize()
+    collectgarbage("collect")
+    GameBootstrap.checkpoint()
+    game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 
-local machine <const> = game.machine
-machine:register("overworld", OverworldState(game))
-machine:register("dialog", DialogState(game))
-machine:register("battle", BattleState(game))
-machine:register("debug", DebugState(game))
-machine:register("learning", LearningState(game))
-machine:register("evolution", EvolutionState(game))
-machine:register("title", TitleState(game))
-machine:register("pause", PauseState(game))
-machine:register("options", OptionsState(game))
-machine:register("party", PartyState(game))
-machine:register("fieldMove", FieldMoveState(game))
-machine:register("bag", BagState(game))
-machine:register("shop", ShopState(game))
-machine:register("event", NPCTradeState(game))
-machine:register("tutorial-escort", TutorialEscortState(game))
-machine:register("pokedex", PokedexState(game))
-machine:register("pc", PCState(game))
-machine:register("itemPC",ItemPCState(game))
-machine:register("townMap",TownMapState(game))
-machine:register("homeRest",HomeRestState(game))
-KantoWorld.install(game)
-PewterWorld.install(game)
-game.saves = GameSaves(game)
+    GameBootstrap.checkpoint()
 
--- Debug menu rides on top of the overworld via the system menu
-local sysMenu = playdate.getSystemMenu()
-sysMenu:addMenuItem("Debug", function()
-    if machine:is("overworld") then
-        machine:push("debug")
+    local machine <const> = game.machine
+    machine:register("overworld", OverworldState(game))
+    machine:register("dialog", DialogState(game))
+    machine:register("battle", BattleState(game))
+    machine:register("debug", DebugState(game))
+    machine:register("learning", LearningState(game))
+    machine:register("evolution", EvolutionState(game))
+    machine:register("title", TitleState(game))
+    machine:register("pause", PauseState(game))
+    machine:register("options", OptionsState(game))
+    machine:register("party", PartyState(game))
+    machine:register("fieldMove", FieldMoveState(game))
+    machine:register("bag", BagState(game))
+    machine:register("shop", ShopState(game))
+    machine:register("event", NPCTradeState(game))
+    machine:register("tutorial-escort", TutorialEscortState(game))
+    machine:register("pokedex", PokedexState(game))
+    machine:register("pc", PCState(game))
+    machine:register("itemPC",ItemPCState(game))
+    machine:register("townMap",TownMapState(game))
+    machine:register("homeRest",HomeRestState(game))
+    KantoWorld.install(game)
+    PewterWorld.install(game)
+    game.saves = GameSaves(game)
+
+    -- Debug menu rides on top of the overworld via the system menu
+    local sysMenu = playdate.getSystemMenu()
+    sysMenu:addMenuItem("Debug", function()
+        if machine:is("overworld") then
+            machine:push("debug")
+        end
+    end)
+
+    -- ============================================================
+    -- GAME LOOP
+    -- ============================================================
+    -- Show the title before New Game or Continue. New Game starts Oak's opening.
+    game.saves:start()
+
+    ---@diagnostic disable-next-line: duplicate-set-field
+    local function updateGame()
+        if harness then harness.beforeFrame(game) end
+
+        machine:update()
+        machine:handleInput()
+        machine:get("overworld"):flushPendingPresentation()
+        machine:draw()
+
+        playdate.timer.updateTimers()
+        collectgarbage("step", 1)
+
+        local top = machine:getCurrent()
+        if top ~= "battle" then
+            if DEBUG_FLAGS.showGrid then DebugMenu.drawOverlays() end
+            if DEBUG_FLAGS.showFPS then
+                game.camera:reset()
+                playdate.drawFPS(4, 4)
+                game.camera:apply()
+            end
+        end
     end
-end)
 
--- ============================================================
--- GAME LOOP
--- ============================================================
--- Show the title before New Game or Continue. New Game starts Oak's opening.
-game.saves:start()
-
----@diagnostic disable-next-line: duplicate-set-field
-local function updateGame()
-    if harness then harness.beforeFrame(game) end
-
-    machine:update()
-    machine:handleInput()
-    machine:get("overworld"):flushPendingPresentation()
-    machine:draw()
-
-    playdate.timer.updateTimers()
-    collectgarbage("step", 1)
-
-    local top = machine:getCurrent()
-    if top ~= "battle" then
-        if DEBUG_FLAGS.showGrid then DebugMenu.drawOverlays() end
-        if DEBUG_FLAGS.showFPS then
-            game.camera:reset()
-            playdate.drawFPS(4, 4)
-            game.camera:apply()
+    -- Harness failures are evidence rather than an unacknowledged mailbox hang.
+    function playdate.update()
+        if harness and harness.isQuiescent then return end
+        if harness and playdate.isSimulator then
+            local ok, message = pcall(updateGame)
+            harness.afterFrame(game, not ok and tostring(message) or nil)
+        else
+            updateGame()
         end
     end
 end
 
--- Harness failures are evidence rather than an unacknowledged mailbox hang.
-function playdate.update()
-    if harness and harness.isQuiescent then return end
-    if harness and playdate.isSimulator then
-        local ok, message = pcall(updateGame)
-        harness.afterFrame(game, not ok and tostring(message) or nil)
-    else
-        updateGame()
-    end
-end
+GameBootstrap.start(initialize)
