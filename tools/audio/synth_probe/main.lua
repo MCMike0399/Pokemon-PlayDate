@@ -32,6 +32,7 @@ local function publish(status,message)
     KantoAudio.stop()
     local result={identity=ProbeIdentity,status=status,message=message,
         publication="producer-stopped-v1",quiescent=true,observations=observations,
+        system_volume=playdate.getSystemVolume(),
         acceptance="native API exercise only; listening acceptance pending"}
     local f=assert(playdate.file.open("RuntimeSnapshot.json",playdate.file.kFileWrite))
     f:write(json.encode(result));f:close()
