@@ -320,6 +320,11 @@ class CeruleanJourney(BrockJourney):
             raise ProtocolError("fresh validation must not masquerade as a boundary receipt")
         return None
 
+    def capture_presentation(self, label, kind):
+        # Campaign screenshots need not contain a wandering NPC. The root
+        # reviews these native frames; actor pixels have separate checks.
+        super().capture_presentation(label, 'world-basic' if kind == 'world' else kind)
+
     def save(self):
         super().save()
         self.boundary_payload = self.codec_guard("saved")
@@ -614,9 +619,19 @@ class CeruleanJourney(BrockJourney):
         self.checkpoint("cerulean-bill-restored")
 
     def natural(self):
-        super().natural()  # Retains full capture/party/medicine/evolution evidence.
+        self.dependencies()
+        self.require(root="title", **{"title.phase": "menu"})
+        options = sequence(lookup(self.state, "title.menu.options"), "title menu")
+        self.select("title.selected", options.index("CONTINUE") + 1)
+        self.send("press a")
+        self.drain()
+        if not self.defeated("pokered:PEWTER_GYM:objects:1") or not self.flag("BADGE_BOULDER"):
+            raise ProtocolError("starting save has not completed Brock")
+        if not any(mon["species"] in FAMILIES[self.starter] for mon in self.party()):
+            raise ProtocolError("starting save has the wrong starter")
         self.stage = "cerulean"
-        self.summary["acceptance"] = "Brock saved; Cerulean pending"
+        self.summary["acceptance"] = "Continued accepted Brock save; Cerulean pending"
+        self.summary["preparation_policy"] = {"max_new_training_battles": 0, "use_centers_and_medicine": True}
         self.stock_up("PewterMart")
         self.travel(self.zone("Route3"))
         trainers = sorted((d for d in self.source_trainers.values() if d["map_id"] == self.zone("Route3")),

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "saves": [
+    {
+      "starter": "bulbasaur",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.2/bulbasaur",
+      "from_milestone": "5.2",
+      "accepted_commit": "27443afcc63c9a103a6663876a36e9c67bd80673",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/07-brock--brock-restart-bulbasaur/processes/0002/runtime-data",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "9f80e0c2a8bd09337c66e6abbac7e9e18d2ebf92d2a1aee2cadf4704758fe7c1",
+          "bytes": 2402
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "39480330bf4d746cc90162d2cd2dd6f98ea5c4ac68b080faeb2e99eab4e29ef1",
+          "bytes": 4390
+        }
+      ]
+    },
+    {
+      "starter": "squirtle",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.2/squirtle",
+      "from_milestone": "5.2",
+      "accepted_commit": "27443afcc63c9a103a6663876a36e9c67bd80673",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/08-brock--brock-restart/processes/0002/runtime-data",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "b7859961dcd691027f58a5d517d767f584adc87849cec44d65ff04d62072a675",
+          "bytes": 2402
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "68d70364ce70aaaeabdd3c9ffa18dca49e2c84a78590fda3e1ae904b70f75404",
+          "bytes": 4357
+        }
+      ]
+    },
+    {
+      "starter": "charmander",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.2/charmander",
+      "from_milestone": "5.2",
+      "accepted_commit": "27443afcc63c9a103a6663876a36e9c67bd80673",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-main-journeys-20261026-01/09-brock--brock-restart-charmander/processes/0002/runtime-data",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "2caac8e70b9023d0e5c4a058c0a5ee55538353a99af7fe73afbc5bccda94c6ea",
+          "bytes": 2374
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "e7d48f00c13900ef458789577d836b82895b0e6c2d5d145fc57005d8fdfa4fbb",
+          "bytes": 4355
+        }
+      ]
+    }
+  ]
+}

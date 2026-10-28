@@ -10,7 +10,7 @@
         "max_steps": 5000,
         "max_encounters": 64,
         "training_level": 16,
-        "max_training_battles": 256,
+        "max_training_battles": 1,
         "max_capture_attempts": 24,
         "max_blackouts": 1,
         "max_transitions": 64,
@@ -28,5 +28,9 @@
         "max_encounters": 64
       }
     }
-  ]
+  ],
+  "initial_save": {
+    "milestone": "5.2",
+    "starter": "squirtle"
+  }
 }
