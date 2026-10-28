@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "1794e48d00f0148c9c696c715cadb584e1b87707",
-    "source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529",
+    "commit": "581e29e64008cc5e8cdd408350dac364926f12ee",
+    "source_sha256": "0d0d1e25b94cd6be5ddd229ffec250b9d5693666895d59d39ec4c447318956da",
     "policy_date": "2026-10-28",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "WholeoriginalBluecampaign/postgame, original151, GenVmechanics. Snapshot not timeless live truth.",
-    "acceptance_context": "main-cerulean-5.3-accepted"
+    "scope": "Current private 5.4 Source: 65 installed maps. Whole original Blue campaign/postgame, original151, GenV mechanics. Source inventory only; no Vermilion milestone or native acceptance.",
+    "acceptance_context": "private-vermilion-5.4-not-accepted-main"
   },
   "accepted_milestone_rows": [],
   "schedule": {
-    "policy": "Main milestone 5.1 is accepted on Source 44bd25. Finish root-owned foundation integration journeys and acceptance on the newer candidate before later regions. Keep every move and full-mechanics requirement; no artificial level cap.",
+    "policy": "5.3 is accepted on main. Finish private Vermilion 5.4 before later regions. Retain all original coverage rows and full-mechanics requirements; source indexing does not promote acceptance.",
     "gates": [
       "system:current-reward-correctness",
       "system:safe-newgame-recovery",
@@ -131,43 +131,50 @@
       "path": "Source/battle/battle.lua",
       "sha256": "2970be8fdf9d4f349d1332b4d27cbd385bfb5eb7d6184eba4b6350783682cc3e",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-effects": {
       "path": "Source/battle/effects.lua",
       "sha256": "574845de5045d1d76846bea1fa962ebe19407751f9255f0a140766480578aeab",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-conditions": {
       "path": "Source/battle/conditions.lua",
       "sha256": "e855ec5a01221bf017edee4eb05df28b56badb62979fd936f351e01566e9b085",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-dsl": {
       "path": "Source/battle/dsl.lua",
       "sha256": "06dcea645ce3c9c7afcabe98a0f790a13564a9b47e6b70964224af1cd28ecd93",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-moves": {
       "path": "Source/battle/moves.lua",
       "sha256": "c9ff133241f3fd447d94edf8a265b5eabb57c5dfe008c76a657d79fdb1ebb365",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-sessionCodec": {
       "path": "Source/domain/sessionCodec.lua",
       "sha256": "08ef57bd47fd06e8c1738e6e77918dba895fe5702ff9fad1c3621c5f8833a111",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "production-maps": {
       "path": "Source/data/maps.lua",
       "sha256": "fcfd2ead05a05e1d334a3d16862156b25c1334c408d7c90cfd7a8ec89781db16",
       "kind": "production",
-      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "held-native-index": {
       "path": "docs/validation/coverage-evidence/held-native-index.json",
@@ -215,12 +222,25 @@
       "path": "Source/data/sourceMaps.json",
       "sha256": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c",
       "kind": "source",
-      "scope": "Frozen b1f0bd8 shared manifest declares thirty installed maps, eighteen added since accepted main. Declaration only, not event/reachability or regional acceptance."
+      "scope": "Historical declaration pin, preserved at the recorded source commit. Source membership only; not current behavior, reachability or mechanics acceptance.",
+      "historical_source_commit": "1794e48d00f0148c9c696c715cadb584e1b87707"
     },
     "cerulean-acceptance": {
       "kind": "accepted-summary",
       "path": "docs/validation/cerulean-acceptance-20261028.json",
       "sha256": "f21e91abf2c6424228a95b1886f8cd5a521a60aa14b336767cc72c396f1f70dc"
+    },
+    "runtime-hm-definitions": {
+      "path": "Source/data/fieldMoveBattleData.lua",
+      "sha256": "50c7030085525124a2f524109172b37434357a2bf60ba9905293bf8d4961b28d",
+      "kind": "source",
+      "scope": "Current private 5.4 declarations only. No full-mechanics or native acceptance."
+    },
+    "pickup-item-definitions": {
+      "path": "Source/data/pickupData.lua",
+      "sha256": "eef11d66075faf643a7df945b6905054add55f78e61140e695a413ada79225e7",
+      "kind": "source",
+      "scope": "Current private 5.4 declarations only. No full-mechanics or native acceptance."
     }
   },
   "source_inventory_summary": {
@@ -71023,6 +71043,485 @@
         "notes": "Not a battlemechanic."
       },
       "notes": ""
+    },
+    {
+      "id": "move:cut",
+      "kind": "move",
+      "title": "CUT",
+      "owner": "rules",
+      "dependencies": [
+        "system:battle-owner"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "cut",
+        "definition_file": "Source/data/fieldMoveBattleData.lua"
+      },
+      "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      }
+    },
+    {
+      "id": "move:flash",
+      "kind": "move",
+      "title": "FLASH",
+      "owner": "rules",
+      "dependencies": [
+        "system:battle-owner"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "flash",
+        "definition_file": "Source/data/fieldMoveBattleData.lua"
+      },
+      "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      }
+    },
+    {
+      "id": "move:fly",
+      "kind": "move",
+      "title": "FLY",
+      "owner": "rules",
+      "dependencies": [
+        "system:battle-owner"
+      ],
+      "due_milestone": {
+        "campaign_path": "postgame-release",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "fly",
+        "definition_file": "Source/data/fieldMoveBattleData.lua"
+      },
+      "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      }
+    },
+    {
+      "id": "move:surf",
+      "kind": "move",
+      "title": "SURF",
+      "owner": "rules",
+      "dependencies": [
+        "system:battle-owner"
+      ],
+      "due_milestone": {
+        "campaign_path": "postgame-release",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "surf",
+        "definition_file": "Source/data/fieldMoveBattleData.lua"
+      },
+      "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      }
+    },
+    {
+      "id": "move:strength",
+      "kind": "move",
+      "title": "STRENGTH",
+      "owner": "rules",
+      "dependencies": [
+        "system:battle-owner"
+      ],
+      "due_milestone": {
+        "campaign_path": "postgame-release",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "strength",
+        "definition_file": "Source/data/fieldMoveBattleData.lua"
+      },
+      "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "runtime-hm-definitions"
+        ],
+        "notes": "Runtime HM declaration beyond the 425 generated moves. Battle support is not inferred; Fly charge/semi-invulnerability and later field availability remain unaccepted."
+      }
+    },
+    {
+      "id": "item:sunStone",
+      "kind": "item",
+      "title": "sunStone",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "sunStone",
+        "definition_file": "Source/data/pickupData.lua"
+      },
+      "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      }
+    },
+    {
+      "id": "item:heartScale",
+      "kind": "item",
+      "title": "heartScale",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "heartScale",
+        "definition_file": "Source/data/pickupData.lua"
+      },
+      "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      }
+    },
+    {
+      "id": "item:kingsRock",
+      "kind": "item",
+      "title": "kingsRock",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "kingsRock",
+        "definition_file": "Source/data/pickupData.lua"
+      },
+      "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      }
+    },
+    {
+      "id": "item:ironBall",
+      "kind": "item",
+      "title": "ironBall",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "ironBall",
+        "definition_file": "Source/data/pickupData.lua"
+      },
+      "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      }
+    },
+    {
+      "id": "item:prismScale",
+      "kind": "item",
+      "title": "prismScale",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "prismScale",
+        "definition_file": "Source/data/pickupData.lua"
+      },
+      "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      }
+    },
+    {
+      "id": "item:leftovers",
+      "kind": "item",
+      "title": "leftovers",
+      "owner": "rules",
+      "dependencies": [
+        "system:party-domain",
+        "system:original-progression"
+      ],
+      "due_milestone": {
+        "campaign_path": "vermilion-cut",
+        "regional_fidelity": "postgame-release",
+        "full_mechanics": "postgame-release"
+      },
+      "source": {
+        "canonical_key": "leftovers",
+        "definition_file": "Source/data/pickupData.lua"
+      },
+      "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row.",
+      "campaign_path": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "regional_fidelity": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      },
+      "full_mechanics": {
+        "implementation": "partial",
+        "verification": "source_only",
+        "evidence": [
+          "pickup-item-definitions"
+        ],
+        "notes": "Approved B2W2 Pickup acquisition definition. Declared item effect is unsupported; held/evolution/use interactions are not accepted by this row."
+      }
     }
   ],
   "staged_source_snapshots": [
@@ -71038,6 +71537,6 @@
     "Source indexed counts \u2260 naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
     "104path-present/34promotion reports remain historical; exact34rowerratum overrides broad promotion.",
     "No all425/111 fullmechanics, campaigncompletion or physicaldevice claim.",
-    "Historical 950/1059/1091/1250/1274 evidence remains source-specific. Accepted main is 27443af, Source 2673b352, through Brock (5.2). Private b1f0bd8 has 1659 scoped SDK successes; milestone 5.3 and starter/restart journeys remain unaccepted."
+    "Accepted 5.3 summary and chain saves remain authoritative for that milestone. This private Vermilion 5.4 snapshot does not refresh or promote any historical SDK/native evidence. Full mechanics, later campaign, release and device remain unfinished."
   ]
 }
