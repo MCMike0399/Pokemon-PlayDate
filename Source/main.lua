@@ -151,6 +151,9 @@ local function campaignActorMetadata(definition, event, runtimeGame)
 end
 
 CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
+CeruleanContent.registerPackage("midgameEast", "data/midgameEast/")
+CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/")
+CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/")
 CeruleanContent.install(campaignActorMetadata)
 CeruleanContent.installSigns()
 KantoScenes.install()

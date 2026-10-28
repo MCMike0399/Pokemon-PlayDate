@@ -80,6 +80,7 @@ local function gift(d, state)
         else
             plan.steps[#plan.steps + 1] = dialog(d.success)
             plan.expected, plan.changes = reward(d.item, d.flag, state, nil, true)
+            plan.ram = { wStringBuffer = assert(ItemData.definitions[d.item]).name }
         end
     end
     return plan
