@@ -1,9 +1,9 @@
 # Full-game execution ledger
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
-Progress: **65 / 222 source maps playable on main. Current milestone: 5.5.**
+Progress: **65 / 222 source maps playable on main. Current checkpoint: 5.5a.**
 5.4 elapsed: **8.70 h**; pace: **96.55 maps/day**.
-5.5 elapsed so far: **0.59 h**; accepted new maps/day: **0**.
+5.5a elapsed so far: **1.76 h**; accepted new maps/day: **0**.
 [Milestone times](milestone-times.json) include waits and provider limits.
 
 ## 1. Current game on main
@@ -54,28 +54,45 @@ Continue for every starter. Running, text speed, Options, battle presentation,
 crank controls, Town Map registration, Bag sorting and reusable TMs are on main.
 Audio remains separate and unaccepted: the first native recording was silent.
 
-## 4. Milestone 5.5 in progress
+## 4. Checkpoint 5.5a in progress
 
-Main remains **65/222**. Private `wip/midgame-integration` contains 171 source maps,
-including 106 new maps. This is preparation, not a playable-map acceptance claim.
-The native catalog exported 8726 images at
-`evidence/m55-native-catalog-20261028-02`; all 2494 protected images match.
-Five representative new native viewports were inspected. Motion and journeys
-remain pending. Source-backed mansion stairs now retain their forced arrival step
-without changing ordinary collision. The shared map host checks pass (14 tests).
+The next acceptance is Rock Tunnel, Lavender and Celadon, including Erika,
+Game Corner, Hideout and the Silph Scope. It will have three earned saves from
+5.4 and merge to main separately. Tower/Fuji/Flute/Snorlax/Cycling Road/Fuchsia/
+Safari/Koga/Surf/Strength form 5.5b; Saffron/Silph/Sabrina/Dojo/Fly form 5.5c.
+Each starts from the prior checkpoint's earned saves. Later prepared work must
+stay separate from the 5.5a release. Main remains **65/222**; the East package
+contains 43 new maps, so the planned 5.5a frontier is 108/222, not yet accepted.
 
-Three Sol/medium workers continue in parallel: story scenes; field travel and
-services; and chained journeys from the earned Flash saves. Charmander covers
-optional content; Bulbasaur and Squirtle cover the critical path. The Warden's
-boulder movement is integrated privately and awaits native execution. Trades and
-Saffron guards have returned only on this private 5.5 branch; their earlier native
-run passed 2182 checks. Their restoration does not change accepted 5.4.
+Private `wip/midgame-integration` currently has all 171 prepared source maps.
+Its latest completed SDK run passed **2331 checks, zero failures** at
+`evidence/m55-scenes-sdk-20261028-02`. Later source-encounter and field-gear
+additions compile but still need native checks. The prior native catalog exported
+8726 images with all 2494 protected images exact. New field art remains unreviewed.
 
-Keep journeys in the background. Use fixed waypoints for troublesome geometry,
-Centers and items instead of grinding, and one contract per new game behavior.
-Do not add driver contracts or replay New Game before the final release pass.
+The first east journey sets stopped on two missing harness registrations, then
+an unnecessary early trip to Pewter to make room for later Lapras. Those failed
+runs remain failures. The early Lapras detour is removed; no planner feature or
+training fight was added. Preserve partial earned slots from actual later runs.
+Charmander covers optional content; Bulbasaur and Squirtle cover the critical path.
+
+Three Sol/medium workers are active: Celadon services for 5.5a, Safari runtime
+for 5.5b, and source water travel for 5.5b. Root owns the Simulator and acceptance.
+All reports and briefs must use normal words and spacing. Technical worker
+questions go to root; three old invisible questions were answered and cleared.
+
+At every acceptance, record production Simulator post-GC Lua heap and worst
+map-load/battle-start frame time. Device availability has been asked once.
+After 5.5a, accept the smallest audible town/route/battle/cry path on main.
+The native audio probe reports system volume **0**; listening waits for its slider,
+while game work continues. At each checkpoint, ask once whether to push.
 
 ## 5. Housekeeping and decisions
+
+Eleven stale queued notifications (old runs 31–45) were cancelled. Only current
+work notifications should resume this thread. Acceptance cleanup must retain
+referenced runs, earned saves and hashes, plus the newest checkpoint failure;
+remove compile-only and superseded bundles and report freed GB.
 
 At least 94 clean superseded worktrees were removed without force; branches and
 dirty worktrees remain. Two evidence cleanup passes freed **16.13 GB**, retaining

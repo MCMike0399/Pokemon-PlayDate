@@ -404,6 +404,17 @@ Covers:
 
 ### 5.5 Midgame Kanto
 
+Accept this milestone as three checkpoints (user decision, 2026-10-28 evening):
+5.5a Rock Tunnel, Lavender, Celadon, Erika, Game Corner, Hideout and Silph Scope;
+5.5b Tower/Fuji/Flute/Snorlax/Cycling Road/Fuchsia/Safari/Koga/Surf/Strength;
+5.5c Saffron/Silph/Sabrina/Dojo/Fly. Each gets three chained earned saves and
+acceptance on main before the next starts. At each acceptance, measure Simulator
+post-GC Lua heap and worst map-load/battle-start frame time, prune superseded
+artifacts while preserving evidence references and saves, and ask once about
+pushing. After 5.5a, accept minimal audible music and cries on main. Keep turns
+short; do not replay stale queued command notifications.
+
+
 - Routes 9 and 10, Rock Tunnel (dark without Flash), and Lavender.
 - Celadon:
   - the Department Store;
