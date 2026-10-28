@@ -63,10 +63,11 @@ failures. No later region preparation starts before 5.4 is accepted.
 No known defect blocks the accepted Cerulean path. Full mechanics and rare
 interactions remain separate release work. Device validation has not run.
 
-Vermilion has unaccepted field-move, Day Care, trade and save-fixture work.
+Vermilion has unaccepted field-move, Day Care and save-fixture work. NPC trades
+and Saffron guards are removed from its release branch and kept separately.
 Its Route 2 collision image changes four door cells; the user approved that diagnostic update on 2026-10-28 after reviewing the
 actual four-cell difference (4096 pixels). It is updated on the private branch.
-Audio and later campaign work remain parked.
+Audio is active as a quality track; later campaign work remains parked.
 
 ## 4. Work in flight
 
@@ -74,7 +75,8 @@ Audio and later campaign work remain parked.
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
 | `wip/vermilion-integration` | 2169 native checks pass, including the observed Odor Sleuth effect; full host checks pass. The next three saved-checkpoint retries are `m54-progress-retry-<starter>-20261028-03`, with continue-on-failure. Cabin visits now cover each connected room once rather than each paired exit mat; the earlier occupied-goal failure is fixed. Center visits, real medicine purchases and the existing blackout budget replace grinding. Captures and Day Care progress are preserved in actual saves. Approved Route2 image change is recorded; 5.4 remains unaccepted. |
-| Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
+| Play quality | Three Sol/medium workers prepare map shade proposals, battle presentation/options and native synth audio. HP/EXP animation, trainer entry, title art, running and options are integrated privately; native visual/audio checks remain pending. Shade changes remain unapproved and outside the release branch. |
+| Trades and Saffron guards | Preserved on `parked/npc-trades-saffron-20261028`, removed from the 5.4 release. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
 The cleanup removed at least 93 clean superseded worktrees and 173 old evidence
