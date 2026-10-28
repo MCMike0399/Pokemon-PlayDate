@@ -68,7 +68,7 @@ Audio and later campaign work remain parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 2168 native checks pass. All three journeys load accepted Cerulean saves. The first set stopped before gameplay on an observation validator; that is fixed. A route-planner failure at the robbed-house Rocket is being corrected with an explicit house visit. Runs continue after failures. Only Route2's four door cells differ from the protected catalog: 4096 pixels, with 2493 other images exact. The user approved these four cells; the private baseline is updated and all 2494 protected images now match. |
+| `wip/vermilion-integration` | 2168 native checks and 866 host tests pass. All three journeys start from accepted Cerulean saves and continue after failures. The planner now treats the robbed-house wall hole as walkable; the current Bulbasaur run cleared its Rocket and is collecting on Route24 in `m54-chained-journeys-20261028-04`. All 2494 protected images match after the user's approved Route2 update. The 35 new map viewports and 14 actor families were inspected; motion and full journeys remain pending. Coverage keeps the original 1501 rows plus 11 source-only additions. |
 | Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
