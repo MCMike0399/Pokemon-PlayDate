@@ -482,7 +482,7 @@ class CeruleanJourney(BrockJourney):
                 self.summary["transitions"].append({"from": origin, "kind": kind,
                     "source": detail["id"] if kind == "warp" else detail[0], "to": destination})
             except NaturalBlackout:
-                if self.config["name"] != "cerulean-natural" or getattr(self, "blackout_probe", False):
+                if self.config["name"] not in {"cerulean-natural", "vermilion-natural"} or getattr(self, "blackout_probe", False):
                     raise
                 self.recover_path_blackout("travel to " + target_id)
                 # Replan every portal from the game's actual checkpoint pose.
@@ -556,7 +556,7 @@ class CeruleanJourney(BrockJourney):
                     raise ProtocolError("required actual trainer victory receipt missing: " + trainer_id)
                 return
             except NaturalBlackout:
-                if self.config["name"] != "cerulean-natural" or getattr(self, "blackout_probe", False):
+                if self.config["name"] not in {"cerulean-natural", "vermilion-natural"} or getattr(self, "blackout_probe", False):
                     raise
                 self.recover_path_blackout("fight " + trainer_id)
         raise ProtocolError("Cerulean trainer retry budget exhausted: " + trainer_id)

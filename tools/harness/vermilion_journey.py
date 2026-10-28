@@ -861,6 +861,9 @@ class VermilionJourney(cj.CeruleanJourney):
         self.heal_here('VermilionPokecenter')
         self.gift('voucher')
         self.gift('rod')
+        self.heal_here('VermilionPokecenter')
+        self.restock_ship_medicine()
+        self.save()
         self.travel(self.zone('VermilionDock'))
         self.travel(self.zone('SSAnne1F'))
         for name in ('SSAnne1FRooms', 'SSAnneB1FRooms', 'SSAnne2FRooms',
@@ -904,6 +907,16 @@ class VermilionJourney(cj.CeruleanJourney):
         self.write_receipt()
         self.summary.update(acceptance='candidate saved; actual process restart pending', forbidden_shortcuts=False)
 
+    def restock_ship_medicine(self):
+        clerk = self.zone('VermilionMart') + ':objects:1'
+        self.require_shop_stock(clerk, 'superPotion')
+        price = self.vermilion['shops'][clerk]['prices']['superPotion']
+        count = min(max(0, 3 - self.quantity('superPotion')),
+                    max(0, self.inventory()['money'] - 600) // price)
+        if count:
+            self.travel(self.zone('VermilionMart'))
+            self.buy_item(clerk, 'superPotion', count, price)
+
     def visit_all_cabins(self, name):
         model = self.models[self.zone(name)]
         # Each disconnected room component is entered at its exact source warp;
@@ -914,6 +927,7 @@ class VermilionJourney(cj.CeruleanJourney):
             if not goals:
                 raise ProtocolError('source cabin has no passable approach')
             self.travel(model.name, goals)
+            fought = False
             for actor in model.events['objects']:
                 if actor['id'] not in self.source_trainers or self.defeated(actor['id']):
                     continue
@@ -922,7 +936,12 @@ class VermilionJourney(cj.CeruleanJourney):
                 except ProtocolError:
                     continue
                 self.fight(actor['id'])
+                fought = True
             self.checkpoint('vermilion-cabin-' + name.lower() + '-' + str(event['source_index']))
+            if fought:
+                self.heal_here('VermilionPokecenter')
+                self.restock_ship_medicine()
+                self.save()
 
     def receipt_state(self):
         campaign = cj.CeruleanJourney.receipt_state(self)
