@@ -160,6 +160,29 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
             context = next(iter(candidates))
         require(context in candidates, "LAST_MAP context has no matching source ingress: " + name)
         descriptor["last_outdoor"] = context
+    # A warp cannot enter an explicitly closed destination. Project the same
+    # return barrier used by SourceMaps.warpSpec into the authoritative surface,
+    # so save validation and the live Zone agree on ordinary collision.
+    names_by_constant = {d["source_map_constant"]: name for name, d in compact["maps"].items()}
+    changed = True
+    while changed:
+        changed = False
+        for descriptor in compact["maps"].values():
+            for warp in descriptor["warps"]:
+                cell = str(warp["y"] * descriptor["width"] + warp["x"] + 1)
+                if cell in descriptor["blocked"]:
+                    continue
+                destination = warp["destination"]
+                target_name = (descriptor["last_outdoor"] if destination["kind"] == "last_outdoor_map"
+                               else names_by_constant.get(destination["map"]))
+                target = compact["maps"].get(target_name)
+                if target is None:
+                    continue
+                arrival = target["warps"][destination["warp_index"] - 1]
+                arrival_cell = str(arrival["y"] * target["width"] + arrival["x"] + 1)
+                if arrival_cell in target["blocked"]:
+                    descriptor["blocked"][cell] = warp["id"]
+                    changed = True
     return {"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)}
 
 
