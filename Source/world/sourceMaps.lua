@@ -181,6 +181,27 @@ function SourceMaps.isDoor(name, x, y)
     return false
 end
 
+-- pokered steps down from door tiles with simulated input. Its land collision
+-- check deliberately permits that step even when the destination is solid.
+-- This qualifies standing only; ordinary movement and terrain stay unchanged.
+function SourceMaps.isDoorArrival(name, x, y)
+    local d = compactData().maps[name]
+    if not d or x < 0 or x >= d.width or y <= 0 or y >= d.height then
+        return false
+    end
+    if d.blocked[tostring(y * d.width + x + 1)] then
+        return false
+    end
+    for _, warp in ipairs(d.warps) do
+        if warp.x == x and warp.y + 1 == y
+            and not d.blocked[tostring(warp.y * d.width + x + 1)]
+            and SourceMaps.isDoor(name, warp.x, warp.y) then
+            return true
+        end
+    end
+    return false
+end
+
 local function blocksEvent(entry, id)
     for _, blocked in ipairs(entry.blocked_events or {}) do
         if blocked == id then return true end
@@ -213,7 +234,10 @@ function SourceMaps.warpSpec(name, event)
     end
     local advance = SourceMaps.isDoor(target, arrival.x, arrival.y) and 1 or 0
     local x, y = arrival.x, arrival.y + advance
-    assert(y < d.height and SourceMaps.cell(target, x, y).collision == 0, "original warp arrival is blocked")
+    assert(y < d.height and not d.blocked[tostring(y * d.width + x + 1)]
+        and (SourceMaps.cell(target, x, y).collision == 0
+            or advance == 1 and SourceMaps.isDoorArrival(target, x, y)),
+        "original warp arrival is blocked")
     if entry.profile == "viridian" then
         return { status = "bound", to = d.key, toX = x, toY = y,
             facing = advance == 1 and "down" or "up", source_target_map = d.source_map_constant,

@@ -620,6 +620,26 @@ function SourceMapContracts.run()
         end)
     end)
 
+    test("source door arrivals retain the forced step over solid mansion stairs", function()
+        local cases = {
+            {"CeladonMansion1F", 5},
+            {"CeladonMansion2F", 3},
+            {"CeladonMansion2F", 4},
+            {"CeladonMansion3F", 4},
+            {"CeladonMansionRoof", 2},
+        }
+        for _, case in ipairs(cases) do
+            local event = SourceMaps.descriptor(case[1]).warps[case[2]]
+            local spec = SourceMaps.warpSpec(case[1], event)
+            equal(spec.status, "bound")
+            equal(spec.arrival_advance, 1)
+            equal(spec.facing, "down")
+            equal(SourceMaps.isDoorArrival(spec.target_name, spec.toX, spec.toY), true)
+            equal(SourceMaps.cell(spec.target_name, spec.toX, spec.toY).collision, 1)
+            equal(SourceMaps.isDoorArrival(spec.target_name, spec.toX, spec.toY + 1), false)
+        end
+    end)
+
     test("one ledger owns resident Viridian changes and evicted Pewter changes across reset and reload", function()
         scope(function(provider, registry)
             local route1 = provider:ensure("kanto_route1")
