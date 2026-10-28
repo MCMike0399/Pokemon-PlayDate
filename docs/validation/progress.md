@@ -2,6 +2,11 @@
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
 Progress: **30 / 222 source maps playable on main. Current milestone: 5.4.**
+Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **4.43 h**.
+[Wall-clock times per milestone](milestone-times.json) include waits and provider limits.
+The reduced 5.4 set uses Bulbasaur for optional content and the other starters
+for the critical path. Quality workers run alongside journeys; root does not
+spend turns polling them. Acceptance includes playable packages and a real-speed clip.
 
 ## 1. Accepted revision and what the player can do
 
@@ -16,21 +21,21 @@ nothing has been pushed since the user's earlier explicit request.
 
 ## 2. Milestones and checks
 
-**5.0 — DiveMac setup: done.** Environment and smoke passed, 529 host tests,
+**5.0 — DiveMac setup: done.** Environment and smoke passed, 529 host tests, Wall clock: 0.13 h.
 1091 SDK checks and 2494 protected images.
 [Setup summary](divemac-baseline-20261026.json).
 
-**5.1 — Pallet to Brock: done.** All three natural starter journeys, rewards,
+**5.1 — Pallet to Brock: done.** All three natural starter journeys, rewards, Wall clock: 5.62 h.
 actual process exit/Continue, full-bag retry, blackout and evolution cases passed.
 Charmander's old level-16 preparation was an evolution witness, not pacing proof.
 [Brock summary](brock-acceptance-20261026.json).
 
-**5.2 — Shared foundations: done.** Map loading, events, NPC movement, text,
+**5.2 — Shared foundations: done.** Map loading, events, NPC movement, text, Wall clock: 1.79 h.
 production builds, loud move failure and phazing passed. Main had 1274 SDK and
 605 host checks; all 2494 protected images and nine journey cases passed.
 [Foundation summary](foundation-acceptance-20261026.json).
 
-**5.3 — Pewter to Cerulean: done.**
+**5.3 — Pewter to Cerulean: done.** Wall clock: 37.35 h.
 
 - All three paths began with the accepted Brock saves. Bulbasaur's final path
   passed 28 real battles with no blackouts or preparation grinding. Centers,

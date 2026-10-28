@@ -1,0 +1,45 @@
+{
+  "basis": "Elapsed calendar time between acceptance commits, including waits/provider limits; not estimated hands-on hours. Setup starts at the goal/doc commit.",
+  "milestones": [
+    {
+      "milestone": "5.0",
+      "start_commit": "1a75a04",
+      "acceptance_commit": "e61adc7",
+      "wall_clock_hours": 0.13,
+      "new_maps_on_main": 0,
+      "maps_per_day": 0.0
+    },
+    {
+      "milestone": "5.1",
+      "start_commit": "e61adc7",
+      "acceptance_commit": "9104499",
+      "wall_clock_hours": 5.62,
+      "new_maps_on_main": 0,
+      "maps_per_day": 0.0
+    },
+    {
+      "milestone": "5.2",
+      "start_commit": "9104499",
+      "acceptance_commit": "a763765",
+      "wall_clock_hours": 1.79,
+      "new_maps_on_main": 0,
+      "maps_per_day": 0.0
+    },
+    {
+      "milestone": "5.3",
+      "start_commit": "a763765",
+      "acceptance_commit": "0a8f08d",
+      "wall_clock_hours": 37.35,
+      "new_maps_on_main": 18,
+      "maps_per_day": 11.57
+    },
+    {
+      "milestone": "5.4",
+      "start_commit": "0a8f08d",
+      "status": "in progress",
+      "wall_clock_hours": 4.43,
+      "new_maps_on_main": 0,
+      "maps_per_day": 0
+    }
+  ]
+}

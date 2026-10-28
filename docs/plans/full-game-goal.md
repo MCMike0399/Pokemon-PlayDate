@@ -11,6 +11,37 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Play quality direction — 2026-10-28 (latest user steer)
+
+The target is a native Blue that feels good on Playdate, with Gen V rules and
+modern quality of life. Quality tracks run alongside 5.4/5.5, not after the map work.
+Keep 2–3 Sol/medium workers active on tileset legibility, battle presentation/QoL
+and native synth audio. The root reviews and integrates while journeys run in the
+background, reporting passes, failures and new defects rather than polling turns.
+
+One rotating starter per milestone covers optional content. The other two cover
+only story gates, rival, gym, HM/badge rewards and Save/Continue from earned saves.
+Use fixed waypoints for troublesome maps. Before 5.4 merges, park NPC trades and
+Saffron guards; Pickup remains. Add no driver/journey Simulator contracts.
+Frames name their milestone and map. Keep new Lua one statement per line.
+
+Imported terrain needs reviewed per-tileset shade mappings above immutable source
+data. The user approves OVERWORLD, CAVERN and SHIP separately before merge.
+Pallet/interiors, RED and NPC sprites stay exact. Review source/current/proposed
+at native size and 2x, plus native motion. Battle work starts with HP/EXP animation,
+learning HUD layout and Gen 1 evolution text, then intros/send-out/recall/faint,
+reusable type effects, animations-off and trainer-class AI.
+
+Approved QoL now: hold B to run, fast default text with hold-A acceleration,
+Options (text speed, battle animations/style), and a real generated title screen.
+Record deliberate changes in the fidelity ledger. Propose crank controls,
+registered key items, bag sorting and reusable TMs; implement only after approval.
+Audio is unparked: original scores to native synth, first town/route/battles/heal/
+menu/hit/faint/low-HP. At every milestone acceptance starting 5.4, provide outside
+Git production .pdx bundles, earned starter saves, one-line loading instructions,
+and a 60–90 s real-speed clip covering walking, a full trainer battle, the gym and
+a cutscene. Record paths, elapsed milestone hours and maps/day in the ledger.
+
 ## Course correction — 2026-10-28
 
 Finish and accept one milestone before resuming the next. Freeze Vermilion,
