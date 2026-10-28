@@ -798,8 +798,12 @@ class VermilionJourney(cj.CeruleanJourney):
         self.apply_world_observation(observed)
         self.cut_cells = [{'x': c['x'] + self.model().padding, 'y': c['y'], 'key': c['after']} for c in site['cells']]
         by_position = {(c['x'], c['y']): c['key'] for c in observed['cells']}
-        if any(by_position.get((c['x'], c['y'])) != c['key'] for c in self.cut_cells):
-            raise ProtocolError('actual Cut source block differs from declared replacement')
+        if zone_name == 'VermilionCity':
+            if any(by_position.get((c['x'], c['y'])) != c['key'] for c in self.cut_cells):
+                raise ProtocolError('actual Cut source block differs from declared replacement')
+        elif any(self.model().collision[c['y']][c['x']]
+                 != self.field_definitions['tiles'][c['key']]['collision'] for c in self.cut_cells):
+            raise ProtocolError('actual Cut collision differs from the source replacement')
         self.checkpoint('vermilion-field-cut-tree-' + str(self.cut_witnesses))
 
     def apply_world_observation(self, value):
