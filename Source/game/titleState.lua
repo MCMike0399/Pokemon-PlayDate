@@ -1,3 +1,4 @@
+import "game/optionsState"
 local gfx <const> = playdate.graphics
 Class("TitleState"):extends(State)
 
@@ -5,6 +6,9 @@ function TitleState:init(game)
     TitleState.super.init(self, "title")
     self.game = game
     self.menu = BattleMenu()
+    self.logo = assert(gfx.image.new("images/title/logo"))
+    self.versionArt = assert(gfx.image.new("images/title/blue"))
+    self.pokemonArt = assert(gfx.image.new(PokemonArt.path("blastoise", "front")))
 end
 
 function TitleState:enter()
@@ -30,12 +34,15 @@ function TitleState:refresh()
     if self.metadata.backupPublished then add("RESTORE BACKUP", "backup-published") end
     if self.metadata.backupCandidate then add("RESTORE CANDIDATE", "backup-candidate") end
     add("NEW GAME", "new")
+    add("OPTIONS", "options")
     self.actions = actions
     self.menu:show(options, function(index) self:choose(actions[index]) end)
 end
 
 function TitleState:choose(action)
-    if action == "continue" then
+    if action == "options" then
+        self.machine:push("options")
+    elseif action == "continue" then
         local ok = self.game.saves:continueGame()
         if not ok then self:showMessage("The save could not be opened.") end
     elseif action == "new" then
@@ -84,31 +91,22 @@ function TitleState:draw()
     self.game.camera:reset()
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
-    gfx.drawText("POKEMON BLUE", 20, 16)
     if self.phase == "menu" then
-        if #self.actions<=3 then
-            -- Preserve the established normal Title composition.
-            self.menu:draw(16, 50, 192, 92)
-            if self.candidate then
-                local mon=self.candidate:activePokemon()
-                gfx.drawText("PLAYER  RED",224,54)
-                gfx.drawText("POKEMON  "..self.candidate:party():count(),224,78)
-                gfx.drawText("$"..self.candidate:inventory():money(),224,102)
-                if mon then gfx.drawText(mon.name.."  Lv"..mon.level,20,158) end
-            elseif self.metadata.reason~="empty" then
-                gfx.drawTextInRect("Your save needs attention. It has not been overwritten.",20,154,360,64)
-            end
-        else
-            local height=16 + #self.actions * 20
-            self.menu:draw(16, 44, 204, height)
-            local infoY=44+height+8
-            if self.candidate then
-                local mon = self.candidate:activePokemon()
-                gfx.drawText("RED  POKEMON " .. self.candidate:party():count() .. "  $" .. self.candidate:inventory():money(), 20, infoY)
-                if mon then gfx.drawText(mon.name .. "  Lv" .. mon.level, 20, infoY+22) end
-            elseif self.metadata.reason ~= "empty" then
-                gfx.drawTextInRect("Your save needs attention. It has not been overwritten.", 20, infoY, 360, 240-infoY)
-            end
+        local crowded = #self.actions > 3
+        local scale = crowded and 1 or 2
+        self.logo:drawScaled(16, 8, scale)
+        self.versionArt:drawScaled(crowded and 48 or 80, crowded and 66 or 120, scale)
+        local w, h = self.pokemonArt:getSize()
+        self.pokemonArt:drawScaled(336 - w, crowded and 40 or 20, 2)
+        local menuY = crowded and 82 or 146
+        local menuHeight = math.min(150, 16 + #self.actions * 20)
+        self.menu:draw(16, menuY, 208, menuHeight)
+        if self.candidate then
+            gfx.drawText("PLAYER  RED", 240, 158)
+            gfx.drawText("POKEMON  " .. self.candidate:party():count(), 240, 180)
+            gfx.drawText("$" .. self.candidate:inventory():money(), 240, 202)
+        elseif self.metadata.reason ~= "empty" then
+            gfx.drawTextInRect("Your save needs attention. It has not been overwritten.", 240, 158, 150, 74)
         end
     elseif self.phase == "message" then
         gfx.drawTextInRect(self.message .. "\n\nA: OK", 20, 60, 360, 160)

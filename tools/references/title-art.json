@@ -1,0 +1,498 @@
+{
+  "schema": 1,
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "archive_sha256": "e571972fc926dcb65d94fc989299d38109590aa945ed657bf215eac8561afd05",
+  "policy": "Existing battle-art threshold 128, integer nearest-neighbor scaling; new assets only.",
+  "inputs": [
+    {
+      "path": "gfx/title/pokemon_logo.png",
+      "sha256": "0646e701838d4863b1a4eba7d16c7cc557c231ee21a07c8f4b2c174022e12adc",
+      "size": [
+        128,
+        56
+      ],
+      "output": "logo.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/title/blue_version.png",
+      "sha256": "e51c17fe34f890acb70b247f5e205ad33cf7b3cc14c2dc2fab4862d3ca6f22cb",
+      "size": [
+        64,
+        8
+      ],
+      "output": "blue.png",
+      "scale": 1
+    },
+    {
+      "path": "gfx/trainers/youngster.png",
+      "sha256": "fcd90393b16f207c94fd47b89f327f81f5836d5166ffa94767bf543eb7717ec9",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/YOUNGSTER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/bugcatcher.png",
+      "sha256": "82e5d78eda4a1517e5090e055ef2d68066a10653ee7ea025fff4a66c762f1edb",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BUG_CATCHER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/lass.png",
+      "sha256": "7aaa36b65d39a7aa8d2d5799ffe6077fbdd2d6df5811db992673837d867dd638",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/LASS.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/sailor.png",
+      "sha256": "ee90b0c0a4393c0ecdd1d02f8d37419c7a612a4bda50539748824b2bb862613e",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/SAILOR.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/jr.trainerm.png",
+      "sha256": "1f0814a562ff4f29be8c49b78f04bb67390b4550a367abd896d00cee4adf0489",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/JR_TRAINER_M.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/jr.trainerf.png",
+      "sha256": "6eca9df75cf6896da38a53d9e357a1e674b77136f449d94864d1192c2664994b",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/JR_TRAINER_F.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/pokemaniac.png",
+      "sha256": "1190738f71acbb702089737933c33be45ce70e90af651c5637e46c72ec6927d1",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/POKEMANIAC.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/supernerd.png",
+      "sha256": "574c7f21f9b321fa29b64c282591d9c36ec17e21d243a7622c6a0080d57db1e9",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/SUPER_NERD.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/hiker.png",
+      "sha256": "9d4ff851ed62ad241ff11b5690f220803eddc395e8f5d61d609337fec3910c47",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/HIKER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/biker.png",
+      "sha256": "2c1b6bbd8cbec9b263a894ec4d3f40517d88fb12932b89ec9200190fe5409de0",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BIKER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/burglar.png",
+      "sha256": "c571eb4910cf8e7c56cd99ac94017f94df58cdab03c41e25d6704f12c679a784",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BURGLAR.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/engineer.png",
+      "sha256": "d42333a340af555021e654b6f6c30463be0598572fc63eb7c40ce14e4b85184b",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/ENGINEER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/juggler.png",
+      "sha256": "c32c196826193d0b1a36ad86932b20a35f42bcc929aff2fe614cb366a38196a3",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/UNUSED_JUGGLER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/fisher.png",
+      "sha256": "5797fc89892dec7ba3719397ecde7ec175d698583ac83fd578f1bc7a2836b1fe",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/FISHER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/swimmer.png",
+      "sha256": "6179f3d93fd22967ae3948af9aae7eee115782214fd91d93bec19396400ca7be",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/SWIMMER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/cueball.png",
+      "sha256": "4ff81367089f5869d52b79fe6c417392c4c0da78de34fa0048961acab122385e",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/CUE_BALL.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/gambler.png",
+      "sha256": "52ccdf70479436f993abc0cb13032a88f14472f8c755c0a95ac14d4b292bcf16",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/GAMBLER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/beauty.png",
+      "sha256": "c45eb0d98c8d0c1c4e7aab882517a17ca6816dd56fa812898402a454dc41aa26",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BEAUTY.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/psychic.png",
+      "sha256": "613940148e021e9216559065e85f463f6207febb43b20d20d690398c581a4718",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/PSYCHIC_TR.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/rocker.png",
+      "sha256": "93412a3a7df2f3642aa4eaa0715c249bc4eeb01d1b1a88b1b705e171b198d2a4",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/ROCKER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/juggler.png",
+      "sha256": "c32c196826193d0b1a36ad86932b20a35f42bcc929aff2fe614cb366a38196a3",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/JUGGLER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/tamer.png",
+      "sha256": "2a277483cdda4dd626db131c9a37acc6f67bcfcdee9d70d2b52e1231133b5445",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/TAMER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/birdkeeper.png",
+      "sha256": "2b70eeb804381eddfe531cb206f9b52448612a5c09495be7139a75c4160afe39",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BIRD_KEEPER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/blackbelt.png",
+      "sha256": "d5713a36b75c700c514436faf93eb7e2c18ce65efcd8e54170f06e338de424e5",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BLACKBELT.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/rival1.png",
+      "sha256": "27cb87f52507c2c234ef4c6b866445eb4caaf3e96e8ac701e1fb384005484da5",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/RIVAL1.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/prof.oak.png",
+      "sha256": "84fac27dc1cc19cf8b3fe777002cc4dbc2363d7bd30328f56340d5104b139f79",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/PROF_OAK.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/scientist.png",
+      "sha256": "161dcef5d28face2fb0d6257b6a603e003c91f568c9465c07ee99dfca87f8be4",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/CHIEF.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/scientist.png",
+      "sha256": "161dcef5d28face2fb0d6257b6a603e003c91f568c9465c07ee99dfca87f8be4",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/SCIENTIST.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/giovanni.png",
+      "sha256": "2544f22f912e0e11ecf7ceb12daf23878df11947b7d1628be981a86ea52434f3",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/GIOVANNI.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/rocket.png",
+      "sha256": "cbfbbfa64f6073e71f4c01cff3bd11b7f943ab552f6c5d07371819dba4012163",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/ROCKET.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/cooltrainerm.png",
+      "sha256": "29ef60242bb880b9f0c15b2809eefe69d3ae00cf976243b047d5d89a0324f7c4",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/COOLTRAINER_M.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/cooltrainerf.png",
+      "sha256": "1d56a13bd90e8a83bf17c816909929a4865026fa1ba70c3cadd2425a15730486",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/COOLTRAINER_F.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/bruno.png",
+      "sha256": "206090b9e780b06bd118e0b3728f9d28d4d15cbe8663fc9a070bc6932fa5ff8e",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BRUNO.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/brock.png",
+      "sha256": "404489dfa4d1532b92f218c75054c89971252a945f8c08246402b7f64005ca32",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BROCK.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/misty.png",
+      "sha256": "9c125769d53beaefd67925bac79523c349880976cc564ce050430019ebc3a50e",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/MISTY.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/lt.surge.png",
+      "sha256": "b8accaa6461255330ef7c1e0a87e77a49a2d8acd0e2066d8717318b00180c7c3",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/LT_SURGE.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/erika.png",
+      "sha256": "c50d8209038621f890c9f25e1a380e35ca27cafc363812e81d9de55b7a9caf14",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/ERIKA.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/koga.png",
+      "sha256": "bbd4b978f564b6a2d7f150e9fe40f5631183e90e9596b99c19e20d475293ab48",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/KOGA.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/blaine.png",
+      "sha256": "0e12678d497f7aa8ceff90b6df9d5fea335cf85763b8c99d95891412a71ffa88",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/BLAINE.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/sabrina.png",
+      "sha256": "e5a5b362ced89e5082ec561881200f0a5b7ea93bacda86eb3ab976e6b040954e",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/SABRINA.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/gentleman.png",
+      "sha256": "d5d74b0a2db8800c1fc834ddee30db7acc0ee7b5dd9738844b97f94b74fc5d2d",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/GENTLEMAN.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/rival2.png",
+      "sha256": "af654f1b6a0b96960ecb89926d59eccd3841c7ed9026ca01375b3f7c909f01fe",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/RIVAL2.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/rival3.png",
+      "sha256": "f72bc45196db23ce22a18264b5c1b2df48515e11429eb26a0f9b68e328f956c7",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/RIVAL3.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/lorelei.png",
+      "sha256": "d8c7aff7064afd9e5ce3d2148062cee7128f899e02f1f894facc268b52be61fc",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/LORELEI.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/channeler.png",
+      "sha256": "0b096a932edb6e1ed792cddf077f08ec5164e9bf804ee4c610f8d74cc197f6c4",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/CHANNELER.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/agatha.png",
+      "sha256": "158bc1a6f4f0dbfc75d3e53e2b9f92daf6a85020f8ee054ccd53db3181c5f982",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/AGATHA.png",
+      "scale": 2
+    },
+    {
+      "path": "gfx/trainers/lance.png",
+      "sha256": "adc5ee49a648f88bbac9679026ff99bfbab0bcd631875aab2f3d06a0589ff514",
+      "size": [
+        56,
+        56
+      ],
+      "output": "trainers/LANCE.png",
+      "scale": 2
+    }
+  ]
+}

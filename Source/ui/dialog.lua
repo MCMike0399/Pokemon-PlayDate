@@ -1,3 +1,5 @@
+import "game/gameOptions"
+
 local gfx <const> = playdate.graphics
 
 Class("Dialog")
@@ -9,6 +11,8 @@ function Dialog:init()
     self.isActive = false
     self.onComplete = nil
     self.blinkTimer = 0
+    self.revealTimer = 0
+    self.holdFrames = 0
 end
 
 function Dialog:show(lines, onComplete)
@@ -43,6 +47,8 @@ function Dialog:show(lines, onComplete)
     self.isActive = true
     self.onComplete = onComplete
     self.blinkTimer = 0
+    self.revealTimer = 0
+    self.holdFrames = 0
 end
 
 function Dialog:update()
@@ -50,7 +56,17 @@ function Dialog:update()
 
     local line = self.lines[self.currentLine]
     if self.charIndex < #line then
-        self.charIndex = SourceText.nextBoundary(line, self.charIndex)
+        self.revealTimer = self.revealTimer + 1
+        local speed = GameOptions.textSpeed()
+        local interval = speed == "SLOW" and 3 or speed == "MEDIUM" and 2 or 1
+        local held = playdate.buttonIsPressed(playdate.kButtonA)
+        if held or self.revealTimer % interval == 0 then
+            local count = held and 8 or speed == "FAST" and 3 or 1
+            for _ = 1, count do
+                if self.charIndex >= #line then break end
+                self.charIndex = SourceText.nextBoundary(line, self.charIndex)
+            end
+        end
     else
         self.blinkTimer = self.blinkTimer + 1
     end
@@ -59,7 +75,14 @@ end
 function Dialog:handleInput()
     if not self.isActive then return end
 
-    if playdate.buttonJustPressed(playdate.kButtonA) then self:advance() end
+    local held = playdate.buttonIsPressed(playdate.kButtonA)
+    self.holdFrames = held and self.holdFrames + 1 or 0
+    if playdate.buttonJustPressed(playdate.kButtonA) then
+        self:advance()
+    elseif self.holdFrames >= 12 and self.charIndex >= #self.lines[self.currentLine] then
+        self.holdFrames = 0
+        self:advance()
+    end
 end
 
 -- The same reveal/advance seam serves native keys and SDK contracts.
