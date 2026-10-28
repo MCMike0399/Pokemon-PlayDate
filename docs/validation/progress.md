@@ -68,7 +68,7 @@ Audio and later campaign work remain parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 2168 native checks and 866 host tests pass. All three journeys start from accepted Cerulean saves and continue after failures. The planner now treats the robbed-house wall hole as walkable; the current Bulbasaur run cleared its Rocket and is collecting on Route24 in `m54-chained-journeys-20261028-04`. All 2494 protected images match after the user's approved Route2 update. The 35 new map viewports and 14 actor families were inspected; motion and full journeys remain pending. Coverage keeps the original 1501 rows plus 11 source-only additions. |
+| `wip/vermilion-integration` | 2168 native and 866 host checks pass; approved Route2 baseline gives 2494 exact protected images. In `m54-chained-journeys-20261028-05`, Bulbasaur/Charmander stopped at an unanswered Day Care menu; both have actual progress saves for retry. The menu handler is fixed. Squirtle passed real deposit, walking growth and paid withdrawal and reached Route6. All cases continue after failures, with no XP farming or increased caps. The 35 new map viewports and 14 actor families were inspected; ship/Cut motion and full journeys remain pending. |
 | Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
