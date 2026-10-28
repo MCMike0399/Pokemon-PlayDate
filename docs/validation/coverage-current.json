@@ -135,13 +135,13 @@
     },
     "production-effects": {
       "path": "Source/battle/effects.lua",
-      "sha256": "a4fb6785476297d6be291efd4035335a0d2da8225010f20d62f8ac34888977a5",
+      "sha256": "21cd1df16e3501aaec8265ee2e8e3689fb93e396cbaaf397573eb686a3d7ca7c",
       "kind": "production",
       "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-conditions": {
       "path": "Source/battle/conditions.lua",
-      "sha256": "5405d38894dcf35c8c197fd1c8f95d6ec33687f6d514765a694ee654007bf9e5",
+      "sha256": "f39d5ffd00b807ed25177a7dd46da9e8160d12bc318f26471da0cbaaf23afaa9",
       "kind": "production",
       "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
