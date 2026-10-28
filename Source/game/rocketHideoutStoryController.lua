@@ -55,18 +55,22 @@ function RocketHideoutStoryController.advance(state)
                 for _, entry in ipairs(entries) do
                     labels[#labels + 1] = entry.floor
                 end
-                state.menu:show(labels, state:guard(function(index)
+                local choose = state:guard(function(index)
                     state.menu:hide()
+                    if index == nil then
+                        state:finish()
+                        return
+                    end
                     local ok, reason = RocketHideoutStory.selectFloor(state.session, entries[index].floor)
                     if ok then
                         state:finish()
                     else
                         state:fail(reason)
                     end
-                end), state:guard(function()
-                    state.menu:hide()
-                    state:finish()
-                end))
+                end)
+                state.menu:show(labels, choose, function()
+                    choose(nil)
+                end)
             end)
             return true
         else

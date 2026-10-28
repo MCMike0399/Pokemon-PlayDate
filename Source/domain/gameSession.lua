@@ -1129,7 +1129,8 @@ function GameSession:commitCeladonService(operation, expected)
             discovered.seen[mon.species], discovered.owned[mon.species] = true, true
         end
         return {coins=candidateCoins,flags=combined,bag=bag:toData(),dex=dex(discovered),
-            mon=mon,destination=destination,rng=stream and stream:snapshot(),item=plan.item,kind=plan.kind}
+            mon=mon,destination=destination,rng=stream and stream:snapshot(),item=plan.item,kind=plan.kind,
+            received=plan.received,dropped=plan.dropped}
     end)
     if not called then
         return false, tostring(prepared)
@@ -1153,6 +1154,7 @@ function GameSession:commitCeladonService(operation, expected)
     end
     self:invalidateFieldWorldContext()
     return true, {kind=prepared.kind,item=prepared.item,destination=prepared.destination,index=index,
+        received=prepared.received,dropped=prepared.dropped,
         box=prepared.destination == "storage" and current.storage:activeBox() or nil}
 end
 

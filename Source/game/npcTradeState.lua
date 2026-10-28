@@ -121,29 +121,29 @@ function NPCTradeState:exit()
 end
 
 -- Root-owned composition preserving this controller and its complete parent chain.
-local previousUpdate = NPCTradeState.update
+local previousUpdate <const> = NPCTradeState.update
 function NPCTradeState:update()
     previousUpdate(self)
     HideoutTowerController.update(self)
 end
-local previousButton = NPCTradeState.handleButton
+local previousButton <const> = NPCTradeState.handleButton
 function NPCTradeState:handleButton(button)
     if HideoutTowerController.handleButton(self, button) then
         return
     end
     previousButton(self, button)
 end
-local previousDraw = NPCTradeState.draw
+local previousDraw <const> = NPCTradeState.draw
 function NPCTradeState:draw()
     previousDraw(self)
     HideoutTowerController.draw(self)
 end
-local previousFail = NPCTradeState.fail
+local previousFail <const> = NPCTradeState.fail
 function NPCTradeState:fail(reason)
     HideoutTowerController.cancel(self)
     previousFail(self, reason)
 end
-local previousExit = NPCTradeState.exit
+local previousExit <const> = NPCTradeState.exit
 function NPCTradeState:exit()
     HideoutTowerController.cancel(self)
     previousExit(self)

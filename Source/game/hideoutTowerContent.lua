@@ -25,13 +25,6 @@ function HideoutTowerContent.package(name, events, trainerData)
         include(TowerStory.descriptors("midgameSouth", "midgameEast"))
         include(SnorlaxStory.descriptors("midgameSouth"))
     end
-    for id, descriptor in pairs(additions) do
-        local value <const> = copy(events[id] or {})
-        for key, field in pairs(descriptor) do
-            value[key] = copy(field)
-        end
-        events[id] = value
-    end
     include(MidgameGymStory.descriptors())
     if SilphStory and name == "midgameSaffron" then
         include(SilphStory.descriptors())
