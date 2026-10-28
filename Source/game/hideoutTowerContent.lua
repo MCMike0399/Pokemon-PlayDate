@@ -1,0 +1,60 @@
+-- Preparation adapter for CeruleanContent's one package registration. Root
+-- supplies the tiny optional transform seam; no second registry/dispatcher.
+HideoutTowerContent = {}
+local function copy(value)
+    return GameSession._copy(value)
+end
+function HideoutTowerContent.package(name, events, trainerData)
+    local additions = {}
+    local function include(descriptors)
+        for id, descriptor in pairs(descriptors) do
+            if descriptor.content == name then
+                additions[id] = descriptor
+            end
+        end
+    end
+    if name == "midgameEast" then
+        include(RocketHideoutStory.descriptors(name))
+        for _, id in ipairs({RocketHideoutStory.SCOPE, RocketHideoutStory.KEY}) do
+            assert(events[id], "ordinary Hideout pickup missing from content")
+            events[id] = RocketHideoutStory.decorate(id, events[id])
+        end
+    end
+    if name == "midgameEast" or name == "midgameSouth" then
+        include(TowerStory.descriptors("midgameSouth", "midgameEast"))
+        include(SnorlaxStory.descriptors("midgameSouth"))
+    end
+    for id, descriptor in pairs(additions) do
+        local value <const> = copy(events[id] or {})
+        for key, field in pairs(descriptor) do
+            value[key] = copy(field)
+        end
+        events[id] = value
+    end
+    local trainers = {}
+    for id, descriptor in pairs(events) do
+        if descriptor.kind == "bespoke" and trainerData.trainers[id] then
+            trainers[id] = copy(trainerData.trainers[id])
+        end
+    end
+    return events, trainers
+end
+function HideoutTowerContent.actorMetadata(id, game)
+    local result = {visibility = {}}
+    for _, extra in ipairs({RocketHideoutStory.actorMetadata(id, game), TowerStory.actorMetadata(id, game),
+        SnorlaxStory.actorMetadata(id)}) do
+        for _, condition in ipairs(extra.visibility or {}) do
+            result.visibility[#result.visibility + 1] = copy(condition)
+        end
+    end
+    return result
+end
+function HideoutTowerContent.install()
+    RocketHideoutStory.install("midgameEast", {
+        openEntrance = RocketHideoutStoryWorld.openEntrance,
+        reconcileWorld = RocketHideoutStoryWorld.reconcile,
+        reconcileActors = KantoScenes.reconcileActors,
+    })
+    TowerStory.install("midgameSouth", {reconcileActors = KantoScenes.reconcileActors})
+    SnorlaxStory.install("midgameSouth")
+end

@@ -152,6 +152,12 @@ function TowerStory.install(content, options)
         end
     end
     SourceEvents.registerWorldHooks(TowerStory.GHOST, {
+        beforeSpawn = function(game, context)
+            if currentZone.stableID == "pokered:POKEMON_TOWER_7F" or currentZone.stableID == "pokered:MR_FUJIS_HOUSE" then
+                SourceActors.refresh(game, currentZone)
+                context.reconcile = true
+            end
+        end,
         explore = function(game)
             local ghost <const> = TowerStory.scenes().ghost
             if currentZone.stableID == "pokered:POKEMON_TOWER_6F" and not game.session:questFlag(ghost.flag)

@@ -220,9 +220,13 @@ function RocketHideoutStory.install(content, options)
                 assert(RocketHideoutStory.enterLift(game.session, currentZone.stableID))
             end
         end,
-        beforeSpawn = function(game)
+        beforeSpawn = function(game, context)
             options.reconcileWorld(game)
-            options.reconcileActors(game)
+            if currentZone.stableID == "pokered:GAME_CORNER"
+                or currentZone.stableID:match("^pokered:ROCKET_HIDEOUT_") then
+                SourceActors.refresh(game, currentZone)
+                context.reconcile = true
+            end
         end,
         explore = function(game)
             if currentZone.stableID == "pokered:GAME_CORNER"

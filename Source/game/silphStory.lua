@@ -176,7 +176,13 @@ function SilphStory.install(options)
         end
     end
     SourceEvents.registerWorldHooks(SilphStory.LIFT, {
-        beforeSpawn = SilphStoryWorld.reconcile,
+        beforeSpawn = function(game, context)
+            SilphStoryWorld.reconcile(game)
+            if currentZone.stableID:match("^pokered:SILPH_CO_") or currentZone.stableID == "pokered:SAFFRON_CITY" then
+                SourceActors.refresh(game, currentZone)
+                context.reconcile = true
+            end
+        end,
         onLeave = function(game, destination)
             if destination == "pokered:SILPH_CO_ELEVATOR" then
                 assert(SilphStoryWorld.enterLift(game.session, currentZone.stableID))
