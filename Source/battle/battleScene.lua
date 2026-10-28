@@ -27,10 +27,6 @@ local statusLabels = {
 
 function BattleScene:init(battle)
     self.battle = battle
-    battle.presentationAttached = true
-    self.displayVitals = setmetatable({}, {__mode = "k"})
-    self:vitals(battle.player)
-    self:vitals(battle.enemy)
     self.mainMenu = BattleMenu()
     self.moveMenu = BattleMenu()
     self.inMoveSelect = false
@@ -139,7 +135,7 @@ function BattleScene:enter()
 end
 
 function BattleScene:handleInput()
-    if self.captureClosed or self:isCaptureBlocking() or self:isVitalsBlocking() or self.battle.presentationRequest then return end
+    if self.captureClosed or self:isCaptureBlocking() then return end
     if self.introPhase ~= "ready" or self.introDrawing then return end
     if self.battle:needsForcedSwitch() then self:requestSelection("party");return end
     if self.selectionOpen then return end
@@ -206,8 +202,6 @@ end
 
 function BattleScene:update()
     if self.captureClosed then return end
-    self:updateVitals()
-    self:updatePresentation()
     self.introDrawing = self.introPhase == "iris_in"
     -- Intro transition
     if self.introPhase == "iris_in" then
@@ -248,8 +242,6 @@ function BattleScene:getCaptureSnapshot()
 end
 function BattleScene:exit()
     if self.captureAnimation then self.captureAnimation:cancel() end
-    self.battle.presentationAttached = false
-    self.battle.presentationRequest = nil
     self.captureClosed=true
     self.selectionRequest,self.selectionOpen=nil,false
     self.mainMenu:hide();self.moveMenu:hide()
@@ -328,7 +320,7 @@ function BattleScene:drawBattleField()
     -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
     -- so nothing pokes through the frame.
     local enemy = self.battle.enemy
-    local enemyLevel,enemyHP,enemyMaxHP=self:shownVitals(enemy)
+    local enemyLevel,enemyHP,enemyMaxHP=self.battle:presentationVitals(enemy)
     gfx.setFont(battleFont)
     local enemyLabel = enemy.name .. "  Lv" .. enemyLevel
     local enemyTextW, _ = gfx.getTextSize(enemyLabel)
@@ -350,7 +342,7 @@ function BattleScene:drawBattleField()
     -- Player info box (bottom-right): name/level, HP bar, HP numbers,
     -- and a thin XP gauge along the bottom edge
     local player = self.battle.player
-    local playerLevel,playerHP,playerMaxHP=self:shownVitals(player)
+    local playerLevel,playerHP,playerMaxHP=self.battle:presentationVitals(player)
     gfx.setFont(battleFont)
     local playerLabel = player.name .. "  Lv" .. playerLevel
     local playerTextW, _ = gfx.getTextSize(playerLabel)
@@ -374,12 +366,11 @@ function BattleScene:drawBattleField()
     local hpTextW, _ = gfx.getTextSize(hpText)
     gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
     -- XP gauge
-    local view = self:vitals(player)
-    local xpCurrent = view.xp - player:xpForLevel(view.xpLevel)
-    local xpNeeded = player:xpForLevel(math.min(100, view.xpLevel + 1)) - player:xpForLevel(view.xpLevel)
+    local xpCurrent = player.xp - player:xpForLevel(player.level)
+    local xpNeeded = player.xpToNext - player:xpForLevel(player.level)
     local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
     gfx.drawRect(pBoxX + 6, pBoxY + 52, pBoxW - 12, 6)
-    local xpFill = math.floor(math.max(0, math.min(1, xpRatio)) * (pBoxW - 14))
+    local xpFill = math.floor(xpRatio * (pBoxW - 14))
     if xpFill > 0 then
         gfx.fillRect(pBoxX + 7, pBoxY + 53, xpFill, 4)
     end
@@ -450,67 +441,4 @@ function BattleScene:drawPokemonSprite(species, x, y, isBack)
     local initial = string.upper(string.sub(species, 1, 3))
     local tw, th = gfx.getTextSize(initial)
     gfx.drawText(initial, x + math.floor((size - tw) / 2), y + math.floor((size - th) / 2))
-end
-
--- Display values never flow back into Pokemon, rewards or rules RNG.
-function BattleScene:vitals(mon)
-    local view = self.displayVitals[mon]
-    if not view then
-        local level, hp, maxHP = self.battle:presentationVitals(mon)
-        view = {level = level, hp = hp, maxHP = maxHP, xp = mon.xp, xpLevel = level}
-        self.displayVitals[mon] = view
-    end
-    return view
-end
-
-function BattleScene:shownVitals(mon)
-    local view = self:vitals(mon)
-    return view.level, math.ceil(view.hp), view.maxHP
-end
-
-function BattleScene:updateVitals()
-    for _, mon in ipairs({self.battle.player, self.battle.enemy}) do
-        local view = self:vitals(mon)
-        local level, hp, maxHP = self.battle:presentationVitals(mon)
-        view.level = level
-        view.maxHP = maxHP
-        local delta = hp - view.hp
-        local step = math.max(1, maxHP / 30)
-        view.hp = view.hp + math.max(-step, math.min(step, delta))
-    end
-end
-
-function BattleScene:isVitalsBlocking()
-    for _, mon in ipairs({self.battle.player, self.battle.enemy}) do
-        local _, hp = self.battle:presentationVitals(mon)
-        if self:vitals(mon).hp ~= hp then return true end
-    end
-    return false
-end
-
-function BattleScene:updatePresentation()
-    local request = self.battle.presentationRequest
-    if not request then return end
-    if request.kind ~= "experience" then return end
-    local details = request.details
-    local mon = details.pokemon
-    local view = self:vitals(mon)
-    if self.activePresentation ~= request then
-        self.activePresentation = request
-        view.xp = details.fromXP
-        view.xpLevel = details.fromLevel
-    end
-    -- Fill every crossed level to its edge, then start the next gauge.
-    if view.xpLevel < mon.level and view.xp >= mon:xpForLevel(view.xpLevel + 1) then
-        view.xpLevel = view.xpLevel + 1
-        view.xp = mon:xpForLevel(view.xpLevel)
-    else
-        local ceiling = view.xpLevel < mon.level and mon:xpForLevel(view.xpLevel + 1) or mon.xp
-        local span = mon:xpForLevel(math.min(100, view.xpLevel + 1)) - mon:xpForLevel(view.xpLevel)
-        view.xp = math.min(ceiling, view.xp + math.max(1, math.ceil(span / 24)))
-        if view.xpLevel == mon.level and view.xp >= mon.xp then
-            self.activePresentation = nil
-            self.battle:completePresentation(request)
-        end
-    end
 end

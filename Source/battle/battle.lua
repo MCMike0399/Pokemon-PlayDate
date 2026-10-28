@@ -217,9 +217,6 @@ function BattleScriptPhase:advance()
         self.battle.message = value
         self.messageTimer = 0
         self.waiting = true
-    elseif kind == "presentation" then
-        self.battle.presentationRequest = value
-        self.waiting = false
     elseif kind == "learning" then
         assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
         local receipt = {}
@@ -490,21 +487,7 @@ end
 
 function Battle:flushRewards()return BattleRewards.flush(self)end
 function Battle:getRewardSnapshot()return BattleRewards.snapshot(self)end
-function Battle:presentationVitals(mon)
-    return BattleRewards.presentationVitals(self, mon)
-end
-
--- Optional scene handshake. Rules-only callers never acquire visual waits.
-function Battle:present(kind, details)
-    if not self.presentationAttached then return end
-    coroutine.yield("presentation", {kind = kind, details = details or {}})
-end
-
-function Battle:completePresentation(request)
-    if self.presentationRequest ~= request or self:phase() ~= "script" then return false end
-    self.presentationRequest = nil
-    return self.machine:get("script"):advance()
-end
+function Battle:presentationVitals(mon)return BattleRewards.presentationVitals(self,mon)end
 function Battle:clearVolatiles()
     assert(BattleRewards.close(self))
     self:cancelPendingLearning()
@@ -1340,10 +1323,6 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
     -- member. Fainted recipients remain ineligible and never revive through XP.
     if not enemyAlive and not self.awardedEnemies[self.enemy] then
         local plan,why=BattleRewards.prepare(self,self.enemy);assert(plan,why)
-        local beforeXP = {}
-        for _, mon in ipairs(self.party and self.party:members() or {self.player}) do
-            beforeXP[mon] = mon.xp
-        end
         local accepted,receipt=BattleRewards.commit(self,plan);assert(accepted,receipt)
         local awarded={}
         for _,row in ipairs(receipt.rows)do
@@ -1353,7 +1332,6 @@ function Battle:_resolveFaintCheckpoint(lastFaintedSide)
             local mon,row=entry.mon,entry.row
             if row.xp>0 then
                 self:say(mon.name .. " gained " .. row.xp .. " EXP!")
-                self:present("experience", {pokemon = mon, fromXP = beforeXP[mon], fromLevel = row.fromLevel})
                 local shown,why=BattleRewards.acknowledge(self,receipt.id,row.index);assert(shown,why)
                 if row.leveled then self:say(mon.name .. " grew to Lv" .. mon.level .. "!")end
                 if #mon:getPendingMoveChoices()>0 then coroutine.yield("learning",mon)end

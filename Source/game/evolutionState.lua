@@ -35,7 +35,7 @@ function EvolutionState:init(game)
     self.sub:register("result",{
         enter=function()
             local line
-            if self.result.kind=="complete" then line=self.info.from_name.." evolved into "..self.info.to_name.."!"
+            if self.result.kind=="complete" then line="Congratulations! "..self.info.from_name.." evolved into "..self.info.to_name.."!"
             elseif self.result.kind=="cancelled" then line="Huh? "..self.info.from_name.." stopped evolving!"
             else line="Evolution couldn't be completed." end
             self:message({line},function() self.closeRequested=true end)
@@ -113,6 +113,7 @@ function EvolutionState:draw()
     if not self.active then return end
     local x,y=gfx.getDrawOffset();local oldFont=gfx.getFont()
     gfx.setDrawOffset(0,0);gfx.setFont(font);gfx.clear(gfx.kColorWhite);gfx.setColor(gfx.kColorBlack)
+    gfx.drawText("EVOLUTION",12,8)
     local species=self.showTarget and self.info.species or self.info.from
     local image=self.images[species];local w,h=image:getSize();image:drawScaled(200-w,100-h,2)
     if self.sub:is("animate") and self.info.can_cancel then gfx.drawText("B: Stop evolution",12,157) end
