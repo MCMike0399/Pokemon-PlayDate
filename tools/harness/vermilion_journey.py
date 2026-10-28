@@ -926,6 +926,13 @@ class VermilionJourney(cj.CeruleanJourney):
         self.navigate((25, 7))
         self.navigate((26, 1))
         self.step(self.model().terrain_step(self.position(), 'up'))
+        self.send('wait 2')
+        self.drain()
+        if self.state['zone_id'] == self.zone('VermilionDock'):
+            self.navigate((14, 1))
+            self.step(self.model().terrain_step(self.position(), 'up'))
+            self.send('wait 2')
+            self.drain()
         self.require(zone_id=self.zone('VermilionCity'))
         if not self.flag('EVENT_SS_ANNE_LEFT'):
             raise ProtocolError('actual post-HM01 ship exit/departure did not commit')
@@ -945,6 +952,7 @@ class VermilionJourney(cj.CeruleanJourney):
             raise ProtocolError('actual Surge win/badge/TM24 transaction missing')
         self.repeat_trainer(SURGE)
         self.checkpoint('vermilion-surge-badge-tm24')
+        self.leave_gym()
         self.heal_here('VermilionPokecenter')
         self.save()
         self.collect('Route11', ['sandshrew', 'spearow', 'drowzee'],
@@ -963,7 +971,16 @@ class VermilionJourney(cj.CeruleanJourney):
         self.write_receipt()
         self.summary.update(acceptance='candidate saved; actual process restart pending', forbidden_shortcuts=False)
 
+    def leave_gym(self):
+        if self.state['zone_id'] == self.zone('VermilionGym'):
+            self.travel(self.zone('VermilionCity'))
+            self.send('wait 2')
+            self.drain()
+            index = next(i for i, mon in enumerate(self.party(), 1) if 'cut' in mon['moves'])
+            self.field_cut(index)
+
     def prepare_gym_visit(self):
+        self.leave_gym()
         self.heal_here('VermilionPokecenter')
         self.field_swap(self.starter_index())
         clerk = self.zone('VermilionMart') + ':objects:1'
