@@ -137,7 +137,10 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
     # ingress; an ambiguous context requires an explicit manifest override (or
     # ultimately a bespoke runtime script), never a regional Lua name branch.
     for name, descriptor in compact["maps"].items():
-        dynamic = [warp for warp in descriptor["warps"] if warp["destination"]["kind"] == "last_outdoor_map"]
+        blocked_events = manifest["maps"][name].get("blocked_events", [])
+        dynamic = [warp for warp in descriptor["warps"]
+                   if warp["destination"]["kind"] == "last_outdoor_map"
+                   and warp["id"] not in blocked_events]
         if not dynamic:
             continue
         candidates = set()

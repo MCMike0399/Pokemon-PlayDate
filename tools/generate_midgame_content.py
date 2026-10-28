@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT))
 from tools.generate_kanto_maps import Reference, REVISION, decode_map, records, integer
 from tools.generate_viridian_slice import sprite_data
 from tools.generate_cerulean_content import (canonical, digest, species, envelope,
-    blue_source, direct_labels, trainer_tables, sprite_sources, item_ids, verify)
+    blue_source, direct_labels, trainer_tables, sprite_sources, item_ids, verify, conditional)
 from tools.generate_vermilion_preparation import sections, text_recipes
 from tools.generate_source_map_cache import build as cache_build
 
@@ -59,12 +59,47 @@ RESERVED = {
     'PokemonTower2F': {1: 'starter-dependent rival; story worker'},
     'PokemonTower7F': {4: 'Fuji rescue and return warp; story worker'},
     'Route12': {1: 'Snorlax/Poke Flute/static battle; field worker'},
-    'Route16': {1: 'Snorlax/Poke Flute/static battle; field worker'},
+    'Route16': {7: 'Snorlax/Poke Flute/static battle; field worker'},
     'FuchsiaGym': {1: 'Koga/Soul Badge/TM06; story worker'},
     'SaffronGym': {1: 'Sabrina/Marsh Badge/TM46; story worker'},
     'FightingDojo': {1: 'master and choice unlock; story worker',
         6: 'Hitmonlee choice; story worker', 7: 'Hitmonchan choice; story worker'},
-    'SilphCo7F': {1: 'Lapras gift; story worker'},
+    'SilphCo7F': {1: 'Lapras gift; story worker', 9: 'starter-dependent rival; story worker'},
+    'SilphCo11F': {1: 'President/Master Ball; story worker', 3: 'Giovanni/Silph liberation; story worker'},
+    'SafariZoneGate': {1: 'Safari entry/payment/step-and-ball service; field worker',
+                       2: 'Safari exit/game-over service; field worker'},
+}
+SCENES = {
+    'RockTunnel1F': 'Flash/darkness; field worker',
+    'RockTunnelB1F': 'Flash/darkness; field worker',
+    'GameCorner': 'Rocket/poster/hidden stairs and coins/slots; story/service workers',
+    'GameCornerPrizeRoom': 'Blue coin prizes; service worker',
+    'CeladonMartRoof': 'vending and drink-for-TM choices; service worker',
+    'CeladonMartElevator': 'floor selection; story/service worker',
+    'RocketHideoutB1F': 'Rocket gate and actor visibility; story worker',
+    'RocketHideoutB2F': 'spinner paths; story worker',
+    'RocketHideoutB3F': 'spinner paths; story worker',
+    'RocketHideoutB4F': 'Lift Key drop, Giovanni, Scope and actor visibility; story worker',
+    'RocketHideoutElevator': 'Lift Key/floor selection; story worker',
+    'PokemonTower2F': 'starter-dependent rival approach/departure; story worker',
+    'PokemonTower5F': 'purified-zone healing; story worker',
+    'PokemonTower6F': 'Scope/Marowak ghost stair blocker; story worker',
+    'PokemonTower7F': 'Rocket departures/Fuji rescue; story worker',
+    'Route12': 'Snorlax removal and Flute; field worker',
+    'Route16': 'Snorlax removal and Bicycle gate; field worker',
+    'Route16Gate1F': 'Bicycle entry gate; field worker',
+    'Route17': 'Cycling Road automatic movement; field worker',
+    'Route18Gate1F': 'Bicycle entry gate; field worker',
+    'SafariZoneGate': 'admission, steps, balls and return; field worker',
+    'WardensHouse': 'Gold Teeth/HM04 and Strength boulder; field worker',
+    'SaffronCity': 'Rocket/Silph liberation actor visibility; story worker',
+    'SaffronGym': 'warp pads and Sabrina rewards; story worker',
+    'FightingDojo': 'master/Hitmonlee/Hitmonchan choice; story worker',
+    **{'SafariZone' + area: 'Safari encounter mode/steps/balls; field worker'
+       for area in ('Center', 'East', 'North', 'West')},
+    **{'SilphCo' + str(floor) + 'F': 'Card Key doors/warp pads and story state; story worker'
+       for floor in range(2, 12)},
+    'SilphCoElevator': 'floor selection; story worker',
 }
 SUPPLEMENTAL = (
     'data/items/marts.asm', 'data/events/hidden_events.asm',
@@ -99,8 +134,106 @@ def primary_labels(body):
     return direct_labels(clean)
 
 
+def ordinary_program(pointer, body, all_sections, item_map):
+    """Decode a few closed source shapes into the existing descriptor vocabulary.
+
+    This is build-time declaration projection, not an ASM interpreter or regional
+    runtime. Anything beyond these exact shapes remains an explicit reservation.
+    """
+    clean = '\n'.join(line.split(';', 1)[0].strip() for line in body.splitlines()
+                      if line.split(';', 1)[0].strip())
+    prelude = re.split(r'^\.\w+:?$', clean, maxsplit=1, flags=re.M)[0].rstrip()
+    local_labels = {}
+    local_parts = list(re.finditer(r'^\.(\w+):?$', clean, re.M))
+    for index, match in enumerate(local_parts):
+        part = clean[match.end():local_parts[index + 1].start() if index + 1 < len(local_parts) else len(clean)]
+        labels = primary_labels(part)
+        if labels and len(labels) == 1:
+            local_labels[match[1]] = labels[0]
+
+    # CheckEvent -> one of two literal texts, with no writes or service calls.
+    pattern = (r'text_asm\nCheckEvent (EVENT_\w+)\nld hl, \.(\w+)\n'
+               r'jr nz, \.(\w+)\nld hl, \.(\w+)\n\.\3:?\n'
+               r'call PrintText\njp TextScriptEnd')
+    control = clean.split('\njp TextScriptEnd', 1)[0] + '\njp TextScriptEnd'
+    match = re.fullmatch(pattern, control)
+    if match and match[2] in local_labels and match[4] in local_labels:
+        return conditional(match[1], local_labels[match[2]], local_labels[match[4]])
+    pattern = (r'text_asm\nCheckEvent (EVENT_\w+)\njr nz, \.(\w+)\n'
+               r'ld hl, \.(\w+)\ncall PrintText\njr \.(\w+)\n\.\2:?\n'
+               r'ld hl, \.(\w+)\ncall PrintText\n\.\4:?\njp TextScriptEnd')
+    match = re.fullmatch(pattern, control)
+    if match and match[3] in local_labels and match[5] in local_labels:
+        return conditional(match[1], local_labels[match[5]], local_labels[match[3]])
+    match = re.fullmatch(r'text_asm\nld hl, \.(\w+)\nld de, \.(\w+)\n'
+                         r'call SilphCo6FBeatGiovanniPrintDEOrPrintHLScript\njp TextScriptEnd', prelude)
+    if match:
+        helper = '\n'.join(line.strip() for line in all_sections['SilphCo6FBeatGiovanniPrintDEOrPrintHLScript'].splitlines() if line.strip())
+        if helper != ('CheckEvent EVENT_BEAT_SILPH_CO_GIOVANNI\njr nz, .beat_giovanni\n'
+                      'jr .print_text\n.beat_giovanni\nld h, d\nld l, e\n.print_text\njp PrintText'):
+            raise ValueError('Silph conditional text helper drift')
+        return conditional('EVENT_BEAT_SILPH_CO_GIOVANNI', local_labels[match[2]], local_labels[match[1]])
+
+    # Ordinary Pokemon speech preserves its cry and wait metadata in source order.
+    pattern = (r'text_far (_\w+)\ntext_asm\nld a, (\w+)\ncall PlayCry\n'
+               r'(call WaitForSoundToFinish\n)?jp TextScriptEnd')
+    match = re.fullmatch(pattern, clean)
+    if match:
+        return dict(kind='program', steps=[dict(op='dialog', labels=[match[1]]),
+            dict(op='source-audio', cue='cry', species=species(match[2]),
+                 wait_for_completion=bool(match[3]), owner='SourceAudio')])
+    match = re.fullmatch(r'text_far (_\w+)\ntext_asm\nld a, (\w+)\njp CeladonMansion1_PlayCryScript', clean)
+    if match:
+        if all_sections['CeladonMansion1_PlayCryScript'].strip() != 'call PlayCry\n\tjp TextScriptEnd':
+            raise ValueError('Celadon source cry helper drift')
+        return dict(kind='program', steps=[dict(op='dialog', labels=[match[1]]),
+            dict(op='source-audio', cue='cry', species=species(match[2]),
+                 wait_for_completion=False, owner='SourceAudio')])
+    match = re.fullmatch(r'text_far (_\w+)\nsound_cry_(\w+)\ntext_end', clean)
+    if match:
+        return dict(kind='program', steps=[dict(op='dialog', labels=[match[1]]),
+            dict(op='source-audio', cue='cry', species=match[2],
+                 wait_for_completion=True, owner='SourceAudio')])
+    pattern = (r'text_asm\nld hl, \.Text\ncall PrintText\nld a, (\w+)\ncall PlayCry\n'
+               r'(call WaitForSoundToFinish\n)?jp TextScriptEnd')
+    match = re.fullmatch(pattern, prelude)
+    if match and 'Text' in local_labels:
+        return dict(kind='program', steps=[dict(op='dialog', labels=[local_labels['Text']]),
+            dict(op='source-audio', cue='cry', species=species(match[1]),
+                 wait_for_completion=bool(match[2]), owner='SourceAudio')])
+
+    # Exact, unconditional one-time source gifts fit the existing gift planner.
+    gifts = {
+        'CeladonDinerGymGuideText': ('COIN_CASE', 'EVENT_GOT_COIN_CASE', '_CeladonDinerGymGuide', 'ImFlatOutBustedText', 'ReceivedCoinCaseText', 'WinItBackText', 'CoinCaseNoRoomText'),
+        'CeladonCityGramps3Text': ('TM_SOFTBOILED', 'EVENT_GOT_TM41', '_CeladonCityGramps3', 'Text', 'ReceivedTM41Text', 'TM41ExplanationText', 'TM41NoRoomText'),
+        'CeladonMart3FClerkText': ('TM_COUNTER', 'EVENT_GOT_TM18', '_CeladonMart3FClerk', 'TM18PreReceiveText', 'ReceivedTM18Text', 'TM18ExplanationText', 'TM18NoRoomText'),
+        'Route12Gate2FBrunetteGirlText': ('TM_SWIFT', 'EVENT_GOT_TM39', '_Route12Gate2FBrunetteGirl', 'YouCanHaveThisText', 'ReceivedTM39Text', 'TM39ExplanationText', 'TM39NoRoomText'),
+        'Route16FlyHouseBrunetteGirlText': ('HM_FLY', 'EVENT_GOT_HM02', '_Route16FlyHouseBrunetteGirl', 'Text', 'ReceivedHM02Text', 'HM02ExplanationText', 'HM02NoRoomText'),
+        'SafariZoneSecretHouseFishingGuruText': ('HM_SURF', 'EVENT_GOT_HM03', '_SafariZoneSecretHouseFishingGuru', 'YouHaveWonText', 'ReceivedHM03Text', 'HM03ExplanationText', 'HM03NoRoomText'),
+        'MrPsychicsHouseMrPsychicText': ('TM_PSYCHIC_M', 'EVENT_GOT_TM29', '_MrPsychicsHouseMrPsychic', 'YouWantedThisText', 'ReceivedTM29Text', 'TM29ExplanationText', 'TM29NoRoomText'),
+        'SilphCo2FSilphWorkerFText': ('TM_SELFDESTRUCT', 'EVENT_GOT_TM36', '_SilphCo2FSilphWorkerF', 'PleaseTakeThisText', 'ReceivedTM36Text', 'TM36ExplanationText', 'TM36NoRoomText'),
+    }
+    if pointer in gifts:
+        item, flag, prefix, before, success, completed, full = gifts[pointer]
+        if not (f'CheckEvent {flag}' in clean and f'lb bc, {item}, 1' in clean
+                and f'SetEvent {flag}' in clean and 'call GiveItem' in clean
+                and ('jr nc, .bag_full' in clean or pointer == 'CeladonCityGramps3Text'
+                     and 'jr c, .Success' in clean or pointer == 'SilphCo2FSilphWorkerFText'
+                     and 'jr nc, .print_text' in clean)):
+            raise ValueError('ordinary source gift drift: ' + pointer)
+        return dict(kind='gift', item=item_map[item], flag=flag,
+            prefix=[dict(op='dialog', labels=[(prefix + before).lstrip('_')
+                if pointer == 'SilphCo2FSilphWorkerFText' else prefix + before])],
+            success=[prefix + success], completed=[prefix + completed], full=[prefix + full])
+    return None
+
+
 def proposal(artifacts, packet, base=None):
     manifest = json.loads(canonical(base)) if base else json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
+    for previous in list(PACKETS)[:list(PACKETS).index(packet)]:
+        for name, entry in json.loads((output_path(previous) / 'manifest-entries.json').read_bytes())['maps'].items():
+            if name not in manifest['maps']:
+                manifest['maps'][name] = entry
     additions = json.loads(artifacts['manifest-entries.json'])['maps']
     for name, entry in additions.items():
         if name in manifest['maps']:
@@ -154,7 +287,9 @@ def build(reference_root, packet, pins=None):
                 texts[label] = dict(source=path, recipe=recipe)
     for name in names:
         path = 'scripts/' + name + '.asm'
-        scripts[path] = blue_source(ref.text(path))
+        # Retail Blue has no _DEBUG define. Preserve line numbers while selecting
+        # that explicit false branch through the existing Blue selector.
+        scripts[path] = blue_source(ref.text(path).replace('IF DEF(_DEBUG)', 'IF DEF(_RED)'))
     all_sections = {}
     for script in scripts.values():
         all_sections.update(sections(script))
@@ -211,6 +346,8 @@ def build(reference_root, packet, pins=None):
             elif event['kind'] == 'item':
                 descriptor = dict(kind='pickup', item=item_map[event['extra'][0]],
                     flag='PICKUP:' + event['id'], success=['_FoundItemText'], full=['_NoMoreRoomForItemText'])
+            elif not reason and ordinary_program(pointer, body, all_sections, item_map):
+                descriptor = ordinary_program(pointer, body, all_sections, item_map)
             elif pointer in marts and records(marts[pointer], 'script_mart'):
                 descriptor = dict(kind='program', steps=[dict(op='shop', id=pointer[0].lower() + pointer[1:])])
             elif 'script_pokecenter_nurse' in body:
@@ -265,6 +402,8 @@ def build(reference_root, packet, pins=None):
         'scripts.json': canonical(envelope(text_pointers=pointer_index, hidden_events=hidden,
             sources={path: digest(ref.bytes(path)) for path in scripts}, gaps=gaps)),
         'reservations.json': canonical(envelope(reservations=reservations,
+            map_scripts=[dict(map=name, map_id=definitions[name]['id'], source='scripts/' + name + '.asm', reason=SCENES[name])
+                         for name in names if name in SCENES],
             policy='Reserved IDs are not registered. Source programs remain outside Git; materialize pinned inputs.')),
     })
     entries = {}
@@ -279,6 +418,13 @@ def build(reference_root, packet, pins=None):
             path='data/' + package(packet) + '/' + name + '.json', profile='source',
             width=max(13, width), height=height, padding=padding,
             source_sha256=digest(output[name + '.json']), spawn=dict(x=x + padding, y=y, facing='up'))
+        if name == 'SilphCo11F':
+            # The pinned object declaration explicitly marks this warp inaccessible.
+            # Preserve its raw destination and block it through shared policy.
+            raw = ref.text('data/maps/objects/SilphCo11F.asm')
+            if not re.search(r'warp_event\s+5,\s*5, LAST_MAP, 10 ; inaccessible', raw):
+                raise ValueError('Silph 11F inaccessible source warp drift')
+            entries[name]['blocked_events'] = [d['events']['warps'][2]['id']]
     output['manifest-entries.json'] = canonical(envelope(maps=entries))
     output['contexts.json'] = canonical(envelope(maps={name: dict(
         id=d['id'], runtime_key=entries[name]['key'], padding=entries[name]['padding'],
@@ -293,7 +439,7 @@ def build(reference_root, packet, pins=None):
     def labels(value):
         if isinstance(value, dict):
             for key, child in value.items():
-                if key in ('labels', 'before', 'won', 'after', 'success', 'full') and isinstance(child, list):
+                if key in ('labels', 'before', 'won', 'after', 'success', 'full', 'completed') and isinstance(child, list):
                     yield from child
                 elif key in ('welcome', 'prompt', 'before', 'after', 'farewell') and isinstance(child, str) and child.startswith('_'):
                     yield child
