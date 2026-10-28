@@ -597,6 +597,7 @@ class ParcelJourney(Journey):
 
     def save(self):
         self.send("press b")
+        self.await_value("root", "pause", frames=8)
         self.require(root="pause", **{"pause.phase": "menu"})
         self.pause_option("SAVE")
         self.send("press a")
@@ -645,6 +646,7 @@ class ParcelJourney(Journey):
         if index is None:
             raise ProtocolError("supplementary retry requires a single ordinary item to toss")
         self.send("press b")
+        self.await_value("root", "pause", frames=8)
         self.require(root="pause", **{"pause.phase": "menu"})
         self.pause_option("ITEM")
         self.send("press a")

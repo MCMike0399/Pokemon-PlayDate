@@ -906,7 +906,9 @@ class BrockJourney(ParcelJourney):
         self.save();self.write_receipt();self.summary.update(acceptance='Brock path completed and saved; restart acceptance pending',natural=True,forbidden_shortcuts=False)
 
     def save(self):
-        self.send('press b');self.require(root='pause',**{'pause.phase':'menu'})
+        self.send('press b')
+        self.await_value('root', 'pause', frames=8)
+        self.require(root='pause', **{'pause.phase': 'menu'})
         self.pause_option('SAVE');self.send('press a');self.require(**{'pause.phase':'save'})
         self.pause_option('YES');self.send('press a');self.require(root='dialog',**{'pause.lastSave.ok':True})
         self.await_value('dialog.ready',True,frames=300)
