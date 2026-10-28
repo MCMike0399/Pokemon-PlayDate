@@ -11,9 +11,9 @@ local function same(actual, expected, path)
     for key, value in pairs(expected) do same(actual[key],value,path .. "." .. tostring(key)) end
     for key in pairs(actual) do assert(expected[key] ~= nil,path .. ": extra field " .. tostring(key)) end
 end
-local function observation()
+local function observation(itemIDs)
     local state = {intro="done",flags={},items={},can_add={},trainers={},mode="talk"}
-    for _, id in ipairs(SourceEvents.itemIDs()) do state.items[id],state.can_add[id] = 0,true end
+    for _, id in ipairs(itemIDs or SourceEvents.itemIDs()) do state.items[id],state.can_add[id] = 0,true end
     return state
 end
 function SourceEventContracts.run()
@@ -25,6 +25,7 @@ function SourceEventContracts.run()
         else report.failed = report.failed + 1; report.ok = false end
     end
     local data = assert(json.decodeFile("data/sourceEvents.json"))
+    local itemIDs = SourceEvents.itemIDs()
     -- Compare every field, including omitted versus empty fields. Exercise
     -- success/full/repeat, parcel state combinations, sight/talk and receipts.
     for id, descriptor in pairs(data.events) do
@@ -35,7 +36,7 @@ function SourceEventContracts.run()
             if descriptor.kind == "pickup" then flags[#flags + 1] = descriptor.flag end
             for bits=0,(1 << #flags)-1 do
                 for variant=0,15 do
-                    local state = observation()
+                    local state = observation(itemIDs)
                     for index, flag in ipairs(flags) do state.flags[flag] = (bits & (1 << (index-1))) ~= 0 end
                     for item in pairs(state.items) do
                         state.items[item] = variant & 1
@@ -70,7 +71,7 @@ function SourceEventContracts.run()
         same(SourceEvents.plan(id,observation()).steps[1].labels[1],"_Route1Youngster2Text")
     end)
     test("reusable program compiles item and flag operations into one guarded commit",function()
-        local state = observation()
+        local state = observation(itemIDs)
         state.items.potion = 3
         local descriptor = {kind="program",steps={
             {op="dialog",labels={"_Route1Youngster1MartSampleText"}},
@@ -97,7 +98,7 @@ function SourceEventContracts.run()
             {op="warp",to="room",toX=1,toY=1,facing="up"},
             {op="dialog",labels={"_Route1SignText"}},
         }},observation(),"contract:warp"),false)
-        local state = observation(); state.intro = "choose"
+        local state = observation(itemIDs); state.intro = "choose"
         same(pcall(SourceEvents.plan,"pokered:ROUTE_1:objects:2",state),false)
     end)
     test("new source signs use the shared registry and retain detached programs", function()
@@ -122,7 +123,7 @@ function SourceEventContracts.run()
         same(SourceEvents.has(sign.id), false)
     end)
     test("shared trainer reward transaction retains exact compatibility shape",function()
-        local state = observation()
+        local state = observation(itemIDs)
         local id = "pokered:PEWTER_GYM:objects:1"
         state.trainers[id] = true
         same(SourceEvents.rewardPlan(id,state),{expected={flags={EVENT_GOT_TM34=false},items={tm34=0},trainers={[id]=true}},
