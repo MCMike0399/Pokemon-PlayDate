@@ -1,5 +1,3 @@
-import "game/gameOptions"
-
 import "battle/moveSupport"
 
 import "battle/conditions"
@@ -188,8 +186,6 @@ function BattleScriptPhase:enter(co)
 end
 
 function BattleScriptPhase:exit()
-    self.battle.shiftChoice = nil
-    self.battle.presentationRequest = nil
     self.battle.effects:endRound()
     self.battle:cancelPendingLearning()
 end
@@ -219,14 +215,10 @@ function BattleScriptPhase:advance()
 
     if kind == "say" then
         self.battle.message = value
-        self.messageSerial = (self.messageSerial or 0) + 1
         self.messageTimer = 0
         self.waiting = true
     elseif kind == "presentation" then
         self.battle.presentationRequest = value
-        self.waiting = false
-    elseif kind == "shift" then
-        self.battle.shiftChoice = {incoming = value}
         self.waiting = false
     elseif kind == "learning" then
         assert(value and value:is("Pokemon") and #value:getPendingMoveChoices() > 0, "invalid learning yield")
@@ -247,7 +239,7 @@ end
 
 function BattleScriptPhase:handleInput()
     if self.waiting and self.messageTimer > MESSAGE_MIN_FRAMES
-       and (playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonIsPressed(playdate.kButtonA)) then
+       and playdate.buttonJustPressed(playdate.kButtonA) then
         self.waiting = false
         self:advance()
     end
@@ -265,16 +257,10 @@ end
 function BattleEndedPhase:enter(kind)
     self.kind = kind
     self.won = kind == "victory"
-    self.messageTimer = 0
-end
-
-function BattleEndedPhase:update()
-    self.messageTimer = self.messageTimer + 1
 end
 
 function BattleEndedPhase:handleInput()
-    if playdate.buttonJustPressed(playdate.kButtonA)
-        or (self.messageTimer >= 12 and playdate.buttonIsPressed(playdate.kButtonA)) then
+    if playdate.buttonJustPressed(playdate.kButtonA) then
         self.battle:emitEnd()
     end
 end
@@ -341,13 +327,10 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     self:runScript(function()
         if self.trainerName then
             self:say(self.trainerName .. " wants to battle!")
-            self:present("trainerExit")
             self:opponentEntered()
         else
             self:opponentEntered()
         end
-        self:say("Go! " .. self.player.name .. "!")
-        self:present("sendout", {side = "player", pokemon = self.player})
         self.effects:initialEntries()
         if not self.player:isAlive() then return self:hasUsablePlayer() and "forcedSwitch" or "defeat" end
     end)
@@ -362,9 +345,6 @@ function Battle:opponentEntered(cause)
     if cause=="phaze" then self:say(self.enemy.name.." was dragged out!")
     elseif self.trainerName then self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
     else self:say("A wild " .. self.enemy.name .. " appeared!") end
-    if self.trainerName then
-        self:present("sendout", {side = "enemy", pokemon = self.enemy})
-    end
 end
 
 function Battle:update()
@@ -516,16 +496,12 @@ end
 
 -- Optional scene handshake. Rules-only callers never acquire visual waits.
 function Battle:present(kind, details)
-    if not self.presentationAttached then
-        return
-    end
+    if not self.presentationAttached then return end
     coroutine.yield("presentation", {kind = kind, details = details or {}})
 end
 
 function Battle:completePresentation(request)
-    if self.presentationRequest ~= request or self:phase() ~= "script" then
-        return false
-    end
+    if self.presentationRequest ~= request or self:phase() ~= "script" then return false end
     self.presentationRequest = nil
     return self.machine:get("script"):advance()
 end
@@ -540,7 +516,6 @@ function Battle:enemyTurn()
     if locked then return {side="enemy",actor=self.enemy,move=moveData[locked],key=locked,continuation=true} end
     local choices = self:availableMoves(self.enemy)
     if #choices == 0 then return {side = "enemy", actor=self.enemy, move = moveData.struggle} end
-    if self.trainerName then choices = self:trainerMoveChoices(choices) end
     local choice = choices[RulesRNG.random(1, #choices)]
     return {side = "enemy", actor=self.enemy, move = choice.move, key = choice.key}
 end
@@ -611,13 +586,13 @@ function Battle:clearHitPresentation()
     self.flashTimer,self.isFlashing,self.shakeTimer,self.shakeIntensity=0,false,0,0
 end
 function Battle:beginSelection(kind)
-    if self.outcome or (not self:isAwaitingCommand() and not self:needsForcedSwitch() and not self.shiftChoice) then return false,"wrong-phase" end
+    if self.outcome or (not self:isAwaitingCommand() and not self:needsForcedSwitch()) then return false,"wrong-phase" end
     if self.selectionKind then return false,"selection-open" end
     if self.conditions:locked(self.player) then return false,"locked-move" end
     if kind == "party" then
         if not self.party then return false,"party-unavailable" end
     elseif kind == "bag" then
-        if self:needsForcedSwitch() or self.shiftChoice then return false,"forced-switch" end
+        if self:needsForcedSwitch() then return false,"forced-switch" end
         if not self.session then return false,"bag-unavailable" end
     else return false,"unknown-selection" end
     self.selectionKind=kind
@@ -738,7 +713,6 @@ function Battle:forceSwitch(target)
         self:opponentEntered("phaze")
     else
         self:say(incoming.name .. " was dragged out!")
-        self:present("sendout", {side = "player", pokemon = incoming})
     end
     self.conditions:entry(incoming, targetSide)
     self.effects:entry(incoming)
@@ -748,7 +722,6 @@ function Battle:forceSwitch(target)
 end
 
 function Battle:chooseParty(index)
-    if self.shiftChoice then return self:chooseShiftParty(index) end
     local forced=self:needsForcedSwitch()
     if self.outcome or (not forced and not self:isAwaitingCommand()) then return false,"wrong-phase" end
     if self.selectionKind and self.selectionKind~="party" then return false,"selection-open" end
@@ -779,12 +752,8 @@ function Battle:chooseParty(index)
             if not old:isAlive() then return self:finishRound() end
             commitActiveMember(self,"player",index)
         end
-        if not forced then
-            self:say(old.name .. ", come back!")
-            self:present("recall", {side = "player", pokemon = old})
-        end
+        if not forced then self:say(old.name .. ", come back!") end
         self:say("Go! " .. chosen.name .. "!")
-        self:present("sendout", {side = "player", pokemon = chosen})
         self.conditions:entry(chosen,"player")
         self.effects:entry(chosen)
         if not chosen:isAlive() then
@@ -1119,7 +1088,6 @@ function Battle:performMove(move)
     end
 
     self:say(attacker.name .. " used " .. move.name .. "!")
-    self:present("move", {moveType = move.type, side = self.attackerSide})
     if magnitude then self:say("Magnitude " .. magnitude .. "!") end
     if handler == "wild-escape" then
         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
@@ -1359,7 +1327,6 @@ function Battle:_registerFaints(lastFaintedSide)
             self.faintAnnounced[side] = true
             changed=true
             self:say(pokemon.name .. " fainted!")
-            self:present("faint", {side = side, pokemon = pokemon})
         end
     end
     return lastFaintedSide,changed
@@ -1422,27 +1389,6 @@ function Battle:finishRound()
     while not self.enemy:isAlive() and self.enemyParty and self.enemyParty:firstUsable() do
         local index = self.enemyParty:firstUsable()
         if index then
-            local incoming = self.enemyParty:get(index)
-            if self.presentationAttached and GameOptions.battleStyle() == "SHIFT"
-                and self.player:isAlive() and self.party and #self:eligibleForcedReplacements(self.player) > 0 then
-                self:say(self.trainerName .. " is about to use " .. incoming.name .. ". Change POKEMON?")
-                coroutine.yield("shift", incoming)
-                local selected = self.shiftSelected
-                self.shiftSelected = nil
-                if selected then
-                    local old, chosen = commitActiveMember(self, "player", selected)
-                    self:say(old.name .. ", come back!")
-                    self:present("recall", {side = "player", pokemon = old})
-                    self:say("Go! " .. chosen.name .. "!")
-                    self:present("sendout", {side = "player", pokemon = chosen})
-                    self.conditions:entry(chosen, "player")
-                    self.effects:entry(chosen)
-                    if not chosen:isAlive() then
-                        local result = self:handleFaint("player")
-                        if result ~= "replacement" then return result end
-                    end
-                end
-            end
             commitActiveMember(self,"enemy",index)
             self:opponentEntered()
             self.conditions:entry(self.enemy,"enemy")
@@ -1610,121 +1556,4 @@ function Battle:useItem(id,partyIndex,moveSlot)
         return self:finishRound()
     end)
     return true,result
-end
-
-function Battle:declineShift()
-    if not self.shiftChoice or self.selectionKind then
-        return false
-    end
-    self.shiftChoice = nil
-    return self.machine:get("script"):advance()
-end
-
-function Battle:chooseShiftParty(index)
-    if self.selectionKind ~= "party" or not self.party then
-        return false, "wrong-phase"
-    end
-    local chosen = self.party:get(index)
-    if not chosen or chosen == self.player or not chosen:isAlive() then
-        return false, "invalid-replacement"
-    end
-    if self.conditions:trapped(self.player) or self.effects:withdrawBlocked(self.player) then
-        return false, "trapped"
-    end
-    if not validSwitchSleep(self.player) or not validSwitchSleep(chosen) then
-        return false, "invalid-sleep-duration"
-    end
-    self.shiftSelected = index
-    self.shiftChoice = nil
-    self.selectionKind = nil
-    return self.machine:get("script"):advance()
-end
-
--- Class layers follow pokered data/trainers/move_choices.asm.
--- The current type chart replaces Gen I's type checks.
-local trainerLayers <const> = {
-    YOUNGSTER = {}, BUG_CATCHER = {1}, LASS = {1}, SAILOR = {1, 3},
-    JR_TRAINER_M = {1}, JR_TRAINER_F = {1}, POKEMANIAC = {1, 2, 3},
-    SUPER_NERD = {1, 2}, HIKER = {1}, BIKER = {1}, BURGLAR = {1, 3},
-    ENGINEER = {1}, UNUSED_JUGGLER = {1, 2}, FISHER = {1, 3}, SWIMMER = {1, 3},
-    CUE_BALL = {}, GAMBLER = {1}, BEAUTY = {1, 3}, PSYCHIC_TR = {1, 2},
-    ROCKER = {1, 3}, JUGGLER = {1}, TAMER = {1}, BIRD_KEEPER = {1},
-    BLACKBELT = {1}, RIVAL1 = {1}, PROF_OAK = {1, 3}, CHIEF = {1, 2},
-    SCIENTIST = {1, 2}, GIOVANNI = {1, 3}, ROCKET = {1},
-    COOLTRAINER_M = {1, 3}, COOLTRAINER_F = {1, 3}, BRUNO = {1}, BROCK = {1},
-    MISTY = {1, 3}, LT_SURGE = {1, 3}, ERIKA = {1, 3}, KOGA = {1, 3},
-    BLAINE = {1, 3}, SABRINA = {1, 3}, GENTLEMAN = {1, 2},
-    RIVAL2 = {1, 3}, RIVAL3 = {1, 3}, LORELEI = {1, 2, 3}, CHANNELER = {1},
-    AGATHA = {1}, LANCE = {1, 3},
-}
-local statusMoves <const> = {
-    sleepPowder = true, hypnosis = true, sing = true, lovelyKiss = true, spore = true,
-    poisonPowder = true, poisonGas = true, toxic = true, thunderWave = true,
-    glare = true, stunSpore = true, willOWisp = true,
-}
-local setupMoves <const> = {
-    swordsDance = true, growl = true, tailWhip = true, leer = true, sandAttack = true,
-    doubleTeam = true, minimize = true, defenseCurl = true, harden = true,
-    withdraw = true, growth = true, agility = true, amnesia = true, barrier = true,
-    meditate = true, sharpen = true, smokescreen = true, stringShot = true,
-    screech = true, flash = true, acidArmor = true, kinesis = true,
-}
-
-function Battle:trainerMoveChoices(choices)
-    local class = (self.trainerClass or self.trainerName or ""):upper():gsub("^OPP_", ""):gsub("[ .]", "_")
-    if class == "BLUE" then
-        class = "RIVAL1"
-    end
-    local layers = trainerLayers[class] or {1, 3}
-    local enabled = {}
-    for _, layer in ipairs(layers) do
-        enabled[layer] = true
-    end
-    local best, minimum = {}, math.huge
-    for _, choice in ipairs(choices) do
-        local move = choice.move
-        local score = 10
-        -- Every trainer avoids obviously wasted status and immune attacks,
-        -- including source classes whose original move policy was random.
-        if statusMoves[choice.key] and self.player.status then
-            score = score + (enabled[1] and 5 or 2)
-        end
-        if move.category ~= "status" and self:typeMatchup(move.type, self.player) == 0 then
-            score = score + 5
-        end
-        if move.category == "status" and statusMoves[choice.key] then
-            if (move.type == "poison" and (self:hasType(self.player, "poison") or self:hasType(self.player, "steel")))
-                or (choice.key == "willOWisp" and self:hasType(self.player, "fire"))
-                or (choice.key == "thunderWave" and self:hasType(self.player, "ground")) then
-                score = score + 5
-            end
-        end
-        if enabled[2] and (self.aiTurns or 0) == 0 and setupMoves[choice.key] then
-            score = score - 1
-        end
-        if enabled[3] then
-            local matchup = self:typeMatchup(move.type, self.player)
-            if move.category ~= "status" and matchup == 0 then
-                score = score + 5
-            elseif move.category ~= "status" and matchup < 1 then
-                for _, other in ipairs(choices) do
-                    if other.move.category ~= "status" and self:typeMatchup(other.move.type, self.player) >= 1 then
-                        score = score + 1
-                        break
-                    end
-                end
-            elseif matchup > 1 then
-                score = score - 1
-            end
-        end
-        if score < minimum then
-            minimum = score
-            best = {}
-        end
-        if score == minimum then
-            best[#best + 1] = choice
-        end
-    end
-    self.aiTurns = (self.aiTurns or 0) + 1
-    return best
 end

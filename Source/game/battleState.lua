@@ -23,12 +23,6 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     assert(plan,reason)
     local battle,scene=FieldBattle.construct(plan)
     self.npc = npc
-    if npc then
-        local id = npc.trainerID or npc.def and npc.def.source_event_id
-        local definition = self.game.trainers and self.game.trainers:definition(id)
-        battle.trainerClass = definition and definition.class_source or npc.name
-        scene.trainerClass = battle.trainerClass
-    end
     self.finished=false;self.epoch=(self.epoch or 0)+1;self.trainerToken=nil
     self.battle,self.scene=battle,scene
     assert(self.game.session:beginPickupBattle(battle, npc and 1 or 0))

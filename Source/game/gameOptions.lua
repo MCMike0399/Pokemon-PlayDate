@@ -10,17 +10,13 @@ local defaults <const> = {textSpeed = "FAST", battleAnimations = "ON", battleSty
 
 local function valid(key, value)
     for _, candidate in ipairs(allowed[key] or {}) do
-        if value == candidate then
-            return true
-        end
+        if value == candidate then return true end
     end
     return false
 end
 
 function GameOptions.load()
-    if values then
-        return
-    end
+    if values then return end
     values = {}
     local ok, record = pcall(playdate.datastore.read, "game-options")
     for key, fallback in pairs(defaults) do
@@ -51,9 +47,7 @@ end
 
 function GameOptions.set(key, value)
     GameOptions.load()
-    if not valid(key, value) then
-        return false, "invalid-option"
-    end
+    if not valid(key, value) then return false, "invalid-option" end
     values[key] = value
     return true
 end
