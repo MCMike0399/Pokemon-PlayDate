@@ -13,18 +13,14 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ## Visual correction — 2026-10-28
 
-The user rejected the whitened-ground proposal. Preserve the original Game Boy
-four-shade tonal structure when adapting imported tiles to 1-bit. Compare the
-GB source, current renderer and source-faithful dither candidates before changing
-maps. This replaces the earlier request to make imported ground whiter.
-Withdraw all ground, floor and cave whitening and the Pallet-share check.
-Use one global mapping with explicit phase. Compare Bayer and line/cluster
-patterns at LIGHT 31–37.5% and DARK 69–75% black coverage. Judge tone fidelity
-against grey GB renders using Gaussian sigma 2 mean absolute difference.
-Show Route1 and Route24 first, then the requested town, forest, cave, ship and
-Center scenes, with character contrast and native walking motion. Protected
-Pallet and interiors get separate review sheets. Battle art and UI stay outside
-this work. No mapping or protected-image change is approved yet.
+The user rejected whitening and approved the original Game Boy grey target.
+Imported terrain uses one fixed-phase Bayer mapping: LIGHT 31.25% black and
+DARK 68.75%. Source grids remain unchanged. The reviewed 186 imported-terrain
+baseline changes are recorded in
+[the approval manifest](../validation/gb-tone-approved-images-20261028.json).
+Pallet, its interiors, RED, NPCs, battle art and UI retain their protected pixels.
+Ground whitening and the Pallet-share check remain withdrawn. Future display
+changes require source/current/proposed comparisons and native motion review.
 
 ## Play quality direction — 2026-10-28 (latest user steer)
 
@@ -40,17 +36,15 @@ Use fixed waypoints for troublesome maps. Before 5.4 merges, park NPC trades and
 Saffron guards; Pickup remains. Add no driver/journey Simulator contracts.
 Frames name their milestone and map. Keep new Lua one statement per line.
 
-Imported terrain needs reviewed per-tileset shade mappings above immutable source
-data. The user approves OVERWORLD, CAVERN and SHIP separately before merge.
-Pallet/interiors, RED and NPC sprites stay exact. Review source/current/proposed
-at native size and 2x, plus native motion. Battle work starts with HP/EXP animation,
-learning HUD layout and Gen 1 evolution text, then intros/send-out/recall/faint,
-reusable type effects, animations-off and trainer-class AI.
+Use the approved global terrain mapping above when adding regions. Battle work
+starts with HP/EXP animation, learning HUD layout and Gen 1 evolution text, then
+intros/send-out/recall/faint, reusable type effects, animations-off and trainer-class AI.
 
 Approved QoL now: hold B to run, fast default text with hold-A acceleration,
 Options (text speed, battle animations/style), and a real generated title screen.
-Record deliberate changes in the fidelity ledger. Propose crank controls,
-registered key items, bag sorting and reusable TMs; implement only after approval.
+The user also approved optional crank menu scrolling, a registered key item on
+A+B, manual Bag sorting and reusable TMs. Preserve validation, cancellation and
+D-pad controls. Record deliberate changes in the fidelity ledger.
 Audio is unparked: original scores to native synth, first town/route/battles/heal/
 menu/hit/faint/low-HP. At every milestone acceptance starting 5.4, provide outside
 Git production .pdx bundles, earned starter saves, one-line loading instructions,
@@ -59,9 +53,10 @@ a cutscene. Record paths, elapsed milestone hours and maps/day in the ledger.
 
 ## Course correction — 2026-10-28
 
-Finish and accept one milestone before resuming the next. Freeze Vermilion,
-Saffron guards, trades and audio until 5.3 is accepted on main. Keep only one
-next-milestone branch checked out. No policy questions beyond 5.4 for now.
+Finish and accept one checkpoint before resuming the next. The earlier freeze
+through 5.3 is complete; 5.4 is accepted. Follow the 5.5a → 5.5b → 5.5c order
+below. Parked trades and Saffron work return with their relevant checkpoint.
+Keep only one next-checkpoint integration branch active.
 
 Natural journeys start from the previous milestone's accepted save for that
 starter, stored outside Git at `~/Developer/Pokemon-PlayDate-env/evidence/chain/<milestone>/<starter>`.
