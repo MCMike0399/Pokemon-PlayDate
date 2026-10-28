@@ -64,7 +64,7 @@ A. Compose the active Source/data/sourceMaps.json and sourceMapCache normally.
    All 15 required new map IDs must be active. The host uses source-manifest.json
    from the identified staged build and hashes every consumed JSON input.
 
-B. Export Source/data/ceruleanJourney.json from the actual registered owners for
+B. Export Source/dev/ceruleanJourney.json from the actual registered owners for
    the staged build (not from English text or hand-guessed teams). Fields:
 
    schema: 1

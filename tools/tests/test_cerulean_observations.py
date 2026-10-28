@@ -60,7 +60,7 @@ class ProjectionTests(unittest.TestCase):
     def test_deterministic_projection_matches_consumed_source_bytes(self):
         actual = project(SOURCE)
         self.assertEqual(actual, project(SOURCE))
-        self.assertEqual(actual, json.loads((SOURCE / 'data/ceruleanJourney.json').read_text()))
+        self.assertEqual(actual, json.loads((SOURCE / 'dev/ceruleanJourney.json').read_text()))
         self.assertEqual(actual['bill_pc_player']['y'], 5)
         self.assertEqual(actual['session_codec'], 1)
         for path, digest in actual['sources'].items():

@@ -241,7 +241,7 @@ local function codecObservation(game, payload)
     return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true, payload=payload}
 end
 local function observeOwners(game)
-    local export = assert(json.decodeFile("data/ceruleanJourney.json"), "missing owner projection")
+    local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")
     assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale owner projection")
     local actual = SourceEvents.trainerDefinitions()
     local expected = GameSession._copy(export.trainers)

@@ -208,7 +208,7 @@ def validate_export(export, source):
         raise ProtocolError("missing six registered rival counter teams")
     for relative, digest in export["sources"].items():
         path_parts = Path(relative)
-        if path_parts.is_absolute() or ".." in path_parts.parts or relative == "data/ceruleanJourney.json":
+        if path_parts.is_absolute() or ".." in path_parts.parts or relative == "dev/ceruleanJourney.json":
             raise ProtocolError("unsafe or recursive owner source dependency")
         if source.manifest.get(relative) != digest:
             raise ProtocolError("Cerulean owner projection has stale source: " + relative)
@@ -275,7 +275,7 @@ class CeruleanJourney(BrockJourney):
         missing = REQUIRED_MAPS - set(self.map_manifest["maps"])
         if missing:
             raise ProtocolError("missing root map integration: " + ", ".join(sorted(missing)))
-        self.export = validate_export(source.read("data/ceruleanJourney.json"), source)
+        self.export = validate_export(source.read("dev/ceruleanJourney.json"), source)
         self.source_trainers.update(self.export["trainers"])
         self.source_trainers[BRIDGE_RIVAL] = self.export["rivals"][BRIDGE_RIVAL][self.starter]
         self.scenes = source.read("data/ceruleanStory/scenes.json")
@@ -283,7 +283,7 @@ class CeruleanJourney(BrockJourney):
         if observed != {"kind": "owners", "valid": True, "version": self.export["session_codec"]}:
             raise ProtocolError("actual registered owners did not qualify")
         self.summary["cerulean_dependencies"] = {"build_id": self.client.identity["build_id"],
-            "source_revision": REVISION, "owner_export_sha256": source.manifest["data/ceruleanJourney.json"],
+            "source_revision": REVISION, "owner_export_sha256": source.manifest["dev/ceruleanJourney.json"],
             "status": "host contracts only; native and visual acceptance pending"}
         atomic_json(self.evidence / "cerulean-dependencies.json", self.summary["cerulean_dependencies"])
 
