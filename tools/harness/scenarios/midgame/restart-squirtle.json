@@ -7,7 +7,7 @@
     {
       "journey": {
         "starter": "squirtle",
-        "packet": "full",
+        "packet": "5.5a",
         "content_scope": "critical",
         "evolution_policy": "accept",
         "max_actions": 120000,
@@ -22,7 +22,7 @@
       "restart": true,
       "journey": {
         "starter": "squirtle",
-        "packet": "full",
+        "packet": "5.5a",
         "content_scope": "critical",
         "evolution_policy": "accept",
         "max_actions": 120000,

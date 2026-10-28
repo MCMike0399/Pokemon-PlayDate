@@ -7,7 +7,7 @@
     {
       "journey": {
         "starter": "charmander",
-        "packet": "full",
+        "packet": "5.5a",
         "content_scope": "optional",
         "evolution_policy": "accept",
         "max_actions": 120000,
@@ -22,7 +22,7 @@
       "restart": true,
       "journey": {
         "starter": "charmander",
-        "packet": "full",
+        "packet": "5.5a",
         "content_scope": "optional",
         "evolution_policy": "accept",
         "max_actions": 120000,

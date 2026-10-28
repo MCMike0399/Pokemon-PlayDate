@@ -1,4 +1,4 @@
-"""Earned 5.4 -> 5.5 input journeys. Root alone owns Simulator and save import.
+"""Earned 5.4 -> 5.5a input journeys. Root alone owns Simulator and save import.
 
 Reuse existing route, battle, menu, capture and restart owners. No planner,
 fixture, state setter, artificial reward or free preparation battle is provided.
@@ -29,7 +29,7 @@ def validate_config(config):
     for key, (low, high) in BOUNDS.items():
         if key in config and (type(config[key]) is not int or not low <= config[key] <= high):
             raise ProtocolError('invalid bounded midgame option: ' + key)
-    if config.get('starter') not in cj.FAMILIES or config.get('packet') not in {'lavender', 'full'}:
+    if config.get('starter') not in cj.FAMILIES or config.get('packet') not in {'lavender', '5.5a'}:
         raise ProtocolError('midgame requires an original starter and explicit route packet')
     expected = 'optional' if config['starter'] == 'charmander' else 'critical'
     if config.get('content_scope') != expected or config.get('evolution_policy', 'accept') != 'accept':
@@ -51,8 +51,18 @@ def validate_scenario(scenario):
         if index and (group['restart'] is not True or any(group['journey'].get(k) != groups[0]['journey'].get(k)
                 for k in ('starter', 'packet', 'content_scope'))):
             raise ProtocolError('midgame Continue changed earned route identity')
-    if scenario['initial_save'] != {'milestone': '5.4', 'starter': groups[0]['journey']['starter']}:
-        raise ProtocolError('midgame must start from accepted chain/5.4/<starter>')
+    starting = scenario['initial_save']
+    if (not isinstance(starting, dict) or set(starting) not in (
+            {'milestone', 'starter'}, {'milestone', 'starter', 'resume'})
+            or starting.get('milestone') != '5.4'
+            or starting.get('starter') != groups[0]['journey']['starter']):
+        raise ProtocolError('midgame must descend from accepted chain/5.4/<starter>')
+    if 'resume' in starting:
+        reference = starting['resume']
+        if (not isinstance(reference, dict) or set(reference) != {'path', 'sha256'}
+                or not isinstance(reference['path'], str) or not Path(reference['path']).is_absolute()
+                or not isinstance(reference['sha256'], str) or len(reference['sha256']) != 64):
+            raise ProtocolError('resume requires an absolute checkpoint path and exact SHA256')
 
 
 def validate_chain_record(record, spec, project):
@@ -65,6 +75,21 @@ def validate_chain_record(record, spec, project):
         raise ProtocolError('starting slots lack accepted final-build Vermilion ancestry')
 
 
+def validate_partial_state(state):
+    if not isinstance(state, dict) or set(state) != {'starter', 'packet', 'content_scope', 'codec', 'completed_steps'}:
+        raise ProtocolError('malformed partial midgame Save observation')
+    validate_config(dict(name='midgame-continue', **{key: state[key]
+                        for key in ('starter', 'packet', 'content_scope')}))
+    cj.validate_boundary_payload(state['codec'])
+    steps = state['completed_steps']
+    allowed = {'vermilion-return', 'cerulean-arrival', 'rock-tunnel-center',
+               'rock-tunnel-flash-lavender', 'celadon-arrival', 'celadon_gym', 'hideout-scope',
+               'celadon-vending-drinks', 'celadon-eevee', 'celadon-coins-prize-slot'}
+    if (not isinstance(steps, list) or any(not isinstance(step, str) for step in steps)
+            or steps != sorted(set(steps)) or not set(steps) <= allowed):
+        raise ProtocolError('invalid partial route steps')
+
+
 def validate_receipt_state(state):
     if not isinstance(state, dict) or set(state) != {'starter', 'packet', 'content_scope', 'codec', 'completed_steps'}:
         raise ProtocolError('malformed midgame saved receipt')
@@ -74,12 +99,10 @@ def validate_receipt_state(state):
     if not isinstance(steps, list) or any(not isinstance(s, str) for s in steps) or steps != sorted(set(steps)):
         raise ProtocolError('invalid completed input-step observations')
     required = {'rock-tunnel-flash-lavender'}
-    if state['packet'] == 'full':
-        required |= {'celadon_gym', 'hideout-scope', 'tower-fuji-flute', 'saffron_gym', 'fuchsia_gym',
-                     'silph-rival-lapras-giovanni-president', 'safari-hm03-gold-teeth-hm04-strength-surf',
-                     'visited-city-fly'}
+    if state['packet'] == '5.5a':
+        required |= {'celadon_gym', 'hideout-scope'}
         if state['content_scope'] == 'optional':
-            required |= {'dojo-rods-bicycle-cycling-road-second-snorlax', 'optional-services-checked'}
+            required |= {'celadon-vending-drinks', 'celadon-eevee', 'celadon-coins-prize-slot'}
     if not required <= set(steps):
         raise ProtocolError('incomplete route cannot publish a final saved receipt')
 
@@ -94,7 +117,7 @@ class MidgameJourney(vj.VermilionJourney):
                        max_blackouts=config.get('max_blackouts', 1))
         super().__init__(client, evidence, adapted, build_evidence, capture_dir)
         self.config = copy.deepcopy(config)
-        self.summary.update(journey=copy.deepcopy(config), milestone='5.5', acceptance='unrun candidate',
+        self.summary.update(journey=copy.deepcopy(config), milestone='5.5a', acceptance='unrun candidate',
                             driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                             preparation_policy={'new_training_fights': 0, 'use_centers_and_shops': True})
         self.stage = 'cerulean'  # Existing shared source-trainer validation path.
@@ -103,13 +126,13 @@ class MidgameJourney(vj.VermilionJourney):
         self.midgame_ready = False
 
     def frame_label(self, label):
-        if label.startswith('m55-'):
+        if label.startswith('m55a-'):
             return label
         for prefix in ('brock-', 'parcel-', 'cerulean-', 'vermilion-'):
             label = label.replace(prefix, '')
         if getattr(self, 'saving', False):
             label = 'save-' + str(self.save_number) + '-' + label
-        return 'm55-' + self.state.get('zone_id', 'title').replace('pokered:', '').lower() + '-' + label
+        return 'm55a-' + self.state.get('zone_id', 'title').replace('pokered:', '').lower() + '-' + label
 
     def reset(self, **options):
         raise ProtocolError('midgame forbids New Game, resets and fixtures')
@@ -124,7 +147,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.vermilion = source.read('dev/vermilionJourney.json')
         self.field_definitions = source.read('data/fieldMoves.json')
         self.ordinary_events = {}
-        for package in ('sourceSlice', 'vermilionPreparation', 'midgameEast', 'midgameSouth', 'midgameSaffron'):
+        for package in ('sourceSlice', 'vermilionPreparation', 'midgameEast'):
             self.source_trainers.update(source.read('data/' + package + '/trainers.json')['trainers'])
             self.ordinary_events.update(source.read('data/' + package + '/events.json')['events'])
         owners = self.observe('midgame-owners')
@@ -161,6 +184,16 @@ class MidgameJourney(vj.VermilionJourney):
                 raise ProtocolError('earned 5.4 progression missing: ' + flag)
         if not self.defeated(vj.SURGE) or self.quantity('hm01') < 1 or self.quantity('hm05') < 1:
             raise ProtocolError('earned Surge/Cut/Flash state missing')
+        resume = provenance.get('resume')
+        if resume:
+            saved = resume['state']
+            if any(saved[k] != self.config[k] for k in ('starter', 'packet', 'content_scope')):
+                raise ProtocolError('partial checkpoint changed starter or route scope')
+            self.boundary_payload = self.codec_guard('loaded')
+            if self.boundary_payload != saved['codec']:
+                raise ProtocolError('partial Continue differs from its actual saved codec payload')
+            self.completed_steps = set(saved['completed_steps'])
+            self.summary['resumed_steps'] = sorted(self.completed_steps)
         self.summary['starting_save'] = provenance
         self.checkpoint('earned-flash-continue')
 
@@ -318,23 +351,29 @@ class MidgameJourney(vj.VermilionJourney):
         return index
 
     def route_lavender(self):
-        if self.state['zone_id'] != self.zone('Route2Gate'):
-            raise ProtocolError('first route packet requires the accepted Flash-aide checkpoint')
-        self.leave_flash_gate()
-        self.cross_digletts_cave(reverse=True)
-        self.heal_here('VermilionPokecenter')
-        self.travel(self.zone('Route6'))
-        self.travel(self.zone('UndergroundPathRoute6'))
-        self.travel(self.zone('UndergroundPathNorthSouth'))
-        self.travel(self.zone('UndergroundPathRoute5'))
-        self.travel(self.zone('Route5'))
-        self.heal_here('CeruleanPokecenter')
+        if 'rock-tunnel-flash-lavender' in self.completed_steps:
+            return
+        if 'vermilion-return' not in self.completed_steps:
+            if self.state['zone_id'] != self.zone('Route2Gate'):
+                raise ProtocolError('first route packet requires the accepted Flash-aide checkpoint')
+            self.leave_flash_gate()
+            self.cross_digletts_cave(reverse=True)
+            self.heal_here('VermilionPokecenter')
+            self.complete_at_center('vermilion-return')
+        if 'cerulean-arrival' not in self.completed_steps:
+            for name in ('Route6', 'UndergroundPathRoute6', 'UndergroundPathNorthSouth',
+                         'UndergroundPathRoute5', 'Route5'):
+                self.travel(self.zone(name))
+            self.heal_here('CeruleanPokecenter')
+            self.complete_at_center('cerulean-arrival')
+        if 'rock-tunnel-center' not in self.completed_steps:
+            self.travel(self.zone('CeruleanCity'))
+            cut = self.teach('cut')
+            self.field_cut(cut, 'CeruleanCity', (19, 28))
+            self.travel(self.zone('Route9'))
+            self.heal_here('RockTunnelPokecenter')
+            self.complete_at_center('rock-tunnel-center')
         flash = self.teach('flash')
-        self.travel(self.zone('CeruleanCity'))
-        cut = self.teach('cut')
-        self.field_cut(cut, 'CeruleanCity', (19, 28))
-        self.travel(self.zone('Route9'))
-        self.heal_here('RockTunnelPokecenter')
         self.travel(self.zone('Route10'))
         self.warp(self.zone('RockTunnel1F'), cj.sid('ROUTE_10', 2).replace(':objects:', ':warps:'))
         if self.observe('midgame-state')['fieldWorld']['mapPalOffset'] != 6:
@@ -358,9 +397,27 @@ class MidgameJourney(vj.VermilionJourney):
         self.heal_here('LavenderPokecenter')
         if self.config['content_scope'] == 'optional':
             self.visit_event(cj.sid('LAVENDER_CUBONE_HOUSE', 2))
-        self.travel(self.zone('LavenderTown'))
-        self.completed_steps.add('rock-tunnel-flash-lavender')
+        self.heal_here('LavenderPokecenter')
+        self.complete_at_center('rock-tunnel-flash-lavender')
         self.checkpoint('lavender-earned')
+
+    def complete_at_center(self, step):
+        self.completed_steps.add(step)
+        self.save()
+
+    def save(self):
+        super().save()
+        files = []
+        for name in ('adventure.a.json', 'adventure.b.json'):
+            path = self.client.data / name
+            if path.is_symlink() or not path.is_file():
+                raise ProtocolError('partial checkpoint requires two real save slots')
+            files.append(dict(file=name, sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+        starting = json.loads((self.build_evidence / 'starting-save.json').read_bytes())
+        # This is a partial progress marker, never a completed route receipt.
+        atomic_json(self.evidence / 'partial-save.json', dict(schema=1, kind='midgame-partial',
+            state=self.receipt_state(), files=files, starting_save=starting,
+            **{k: self.client.identity[k] for k in ('build_id', 'session_id')}))
 
     def receipt_state(self):
         if not isinstance(getattr(self, 'boundary_payload', None), dict):
@@ -397,8 +454,8 @@ class MidgameJourney(vj.VermilionJourney):
     def natural(self):
         self.start_earned()
         self.route_lavender()
-        if self.config['packet'] == 'full':
-            self.route_full()
+        if self.config['packet'] == '5.5a':
+            self.route_a()
         self.save()
         self.write_receipt()
         self.summary['acceptance'] = 'earned candidate saved; actual process restart pending'
@@ -409,9 +466,28 @@ class MidgameJourney(vj.VermilionJourney):
             return True
         if self.state.get('root') == 'fieldTravel':
             return self.advance_travel()
+        if self.state.get('root') == 'event' and lookup(self.state, 'event.phase') == 'celadon-slots':
+            if not getattr(self, 'slot_attempt', None):
+                raise ProtocolError('unplanned slot spin')
+            self.slot_attempt['spinning_observed'] = True
+            # Fixed human input cadence, independent of symbols or possible payout.
+            self.send('wait 8', 'press a', 'wait 4')
+            self.capture_slot_result()
+            return True
         phase = lookup(self.state, 'event.phase')
         if self.state.get('root') == 'event' and lookup(self.state, 'event.menu.active') is True:
             options = sequence(lookup(self.state, 'event.menu.options'), 'midgame event options')
+            if phase == 'celadon-menu':
+                choices = getattr(self, 'celadon_choices', None)
+                if not choices:
+                    raise ProtocolError('unplanned Celadon menu: ' + str(options))
+                choice = choices.pop(0)
+                if options.count(choice) != 1:
+                    raise ProtocolError('fixed Celadon choice absent: ' + choice + ': ' + str(options))
+                self.select('event.menu.selected', options.index(choice) + 1)
+                self.send('press a')
+                self.capture_slot_result()
+                return True
             if phase in {'hideout-floor', 'silph-floor'}:
                 choice = getattr(self, 'floor_choice', None)
                 if choice is None or options.count(choice) != 1:
@@ -556,20 +632,27 @@ class MidgameJourney(vj.VermilionJourney):
         self.save()
 
     def route_celadon(self):
-        for name in ('Route8', 'UndergroundPathRoute8', 'UndergroundPathWestEast', 'UndergroundPathRoute7', 'Route7'):
-            self.travel(self.zone(name))
+        if 'celadon-arrival' not in self.completed_steps:
+            for name in ('Route8', 'UndergroundPathRoute8', 'UndergroundPathWestEast',
+                         'UndergroundPathRoute7', 'Route7'):
+                self.travel(self.zone(name))
+            self.heal_here('CeladonPokecenter')
+            self.complete_at_center('celadon-arrival')
+        if 'celadon_gym' not in self.completed_steps:
+            self.ensure_room('CeladonMart2F')
+            self.leader('CELADON_GYM', 'BADGE_RAINBOW', 'tm21', 'CeladonPokecenter', 'CeladonMart2F')
+
+    def route_a(self):
+        self.route_celadon()
+        if 'hideout-scope' not in self.completed_steps:
+            self.route_hideout()
+        if self.config['content_scope'] == 'optional':
+            self.celadon_services_a()
+        if (not self.flag('BADGE_RAINBOW') or not self.flag('EVENT_GOT_TM21')
+                or self.quantity('silphScope') != 1):
+            raise ProtocolError('5.5a requires actual Erika rewards and Silph Scope')
         self.heal_here('CeladonPokecenter')
-        self.ensure_room('CeladonMart2F')
-        self.leader('CELADON_GYM', 'BADGE_RAINBOW', 'tm21', 'CeladonPokecenter', 'CeladonMart2F')
-        self.travel(self.zone('Route16'))
-        cut = self.teach('cut')
-        sites = self.field_definitions['maps'].get(self.zone('Route16'), {}).get('sites', [])
-        if not sites:
-            raise ProtocolError('Route16 source Cut sites unavailable; field packet not integrated')
-        target = sites[0]['targets'][0]
-        self.field_cut(cut, 'Route16', (target['x'], target['y']))
-        self.pickup(cj.sid('ROUTE_16_FLY_HOUSE', 1), 'hm02', 'EVENT_GOT_HM02')
-        self.heal_here('CeladonPokecenter')
+        self.require(zone_id=self.zone('CeladonPokecenter'))
 
     def route_hideout(self):
         self.scene_data('data/rocketHideoutStory/scenes.json')
@@ -1057,6 +1140,147 @@ class MidgameJourney(vj.VermilionJourney):
             self.drain()
         self.require(zone_id=self.zone(destination), **{'player.x': x, 'player.y': y})
         self.refresh_world()
+
+    def celadon_observation(self):
+        result = self.observe('midgame-state')
+        if type(result.get('coins')) is not int or not 0 <= result['coins'] <= 9999:
+            raise ProtocolError('actual CoinWallet observation unavailable')
+        return result
+
+    def capture_slot_result(self):
+        attempt = getattr(self, 'slot_attempt', None)
+        if not attempt:
+            return
+        observation = self.celadon_observation()
+        view = observation.get('celadonSlotView')
+        if isinstance(view, dict) and view.get('phase') == 'result':
+            if not attempt.get('spinning_observed') or view.get('bet') != 1:
+                raise ProtocolError('slot result lacks actual one-coin spin')
+            payout = view.get('payout')
+            if type(payout) is not int or payout not in {0, 8, 15, 100, 300}:
+                raise ProtocolError('slot result has an invalid source payout')
+            if observation['coins'] != min(9999, attempt['coins_before'] - 1 + payout):
+                raise ProtocolError('actual slot wallet differs from confirmed result')
+            attempt['result'] = copy.deepcopy(view)
+            attempt['coins_after'] = observation['coins']
+
+    def celadon_service(self, stable, choices=(), background=False):
+        self.celadon_choices = list(choices)
+        try:
+            if background:
+                self.background(stable)
+            else:
+                self.visit_event(stable)
+            if self.celadon_choices:
+                raise ProtocolError('Celadon service ended before its fixed UI choices: ' + stable)
+        finally:
+            self.celadon_choices = []
+
+    @staticmethod
+    def species_count(owner, species):
+        mons = owner['party']['members'] + [m for box in owner['storage']['boxes'] for m in sequence(box, 'box')]
+        return sum(m['species'] == species for m in mons)
+
+    def celadon_services_a(self):
+        policy = cj.StagedSource(self.build_evidence).read('data/celadonServices/policy.json')['policy']
+        if 'celadon-vending-drinks' not in self.completed_steps:
+            self.ensure_room('CeladonMart2F')
+            self.pickup(cj.sid('CELADON_MART_3F', 1), 'tm18', 'EVENT_GOT_TM18')
+            self.travel(self.zone('CeladonMartRoof'))
+            for drink, label in zip(policy['drinks'], ('FRESH WATER', 'SODA POP', 'LEMONADE')):
+                if self.flag(drink['flag']):
+                    continue
+                before, money = self.quantity(drink['item']), self.inventory()['money']
+                if money < drink['price']:
+                    raise ProtocolError('earned money cannot afford planned vending drink')
+                self.celadon_service('pokered:CELADON_MART_ROOF:background_events:1',
+                    [label + '  ¥' + str(drink['price'])], background=True)
+                if (self.quantity(drink['item']) != before + 1
+                        or self.inventory()['money'] != money - drink['price']):
+                    raise ProtocolError('actual vending purchase did not conserve money/items')
+                tm = self.quantity(drink['tm'])
+                self.celadon_service(cj.sid('CELADON_MART_ROOF', 2), ['YES', label])
+                if (not self.flag(drink['flag']) or self.quantity(drink['item']) != before
+                        or self.quantity(drink['tm']) != tm + 1):
+                    raise ProtocolError('actual drink exchange did not grant its source TM')
+                self.summary['rewards'].append(dict(id=cj.sid('CELADON_MART_ROOF', 2),
+                    item=drink['tm'], flag=drink['flag']))
+            self.heal_here('CeladonPokecenter')
+            self.complete_at_center('celadon-vending-drinks')
+        if 'celadon-eevee' not in self.completed_steps:
+            self.travel(self.zone('CeladonCity'))
+            for index, name in [(4, 'CeladonMansion1F'), (5, 'CeladonMansion2F'),
+                    (4, 'CeladonMansion3F'), (3, 'CeladonMansionRoof'), (3, 'CeladonMansionRoofHouse')]:
+                self.mansion_step_warp(index, name)
+            if not self.flag(policy['eevee']['flag']):
+                before = self.collection_owner()
+                self.celadon_service(policy['eevee']['id'])
+                after = self.collection_owner()
+                if (self.species_count(after, 'eevee') != self.species_count(before, 'eevee') + 1
+                        or not self.flag(policy['eevee']['flag'])):
+                    raise ProtocolError('actual level 25 Eevee gift did not complete')
+                added = after['party']['members'] + [m for box in after['storage']['boxes'] for m in sequence(box, 'box')]
+                if not any(m['species'] == 'eevee' and m['level'] == 25 for m in added):
+                    raise ProtocolError('source Eevee level differs')
+            for index, name in [(1, 'CeladonMansionRoof'), (2, 'CeladonMansion3F'),
+                    (4, 'CeladonMansion2F'), (3, 'CeladonMansion1F'), (3, 'CeladonCity')]:
+                self.mansion_step_warp(index, name)
+            self.heal_here('CeladonPokecenter')
+            self.complete_at_center('celadon-eevee')
+        if 'celadon-coins-prize-slot' in self.completed_steps:
+            return
+        self.pickup(cj.sid('CELADON_DINER', 5), 'coinCase', 'EVENT_GOT_COIN_CASE')
+        self.travel(self.zone('GameCorner'))
+        for stable, gift in sorted(policy['coin_gifts'].items()):
+            if self.flag(gift['flag']):
+                continue
+            before = self.celadon_observation()['coins']
+            self.celadon_service(stable)
+            if not self.flag(gift['flag']) or self.celadon_observation()['coins'] != min(9999, before + gift['coins']):
+                raise ProtocolError('actual source coin gift did not complete')
+        # Buy only enough for Abra plus a losing one-coin spin. A random win is never required.
+        for _ in range(3):
+            before = self.celadon_observation()['coins']
+            if before >= 121:
+                break
+            money = self.inventory()['money']
+            if money < 1000:
+                raise ProtocolError('earned money cannot fund the cheapest Blue prize and one spin')
+            self.celadon_service(cj.sid('GAME_CORNER', 2), ['YES'])
+            if self.celadon_observation()['coins'] != before + 50 or self.inventory()['money'] != money - 1000:
+                raise ProtocolError('actual coin exchange did not conserve wallet/money')
+        if self.celadon_observation()['coins'] < 121:
+            raise ProtocolError('actual wallet cannot afford fixed Abra prize and wager')
+        machine = policy['machines'][0]
+        approaches = self.model().approaches((machine['x'] + self.model().padding, machine['y']))
+        self.navigate(set(approaches))
+        self.face(approaches[self.position()])
+        self.slot_attempt = dict(id=machine['id'], coins_before=self.celadon_observation()['coins'])
+        self.celadon_choices = ['YES', '×1', 'NO']
+        try:
+            self.send('press a', 'wait 2')
+            self.drain()
+            if self.celadon_choices or 'result' not in self.slot_attempt:
+                raise ProtocolError('one real slot spin did not reach its confirmed terminal result')
+            self.summary['slot_spin'] = copy.deepcopy(self.slot_attempt)
+        finally:
+            self.celadon_choices = []
+            self.slot_attempt = None
+        self.travel(self.zone('GameCornerPrizeRoom'))
+        before, coins = self.collection_owner(), self.celadon_observation()['coins']
+        self.celadon_service('pokered:GAME_CORNER_PRIZE_ROOM:background_events:1',
+            ['ABRA  120', 'YES'], background=True)
+        after = self.collection_owner()
+        if (self.species_count(after, 'abra') != self.species_count(before, 'abra') + 1
+                or self.celadon_observation()['coins'] != coins - 120):
+            raise ProtocolError('actual Blue Abra prize did not conserve coins/specimens')
+        members = after['party']['members'] + [m for box in after['storage']['boxes'] for m in sequence(box, 'box')]
+        if not any(m['species'] == 'abra' and m['level'] == 6 for m in members):
+            raise ProtocolError('Blue prize Abra must be level 6')
+        self.summary['rewards'].append(dict(id='pokered:GAME_CORNER_PRIZE_ROOM:background_events:1',
+            species='abra', level=6, actual_coin_cost=120))
+        self.heal_here('CeladonPokecenter')
+        self.complete_at_center('celadon-coins-prize-slot')
 
     def supplemental_services(self):
         self.pickup(cj.sid('CELADON_DINER', 5), 'coinCase', 'EVENT_GOT_COIN_CASE')

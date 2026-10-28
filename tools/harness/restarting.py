@@ -194,7 +194,7 @@ def import_chain_save(scenario, project, data, output):
     spec = scenario.get('initial_save')
     if spec is None:
         return None
-    if (not isinstance(spec, dict) or set(spec) != {'milestone', 'starter'}
+    if (not isinstance(spec, dict) or set(spec) not in ({'milestone', 'starter'}, {'milestone', 'starter', 'resume'})
             or spec['milestone'] not in {'5.2', '5.3', '5.4'}
             or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
         raise ProtocolError('unknown starting save')
@@ -224,6 +224,10 @@ def import_chain_save(scenario, project, data, output):
                 or origin.get('accepted_source_sha256') != proof.get('source_sha256')
                 or not any(row.get('starter') == spec['starter'] for row in proof.get('starters', []))):
             raise ProtocolError('starting save lacks accepted Cerulean proof')
+    if 'resume' in spec:
+        if first.get('name') != 'midgame-natural':
+            raise ProtocolError('partial checkpoint resume is only supported for midgame')
+        return import_midgame_partial(spec, first, record, project, data, output)
     if {item['file'] for item in record['files']} != {'adventure.a.json', 'adventure.b.json'}:
         raise ProtocolError('starting save must include both exact slots')
     contents = {}
@@ -241,18 +245,93 @@ def import_chain_save(scenario, project, data, output):
     return record
 
 
+def import_midgame_partial(spec, journey, origin, project, data, output):
+    """Read a real Save marker only after its owned process exited and was archived.
+
+    The marker binds both slot hashes and the complete actual Save observation.
+    A failed journey remains failed; only its last verified Save is resumable.
+    """
+    from tools.harness.midgame_journey import validate_partial_state
+    reference = spec['resume']
+    path = Path(reference['path'])
+    if path.is_symlink() or not path.is_file() or path.name != 'partial-save.json':
+        raise ProtocolError('missing immutable midgame partial Save marker')
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != reference['sha256']:
+        raise ProtocolError('partial Save marker checksum changed')
+    marker = json.loads(raw)
+    if (not isinstance(marker, dict) or set(marker) != {'schema', 'kind', 'state', 'files',
+            'starting_save', 'build_id', 'session_id'}
+            or marker['schema'] != 1 or marker['kind'] != 'midgame-partial'):
+        raise ProtocolError('malformed partial Save marker')
+    validate_partial_state(marker['state'])
+    if any(marker['state'][key] != journey[key] for key in ('starter', 'packet', 'content_scope')):
+        raise ProtocolError('partial Save marker changed starter/route scope')
+    # Do not accept an arbitrary relocated slot directory or a live producer.
+    generation, run_root = path.parent, path.parent.parent.parent
+    run = json.loads((run_root / 'run.json').read_bytes())
+    process = next((row for row in run['processes']
+                    if row.get('evidence') == generation.relative_to(run_root).as_posix()), None)
+    if (any(marker[key] != run[key] for key in ('build_id', 'session_id'))
+            or process is None or process.get('status') not in {'exited', 'failed-exited'}
+            or 'returncode' not in process):
+        raise ProtocolError('partial Save producer has not confirmed its owned exit')
+    prior = marker['starting_save']
+    original = {key: value for key, value in prior.items() if key != 'resume'}
+    if original != origin:
+        raise ProtocolError('partial Save lacks the exact accepted 5.4 starter ancestry')
+    # Accepted slots are still checked and never written, even on a tooling retry.
+    for item in origin['files']:
+        accepted = Path(origin['directory']) / item['file']
+        if accepted.is_symlink() or hashlib.sha256(accepted.read_bytes()).hexdigest() != item['sha256']:
+            raise ProtocolError('accepted 5.4 ancestor changed')
+    files = marker['files']
+    if (not isinstance(files, list) or len(files) != 2
+            or {item['file'] for item in files} != {'adventure.a.json', 'adventure.b.json'}):
+        raise ProtocolError('partial Save requires both exact slot hashes')
+    contents = {}
+    for item in files:
+        archived = generation / 'runtime-data' / item['file']
+        if archived.is_symlink() or not archived.is_file():
+            raise ProtocolError('partial Save slots are not in the stopped-process archive')
+        content = archived.read_bytes()
+        if hashlib.sha256(content).hexdigest() != item['sha256']:
+            raise ProtocolError('archived slots differ from the last verified real Save')
+        contents[item['file']] = content
+    record = dict(origin)
+    ancestry = list(prior.get('resume', {}).get('ancestry', []))
+    ancestry.append(dict(reference))
+    record['resume'] = dict(reference, state=marker['state'], files=files,
+                            directory=str(generation / 'runtime-data'), ancestry=ancestry)
+    for name, content in contents.items():
+        (data / name).write_bytes(content)
+    atomic_json(output / 'starting-save.json', record)
+    return record
+
+
 def export_chain_save(scenario, data, output, metadata):
     spec = scenario.get('initial_save')
     if spec is None:
         return
     first = scenario['processes'][0].get('journey', {})
-    if first.get('name') == 'midgame-natural' and first.get('packet') != 'full':
-        return  # A partial route checkpoint never exports final 5.5 slots.
+    if first.get('name') == 'midgame-natural' and first.get('packet') != '5.5a':
+        return  # A partial route checkpoint never exports final 5.5a slots.
     if first.get('name') == 'vermilion-natural' and (
             len(scenario['processes']) != 2
             or scenario['processes'][1].get('journey', {}).get('name') != 'vermilion-continue'):
         raise ProtocolError('Vermilion chain export requires its two-process Save/Continue')
-    milestone = '5.5' if first.get('name') == 'midgame-natural' else '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
+    if first.get('name') == 'midgame-natural':
+        if (len(scenario['processes']) != 2
+                or scenario['processes'][1].get('journey', {}).get('name') != 'midgame-continue'):
+            raise ProtocolError('5.5a export requires actual process Save/Continue')
+        run_record = json.loads((output / 'run.json').read_bytes())
+        if len(run_record['processes']) != 2 or any(row.get('status') != 'exited' for row in run_record['processes']):
+            raise ProtocolError('5.5a export requires two confirmed exited processes')
+        last = run_record['processes'][-1]['journey_receipt']
+        receipt = read_receipt(dict(path=str(output / last['path']), sha256=last['sha256']), metadata)
+        if receipt['state']['packet'] != '5.5a':
+            raise ProtocolError('5.5a export cannot use another route receipt')
+    milestone = '5.5a' if first.get('name') == 'midgame-natural' else '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
     destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain' / milestone / spec['starter']
     destination.mkdir(parents=True, exist_ok=True)
     files = []
