@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import patch
 
 from tools import generate_vermilion_journey as generator
-from tools.harness import cerulean_journey as cj, vermilion_journey as vj
+from tools.harness import cerulean_journey as cj, vermilion_journey as vj, restarting
 from tools.harness.protocol import ProtocolError
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -61,6 +61,11 @@ class ConfigTests(unittest.TestCase):
                 supplements.add(config['case'])
             else:
                 starters.add(config['starter'])
+                self.assertEqual(scenario['initial_save'], {'milestone': '5.3', 'starter': config['starter']})
+                self.assertNotIn('training_level', config)
+                self.assertNotIn('max_training_battles', config)
+                self.assertLessEqual(config['collection_battles'], 60)
+                self.assertLessEqual(config['collection_phase_battles'], 20)
                 self.assertEqual(len(groups), 2)
                 self.assertTrue(groups[1]['restart'])
         self.assertEqual(starters, set(cj.FAMILIES))
@@ -100,6 +105,68 @@ class ConfigTests(unittest.TestCase):
         driver = journey()
         self.assertEqual(driver.summary['journey']['name'], 'vermilion-natural')
         self.assertEqual(driver.summary['acceptance'], 'unrun candidate')
+
+    def test_chain_import_checks_accepted_proof_and_both_slots_before_copy(self):
+        # Filesystem boundary only; these bytes are never passed to a game.
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            docs = root / 'docs/validation'
+            docs.mkdir(parents=True)
+            proof = json.loads((ROOT / 'docs/validation/cerulean-acceptance-20261028.json').read_text())
+            (docs / 'cerulean-acceptance-20261028.json').write_text(json.dumps(proof))
+            slots = root / 'slots'
+            slots.mkdir()
+            files = []
+            for name in ('adventure.a.json', 'adventure.b.json'):
+                raw = name.encode()
+                (slots / name).write_bytes(raw)
+                files.append({'file': name, 'sha256': hashlib.sha256(raw).hexdigest()})
+            for starter in cj.FAMILIES:
+                scenario = json.loads((CASES / ('restart-' + starter + '.json')).read_text())
+                record = dict(starter=starter, from_milestone='5.3', directory=str(slots), files=files,
+                              accepted_commit=proof['accepted_main_code'], accepted_source_sha256=proof['source_sha256'])
+                manifest = docs / 'chain-saves.json'
+                manifest.write_text(json.dumps({'saves': [record]}))
+                data, output = root / starter, root / (starter + '-output')
+                data.mkdir()
+                output.mkdir()
+                restarting.validate(scenario)
+                restarting.import_chain_save(scenario, root, data, output)
+                for name in ('adventure.a.json', 'adventure.b.json'):
+                    self.assertEqual((data / name).read_bytes(), (slots / name).read_bytes())
+                    (data / name).unlink()
+                record['accepted_source_sha256'] = 'wrong'
+                manifest.write_text(json.dumps({'saves': [record]}))
+                with self.assertRaisesRegex(ProtocolError, 'accepted Cerulean proof'):
+                    restarting.import_chain_save(scenario, root, data, output)
+                record['accepted_source_sha256'] = proof['source_sha256']
+                record['files'] = [files[0], dict(files[1], sha256='wrong')]
+                manifest.write_text(json.dumps({'saves': [record]}))
+                with self.assertRaisesRegex(ProtocolError, 'checksum changed'):
+                    restarting.import_chain_save(scenario, root, data, output)
+                self.assertEqual(list(data.iterdir()), [])
+
+    def test_successful_chain_exports_to_54_with_pending_provenance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            data, output = root / 'data', root / 'output'
+            data.mkdir()
+            output.mkdir()
+            (output / 'starting-save.json').write_text('{"from_milestone":"5.3"}')
+            for name in ('adventure.a.json', 'adventure.b.json'):
+                (data / name).write_bytes(name.encode())
+            for starter in cj.FAMILIES:
+                scenario = json.loads((CASES / ('restart-' + starter + '.json')).read_text())
+                with patch.object(Path, 'home', return_value=root):
+                    restarting.export_chain_save(scenario, data, output, NoRuntime.identity)
+                chain = root / 'Developer/Pokemon-PlayDate-env/evidence/chain'
+                provenance = json.loads((chain / '5.4' / starter / 'provenance.json').read_text())
+                self.assertIn('pending', provenance['status'])
+                self.assertEqual(provenance['milestone'], '5.4')
+                self.assertFalse((chain / '5.3').exists())
+                for item in provenance['files']:
+                    raw = (chain / '5.4' / starter / item['file']).read_bytes()
+                    self.assertEqual(hashlib.sha256(raw).hexdigest(), item['sha256'])
 
 
 class ProjectionTests(unittest.TestCase):
@@ -386,7 +453,7 @@ class ReceiptAndPatchTests(unittest.TestCase):
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
                 return module
-            restarting = load('restarting')
+            patched_restarting = load('restarting')
             dispatch = load('journeys')
             for path in CASES.glob('*.json'):
                 restarting.validate(json.loads(path.read_text()))
@@ -399,10 +466,10 @@ class ReceiptAndPatchTests(unittest.TestCase):
             packet = dict(schema=1, kind='vermilion-saved', state=receipt(), **NoRuntime.identity)
             path.write_text(json.dumps(packet))
             reference = {'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
-            self.assertEqual(restarting.read_receipt(reference, NoRuntime.identity), packet)
+            self.assertEqual(patched_restarting.read_receipt(reference, NoRuntime.identity), packet)
             path.write_text(json.dumps(dict(packet, session_id='changed')))
             with self.assertRaises(ProtocolError):
-                restarting.read_receipt(reference, NoRuntime.identity)
+                patched_restarting.read_receipt(reference, NoRuntime.identity)
 
     def test_readonly_patch_applies_to_exact_base_without_modifying_shared_files(self):
         with tempfile.TemporaryDirectory() as directory:

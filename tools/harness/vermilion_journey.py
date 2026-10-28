@@ -1,6 +1,6 @@
 """Private milestone 5.4 real-input candidate; never owns a runtime process.
 
-Natural mode extends CeruleanJourney in the same process from New Game. Every
+Natural mode continues an accepted Cerulean save through the title menu. Every
 state change goes through production input. Missing activation, observations or
 service contracts fail closed. Supplementary fixtures never become natural.
 """
@@ -287,16 +287,16 @@ class VermilionJourney(cj.CeruleanJourney):
             raise ProtocolError('Vermilion continuation initialized twice')
         self.vermilion_active = True
         # Only the 5.4 continuation receives this additional finite budget.
-        # Earlier New Game -> Bill uses the original, unchanged Brock bounds.
+        # Accepted Cerulean progression is loaded, never replayed.
         self.config = dict(self.config,
             max_actions=self.config.get('max_actions', 6000) + self.config.get('vermilion_actions', 30000),
-            max_encounters=self.config.get('max_encounters', 64) + self.config.get('collection_battles', 180))
+            max_encounters=self.config.get('max_encounters', 64) + self.config.get('collection_battles', 60))
 
     def count_collection_step(self):
         if self.acquisition_active:
-            if self.collection['steps'] >= self.config.get('collection_steps', 12000):
+            if self.collection['steps'] >= self.config.get('collection_steps', 6000):
                 raise ProtocolError('Vermilion collection physical step budget exhausted')
-            if self.collection['battles'] >= self.config.get('collection_battles', 180):
+            if self.collection['battles'] >= self.config.get('collection_battles', 60):
                 raise ProtocolError('Vermilion collection real battle budget exhausted before movement')
             self.collection['steps'] += 1
 
@@ -318,7 +318,7 @@ class VermilionJourney(cj.CeruleanJourney):
     def training_battle(self):
         if not self.acquisition_active:
             return super().training_battle()
-        if self.collection['battles'] >= self.config.get('collection_battles', 180):
+        if self.collection['battles'] >= self.config.get('collection_battles', 60):
             raise ProtocolError('Vermilion collection real battle budget exhausted')
         self.collection['battles'] += 1
         self.collection_battle_balls = 0
@@ -498,12 +498,12 @@ class VermilionJourney(cj.CeruleanJourney):
             self.heal_here(center)
             self.collection_supplies(mart)
             lane = None
-            for _ in range(min(3000, self.config.get('collection_steps', 12000))):
+            for _ in range(min(3000, self.config.get('collection_steps', 6000))):
                 owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
                 if all(owned.get(s) for s in targets) or minimum_owned is not None and self.owned_count() >= minimum_owned:
                     phase['completed'] = True
                     break
-                if (self.collection['battles'] - start_battles >= self.config.get('collection_phase_battles', 60)
+                if (self.collection['battles'] - start_battles >= self.config.get('collection_phase_battles', 20)
                         or self.collection['steps'] - start_steps >= 3000):
                     break
                 try:
@@ -785,15 +785,43 @@ class VermilionJourney(cj.CeruleanJourney):
             raise ProtocolError('actual hidden can dispatch differs')
         self.drain()
 
+    def continue_cerulean(self):
+        provenance = json.loads((self.build_evidence / 'starting-save.json').read_text())
+        if provenance.get('from_milestone') != '5.3' or provenance.get('starter') != self.starter:
+            raise ProtocolError('Vermilion requires the accepted Cerulean save for this starter')
+        self.dependencies()
+        self.require(root='title', **{'title.phase': 'menu'})
+        options = sequence(lookup(self.state, 'title.menu.options'), 'title menu')
+        if options.count('CONTINUE') != 1:
+            raise ProtocolError('title lacks exactly one actual CONTINUE')
+        self.select('title.selected', options.index('CONTINUE') + 1)
+        self.checkpoint('vermilion-start-title-continue')
+        self.send('press a')
+        self.drain()
+        if not any(mon['species'] in cj.FAMILIES[self.starter] for mon in self.party()):
+            raise ProtocolError('accepted Cerulean save has the wrong starter')
+        for flag in ('BADGE_CASCADE', 'EVENT_GOT_SS_TICKET', 'EVENT_USED_CELL_SEPARATOR_ON_BILL',
+                     'EVENT_LEFT_BILLS_HOUSE_AFTER_HELPING'):
+            if not self.flag(flag):
+                raise ProtocolError('incomplete accepted Cerulean save: ' + flag)
+        if not self.defeated(cj.MISTY) or self.quantity('ssTicket') != 1:
+            raise ProtocolError('accepted Cerulean save lacks Misty victory or Bill ticket')
+        self.stage = 'cerulean'
+        self.summary.update(starting_save=provenance, preparation_policy={
+            'max_new_training_battles': 0, 'use_centers_and_medicine': True,
+            'collection_battles': self.config.get('collection_battles', 60)})
+
     def natural(self):
-        # No save import exists here. The exact accepted Cerulean real-input path
-        # runs first, in this same identified process and with the same RNG.
-        super().natural()
+        self.continue_cerulean()
         self.begin_continuation()
-        self.summary['acceptance'] = '5.3 path saved; private 5.4 candidate in progress'
+        self.summary['acceptance'] = 'Continued accepted Cerulean save; 5.4 candidate in progress'
         self.travel(self.zone('CeruleanCity'))
         # The robbed-house Rocket is a real required battle, not a seeded flag.
-        self.fight(cj.sid('CERULEAN_CITY', 2))
+        rocket = cj.sid('CERULEAN_CITY', 2)
+        if not self.defeated(rocket):
+            self.heal_here('CeruleanPokecenter')
+            self.stock_up('CeruleanMart')
+            self.fight(rocket)
         self.collect('Route24', ['bellsprout'], 'CeruleanPokecenter', 'CeruleanMart')
         self.collect('Route24', ['caterpie', 'metapod', 'pidgey'], 'CeruleanPokecenter', 'CeruleanMart')
         if not any(m['species'] == 'bellsprout' for m in self.party()):
@@ -818,6 +846,7 @@ class VermilionJourney(cj.CeruleanJourney):
         if not self.defeated(RIVAL) or not any(r.get('trainer_id') == RIVAL and r.get('won') for r in self.summary['source_receipts']):
             raise ProtocolError('actual positional Anne rival battle receipt missing')
         self.gift('hm01')
+        self.save()
         index = self.teach_cut()
         self.travel(self.zone('VermilionCity'))
         if not self.flag('EVENT_SS_ANNE_LEFT'):
@@ -833,6 +862,7 @@ class VermilionJourney(cj.CeruleanJourney):
         self.repeat_trainer(SURGE)
         self.checkpoint('vermilion-surge-badge-tm24')
         self.heal_here('VermilionPokecenter')
+        self.save()
         self.collect('Route11', ['sandshrew', 'spearow', 'drowzee'],
                      'VermilionPokecenter', 'VermilionMart', minimum_owned=10, required=False)
         if self.owned_count() < 10:

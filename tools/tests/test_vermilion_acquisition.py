@@ -15,7 +15,7 @@ import unittest
 from unittest.mock import patch
 
 from tools import generate_vermilion_journey as generator
-from tools.harness import cerulean_journey as cj, vermilion_journey as vj
+from tools.harness import cerulean_journey as cj, vermilion_journey as vj, restarting
 from tools.harness.protocol import ProtocolError
 from tools.tests.test_vermilion_journey import NoRuntime, journey, CASES, ROOT
 
@@ -345,7 +345,7 @@ class AideFixtureBoundaryTests(unittest.TestCase):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             for scenario in CASES.glob('*.json'):
-                module.validate(json.loads(scenario.read_text()))
+                restarting.validate(json.loads(scenario.read_text()))
             bad = {'processes': [{'journey': {'name': 'brock-natural', 'collection_balls': 80}},
                                  {'restart': True, 'journey': {'name': 'brock-continue'}}]}
             with self.assertRaises(ProtocolError):

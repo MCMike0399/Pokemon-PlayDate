@@ -28,6 +28,10 @@ def validate(scenario, qualification=False):
     groups = scenario['processes']
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
         raise ProtocolError('processes requires 2..8 process groups')
+    first = groups[0].get('journey', {}) if isinstance(groups[0], dict) else {}
+    if first.get('name') == 'vermilion-natural' and scenario.get('initial_save') != {
+            'milestone': '5.3', 'starter': first.get('starter', 'squirtle')}:
+        raise ProtocolError('Vermilion requires its accepted Cerulean starting save')
     for index, group in enumerate(groups):
         if not isinstance(group, dict) or set(group) - {'restart', 'requests', 'journey', 'outputs'}:
             raise ProtocolError('invalid process group fields')
@@ -184,11 +188,23 @@ def import_chain_save(scenario, project, data, output):
             or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
         raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
-    if first.get('name') != 'cerulean-natural' or first.get('starter') != spec['starter']:
+    expected = '5.3' if first.get('name') == 'vermilion-natural' else spec['milestone']
+    if (first.get('name') not in {'cerulean-natural', 'vermilion-natural'}
+            or first.get('starter') != spec['starter'] or spec['milestone'] != expected):
         raise ProtocolError('starting save does not match journey')
     manifest = json.loads((project / 'docs/validation/chain-saves.json').read_text())
     record = next(row for row in manifest['saves'] if row['starter'] == spec['starter']
                   and row['from_milestone'] == spec['milestone'])
+    if first['name'] == 'vermilion-natural':
+        proof = json.loads((project / 'docs/validation/cerulean-acceptance-20261028.json').read_text())
+        if (proof.get('milestone_accepted') is not True or proof.get('milestone') != '5.3'
+                or record.get('accepted_commit') != proof.get('accepted_main_code')
+                or record.get('accepted_source_sha256') != proof.get('source_sha256')
+                or not any(row.get('starter') == spec['starter'] for row in proof.get('starters', []))):
+            raise ProtocolError('starting save lacks accepted Cerulean proof')
+    if {item['file'] for item in record['files']} != {'adventure.a.json', 'adventure.b.json'}:
+        raise ProtocolError('starting save must include both exact slots')
+    contents = {}
     for item in record['files']:
         name = item['file']
         if name not in {'adventure.a.json', 'adventure.b.json'}:
@@ -196,6 +212,8 @@ def import_chain_save(scenario, project, data, output):
         content = (Path(record['directory']) / name).read_bytes()
         if hashlib.sha256(content).hexdigest() != item['sha256']:
             raise ProtocolError('accepted starting save checksum changed')
+        contents[name] = content
+    for name, content in contents.items():
         (data / name).write_bytes(content)
     atomic_json(output / 'starting-save.json', record)
     return record
@@ -205,7 +223,13 @@ def export_chain_save(scenario, data, output, metadata):
     spec = scenario.get('initial_save')
     if spec is None:
         return
-    destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain/5.3' / spec['starter']
+    first = scenario['processes'][0].get('journey', {})
+    if first.get('name') == 'vermilion-natural' and (
+            len(scenario['processes']) != 2
+            or scenario['processes'][1].get('journey', {}).get('name') != 'vermilion-continue'):
+        raise ProtocolError('Vermilion chain export requires its two-process Save/Continue')
+    milestone = '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
+    destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain' / milestone / spec['starter']
     destination.mkdir(parents=True, exist_ok=True)
     files = []
     for name in ('adventure.a.json', 'adventure.b.json'):
@@ -213,8 +237,10 @@ def export_chain_save(scenario, data, output, metadata):
         (destination / name).write_bytes(content)
         files.append({'file': name, 'sha256': hashlib.sha256(content).hexdigest()})
     atomic_json(destination / 'provenance.json', {
-        'milestone': '5.3', 'starter': spec['starter'], 'evidence': str(output),
+        'milestone': milestone, 'starter': spec['starter'], 'evidence': str(output),
         'build_id': metadata['build_id'], 'files': files,
+        'source_sha256': metadata.get('source_sha256'),
+        'starting_save': json.loads((output / 'starting-save.json').read_text()),
         'status': 'journey passed Save/Continue; milestone review pending'})
 
 
