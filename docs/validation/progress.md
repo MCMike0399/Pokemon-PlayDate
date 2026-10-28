@@ -110,6 +110,10 @@ acceptance of its composed dialogue, grass Cut and Pickup, plus reviewed approva
 for its Route2 collision diagnostic. That approval has not been granted.
 Later regions, common mechanics, audio and release checks remain unfinished.
 
+Cleanup removed 91 clean superseded worktrees and 173 old evidence directories,
+freeing 15.3 GB of evidence. Branches, acceptance references and the latest
+failures remain; two dirty worktrees were kept untouched.
+
 Later work is frozen until Cerulean is accepted. All three accepted Brock saves
 were recovered under `evidence/chain/5.2/<starter>`; [hashes and provenance](chain-saves.json).
 Next runs start there and continue after individual failures.
