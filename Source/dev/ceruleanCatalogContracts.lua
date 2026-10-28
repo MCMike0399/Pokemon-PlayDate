@@ -1,3 +1,4 @@
+import "dev/importedToneReference"
 -- Root-run SDK contracts. Host checks never substitute for these native pixels.
 CeruleanCatalogContracts = {}
 local gfx <const> = playdate.graphics
@@ -19,14 +20,8 @@ end
 
 -- Independent explicit-zero source-bit oracle. Do not read Shade constants or
 -- generate a second expected image through the renderer under test.
-local function color(code, x, y)
-    if code == "." then return gfx.kColorWhite end
-    if code == "#" then return gfx.kColorBlack end
-    local light = {0xBB,0xFF,0xEE,0xFF,0xBB,0xFF,0xEE,0xFF}
-    local dark = {0x55,0xAA,0x55,0xAA,0x55,0xAA,0x55,0xAA}
-    assert(code == "1" or code == "2", "unknown source shade")
-    local byte = (code == "1" and light or dark)[y % 8 + 1]
-    return byte & (0x80 >> (x % 8)) ~= 0 and gfx.kColorWhite or gfx.kColorBlack
+local function color(code, x, y, terrain)
+    return ImportedToneReference.color(code, x, y, terrain)
 end
 
 local function sourcePixels(image, grid, masked)
@@ -53,7 +48,7 @@ local function sourcePixels(image, grid, masked)
         for x = 0, 31 do
             local transparent = outside[(y//2)*16+x//2+1]
             if masked then eq(mask:sample(x,y), transparent and gfx.kColorBlack or gfx.kColorWhite) end
-            if not transparent then eq(image:sample(x,y), color(grid[y//2+1]:sub(x//2+1,x//2+1), x, y)) end
+            if not transparent then eq(image:sample(x,y), color(grid[y//2+1]:sub(x//2+1,x//2+1), x, y, not masked)) end
         end
     end
 end
@@ -246,7 +241,7 @@ function CeruleanCatalogContracts.run()
                             local grid = SourceMaps.tile(cell.key).grid
                             for _, point in ipairs({{0,0}, {15,15}, {16,16}, {31,31}}) do
                                 local px, py = point[1], point[2]
-                                eq(image:sample(x*32+px,y*32+py), color(grid[py//2+1]:sub(px//2+1,px//2+1),px,py))
+                                eq(image:sample(x*32+px,y*32+py), color(grid[py//2+1]:sub(px//2+1,px//2+1),px,py,true))
                             end
                         end
                     end

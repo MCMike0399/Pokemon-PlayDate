@@ -1,3 +1,4 @@
+import "dev/importedToneReference"
 -- Actual SDK/production module contracts; no replacement Playdate environment.
 WorldContracts = {}
 local function equal(actual, expected, label)
@@ -64,7 +65,7 @@ function WorldContracts.run()
         registry:registerBatch({ entry("test:extra", "2", 0) })
         local before, after = TileFactory.generateAll(), TileFactory.generateAll(registry)
         for id = 1, 37 do sameImage(before:getImage(id), after:getImage(id)) end
-        sameImage(after:getImage(38), TileFactory.renderGrid(grid("2"), nil, { 0, 0 }))
+        sameImage(after:getImage(38), ImportedToneReference.image(grid("2")))
     end)
     test("explicit imported phase uniform and mixed runs match independent byte vectors", function()
         local gfx = playdate.graphics

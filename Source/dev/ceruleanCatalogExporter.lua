@@ -295,7 +295,7 @@ function CeruleanCatalogExporter.writer(sink)
     for _, key in ipairs(keys(CeruleanCatalogExporter.tiles())) do
         local tile = SourceMaps.tile(key)
         local name = "tile_imported_" .. VisualCatalog.stableName(key)
-        sink.asset(name, TileFactory.renderGrid(tile.grid, nil, {0,0}), "imported-tile", false)
+        sink.asset(name, TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid), "imported-tile", false)
         report.tiles[#report.tiles + 1] = { stable_key = key, path = name .. ".png",
             terrain = tile.terrain, collision = tile.collision }
     end

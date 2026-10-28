@@ -26,7 +26,12 @@ function PewterCatalog.write(output)
     local metadata=PewterSlice.compact()
     for index,key in ipairs(sortedKeys(metadata.tiles)) do
         local tile=PewterSlice.tile(key)
-        local entry=save(TileFactory.renderGrid(tile.grid,nil,{0,0}),string.format("pewter-tile-%03d",index),"tile",{stable_key=key,collision=tile.collision,terrain=tile.terrain})
+        local image = TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid)
+        local entry = save(image, string.format("pewter-tile-%03d", index), "tile", {
+            stable_key = key,
+            collision = tile.collision,
+            terrain = tile.terrain,
+        })
         report.tiles[#report.tiles+1]={stable_key=key,path=entry.path}
     end
     for _,name in ipairs(PewterSlice.names()) do

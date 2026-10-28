@@ -45,7 +45,7 @@ function PewterCatalogExporter.writer(sink)
         local prefix="tile_imported_"..VisualCatalog.stableName(key)
         if not protected.tiles[key] then
             local tile=PewterSlice.tile(key)
-            sink.asset(prefix,TileFactory.renderGrid(tile.grid,nil,{0,0}),"imported-tile",false)
+            sink.asset(prefix, TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid), "imported-tile", false)
         end
         report.tiles[#report.tiles+1]={stable_key=key,path=prefix..".png",protected_shared=protected.tiles[key] or false}
     end

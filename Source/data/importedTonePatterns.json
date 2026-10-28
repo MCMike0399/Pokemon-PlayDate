@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "approval": "approved",
+  "preview": false,
+  "family": "bayer8",
+  "phase": [
+    0,
+    0
+  ],
+  "light": [
+    85,
+    187,
+    85,
+    255,
+    85,
+    187,
+    85,
+    255
+  ],
+  "dark": [
+    0,
+    170,
+    68,
+    170,
+    0,
+    170,
+    68,
+    170
+  ]
+}

@@ -176,7 +176,7 @@ function VermilionCatalogExporter.writer(sink)
     for _, key in ipairs(keys(VermilionCatalogExporter.tiles())) do
         local tile <const> = SourceMaps.tile(key)
         local stem <const> = "tile_imported_" .. VisualCatalog.stableName(key)
-        sink.asset(stem, TileFactory.renderGrid(tile.grid, nil, {0, 0}), "imported-tile", false)
+        sink.asset(stem, TileRegistry.renderImportedGrid(tile.grid, TileFactory.renderGrid), "imported-tile", false)
         report.tiles[#report.tiles + 1] = {stable_key = key, path = stem .. ".png"}
     end
     for _, name in ipairs(VermilionCatalogExporter.maps()) do

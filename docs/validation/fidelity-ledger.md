@@ -79,3 +79,6 @@ Implementation and native acceptance are tracked separately from this approval.
 | Registered key item | Blue requires opening the Bag | Register one key item in the Bag and use A+B in the field | Convenient access to existing item actions | User approved; implementation in progress |
 | Bag sorting | Blue preserves manual item order | Explicit manual Sort command with key-item grouping and stable ties | Easier inventory navigation | User approved; implementation in progress |
 | TMs | Blue consumes TMs | Reusable Gen V TMs, with compatibility and move-learning confirmation retained | Selected modern quality-of-life policy | User approved; implementation in progress |
+| Area | Original reference behavior | Project decision | Reason | Evidence/status |
+|---|---|---|---|---|
+| Display | GB four-shade tonal values | Match GB tonal values with 1-bit dithering (user decision 2026-10-28): fixed-phase Bayer on imported terrain; protected authored art and characters retain their pixels | Reproduce the original tones on Playdate | Native motion passed; 186 approved protected terrain images updated, 2308 remain exact. See gb-tone-approved-images-20261028.json. |

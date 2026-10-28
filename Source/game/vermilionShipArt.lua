@@ -4,7 +4,6 @@ VermilionShipArt = {}
 
 local gfx <const> = playdate.graphics
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
-local PHASE <const> = {0, 0}
 local CELL <const> = 32
 local cached
 local images
@@ -37,7 +36,7 @@ function VermilionShipArt.images()
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     for y, row in ipairs(data.hull.cells) do
         for x, cell in ipairs(row) do
-            TileFactory.renderGrid(cell.grid, nil, PHASE):draw((x - 1) * CELL, (y - 1) * CELL)
+            TileRegistry.renderImportedGrid(cell.grid, TileFactory.renderGrid):draw((x - 1) * CELL, (y - 1) * CELL)
         end
     end
     gfx.popContext()
@@ -64,7 +63,7 @@ function VermilionShipArt.images()
     images = {
         hull = hull,
         smoke = puff,
-        water = TileFactory.renderGrid(data.water_grid, nil, PHASE),
+        water = TileRegistry.renderImportedGrid(data.water_grid, TileFactory.renderGrid),
     }
     return images
 end

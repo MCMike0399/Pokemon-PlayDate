@@ -218,7 +218,7 @@ function FieldMoveState.prepareGrassPresentation(effect, preview)
     for _, cell in ipairs(preview.cells) do
         local key <const> = cell.after
         if not tiles[key] then
-            tiles[key] = TileFactory.renderGrid(assert(FieldMoves.tile(key)).grid, nil, {0, 0})
+            tiles[key] = TileRegistry.renderImportedGrid(assert(FieldMoves.tile(key)).grid, TileFactory.renderGrid)
         end
         ground[#ground + 1] = {x = cell.x, y = cell.y, image = tiles[key]}
     end
@@ -263,7 +263,7 @@ function FieldMoveState:draw()
             for _, cell in ipairs(self.preview.cells) do
                 if cell.x == target.x and cell.y == target.y then
                     local entry = assert(FieldMoves.tile(cell.after))
-                    self.ground = self.ground or TileFactory.renderGrid(entry.grid, nil, {0, 0})
+                    self.ground = self.ground or TileRegistry.renderImportedGrid(entry.grid, TileFactory.renderGrid)
                     self.ground:draw(x, y)
                 end
             end

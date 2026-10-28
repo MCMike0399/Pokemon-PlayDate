@@ -373,7 +373,7 @@ local function writeCatalog(outputDir)
         local localImages={}
         for _,key in ipairs(keys(imported)) do
             local entry=imported[key]
-            local image=TileFactory.renderGrid(entry.grid,nil,{0,0})
+            local image = TileRegistry.renderImportedGrid(entry.grid, TileFactory.renderGrid)
             localImages[key]=image
             local prefix="tile_imported_"..stableName(key)
             asset(prefix,image,"imported-tile")

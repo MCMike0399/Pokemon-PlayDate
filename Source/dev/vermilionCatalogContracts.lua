@@ -1,3 +1,4 @@
+import "dev/importedToneReference"
 -- Root-only real-SDK witnesses. Import/register explicitly in private staging.
 VermilionCatalogContracts = {}
 local gfx <const> = playdate.graphics
@@ -17,14 +18,8 @@ local function paths(inventory)
 end
 
 -- Independent source-bit oracle; no Shade constants or second renderer.
-local function color(code, x, y)
-    if code == "." then return gfx.kColorWhite end
-    if code == "#" then return gfx.kColorBlack end
-    local light <const> = {0xBB, 0xFF, 0xEE, 0xFF, 0xBB, 0xFF, 0xEE, 0xFF}
-    local dark <const> = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA}
-    assert(code == "1" or code == "2", "source shade required")
-    local byte <const> = (code == "1" and light or dark)[y % 8 + 1]
-    return byte & (0x80 >> (x % 8)) ~= 0 and gfx.kColorWhite or gfx.kColorBlack
+local function color(code, x, y, terrain)
+    return ImportedToneReference.color(code, x, y, terrain)
 end
 
 -- Connectivity relaxation independently checks the production border mask.
@@ -54,7 +49,7 @@ local function sourcePixels(image, grid, masked, flip)
             local transparent <const> = outside[(y // 2) * 16 + sourceX // 2 + 1]
             if mask then equal(mask:sample(x, y), transparent and gfx.kColorBlack or gfx.kColorWhite) end
             if not transparent then
-                equal(image:sample(x, y), color(grid[y // 2 + 1]:sub(sourceX // 2 + 1, sourceX // 2 + 1), sourceX, y))
+                equal(image:sample(x, y), color(grid[y // 2 + 1]:sub(sourceX // 2 + 1, sourceX // 2 + 1), sourceX, y, not masked))
             end
         end
     end
@@ -118,7 +113,7 @@ local function grassPresentationPixels(image, sourceFrame)
             local expected = gfx.kColorWhite
             if x >= 32 and x < 96 and y >= 16 and y < 80 then
                 local gx, gy = (x - 32) % 32, (y - 16) % 32
-                expected = color(ground[gy // 2 + 1]:sub(gx // 2 + 1, gx // 2 + 1), gx, gy)
+                expected = color(ground[gy // 2 + 1]:sub(gx // 2 + 1, gx // 2 + 1), gx, gy, true)
             end
             for _, leaf in ipairs(leaves) do
                 local lx, ly = x - leaf.x, y - leaf.y
@@ -253,7 +248,7 @@ function VermilionCatalogContracts.run()
                             local grid <const> = SourceMaps.tile(cell.key).grid
                             for _, point in ipairs({{0, 0}, {15, 15}, {16, 16}, {31, 31}}) do
                                 local px, py = point[1], point[2]
-                                equal(image:sample(x * 32 + px, y * 32 + py), color(grid[py // 2 + 1]:sub(px // 2 + 1, px // 2 + 1), px, py))
+                                equal(image:sample(x * 32 + px, y * 32 + py), color(grid[py // 2 + 1]:sub(px // 2 + 1, px // 2 + 1), px, py, true))
                             end
                         end
                     end
@@ -350,7 +345,7 @@ function VermilionCatalogContracts.run()
                     for cy, row in ipairs(VermilionShipArt.data().hull.cells) do
                         for cx, cell in ipairs(row) do
                             for y = 0, 31 do for x = 0, 31 do
-                                equal(image:sample((cx - 1) * 32 + x, (cy - 1) * 32 + y), color(cell.grid[y // 2 + 1]:sub(x // 2 + 1, x // 2 + 1), x, y))
+                                equal(image:sample((cx - 1) * 32 + x, (cy - 1) * 32 + y), color(cell.grid[y // 2 + 1]:sub(x // 2 + 1, x // 2 + 1), x, y, true))
                             end end
                         end
                     end
@@ -370,11 +365,11 @@ function VermilionCatalogContracts.run()
                     local width, height = image:getSize()
                     for y = 0, height - 1 do for x = 0, width - 1 do
                         local px, py = x % 32, y % 32
-                        local expected = color(art.water_grid[py // 2 + 1]:sub(px // 2 + 1, px // 2 + 1), px, py)
+                        local expected = color(art.water_grid[py // 2 + 1]:sub(px // 2 + 1, px // 2 + 1), px, py, true)
                         local hx <const> = x - hullX
                         if frame < finish and hx >= 0 and hx < 256 then
                             local grid <const> = art.hull.cells[y // 32 + 1][hx // 32 + 1].grid
-                            expected = color(grid[py // 2 + 1]:sub((hx % 32) // 2 + 1, (hx % 32) // 2 + 1), hx % 32, py)
+                            expected = color(grid[py // 2 + 1]:sub((hx % 32) // 2 + 1, (hx % 32) // 2 + 1), hx % 32, py, true)
                         end
                         local sx, sy = x - puffX, y - puffY
                         if frame >= start and frame < finish and hardwareX > 0 and hardwareX < timing.hardware_width + timing.oam_x_offset
@@ -393,7 +388,7 @@ function VermilionCatalogContracts.run()
                     for y = 0, 31 do for x = 0, 63 do
                         local expected = gfx.kColorWhite
                         if x >= 16 and x < 48 then
-                            expected = color(ground[y // 2 + 1]:sub((x - 16) // 2 + 1, (x - 16) // 2 + 1), x - 16, y)
+                            expected = color(ground[y // 2 + 1]:sub((x - 16) // 2 + 1, (x - 16) // 2 + 1), x - 16, y, true)
                         end
                         local shift <const> = (frame + 1) * 2
                         local tx <const> = x - 16 - (y < 16 and shift or -shift)

@@ -1,3 +1,4 @@
+import "dev/importedToneReference"
 -- Real SDK image/sprite/owner witnesses. No host Lua or simulated runtime.
 VermilionShipContracts = {}
 
@@ -25,17 +26,7 @@ end
 -- Independent native-bit oracle, with explicit-zero patterns pinned by the
 -- shared imported-art contract. It never calls the renderer under test.
 local function color(code, x, y)
-    if code == "." then
-        return gfx.kColorWhite
-    end
-    if code == "#" then
-        return gfx.kColorBlack
-    end
-    local light <const> = {0xBB, 0xFF, 0xEE, 0xFF, 0xBB, 0xFF, 0xEE, 0xFF}
-    local dark <const> = {0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA, 0x55, 0xAA}
-    assert(code == "1" or code == "2", "source shade required")
-    local byte <const> = (code == "1" and light or dark)[y % 8 + 1]
-    return byte & (0x80 >> (x % 8)) ~= 0 and gfx.kColorWhite or gfx.kColorBlack
+    return ImportedToneReference.color(code, x, y, true)
 end
 
 local function samePixels(actual, expected)

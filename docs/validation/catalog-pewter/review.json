@@ -50,6 +50,16 @@
       "native_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-journey-ready-sdk-20261028-01",
       "native_source_sha256": "a44c7b887d5bf4772db14ed097290603d9652f3eea153434c25be41f8986bb00",
       "protected_other_images_exact": 2493
+    },
+    {
+      "date": "2026-10-28",
+      "reason": "Match GB tonal values with fixed-phase 1-bit Bayer patterns on imported terrain.",
+      "user_approval": "go with gb grey target",
+      "changed_images": 186,
+      "alpha_pixels": 0,
+      "protected_other_images_exact": 2308,
+      "image_manifest": "../gb-tone-approved-images-20261028.json",
+      "native_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/play-quality-sdk-20261028-04"
     }
   ]
 }

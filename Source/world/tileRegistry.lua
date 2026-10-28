@@ -63,6 +63,47 @@ local function imported(entry)
     return { key = entry.key, grid = copy(entry.grid), collision = entry.collision, terrain = copy(entry.terrain), kind = "grid" }
 end
 
+-- Reviewed global imported-terrain tones. Authored art and SpriteFactory
+-- retain their original renderer. Source grids are read without rewriting them.
+local tonePolicy
+function TileRegistry.renderImportedGrid(rows, renderer)
+    if tonePolicy == nil then
+        tonePolicy = assert(json.decodeFile("data/importedTonePatterns.json"), "missing imported tone policy")
+    end
+    local policy = tonePolicy
+    if not policy.enabled then
+        return renderer(rows, nil, { 0, 0 })
+    end
+    assert(policy.schema == 1 and policy.phase[1] == 0 and policy.phase[2] == 0, "invalid imported tone phase")
+    assert(policy.approval == "approved" or (policy.preview and HarnessBuild and HarnessBuild.enabled),
+        "imported tone approval required outside private preview")
+    for _, name in ipairs({ "light", "dark" }) do
+        assert(type(policy[name]) == "table" and #policy[name] == 8, "eight tone pattern rows required")
+        for _, value in ipairs(policy[name]) do
+            assert(type(value) == "number" and value % 1 == 0 and value >= 0 and value <= 255, "invalid tone byte")
+        end
+    end
+    local gfx <const> = playdate.graphics
+    local image = gfx.image.new(32, 32, gfx.kColorWhite)
+    gfx.pushContext(image)
+    for y, row in ipairs(rows) do
+        for x = 1, 16 do
+            local shade = row:sub(x, x)
+            if shade ~= "." then
+                if shade == "#" then
+                    gfx.setColor(gfx.kColorBlack)
+                else
+                    gfx.setPattern(shade == "1" and policy.light or policy.dark, 0, 0)
+                end
+                gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)
+            end
+        end
+    end
+    Shade.reset()
+    gfx.popContext()
+    return image
+end
+
 function TileRegistry:init()
     local store = { entries = {}, keys = {}, images = {} }
     stores[self] = store
@@ -124,7 +165,9 @@ function TileRegistry:renderImported(value, renderer)
     local id = self:id(value)
     assert(id > BASE_COUNT, "base images are provided by TileFactory")
     local store = stores[self]
-    if not store.images[id] then store.images[id] = renderer(copy(store.entries[id].grid), nil, { 0, 0 }) end
+    if not store.images[id] then
+        store.images[id] = TileRegistry.renderImportedGrid(copy(store.entries[id].grid), renderer)
+    end
     return store.images[id]
 end
 
