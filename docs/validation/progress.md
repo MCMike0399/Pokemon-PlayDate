@@ -83,6 +83,13 @@ The cleanup removed at least 93 clean superseded worktrees and 173 old evidence
 directories, freeing 15.3 GB of evidence. Branches and required evidence remain;
 two dirty worktrees were kept intact.
 
+Quality check on the separate branch: 2081 native cases passed and five failed
+in `play-quality-sdk-20261028-01`. Four failures involve presentation/text timing;
+one learning-screen check calls an unavailable SDK image method. Repairs are
+assigned, and none of this code is release-accepted. The production preview build
+is outside Git at `evidence/player-packages/5.4-preview/PokemonBlue.pdx`; its
+finished starter saves and showcase clip remain pending.
+
 ## 5. Decisions
 
 - Finish one milestone before resuming the next. Keep one next-milestone branch.
