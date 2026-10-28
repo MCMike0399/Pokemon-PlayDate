@@ -302,3 +302,6 @@ if SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
 import "dev/fieldGearContracts"
 Contracts.register("field-gear", FieldGearContracts.run)
 end
+
+import "dev/celadonServicesContracts"
+Contracts.register("celadon-services", CeladonServicesContracts.run)

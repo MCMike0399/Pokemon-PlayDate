@@ -14,6 +14,7 @@ function HideoutTowerController.advance(state)
 end
 function HideoutTowerController.update(state)
     RocketHideoutStoryController.update(state)
+    CeladonServicesController.update(state)
 end
 function HideoutTowerController.handleButton(state, button)
     return RocketHideoutStoryController.handleButton(state, button) or (SilphStoryController and SilphStoryController.handleButton(state, button))
@@ -28,6 +29,7 @@ function HideoutTowerController.cancel(state)
     RocketHideoutStoryController.exit(state)
     if TowerStoryController then TowerStoryController.exit(state) end
     if SilphStoryController then SilphStoryController.exit(state) end
+    CeladonServicesController.exit(state)
 end
 function HideoutTowerController.afterExit(state)
     local id = state.id or ""
