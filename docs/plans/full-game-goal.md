@@ -11,6 +11,15 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Visual correction — 2026-10-28
+
+The user rejected the whitened-ground proposal. Preserve the original Game Boy
+four-shade tonal structure when adapting imported tiles to 1-bit. Compare the
+GB source, current renderer and source-faithful dither candidates before changing
+maps. This replaces the earlier request to make imported ground whiter.
+Pallet, its interiors and character sprites remain protected; no new shade
+mapping is approved yet.
+
 ## Play quality direction — 2026-10-28 (latest user steer)
 
 The target is a native Blue that feels good on Playdate, with Gen V rules and
