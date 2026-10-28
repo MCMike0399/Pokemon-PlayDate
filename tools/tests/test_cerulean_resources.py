@@ -12,6 +12,14 @@ class ResourcesTests(unittest.TestCase):
     def driver(self, **config):
         driver = cj.CeruleanJourney(Mock(), '/unused', dict(name='cerulean-natural', **config))
         driver.stage = 'cerulean'
+        # These call-order checks start after the real save-loading flow.
+        driver.dependencies = Mock()
+        driver.require = Mock()
+        driver.select = Mock()
+        driver.send = Mock()
+        driver.drain = Mock()
+        driver.party = lambda: [{'species': config.get('starter', 'squirtle')}]
+        driver.state = {'title': {'menu': {'options': ['CONTINUE']}}}
         return driver
 
     def test_natural_restores_and_restocks_between_rival_bridge_and_route25(self):
