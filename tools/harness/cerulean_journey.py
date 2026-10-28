@@ -320,11 +320,6 @@ class CeruleanJourney(BrockJourney):
             raise ProtocolError("fresh validation must not masquerade as a boundary receipt")
         return None
 
-    def capture_presentation(self, label, kind):
-        # Campaign screenshots need not contain a wandering NPC. The root
-        # reviews these native frames; actor pixels have separate checks.
-        super().capture_presentation(label, 'world-basic' if kind == 'world' else kind)
-
     def save(self):
         super().save()
         self.boundary_payload = self.codec_guard("saved")
@@ -580,7 +575,7 @@ class CeruleanJourney(BrockJourney):
     def capture_presentation(self, label, kind):
         if self.stage == "cerulean":
             label = "cerulean-" + label
-        return super().capture_presentation(label, kind)
+        return super().capture_presentation(label, 'world-basic' if kind == 'world' else kind)
 
     def fossil_exclusion(self):
         chosen = FOSSILS[self.config.get("fossil", "dome")]
