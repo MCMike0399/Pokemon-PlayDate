@@ -2,7 +2,8 @@
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
 Progress: **65 / 222 source maps playable on main. Current milestone: 5.5.**
-5.4 elapsed: **7.89 h**; current pace: **106.46 maps/day**.
+5.4 elapsed: **8.70 h**; pace: **96.55 maps/day**.
+5.5 elapsed so far: **0.59 h**; accepted new maps/day: **0**.
 [Milestone times](milestone-times.json) include waits and provider limits.
 
 ## 1. Current game on main
@@ -29,7 +30,7 @@ Kanto, the League, postgame and device release remain unfinished. Nothing pushed
 | 5.1 Pallet to Brock | Done | 5.62 h | [Brock](brock-acceptance-20261026.json): three starters, rewards, restart, blackout and evolution |
 | 5.2 Shared foundations | Done | 1.79 h | [Foundations](foundation-acceptance-20261026.json): 605 host, 1274 SDK and preserved art |
 | 5.3 Cerulean, Misty and Bill | Done | 37.35 h | [Cerulean](cerulean-acceptance-20261028.json): three chained saves, 723 host, 1666 SDK; scope limits retained |
-| 5.4 Vermilion and HMs | Accepted | 7.89 h | [Vermilion](vermilion-acceptance-20261028.json): 918 host, 2077 SDK, all 2494 images exact |
+| 5.4 Vermilion and HMs | Accepted | 8.70 h | [Vermilion](vermilion-acceptance-20261028.json): 918 host, 2077 SDK, all 2494 images exact |
 
 All three 5.4 journeys began from accepted Cerulean saves, preserving actual
 progress across tooling retries. Final runs are
@@ -42,42 +43,37 @@ No preparation grinding was added. Final logs contain no missing move/ability hi
 Actual slots are outside Git at `evidence/chain/5.4/<starter>`.
 Only [hashes and provenance](chain-saves.json) belong in Git.
 
-## 3. Play quality, separate from the game above
+## 3. Play quality on main
 
-The user rejected whitening and chose the original GB grey tones as the target.
-Main now uses the closest measured Bayer conversion: LIGHT 31.25% black,
-DARK 68.75%, fixed phase. Pallet, its interiors and character pixels stay unchanged.
-Native walking: `evidence/gb-tone-native-clip-20261028-02/native-proposed-motion.mp4`.
+Main uses the approved GB-tone conversion: LIGHT 31.25% black, DARK 68.75%,
+with fixed phase. Pallet, its interiors and character pixels are unchanged.
+The 186 approved imported-terrain images were updated; the other 2308 stayed exact.
+[The approval manifest](gb-tone-approved-images-20261028.json) records the scope.
+The final main build passed 2090 SDK checks, 918 host checks and actual process
+Continue for every starter. Running, text speed, Options, battle presentation,
+crank controls, Town Map registration, Bag sorting and reusable TMs are on main.
+Audio remains separate and unaccepted: the first native recording was silent.
 
-`wip/play-quality-native` passed 2090 SDK checks at
-`evidence/play-quality-sdk-20261028-04`. The four new QoL behavior cases passed.
-Its catalog changed only 186 approved imported-terrain images; 2308 stayed exact.
-[The image-approval manifest](gb-tone-approved-images-20261028.json) records the update. Ship/Cut background calls were subsequently made consistent and need the
-next native rerun before publication.
+## 4. Milestone 5.5 in progress
 
-Actual input checks in `evidence/quality-input-native-20261028-03` verified the
-fresh title, Town Map registration, A+B and manual Bag sorting using a clearly
-labelled test inventory. Crank controls and reusable TMs have native contracts;
-further input/motion review remains. Text speed, running, battle presentation and
-music are implemented privately. Audio loading/listening and cries remain separate
-from campaign acceptance. No unverified quality code has been released on main.
+Main remains **65/222**. Private `wip/midgame-integration` contains 171 source maps,
+including 106 new maps. This is preparation, not a playable-map acceptance claim.
+The native catalog exported 8726 images at
+`evidence/m55-native-catalog-20261028-02`; all 2494 protected images match.
+Five representative new native viewports were inspected. Motion and journeys
+remain pending. Source-backed mansion stairs now retain their forced arrival step
+without changing ordinary collision. The shared map host checks pass (14 tests).
 
-Production preview bundles exist at
-`evidence/player-packages/quality-preview-20261028`, but remain unpublished and
-must be rebuilt from the final reviewed code. Supplemental battle/learning/evolution
-recipes and an actual-window recorder are ready; they are not natural journey proof.
+Three Sol/medium workers continue in parallel: story scenes; field travel and
+services; and chained journeys from the earned Flash saves. Charmander covers
+optional content; Bulbasaur and Squirtle cover the critical path. The Warden's
+boulder movement is integrated privately and awaits native execution. Trades and
+Saffron guards have returned only on this private 5.5 branch; their earlier native
+run passed 2182 checks. Their restoration does not change accepted 5.4.
 
-## 4. Remaining work and order
-
-5.4 is accepted. Begin 5.5 from the earned Flash saves. Verified display and
-non-audio QoL changes are on main. NPC trades and Saffron guards are preserved on
-`parked/npc-trades-saffron-20261028` and excluded from this 5.4 game. Pickup stays.
-Workers use GPT-6.1 Sol at medium effort; root alone controls the Simulator.
-
-Keep journey sets in the background and react to pass/fail/new defects. Use fixed
-map waypoints when tooling cannot handle geometry. Fix frequent actual missing
-effects first, with one contract per new game behavior. Do not add fixture contracts
-or replay New Game before the final release pass.
+Keep journeys in the background. Use fixed waypoints for troublesome geometry,
+Centers and items instead of grinding, and one contract per new game behavior.
+Do not add driver contracts or replay New Game before the final release pass.
 
 ## 5. Housekeeping and decisions
 
