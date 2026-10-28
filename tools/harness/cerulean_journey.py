@@ -200,6 +200,9 @@ def source_models(source):
                                raw["directional_rules"]["ledges"], raw["directional_rules"]["forbidden_tile_pairs"], events)
         if (model.width, model.height) != (entry["width"], entry["height"]):
             raise ProtocolError("source cache dimensions disagree")
+        # Background text can share walkable floor or a warp (the robbed
+        # house's wall hole). The source collision decides passability.
+        model.signs = {point for point in model.signs if model.collision[point[1]][point[0]]}
         model.source_data, model.descriptor = raw, desc
         model.padding, model.counter_feet = entry["padding"], tuple(raw["tileset"]["counter_tiles"])
         models[entry["id"]] = model
