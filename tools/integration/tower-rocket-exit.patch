@@ -1,0 +1,16 @@
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -150,6 +150,13 @@
+                 or event.id == "pokered:SS_ANNE_2F:objects:2"
+                 and position.x == event.x and position.y == event.y+1)
+                 and protected[cell] and not warps[cell]
++            -- Exact terminal cell in the pinned first Tower Rocket departure.
++            -- Only this leased source route can enter the real stairs; player
++            -- traversal, autonomous motion and every other warp stay protected.
++            if event.id == "pokered:POKEMON_TOWER_7F:objects:1"
++                and position.x == event.x and position.y == 16 and warps[cell] then
++                transit = true
++            end
+             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
+             if transit then
+                 spec.script_transit = spec.script_transit or {}

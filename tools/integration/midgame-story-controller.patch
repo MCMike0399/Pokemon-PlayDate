@@ -1,0 +1,42 @@
+--- /dev/null
++++ b/Source/game/midgameStoryState.lua
+@@ -0,0 +1,39 @@
++-- Root composition: preserve trades -> daycare -> Vermilion -> earlier scenes.
++Class("MidgameStoryState"):extends(NPCTradeState)
++function MidgameStoryState:enter(id, options)
++    RocketHideoutStoryController.enter(self)
++    TowerStoryController.enter(self)
++    MidgameStoryState.super.enter(self, id, options)
++end
++function MidgameStoryState:advance()
++    if RocketHideoutStoryController.advance(self) then
++        return
++    end
++    if TowerStoryController.advance(self) then
++        return
++    end
++    MidgameStoryState.super.advance(self)
++end
++function MidgameStoryState:update()
++    MidgameStoryState.super.update(self)
++    RocketHideoutStoryController.update(self)
++end
++function MidgameStoryState:handleButton(button)
++    if RocketHideoutStoryController.handleButton(self, button) then
++        return
++    end
++    MidgameStoryState.super.handleButton(self, button)
++end
++function MidgameStoryState:draw()
++    MidgameStoryState.super.draw(self)
++    RocketHideoutStoryController.draw(self)
++end
++function MidgameStoryState:exit()
++    RocketHideoutStoryController.exit(self)
++    TowerStoryController.exit(self)
++    local session, zone = self.session, self.zone
++    MidgameStoryState.super.exit(self)
++    if self.game.session == session and currentZone == zone then
++        RocketHideoutStory.integration().reconcileActors(self.game)
++    end
++end
