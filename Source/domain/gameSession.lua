@@ -124,6 +124,8 @@ function GameSession:init(deps,options)
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
         fieldWorld = {version = 1, mapPalOffset = 0},
         fieldTravel = FieldTravel.empty(),
+        safari = SafariGame.empty(),
+        coins = CoinWallet.empty(),
         fieldEpoch = nextFieldEpoch(),
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
@@ -427,6 +429,8 @@ function GameSession._restore(deps,values)
     values.deps=dependencies(deps); values.rngActive=false
     values.fieldWorld = fieldData(values.fieldWorld)
     values.fieldTravel = FieldTravel.normalize(values.fieldTravel)
+    values.safari = SafariGame.normalize(values.safari)
+    values.coins = CoinWallet.normalize(values.coins)
     values.fieldEpoch = nextFieldEpoch()
     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
@@ -541,7 +545,33 @@ function GameSession:resolveTeaching(request,decision,slot)
 end
 
 -- Field transport commits only its private validated plan.
-function GameSession:useEscapeRope(request) return FieldItems._commit(self,request) end
+function GameSession:useEscapeRope(request)
+    local current = state[self]
+    local checked, prepared = pcall(function()
+        local plan, reason = SafariGame.escape(current.safari)
+        assert(plan, reason)
+        local combined = copy(current.questFlags)
+        for id, value in pairs(SafariGame.flags(plan.after)) do
+            if value or combined[id] ~= nil then
+                combined[id] = value
+            end
+        end
+        return {after = plan.after, flags = flags(combined, 4096)}
+    end)
+    if not checked then
+        return false, tostring(prepared)
+    end
+    -- Existing Escape Rope owns item/world/arrival validation and rollback.
+    -- No Safari mutation precedes that guarded commit. All values below are
+    -- already prepared; no fallible callback follows the item's success.
+    local accepted, result = FieldItems._commit(self, request)
+    if not accepted then
+        return false, result
+    end
+    current.safari, current.questFlags = prepared.after, prepared.flags
+    self:invalidateFieldWorldContext()
+    return true, result
+end
 
 -- Item PC owns physical stacks separately from Pokémon boxes and the bag.
 function GameSession:itemStorage()return state[self].itemStorage end
@@ -997,4 +1027,70 @@ function GameSession:commitCycling(expectedEpoch, expectedTravel, expectedForced
     current.fieldTravel = travel
     self:invalidateFieldWorldContext()
     return true, {kind = candidate.kind, mode = travel.mode, forced = candidate.forced}
+end
+
+-- Wallet state shares private codec v4; actual services publish through later
+-- root-owned economy transactions, never an inventory stack or boolean flags.
+function GameSession:coins()
+    return state[self].coins
+end
+-- Root composes these methods inside GameSession, where `state` is private.
+-- No shared owner is modified by the worker.
+function GameSession:safariData()
+    return copy(state[self].safari)
+end
+function GameSession:commitSafari(plan, expectedEpoch)
+    local current = state[self]
+    if current.fieldEpoch ~= expectedEpoch then
+        return false, "stale-safari-context"
+    end
+    local called, prepared = pcall(function()
+        local candidate = SafariGame.validatePlan(plan)
+        assert(FieldMoves.same(current.safari, candidate.before), "stale-safari-state")
+        local expectedFlags = SafariGame.flags(candidate.before)
+        for id, value in pairs(expectedFlags) do
+            assert(self:questFlag(id) == value, "inconsistent-safari-source-flags")
+        end
+        local bag = assert(Inventory.fromData(current.deps.itemDefinitions, current.inventory:toData()))
+        if candidate.kind == "admission" then
+            assert(current.location.zone_id == SafariGame.data().gate, "Safari admission belongs at gate")
+            assert(bag:money() == candidate.money, "stale-safari-money")
+            assert(bag:spend(candidate.debit))
+        end
+        local combined = copy(current.questFlags)
+        for id, value in pairs(SafariGame.flags(candidate.after)) do
+            combined[id] = value
+        end
+        return {after = candidate.after, flags = flags(combined, 4096), bag = bag:toData()}
+    end)
+    if not called then
+        return false, tostring(prepared)
+    end
+    local accepted, reason = Inventory._replaceData(current.inventory, prepared.bag)
+    if not accepted then
+        return false, reason
+    end
+    current.safari, current.questFlags = prepared.after, prepared.flags
+    self:invalidateFieldWorldContext()
+    return true
+end
+function GameSession:commitSafariBattle(token)
+    local prepared, reason = SafariBattle._commitPlan(self, token)
+    if not prepared then
+        return false, reason
+    end
+    local destination
+    if prepared.caught then
+        local accepted
+        accepted, destination = self:recruit(prepared.caught)
+        if not accepted then
+            return false, destination
+        end
+    end
+    -- The plan prevalidated these exact primitive values and the active stream.
+    -- No fallible callback, allocation or capacity decision follows recruitment.
+    state[self].safari = prepared.after
+    RulesRNG.restore(prepared.rulesAfter)
+    self:invalidateFieldWorldContext()
+    return true, {battle = prepared.battle, receipt = prepared.receipt, destination = destination}
 end

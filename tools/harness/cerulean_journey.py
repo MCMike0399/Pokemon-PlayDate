@@ -98,6 +98,8 @@ def validate_boundary_payload(payload):
         expected = expected | {"daycare"}
     if version == 4:
         expected = expected | {"fieldTravel"}
+        if "safari" in payload or "coins" in payload:
+            expected = expected | {"safari", "coins"}
     if not isinstance(payload, dict) or set(payload) != expected:
         raise ProtocolError("incomplete canonical Save/Continue payload")
     if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3, 4) or payload["pokemonEncoding"] != "decimal-counters-v1":
@@ -127,7 +129,16 @@ def validate_boundary_payload(payload):
                 or len(travel["visited"]) > 11 or any(not isinstance(v, str) for v in travel["visited"])
                 or len(set(travel["visited"])) != len(travel["visited"])):
             raise ProtocolError("invalid canonical field travel record")
-    owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
+    if "safari" in expected:
+        safari = payload["safari"]
+        if (not isinstance(safari, dict) or set(safari) != {"version", "active", "steps", "balls", "ending"}
+                or safari["version"] != 1 or type(safari["active"]) is not bool
+                or type(safari["steps"]) is not int or not 0 <= safari["steps"] <= 502
+                or type(safari["balls"]) is not int or not 0 <= safari["balls"] <= 30
+                or safari["ending"] not in {"none", "steps", "balls"}
+                or type(payload["coins"]) is not int or not 0 <= payload["coins"] <= 9999):
+            raise ProtocolError("invalid canonical Safari or coin record")
+    owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags", "coins"}
     if any(not isinstance(payload[field], dict) for field in owners):
         raise ProtocolError("invalid canonical Save/Continue owner record")
     for field in ("questFlags", "trainerFlags"):

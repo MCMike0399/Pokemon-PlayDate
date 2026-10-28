@@ -50,7 +50,7 @@ local function normalize(record,deps)
     deps=GameSession._dependencies(deps)
     local data=copy(record)
     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true})
+        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true,safari=true,coins=true})
     assert((data.version==1 or data.version==2 or data.version==3 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
     object(data.title,{playerName=true,rivalName=true})
     assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
@@ -66,6 +66,24 @@ local function normalize(record,deps)
         travel = FieldTravel.empty()
     end
     travel = FieldTravel.normalize(travel)
+    -- Early private v4 checkpoints predate Safari/coins. Both fields must be
+    -- absent together; source flags below must still prove no Safari progress.
+    local earlyPrivateV4 = data.version == 4 and data.safari == nil and data.coins == nil
+    local safari = data.safari
+    if data.version < 4 or earlyPrivateV4 then
+        assert(safari == nil, "legacy session cannot contain Safari provenance")
+        safari = SafariGame.empty()
+    end
+    safari = SafariGame.normalize(safari)
+    local coins = data.coins
+    if data.version < 4 or earlyPrivateV4 then
+        assert(coins == nil, "legacy session cannot contain coin provenance")
+        coins = CoinWallet.empty()
+    end
+    coins = CoinWallet.normalize(coins)
+    for id, value in pairs(SafariGame.flags(safari)) do
+        assert((quests[id] or false) == value, "inconsistent saved Safari source flag")
+    end
     local location=GameSession._location(deps,data.location,world,true,travel)
     local checkpoint=GameSession._location(deps,data.checkpoint,world)
     -- Version1 has no palette provenance. Migrate deterministically to light;
@@ -116,7 +134,7 @@ local function normalize(record,deps)
     local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
     ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
     return {daycare=daycare,itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
-        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel}
+        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel,safari=safari,coins=coins}
 end
 function SessionCodec.encode(session,gate)
     local ok,result=pcall(function()
@@ -130,7 +148,7 @@ function SessionCodec.encode(session,gate)
             return pokemonToWire(mon)
         end
         local data={version=SessionCodec.VERSION,pokemonEncoding=SessionCodec.POKEMON_ENCODING,
-            fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
+            coins=session:coins(),safari=session:safariData(),fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
@@ -154,7 +172,7 @@ function SessionCodec.decode(record,deps)
         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
         local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,itemStorage=assert(ItemStorage.fromData(prepared.deps.itemDefinitions,prepared.itemStorage)),intro=prepared.intro,
             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
-            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel})
+            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel,safari=prepared.safari,coins=prepared.coins})
         GameSession._state(session).daycare = Daycare.restore(session, prepared.daycare, function(value)
             return pokemonFromWire(value, true)
         end)

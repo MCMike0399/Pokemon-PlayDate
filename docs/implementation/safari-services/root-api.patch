@@ -1,6 +1,6 @@
 --- a/Source/domain/gameSession.lua
 +++ b/Source/domain/gameSession.lua
-@@ -122,6 +122,8 @@
+@@ -124,6 +124,8 @@
          intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
          fieldWorld = {version = 1, mapPalOffset = 0},
          fieldTravel = FieldTravel.empty(),
@@ -9,7 +9,7 @@
          fieldEpoch = nextFieldEpoch(),
          world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
  end
-@@ -398,6 +400,8 @@
+@@ -427,6 +429,8 @@
      values.deps=dependencies(deps); values.rngActive=false
      values.fieldWorld = fieldData(values.fieldWorld)
      values.fieldTravel = FieldTravel.normalize(values.fieldTravel)
@@ -18,7 +18,7 @@
      values.fieldEpoch = nextFieldEpoch()
      values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
      state[session]=values
-@@ -512,7 +516,33 @@
+@@ -541,7 +545,33 @@
  end
 
  -- Field transport commits only its private validated plan.
@@ -53,9 +53,9 @@
 
  -- Item PC owns physical stacks separately from Pokémon boxes and the bag.
  function GameSession:itemStorage()return state[self].itemStorage end
-@@ -739,3 +769,69 @@
+@@ -998,3 +1028,69 @@
      self:invalidateFieldWorldContext()
-     return true, prepared.result
+     return true, {kind = candidate.kind, mode = travel.mode, forced = candidate.forced}
  end
 +
 +-- Wallet state shares private codec v4; actual services publish through later

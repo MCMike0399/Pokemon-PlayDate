@@ -6,6 +6,8 @@ function SessionFixture.forVersion(record, version)
     result.version = version
     if version < 4 then
         result.fieldTravel = nil
+        result.safari = nil
+        result.coins = nil
     end
     if version < 3 then
         result.daycare = nil
