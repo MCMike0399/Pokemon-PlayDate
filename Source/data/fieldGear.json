@@ -1,0 +1,282 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "bicycle": {
+    "tilesets": [
+      "OVERWORLD",
+      "FOREST",
+      "UNDERGROUND",
+      "SHIP_PORT",
+      "CAVERN"
+    ],
+    "maps": [
+      "ROUTE_23",
+      "INDIGO_PLATEAU"
+    ],
+    "forced_entries": [
+      {
+        "map": "ROUTE_16",
+        "x": 17,
+        "y": 10
+      },
+      {
+        "map": "ROUTE_16",
+        "x": 17,
+        "y": 11
+      },
+      {
+        "map": "ROUTE_18",
+        "x": 33,
+        "y": 8
+      },
+      {
+        "map": "ROUTE_18",
+        "x": 33,
+        "y": 9
+      }
+    ],
+    "gates": [
+      {
+        "map": "ROUTE_16_GATE_1F",
+        "stops": [
+          {
+            "x": 4,
+            "y": 7
+          },
+          {
+            "x": 4,
+            "y": 8
+          },
+          {
+            "x": 4,
+            "y": 9
+          },
+          {
+            "x": 4,
+            "y": 10
+          }
+        ],
+        "return_direction": "right"
+      },
+      {
+        "map": "ROUTE_18_GATE_1F",
+        "stops": [
+          {
+            "x": 4,
+            "y": 3
+          },
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 5
+          },
+          {
+            "x": 4,
+            "y": 6
+          }
+        ],
+        "return_direction": "right"
+      }
+    ]
+  },
+  "fishing": {
+    "old": {
+      "level": 5,
+      "species": "magikarp"
+    },
+    "good": [
+      {
+        "level": 10,
+        "species": "goldeen"
+      },
+      {
+        "level": 10,
+        "species": "poliwag"
+      }
+    ],
+    "super": {
+      "PALLET_TOWN": "1",
+      "VIRIDIAN_CITY": "1",
+      "CERULEAN_CITY": "3",
+      "VERMILION_CITY": "4",
+      "CELADON_CITY": "5",
+      "FUCHSIA_CITY": "10",
+      "CINNABAR_ISLAND": "8",
+      "ROUTE_4": "3",
+      "ROUTE_6": "4",
+      "ROUTE_10": "5",
+      "ROUTE_11": "4",
+      "ROUTE_12": "7",
+      "ROUTE_13": "7",
+      "ROUTE_17": "7",
+      "ROUTE_18": "7",
+      "ROUTE_19": "8",
+      "ROUTE_20": "8",
+      "ROUTE_21": "8",
+      "ROUTE_22": "2",
+      "ROUTE_23": "9",
+      "ROUTE_24": "3",
+      "ROUTE_25": "3",
+      "CERULEAN_GYM": "3",
+      "VERMILION_DOCK": "4",
+      "SEAFOAM_ISLANDS_B3F": "8",
+      "SEAFOAM_ISLANDS_B4F": "8",
+      "SAFARI_ZONE_EAST": "6",
+      "SAFARI_ZONE_NORTH": "6",
+      "SAFARI_ZONE_WEST": "6",
+      "SAFARI_ZONE_CENTER": "6",
+      "CERULEAN_CAVE_2F": "9",
+      "CERULEAN_CAVE_B1F": "9",
+      "CERULEAN_CAVE_1F": "9"
+    },
+    "groups": {
+      "1": [
+        {
+          "level": 15,
+          "species": "tentacool"
+        },
+        {
+          "level": 15,
+          "species": "poliwag"
+        }
+      ],
+      "2": [
+        {
+          "level": 15,
+          "species": "goldeen"
+        },
+        {
+          "level": 15,
+          "species": "poliwag"
+        }
+      ],
+      "3": [
+        {
+          "level": 15,
+          "species": "psyduck"
+        },
+        {
+          "level": 15,
+          "species": "goldeen"
+        },
+        {
+          "level": 15,
+          "species": "krabby"
+        }
+      ],
+      "4": [
+        {
+          "level": 15,
+          "species": "krabby"
+        },
+        {
+          "level": 15,
+          "species": "shellder"
+        }
+      ],
+      "5": [
+        {
+          "level": 23,
+          "species": "poliwhirl"
+        },
+        {
+          "level": 15,
+          "species": "slowpoke"
+        }
+      ],
+      "6": [
+        {
+          "level": 15,
+          "species": "dratini"
+        },
+        {
+          "level": 15,
+          "species": "krabby"
+        },
+        {
+          "level": 15,
+          "species": "psyduck"
+        },
+        {
+          "level": 15,
+          "species": "slowpoke"
+        }
+      ],
+      "7": [
+        {
+          "level": 5,
+          "species": "tentacool"
+        },
+        {
+          "level": 15,
+          "species": "krabby"
+        },
+        {
+          "level": 15,
+          "species": "goldeen"
+        },
+        {
+          "level": 15,
+          "species": "magikarp"
+        }
+      ],
+      "8": [
+        {
+          "level": 15,
+          "species": "staryu"
+        },
+        {
+          "level": 15,
+          "species": "horsea"
+        },
+        {
+          "level": 15,
+          "species": "shellder"
+        },
+        {
+          "level": 15,
+          "species": "goldeen"
+        }
+      ],
+      "9": [
+        {
+          "level": 23,
+          "species": "slowbro"
+        },
+        {
+          "level": 23,
+          "species": "seaking"
+        },
+        {
+          "level": 23,
+          "species": "kingler"
+        },
+        {
+          "level": 23,
+          "species": "seadra"
+        }
+      ],
+      "10": [
+        {
+          "level": 23,
+          "species": "seaking"
+        },
+        {
+          "level": 15,
+          "species": "krabby"
+        },
+        {
+          "level": 15,
+          "species": "goldeen"
+        },
+        {
+          "level": 15,
+          "species": "magikarp"
+        }
+      ]
+    }
+  }
+}
