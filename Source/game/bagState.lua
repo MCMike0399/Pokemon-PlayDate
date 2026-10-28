@@ -25,6 +25,10 @@ local fieldKeyActions = {
 }
 
 function BagState.canRegister(id)
+    if (id == "bicycle" or id == "oldRod" or id == "goodRod" or id == "superRod")
+        and not FieldGearState then
+        return false
+    end
     local item = ItemData.definitions[id]
     return item ~= nil and item.keyItem and fieldKeyActions[id] ~= nil
 end
