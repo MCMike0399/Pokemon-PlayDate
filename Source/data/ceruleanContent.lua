@@ -71,6 +71,10 @@ function CeruleanContent.registerPackage(name, root, transform)
         for id, value in pairs(package[recordName][field]) do
             local previous = immutableLookup(recordName, field, id)
             assert(not previous or equal(previous, value), "conflicting immutable source package record")
+            if previous then
+                -- Keep one validated immutable recipe/strip; public getters copy it.
+                package[recordName][field][id] = previous
+            end
         end
     end
     local events = copy(package.events.events)
