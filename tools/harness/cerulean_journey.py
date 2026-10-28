@@ -632,12 +632,14 @@ class CeruleanJourney(BrockJourney):
         self.stage = "cerulean"
         self.summary["acceptance"] = "Continued accepted Brock save; Cerulean pending"
         self.summary["preparation_policy"] = {"max_new_training_battles": 0, "use_centers_and_medicine": True}
+        self.heal_here("PewterPokecenter")
         self.stock_up("PewterMart")
         self.travel(self.zone("Route3"))
         trainers = sorted((d for d in self.source_trainers.values() if d["map_id"] == self.zone("Route3")),
                           key=lambda d: d["source_object_index"])
         for trainer in trainers:
             self.fight(trainer["id"])
+            self.heal_here("PewterPokecenter")
         self.heal_here("MtMoonPokecenter")
         self.travel(self.zone("MtMoon1F"))
         self.reward(sid("MT_MOON_1F", 9), "moonStone", "PICKUP:" + sid("MT_MOON_1F", 9))
