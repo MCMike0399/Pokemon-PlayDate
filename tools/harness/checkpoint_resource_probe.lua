@@ -113,7 +113,8 @@ local function afterUpdate()
             for _ = 1, 1000 do clock() end
             report.instrumentation = {clock_1000_calls_ms=clock() - start,
                 overhead="two clock reads and optional synthetic trigger inside timed updates; statistics outside; persistent observer allocations included in Lua heap",
-                timer_resolution="not independently qualified", frame_limit=cfg.battle_frames}
+                timer_resolution="not independently qualified", battle_window_frames=cfg.battle_frames,
+                settle_limit_frames=cfg.settle_frames}
             startMap()
         elseif age > cfg.settle_frames then
             error("earned save did not settle in ordinary exploration")
