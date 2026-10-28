@@ -6,6 +6,11 @@ local start=sound.getCurrentTime()
 local cursor=1
 local finished=false
 local events={
+    {3,"Bulbasaur cry",function() assert(KantoAudio.playCry("bulbasaur")) end},
+    {12,"Pikachu cry",function() assert(KantoAudio.playCry("pikachu")) end},
+    {20,"Jynx cry",function() assert(KantoAudio.playCry("jynx")) end},
+    {34,"Mr Mime cry",function() assert(KantoAudio.playCry("mr")) end},
+    {46,"Zapdos cry",function() assert(KantoAudio.playCry("zapdos")) end},
     {0,"Pallet",function() KantoAudio.enterMap("pallet_town") end},
     {6,"Menu over Pallet",function() KantoAudio.playSFX("menu") end},
     {9,"Route 1",function() KantoAudio.enterMap("pokered:ROUTE_1") end},
@@ -19,6 +24,7 @@ local events={
     {43,"Center heal",function() KantoAudio.playSFX("heal") end},
     {48,"S.S. Anne",function() KantoAudio.enterMap("pokered:SS_ANNE_1F") end},
 }
+table.sort(events, function(a, b) return a[1] < b[1] end)
 local observations={}
 local function publish(status,message)
     if finished then return end
