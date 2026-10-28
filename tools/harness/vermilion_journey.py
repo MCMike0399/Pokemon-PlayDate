@@ -331,8 +331,13 @@ class VermilionJourney(cj.CeruleanJourney):
         species = battle['enemy']['species']
         owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
         if species not in self.acquisition_targets or owned.get(species):
-            # Incidental non-target battles use actual attacks and PP. This also
-            # avoids pretending RUN can bypass a wild trapping ability.
+            # Collection is not XP farming. Use the actual RUN action unless
+            # a trapping ability can prevent it; never invent an escape.
+            trapped = battle['enemy'].get('ability_id') in {23, 42, 71}
+            if not trapped or battle['player'].get('ability_id') == 50:
+                self.capture_escape = True
+                self.flee()
+                return True
             return super().battle_preparation_action(battle, options)
         if choose_battle_medicine(battle['player'], self.inventory()):
             return False  # Existing battle loop selects and commits real medicine.
@@ -824,8 +829,16 @@ class VermilionJourney(cj.CeruleanJourney):
             self.travel(self.zone('CeruleanCity'))
             self.travel(self.zone('CeruleanTrashedHouse'))
             self.fight(rocket)
+            self.save()
         self.collect('Route24', ['bellsprout'], 'CeruleanPokecenter', 'CeruleanMart')
-        self.collect('Route24', ['caterpie', 'metapod', 'pidgey'], 'CeruleanPokecenter', 'CeruleanMart')
+        self.save()
+        common = ['caterpie', 'metapod', 'pidgey']
+        owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+        needed = max(0, 2 - sum(bool(owned.get(species)) for species in common))
+        if needed:
+            self.collect('Route24', common, 'CeruleanPokecenter', 'CeruleanMart',
+                         minimum_owned=self.owned_count() + needed, required=False)
+            self.save()
         if not any(m['species'] == 'bellsprout' for m in self.party()):
             raise ProtocolError('actual Cut-compatible Bellsprout did not remain in the party')
         self.travel(self.zone('Route5'))
@@ -834,7 +847,8 @@ class VermilionJourney(cj.CeruleanJourney):
         self.travel(self.zone('UndergroundPathNorthSouth'))
         self.travel(self.zone('UndergroundPathRoute6'))
         self.travel(self.zone('Route6'))
-        self.collect('Route6', ['meowth'], 'VermilionPokecenter', 'VermilionMart')
+        self.collect('Route6', ['meowth'], 'VermilionPokecenter', 'VermilionMart', required=False)
+        self.save()
         self.heal_here('VermilionPokecenter')
         self.gift('voucher')
         self.gift('rod')
