@@ -266,9 +266,6 @@ Contracts.register("grass-cut", GrassCutContracts.run)
 import "dev/vermilionAmbientContracts"
 Contracts.register("vermilion-ambient", VermilionAmbientContracts.run)
 
-import "dev/battlePresentationContracts"
-Contracts.register("battle-presentation", BattlePresentationContracts.run)
-
 -- @harness content-ready
 VermilionCatalogExporter.register()
 
