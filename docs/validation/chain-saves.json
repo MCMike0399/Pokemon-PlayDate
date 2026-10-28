@@ -126,7 +126,7 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/bulbasaur",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-09/runtime-data",
       "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-09",
       "status": "earned Flash checkpoint; final build Continue verification pending",
       "files": [
@@ -148,7 +148,7 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/charmander",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-09/runtime-data",
       "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-09",
       "status": "earned Flash checkpoint; final build Continue verification pending",
       "files": [
@@ -173,7 +173,7 @@
       "completed_steps": [
         "daycare"
       ],
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/squirtle",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-09/runtime-data",
       "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-09",
       "status": "earned Flash checkpoint; final build Continue verification pending",
       "files": [
