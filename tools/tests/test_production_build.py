@@ -69,7 +69,7 @@ class ProductionBuildTests(unittest.TestCase):
         modules = pdz_modules(self.harness / 'Harness.pdx/main.pdz')
         expected = [name for name in BASELINE['imports'] if name.startswith('dev/')]
         # Explicitly reviewed helpers imported by the catalog and event suites.
-        transitive = {'dev/catalogRuntime', 'dev/sourceEventBaseline'}
+        transitive = {'dev/catalogRuntime', 'dev/sourceEventBaseline', 'dev/importedToneReference'}
         self.assertTrue(transitive <= set(modules))
         self.assertEqual([name for name in modules if name.startswith('dev/') and name not in transitive],
                          ['dev/harness_build'] + [name for name in expected if name != 'dev/harness_build'])

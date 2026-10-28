@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "d4b31f061b20fee3b6f7732c5949344ea05146bd",
-    "source_sha256": "3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d",
+    "commit": "4b86875a7d86b44faed959306545335c41653527",
+    "source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1",
     "policy_date": "2026-10-28",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Current private 5.4 Source: 65 installed maps; trades and Saffron guards parked. Source inventory only. Existing evidence retains its original source hashes; no new milestone or mechanics promotion.",
-    "acceptance_context": "private-vermilion-5.4-not-accepted-main"
+    "scope": "65 playable maps on main; 5.4 delivery pending. Approved display and QoL changes integrated. Inventory snapshot only; historical evidence and all three acceptance layers retain their scope.",
+    "acceptance_context": "main-5.4-delivery-pending"
   },
   "accepted_milestone_rows": [],
   "schedule": {

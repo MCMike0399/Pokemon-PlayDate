@@ -240,7 +240,9 @@
     "dev/caveEncounterContracts",
     "dev/pickupContracts",
     "dev/grassCutContracts",
-    "dev/vermilionAmbientContracts"
+    "dev/vermilionAmbientContracts",
+    "dev/battlePresentationContracts",
+    "dev/approvedQoLContracts"
   ],
   "registrations": [
     "Contracts.register(\"learnsets\", LearnsetContracts.run)",
@@ -359,6 +361,18 @@
     "Contracts.register(\"pickup\", PickupContracts.run)",
     "Contracts.register(\"grass-cut\", GrassCutContracts.run)",
     "Contracts.register(\"vermilion-ambient\", VermilionAmbientContracts.run)",
+    "Contracts.register(\"battle-presentation\", BattlePresentationContracts.run)",
+    "Contracts.register(\"approved-qol\", ApprovedQoLContracts.run)",
     "VermilionCatalogExporter.register()"
-  ]
+  ],
+  "reviewed_additions": {
+    "reason": "Approved battle presentation, controls and shared terrain reference",
+    "direct_imports": [
+      "dev/battlePresentationContracts",
+      "dev/approvedQoLContracts"
+    ],
+    "transitive_imports": [
+      "dev/importedToneReference"
+    ]
+  }
 }

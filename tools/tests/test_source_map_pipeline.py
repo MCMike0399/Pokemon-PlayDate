@@ -30,7 +30,8 @@ class SourceMapManifestTests(unittest.TestCase):
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
                         "Source/data/viridianSlice", "Source/data/pewterSlice",
                         "Source/data/maps.lua", "Source/world/sprites", "Source/images",
-                        "Source/world/tilefactory.lua", "Source/lib/shade.lua"],
+                        "Source/world/tilefactory.lua", "Source/lib/shade.lua",
+                        ":(exclude)Source/images/title"],
                        cwd=ROOT, check=True, capture_output=True)
 
     def test_paths_revision_dimensions_and_padding_match_immutable_maps(self):
