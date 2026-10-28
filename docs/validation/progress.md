@@ -146,3 +146,25 @@ Worst measured updates were 170 ms for the selected map load and 5 ms for battle
 start. These include observer overhead and do not measure physical-device RAM.
 The three private 5.5a journeys stopped before meaningful gameplay; they grant
 no acceptance. Their tooling failures are being repaired separately.
+
+## Checkpoint 5.5a checks — 2026-10-28
+
+Progress: **65/222 playable maps on main; current checkpoint 5.5a**. The private
+build contains 108 candidate maps. It has not been accepted.
+The loading-stage merge passed **2271 SDK checks, zero failures** in
+`evidence/m55a-loading-merge-sdk-20261028-01`. The production bundle excludes
+South/Saffron packages and journey data; the file audit is
+`evidence/m55a-production-scope-20261028.json`.
+
+The full host run completed 947 tests with 16 failures and seven errors in
+`evidence/m55a-current-host-20261028-01.log`. Several checks still assume the
+65-map inventory; the shared fixture setup is being updated while preserving
+checks for the original maps. Regenerating the development journey data for
+current save format 4 cleared all 46 related acquisition/journey host checks.
+
+Squirtle's earlier retry pressed B before the healing-dialogue input had been
+released. The driver now waits one neutral frame and retains its pause assertion.
+The next three-starter set is `evidence/m55a-loading-chains-20261028-02`; it is
+not acceptance evidence until every required journey and process Continue passes.
+Elapsed checkpoint time and maps/day remain tracked in milestone-times.json;
+accepted new maps/day is zero until these saves are earned and accepted.
