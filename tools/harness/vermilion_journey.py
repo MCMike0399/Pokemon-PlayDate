@@ -259,7 +259,12 @@ class VermilionJourney(cj.CeruleanJourney):
             self.select('event.menu.selected', 1)
             self.send('press a')
             return True
-        return super().advance_event(stop_phase)
+        handled = super().advance_event(stop_phase)
+        if (not handled and self.state.get('root') == 'event'
+                and lookup(self.state, 'event.menu.active') is True
+                and str(lookup(self.state, 'event.phase')).endswith('choice')):
+            raise ProtocolError('journey cannot answer this menu: ' + str(lookup(self.state, 'event.phase')))
+        return handled
 
     def refresh_world(self):
         if self.vermilion_active:
