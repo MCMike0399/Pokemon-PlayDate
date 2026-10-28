@@ -178,6 +178,39 @@ function FieldWorld.transitionOffset(offset, fromID, toID, reason, eligible)
     return 6
 end
 
+-- One plan supplies mode and the source forced-bike bit to the same traversal
+-- commit. It can also be checked before a door starts its native transition.
+function FieldWorld.entryTravel(game, position, world, reason)
+    local mode = game.session:fieldTravelData().mode
+    if reason == "escape" or reason == "blackout" or reason == "fly" then
+        mode = "walking"
+    elseif mode == "surfing" then
+        local cell, descriptor = FieldTravelWorld.cell(position, world, game.sessionLocationPolicy)
+        if not cell or not FieldTravel.surfSurface(cell, descriptor.tileset.constant) then
+            mode = "walking"
+        end
+    end
+    local travel = FieldTravel.enter(game.session:fieldTravelData(), position.zone_id, mode)
+    local name = SourceMaps.nameForID(position.zone_id)
+    local descriptor = name and SourceMaps.descriptor(name)
+    local map = descriptor and descriptor.source_map_constant or position.zone_id:upper()
+    local tileset = descriptor and descriptor.tileset.constant
+        or position.zone_id == "pallet_town" and "OVERWORLD" or "INTERIOR"
+    local forced = game.session:questFlag(FieldCycling.FLAG)
+    local plan, failure = FieldCycling.enter(travel, forced,
+        game.session:inventory():quantity("bicycle") == 1, map, tileset,
+        position.x - (descriptor and descriptor.padding or 0), position.y,
+        reason == "reload" and "map" or reason)
+    if not plan then
+        return nil, failure
+    end
+    local changed
+    if plan.forced ~= forced then
+        changed = plan.forced
+    end
+    return plan.travel, changed
+end
+
 -- Called by the lifecycle owner with the *departing* visit, before rebuilding.
 -- Battle/menu returns do not call this. Target actors are already owned values.
 function FieldWorld.enter(game, fromID, position, actors, reason)
@@ -191,18 +224,13 @@ function FieldWorld.enter(game, fromID, position, actors, reason)
     if not prepared then
         return false, tostring(offset)
     end
-    local mode = game.session:fieldTravelData().mode
-    if reason == "escape" or reason == "blackout" then
-        mode = "walking"
-    elseif mode == "surfing" then
-        local cell, d = FieldTravelWorld.cell(position, world, game.sessionLocationPolicy)
-        if not cell or not FieldTravel.surfSurface(cell, d.tileset.constant) then
-            mode = "walking"
-        end
+    local travel, cyclingForced = FieldWorld.entryTravel(game, position, world, reason)
+    if not travel then
+        return false, cyclingForced
     end
-    local travel = FieldTravel.enter(game.session:fieldTravelData(), position.zone_id, mode)
     return FieldWorld.commit(game, expected, {
         fieldTravel = travel,
+        cyclingForced = cyclingForced,
         world = world,
         location = position,
         actors = actors,

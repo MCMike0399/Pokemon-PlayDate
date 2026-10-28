@@ -256,6 +256,7 @@ function EventState:startMove(direction)
     end
     self.moveOrigin = {x=player.gridX, y=player.gridY, facing=player.facing, walkToggle=player.walkToggle,
         image=player:getImage(), rustleFrames=player.rustleFrames}
+    player.running = false
     if counterStep then
         player:stepAcrossSourceCounter(self, delta[1], delta[2])
     else

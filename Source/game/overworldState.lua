@@ -475,9 +475,10 @@ function OverworldState:enter(opts)
     if KantoWorld then KantoWorld.onEnter(game,opts) end
     self:_beginPresentationVisit(getOverworldView())
     if not retainedVisit and not (opts and opts.fieldRestore) then
-        local travel = FieldTravel.enter(game.session:fieldTravelData(), currentZone.stableID,
-            game.session:fieldTravelData().mode)
-        assert(game.session:captureTraversal({world = WorldDeltas.export(),
+        local travel, cyclingForced = FieldWorld.entryTravel(game,
+            {zone_id=currentZone.stableID, x=pos.x, y=pos.y}, WorldDeltas.export(), "continue")
+        assert(travel, cyclingForced)
+        assert(game.session:captureTraversal({world = WorldDeltas.export(), cyclingForced=cyclingForced,
             location = {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
             actors = game.npcManager.motion:snapshot(), fieldTravel = travel}))
     end

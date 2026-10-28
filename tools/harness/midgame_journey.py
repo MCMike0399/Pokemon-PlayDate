@@ -265,13 +265,6 @@ class MidgameJourney(vj.VermilionJourney):
         if self.state['zone_id'] != self.zone('Route2Gate'):
             raise ProtocolError('first route packet requires the accepted Flash-aide checkpoint')
         self.leave_flash_gate()
-        if len(self.party()) == 6:
-            cut = next(i for i, mon in enumerate(self.party(), 1) if 'cut' in mon['moves'])
-            self.field_cut(cut, 'Route2', (15, 22))
-            self.leave_party_slot()
-            cut = next(i for i, mon in enumerate(self.party(), 1) if 'cut' in mon['moves'])
-            self.field_cut(cut, 'Route2', (15, 22))
-            self.travel(self.zone('DiglettsCaveRoute2'))
         self.cross_digletts_cave(reverse=True)
         self.heal_here('VermilionPokecenter')
         self.travel(self.zone('Route6'))
