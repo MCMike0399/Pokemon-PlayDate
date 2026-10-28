@@ -352,7 +352,7 @@ class VermilionJourney(cj.CeruleanJourney):
         return super().flee()
 
     def battle(self, name, strategy='attack', expected=None):
-        if self.acquisition_active and not lookup(self.state, 'battle.trainerName'):
+        if not lookup(self.state, 'battle.trainerName'):
             # EventState can still display the previous trainer ID after a wild
             # encounter. Wild outcomes have no trainer receipt/payout; use the
             # shared production input loop without Cerulean's trainer-ID guard.
