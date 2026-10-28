@@ -45,3 +45,40 @@ Source root dialogue packages also lack `_PlayedFluteHadEffectText`, `_GotMonTex
 recipes. This is an explicit integration dependency, not native acceptance.
 Fixed source collision/spinner routes are in `hideout-fixed-routes.json`. They
 are static preparation, with no new planner code or journey/harness changes.
+
+## Early closed-context replacement (root e6ea040)
+
+Root's corrected authoritative closed-warp collision makes a late DoorWarp
+resolver insufficient by itself. The actual source context must be installed
+before those exact cells become closed barriers. New pure APIs return detached
+bindings, with no world/cache/Player edits on this branch:
+
+```lua
+RocketHideoutStory.elevatorBindings(session)
+SilphStoryWorld.elevatorBindings(session)
+```
+
+Keys are exact source warp IDs, values are bound traversal descriptors. Floor
+entry contexts are always known once the story handler is installed; no key is
+needed to enter either cabin. Cabin exits are returned only when actual entry
+or menu selection has recorded a source floor in GameSession. Root's shared
+context/cache owner must use these bindings in place of the closed preparation
+context for the same IDs and release only those collision barriers. Keep unknown
+cabin exits closed. This supersedes treating a late destination substitution as
+complete elevator integration. It does not authorize the Silph inaccessible
+LAST_MAP pad, any unrelated warp or a broad collision exception. Coordinate
+this small early-binding seam with the field/world owner; no shared file edits
+are made here.
+
+Tower2 rival is now included in the same incremental package: source stable ID
+POKEMON_TOWER_2F:objects:1, raw content OPP_RIVAL2 parties4/5/6, source payout1625.
+The adapter projects those existing immutable records during the same content
+registration, rather than shipping another roster package. Exact source triggers
+(15,5)/(14,6), facing, both eight-cell departures, source side flag and confirmed
+victory flag are implemented through the existing trainer/session/NPC lease
+owners. `tower-rocket-exit.patch` now includes its exact (18,9) terminal warp as
+well as the first 7F Rocket's stairs. Apply its current version once; the later
+combined source-story-script-exits.patch supersedes it when Silph is installed.
+The source coordinate array's malformed $0f terminator is recorded honestly:
+only the two authored trigger coordinates are implemented; ROM-overread behavior
+is not guessed or claimed as reproduced.

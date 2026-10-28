@@ -73,6 +73,14 @@ Hideout:
 
 Tower and Snorlax:
 
+- Tower2 rival objects:1 at (14,5), triggers (15,5) and (14,6). Player
+  Charmander/Squirtle/Bulbasaur select existing content OPP_RIVAL2 party4/5/6,
+  payout1625. The package adapter now registers all three immutable variants.
+  Source EVENT_POKEMON_TOWER_RIVAL_ON_LEFT selects exact departure: from (15,5)
+  DOWN2,RIGHT4,DOWN2; from (14,6) RIGHT,DOWN2,RIGHT,DOWN2,RIGHT2. Both reach
+  source exit (18,9). Await EVENT_BEAT_POKEMON_TOWER_RIVAL and then
+  POKEMON_TOWER_RIVAL_V1_LEFT. Source coordinate list has a malformed $0f end
+  byte; only its two authored coordinates are implemented, no guessed ROM reads.
 - Tower6F ghost script trigger (10,16), ID
   `pokered:POKEMON_TOWER_6F:hidden_events:1`. Reads actual `silphScope`; source
   Marowak level30, cannot be caught. Confirmed victory sets

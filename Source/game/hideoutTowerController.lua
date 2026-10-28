@@ -23,7 +23,7 @@ end
 function HideoutTowerController.afterExit(state)
     local id = state.id or ""
     if not (id:match("^pokered:ROCKET_HIDEOUT_") or id:match("^pokered:GAME_CORNER:")
-        or id == TowerStory.FUJI or id == TowerStory.HOUSE_FUJI or TowerStory.rocket(id)
+        or id == TowerStory.RIVAL or id == TowerStory.FUJI or id == TowerStory.HOUSE_FUJI or TowerStory.rocket(id)
         or SnorlaxStory.definition(id)) then
         return
     end

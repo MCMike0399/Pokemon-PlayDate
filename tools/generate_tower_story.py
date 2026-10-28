@@ -10,8 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REVISION = 'af519899719f0754965776faac0e836a3b906e6d'
 OUTPUT = ROOT / 'Source/data/towerStory'
-FILES = [f'scripts/{name}.asm' for name in ('PokemonTower6F', 'PokemonTower7F', 'MrFujisHouse', 'Route12', 'Route16')]
-FILES += [f'data/maps/objects/{name}.asm' for name in ('PokemonTower6F', 'PokemonTower7F', 'MrFujisHouse', 'Route12', 'Route16')]
+FILES = [f'scripts/{name}.asm' for name in ('PokemonTower2F', 'PokemonTower6F', 'PokemonTower7F', 'MrFujisHouse', 'Route12', 'Route16')]
+FILES += [f'data/maps/objects/{name}.asm' for name in ('PokemonTower2F', 'PokemonTower6F', 'PokemonTower7F', 'MrFujisHouse', 'Route12', 'Route16')]
 FILES += ['engine/items/item_effects.asm', 'engine/battle/common_text.asm', 'engine/battle/core.asm']
 
 
@@ -81,7 +81,25 @@ def build(reference):
                             fight_flag=f'EVENT_FIGHT_ROUTE{route}_SNORLAX',
                             woke_text=f'_Route{route}SnorlaxWokeUpText',
                             after_text='_Route12SnorlaxCalmedDownText' if route == 12 else '_Route16SnorlaxReturnedToMountainsText'))
+    source2 = sources['scripts/PokemonTower2F.asm']
+    rival_paths = {}
+    positions = {(14,5)}
+    for name, label in [('left', 'PokemonTower2FRivalDownThenRightMovement'), ('below', 'PokemonTower2FRivalRightThenDownMovement')]:
+        block = source2.split(label + ':',1)[1].split('db -1',1)[0]
+        route = [d.lower() for d in re.findall(r'db NPC_MOVEMENT_(UP|DOWN|LEFT|RIGHT)', block)]
+        x, y = 14, 5
+        for direction in route:
+            dx, dy = dict(up=(0,-1), down=(0,1), left=(-1,0), right=(1,0))[direction]
+            x, y = x+dx, y+dy
+            positions.add((x,y))
+        assert (x,y) == (18,9)
+        rival_paths[name] = route
     scenes = dict(rockets=actors, snorlax=snorlax,
+                  rival=dict(id='pokered:POKEMON_TOWER_2F:objects:1', origin=dict(x=14,y=5),
+                             triggers=[dict(x=15,y=5,left=True,player_facing='left',actor_facing='right'),
+                                       dict(x=14,y=6,left=False,player_facing='up',actor_facing='down')],
+                             paths=rival_paths, script_positions=[dict(x=x,y=y) for x,y in sorted(positions)],
+                             rival_party_indices=dict(charmander=4,squirtle=5,bulbasaur=6)),
                   ghost=dict(id='pokered:POKEMON_TOWER_6F:hidden_events:1', x=10, y=16,
                              species='marowak', level=30, flag='EVENT_BEAT_GHOST_MAROWAK'),
                   fuji=dict(id='pokered:POKEMON_TOWER_7F:objects:4',

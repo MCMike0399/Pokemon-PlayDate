@@ -52,6 +52,19 @@ class TowerSourceTests(unittest.TestCase):
         self.assertEqual((route12['x'], route12['y'], route12['level']), (10, 62, 30))
         self.assertEqual((route16['x'], route16['y'], route16['level']), (26, 10, 30))
 
+    def test_tower_rival_uses_source_party_indices_and_both_full_exit_paths(self):
+        rival = self.scenes['rival']
+        self.assertEqual(rival['rival_party_indices'], dict(charmander=4, squirtle=5, bulbasaur=6))
+        self.assertEqual(rival['paths']['left'], ['down', 'down'] + ['right'] * 4 + ['down', 'down'])
+        self.assertEqual(rival['paths']['below'], ['right', 'down', 'down', 'right', 'down', 'down', 'right', 'right'])
+        for path in rival['paths'].values():
+            x, y = 14, 5
+            delta = dict(up=(0,-1), down=(0,1), left=(-1,0), right=(1,0))
+            for direction in path:
+                dx, dy = delta[direction]
+                x, y = x+dx, y+dy
+            self.assertEqual((x,y), (18,9))
+
     def test_ghost_and_rescue_coordinates_are_source_values(self):
         ghost = self.scenes['ghost']
         self.assertEqual((ghost['x'], ghost['y'], ghost['species'], ghost['level']), (10, 16, 'marowak', 30))

@@ -37,6 +37,19 @@ function HideoutTowerContent.package(name, events, trainerData)
             trainers[id] = copy(trainerData.trainers[id])
         end
     end
+    if name == "midgameSouth" then
+        local class = assert(trainerData.rival_classes.OPP_RIVAL2, "content lacks source Rival2 classes")
+        local variants = {}
+        for starter, index in pairs(TowerStory.scenes().rival.rival_party_indices) do
+            local party = copy(assert(class.parties[index]).party)
+            variants[starter] = {party = party, payout = class.base_money * party[#party].level}
+        end
+        trainers[TowerStory.RIVAL] = {id = TowerStory.RIVAL, map_id = "pokered:POKEMON_TOWER_2F",
+            name = "BLUE", sprite_source = "SPRITE_BLUE", sight_range_cells = 0, talk_only = true,
+            x = 14 + TowerStory.padding("pokered:POKEMON_TOWER_2F"), y = 5,
+            source_flag = "EVENT_BEAT_POKEMON_TOWER_RIVAL", party = copy(variants.charmander.party),
+            payout = variants.charmander.payout, rival_parties = variants}
+    end
     return events, trainers
 end
 function HideoutTowerContent.actorMetadata(id, game)

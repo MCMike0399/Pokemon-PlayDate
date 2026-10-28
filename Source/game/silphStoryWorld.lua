@@ -84,3 +84,30 @@ function SilphStoryWorld.resolveDoor(game, door)
     end
     error("missing persisted Silph elevator destination")
 end
+
+-- Immutable destination context for root's early source-warp binding seam.
+-- Exact declared IDs supersede preparation closures; no LAST_MAP is invented.
+function SilphStoryWorld.elevatorBindings(session)
+    local result = {}
+    local cabin = "pokered:SILPH_CO_ELEVATOR"
+    local padding = SilphStory.padding(cabin)
+    local selected
+    for _, entry in ipairs(SilphStory.scenes().elevator) do
+        local id = entry.map_id .. ":warps:" .. (entry.source_warp_byte + 1)
+        result[id] = {status = "bound", source_event_id = id, to = cabin,
+            toX = 1 + padding, toY = 3, preserveFacing = true, source_target_warp = 1}
+        if session and session:questFlag(floorFlag(entry.floor)) then
+            selected = entry
+        end
+    end
+    if selected then
+        for index = 1, 2 do
+            local id = cabin .. ":warps:" .. index
+            result[id] = {status = "bound", source_event_id = id, to = selected.map_id,
+                toX = selected.destination.x + SilphStory.padding(selected.map_id),
+                toY = selected.destination.y, preserveFacing = true,
+                source_target_warp = selected.source_warp_byte + 1}
+        end
+    end
+    return result
+end

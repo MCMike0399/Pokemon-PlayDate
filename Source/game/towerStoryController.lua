@@ -85,9 +85,85 @@ local function rocketExit(state)
         state:advance()
     end)
 end
+local function rival(state, returning)
+    local spec = TowerStory.scenes().rival
+    local trigger
+    for _, point in ipairs(spec.triggers) do
+        if state.player.gridX == point.x + TowerStory.padding(state.zone.stableID) and state.player.gridY == point.y then
+            trigger = point
+        end
+    end
+    if not returning then
+        queue(state, function()
+            if trigger then
+                local flag = "EVENT_POKEMON_TOWER_RIVAL_ON_LEFT"
+                local ok, reason = state.session:transactSourceEffects({flags = {[flag] = state.session:questFlag(flag)}},
+                    {flags = {[flag] = trigger.left}})
+                if not ok then
+                    state:fail(reason)
+                    return
+                end
+                state.player.facing = trigger.player_facing
+                state.player:updateSprite()
+            end
+            local npc
+            for _, candidate in ipairs(state.game.npcManager.npcs) do
+                if candidate.def and candidate.def.source_event_id == state.id then
+                    npc = candidate
+                end
+            end
+            if not npc then
+                state:fail("absent-source-Tower-rival")
+                return
+            end
+            local owner = state.game.npcManager.motion
+            local lease, reason = owner:claimScript(npc, state)
+            if not lease then
+                state:fail(reason)
+                return
+            end
+            local facing = trigger and trigger.actor_facing or npc.facing
+            local faced = owner:faceScript(lease, facing)
+            owner:releaseScript(lease)
+            if not faced then
+                state:fail("invalid-source-Tower-rival-facing")
+                return
+            end
+            state:startTrainer({id = state.id, mode = "talk", before = {"_PokemonTower2FRivalWhatBringsYouHereText"}})
+        end)
+        return
+    end
+    if state.plan.confirmed_receipt then
+        assert(state.plan.confirmed_receipt.id == state.id and state.plan.confirmed_receipt.won,
+            "confirmed Tower rival receipt required")
+        text(state, {"_PokemonTower2FRivalDefeatedText", "_MoneyForWinningText"})
+    end
+    text(state, {"_PokemonTower2FRivalHowsYourDexText"})
+    local path = state.session:questFlag("EVENT_POKEMON_TOWER_RIVAL_ON_LEFT") and spec.paths.left or spec.paths.below
+    for _, direction in ipairs(path) do
+        local facing = direction
+        queue(state, function()
+            state:startNPCMove({id = state.id, direction = facing})
+        end)
+    end
+    queue(state, function()
+        local ok, reason = state.session:transact({flags = {[TowerStory.RIVAL_LEFT] = false},
+            trainers = {[state.id] = true}, items = {}}, {flags = {[TowerStory.RIVAL_LEFT] = true}, items = {}})
+        if not ok then
+            state:fail(reason)
+            return
+        end
+        state.towerScene.departed = true
+        state:cancelNPCMove()
+        TowerStory.integration().reconcileActors(state.game)
+        state:advance()
+    end)
+end
 local function prepare(state)
     local script <const> = state.plan.scene_script
-    if script == "rocket-exit" then
+    if script == "tower-rival" or script == "tower-rival-exit" then
+        rival(state, script == "tower-rival-exit")
+    elseif script == "rocket-exit" then
         rocketExit(state)
     elseif script == "ghost" then
         text(state, {"_PokemonTower6FBeGoneText"})

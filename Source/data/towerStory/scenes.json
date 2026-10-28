@@ -18,6 +18,114 @@
       "x": 10,
       "y": 16
     },
+    "rival": {
+      "id": "pokered:POKEMON_TOWER_2F:objects:1",
+      "origin": {
+        "x": 14,
+        "y": 5
+      },
+      "paths": {
+        "below": [
+          "right",
+          "down",
+          "down",
+          "right",
+          "down",
+          "down",
+          "right",
+          "right"
+        ],
+        "left": [
+          "down",
+          "down",
+          "right",
+          "right",
+          "right",
+          "right",
+          "down",
+          "down"
+        ]
+      },
+      "rival_party_indices": {
+        "bulbasaur": 6,
+        "charmander": 4,
+        "squirtle": 5
+      },
+      "script_positions": [
+        {
+          "x": 14,
+          "y": 5
+        },
+        {
+          "x": 14,
+          "y": 6
+        },
+        {
+          "x": 14,
+          "y": 7
+        },
+        {
+          "x": 15,
+          "y": 5
+        },
+        {
+          "x": 15,
+          "y": 6
+        },
+        {
+          "x": 15,
+          "y": 7
+        },
+        {
+          "x": 16,
+          "y": 7
+        },
+        {
+          "x": 16,
+          "y": 8
+        },
+        {
+          "x": 16,
+          "y": 9
+        },
+        {
+          "x": 17,
+          "y": 7
+        },
+        {
+          "x": 17,
+          "y": 9
+        },
+        {
+          "x": 18,
+          "y": 7
+        },
+        {
+          "x": 18,
+          "y": 8
+        },
+        {
+          "x": 18,
+          "y": 9
+        }
+      ],
+      "triggers": [
+        {
+          "actor_facing": "right",
+          "left": true,
+          "player_facing": "left",
+          "x": 15,
+          "y": 5
+        },
+        {
+          "actor_facing": "down",
+          "left": false,
+          "player_facing": "up",
+          "x": 14,
+          "y": 6
+        }
+      ]
+    },
     "rockets": [
       {
         "home": {

@@ -266,3 +266,34 @@ function RocketHideoutStory.actorMetadata(id, game)
     end
     return {}
 end
+
+-- Root's shared map/context owner uses these exact bindings BEFORE it applies
+-- preparation closed-warp barriers. A late DoorWarp resolver cannot open a cell
+-- that the provider already blocked. This function mutates no Zone or cache.
+function RocketHideoutStory.elevatorBindings(session)
+    local result = {}
+    local cabin = "pokered:ROCKET_HIDEOUT_ELEVATOR"
+    local padding = RocketHideoutStory.padding(cabin)
+    local selected
+    for _, entry in ipairs(RocketHideoutStory.scenes().elevator) do
+        for index, exit in ipairs(entry.exits) do
+            local id = entry.map_id .. ":warps:" .. exit.warp
+            result[id] = {status = "bound", source_event_id = id, to = cabin,
+                toX = index + 1 + padding, toY = 1, preserveFacing = true,
+                source_target_warp = index}
+        end
+        if session and session:questFlag(destinationFlag(entry.floor)) then
+            selected = entry
+        end
+    end
+    if selected then
+        for index = 1, 2 do
+            local id = cabin .. ":warps:" .. index
+            result[id] = {status = "bound", source_event_id = id, to = selected.map_id,
+                toX = selected.destination.x + RocketHideoutStory.padding(selected.map_id),
+                toY = selected.destination.y, preserveFacing = true,
+                source_target_warp = selected.source_warp_byte + 1}
+        end
+    end
+    return result
+end

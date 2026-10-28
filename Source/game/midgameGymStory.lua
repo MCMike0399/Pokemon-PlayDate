@@ -77,7 +77,12 @@ function MidgameGymStory.install()
             if game.player.gridX == 4 + padding and game.player.gridY == 3 then
                 game.player.facing = "right"
                 game.player:updateSprite()
-                return SourceEvents.dispatch(game, MidgameGymStory.MASTER)
+                for _, npc in ipairs(game.npcManager.npcs) do
+                    if npc.def and npc.def.source_event_id == MidgameGymStory.MASTER then
+                        return SourceActors.interact(game, npc, MidgameGymStory.MASTER)
+                    end
+                end
+                error("source Dojo master missing at its trigger")
             end
             return false
         end,

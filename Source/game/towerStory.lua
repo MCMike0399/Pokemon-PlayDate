@@ -1,6 +1,8 @@
 -- Exact Blue scene plans layered onto SourceEvents, never a regional dispatcher.
 TowerStory = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
+TowerStory.RIVAL = "pokered:POKEMON_TOWER_2F:objects:1"
+TowerStory.RIVAL_LEFT = "POKEMON_TOWER_RIVAL_V1_LEFT"
 TowerStory.GHOST = "pokered:POKEMON_TOWER_6F:hidden_events:1"
 TowerStory.FUJI = "pokered:POKEMON_TOWER_7F:objects:4"
 TowerStory.HOUSE_FUJI = "pokered:MR_FUJIS_HOUSE:objects:5"
@@ -41,9 +43,18 @@ function TowerStory.variant(id, x, y)
 end
 function TowerStory.descriptors(content, houseContent)
     local events = {
+        [TowerStory.RIVAL] = {kind = "bespoke", content = content,
+            before = {"_PokemonTower2FRivalWhatBringsYouHereText"},
+            won = {"_PokemonTower2FRivalDefeatedText"}, lost = {"_PokemonTower2FRivalVictoryText"},
+            victory = {guard_flags = {"EVENT_BEAT_POKEMON_TOWER_RIVAL"},
+                flags = {EVENT_BEAT_POKEMON_TOWER_RIVAL = true}}},
         [TowerStory.GHOST] = {kind = "bespoke", content = content, item = "silphScope"},
         [TowerStory.FUJI] = {kind = "bespoke", content = content},
     }
+    events[TowerStory.RIVAL].script_positions = TowerStory.scenes().rival.script_positions
+    for _, point in ipairs(events[TowerStory.RIVAL].script_positions) do
+        point.x = point.x + TowerStory.padding("pokered:POKEMON_TOWER_2F")
+    end
     events[TowerStory.HOUSE_FUJI] = TowerStory.decorate(TowerStory.HOUSE_FUJI, {
         kind = "gift", content = houseContent or "midgameEast", item = "pokeFlute", flag = "EVENT_GOT_POKE_FLUTE",
         prefix = {{op = "dialog", labels = {"_MrFujisHouseMrFujiIThinkThisMayHelpYourQuestText"}}},
@@ -61,7 +72,9 @@ function TowerStory.descriptors(content, houseContent)
     return events
 end
 function TowerStory.actorMetadata(id, game)
-    if TowerStory.rocket(id) then
+    if id == TowerStory.RIVAL then
+        return {visibility = {{group = "quest", id = TowerStory.RIVAL_LEFT, equals = false}}}
+    elseif TowerStory.rocket(id) then
         return {visibility = {{group = "quest", id = TowerStory.departureFlag(id), equals = false}}}
     elseif id == TowerStory.FUJI then
         return {visibility = {{group = "quest", id = "EVENT_RESCUED_MR_FUJI", equals = false}}}
@@ -82,6 +95,15 @@ function TowerStory.decorate(id, descriptor)
     return result
 end
 function TowerStory.plan(id, observation)
+    if id == TowerStory.RIVAL then
+        if observation.flags[TowerStory.RIVAL_LEFT] then
+            return {status = "already-complete", steps = {}}
+        end
+        return {status = "ready", scene = "tower-story", steps = {},
+            scene_script = observation.trainers[id] and "tower-rival-exit" or "tower-rival",
+            confirmed_receipt = copy(observation.receipt),
+            ram = observation.receipt and {wAmountMoneyWon = observation.receipt.payout} or nil}
+    end
     if id == TowerStory.FUJI then
         if observation.flags.EVENT_RESCUED_MR_FUJI then
             return {status = "already-complete", steps = {}}
@@ -153,12 +175,26 @@ function TowerStory.install(content, options)
     end
     SourceEvents.registerWorldHooks(TowerStory.GHOST, {
         beforeSpawn = function(game, context)
-            if currentZone.stableID == "pokered:POKEMON_TOWER_7F" or currentZone.stableID == "pokered:MR_FUJIS_HOUSE" then
+            if currentZone.stableID == "pokered:POKEMON_TOWER_7F" or currentZone.stableID == "pokered:POKEMON_TOWER_2F"
+                or currentZone.stableID == "pokered:MR_FUJIS_HOUSE" then
                 SourceActors.refresh(game, currentZone)
                 context.reconcile = true
             end
         end,
         explore = function(game)
+            if currentZone.stableID == "pokered:POKEMON_TOWER_2F" then
+                if game.session:trainerDefeated(TowerStory.RIVAL) and not game.session:questFlag(TowerStory.RIVAL_LEFT) then
+                    return SourceEvents.dispatch(game, TowerStory.RIVAL)
+                end
+                if not game.session:trainerDefeated(TowerStory.RIVAL) then
+                    for _, trigger in ipairs(TowerStory.scenes().rival.triggers) do
+                        if game.player.gridX == trigger.x + TowerStory.padding(currentZone.stableID)
+                            and game.player.gridY == trigger.y then
+                            return SourceEvents.dispatch(game, TowerStory.RIVAL)
+                        end
+                    end
+                end
+            end
             local ghost <const> = TowerStory.scenes().ghost
             if currentZone.stableID == "pokered:POKEMON_TOWER_6F" and not game.session:questFlag(ghost.flag)
                 and game.player.gridX == ghost.x + TowerStory.padding(currentZone.stableID)
