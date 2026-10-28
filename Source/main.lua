@@ -59,7 +59,6 @@ import "game/context"
 import "game/overworldState"
 import "game/dialogState"
 import "game/battleState"
-import "game/kantoAudio"
 import "game/debugState"
 import "game/learningState"
 import "game/saves"
@@ -209,7 +208,6 @@ local function updateGame()
 
     machine:update()
     machine:handleInput()
-    KantoAudio.updateGame(game)
     machine:get("overworld"):flushPendingPresentation()
     machine:draw()
 
