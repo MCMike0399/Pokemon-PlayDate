@@ -209,6 +209,121 @@ function MoveFailureContracts.run()
             end
         end
     end)
+    test("Pursuit intercepts voluntary withdrawal once at double power, including a faint before replacement", function()
+        local b = fresh()
+        own(b.enemy, "pursuit")
+        local hp = b.player.hp
+        RulesRNG.seed(19)
+        RulesRNG.random(1,100) -- ordinary accuracy
+        local ordinary = calcDamage(b.enemy,b.player,moveData.pursuit,40,b.effects).damage
+        RulesRNG.seed(19)
+        attempt(b,"pursuit","enemy")
+        eq(hp-b.player.hp,ordinary,"ordinary Pursuit power40")
+        for _, lethal in ipairs({false,true}) do
+            local old, bench, enemy = Pokemon("pidgey",100), Pokemon("squirtle",100), Pokemon("rattata",100)
+            local party=roster(old,bench)
+            b=Battle(old,enemy,"TRAINER",{party=party})
+            battles[#battles+1]=b;settle(b)
+            own(enemy,"pursuit")
+            enemy.statStages.acc=-6;old.statStages.eva=6
+            RulesRNG.seed(19)
+            RulesRNG.random(1,1) -- the opponent's single action choice
+            local expected=calcDamage(enemy,old,moveData.pursuit,80,b.effects).damage
+            if lethal then old.hp=1 else assert(expected<old.hp) end
+            hp=old.hp
+            RulesRNG.seed(19)
+            assert(b:chooseParty(2))
+            local text=settle(b)
+            assert(text:find("used PURSUIT!",1,true))
+            eq(old.hp,math.max(0,hp-expected),"outgoing takes power80 before withdrawal")
+            eq(bench.hp,bench.maxHP,"incoming never takes Pursuit")
+            eq(enemy.pp.pursuit,19,"one queued action only")
+            eq(RulesRNG.snapshot().rolls,3,"choice, crit, damage; interception cannot miss")
+            eq(b.effects.round,nil)
+            if lethal then
+                eq(b.player,old);eq(b:phase(),"forcedSwitch")
+                assert(b:chooseParty(2));settle(b)
+                eq(enemy.pp.pursuit,19,"forced replacement gives no second action")
+            end
+            eq(b.player,bench);eq(party:active(),bench)
+            eq(#b:getMoveGaps(),0)
+        end
+    end)
+    test("Disable locks the last move without PP loss and expires by pending-action timing", function()
+        for _, targetPending in ipairs({true,false}) do
+            local b=fresh()
+            local player,enemy=b.player,b.enemy
+            own(player,"splash")
+            player.moves={"splash","tackle"};player.pp.tackle=35
+            own(enemy,"disable")
+            b:runScript(function()
+                b:resolveTurn({side="player",actor=player,key="splash",move=moveData.splash})
+            end);settle(b)
+            local pp=player.pp.splash
+            local target={side="player",actor=player,key="splash",move=moveData.splash}
+            local disable={side="enemy",actor=enemy,key="disable",move=moveData.disable}
+            local turns=targetPending and {disable,target} or {target,disable}
+            RulesRNG.seed(19)
+            b:runScript(function()return b:resolveRound(turns) end);settle(b)
+            eq(player.pp.splash,pp-(targetPending and 0 or 1),"queued disabled action spends no PP")
+            eq(enemy.pp.disable,19)
+            eq(b.conditions:of(player).disable.turns,targetPending and 3 or 4)
+            eq(b.conditions:of(player).disable.key,"splash")
+            local before=RulesRNG.snapshot()
+            local accepted,reason=b:selectMove(1)
+            eq(accepted,false);eq(reason,"disabled-move")
+            eq(RulesRNG.snapshot().rolls,before.rolls,"rejection does not roll")
+            eq(#b:availableMoves(player),1);eq(b:availableMoves(player)[1].key,"tackle")
+            eq(b:needsStruggle(player),false)
+            player.moves={"splash"};eq(b:needsStruggle(player),true)
+            own(enemy,"splash")
+            local remaining=targetPending and 3 or 4
+            for tick=1,remaining do
+                local lockedPP=player.pp.splash
+                b:runScript(function()return b:resolveRound({target}) end);settle(b)
+                eq(player.pp.splash,lockedPP)
+                eq(b.conditions:disabled(player,"splash"),tick<remaining)
+            end
+            assert(b:selectMove(1));settle(b)
+            eq(#b:getMoveGaps(),0)
+            -- A real last move with no remaining PP cannot be disabled.
+            player.pp.splash=0
+            local text=attempt(b,"disable","enemy")
+            assert(text:find("But it failed!",1,true))
+            eq(b.conditions:disabled(player,"splash"),false)
+            b:clearVolatiles();eq(b.conditions.members[player],nil)
+        end
+    end)
+    test("Camouflage changes effective types to the fieldless Normal default and clears on withdrawal or battle close", function()
+        local old,bench,enemy=Pokemon("pidgey",100),Pokemon("squirtle",100),Pokemon("rattata",100)
+        local party=roster(old,bench)
+        local b=Battle(old,enemy,"TRAINER",{party=party})
+        battles[#battles+1]=b;settle(b);own(enemy,"splash")
+        local first,second=old.type,old.type2
+        eq(first,"normal");eq(second,"flying")
+        eq(b:typeMatchup("electric",old),2)
+        RulesRNG.seed(19)
+        local text=attempt(b,"camouflage")
+        assert(text:find("NORMAL type",1,true))
+        eq(old.pp.camouflage,19);eq(RulesRNG.snapshot().rolls,0)
+        local effective,other=b:effectiveTypes(old)
+        eq(effective,"normal");eq(other,nil)
+        eq(b:typeMatchup("electric",old),1);eq(b:typeMatchup("ghost",old),0)
+        eq(calcDamage(old,enemy,moveData.tackle,40,b.effects).isSTAB,true)
+        eq(old.type,first);eq(old.type2,second,"canonical types remain save-safe")
+        text=attempt(b,"camouflage")
+        assert(text:find("But it failed!",1,true))
+        assert(b:chooseParty(2));settle(b)
+        eq(b.conditions.members[old],nil)
+        assert(b:chooseParty(1));settle(b)
+        eq(b:typeMatchup("electric",old),2,"withdrawal restores Flying")
+        attempt(b,"camouflage");eq(b:typeMatchup("electric",old),1)
+        b:clearVolatiles()
+        effective,other=b:effectiveTypes(old)
+        eq(effective,first);eq(other,second,"battle close restores both types")
+        eq(old.type,first);eq(old.type2,second)
+        eq(#b:getMoveGaps(),0)
+    end)
     RulesRNG.restore(saved)
     return report
 end

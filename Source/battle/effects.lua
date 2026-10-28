@@ -92,7 +92,8 @@ end
 -- accuracy/evasion/CompoundEyes/SandVeil; immunity still precedes this query.
 function BattleEffects:accuracyBypassesCheck(move,attacker,defender)
     attacker,defender=attacker or self.battle.attacker,defender or self.battle.defender
-    return (move.weatherAccuracy==true and self:weatherId()=="raindance")
+    return (move==moveData.pursuit and self.round and self.round.withdrawing==defender)
+        or (move.weatherAccuracy==true and self:weatherId()=="raindance")
         or self:livingAbility(attacker,99) or self:livingAbility(defender,99)
 end
 -- CriticalHit runs AFTER the critical trial, including guaranteed criticals.
@@ -165,6 +166,7 @@ function BattleEffects:canAttempt(move,attacker,defender)
         and self:livingAbility(defender,43) and soundMoves[key] and moveData[key]==move then
         return false, "soundproof"
     end
+    if key=="disable" then return self.battle.conditions:canDisable(defender) end
     if move.attemptRule=="worrySeed" then return self:worrySeedAttempt(attacker,defender) end
     if move.attemptRule=="oppositeSex" then
         -- GenV TryHit ability immunity precedes move-specific sex immunity.
@@ -218,6 +220,7 @@ end
 
 -- Move-defined power precedes conditional field modifiers (e.g. Mud Sport).
 function BattleEffects:movePower(move,power,attacker,defender)
+    if move==moveData.pursuit and self.round and self.round.withdrawing==defender then return power*2 end
     if move.powerRule=="electroBall" then
         local ratio=self.battle:effectiveSpeed(attacker)//math.max(1,self.battle:effectiveSpeed(defender))
         return ({[0]=40,60,80,120,150})[math.min(4,ratio)]

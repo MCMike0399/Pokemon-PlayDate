@@ -11,7 +11,7 @@ from pathlib import Path
 from tools.move_producer_contract import read_rows
 
 ROOT = Path(__file__).resolve().parents[1]
-HANDLERS = {'engine-dsl', 'dsl', 'standard-damage', 'intentional-no-effect', 'singles-no-target', 'wild-escape'}
+HANDLERS = {'engine-dsl', 'dsl', 'standard-damage', 'intentional-no-effect', 'singles-no-target', 'wild-escape', 'battle-condition', 'switch-intercept'}
 
 
 def render(root=ROOT):
