@@ -26,7 +26,7 @@ def build(reference=REFERENCE):
     species = {'MR_MIME': 'mr', 'NIDORAN_M': 'nidoranM', 'NIDORAN_F': 'nidoranF'}
     names = {'MR_MIME': 'MR.MIME', 'NIDORAN_M': 'NIDORAN♂', 'NIDORAN_F': 'NIDORAN♀', 'FARFETCHD': "FARFETCH'D"}
     trades, events = {}, {}
-    current = {'Route2TradeHouse', 'UndergroundPathRoute5', 'VermilionTradeHouse', 'Route11Gate2F'}
+    current = set(json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())['maps'])
     for index, wanted, received, nickname, map_name, actor, dialogue in EXPECTED:
         assert rows[index] == (wanted, received, dialogue, nickname)
         script = sources[f'scripts/{map_name}.asm']

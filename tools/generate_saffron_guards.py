@@ -17,6 +17,7 @@ FLAG = 'pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK'
 def build(reference=REFERENCE):
     pin = json.loads((reference / 'manifest.json').read_text())
     assert pin['revision'] == REVISION
+    active_maps = set(json.loads((ROOT / 'Source/data/sourceMaps.json').read_text())['maps'])
     sources = {}
     for path, digest in pin['files'].items():
         raw = (reference / path).read_bytes()
@@ -42,7 +43,7 @@ def build(reference=REFERENCE):
         x, y, facing, text = actor[0]
         assert text == f'TEXT_ROUTE{number}GATE_GUARD'
         guards[f'pokered:ROUTE_{number}_GATE:objects:1'] = dict(
-            map=f'Route{number}Gate', active=number in (5, 6),
+            map=f'Route{number}Gate', active=f'Route{number}Gate' in active_maps,
             actor=dict(x=int(x), y=int(y), facing=facing.lower()),
             trigger=points, entry_facing=direction, entry_push=push, talk_push='up')
     shared = sources['scripts/Route5Gate.asm']
