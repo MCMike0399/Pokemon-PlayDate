@@ -694,7 +694,7 @@ class VermilionJourney(cj.CeruleanJourney):
         if index is None:
             raise ProtocolError('no actually owned compatible Cut user; requires natural capture, never an artificial species')
         if 'cut' in self.party()[index - 1]['moves']:
-            raise ProtocolError('natural Teaching witness requires an unlearned Cut')
+            return index
         before = copy.deepcopy(self.party()[index - 1])
         quantity = self.quantity('hm01')
         self.send('press b')
@@ -978,15 +978,35 @@ class VermilionJourney(cj.CeruleanJourney):
             self.collect('DiglettsCave', ['diglett'], 'VermilionPokecenter', 'VermilionMart')
         if self.owned_count() < 10:
             raise ProtocolError('actual common captures did not reach the ten-species HM05 threshold')
-        for name in ('DiglettsCaveRoute11', 'DiglettsCave', 'DiglettsCaveRoute2', 'Route2Gate'):
-            self.travel(self.zone(name))
-            self.checkpoint('vermilion-visit-' + name.lower())
+        self.cross_digletts_cave()
+        self.travel(self.zone('Route2Gate'))
+        self.checkpoint('vermilion-visit-route2gate')
         self.gift('hm05')
+        self.cross_digletts_cave(reverse=True)
         self.travel(self.zone('Route11'))
         self.checkpoint('vermilion-route11')
         self.save()
         self.write_receipt()
         self.summary.update(acceptance='candidate saved; actual process restart pending', forbidden_shortcuts=False)
+
+    def cross_digletts_cave(self, reverse=False):
+        entrance = 'DiglettsCaveRoute2' if reverse else 'DiglettsCaveRoute11'
+        exit_room = 'DiglettsCaveRoute11' if reverse else 'DiglettsCaveRoute2'
+        if self.state['zone_id'] != self.zone('DiglettsCave'):
+            self.travel(self.zone(entrance))
+            self.checkpoint('vermilion-visit-' + entrance.lower())
+            self.warp(self.zone('DiglettsCave'))
+        self.checkpoint('vermilion-visit-diglettscave')
+        waypoints = [(37, 30), (25, 30), (25, 26), (13, 26), (13, 18),
+                     (9, 18), (9, 14), (5, 14), (5, 6)]
+        for point in reversed(waypoints) if reverse else waypoints:
+            self.navigate(point)
+        direction = 'down' if reverse else 'up'
+        self.step(self.model().terrain_step(self.position(), direction))
+        self.send('wait 2')
+        self.drain()
+        self.require(zone_id=self.zone(exit_room))
+        self.checkpoint('vermilion-visit-' + exit_room.lower())
 
     def leave_gym(self):
         if self.state['zone_id'] == self.zone('VermilionGym'):
