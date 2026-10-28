@@ -404,18 +404,40 @@ Covers:
 
 ### 5.5 Midgame Kanto
 
+Accept these checkpoints separately on main, in order. Each uses three earned
+saves from the previous accepted checkpoint. One rotating starter covers optional
+content; the other two cover the story, required rewards and actual Save/Continue.
+Workers may prepare the next checkpoint while the current one is being accepted.
+
+#### 5.5a — Rock Tunnel, Lavender and Celadon
+
 - Routes 9 and 10, Rock Tunnel (dark without Flash), and Lavender.
-- Celadon:
-  - the Department Store;
-  - the Game Corner and its coins;
-  - the Rocket Hideout (spinners, Lift Key, elevator, Giovanni);
-  - Erika.
-- Pokémon Tower: the Silph Scope ghost, Mr. Fuji, the Poké Flute.
-- Snorlax on Routes 12 and 16.
-- Cycling Road, the Bicycle, the rods and fishing.
-- Saffron: the guard drinks, Silph Co. (card keys, warp pads, the rival, Giovanni, the Lapras gift), Sabrina and the Dojo.
-- Fuchsia: the Safari Zone (its own battle mode, steps and balls), Koga, HM03 Surf, HM04 Strength.
+- Celadon Department Store, Game Corner and coins, and Erika.
+- Rocket Hideout: spinners, Lift Key, elevator, Giovanni and Silph Scope.
+
+After acceptance, publish the smallest real audio path on main: audible town,
+route and battle music, plus cries, verified by native playback.
+
+#### 5.5b — Tower, Fuchsia and Safari
+
+- Pokémon Tower: the Silph Scope ghost, Mr. Fuji and the Poké Flute.
+- Snorlax on Routes 12 and 16; Cycling Road and the Bicycle.
+- Rods and fishing.
+- Fuchsia, Koga and Safari Zone's battle mode, steps and balls.
+- HM03 Surf and HM04 Strength.
+
+#### 5.5c — Saffron and Fly
+
+- Guard drinks and entry to Saffron.
+- Silph Co.: Card Key, warp pads, rival, Giovanni and Lapras gift.
+- Sabrina and the Dojo.
 - Fly and its destination history.
+
+At each acceptance, record post-GC Lua heap and worst map-load and battle-start
+update time measured in the Simulator. State physical-device results separately.
+Prune compile-only and superseded evidence, preserving acceptance references,
+earned saves, chain hashes and the newest failure per checkpoint. Record freed
+space in the ledger. Ask once at each acceptance whether to push.
 
 ### 5.6 Late game
 
