@@ -338,6 +338,9 @@ local function prepare(zone, changes)
     return result
 end
 function Zone:_commitTiles(plan)
+    if next(plan) == nil then
+        return function() end
+    end
     local data, old, undoView = zoneData[self], {}, nil
     for i, change in ipairs(plan) do
         old[i] = { x = change.x, y = change.y, id = self.tiles[change.y + 1][change.x + 1],
@@ -390,7 +393,7 @@ function Zone:exportDeltas()
     end
     return { schema = 1, zone_id = self.stableID, definition_revision = data.revision, tiles = changes, tile_count = #changes }
 end
-function Zone:_prepareDeltas(payload)
+function Zone:_prepareDeltas(payload, purpose)
     local data = zoneData[self]
     assert(type(payload) == "table" and payload.schema == 1 and payload.zone_id == self.stableID, "wrong world delta identity/schema")
     for key in pairs(payload) do
@@ -401,18 +404,59 @@ function Zone:_prepareDeltas(payload)
     assert(integer(payload.tile_count) and payload.tile_count >= 0, "world delta count required")
     array(payload.tiles, payload.tile_count, "world delta tiles")
     local changed = prepare(self, payload.tiles)
+    assert(purpose == nil or purpose == "candidate" or purpose == "apply", "unknown delta preparation")
+    local function matches(x, y, id, collision, terrain)
+        if self.tiles[y + 1][x + 1] ~= id or self.collision[y + 1][x + 1] ~= collision then
+            return false
+        end
+        local current = data.terrain[y + 1][x + 1]
+        for key, value in pairs(terrain) do
+            if current[key] ~= value then
+                return false
+            end
+        end
+        for key in pairs(current) do
+            if terrain[key] == nil then
+                return false
+            end
+        end
+        return true
+    end
     local desired = {}
-    for y = 1, self.height do
-        for x = 1, self.width do
-            local id = data.tiles[y][x]
-            desired[(y - 1) * self.width + x] = { x = x - 1, y = y - 1, id = id,
-                collision = data.collision[y][x], terrain = data.baselineTerrain[y][x] }
+    if purpose ~= "candidate" then
+        for y = 1, self.height do
+            for x = 1, self.width do
+                local id = data.tiles[y][x]
+                if purpose ~= "apply" or not matches(x - 1, y - 1, id,
+                    data.collision[y][x], data.baselineTerrain[y][x]) then
+                    desired[(y - 1) * self.width + x] = {x=x - 1, y=y - 1, id=id,
+                        collision=data.collision[y][x], terrain=data.baselineTerrain[y][x]}
+                end
+            end
         end
     end
-    for _, change in ipairs(changed) do desired[change.y * self.width + change.x + 1] = change end
+    for _, change in ipairs(changed) do
+        local index = change.y * self.width + change.x + 1
+        if purpose == "apply" and matches(change.x, change.y, change.id, change.collision, change.terrain) then
+            desired[index] = nil
+        else
+            desired[index] = change
+        end
+    end
+    if purpose == "apply" then
+        local result = {}
+        for index = 1, self.width * self.height do
+            if desired[index] then
+                result[#result + 1] = desired[index]
+            end
+        end
+        return result
+    end
     return desired
 end
-function Zone:applyDeltas(payload) self:_commitTiles(self:_prepareDeltas(payload)) end
+function Zone:applyDeltas(payload)
+    self:_commitTiles(self:_prepareDeltas(payload, "apply"))
+end
 function Zone:resetDeltas()
     self:applyDeltas({ schema = 1, zone_id = self.stableID, definition_revision = zoneData[self].revision, tiles = {}, tile_count = 0 })
 end
@@ -580,7 +624,7 @@ function WorldDeltas.export()
     table.sort(zones,function(a,b)return a.zone_id<b.zone_id end)
     return { schema = 1, zones = zones, zone_count = #zones }
 end
-local function prepareWorld(payload)
+local function prepareWorld(payload, purpose)
     assert(type(payload) == "table" and payload.schema == 1 and integer(payload.zone_count), "invalid world delta payload")
     for key in pairs(payload) do
         assert(key == "schema" or key == "zone_count" or key == "zones", "unsupported world delta field")
@@ -601,7 +645,7 @@ local function prepareWorld(payload)
         else
         assert(zone and not occupied[zone], "unknown/duplicate world delta zone")
         occupied[zone] = true
-        zone:_prepareDeltas(value)
+        zone:_prepareDeltas(value, "candidate")
         local tiles = {}
         for _, tile in ipairs(value.tiles) do tiles[#tiles + 1] = { x = tile.x, y = tile.y, key = tile.key } end
         table.sort(tiles, function(a, b) return a.y == b.y and a.x < b.x or a.y < b.y end)
@@ -619,14 +663,14 @@ local function prepareWorld(payload)
         local value = nil
         for _, candidate in ipairs(payload.zones) do if candidate.zone_id == zone.stableID then value = candidate end end
         value = value or { schema = 1, zone_id = zone.stableID, definition_revision = zoneData[zone].revision, tile_count = 0, tiles = {} }
-        plans[#plans + 1] = { zone = zone, changes = zone:_prepareDeltas(value) }
+        plans[#plans + 1] = { zone = zone, changes = zone:_prepareDeltas(value, purpose or "apply") }
     end
     return plans, { schema = 1, zone_count = #normalized, zones = normalized }, providerPlan
 end
 -- Validation is pure: no registry allocation, view update, or domain mutation.
 -- Returned records are defensive values; apply always preflights again.
 function WorldDeltas.validate(payload)
-    local _, normalized = prepareWorld(payload)
+    local _, normalized = prepareWorld(payload, "candidate")
     return normalized
 end
 function WorldDeltas.resolveLocation(location, candidateWorld, options)
@@ -636,7 +680,7 @@ function WorldDeltas.resolveLocation(location, candidateWorld, options)
     end
     assert(type(location.zone_id) == "string", "stable world location ID required")
     assert(location.facing == "up" or location.facing == "down" or location.facing == "left" or location.facing == "right", "invalid world facing")
-    local plans,_,providerPlan = prepareWorld(candidateWorld)
+    local plans,_,providerPlan = prepareWorld(candidateWorld, "candidate")
     if definitionProvider and definitionProvider:hasID(location.zone_id) then
         return definitionProvider:resolveLocation(location,providerPlan,options)
     end
@@ -648,7 +692,8 @@ function WorldDeltas.resolveLocation(location, candidateWorld, options)
     local namedSlice = options and options.sliceZones and options.sliceZones[zone.stableID] == true
     assert(zone:isCampaignReady() or (namedSlice and zone:isSliceReady()), "unresolved campaign world location")
     local tile = selected.changes[location.y * zone.width + location.x + 1]
-    assert(tile.collision == 0, "world location is blocked in candidate world")
+    local collision = tile and tile.collision or zoneData[zone].collision[location.y + 1][location.x + 1]
+    assert(collision == 0, "world location is blocked in candidate world")
     return { zone_id = zone.stableID, x = location.x, y = location.y, facing = location.facing }
 end
 -- Root opts into the source Cut occupancy policy for players only.
