@@ -866,56 +866,67 @@ class VermilionJourney(cj.CeruleanJourney):
         self.continue_cerulean()
         self.begin_continuation()
         self.summary['acceptance'] = 'Continued accepted Cerulean save; 5.4 candidate in progress'
-        # The robbed-house Rocket is a real required battle, not a seeded flag.
-        rocket = cj.sid('CERULEAN_CITY', 2)
-        if not self.defeated(rocket):
-            self.heal_here('CeruleanPokecenter')
-            self.stock_up('CeruleanMart')
-            self.travel(self.zone('CeruleanCity'))
-            self.travel(self.zone('CeruleanTrashedHouse'))
-            self.fight(rocket)
+        if not self.flag('EVENT_GOT_HM01'):
+            # The robbed-house Rocket is a real required battle, not a seeded flag.
+            rocket = cj.sid('CERULEAN_CITY', 2)
+            if not self.defeated(rocket):
+                self.heal_here('CeruleanPokecenter')
+                self.stock_up('CeruleanMart')
+                self.travel(self.zone('CeruleanCity'))
+                self.travel(self.zone('CeruleanTrashedHouse'))
+                self.fight(rocket)
+                self.save()
+            self.collect('Route24', ['bellsprout'], 'CeruleanPokecenter', 'CeruleanMart')
             self.save()
-        self.collect('Route24', ['bellsprout'], 'CeruleanPokecenter', 'CeruleanMart')
-        self.save()
-        common = ['caterpie', 'metapod', 'pidgey']
-        owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
-        needed = max(0, 2 - sum(bool(owned.get(species)) for species in common))
-        if needed:
-            self.collect('Route24', common, 'CeruleanPokecenter', 'CeruleanMart',
-                         minimum_owned=self.owned_count() + needed, required=False)
+            common = ['caterpie', 'metapod', 'pidgey']
+            owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+            needed = max(0, 2 - sum(bool(owned.get(species)) for species in common))
+            if needed:
+                self.collect('Route24', common, 'CeruleanPokecenter', 'CeruleanMart',
+                             minimum_owned=self.owned_count() + needed, required=False)
+                self.save()
+            if not any(m['species'] == 'bellsprout' for m in self.party()):
+                raise ProtocolError('actual Cut-compatible Bellsprout did not remain in the party')
+            self.travel(self.zone('Route5'))
+            if self.config.get('content_scope', 'full') == 'full' and 'daycare' not in self.completed_steps:
+                self.daycare_service()
+            self.travel(self.zone('UndergroundPathRoute5'))
+            self.travel(self.zone('UndergroundPathNorthSouth'))
+            self.travel(self.zone('UndergroundPathRoute6'))
+            self.travel(self.zone('Route6'))
+            self.collect('Route6', ['meowth'], 'VermilionPokecenter', 'VermilionMart', required=False)
             self.save()
-        if not any(m['species'] == 'bellsprout' for m in self.party()):
-            raise ProtocolError('actual Cut-compatible Bellsprout did not remain in the party')
-        self.travel(self.zone('Route5'))
-        if self.config.get('content_scope', 'full') == 'full' and 'daycare' not in self.completed_steps:
-            self.daycare_service()
-        self.travel(self.zone('UndergroundPathRoute5'))
-        self.travel(self.zone('UndergroundPathNorthSouth'))
-        self.travel(self.zone('UndergroundPathRoute6'))
-        self.travel(self.zone('Route6'))
-        self.collect('Route6', ['meowth'], 'VermilionPokecenter', 'VermilionMart', required=False)
-        self.save()
-        self.heal_here('VermilionPokecenter')
-        if self.config.get('content_scope', 'full') == 'full':
-            self.gift('voucher')
-            self.gift('rod')
-        self.heal_here('VermilionPokecenter')
-        self.restock_ship_medicine()
-        self.save()
-        self.travel(self.zone('VermilionDock'))
-        self.travel(self.zone('SSAnne1F'))
-        if self.config.get('content_scope', 'full') == 'full':
-            for name in ('SSAnne1FRooms', 'SSAnneB1FRooms', 'SSAnne2FRooms',
-                         'SSAnneKitchen', 'SSAnne3F', 'SSAnneBow'):
-                self.visit_all_cabins(name)
-        trigger = self.vermilion['scenes']['rival']['variants'][0]['trigger']
-        self.travel(self.zone('SSAnne2F'), (trigger['x'] + self.models[self.zone('SSAnne2F')].padding, trigger['y']))
-        if not self.defeated(RIVAL) or not any(r.get('trainer_id') == RIVAL and r.get('won') for r in self.summary['source_receipts']):
-            raise ProtocolError('actual positional Anne rival battle receipt missing')
-        self.gift('hm01')
+            self.heal_here('VermilionPokecenter')
+            if self.config.get('content_scope', 'full') == 'full':
+                self.gift('voucher')
+                self.gift('rod')
+            self.heal_here('VermilionPokecenter')
+            self.restock_ship_medicine()
+            self.save()
+            self.travel(self.zone('VermilionDock'))
+            self.travel(self.zone('SSAnne1F'))
+            if self.config.get('content_scope', 'full') == 'full':
+                for name in ('SSAnne1FRooms', 'SSAnneB1FRooms', 'SSAnne2FRooms',
+                             'SSAnneKitchen', 'SSAnne3F', 'SSAnneBow'):
+                    self.visit_all_cabins(name)
+            self.travel(self.zone('SSAnne1F'))
+            self.navigate((3, 7))
+            self.navigate((3, 6))
+            self.warp(self.zone('SSAnne2F'), event_id='pokered:SS_ANNE_1F:warps:9')
+            trigger = self.vermilion['scenes']['rival']['variants'][0]['trigger']
+            self.travel(self.zone('SSAnne2F'), (trigger['x'] + self.models[self.zone('SSAnne2F')].padding, trigger['y']))
+            if not self.defeated(RIVAL) or not any(r.get('trainer_id') == RIVAL and r.get('won') for r in self.summary['source_receipts']):
+                raise ProtocolError('actual positional Anne rival battle receipt missing')
+            self.gift('hm01')
         self.save()
         index = self.teach_cut()
-        self.travel(self.zone('VermilionCity'))
+        self.travel(self.zone('SSAnne1F'))
+        # The departure scene returns directly to the city, bypassing the dock.
+        # Follow this known aisle rather than asking the portal planner to infer it.
+        self.navigate((25, 7))
+        self.navigate((26, 1))
+        self.step(self.model().terrain_step(self.position(), 'up'))
+        self.require(zone_id=self.zone('VermilionCity'))
         if not self.flag('EVENT_SS_ANNE_LEFT'):
             raise ProtocolError('actual post-HM01 ship exit/departure did not commit')
         self.checkpoint('vermilion-ship-departed')
