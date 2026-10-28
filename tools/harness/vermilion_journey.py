@@ -509,6 +509,10 @@ class VermilionJourney(cj.CeruleanJourney):
         phase = {'map': name, 'targets': list(targets), 'owned_before': self.owned_count(), 'completed': False}
         self.collection['phases'].append(phase)
         initially_owned = cj.boolean_map(lookup(self.state, 'session.pokedex.owned'), 'owned')
+        if (all(initially_owned.get(species) for species in targets)
+                or minimum_owned is not None and self.owned_count() >= minimum_owned):
+            phase.update(completed=True, owned_after=self.owned_count(), battles=0, steps=0)
+            return
         start_battles, start_steps = self.collection['battles'], self.collection['steps']
         self.acquisition_active = True
         self.acquisition_targets = set(targets)
@@ -837,7 +841,6 @@ class VermilionJourney(cj.CeruleanJourney):
         self.continue_cerulean()
         self.begin_continuation()
         self.summary['acceptance'] = 'Continued accepted Cerulean save; 5.4 candidate in progress'
-        self.travel(self.zone('CeruleanCity'))
         # The robbed-house Rocket is a real required battle, not a seeded flag.
         rocket = cj.sid('CERULEAN_CITY', 2)
         if not self.defeated(rocket):
