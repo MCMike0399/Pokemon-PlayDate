@@ -538,8 +538,7 @@ function FieldWorldContracts.run()
             local saved = wire(g)
             eq(saved.version, SessionCodec.VERSION)
             same(saved.fieldWorld, {version = 1, mapPalOffset = 0})
-            local old = GameSession._copy(saved)
-            old.version = 1
+            local old = SessionFixture.forVersion(saved, 1)
             old.fieldWorld = nil
             old.daycare = nil
             local migrated = assert(SessionCodec.decode(old, g:getSessionDependencies()))

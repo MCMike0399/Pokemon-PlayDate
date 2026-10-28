@@ -607,7 +607,7 @@ function NPCTradeContracts.run()
             assert(s:resolveNPCTrade(prepare(g, current, mon), g))
         end
         local complete <const> = wire(s)
-        eq(complete.version, 3)
+        eq(complete.version, SessionCodec.VERSION)
         for _, current in ipairs(list) do
             assert(s:questFlag(current.flag))
         end
