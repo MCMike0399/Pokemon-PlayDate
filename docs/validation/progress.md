@@ -65,7 +65,9 @@ stay separate from the 5.5a release. The complete private candidate is retained
 on `parked/midgame-b-c-before-55a-20261028`; derive the release with East maps only. Main remains **65/222**; the East package
 contains 43 new maps, so the planned 5.5a frontier is 108/222, not yet accepted.
 
-Private `wip/midgame-integration` currently has all 171 prepared source maps.
+Private `wip/midgame-integration` now activates only **108 candidate maps**.
+The complete later candidate stays parked. The production build excludes South/
+Saffron data and future controllers. Its 14 shared-map host checks pass.
 Its latest completed SDK run passed **2331 checks, zero failures** at
 `evidence/m55-scenes-sdk-20261028-02`. Later source-encounter and field-gear
 additions compile but still need native checks. The prior native catalog exported
@@ -74,7 +76,10 @@ additions compile but still need native checks. The prior native catalog exporte
 The first east journey sets stopped on two missing harness registrations, then
 an unnecessary early trip to Pewter to make room for later Lapras. Those failed
 runs remain failures. The early Lapras detour is removed; the next partial set is
-`evidence/m55a-east-chains-20261028-04`. No planner feature or
+`evidence/m55a-east-chains-20261028-05`. The previous set reached Cerulean
+but lacked a party member that can learn Flash. The driver now checks earned PC
+Pokémon; if none can use Flash, its fixed route keeps the tunnel dark rather than
+inventing a helper or grinding. No planner feature or
 training fight was added. Preserve partial earned slots from actual later runs.
 Charmander covers optional content; Bulbasaur and Squirtle cover the critical path.
 
@@ -84,8 +89,11 @@ All reports and briefs must use normal words and spacing. Technical worker
 questions go to root; three old invisible questions were answered and cleared.
 
 At every acceptance, record production Simulator post-GC Lua heap and worst
-map-load/battle-start frame time. The user confirmed a Playdate is available. No USB serial port or data volume
-was detected; the first accepted-main device test waits for connection/unlock.
+map-load/battle-start frame time. The accepted 5.4 build was copied to the physical Playdate and launched by USB.
+All 495 payload files match; 522 macOS metadata files are excluded from that count.
+`evidence/device-main-verification-20261028-01/comparison.json` records the check.
+Runtime/title feedback and physical memory measurements remain unverified.
+The data disk mounted slowly; main now allows 90 seconds for deployment mount.
 After 5.5a, accept the smallest audible town/route/battle/cry path on main.
 The native audio probe reports system volume **0**; listening waits for its slider,
 while game work continues. At each checkpoint, ask once whether to push.
