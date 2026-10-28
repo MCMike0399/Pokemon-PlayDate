@@ -88,14 +88,25 @@ def move_score(move,level=None):
 
 
 def choose_battle_medicine(mon, inventory):
-    """Use observed stock and health; no damage prediction or outcome override."""
-    hp=finite(mon.get('hp'),'hp');maximum=finite(mon.get('maxHP'),'maxHP',minimum=1)
-    quantities=inventory.get('quantities',{})
-    potion=quantities.get('potion',0)>0
-    if hp<=0:return None
-    if potion and hp*3<=maximum:return 'potion'
-    if mon.get('status')in {'poison','badPoison'}and quantities.get('antidote',0)>0:return 'antidote'
-    if potion and hp*3<maximum*2:return 'potion'
+    """Use actual medicine stock and observed HP, without predicting damage."""
+    hp = finite(mon.get('hp'), 'hp')
+    maximum = finite(mon.get('maxHP'), 'maxHP', minimum=1)
+    quantities = inventory.get('quantities', {})
+    if hp <= 0:
+        return None
+    available = [(amount, item) for amount, item in (
+        (20, 'potion'), (50, 'superPotion'), (200, 'hyperPotion'),
+        (maximum, 'maxPotion'), (maximum, 'fullRestore'))
+        if quantities.get(item, 0) > 0]
+    missing = maximum - hp
+    sufficient = [row for row in available if row[0] >= missing]
+    medicine = min(sufficient)[1] if sufficient else max(available)[1] if available else None
+    if medicine and hp * 3 <= maximum:
+        return medicine
+    if mon.get('status') in {'poison', 'badPoison'} and quantities.get('antidote', 0) > 0:
+        return 'antidote'
+    if medicine and hp * 3 < maximum * 2:
+        return medicine
     return None
 
 

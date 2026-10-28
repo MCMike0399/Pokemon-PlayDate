@@ -930,8 +930,14 @@ class VermilionJourney(cj.CeruleanJourney):
         if not self.flag('EVENT_SS_ANNE_LEFT'):
             raise ProtocolError('actual post-HM01 ship exit/departure did not commit')
         self.checkpoint('vermilion-ship-departed')
-        self.field_cut(index)
-        self.travel(self.zone('VermilionGym'))
+        # Heal between the Gym's actual trainers instead of entering Surge tired.
+        for trainer_index in (4, 3, 2):
+            trainer_id = cj.sid('VERMILION_GYM', trainer_index)
+            if self.defeated(trainer_id):
+                continue
+            self.prepare_gym_visit()
+            self.fight(trainer_id)
+        self.prepare_gym_visit()
         self.apply_world_observation(self.observe('vermilion-world'))
         self.puzzle()
         self.fight(SURGE)
@@ -956,6 +962,21 @@ class VermilionJourney(cj.CeruleanJourney):
         self.save()
         self.write_receipt()
         self.summary.update(acceptance='candidate saved; actual process restart pending', forbidden_shortcuts=False)
+
+    def prepare_gym_visit(self):
+        self.heal_here('VermilionPokecenter')
+        self.field_swap(self.starter_index())
+        clerk = self.zone('VermilionMart') + ':objects:1'
+        price = self.vermilion['shops'][clerk]['prices']['superPotion']
+        count = min(max(0, 8 - self.quantity('superPotion')),
+                    max(0, self.inventory()['money'] - 600) // price)
+        if count:
+            self.travel(self.zone('VermilionMart'))
+            self.buy_item(clerk, 'superPotion', count, price)
+        self.save()
+        index = next(i for i, mon in enumerate(self.party(), 1) if 'cut' in mon['moves'])
+        self.field_cut(index)
+        self.travel(self.zone('VermilionGym'))
 
     def restock_ship_medicine(self):
         clerk = self.zone('VermilionMart') + ':objects:1'
