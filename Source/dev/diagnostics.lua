@@ -312,7 +312,10 @@ function HarnessDiagnostics.observe(game, kind)
             trainers=SourceEvents.trainerDefinitions()}
     end
     if kind == "midgame-state" then
+        local event = game.machine:get("event")
+        local slotView = event and event.celadonSlotView
         return {kind=kind, zone_id=currentZone and currentZone.stableID,
+            coins=game.session:coins(), celadonSlotView=slotView and GameSession._copy(slotView) or nil,
             fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData(),
             fieldRuntime=game.getFieldTravelSnapshot and game:getFieldTravelSnapshot() or {installed=false},
             fieldUI=ui(game.machine:get("fieldTravel"))}
