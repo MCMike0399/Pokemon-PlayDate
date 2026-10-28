@@ -338,6 +338,19 @@ class VermilionJourney(cj.CeruleanJourney):
     def collection_owner(self):
         return validate_collection_owner(self.observe('vermilion-collection'))
 
+    def flee(self):
+        if self.state.get('root') == 'battle' and not lookup(self.state, 'battle.trainerName'):
+            enemy = lookup(self.state, 'battle.enemy')
+            player = lookup(self.state, 'battle.player')
+            ability = enemy.get('ability_id')
+            flying = 'flying' in sequence(player.get('types', []), 'player types')
+            trapped = (ability == 23 and player.get('ability_id') != 23
+                       or ability == 42 and 'steel' in sequence(player.get('types', []), 'player types')
+                       or ability == 71 and not flying and player.get('ability_id') != 26)
+            if trapped and player.get('ability_id') != 50:
+                return self.battle('vermilion-trapped-wild')
+        return super().flee()
+
     def battle(self, name, strategy='attack', expected=None):
         if self.acquisition_active and not lookup(self.state, 'battle.trainerName'):
             # EventState can still display the previous trainer ID after a wild
@@ -940,24 +953,25 @@ class VermilionJourney(cj.CeruleanJourney):
         if not self.flag('EVENT_SS_ANNE_LEFT'):
             raise ProtocolError('actual post-HM01 ship exit/departure did not commit')
         self.checkpoint('vermilion-ship-departed')
-        # Heal between the Gym's actual trainers instead of entering Surge tired.
-        for trainer_index in (4, 3, 2):
-            trainer_id = cj.sid('VERMILION_GYM', trainer_index)
-            if self.defeated(trainer_id):
-                continue
+        if not self.flag('EVENT_GOT_TM24'):
+            # Heal between the Gym's actual trainers instead of entering Surge tired.
+            for trainer_index in (4, 3, 2):
+                trainer_id = cj.sid('VERMILION_GYM', trainer_index)
+                if self.defeated(trainer_id):
+                    continue
+                self.prepare_gym_visit()
+                self.fight(trainer_id)
             self.prepare_gym_visit()
-            self.fight(trainer_id)
-        self.prepare_gym_visit()
-        self.apply_world_observation(self.observe('vermilion-world'))
-        self.puzzle()
-        self.fight(SURGE)
-        if not all(self.flag(f) for f in ('BADGE_THUNDER', 'EVENT_BEAT_LT_SURGE', 'EVENT_GOT_TM24')) or self.quantity('tm24') != 1:
-            raise ProtocolError('actual Surge win/badge/TM24 transaction missing')
-        self.repeat_trainer(SURGE)
-        self.checkpoint('vermilion-surge-badge-tm24')
-        self.leave_gym()
-        self.heal_here('VermilionPokecenter')
-        self.save()
+            self.apply_world_observation(self.observe('vermilion-world'))
+            self.puzzle()
+            self.fight(SURGE)
+            if not all(self.flag(f) for f in ('BADGE_THUNDER', 'EVENT_BEAT_LT_SURGE', 'EVENT_GOT_TM24')) or self.quantity('tm24') != 1:
+                raise ProtocolError('actual Surge win/badge/TM24 transaction missing')
+            self.repeat_trainer(SURGE)
+            self.checkpoint('vermilion-surge-badge-tm24')
+            self.leave_gym()
+            self.heal_here('VermilionPokecenter')
+            self.save()
         self.collect('Route11', ['sandshrew', 'spearow', 'drowzee'],
                      'VermilionPokecenter', 'VermilionMart', minimum_owned=10, required=False)
         if self.owned_count() < 10:

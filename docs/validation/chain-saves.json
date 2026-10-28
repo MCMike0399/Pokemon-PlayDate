@@ -126,19 +126,19 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-05/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-05",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-06/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-06",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "8352a865222a62f746a793f9ed7e152f886e3e9333db0c0257d2ef71ce4c84e8",
-          "bytes": 11023
+          "sha256": "1a57645f812cec03e96e9a2f6253b543da91d7f92924c525d581753e9fd15603",
+          "bytes": 13481
         },
         {
           "file": "adventure.b.json",
-          "sha256": "38054dd51ccf7450d977570f2ec1d591369851551027c471b68fa31a47b30f55",
-          "bytes": 11022
+          "sha256": "b98c1423e0dabd1e04d35b208878e50cb89f5f149b890cb2d77bb6db1495d230",
+          "bytes": 13598
         }
       ],
       "completed_steps": [
