@@ -199,15 +199,15 @@ class PlanningBoundaryTests(unittest.TestCase):
     def test_cave_lane_uses_actual_zone_eligibility_without_changing_source_model(self):
         from tools.harness.brock_journey import SourceGeometry
         driver = journey()
-        model = SourceGeometry('pokered:DIGLETTS_CAVE', [[0, 0], [0, 0]])
+        model = SourceGeometry('pokered:DIGLETTS_CAVE', [[0] * 40 for _ in range(36)])
         driver.models = {model.name: model}
         driver.state = {'zone_id': model.name, 'player': {'x': 0, 'y': 0}, 'npcs': []}
         driver.observe = lambda kind: {'kind': kind, 'zone_id': model.name, 'cells': []}
         with self.assertRaisesRegex(ProtocolError, 'actual Zone policy has no eligible cells'):
             driver.collection_lane('DiglettsCave')
         driver.observe = lambda kind: {'kind': kind, 'zone_id': model.name,
-                                       'cells': [{'x': 0, 'y': 0}, {'x': 1, 'y': 0}]}
-        self.assertEqual(set(driver.collection_lane('DiglettsCave')), {(0, 0), (1, 0)})
+                                       'cells': [{'x': 35, 'y': 30}, {'x': 35, 'y': 31}]}
+        self.assertEqual(set(driver.collection_lane('DiglettsCave')), {(35, 30), (35, 31)})
         self.assertFalse(any(any(row) for row in model.grass))
 
     def test_vermilion_budget_extension_does_not_change_earlier_bounds(self):
