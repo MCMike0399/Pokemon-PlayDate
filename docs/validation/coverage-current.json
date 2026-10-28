@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "8411654d2612d2ef184d5db9852ee86bb6740145",
-    "source_sha256": "d257ce193bd6227205ef521003e8390aa848a88b6f07cfe3d3a6a2ce99543056",
+    "commit": "11a96e0dd346786fa6d90671882a0fffb68137d5",
+    "source_sha256": "90d232f1840ee33f9e524b21b0fd330631a72807a4fe233e345418f2f49f318e",
     "policy_date": "2026-10-28",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "WholeoriginalBluecampaign/postgame, original151, GenVmechanics. Snapshot not timeless live truth.",
@@ -129,7 +129,7 @@
     },
     "production-battle": {
       "path": "Source/battle/battle.lua",
-      "sha256": "0c1e342e2cb1c6b656945d4ae98f28ac41a5729ce96b13ca468e03386b3f8cca",
+      "sha256": "87cb0340ccec8367173d7d89eeb300b35d6a19082e687a1588c86f87450c9239",
       "kind": "production",
       "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
