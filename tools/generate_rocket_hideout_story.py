@@ -87,7 +87,21 @@ def build(reference):
                    for dy in range(2) for dx in range(2)]
             keys.append('pokered:' + tileset + ':cell:' + '-'.join(f'{v:02x}' for v in ids))
         terrain[name] = dict(map=map_name, block=block, x=x, y=y, keys=keys)
-    scenes = dict(spinners=routes, elevator=floors, terrain=terrain)
+    corner = sources['scripts/GameCorner.asm']
+    guard_paths = {}
+    positions = set()
+    for name, label in [('direct', 'GameCornerMovement_Rocket_WalkDirect'), ('around', 'GameCornerMovement_Rocket_WalkAroundPlayer')]:
+        block = corner.split(label + ':', 1)[1].split('db -1', 1)[0]
+        path = [d.lower() for d in re.findall(r'db NPC_MOVEMENT_(UP|DOWN|LEFT|RIGHT)', block)]
+        guard_paths[name] = path
+        x, y = 9, 5
+        positions.add((x, y))
+        for direction in path:
+            dx, dy = dict(up=(0,-1), down=(0,1), left=(-1,0), right=(1,0))[direction]
+            x, y = x + dx, y + dy
+            positions.add((x,y))
+    scenes = dict(spinners=routes, elevator=floors, terrain=terrain,
+                  guard=dict(paths=guard_paths, script_positions=[dict(x=x,y=y) for x,y in sorted(positions)]))
     return {'scenes.json': encoded(dict(schema=1, source_revision=REVISION, scenes=scenes)),
             'provenance.json': encoded(dict(schema=1, source_revision=REVISION, files=pins))}
 

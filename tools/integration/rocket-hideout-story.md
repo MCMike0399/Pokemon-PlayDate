@@ -117,3 +117,28 @@ python3 -m unittest tools.tests.test_rocket_hideout_story -v
 
 The generator requires reference HEAD exactly equal to the pinned revision,
 compares each consumed file against its committed blob, and records SHA256.
+
+## Content delivery alignment
+
+Checked map worker `f2166ef`: content name is `midgameEast`; the reserved fifth
+B1F Rocket, Giovanni and Lift Key Rocket have source trainer data but no event
+registration. `descriptors("midgameEast")` now supplies their exact source labels.
+Register those existing trainer rosters once with the content package.
+`GameCorner:objects:11` is also reserved: its source-specific direct/around-player
+lease paths are included. The source object toggle persists as
+`ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT`; victory remains owned by TrainerEvents.
+Cancellation rolls the guard's entire incomplete departure back to its leased
+approach pose; its won flag is preserved and settled exploration retries departure.
+
+Merge `RocketHideoutStory.actorMetadata(id, game)` into content's metadata for
+those IDs. The decorated key/Scope cases retain top-level `flag` and `item` for
+content visibility even though `SourceEvents.isPickup` sees only direct pickups.
+Their nested ordinary pickup plans still carry `plan.pickup`, so EventState's
+existing post-commit removal applies. Do not infer collection visibility from
+the outer kind alone. `actorMetadata` supplies both reveal and collection gates.
+
+The root final-controller example is now a concrete unapplied patch at
+`tools/integration/midgame-story-controller.patch`; import it after `NPCTradeState`
+and let root retain its sole event state registration. It preserves every parent
+method and contains no dispatcher or owner registration. The Tower delegate is a
+separate follow-on packet; root may omit those three calls for Hideout alone.

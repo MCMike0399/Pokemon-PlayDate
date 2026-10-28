@@ -65,6 +65,69 @@
         "source_warp_byte": 2
       }
     ],
+    "guard": {
+      "paths": {
+        "around": [
+          "down",
+          "right",
+          "right",
+          "up",
+          "right",
+          "right",
+          "right",
+          "right"
+        ],
+        "direct": [
+          "right",
+          "right",
+          "right",
+          "right",
+          "right"
+        ]
+      },
+      "script_positions": [
+        {
+          "x": 9,
+          "y": 5
+        },
+        {
+          "x": 9,
+          "y": 6
+        },
+        {
+          "x": 10,
+          "y": 5
+        },
+        {
+          "x": 10,
+          "y": 6
+        },
+        {
+          "x": 11,
+          "y": 5
+        },
+        {
+          "x": 11,
+          "y": 6
+        },
+        {
+          "x": 12,
+          "y": 5
+        },
+        {
+          "x": 13,
+          "y": 5
+        },
+        {
+          "x": 14,
+          "y": 5
+        },
+        {
+          "x": 15,
+          "y": 5
+        }
+      ]
+    },
     "spinners": {
       "pokered:ROCKET_HIDEOUT_B2F": [
         {

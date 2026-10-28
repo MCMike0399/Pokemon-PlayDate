@@ -2,6 +2,8 @@
 RocketHideoutStory = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local B4 <const> = "pokered:ROCKET_HIDEOUT_B4F:objects:"
+RocketHideoutStory.GUARD = "pokered:GAME_CORNER:objects:11"
+RocketHideoutStory.GUARD_LEFT = "ROCKET_HIDEOUT_SCENE_V1_GUARD_LEFT"
 RocketHideoutStory.GIOVANNI = B4 .. "1"
 RocketHideoutStory.KEY_ROCKET = B4 .. "4"
 RocketHideoutStory.SCOPE = B4 .. "8"
@@ -35,9 +37,26 @@ end
 function RocketHideoutStory.descriptors(content)
     local events = {}
     for _, id in ipairs({RocketHideoutStory.POSTER, RocketHideoutStory.LIFT,
-        RocketHideoutStory.GIOVANNI, RocketHideoutStory.KEY_ROCKET}) do
+        RocketHideoutStory.GIOVANNI, RocketHideoutStory.KEY_ROCKET, RocketHideoutStory.GUARD}) do
         events[id] = {kind = "bespoke", content = content}
     end
+    events[RocketHideoutStory.GIOVANNI].before = {"_RocketHideoutB4FGiovanniImpressedYouGotHereText"}
+    events[RocketHideoutStory.GIOVANNI].won = {"_RocketHideoutB4FGiovanniWhatCannotBeText"}
+    events[RocketHideoutStory.GIOVANNI].after = {"_RocketHideoutB4FGiovanniHopeWeMeetAgainText"}
+    events[RocketHideoutStory.GIOVANNI] = RocketHideoutStory.decorate(RocketHideoutStory.GIOVANNI, events[RocketHideoutStory.GIOVANNI])
+    events[RocketHideoutStory.KEY_ROCKET].before = {"_RocketHideoutB4FRocket3BattleText"}
+    events[RocketHideoutStory.KEY_ROCKET].won = {"_RocketHideoutB4FRocket3EndBattleText"}
+    events[RocketHideoutStory.KEY_ROCKET].after = {"_RocketHideoutB4FRocket3AfterBattleText"}
+    events[RocketHideoutStory.GUARD].before = {"_GameCornerRocketImGuardingThisPosterText"}
+    events[RocketHideoutStory.GUARD].won = {"_GameCornerRocketBattleEndText"}
+    events[RocketHideoutStory.GUARD].after = {"_GameCornerRocketAfterBattleText"}
+    events[RocketHideoutStory.GUARD].script_positions = RocketHideoutStory.scenes().guard.script_positions
+    local fifth = "pokered:ROCKET_HIDEOUT_B1F:objects:5"
+    events[fifth] = {kind = "trainer", content = content,
+        before = {"_RocketHideoutB1FRocket5BattleText"}, won = {"_RocketHideoutB1FRocket5EndBattleText"},
+        after = {"_RocketHideoutB1FRocket5AfterBattleText"},
+        victory = {guard_flags = {"EVENT_BEAT_ROCKET_HIDEOUT_1_TRAINER_4"},
+            flags = {EVENT_BEAT_ROCKET_HIDEOUT_1_TRAINER_4 = true}}}
     events[RocketHideoutStory.LIFT].item = "liftKey"
     for _, routes in pairs(RocketHideoutStory.scenes().spinners) do
         for _, route in ipairs(routes) do
@@ -56,7 +75,7 @@ function RocketHideoutStory.decorate(id, descriptor)
     elseif id == RocketHideoutStory.SCOPE or id == RocketHideoutStory.KEY then
         local flag <const> = id == RocketHideoutStory.SCOPE and "EVENT_BEAT_ROCKET_HIDEOUT_GIOVANNI"
             or "EVENT_ROCKET_DROPPED_LIFT_KEY"
-        return {kind = "cases", content = d.content, cases = {
+        return {kind = "cases", content = d.content, flag = d.flag, item = d.item, cases = {
             {when = {flags = {[flag] = true}}, ["then"] = d},
         }, otherwise = {kind = "program", steps = {}}}
     end
@@ -70,6 +89,19 @@ function RocketHideoutStory.plan(id, observation)
             return {status = "no-key", steps = {text("_RocketHideoutElevatorAppearsToNeedKeyText")}}
         end
         return scene("elevator")
+    elseif id == RocketHideoutStory.GUARD then
+        if observation.trainers[id] then
+            if observation.flags[RocketHideoutStory.GUARD_LEFT] then
+                return {status = "already-complete", steps = {}}
+            end
+            local plan = scene("guard-exit")
+            plan.confirmed_receipt = copy(observation.receipt)
+            plan.ram = observation.receipt and {wAmountMoneyWon = observation.receipt.payout} or nil
+            return plan
+        end
+        local descriptor = SourceEvents.descriptor(id)
+        descriptor.kind = "trainer"
+        return SourceEvents.compile(descriptor, observation, id)
     elseif id == RocketHideoutStory.KEY_ROCKET or id == RocketHideoutStory.GIOVANNI then
         -- Content registration retains the source trainer fields on the bespoke
         -- descriptor. Compile a detached ordinary view to keep receipt semantics.
@@ -173,10 +205,13 @@ function RocketHideoutStory.install(content, options)
         and type(options.openEntrance) == "function",
         "content actor/atomic terrain integration required")
     for id in pairs(RocketHideoutStory.descriptors(content)) do
-        assert(SourceEvents.has(id, content) and not SourceEventHandlers[id], "content registration must precede story install")
-        local stableID <const> = id
-        SourceEventHandlers[id] = function(observation)
-            return RocketHideoutStory.plan(stableID, observation)
+        assert(SourceEvents.has(id, content), "content registration must precede story install")
+        if SourceEvents.descriptor(id).kind == "bespoke" then
+            assert(not SourceEventHandlers[id], "duplicate Hideout handler")
+            local stableID <const> = id
+            SourceEventHandlers[id] = function(observation)
+                return RocketHideoutStory.plan(stableID, observation)
+            end
         end
     end
     SourceEvents.registerWorldHooks(RocketHideoutStory.LIFT, {
@@ -190,6 +225,11 @@ function RocketHideoutStory.install(content, options)
             options.reconcileActors(game)
         end,
         explore = function(game)
+            if currentZone.stableID == "pokered:GAME_CORNER"
+                and game.session:trainerDefeated(RocketHideoutStory.GUARD)
+                and not game.session:questFlag(RocketHideoutStory.GUARD_LEFT) then
+                return SourceEvents.dispatch(game, RocketHideoutStory.GUARD)
+            end
             local routes <const> = RocketHideoutStory.scenes().spinners[currentZone.stableID]
             for _, route in ipairs(routes or {}) do
                 if game.player.gridX == route.x + RocketHideoutStory.padding(currentZone.stableID)
@@ -203,4 +243,22 @@ function RocketHideoutStory.install(content, options)
 end
 function RocketHideoutStory.integration()
     return assert(integration, "Hideout story integration missing")
+end
+
+function RocketHideoutStory.actorMetadata(id, game)
+    if id == RocketHideoutStory.GUARD then
+        return {visibility = {{group = "quest", id = RocketHideoutStory.GUARD_LEFT, equals = false}}}
+    elseif id == RocketHideoutStory.GIOVANNI then
+        if game and game.trainers and game.trainers:peekReceipt(id) then
+            return {visibility = {}}
+        end
+        return {visibility = {{group = "quest", id = "EVENT_BEAT_ROCKET_HIDEOUT_GIOVANNI", equals = false}}}
+    elseif id == RocketHideoutStory.SCOPE or id == RocketHideoutStory.KEY then
+        local d = assert(SourceEvents.descriptor(id))
+        local flag = id == RocketHideoutStory.SCOPE and "EVENT_BEAT_ROCKET_HIDEOUT_GIOVANNI"
+            or "EVENT_ROCKET_DROPPED_LIFT_KEY"
+        return {visibility = {{group = "quest", id = flag, equals = true},
+            {group = "quest", id = assert(d.flag), equals = false}}}
+    end
+    return {}
 end

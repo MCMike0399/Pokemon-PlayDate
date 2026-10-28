@@ -16,7 +16,20 @@ function RocketHideoutStoryController.advance(state)
     local script <const> = state.plan.scene_script
     if not state.hideoutScene then
         state.hideoutScene = {index = 1, ticks = 0}
-        if script == "spinner" then
+        if script == "guard-exit" then
+            local receipt = state.plan.confirmed_receipt
+            local labels = {}
+            if receipt then
+                assert(receipt.id == state.id and receipt.won and state.session:trainerDefeated(state.id),
+                    "confirmed Game Corner guard receipt required")
+                labels = {"_GameCornerRocketBattleEndText", "_MoneyForWinningText"}
+            end
+            labels[#labels + 1] = "_GameCornerRocketAfterBattleText"
+            state:source(labels, function()
+                state:advance()
+            end)
+            return true
+        elseif script == "spinner" then
             local origin <const> = state.plan.origin
             if state.player.gridX ~= origin.x + RocketHideoutStory.padding(state.zone.stableID)
                 or state.player.gridY ~= origin.y then
@@ -61,7 +74,29 @@ function RocketHideoutStoryController.advance(state)
             return true
         end
     end
-    if script == "spinner" then
+    if script == "guard-exit" then
+        local x = state.player.gridX - RocketHideoutStory.padding(state.zone.stableID)
+        local paths = RocketHideoutStory.scenes().guard.paths
+        local path = (state.player.gridY == 6 or x == 8) and paths.direct or paths.around
+        local index = state.hideoutScene.index
+        local direction = path[index]
+        if direction then
+            state.hideoutScene.index = index + 1
+            state:startNPCMove({id = state.id, direction = direction})
+        else
+            local ok, reason = state.session:transact({flags = {[RocketHideoutStory.GUARD_LEFT] = false},
+                trainers = {[state.id] = true}, items = {}},
+                {flags = {[RocketHideoutStory.GUARD_LEFT] = true}, items = {}})
+            if not ok then
+                state:fail(reason)
+                return true
+            end
+            state.hideoutScene.departed = true
+            state:cancelNPCMove()
+            RocketHideoutStory.integration().reconcileActors(state.game)
+            state:finish()
+        end
+    elseif script == "spinner" then
         local index <const> = state.hideoutScene.index
         local direction <const> = state.plan.path[index]
         if direction then
@@ -113,5 +148,11 @@ function RocketHideoutStoryController.draw(state)
     gfx.popContext()
 end
 function RocketHideoutStoryController.exit(state)
+    if state.hideoutScene and state.plan.scene_script == "guard-exit" and not state.hideoutScene.departed then
+        for _, lease in pairs(state.npcLeases or {}) do
+            state.game.npcManager.motion:releaseScript(lease, true)
+        end
+        state.npcLeases, state.npcMove = {}, nil
+    end
     state.hideoutScene = nil
 end
