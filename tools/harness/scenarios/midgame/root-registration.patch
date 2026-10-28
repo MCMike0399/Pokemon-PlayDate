@@ -170,3 +170,15 @@
      if kind == "purity" then
          -- Prepared real-SDK witness: repeated requests must preserve the entire
          -- canonical session, live world/actors, identities and both RNG owners.
+--- a/Source/dev/harness.lua
++++ b/Source/dev/harness.lua
+@@ -206,7 +206,8 @@
+             or args[1] == "saved" or args[1] == "loaded"
+             or args[1] == "vermilion-owners" or args[1] == "vermilion-collection"
+             or args[1] == "vermilion-encounter-terrain" or args[1] == "vermilion-aide-fixture"
+-            or args[1] == "vermilion-daycare" or args[1] == "vermilion-world")
++            or args[1] == "vermilion-daycare" or args[1] == "vermilion-world"
++            or args[1] == "midgame-owners" or args[1] == "midgame-state")
+     elseif op == "fixture" then
+         local options = value.options or {}
+         assert(type(options) == "table", "fixture options required")

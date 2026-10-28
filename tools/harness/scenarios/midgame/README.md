@@ -147,3 +147,20 @@ validate, returned Python patch parses/applies, fixed-script cell continuity
 passes, and SDK3.1.2 compilation passes with the final observation patch in a
 private staged Source. No new tests/contracts. Evidence:
 `evidence/m55-journey-full-compile-01/`. No Simulator, push or delegation.
+
+## Root already installed 722ed45
+
+Use `root-followup.patch` instead of replaying `root-registration.patch`:
+
+```sh
+git apply --check tools/harness/scenarios/midgame/root-followup.patch
+git apply tools/harness/scenarios/midgame/root-followup.patch
+```
+
+The incremental patch assumes the original722 registration plus root's
+`midgame-owners`/`midgame-state` observe-allowlist fix. It updates only the existing
+observation payload and successful full-slot export. The clean-base registration
+patch now also contains that allowlist change, so future clean composition does
+not repeat the startup failure. Neither patch runs a Simulator or installs game
+behavior. Root's current2331/0 SDK result remains separate from these unrun
+journeys; main remains65/222. Apply one patch path, not both.
