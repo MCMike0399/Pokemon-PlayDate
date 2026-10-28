@@ -1,7 +1,7 @@
 # Full-game execution ledger
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
-Progress: **30 / 222 source maps playable on main. Current milestone: 5.4.**
+Progress: **65 / 222 source maps playable on main. Current milestone: 5.4 (delivery pending).**
 Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **6.09 h**.
 [Wall-clock times per milestone](milestone-times.json) include waits and provider limits.
 The reduced 5.4 set uses Bulbasaur for optional content and the other starters
@@ -10,14 +10,16 @@ spend turns polling them. Acceptance includes playable packages and a real-speed
 
 ## 1. Accepted revision and what the player can do
 
-Accepted game code: `1794e48`. Source:
-`44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529`.
-A player can continue an earned Brock save, cross Mt. Moon, choose a fossil,
-beat Misty and the Bridge rival, clear Nugget Bridge, help Bill, receive the
-S.S. Ticket, save, quit the process and Continue with any starter.
-The opening and protected art remain intact. Audio, later Kanto, the League,
-postgame and physical-device checks remain unfinished. Commits are local;
-nothing has been pushed since the user's earlier explicit request.
+Game code on main: `1a4a7894aa40125147e8f2d227fd1da6320dd341`. Source:
+`3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d`.
+A player can continue an earned Misty/Bill save, cross Routes5/6 and the
+Underground Path, use the Day Care and Fan Club, explore the Anne, beat the rival,
+receive Cut, beat Surge, cross Diglett's Cave and receive Flash. All three starters
+passed actual process restart/Continue at the Flash aide. The game code is on
+main; milestone 5.4 stays open until the playable packages and 60–90 second clip
+are delivered. Audio and modern controls are prepared separately and still need
+final integration. Later Kanto, the League, postgame and device release remain
+unfinished. Nothing has been pushed since the earlier explicit request.
 
 ## 2. Milestones and checks
 
@@ -53,10 +55,13 @@ production builds, loud move failure and phazing passed. Main had 1274 SDK and
   source versions and limitations. [Save hashes](chain-saves.json) identify the
   actual saves in `~/Developer/Pokemon-PlayDate-env/evidence/chain/5.3/<starter>`.
 
-**5.4 — Vermilion and the first HMs: next.** Merge accepted main into the one
-existing Vermilion branch, then fix its current failures. Its three journeys
-must start with the accepted Cerulean saves and continue after individual
-failures. No later region preparation starts before 5.4 is accepted.
+**5.4 — Vermilion and the first HMs: gameplay passed; delivery pending.**
+All three earned-save journeys and actual restarts passed, with 2077 SDK checks,
+918 host checks and all 2494 protected images exact. Main now has 65 source maps.
+[The summary](vermilion-acceptance-20261028.json) retains the full save ancestry,
+earlier failed outcomes and completed optional actions. The final checkpoint is
+the Flash aide; the unnecessary second cave crossing was removed. No 5.5 region
+preparation starts before the remaining delivery work is complete.
 
 ## 3. Open problems
 
@@ -73,7 +78,7 @@ Audio is active as a quality track; later campaign work remains parked.
 
 | Branch | Next step |
 |---|---|
-| `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
+| `main` / root | 65/222 maps; 5.4 gameplay passed, delivery pending. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
 | `wip/vermilion-integration` | 5.4 remains unaccepted. The current saved-checkpoint set is `m54-progress-retry-<starter>-20261028-07`, with continue-on-failure. Fixed Anne waypoints, actual Super Potion use and Center visits replace planner changes and grinding. Earned captures, Day Care progress and HM01 saves are retained. Trades and guards are removed; the approved Route2 collision image is retained. |
 | Play quality | Three Sol/medium workers prepare map shade proposals, battle presentation/options and native synth audio. HP/EXP animation, trainer entry, title art, running, options and audio hooks are isolated on `wip/play-quality-native`; native visual/audio checks remain pending before release integration. The user rejected the whitened-ground proposal. The visual target is now the original GB four-shade tonal structure reproduced in 1-bit. New comparisons start with Route1, Route24 and the Cerulean Center. The user chose GB grey as the reference; Bayer is the closest measured 1-bit reproduction. Its ten-second native walking run passed. The mapping is prepared separately, with Pallet, interiors and sprites unchanged; catalog review remains pending before release integration. |
 | Trades and Saffron guards | Preserved on `parked/npc-trades-saffron-20261028`, removed from the 5.4 release. |

@@ -1,0 +1,98 @@
+{
+  "milestone": "5.4",
+  "milestone_accepted": false,
+  "status": "gameplay landed on main; playable packages and real-speed showcase pending",
+  "main_game_code": "1a4a7894aa40125147e8f2d227fd1da6320dd341",
+  "source_sha256": "3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d",
+  "maps_playable_on_main": 65,
+  "maps_total": 222,
+  "starter_scope": {
+    "bulbasaur": "optional content and critical path",
+    "charmander": "critical path",
+    "squirtle": "critical path"
+  },
+  "starters": [
+    {
+      "starter": "bulbasaur",
+      "journey": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-09",
+      "source_sha256": "3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d",
+      "process_generations": 2,
+      "save_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/bulbasaur",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "243defa334c98b67c03622da78a40cea42d77c984db9c1065f2a2a48d76d0dae"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "336a214dd1c505cbc05e19615c846929f82b713e6f4ae263b82f381ee5b4890e"
+        }
+      ]
+    },
+    {
+      "starter": "charmander",
+      "journey": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-09",
+      "source_sha256": "3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d",
+      "process_generations": 2,
+      "save_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/charmander",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "bba9fc1c55d80609f6ad45bd300f80b923d6793e60fb7288c54e634a40b55de5"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "9accf278a36d84d098ff4b3eb9fcd5eed2d496f5913a9f38be7d4ebb84db9208"
+        }
+      ]
+    },
+    {
+      "starter": "squirtle",
+      "journey": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-09",
+      "source_sha256": "3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d",
+      "process_generations": 2,
+      "save_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/squirtle",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "44ea3e8a265d540451a8e849a7dbd5f2db41f7497f7129c337079ac878771475"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "98345a33f3bfa13e255d2f43923585019adb97a86aa21cd2abe45bf70e8c39d7"
+        }
+      ]
+    }
+  ],
+  "ancestry_audit": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-save-ancestry-20261028.json",
+  "optional_evidence": {
+    "daycare": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-02/processes/0001/journey-summary.json",
+    "cabins_and_services": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-03/processes/0001/journey-summary.json",
+    "scope_note": "Earlier failed attempts contain completed optional actions. Their failed outcomes are unchanged; final runs finish earned saves and verify Continue."
+  },
+  "validation": {
+    "host": {
+      "passed": 918,
+      "failed": 0,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-release-host-20261028-02.log"
+    },
+    "sdk": {
+      "passed": 2077,
+      "failed": 0,
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-release-sdk-20261028-01"
+    },
+    "protected_images": {
+      "exact": 2494,
+      "comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-release-sdk-20261028-01/comparison.json"
+    }
+  },
+  "parked": [
+    "NPC trades",
+    "Saffron gate guards"
+  ],
+  "delivery": {
+    "production_packages": "pending",
+    "real_speed_showcase": "pending"
+  },
+  "later_milestones": "not complete"
+}
