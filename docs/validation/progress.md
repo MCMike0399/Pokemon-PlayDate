@@ -68,7 +68,7 @@ Audio and later campaign work remain parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 2168 native and 866 host checks passed before the later tool fixes; approved baseline has 2494 exact images. The saved retries are in `m54-progress-retry-<starter>-20261028-02`. Bulbasaur passed Day Care and reached Anne but blacked out after running out of medicine. The driver now heals/restocks between cabin groups and honors its existing one-blackout recovery limit. Actual progress saves avoid replaying captures. Odor Sleuth is implemented; its one native contract awaits the Simulator. Other starter cases continue. |
+| `wip/vermilion-integration` | 2169 native checks pass, including the observed Odor Sleuth effect; full host checks pass. The next three saved-checkpoint retries are `m54-progress-retry-<starter>-20261028-03`, with continue-on-failure. Cabin visits now cover each connected room once rather than each paired exit mat; the earlier occupied-goal failure is fixed. Center visits, real medicine purchases and the existing blackout budget replace grinding. Captures and Day Care progress are preserved in actual saves. Approved Route2 image change is recorded; 5.4 remains unaccepted. |
 | Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
