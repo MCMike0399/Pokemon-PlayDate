@@ -24,17 +24,6 @@ function ExploreSubstate:init(owner)
     self.owner = owner   -- the OverworldState
 end
 
-function ExploreSubstate:enter()
-    self.bFrames = nil
-    self.bRunning = false
-    self.pauseOnSettle = false
-    self.owner.game.player.running = false
-end
-
-function ExploreSubstate:exit()
-    self.owner.game.player.running = false
-end
-
 function ExploreSubstate:update()
     local game = self.owner.game
     local player = game.player
@@ -126,28 +115,8 @@ end
 function ExploreSubstate:handleInput()
     local game = self.owner.game
     local player = game.player
-    -- Short stationary B releases open Pause; directional B gestures run.
-    local held = playdate.buttonIsPressed(playdate.kButtonB)
-    local direction = playdate.buttonIsPressed(playdate.kButtonUp)
-        or playdate.buttonIsPressed(playdate.kButtonDown)
-        or playdate.buttonIsPressed(playdate.kButtonLeft)
-        or playdate.buttonIsPressed(playdate.kButtonRight)
-    if playdate.buttonJustPressed(playdate.kButtonB) then
-        self.bFrames = 0
-        self.bRunning = player.isMoving or direction
-    end
-    if held then
-        self.bFrames = (self.bFrames or 0) + 1
-        self.bRunning = self.bRunning or direction or player.isMoving
-    elseif self.bFrames then
-        self.pauseOnSettle = self.bFrames < 9 and not self.bRunning
-        self.bFrames = nil
-        self.bRunning = false
-    end
-    player.running = held and direction
     if player.isMoving then return end
-    if self.pauseOnSettle then
-        self.pauseOnSettle = false
+    if playdate.buttonJustPressed(playdate.kButtonB) then
         game.npcManager.motion:cancelPending()
         self.owner.machine:push("pause")
         return

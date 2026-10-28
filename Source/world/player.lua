@@ -214,9 +214,7 @@ local function getJumpShadowImage()
 end
 Player.getJumpShadowImage=getJumpShadowImage
 local function startMove(player,gx,gy,jumping)
-    player.isMoving = true
-    player.moveFrames = 0
-    player.stepDuration = player.running and 4 or MOVE_FRAMES
+    player.isMoving=true;player.moveFrames=0
     player.walkToggle=not player.walkToggle
     player.startPixelX=player.gridX*TILE_SIZE;player.startPixelY=player.gridY*TILE_SIZE
     player.gridX,player.gridY=gx,gy
@@ -241,7 +239,6 @@ function Player:tryMove(dx, dy, scriptIntent)
     -- All ordinary callers retain NPC collision, terrain and traversal checks.
     local scripted, guide = false, nil
     if scriptIntent ~= nil then
-        self.running = false
         if not TutorialEscortPlayer then return end
         scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
         if not scripted then return end
@@ -310,7 +307,7 @@ function Player:update()
     if self.isMoving then
         self.moveFrames = self.moveFrames + 1
         local jumping=self.isJumping
-        local duration=jumping and #KantoJumpData.nativeOffsets or (self.stepDuration or MOVE_FRAMES)
+        local duration=jumping and #KantoJumpData.nativeOffsets or MOVE_FRAMES
         local t = self.moveFrames / duration
         if t >= 1 then
             t = 1
@@ -325,8 +322,7 @@ function Player:update()
         -- standing for the second half. walkToggle alternates the lead
         -- leg between steps: stride A -> stand -> stride B -> stand
         local walkImages = self.walkToggle and playerWalk1Images or playerWalk2Images
-        local strideFrames = jumping and MOVE_FRAMES // 2 or duration // 2
-        if self.moveFrames <= strideFrames then
+        if self.moveFrames <= MOVE_FRAMES // 2 then
             self:setImage(walkImages[self.facing])
         else
             self:setImage(playerImages[self.facing])
