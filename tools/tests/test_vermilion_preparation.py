@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import unittest
 from PIL import Image
+from tools.tests.host_fixtures import installed_map_names, build_vermilion_preparation, accepted_source_json
 from tools import generate_vermilion_preparation as g
 from tools.generate_kanto_maps import MapError, Reference, decode_map
 
@@ -20,7 +21,7 @@ class VermilionPreparationTests(unittest.TestCase):
         if not os.environ.get('POKERED_REFERENCE_DIR'):
             raise RuntimeError('explicit pinned POKERED_REFERENCE_DIR required; no skipped checks')
         cls.ref = Path(os.environ['POKERED_REFERENCE_DIR'])
-        cls.artifacts = g.build(cls.ref)
+        cls.artifacts = build_vermilion_preparation(cls.ref)
         cls.maps = {name: json.loads(cls.artifacts[name + '.json']) for name in g.MAPS}
         cls.events = json.loads(cls.artifacts['events.json'])
         cls.trainers = json.loads(cls.artifacts['trainers.json'])
@@ -29,7 +30,7 @@ class VermilionPreparationTests(unittest.TestCase):
 
     def test_deterministic_complete_output_and_pinned_reference(self):
         self.assertEqual(subprocess.check_output(['git', '-C', str(self.ref), 'rev-parse', 'HEAD'], text=True).strip(), g.REVISION)
-        self.assertEqual(self.artifacts, g.build(self.ref))
+        self.assertEqual(self.artifacts, build_vermilion_preparation(self.ref))
         g.verify(self.artifacts, g.OUTPUT)
         consumed = json.loads(self.artifacts['provenance.json'])['source_files']
         self.assertEqual(consumed, self.pin['files'])
@@ -49,7 +50,7 @@ class VermilionPreparationTests(unittest.TestCase):
                 self.assertEqual((g.ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]), path)
         active = json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())
         previous = json.loads(subprocess.check_output(['git', 'show', BASE + ':Source/data/sourceMaps.json']))
-        self.assertEqual(len(active['maps']), 65)
+        self.assertEqual(set(active['maps']), installed_map_names())
         for name, entry in previous['maps'].items():
             self.assertEqual(active['maps'][name], entry, name)
 
@@ -58,7 +59,7 @@ class VermilionPreparationTests(unittest.TestCase):
         proposed = json.loads(self.artifacts['proposed-source-maps.json'])
         additions = json.loads(self.artifacts['manifest-entries.json'])['maps']
         self.assertEqual(len(additions), 35)
-        self.assertEqual(len(proposed['maps']), 65)
+        self.assertEqual(set(proposed['maps']), set(active['maps']) | set(g.MAPS))
         for name, value in active['maps'].items():
             self.assertEqual(proposed['maps'][name], value)
         for key in active.keys() - {'maps'}:
@@ -66,7 +67,7 @@ class VermilionPreparationTests(unittest.TestCase):
         self.assertEqual(set(proposed['maps']) - set(active['maps']), set(g.MAPS))
         cache = json.loads(self.artifacts['proposed-compact.json'])
         self.assertEqual(cache['manifest_sha256'], g.digest(self.artifacts['proposed-source-maps.json']))
-        old_tiles = json.loads((g.ROOT / 'Source/data/sourceMapCache/tile-grids.json').read_bytes())['tiles']
+        old_tiles = accepted_source_json('data/sourceMapCache/tile-grids.json')['tiles']
         tiles = json.loads(self.artifacts['proposed-tile-grids.json'])['tiles']
         for key, value in old_tiles.items():
             self.assertEqual(tiles[key], value)

@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from tools.tests.host_fixtures import installed_map_names
 from tools.generate_saffron_guards import build, REFERENCE, OUTPUT, FLAG
 
 
@@ -16,7 +17,9 @@ class SaffronGuardDataTests(unittest.TestCase):
 
     def test_only_current_guards_active(self):
         active = {id for id, d in self.data['guards'].items() if d['active']}
-        self.assertEqual(active, {f'pokered:ROUTE_{n}_GATE:objects:1' for n in (5, 6)})
+        self.assertEqual(active, {f'pokered:ROUTE_{n}_GATE:objects:1'
+                                  for n in (5, 6, 7, 8)
+                                  if f'Route{n}Gate' in installed_map_names()})
         self.assertEqual(len(self.data['guards']), 4)
 
     def test_source_positions_and_asymmetric_talk(self):

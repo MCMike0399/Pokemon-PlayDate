@@ -8,6 +8,7 @@ import tempfile
 import unittest
 import zlib
 
+from tools.tests.host_fixtures import installed_map_names
 from tools import build
 from tools.harness import run, startup_probe
 from tools.harness.build import overlay_imports
@@ -87,11 +88,27 @@ class ProductionBuildTests(unittest.TestCase):
                           or line.startswith('VermilionCatalogExporter.register(')], BASELINE['registrations'])
 
     def test_staging_preserves_every_non_entry_source_asset(self):
+        policy = BASELINE['checkpoint_a']
+        self.assertEqual(build.production_exclusions(PROJECT), policy['exclude'])
+        active = json.loads((PROJECT / 'Source/data/sourceMaps.json').read_bytes())
+        self.assertEqual(set(active['maps']), installed_map_names())
+        for name in policy['exclude']:
+            self.assertFalse((self.production / 'Source' / name).exists(), name)
+        for name in policy['retain_shared_dependencies']:
+            self.assertEqual((PROJECT / 'Source' / name).read_bytes(),
+                             (self.production / 'Source' / name).read_bytes(), name)
+        proposals = {'proposed-source-maps.json', 'proposed-compact.json', 'proposed-tile-grids.json'}
         for original in (PROJECT / 'Source').rglob('*'):
             if not original.is_file():
                 continue
             relative = original.relative_to(PROJECT / 'Source')
-            if relative.parts[0] != 'dev':
+            name = relative.as_posix()
+            excluded = relative.parts[0] == 'dev' or relative.name in proposals or any(
+                name == entry.rstrip('/') or entry.endswith('/') and name.startswith(entry)
+                for entry in policy['exclude'])
+            if excluded:
+                self.assertFalse((self.production / 'Source' / relative).exists(), name)
+            else:
                 self.assertEqual(original.read_bytes(), (self.production / 'Source' / relative).read_bytes())
             if str(relative) not in ('main.lua', 'pdxinfo', 'dev/harness_build.lua'):
                 self.assertEqual(original.read_bytes(), (self.harness / 'Source' / relative).read_bytes())

@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 from PIL import Image
+from tools.tests.host_fixtures import installed_map_names
 from tools import generate_cerulean_content as generator
 from tools.generate_source_map_cache import build as cache_build, check as cache_check
 
@@ -54,7 +55,7 @@ class CeruleanContentTests(unittest.TestCase):
                     'BillsHouse', 'Museum1F', 'Museum2F'}
         self.assertEqual(set(self.maps), expected)
         active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
-        self.assertEqual(len(active['maps']), 65)
+        self.assertEqual(set(active['maps']), installed_map_names())
         self.assertEqual({name for name, entry in active['maps'].items()
                           if entry['path'].startswith('data/sourceSlice/')}, expected)
         for name in expected:
