@@ -17,8 +17,14 @@ The user rejected the whitened-ground proposal. Preserve the original Game Boy
 four-shade tonal structure when adapting imported tiles to 1-bit. Compare the
 GB source, current renderer and source-faithful dither candidates before changing
 maps. This replaces the earlier request to make imported ground whiter.
-Pallet, its interiors and character sprites remain protected; no new shade
-mapping is approved yet.
+Withdraw all ground, floor and cave whitening and the Pallet-share check.
+Use one global mapping with explicit phase. Compare Bayer and line/cluster
+patterns at LIGHT 31–37.5% and DARK 69–75% black coverage. Judge tone fidelity
+against grey GB renders using Gaussian sigma 2 mean absolute difference.
+Show Route1 and Route24 first, then the requested town, forest, cave, ship and
+Center scenes, with character contrast and native walking motion. Protected
+Pallet and interiors get separate review sheets. Battle art and UI stay outside
+this work. No mapping or protected-image change is approved yet.
 
 ## Play quality direction — 2026-10-28 (latest user steer)
 
