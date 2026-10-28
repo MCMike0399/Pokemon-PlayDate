@@ -7,8 +7,9 @@ Progress: **65 / 222 source maps playable on main. Current milestone: 5.4 — de
 
 ## 1. Current game on main
 
-Game code: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
-Source: `3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d`.
+Gameplay code: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
+The approved display update is `a6298a6`. Current Source: `7dded0135055be1edd14035a192a65770feb4126516243501303d8c6e4cb1930`.
+The three journeys used gameplay Source `3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d`; the display update changes rendering only.
 
 Players can continue an earned Cerulean save, cross Routes5/6 and the Underground
 Path, use Day Care and the Fan Club, explore every Anne cabin, beat the rival,
@@ -44,15 +45,14 @@ Only [hashes and provenance](chain-saves.json) belong in Git.
 ## 3. Play quality, separate from the game above
 
 The user rejected whitening and chose the original GB grey tones as the target.
-The quality branch uses the closest measured Bayer conversion: LIGHT 31.25% black,
+Main now uses the closest measured Bayer conversion: LIGHT 31.25% black,
 DARK 68.75%, fixed phase. Pallet, its interiors and character pixels stay unchanged.
 Native walking: `evidence/gb-tone-native-clip-20261028-02/native-proposed-motion.mp4`.
 
 `wip/play-quality-native` passed 2090 SDK checks at
 `evidence/play-quality-sdk-20261028-04`. The four new QoL behavior cases passed.
 Its catalog changed only 186 approved imported-terrain images; 2308 stayed exact.
-The image-approval manifest will arrive with the quality
-commit. Ship/Cut background calls were subsequently made consistent and need the
+[The image-approval manifest](gb-tone-approved-images-20261028.json) records the update. Ship/Cut background calls were subsequently made consistent and need the
 next native rerun before publication.
 
 Actual input checks in `evidence/quality-input-native-20261028-03` verified the
