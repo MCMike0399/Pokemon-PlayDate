@@ -2,7 +2,7 @@
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
 Progress: **30 / 222 source maps playable on main. Current milestone: 5.4.**
-Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **4.6 h**.
+Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **5.24 h**.
 [Wall-clock times per milestone](milestone-times.json) include waits and provider limits.
 The reduced 5.4 set uses Bulbasaur for optional content and the other starters
 for the critical path. Both journey JSON files already live in `Source/dev`, outside production. Cleanup of remaining bundles waits until journeys stop. Quality workers run alongside journeys; root does not
@@ -74,8 +74,8 @@ Audio is active as a quality track; later campaign work remains parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 2169 native checks pass, including the observed Odor Sleuth effect; full host checks pass. The next three saved-checkpoint retries are `m54-progress-retry-<starter>-20261028-03`, with continue-on-failure. Cabin visits now cover each connected room once rather than each paired exit mat; the earlier occupied-goal failure is fixed. Center visits, real medicine purchases and the existing blackout budget replace grinding. Captures and Day Care progress are preserved in actual saves. Approved Route2 image change is recorded; 5.4 remains unaccepted. |
-| Play quality | Three Sol/medium workers prepare map shade proposals, battle presentation/options and native synth audio. HP/EXP animation, trainer entry, title art, running, options and audio hooks are isolated on `wip/play-quality-native`; native visual/audio checks remain pending before release integration. The user rejected the whitened-ground proposal. The visual target is now the original GB four-shade tonal structure reproduced in 1-bit. New comparisons start with Route1, Route24 and the Cerulean Center. No shade change is approved or included in the release branch. |
+| `wip/vermilion-integration` | 5.4 remains unaccepted. The current saved-checkpoint set is `m54-progress-retry-<starter>-20261028-05`, with continue-on-failure. Fixed Anne waypoints, actual Super Potion use and Center visits replace planner changes and grinding. Earned captures, Day Care progress and HM01 saves are retained. Trades and guards are removed; the approved Route2 collision image is retained. |
+| Play quality | Three Sol/medium workers prepare map shade proposals, battle presentation/options and native synth audio. HP/EXP animation, trainer entry, title art, running, options and audio hooks are isolated on `wip/play-quality-native`; native visual/audio checks remain pending before release integration. The user rejected the whitened-ground proposal. The visual target is now the original GB four-shade tonal structure reproduced in 1-bit. New comparisons start with Route1, Route24 and the Cerulean Center. The user chose GB grey as the reference; Bayer is the closest measured 1-bit reproduction. Its ten-second native walking run passed. The mapping is prepared separately, with Pallet, interiors and sprites unchanged; catalog review remains pending before release integration. |
 | Trades and Saffron guards | Preserved on `parked/npc-trades-saffron-20261028`, removed from the 5.4 release. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
@@ -83,12 +83,26 @@ The cleanup removed at least 93 clean superseded worktrees and 173 old evidence
 directories, freeing 15.3 GB of evidence. Branches and required evidence remain;
 two dirty worktrees were kept intact.
 
-Quality check on the separate branch: 2081 native cases passed and five failed
-in `play-quality-sdk-20261028-01`. Four failures involve presentation/text timing;
-one learning-screen check calls an unavailable SDK image method. Repairs are
-assigned, and none of this code is release-accepted. The production preview build
+Quality check on the separate branch: 2086 native cases passed after repairing five obsolete checks. All 2494 protected images match in `play-quality-sdk-20261028-02`. This code remains separate from the release until visual review. The production preview build
 is outside Git at `evidence/player-packages/5.4-preview/PokemonBlue.pdx`; its
 finished starter saves and showcase clip remain pending.
+
+The latest three saved-checkpoint runs reached the Gym. The driver ignored
+purchased Super Potions because it only selected ordinary Potions. It now uses
+actual stronger medicine and visits the Center between Gym trainers. The next
+set is `m54-progress-retry-<starter>-20261028-05`, with continue-on-failure.
+No preparation grinding was added. The prior played runs logged no missing
+move or ability effects; Squirtle's earlier checksum failure did not reach play.
+
+The second cleanup removed one clean superseded worktree, retaining its branch,
+and 57 unreferenced compile-only bundles: another **0.83 GB**, for **16.13 GB**
+freed across both cleanup passes. Active and dirty worktrees remain.
+`evidence/cleanup-20261028/second-pass-result.json` records the removals.
+Both journey data files are already under `Source/dev`.
+
+Native GB-tone motion: `evidence/gb-tone-native-clip-20261028-02/native-proposed-motion.mp4`
+contains 300 native 400x240 frames at 30 FPS (10 seconds), with source/frame hashes.
+It is a visual witness, not a campaign completion claim.
 
 ## 5. Decisions
 
