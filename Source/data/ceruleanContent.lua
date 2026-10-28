@@ -56,7 +56,7 @@ end
 
 -- Adds immutable records to the existing source resolver. No second actor
 -- resolver, geometry provider or scene registration is created.
-function CeruleanContent.registerPackage(name, root)
+function CeruleanContent.registerPackage(name, root, transform)
     assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
     assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
     local package = {}
@@ -78,12 +78,21 @@ function CeruleanContent.registerPackage(name, root)
         assert(not events[id], "duplicate source package event")
         events[id] = copy(descriptor)
     end
+    local extraTrainers = {}
+    if transform then
+        events, extraTrainers = transform(copy(events), copy(package.trainers))
+        assert(type(events) == "table" and type(extraTrainers) == "table", "detached content transform required")
+    end
     -- Script-selected rivals/leaders remain the scene owner's responsibility.
     local trainers = {}
     for id, descriptor in pairs(events) do
         if descriptor.kind == "trainer" then
             trainers[id] = copy(assert(package.trainers.trainers[id], "source package roster missing"))
         end
+    end
+    for id, definition in pairs(extraTrainers) do
+        assert(not trainers[id], "duplicate story trainer")
+        trainers[id] = copy(definition)
     end
     SourceEvents.registerTextSource(name, CeruleanContent.text)
     SourceEvents.registerTrainerSource(name, function() return copy(trainers) end)

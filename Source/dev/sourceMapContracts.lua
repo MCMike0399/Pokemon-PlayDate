@@ -620,6 +620,33 @@ function SourceMapContracts.run()
         end)
     end)
 
+    test("source elevators resolve only their recorded floor through the shared map pipeline", function()
+        for _, owner in ipairs({RocketHideoutStory, SilphStoryWorld}) do
+            local bindings = owner.elevatorBindings(nil)
+            local sourceID, ingress = next(bindings)
+            local sourceMap = assert(sourceID:match("^(pokered:[^:]+):warps:"))
+            local cabin = assert(SourceMaps.nameForID(ingress.to))
+            VermilionStoryFixture.withScene(cabin, {x=1, y=1}, function(context)
+                local entry = SourceMaps.entry(cabin)
+                local event = SourceMaps.descriptor(cabin).warps[1]
+                equal(SourceMaps.warpSpec(cabin, event).status, "scripted")
+                local door = {source_event_id=event.id, scripted=true}
+                equal(SourceMaps.resolveScriptedWarp(context, door), nil)
+                local before = context.session:rngData()
+                local enter = owner.enterLift
+                if not enter then
+                    enter = SilphStoryWorld.enterLift
+                end
+                assert(enter(context.session, sourceMap))
+                local resolved = assert(SourceMaps.resolveScriptedWarp(context, door))
+                equal(resolved.to, SourceMaps.entry(assert(SourceMaps.nameForID(sourceMap))).key)
+                equal(SourceMaps.cell(cabin, event.x, event.y).collision, 0)
+                equal(entry.id, ingress.to)
+                same(context.session:rngData(), before)
+            end)
+        end
+    end)
+
     test("source door arrivals retain the forced step over solid mansion stairs", function()
         local cases = {
             {"CeladonMansion1F", 5},

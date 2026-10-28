@@ -16,6 +16,7 @@ function NPCTrades.install()
 end
 Class("NPCTradeState"):extends(DaycareState)
 function NPCTradeState:enter(id, options)
+    HideoutTowerController.enter(self)
     self.tradeStarted, self.tradeRequest = false, nil
     self.tradeContext = self.game
     NPCTradeState.super.enter(self, id, options)
@@ -25,6 +26,9 @@ function NPCTradeState:tradeText(branch, callback)
     self:serviceText({"_" .. branch .. offer.dialogue .. "Text"}, callback)
 end
 function NPCTradeState:advance()
+    if HideoutTowerController.advance(self) then
+        return
+    end
     if not self.plan or self.plan.scene ~= "npc-trade" then
         return NPCTradeState.super.advance(self)
     end
@@ -114,4 +118,34 @@ function NPCTradeState:exit()
     end
     self.tradeRequest, self.tradeContext = nil, nil
     NPCTradeState.super.exit(self)
+end
+
+-- Root-owned composition preserving this controller and its complete parent chain.
+local previousUpdate = NPCTradeState.update
+function NPCTradeState:update()
+    previousUpdate(self)
+    HideoutTowerController.update(self)
+end
+local previousButton = NPCTradeState.handleButton
+function NPCTradeState:handleButton(button)
+    if HideoutTowerController.handleButton(self, button) then
+        return
+    end
+    previousButton(self, button)
+end
+local previousDraw = NPCTradeState.draw
+function NPCTradeState:draw()
+    previousDraw(self)
+    HideoutTowerController.draw(self)
+end
+local previousFail = NPCTradeState.fail
+function NPCTradeState:fail(reason)
+    HideoutTowerController.cancel(self)
+    previousFail(self, reason)
+end
+local previousExit = NPCTradeState.exit
+function NPCTradeState:exit()
+    HideoutTowerController.cancel(self)
+    previousExit(self)
+    HideoutTowerController.afterExit(self)
 end

@@ -91,6 +91,8 @@ function StrengthBoulderContracts.run()
             assert(CatalogRuntime.same(rules, game.session:rngData()))
             assert(CatalogRuntime.same(worldRNG, game.session:worldRngData()), "boulder consumed world RNG")
             owner.session = game.session
+            game.player.facing = "right"
+            game.player:updateSprite()
             token = assert(motion:beginBoulderPush(boulder, "right", owner))
             assert(motion:updateBoulderPush(token) == false)
             owner.epoch = owner.epoch + 1

@@ -163,6 +163,16 @@ function SourceActors.describeSource(zoneID, world, game)
                 or event.id == "pokered:SS_ANNE_2F:objects:2"
                 and position.x == event.x and position.y == event.y+1)
                 and protected[cell] and not warps[cell]
+            -- Exact terminal cells of pinned source story departure routes.
+            local towerExit = event.id == "pokered:POKEMON_TOWER_7F:objects:1"
+                and position.x == event.x and position.y == 16
+            local towerRivalExit = event.id == "pokered:POKEMON_TOWER_2F:objects:1"
+                and position.x == event.x + 4 and position.y == 9
+            local silphExit = event.id == "pokered:SILPH_CO_7F:objects:9"
+                and position.x == event.x + 2 and position.y == 3
+            if (towerExit or towerRivalExit or silphExit) and warps[cell] then
+                transit = true
+            end
             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
             if transit then
                 spec.script_transit = spec.script_transit or {}
@@ -179,10 +189,10 @@ function SourceActors.describeSource(zoneID, world, game)
         end
         spec.visibility = Party._primitive(metadata.visibility or {})
         -- Source objects may stand on a machine, counter or water tile that
-        -- blocks the player. Only the original STAY home gets this permission;
+        -- blocks the player. Only the original home gets this permission;
         -- world deltas and script routes cannot create new blocked homes.
         local home = event.y * surface.width + event.x + 1
-        spec.blocked_home = event.movement == "STAY" and not protected[home]
+        spec.blocked_home = not boulder and not protected[home]
             and d.collision[event.y+1][event.x+1] == 1
             and surface.collision[event.y+1][event.x+1] == 1
         local descriptor = SourceEvents.descriptor(event.id)

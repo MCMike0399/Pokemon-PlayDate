@@ -5,6 +5,7 @@ local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
 local compact, tileGrids
 local recordOverrides
+local warpResolvers = {}
 local rawCache = setmetatable({}, { __mode = "v" })
 
 local function copy(value)
@@ -214,8 +215,38 @@ local function blockedWarp(entry)
         and "source event outside implemented parcel handlers" or "original target map outside reviewed Pewter slice" }
 end
 
+function SourceMaps.registerScriptedWarp(id, resolver)
+    assert(type(id) == "string" and type(resolver) == "function" and not warpResolvers[id],
+        "unique scripted source warp required")
+    warpResolvers[id] = resolver
+end
+
+function SourceMaps.resolveScriptedWarp(game, door)
+    assert(currentZone and door.source_event_id:match("^(pokered:[^:]+):warps:") == currentZone.stableID,
+        "scripted warp belongs to another map")
+    local resolver = assert(warpResolvers[door.source_event_id], "source warp handler missing")
+    local resolved, reason = resolver(game.session, door.source_event_id)
+    if not resolved then
+        return nil, reason or "source warp context missing"
+    end
+    local result = copy(resolved)
+    local name = assert(SourceMaps.nameForID(result.to), "scripted destination outside source manifest")
+    local entry = SourceMaps.entry(name)
+    local position = {zone_id = entry.id, x = result.toX, y = result.toY,
+        facing = result.preserveFacing and game.player.facing or result.facing or "down"}
+    WorldDeltas.resolvePlayerLocation(position, WorldDeltas.export(), game.sessionLocationPolicy)
+    result.to = entry.key
+    result.source_event_id = door.source_event_id
+    return result
+end
+
 function SourceMaps.warpSpec(name, event)
     local entry = SourceMaps.entry(name)
+    for _, id in ipairs(entry.scripted_warps or {}) do
+        if id == event.id then
+            return {status = "scripted", source_event_id = id}
+        end
+    end
     if blocksEvent(entry, event.id) then return blockedWarp(entry) end
     local destination = event.destination
     local target = destination.kind == "last_outdoor_map" and compactData().maps[name].last_outdoor

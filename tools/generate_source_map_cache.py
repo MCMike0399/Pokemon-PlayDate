@@ -98,11 +98,13 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
             padded = [len(grids)] * entry["width"]
             padded[entry["padding"]:entry["padding"] + width] = row
             descriptor["tile_rows"].append("".join(f"{tile:02x}" for tile in padded))
+        scripted = set(entry.get("scripted_warps", []))
+        require(len(scripted) == len(entry.get("scripted_warps", [])), "duplicate scripted warp")
         blocked = list(entry.get("blocked_events", []))
         available = {item["id"] for item in manifest["maps"].values()}
         for event in definition["events"]["warps"]:
             destination = event["destination"]
-            if destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
+            if event["id"] not in scripted and destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
                 blocked.append(event["id"])
         require(isinstance(blocked, list) and len(set(blocked)) == len(blocked), "duplicate blocked surface event")
         surfaces, all_events = set(), set()
@@ -125,6 +127,8 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
                     warp["x"] += entry["padding"]
                     descriptor["warps"].append(warp)
         require(set(blocked) <= surfaces, "unknown blocked surface event")
+        require(scripted <= {event["id"] for event in definition["events"]["warps"]}, "unknown scripted warp")
+        require(not scripted.intersection(blocked), "scripted warp is also blocked")
         for grid in grids:
             key = grid["stable_id"]
             tile = {"key": key, "grid": grid["grid"], "terrain": grid["terrain"],
@@ -140,7 +144,8 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
         blocked_events = manifest["maps"][name].get("blocked_events", [])
         dynamic = [warp for warp in descriptor["warps"]
                    if warp["destination"]["kind"] == "last_outdoor_map"
-                   and warp["id"] not in blocked_events]
+                   and warp["id"] not in blocked_events
+                   and warp["id"] not in manifest["maps"][name].get("scripted_warps", [])]
         if not dynamic:
             continue
         candidates = set()
@@ -168,7 +173,10 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
     while changed:
         changed = False
         for descriptor in compact["maps"].values():
+            scripted = manifest["maps"][descriptor["name"]].get("scripted_warps", [])
             for warp in descriptor["warps"]:
+                if warp["id"] in scripted:
+                    continue
                 cell = str(warp["y"] * descriptor["width"] + warp["x"] + 1)
                 if cell in descriptor["blocked"]:
                     continue

@@ -3,22 +3,27 @@ HideoutTowerController = {}
 function HideoutTowerController.enter(state)
     RocketHideoutStoryController.enter(state)
     TowerStoryController.enter(state)
+    MidgameGymStoryController.enter(state)
+    SilphStoryController.enter(state)
 end
 function HideoutTowerController.advance(state)
     return RocketHideoutStoryController.advance(state) or TowerStoryController.advance(state)
+        or MidgameGymStoryController.advance(state) or SilphStoryController.advance(state)
 end
 function HideoutTowerController.update(state)
     RocketHideoutStoryController.update(state)
 end
 function HideoutTowerController.handleButton(state, button)
-    return RocketHideoutStoryController.handleButton(state, button)
+    return RocketHideoutStoryController.handleButton(state, button) or SilphStoryController.handleButton(state, button)
 end
 function HideoutTowerController.draw(state)
     RocketHideoutStoryController.draw(state)
+    SilphStoryController.draw(state)
 end
 function HideoutTowerController.cancel(state)
     RocketHideoutStoryController.exit(state)
     TowerStoryController.exit(state)
+    SilphStoryController.exit(state)
 end
 function HideoutTowerController.afterExit(state)
     local id = state.id or ""

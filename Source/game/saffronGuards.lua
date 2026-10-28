@@ -112,3 +112,32 @@ function SaffronGuards.install()
     -- nor edits their blocked, unresolved Saffron destinations.
     SourceEvents.registerWorldHooks("pokered:ROUTE_5_GATE:objects:1", {explore=SaffronGuards.check})
 end
+
+-- The shared Blue talk handler always simulates UP. In the horizontal gates,
+-- its first step crosses the counter; normal walking collision stays solid.
+function SaffronGuards.isCounterArrival(position)
+    for id, guard in pairs(data().guards) do
+        if guard.active and guard.actor.facing == "down"
+            and position.zone_id == id:match("^(pokered:[^:]+):") then
+            local entry = SourceMaps.entry(guard.map)
+            for _, point in ipairs(guard.trigger) do
+                if position.x == point.x + entry.padding and position.y == point.y - 1 then
+                    local cell = SourceMaps.cell(guard.map, position.x, position.y)
+                    return cell.collision == 1 and cell.terrain.counter == true
+                end
+            end
+        end
+    end
+    return false
+end
+function SaffronGuards.permitsCounterStep(event, player, dx, dy)
+    local guard = data().guards[event.id]
+    if not guard or not guard.active or guard.actor.facing ~= "down" or dx ~= 0 or dy ~= -1
+        or not event:valid() or not event:isTop() or event.player ~= player
+        or event.game.player ~= player or event.plan.status ~= "thirsty" or player.isMoving then
+        return false
+    end
+    local position = {zone_id = currentZone.stableID, x = player.gridX, y = player.gridY - 1}
+    return SaffronGuards.isCounterArrival(position)
+        and event.game.npcManager:getNPCAt(position.x, position.y) == nil
+end

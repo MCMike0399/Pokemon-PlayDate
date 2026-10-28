@@ -35,6 +35,8 @@ local function actor(game, id)
     end
     error("actual source guard missing")
 end
+local directions = {up={0,-1}, down={0,1}, left={-1,0}, right={1,0}}
+local opposite = {up="down", down="up", left="right", right="left"}
 local function scene(guard, point, fn)
     KantoServicesContracts.withScene(guard.map, {x=point.x, y=point.y}, fn)
 end
@@ -91,7 +93,8 @@ function SaffronGuardContracts.run()
                             assert(game.player.isMoving, "source pushback must interpolate")
                             event:update()
                             eq(game.machine:getCurrent(), "overworld")
-                            eq(game.player.gridY, point.y + (guard.entry_push == "up" and -1 or 1))
+                            eq(game.player.gridY, point.y + directions[guard.entry_push][2])
+                            eq(game.player.gridX, point.x + SourceMaps.entry(guard.map).padding + directions[guard.entry_push][1])
                             assert(not game.session:questFlag(flag))
                             assert(not SourceEvents.worldHook("explore", game))
                             same(RulesRNG.toData(), rules)
@@ -101,9 +104,15 @@ function SaffronGuardContracts.run()
                 end
             end
             test(id .. "-talk-push-up-restores-guard", function()
-                local point <const> = guard.actor.facing == "right" and guard.trigger[1] or guard.trigger[2]
+                local point = guard.trigger[1]
+                for _, candidate in ipairs(guard.trigger) do
+                    if math.abs(candidate.x - guard.actor.x) + math.abs(candidate.y - guard.actor.y)
+                        < math.abs(point.x - guard.actor.x) + math.abs(point.y - guard.actor.y) then
+                        point = candidate
+                    end
+                end
                 scene(guard, point, function(game)
-                    game.player.facing = guard.actor.facing == "right" and "left" or "right"
+                    game.player.facing = opposite[guard.actor.facing]
                     game.player:updateSprite()
                     local npc <const> = actor(game, id)
                     local pose <const> = game.npcManager.motion:actor(npc)
@@ -116,10 +125,11 @@ function SaffronGuardContracts.run()
                 end)
             end)
             test(id .. "-talk-turn-cancel-restores-source-pose", function()
-                local point <const> = {x=guard.actor.x,
-                    y=guard.actor.y + (guard.actor.facing == "right" and -1 or 1)}
+                local point = guard.actor.facing == "down" and {x=guard.actor.x-1, y=guard.actor.y}
+                    or {x=guard.actor.x, y=guard.actor.y + (guard.actor.facing == "right" and -1 or 1)}
                 scene(guard, point, function(game)
-                    game.player.facing = guard.actor.facing == "right" and "down" or "up"
+                    game.player.facing = guard.actor.facing == "down" and "right"
+                        or guard.actor.facing == "right" and "down" or "up"
                     game.player:updateSprite()
                     local npc <const> = actor(game, id)
                     local pose <const> = game.npcManager.motion:actor(npc)

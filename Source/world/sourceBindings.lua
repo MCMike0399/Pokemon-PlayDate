@@ -87,8 +87,8 @@ function SourceBindings.prepare(d, specs, options)
                 "source event outside padded map")
         end
         local spec = assert(specs[id], "missing explicit source binding: " .. id)
-        assert(spec.status == "bound" or spec.status == "blocked", "invalid source binding status")
-        if spec.status == "bound" then bound[id] = true end
+        assert(spec.status == "bound" or spec.status == "blocked" or spec.status == "scripted", "invalid source binding status")
+        if spec.status ~= "blocked" then bound[id] = true end
         return spec
     end
     for _, event in ipairs(d.events.objects) do
@@ -98,7 +98,10 @@ function SourceBindings.prepare(d, specs, options)
     end
     for _, event in ipairs(d.events.warps) do
         local spec = source(event.id, event)
-        if spec.status == "bound" then
+        if spec.status == "scripted" then
+            assert(SourceMaps.warpSpec(name, event).status == "scripted", "undeclared scripted warp")
+            doors[#doors + 1] = {x = event.x, y = event.y, source_event_id = event.id, scripted = true}
+        elseif spec.status == "bound" then
             local verified = SourceMaps.warpSpec(name, event)
             for _, field in ipairs({ "to", "toX", "toY", "facing", "preserveFacing", "target_name", "target_warp",
                 "source_target_map", "source_target_warp", "source_target_x", "source_target_y", "arrival_advance" }) do

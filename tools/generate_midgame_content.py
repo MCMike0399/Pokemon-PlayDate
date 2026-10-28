@@ -266,7 +266,8 @@ def build(reference_root, packet, pins=None, manifest=None):
             raise ValueError('midgame source pin revision/inventory drift')
         pins = pin['files']
     ref = Reference(reference_root, pins)
-    definitions = {name: decode_map(ref, name) for name in names}
+    script_blocks = {"RocketHideoutB1F": (0x54,), "RocketHideoutB4F": (0x2d,)}
+    definitions = {name: decode_map(ref, name, extra_blocks=script_blocks.get(name, ())) for name in names}
     songs = records(ref.text('data/maps/songs.asm'), 'db')
     for d in definitions.values():
         symbol, bank = songs[d['source_map_id']]['args']
@@ -285,6 +286,14 @@ def build(reference_root, packet, pins=None, manifest=None):
                 if label in texts:
                     raise ValueError('duplicate source text: ' + label)
                 texts[label] = dict(source=path, recipe=recipe)
+    common = {
+        "data/text/text_5.asm": ("_GotMonText", "_SentToBoxText", "_BoxIsFullText"),
+        "data/text/text_6.asm": ("_PlayedFluteHadEffectText",),
+    }
+    for path, labels in common.items():
+        recipes = text_recipes(blue_source(ref.text(path)))
+        for label in labels:
+            texts[label] = dict(source=path, recipe=recipes[label])
     for name in names:
         path = 'scripts/' + name + '.asm'
         # Retail Blue has no _DEBUG define. Preserve line numbers while selecting

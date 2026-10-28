@@ -235,6 +235,16 @@ local function startMove(player,gx,gy,jumping)
     player:updateSprite()
 end
 
+function Player:stepAcrossSourceCounter(event, dx, dy)
+    if not SaffronGuards or not SaffronGuards.permitsCounterStep(event, self, dx, dy) then
+        return false
+    end
+    self.running = false
+    self.facing = "up"
+    startMove(self, self.gridX + dx, self.gridY + dy, false)
+    return true
+end
+
 function Player:tryMove(dx, dy, scriptIntent)
     if self.isMoving then return end
     -- Only the exact, live source escort intent may overlap ambient sprites.

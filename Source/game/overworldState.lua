@@ -307,6 +307,18 @@ function DoorWarpSubstate:init(owner)
 end
 
 function DoorWarpSubstate:enter(door)
+    if door.scripted then
+        local resolved, reason = SourceMaps.resolveScriptedWarp(self.owner.game, door)
+        if not resolved then
+            local player = self.owner.game.player
+            player.lastTraversalBlock = {kind = "source-warp", id = reason}
+            player.stepJustFinished = false
+            player.pendingEdgeDoor = nil
+            self.machine:change("explore")
+            return
+        end
+        door = resolved
+    end
     if VermilionStory and not VermilionStory.allowDoor(self.owner.game,door) then
         self.owner.game.player.stepJustFinished=false
         self.owner.game.player.pendingEdgeDoor=nil

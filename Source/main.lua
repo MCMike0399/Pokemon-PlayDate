@@ -143,19 +143,44 @@ import "domain/fieldEncounters"
 
 -- @harness imports-7
 
+import "game/rocketHideoutStory"
+import "game/rocketHideoutStoryWorld"
+import "game/rocketHideoutStoryController"
+import "game/towerStory"
+import "game/snorlaxStory"
+import "game/towerStoryController"
+import "game/midgameGymStory"
+import "game/midgameGymStoryController"
+import "game/silphStory"
+import "game/silphStoryWorld"
+import "game/silphStoryController"
+import "game/midgameStoryWarps"
+import "game/hideoutTowerContent"
+import "game/hideoutTowerController"
+
 local function campaignActorMetadata(definition, event, runtimeGame)
     local metadata = KantoScenes.actorMetadata(definition, event, runtimeGame)
     local extra = VermilionStory.actorMetadata(event.id, runtimeGame)
     for _, condition in ipairs(extra.visibility or {}) do
         metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
     end
+    local story = HideoutTowerContent.actorMetadata(event.id, runtimeGame)
+    for _, condition in ipairs(story.visibility) do
+        metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
+    end
     return metadata
 end
 
 CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
-CeruleanContent.registerPackage("midgameEast", "data/midgameEast/")
-CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/")
-CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/")
+CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
+    return HideoutTowerContent.package("midgameEast", events, trainers)
+end)
+CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+    return HideoutTowerContent.package("midgameSouth", events, trainers)
+end)
+CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
+    return HideoutTowerContent.package("midgameSaffron", events, trainers)
+end)
 CeruleanContent.install(campaignActorMetadata)
 CeruleanContent.installSigns()
 KantoScenes.install()
@@ -165,6 +190,8 @@ VermilionStory.install({reconcileActors=KantoScenes.reconcileActors})
 Daycare.install()
 NPCTrades.install()
 SaffronGuards.install()
+HideoutTowerContent.install()
+MidgameStoryWarps.install()
 -- @harness content-ready
 SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
 SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
