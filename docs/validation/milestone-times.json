@@ -36,10 +36,10 @@
     {
       "milestone": "5.4",
       "start_commit": "0a8f08d",
-      "status": "in progress",
-      "wall_clock_hours": 6.09,
-      "new_maps_on_main": 0,
-      "maps_per_day": 0
+      "status": "gameplay on main; delivery pending",
+      "wall_clock_hours": 7.89,
+      "new_maps_on_main": 35,
+      "maps_per_day": 106.46
     }
   ]
 }
