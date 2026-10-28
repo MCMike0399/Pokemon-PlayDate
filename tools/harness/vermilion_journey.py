@@ -214,6 +214,7 @@ class VermilionJourney(cj.CeruleanJourney):
         # Preflight immutable bytes before parent dependencies send any input.
         source = cj.StagedSource(self.build_evidence)
         self.vermilion = validate_projection(source)
+        self.field_definitions = source.read('data/fieldMoves.json')
         if not self.vermilion['daycare_inputs']:
             raise ProtocolError('missing root Day Care owner/service inputs; no service acceptance')
         super().dependencies()
@@ -756,9 +757,14 @@ class VermilionJourney(cj.CeruleanJourney):
         self.checkpoint('vermilion-actual-teaching-cut')
         return index
 
-    def field_cut(self, index):
-        self.travel(self.zone('VermilionCity'))
-        site = self.vermilion['cut_sites'][0]
+    def field_cut(self, index, zone_name='VermilionCity', target_cell=None):
+        self.travel(self.zone(zone_name))
+        if zone_name == 'VermilionCity':
+            site = self.vermilion['cut_sites'][0]
+        else:
+            sites = self.field_definitions['maps'][self.zone(zone_name)]['sites']
+            site = next(site for site in sites if any(
+                (target['x'], target['y']) == target_cell for target in site['targets']))
         target = site['targets'][0]
         cell = (target['x'] + self.model().padding, target['y'])
         approaches = self.model().approaches(cell)
@@ -979,15 +985,40 @@ class VermilionJourney(cj.CeruleanJourney):
         if self.owned_count() < 10:
             raise ProtocolError('actual common captures did not reach the ten-species HM05 threshold')
         self.cross_digletts_cave()
-        self.travel(self.zone('Route2Gate'))
+        self.enter_flash_gate()
         self.checkpoint('vermilion-visit-route2gate')
         self.gift('hm05')
+        self.leave_flash_gate()
         self.cross_digletts_cave(reverse=True)
         self.travel(self.zone('Route11'))
         self.checkpoint('vermilion-route11')
         self.save()
         self.write_receipt()
         self.summary.update(acceptance='candidate saved; actual process restart pending', forbidden_shortcuts=False)
+
+    def enter_flash_gate(self):
+        self.warp(self.zone('Route2'))
+        index = next(i for i, mon in enumerate(self.party(), 1) if 'cut' in mon['moves'])
+        self.field_cut(index, 'Route2', (15, 22))
+        self.navigate((16, 34))
+        self.step(self.model().terrain_step(self.position(), 'down'))
+        self.send('wait 2')
+        self.drain()
+        self.require(zone_id=self.zone('Route2Gate'))
+
+    def leave_flash_gate(self):
+        self.navigate((5, 0), transition=self.zone('Route2'))
+        if self.state['zone_id'] == self.zone('Route2Gate'):
+            self.send('press up', 'wait 15')
+            self.drain()
+        self.require(zone_id=self.zone('Route2'))
+        index = next(i for i, mon in enumerate(self.party(), 1) if 'cut' in mon['moves'])
+        self.field_cut(index, 'Route2', (15, 22))
+        self.navigate((12, 10))
+        self.step(self.model().terrain_step(self.position(), 'up'))
+        self.send('wait 2')
+        self.drain()
+        self.require(zone_id=self.zone('DiglettsCaveRoute2'))
 
     def cross_digletts_cave(self, reverse=False):
         entrance = 'DiglettsCaveRoute2' if reverse else 'DiglettsCaveRoute11'
