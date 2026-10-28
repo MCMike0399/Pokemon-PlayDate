@@ -18,6 +18,30 @@ function BattleConditions:of(mon)
     return self.members[mon]
 end
 function BattleConditions:side(mon) return mon==self.battle.player and "player" or "enemy" end
+-- Odor Sleuth inherits Foresight's condition in Showdown 9b136a8 gen5.
+-- Identification belongs to the target, independent of its original user.
+function BattleConditions:identified(mon)
+    local state = self.members[mon]
+    return state and state.foresight == true or false
+end
+function BattleConditions:evasionStage(mon)
+    local stage = mon.statStages.eva
+    if self:identified(mon) and stage > 0 then return 0 end
+    return stage
+end
+function BattleConditions:odorSleuth()
+    local b = self.battle
+    local target = b.defender
+    if self:identified(target) then
+        b:say("But it failed!")
+        return false
+    end
+    -- Miracle Eye/reflection/Substitute/Baton Pass have no supported producer;
+    -- this implements the ordinary singles target condition only.
+    self:of(target).foresight = true
+    b:say(target.name .. " was identified!")
+    return true
+end
 -- Read-only battle typing; durable Pokemon species types never change.
 function BattleConditions:types(mon)
     local first,second=mon.type,mon.type2

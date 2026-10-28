@@ -141,7 +141,9 @@ end
 function accuracyThreshold(move, attacker, defender, effects)
     if move.ohko then return nil,"ohko" end
     if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move,attacker,defender)) then return 100 end
-    local stage = attacker.statStages.acc - defender.statStages.eva
+    local evasion = defender.statStages.eva
+    if effects then evasion = effects.battle.conditions:evasionStage(defender) end
+    local stage = attacker.statStages.acc - evasion
     local base=effects and effects:accuracy(attacker,defender,move) or move.accuracy
     return math.max(0,math.min(100,math.floor(base * accStageMult(stage))))
 end
@@ -1160,6 +1162,7 @@ function Battle:performMove(move)
         elseif self.currentMoveKey=="camouflage" then self.conditions:camouflage()
         elseif self.currentMoveKey=="encore" then self.conditions:encore()
         elseif self.currentMoveKey=="waterSport" then self.conditions:waterSport()
+        elseif self.currentMoveKey=="odorSleuth" then self.conditions:odorSleuth()
         else error("unsupported battle-condition move") end
         return nil
     end
@@ -1480,6 +1483,11 @@ function Battle:typeMatchup(kind,mon)
     local held = self.effects and PickupHeld.matchup(self.effects, kind, mon)
     if held ~= nil then return held end
     local first,second=self:effectiveTypes(mon)
+    if self.conditions:identified(mon) and (kind == "normal" or kind == "fighting") then
+        -- Negate only Ghost immunity; the other type still contributes.
+        if first == "ghost" then first = nil end
+        if second == "ghost" then second = nil end
+    end
     return TypeChart.getMatchup(kind,first,second)
 end
 
