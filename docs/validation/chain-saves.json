@@ -150,20 +150,23 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-chained-journeys-20261028-05/02-vermilion--restart-charmander/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-chained-journeys-20261028-05/02-vermilion--restart-charmander",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-02/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-02",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "2359a898d3147bdcb0fd72bffa28723af940f62ff458f9862046b927989a46e4",
-          "bytes": 8576
+          "sha256": "acaf07fcdfc9458d5fdbcf995146b09048ef6a65af3cde25f59426d72c384a41",
+          "bytes": 8209
         },
         {
           "file": "adventure.b.json",
-          "sha256": "ca3167e8330e7b6da63ba8667d35d1fc34c5a7899e5b446f42750041639eafca",
-          "bytes": 9227
+          "sha256": "b16cb8dc1ba600f410d8f2f0b0ec463bb8e411d580446c60d8d2b5a0db2f23fe",
+          "bytes": 9981
         }
+      ],
+      "completed_steps": [
+        "daycare"
       ]
     },
     {

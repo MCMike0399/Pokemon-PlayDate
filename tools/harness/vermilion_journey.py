@@ -332,6 +332,15 @@ class VermilionJourney(cj.CeruleanJourney):
         return self.battle('vermilion-collection-' + str(self.collection['battles']))
 
     def battle_preparation_action(self, battle, options):
+        legal = sequence(battle.get('legal_moves', []), 'actual legal moves')
+        if legal and all(move.get('category') == 'status' for move in legal):
+            active = lookup(self.state, 'session.party.active')
+            reserves = [(i, mon) for i, mon in enumerate(self.party(), 1)
+                        if i != active and mon['hp'] > 0]
+            if reserves:
+                index, _ = max(reserves, key=lambda row: (row[1]['level'], row[1]['hp']))
+                if self.battle_switch(index, options, 'use a healthy reserve instead of status-only moves'):
+                    return True
         if not self.acquisition_active or battle.get('trainerName'):
             return super().battle_preparation_action(battle, options)
         species = battle['enemy']['species']
