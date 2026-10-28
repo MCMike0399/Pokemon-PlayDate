@@ -264,8 +264,11 @@ function SourceActors.describeSource(zoneID, world, game)
         end
         return true
     end
-    local function canWanderStep(spec,x,y,tx,ty,runtimeZone)
-        return canWander(spec,x,y,runtimeZone) and canWander(spec,tx,ty,runtimeZone) and canStep(spec,x,y,tx,ty,runtimeZone)
+    local function canWanderStep(spec, x, y, tx, ty, runtimeZone)
+        local originAllowed = canWander(spec, x, y, runtimeZone)
+            or spec.blocked_home and x == spec.x and y == spec.y and canStand(spec, x, y, runtimeZone)
+        return originAllowed and canWander(spec, tx, ty, runtimeZone)
+            and canStep(spec, x, y, tx, ty, runtimeZone)
     end
     return {zone_id=zoneID,revision=surface.revision,width=surface.width,height=surface.height,actors=specList,
         canStand=canStand,canStep=canStep,canPush=canPush,canWanderStep=canWanderStep,protected=protected}
