@@ -1,7 +1,9 @@
 # Full-game execution ledger
 
-Updated 2026-10-26. Follow [the full-game goal](../plans/full-game-goal.md).
+Updated 2026-10-28. Follow [the full-game goal](../plans/full-game-goal.md).
 [Earlier ledger and preserved failures](progress-history-before-divemac-20261026.md).
+
+Progress: **12 / 222 source maps playable on main. Current milestone: 5.3.**
 
 ## 1. Accepted revision and playable scope
 
@@ -107,6 +109,10 @@ final natural/campaign acceptance remains pending. Vermilion still needs native
 acceptance of its composed dialogue, grass Cut and Pickup, plus reviewed approval
 for its Route2 collision diagnostic. That approval has not been granted.
 Later regions, common mechanics, audio and release checks remain unfinished.
+
+Later work is frozen until Cerulean is accepted. All three accepted Brock saves
+were recovered under `evidence/chain/5.2/<starter>`; [hashes and provenance](chain-saves.json).
+Next runs start there and continue after individual failures.
 
 ## 4. Work in flight
 
