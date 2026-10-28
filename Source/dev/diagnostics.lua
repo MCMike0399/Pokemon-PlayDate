@@ -282,12 +282,17 @@ function HarnessDiagnostics.observe(game, kind)
     if kind == "midgame-owners" then
         local registered, shops, compatibility = {}, {}, {}
         for _, name in ipairs(SourceMaps.names()) do
-            for _, event in ipairs(SourceMaps.definition(name).events.objects) do
+            local definition = SourceMaps.definition(name)
+            local events = {}
+            for _, group in ipairs({"objects", "background_events"}) do
+                for _, event in ipairs(definition.events[group]) do events[#events + 1] = event end
+            end
+            for _, event in ipairs(events) do
                 registered[event.id] = SourceEvents.has(event.id)
                 local descriptor = SourceEvents.descriptor(event.id)
                 local step = descriptor and descriptor.kind == "program" and descriptor.steps[1]
                 if step and step.op == "shop" then
-                    local stock = assert(ItemData.shops[step.id])
+                    local stock = assert(ItemData.marts[step.id])
                     local prices = {}
                     for _, item in ipairs(stock) do prices[item] = ItemData.definitions[item].price end
                     shops[event.id] = {stock=GameSession._copy(stock), prices=prices}
@@ -308,7 +313,9 @@ function HarnessDiagnostics.observe(game, kind)
     end
     if kind == "midgame-state" then
         return {kind=kind, zone_id=currentZone and currentZone.stableID,
-            fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData()}
+            fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData(),
+            fieldRuntime=game.getFieldTravelSnapshot and game:getFieldTravelSnapshot() or {installed=false},
+            fieldUI=ui(game.machine:get("fieldTravel"))}
     end
     if kind == "purity" then
         -- Prepared real-SDK witness: repeated requests must preserve the entire

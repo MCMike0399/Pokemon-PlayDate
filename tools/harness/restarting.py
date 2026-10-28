@@ -246,15 +246,13 @@ def export_chain_save(scenario, data, output, metadata):
     if spec is None:
         return
     first = scenario['processes'][0].get('journey', {})
-    if first.get('name') == 'midgame-natural':
-        # Retain earned slots in this run's archive; root publishes chain/5.5
-        # only after its milestone acceptance, never after a partial route packet.
-        return
+    if first.get('name') == 'midgame-natural' and first.get('packet') != 'full':
+        return  # A partial route checkpoint never exports final 5.5 slots.
     if first.get('name') == 'vermilion-natural' and (
             len(scenario['processes']) != 2
             or scenario['processes'][1].get('journey', {}).get('name') != 'vermilion-continue'):
         raise ProtocolError('Vermilion chain export requires its two-process Save/Continue')
-    milestone = '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
+    milestone = '5.5' if first.get('name') == 'midgame-natural' else '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
     destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain' / milestone / spec['starter']
     destination.mkdir(parents=True, exist_ok=True)
     files = []
