@@ -30,7 +30,7 @@ local definitions <const> = {
 function SourceEncounters.policy(session, zoneID, definition)
     local identified <const> = session:inventory():quantity("silphScope") > 0
     local restless <const> = definition and definition.species == "marowak"
-    if restless or zoneID:match("^pokered:POKEMON_TOWER_[3-7]F$") and not identified then
+    if restless or zoneID:match("^pokered:POKEMON_TOWER_[1-7]F$") and not identified then
         return {capture = not restless and identified, unidentified = not identified,
             restless_soul = restless == true, text_event_id = ghostID,
             intro_labels = identified and {"_EnemyAppearedText", "_UnveiledGhostText"}
@@ -85,7 +85,9 @@ end
 function SourceEncounters.current(session, record, battle)
     assert(record and record.phase == "active" and record.battle == battle, "unbound-source-battle")
     assert(GameSession.activeRNGSession() == session and battle.session == session
+        and session:fieldWorldEpoch() == record.fieldEpoch
         and battle.party == session:party() and record.party == battle.party
+        and battle.party:active() == battle.player
         and battle.enemy == record.enemy and not battle.trainerName, "stale-source-battle-owner")
     for flag, expected in pairs(record.guards and record.guards.flags or {}) do
         local launchConsumed <const> = record.definition and flag == record.definition.fight

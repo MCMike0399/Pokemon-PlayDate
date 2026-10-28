@@ -1,0 +1,15 @@
+--- a/Source/game/towerStoryController.lua
++++ b/Source/game/towerStoryController.lua
+@@ -173,10 +173,10 @@
+     elseif script == "ghost-return" then
+         local receipt <const> = state.plan.source_receipt
+         assert(receipt.id == TowerStory.GHOST and receipt.confirmed, "confirmed ghost result required")
+-        if receipt.kind == "victory" then
++        if receipt.kind == "victory" and receipt.completed then
+             assert(state.session:questFlag("EVENT_BEAT_GHOST_MAROWAK"), "uncommitted ghost result")
+             text(state, {"_PokemonTower6FGhostWasCubonesMotherText", "_PokemonTower6FSoulWasCalmedText"})
+-        elseif receipt.kind == "run" then
++        elseif receipt.kind == "run" or not receipt.completed then
+             queue(state, function()
+                 state:startMove("right")
+             end)

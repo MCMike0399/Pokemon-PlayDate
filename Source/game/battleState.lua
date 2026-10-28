@@ -96,6 +96,8 @@ function BattleState:finish(won, kind)
     game.lastBattleOutcome = {kind = kind, won = won, blackout = blackout,
         player_hp = pokemon.hp, enemy_hp = self.battle and self.battle.enemy.hp or nil,
         pickup = pickupReceipt,
+        source_id = sourceReceipt and sourceReceipt.id or nil,
+        source_completed = sourceReceipt and sourceReceipt.completed,
         trainer_id=receipt and receipt.id or nil,
         payout=receipt and receipt.payout or 0,money_delta=game.session:inventory():money()-beforeMoney}
     if won and self.npc and not self.trainerToken then
@@ -150,7 +152,7 @@ function BattleState:exit()
     if self.trainerToken and self.game.trainers then self.game.trainers:abortBattle(self.trainerToken) end
     self.trainerToken=nil
     if self.battle then
-        self.game.session:abortSourceBattle(self.battle)
+        self.battle.session:abortSourceBattle(self.battle)
         self.battle:cancelPendingLearning()
     end
     self.learningRequest = nil

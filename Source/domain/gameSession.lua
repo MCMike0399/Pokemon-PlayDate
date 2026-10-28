@@ -1,5 +1,6 @@
 -- Persistent session owner. No sprites, Story singleton or filesystem access.
 import "domain/sourceEncounters"
+import "domain/fieldCycling"
 Class("GameSession")
 local state=setmetatable({}, {__mode="k"})
 local activeRNGSession=nil
@@ -346,25 +347,35 @@ function GameSession:checkpoint() return copy(state[self].checkpoint) end
 function GameSession:captureTraversal(snapshot)
     local current = state[self]
     local ok, prepared = pcall(function()
-        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true, fieldTravel = true})
+        object(snapshot, {location = true, world = true, checkpoint = true, actors = true,
+            fieldWorld = true, fieldTravel = true, cyclingForced = true})
+        local questFlags = copy(current.questFlags)
+        if snapshot.cyclingForced ~= nil then
+            assert(type(snapshot.cyclingForced) == "boolean", "boolean cycling source bit required")
+            questFlags[FieldCycling.FLAG] = snapshot.cyclingForced
+        end
+        questFlags = flags(questFlags, 4096)
         local normalized = world(current.deps, assert(snapshot.world, "candidate world required"))
         local travel = FieldTravel.normalize(snapshot.fieldTravel or current.fieldTravel)
         local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true, travel)
         local checkpoint = location(current.deps, snapshot.checkpoint or current.checkpoint, normalized)
         local actors = GameSession._validateActors(current.deps,
-            snapshot.actors or WorldMotionData.empty(), normalized, position, self:flags())
+            snapshot.actors or WorldMotionData.empty(), normalized, position,
+            {quest = questFlags, trainers = copy(current.trainerFlags)})
         return {
             world = normalized,
             location = position,
             checkpoint = checkpoint,
             actors = actors,
             fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld),
-            fieldTravel = travel
+            fieldTravel = travel,
+            questFlags = questFlags
         }
     end)
     if not ok then
         return false, tostring(prepared)
     end
+    current.questFlags = prepared.questFlags
     current.world, current.location, current.checkpoint = prepared.world, prepared.location, prepared.checkpoint
     current.currentActors = prepared.actors
     current.fieldTravel = prepared.fieldTravel
@@ -805,6 +816,8 @@ function GameSession:bindSourceBattle(battle, token, zoneID)
             if not policy then return nil end
             record = {enemy = battle.enemy, party = current.party, zone_id = zoneID, policy = policy, guards = {}}
         end
+        assert(GameSession.activeRNGSession() == self, "inactive-source-session")
+        record.fieldEpoch = self:fieldWorldEpoch()
         record.beforeFlags = copy(current.questFlags)
         record.beforeDex = copy(current.dex)
         local combined = copy(current.questFlags)
@@ -891,7 +904,12 @@ end
 function GameSession:resolveSourceEncounter(battle, won, kind)
     local current = state[self]
     local record = current.sourceBattle
-    if not record or record.battle ~= battle then return true, nil end
+    if not record or record.battle ~= battle then
+        if battle.session == self and battle.sourceEncounter then
+            return false, "source-battle-not-bound"
+        end
+        return true, nil
+    end
     local ok, prepared = pcall(function()
         local terminal = SourceEncounters.terminal(self, record, battle, won, kind)
         local combined = copy(current.questFlags)
@@ -929,7 +947,9 @@ function GameSession:resolveSourceEncounter(battle, won, kind)
     -- Recruitment and only this source actor's completion flags publish without
     -- any callback/yield or fallible operation between the owner assignments.
     current.questFlags, current.dex = prepared.flags, prepared.dex
-    current.currentActors = WorldMotionData.empty()
+    if record.definition and record.definition.fight then
+        current.currentActors = WorldMotionData.empty()
+    end
     record.phase, current.sourceBattle = "complete", nil
     if prepared.receipt and kind ~= "defeat" then
         current.sourceReceipt = prepared.receipt
@@ -942,4 +962,39 @@ function GameSession:takeSourceReceipt(id)
     if not receipt or receipt.id ~= id then return nil end
     current.sourceReceipt = nil
     return copy(receipt)
+end
+
+function GameSession:commitCycling(expectedEpoch, expectedTravel, expectedForced, candidate)
+    local current = state[self]
+    if current.fieldEpoch ~= expectedEpoch
+        or not FieldMoves.same(current.fieldTravel, expectedTravel)
+        or self:questFlag(FieldCycling.FLAG) ~= expectedForced then
+        return false, "stale-cycling-context"
+    end
+    if type(candidate) ~= "table" then
+        return false, "invalid-cycling-candidate"
+    end
+    local checked, travel = pcall(FieldTravel.normalize, candidate.travel)
+    if not checked or type(candidate.forced) ~= "boolean" then
+        return false, "invalid-cycling-candidate"
+    end
+    local modeOnly = copy(travel)
+    modeOnly.mode = current.fieldTravel.mode
+    if not FieldMoves.same(modeOnly, current.fieldTravel)
+        or current.fieldTravel.mode == "surfing" or travel.mode == "surfing"
+        or self:inventory():quantity("bicycle") ~= 1 and (travel.mode == "bicycle" or candidate.forced) then
+        return false, "invalid-cycling-transition"
+    end
+    -- A Bicycle toggle is reversible, including false->false for the forced
+    -- source bit. Reuse the guarded repeating-effects transaction; the ordinary
+    -- gift transaction intentionally requires a one-time completion guard.
+    local accepted, reason = self:transactSourceEffects(
+        {flags = {[FieldCycling.FLAG] = expectedForced}, items = {}},
+        {flags = {[FieldCycling.FLAG] = candidate.forced}, items = {}})
+    if not accepted then
+        return false, reason
+    end
+    current.fieldTravel = travel
+    self:invalidateFieldWorldContext()
+    return true, {kind = candidate.kind, mode = travel.mode, forced = candidate.forced}
 end

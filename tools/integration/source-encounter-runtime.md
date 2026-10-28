@@ -59,3 +59,59 @@ Worker validation is SDK compile-only plus proportional host source checks.
 Root alone executes the behavior contracts/native encounters and Save/Continue.
 Common source text registration and source ghost sprite presentation remain root
 composition work, not claimed runtime acceptance here.
+
+## Follow-up after root 9d3aab4
+
+Merged exact root 9d3aab4 for compilation. Root already applied EventState's
+one-shot source receipt hook there; do not apply that hunk twice. The small
+Tower return completed=false guard in source-story-battle-hooks.patch remains
+root-owned. Source encounter outcomes now also expose actual source_id and
+source_completed in game.lastBattleOutcome; this is observation only.
+
+The supplied commitCycling method is also installed in GameSession, with one
+necessary correction: Bicycle mode is reversible and its forced source bit may
+stay false. It uses the existing guarded transactSourceEffects rather than the
+one-time transact, which intentionally rejects false->false flag changes. Mode
+DTO, source bit and settled actors are preserved, field epoch advances, stale
+contexts fail, and SessionCodec stays schema4. GameSession imports FieldCycling;
+root's runtime UI/field request composition remains separate.
+
+`dev/sourceEncounterContracts.lua` contains exactly one contract for each new
+behavior: source ghost policy, source Snorlax terminal/capture ownership, the
+exclusive Dojo gift, and the reversible Bicycle session commit. These use actual
+Battle commands, Capture.attempt, Party/Storage/Inventory, GameSession and codec.
+They do not inject outcomes, HP faints or successful catch results. Creature and
+quest prerequisites are unit setup, not earned-save or journey evidence. Capture
+covers party/selected-box destination, full selected box, pre-terminal refusal,
+interruption and source-specific removal; ghost covers unmasked intro/Pokédex,
+no-PP fear, actual ball consumption, Scope and genuine combat victory. The
+existing paid/ordinary gifts retain their existing checks.
+
+Root registration is the two-line source-encounter-contract-registration.lua.
+Worker compiled the actual SDK harness with --build-only at environment evidence/
+source-encounter-contract-compile-20261028-01; no Simulator or contracts executed.
+Root should run this four-behavior suite once alongside its current field battle,
+capture, pickup, gift and session checks. No driver/fixture contract is added.
+
+`captureTraversal` now accepts optional internal `cyclingForced:boolean`. Inside
+its existing preparation pcall it copies/validates questFlags, applies only the
+existing FieldCycling.FLAG, and validates actors against those candidate flags.
+Location/world/checkpoint/travel/actors and flags publish only after all validation
+succeeds. No post-location transact or new schema field is used. The SAME Bicycle
+behavior contract now covers failed boolean/actor rollback, real source Route16
+entry, mode/flag publication and codec round trip; no fifth contract is added.
+
+The newest compile-only evidence is source-encounter-contract-compile-20261028-03.
+For root's current merged controller, apply ONLY source-ghost-return-root.patch;
+EventState receipt consumption is already installed. Root may read actual source
+outcome through lastBattleOutcome.source_id/source_completed without consuming a
+receipt. False completed remains an explicit boolean. Native execution, earned
+saves, frame/art inspection and process Continue remain root work.
+
+Known source limit: existing Poke Doll item use is still unsupported/loud in the
+shared Bag/item flow. The original Blue Doll/Marowak escape bypass is therefore
+not claimed by this packet; ordinary run and real identified victory are handled.
+Unidentified ghost battle sprite/name/cry presentation needs root/UI to honor the
+new policy/getter. No battle art, UI, audio, codecs or shared field files were
+edited here. Source context invalidation during a bound encounter is refused,
+and cancellation cleans up the battle's actual session even after replacement.
