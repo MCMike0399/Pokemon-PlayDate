@@ -15,7 +15,6 @@ from tools.audio.trace import Trace, BASES
 
 ASSETS = {
     'pallet': 'audio1:Music_PalletTown', 'route1': 'audio1:Music_Routes1',
-    'vermilion': 'audio1:Music_Vermilion', 'anne': 'audio1:Music_SSAnne',
     'wild': 'audio2:Music_WildBattle', 'trainer': 'audio2:Music_TrainerBattle',
     'heal': 'audio1:Music_PkmnHealed', 'menu': 'audio2:SFX_Press_AB_2',
     'hit': 'audio2:SFX_Damage', 'faint': 'audio2:SFX_Faint_Thud',
@@ -75,21 +74,6 @@ class ScoreTrace(Trace):
                            round(volume, 4), (.125, .25, .5, .75)[reg.get(base+1, 0) >> 6], envelope])
 
 
-def adapt_menu(score):
-    # Explicit native adaptation: two source pitches with >=50ms gates, so a
-    # 30FPS observer cannot coalesce the whole chirp. No APU timing claim.
-    first, last = list(score['notes'][0]), list(score['notes'][-1])
-    first[0], first[2] = 0, 3
-    last[0], last[2] = 3, 5
-    return dict(score, ticks=8, notes=[first, last])
-
-
-def map_routes(catalog):
-    music = {asset: name for name, asset in ASSETS.items()}
-    return {'pokered:'+row['map']: music[row['asset']]
-            for row in catalog.maps if row['asset'] in music}
-
-
 def generate(source):
     catalog = Catalog(Source(source))
     scores = {}
@@ -102,8 +86,6 @@ def generate(source):
         scores[name] = dict(asset=asset, ticks=result['ticks'],
                             loop=result['repeat']['start_tick'] if result['repeat'] else None,
                             notes=trace.notes)
-    scores['menu'] = adapt_menu(scores['menu'])
-    routes = map_routes(catalog)
     # Direct source alarm's two pulse pitches, 30+1 tick cadence; explicit adaptation.
     catalog.source.read('audio/low_health_alarm.asm')
     scores['alarm'] = dict(asset='audio2:low-health', ticks=31, loop=0, notes=[
@@ -116,17 +98,12 @@ def generate(source):
         lines.append(f'  {name} = {{ticks={score["ticks"]}, loop={score["loop"] if score["loop"] is not None else "nil"}, notes={{')
         lines += ['    {' + ','.join(str(x) for x in n) + '},' for n in score['notes']]
         lines.append('  }},')
-    lines.append('}')
-    lines.append('KantoMusicMaps = {')
-    lines += [f'  ["{key}"] = "{value}",' for key,value in sorted(routes.items())]
     lines.append('}\n')
     payload = '\n'.join(lines)
     tools = {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in (
         'tools/audio/scores.py', 'tools/audio/source.py', 'tools/audio/catalog.py', 'tools/audio/trace.py')}
     manifest = {'schema': 1, 'revision': REVISION, 'target': 'Playdate synth adaptation',
                 'inputs_sha256': dict(sorted(catalog.source.hashes.items())), 'tools_sha256': tools,
-                'menu_adaptation': 'two source pitches, gates 3+5 ticks; native 30FPS chirp',
-                'map_routes': routes,
                 'score_sha256': hashlib.sha256(payload.encode()).hexdigest(),
                 'scores': {k: {x: v[x] for x in ('asset', 'ticks', 'loop')} | {'notes': len(v['notes'])}
                            for k, v in scores.items()}}

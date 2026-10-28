@@ -2,7 +2,7 @@
 import os
 import unittest
 from tools.audio.catalog import Catalog
-from tools.audio.scores import ASSETS, ScoreTrace, adapt_menu, map_routes
+from tools.audio.scores import ASSETS, ScoreTrace
 from tools.audio.source import Source
 from tools.audio.trace import Trace
 
@@ -17,7 +17,7 @@ class ScoreTests(unittest.TestCase):
     def test_musical_laps_preserve_native_note_onsets(self):
         # Full-register recurrence remains the existing oracle. Compare all note
         # gates, Hz, duties and envelopes through its longer effect-phase cycle.
-        for name in ('pallet','route1','wild','trainer','vermilion','anne'):
+        for name in ('pallet','route1','wild','trainer'):
             with self.subTest(name=name):
                 asset=ASSETS[name]
                 small=ScoreTrace(self.catalog,self.catalog.headers[asset]['family']);small.load(asset)
@@ -32,28 +32,6 @@ class ScoreTests(unittest.TestCase):
                     expanded += [[n[0]+lap*(end-start),*n[1:]] for n in small.notes if n[0]>=start]
                     lap+=1
                 self.assertEqual([n for n in expanded if n[0]<b['ticks']],full.notes)
-
-    def test_checkpoint_routes_use_original_map_songs(self):
-        routes=map_routes(self.catalog)
-        self.assertEqual(routes['pokered:VERMILION_CITY'],'vermilion')
-        self.assertEqual(routes['pokered:POKEMON_FAN_CLUB'],'vermilion')
-        self.assertEqual(routes['pokered:VERMILION_DOCK'],'anne')
-        for row in self.catalog.maps:
-            if row['map'].startswith('SS_ANNE_'):
-                self.assertEqual(routes['pokered:'+row['map']],'anne')
-        # Do not relabel unsupported original Center/Gym music as Vermilion.
-        self.assertNotIn('pokered:VERMILION_POKECENTER',routes)
-
-    def test_menu_chirp_cannot_disappear_between_30fps_frames(self):
-        trace=ScoreTrace(self.catalog,2);trace.load(ASSETS['menu']);trace.run()
-        score=adapt_menu(dict(notes=trace.notes,ticks=trace.tick,loop=None))
-        self.assertEqual([n[3] for n in score['notes']],[trace.notes[0][3],trace.notes[-1][3]])
-        self.assertEqual(score['ticks'],8)
-        seconds=70224/4194304
-        for phase in range(100):
-            frames=[phase/3000+frame/30 for frame in range(5)]
-            for note in score['notes']:
-                self.assertTrue(any(note[0]*seconds<=t<(note[0]+note[2])*seconds for t in frames))
 
     def test_alarm_transition_ticks_match_existing_source_interpreter(self):
         trace=Trace(self.catalog,2)
