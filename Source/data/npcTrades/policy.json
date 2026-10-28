@@ -118,11 +118,6 @@
       "content": "npc-trades",
       "restore_interaction_facing": true
     },
-    "pokered:ROUTE_18_GATE_2F:objects:1": {
-      "kind": "bespoke",
-      "content": "npc-trades",
-      "restore_interaction_facing": true
-    },
     "pokered:UNDERGROUND_PATH_ROUTE_5:objects:1": {
       "kind": "bespoke",
       "content": "npc-trades",

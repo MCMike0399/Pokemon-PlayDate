@@ -957,6 +957,15 @@
       "tileset": "OVERWORLD",
       "width": 40
     },
+    "pokered:LAVENDER_TOWN": {
+      "grass_sites": [],
+      "height": 18,
+      "layout_sha256": "dcee65f0f3da941d086f4039dcfa7f69dc915fd7204cd1ed9cdacff1b1741cbd",
+      "name": "LavenderTown",
+      "sites": [],
+      "tileset": "OVERWORLD",
+      "width": 20
+    },
     "pokered:PEWTER_CITY": {
       "grass_sites": [],
       "height": 36,
