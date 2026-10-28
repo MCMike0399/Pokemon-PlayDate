@@ -177,19 +177,19 @@
       "completed_steps": [
         "daycare"
       ],
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-chained-journeys-20261028-05/03-vermilion--restart-squirtle/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-chained-journeys-20261028-05/03-vermilion--restart-squirtle",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-02/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-02",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "1639e37f46c91ae7ed6bc7d55129adfa0732667ec4e014fc4510bd04a13878ab",
-          "bytes": 10664
+          "sha256": "068e0c04f69e608fe6a595ca63e80b695abfd29fb3b7891256429f5d37a86fc3",
+          "bytes": 11036
         },
         {
           "file": "adventure.b.json",
-          "sha256": "4e505b103d123b055fbbaf954f27ded5d576f64e456c6daf6c8fa025052e5bd3",
-          "bytes": 9940
+          "sha256": "63bb2e56b478385189d226572322f9a16a9d945144e096515bdfc657333af7ff",
+          "bytes": 11123
         }
       ]
     }

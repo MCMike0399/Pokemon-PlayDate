@@ -930,11 +930,23 @@ class VermilionJourney(cj.CeruleanJourney):
         model = self.models[self.zone(name)]
         # Each disconnected room component is entered at its exact source warp;
         # travelling to the map name alone would cover only the first cabin.
+        visited = set()
         for event in model.events['warps']:
             point = (event['x'], event['y'])
-            goals = set(model.approaches(point)) - model.warps
-            if not goals:
+            approaches = set(model.approaches(point)) - model.warps
+            if not approaches:
                 raise ProtocolError('source cabin has no passable approach')
+            if approaches & visited:
+                continue
+            goals, pending = set(approaches), list(approaches)
+            while pending:
+                cell = pending.pop()
+                for direction in DIRECTIONS:
+                    step = model.terrain_step(cell, direction)
+                    if step and step.destination not in model.warps and step.destination not in goals:
+                        goals.add(step.destination)
+                        pending.append(step.destination)
+            visited.update(goals)
             self.travel(model.name, goals)
             fought = False
             for actor in model.events['objects']:
