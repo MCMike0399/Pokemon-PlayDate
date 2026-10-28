@@ -37,7 +37,8 @@ function BattleConditions:disabled(mon,key)
     return key~=nil and state and state.disable and state.disable.key==key or false
 end
 function BattleConditions:canDisable(mon)
-    local state=self.members[mon];local key=state and state.lastMove
+    local state=self.members[mon]
+    local key=state and state.lastMove
     if not key or key=="struggle" or state.disable then return false end
     for _,move in ipairs(mon.moves) do
         if move==key then return mon:hasPP(key) end
@@ -45,9 +46,12 @@ function BattleConditions:canDisable(mon)
     return false
 end
 function BattleConditions:disable()
-    local b=self.battle;local mon=b.defender
-    if not self:canDisable(mon) then b:say("But it failed!");return false end
-    local state=self:of(mon);local key=state.lastMove
+    local b=self.battle
+    local mon=b.defender
+    if not self:canDisable(mon) then b:say("But it failed!")
+    return false end
+    local state=self:of(mon)
+    local key=state.lastMove
     -- Four residual ticks if the target still has its action; otherwise five.
     state.disable={key=key,turns=b.effects:pendingMove(mon) and 4 or 5}
     b:say(mon.name.."'s "..moveData[key].name.." was disabled!")
