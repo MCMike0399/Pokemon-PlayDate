@@ -59,8 +59,8 @@ No known defect blocks the accepted Cerulean path. Full mechanics and rare
 interactions remain separate release work. Device validation has not run.
 
 Vermilion has unaccepted field-move, Day Care, trade and save-fixture work.
-Its Route 2 collision image changes four door cells; that diagnostic update
-has **not** been approved. It needs actual images and review before acceptance.
+Its Route 2 collision image changes four door cells; the user approved that diagnostic update on 2026-10-28 after reviewing the
+actual four-cell difference (4096 pixels). It is updated on the private branch.
 Audio and later campaign work remain parked.
 
 ## 4. Work in flight
@@ -68,7 +68,7 @@ Audio and later campaign work remain parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 2168 native checks pass. All three journeys load accepted Cerulean saves. The first set stopped before gameplay on an observation validator; that is fixed. A route-planner failure at the robbed-house Rocket is being corrected with an explicit house visit. Runs continue after failures. Only Route2's four door cells differ from the protected catalog: 4096 pixels, with 2493 other images exact. User approval was requested; the baseline remains unchanged. |
+| `wip/vermilion-integration` | 2168 native checks pass. All three journeys load accepted Cerulean saves. The first set stopped before gameplay on an observation validator; that is fixed. A route-planner failure at the robbed-house Rocket is being corrected with an explicit house visit. Runs continue after failures. Only Route2's four door cells differ from the protected catalog: 4096 pixels, with 2493 other images exact. The user approved these four cells; the private baseline is updated and all 2494 protected images now match. |
 | Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
