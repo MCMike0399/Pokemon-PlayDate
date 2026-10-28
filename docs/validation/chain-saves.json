@@ -75,7 +75,9 @@
           "sha256": "eedacb3c74505f99fbc9d648fa56119e8cc31a374a010d8e56099d4f84cfd309",
           "bytes": 5775
         }
-      ]
+      ],
+      "accepted_commit": "1794e48d00f0148c9c696c715cadb584e1b87707",
+      "accepted_source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529"
     },
     {
       "starter": "squirtle",
@@ -94,7 +96,9 @@
           "sha256": "01f18aa907d0f08b9dac64e1683f1b3b602fb4f71786c4bf13600df9a88fd6d9",
           "bytes": 7906
         }
-      ]
+      ],
+      "accepted_commit": "1794e48d00f0148c9c696c715cadb584e1b87707",
+      "accepted_source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529"
     },
     {
       "starter": "charmander",
@@ -113,7 +117,9 @@
           "sha256": "9156b41258b93fdf62d5a7cfb56d691868cf2b4ca6d487f573767243b86ff8b7",
           "bytes": 7847
         }
-      ]
+      ],
+      "accepted_commit": "1794e48d00f0148c9c696c715cadb584e1b87707",
+      "accepted_source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529"
     }
   ]
 }

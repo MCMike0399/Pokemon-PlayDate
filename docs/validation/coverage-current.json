@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "11a96e0dd346786fa6d90671882a0fffb68137d5",
-    "source_sha256": "90d232f1840ee33f9e524b21b0fd330631a72807a4fe233e345418f2f49f318e",
+    "commit": "1794e48d00f0148c9c696c715cadb584e1b87707",
+    "source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529",
     "policy_date": "2026-10-28",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "WholeoriginalBluecampaign/postgame, original151, GenVmechanics. Snapshot not timeless live truth.",
-    "acceptance_context": "private-cerulean-candidate-not-main-or-milestone"
+    "acceptance_context": "main-cerulean-5.3-accepted"
   },
   "accepted_milestone_rows": [],
   "schedule": {
@@ -129,19 +129,19 @@
     },
     "production-battle": {
       "path": "Source/battle/battle.lua",
-      "sha256": "87cb0340ccec8367173d7d89eeb300b35d6a19082e687a1588c86f87450c9239",
+      "sha256": "2970be8fdf9d4f349d1332b4d27cbd385bfb5eb7d6184eba4b6350783682cc3e",
       "kind": "production",
       "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-effects": {
       "path": "Source/battle/effects.lua",
-      "sha256": "21cd1df16e3501aaec8265ee2e8e3689fb93e396cbaaf397573eb686a3d7ca7c",
+      "sha256": "574845de5045d1d76846bea1fa962ebe19407751f9255f0a140766480578aeab",
       "kind": "production",
       "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-conditions": {
       "path": "Source/battle/conditions.lua",
-      "sha256": "f39d5ffd00b807ed25177a7dd46da9e8160d12bc318f26471da0cbaaf23afaa9",
+      "sha256": "e855ec5a01221bf017edee4eb05df28b56badb62979fd936f351e01566e9b085",
       "kind": "production",
       "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
@@ -216,6 +216,11 @@
       "sha256": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c",
       "kind": "source",
       "scope": "Frozen b1f0bd8 shared manifest declares thirty installed maps, eighteen added since accepted main. Declaration only, not event/reachability or regional acceptance."
+    },
+    "cerulean-acceptance": {
+      "kind": "accepted-summary",
+      "path": "docs/validation/cerulean-acceptance-20261028.json",
+      "sha256": "f21e91abf2c6424228a95b1886f8cd5a521a60aa14b336767cc72c396f1f70dc"
     }
   },
   "source_inventory_summary": {

@@ -1,142 +1,91 @@
 # Full-game execution ledger
 
-Updated 2026-10-28. Follow [the full-game goal](../plans/full-game-goal.md).
-[Earlier ledger and preserved failures](progress-history-before-divemac-20261026.md).
+Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
+Progress: **30 / 222 source maps playable on main. Current milestone: 5.4.**
 
-Progress: **30 / 222 source maps playable on main. Current milestone: 5.3 (final checks).**
+## 1. Accepted revision and what the player can do
 
-## 1. Accepted revision and playable scope
+Accepted game code: `1794e48`. Source:
+`44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529`.
+A player can continue an earned Brock save, cross Mt. Moon, choose a fossil,
+beat Misty and the Bridge rival, clear Nugget Bridge, help Bill, receive the
+S.S. Ticket, save, quit the process and Continue with any starter.
+The opening and protected art remain intact. Audio, later Kanto, the League,
+postgame and physical-device checks remain unfinished. Commits are local;
+nothing has been pushed since the user's earlier explicit request.
 
-Accepted through 5.2 is `27443af`, with Source
-`2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
-A player can finish Pallet → Brock with any starter, receive badge/TM, save,
-exit the actual process and Continue. All three journeys passed again after the
-foundation refactor. Cerulean content is merged at `a9ba3f2`; final acceptance awaits Encore and Water Sport, each hit once in the passing Bulbasaur run. Kanto beyond Cerulean, audio and
-release work are unfinished. Device validation has not run. The user requested
-a push of current main progress on 2026-10-26; unaccepted candidates stay local.
+## 2. Milestones and checks
 
-## 2. Current milestone and checks
+**5.0 — DiveMac setup: done.** Environment and smoke passed, 529 host tests,
+1091 SDK checks and 2494 protected images.
+[Setup summary](divemac-baseline-20261026.json).
 
-**5.0 — Re-establish on DiveMac: done.** Environment and smoke passed; the goal
-and setup docs were already committed. Host: 529 passed, zero skips. SDK: 1091
-passed; all 2494 protected images exact. CLAUDE.md and this ledger were updated.
-[Baseline summary](divemac-baseline-20261026.json).
+**5.1 — Pallet to Brock: done.** All three natural starter journeys, rewards,
+actual process exit/Continue, full-bag retry, blackout and evolution cases passed.
+Charmander's old level-16 preparation was an evolution witness, not pacing proof.
+[Brock summary](brock-acceptance-20261026.json).
 
-**5.1 — Close Pallet → Brock: done.**
+**5.2 — Shared foundations: done.** Map loading, events, NPC movement, text,
+production builds, loud move failure and phazing passed. Main had 1274 SDK and
+605 host checks; all 2494 protected images and nine journey cases passed.
+[Foundation summary](foundation-acceptance-20261026.json).
 
-- Both archive checksums were verified; narrow driver/learning patches and native
-  warp return passed. All three natural starter journeys passed Brock and rewards.
-- Each starter survived actual process exit/Continue. Root inspected learning,
-  evolution, Gym, save and continued captures; saved/continued worlds match.
-- TM full-bag retry, blackout, restart persistence, evolution accept and cancel
-  passed. Main Source has 544 passing host tests, zero skips, 1091 passing SDK
-  contracts and 2494 exact protected images.
-- Bulbasaur/Squirtle used level-8 preparation. Charmander’s level-16 evolution
-  witness required 95 natural preparation fights; this is not pacing proof.
-- [Acceptance summary](brock-acceptance-20261026.json) retains exact evidence
-  directories and previous failures, which receive no acceptance credit.
+**5.3 — Pewter to Cerulean: done.**
 
-Evidence under `~/Developer/Pokemon-PlayDate-env/evidence/`: Bulbasaur in
-`brock-5.1-20261026-01/acceptance-suite`, Squirtle in
-`brock-squirtle-20261026-01`, Charmander in
-`brock-charmander-no-modal-20261026-01`, supplements in
-`brock-5.1-supplements-20261026-01`.
+- All three paths began with the accepted Brock saves. Bulbasaur's final path
+  passed 28 real battles with no blackouts or preparation grinding. Centers,
+  restocking and actual progress saves replaced XP farming.
+- Squirtle and Charmander finished Bill and saved, then a screenshot check
+  failed. The check was simplified; their actual earned saves passed separate
+  Save/Continue retries. The original failures remain failures. Those paths
+  were played before later battle fixes; the fixes passed native contracts.
+- Teleport, Pursuit, Disable, Camouflage, Magnitude, Encore and Water Sport now
+  have their effects. Final result: 1666 SDK checks, 723 host tests, zero failures
+  or skips. All 2494 protected images match; 2448 new images were reviewed.
+- Ticket/TM11 full-bag retries, both fossil choices and blackout recovery passed.
+  The museum's two door openings were the only approved protected-image change.
+- [Cerulean acceptance](cerulean-acceptance-20261028.json) records exact run paths,
+  source versions and limitations. [Save hashes](chain-saves.json) identify the
+  actual saves in `~/Developer/Pokemon-PlayDate-env/evidence/chain/5.3/<starter>`.
 
-**5.2 — Scale foundations: done.**
+**5.4 — Vermilion and the first HMs: next.** Merge accepted main into the one
+existing Vermilion branch, then fix its current failures. Its three journeys
+must start with the accepted Cerulean saves and continue after individual
+failures. No later region preparation starts before 5.4 is accepted.
 
-- Shared map/provider/cache/bindings, source events, script leases, text and
-  production dev gating are integrated. Unsupported moves fail loudly; Whirlwind
-  and Roar have native trainer/wild success/failure witnesses.
-- On merged main: 1274 SDK contracts and 605 host tests passed, zero skips;
-  production compile and 54 protocol checks passed. All 2494 protected images
-  remain exact. Root inspected the new mechanics/text images.
-- All nine real-input cases passed on one frozen Source: three full natural
-  starter Brock/restart journeys, warp return, TM full-bag retry, blackout,
-  seen/trainer restart persistence, evolution accept and cancel. Root inspected
-  key images and confirmed distinct process generations and matching saves.
-- Instrumented startup: 252 ms before, 202 ms with only dev gating, 150 ms
-  integrated; post-GC Lua heap 10.85, 8.79 and 6.05 MiB. These are single
-  Simulator observations, excluding native allocations/device limits.
-- [Acceptance summary](foundation-acceptance-20261026.json) pins all evidence under
-  `m52-main-sdk-20261026-01`, `m52-main-build-20261026-01` and
-  `m52-main-journeys-20261026-01`. Earlier failures retain their failed status.
+## 3. Open problems
 
-**5.3 — Pewter → Cerulean: in progress on a private branch.**
+No known defect blocks the accepted Cerulean path. Full mechanics and rare
+interactions remain separate release work. Device validation has not run.
 
-- Thirty shared source maps are installed privately, including eighteen new
-  maps, ordinary events, trainers, art and music metadata. Bill/Ticket, fossils,
-  Misty, rivals, Rockets, museum/bike/Magikarp services and earlier tutorial/escort
-  scenes are composed. Natural per-starter journey drivers are prepared.
-- Independent standards review repairs are composed. Spec review found missing
-  guard dialogue and exposed abilities: guards and ordinary entry/contact/residual ability hooks are repaired privately.
-  The fourth native pass passed all 1596 contracts. The frozen ambient blocker
-  is resolved through an owned source-script movement intent. Center healing was
-  extended to the pinned standard layout; its actual blackout supplement passed.
-- The first natural Squirtle run reached Mt. Moon after Brock and level-16
-  evolution, then exposed a driver release-gate bug. Fix `ab51b14` passes 50
-  main host checks. The subsequent early trial was stopped for the reviewed
-  contract cleanup. A later run reached Route25 after Misty/Bridge, then blacked
-  out with depleted PP, poison and no Potions. Real Center/restock and bounded
-  checkpoint recovery were added to the driver. The retry completed Bill/Ticket and
-  saved on Route25, then failed screenshot qualification before Continue: its
-  saved viewport contains no visible NPC. The shared source-map pose loader is
-  repaired; a real visible-actor save location is being prepared. No failed run
-  receives campaign acceptance credit.
-- Physical-lead field effects passed 1612 native contracts after correcting
-  Pikachu's held-item draw expectation. Seven ordinary ability hooks and the
-  source indoor-land encounter repair passed all 1659 native contracts, zero failures.
-  The cave before-fix witness failed on all three Mt. Moon floors as expected.
-- Root independently passed 716 host tests, zero skips, on the frozen private
-  Source. Reviewed coverage retains all 1501 rows, 50 scopes and ten stale records.
-- New visual exporter declares 2448 additions. Native scene, map, art and journey
-  acceptance remain pending. The user approved exactly the museum collision diagnostic update (two door cells,
-  2048 pixels); all other 2493 protected images match. Private baseline approval
-  is recorded and the approved protected comparison passes. All 18 new map
-  viewports and source-strip families were inspected; scene motion review remains.
-
-## 3. Open defects blocking progress
-
-No open defect blocks the accepted Brock path. Three long Charmander failures
-are preserved. Native sampling exposed a startup e-list modal and 51.6 GB
-physical footprint despite low RSS. With root-level `ShowElist=0` in the Simulator
-ini, the full two-process retry passed. Observed footprint was 63–72 MB, peak
-120.9 MB. The original ini is backed up under environment evidence; no signup
-was submitted. This was an environment repair, not a game Source change.
-Diagnostic capture sampling remains optional, default interval 1.
-
-No open defect blocks accepted 5.2. Private Cerulean component checks are green;
-final natural/campaign acceptance remains pending. Vermilion still needs native
-acceptance of its composed dialogue, grass Cut and Pickup, plus reviewed approval
-for its Route2 collision diagnostic. That approval has not been granted.
-Later regions, common mechanics, audio and release checks remain unfinished.
-
-Cleanup removed 91 clean superseded worktrees and 173 old evidence directories,
-freeing 15.3 GB of evidence. Branches, acceptance references and the latest
-failures remain; two dirty worktrees were kept untouched.
-
-Later work is frozen until Cerulean is accepted. All three accepted Brock saves
-were recovered under `evidence/chain/5.2/<starter>`; [hashes and provenance](chain-saves.json).
-Next runs start there and continue after individual failures.
+Vermilion has unaccepted field-move, Day Care, trade and save-fixture work.
+Its Route 2 collision image changes four door cells; that diagnostic update
+has **not** been approved. It needs actual images and review before acceptance.
+Audio and later campaign work remain parked.
 
 ## 4. Work in flight
 
-| Branch | Current work |
+| Branch | Next step |
 |---|---|
-| `main` | Root accepts and commits each finished milestone locally. **12 / 222 source maps playable; milestone 5.3.** No push is planned. |
-| `wip/cerulean-integration` | All 1664 SDK checks, 723 host tests and 2494 protected images pass. Squirtle and Charmander finished Bill/Ticket, then passed separate two-process Save/Continue retries from their actual saves. The five reward/blackout cases passed in `m53-bulbasaur-and-retries-20261028-01`. Bulbasaur cleared Route 3 but lost in Mt. Moon with no Potions; `2f3dbc8` restocks after Route 3, heals before both bosses, and saves progress. Its retry is running in `m53-bulbasaur-rested-20261028-01`. No new grinding. |
-| `wip/vermilion-integration` | Frozen at `380104e`. Resume only after Cerulean is accepted on main. |
-| `wip/audio-integration`, trade and guard branches | Frozen; branches retained, clean superseded checkouts removed. |
+| `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
+| `wip/vermilion-integration` | Merge accepted main, move journey JSON out of production, run checks, then the three save-chained journeys. |
+| Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
 
-Workers use `gpt-6.1-sol` at medium effort. The save-chaining worker could not
-start because that model was at capacity; root completed the change instead.
-The two dirty later-milestone worktrees remain untouched.
+Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
+The cleanup removed at least 93 clean superseded worktrees and 173 old evidence
+directories, freeing 15.3 GB of evidence. Branches and required evidence remain;
+two dirty worktrees were kept intact.
 
-## 5. Decisions since the user check-in
+## 5. Decisions
 
-- Keep source identity, component acceptance and campaign acceptance separate.
-- Preserve authored Pallet and all 2494 protected catalog images exactly.
-- Use worktree branches and durable environment evidence; no new tarballs.
-- Root independently accepts work and commits accepted steps to local main.
-- Continue all campaign/postgame milestones; push only when explicitly asked.
-- The user approved the exact B2W2 Pickup table, including all 25 items and six
-  new definitions. Preserve existing Blue prices; native acceptance is still pending.
+- Finish one milestone before resuming the next. Keep one next-milestone branch.
+- Chain journeys from accepted saves; only the release pass starts at New Game.
+- No new policy questions beyond 5.4 for now. No invented rewards or XP farming.
+- Fix effects that real play reaches; add one contract per new behavior.
+- Simplify repeated tooling failures. Do not add fixture-proof contracts or
+  diagnostics around a failed screenshot check.
+- Exact B2W2 Pickup and taking held items before NPC trades were approved.
+- Commit accepted work locally. Push only when the user asks.
+
+[Earlier ledger](progress-history-before-cerulean-20261028.md) preserves failures
+and the earlier source versions; its in-flight statuses are historical.
