@@ -61,7 +61,8 @@ Game Corner, Hideout and the Silph Scope. It will have three earned saves from
 5.4 and merge to main separately. Tower/Fuji/Flute/Snorlax/Cycling Road/Fuchsia/
 Safari/Koga/Surf/Strength form 5.5b; Saffron/Silph/Sabrina/Dojo/Fly form 5.5c.
 Each starts from the prior checkpoint's earned saves. Later prepared work must
-stay separate from the 5.5a release. Main remains **65/222**; the East package
+stay separate from the 5.5a release. The complete private candidate is retained
+on `parked/midgame-b-c-before-55a-20261028`; derive the release with East maps only. Main remains **65/222**; the East package
 contains 43 new maps, so the planned 5.5a frontier is 108/222, not yet accepted.
 
 Private `wip/midgame-integration` currently has all 171 prepared source maps.
@@ -72,7 +73,8 @@ additions compile but still need native checks. The prior native catalog exporte
 
 The first east journey sets stopped on two missing harness registrations, then
 an unnecessary early trip to Pewter to make room for later Lapras. Those failed
-runs remain failures. The early Lapras detour is removed; no planner feature or
+runs remain failures. The early Lapras detour is removed; the next partial set is
+`evidence/m55a-east-chains-20261028-04`. No planner feature or
 training fight was added. Preserve partial earned slots from actual later runs.
 Charmander covers optional content; Bulbasaur and Squirtle cover the critical path.
 
@@ -82,7 +84,8 @@ All reports and briefs must use normal words and spacing. Technical worker
 questions go to root; three old invisible questions were answered and cleared.
 
 At every acceptance, record production Simulator post-GC Lua heap and worst
-map-load/battle-start frame time. Device availability has been asked once.
+map-load/battle-start frame time. The user confirmed a Playdate is available. No USB serial port or data volume
+was detected; the first accepted-main device test waits for connection/unlock.
 After 5.5a, accept the smallest audible town/route/battle/cry path on main.
 The native audio probe reports system volume **0**; listening waits for its slider,
 while game work continues. At each checkpoint, ask once whether to push.
