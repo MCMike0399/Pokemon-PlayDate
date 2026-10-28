@@ -73,6 +73,7 @@ local function startMap()
     local door = assert(choices[cfg.door_index], "requested actual current-zone door is unavailable")
     report.map_load = {from_zone=mapOrigin, from_x=game.player.gridX, from_y=game.player.gridY,
         door_index=cfg.door_index, to=door.to, x=door.toX, y=door.toY,
+        target_zone_registered_before=zoneRegistry[door.to] ~= nil,
         trigger="direct invocation of the real DoorWarp substate; player not repositioned onto a door"}
     phase, age = "map_load", 0
     pending = function()

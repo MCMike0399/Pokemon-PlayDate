@@ -94,6 +94,8 @@ def prepare(project, sdk, output, session, mode, checkpoint=None):
             stage_production(project, output)
         bundle_id = 'com.poc.pokemon.startupprobe.' + session
         pdxinfo = output / 'Source/pdxinfo'
+        if sum(line.startswith('bundleID=') for line in pdxinfo.read_text().splitlines()) != 1:
+            raise ProtocolError('probe requires exactly one bundleID for private save isolation')
         pdxinfo.write_text('\n'.join('bundleID=' + bundle_id if line.startswith('bundleID=') else line
                                      for line in pdxinfo.read_text().splitlines()) + '\n')
         metadata = {'bundle': str(output / 'Production.pdx'), 'bundle_id': bundle_id,
