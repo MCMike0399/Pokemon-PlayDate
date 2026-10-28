@@ -15,9 +15,9 @@ local events={
     {27,"Low HP on",function() KantoAudio.setLowHP(true) end},
     {30,"Low HP off",function() KantoAudio.setLowHP(false) end},
     {32,"Trainer battle",function() KantoAudio.battleStart("trainer") end},
-    {41,"Return to Route 1",function() KantoAudio.battleEnd() end},
+    {41,"Vermilion return",function() KantoAudio.enterMap("pokered:VERMILION_CITY"); KantoAudio.battleEnd() end},
     {43,"Center heal",function() KantoAudio.playSFX("heal") end},
-    {48,"Pallet return",function() KantoAudio.enterMap("pallet_town") end},
+    {48,"S.S. Anne",function() KantoAudio.enterMap("pokered:SS_ANNE_1F") end},
 }
 local observations={}
 local function publish(status,message)

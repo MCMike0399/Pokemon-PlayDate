@@ -1,115 +1,14 @@
 --- a/Source/main.lua
 +++ b/Source/main.lua
-@@ -60,6 +60,7 @@
- import "game/overworldState"
+@@ -61,4 +61,5 @@
  import "game/dialogState"
  import "game/battleState"
 +import "game/kantoAudio"
  import "game/debugState"
  import "game/learningState"
- import "game/saves"
-@@ -212,6 +213,7 @@
-
+@@ -213,4 +214,5 @@
      machine:update()
      machine:handleInput()
-+    KantoAudio.update()
++    KantoAudio.updateGame(game)
      machine:get("overworld"):flushPendingPresentation()
      machine:draw()
-
---- a/Source/game/overworldState.lua
-+++ b/Source/game/overworldState.lua
-@@ -312,6 +312,7 @@
- -- opts.respawn = true forces the zone spawn point (blackout, zone switch);
- -- opts.entry = {x, y, facing} places the player exactly there (door warps)
- function OverworldState:enter(opts)
-+    KantoAudio.enterMap(currentZone)
-     self.presentationVisit = nil
-     local game = self.game
-     if game.lastEncounterSession~=game.session then
---- a/Source/game/battleState.lua
-+++ b/Source/game/battleState.lua
-@@ -25,6 +25,7 @@
-     self.npc = npc
-     self.finished=false;self.epoch=(self.epoch or 0)+1;self.trainerToken=nil
-     self.battle,self.scene=battle,scene
-+    KantoAudio.battleStart(npc and "trainer" or "wild")
-     assert(self.game.session:beginPickupBattle(battle, npc and 1 or 0))
-     playdate.graphics.sprite.removeAll()
-     self.game.camera:reset()
-@@ -112,6 +113,7 @@
- end
-
- function BattleState:exit()
-+    KantoAudio.battleEnd()
-     self.epoch=(self.epoch or 0)+1
-     if self.trainerToken and self.game.trainers then self.game.trainers:abortBattle(self.trainerToken) end
-     self.trainerToken=nil
-@@ -131,6 +133,10 @@
- end
-
- function BattleState:update()
-+    if self.battle then
-+        local mon=self.battle.player
-+        KantoAudio.setLowHP(mon.hp>0 and mon.hp*5<=mon.maxHP)
-+    end
-     if not self:isTop() or not self.battle then return end
-     local battle = self.battle
-     battle:update()
---- a/Source/game/eventState.lua
-+++ b/Source/game/eventState.lua
-@@ -327,6 +327,7 @@
-     end
-     if self.healNurse then self.oldNurseFacing=self.healNurse.facing;self.healNurse:setFacing("left") end
-     self.phase,self.waiting="heal-animation","healing"
-+    KantoAudio.playSFX("heal")
- end
- function EventState:finishHealing()
-     local checkpoint=self.healStep.checkpoint or {zone_id="pokered:VIRIDIAN_CITY",x=23,y=26,facing="down"}
---- a/Source/ui/menu.lua
-+++ b/Source/ui/menu.lua
-@@ -25,6 +25,7 @@
-
- function BattleMenu:handleInput()
-     if not self.isActive then return end
-+    local previousIndex = self.selectedIndex
-
-     local cols = self.columns
-     local rows = math.ceil(#self.options / cols)
-@@ -52,14 +53,17 @@
-         local newIdx = row * cols + col + 1
-         if newIdx <= #self.options then self.selectedIndex = newIdx end
-     elseif playdate.buttonJustPressed(playdate.kButtonA) then
-+        KantoAudio.playSFX("menu")
-         if self.onSelect then
-             self.onSelect(self.selectedIndex, self.options[self.selectedIndex])
-         end
-     elseif playdate.buttonJustPressed(playdate.kButtonB) then
-+        KantoAudio.playSFX("menu")
-         if self.onCancel then
-             self.onCancel()
-         end
-     end
-+    if self.selectedIndex ~= previousIndex then KantoAudio.playSFX("menu") end
- end
-
- function BattleMenu:draw(x, y, w, h)
---- a/Source/battle/effects.lua
-+++ b/Source/battle/effects.lua
-@@ -148,6 +148,7 @@
-     local before=mon.hp
-     mon:takeDamage(amount)
-     local removed=before-mon.hp
-+    if removed>0 then KantoAudio.playSFX("hit") end
-     if self.round and removed>0 and cause~="cost" and cause~="struggle-recoil" then
-         self.round.damaged[mon]=true
-     end
---- a/Source/battle/battle.lua
-+++ b/Source/battle/battle.lua
-@@ -1308,6 +1308,7 @@
-         local pokemon = side == "player" and self.player or self.enemy
-         if not pokemon:isAlive() and not self.faintAnnounced[side] then
-             self.faintAnnounced[side] = true
-+            KantoAudio.playSFX("faint")
-             changed=true
-             self:say(pokemon.name .. " fainted!")
-         end

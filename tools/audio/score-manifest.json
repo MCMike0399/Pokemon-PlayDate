@@ -403,15 +403,56 @@
     "macros/scripts/audio.asm": "97ad54fdcda5fc9390ee94a524e7f4824b3d74d6e69818be1e9f3581195a919b",
     "ram/wram.asm": "00683cd430a9ef30794d2aeaee51f3a5440e4bb14dca13e9f9cb5fa88f130e34"
   },
+  "map_routes": {
+    "pokered:BLUES_HOUSE": "pallet",
+    "pokered:HALL_OF_FAME": "pallet",
+    "pokered:PALLET_TOWN": "pallet",
+    "pokered:POKEMON_FAN_CLUB": "vermilion",
+    "pokered:REDS_HOUSE_1F": "pallet",
+    "pokered:REDS_HOUSE_2F": "pallet",
+    "pokered:ROUTE_1": "route1",
+    "pokered:ROUTE_11_GATE_1F": "vermilion",
+    "pokered:ROUTE_11_GATE_2F": "vermilion",
+    "pokered:ROUTE_2": "route1",
+    "pokered:SS_ANNE_1F": "anne",
+    "pokered:SS_ANNE_1F_ROOMS": "anne",
+    "pokered:SS_ANNE_2F": "anne",
+    "pokered:SS_ANNE_2F_ROOMS": "anne",
+    "pokered:SS_ANNE_3F": "anne",
+    "pokered:SS_ANNE_B1F": "anne",
+    "pokered:SS_ANNE_B1F_ROOMS": "anne",
+    "pokered:SS_ANNE_BOW": "anne",
+    "pokered:SS_ANNE_CAPTAINS_ROOM": "anne",
+    "pokered:SS_ANNE_KITCHEN": "anne",
+    "pokered:UNDERGROUND_PATH_NORTH_SOUTH": "route1",
+    "pokered:UNDERGROUND_PATH_ROUTE_6_COPY": "vermilion",
+    "pokered:UNDERGROUND_PATH_WEST_EAST": "route1",
+    "pokered:UNUSED_MAP_6B": "anne",
+    "pokered:UNUSED_MAP_72": "anne",
+    "pokered:UNUSED_MAP_73": "anne",
+    "pokered:UNUSED_MAP_74": "anne",
+    "pokered:UNUSED_MAP_75": "anne",
+    "pokered:VERMILION_CITY": "vermilion",
+    "pokered:VERMILION_DOCK": "anne",
+    "pokered:VERMILION_PIDGEY_HOUSE": "vermilion",
+    "pokered:VERMILION_TRADE_HOUSE": "vermilion"
+  },
+  "menu_adaptation": "two source pitches, gates 3+5 ticks; native 30FPS chirp",
   "revision": "af519899719f0754965776faac0e836a3b906e6d",
   "schema": 1,
-  "score_sha256": "ec15f0f809eea28bf3672fa46e01eb8bc67d9f49ec0b82337956628832727199",
+  "score_sha256": "33b98ffb8b8832cc552efa4d8669da0d82fb7ec72971dfd6f1cb803651b2f1e8",
   "scores": {
     "alarm": {
       "asset": "audio2:low-health",
       "loop": 0,
       "notes": 2,
       "ticks": 31
+    },
+    "anne": {
+      "asset": "audio1:Music_SSAnne",
+      "loop": 169,
+      "notes": 271,
+      "ticks": 2089
     },
     "faint": {
       "asset": "audio2:SFX_Faint_Thud",
@@ -434,8 +475,8 @@
     "menu": {
       "asset": "audio2:SFX_Press_AB_2",
       "loop": null,
-      "notes": 4,
-      "ticks": 17
+      "notes": 2,
+      "ticks": 8
     },
     "pallet": {
       "asset": "audio1:Music_PalletTown",
@@ -455,6 +496,12 @@
       "notes": 1224,
       "ticks": 5797
     },
+    "vermilion": {
+      "asset": "audio1:Music_Vermilion",
+      "loop": 1,
+      "notes": 380,
+      "ticks": 1405
+    },
     "wild": {
       "asset": "audio2:Music_WildBattle",
       "loop": 937,
@@ -465,7 +512,7 @@
   "target": "Playdate synth adaptation",
   "tools_sha256": {
     "tools/audio/catalog.py": "52f6d57d510d88130eb4e1d2791c14464769ef2af428b35362dfe9c5256991b2",
-    "tools/audio/scores.py": "e56e3e66e3c3692a54d5537ba588832b06a983c14ccd3809e2fce38287fabe47",
+    "tools/audio/scores.py": "dcebadb6fee8be1eb0743018fd86d156c0f4ee51e81366b141a0c2ab255ff31d",
     "tools/audio/source.py": "73ce33da16d31bbd0bfede9ea54176092ffe60ee399cd7a33a7545aef83c60b5",
     "tools/audio/trace.py": "68649d309ab655ba3717c6df8bd104fb6cf3dec88bded79d300da1a20f2723a1"
   }
