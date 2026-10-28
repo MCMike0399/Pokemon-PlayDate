@@ -40,6 +40,25 @@ function ExploreSubstate:update()
     local game = self.owner.game
     local player = game.player
 
+    if self.owner.fieldArrival then
+        local arrival = self.owner.fieldArrival
+        self.owner.fieldArrival = nil
+        SourceEvents.worldHook("beforeSpawn", game, {actors = game.npcManager.motion:snapshot()})
+        SourceEvents.worldHook("onEnter", game, {fieldArrival = arrival.kind})
+        if KantoWorld then
+            KantoWorld.onEnter(game, {fieldArrival = arrival.kind})
+        end
+        if not self.owner:isTop() then
+            return
+        end
+    end
+    if player.pendingBoulder then
+        local push = player.pendingBoulder
+        player.pendingBoulder = nil
+        FieldTravelState.openPush(game, push.npc, push.direction)
+        return
+    end
+
     -- Edge-exit doors (Gen 2/3 gates): the player walked into the room
     -- edge from an exit mat during the previous handleInput
     if player.pendingEdgeDoor then
@@ -51,6 +70,18 @@ function ExploreSubstate:update()
 
     -- Intro storyline triggers (cutscene dialogs, the scripted rival
     -- battle); they preempt doors and encounters
+    if player.fieldStep then
+        local px, py = player:getPixelCenter()
+        local mw, mh = getMapPixelSize()
+        game.camera:follow(px, py, mw, mh)
+        game.camera:apply()
+        gfx.sprite.update()
+        self.owner:_presentedWorld()
+        if not player.fieldStep and player.stepJustFinished then
+            game.session:daycareStep()
+        end
+        return
+    end
     if Story.check(game, self.owner) then return end
     if SourceEvents.worldHook("explore", game) then return end
 
@@ -362,6 +393,8 @@ function OverworldState:enter(opts)
     local saved = self.savedPos
     local respawn = opts and opts.respawn
     local entry = opts and opts.entry
+    local retainedVisit = saved and saved.zone == currentZone and not respawn and not entry
+        and self.builtSession == game.session and not (opts and opts.fieldReloadReason)
     if entry then
         pos = entry
     elseif saved and saved.zone == currentZone and not respawn then
@@ -416,6 +449,13 @@ function OverworldState:enter(opts)
     -- first Mart event is top before ordinary input, doors or encounters run.
     if KantoWorld then KantoWorld.onEnter(game,opts) end
     self:_beginPresentationVisit(getOverworldView())
+    if not retainedVisit and not (opts and opts.fieldRestore) then
+        local travel = FieldTravel.enter(game.session:fieldTravelData(), currentZone.stableID,
+            game.session:fieldTravelData().mode)
+        assert(game.session:captureTraversal({world = WorldDeltas.export(),
+            location = {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
+            actors = game.npcManager.motion:snapshot(), fieldTravel = travel}))
+    end
 end
 
 function OverworldState:exit()

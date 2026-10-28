@@ -43,6 +43,11 @@ function PartyState:actions()
     self.phase = "actions"
     local mon = self.session:party():get(self.selected)
     local fields = FieldMoves and FieldMoves.known(mon) or {}
+    if FieldTravel then
+        for _, key in ipairs(FieldTravel.known(mon)) do
+            fields[#fields + 1] = key
+        end
+    end
     local options = {}
     for _, key in ipairs(fields) do options[#options + 1] = key:upper() end
     for _, label in ipairs({"STATS", "SWITCH", "ITEM", "CANCEL"}) do options[#options + 1] = label end

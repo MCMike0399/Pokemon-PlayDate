@@ -10,7 +10,18 @@ local function bytes(values)
     end}
 end
 
-function FieldGearContracts.run(test)
+function FieldGearContracts.run()
+    local report = {ok = true, passed = 0, failed = 0, tests = {}}
+    local function test(name, fn)
+        local ok, reason = pcall(fn)
+        report.tests[#report.tests + 1] = {name = name, ok = ok, error = not ok and tostring(reason) or nil}
+        if ok then
+            report.passed = report.passed + 1
+        else
+            report.failed = report.failed + 1
+            report.ok = false
+        end
+    end
     test("field-gear: Bicycle and Cycling Road preserve source restrictions and motion", function()
         local travel = FieldTravel.empty()
         assert(not FieldCycling.toggle(travel, false, false, "ROUTE_1", "OVERWORLD"))
@@ -81,4 +92,5 @@ function FieldGearContracts.run(test)
         RulesRNG.restoreData(priorRNG)
         assert(ok, reason)
     end)
+    return report
 end

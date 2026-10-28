@@ -64,8 +64,8 @@ local function surfPlan(game, observed)
     return FieldTravel.surf(observed.travel, position, from, target, descriptor.tileset.constant, restrictions)
 end
 
-function FieldTravelRequests.prepare(game, party, mon, key, destinationID)
-    local observed, reason = snapshot(game, party)
+function FieldTravelRequests.prepare(game, party, mon, key, destinationID, overlay)
+    local observed, reason = snapshot(game, party, overlay)
     if not observed then
         return nil, reason
     end
@@ -161,4 +161,19 @@ function FieldTravelRequests.complete(token, overlay)
         return false, tostring(accepted)
     end
     return accepted, reason
+end
+
+function FieldTravelRequests.destinations(game, party, mon)
+    local observed, reason = snapshot(game, party)
+    if not observed then
+        return nil, reason
+    end
+    local eligible, why = FieldTravel.canUse(game.session, mon, "fly")
+    if not eligible then
+        return nil, why
+    end
+    if not FieldTravelWorld.outside(observed.position.zone_id) then
+        return nil, "cannot-fly-here"
+    end
+    return FieldTravel.destinations(observed.travel)
 end

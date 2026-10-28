@@ -49,6 +49,22 @@ function FieldWorld.resolvePlayerLocation(position, world, options)
         return result
     end
     local originalError = result
+    -- Source StepOutFromDoor intentionally bypasses collision for one down
+    -- step. Root's immutable helper identifies only exact supported arrivals.
+    local arrival = descriptor(position.zone_id)
+    if arrival and SourceMaps.isDoorArrival and SourceMaps.isDoorArrival(arrival.name, position.x, position.y) then
+        local normalized = WorldDeltas.validate(world)
+        GameSession._object(position, {zone_id = true, x = true, y = true, facing = true})
+        assert(options and options.sliceZones and options.sliceZones[arrival.id] == true, "unsupported door arrival slice")
+        assert(Party._integer(position.x, 0, arrival.width - 1)
+            and Party._integer(position.y, 0, arrival.height - 1), "invalid door arrival bounds")
+        assert(position.facing == "up" or position.facing == "down"
+            or position.facing == "left" or position.facing == "right", "invalid door arrival facing")
+        assert(not arrival.blocked[tostring(position.y * arrival.width + position.x + 1)], "blocked door arrival binding")
+        assert(candidateKey(normalized, arrival, position.x, position.y) == sourceKey(arrival, position.x, position.y),
+            "changed source door arrival terrain")
+        return copy(position)
+    end
     local spec = FieldMoves.data().maps[position.zone_id]
     local d = spec and descriptor(position.zone_id)
     if not d or d.name ~= spec.name or d.source_width ~= spec.width or d.height ~= spec.height then
@@ -104,7 +120,10 @@ function FieldWorld.prepareContinue(candidate)
     if not ok then
         return false, tostring(world)
     end
-    return candidate:captureTraversal({world = world, location = candidate:location(), actors = candidate:actorData()})
+    local travel = FieldTravel.enter(candidate:fieldTravelData(), candidate:location().zone_id,
+        candidate:fieldTravelData().mode)
+    return candidate:captureTraversal({world = world, location = candidate:location(),
+        actors = candidate:actorData(), fieldTravel = travel})
 end
 
 -- Native apply can fail via WorldView; session validation can reject afterward.
@@ -171,7 +190,18 @@ function FieldWorld.enter(game, fromID, position, actors, reason)
     if not prepared then
         return false, tostring(offset)
     end
+    local mode = game.session:fieldTravelData().mode
+    if reason == "escape" or reason == "blackout" then
+        mode = "walking"
+    elseif mode == "surfing" then
+        local cell, d = FieldTravelWorld.cell(position, world, game.sessionLocationPolicy)
+        if not cell or not FieldTravel.surfSurface(cell, d.tileset.constant) then
+            mode = "walking"
+        end
+    end
+    local travel = FieldTravel.enter(game.session:fieldTravelData(), position.zone_id, mode)
     return FieldWorld.commit(game, expected, {
+        fieldTravel = travel,
         world = world,
         location = position,
         actors = actors,
