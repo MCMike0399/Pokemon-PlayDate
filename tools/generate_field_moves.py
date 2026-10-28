@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate the inactive Cut/Flash extension from checksum-verified primary inputs.
 
+Materialize external inputs with tools/materialize_field_moves.py first.
 Host work only: never runs Lua, a ROM, the SDK, or a Simulator.
 """
 import argparse
@@ -16,8 +17,10 @@ from tools.generate_kanto_maps import (Reference, REVISION, bindings, records, i
                                       quadrant_ids, decode_png, tile_grids, compose_grid,
                                       collision_tiles, map_constants)
 
+from tools.materialize_field_moves import PINS, reference_root
+
 ROOT = Path(__file__).resolve().parents[1]
-INPUT = ROOT / 'tools/references/field-moves'
+INPUT = reference_root()
 
 
 def canonical(value):
@@ -25,7 +28,9 @@ def canonical(value):
 
 
 def build(inputs=INPUT):
-    pins = json.loads((inputs / 'pins.json').read_bytes())
+    pin_bytes = (inputs / 'pins.json').read_bytes()
+    assert pin_bytes == PINS.read_bytes(), 'external field-move pins differ from tracked manifest'
+    pins = json.loads(pin_bytes)
     assert pins['schema'] == 1 and pins['source_revision'] == REVISION
     reference = Reference(inputs / 'pokered', pins['pokered'])
     # Verify all provenance, including lifetime/fade sources that aren't parsed.

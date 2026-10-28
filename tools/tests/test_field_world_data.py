@@ -4,12 +4,13 @@ import json
 from pathlib import Path
 import unittest
 
+from tools.materialize_field_moves import reference_root
 from tools.harness.protocol import ProtocolError
 from tools.harness.cerulean_journey import CODEC_FIELDS, validate_boundary_payload
 
 ROOT = Path(__file__).resolve().parents[2]
 PACKET = ROOT / 'docs/implementation/field-world-owner'
-PRIMARY = ROOT / 'tools/references/field-moves'
+PRIMARY = reference_root()
 
 
 class FieldWorldDataTests(unittest.TestCase):
