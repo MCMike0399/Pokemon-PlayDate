@@ -8,7 +8,7 @@ function StrengthBoulderContracts.run()
             local motion = game.npcManager.motion
             local boulder
             for _, npc in ipairs(game.npcManager.npcs) do
-                if npc.def.source_event_id == "pokered:WARDENS_HOUSE:objects:3" then
+                if npc.def and npc.def.source_event_id == "pokered:WARDENS_HOUSE:objects:3" then
                     boulder = npc
                 end
             end

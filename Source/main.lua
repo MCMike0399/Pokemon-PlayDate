@@ -59,6 +59,7 @@ import "game/story"
 import "data/maps"
 import "game/fieldTravelWorld"
 import "game/fieldTravelRequests"
+import "game/fieldTravelRuntime"
 import "game/context"
 import "game/overworldState"
 import "game/dialogState"
@@ -70,6 +71,7 @@ import "game/titleState"
 import "game/pauseState"
 import "game/partyState"
 import "game/fieldMoveState"
+import "game/fieldTravelState"
 import "game/bagState"
 import "game/shopState"
 import "data/pilotWorld"
@@ -185,6 +187,7 @@ machine:register("pause", PauseState(game))
 machine:register("options", OptionsState(game))
 machine:register("party", PartyState(game))
 machine:register("fieldMove", FieldMoveState(game))
+machine:register("fieldTravel", FieldTravelState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
 machine:register("event", NPCTradeState(game))

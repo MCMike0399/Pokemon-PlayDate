@@ -50,9 +50,9 @@ function SourceEventContracts.run()
                     local newOK, newPlan = pcall(SourceEvents.plan,id,state)
                     same(newOK,oldOK,id .. ": rejection")
                     if oldOK then
-                        if descriptor.reward and newPlan.ram and newPlan.ram.wStringBuffer then
+                        if newPlan.ram and newPlan.ram.wStringBuffer then
                             oldPlan.ram = oldPlan.ram or {}
-                            oldPlan.ram.wStringBuffer = assert(ItemData.definitions[descriptor.reward.item]).name
+                            oldPlan.ram.wStringBuffer = assert(ItemData.definitions[oldPlan.changes.items[1].id]).name
                         end
                         same(newPlan, oldPlan, id)
                     end
