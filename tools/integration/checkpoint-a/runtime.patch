@@ -1,0 +1,380 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -35,7 +35,6 @@
+ import "domain/pickup"
+ import "domain/coinWallet"
+ import "domain/safariGame"
+-import "domain/safariBattle"
+ import "domain/fieldTravel"
+ import "domain/fieldCycling"
+ import "domain/fieldFishing"
+@@ -63,9 +62,6 @@
+ import "game/story"
+ import "data/maps"
+ import "game/fieldTravelWorld"
+-import "game/fieldTravelRequests"
+-import "game/fieldGearRequests"
+-import "game/fieldTravelRuntime"
+ import "game/context"
+ import "game/overworldState"
+ import "game/dialogState"
+@@ -77,9 +73,6 @@
+ import "game/pauseState"
+ import "game/partyState"
+ import "game/fieldMoveState"
+-import "game/fieldTravelState"
+-import "world/fieldGearArt"
+-import "game/fieldGearState"
+ import "game/bagState"
+ import "game/shopState"
+ import "data/pilotWorld"
+@@ -154,14 +147,7 @@
+ import "game/rocketHideoutStory"
+ import "game/rocketHideoutStoryWorld"
+ import "game/rocketHideoutStoryController"
+-import "game/towerStory"
+-import "game/snorlaxStory"
+-import "game/towerStoryController"
+ import "game/midgameGymStory"
+-import "game/midgameGymStoryController"
+-import "game/silphStory"
+-import "game/silphStoryWorld"
+-import "game/silphStoryController"
+ import "game/midgameStoryWarps"
+ import "game/celadonServices"
+ import "game/celadonServicesController"
+@@ -184,12 +170,6 @@
+ CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
+ CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
+     return HideoutTowerContent.package("midgameEast", events, trainers)
+-end)
+-CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+-    return HideoutTowerContent.package("midgameSouth", events, trainers)
+-end)
+-CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
+-    return HideoutTowerContent.package("midgameSaffron", events, trainers)
+ end)
+ CeruleanContent.install(campaignActorMetadata)
+ CeruleanContent.installSigns()
+@@ -225,8 +205,6 @@
+ machine:register("options", OptionsState(game))
+ machine:register("party", PartyState(game))
+ machine:register("fieldMove", FieldMoveState(game))
+-machine:register("fieldTravel", FieldTravelState(game))
+-machine:register("fieldGear", FieldGearState(game))
+ machine:register("bag", BagState(game))
+ machine:register("shop", ShopState(game))
+ machine:register("event", NPCTradeState(game))
+--- a/Source/game/hideoutTowerContent.lua
++++ b/Source/game/hideoutTowerContent.lua
+@@ -20,7 +20,8 @@
+             events[id] = RocketHideoutStory.decorate(id, events[id])
+         end
+     end
+-    if name == "midgameEast" or name == "midgameSouth" then
++    if TowerStory and SourceMaps.nameForID("pokered:POKEMON_TOWER_1F")
++        and (name == "midgameEast" or name == "midgameSouth") then
+         include(TowerStory.descriptors("midgameSouth", "midgameEast"))
+         include(SnorlaxStory.descriptors("midgameSouth"))
+     end
+@@ -32,7 +33,7 @@
+         events[id] = value
+     end
+     include(MidgameGymStory.descriptors())
+-    if name == "midgameSaffron" then
++    if SilphStory and name == "midgameSaffron" then
+         include(SilphStory.descriptors())
+     end
+     for id, descriptor in pairs(additions) do
+@@ -48,7 +49,7 @@
+             trainers[id] = copy(trainerData.trainers[id])
+         end
+     end
+-    if name == "midgameSouth" then
++    if TowerStory and name == "midgameSouth" then
+         local class = assert(trainerData.rival_classes.OPP_RIVAL2, "content lacks source Rival2 classes")
+         local variants = {}
+         for starter, index in pairs(TowerStory.scenes().rival.rival_party_indices) do
+@@ -61,7 +62,7 @@
+             source_flag = "EVENT_BEAT_POKEMON_TOWER_RIVAL", party = copy(variants.charmander.party),
+             payout = variants.charmander.payout, rival_parties = variants}
+     end
+-    if name == "midgameSaffron" then
++    if SilphStory and name == "midgameSaffron" then
+         local class = assert(trainerData.rival_classes.OPP_RIVAL2)
+         local variants = {}
+         for starter, index in pairs({charmander = 7, squirtle = 8, bulbasaur = 9}) do
+@@ -79,8 +80,19 @@
+ end
+ function HideoutTowerContent.actorMetadata(id, game)
+     local result = {visibility = {}}
+-    for _, extra in ipairs({RocketHideoutStory.actorMetadata(id, game), TowerStory.actorMetadata(id, game),
+-        SnorlaxStory.actorMetadata(id), MidgameGymStory.actorMetadata(id), SilphStory.actorMetadata(id, game), CeladonServices.actorMetadata(id)}) do
++    local values = {RocketHideoutStory.actorMetadata(id, game),
++        MidgameGymStory.actorMetadata(id), CeladonServices.actorMetadata(id)}
++    if TowerStory and SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
++        values[#values + 1] = TowerStory.actorMetadata(id, game)
++        values[#values + 1] = SnorlaxStory.actorMetadata(id)
++    elseif id == "pokered:MR_FUJIS_HOUSE:objects:5" then
++        -- Fuji is not home before the parked Tower rescue.
++        values[#values + 1] = {visibility={{group="quest", id="EVENT_RESCUED_MR_FUJI", equals=true}}}
++    end
++    if SilphStory and SourceMaps.nameForID("pokered:SILPH_CO_1F") then
++        values[#values + 1] = SilphStory.actorMetadata(id, game)
++    end
++    for _, extra in ipairs(values) do
+         for _, condition in ipairs(extra.visibility or {}) do
+             result.visibility[#result.visibility + 1] = copy(condition)
+         end
+@@ -93,8 +105,12 @@
+         reconcileWorld = RocketHideoutStoryWorld.reconcile,
+         reconcileActors = KantoScenes.reconcileActors,
+     })
+-    TowerStory.install("midgameSouth", {reconcileActors = KantoScenes.reconcileActors})
+-    SnorlaxStory.install("midgameSouth")
++    if TowerStory and SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
++        TowerStory.install("midgameSouth", {reconcileActors=KantoScenes.reconcileActors})
++        SnorlaxStory.install("midgameSouth")
++    end
+     MidgameGymStory.install()
+-    SilphStory.install({reconcileActors = KantoScenes.reconcileActors})
++    if SilphStory and SourceMaps.nameForID("pokered:SILPH_CO_1F") then
++        SilphStory.install({reconcileActors=KantoScenes.reconcileActors})
++    end
+ end
+--- a/Source/game/hideoutTowerController.lua
++++ b/Source/game/hideoutTowerController.lua
+@@ -2,38 +2,38 @@
+ HideoutTowerController = {}
+ function HideoutTowerController.enter(state)
+     RocketHideoutStoryController.enter(state)
+-    TowerStoryController.enter(state)
+-    MidgameGymStoryController.enter(state)
+-    SilphStoryController.enter(state)
++    if TowerStoryController then TowerStoryController.enter(state) end
++    if MidgameGymStoryController then MidgameGymStoryController.enter(state) end
++    if SilphStoryController then SilphStoryController.enter(state) end
+     CeladonServicesController.enter(state)
+ end
+ function HideoutTowerController.advance(state)
+-    return RocketHideoutStoryController.advance(state) or TowerStoryController.advance(state)
+-        or MidgameGymStoryController.advance(state) or SilphStoryController.advance(state)
++    return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
++        or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
+         or CeladonServicesController.advance(state)
+ end
+ function HideoutTowerController.update(state)
+     RocketHideoutStoryController.update(state)
+ end
+ function HideoutTowerController.handleButton(state, button)
+-    return RocketHideoutStoryController.handleButton(state, button) or SilphStoryController.handleButton(state, button)
++    return RocketHideoutStoryController.handleButton(state, button) or (SilphStoryController and SilphStoryController.handleButton(state, button))
+         or CeladonServicesController.handleButton(state, button)
+ end
+ function HideoutTowerController.draw(state)
+     RocketHideoutStoryController.draw(state)
+-    SilphStoryController.draw(state)
++    if SilphStoryController then SilphStoryController.draw(state) end
+     CeladonServicesController.draw(state)
+ end
+ function HideoutTowerController.cancel(state)
+     RocketHideoutStoryController.exit(state)
+-    TowerStoryController.exit(state)
+-    SilphStoryController.exit(state)
++    if TowerStoryController then TowerStoryController.exit(state) end
++    if SilphStoryController then SilphStoryController.exit(state) end
+ end
+ function HideoutTowerController.afterExit(state)
+     local id = state.id or ""
+     if not (id:match("^pokered:ROCKET_HIDEOUT_") or id:match("^pokered:GAME_CORNER:")
+-        or id == TowerStory.RIVAL or id == TowerStory.FUJI or id == TowerStory.HOUSE_FUJI or TowerStory.rocket(id)
+-        or SnorlaxStory.definition(id)) then
++        or TowerStory and (id == TowerStory.RIVAL or id == TowerStory.FUJI or id == TowerStory.HOUSE_FUJI or TowerStory.rocket(id))
++        or SnorlaxStory and SnorlaxStory.definition(id)) then
+         return
+     end
+     if state.game.session == state.session and currentZone == state.zone then
+--- a/Source/game/midgameGymStory.lua
++++ b/Source/game/midgameGymStory.lua
+@@ -13,7 +13,14 @@
+         assert(data.schema == 1 and data.source_revision == REVISION, "unverified gym story data")
+         cached = data.events
+     end
+-    return copy(cached)
++    local installed = {}
++    for id, descriptor in pairs(cached) do
++        local mapID = id:match("^(pokered:[^:]+):")
++        if SourceMaps.nameForID(mapID) then
++            installed[id] = copy(descriptor)
++        end
++    end
++    return installed
+ end
+ function MidgameGymStory.plan(id, observation)
+     local descriptor <const> = assert(MidgameGymStory.descriptors()[id])
+@@ -66,6 +73,9 @@
+             end
+         end
+     end
++    if not SourceMaps.nameForID("pokered:FIGHTING_DOJO") then
++        return
++    end
+     SourceEvents.registerWorldHooks(MidgameGymStory.MASTER, {
+         explore = function(game)
+             if currentZone.stableID ~= "pokered:FIGHTING_DOJO"
+--- a/Source/game/midgameStoryWarps.lua
++++ b/Source/game/midgameStoryWarps.lua
+@@ -14,5 +14,7 @@
+         end
+     end
+     register(RocketHideoutStory, "pokered:ROCKET_HIDEOUT_ELEVATOR")
+-    register(SilphStoryWorld, "pokered:SILPH_CO_ELEVATOR")
++    if SilphStoryWorld and SourceMaps.nameForID("pokered:SILPH_CO_ELEVATOR") then
++        register(SilphStoryWorld, "pokered:SILPH_CO_ELEVATOR")
++    end
+ end
+--- a/Source/game/partyState.lua
++++ b/Source/game/partyState.lua
+@@ -43,7 +43,7 @@
+     self.phase = "actions"
+     local mon = self.session:party():get(self.selected)
+     local fields = FieldMoves and FieldMoves.known(mon) or {}
+-    if FieldTravel then
++    if FieldTravel and self.game.machine:get("fieldTravel") then
+         for _, key in ipairs(FieldTravel.known(mon)) do
+             fields[#fields + 1] = key
+         end
+--- a/Source/game/fieldMoveState.lua
++++ b/Source/game/fieldMoveState.lua
+@@ -22,6 +22,10 @@
+ 
+ function FieldMoveState.open(game, party, mon, key)
+     if key == "surf" or key == "strength" or key == "fly" then
++        if not FieldTravelState or not game.machine:get("fieldTravel") then
++            party.message = "That move can't be used here."
++            return false, "field-travel-state-not-installed"
++        end
+         return FieldTravelState.open(game, party, mon, key)
+     end
+     local state = game.machine:get("fieldMove")
+--- a/Source/game/bagState.lua
++++ b/Source/game/bagState.lua
+@@ -7,15 +7,19 @@
+         return TownMapState.open(bag.game)
+     end,
+     bicycle = function(bag)
++        if not FieldGearState then return false, "field-gear-state-not-installed" end
+         return FieldGearState.open(bag.game, bag, "bicycle")
+     end,
+     oldRod = function(bag)
++        if not FieldGearState then return false, "field-gear-state-not-installed" end
+         return FieldGearState.open(bag.game, bag, "oldRod")
+     end,
+     goodRod = function(bag)
++        if not FieldGearState then return false, "field-gear-state-not-installed" end
+         return FieldGearState.open(bag.game, bag, "goodRod")
+     end,
+     superRod = function(bag)
++        if not FieldGearState then return false, "field-gear-state-not-installed" end
+         return FieldGearState.open(bag.game, bag, "superRod")
+     end,
+ }
+--- a/Source/dev/midgameCatalogExporter.lua
++++ b/Source/dev/midgameCatalogExporter.lua
+@@ -143,7 +143,10 @@
+         result.directional_pose_count = result.directional_pose_count + 1
+         asset(pose.name, 32, 32, "midgame-character", true)
+     end
+-    asset("midgame-unidentified-ghost", 96, 96, "midgame-battle-art", true)
++    if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
++        asset("midgame-unidentified-ghost", 96, 96, "midgame-battle-art", true)
++    end
++    if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
+     result.field_gear_assets = #FieldGearArt.catalogInventory()
+     for _, entry in ipairs(FieldGearArt.catalogInventory()) do
+         add(entry.name, entry.width, entry.height, entry.category)
+@@ -151,6 +154,7 @@
+         for _, background in ipairs({"white", "black", "texture"}) do
+             add(entry.name .. "__" .. background, entry.width, entry.height, entry.category .. "-background")
+         end
++    end
+     end
+     table.sort(result.images, function(a, b)
+         return a.path < b.path
+@@ -195,18 +199,22 @@
+     for _, pose in ipairs(report.characters) do
+         sink.asset(pose.name, CeruleanContent.poseImage(pose.source, pose.pose, pose.direction), "midgame-character", true)
+     end
++    if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
+     sink.asset("midgame-unidentified-ghost", assert(playdate.graphics.image.new("images/title/ghost")), "midgame-battle-art", true)
++    end
++    if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
+     report.field_gear = {images={}, reused_exclamation="pewter-exclamation.png",
+         timing=FieldGearArt.data().timing, rod_directions=FieldGearArt.data().rod.directions}
+     for _, entry in ipairs(FieldGearArt.catalogAssets()) do
+         sink.asset(entry.name, entry.image, entry.category, true)
+         report.field_gear.images[#report.field_gear.images + 1] = entry.name .. ".png"
+     end
++    end
+     return report
+ end
+ 
+ function MidgameCatalogExporter.register()
+-    FieldGearArt.prepare()
++    if FieldGearArt and SourceMaps.nameForID("pokered:FUCHSIA_CITY") then FieldGearArt.prepare() end
+     local maps, npcs = {}, {}
+     local tiles <const> = MidgameCatalogExporter.tiles()
+     for _, name in ipairs(MidgameCatalogExporter.maps()) do
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -83,8 +83,10 @@
+ import "dev/specimenOwnershipContracts"
+ Contracts.register("specimen-ownership", SpecimenOwnershipContracts.run)
+ import "dev/npcMotionContracts"
++if SourceMaps.nameForID("pokered:WARDENS_HOUSE") then
+ import "dev/strengthBoulderContracts"
+ Contracts.register("strength-boulder", StrengthBoulderContracts.run)
++end
+ Contracts.register("npcMotionContracts", NPCMotionContracts.run)
+ import "dev/npcMotionLegacyContracts"
+ Contracts.register("npcMotionLegacyContracts", NPCMotionLegacyContracts.run)
+@@ -287,10 +289,16 @@
+ import "dev/saffronGuardContracts"
+ Contracts.register("saffron-guards", SaffronGuardContracts.run)
+ 
++if SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
+ import "dev/fieldTravelContracts"
+ Contracts.register("field-travel", FieldTravelContracts.run)
+-
++end
++
++if SourceMaps.nameForID("pokered:POKEMON_TOWER_1F") then
+ import "dev/sourceEncounterContracts"
+ Contracts.register("source-encounters", SourceEncounterContracts.run)
++end
++if SourceMaps.nameForID("pokered:FUCHSIA_CITY") then
+ import "dev/fieldGearContracts"
+ Contracts.register("field-gear", FieldGearContracts.run)
++end
+--- a/tools/build.py
++++ b/tools/build.py
+@@ -11,14 +11,17 @@
+ if __package__ in (None, ''):
+     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ from tools.harness.run import sdk_path, fingerprint
++from tools.activate_checkpoint_a import production_exclusions, ignored_source_names
+ 
+ PROJECT = Path(__file__).resolve().parents[1]
+ 
+ 
+ def stage_production(project, stage):
+     source = stage / 'Source'
+-    shutil.copytree(project / 'Source', source,
+-                    ignore=lambda directory, names: ['dev'] if Path(directory) == project / 'Source' else [])
++    original = project / 'Source'
++    excluded = production_exclusions(project)
++    shutil.copytree(original, source, ignore=lambda directory, names:
++                    ignored_source_names(original, directory, names, excluded))
+     return source
+ 
+ 
