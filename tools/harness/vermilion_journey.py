@@ -920,20 +920,23 @@ class VermilionJourney(cj.CeruleanJourney):
             self.gift('hm01')
         self.save()
         index = self.teach_cut()
-        self.travel(self.zone('SSAnne1F'))
-        # The departure scene returns directly to the city, bypassing the dock.
-        # Follow this known aisle rather than asking the portal planner to infer it.
-        self.navigate((25, 7))
-        self.navigate((26, 1))
-        self.step(self.model().terrain_step(self.position(), 'up'))
-        self.send('wait 2')
-        self.drain()
-        if self.state['zone_id'] == self.zone('VermilionDock'):
-            self.navigate((14, 1))
+        if not self.flag('EVENT_SS_ANNE_LEFT'):
+            self.travel(self.zone('SSAnne1F'))
+            # The departure scene returns directly to the city, bypassing the dock.
+            # Follow this known aisle rather than asking the portal planner to infer it.
+            self.navigate((25, 7))
+            self.navigate((26, 1))
             self.step(self.model().terrain_step(self.position(), 'up'))
             self.send('wait 2')
             self.drain()
-        self.require(zone_id=self.zone('VermilionCity'))
+            if self.state['zone_id'] == self.zone('VermilionDock'):
+                self.navigate((14, 1))
+                self.step(self.model().terrain_step(self.position(), 'up'))
+                self.send('wait 2')
+                self.drain()
+            self.require(zone_id=self.zone('VermilionCity'))
+        else:
+            self.travel(self.zone('VermilionCity'))
         if not self.flag('EVENT_SS_ANNE_LEFT'):
             raise ProtocolError('actual post-HM01 ship exit/departure did not commit')
         self.checkpoint('vermilion-ship-departed')

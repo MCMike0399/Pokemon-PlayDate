@@ -126,8 +126,8 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-04/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-04",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-05/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-05",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
@@ -137,8 +137,8 @@
         },
         {
           "file": "adventure.b.json",
-          "sha256": "c0c469094859c0de546fae8dc6a5ad79329c7d6871410c0c34615476706222bc",
-          "bytes": 11023
+          "sha256": "38054dd51ccf7450d977570f2ec1d591369851551027c471b68fa31a47b30f55",
+          "bytes": 11022
         }
       ],
       "completed_steps": [
@@ -150,14 +150,14 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-04/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-04",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-05/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-05",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "5cb83ec05dda3c43356856d4847ae4d912c32400b0bf6b6f7956cbd4cfa638d6",
-          "bytes": 10534
+          "sha256": "0258558fffabf681f117f1c34b9b77aa35dd4284f599345c5be8e425c55fa85e",
+          "bytes": 10135
         },
         {
           "file": "adventure.b.json",
@@ -177,19 +177,19 @@
       "completed_steps": [
         "daycare"
       ],
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-02/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-02",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-05/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-05",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "068e0c04f69e608fe6a595ca63e80b695abfd29fb3b7891256429f5d37a86fc3",
-          "bytes": 11036
+          "sha256": "2e5fd4bbce49c1d33254b51efae539f642acac318efe106715358188e9a8f8db",
+          "bytes": 12518
         },
         {
           "file": "adventure.b.json",
-          "sha256": "63bb2e56b478385189d226572322f9a16a9d945144e096515bdfc657333af7ff",
-          "bytes": 11123
+          "sha256": "ad23ae7b722bd0bbde84d04d1ec7f5f78b370863fa65acbaace6a308a6aea910",
+          "bytes": 10718
         }
       ]
     }
