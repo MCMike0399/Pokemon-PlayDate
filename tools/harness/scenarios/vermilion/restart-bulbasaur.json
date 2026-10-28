@@ -23,7 +23,8 @@
         "collection_balls": 80,
         "collection_ball_stock": 20,
         "collection_balls_per_battle": 12,
-        "collection_money_reserve": 600
+        "collection_money_reserve": 600,
+        "content_scope": "full"
       }
     },
     {
@@ -34,7 +35,8 @@
         "fossil": "dome",
         "max_actions": 20000,
         "max_steps": 5000,
-        "max_encounters": 64
+        "max_encounters": 64,
+        "content_scope": "full"
       }
     }
   ]

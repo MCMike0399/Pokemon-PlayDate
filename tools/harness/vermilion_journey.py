@@ -40,18 +40,20 @@ PROJECTION = 'dev/vermilionJourney.json'
 
 
 def validate_config(config):
-    allowed = set(BOUNDS) | {'name', 'starter', 'fossil', 'evolution_policy', 'case', 'supplementary'}
+    allowed = set(BOUNDS) | {'name', 'starter', 'fossil', 'evolution_policy', 'case', 'supplementary', 'content_scope'}
     if not isinstance(config, dict) or set(config) - allowed or config.get('name') not in NAMES:
         raise ProtocolError('unknown or malformed Vermilion journey')
     for key, (low, high) in BOUNDS.items():
         if key in config and (type(config[key]) is not int or not low <= config[key] <= high):
             raise ProtocolError('invalid bounded Vermilion option: ' + key)
+    if config.get('content_scope', 'full') not in {'full', 'critical'}:
+        raise ProtocolError('unknown Vermilion content scope')
     supplementary = config['name'].startswith('vermilion-supplementary')
     if supplementary != (config.get('supplementary') is True):
         raise ProtocolError('Vermilion fixtures require explicit supplementary classification')
     if supplementary and config.get('case') not in CASES or not supplementary and 'case' in config:
         raise ProtocolError('invalid Vermilion supplementary case')
-    adapted = {k: v for k, v in config.items() if k not in {'case', 'max_puzzle_attempts'} | set(COLLECTION_BOUNDS)}
+    adapted = {k: v for k, v in config.items() if k not in {'case', 'max_puzzle_attempts', 'content_scope'} | set(COLLECTION_BOUNDS)}
     adapted['name'] = 'cerulean-continue' if config['name'].endswith('continue') else 'cerulean-natural'
     adapted.pop('supplementary', None)
     cj.validate_config(adapted)
@@ -190,7 +192,7 @@ def verify_capture_commit(before, after, species, result):
 class VermilionJourney(cj.CeruleanJourney):
     def __init__(self, client, evidence, config, build_evidence=None, capture_dir=None):
         validate_config(config)
-        adapted = {k: v for k, v in config.items() if k not in {'case', 'supplementary', 'max_puzzle_attempts'} | set(COLLECTION_BOUNDS)}
+        adapted = {k: v for k, v in config.items() if k not in {'case', 'supplementary', 'max_puzzle_attempts', 'content_scope'} | set(COLLECTION_BOUNDS)}
         adapted['name'] = 'cerulean-natural'
         super().__init__(client, evidence, adapted, build_evidence, capture_dir)
         self.config = copy.deepcopy(config)
@@ -227,10 +229,33 @@ class VermilionJourney(cj.CeruleanJourney):
             'owner_export_sha256': source.manifest[PROJECTION], 'build_id': self.client.identity['build_id'],
             'status': 'declared inputs and actual registration qualified; runtime journey still pending'}
 
+    def frame_label(self, label):
+        if label.startswith('m54-'):
+            return label
+        for legacy in ('brock-', 'parcel-', 'cerulean-', 'vermilion-'):
+            label = label.replace(legacy, '')
+        zone = self.state.get('zone_id', 'opening').replace('pokered:', '').lower()
+        if getattr(self, 'saving', False):
+            label = 'save-' + str(self.save_number) + '-' + label
+        return 'm54-' + zone + '-' + label
+
+    def send(self, *commands):
+        named = []
+        for command in commands:
+            if isinstance(command, str):
+                parts = command.split()
+                if parts and parts[0] in {'shot', 'record'}:
+                    parts[1] = self.frame_label(parts[1])
+                    command = ' '.join(parts)
+            named.append(command)
+        return super().send(*named)
+
+    def checkpoint(self, label):
+        return super().checkpoint(self.frame_label(label))
+
     def capture_presentation(self, label, kind):
-        if self.vermilion_active:
-            label = 'vermilion-' + label
-        return super().capture_presentation(label, kind)
+        return BrockJourney.capture_presentation(self, self.frame_label(label),
+            'world-basic' if kind == 'world' else kind)
 
     def advance_event(self, stop_phase=None):
         if (self.vermilion_active and self.state.get('root') == 'party'
@@ -862,7 +887,7 @@ class VermilionJourney(cj.CeruleanJourney):
         if not any(m['species'] == 'bellsprout' for m in self.party()):
             raise ProtocolError('actual Cut-compatible Bellsprout did not remain in the party')
         self.travel(self.zone('Route5'))
-        if 'daycare' not in self.completed_steps:
+        if self.config.get('content_scope', 'full') == 'full' and 'daycare' not in self.completed_steps:
             self.daycare_service()
         self.travel(self.zone('UndergroundPathRoute5'))
         self.travel(self.zone('UndergroundPathNorthSouth'))
@@ -871,16 +896,18 @@ class VermilionJourney(cj.CeruleanJourney):
         self.collect('Route6', ['meowth'], 'VermilionPokecenter', 'VermilionMart', required=False)
         self.save()
         self.heal_here('VermilionPokecenter')
-        self.gift('voucher')
-        self.gift('rod')
+        if self.config.get('content_scope', 'full') == 'full':
+            self.gift('voucher')
+            self.gift('rod')
         self.heal_here('VermilionPokecenter')
         self.restock_ship_medicine()
         self.save()
         self.travel(self.zone('VermilionDock'))
         self.travel(self.zone('SSAnne1F'))
-        for name in ('SSAnne1FRooms', 'SSAnneB1FRooms', 'SSAnne2FRooms',
-                     'SSAnneKitchen', 'SSAnne3F', 'SSAnneBow'):
-            self.visit_all_cabins(name)
+        if self.config.get('content_scope', 'full') == 'full':
+            for name in ('SSAnne1FRooms', 'SSAnneB1FRooms', 'SSAnne2FRooms',
+                         'SSAnneKitchen', 'SSAnne3F', 'SSAnneBow'):
+                self.visit_all_cabins(name)
         trigger = self.vermilion['scenes']['rival']['variants'][0]['trigger']
         self.travel(self.zone('SSAnne2F'), (trigger['x'] + self.models[self.zone('SSAnne2F')].padding, trigger['y']))
         if not self.defeated(RIVAL) or not any(r.get('trainer_id') == RIVAL and r.get('won') for r in self.summary['source_receipts']):

@@ -51,7 +51,7 @@ def validate(scenario, qualification=False):
             journey=group['journey']
             allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy','fossil','max_transitions','max_puzzle_attempts','case','supplementary'}
             if isinstance(journey,dict) and isinstance(journey.get('name'),str) and journey['name'].startswith('vermilion-'):
-                allowed = allowed | {'vermilion_actions','collection_steps','collection_battles','collection_phase_battles','collection_balls','collection_ball_stock','collection_balls_per_battle','collection_money_reserve'}
+                allowed = allowed | {'content_scope', 'vermilion_actions','collection_steps','collection_battles','collection_phase_battles','collection_balls','collection_ball_stock','collection_balls_per_battle','collection_money_reserve'}
             if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue','cerulean-natural','cerulean-continue','vermilion-natural','vermilion-continue','vermilion-supplementary','vermilion-supplementary-continue'}:
                 raise ProtocolError('unknown or malformed process journey')
             name=journey['name']
