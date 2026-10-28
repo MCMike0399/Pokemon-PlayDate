@@ -1,0 +1,37 @@
+{
+  "initial_save": {
+    "milestone": "5.4",
+    "starter": "charmander"
+  },
+  "processes": [
+    {
+      "journey": {
+        "starter": "charmander",
+        "packet": "lavender",
+        "content_scope": "optional",
+        "evolution_policy": "accept",
+        "max_actions": 40000,
+        "max_steps": 6000,
+        "max_encounters": 96,
+        "max_blackouts": 1,
+        "max_transitions": 128,
+        "name": "midgame-natural"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "starter": "charmander",
+        "packet": "lavender",
+        "content_scope": "optional",
+        "evolution_policy": "accept",
+        "max_actions": 40000,
+        "max_steps": 6000,
+        "max_encounters": 96,
+        "max_blackouts": 1,
+        "max_transitions": 128,
+        "name": "midgame-continue"
+      }
+    }
+  ]
+}
