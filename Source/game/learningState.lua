@@ -260,12 +260,15 @@ function LearningState:draw()
     local font = gfx.getFont()
     gfx.setDrawOffset(0, 0)
     gfx.setFont(gfx.getSystemFont())
+    gfx.clear(gfx.kColorWhite)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawText(self.pokemon.name .. "  MOVE LEARNING", 16, 4)
     if self.phase == "message" then
         self.dialog:draw()
     elseif self.phase ~= "idle" then
         local name = moveData[self.pendingMove].name
         if self.phase == "replace" then
-            box(12, 20, 376, 42, "Choose a move to forget.")
+            box(12, 26, 376, 38, "Choose a move to forget.")
             self.menu:draw(12, 72, 376, 96)
             box(4, 184, 392, 52, "Learning " .. name .. ".  B: Back")
         elseif self.phase == "stop" then
