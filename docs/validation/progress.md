@@ -120,16 +120,16 @@ Next runs start there and continue after individual failures.
 
 ## 4. Work in flight
 
-| Branch / owner | Work and next step |
+| Branch | Current work |
 |---|---|
-| `main` / root | GPT-6.1 Sol, medium effort; sole Simulator owner, integrator, validator and ledger owner. 5.2 accepted; continue Cerulean native validation. |
-| `wip/cerulean-integration` / root | `489a439`, unchanged Source from `b1f0bd8`; 1659 SDK and 716 root host checks pass. Resource-aware Squirtle run reached the final save but failed visible-actor screenshot qualification. Loader repair passes 22 root host checks; all three fresh journeys remain pending. |
-| `wip/vermilion-integration` / root | Private `380104e` has 65 maps, HMs, grass Cut, dialogue, ship, Day Care, collection, approved Pickup, nine trades and gate guards; visual extension: 1736 images. Latest completed SDK run: 2144 passed/19 failed. Codec fixtures and trade callbacks are repaired; a native diagnostic rerun is active. Remaining field, Day Care and trainer-text failures are under diagnosis. Native acceptance remains pending. |
-| `wip/audio-integration` / root | Host parser/rendering and independently assembled RGBDS bytes are composed; 60 host checks pass. Backend runtime probes, listening and APU qualification remain pending. |
+| `main` | Root accepts and commits each finished milestone locally. **12 / 222 source maps playable; milestone 5.3.** No push is planned. |
+| `wip/cerulean-integration` | `3ad7059`: all three journeys now load the accepted Brock saves. The old visible-NPC requirement was removed for Cerulean save screenshots. Existing host checks: 39 passed; SDK build and Simulator smoke passed. Wild Teleport is being fixed before the next three-starter run with continue-on-failure. |
+| `wip/vermilion-integration` | Frozen at `380104e`. Resume only after Cerulean is accepted on main. |
+| `wip/audio-integration`, trade and guard branches | Frozen; branches retained, clean superseded checkouts removed. |
 
-All workers explicitly use `gpt-6.1-sol`, medium effort, provider `codex`.
-Earlier foundation workers are composed privately; exact commits/task IDs remain
-in environment evidence at `brock-5.1-20261026-01/worker-tasks.json`.
+Workers use `gpt-6.1-sol` at medium effort. The save-chaining worker could not
+start because that model was at capacity; root completed the change instead.
+The two dirty later-milestone worktrees remain untouched.
 
 ## 5. Decisions since the user check-in
 
