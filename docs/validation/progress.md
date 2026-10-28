@@ -3,7 +3,7 @@
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
 Progress: **65 / 222 source maps playable on main. Current checkpoint: 5.5a.**
 5.4 elapsed: **8.70 h**; pace: **96.55 maps/day**.
-5.5a elapsed so far: **1.76 h**; accepted new maps/day: **0**.
+5.5a elapsed so far: **4.12 h**; accepted new maps/day: **0**.
 
 [Milestone times](milestone-times.json) include waits and provider limits.
 

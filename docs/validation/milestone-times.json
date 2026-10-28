@@ -41,6 +41,15 @@
       "new_maps_on_main": 35,
       "maps_per_day": 96.55,
       "acceptance_commit": "c42c3f5821cb374bd1e484971b7aa385bae420a9"
+    },
+    {
+      "milestone": "5.5a",
+      "start_commit": "c42c3f5821cb374bd1e484971b7aa385bae420a9",
+      "status": "in progress",
+      "measured_at_utc": "2026-10-28T23:24:10.764083+00:00",
+      "wall_clock_hours": 4.12,
+      "new_maps_on_main": 0,
+      "maps_per_day": 0.0
     }
   ]
 }
