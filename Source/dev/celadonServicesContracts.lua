@@ -132,7 +132,11 @@ function CeladonServicesContracts.run()
         for _,hidden in ipairs(CeladonServices.policy().hidden_coins) do
             if hidden.coins == 40 then typo = hidden end
         end
-        assert(buy(game,{kind="hidden-coins",id=assert(typo).id}))
+        local accepted, receipt = buy(game,{kind="hidden-coins",id=assert(typo).id})
+        assert(accepted and receipt.received == 20 and receipt.dropped == false)
+        local pages = EventText.pagesFrom({"_FoundHiddenCoinsText"}, CeladonServices.text,
+            {hCoins=receipt.received})
+        assert(#pages > 0 and pages[1].text:find("20", 1, true))
         assert(game.session:coins() == 70)
         before = CeladonEconomy.observe(game.session)
         assert(not buy(game,{kind="hidden-coins",id=typo.id}))
