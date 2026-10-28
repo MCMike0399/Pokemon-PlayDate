@@ -191,11 +191,19 @@ function Player:moveTo(x, y)
     Player.super.moveTo(self, x, y + SPRITE_Y_OFFSET)
 end
 
+function Player:movementImage(original, pose)
+    local game = self.npcManager.game
+    if FieldGearArt and game and game.session and game.session:fieldTravelData().mode == "bicycle" then
+        return FieldGearArt.bicycle(self.facing, pose)
+    end
+    return original
+end
+
 function Player:updateSprite()
     if self.isMoving then
-        self:setImage(playerWalk1Images[self.facing])
+        self:setImage(self:movementImage(playerWalk1Images[self.facing], "walk"))
     else
-        self:setImage(playerImages[self.facing])
+        self:setImage(self:movementImage(playerImages[self.facing], "stand"))
     end
 end
 
@@ -366,9 +374,9 @@ function Player:update()
         local walkImages = self.walkToggle and playerWalk1Images or playerWalk2Images
         local strideFrames = jumping and MOVE_FRAMES // 2 or duration // 2
         if self.moveFrames <= strideFrames then
-            self:setImage(walkImages[self.facing])
+            self:setImage(self:movementImage(walkImages[self.facing], self.walkToggle and "walk" or "alternate"))
         else
-            self:setImage(playerImages[self.facing])
+            self:setImage(self:movementImage(playerImages[self.facing], "stand"))
         end
 
         local px = self.startPixelX + (self.targetPixelX - self.startPixelX) * t
@@ -386,7 +394,7 @@ function Player:update()
             self:moveTo(px, py)
         end
     else
-        self:setImage(playerImages[self.facing])
+        self:setImage(self:movementImage(playerImages[self.facing], "stand"))
         if self.jumpShadow then self.jumpShadow:setVisible(false) end
     end
 

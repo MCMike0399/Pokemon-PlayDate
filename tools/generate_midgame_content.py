@@ -289,6 +289,8 @@ def build(reference_root, packet, pins=None, manifest=None):
     common = {
         "data/text/text_5.asm": ("_GotMonText", "_SentToBoxText", "_BoxIsFullText"),
         "data/text/text_6.asm": ("_PlayedFluteHadEffectText",),
+        "data/text/text_7.asm": ("_GotOnBicycleText1", "_GotOnBicycleText2",
+                                  "_GotOffBicycleText1", "_GotOffBicycleText2"),
     }
     for path, labels in common.items():
         recipes = text_recipes(blue_source(ref.text(path)))

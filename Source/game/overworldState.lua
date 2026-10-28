@@ -199,6 +199,17 @@ function ExploreSubstate:handleInput()
         playdate.buttonIsPressed(playdate.kButtonB), direction, player.isMoving)
     self.pendingAction = self.pendingAction or action
     player.running = running and not self.pendingAction
+    local cycling
+    if FieldCycling and game.session:fieldTravelData().mode == "bicycle" then
+        local map = currentZone.stableID == "pallet_town" and "PALLET_TOWN"
+            or WorldDeltas.definitionProvider():descriptor(currentZone.stableID).source_map_constant
+        cycling = FieldCycling.motion(game.session:fieldTravelData(), map, {
+            up=playdate.buttonIsPressed(playdate.kButtonUp), down=playdate.buttonIsPressed(playdate.kButtonDown),
+            left=playdate.buttonIsPressed(playdate.kButtonLeft), right=playdate.buttonIsPressed(playdate.kButtonRight),
+            a=playdate.buttonIsPressed(playdate.kButtonA), b=playdate.buttonIsPressed(playdate.kButtonB),
+        }, false, false)
+        player.running = cycling.accelerated and not self.pendingAction
+    end
     if self.pendingAction then
         if player.isMoving or player.stepJustFinished then
             return
@@ -226,6 +237,8 @@ function ExploreSubstate:handleInput()
         player:tryMove(-1, 0)
     elseif playdate.buttonIsPressed(playdate.kButtonRight) then
         player:tryMove(1, 0)
+    elseif cycling and cycling.automatic == "down" then
+        player:tryMove(0, 1)
     end
 end
 

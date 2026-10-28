@@ -34,6 +34,8 @@ import "domain/itemStorage"
 import "domain/pcItems"
 import "domain/pickup"
 import "domain/fieldTravel"
+import "domain/fieldCycling"
+import "domain/fieldFishing"
 import "domain/gameSession"
 import "domain/npcTrades"
 import "domain/teaching"
@@ -59,6 +61,7 @@ import "game/story"
 import "data/maps"
 import "game/fieldTravelWorld"
 import "game/fieldTravelRequests"
+import "game/fieldGearRequests"
 import "game/fieldTravelRuntime"
 import "game/context"
 import "game/overworldState"
@@ -72,6 +75,8 @@ import "game/pauseState"
 import "game/partyState"
 import "game/fieldMoveState"
 import "game/fieldTravelState"
+import "world/fieldGearArt"
+import "game/fieldGearState"
 import "game/bagState"
 import "game/shopState"
 import "data/pilotWorld"
@@ -215,6 +220,7 @@ machine:register("options", OptionsState(game))
 machine:register("party", PartyState(game))
 machine:register("fieldMove", FieldMoveState(game))
 machine:register("fieldTravel", FieldTravelState(game))
+machine:register("fieldGear", FieldGearState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
 machine:register("event", NPCTradeState(game))

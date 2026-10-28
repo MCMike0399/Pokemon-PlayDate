@@ -352,6 +352,9 @@ class MidgameJourney(vj.VermilionJourney):
         self.summary['acceptance'] = 'earned candidate saved; actual process restart pending'
 
     def advance_event(self, stop_phase=None):
+        if self.state.get('root') == 'fieldGear':
+            self.send('wait 3', 'press a')
+            return True
         if self.state.get('root') == 'fieldTravel':
             return self.advance_travel()
         phase = lookup(self.state, 'event.phase')

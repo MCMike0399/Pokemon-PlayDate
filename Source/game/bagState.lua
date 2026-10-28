@@ -6,6 +6,18 @@ local fieldKeyActions = {
     townMap = function(bag)
         return TownMapState.open(bag.game)
     end,
+    bicycle = function(bag)
+        return FieldGearState.open(bag.game, bag, "bicycle")
+    end,
+    oldRod = function(bag)
+        return FieldGearState.open(bag.game, bag, "oldRod")
+    end,
+    goodRod = function(bag)
+        return FieldGearState.open(bag.game, bag, "goodRod")
+    end,
+    superRod = function(bag)
+        return FieldGearState.open(bag.game, bag, "superRod")
+    end,
 }
 
 function BagState.canRegister(id)
@@ -367,6 +379,9 @@ function BagState:handleInput()
 end
 
 function BagState:draw()
+    if self.phase == "field-wait" then
+        return
+    end
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     gfx.clear(gfx.kColorWhite)

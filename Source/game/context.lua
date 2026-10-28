@@ -230,3 +230,14 @@ function GameContext:getFieldTravelSnapshot()
         last = self.lastFieldTravel and GameSession._copy(self.lastFieldTravel) or nil
     }
 end
+
+function GameContext:commitCycling(expected, plan)
+    if self.session:fieldWorldEpoch() ~= expected.epoch
+        or not FieldMoves.same(WorldDeltas.export(), expected.world) then
+        return false, "stale-cycling-world"
+    end
+    if not self.session.commitCycling then
+        return false, "cycling-owner-not-installed"
+    end
+    return self.session:commitCycling(expected.epoch, expected.travel, expected.forced, plan)
+end
