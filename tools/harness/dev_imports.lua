@@ -82,6 +82,8 @@ Contracts.register("specimenTrainerContracts", SpecimenTrainerContracts.run)
 import "dev/specimenOwnershipContracts"
 Contracts.register("specimen-ownership", SpecimenOwnershipContracts.run)
 import "dev/npcMotionContracts"
+import "dev/strengthBoulderContracts"
+Contracts.register("strength-boulder", StrengthBoulderContracts.run)
 Contracts.register("npcMotionContracts", NPCMotionContracts.run)
 import "dev/npcMotionLegacyContracts"
 Contracts.register("npcMotionLegacyContracts", NPCMotionLegacyContracts.run)
