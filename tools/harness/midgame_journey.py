@@ -134,6 +134,12 @@ class MidgameJourney(vj.VermilionJourney):
             label = 'save-' + str(self.save_number) + '-' + label
         return 'm55a-' + self.state.get('zone_id', 'title').replace('pokered:', '').lower() + '-' + label
 
+    def send(self, *commands):
+        if commands and commands[0] == 'press b' and self.state.get('root') == 'overworld':
+            # Let the existing A/B gesture finish before opening a field menu.
+            commands = ('wait 3', *commands)
+        return super().send(*commands)
+
     def reset(self, **options):
         raise ProtocolError('midgame forbids New Game, resets and fixtures')
 
@@ -233,7 +239,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.select('field_move.menu.selected', choices.index('YES') + 1)
         self.send('press a')
         self.require(**{'field_move.phase': 'announce'})
-        self.send('press a')
+        self.send('press a', 'wait 8')
         self.drain()
         self.require(root='overworld', **{'field_move.lastResult.ok': True})
 

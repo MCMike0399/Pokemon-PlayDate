@@ -492,7 +492,7 @@ class MidgameSaveInputTests(unittest.TestCase):
                         'player': {'settled': True, 'moving': False}}
         expected = iter([
             (['wait 1'], driver.state),
-            (['press b'], driver.state),
+            (['wait 3', 'press b'], driver.state),
             ([{'op': 'await', 'path': 'root', 'equals': 'pause', 'frames': 8}],
              {'root': 'pause', 'pause': {'phase': 'menu'}}),
         ])
