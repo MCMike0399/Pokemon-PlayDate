@@ -380,6 +380,123 @@ function MoveFailureContracts.run()
             eq(b.conditions.members[player],nil)
         end
     end)
+    test("Encore repeats with normal PP, permits switching and ends at Gen V residual timing", function()
+        for _, targetPending in ipairs({true, false}) do
+            local b = fresh()
+            local player, enemy = b.player, b.enemy
+            own(player, "splash")
+            player.moves = {"splash", "tackle"}
+            player.pp.tackle = 35
+            own(enemy, "encore")
+            b:runScript(function()
+                b:resolveTurn({side="player", actor=player, key="splash", move=moveData.splash})
+            end)
+            settle(b)
+            local pp = player.pp.splash
+            local target = {side="player", actor=player,
+                key=targetPending and "tackle" or "splash",
+                move=targetPending and moveData.tackle or moveData.splash}
+            local encore = {side="enemy", actor=enemy, key="encore", move=moveData.encore}
+            RulesRNG.seed(19)
+            b:runScript(function()
+                return b:resolveRound(targetPending and {encore, target} or {target, encore})
+            end)
+            settle(b)
+            eq(player.pp.splash, pp - 1, "queued repeat spends PP")
+            eq(player.pp.tackle, 35, "overridden selection spends none")
+            eq(enemy.pp.encore, 4)
+            eq(b.conditions:of(player).encore.turns, targetPending and 2 or 3)
+            eq(b.conditions:locked(player), nil, "Encore is not a switch lock")
+            eq(#b:availableMoves(player), 1)
+            eq(b:availableMoves(player)[1].key, "splash")
+            eq(b:selectMove(2), false, "other selection rejected")
+            own(enemy, "splash")
+            local remaining = targetPending and 2 or 3
+            for tick = 1, remaining do
+                pp = player.pp.splash
+                assert(b:selectMove(1))
+                settle(b)
+                eq(player.pp.splash, pp - 1, "each repeat spends normal PP")
+                eq(b.conditions:encoreKey(player), tick < remaining and "splash" or nil)
+            end
+            -- Exhaustion releases Encore at the same residual, restoring choices.
+            attempt(b, "encore", "enemy")
+            player.pp.splash = 1
+            own(enemy, "splash")
+            assert(b:selectMove(1))
+            settle(b)
+            eq(player.pp.splash, 0)
+            eq(b.conditions:of(player).encore, nil)
+            eq(b:availableMoves(player)[1].key, "tackle")
+            -- A disabled encored slot leaves Struggle, without spending that PP.
+            player.pp.splash = 2
+            attempt(b, "encore", "enemy")
+            b.conditions:of(player).disable = {key="splash", turns=4}
+            own(enemy, "splash")
+            eq(b:needsStruggle(player), true)
+            assert(b:selectStruggle())
+            settle(b)
+            eq(player.pp.splash, 2)
+            eq(b.conditions:of(player).lastMove, "struggle")
+            eq(#b:getMoveGaps(), 0)
+        end
+        local old, bench = Pokemon("pidgey", 100), Pokemon("squirtle", 100)
+        local b = Battle(old, Pokemon("rattata", 100), nil, {party=roster(old, bench)})
+        battles[#battles + 1] = b
+        settle(b)
+        attempt(b, "splash")
+        attempt(b, "encore", "enemy")
+        assert(attempt(b, "encore", "enemy"):find("But it failed!", 1, true))
+        own(b.enemy, "splash")
+        assert(b:beginSelection("party"))
+        assert(b:chooseParty(2))
+        settle(b)
+        eq(b.player, bench)
+        eq(b.conditions.members[old], nil, "withdrawal clears Encore")
+        -- Failed targets never acquire the condition, including last-use PP zero.
+        b = fresh()
+        assert(attempt(b, "encore"):find("But it failed!", 1, true))
+        attempt(b, "splash", "enemy")
+        b.enemy.pp.splash = 0
+        assert(attempt(b, "encore"):find("But it failed!", 1, true))
+        eq(b.conditions:of(b.enemy).encore, nil)
+    end)
+    test("Water Sport weakens Fire for both sides until its active user withdraws without a timer", function()
+        local old, bench = Pokemon("pidgey", 100), Pokemon("squirtle", 100)
+        local b = Battle(old, Pokemon("chansey", 100), nil, {party=roster(old, bench)})
+        battles[#battles + 1] = b
+        settle(b)
+        attempt(b, "waterSport")
+        eq(old.pp.waterSport, 14)
+        eq(b.conditions:sportCount("waterSport"), 1)
+        assert(attempt(b, "waterSport"):find("But it failed!", 1, true))
+        for _ = 1, 6 do
+            b:runScript(function() return b:resolveRound({}) end)
+            settle(b)
+        end
+        eq(b.conditions:sportCount("waterSport"), 1, "no five-turn expiry")
+        for _, side in ipairs({"player", "enemy"}) do
+            b:setDirection(side)
+            local source, target = b.attacker, b.defender
+            eq(b:effectiveMovePower(moveData.ember, source, target), 13)
+            eq(b:effectiveMovePower(moveData.waterGun, source, target), 40)
+            RulesRNG.seed(19)
+            RulesRNG.random(1, 100)
+            local expected = calcDamage(source, target, moveData.ember, 13, b.effects).damage
+            RulesRNG.seed(19)
+            local hp = target.hp
+            attempt(b, "ember", side)
+            eq(target.hp, hp - expected, "real weakened Fire damage")
+        end
+        own(b.enemy, "splash")
+        assert(b:beginSelection("party"))
+        assert(b:chooseParty(2))
+        settle(b)
+        eq(b.conditions.members[old], nil)
+        eq(b.conditions:sportCount("waterSport"), 0)
+        eq(b:effectiveMovePower(moveData.ember, b.enemy, b.player), 40)
+        eq(#b:getMoveGaps(), 0)
+    end)
     test("Camouflage changes effective types to the Gen V Ground default and clears on withdrawal or battle close", function()
         local old,bench,enemy=Pokemon("pidgey",100),Pokemon("squirtle",100),Pokemon("rattata",100)
         local party=roster(old,bench)

@@ -457,7 +457,7 @@ function Battle:availableMoves(pokemon)
     local choices = {}
     for index, key in ipairs(pokemon.moves) do
         local move = moveData[key]
-        if move and not move.noPP and pokemon:hasPP(key) and not self.conditions:disabled(pokemon,key) then
+        if move and not move.noPP and pokemon:hasPP(key) and self.conditions:moveAllowed(pokemon,key) then
             choices[#choices + 1] = {index = index, key = key, move = move}
         end
     end
@@ -523,7 +523,7 @@ function Battle:selectMove(moveIndex)
         if moveIndex < 1 or not key then return false, "invalid-index" end
         playerMove = moveData[key]
         if not playerMove or playerMove.noPP then return false, "unknown-move" end
-        if not locked and self.conditions:disabled(self.player,key) then return false,"disabled-move" end
+        if not locked and not self.conditions:moveAllowed(self.player,key) then return false,"disabled-move" end
         if not locked and not self.player:hasPP(key) then return false, "no-pp" end
     end
     assert(playerMove, "Struggle definition must be generated")
@@ -879,7 +879,16 @@ function Battle:resolveTurn(turn)
     if not key then
         for _,owned in ipairs(attacker.moves) do if moveData[owned]==turn.move then key=owned;break end end
     end
-    self.effects:beginAction(turn,attacker)
+    -- Override a queued selection too, when Encore lands before this action.
+    -- This is an ordinary use with ordinary PP, never a locked continuation.
+    local queuedTurn = turn
+    local encore = self.conditions:encoreKey(attacker)
+    if encore and turn.move ~= moveData.struggle and not self.conditions:locked(attacker) then
+        key = attacker:hasPP(encore) and encore or nil
+        turn = {side=turn.side, actor=attacker, key=key,
+            move=key and moveData[key] or moveData.struggle}
+    end
+    self.effects:beginAction(queuedTurn,attacker)
 
     -- Fainted by the earlier half-turn: skip
     if not attacker:isAlive() then return nil end
@@ -1149,6 +1158,8 @@ function Battle:performMove(move)
     if handler=="battle-condition" then
         if self.currentMoveKey=="disable" then self.conditions:disable()
         elseif self.currentMoveKey=="camouflage" then self.conditions:camouflage()
+        elseif self.currentMoveKey=="encore" then self.conditions:encore()
+        elseif self.currentMoveKey=="waterSport" then self.conditions:waterSport()
         else error("unsupported battle-condition move") end
         return nil
     end

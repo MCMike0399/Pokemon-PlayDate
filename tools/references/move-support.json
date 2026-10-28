@@ -610,7 +610,7 @@
       "gap": "onHit, selfSwitch"
     },
     "encore": {
-      "gap": "volatileStatus"
+      "handler": "battle-condition"
     },
     "pursuit": {
       "handler": "switch-intercept"
@@ -871,7 +871,7 @@
       "handler": "standard-damage"
     },
     "waterSport": {
-      "gap": "volatileStatus"
+      "handler": "battle-condition"
     },
     "calmMind": {
       "handler": "dsl"

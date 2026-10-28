@@ -167,6 +167,7 @@ function BattleEffects:canAttempt(move,attacker,defender)
         return false, "soundproof"
     end
     if key=="disable" then return self.battle.conditions:canDisable(defender) end
+    if key=="encore" then return self.battle.conditions:canEncore(defender) end
     if move.attemptRule=="worrySeed" then return self:worrySeedAttempt(attacker,defender) end
     if move.attemptRule=="oppositeSex" then
         -- GenV TryHit ability immunity precedes move-specific sex immunity.
@@ -247,12 +248,17 @@ function BattleEffects:basePower(move,power,attacker,defender)
         if a~="genderless" and d~="genderless" then ratio=chain(ratio,a==d and 5120 or 3072) end
     end
     ratio = self.ordinaryAbilities:technicianRatio(attacker, power, ratio)
-    -- Pinned PS Gen5 priorities: Rivalry24, Technician19, Dry Skin17, Mud Sport1,
+    -- Pinned PS Gen5 priorities: Rivalry24, Technician19, Dry Skin17, Mud/Water Sport1,
     -- Solar Beam0. Chain Q12 ratios first, then round the raw power once.
     if power>0 and move.type=="fire" and self:active(defender) and alive(defender)
         and self:effectiveAbility(defender)==87 then ratio=chain(ratio,5120) end
     if power>0 and move.type=="electric" then
         for _=1,self.battle.conditions:mudSportCount() do ratio=chain(ratio,1352) end
+    end
+    if power > 0 and move.type == "fire" then
+        for _ = 1, self.battle.conditions:sportCount("waterSport") do
+            ratio = chain(ratio, 1352)
+        end
     end
     if move.sandWeakened and select(2,BattleEffects.solarPolicy(self:weatherId()))==2048 then ratio=chain(ratio,2048) end
     if power>0 and ratio~=4096 then return math.max(1,round(power,ratio)) end
