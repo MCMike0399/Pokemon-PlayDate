@@ -1,0 +1,22 @@
+--- a/Source/battle/battleScene.lua
++++ b/Source/battle/battleScene.lua
+@@ -249,6 +249,9 @@
+         if self.introTimer >= duration then
+             self.introPhase = "ready"
+             self.irisRadius = maxRadius
++            if KantoAudio and not self.battle.trainerName then
++                KantoAudio.playCry(self.battle.enemy.species)
++            end
+         end
+ 
+     end
+@@ -625,6 +628,9 @@
+         self.trainerVisible = false
+     elseif request.kind == "sendout" then
+         self[request.details.side .. "Shown"] = request.details.pokemon
++        if KantoAudio then
++            KantoAudio.playCry(request.details.pokemon.species)
++        end
+     elseif request.kind == "recall" or request.kind == "faint" then
+         self[request.details.side .. "Shown"] = nil
+     end
