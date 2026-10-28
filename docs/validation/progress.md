@@ -3,15 +3,15 @@
 Updated 2026-10-28. Follow [the full-game goal](../plans/full-game-goal.md).
 [Earlier ledger and preserved failures](progress-history-before-divemac-20261026.md).
 
-Progress: **12 / 222 source maps playable on main. Current milestone: 5.3.**
+Progress: **30 / 222 source maps playable on main. Current milestone: 5.3 (final checks).**
 
 ## 1. Accepted revision and playable scope
 
-Accepted code is `27443af`, with Source
+Accepted through 5.2 is `27443af`, with Source
 `2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079`.
 A player can finish Pallet → Brock with any starter, receive badge/TM, save,
 exit the actual process and Continue. All three journeys passed again after the
-foundation refactor. New regions remain private. Kanto beyond Brock, audio and
+foundation refactor. Cerulean content is merged at `a9ba3f2`; final acceptance awaits Encore and Water Sport, each hit once in the passing Bulbasaur run. Kanto beyond Cerulean, audio and
 release work are unfinished. Device validation has not run. The user requested
 a push of current main progress on 2026-10-26; unaccepted candidates stay local.
 
