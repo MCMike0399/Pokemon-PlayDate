@@ -892,6 +892,14 @@ class VermilionJourney(cj.CeruleanJourney):
         self.continue_cerulean()
         self.begin_continuation()
         self.summary['acceptance'] = 'Continued accepted Cerulean save; 5.4 candidate in progress'
+        if self.flag('EVENT_GOT_HM05') and self.defeated(SURGE):
+            if self.quantity('hm05') != 1 or not self.flag('EVENT_GOT_HM01'):
+                raise ProtocolError('finished checkpoint lost its earned HMs')
+            self.summary['verification_scope'] = 'Save/Continue of the finished earned checkpoint; no campaign replay'
+            self.save()
+            self.write_receipt()
+            self.summary['acceptance'] = 'finished earned checkpoint saved; restart pending'
+            return
         if not self.flag('EVENT_GOT_HM01'):
             # The robbed-house Rocket is a real required battle, not a seeded flag.
             rocket = cj.sid('CERULEAN_CITY', 2)
