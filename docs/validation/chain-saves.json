@@ -126,14 +126,14 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-03/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-03",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-04/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-04",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "5a6c73c2b28857284d6d2d874c2a8a6410e0dd0c06043e700be3e81e5d3dfb8a",
-          "bytes": 11390
+          "sha256": "8352a865222a62f746a793f9ed7e152f886e3e9333db0c0257d2ef71ce4c84e8",
+          "bytes": 11023
         },
         {
           "file": "adventure.b.json",
@@ -150,19 +150,19 @@
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
       "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-03/processes/0001/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-03",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-04/processes/0001/runtime-data",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-04",
       "status": "earned progress save; 5.4 not accepted",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "a8adbf5e3329937032a6461b86614b596d0697229355110f2479ebb07166cdca",
-          "bytes": 10433
+          "sha256": "5cb83ec05dda3c43356856d4847ae4d912c32400b0bf6b6f7956cbd4cfa638d6",
+          "bytes": 10534
         },
         {
           "file": "adventure.b.json",
-          "sha256": "09c61de5ef4e9707f19a2f202701304247ac6e52118a7048248fcd6a87b0e4f4",
-          "bytes": 10538
+          "sha256": "823a11e05654da95eeb3a0c47367c0e45464abcca0865f85603aa78b77b913ea",
+          "bytes": 10135
         }
       ],
       "completed_steps": [
