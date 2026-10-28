@@ -29,6 +29,10 @@ def validate(scenario, qualification=False):
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
         raise ProtocolError('processes requires 2..8 process groups')
     first = groups[0].get('journey', {}) if isinstance(groups[0], dict) else {}
+    if first.get('name') == 'midgame-natural':
+        from tools.harness.midgame_journey import validate_scenario
+        validate_scenario(scenario)
+        return
     if first.get('name') == 'vermilion-natural':
         starting = scenario.get('initial_save', {})
         if (not isinstance(starting, dict) or set(starting) != {'milestone', 'starter'}
@@ -101,8 +105,11 @@ def read_receipt(reference, metadata):
     if hashlib.sha256(raw).hexdigest()!=reference['sha256']:raise ProtocolError('prior journey receipt changed')
     try:packet=json.loads(raw)
     except (UnicodeDecodeError,ValueError) as error:raise ProtocolError('malformed prior journey receipt')from error
-    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved','vermilion-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
+    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved','vermilion-saved','midgame-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
         raise ProtocolError('wrong-build or malformed prior journey receipt')
+    if packet["kind"] == "midgame-saved":
+        from tools.harness.midgame_journey import validate_receipt_state
+        validate_receipt_state(packet["state"])
     if packet["kind"]=="vermilion-saved":
         from tools.harness.vermilion_journey import validate_receipt_state
         validate_receipt_state(packet["state"])
@@ -195,12 +202,15 @@ def import_chain_save(scenario, project, data, output):
     expected = spec['milestone']
     if first.get('name') == 'vermilion-natural' and expected not in {'5.3', '5.4'}:
         raise ProtocolError('Vermilion must start from Cerulean or its earned checkpoint')
-    if (first.get('name') not in {'cerulean-natural', 'vermilion-natural'}
+    if (first.get('name') not in {'cerulean-natural', 'vermilion-natural', 'midgame-natural'}
             or first.get('starter') != spec['starter'] or spec['milestone'] != expected):
         raise ProtocolError('starting save does not match journey')
     manifest = json.loads((project / 'docs/validation/chain-saves.json').read_text())
     record = next(row for row in manifest['saves'] if row['starter'] == spec['starter']
                   and row['from_milestone'] == spec['milestone'])
+    if first['name'] == 'midgame-natural':
+        from tools.harness.midgame_journey import validate_chain_record
+        validate_chain_record(record, spec, project)
     if first['name'] == 'vermilion-natural':
         origin = record
         if spec['milestone'] == '5.4':
@@ -236,6 +246,10 @@ def export_chain_save(scenario, data, output, metadata):
     if spec is None:
         return
     first = scenario['processes'][0].get('journey', {})
+    if first.get('name') == 'midgame-natural':
+        # Retain earned slots in this run's archive; root publishes chain/5.5
+        # only after its milestone acceptance, never after a partial route packet.
+        return
     if first.get('name') == 'vermilion-natural' and (
             len(scenario['processes']) != 2
             or scenario['processes'][1].get('journey', {}).get('name') != 'vermilion-continue'):
@@ -307,7 +321,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 atomic_json(evidence / 'process.json', record); publish()
                 if 'journey' in group:
                     from tools.harness import journeys
-                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue','vermilion-continue','vermilion-supplementary-continue'} else None
+                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue','vermilion-continue','vermilion-supplementary-continue','midgame-continue'} else None
                     summary=journeys.run(client,{'journey':group['journey']},evidence,
                         build_evidence=output,prior_receipt=prior,capture_dir=output/'frames')
                     if not isinstance(summary,dict)or summary.get('ok') is not True:raise ProtocolError('process journey failed')

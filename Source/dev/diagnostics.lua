@@ -279,6 +279,37 @@ local function observeOwners(game)
     return {kind="owners", valid=true, version=SessionCodec.VERSION}
 end
 function HarnessDiagnostics.observe(game, kind)
+    if kind == "midgame-owners" then
+        local registered, shops, compatibility = {}, {}, {}
+        for _, name in ipairs(SourceMaps.names()) do
+            for _, event in ipairs(SourceMaps.definition(name).events.objects) do
+                registered[event.id] = SourceEvents.has(event.id)
+                local descriptor = SourceEvents.descriptor(event.id)
+                local step = descriptor and descriptor.kind == "program" and descriptor.steps[1]
+                if step and step.op == "shop" then
+                    local stock = assert(ItemData.shops[step.id])
+                    local prices = {}
+                    for _, item in ipairs(stock) do prices[item] = ItemData.definitions[item].price end
+                    shops[event.id] = {stock=GameSession._copy(stock), prices=prices}
+                end
+            end
+        end
+        for _, hm in ipairs({"hm01", "hm02", "hm03", "hm04", "hm05"}) do
+            compatibility[hm] = {}
+            for species, moves in pairs(MachineData.compatibility) do
+                if moves[hm] then table.insert(compatibility[hm], species) end
+            end
+            table.sort(compatibility[hm])
+        end
+        armBoundary(game)
+        return {kind=kind, valid=true, version=SessionCodec.VERSION,
+            registered_events=registered, shops=shops, hm_compatibility=compatibility,
+            trainers=SourceEvents.trainerDefinitions()}
+    end
+    if kind == "midgame-state" then
+        return {kind=kind, zone_id=currentZone and currentZone.stableID,
+            fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData()}
+    end
     if kind == "purity" then
         -- Prepared real-SDK witness: repeated requests must preserve the entire
         -- canonical session, live world/actors, identities and both RNG owners.
