@@ -53,3 +53,16 @@ invented original-world rewards.
 
 Source references for future content must be pinned and independently checked.
 The prior research audit is a starting investigation, not an acceptance oracle.
+
+
+Play quality changes requested on 2026-10-28 are prepared on a separate branch.
+They are not release-accepted until native checks and motion review pass.
+
+| Area | Original reference behavior | Project decision | Reason | Evidence/status |
+|---|---|---|---|---|
+| HP and experience | Blue has HP animation but no visible experience gauge | Animate display HP and add an experience gauge that fills across level changes | Make battle progress readable on Playdate | Prepared; native review pending |
+| Running | Blue walks at one normal speed | Hold B to run; a short stationary B release opens the field menu | Faster travel without changing maps or RED art | Requested by user; native checks pending |
+| Text and Options | Original text speed and battle settings | Default fast text, hold A to advance; persistent text speed, animation and SHIFT/SET preferences | Comfortable handheld play | Requested by user; native checks pending |
+| Battle effects | Original move animation scripts | Ten reusable 1-bit effects, with an OFF option | Native presentation within the project scope | Prepared; motion review pending |
+| Trainer choices | Original trainer-class move priorities | Use those class layers with Gen V types and avoid clearly wasted effects | Keep trainer battles purposeful | Prepared; native checks pending |
+| Title | Original logo and version identity | Use source logo, Blue wordmark and existing Blastoise art on the title screen | A complete native opening screen | Prepared; native review pending |

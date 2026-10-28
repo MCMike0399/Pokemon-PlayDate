@@ -2,10 +2,10 @@
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
 Progress: **30 / 222 source maps playable on main. Current milestone: 5.4.**
-Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **4.43 h**.
+Last accepted pace: **11.57 maps/day**; 5.4 elapsed: **4.6 h**.
 [Wall-clock times per milestone](milestone-times.json) include waits and provider limits.
 The reduced 5.4 set uses Bulbasaur for optional content and the other starters
-for the critical path. Quality workers run alongside journeys; root does not
+for the critical path. Both journey JSON files already live in `Source/dev`, outside production. Cleanup of remaining bundles waits until journeys stop. Quality workers run alongside journeys; root does not
 spend turns polling them. Acceptance includes playable packages and a real-speed clip.
 
 ## 1. Accepted revision and what the player can do
