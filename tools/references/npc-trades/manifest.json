@@ -1,0 +1,28 @@
+{
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "files": {
+    "constants/script_constants.asm": "9f3a320cc6c198761f7168f6a2bf999e5ace5762f9d81376d750bca9b0a90e86",
+    "data/events/trades.asm": "e3c374712f6eb119bda9097d1d08ffdb9447b1691b4f8b3e9042fde4c5563fb4",
+    "data/maps/objects/CeruleanTradeHouse.asm": "5250e353044f206a991cc97e151c117d90e51ac570a41fc147e8f56f687e62b9",
+    "data/maps/objects/CinnabarLabFossilRoom.asm": "76440f1aafc4e715ffc8c52d1b3d69c776456347834eaa372ac68ca0dea9479e",
+    "data/maps/objects/CinnabarLabTradeRoom.asm": "31f00018d180105a5247a475354dc9c918adc1ba089c5c25b7f4bbc8e4c7e6f6",
+    "data/maps/objects/Route11Gate2F.asm": "0b81601bf46e0dd3347230d746e3fdabe4947792a254e345922b4f5389577273",
+    "data/maps/objects/Route18Gate2F.asm": "f950b20e798f0df83317bab86f52eec2a0e3cbd8f7012893228c2d9f2e6ba181",
+    "data/maps/objects/Route2TradeHouse.asm": "af188bbe96e10baf796cfd36345e34f81d45af8965e0ad3f1f07562a8c1239cd",
+    "data/maps/objects/UndergroundPathRoute5.asm": "b7c8512a301360a97dac894ee966aaab152eb00534beec46d27c78df9f6c7efc",
+    "data/maps/objects/VermilionTradeHouse.asm": "4656691722e034de2d74502bcf616f9d17c22d96aa40c1809f38220a80909e89",
+    "data/text/text_7.asm": "8fcfc31197c3c75c248474eab47378573ffb4546406cc957c7e913cf0eb07cfe",
+    "engine/events/evolve_trade.asm": "0b0a1fd1ce4252dde65fd93bb4f1ec7919b8d2d2a8649eb35c6086df4a296fea",
+    "engine/events/in_game_trades.asm": "4d96264f01a6888e5fd1d5faaaf9997691b0a05bf6f178d4283a1fcb7860afae",
+    "engine/pokemon/add_mon.asm": "4a0c02fbbfdd6dc1e9357069be2b4b94342777de94efb2a67bd4e25ca62bddfe",
+    "engine/pokemon/evos_moves.asm": "b54c8d1fd73c332e75406882a52a0762ce630256f27cf1434c75a0831f2b3f24",
+    "scripts/CeruleanTradeHouse.asm": "5bd34acaf3b66dde912bb3a435a2e1532e0dd9d90d2c2f36fe640f6fce8e0f43",
+    "scripts/CinnabarLabFossilRoom.asm": "99c8f1b217b10b089a7ec4a87d4e2e331460d78ea7b01b00f9cedfd240468557",
+    "scripts/CinnabarLabTradeRoom.asm": "69955af1ba2f2426f494719d4b4d5c08044ecd3aedf85ec06421b5eabe3e64bd",
+    "scripts/Route11Gate2F.asm": "5370f6050c1c4eea856b5cf5a760fbbde29d6acfb5304ab49c26196b94babf1c",
+    "scripts/Route18Gate2F.asm": "c7898d58fd48471bce414ef4c5fd98f3ba202908835001a1f4e89a7d62c4048d",
+    "scripts/Route2TradeHouse.asm": "102fb92e25a00d0d696e2ea18a8b87ea2a6c0f67b23fb1601ba2aa79c38dc811",
+    "scripts/UndergroundPathRoute5.asm": "77f827bec37e0a0c1d50ba933dbc221ce5d5555cb5beab8cb411c337143c84d0",
+    "scripts/VermilionTradeHouse.asm": "ccc8fe52e6092c51e74c3b1c9c4e9b35aacd25139190045da1d93cee8476ae57"
+  }
+}

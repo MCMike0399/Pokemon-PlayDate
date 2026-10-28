@@ -1,0 +1,278 @@
+{
+  "accepted": [
+    "_SaffronGateGuardImParchedText",
+    "_SaffronGateGuardYouCanGoOnThroughText"
+  ],
+  "audio_gap": "sound_get_key_item",
+  "completed": [
+    "_SaffronGateGuardThanksForTheDrinkText"
+  ],
+  "drinks": [
+    "freshWater",
+    "sodaPop",
+    "lemonade"
+  ],
+  "flag": "pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK",
+  "guards": {
+    "pokered:ROUTE_5_GATE:objects:1": {
+      "active": true,
+      "actor": {
+        "facing": "right",
+        "x": 1,
+        "y": 3
+      },
+      "entry_facing": "left",
+      "entry_push": "up",
+      "map": "Route5Gate",
+      "talk_push": "up",
+      "trigger": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 3
+        }
+      ]
+    },
+    "pokered:ROUTE_6_GATE:objects:1": {
+      "active": true,
+      "actor": {
+        "facing": "left",
+        "x": 6,
+        "y": 2
+      },
+      "entry_facing": "right",
+      "entry_push": "down",
+      "map": "Route6Gate",
+      "talk_push": "up",
+      "trigger": [
+        {
+          "x": 3,
+          "y": 2
+        },
+        {
+          "x": 4,
+          "y": 2
+        }
+      ]
+    },
+    "pokered:ROUTE_7_GATE:objects:1": {
+      "active": false,
+      "actor": {
+        "facing": "down",
+        "x": 3,
+        "y": 1
+      },
+      "entry_facing": "up",
+      "entry_push": "left",
+      "map": "Route7Gate",
+      "talk_push": "up",
+      "trigger": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 4
+        }
+      ]
+    },
+    "pokered:ROUTE_8_GATE:objects:1": {
+      "active": false,
+      "actor": {
+        "facing": "down",
+        "x": 2,
+        "y": 1
+      },
+      "entry_facing": "left",
+      "entry_push": "right",
+      "map": "Route8Gate",
+      "talk_push": "up",
+      "trigger": [
+        {
+          "x": 2,
+          "y": 3
+        },
+        {
+          "x": 2,
+          "y": 4
+        }
+      ]
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_SaffronGateGuardGeeImThirstyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I'm on guard duty."
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "Gee, I'm thirsty,"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "though!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "Oh wait there,"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "the road's closed."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 8
+        }
+      ],
+      "source": "text/SaffronGates.asm"
+    },
+    "_SaffronGateGuardImParchedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 11,
+          "text": "Whoa, boy!"
+        },
+        {
+          "op": "line",
+          "source_line": 12,
+          "text": "I'm parched!"
+        },
+        {
+          "op": "cont",
+          "source_line": 13,
+          "text": "..."
+        },
+        {
+          "op": "cont",
+          "source_line": 14,
+          "text": "Huh? I can have"
+        },
+        {
+          "op": "cont",
+          "source_line": 15,
+          "text": "this drink?"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "Gee, thanks!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 17
+        }
+      ],
+      "source": "text/SaffronGates.asm"
+    },
+    "_SaffronGateGuardThanksForTheDrinkText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 36,
+          "text": "Hi, thanks for"
+        },
+        {
+          "op": "line",
+          "source_line": 37,
+          "text": "the cool drinks!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 38
+        }
+      ],
+      "source": "text/SaffronGates.asm"
+    },
+    "_SaffronGateGuardYouCanGoOnThroughText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 20
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "..."
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "Glug glug..."
+        },
+        {
+          "op": "cont",
+          "source_line": 24,
+          "text": "..."
+        },
+        {
+          "op": "cont",
+          "source_line": 25,
+          "text": "Gulp..."
+        },
+        {
+          "op": "cont",
+          "source_line": 26,
+          "text": "If you want to go"
+        },
+        {
+          "op": "cont",
+          "source_line": 27,
+          "text": "to SAFFRON CITY..."
+        },
+        {
+          "op": "cont",
+          "source_line": 28,
+          "text": "..."
+        },
+        {
+          "op": "cont",
+          "source_line": 29,
+          "text": "You can go on"
+        },
+        {
+          "op": "cont",
+          "source_line": 30,
+          "text": "through. I'll"
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "share this with"
+        },
+        {
+          "op": "cont",
+          "source_line": 32,
+          "text": "the other guards!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 33
+        }
+      ],
+      "source": "text/SaffronGates.asm"
+    }
+  },
+  "thirsty": [
+    "_SaffronGateGuardGeeImThirstyText"
+  ]
+}
