@@ -123,7 +123,7 @@ Next runs start there and continue after individual failures.
 | Branch | Current work |
 |---|---|
 | `main` | Root accepts and commits each finished milestone locally. **12 / 222 source maps playable; milestone 5.3.** No push is planned. |
-| `wip/cerulean-integration` | Wild Teleport now lets Abra flee without XP or money. All 1660 SDK checks pass, 723 host tests pass with no skips, and all 2494 protected images match. In `m53-chained-journeys-20261028-01`, Bulbasaur lost after five Route 3 wins; its retry now visits the Center. Squirtle finished Bill/Ticket and saved, then an overlooked duplicate screenshot method caused a tooling failure. That method is fixed; retry only Save/Continue from its actual written save. Charmander is running. Pursuit (2 hits), Disable (2), and Camouflage (1) from Squirtle are being fixed. Cerulean is not accepted yet. |
+| `wip/cerulean-integration` | All 1664 SDK checks, 723 host tests and 2494 protected images pass. Squirtle and Charmander finished Bill/Ticket, then passed separate two-process Save/Continue retries from their actual saves. The five reward/blackout cases passed in `m53-bulbasaur-and-retries-20261028-01`. Bulbasaur cleared Route 3 but lost in Mt. Moon with no Potions; `2f3dbc8` restocks after Route 3, heals before both bosses, and saves progress. Its retry is running in `m53-bulbasaur-rested-20261028-01`. No new grinding. |
 | `wip/vermilion-integration` | Frozen at `380104e`. Resume only after Cerulean is accepted on main. |
 | `wip/audio-integration`, trade and guard branches | Frozen; branches retained, clean superseded checkouts removed. |
 
