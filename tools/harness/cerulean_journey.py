@@ -436,8 +436,9 @@ class CeruleanJourney(BrockJourney):
                 continue
             zone, origin = node
             model = self.models[zone]
-            occupied = self.occupied() if node == start else {(e["x"], e["y"]) for e in model.events["objects"]
-                if e["id"] not in {row[0] for row in FOSSILS.values()} or not any(self.flag(row[2]) for row in FOSSILS.values())}
+            # Future actors may move or disappear before arrival. Plan that
+            # leg from terrain, then replan with live occupancy on entering it.
+            occupied = self.occupied() if node == start else set()
             if zone == target_id:
                 try:
                     if goal is not None:
