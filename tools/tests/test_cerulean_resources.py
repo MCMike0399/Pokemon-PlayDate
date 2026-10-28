@@ -18,7 +18,6 @@ class ResourcesTests(unittest.TestCase):
         driver.select = Mock()
         driver.send = Mock()
         driver.drain = Mock()
-        driver.party = lambda: [{'species': config.get('starter', 'squirtle')}]
         driver.state = {'title': {'menu': {'options': ['CONTINUE']}}}
         return driver
 
@@ -27,6 +26,7 @@ class ResourcesTests(unittest.TestCase):
         calls = []
         driver.zone = lambda name: name
         driver.source_trainers = {}
+        driver.party = lambda: [{'species': 'squirtle'}]
         driver.models = {'MtMoonB2F': type('Geometry', (), {'padding': 0})()}
         driver.scenes = {'fossil_trigger': {'x': 1, 'y': 1}}
         driver.travel = lambda zone, *args: calls.append(('travel', zone))
