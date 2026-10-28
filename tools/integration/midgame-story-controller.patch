@@ -1,11 +1,13 @@
 --- /dev/null
 +++ b/Source/game/midgameStoryState.lua
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,58 @@
 +-- Root composition: preserve trades -> daycare -> Vermilion -> earlier scenes.
 +Class("MidgameStoryState"):extends(NPCTradeState)
 +function MidgameStoryState:enter(id, options)
 +    RocketHideoutStoryController.enter(self)
 +    TowerStoryController.enter(self)
++    MidgameGymStoryController.enter(self)
++    SilphStoryController.enter(self)
 +    MidgameStoryState.super.enter(self, id, options)
 +end
 +function MidgameStoryState:advance()
@@ -13,6 +15,12 @@
 +        return
 +    end
 +    if TowerStoryController.advance(self) then
++        return
++    end
++    if MidgameGymStoryController.advance(self) then
++        return
++    end
++    if SilphStoryController.advance(self) then
 +        return
 +    end
 +    MidgameStoryState.super.advance(self)
@@ -25,18 +33,29 @@
 +    if RocketHideoutStoryController.handleButton(self, button) then
 +        return
 +    end
++    if SilphStoryController.handleButton(self, button) then
++        return
++    end
 +    MidgameStoryState.super.handleButton(self, button)
 +end
 +function MidgameStoryState:draw()
 +    MidgameStoryState.super.draw(self)
 +    RocketHideoutStoryController.draw(self)
++    SilphStoryController.draw(self)
 +end
 +function MidgameStoryState:exit()
 +    RocketHideoutStoryController.exit(self)
 +    TowerStoryController.exit(self)
++    SilphStoryController.exit(self)
 +    local session, zone = self.session, self.zone
 +    MidgameStoryState.super.exit(self)
 +    if self.game.session == session and currentZone == zone then
 +        RocketHideoutStory.integration().reconcileActors(self.game)
 +    end
++end
++function MidgameStoryState:fail(reason)
++    RocketHideoutStoryController.exit(self)
++    TowerStoryController.exit(self)
++    SilphStoryController.exit(self)
++    MidgameStoryState.super.fail(self, reason)
 +end

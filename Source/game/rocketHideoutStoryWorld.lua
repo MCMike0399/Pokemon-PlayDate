@@ -24,7 +24,9 @@ local function equal(a, b)
     return true
 end
 function RocketHideoutStoryWorld.project(world, effect)
-    local spec <const> = assert(RocketHideoutStory.scenes().terrain[effect])
+    return RocketHideoutStoryWorld.projectBlock(world, assert(RocketHideoutStory.scenes().terrain[effect]))
+end
+function RocketHideoutStoryWorld.projectBlock(world, spec)
     local entry <const> = SourceMaps.entry(spec.map)
     local descriptor <const> = WorldDeltas.definitionProvider():descriptor(entry.id)
     local result <const> = copy(world)
@@ -79,12 +81,15 @@ end
 function RocketHideoutStoryWorld.commit(game, effect, expected, changes)
     local before <const> = WorldDeltas.export()
     local candidate <const> = RocketHideoutStoryWorld.project(before, effect)
+    return RocketHideoutStoryWorld.commitWorld(game, before, candidate, expected, changes, "ROCKET_HIDEOUT_SCENE_V1_")
+end
+function RocketHideoutStoryWorld.commitWorld(game, before, candidate, expected, changes, prefix)
     if equal(before, candidate) and not next(changes.flags) then
         return true
     end
     local session <const> = game.session
-    local a <const> = "ROCKET_HIDEOUT_SCENE_V1_TURN_A"
-    local b <const> = "ROCKET_HIDEOUT_SCENE_V1_TURN_B"
+    local a <const> = prefix .. "TURN_A"
+    local b <const> = prefix .. "TURN_B"
     expected.flags[a], expected.flags[b] = session:questFlag(a), session:questFlag(b)
     changes.flags[a], changes.flags[b] = not expected.flags[a], expected.flags[a]
     local random, token = session:forkWorldRNG()
