@@ -29,9 +29,13 @@ def validate(scenario, qualification=False):
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
         raise ProtocolError('processes requires 2..8 process groups')
     first = groups[0].get('journey', {}) if isinstance(groups[0], dict) else {}
-    if first.get('name') == 'vermilion-natural' and scenario.get('initial_save') != {
-            'milestone': '5.3', 'starter': first.get('starter', 'squirtle')}:
-        raise ProtocolError('Vermilion requires its accepted Cerulean starting save')
+    if first.get('name') == 'vermilion-natural':
+        starting = scenario.get('initial_save', {})
+        if (not isinstance(starting, dict) or set(starting) != {'milestone', 'starter'}
+                or starting['milestone'] not in {'5.3', '5.4'}
+                or starting['starter'] != first.get('starter', 'squirtle')):
+            raise ProtocolError('Vermilion requires its Cerulean save or an earned checkpoint')
+        # Exact slot hashes and the accepted Cerulean origin are checked before boot.
     for index, group in enumerate(groups):
         if not isinstance(group, dict) or set(group) - {'restart', 'requests', 'journey', 'outputs'}:
             raise ProtocolError('invalid process group fields')
