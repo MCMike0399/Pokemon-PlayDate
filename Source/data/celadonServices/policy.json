@@ -1,5 +1,35 @@
 {
   "policy": {
+    "coin_gifts": {
+      "pokered:GAME_CORNER:objects:10": {
+        "after": "CloselyWatchTheReelsText",
+        "before": "ThrowingMeOffText",
+        "coins": 20,
+        "exact_full": true,
+        "flag": "EVENT_GOT_20_COINS",
+        "full": "YouGotYourOwnCoinsText",
+        "prefix": "_GameCornerGentleman",
+        "received": "Received20CoinsText"
+      },
+      "pokered:GAME_CORNER:objects:5": {
+        "after": "WinsComeAndGoText",
+        "before": "WantToPlayText",
+        "coins": 10,
+        "flag": "EVENT_GOT_10_COINS",
+        "full": "DontNeedMyCoinsText",
+        "prefix": "_GameCornerFishingGuru",
+        "received": "Received10CoinsText"
+      },
+      "pokered:GAME_CORNER:objects:9": {
+        "after": "INeedMoreCoinsText",
+        "before": "WantSomeCoinsText",
+        "coins": 20,
+        "flag": "EVENT_GOT_20_COINS_2",
+        "full": "YouHaveLotsOfCoinsText",
+        "prefix": "_GameCornerClerk2",
+        "received": "Received20CoinsText"
+      }
+    },
     "coin_sale": {
       "coins": 50,
       "full_threshold": 9990,
@@ -77,6 +107,7 @@
     "hidden_coins": [
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_37",
         "id": "pokered:GAME_CORNER:hidden_events:37",
         "index": 37,
@@ -86,6 +117,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_38",
         "id": "pokered:GAME_CORNER:hidden_events:38",
         "index": 38,
@@ -95,6 +127,7 @@
       },
       {
         "coins": 20,
+        "credited_coins": 20,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_39",
         "id": "pokered:GAME_CORNER:hidden_events:39",
         "index": 39,
@@ -104,6 +137,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_40",
         "id": "pokered:GAME_CORNER:hidden_events:40",
         "index": 40,
@@ -113,6 +147,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_41",
         "id": "pokered:GAME_CORNER:hidden_events:41",
         "index": 41,
@@ -122,6 +157,7 @@
       },
       {
         "coins": 20,
+        "credited_coins": 20,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_42",
         "id": "pokered:GAME_CORNER:hidden_events:42",
         "index": 42,
@@ -131,6 +167,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_43",
         "id": "pokered:GAME_CORNER:hidden_events:43",
         "index": 43,
@@ -140,6 +177,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_44",
         "id": "pokered:GAME_CORNER:hidden_events:44",
         "index": 44,
@@ -149,6 +187,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_45",
         "id": "pokered:GAME_CORNER:hidden_events:45",
         "index": 45,
@@ -158,6 +197,7 @@
       },
       {
         "coins": 40,
+        "credited_coins": 20,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_46",
         "id": "pokered:GAME_CORNER:hidden_events:46",
         "index": 46,
@@ -167,6 +207,7 @@
       },
       {
         "coins": 100,
+        "credited_coins": 100,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_47",
         "id": "pokered:GAME_CORNER:hidden_events:47",
         "index": 47,
@@ -176,6 +217,7 @@
       },
       {
         "coins": 10,
+        "credited_coins": 10,
         "flag": "CELADON_SERVICES_V1_HIDDEN_COINS_48",
         "id": "pokered:GAME_CORNER:hidden_events:48",
         "index": 48,

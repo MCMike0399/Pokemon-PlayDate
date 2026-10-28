@@ -45,13 +45,25 @@ function CeladonEconomy.prepare(observation, operation)
         plan.flags[drink.flag] = true
         plan.item = drink.tm
     elseif operation.kind == "coin-gift" then
-        local gift = assert(CeladonServices.coinGift(operation.id), "source coin giver required")
+        local gift = assert(policy.coin_gifts[operation.id], "source coin giver required")
         if observation.flags[gift.flag] then return reject("already-complete") end
         if bag:quantity("coinCase") == 0 then return reject("no-coin-case") end
         local full = gift.exact_full and coins == 9990 or not gift.exact_full and coins >= 9990
         if full then return reject("coin-case-full") end
         plan.coins = math.min(CoinWallet.limit(), coins + gift.coins)
         plan.flags[gift.flag] = true
+    elseif operation.kind == "hidden-coins" then
+        local hidden
+        for _, candidate in ipairs(policy.hidden_coins) do
+            if candidate.id == operation.id then hidden = candidate end
+        end
+        assert(hidden and not hidden.shadowed_by_slot, "reachable source hidden coin required")
+        if bag:quantity("coinCase") == 0 then return reject("no-coin-case") end
+        if observation.flags[hidden.flag] then return reject("already-complete") end
+        plan.coins = math.min(CoinWallet.limit(),coins+hidden.credited_coins)
+        plan.flags[hidden.flag] = true
+        plan.received = hidden.credited_coins
+        plan.dropped = plan.coins == CoinWallet.limit()
     elseif operation.kind == "prize" then
         local window = assert(policy.prizes[operation.window], "source prize window required")
         local prize = assert(window[operation.choice], "source prize choice required")

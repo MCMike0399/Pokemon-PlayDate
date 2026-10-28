@@ -4,6 +4,7 @@
 function GameSession:commitCeladonService(operation, expected)
     local current = state[self]
     local called, prepared = pcall(function()
+        assert(GameSession.activeRNGSession() == self, "inactive-Celadon-session")
         assert(FieldMoves.same(CeladonEconomy.observe(self), expected), "stale-Celadon-service")
         local plan, reason = CeladonEconomy.prepare(expected, operation)
         if not plan then error(reason, 0) end
@@ -27,7 +28,8 @@ function GameSession:commitCeladonService(operation, expected)
             discovered.seen[mon.species], discovered.owned[mon.species] = true, true
         end
         return {coins=candidateCoins,flags=combined,bag=bag:toData(),dex=dex(discovered),
-            mon=mon,destination=destination,rng=stream and stream:snapshot(),item=plan.item,kind=plan.kind}
+            mon=mon,destination=destination,rng=stream and stream:snapshot(),item=plan.item,kind=plan.kind,
+            received=plan.received,dropped=plan.dropped}
     end)
     if not called then return false, tostring(prepared) end
     local index
@@ -42,5 +44,6 @@ function GameSession:commitCeladonService(operation, expected)
     if prepared.rng then RulesRNG.restore(prepared.rng) end
     self:invalidateFieldWorldContext()
     return true, {kind=prepared.kind,item=prepared.item,destination=prepared.destination,index=index,
+        received=prepared.received,dropped=prepared.dropped,
         box=prepared.destination == "storage" and current.storage:activeBox() or nil}
 end

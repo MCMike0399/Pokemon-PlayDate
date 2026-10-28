@@ -160,8 +160,172 @@ local function coinGift(state)
         else state:fail(reason) end
     end)
 end
+local function prizes(state)
+    if state.session:inventory():quantity("coinCase") == 0 then
+        finishText(state,{"_RequireCoinCaseText"})
+        return
+    end
+    state:source({"_ExchangeCoinsForPrizesText","_WhichPrizeText"},function()
+        local observation = observe(state)
+        if not observation then return end
+        local window = assert(CeladonServices.policy().prizes[state.plan.window])
+        local options = {}
+        for _, prize in ipairs(window) do
+            local name = prize.item and ItemData.definitions[prize.item].name or prize.species:upper()
+            options[#options+1] = name .. "  " .. prize.price
+        end
+        options[#options+1] = "NO THANKS"
+        menu(state,options,function(index)
+            if index == #options then state:finish(); return end
+            local prize = window[index]
+            state.plan.ram = {wNameBuffer=prize.item and ItemData.definitions[prize.item].name or prize.species:upper()}
+            state:source({"_SoYouWantPrizeText"},function()
+                yesNo(state,function()
+                    local accepted,result = commit(state,observation,{kind="prize",window=state.plan.window,choice=index})
+                    if not accepted then
+                        if result == "insufficient-coins" then finishText(state,{"_SorryNeedMoreCoinsText"})
+                        elseif result == "bag-full" then finishText(state,{"_OopsYouDontHaveEnoughRoomText"})
+                        elseif result == "box-full" then finishText(state,{"_BoxIsFullText"})
+                        elseif result == "no-coin-case" then finishText(state,{"_RequireCoinCaseText"})
+                        else state:fail(result) end
+                        return
+                    end
+                    if prize.item then state:finish(); return end
+                    state.plan.ram = {wNameBuffer=prize.species:upper(),wBoxMonNicks=prize.species:upper(),
+                        wStringBuffer=tostring(result.box or 1)}
+                    local labels = {"_GotMonText"}
+                    if result.destination == "storage" then labels[#labels+1] = "_SentToBoxText" end
+                    finishText(state,labels)
+                end,function() finishText(state,{"_OhFineThenText"}) end)
+            end)
+        end,function() state:finish() end)
+    end)
+end
+local function hiddenCoins(state)
+    local hidden = assert(CeladonServices.hiddenCoin(state.id))
+    local observation = observe(state)
+    if not observation then return end
+    local accepted,result = commit(state,observation,{kind="hidden-coins",id=state.id})
+    if not accepted then
+        if result == "already-complete" or result == "no-coin-case" then state:finish()
+        else state:fail(result) end
+        return
+    end
+    state.plan.ram = {hCoins=result.received,wStringBuffer=tostring(result.received)}
+    finishText(state,result.dropped and {"_FoundHiddenCoins2Text","_DroppedHiddenCoinsText"} or {"_FoundHiddenCoinsText"})
+end
+local function elevator(state)
+    state:source({"_WhichFloorText"},function()
+        menu(state,{"1F","2F","3F","4F","5F"},function(index)
+            local accepted,reason = CeladonServices.selectFloor(state.session,index)
+            if accepted then state:finish() else state:fail(reason) end
+        end,function() state:finish() end)
+    end)
+end
+local function closeSlots(state)
+    if state.celadonSlotToken then
+        state.celadonSlotSession:closeCeladonSlots(state.celadonSlotToken)
+        state.celadonSlotToken, state.celadonSlotView, state.celadonSlotSession = nil,nil,nil
+    end
+end
+local betMenu
+local function slotResult(state)
+    local view = state.celadonSlotView
+    state.plan.ram = {wStringBuffer=tostring(view.payout)}
+    local labels = view.payout == 0 and {"_NotThisTimeText"}
+        or view.winner == "SLOTS7" and {"_YeahText","_LinedUpText"} or {"_LinedUpText"}
+    state:source(labels,function()
+        if state.session:coins() == 0 then
+            state:source({"_OutOfCoinsSlotMachineText"},function() closeSlots(state); state:finish() end)
+            return
+        end
+        state:source({"_OneMoreGoSlotMachineText"},function()
+            yesNo(state,function()
+                local accepted,result = state.session:againCeladonSlots(state.celadonSlotToken)
+                if not accepted then state:fail(result); return end
+                state.celadonSlotView = result
+                betMenu(state)
+            end,function() closeSlots(state); state:finish() end)
+        end)
+    end)
+end
+betMenu = function(state)
+    state:source({"_BetHowManySlotMachineText"},function()
+        menu(state,{"×3","×2","×1"},function(index)
+            local accepted,result = state.session:betCeladonSlots(state.celadonSlotToken,4-index)
+            if not accepted then
+                if result == "insufficient-coins" then
+                    state:source({"_NotEnoughCoinsSlotMachineText"},function() betMenu(state) end)
+                else state:fail(result) end
+                return
+            end
+            state.celadonSlotView = result
+            state:source({"_StartSlotMachineText"},function()
+                accepted,result = state.session:startCeladonSpin(state.celadonSlotToken)
+                if not accepted then state:fail(result); return end
+                state.celadonSlotView = result
+                state.celadonFirstReelView = false
+                state.phase,state.waiting = "celadon-slots","reels"
+            end)
+        end,function() closeSlots(state); state:finish() end)
+    end)
+end
+local function slots(state)
+    if state.session:inventory():quantity("coinCase") == 0 then
+        finishText(state,{"_GameCornerCoinCaseText"})
+        return
+    end
+    if type(state.session.coins) ~= "function" or type(state.session.openCeladonSlots) ~= "function" then
+        state:fail("slot-owner-not-installed")
+        return
+    end
+    if state.session:coins() == 0 then finishText(state,{"_GameCornerNoCoinsText"}); return end
+    state:source({"_PlaySlotMachineText"},function()
+        yesNo(state,function()
+            local token,result = state.session:openCeladonSlots(state,state.id)
+            if not token then state:fail(result); return end
+            state.celadonSlotToken,state.celadonSlotView,state.celadonSlotSession = token,result,state.session
+            state.celadonFirstReelView = true
+            betMenu(state)
+        end,function() state:finish() end)
+    end)
+end
+local symbolImages = {}
+local function symbolImage(symbol)
+    if not symbolImages[symbol] then
+        symbolImages[symbol] = TileRegistry.renderImportedGrid(CeladonServiceData.symbol(symbol),TileFactory.renderGrid)
+    end
+    return symbolImages[symbol]
+end
+local function drawSlots(state)
+    local view = state.celadonSlotView
+    -- LoadSlotMachineTiles drew offset 28 before the source clears offsets.
+    -- Keep that opening picture separate from the actual zeroed reel value.
+    local display = state.celadonFirstReelView and {offsets={29,29,29}} or view
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillRect(0,0,400,240)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawRect(4,4,392,168)
+    gfx.drawText("COIN " .. state.session:coins() .. "    PAYOUT " .. view.payout,12,12)
+    gfx.drawText("BET " .. view.bet,310,12)
+    for wheel = 1,3 do
+        local x = 72+(wheel-1)*62
+        gfx.drawRect(x-3,45,38,102)
+        gfx.setClipRect(x,48,32,96)
+        local rows = CeladonSlots.rows(display,wheel)
+        local shift = display.offsets[wheel] % 2 == 0 and -16 or 0
+        for row = 1,3 do symbolImage(rows[row]):draw(x,48+(3-row)*32+shift) end
+        if shift ~= 0 then symbolImage(CeladonSlots.previousSymbol(display,wheel)):draw(x,128) end
+        gfx.clearClipRect()
+    end
+    gfx.drawText(view.phase == "result" and "" or "A: STOP",72,151)
+    if view.phase == "result" and view.winner then symbolImage(view.winner):draw(310,110) end
+end
 function CeladonServicesController.enter(state)
+    closeSlots(state)
     state.celadonStarted = false
+    state.celadonFirstReelView = false
+    state.celadonSlotToken,state.celadonSlotView,state.celadonSlotSession = nil,nil,nil
 end
 function CeladonServicesController.advance(state)
     if not state.plan or state.plan.scene ~= "celadon-service" then return false end
@@ -174,11 +338,17 @@ function CeladonServicesController.advance(state)
     elseif service == "eevee" then eevee(state)
     elseif service == "coin-exchange" then coins(state)
     elseif service == "coin-gift" then coinGift(state)
+    elseif service == "prize" then prizes(state)
+    elseif service == "hidden-coins" then hiddenCoins(state)
+    elseif service == "elevator" then elevator(state)
+    elseif service == "slots" then slots(state)
     else state:fail("unimplemented-Celadon-service") end
     return true
 end
 function CeladonServicesController.handleButton(state, button)
-    if state.phase ~= "celadon-menu" or not state:valid() or not state:isTop() then return false end
+    if not state:valid() or not state:isTop() then return false end
+    if state.phase == "celadon-slots" then return true end
+    if state.phase ~= "celadon-menu" then return false end
     local count = #state.menu.options
     if button == "up" then state.menu.selectedIndex = (state.menu.selectedIndex - 2) % count + 1
     elseif button == "down" then state.menu.selectedIndex = state.menu.selectedIndex % count + 1
@@ -191,9 +361,11 @@ function CeladonServicesController.draw(state)
     gfx.pushContext()
     gfx.setDrawOffset(0, 0)
     gfx.clearClipRect()
+    if state.celadonSlotView then drawSlots(state) end
     if state.phase == "celadon-menu" then
         state.menu:draw(168, 64, 228, math.min(128, #state.menu.options * 20 + 16))
     end
+    if state.celadonSlotView then gfx.popContext(); return end
     gfx.setColor(gfx.kColorWhite)
     gfx.fillRect(196, 4, 200, 44)
     gfx.setColor(gfx.kColorBlack)
@@ -203,4 +375,16 @@ function CeladonServicesController.draw(state)
         gfx.drawText("COIN   " .. state.session:coins(), 204, 27)
     end
     gfx.popContext()
+end
+
+function CeladonServicesController.update(state)
+    if not state:valid() or not state:isTop() or state.phase ~= "celadon-slots" then return end
+    local accepted,result = state.session:tickCeladonSlots(state.celadonSlotToken,
+        playdate.buttonJustPressed(playdate.kButtonA))
+    if not accepted then state:fail(result); return end
+    state.celadonSlotView = result
+    if result.phase == "result" then slotResult(state) end
+end
+function CeladonServicesController.exit(state)
+    closeSlots(state)
 end

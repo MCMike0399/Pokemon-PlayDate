@@ -44,6 +44,9 @@ class CeladonSourceTests(unittest.TestCase):
         self.assertEqual(len(self.policy['hidden_coins']),12)
         self.assertTrue(self.policy['hidden_coins'][-1]['shadowed_by_slot'])
         self.assertEqual(self.policy['hidden_coins'][-1]['index'],48)
+        typo = next(h for h in self.policy['hidden_coins'] if h['coins']==40)
+        self.assertEqual(typo['credited_coins'],20)
+        self.assertEqual((typo['x'],typo['y']),(11,7))
 
     def test_elevator_source_zero_based_destinations_are_not_guessed(self):
         self.assertEqual([f['source_warp_byte'] for f in self.policy['elevator']],[5,2,2,2,2])

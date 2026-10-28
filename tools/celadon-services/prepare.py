@@ -21,7 +21,8 @@ FILES = [
     'data/events/slot_machine_wheels.asm', 'data/events/hidden_events.asm',
     'engine/events/vending_machine.asm', 'engine/events/prize_menu.asm', 'engine/events/hidden_items.asm',
     'engine/slots/slot_machine.asm', 'engine/slots/game_corner_slots.asm', 'engine/slots/game_corner_slots2.asm',
-    'engine/math/bcd.asm', 'home/money.asm', 'constants/script_constants.asm', 'constants/ram_constants.asm',
+    'engine/math/bcd.asm', 'home/money.asm', 'data/events/hidden_coins.asm',
+    'gfx/slots/blue_slots_2.png', 'ram/wram.asm', 'engine/overworld/hidden_events.asm', 'home/compare.asm', 'home/joypad2.asm', 'home/overworld.asm', 'constants/script_constants.asm', 'constants/ram_constants.asm',
 ] + [f'data/maps/objects/{name}.asm' for name in ('CeladonMartRoof', 'CeladonMansionRoofHouse',
     'CeladonMartElevator', 'GameCorner', 'GameCornerPrizeRoom')]
 FILES += [f'data/maps/objects/CeladonMart{n}F.asm' for n in range(1, 6)]
@@ -53,7 +54,7 @@ def build(reference):
     for name in FILES:
         raw = (reference / name).read_bytes()
         assert raw == subprocess.check_output(['git','-C',str(reference),'show',f'{REVISION}:{name}']), name
-        source[name] = raw.decode()
+        source[name] = raw if name.endswith('.png') else raw.decode()
         pins[name] = hashlib.sha256(raw).hexdigest()
     drinks = [dict(symbol=s, item={'FRESH_WATER':'freshWater','SODA_POP':'sodaPop','LEMONADE':'lemonade'}[s], price=int(p))
               for s,p in re.findall(r'vend_item\s+(\w+),\s*(\d+)', source['data/items/vending_prices.asm'])]
@@ -91,10 +92,15 @@ def build(reference):
         else:
             assert function == 'HiddenCoins'
             row['coins'] = int(re.search(r'COIN \+ (\d+)', arg)[1])
+            row['credited_coins'] = 20 if row['coins'] == 40 else row['coins']
             row['flag'] = 'CELADON_SERVICES_V1_HIDDEN_COINS_'+str(index)
             row['shadowed_by_slot'] = any(m['x']==row['x'] and m['y']==row['y'] for m in machines)
             hidden_coins.append(row)
     assert len(machines)==36 and len(hidden_coins)==12 and hidden_coins[-1]['shadowed_by_slot']
+    ram = source['ram/wram.asm']
+    assert re.search(r'wSlotMachineWheel2SlipCounter:: db.*?wSlotMachineRerollCounter:: db', ram, re.S)
+    assert 'ld bc, $14' in source['engine/slots/slot_machine.asm']
+    assert 'cp 40\n\tjr z, .bcd20' in source['engine/events/hidden_items.asm']
     wheels = []
     for i in range(1,4):
         wheels.append(re.findall(r'dw (SLOTS\w+)', helper.global_block(source['data/events/slot_machine_wheels.asm'], f'SlotMachineWheel{i}')))
@@ -114,13 +120,33 @@ def build(reference):
     wanted = ['_VendingMachineText1','_VendingMachineText4','_VendingMachineText5','_VendingMachineText6','_VendingMachineText7',
               '_GameCornerClerk1DoYouNeedSomeGameCoinsText','_GotMonText','_SentToBoxText','_BoxIsFullText']
     assert all(label in texts for label in wanted), [label for label in wanted if label not in texts]
-    data = dict(drinks=drinks, prizes=prizes, elevator=elevator, machines=machines, hidden_coins=hidden_coins,
+    from PIL import Image
+    image = Image.open(reference/'gfx/slots/blue_slots_2.png').convert('RGB')
+    assert image.size == (32,48)
+    shade = {(255,255,255):'.',(170,170,170):'1',(85,85,85):'2',(0,0,0):'#'}
+    symbols = {}
+    for row,name in enumerate(['SLOTS7','SLOTSBAR','SLOTSCHERRY','SLOTSFISH','SLOTSBIRD','SLOTSMOUSE']):
+        # SLOTS7=$0200: source tile2/3 form top, tile0/1 form bottom.
+        symbols[name] = [''.join(shade[image.getpixel(((16 if y<8 else 0)+x,row*8+y%8))]
+                                for x in range(16)) for y in range(16)]
+    coin_gifts = {
+        'pokered:GAME_CORNER:objects:5':dict(coins=10,flag='EVENT_GOT_10_COINS',prefix='_GameCornerFishingGuru',
+            before='WantToPlayText',after='WinsComeAndGoText',full='DontNeedMyCoinsText',received='Received10CoinsText'),
+        'pokered:GAME_CORNER:objects:9':dict(coins=20,flag='EVENT_GOT_20_COINS_2',prefix='_GameCornerClerk2',
+            before='WantSomeCoinsText',after='INeedMoreCoinsText',full='YouHaveLotsOfCoinsText',received='Received20CoinsText'),
+        'pokered:GAME_CORNER:objects:10':dict(coins=20,flag='EVENT_GOT_20_COINS',prefix='_GameCornerGentleman',
+            before='ThrowingMeOffText',after='CloselyWatchTheReelsText',full='YouGotYourOwnCoinsText',received='Received20CoinsText',exact_full=True),
+    }
+    for gift in coin_gifts.values():
+        assert 'SetEvent ' + gift['flag'] in source['scripts/GameCorner.asm']
+        assert all(gift['prefix']+gift[k] in texts for k in ['before','after','full','received'])
+    data = dict(drinks=drinks, prizes=prizes, coin_gifts=coin_gifts, elevator=elevator, machines=machines, hidden_coins=hidden_coins,
                 wheels=wheels, vending_minimum_money=200, coin_sale=dict(price=1000,coins=50,full_threshold=9990),
                 eevee=dict(id='pokered:CELADON_MANSION_ROOF_HOUSE:objects:2', species='eevee',level=25,
                            flag='CELADON_SERVICES_V1_EEVEE_TAKEN'))
     header = dict(schema=1,source_revision=REVISION)
     return {'policy.json':encode(dict(header,policy=data)), 'dialogue.json':encode(dict(header,texts=texts)),
-            'provenance.json':encode(dict(header,files=pins))}
+            'provenance.json':encode(dict(header,files=pins)), 'symbols.json':encode(dict(header,symbols=symbols))}
 
 
 def main():

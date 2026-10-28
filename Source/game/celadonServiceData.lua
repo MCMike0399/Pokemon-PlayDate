@@ -20,3 +20,7 @@ function CeladonServiceData.text(label)
     end
     return CeruleanContent.text(label)
 end
+
+function CeladonServiceData.symbol(name)
+    return GameSession._copy(assert(record("symbols").symbols[name], "source slot symbol required"))
+end
