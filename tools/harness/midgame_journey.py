@@ -406,6 +406,9 @@ class MidgameJourney(vj.VermilionJourney):
         self.save()
 
     def save(self):
+        # A final dialogue press can expose the overworld with its field
+        # gesture still consumed. Release it before the inherited Save B tap.
+        self.send('wait 1')
         super().save()
         files = []
         for name in ('adventure.a.json', 'adventure.b.json'):
