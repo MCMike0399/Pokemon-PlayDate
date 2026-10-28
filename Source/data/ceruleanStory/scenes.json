@@ -1,0 +1,56 @@
+{
+  "fossil_trigger": {
+    "id": "pokered:MT_MOON_B2F:objects:1",
+    "x": 13,
+    "y": 8
+  },
+  "movement": {
+    "bill_around": [
+      "right",
+      "up",
+      "up",
+      "left",
+      "up"
+    ],
+    "bill_enter": [
+      "up",
+      "up",
+      "up"
+    ],
+    "bill_exit": [
+      "down",
+      "right",
+      "right",
+      "right",
+      "down"
+    ],
+    "nerd_dome": [
+      "right",
+      "up"
+    ],
+    "nerd_helix": [
+      "up"
+    ]
+  },
+  "no_encounters_after_nerd": {
+    "x_max": 14,
+    "x_min": 11,
+    "y_max": 8,
+    "y_min": 5
+  },
+  "pc": {
+    "coordinate_role": "target",
+    "facing": "up",
+    "id": "pokered:BILLS_HOUSE:hidden_events:1",
+    "x": 1,
+    "y": 4
+  },
+  "pc_player": {
+    "facing": "up",
+    "id": "pokered:BILLS_HOUSE:hidden_events:1",
+    "x": 1,
+    "y": 5
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

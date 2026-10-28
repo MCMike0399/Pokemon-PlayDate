@@ -1,0 +1,180 @@
+--- a/Source/battle/effects.lua
++++ b/Source/battle/effects.lua
+@@ -1,4 +1,5 @@
+ -- Gen V ability hooks owned by one actual Battle. No persistent volatile state.
++import "battle/contactAbilities"
+ Class("BattleEffects")
+ local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
+ local function nativeAbility(mon) return mon and mon.ability and mon:ability() or 0 end
+@@ -105,6 +106,7 @@
+ -- All enabled HP-loss producers pass through this owner. HP payments and
+ -- Struggle recoil are directDamage provenance, not Assurance's hurtThisTurn.
+ function BattleEffects:damage(mon,amount,cause)
++    if ContactAbilities.preventDamage(self,mon,cause) then return 0 end
+     local before=mon.hp
+     mon:takeDamage(amount)
+     local removed=before-mon.hp
+@@ -242,7 +244,10 @@
+     -- claim with PS's generic lethal-stat draw; nil preserves old2arg behavior.
+     return kind=="condition" or kind=="flinch" or alive(target)
+ end
+-function BattleEffects:recoilBlocked(mon,move) return self:effectiveAbility(mon)==69 and not move.struggleRecoil end
++function BattleEffects:recoilBlocked(mon,move)
++    local id=self:effectiveAbility(mon)
++    return (id==69 or id==98) and not move.struggleRecoil
++end
+ function BattleEffects:grounded(mon) return not has(self,mon,"flying") end
+ function BattleEffects:withdrawBlocked(mon)
+     local other=mon==self.battle.player and self.battle.enemy or self.battle.player
+@@ -282,6 +287,7 @@
+             ApplyStatus({resolve=function() return source end},status,{source={resolve=function() return target end},cause="ability"}):apply(b)
+         end
+     end
++    ContactAbilities.damagingHit(self,receipt)
+     return true
+ end
+ function BattleEffects:announceEndure(receipt)
+@@ -343,7 +349,7 @@
+         mon:heal(math.max(1,mon.maxHP//8))
+         if mon.hp>before then b:say(mon.name.." was healed by Dry Skin!") end
+     elseif event.kind=="sand" and self:weatherId()=="sandstorm" and self:active(mon) and alive(mon) then
+-        if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 then
++        if not has(self,mon,"rock") and not has(self,mon,"ground") and not has(self,mon,"steel") and self:effectiveAbility(mon)~=8 and not ContactAbilities.preventDamage(self,mon,"weather") then
+             self:damage(mon,math.max(1,mon.maxHP//16),"weather");b:say(mon.name .. " is buffeted by the sandstorm!")
+         end
+     elseif event.kind=="shedSkin" and self:active(mon) and alive(mon) and mon.status and self:effectiveAbility(mon)==61 then
+--- a/Source/battle/battle.lua
++++ b/Source/battle/battle.lua
+@@ -592,6 +592,7 @@
+     local chosen = assert(party:get(index))
+     assert(chosen ~= old and chosen:isAlive() and validSwitchSleep(old) and validSwitchSleep(chosen), "invalid active replacement")
+     assert(party:switch(index))
++    ContactAbilities.withdraw(self.effects,old)
+     self.conditions:clear(old)
+     self.effects:clear(old)
+     old:onSwitchOut()
+@@ -920,6 +921,8 @@
+         end
+     end
+
++    if self.conditions:infatuationBlocks(attacker) then return interrupted() end
++
+     if attacker.status == "paralyze" and RulesRNG.random(1, 4) == 1 then
+         self:say(attacker.name .. " is paralyzed! It can't move!")
+         return interrupted()
+@@ -1059,6 +1062,7 @@
+         local receipt=self.effects:hit(attacker,defender,move,defender.hp)
+         self.lastDamage=receipt.removed
+         self:say("It's a one-hit KO!")
++        ContactAbilities.secondaries(self.effects,attacker,defender,move)
+         self.effects:afterHit(receipt)
+         return self:handleFaint()
+     end
+@@ -1090,6 +1094,7 @@
+             local result = calcDamage(attacker, defender, move, power,self.effects)
+             local receipt=self.effects:hit(attacker,defender,move,result.damage,hitNumber)
+             self.conditions:landedMove(move)
++            ContactAbilities.onHit(self.effects,receipt,result.isCrit)
+             local before=receipt.before
+             total=total+receipt.removed
+             landed = landed + 1
+@@ -1179,6 +1184,7 @@
+
+ function Battle:applyMoveSecondaries(move)
+     for _,effect in ipairs(move.secondaries or {}) do effect:apply(self) end
++    ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
+ end
+
+ function Battle:applyMoveEffects(move)
+@@ -1355,7 +1361,7 @@
+ end
+
+ function Battle:applyStatusDamage(pokemon)
+-    if not pokemon:isAlive() then return end
++    if not pokemon:isAlive() or ContactAbilities.preventDamage(self.effects,pokemon,"status") then return end
+
+     if pokemon.status == "burn" then
+         self.effects:damage(pokemon,math.max(1, math.floor(pokemon.maxHP / 8)),"status")
+--- a/Source/battle/dsl.lua
++++ b/Source/battle/dsl.lua
+@@ -367,6 +367,7 @@
+     pokemon.status = self.status
+     pokemon.statusTurns = duration
+     pokemon.sleepDuration = duration
++    if battle.effects then ContactAbilities.afterStatus(battle.effects,pokemon,self.statusSource:resolve(battle),self.status,self.statusCause) end
+     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
+ end
+
+@@ -393,7 +394,11 @@
+     battle.lastDamage = before - pokemon.hp
+     if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 then battle.conditions:rageHit(pokemon) end
+     battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
+-    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
++    if receipt then
++        battle.effects:announceEndure(receipt)
++        ContactAbilities.secondaries(battle.effects,battle.attacker,pokemon,battle.currentMove)
++        battle.effects:afterHit(receipt)
++    end
+ end
+
+ Class("RoostEffect")
+@@ -431,7 +436,11 @@
+     if battle.conditions and battle.lastDamage>0 then battle.conditions:rageHit(defender) end
+     battle.isFlashing, battle.flashTimer = true, 6
+     battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
+-    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
++    if receipt then
++        battle.effects:announceEndure(receipt)
++        ContactAbilities.secondaries(battle.effects,battle.attacker,defender,battle.currentMove)
++        battle.effects:afterHit(receipt)
++    end
+ end
+
+ -- Dedicated effects delegate transient ownership to this battle only.
+--- a/Source/battle/conditions.lua
++++ b/Source/battle/conditions.lua
+@@ -323,11 +323,13 @@
+     for _,kind in ipairs(hazards.order or {}) do
+         if alive(mon) then
+             if kind=="stealthRock" and hazards.stealthRock then
+-                damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)
+-                b:say("Pointed stones dug into "..mon.name.."!")
++                if damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)>0 then
++                    b:say("Pointed stones dug into "..mon.name.."!")
++                end
+             elseif not has(self,mon,"flying") then
+                 if kind=="spikes" and hazards.spikes then
+-                    local divisor=({8,6,4})[hazards.spikes];damage(self,mon,mon.maxHP/divisor);b:say(mon.name.." was hurt by Spikes!")
++                    local divisor=({8,6,4})[hazards.spikes]
++                    if damage(self,mon,mon.maxHP/divisor)>0 then b:say(mon.name.." was hurt by Spikes!") end
+                 elseif kind=="toxicSpikes" and hazards.toxicSpikes then
+                     if has(self,mon,"poison") then hazards.toxicSpikes=nil;if hazards.hazardOrigins then hazards.hazardOrigins.toxicSpikes=nil end;b:say(mon.name.." absorbed the poison spikes!")
+                     elseif not has(self,mon,"steel") and not mon.status
+@@ -390,17 +392,21 @@
+         if rampage then self:endRampage(mon,rampage.interrupted and rampage.remaining==1) end
+     elseif event.kind=="seed" and state.seed then
+         local receiver=b[state.seed]
+-        if alive(receiver) then receiver:heal(damage(self,mon,mon.maxHP/8));b:say(mon.name.."'s health was sapped by Leech Seed!") end
+-    elseif event.kind=="curse" and state.curse then damage(self,mon,mon.maxHP/4);b:say(mon.name.." is afflicted by the curse!")
++        if alive(receiver) then
++            local removed=damage(self,mon,mon.maxHP/8)
++            if removed>0 then receiver:heal(removed);b:say(mon.name.."'s health was sapped by Leech Seed!") end
++        end
++    elseif event.kind=="curse" and state.curse then
++        if damage(self,mon,mon.maxHP/4)>0 then b:say(mon.name.." is afflicted by the curse!") end
+     elseif event.kind=="trap" and state.trap then
+         if not self:trapped(mon) then state.trap=nil;return end
+-        damage(self,mon,mon.maxHP/16);state.trap.remaining=state.trap.remaining-1
+-        b:say(mon.name.." is hurt by the binding!")
++        local removed=damage(self,mon,mon.maxHP/16);state.trap.remaining=state.trap.remaining-1
++        if removed>0 then b:say(mon.name.." is hurt by the binding!") end
+         if state.trap.remaining==0 then state.trap=nil;b:say(mon.name.." was freed!") end
+     elseif event.kind=="status" then
+         if mon.status=="badPoison" then
+-            state.toxic=math.min(15,(state.toxic or 0)+1);damage(self,mon,math.max(1,mon.maxHP//16)*state.toxic)
+-            b:say(mon.name.." is hurt by poison!")
++            state.toxic=math.min(15,(state.toxic or 0)+1)
++            if damage(self,mon,math.max(1,mon.maxHP//16)*state.toxic)>0 then b:say(mon.name.." is hurt by poison!") end
+         else state.toxic=nil;b:applyStatusDamage(mon) end
+     end
+ end

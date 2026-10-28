@@ -256,7 +256,7 @@ function SourceMapContracts.run()
         end
         local ok, problem = pcall(function()
             SourceMaps._withRecords(records, function()
-                equal(#SourceMaps.names(), 14)
+                equal(#SourceMaps.names(), 31)
                 local profiles = SourceMaps.legacyProfiles({ dispatch = function() error("fixture cannot dispatch") end,
                     questFlag = function() return false end, sourceFlag = function() return false end })
                 -- Test content adapter supplies only inert NPC data. Geometry,
@@ -273,7 +273,7 @@ function SourceMapContracts.run()
                 zoneRegistry, zoneList, currentZone = {}, {}, nil
                 local provider = SourceMaps.createProvider(profiles, TileRegistry())
                 local loaded, failure = pcall(function()
-                    equal(#provider:inventory(), 14)
+                    equal(#provider:inventory(), 31)
                     local school = provider:ensure("fixture_ViridianSchoolHouse")
                     local route = provider:ensure("fixture_Route22")
                     equal(school.width, 13)
@@ -326,13 +326,13 @@ function SourceMapContracts.run()
         if not ok then error(problem,0) end
     end)
 
-    test("both live installation facades share all twelve definitions and resident Viridian Zones", function()
+    test("both live installation facades share all thirty definitions and resident Viridian Zones", function()
         local provider = WorldDeltas.definitionProvider()
         equal(PewterWorld.install(game), provider)
         local count = #zoneList
         local zones = KantoWorld.install(game)
         equal(#zoneList, count)
-        equal(#provider:inventory(), 12)
+        equal(#provider:inventory(), 30)
         equal(provider:snapshot().capacity, 6)
         for _, name in ipairs(SourceMaps.names("viridian")) do
             local entry = SourceMaps.entry(name)
@@ -372,7 +372,7 @@ function SourceMapContracts.run()
             assert(SourceMaps.definition(name).grids[1].grid[1] ~= "changed")
             assert(SourceMaps.entry(name).spawn.x >= 0)
         end
-        rejects(function() SourceMaps.definition("Route3") end)
+        rejects(function() SourceMaps.definition("UninstalledMap") end)
     end)
 
     test("compatibility dispatch return values remain distinct without replacing event owners", function()
@@ -394,7 +394,7 @@ function SourceMapContracts.run()
     test("unloaded validation allocates no native tiles or Zones for either region", function()
         scope(function(provider, registry, context)
             local ids = registry:maxID()
-            equal(#provider:inventory(), 12)
+            equal(#provider:inventory(), 30)
             for _, name in ipairs(SourceMaps.names()) do
                 local entry = SourceMaps.entry(name)
                 local location = { zone_id = entry.id, x = entry.spawn.x, y = entry.spawn.y, facing = "up" }
@@ -434,7 +434,7 @@ function SourceMapContracts.run()
             local ok, problem = pcall(function()
                 local provider = PewterWorld.createProvider(context, registry)
                 equal(next(loaded), nil)
-                equal(#provider:inventory(), 12)
+                equal(#provider:inventory(), 30)
                 equal(next(loaded), nil)
                 local route = provider:ensure("kanto_route1")
                 equal(loaded.Route1, 1)
@@ -580,12 +580,21 @@ function SourceMapContracts.run()
         if not ok then error(problem, 0) end
     end)
 
-    test("Pewter compact descriptors retain all prior identities palettes rows and blockers", function()
+    test("Pewter descriptors retain prior data except the declared museum openings", function()
         scope(function(provider)
             for _, original in pairs(assert(json.decodeFile("data/pewterSlice/compact.json")).maps) do
                 local descriptor = provider:descriptor(original.id)
                 for _, field in ipairs({ "id", "key", "revision", "width", "height", "padding", "source_width", "palette", "tile_rows", "blocked" }) do
-                    same(descriptor[field], original[field])
+                    local expected = original[field]
+                    if field == "blocked" and original.id == "pokered:PEWTER_CITY" then
+                        expected = GameSession._copy(expected)
+                        for cell, id in pairs(expected) do
+                            if id == "pokered:PEWTER_CITY:warps:1" or id == "pokered:PEWTER_CITY:warps:2" then
+                                expected[cell] = nil
+                            end
+                        end
+                    end
+                    same(descriptor[field], expected)
                 end
             end
         end)

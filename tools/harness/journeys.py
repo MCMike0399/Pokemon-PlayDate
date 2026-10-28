@@ -396,6 +396,9 @@ def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None,
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")
+    if config.get("name") in {"cerulean-natural", "cerulean-continue", "cerulean-supplementary"}:
+        from tools.harness.cerulean_journey import run as run_cerulean
+        return run_cerulean(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)
     if config.get("name") == "reward-hud":
         from tools.harness.reward_hud import run as run_reward_hud
         return run_reward_hud(client, scenario, evidence_dir)

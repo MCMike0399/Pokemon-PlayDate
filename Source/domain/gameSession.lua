@@ -126,6 +126,56 @@ function GameSession:markSeen(species)
     if not pokemonData[species] then return false,"unknown-species" end
     state[self].dex.seen[species]=true; return true
 end
+-- Paid gifts use ordinary Gen V acquisition, including selected-box overflow.
+-- Prepare every fallible value on detached owners before claiming the specimen.
+-- No callback/yield is allowed between the validated claim and final assignments.
+function GameSession:purchaseGiftPokemon(offer, expectedMoney)
+    local current = state[self]
+    local ok, prepared = pcall(function()
+        object(offer, {species=true, level=true, price=true, flag=true})
+        assert(Specimen.isActiveSession(self), "inactive-specimen-session")
+        assert(stable(offer.flag), "invalid-gift-flag")
+        assert(Party._integer(offer.price, 0, Inventory.MONEY_LIMIT), "invalid-gift-price")
+        assert(Party._integer(expectedMoney, 0, Inventory.MONEY_LIMIT), "invalid-money-guard")
+        if self:questFlag(offer.flag) then error("already-complete", 0) end
+        if current.inventory:money() ~= expectedMoney then error("stale-money", 0) end
+        local bag = assert(Inventory.fromData(current.deps.itemDefinitions, current.inventory:toData()))
+        local paid, reason = bag:spend(offer.price)
+        if not paid then error(reason, 0) end
+        local destination = current.party:count() < Party.CAPACITY and "party" or "storage"
+        if destination == "storage" and current.storage:count() >= Storage.BOX_CAPACITY then
+            error("box-full", 0)
+        end
+        local combined = copy(current.questFlags)
+        combined[offer.flag] = true
+        combined = flags(combined, 4096)
+        local stream = RulesRNG.new(1)
+        stream:restoreData(self:rngData())
+        local mon, receipt = Specimen.create(offer.species, offer.level, "gift", stream)
+        assert(mon, receipt)
+        assert(PokemonCodec.encode(mon), "invalid-gift-specimen")
+        local pokedex = self:pokedex()
+        pokedex.seen[mon.species], pokedex.owned[mon.species] = true, true
+        return {mon=mon, receipt=receipt, rng=stream:snapshot(), bag=bag:toData(),
+            flags=combined, dex=dex(pokedex), destination=destination,
+            box=destination == "storage" and current.storage:activeBox() or nil}
+    end)
+    if not ok then return false, tostring(prepared) end
+    local accepted, index
+    if prepared.destination == "party" then
+        accepted, index = current.party:add(prepared.mon)
+    else
+        accepted, index = current.storage:receive(prepared.mon)
+    end
+    -- Claim validates before mutation. A rejection still owns no cash or RNG.
+    if not accepted then return false, index end
+    assert(Inventory._replaceData(current.inventory, prepared.bag))
+    current.questFlags, current.dex = prepared.flags, prepared.dex
+    current.currentActors = WorldMotionData.empty()
+    RulesRNG.restore(prepared.rng)
+    return true, {destination=prepared.destination, index=index, box=prepared.box,
+        specimen=prepared.receipt}
+end
 function GameSession:pokedex() return copy(state[self].dex) end
 local function setFlag(self,kind,id,value)
     if not stable(id) or type(value)~="boolean" then return false,"invalid-flag" end
@@ -221,7 +271,7 @@ function GameSession:transact(expected,changes)
     return true
 end
 -- Badge bits are represented by stable quest flags in the existing codec.
-local badgeFlags={boulder="BADGE_BOULDER"}
+local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE"}
 function GameSession:hasBadge(name)
     local id=assert(badgeFlags[name],"unsupported badge name")
     return self:questFlag(id)

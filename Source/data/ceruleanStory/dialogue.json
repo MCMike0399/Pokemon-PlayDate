@@ -1,0 +1,986 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_BillsHouseBillCheckOutMyRarePokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 84,
+          "text": "BILL: Look, bud,"
+        },
+        {
+          "op": "line",
+          "source_line": 85,
+          "text": "just check out"
+        },
+        {
+          "op": "cont",
+          "source_line": 86,
+          "text": "some of my rare"
+        },
+        {
+          "op": "cont",
+          "source_line": 87,
+          "text": "#MON on my PC!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 88
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_BillsHouseBillImNotAPokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hiya! I'm a"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "#MON..."
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "...No I'm not!"
+        },
+        {
+          "op": "para",
+          "source_line": 6,
+          "text": "Call me BILL!"
+        },
+        {
+          "op": "line",
+          "source_line": 7,
+          "text": "I'm a true blue"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "#MANIAC! Hey!"
+        },
+        {
+          "op": "cont",
+          "source_line": 9,
+          "text": "What's with that"
+        },
+        {
+          "op": "cont",
+          "source_line": 10,
+          "text": "skeptical look?"
+        },
+        {
+          "op": "para",
+          "source_line": 12,
+          "text": "I'm not joshing"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "you, I screwed up"
+        },
+        {
+          "op": "cont",
+          "source_line": 14,
+          "text": "an experiment and"
+        },
+        {
+          "op": "cont",
+          "source_line": 15,
+          "text": "got combined with"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "a #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 18,
+          "text": "So, how about it?"
+        },
+        {
+          "op": "line",
+          "source_line": 19,
+          "text": "Help me out here!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 20
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_BillsHouseBillNoYouGottaHelpText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 31,
+          "text": "No!? Come on, you"
+        },
+        {
+          "op": "line",
+          "source_line": 32,
+          "text": "gotta help a guy"
+        },
+        {
+          "op": "cont",
+          "source_line": 33,
+          "text": "in deep trouble!"
+        },
+        {
+          "op": "para",
+          "source_line": 35,
+          "text": "What do you say,"
+        },
+        {
+          "op": "line",
+          "source_line": 36,
+          "text": "chief? Please?"
+        },
+        {
+          "op": "cont",
+          "source_line": 37,
+          "text": "OK? All right!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 38
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_BillsHouseBillThankYouText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 41,
+          "text": "BILL: Yeehah!"
+        },
+        {
+          "op": "line",
+          "source_line": 42,
+          "text": "Thanks, bud! I"
+        },
+        {
+          "op": "cont",
+          "source_line": 43,
+          "text": "owe you one!"
+        },
+        {
+          "op": "para",
+          "source_line": 45,
+          "text": "So, did you come"
+        },
+        {
+          "op": "line",
+          "source_line": 46,
+          "text": "to see my #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 47,
+          "text": "collection?"
+        },
+        {
+          "op": "cont",
+          "source_line": 48,
+          "text": "You didn't?"
+        },
+        {
+          "op": "cont",
+          "source_line": 49,
+          "text": "That's a bummer."
+        },
+        {
+          "op": "para",
+          "source_line": 51,
+          "text": "I've got to thank"
+        },
+        {
+          "op": "line",
+          "source_line": 52,
+          "text": "you... Oh here,"
+        },
+        {
+          "op": "cont",
+          "source_line": 53,
+          "text": "maybe this'll do."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 54
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_BillsHouseBillUseSeparationSystemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 23,
+          "text": "When I'm in the"
+        },
+        {
+          "op": "line",
+          "source_line": 24,
+          "text": "TELEPORTER, go to"
+        },
+        {
+          "op": "cont",
+          "source_line": 25,
+          "text": "my PC and run the"
+        },
+        {
+          "op": "cont",
+          "source_line": 26,
+          "text": "Cell Separation"
+        },
+        {
+          "op": "cont",
+          "source_line": 27,
+          "text": "System!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 28
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_BillsHouseBillWhyDontYouGoInsteadOfMeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 69,
+          "text": "That cruise ship,"
+        },
+        {
+          "op": "line",
+          "source_line": 70,
+          "text": "S.S.ANNE, is in"
+        },
+        {
+          "op": "cont",
+          "source_line": 71,
+          "text": "VERMILION CITY."
+        },
+        {
+          "op": "cont",
+          "source_line": 72,
+          "text": "Its passengers"
+        },
+        {
+          "op": "cont",
+          "source_line": 73,
+          "text": "are all trainers!"
+        },
+        {
+          "op": "para",
+          "source_line": 75,
+          "text": "They invited me"
+        },
+        {
+          "op": "line",
+          "source_line": 76,
+          "text": "to their party,"
+        },
+        {
+          "op": "cont",
+          "source_line": 77,
+          "text": "but I can't stand"
+        },
+        {
+          "op": "cont",
+          "source_line": 78,
+          "text": "fancy do's. Why"
+        },
+        {
+          "op": "cont",
+          "source_line": 79,
+          "text": "don't you go"
+        },
+        {
+          "op": "cont",
+          "source_line": 80,
+          "text": "instead of me?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 81
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_BillsHouseInitiatedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 401,
+          "text": "<PLAYER> initiated"
+        },
+        {
+          "op": "line",
+          "source_line": 402,
+          "text": "TELEPORTER's Cell"
+        },
+        {
+          "op": "cont",
+          "source_line": 403,
+          "text": "Separator!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 404
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_BillsHouseMonitorText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 395,
+          "text": "TELEPORTER is"
+        },
+        {
+          "op": "line",
+          "source_line": 396,
+          "text": "displayed on the"
+        },
+        {
+          "op": "cont",
+          "source_line": 397,
+          "text": "PC monitor."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 398
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_BillsHousePokemonListText1": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 407,
+          "text": "BILL's favorite"
+        },
+        {
+          "op": "line",
+          "source_line": 408,
+          "text": "#MON list!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 409
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_BillsHousePokemonListText2": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 412,
+          "text": "Which #MON do"
+        },
+        {
+          "op": "line",
+          "source_line": 413,
+          "text": "you want to see?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 414
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_CeruleanGymMistyCascadeBadgeInfoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": "The CASCADEBADGE"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "makes all #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 31,
+          "text": "up to L30 obey!"
+        },
+        {
+          "op": "para",
+          "source_line": 33,
+          "text": "That includes"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "even outsiders!"
+        },
+        {
+          "op": "para",
+          "source_line": 36,
+          "text": "There's more, you"
+        },
+        {
+          "op": "line",
+          "source_line": 37,
+          "text": "can now use CUT"
+        },
+        {
+          "op": "cont",
+          "source_line": 38,
+          "text": "any time!"
+        },
+        {
+          "op": "para",
+          "source_line": 40,
+          "text": "You can CUT down"
+        },
+        {
+          "op": "line",
+          "source_line": 41,
+          "text": "small bushes to"
+        },
+        {
+          "op": "cont",
+          "source_line": 42,
+          "text": "open new paths!"
+        },
+        {
+          "op": "para",
+          "source_line": 44,
+          "text": "You can also have"
+        },
+        {
+          "op": "line",
+          "source_line": 45,
+          "text": "my favorite TM!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 46
+        }
+      ],
+      "source": "text/CeruleanGym.asm"
+    },
+    "_CeruleanGymMistyPreBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Hi, you're a new"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "face!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "Trainers who want"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "to turn pro have"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "to have a policy"
+        },
+        {
+          "op": "cont",
+          "source_line": 8,
+          "text": "about #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 10,
+          "text": "What is your"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "approach when you"
+        },
+        {
+          "op": "cont",
+          "source_line": 12,
+          "text": "catch #MON?"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "My policy is an"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "all-out offensive"
+        },
+        {
+          "op": "cont",
+          "source_line": 16,
+          "text": "with water-type"
+        },
+        {
+          "op": "cont",
+          "source_line": 17,
+          "text": "#MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 18
+        }
+      ],
+      "source": "text/CeruleanGym.asm"
+    },
+    "_CeruleanGymMistyReceivedCascadeBadgeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 59,
+          "text": "Wow!"
+        },
+        {
+          "op": "line",
+          "source_line": 60,
+          "text": "You're too much!"
+        },
+        {
+          "op": "para",
+          "source_line": 62,
+          "text": "All right!"
+        },
+        {
+          "op": "para",
+          "source_line": 64,
+          "text": "You can have the"
+        },
+        {
+          "op": "line",
+          "source_line": 65,
+          "text": "CASCADEBADGE to"
+        },
+        {
+          "op": "cont",
+          "source_line": 66,
+          "text": "show you beat me!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 67
+        }
+      ],
+      "source": "text/CeruleanGym.asm"
+    },
+    "_CeruleanGymMistyReceivedTM11Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 49,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 50,
+          "text": "TM11!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 51
+        }
+      ],
+      "source": "text/CeruleanGym.asm"
+    },
+    "_CeruleanGymMistyTM11ExplanationText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 21,
+          "text": "TM11 teaches"
+        },
+        {
+          "op": "line",
+          "source_line": 22,
+          "text": "BUBBLEBEAM!"
+        },
+        {
+          "op": "para",
+          "source_line": 24,
+          "text": "Use it on an"
+        },
+        {
+          "op": "line",
+          "source_line": 25,
+          "text": "aquatic #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 26
+        }
+      ],
+      "source": "text/CeruleanGym.asm"
+    },
+    "_CeruleanGymMistyTM11NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 54,
+          "text": "You better make"
+        },
+        {
+          "op": "line",
+          "source_line": 55,
+          "text": "room for this!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 56
+        }
+      ],
+      "source": "text/CeruleanGym.asm"
+    },
+    "_MoneyForWinningText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 869,
+          "text": "<PLAYER> got ¥@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd wAmountMoneyWon, 3 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 870
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 871
+        },
+        {
+          "op": "line",
+          "source_line": 872,
+          "text": "for winning!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 873
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_MtMoonB2FDomeFossilYouWantText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "You want the"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "DOME FOSSIL?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 4
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FHelixFossilYouWantText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 7,
+          "text": "You want the"
+        },
+        {
+          "op": "line",
+          "source_line": 8,
+          "text": "HELIX FOSSIL?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 9
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FReceivedFossilText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 12,
+          "text": "<PLAYER> got the"
+        },
+        {
+          "op": "line",
+          "source_line": 13,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 14,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 15,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 16
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FSuperNerdOkIllShareText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 32,
+          "text": "OK!"
+        },
+        {
+          "op": "line",
+          "source_line": 33,
+          "text": "I'll share!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 34
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FSuperNerdThenThisIsMineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 54,
+          "text": "All right. Then"
+        },
+        {
+          "op": "line",
+          "source_line": 55,
+          "text": "this is mine!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 56
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FSuperNerdTheresAPokemonLabText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 43,
+          "text": "Far away, on"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "CINNABAR ISLAND,"
+        },
+        {
+          "op": "cont",
+          "source_line": 45,
+          "text": "there's a #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 46,
+          "text": "LAB."
+        },
+        {
+          "op": "para",
+          "source_line": 48,
+          "text": "They do research"
+        },
+        {
+          "op": "line",
+          "source_line": 49,
+          "text": "on regenerating"
+        },
+        {
+          "op": "cont",
+          "source_line": 50,
+          "text": "fossils."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 51
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FSuperNerdTheyreBothMineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 24,
+          "text": "Hey, stop!"
+        },
+        {
+          "op": "para",
+          "source_line": 26,
+          "text": "I found these"
+        },
+        {
+          "op": "line",
+          "source_line": 27,
+          "text": "fossils! They're"
+        },
+        {
+          "op": "cont",
+          "source_line": 28,
+          "text": "both mine!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 29
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2FYouHaveNoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "Look, you've got"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "no room for this.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 21
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_MtMoonB2fSuperNerdEachTakeOneText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 37,
+          "text": "We'll each take"
+        },
+        {
+          "op": "line",
+          "source_line": 38,
+          "text": "one!"
+        },
+        {
+          "op": "cont",
+          "source_line": 39,
+          "text": "No being greedy!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 40
+        }
+      ],
+      "source": "text/MtMoonB2F.asm"
+    },
+    "_SSTicketNoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 64,
+          "text": "You've got too"
+        },
+        {
+          "op": "line",
+          "source_line": 65,
+          "text": "much stuff, bud!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 66
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    },
+    "_SSTicketReceivedText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 57,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 58,
+          "text": "an @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 59,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 60,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 61
+        }
+      ],
+      "source": "text/BillsHouse.asm"
+    }
+  }
+}

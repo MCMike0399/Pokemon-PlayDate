@@ -1,0 +1,38 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {"op": "fixture", "options": {"seed": 42, "intro": "skip", "opening": false, "zone": "kanto_viridian_city"}},
+          {"op": "await", "path": "player.settled", "equals": true, "frames": 90},
+          {"op": "observe", "args": ["owners"]},
+          "wait 30",
+          {"op": "observe", "args": ["purity"]},
+          "press b",
+          {"op": "assert", "path": "pause.menu.options.4", "equals": "SAVE"},
+          "press down", "press down", "press down", "press a",
+          {"op": "assert", "path": "pause.phase", "equals": "save"},
+          "press a",
+          {"op": "assert", "path": "pause.lastSave.ok", "equals": true},
+          {"op": "observe", "args": ["saved"]},
+          "dismiss",
+          {"op": "observe", "args": ["purity"]}
+        ]
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {"op": "assert", "path": "root", "equals": "title"},
+          {"op": "assert", "path": "title.menu.options.1", "equals": "CONTINUE"},
+          {"op": "observe", "args": ["owners"]},
+          "press a",
+          {"op": "await", "path": "root", "equals": "overworld", "frames": 90},
+          {"op": "observe", "args": ["loaded"]},
+          {"op": "observe", "args": ["purity"]}
+        ]
+      ]
+    }
+  ]
+}

@@ -3,9 +3,16 @@ HealingComposition={}
 local gfx <const> = playdate.graphics
 local offsets={{-8,14,false},{8,14,true},{-8,24,false},{8,24,true},{-8,34,false},{8,34,true}}
 function HealingComposition.layout(zone)
-    assert(zone and (zone.stableID=="pokered:VIRIDIAN_POKECENTER" or zone.stableID=="pokered:PEWTER_POKECENTER"),"explicit healing-machine map required")
+    assert(zone, "explicit healing-machine map required")
+    if zone.stableID ~= "pokered:VIRIDIAN_POKECENTER" and zone.stableID ~= "pokered:PEWTER_POKECENTER" then
+        local name = SourceMaps.nameForID(zone.stableID)
+        local definition = name and SourceMaps.definition(name)
+        assert(definition and definition.tileset.constant == "POKECENTER"
+            and definition.dimensions.cells[1] == 14 and definition.dimensions.cells[2] == 8
+            and SourceMaps.entry(name).padding == 0, "explicit healing-machine map required")
+    end
     assert(TILE_SIZE==32,"healing OAM composition requires native2x source tiles")
-    -- Both pinned Centers share the same112 source cells and machine geometry.
+    -- Standard pinned Centers share 112 source cells and machine geometry.
     -- Source monitor cavity is world pixels29..34,6..8. Its8x8 OAM tile
     -- begins at28,4, i.e. source mapcell1,0 plus12,4 logical pixels.
     local result={monitor={x=TILE_SIZE+24,y=8},balls={}}

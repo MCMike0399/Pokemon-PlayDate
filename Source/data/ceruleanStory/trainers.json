@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "trainers": {
+    "pokered:CERULEAN_GYM:objects:1": {
+      "id": "pokered:CERULEAN_GYM:objects:1",
+      "map_id": "pokered:CERULEAN_GYM",
+      "name": "MISTY",
+      "party": [
+        {
+          "level": 18,
+          "species": "staryu"
+        },
+        {
+          "level": 21,
+          "species": "starmie"
+        }
+      ],
+      "payout": 2079,
+      "sight_range_cells": 0,
+      "source_flag": "EVENT_BEAT_MISTY",
+      "sprite_source": "SPRITE_BRUNETTE_GIRL",
+      "talk_only": true,
+      "x": 4,
+      "y": 2
+    },
+    "pokered:MT_MOON_B2F:objects:1": {
+      "id": "pokered:MT_MOON_B2F:objects:1",
+      "map_id": "pokered:MT_MOON_B2F",
+      "name": "SUPER NERD",
+      "party": [
+        {
+          "level": 12,
+          "species": "grimer"
+        },
+        {
+          "level": 12,
+          "species": "voltorb"
+        },
+        {
+          "level": 12,
+          "species": "koffing"
+        }
+      ],
+      "payout": 300,
+      "sight_range_cells": 0,
+      "source_flag": "EVENT_BEAT_MT_MOON_EXIT_SUPER_NERD",
+      "sprite_source": "SPRITE_SUPER_NERD",
+      "talk_only": true,
+      "x": 12,
+      "y": 8
+    }
+  }
+}

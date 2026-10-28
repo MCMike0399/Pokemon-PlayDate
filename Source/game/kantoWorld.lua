@@ -75,6 +75,7 @@ function KantoWorld.onEnter(game,options)
     return false -- Continue is an exact saved position; Center has no generic UP step.
 end
 function KantoWorld.tryInteract(game)
+    if SourceEvents.worldHook("interact", game) then return true end
     if HomeRest and HomeRest.tryInteract(game)then return true end
     if FieldItems and FieldItems.tryDaisy(game)then return true end
     if PCTerminals.tryInteract(game) then return true end

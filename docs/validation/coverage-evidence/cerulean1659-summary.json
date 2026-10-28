@@ -1,0 +1,1036 @@
+{
+  "schema": 1,
+  "acceptance_context": "private-cerulean-candidate-not-main-or-milestone",
+  "candidate_commit": "b1f0bd8d19c857dc78c10648acd495a3cfdcd3be",
+  "accepted_main": {
+    "commit": "27443af",
+    "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
+    "scope": "Accepted through Brock; milestone 5.2. Cerulean and its starter/restart journeys are not accepted here."
+  },
+  "source_sha256": "3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
+  "compiled_source_sha256": "df59ed9cef12feb02fcb01651461ca6d844b9dab34de597c8504cb2641e9c420",
+  "build_id": "b1f0bd8d19c857dc78c10648acd495a3cfdcd3be:3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
+  "session_id": "8a9b1a145cfa4201ae7e2d2dda1de139",
+  "sdk_version": "3.1.2",
+  "sdk": {
+    "passed": 1659,
+    "failed": 0,
+    "suite_count": 103,
+    "suite_passed": 1639
+  },
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/00001-result.json",
+    "sha256": "814d4737855b85625a9055be7e06709e5e3e9dff2cd6fc385bdcd16d79f6234a",
+    "size_bytes": 2597103
+  },
+  "projection": {
+    "path": "docs/validation/coverage-evidence/cerulean1659-contracts-projection.json",
+    "sha256": "a99e8dcc172145c149da01d1479a970353b737ee297e268e813c4938e5385d2f"
+  },
+  "manifests": {
+    "run.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/run.json",
+      "sha256": "a883d309b576509a2f79e86fba510d1aea8b24ed8e0c0b76bdf073f9016e208e",
+      "size_bytes": 1639
+    },
+    "build.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/build.json",
+      "sha256": "4286a2c3afa8c89b84685bc105e8c85f6882552353e2a6720ca4957e36397c9c",
+      "size_bytes": 1615
+    },
+    "source-manifest.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/source-manifest.json",
+      "sha256": "391723ad44c1eef308868098cad6fcd6b4b710cc29d2c0b0c0cc88144570ae48",
+      "size_bytes": 63703
+    },
+    "original-main.lua": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/original-main.lua",
+      "sha256": "815d7c041e2508e393a996fe89ad3f525285017e3b2396a166ca95073ab354d8",
+      "size_bytes": 5859
+    },
+    "00001-request.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/00001-request.json",
+      "sha256": "7c2506eaf250408e93608aa9f6a6e972a0c76d568d1e651bc16f04e059899df2",
+      "size_bytes": 292
+    }
+  },
+  "identity_proof": {
+    "source_git_tree": "b8f108a48818604528e4511363fc9fc19ae9fa56",
+    "native_source_git_tree": "b8f108a48818604528e4511363fc9fc19ae9fa56",
+    "original_manifest_files": 634,
+    "all_original_file_hashes_match": true,
+    "reconstructed_original_source_sha256": "3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
+    "compiled_staged_tree_matches": true,
+    "overlays": "main.lua and pdxinfo reconstructed from saved originals; generated dev/harness_build.lua excluded only by the documented Source fingerprint. Its original hash still matches source-manifest.json."
+  },
+  "review_base_commit": "27443af",
+  "reviewed_owner_refresh": [
+    {
+      "path": "Source/battle/effects.lua",
+      "selector": "function BattleEffects:canAttempt(",
+      "before_sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506",
+      "after_sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "moves": [
+        "captivate",
+        "endeavor",
+        "ragePowder",
+        "suckerPunch",
+        "whirlwind",
+        "roar"
+      ],
+      "tests": [
+        "brock-move-batch01: Endeavor positive HP difference is fixed50 independent of stages/type resistance/crit",
+        "brock-move-batch01: Rage Powder explicitly fails singles after PP without accuracy or random draws",
+        "brock-move-batch01: Sucker Punch public round hits pending damaging selection even slower",
+        "move-failure: Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity",
+        "move-failure: Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind",
+        "move-failure: Roar wild escape is run without rewards; higher level and trainer without reserves fail normally",
+        "sex-abilities: Captivate opposite-sex female user also succeeds with one accuracy sample",
+        "whirlwind: A displaced queued actual actor never begins action or lends PP/status/action to incoming",
+        "whirlwind: Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP",
+        "whirlwind: Actual binding/Arena Trap do not prevent trainer forced displacement",
+        "whirlwind: Actual entry marks only dragged opponent seen and preserves unseen bench identities",
+        "whirlwind: Entry hazard faint uses actual incoming identity before XP/learning and normal replacement",
+        "whirlwind: Equal/lower-level wild targets exit through run once without XP EV or prizes",
+        "whirlwind: Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers",
+        "whirlwind: Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners",
+        "whirlwind: Forced owned replacement preserves major status/HP/PP and resets original sleep and stages",
+        "whirlwind: Higher-level wild target fails after one accuracy roll and one PP without escape lottery",
+        "whirlwind: Miss samples accuracy only and does not select or mutate an opponent",
+        "whirlwind: Missing/forged queued actors are rejected before context direction status PP or RNG",
+        "whirlwind: Named Helping Hand singles attempt fails without an ally or move RNG and spends PP",
+        "whirlwind: Normal-type Whirlwind is not stopped by a Ghost status target",
+        "whirlwind: One trainer reserve samples once and uses dragged-out narration through opponent entry",
+        "whirlwind: Ordinary effect booleans are not terminal outcomes in the shared status pipeline",
+        "whirlwind: Phaze clears real Roost/ability override while side timers and rain persist",
+        "whirlwind: Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP",
+        "whirlwind: Public commands keep invalid index/phase rejection RNG and models unchanged",
+        "whirlwind: Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG",
+        "whirlwind: Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue",
+        "whirlwind: Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning",
+        "whirlwind: Root-generated Whirlwind retains all scalars and has one typed opposing effect",
+        "whirlwind: Trainer with no living reserve fails after PP and accuracy without a replacement draw",
+        "whirlwind: Two usable trainer reserves follow stable actual party indices with literal RNG vectors",
+        "whirlwind: Typed force effect outside the owned script or after close changes nothing",
+        "whirlwind: Wild enemy Whirlwind ends encounter rather than selecting an owned reserve"
+      ],
+      "review": "Soundproof expands from Roar to pinned actual sound identities with living/active gates; Captivate, Endeavor, Rage Powder, Sucker Punch and phazing branches are unchanged. Retain their original assertion scopes only.",
+      "supplemental_tests": [
+        "entry-abilities: Soundproof general Supersonic Sing Growl Screech and damaging sound guard before accuracy"
+      ]
+    },
+    {
+      "path": "Source/battle/effects.lua",
+      "selector": "function BattleEffects:accuracyBypassesCheck(",
+      "before_sha256": "554a48f8bde258e9046bf7c85c992753554bc2c3aa2c6afa35b802facb39cc92",
+      "after_sha256": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8",
+      "moves": [
+        "hurricane",
+        "rainDance",
+        "thunder"
+      ],
+      "tests": [
+        "rain: Actual rain attacks hit with their real secondary/PP order; no accuracy draw",
+        "rain: Real RainDance PP4 no accuracy/duration draw and first residual leaves4"
+      ],
+      "review": "Rain path preserved; No Guard on either living participant added. Original rain assertions prove rain-sensitive attacks, supplementary No Guard test proves the new bypass only.",
+      "supplemental_tests": [
+        "entry-abilities: No Guard on either living participant bypasses accuracy stages without accuracy RNG"
+      ]
+    },
+    {
+      "path": "Source/battle/battle.lua",
+      "selector": "    -- Gen V critical stages",
+      "before_sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3",
+      "after_sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f",
+      "moves": [
+        "nightSlash",
+        "razorLeaf",
+        "shadowClaw",
+        "slash",
+        "stoneEdge",
+        "karateChop",
+        "razorWind",
+        "skyAttack",
+        "crabhammer",
+        "crossChop",
+        "blazeKick",
+        "airCutter",
+        "leafBlade",
+        "psychoCut",
+        "crossPoison",
+        "drillRun",
+        "stormThrow"
+      ],
+      "tests": [
+        "brock-mechanics: All16 generated high-critical moves add one; forcedcrit is never a stage6 clamp",
+        "brock-mechanics: Each critical stage passes and fails literal roll endpoints through actual damage",
+        "brock-mechanics: Forced critical bypasses critical RNG and fixed damage cannot crit with Focus"
+      ],
+      "review": "Shell Armor rejects a critical after its sampled/forced trial. Original high-critical metadata/stage endpoints are retained, supplemented by actual sampled and forced Shell Armor witnesses. This is not a dedicated attack by each family member or proof of Razor Wind/Sky Attack charge.",
+      "supplemental_tests": [
+        "entry-abilities: Shell Armor also rejects guaranteed criticals without inventing a critical trial",
+        "entry-abilities: Shell Armor rejects sampled critical after its trial, without favorable stage bypass"
+      ]
+    },
+    {
+      "path": "Source/battle/battle.lua",
+      "selector": "    -- GenV TryHit protection follows",
+      "before_sha256": "fea2ec54e3c949c7b857b0d983ea660732a8878356e5a8ef60da4e50ab71a819",
+      "after_sha256": "55cb1b33c4e76b209f146fb74e5ba3b29865d9d65b25024dc04e4eceb5cee066",
+      "moves": [
+        "protect"
+      ],
+      "tests": [
+        "protect: First Protect priority4 blocks actual faster attack before accuracy/critical/contact draws"
+      ],
+      "review": "Absorption now follows Protect and precedes canAttempt/accuracy. Original priority/block assertion and real Protect-before-Dry-Skin test cover this ordering, not every immunity combination.",
+      "supplemental_tests": [
+        "common-abilities: Protect blocks Water before Dry Skin healing with no accuracy/damage draws"
+      ]
+    },
+    {
+      "path": "Source/battle/dsl.lua",
+      "selector": "function ModifyStat:apply(",
+      "before_sha256": "3504f5a98e6b83c292bb450d2b0aa4723dffb815bd09f569d992a34b30a71e58",
+      "after_sha256": "9141615988aec940329404e7716379dfe55fe571929a481a59d1288da7803a0c",
+      "moves": [
+        "sweetScent"
+      ],
+      "tests": [
+        "brock-move-batch01: Sweet Scent actually lowers one GenV evasion stage, respects cap and PP"
+      ],
+      "review": "Clear Body prevention and secondary narration added beside Keen Eye. Sweet Scent cap/PP assertions unchanged; actual direct stat-move Clear Body witness covers the new guard, not every secondary.",
+      "supplemental_tests": [
+        "vermilion-abilities: Clear Body actual direct stat moves share the DSL guard"
+      ]
+    },
+    {
+      "path": "Source/battle/effects.lua",
+      "selector": "function BattleEffects:worrySeed(",
+      "before_sha256": "757f8a09d446cee4cdba52386032c1237694cbb1af74249372c0aeac891083af",
+      "after_sha256": "d5719f03855edf6bb5d2e2b7cbc090c6ed633fb80e4ae26576ef04f72876842a",
+      "moves": [
+        "worrySeed"
+      ],
+      "tests": [
+        "worry-seed: Actual WorrySeed attempt spends1PP/1accuracy and overrides Static without specimen mutation"
+      ],
+      "review": "Override now clears OrdinaryAbilities Flash Fire lifetime before narration. Original Static override/specimen assertion remains; actual Flash Fire override witness covers its cleanup.",
+      "supplemental_tests": [
+        "vermilion-abilities: Worry Seed ends Flash Fire before its narration and disables reactivation"
+      ]
+    },
+    {
+      "path": "Source/battle/dsl.lua",
+      "selector": "function DirectDamage:apply(",
+      "before_sha256": "adfd9066540b22962dcd577b7a1e8f50e0769cb39763b585bfeac9c49b1e6ed0",
+      "after_sha256": "e792ae3371878bd84d24418fed2b687191ff1a3885696c9b39f5618cf488ae67",
+      "moves": [
+        "bide"
+      ],
+      "tests": [
+        "bide: Actual public Bide stores2rounds releases3rd for160 and spends PP only once"
+      ],
+      "review": "Stench secondary inserted between Endure announcement and consumed hit callback. Original Bide storage/release assertion and actual fixed Dragon Rage Stench assertion cover these separate scopes, not Bide with every contact ability.",
+      "supplemental_tests": [
+        "contact-abilities: Stench also appends its secondary to a real fixed-damage hit"
+      ]
+    },
+    {
+      "path": "Source/battle/battle.lua",
+      "selector": "function Battle:resolveTurn(",
+      "before_sha256": "368908e135efebb867ebeb5aee43abd6eff7fb0aa7213da3a388cb06ac5cbda0",
+      "after_sha256": "a70c43aa1fbb2cfae10cfab6dc7f33b2bf446b4572700f0ff37056c917175f17",
+      "moves": [
+        "whirlwind",
+        "roar"
+      ],
+      "tests": [
+        "move-failure: Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity",
+        "move-failure: Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind",
+        "move-failure: Roar wild escape is run without rewards; higher level and trainer without reserves fail normally",
+        "whirlwind: A displaced queued actual actor never begins action or lends PP/status/action to incoming",
+        "whirlwind: Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP",
+        "whirlwind: Actual binding/Arena Trap do not prevent trainer forced displacement",
+        "whirlwind: Actual entry marks only dragged opponent seen and preserves unseen bench identities",
+        "whirlwind: Entry hazard faint uses actual incoming identity before XP/learning and normal replacement",
+        "whirlwind: Equal/lower-level wild targets exit through run once without XP EV or prizes",
+        "whirlwind: Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers",
+        "whirlwind: Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners",
+        "whirlwind: Forced owned replacement preserves major status/HP/PP and resets original sleep and stages",
+        "whirlwind: Higher-level wild target fails after one accuracy roll and one PP without escape lottery",
+        "whirlwind: Miss samples accuracy only and does not select or mutate an opponent",
+        "whirlwind: Missing/forged queued actors are rejected before context direction status PP or RNG",
+        "whirlwind: Named Helping Hand singles attempt fails without an ally or move RNG and spends PP",
+        "whirlwind: Normal-type Whirlwind is not stopped by a Ghost status target",
+        "whirlwind: One trainer reserve samples once and uses dragged-out narration through opponent entry",
+        "whirlwind: Ordinary effect booleans are not terminal outcomes in the shared status pipeline",
+        "whirlwind: Phaze clears real Roost/ability override while side timers and rain persist",
+        "whirlwind: Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP",
+        "whirlwind: Public commands keep invalid index/phase rejection RNG and models unchanged",
+        "whirlwind: Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG",
+        "whirlwind: Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue",
+        "whirlwind: Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning",
+        "whirlwind: Root-generated Whirlwind retains all scalars and has one typed opposing effect",
+        "whirlwind: Trainer with no living reserve fails after PP and accuracy without a replacement draw",
+        "whirlwind: Two usable trainer reserves follow stable actual party indices with literal RNG vectors",
+        "whirlwind: Typed force effect outside the owned script or after close changes nothing",
+        "whirlwind: Wild enemy Whirlwind ends encounter rather than selecting an owned reserve"
+      ],
+      "review": "Identity-bound infatuation gate inserted after confusion and before paralysis/PP. Existing phaze queued-actor and status cases pass; no blanket recertification of stale damaging records.",
+      "supplemental_tests": [
+        "contact-abilities: Cute Charm binds identities, stops before PP, and permits the other half of its coin"
+      ]
+    },
+    {
+      "path": "Source/battle/battle.lua",
+      "selector": "function Battle:performMove(",
+      "before_sha256": "b5750d0e45f45eedc1764f6aee9ac06da0e5bf5afc06da738b5b7309ec8fbde4",
+      "after_sha256": "57afa8a9444cc2f9cf5b22dee22378fb78023bd4b49ce44d9f7075092df18bc9",
+      "moves": [
+        "whirlwind",
+        "roar"
+      ],
+      "tests": [
+        "move-failure: Roar respects real Soundproof before accuracy; Whirlwind bypasses that sound immunity",
+        "move-failure: Roar uses the same real trainer replacement and queued actor cancellation as Whirlwind",
+        "move-failure: Roar wild escape is run without rewards; higher level and trainer without reserves fail normally",
+        "whirlwind: A displaced queued actual actor never begins action or lends PP/status/action to incoming",
+        "whirlwind: Actual Protect blocks before Whirlwind accuracy and choice while both attempts spend PP",
+        "whirlwind: Actual binding/Arena Trap do not prevent trainer forced displacement",
+        "whirlwind: Actual entry marks only dragged opponent seen and preserves unseen bench identities",
+        "whirlwind: Entry hazard faint uses actual incoming identity before XP/learning and normal replacement",
+        "whirlwind: Equal/lower-level wild targets exit through run once without XP EV or prizes",
+        "whirlwind: Faint replacement after earlier phaze uses ordinary trainer announcement and retains reward markers",
+        "whirlwind: Forced exit invalidates stale phaze/queued callbacks and clears all member/side/weather owners",
+        "whirlwind: Forced owned replacement preserves major status/HP/PP and resets original sleep and stages",
+        "whirlwind: Higher-level wild target fails after one accuracy roll and one PP without escape lottery",
+        "whirlwind: Miss samples accuracy only and does not select or mutate an opponent",
+        "whirlwind: Missing/forged queued actors are rejected before context direction status PP or RNG",
+        "whirlwind: Named Helping Hand singles attempt fails without an ally or move RNG and spends PP",
+        "whirlwind: Normal-type Whirlwind is not stopped by a Ghost status target",
+        "whirlwind: One trainer reserve samples once and uses dragged-out narration through opponent entry",
+        "whirlwind: Ordinary effect booleans are not terminal outcomes in the shared status pipeline",
+        "whirlwind: Phaze clears real Roost/ability override while side timers and rain persist",
+        "whirlwind: Priority minus6 allows a real opposing attack to faint the user before Whirlwind spends PP",
+        "whirlwind: Public commands keep invalid index/phase rejection RNG and models unchanged",
+        "whirlwind: Pure eligible indices exclude active/fainted and reject malformed/foreign targets without owner mutation or RNG",
+        "whirlwind: Real Bide/charge/rampage locks clear on phaze without phantom continuation PP or fatigue",
+        "whirlwind: Repeated phaze reentry preserves per-opponent participants and actual once-only reward/learning",
+        "whirlwind: Root-generated Whirlwind retains all scalars and has one typed opposing effect",
+        "whirlwind: Trainer with no living reserve fails after PP and accuracy without a replacement draw",
+        "whirlwind: Two usable trainer reserves follow stable actual party indices with literal RNG vectors",
+        "whirlwind: Typed force effect outside the owned script or after close changes nothing",
+        "whirlwind: Wild enemy Whirlwind ends encounter rather than selecting an owned reserve"
+      ],
+      "review": "Ground immunity, absorption and contact/secondary/drain callbacks added around existing gates. Actual Whirlwind/Roar cases still cover typed status dispatch, wild/trainer outcomes, actor invalidation, PP and RNG; these do not certify all damaging callbacks.",
+      "supplemental_tests": [
+        "common-abilities: Dry Skin Water Gun heals floor quarter and consumes only attempted PP, no accuracy/damage RNG",
+        "vermilion-abilities: Levitate actual Mud-Slap and Bulldoze stop before accuracy secondary and hit receipts",
+        "contact-abilities: Effect Spore real Scratch has one 11/10/9 draw and real sleep duration"
+      ]
+    }
+  ],
+  "supplemental_assertions": [
+    {
+      "name": "entry-abilities: Shell Armor also rejects guaranteed criticals without inventing a critical trial",
+      "path": "Source/dev/entryAbilityContracts.lua",
+      "start": "test(\"Shell Armor also rejects guaranteed criticals without inventing a critical trial\"",
+      "end": "\n    test(\"Shell Armor rejects sampled critical after its trial, without favorable stage bypass\", function()",
+      "sha256": "ca9cb7c802b65e24cd849112350d334f5fbbd0828a3e5aff3b2ca3bf8978adae",
+      "executed": {
+        "name": "entry-abilities: Shell Armor also rejects guaranteed criticals without inventing a critical trial",
+        "ok": true
+      }
+    },
+    {
+      "name": "entry-abilities: Shell Armor rejects sampled critical after its trial, without favorable stage bypass",
+      "path": "Source/dev/entryAbilityContracts.lua",
+      "start": "test(\"Shell Armor rejects sampled critical after its trial, without favorable stage bypass\"",
+      "end": "\n    test(\"Skill Link actual Icicle Spear lands five independently rolled hits without count draw\", function()",
+      "sha256": "33b014f1f286a9aa7816131e7f72564713c9cadac7edf25084966ed7ab0bfdfa",
+      "executed": {
+        "name": "entry-abilities: Shell Armor rejects sampled critical after its trial, without favorable stage bypass",
+        "ok": true
+      }
+    },
+    {
+      "name": "common-abilities: Protect blocks Water before Dry Skin healing with no accuracy/damage draws",
+      "path": "Source/dev/commonAbilityContracts.lua",
+      "start": "test(\"Protect blocks Water before Dry Skin healing with no accuracy/damage draws\"",
+      "end": "\n    test(\"Worry Seed removes water absorption without changing native Paras slot\", function()",
+      "sha256": "3bbf3f7a7c39c1a1a81b5efe3d5d4ff1a2aa97f0542f0fe2b0c913eeb719b2bf",
+      "executed": {
+        "name": "common-abilities: Protect blocks Water before Dry Skin healing with no accuracy/damage draws",
+        "ok": true
+      }
+    },
+    {
+      "name": "contact-abilities: Stench also appends its secondary to a real fixed-damage hit",
+      "path": "Source/dev/contactAbilityContracts.lua",
+      "start": "test(\"Stench also appends its secondary to a real fixed-damage hit\"",
+      "end": "\n    test(\"Anger Point uses actual critical calculation and only surviving recipients\", function()",
+      "sha256": "98ea57efe4a2ea75613ccc5bafc5062c5b3e5d9904650f29c4c9cd40a681f552",
+      "executed": {
+        "name": "contact-abilities: Stench also appends its secondary to a real fixed-damage hit",
+        "ok": true
+      }
+    },
+    {
+      "name": "vermilion-abilities: Clear Body actual direct stat moves share the DSL guard",
+      "path": "Source/dev/vermilionAbilityContracts.lua",
+      "start": "test(\"Clear Body actual direct stat moves share the DSL guard\"",
+      "end": "\n    test(\"Clear Body blocks initial and actual replacement Intimidate\", function()",
+      "sha256": "5f83f3a4d417a8312e9c09b349f96823056b448af0a7b2b288dd6d7af74d9fee",
+      "executed": {
+        "name": "vermilion-abilities: Clear Body actual direct stat moves share the DSL guard",
+        "ok": true
+      }
+    },
+    {
+      "name": "vermilion-abilities: Worry Seed ends Flash Fire before its narration and disables reactivation",
+      "path": "Source/dev/vermilionAbilityContracts.lua",
+      "start": "test(\"Worry Seed ends Flash Fire before its narration and disables reactivation\"",
+      "end": "\n    test(\"Actual forced withdrawal clears Flash Fire and its returning identity starts clean\", function()",
+      "sha256": "677e176089c41fb707ca89c6b5b51bdc5cd31f4aeced5997a903bd30725555a6",
+      "executed": {
+        "name": "vermilion-abilities: Worry Seed ends Flash Fire before its narration and disables reactivation",
+        "ok": true
+      }
+    }
+  ],
+  "ability_scopes": [
+    {
+      "id": 39,
+      "name": "Inner Focus",
+      "tests": [
+        {
+          "name": "common-abilities: Inner Focus real Bite round preserves chance draw and allows target action/PP",
+          "path": "Source/dev/commonAbilityContracts.lua",
+          "start": "test(\"Inner Focus real Bite round preserves chance draw and allows target action/PP\"",
+          "end": "\n    test(\"Worry Seed removes Inner Focus: identical Bite draws now flinch before target PP\", function()",
+          "sha256": "e3656d0fd082b94aacff66fb2b2fde5f206120ca51b2143f025b979553ada256",
+          "executed": {
+            "name": "common-abilities: Inner Focus real Bite round preserves chance draw and allows target action/PP",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 87,
+      "name": "Dry Skin",
+      "tests": [
+        {
+          "name": "common-abilities: Dry Skin Water Gun heals floor quarter and consumes only attempted PP, no accuracy/damage RNG",
+          "path": "Source/dev/commonAbilityContracts.lua",
+          "start": "test(\"Dry Skin Water Gun heals floor quarter and consumes only attempted PP, no accuracy/damage RNG\"",
+          "end": "\n    test(\"Dry Skin caps healing, remains immune at full HP, and precedes even a forced miss\", function()",
+          "sha256": "dc660771a03b37a074d23669f93cab12ed7a7e2ce02c9f6608bb2b341354528d",
+          "executed": {
+            "name": "common-abilities: Dry Skin Water Gun heals floor quarter and consumes only attempted PP, no accuracy/damage RNG",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 22,
+      "name": "Intimidate",
+      "tests": [
+        {
+          "name": "entry-abilities: Intimidate real initial entry lowers living Inner Focus opponent without RNG",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Intimidate real initial entry lowers living Inner Focus opponent without RNG\"",
+          "end": "\n    test(\"Simultaneous actual entry callbacks follow effective speed and only tied starts draw\", function()",
+          "sha256": "dc4bbc6e1f977506decb19c862e0a4f7872ad5ee24cc0abe8673a7ca2bbd8e80",
+          "executed": {
+            "name": "entry-abilities: Intimidate real initial entry lowers living Inner Focus opponent without RNG",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 108,
+      "name": "Forewarn",
+      "tests": [
+        {
+          "name": "entry-abilities: Forewarn real initial entry chooses declared strongest even with zero PP",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Forewarn real initial entry chooses declared strongest even with zero PP\"",
+          "end": "\n    test(\"Forewarn tied strongest sample follows learned slot order and spends one trial\", function()",
+          "sha256": "d045612c1ca99260cfd98f2fbed7301fac1a86d7289de5d52e69425e22663b63",
+          "executed": {
+            "name": "entry-abilities: Forewarn real initial entry chooses declared strongest even with zero PP",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 72,
+      "name": "Vital Spirit",
+      "tests": [
+        {
+          "name": "entry-abilities: Vital Spirit rejects actual Sleep Powder after accuracy without sleep duration RNG",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Vital Spirit rejects actual Sleep Powder after accuracy without sleep duration RNG\"",
+          "end": "\n    test(\"Worry Seed replaces Vital Spirit with Insomnia and sleep remains prevented\", function()",
+          "sha256": "3d85031bd9d8692a8bec64402924c642b37b953393968cd066ed9dd2caad839a",
+          "executed": {
+            "name": "entry-abilities: Vital Spirit rejects actual Sleep Powder after accuracy without sleep duration RNG",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 41,
+      "name": "Water Veil",
+      "tests": [
+        {
+          "name": "entry-abilities: Water Veil rejects Ember burn payload after chance draw and preserves damage and PP",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Water Veil rejects Ember burn payload after chance draw and preserves damage and PP\"",
+          "end": "\n    test(\"Water Veil announces a direct Will-O-Wisp immunity and override permits the burn\", function()",
+          "sha256": "e0604cbee87cbc1dbe7e1c22d62ccb1862b2b75cc9cf9279f18e337940a6d0e8",
+          "executed": {
+            "name": "entry-abilities: Water Veil rejects Ember burn payload after chance draw and preserves damage and PP",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 99,
+      "name": "No Guard",
+      "tests": [
+        {
+          "name": "entry-abilities: No Guard on either living participant bypasses accuracy stages without accuracy RNG",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"No Guard on either living participant bypasses accuracy stages without accuracy RNG\"",
+          "end": "\n    test(\"No Guard cannot bypass Protect or Ghost immunity\", function()",
+          "sha256": "c795eb2216f3e782d12713313ea11a7495fb64119d85e4f2c41b7d74e630b6a2",
+          "executed": {
+            "name": "entry-abilities: No Guard on either living participant bypasses accuracy stages without accuracy RNG",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 75,
+      "name": "Shell Armor",
+      "tests": [
+        {
+          "name": "entry-abilities: Shell Armor rejects sampled critical after its trial, without favorable stage bypass",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Shell Armor rejects sampled critical after its trial, without favorable stage bypass\"",
+          "end": "\n    test(\"Skill Link actual Icicle Spear lands five independently rolled hits without count draw\", function()",
+          "sha256": "33b014f1f286a9aa7816131e7f72564713c9cadac7edf25084966ed7ab0bfdfa",
+          "executed": {
+            "name": "entry-abilities: Shell Armor rejects sampled critical after its trial, without favorable stage bypass",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 92,
+      "name": "Skill Link",
+      "tests": [
+        {
+          "name": "entry-abilities: Skill Link actual Icicle Spear lands five independently rolled hits without count draw",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Skill Link actual Icicle Spear lands five independently rolled hits without count draw\"",
+          "end": "\n    test(\"Skill Link Worry Seed restores variable hit-count entropy and early KO stops remaining rolls\", function()",
+          "sha256": "fd2b4da5ec5fb187bb97f09464173a6cf7ed9ed326d1485028cd1ed3391d977e",
+          "executed": {
+            "name": "entry-abilities: Skill Link actual Icicle Spear lands five independently rolled hits without count draw",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 97,
+      "name": "Sniper",
+      "tests": [
+        {
+          "name": "entry-abilities: Sniper real Water Gun critical applies final half-down modifier after resistance",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Sniper real Water Gun critical applies final half-down modifier after resistance\"",
+          "end": "\n    test(\"Sniper ordinary noncritical damage and RNG match its Worry Seed override\", function()",
+          "sha256": "1a0bdd66c89aac80f202df234d5dd97a11a4ea62bd68fe6faaa784d9f00e3af2",
+          "executed": {
+            "name": "entry-abilities: Sniper real Water Gun critical applies final half-down modifier after resistance",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 43,
+      "name": "Soundproof",
+      "tests": [
+        {
+          "name": "entry-abilities: Soundproof general Supersonic Sing Growl Screech and damaging sound guard before accuracy",
+          "path": "Source/dev/entryAbilityContracts.lua",
+          "start": "test(\"Soundproof general Supersonic Sing Growl Screech and damaging sound guard before accuracy\"",
+          "end": "\n    test(\"Soundproof does not block Sonic Boom and Worry Seed enables actual Supersonic confusion\", function()",
+          "sha256": "e9d208dc3f63c12c48307c0faa335db27077231ef00a6fdbb00504d8364f4469",
+          "executed": {
+            "name": "entry-abilities: Soundproof general Supersonic Sing Growl Screech and damaging sound guard before accuracy",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 27,
+      "name": "Effect Spore",
+      "tests": [
+        {
+          "name": "contact-abilities: Effect Spore real Scratch has one 11/10/9 draw and real sleep duration",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Effect Spore real Scratch has one 11/10/9 draw and real sleep duration\"",
+          "end": "\n    test(\"Effect Spore samples each actual Double Kick hit without interrupting the move\", function()",
+          "sha256": "5207857415d76dc2e9cbba305444bf3af3d28adfb90e73cdae004a98be81b856",
+          "executed": {
+            "name": "contact-abilities: Effect Spore real Scratch has one 11/10/9 draw and real sleep duration",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 56,
+      "name": "Cute Charm",
+      "tests": [
+        {
+          "name": "contact-abilities: Cute Charm binds identities, stops before PP, and permits the other half of its coin",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Cute Charm binds identities, stops before PP, and permits the other half of its coin\"",
+          "end": "\n    test(\"Cute Charm still draws for same sex, genderless and Oblivious recipients\", function()",
+          "sha256": "2be56fd188898b81f200de47c8b4f67c6c8d506834ff0cfd56de09140417d480",
+          "executed": {
+            "name": "contact-abilities: Cute Charm binds identities, stops before PP, and permits the other half of its coin",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 28,
+      "name": "Synchronize",
+      "tests": [
+        {
+          "name": "contact-abilities: Synchronize reflects real Toxic as bad poison without extra chance draws",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Synchronize reflects real Toxic as bad poison without extra chance draws\"",
+          "end": "\n    test(\"Synchronize respects real Safeguard and reflected type immunity\", function()",
+          "sha256": "40b4f6a2018065da4d1db2b80a13eec9d3ac088bf943739727c6f5a9ae32193b",
+          "executed": {
+            "name": "contact-abilities: Synchronize reflects real Toxic as bad poison without extra chance draws",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 1,
+      "name": "Stench",
+      "tests": [
+        {
+          "name": "contact-abilities: Stench real full turn flinches before target PP without mutating the move",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Stench real full turn flinches before target PP without mutating the move\"",
+          "end": "\n    test(\"Stench uses Shield Dust and does not duplicate an existing flinch secondary\", function()",
+          "sha256": "fb89962ae58810ad3dc3604943cf6a1402b300101f8c66a713d70ebabbae618a",
+          "executed": {
+            "name": "contact-abilities: Stench real full turn flinches before target PP without mutating the move",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 83,
+      "name": "Anger Point",
+      "tests": [
+        {
+          "name": "contact-abilities: Anger Point uses actual critical calculation and only surviving recipients",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Anger Point uses actual critical calculation and only surviving recipients\"",
+          "end": "\n    test(\"Natural Cure real voluntary withdrawal cures major status and toxic state\", function()",
+          "sha256": "5c4bc8c322bb972101dff3a0c3ebe8001a3467e4d076e4415aeaa9ecd1a04dce",
+          "executed": {
+            "name": "contact-abilities: Anger Point uses actual critical calculation and only surviving recipients",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 30,
+      "name": "Natural Cure",
+      "tests": [
+        {
+          "name": "contact-abilities: Natural Cure real voluntary withdrawal cures major status and toxic state",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Natural Cure real voluntary withdrawal cures major status and toxic state\"",
+          "end": "\n    test(\"Natural Cure checks effective ability before clearing Worry Seed on forced withdrawal\", function()",
+          "sha256": "456b8a50b658edd571bddc7b694f18bd5288dcb09f976a5723559d52a9a8b326",
+          "executed": {
+            "name": "contact-abilities: Natural Cure real voluntary withdrawal cures major status and toxic state",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 98,
+      "name": "Magic Guard",
+      "tests": [
+        {
+          "name": "contact-abilities: Magic Guard real Toxic ticks without HP loss or hurt-this-round ledger",
+          "path": "Source/dev/contactAbilityContracts.lua",
+          "start": "test(\"Magic Guard real Toxic ticks without HP loss or hurt-this-round ledger\"",
+          "end": "\n    test(\"Magic Guard actual burn poison and sand producers preserve status and HP ledger\", function()",
+          "sha256": "1ee49e1d9945fcf9060b0bdbbbed77c97ad5d909187e618ad601b2a1d0b31a2f",
+          "executed": {
+            "name": "contact-abilities: Magic Guard real Toxic ticks without HP loss or hurt-this-round ledger",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 101,
+      "name": "Technician",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Technician actual Scratch boosts damage without changing PP or RNG trials",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Technician actual Scratch boosts damage without changing PP or RNG trials\"",
+          "end": "\n    test(\"Technician 60 boundary, greater power and actual fixed damage\", function()",
+          "sha256": "81a98565bf6a09c47e14cb35192efdf9800b81e92da778646147695be36a8d41",
+          "executed": {
+            "name": "vermilion-abilities: Technician actual Scratch boosts damage without changing PP or RNG trials",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 18,
+      "name": "Flash Fire",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Flash Fire actual Ember absorbs repeatedly with PP only, no RNG or receipt",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Flash Fire actual Ember absorbs repeatedly with PP only, no RNG or receipt\"",
+          "end": "\n    test(\"Flash Fire boosts actual physical and special Fire damage, not another type\", function()",
+          "sha256": "732bcab447359125eb8b81768f7f5eda33d7bf389593f2a2af75e78f88f2fdb8",
+          "executed": {
+            "name": "vermilion-abilities: Flash Fire actual Ember absorbs repeatedly with PP only, no RNG or receipt",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 29,
+      "name": "Clear Body",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Clear Body actual direct stat moves share the DSL guard",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Clear Body actual direct stat moves share the DSL guard\"",
+          "end": "\n    test(\"Clear Body blocks initial and actual replacement Intimidate\", function()",
+          "sha256": "5f83f3a4d417a8312e9c09b349f96823056b448af0a7b2b288dd6d7af74d9fee",
+          "executed": {
+            "name": "vermilion-abilities: Clear Body actual direct stat moves share the DSL guard",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 64,
+      "name": "Liquid Ooze",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Liquid Ooze actual Absorb reverses drain even at full recipient HP",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Liquid Ooze actual Absorb reverses drain even at full recipient HP\"",
+          "end": "\n    test(\"Liquid Ooze actual lethal donor hit still hurts and rewards exactly once\", function()",
+          "sha256": "00f30c35878b490e493a6c12b73171413ac960fe48b593746cef1eea03c343fd",
+          "executed": {
+            "name": "vermilion-abilities: Liquid Ooze actual Absorb reverses drain even at full recipient HP",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 11,
+      "name": "Water Absorb",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Water Absorb actual Water Gun heals a quarter, caps and remains immune at full HP",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Water Absorb actual Water Gun heals a quarter, caps and remains immune at full HP\"",
+          "end": "\n    test(\"Water Absorb respects Protect, absence and actual Worry Seed override\", function()",
+          "sha256": "a27d1667546ad4084b796aaf6112d5a01f721ff44dbac4934259d97e4acad6f5",
+          "executed": {
+            "name": "vermilion-abilities: Water Absorb actual Water Gun heals a quarter, caps and remains immune at full HP",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 33,
+      "name": "Swift Swim",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Swift Swim actual Rain Dance changes real round order without a speed-tie trial",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Swift Swim actual Rain Dance changes real round order without a speed-tie trial\"",
+          "end": "\n    test(\"Swift Swim speed query composes stages Tailwind and paralysis, and Worry Seed removes it\", function()",
+          "sha256": "5e75acbc9b90f89e8df29945ae81f71335d0e8ccb325df2c4ddf92561c31f767",
+          "executed": {
+            "name": "vermilion-abilities: Swift Swim actual Rain Dance changes real round order without a speed-tie trial",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    },
+    {
+      "id": 26,
+      "name": "Levitate",
+      "tests": [
+        {
+          "name": "vermilion-abilities: Levitate actual Mud-Slap and Bulldoze stop before accuracy secondary and hit receipts",
+          "path": "Source/dev/vermilionAbilityContracts.lua",
+          "start": "test(\"Levitate actual Mud-Slap and Bulldoze stop before accuracy secondary and hit receipts\"",
+          "end": "\n    test(\"Levitate Worry Seed enables the same actual Ground hit and clears grounded immunity\", function()",
+          "sha256": "2da38a82b3adb861810d55558c4b41c1f85bb5e72923aba8ffcd56cc7e8f1d43",
+          "executed": {
+            "name": "vermilion-abilities: Levitate actual Mud-Slap and Bulldoze stop before accuracy secondary and hit receipts",
+            "ok": true
+          }
+        }
+      ],
+      "scope": "Only the named actual assertion and its literal HP/PP/status/stage/RNG expectations; remaining branches and regional acquisition are unverified."
+    }
+  ],
+  "field_assertions": [
+    {
+      "name": "field-acquisition: Synchronize literal 49/50 gates retain the ordinary nature draw",
+      "path": "Source/dev/fieldAcquisitionContracts.lua",
+      "start": "test(\"Synchronize literal 49/50 gates retain the ordinary nature draw\"",
+      "end": "\n    test(\"Cute Charm literal 66/67 gates include failure-only fallback draw\",function()",
+      "sha256": "99d4de1851a8c743c642e426f6c033a0250f0b2160aafe9cd4774f5e38dbe9a6",
+      "executed": {
+        "name": "field-acquisition: Synchronize literal 49/50 gates retain the ordinary nature draw",
+        "ok": true
+      }
+    },
+    {
+      "name": "field-acquisition: Cute Charm literal 66/67 gates include failure-only fallback draw",
+      "path": "Source/dev/fieldAcquisitionContracts.lua",
+      "start": "test(\"Cute Charm literal 66/67 gates include failure-only fallback draw\"",
+      "end": "\n    test(\"Cute Charm opposite sex respects all mixed ratios and fixed-sex exclusions\",function()",
+      "sha256": "20345782a54963a3c05ecb90849d1ac3d41a1f78b2643a997934e47e431042fd",
+      "executed": {
+        "name": "field-acquisition: Cute Charm literal 66/67 gates include failure-only fallback draw",
+        "ok": true
+      }
+    },
+    {
+      "name": "field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates",
+      "path": "Source/dev/fieldAcquisitionContracts.lua",
+      "start": "test(\"Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates\"",
+      "end": "\n    test(\"Native rate-down family truncates byte rates and halves unit rates purely\",function()",
+      "sha256": "5bad47c0913ac868d110e2d95ca7f479e47cb76aba78743ee0cd620a24a3c6b5",
+      "executed": {
+        "name": "field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates",
+        "ok": true
+      }
+    },
+    {
+      "name": "field-acquisition: Native rate-down family truncates byte rates and halves unit rates purely",
+      "path": "Source/dev/fieldAcquisitionContracts.lua",
+      "start": "test(\"Native rate-down family truncates byte rates and halves unit rates purely\"",
+      "end": "\n    test(\"Actual Blue Forest rate byte eight becomes sixteen for physical Arena Trap\",function()",
+      "sha256": "c7c92210115947a88373f9dfa2cb633228ec5356b695775c7cae3f010a8f0604",
+      "executed": {
+        "name": "field-acquisition: Native rate-down family truncates byte rates and halves unit rates purely",
+        "ok": true
+      }
+    },
+    {
+      "name": "field-acquisition: Actual Blue Forest rate byte eight becomes sixteen for physical Arena Trap",
+      "path": "Source/dev/fieldAcquisitionContracts.lua",
+      "start": "test(\"Actual Blue Forest rate byte eight becomes sixteen for physical Arena Trap\"",
+      "end": "\n    test(\"Failure-rate attempts consume only the appropriate acquisition flag prefix\",function()",
+      "sha256": "c4b2c4ef18461b221b8baf249513264c78613a9d61fd7de2f8a00c7f54426e9c",
+      "executed": {
+        "name": "field-acquisition: Actual Blue Forest rate byte eight becomes sixteen for physical Arena Trap",
+        "ok": true
+      }
+    }
+  ],
+  "source_guards": {
+    "Source/battle/battle.lua": "c8b971b251503e0fabaee0767f36f0bd9bd26cce95db04260d1d39978d23221b",
+    "Source/battle/conditions.lua": "5405d38894dcf35c8c197fd1c8f95d6ec33687f6d514765a694ee654007bf9e5",
+    "Source/battle/dsl.lua": "06dcea645ce3c9c7afcabe98a0f790a13564a9b47e6b70964224af1cd28ecd93",
+    "Source/battle/effects.lua": "a4fb6785476297d6be291efd4035335a0d2da8225010f20d62f8ac34888977a5",
+    "Source/battle/ordinaryAbilities.lua": "1fa1dd2f70f304a5b1ac7fc546a88043d186c1696f08e019bedfbdfa53ed6df0",
+    "Source/battle/contactAbilities.lua": "f16e22fa8c8b497ea62301e363bcd0ffe075ec539dc132fe31c648052faf31e9",
+    "Source/domain/fieldEncounters.lua": "c58d36ae02e0cc17234ddaf463dffadec1ecad7e085c0cf856ad4906981b94b6",
+    "Source/domain/specimen.lua": "e56a2ee920ee25c02d0b9ef3ce3257c560232ea59f89624e0c4315fbfe8acba3",
+    "Source/world/zone.lua": "7e9d29562c118114af39008e9667c4486c1165f4a2760e805caf5b6d90f08fe6",
+    "Source/dev/commonAbilityContracts.lua": "4dc9285a0dbae3eaf576c1cf871f6fa87f7c9b89fdff3f4a2aed9211bfcf81fd",
+    "Source/dev/entryAbilityContracts.lua": "f265c7aa670f2beedf4be68d37924682433029e6554ef03a44b12b2aff4ff7ae",
+    "Source/dev/contactAbilityContracts.lua": "4b1e50c55c9df535ee7e6ff882425184a71c792f71af9387e8e8b0410758cd49",
+    "Source/dev/vermilionAbilityContracts.lua": "00e9eec377d06cdaa7cf168bdf6e926d2d6de6667f3d9cf98a0e0b8515ad85b2",
+    "Source/dev/fieldAcquisitionContracts.lua": "f658d51fa661c18f099ef87f2a0af07983720893202932a633314184bbd931cc",
+    "Source/dev/caveEncounterContracts.lua": "028ff0076d4b15908af35530641d6928fa18cc9956d9e8081106e3488897c348",
+    "Source/data/sourceMaps.json": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c"
+  },
+  "unverified_left_stale": [
+    "dig",
+    "earthquake",
+    "explosion",
+    "furyCutter",
+    "gyroBall",
+    "heavySlam",
+    "helpingHand",
+    "magnitude",
+    "selfDestruct",
+    "smackDown"
+  ],
+  "limits": [
+    "All 50 original move scopes, states, capabilities and definitions retained. Only nine explicitly reviewed owner selections rebound; no assertion hash changed.",
+    "Critical-family proof remains metadata/shared arithmetic, not a real attack by each family member. Razor Wind and Sky Attack charge remain unverified.",
+    "Dry Skin sun behavior, broad ability combinations, doubles, hidden acquisition, deferred field Magnet Pull/Pressure/Hustle/Vital Spirit level callbacks, remaining move/ability mechanics and held-item loot remain unverified.",
+    "Field rate-down IDs 73/95 have pure arithmetic coverage only; actual encounter witness uses Stench. Physical-lead nature/sex/rate witnesses do not certify every acquisition producer.",
+    "Cave suite proves owned imported land encounter boundaries, not natural journeys, every event/warp, pace, all-starter, milestone 5.3, release or device acceptance.",
+    "Raw contracts reply is not quiescent; projection preserves that fact. Aggregate count is inventory, not move or ability acceptance. No catalog or image acceptance is granted by this refresh."
+  ],
+  "field_scopes": [
+    {
+      "ids": [
+        28
+      ],
+      "assertion": "field-acquisition: Synchronize literal 49/50 gates retain the ordinary nature draw",
+      "scope": "Physical-lead Synchronize 49/50 nature gates retain ordinary nature sample; not general acquisition acceptance."
+    },
+    {
+      "ids": [
+        56
+      ],
+      "assertion": "field-acquisition: Cute Charm literal 66/67 gates include failure-only fallback draw",
+      "scope": "Physical-lead Cute Charm 66/67 sex gates and failure-only fallback sample; not general acquisition acceptance."
+    },
+    {
+      "ids": [
+        35,
+        71,
+        99
+      ],
+      "assertion": "field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates",
+      "scope": "Actual physical-lead rate doubling, independent of selected usable member; byte/unit rate queries. Remaining field hooks are unverified."
+    },
+    {
+      "ids": [
+        1,
+        73,
+        95
+      ],
+      "assertion": "field-acquisition: Native rate-down family truncates byte rates and halves unit rates purely",
+      "scope": "Pure byte/unit rate-down arithmetic for all three IDs; actual encounter witness for Stench only. White Smoke/Quick Feet actual encounter use remains unverified."
+    }
+  ],
+  "installed_source_maps": {
+    "BikeShop": "pokered:BIKE_SHOP",
+    "BillsHouse": "pokered:BILLS_HOUSE",
+    "CeruleanCity": "pokered:CERULEAN_CITY",
+    "CeruleanGym": "pokered:CERULEAN_GYM",
+    "CeruleanMart": "pokered:CERULEAN_MART",
+    "CeruleanPokecenter": "pokered:CERULEAN_POKECENTER",
+    "CeruleanTrashedHouse": "pokered:CERULEAN_TRASHED_HOUSE",
+    "MtMoon1F": "pokered:MT_MOON_1F",
+    "MtMoonB1F": "pokered:MT_MOON_B1F",
+    "MtMoonB2F": "pokered:MT_MOON_B2F",
+    "MtMoonPokecenter": "pokered:MT_MOON_POKECENTER",
+    "Museum1F": "pokered:MUSEUM_1F",
+    "Museum2F": "pokered:MUSEUM_2F",
+    "PewterCity": "pokered:PEWTER_CITY",
+    "PewterGym": "pokered:PEWTER_GYM",
+    "PewterMart": "pokered:PEWTER_MART",
+    "PewterPokecenter": "pokered:PEWTER_POKECENTER",
+    "Route1": "pokered:ROUTE_1",
+    "Route2": "pokered:ROUTE_2",
+    "Route22": "pokered:ROUTE_22",
+    "Route24": "pokered:ROUTE_24",
+    "Route25": "pokered:ROUTE_25",
+    "Route3": "pokered:ROUTE_3",
+    "Route4": "pokered:ROUTE_4",
+    "ViridianCity": "pokered:VIRIDIAN_CITY",
+    "ViridianForest": "pokered:VIRIDIAN_FOREST",
+    "ViridianForestNorthGate": "pokered:VIRIDIAN_FOREST_NORTH_GATE",
+    "ViridianForestSouthGate": "pokered:VIRIDIAN_FOREST_SOUTH_GATE",
+    "ViridianMart": "pokered:VIRIDIAN_MART",
+    "ViridianPokecenter": "pokered:VIRIDIAN_POKECENTER"
+  },
+  "added_source_maps": [
+    "BikeShop",
+    "BillsHouse",
+    "CeruleanCity",
+    "CeruleanGym",
+    "CeruleanMart",
+    "CeruleanPokecenter",
+    "CeruleanTrashedHouse",
+    "MtMoon1F",
+    "MtMoonB1F",
+    "MtMoonB2F",
+    "MtMoonPokecenter",
+    "Museum1F",
+    "Museum2F",
+    "Route22",
+    "Route24",
+    "Route25",
+    "Route3",
+    "Route4"
+  ]
+}

@@ -77,7 +77,8 @@ class ProductionBuildTests(unittest.TestCase):
         imports = re.findall(r'^import "([^"]+)"$', staged, re.M)
         self.assertEqual(imports, ['dev/harness_build'] + [name for name in BASELINE['imports'] if name != 'dev/harness_build'])
         self.assertEqual([line for line in staged.splitlines() if line.startswith('Contracts.register(')
-                          or line.startswith('PewterCatalogExporter.register(')], BASELINE['registrations'])
+                          or line.startswith('PewterCatalogExporter.register(')
+                          or line.startswith('CeruleanCatalogExporter.register(')], BASELINE['registrations'])
 
     def test_staging_preserves_every_non_entry_source_asset(self):
         for original in (PROJECT / 'Source').rglob('*'):

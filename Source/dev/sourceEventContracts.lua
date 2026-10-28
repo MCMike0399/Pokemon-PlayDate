@@ -95,9 +95,9 @@ function SourceEventContracts.run()
         same(pcall(SourceEvents.plan,"pokered:ROUTE_1:objects:2",state),false)
     end)
     test("new source signs use the shared registry and retain detached programs", function()
-        local records = assert(json.decodeFile("dev/sourceMapFixture.json"))
-        local sign = records["dev/source-map-extension/Route22.json"].events.background_events[1]
-        same(sign.id, "pokered:ROUTE_22:background_events:1")
+        -- Synthetic metadata isolates registration semantics from installed
+        -- campaign signs, whose stable IDs must never be replaced.
+        local sign = {id="pokered:CONTRACT_SIGN:background_events:1"}
         SourceEvents._withSources(function()
             local name = "source-sign-contract"
             local descriptor = {kind="program", content=name,

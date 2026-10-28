@@ -1,0 +1,23 @@
+{
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "repository": "https://github.com/pret/pokered",
+  "files": {
+    "scripts/BillsHouse.asm": "d12c984e5b464c13db7662df207be42db380cb2d34bb51b0edcf4cab660f109e",
+    "scripts/MtMoonB2F.asm": "9c17d25c91d5b3ee5f2594f769f89595c4ac5d57114724ac1a45b57040d6c75d",
+    "scripts/CeruleanGym.asm": "3c7e54ff09169b372d4d607d1208486923f5fd3c19efdd0f7c49f2cb71c452d2",
+    "text/BillsHouse.asm": "5e24e04d3523f8875bbc2ef92e5be1a30227d46bb553db31398d56a6a9d68d6f",
+    "text/MtMoonB2F.asm": "0cfab5a633af44f598f8fafa1a50448610abe0518b629f91067ba0d45ac63f26",
+    "text/CeruleanGym.asm": "f8f5318dd48cd435624d92da2c32de8845521ecbfc010be4b6ed3dd382713fe3",
+    "engine/events/hidden_events/bills_house_pc.asm": "9194c43cc9bf8b98629df614e6fdd784ea5338fd1091724317b3ad5735cb1d67",
+    "data/events/hidden_events.asm": "1ca366dcbba1be0f4b19696be8aeb9eed8158e75bd852d4faf2119231a836877",
+    "data/maps/objects/BillsHouse.asm": "2a5dfa9de51dd772709f47d42441079d0888f4dbae0e9f2c99c37408b6a185ff",
+    "data/maps/objects/MtMoonB2F.asm": "0c676edaf92b3bdcf1ef5e9ca5b2bc3b6330849602764aa6cf15fa6a69392c61",
+    "data/maps/objects/CeruleanGym.asm": "47ad3f5cf237065fe0a68d37574707208d0187e04dee50c79031141f631f192d",
+    "data/trainers/parties.asm": "61eac58fe43a181fcd936d5366457a940cf805ee15c787ff5957e175f83b217d",
+    "data/trainers/pic_pointers_money.asm": "2552aaedfe77527e69e2d18995dee0f7a3a01b2a2a2cc259a6c5d17e606a8543",
+    "data/text/text_2.asm": "ba97e54e9feafb22816b449841181b64234537bac9ccdef6aa3d79f4153e23b9",
+    "scripts/Route25.asm": "2fa246dded86a865fbcbd872755674f5de9b85e48dcb4ffd5147caa17ae080ce",
+    "data/maps/objects/CeruleanCity.asm": "c28fa2a17d5649d7a6c0a03a3bfa6a25203e63ddd5cd7423c5b6b1ab5dae8cb3",
+    "engine/overworld/hidden_events.asm": "fef85fd5061948d93e68210b59a19adda555079406d01747b0c61891d5fc92d8"
+  }
+}

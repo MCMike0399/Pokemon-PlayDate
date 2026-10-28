@@ -1,0 +1,48 @@
+diff --git a/Source/world/npcMotion.lua b/Source/world/npcMotion.lua
+--- a/Source/world/npcMotion.lua
++++ b/Source/world/npcMotion.lua
+@@ -194,7 +194,7 @@
+         value.origin_x,value.target_x,value.origin_y,value.target_y = value.x,value.x,value.y,value.y
+     end
+     local token = {}
+-    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player}
++    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player, saved=copy(actor.value)}
+     if s.pending and s.pending.id == actor.value.id then s.pending = nil end
+     -- Interaction facing restoration must not undo the script's completed pose.
+     if s.interaction and s.interaction.id == actor.value.id then s.interaction = nil end
+@@ -243,6 +243,35 @@
+     self:_pose(actor)
+     return true
+ end
++-- Scene facing/reset retain the same opaque token and pose owner.
++function NPCMotion:faceScript(token, facing)
++    local s = stores[self]
++    local actor, lease = scriptLease(s, token)
++    if not actor or not scriptCurrent(s, lease) or lease.move
++        or not actor.spec.faces[facing] then return false end
++    actor.value.facing = facing
++    self:_pose(actor)
++    return true
++end
++function NPCMotion:resetScript(token)
++    local s = stores[self]
++    local actor, lease = scriptLease(s, token)
++    if not actor or s.game.session ~= s.session or currentZone ~= s.zone
++        or s.game.player ~= lease.player or lease.owner.epoch ~= lease.ownerEpoch
++        or not lease.owner:valid() then return false end
++    local saved = lease.saved
++    local player = s.game.player
++    local occupant = s.manager:getNPCAt(saved.x, saved.y)
++    if occupant and occupant ~= actor.npc
++        or player.gridX == saved.x and player.gridY == saved.y
++        or player.isMoving and player.startPixelX/TILE_SIZE == saved.x and player.startPixelY/TILE_SIZE == saved.y
++        or not s.descriptor.canStand(actor.spec, saved.x, saved.y, s.zone) then return false end
++    lease.move = nil
++    actor.value = copy(saved)
++    self:_pose(actor)
++    return true
++end
++
+ function NPCMotion:releaseScript(token)
+     local s = stores[self]
+     local actor = scriptLease(s, token)

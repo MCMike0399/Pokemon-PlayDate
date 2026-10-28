@@ -152,5 +152,15 @@ function HealingCompositionContracts.run()
         local checkpoint=game.session:checkpoint()
         eq(checkpoint.zone_id,"pokered:PEWTER_CITY");eq(checkpoint.x,13);eq(checkpoint.y,26);eq(checkpoint.facing,"down")
     end)
+    test("installed standard source Centers share the pinned machine layout", function()
+        for _, name in ipairs({"ViridianPokecenter", "PewterPokecenter", "CeruleanPokecenter", "MtMoonPokecenter"}) do
+            local zone = SourceMaps.isolated(name)
+            local layout = HealingComposition.layout(zone)
+            eq(layout.monitor.x,56); eq(layout.monitor.y,8)
+            eq(#layout.balls,6)
+        end
+        local ok = pcall(HealingComposition.layout, SourceMaps.isolated("BillsHouse"))
+        eq(ok,false)
+    end)
     return report
 end

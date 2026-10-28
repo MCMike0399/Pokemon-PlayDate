@@ -79,6 +79,13 @@ import "game/eventText"
 import "game/eventArt"
 import "game/healingComposition"
 import "game/eventState"
+import "data/ceruleanContent"
+import "game/ceruleanStory"
+import "game/ceruleanRoutes"
+import "game/ceruleanRoutesState"
+import "game/tutorialEscort"
+import "game/kantoScenes"
+import "game/kantoServices"
 import "game/pokedexState"
 import "game/pcState"
 import "game/evolutionState"
@@ -112,6 +119,17 @@ import "domain/fieldEncounters"
 
 -- @harness imports-7
 
+CeruleanContent.install(KantoScenes.actorMetadata)
+CeruleanContent.installSigns()
+KantoScenes.install()
+KantoServices.install()
+SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
+SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
+    beforeSpawn=function(context)
+        assert(KantoServices.onMapEnter(context.session, currentZone.stableID))
+    end,
+})
+
 game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
 
 local machine <const> = game.machine
@@ -126,7 +144,8 @@ machine:register("pause", PauseState(game))
 machine:register("party", PartyState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
-machine:register("event", EventState(game))
+machine:register("event", KantoServicesState(game))
+machine:register("tutorial-escort", TutorialEscortState(game))
 machine:register("pokedex", PokedexState(game))
 machine:register("pc", PCState(game))
 machine:register("itemPC",ItemPCState(game))

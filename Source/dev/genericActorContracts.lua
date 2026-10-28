@@ -267,21 +267,23 @@ function GenericActorContracts.run()
             same(RulesRNG.toData(), rules)
         end)
     end)
-    test("all twelve live maps retain legacy motion policy", function()
-        eq(#SourceMaps.names(),12)
-        local count, walkers = 0,0
+    test("the original twelve maps retain their legacy motion policy", function()
+        local count, walkers, legacy = 0,0,0
         for _,name in ipairs(SourceMaps.names()) do
             local entry = SourceMaps.entry(name)
             local descriptor = SourceActors.describe(entry.id,WorldDeltas.export())
-            if entry.profile == "viridian" then eq(descriptor,nil)
-            else
+            if entry.profile == "viridian" then
+                legacy = legacy + 1
+                eq(descriptor,nil)
+            elseif entry.profile == "pewter" then
+                legacy = legacy + 1
                 for _,spec in ipairs(assert(descriptor).actors) do
                     count=count+1
                     if spec.random and spec.movement=="WALK" then walkers=walkers+1 end
                 end
             end
         end
-        eq(count,29); eq(walkers,3)
+        eq(legacy,12); eq(count,29); eq(walkers,3)
     end)
     return report
 end

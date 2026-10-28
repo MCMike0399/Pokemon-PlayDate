@@ -34,6 +34,15 @@
 | Field Pickup | Original Blue has no ability-generated loot | User approved the unchanged native B2W2 table and eligibility on 2026-10-26, including all 25 items and six new definitions; retain existing Blue prices | Deliberate acquisition extension for the approved Gen V ability system | Exact table in `docs/research/pickup-policy.md`; private implementation and native acceptance remain pending |
 | NPC trade held items | Original Blue had no held-item choice | Require Take before offering a holding Pokémon; do not include, delete or automatically refund its item | Explicit user choice on 2026-10-26 | Nine source trades verified in `docs/research/npc-trade-policy.md`; implementation and native acceptance remain pending |
 
+Prepared during the Cerulean milestone, with native acceptance still pending:
+
+| Area | Original reference behavior | Project decision | Reason | Evidence/status |
+|---|---|---|---|---|
+| Catching demonstration | The original OLD_MAN branch guarantees capture and awards no Pokémon or Pokédex entry | Isolated native presentation uses the existing successful capture animation and a 30-tick bag pause | Preserve the lesson without changing player inventory, specimens or either RNG stream | Pinned source and prepared SDK cases; listening and native scene review pending |
+| Pewter escort | Source movement ignores occupancy and has a documented screen-X alignment bug | Eight-frame leased movement yields in the final aisle and supports guarded retry/cancellation | Preserve the source route without overlapping actors or reproducing the alignment bug | Pinned route transcription; native motion and cancellation acceptance pending |
+| Script placement | Bill enters machine cells; the guide crosses the Gym arrival mat | Only declared actor script positions may use those collision/transit exceptions | Keep player collision, ordinary wandering and actual warp tiles protected | Prepared scoped SDK witnesses; no general collision exemption |
+| Museum opening | The original museum doors are passable; the earlier bounded slice blocked them | Open only the declared source ingresses in the private campaign candidate | Extend source geography while retaining every tile and character grid | Protected collision diagnostic changes require native inspection and user approval; baseline remains unchanged |
+
 The abilities/held-items/natures decision extends the gameplay enhancement policy.
 It does not authorize later species, Fairy, Mega Evolution, a changed Kanto story,
 or replacement of the protected visual style. Existing saves need explicit

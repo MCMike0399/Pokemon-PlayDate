@@ -179,6 +179,7 @@ function HarnessDiagnostics.snapshot(game)
         camera = { x = game.camera.x, y = game.camera.y }, npcs = npcs,
         learning = learningSnapshot(root:get("learning")),
         last_battle_outcome = game.lastBattleOutcome and {
+            trainer_id = game.lastBattleOutcome.trainer_id,
             kind = game.lastBattleOutcome.kind, won = game.lastBattleOutcome.won,
             blackout = game.lastBattleOutcome.blackout, player_hp = game.lastBattleOutcome.player_hp,
             enemy_hp = game.lastBattleOutcome.enemy_hp,
@@ -196,4 +197,123 @@ function HarnessDiagnostics.lookup(snapshot, path)
         value = value[tonumber(key) or key]
     end
     return value
+end
+
+-- Heavy observations are request-only. No snapshot/trace calls this code.
+-- Cache only a real successful disk Save/Continue, tied to its session identity.
+local boundaries = setmetatable({}, {__mode="k"})
+local function equal(a, b)
+    if type(a) ~= type(b) then
+        return false
+    end
+    if type(a) ~= "table" then
+        return a == b
+    end
+    for key, value in pairs(a) do
+        if not equal(value, b[key]) then
+            return false
+        end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+local function armBoundary(game)
+    if game.saves.observeBoundary then return end
+    game.saves.observeBoundary = function(session, kind, payload, metadata)
+        -- SaveStore supplies a detached primitive record. Nothing here calls
+        -- captureSession/captureTraversal or samples current moving actors.
+        boundaries[game.saves] = {session=session, kind=kind, payload=payload,
+            sequence=metadata.sequence, reason=metadata.reason}
+    end
+end
+local function codecObservation(game, payload)
+    local deps = game:getSessionDependencies()
+    local valid, problem = SessionCodec.validate(payload, deps)
+    assert(valid, problem)
+    local detached = assert(SessionCodec.decode(payload, deps))
+    local encoded = assert(SessionCodec.encode(detached,
+        {root="overworld", overworld="explore", settled=true}))
+    assert(equal(payload, encoded), "noncanonical session boundary roundtrip")
+    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true, payload=payload}
+end
+local function observeOwners(game)
+    local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")
+    assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale owner projection")
+    local actual = SourceEvents.trainerDefinitions()
+    local expected = GameSession._copy(export.trainers)
+    for id, variants in pairs(export.rivals) do
+        local registered = assert(actual[id], "unregistered rival: " .. id)
+        local selected = {}
+        for starter, definition in pairs(variants) do
+            selected[starter] = {party=definition.party, payout=definition.payout}
+            local base = GameSession._copy(registered)
+            base.party, base.payout, base.rival_parties = definition.party, definition.payout, nil
+            assert(equal(base, definition), "rival definition drift: " .. id)
+        end
+        assert(equal(registered.rival_parties, selected), "unregistered rival variants")
+        expected[id] = registered
+    end
+    assert(equal(actual, expected), "registered trainer definitions differ from projection")
+    for _, id in ipairs(export.events) do
+        assert(SourceEvents.has(id), "unregistered projected event: " .. id)
+    end
+    for id, shop in pairs(export.shops) do
+        local descriptor = assert(SourceEvents.descriptor(id))
+        assert(descriptor.kind == "program" and #descriptor.steps == 1
+            and descriptor.steps[1].op == "shop", "shop dispatch differs")
+        assert(equal(ItemData.marts[descriptor.steps[1].id], shop.stock), "shop stock differs")
+        for item, price in pairs(shop.prices) do
+            assert(ItemData.definitions[item].price == price, "shop price differs")
+        end
+    end
+    assert(equal(CeruleanStory.pcPlayer(), export.bill_pc_player), "Bill PC player binding differs")
+    armBoundary(game)
+    return {kind="owners", valid=true, version=SessionCodec.VERSION}
+end
+function HarnessDiagnostics.observe(game, kind)
+    if kind == "purity" then
+        -- Prepared real-SDK witness: repeated requests must preserve the entire
+        -- canonical session, live world/actors, identities and both RNG owners.
+        local session, storage, party = game.session, game.session:storage(), game.session:party()
+        local gate = {root="overworld", overworld="explore", settled=true}
+        local before = assert(SessionCodec.encode(session, gate))
+        local actors = game.npcManager.motion:snapshot()
+        local world, rng = WorldDeltas.export(), RulesRNG.snapshot()
+        HarnessDiagnostics.observe(game, "validate")
+        HarnessDiagnostics.observe(game, "validate")
+        assert(game.session == session and session:storage() == storage and session:party() == party,
+            "observation changed owner identity")
+        assert(equal(before, assert(SessionCodec.encode(session, gate))), "observation changed session")
+        assert(equal(actors, game.npcManager.motion:snapshot()), "observation changed live actors")
+        assert(equal(world, WorldDeltas.export()), "observation changed live world")
+        assert(equal(rng, RulesRNG.snapshot()), "observation consumed rules RNG")
+        return {kind="purity", valid=true, version=SessionCodec.VERSION}
+    end
+    if kind == "owners" then return observeOwners(game) end
+    armBoundary(game)
+    if kind == "validate" then
+        -- Validation of existing session data only: no traversal capture/repair.
+        local world = game.machine:get("overworld")
+        assert(game.machine:getCurrent() == "overworld" and game.machine:depth() == 1
+            and world.sub:getCurrent() == "explore" and game.player and not game.player.isMoving
+            and not game.player.pendingEdgeDoor and not game.player.pendingConnection,
+            "read-only validation requires settled exploration")
+        local payload = assert(SessionCodec.encode(game.session,
+            {root="overworld", overworld="explore", settled=true}))
+        local result = codecObservation(game, payload)
+        -- Fresh validation is deliberately not a Save/Continue receipt.
+        result.payload, result.kind = nil, "validate"
+        return result
+    end
+    assert(kind == "saved" or kind == "loaded", "unknown observation")
+    local boundary = assert(boundaries[game.saves], "no observed Save/Continue boundary")
+    assert(boundary.session == game.session and boundary.kind == kind,
+        "stale or wrong Save/Continue boundary")
+    local result = codecObservation(game, boundary.payload)
+    result.kind, result.sequence = kind, boundary.sequence
+    return result
 end

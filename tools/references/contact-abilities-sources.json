@@ -1,0 +1,73 @@
+{
+  "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "files": {
+    "ps_data_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/abilities.ts",
+      "sha256": "e942ef6a75cdd50095f6b68c27e772ea91f2202714a30b04539ff17b7b93c065"
+    },
+    "ps_data_mods_gen8_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen8/abilities.ts",
+      "sha256": "da491e974abbc07c10267cd7ddd6713fea035be415c3d1e69c916d44b9f2ad51"
+    },
+    "ps_data_mods_gen7_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen7/abilities.ts",
+      "sha256": "9f9928a6477e78f95dcc6c0bdca686f812cbe4571c034080d4c9ab2136b9e776"
+    },
+    "ps_data_mods_gen6_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen6/abilities.ts",
+      "sha256": "01dd91f133cf9ee0215b3a8b04a3418d26c0f9a380781fb4966e5d7f2808e5f9"
+    },
+    "ps_data_mods_gen5_abilities.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/abilities.ts",
+      "sha256": "b0fa8dac88cbbde30d38eb7b8128af37baded1063f4dbec742061c0aee9059bb"
+    },
+    "ps_data_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/moves.ts",
+      "sha256": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7"
+    },
+    "ps_data_mods_gen5_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/moves.ts",
+      "sha256": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
+    },
+    "ps_data_conditions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/conditions.ts",
+      "sha256": "d27aa18fade4d85152b4ce8a002b9c6801e5e08f1859db918e14695797875eda"
+    },
+    "ps_data_mods_gen5_conditions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/conditions.ts",
+      "sha256": "a45e44a9459209e082b2775cc1b4a24fc32ef9067d0909b8f9d75d7137b3a7dc"
+    },
+    "ps_data_mods_gen6_conditions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen6/conditions.ts",
+      "sha256": "9cca533633c20fecc0d5cf4cbd0f318ed9e0e5164c7f9ba2d62b45b9eaaf6850"
+    },
+    "ps_data_mods_gen5_typechart.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/typechart.ts",
+      "sha256": "e97ecc4391101613d626498dd485ef663ed1e7a93c4061bd7053c6eec4f2d138"
+    },
+    "ps_sim_battle-actions.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/battle-actions.ts",
+      "sha256": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4"
+    },
+    "ps_sim_battle.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/battle.ts",
+      "sha256": "966fe2263d943343bebc7bbf44ba5ec93454448276a6d45b497885d304dfda58"
+    },
+    "ps_sim_pokemon.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/pokemon.ts",
+      "sha256": "42ebab9dcfc823b032d40dabb8aafc9e76276030f89bd9a0e98b5e7fb54cb607"
+    },
+    "ps_data_mods_gen8_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen8/moves.ts",
+      "sha256": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e"
+    },
+    "ps_data_mods_gen7_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen7/moves.ts",
+      "sha256": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc"
+    },
+    "ps_data_mods_gen6_moves.ts": {
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen6/moves.ts",
+      "sha256": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb"
+    }
+  }
+}

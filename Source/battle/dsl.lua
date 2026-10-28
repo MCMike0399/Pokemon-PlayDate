@@ -216,9 +216,9 @@ function EffectSeq:secondaryKind(recipient)
     end
     return "stat"
 end
-function EffectSeq:apply(battle)
+function EffectSeq:apply(battle, secondary)
     for _, effect in ipairs(self.effects) do
-        effect:apply(battle)
+        effect:apply(battle, secondary)
     end
 end
 
@@ -234,11 +234,11 @@ function When:secondaryKind(recipient)
     assert(type(self.onPass.secondaryKind)=="function","unsupported-secondary-payload")
     return self.onPass:secondaryKind(recipient)
 end
-function When:apply(battle)
+function When:apply(battle, secondary)
     if self.cond:check(battle) then
-        self.onPass:apply(battle)
+        self.onPass:apply(battle, secondary)
     else
-        self.onFail:apply(battle)
+        self.onFail:apply(battle, secondary)
     end
 end
 
@@ -258,11 +258,21 @@ function ModifyStat:secondaryKind(recipient)
     assert(secondaryTargetMatches(recipient,self.target),"secondary-recipient-mismatch")
     return "stat"
 end
-function ModifyStat:apply(battle)
+function ModifyStat:apply(battle, secondary)
     local pokemon = self.target:resolve(battle)
     if not pokemon:isAlive() then return end
-    if battle.effects and not battle.effects:canDropStat(battle.attacker,pokemon,self.stat,self.stages) then
-        battle:say(pokemon.name .. "'s Keen Eye prevents accuracy loss!");return
+    if battle.effects then
+        local allowed, prevention = battle.effects:canDropStat(battle.attacker, pokemon, self.stat, self.stages)
+        if not allowed then
+            -- Gen V suppresses Clear Body's fail narration for secondaries.
+            -- The chance trial already ran in the typed SecondaryEffect owner.
+            if prevention == "Clear Body" and secondary then
+                return
+            end
+            local loss = prevention == "Keen Eye" and "accuracy loss!" or "stat loss!"
+            battle:say(pokemon.name .. "'s " .. prevention .. " prevents " .. loss)
+            return
+        end
     end
     local oldStage = pokemon.statStages[self.stat] or 0
     local newStage = math.max(-6, math.min(6, oldStage + self.stages))
@@ -333,6 +343,9 @@ function ApplyStatus:apply(battle)
     if not pokemon:isAlive() then return end
     -- Volatile conditions live next to the major status, not in it
     if self.status == "flinch" then
+        -- Check the volatile payload, after the move's secondary chance draw.
+        -- Inner Focus does not suppress unrelated secondaries or their RNG.
+        if battle.effects and battle.effects:statusImmunity(pokemon,"flinch") then return end
         pokemon.flinched = true   -- consumed by the engine on the next half-turn
         return
     end
@@ -355,7 +368,16 @@ function ApplyStatus:apply(battle)
         return
     end
     local immunity=battle.effects and battle.effects:statusImmunity(pokemon,self.status)
-    if immunity then battle:say(pokemon.name.." is protected by "..immunity.."!");return end
+    if immunity then
+        -- These Gen5 SetStatus callbacks announce direct status moves only;
+        -- an immune secondary still consumed its chance but stays silent.
+        local directMove=self.statusCause=="move" and battle.currentMove
+            and battle.currentMove.category=="status"
+        if (immunity~="Vital Spirit" and immunity~="Water Veil") or directMove then
+            battle:say(pokemon.name.." is protected by "..immunity.."!")
+        end
+        return
+    end
     -- Sample before committing durable fields; RNG exhaustion cannot leave an
     -- asleep Pokemon without its original duration.
     if self:preventedBySide(battle,pokemon) then return end
@@ -364,6 +386,7 @@ function ApplyStatus:apply(battle)
     pokemon.status = self.status
     pokemon.statusTurns = duration
     pokemon.sleepDuration = duration
+    if battle.effects then ContactAbilities.afterStatus(battle.effects,pokemon,self.statusSource:resolve(battle),self.status,self.statusCause) end
     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
 end
 
@@ -390,7 +413,11 @@ function DirectDamage:apply(battle)
     battle.lastDamage = before - pokemon.hp
     if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 then battle.conditions:rageHit(pokemon) end
     battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
-    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
+    if receipt then
+        battle.effects:announceEndure(receipt)
+        ContactAbilities.secondaries(battle.effects,battle.attacker,pokemon,battle.currentMove)
+        battle.effects:afterHit(receipt)
+    end
 end
 
 Class("RoostEffect")
@@ -428,7 +455,11 @@ function PsywaveDamage:apply(battle)
     if battle.conditions and battle.lastDamage>0 then battle.conditions:rageHit(defender) end
     battle.isFlashing, battle.flashTimer = true, 6
     battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
-    if receipt then battle.effects:announceEndure(receipt);battle.effects:afterHit(receipt) end
+    if receipt then
+        battle.effects:announceEndure(receipt)
+        ContactAbilities.secondaries(battle.effects,battle.attacker,defender,battle.currentMove)
+        battle.effects:afterHit(receipt)
+    end
 end
 
 -- Dedicated effects delegate transient ownership to this battle only.
@@ -462,7 +493,7 @@ end
 function SecondaryEffect:apply(battle)
     local target=self.target:resolve(battle)
     if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target,self.kind) then return end
-    self.effect:apply(battle)
+    self.effect:apply(battle, true)
 end
 Class("WeatherEffect")
 function WeatherEffect:init(id)

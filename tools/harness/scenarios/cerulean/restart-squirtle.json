@@ -1,0 +1,36 @@
+{
+  "processes": [
+    {
+      "journey": {
+        "name": "cerulean-natural",
+        "starter": "squirtle",
+        "fossil": "dome",
+        "seed": 42,
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64,
+        "training_level": 16,
+        "max_training_battles": 1,
+        "max_capture_attempts": 24,
+        "max_blackouts": 1,
+        "max_transitions": 64,
+        "evolution_policy": "accept"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "name": "cerulean-continue",
+        "starter": "squirtle",
+        "fossil": "dome",
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64
+      }
+    }
+  ],
+  "initial_save": {
+    "milestone": "5.2",
+    "starter": "squirtle"
+  }
+}

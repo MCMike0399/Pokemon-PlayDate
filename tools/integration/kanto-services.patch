@@ -1,0 +1,57 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -83,6 +83,7 @@
+ import "game/ceruleanStory"
+ import "game/ceruleanRoutes"
+ import "game/ceruleanRoutesState"
++import "game/kantoServices"
+ import "game/tutorialEscort"
+ import "game/pokedexState"
+ import "game/pcState"
+@@ -117,6 +118,8 @@
+
+ -- @harness imports-7
+
++KantoServices.install()
++
+ game = GameContext({sessionLocationPolicy=PewterWorld.locationPolicy()})
+
+ local machine <const> = game.machine
+@@ -131,7 +134,7 @@
+ machine:register("party", PartyState(game))
+ machine:register("bag", BagState(game))
+ machine:register("shop", ShopState(game))
+-machine:register("event", CeruleanRoutesState(game))
++machine:register("event", KantoServicesState(game))
+ machine:register("tutorial-escort", TutorialEscortState(game))
+ machine:register("pokedex", PokedexState(game))
+ machine:register("pc", PCState(game))
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -40,6 +40,7 @@
+     -- Intro storyline triggers (cutscene dialogs, the scripted rival
+     -- battle); they preempt doors and encounters
+     if Story.check(game, self.owner) then return end
++    if KantoServices.check(game) then return end
+
+     -- Door warp check: landing on a step-triggered door/stairs tile
+     if player.stepJustFinished then
+@@ -283,6 +284,7 @@
+
+     gfx.sprite.removeAll()
+     setupOverworld()
++    assert(KantoServices.onMapEnter(game.session, currentZone.stableID))
+     self.builtZone = currentZone
+
+     local pos = currentZone.spawn
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -215,5 +215,8 @@
+ Contracts.register("cerulean-routes", CeruleanRoutesContracts.run)
+ Contracts.register("tutorial-escort", TutorialEscortContracts.run)
+
++import "dev/kantoServicesContracts"
++Contracts.register("kanto-services", KantoServicesContracts.run)
++
+ -- @harness runtime
+ harness = Harness

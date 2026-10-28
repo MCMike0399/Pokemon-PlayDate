@@ -233,8 +233,16 @@ local function startMove(player,gx,gy,jumping)
     player:updateSprite()
 end
 
-function Player:tryMove(dx, dy)
+function Player:tryMove(dx, dy, scriptIntent)
     if self.isMoving then return end
+    -- Only the exact, live source escort intent may overlap ambient sprites.
+    -- All ordinary callers retain NPC collision, terrain and traversal checks.
+    local scripted, guide = false, nil
+    if scriptIntent ~= nil then
+        if not TutorialEscortPlayer then return end
+        scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
+        if not scripted then return end
+    end
 
     if dy == -1 then self.facing = "up"
     elseif dy == 1 then self.facing = "down"
@@ -263,7 +271,8 @@ function Player:tryMove(dx, dy)
 
     -- Check for NPC at target position (skip during noclip)
     if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
-        if self.npcManager:getNPCAt(targetGX, targetGY) then
+        local occupant = self.npcManager:getNPCAt(targetGX, targetGY)
+        if occupant and (not scripted or occupant == guide) then
             if currentZone and currentZone:isSliceReady() then self.lastTraversalBlock={kind="npc",id="occupied-next-cell"} end
             return
         end

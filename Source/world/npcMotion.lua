@@ -23,7 +23,7 @@ function NPCMotion:_pose(actor)
     else npc:moveTo(v.x*TILE_SIZE,v.y*TILE_SIZE-8);npc:setFacing(v.facing)end
 end
 function NPCMotion:attach(game,zone,payload,reconcile)
-    local s=stores[self];local world=WorldDeltas.export();local descriptor=SourceActors.describe(zone.stableID,world)
+    local s=stores[self];local world=WorldDeltas.export();local descriptor=SourceActors.describe(zone.stableID,world,game)
     if not descriptor then self:clear();return end
     local flags=game.session:flags();local location={zone_id=zone.stableID,x=game.player.gridX,y=game.player.gridY,facing=game.player.facing}
     local migration
@@ -175,6 +175,13 @@ local function scriptCurrent(s, lease)
         and s.game.player == lease.player and owner.epoch == lease.ownerEpoch
         and owner:valid() and owner:isTop()
 end
+-- Read-only ownership check for a paired player script intent. Do not probe
+-- validity by advancing a cell or reapplying a pose.
+function NPCMotion:isScriptOwner(token, owner)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    return actor ~= nil and lease.owner == owner and scriptCurrent(s, lease) == true
+end
 function NPCMotion:claimScript(npc, owner)
     local s = stores[self]
     local actor = s.byNPC[npc]
@@ -194,7 +201,7 @@ function NPCMotion:claimScript(npc, owner)
         value.origin_x,value.target_x,value.origin_y,value.target_y = value.x,value.x,value.y,value.y
     end
     local token = {}
-    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player}
+    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player, origin=copy(actor.value)}
     if s.pending and s.pending.id == actor.value.id then s.pending = nil end
     -- Interaction facing restoration must not undo the script's completed pose.
     if s.interaction and s.interaction.id == actor.value.id then s.interaction = nil end
@@ -215,7 +222,7 @@ function NPCMotion:startScriptStep(token, direction)
     local occupant = s.manager:getNPCAt(x,y)
     if occupant and occupant ~= npc or x == player.gridX and y == player.gridY
         or player.isMoving and x == player.startPixelX/TILE_SIZE and y == player.startPixelY/TILE_SIZE
-        or s.descriptor.protected[cell]
+        or s.descriptor.protected[cell] and not (spec.script_transit and spec.script_transit[cell])
         or not s.descriptor.canStep(spec,v.x,v.y,x,y,s.zone) then return false, "blocked-scripted-npc-move" end
     -- Verify walking art before reserving or exposing an intermediate pose.
     local ok = pcall(SourceActors.stepImage,spec.sprite_source,direction,2,spec.content_profile)
@@ -243,10 +250,39 @@ function NPCMotion:updateScript(token)
     self:_pose(actor)
     return true
 end
-function NPCMotion:releaseScript(token)
+-- Reset may run during overlay exit, after removal from the stack. Identity
+-- and attachment guards still apply; facing and movement require top ownership.
+function NPCMotion:faceScript(token, facing)
     local s = stores[self]
-    local actor = scriptLease(s, token)
+    local actor, lease = scriptLease(s, token)
+    if not actor or not scriptCurrent(s, lease) or lease.move
+        or not actor.spec.faces[facing] then return false end
+    actor.value.facing = facing
+    self:_pose(actor)
+    return true
+end
+function NPCMotion:resetScript(token)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or s.game.session ~= s.session or currentZone ~= s.zone
+        or s.game.player ~= lease.player or lease.owner.epoch ~= lease.ownerEpoch
+        or not lease.owner:valid() then return false end
+    local origin, player = lease.origin, s.game.player
+    local occupant = s.manager:getNPCAt(origin.x, origin.y)
+    if occupant and occupant ~= actor.npc
+        or player.gridX == origin.x and player.gridY == origin.y
+        or player.isMoving and player.startPixelX/TILE_SIZE == origin.x and player.startPixelY/TILE_SIZE == origin.y
+        or not s.descriptor.canStand(actor.spec, origin.x, origin.y, s.zone) then return false end
+    lease.move = nil
+    actor.value = copy(origin)
+    self:_pose(actor)
+    return true
+end
+function NPCMotion:releaseScript(token, rollback)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
     if not actor then return false end
+    if rollback then actor.value = copy(lease.origin) end
     -- Incomplete interpolation never changed the completed durable cell.
     actor.script = nil
     self:_pose(actor)
@@ -271,6 +307,31 @@ function NPCMotion:restoreTrainerPose(npc, x, y, facing)
     value.x,value.y,value.facing = x,y,facing
     value.origin_x,value.target_x,value.origin_y,value.target_y = x,x,y,y
     actor.value = value
+    self:_pose(actor)
+    return true
+end
+
+-- Source scene placement is a lease operation, never a direct sprite write.
+function NPCMotion:placeScript(token, x, y, facing)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
+    if lease.move then return false, "script-cell-in-progress" end
+    if not Party._integer(x,0,s.descriptor.width-1) or not Party._integer(y,0,s.descriptor.height-1)
+        or s.descriptor.protected[y*s.descriptor.width+x+1]
+        or not actor.spec.script_positions[y*s.descriptor.width+x+1]
+        or not s.descriptor.canStand(actor.spec,x,y,s.zone) then return false, "invalid-source-script-placement" end
+    local occupant = s.manager:getNPCAt(x,y)
+    local player = s.game.player
+    if occupant and occupant ~= actor.npc or player.gridX == x and player.gridY == y
+        or player.isMoving and player.startPixelX/TILE_SIZE == x and player.startPixelY/TILE_SIZE == y then
+        return false, "occupied-source-script-placement"
+    end
+    if facing ~= nil and not actor.spec.faces[facing] then return false, "missing-source-actor-facing" end
+    local v = actor.value
+    v.x,v.y = x,y
+    if facing then v.facing = facing end
+    v.origin_x,v.target_x,v.origin_y,v.target_y = x,x,y,y
     self:_pose(actor)
     return true
 end

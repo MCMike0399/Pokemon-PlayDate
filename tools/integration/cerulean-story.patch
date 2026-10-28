@@ -1,0 +1,110 @@
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -309,7 +309,7 @@
+     assert(type(name) == "string" and type(events) == "table" and not eventSources[name], "named event source required")
+     local current = definitions()
+     for id, descriptor in pairs(events) do
+-        assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$")
++        assert(type(id) == "string" and (id:match("^pokered:[^:]+:objects:%d+$") or id == "pokered:BILLS_HOUSE:hidden_events:1")
+             and not current[id] and type(descriptor) == "table" and descriptor.content == name,
+             "unique stable source object descriptor required")
+     end
+@@ -381,3 +381,9 @@
+     game.machine:push("event", id, options)
+     return true
+ end
++
++-- Explicit source-script exceptions, separate from player/wandering collision.
++function SourceEvents.actorCollisionPositions(id)
++    local descriptor = definitions()[id]
++    return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_collision_positions or {})
++end
+--- a/Source/domain/gameSession.lua
++++ b/Source/domain/gameSession.lua
+@@ -221,7 +221,7 @@
+     return true
+ end
+ -- Badge bits are represented by stable quest flags in the existing codec.
+-local badgeFlags={boulder="BADGE_BOULDER"}
++local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE"}
+ function GameSession:hasBadge(name)
+     local id=assert(badgeFlags[name],"unsupported badge name")
+     return self:questFlag(id)
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -144,6 +144,12 @@
+             spec.script_positions[cell] = true
+         end
+         local metadata = resolver.metadata and resolver.metadata(d, event) or {}
++        spec.script_collision_positions = {}
++        for _, position in ipairs(SourceEvents.actorCollisionPositions(event.id)) do
++            local cell = position.y * surface.width + position.x + 1
++            assert(spec.script_positions[cell] and not protected[cell], "collision exception outside source script positions")
++            spec.script_collision_positions[cell] = true
++        end
+         spec.visibility = Party._primitive(metadata.visibility or {})
+         local descriptor = SourceEvents.descriptor(event.id)
+         if profile ~= "pewter" and descriptor and descriptor.kind == "pickup" then
+@@ -162,7 +168,8 @@
+     local function canStand(spec,x,y,runtimeZone)
+         local cell = y * surface.width + x + 1
+         if spec.script_positions[cell] and not protected[cell] and x >= 0 and y >= 0 and x < surface.width and y < surface.height
+-            and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0 then return true end
++            and ((runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0
++                or spec.script_collision_positions[cell]) then return true end
+         return canWander(spec,x,y,runtimeZone)
+     end
+     local function canStep(spec,x,y,tx,ty,runtimeZone)
+--- a/Source/world/npcMotion.lua
++++ b/Source/world/npcMotion.lua
+@@ -194,7 +194,7 @@
+         value.origin_x,value.target_x,value.origin_y,value.target_y = value.x,value.x,value.y,value.y
+     end
+     local token = {}
+-    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player}
++    actor.script = {token=token, owner=owner, ownerEpoch=owner.epoch, epoch=s.epoch, player=s.game.player, origin=copy(actor.value)}
+     if s.pending and s.pending.id == actor.value.id then s.pending = nil end
+     -- Interaction facing restoration must not undo the script's completed pose.
+     if s.interaction and s.interaction.id == actor.value.id then s.interaction = nil end
+@@ -243,10 +243,11 @@
+     self:_pose(actor)
+     return true
+ end
+-function NPCMotion:releaseScript(token)
+-    local s = stores[self]
+-    local actor = scriptLease(s, token)
++function NPCMotion:releaseScript(token, rollback)
++    local s = stores[self]
++    local actor, lease = scriptLease(s, token)
+     if not actor then return false end
++    if rollback then actor.value = copy(lease.origin) end
+     -- Incomplete interpolation never changed the completed durable cell.
+     actor.script = nil
+     self:_pose(actor)
+@@ -274,3 +275,26 @@
+     self:_pose(actor)
+     return true
+ end
++
++-- Source scene placement is a lease operation, never a direct sprite write.
++function NPCMotion:placeScript(token, x, y)
++    local s = stores[self]
++    local actor, lease = scriptLease(s, token)
++    if not actor or not scriptCurrent(s, lease) then return false, "stale-script-token" end
++    if lease.move then return false, "script-cell-in-progress" end
++    if not Party._integer(x,0,s.descriptor.width-1) or not Party._integer(y,0,s.descriptor.height-1)
++        or s.descriptor.protected[y*s.descriptor.width+x+1]
++        or not actor.spec.script_positions[y*s.descriptor.width+x+1]
++        or not s.descriptor.canStand(actor.spec,x,y,s.zone) then return false, "invalid-source-script-placement" end
++    local occupant = s.manager:getNPCAt(x,y)
++    local player = s.game.player
++    if occupant and occupant ~= actor.npc or player.gridX == x and player.gridY == y
++        or player.isMoving and player.startPixelX/TILE_SIZE == x and player.startPixelY/TILE_SIZE == y then
++        return false, "occupied-source-script-placement"
++    end
++    local v = actor.value
++    v.x,v.y = x,y
++    v.origin_x,v.target_x,v.origin_y,v.target_y = x,x,y,y
++    self:_pose(actor)
++    return true
++end

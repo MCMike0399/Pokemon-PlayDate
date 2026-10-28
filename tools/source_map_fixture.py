@@ -9,6 +9,12 @@ from tools.generate_source_map_cache import ROOT, build, canonical
 
 def records(reference_root):
     manifest = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
+    # Private metadata overrides keep Route22 an independent extension witness
+    # even though its shipping definition is now installed. Only SchoolHouse
+    # adds an identity; open the controlled west edge only inside this fixture.
+    city = manifest['maps']['ViridianCity']
+    city['blocked_connections'] = [gate for gate in city.get('blocked_connections', [])
+                                   if gate != 'west:ROUTE_22']
     result = {}
     with tempfile.TemporaryDirectory() as temporary:
         source = Path(temporary)

@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from tools.generate_source_map_cache import build, canonical
 from tools.source_map_fixture import records
@@ -23,12 +24,31 @@ class SourceMapActivationInputs(unittest.TestCase):
     def test_sdk_witness_uses_the_exact_existing_pinned_extension_fixture(self):
         self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(self.fixture))
         maps = self.fixture['data/sourceMaps.json']['maps']
-        self.assertEqual(len(maps), 14)
+        self.assertEqual(len(maps), 31)
         self.assertEqual(maps['ViridianSchoolHouse']['profile'], 'source')
         self.assertEqual(maps['Route22']['profile'], 'source')
         active = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
-        self.assertEqual(set(maps) - set(active), {'ViridianSchoolHouse', 'Route22'})
-        self.assertEqual(len(active), 12)
+        self.assertEqual(set(maps) - set(active), {'ViridianSchoolHouse'})
+        self.assertEqual(len(active), 30)
+        self.assertNotEqual(maps['Route22']['path'], active['Route22']['path'])
+        self.assertEqual(active['Route22']['key'], 'kanto_route_22')
+
+    def test_extension_reads_definitions_and_shared_manifest_without_regional_inventories(self):
+        read = Path.read_bytes
+        forbidden = {'descriptors.json', 'compact.json', 'tile-grids.json', 'doors.json', 'manifest.json'}
+        def checked(path):
+            if path.parent.name in {'pewterSlice', 'viridianSlice'}:
+                self.assertNotIn(path.name, forbidden, str(path))
+            return read(path)
+        with patch.object(Path, 'read_bytes', checked):
+            fixture = records(os.environ['POKERED_REFERENCE_DIR'])
+        self.assertEqual(fixture, self.fixture)
+        installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
+        private = fixture['data/sourceMaps.json']['maps']
+        self.assertEqual(set(private) - set(installed), {'ViridianSchoolHouse'})
+        self.assertEqual(private['Route22']['key'], 'fixture_Route22')
+        self.assertEqual(installed['ViridianCity']['blocked_connections'], [])
+        self.assertEqual(private['ViridianCity']['blocked_connections'], [])
 
     def test_warp_witness_coordinates_and_reciprocal_source_index_are_exact(self):
         compact = self.fixture['data/sourceMapCache/compact.json']['maps']

@@ -40,6 +40,7 @@ function ExploreSubstate:update()
     -- Intro storyline triggers (cutscene dialogs, the scripted rival
     -- battle); they preempt doors and encounters
     if Story.check(game, self.owner) then return end
+    if SourceEvents.worldHook("explore", game) then return end
 
     -- Door warp check: landing on a step-triggered door/stairs tile
     if player.stepJustFinished then
@@ -56,11 +57,26 @@ function ExploreSubstate:update()
     -- previous frame's sprite update, exactly like the old main loop).
     -- No pokemon yet (pre-starter intro) = no wild battles.
     if player.stepJustFinished and not DEBUG_FLAGS.noEncounters
-       and game.session:party():firstUsable() then
+       and game.session:party():firstUsable()
+       and not SourceEvents.worldHook("suppressEncounters", game) then
         local session,zone=game.session,currentZone
         local plan,reason=FieldEncounters.prepare({session=session,party=session:party(),zone=zone,x=player.gridX,y=player.gridY})
         if plan then
-            local ok,result=FieldEncounters.resolve(plan);assert(ok,result)
+            local ok, result, gap = FieldEncounters.resolve(plan)
+            if gap then
+                game.lastEncounterAttempt = {kind="none", reason="unimplemented-acquisition", gap=gap}
+                game.lastEncounterSession = session
+                game.fieldAbilityGaps = game.fieldAbilityGaps or {}
+                game.fieldAbilityGaps[#game.fieldAbilityGaps + 1] = gap
+                if #game.fieldAbilityGaps > 12 then
+                    table.remove(game.fieldAbilityGaps, 1)
+                end
+                print("FIELD ability gap: " .. gap.hook)
+                player.stepJustFinished = false
+                self.owner.machine:push("dialog", {"But it failed!"})
+                return
+            end
+            assert(ok, result)
             game.lastEncounterAttempt=result.receipt;game.lastEncounterSession=session
             if result.kind=="encounter"then
                 local enemy=result.pokemon
@@ -227,6 +243,9 @@ function DoorWarpSubstate:update()
         local door = self.door
         self.door = nil
         local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
+        local provider = WorldDeltas.definitionProvider()
+        local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
+        SourceEvents.worldHook("onLeave", self.owner.game, destination)
         switchZone(door.to)
         self.owner.machine:change("overworld", {
             entry = { x = door.toX, y = door.toY, facing = facing },
@@ -301,14 +320,17 @@ function OverworldState:enter(opts)
         game.player:updateSprite()
     end
 
-    currentZone:spawnNPCs(game.npcManager)
     local actorRecord=opts and opts.actors
     local reconcile=false
     if not actorRecord and not entry and not respawn and self.savedActorsSession==game.session
         and self.savedActors and self.savedActors.zone_id==currentZone.stableID then
         actorRecord=self.savedActors;reconcile=true
     end
-    game.npcManager.motion:attach(game,currentZone,actorRecord,reconcile)
+    local context = {actors=actorRecord,reconcile=reconcile}
+    SourceEvents.worldHook("beforeSpawn", game, context)
+    currentZone:spawnNPCs(game.npcManager)
+    game.npcManager.motion:attach(game,currentZone,context.actors,context.reconcile)
+    SourceEvents.worldHook("onEnter", game, opts)
 
     -- An empty session remains empty until an explicit acquisition.
 

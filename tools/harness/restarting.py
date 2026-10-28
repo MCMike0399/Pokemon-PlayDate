@@ -23,7 +23,7 @@ def validate(scenario, qualification=False):
         return
     if qualification or any(key in scenario for key in ('commands', 'requests', 'journey', 'outputs')):
         raise ProtocolError('processes cannot mix with commands/requests/journey/outputs/qualification')
-    if set(scenario)!={'processes'}:
+    if set(scenario) - {'processes', 'initial_save'}:
         raise ProtocolError('unknown process scenario fields')
     groups = scenario['processes']
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
@@ -41,8 +41,8 @@ def validate(scenario, qualification=False):
                 raise ProtocolError('process requests requires nonempty command arrays')
         else:
             journey=group['journey']
-            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy'}
-            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue'}:
+            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy','fossil','max_transitions'}
+            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue','cerulean-natural','cerulean-continue'}:
                 raise ProtocolError('unknown or malformed process journey')
             name=journey['name']
             if name.startswith('npc-motion'):
@@ -53,7 +53,11 @@ def validate(scenario, qualification=False):
                     raise ProtocolError('motion Save must be first process')
                 if name=='npc-motion-continue' and (index==0 or groups[index-1].get('journey',{}).get('name') not in {'npc-motion-save','npc-motion-continue'}):
                     raise ProtocolError('motion Continue requires prior saved motion receipt')
+            elif name.startswith('cerulean-'):
+                from tools.harness.cerulean_journey import validate_process_journey
+                validate_process_journey(journey,index,groups[index-1].get('journey',{}) if index else {})
             else:
+                if set(journey)&{'fossil','max_transitions'}:raise ProtocolError('Cerulean options cannot mix with Brock')
                 if 'location' in journey:raise ProtocolError('location is only supported for NPC motion')
                 if journey.get('evolution_policy','accept')not in {'accept','cancel'}:raise ProtocolError('invalid Brock evolution policy')
                 if name=='brock-natural' and index!=0:
@@ -82,8 +86,11 @@ def read_receipt(reference, metadata):
     if hashlib.sha256(raw).hexdigest()!=reference['sha256']:raise ProtocolError('prior journey receipt changed')
     try:packet=json.loads(raw)
     except (UnicodeDecodeError,ValueError) as error:raise ProtocolError('malformed prior journey receipt')from error
-    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
+    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
         raise ProtocolError('wrong-build or malformed prior journey receipt')
+    if packet["kind"]=="cerulean-saved":
+        from tools.harness.cerulean_journey import validate_receipt_state
+        validate_receipt_state(packet["state"])
     if packet["kind"]=="npc-motion-saved":
         from tools.harness.motion_journey import validate_receipt_state
         validate_receipt_state(packet["state"])
@@ -158,6 +165,49 @@ def archive_generation(data, output, evidence, trace_start):
     return len(content)
 
 
+def import_chain_save(scenario, project, data, output):
+    spec = scenario.get('initial_save')
+    if spec is None:
+        return None
+    if (not isinstance(spec, dict) or set(spec) != {'milestone', 'starter'}
+            or spec['milestone'] not in {'5.2', '5.3'}
+            or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
+        raise ProtocolError('unknown starting save')
+    first = scenario['processes'][0]['journey']
+    if first.get('name') != 'cerulean-natural' or first.get('starter') != spec['starter']:
+        raise ProtocolError('starting save does not match journey')
+    manifest = json.loads((project / 'docs/validation/chain-saves.json').read_text())
+    record = next(row for row in manifest['saves'] if row['starter'] == spec['starter']
+                  and row['from_milestone'] == spec['milestone'])
+    for item in record['files']:
+        name = item['file']
+        if name not in {'adventure.a.json', 'adventure.b.json'}:
+            raise ProtocolError('unexpected starting save file')
+        content = (Path(record['directory']) / name).read_bytes()
+        if hashlib.sha256(content).hexdigest() != item['sha256']:
+            raise ProtocolError('accepted starting save checksum changed')
+        (data / name).write_bytes(content)
+    atomic_json(output / 'starting-save.json', record)
+    return record
+
+
+def export_chain_save(scenario, data, output, metadata):
+    spec = scenario.get('initial_save')
+    if spec is None:
+        return
+    destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain/5.3' / spec['starter']
+    destination.mkdir(parents=True, exist_ok=True)
+    files = []
+    for name in ('adventure.a.json', 'adventure.b.json'):
+        content = (data / name).read_bytes()
+        (destination / name).write_bytes(content)
+        files.append({'file': name, 'sha256': hashlib.sha256(content).hexdigest()})
+    atomic_json(destination / 'provenance.json', {
+        'milestone': '5.3', 'starter': spec['starter'], 'evidence': str(output),
+        'build_id': metadata['build_id'], 'files': files,
+        'status': 'journey passed Save/Continue; milestone review pending'})
+
+
 def run(args, scenario, metadata, output, data, owner, runner):
     """Run approved groups under the caller's uninterrupted global/private locks."""
     processes = []
@@ -209,7 +259,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 atomic_json(evidence / 'process.json', record); publish()
                 if 'journey' in group:
                     from tools.harness import journeys
-                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue'} else None
+                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue'} else None
                     summary=journeys.run(client,{'journey':group['journey']},evidence,
                         build_evidence=output,prior_receipt=prior,capture_dir=output/'frames')
                     if not isinstance(summary,dict)or summary.get('ok') is not True:raise ProtocolError('process journey failed')
@@ -241,6 +291,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 archived = True
                 record['durable_after'] = durable_hashes(data)
                 atomic_json(evidence / 'process.json', record); publish()
+        export_chain_save(scenario, data, output, metadata)
         atomic_json(output / 'outcome.json', {'ok': True, 'session_id': metadata['session_id'],
                                              'process_generations': len(processes)})
         print(output)

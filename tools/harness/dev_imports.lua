@@ -150,6 +150,10 @@ Contracts.register("title-archive-safety",TitleArchiveSafetyContracts.run)
 import "dev/catalog"
 import "dev/pewterCatalogExporter"
 PewterCatalogExporter.register()
+import "dev/ceruleanCatalogExporter"
+CeruleanCatalogExporter.register()
+import "dev/ceruleanCatalogContracts"
+Contracts.register("cerulean-catalog", CeruleanCatalogContracts.run)
 import "dev/comprehensiveCatalogContracts"
 Contracts.register("comprehensive-catalog", ComprehensiveCatalogContracts.run)
 import "dev/catalogMotionContracts"
@@ -204,6 +208,34 @@ import "dev/genericActorContracts"
 Contracts.register("generic-actors", GenericActorContracts.run)
 import "dev/sourceMapActivationContracts"
 Contracts.register("source-map-activation", SourceMapActivationContracts.run)
+import "dev/ceruleanContentContracts"
+import "dev/ceruleanStoryContracts"
+import "dev/ceruleanSceneContracts"
+import "dev/ceruleanRoutesContracts"
+import "dev/tutorialEscortContracts"
+Contracts.register("cerulean-content", CeruleanContentContracts.run)
+Contracts.register("cerulean-story", function() return CeruleanStoryContracts.run(CeruleanSceneContracts.withScene) end)
+Contracts.register("cerulean-scenes", CeruleanSceneContracts.run)
+Contracts.register("cerulean-routes", CeruleanRoutesContracts.run)
+Contracts.register("tutorial-escort", TutorialEscortContracts.run)
+import "dev/kantoScenesContracts"
+Contracts.register("kanto-scenes", KantoScenesContracts.run)
+import "dev/kantoServicesContracts"
+Contracts.register("kanto-services", KantoServicesContracts.run)
+import "dev/commonAbilityContracts"
+Contracts.register("common-abilities", CommonAbilityContracts.run)
+import "dev/ceruleanAmbientDialogueContracts"
+Contracts.register("cerulean-ambient-dialogue", CeruleanAmbientDialogueContracts.run)
+import "dev/entryAbilityContracts"
+Contracts.register("entry-abilities", EntryAbilityContracts.run)
+import "dev/contactAbilityContracts"
+Contracts.register("contact-abilities", ContactAbilityContracts.run)
+import "dev/fieldAcquisitionContracts"
+Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
+import "dev/vermilionAbilityContracts"
+Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
+import "dev/caveEncounterContracts"
+Contracts.register("cave-encounters", CaveEncounterContracts.run)
 
 -- @harness runtime
 harness = Harness

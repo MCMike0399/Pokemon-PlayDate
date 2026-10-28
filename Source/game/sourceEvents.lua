@@ -7,6 +7,7 @@ local cached
 local eventSources = {}
 local mergedEvents
 local textSources, trainerSources = {}, {}
+local worldHooks, hookOrder = {}, {}
 local directions = { up = true, down = true, left = true, right = true }
 local function copy(value)
     if type(value) ~= "table" then return value end
@@ -133,6 +134,16 @@ function SourceEvents.validateStep(step)
     if op == "dialog" or op == "receipt" or op == "confirmed-dialog" then
         assert(type(step.labels) == "table" and #step.labels > 0 and #step.labels <= 12, "bounded source labels required")
         for _, label in ipairs(step.labels) do assert(type(label) == "string" and #label <= 128, "source label required") end
+    elseif op == "random-dialog" then
+        assert(Party._array(step.choices, 16) and #step.choices > 0, "bounded source byte choices required")
+        local nextByte = 0
+        for _, choice in ipairs(step.choices) do
+            assert(type(choice) == "table" and choice.min == nextByte
+                and boundedInteger(choice.max, nextByte, 255), "complete ordered source byte partition required")
+            SourceEvents.validateStep({op="dialog", labels=choice.labels})
+            nextByte = choice.max + 1
+        end
+        assert(nextByte == 256, "source byte partition must cover all 256 values")
     elseif op == "move" or op == "move-npc" then
         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
         if op == "move-npc" then assert(type(step.id) == "string", "stable source actor ID required") end
@@ -262,8 +273,17 @@ function SourceEvents.validateActorPositions(id, positions)
     return copy(positions)
 end
 function SourceEvents.actorPositions(id)
+    local hooks = worldHooks[id]
+    if hooks and hooks.actorPositions then
+        return SourceEvents.validateActorPositions(id, hooks.actorPositions(id))
+    end
     local descriptor = definitions()[id]
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_positions or {})
+end
+-- Player movement and autonomous wandering retain original collision.
+function SourceEvents.actorCollisionPositions(id)
+    local descriptor = definitions()[id]
+    return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_collision_positions or {})
 end
 function SourceEvents.has(id, content)
     local d = definitions()[id]
@@ -310,7 +330,8 @@ function SourceEvents.registerEventSource(name, events)
     local current = definitions()
     for id, descriptor in pairs(events) do
         local stable = type(id) == "string" and (id:match("^pokered:[^:]+:objects:%d+$")
-            or id:match("^pokered:[^:]+:background_events:%d+$"))
+            or id:match("^pokered:[^:]+:background_events:%d+$")
+            or id:match("^pokered:[^:]+:hidden_events:%d+$"))
         assert(stable
             and not current[id] and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")
@@ -339,6 +360,20 @@ function SourceEvents.registerTrainerSource(name, resolver)
         assert(type(d.name) == "string" and type(d.sprite_source) == "string"
             and boundedInteger(d.payout, 0, Inventory.MONEY_LIMIT)
             and boundedInteger(d.sight_range_cells, 0, 16), "bounded source trainer content required")
+        if d.rival_parties then
+            local count = 0
+            for starter, variant in pairs(d.rival_parties) do
+                assert(starter == "charmander" or starter == "squirtle" or starter == "bulbasaur",
+                    "unsupported session starter")
+                assert(boundedInteger(variant.payout, 0, Inventory.MONEY_LIMIT)
+                    and Party._array(variant.party, 6) and #variant.party > 0, "bounded rival variant required")
+                for _, mon in ipairs(variant.party) do
+                    assert(pokemonData[mon.species] and boundedInteger(mon.level, 1, 100), "unresolved rival party")
+                end
+                count = count + 1
+            end
+            assert(count == 3, "all three starter variants required")
+        end
         assert(Party._array(d.party, 6) and #d.party > 0, "bounded source trainer party required")
         for _, mon in ipairs(d.party) do
             assert(pokemonData[mon.species] and boundedInteger(mon.level, 1, 100), "unresolved source trainer party")
@@ -382,4 +417,48 @@ function SourceEvents.dispatch(game, id, options)
     assert(game.machine:getCurrent() == "overworld" and game.machine:get("event"), "root event executor required")
     game.machine:push("event", id, options)
     return true
+end
+
+-- Bespoke world boundaries share the source registry. Registration order is
+-- explicit; the first claiming trigger/interaction prevents a second dispatch.
+function SourceEvents.registerWorldHooks(id, hooks)
+    assert(type(id) == "string" and id:match("^pokered:[^:]+:[^:]+:[%w%-]+$"), "stable source event ID required")
+    assert(type(hooks) == "table" and not worldHooks[id], "unique source world hooks required")
+    local allowed = {beforeSpawn=true, onEnter=true, onLeave=true, explore=true,
+        interact=true, suppressEncounters=true, actorPositions=true}
+    for name, callback in pairs(hooks) do
+        assert(allowed[name] and type(callback) == "function", "unknown source world hook")
+    end
+    worldHooks[id] = {}
+    for name, callback in pairs(hooks) do worldHooks[id][name] = callback end
+    hookOrder[#hookOrder + 1] = id
+end
+local function settledWorld(game)
+    local player, world = game.player, game.machine:get("overworld")
+    return game.machine:getCurrent() == "overworld" and game.machine:depth() == 1
+        and world and world.sub and world.sub:getCurrent() == "explore"
+        and game.session:getIntro().stage == "done" and player
+        and not player.isMoving and not player.pendingEdgeDoor and not player.pendingConnection
+end
+function SourceEvents.worldHook(phase, game, ...)
+    local guarded = phase == "explore" or phase == "interact" or phase == "suppressEncounters"
+    if guarded and not settledWorld(game) then return false end
+    local session, player, zone = game.session, game.player, currentZone
+    for _, id in ipairs(hookOrder) do
+        local callback = worldHooks[id][phase]
+        if callback and callback(game, ...) then return true end
+        -- A hook that starts an overlay or replaces context has claimed this
+        -- boundary even if it forgot to return the dispatch result.
+        if guarded and (not settledWorld(game) or game.session ~= session
+            or game.player ~= player or currentZone ~= zone) then return true end
+    end
+    return false
+end
+function SourceEvents._withWorldHooks(fn)
+    local oldHooks, oldOrder = worldHooks, hookOrder
+    worldHooks, hookOrder = {}, {}
+    local ok, result = pcall(fn)
+    worldHooks, hookOrder = oldHooks, oldOrder
+    if not ok then error(result, 0) end
+    return result
 end

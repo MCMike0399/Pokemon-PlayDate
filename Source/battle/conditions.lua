@@ -22,6 +22,7 @@ function BattleConditions:side(mon) return mon==self.battle.player and "player" 
 function BattleConditions:types(mon)
     local first,second=mon.type,mon.type2
     local state=self.members[mon]
+    if state and state.changedType then first,second=state.changedType,nil end
     if state and state.roost then
         if first=="flying" then first=nil end
         if second=="flying" then second=nil end
@@ -29,6 +30,45 @@ function BattleConditions:types(mon)
         if not first then first="normal" end -- GenV fallback, not GenIV ???.
     end
     return first,second
+end
+-- Disable inherits the pinned base condition in the Gen5 mod chain.
+function BattleConditions:disabled(mon,key)
+    local state=self.members[mon]
+    return key~=nil and state and state.disable and state.disable.key==key or false
+end
+function BattleConditions:canDisable(mon)
+    local state=self.members[mon]
+    local key=state and state.lastMove
+    if not key or key=="struggle" or state.disable then return false end
+    for _,move in ipairs(mon.moves) do
+        if move==key then return mon:hasPP(key) end
+    end
+    return false
+end
+function BattleConditions:disable()
+    local b=self.battle
+    local mon=b.defender
+    if not self:canDisable(mon) then b:say("But it failed!")
+    return false end
+    local state=self:of(mon)
+    local key=state.lastMove
+    -- Four residual ticks if the target still has its action; otherwise five.
+    state.disable={key=key,turns=b.effects:pendingMove(mon) and 4 or 5}
+    b:say(mon.name.."'s "..moveData[key].name.." was disabled!")
+    return true
+end
+function BattleConditions:camouflage()
+    local battle = self.battle
+    local mon = battle.attacker
+    -- The selected Showdown gen5 override uses Ground without a field model.
+    local first, second = self:types(mon)
+    if first == "ground" and not second then
+        battle:say("But it failed!")
+        return false
+    end
+    self:of(mon).changedType = "ground"
+    battle:say(mon.name .. " transformed into the GROUND type!")
+    return true
 end
 function BattleConditions:roost()
     local b=self.battle;local mon=b.attacker
@@ -87,7 +127,10 @@ function BattleConditions:preventsStatus(mon,status,origin)
 end
 function BattleConditions:clear(mon)
     self.members[mon]=nil
-    for _,state in pairs(self.members) do if state.trap and state.trap.source==mon then state.trap=nil end end
+    for _,state in pairs(self.members) do
+        if state.trap and state.trap.source==mon then state.trap=nil end
+        if state.infatuation and state.infatuation.source==mon then state.infatuation=nil end
+    end
 end
 function BattleConditions:locked(mon)
     local state=self.members[mon]
@@ -320,11 +363,13 @@ function BattleConditions:entry(mon,side)
     for _,kind in ipairs(hazards.order or {}) do
         if alive(mon) then
             if kind=="stealthRock" and hazards.stealthRock then
-                damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)
-                b:say("Pointed stones dug into "..mon.name.."!")
-            elseif not has(self,mon,"flying") then
+                if damage(self,mon,mon.maxHP*b:typeMatchup("rock",mon)/8)>0 then
+                    b:say("Pointed stones dug into "..mon.name.."!")
+                end
+            elseif b.effects:grounded(mon) then
                 if kind=="spikes" and hazards.spikes then
-                    local divisor=({8,6,4})[hazards.spikes];damage(self,mon,mon.maxHP/divisor);b:say(mon.name.." was hurt by Spikes!")
+                    local divisor=({8,6,4})[hazards.spikes]
+                    if damage(self,mon,mon.maxHP/divisor)>0 then b:say(mon.name.." was hurt by Spikes!") end
                 elseif kind=="toxicSpikes" and hazards.toxicSpikes then
                     if has(self,mon,"poison") then hazards.toxicSpikes=nil;if hazards.hazardOrigins then hazards.hazardOrigins.toxicSpikes=nil end;b:say(mon.name.." absorbed the poison spikes!")
                     elseif not has(self,mon,"steel") and not mon.status
@@ -346,6 +391,7 @@ function BattleConditions:events()
         local function add(kind,order) events[#events+1]={side=side,pokemon=mon,kind=kind,order=order} end
         if alive(mon) then
             if state.roost then events[#events+1]={side=side,pokemon=mon,kind="roostEnd",order=25,record=state.roost} end
+            if state.disable then add("disable",17) end
             if state.seed then add("seed",8) end
             if mon.status=="poison" or mon.status=="badPoison" then add("status",9) end
             if mon.status=="burn" then add("status",10) end
@@ -382,22 +428,40 @@ function BattleConditions:residual(event)
     end
     local mon=event.pokemon;local state=self:of(mon)
     if not alive(mon) then return end
-    if event.kind=="rampageEnd" then
+    if event.kind=="disable" and state.disable then
+        state.disable.turns=state.disable.turns-1
+        if state.disable.turns==0 then
+            state.disable=nil;b:say(mon.name.." is no longer disabled!")
+        end
+    elseif event.kind=="rampageEnd" then
         local rampage=state.rampage
         if rampage then self:endRampage(mon,rampage.interrupted and rampage.remaining==1) end
     elseif event.kind=="seed" and state.seed then
-        local receiver=b[state.seed]
-        if alive(receiver) then receiver:heal(damage(self,mon,mon.maxHP/8));b:say(mon.name.."'s health was sapped by Leech Seed!") end
-    elseif event.kind=="curse" and state.curse then damage(self,mon,mon.maxHP/4);b:say(mon.name.." is afflicted by the curse!")
+        local receiverSide = state.seed
+        local receiver = b[receiverSide]
+        if b.effects:active(mon) and alive(receiver) then
+            local removed = damage(self, mon, mon.maxHP / 8)
+            if removed > 0 then
+                b.effects:drainSeed(mon, receiver, removed)
+                b:say(mon.name .. "'s health was sapped by Leech Seed!")
+                -- Liquid Ooze may KO the recipient rather than event.pokemon.
+                -- Return its actual side to the existing residual faint cohort.
+                if not receiver:isAlive() then
+                    return receiverSide
+                end
+            end
+        end
+    elseif event.kind=="curse" and state.curse then
+        if damage(self,mon,mon.maxHP/4)>0 then b:say(mon.name.." is afflicted by the curse!") end
     elseif event.kind=="trap" and state.trap then
         if not self:trapped(mon) then state.trap=nil;return end
-        damage(self,mon,mon.maxHP/16);state.trap.remaining=state.trap.remaining-1
-        b:say(mon.name.." is hurt by the binding!")
+        local removed=damage(self,mon,mon.maxHP/16);state.trap.remaining=state.trap.remaining-1
+        if removed>0 then b:say(mon.name.." is hurt by the binding!") end
         if state.trap.remaining==0 then state.trap=nil;b:say(mon.name.." was freed!") end
     elseif event.kind=="status" then
         if mon.status=="badPoison" then
-            state.toxic=math.min(15,(state.toxic or 0)+1);damage(self,mon,math.max(1,mon.maxHP//16)*state.toxic)
-            b:say(mon.name.." is hurt by poison!")
+            state.toxic=math.min(15,(state.toxic or 0)+1)
+            if damage(self,mon,math.max(1,mon.maxHP//16)*state.toxic)>0 then b:say(mon.name.." is hurt by poison!") end
         else state.toxic=nil;b:applyStatusDamage(mon) end
     end
 end
@@ -406,4 +470,36 @@ function BattleConditions:focusEnergy()
     local b=self.battle;local mon=b.attacker;local state=self:of(mon)
     if state.focusEnergy then b:say("But it failed!");return false end
     state.focusEnergy=true;b:say(mon.name .. " is getting pumped!");return true
+end
+
+-- Attraction is an identity-bound battle volatile, never a Pokemon/save field.
+function BattleConditions:infatuate(target, source)
+    local b = self.battle
+    if not b.effects:active(target) or not b.effects:active(source)
+        or target == source or not alive(target) or not alive(source) then return false end
+    local a, d = target:getSex(), source:getSex()
+    if a == "genderless" or d == "genderless" or a == d
+        or b.effects:effectiveAbility(target) == 12 then return false end
+    local state = self:of(target)
+    if state.infatuation then return false end
+    state.infatuation = {source=source}
+    b:say(target.name .. " fell in love with " .. source.name .. "!")
+    return true
+end
+
+-- BeforeMove priority2: after confusion, before paralysis and attempted PP.
+function BattleConditions:infatuationBlocks(mon)
+    local state = self.members[mon]
+    local attraction = state and state.infatuation
+    if not attraction then return false end
+    local b = self.battle
+    if not b.effects:active(mon) or not alive(mon)
+        or not b.effects:active(attraction.source) or not alive(attraction.source)
+        or b.effects:effectiveAbility(mon) == 12 then
+        state.infatuation = nil
+        return false
+    end
+    local blocked = RulesRNG.random(0, 1) == 0
+    b:say(mon.name .. (blocked and " is immobilized by love!" or " is in love!"))
+    return blocked
 end

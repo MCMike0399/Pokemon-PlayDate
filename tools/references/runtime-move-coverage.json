@@ -2,12 +2,12 @@
   "schema": 1,
   "scope": "reviewed-source-and-executed-SDK-subsets",
   "accepted_summary": {
-    "path": "docs/validation/coverage-evidence/candidate1274-summary.json",
-    "sha256": "770bd3a97495225fce365c048d38162f69865f4001de93a68c7c822ba97dbb2c",
-    "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
-    "sdk_passed": 1274
+    "path": "docs/validation/coverage-evidence/cerulean1659-summary.json",
+    "sha256": "5920db288c2c38f2c3a229ba663fd9eeeea410dada9bad827bdeb9ea5154a875",
+    "source_sha256": "3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
+    "sdk_passed": 1659
   },
-  "sdk_result_sha256": "9fb1ec609e2f740df6dc1c7877093dce6c16284c49182f145ea40f019aa09d23",
+  "sdk_result_sha256": "a99e8dcc172145c149da01d1479a970353b737ee297e268e813c4938e5385d2f",
   "qualification": "Current sourcebody hashes +exact executed assertions, never generated metadata alone; metadata hash is drift guard only. Fullruntime semantics remains false.",
   "moves": {
     "assurance": {
@@ -84,7 +84,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+          "sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -564,7 +564,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+          "sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1440,7 +1440,7 @@
           "start": "function BattleEffects:accuracyBypassesCheck(",
           "function_body": true,
           "one_line": false,
-          "sha256": "554a48f8bde258e9046bf7c85c992753554bc2c3aa2c6afa35b802facb39cc92"
+          "sha256": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -1780,7 +1780,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -2257,7 +2257,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- GenV TryHit protection follows",
           "end": "    -- Move-specific failure",
-          "sha256": "fea2ec54e3c949c7b857b0d983ea660732a8878356e5a8ef60da4e50ab71a819"
+          "sha256": "55cb1b33c4e76b209f146fb74e5ba3b29865d9d65b25024dc04e4eceb5cee066"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2317,7 +2317,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+          "sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -2372,7 +2372,7 @@
           "start": "function BattleEffects:accuracyBypassesCheck(",
           "function_body": true,
           "one_line": false,
-          "sha256": "554a48f8bde258e9046bf7c85c992753554bc2c3aa2c6afa35b802facb39cc92"
+          "sha256": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -2453,7 +2453,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -3105,7 +3105,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -3565,7 +3565,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -4203,7 +4203,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -4577,7 +4577,7 @@
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
           "one_line": false,
-          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+          "sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -4632,7 +4632,7 @@
           "start": "function ModifyStat:apply(",
           "function_body": true,
           "one_line": false,
-          "sha256": "3504f5a98e6b83c292bb450d2b0aa4723dffb815bd09f569d992a34b30a71e58"
+          "sha256": "9141615988aec940329404e7716379dfe55fe571929a481a59d1288da7803a0c"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4761,7 +4761,7 @@
           "start": "function BattleEffects:accuracyBypassesCheck(",
           "function_body": true,
           "one_line": false,
-          "sha256": "554a48f8bde258e9046bf7c85c992753554bc2c3aa2c6afa35b802facb39cc92"
+          "sha256": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -4830,7 +4830,7 @@
           "start": "function BattleEffects:worrySeed(",
           "function_body": true,
           "one_line": false,
-          "sha256": "757f8a09d446cee4cdba52386032c1237694cbb1af74249372c0aeac891083af"
+          "sha256": "d5719f03855edf6bb5d2e2b7cbc090c6ed633fb80e4ae26576ef04f72876842a"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -4904,7 +4904,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -5273,7 +5273,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -5642,7 +5642,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -6011,7 +6011,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -6380,7 +6380,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -6749,7 +6749,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -7118,7 +7118,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -7487,7 +7487,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -7856,7 +7856,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -8225,7 +8225,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -8594,7 +8594,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -8963,7 +8963,7 @@
           "path": "Source/battle/battle.lua",
           "start": "    -- Gen V critical stages",
           "end": "    -- Pick offensive/defensive stats",
-          "sha256": "286fa3c9cbd61c065ee5b1616edca46642a523cd93058f69aadd4b8a1701f1f3"
+          "sha256": "910ec3bca434c16344dc2ca2e6d43993d3298169597f9c12d8902331b6301a6f"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -9351,7 +9351,7 @@
           "start": "function DirectDamage:apply(",
           "function_body": true,
           "one_line": false,
-          "sha256": "adfd9066540b22962dcd577b7a1e8f50e0769cb39763b585bfeac9c49b1e6ed0"
+          "sha256": "e792ae3371878bd84d24418fed2b687191ff1a3885696c9b39f5618cf488ae67"
         },
         {
           "path": "Source/battle/effects.lua",
@@ -9458,13 +9458,13 @@
           "path": "Source/battle/battle.lua",
           "start": "function Battle:resolveTurn(",
           "function_body": true,
-          "sha256": "368908e135efebb867ebeb5aee43abd6eff7fb0aa7213da3a388cb06ac5cbda0"
+          "sha256": "a70c43aa1fbb2cfae10cfab6dc7f33b2bf446b4572700f0ff37056c917175f17"
         },
         {
           "path": "Source/battle/battle.lua",
           "start": "function Battle:performMove(",
           "function_body": true,
-          "sha256": "b5750d0e45f45eedc1764f6aee9ac06da0e5bf5afc06da738b5b7309ec8fbde4"
+          "sha256": "57afa8a9444cc2f9cf5b22dee22378fb78023bd4b49ce44d9f7075092df18bc9"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -9482,7 +9482,7 @@
           "path": "Source/battle/effects.lua",
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
-          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+          "sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5"
         },
         {
           "path": "Source/battle/moveSupport.lua",
@@ -9847,13 +9847,13 @@
           "path": "Source/battle/battle.lua",
           "start": "function Battle:resolveTurn(",
           "function_body": true,
-          "sha256": "368908e135efebb867ebeb5aee43abd6eff7fb0aa7213da3a388cb06ac5cbda0"
+          "sha256": "a70c43aa1fbb2cfae10cfab6dc7f33b2bf446b4572700f0ff37056c917175f17"
         },
         {
           "path": "Source/battle/battle.lua",
           "start": "function Battle:performMove(",
           "function_body": true,
-          "sha256": "b5750d0e45f45eedc1764f6aee9ac06da0e5bf5afc06da738b5b7309ec8fbde4"
+          "sha256": "57afa8a9444cc2f9cf5b22dee22378fb78023bd4b49ce44d9f7075092df18bc9"
         },
         {
           "path": "Source/battle/battle.lua",
@@ -9871,7 +9871,7 @@
           "path": "Source/battle/effects.lua",
           "start": "function BattleEffects:canAttempt(",
           "function_body": true,
-          "sha256": "61606a63149fb1922f02f43315a12578a3594d93ba575b79b64ed54e51f1e506"
+          "sha256": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5"
         },
         {
           "path": "Source/battle/moveSupport.lua",
@@ -9926,19 +9926,19 @@
     }
   },
   "sdk_result": {
-    "path": "docs/validation/coverage-evidence/candidate1274-contracts-projection.json",
-    "sha256": "9fb1ec609e2f740df6dc1c7877093dce6c16284c49182f145ea40f019aa09d23",
-    "build_id": "58495ebbf67c2a49bb53293fc98d99b00bf136e8:2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
-    "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
-    "passed": 1274,
-    "failed": 0,
-    "suite_count": 88,
-    "suite_passed": 1254,
+    "path": "docs/validation/coverage-evidence/cerulean1659-contracts-projection.json",
+    "sha256": "a99e8dcc172145c149da01d1479a970353b737ee297e268e813c4938e5385d2f",
     "raw_provenance": {
-      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m52-final-sdk-20261026-03/00001-result.json",
-      "sha256": "249649b31f8d41ed4d67a9acba1d608ca6d52bf5136e8b6491cfa0592d16a966",
-      "size_bytes": 1219334
-    }
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/00001-result.json",
+      "sha256": "814d4737855b85625a9055be7e06709e5e3e9dff2cd6fc385bdcd16d79f6234a",
+      "size_bytes": 2597103
+    },
+    "source_sha256": "3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
+    "build_id": "b1f0bd8d19c857dc78c10648acd495a3cfdcd3be:3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
+    "passed": 1659,
+    "failed": 0,
+    "suite_count": 103,
+    "suite_passed": 1639
   },
-  "acceptance_context": "private-foundation-candidate-not-main-or-milestone"
+  "acceptance_context": "private-cerulean-candidate-not-main-or-milestone"
 }

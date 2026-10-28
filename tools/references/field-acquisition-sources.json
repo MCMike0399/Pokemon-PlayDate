@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "pokebw2_revision": "b279bbefa99bb2f6fbabcc95e4b6d3e939290353",
+  "pkhex_revision": "d2fea14b563f4b16fef7788b9699b20d5b3f410f",
+  "files": {
+    "src_ov036_enc_pokeset.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov036/enc_pokeset.c",
+      "sha256": "6ebde77bdef4d4de22308670c8d2d2e6f1aca0a4396089ca2a9b56ddf15c12e1",
+      "path": "traits/src_ov036_enc_pokeset.c"
+    },
+    "bw_src_system_poke_tool.c": {
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/system/poke_tool.c",
+      "sha256": "8964093175e250425e22e442f3d977ae689fd235e4810fc0d2fffefcb2cbbad7",
+      "path": "traits/bw_src_system_poke_tool.c"
+    },
+    "personal_b2w2": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/Resources/byte/personal/personal_b2w2",
+      "sha256": "6df24e7f00dab32322d9d8f8b3209d30de1c89b0de88277081fe53434211830f",
+      "path": "traits/personal_b2w2"
+    },
+    "PersonalInfo5B2W2.cs": {
+      "url": "https://raw.githubusercontent.com/kwsch/PKHeX/d2fea14b563f4b16fef7788b9699b20d5b3f410f/PKHeX.Core/PersonalInfo/Info/PersonalInfo5B2W2.cs",
+      "sha256": "1387c7258b6b71d65e537fe49b52ef1543e02932889f6946f6aa0bb7b1155daf",
+      "path": "traits/PersonalInfo5B2W2.cs"
+    }
+  }
+}
