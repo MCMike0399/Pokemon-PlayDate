@@ -8,9 +8,13 @@ import argparse
 import hashlib
 import io
 import json
+import sys
 from pathlib import Path
 from PIL import Image
-from tools.generate_battle_art import References, threshold
+
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.generate_battle_art import References, threshold, REVISION
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / 'tools/references/title-art.json'
@@ -18,7 +22,12 @@ MANIFEST = ROOT / 'tools/references/title-art.json'
 
 def generate(reference_root, output, check=False):
     manifest = json.loads(MANIFEST.read_text())
+    if manifest['schema'] != 1 or manifest['revision'] != REVISION:
+        raise ValueError('unsupported title art source pin')
     reader = References(manifest, root=reference_root)
+    for entry in manifest['sources']:
+        if hashlib.sha256(reader.read(entry['path'])).hexdigest() != entry['sha256']:
+            raise ValueError('pinned source table changed: ' + entry['path'])
     prepared = []
     for entry in manifest['inputs']:
         raw = reader.read(entry['path'])

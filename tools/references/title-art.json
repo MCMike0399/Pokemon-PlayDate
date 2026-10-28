@@ -494,5 +494,27 @@
       "output": "trainers/LANCE.png",
       "scale": 2
     }
+  ],
+  "sources": [
+    {
+      "path": "gfx/pics.asm",
+      "sha256": "89552d71ee4370463f7f305384ef5dfa4b06ebfdc04d772d72287921de43e297"
+    },
+    {
+      "path": "data/trainers/pic_pointers_money.asm",
+      "sha256": "2552aaedfe77527e69e2d18995dee0f7a3a01b2a2a2cc259a6c5d17e606a8543"
+    },
+    {
+      "path": "data/trainers/move_choices.asm",
+      "sha256": "373e15f037f161dd4d8cd04f6cce2df539caacf5bb01092339ec2cf032ae863f"
+    },
+    {
+      "path": "engine/battle/trainer_ai.asm",
+      "sha256": "12f090abd33e3f227cdc4f24d165ad35b6abaf694ea3f5f1a526f9d7505e140d"
+    },
+    {
+      "path": "engine/movie/title.asm",
+      "sha256": "741b604ca21581360b7fde4630a369672ec5026eb7078cc57ab500a91ba93ba3"
+    }
   ]
 }
