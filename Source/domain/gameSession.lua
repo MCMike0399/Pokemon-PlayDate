@@ -76,11 +76,11 @@ local function world(deps,payload)
     retainedFields(before,normalized)
     return copy(normalized)
 end
-local function location(deps,value,candidateWorld,player)
+local function location(deps,value,candidateWorld,player,travel)
     object(value,{zone_id=true,x=true,y=true,facing=true})
     assert(stable(value.zone_id) and Party._integer(value.x,0,4095) and Party._integer(value.y,0,4095) and facings[value.facing],"invalid location fields")
     local resolver = player and deps.resolvePlayerLocation or deps.resolveLocation
-    local resolved = resolver(copy(value), copy(candidateWorld))
+    local resolved = resolver(copy(value), copy(candidateWorld), copy(travel or FieldTravel.empty()))
     assert(type(resolved)=="table","unsupported/blocked session location")
     object(resolved,{zone_id=true,x=true,y=true,facing=true})
     assert(resolved.zone_id==value.zone_id and resolved.x==value.x and resolved.y==value.y and resolved.facing==value.facing,"resolver must validate without relocating")
@@ -121,6 +121,7 @@ function GameSession:init(deps,options)
     state[self]={daycare=Daycare.empty(),deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
         fieldWorld = {version = 1, mapPalOffset = 0},
+        fieldTravel = FieldTravel.empty(),
         fieldEpoch = nextFieldEpoch(),
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
@@ -327,9 +328,10 @@ function GameSession:checkpoint() return copy(state[self].checkpoint) end
 function GameSession:captureTraversal(snapshot)
     local current = state[self]
     local ok, prepared = pcall(function()
-        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true})
+        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true, fieldTravel = true})
         local normalized = world(current.deps, assert(snapshot.world, "candidate world required"))
-        local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true)
+        local travel = FieldTravel.normalize(snapshot.fieldTravel or current.fieldTravel)
+        local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true, travel)
         local checkpoint = location(current.deps, snapshot.checkpoint or current.checkpoint, normalized)
         local actors = GameSession._validateActors(current.deps,
             snapshot.actors or WorldMotionData.empty(), normalized, position, self:flags())
@@ -338,7 +340,8 @@ function GameSession:captureTraversal(snapshot)
             location = position,
             checkpoint = checkpoint,
             actors = actors,
-            fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld)
+            fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld),
+            fieldTravel = travel
         }
     end)
     if not ok then
@@ -346,6 +349,7 @@ function GameSession:captureTraversal(snapshot)
     end
     current.world, current.location, current.checkpoint = prepared.world, prepared.location, prepared.checkpoint
     current.currentActors = prepared.actors
+    current.fieldTravel = prepared.fieldTravel
     current.fieldWorld, current.fieldEpoch = prepared.fieldWorld, nextFieldEpoch()
     return true
 end
@@ -393,6 +397,7 @@ function GameSession._restore(deps,values)
     local session=setmetatable({},GameSession)
     values.deps=dependencies(deps); values.rngActive=false
     values.fieldWorld = fieldData(values.fieldWorld)
+    values.fieldTravel = FieldTravel.normalize(values.fieldTravel)
     values.fieldEpoch = nextFieldEpoch()
     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
@@ -514,6 +519,10 @@ function GameSession:itemStorage()return state[self].itemStorage end
 function GameSession:selectPCItem(operation,index)return PCItems.prepare(self,operation,index)end
 function GameSession:resolvePCItem(request,quantity,decision)return PCItems.resolve(self,request,quantity,decision)end
 
+function GameSession:fieldTravelData()
+    return copy(state[self].fieldTravel)
+end
+
 function GameSession:fieldWorldData()
     return copy(state[self].fieldWorld)
 end
@@ -588,7 +597,7 @@ function GameSession:transactScene(expected, changes, scene)
         assert(sceneEqual(WorldDeltas.export(), scene.beforeWorld), "stale-scene-world")
         assert(sceneEqual(self:worldRngData(), scene.beforeRng), "stale-scene-world-rng")
         local candidate = world(current.deps, scene.world)
-        local position = location(current.deps, scene.location, candidate, true)
+        local position = location(current.deps, scene.location, candidate, true, current.fieldTravel)
         local checkpoint = location(current.deps, current.checkpoint, candidate)
         local stream = RulesRNG.new(1)
         stream:restoreData(rngData(scene.rng))

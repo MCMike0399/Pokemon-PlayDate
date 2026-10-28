@@ -34,7 +34,9 @@ end
 function GameContext:getSessionDependencies()
     assert(ItemData and ItemData.definitions,"production item definitions required")
     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
-        resolvePlayerLocation=function(location,world) return WorldDeltas.resolvePlayerLocation(location,world,self.sessionLocationPolicy) end,
+        resolvePlayerLocation=function(location, world, travel)
+            return FieldTravelWorld.resolvePlayerLocation(location, world, self.sessionLocationPolicy, travel)
+        end,
         resolveLocation=function(location,world) return WorldDeltas.resolveLocation(location,world,self.sessionLocationPolicy) end}
 end
 function GameContext:getPlayerPokemon() return self.session:activePokemon() end

@@ -281,3 +281,6 @@ import "dev/npcTradeContracts"
 Contracts.register("npc-trades", NPCTradeContracts.run)
 import "dev/saffronGuardContracts"
 Contracts.register("saffron-guards", SaffronGuardContracts.run)
+
+import "dev/fieldTravelContracts"
+Contracts.register("field-travel", FieldTravelContracts.run)
