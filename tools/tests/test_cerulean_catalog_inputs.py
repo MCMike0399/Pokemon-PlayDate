@@ -42,7 +42,7 @@ def inventory():
     tutorial = record('Source/data/tutorialEscort/scenes.json')['art']
     legacy = {key for name, entry in manifest.items() if entry['profile'] in ('viridian', 'pewter')
               for key in compact['maps'][name]['palette']}
-    new = {key for name, entry in manifest.items() if entry['profile'] == 'source'
+    new = {key for name in MAPS
            for key in compact['maps'][name]['palette']} - legacy
     result = {}
 
@@ -104,7 +104,8 @@ class CeruleanCatalogInputTests(unittest.TestCase):
         digest = hashlib.sha256(json.dumps(projected, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
         self.assertEqual(digest, 'fb7622c5ef2f96385441c9c437e02e36775d8b7add871ef749aa318fe3e851c0')
         manifest = record('Source/data/sourceMaps.json')['maps']
-        self.assertEqual({name for name, entry in manifest.items() if entry['profile'] == 'source'}, MAPS)
+        self.assertEqual({name for name, entry in manifest.items()
+                          if entry['path'].startswith('data/sourceSlice/')}, MAPS)
         self.assertEqual(sum(row['category'] == 'source-strip' and not row['mask'] for row in images.values()), 28)
         self.assertEqual(sum(row['category'] == 'source-frame' and not row['mask'] for row in images.values()), 124)
         self.assertEqual(sum(row['category'] == 'cerulean-character' and not row['mask'] for row in images.values()), 240)

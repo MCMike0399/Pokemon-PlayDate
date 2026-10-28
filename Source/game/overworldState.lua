@@ -101,7 +101,14 @@ function ExploreSubstate:update()
     local mw, mh = getMapPixelSize()
     game.camera:follow(px, py, mw, mh)
     game.camera:apply()
+    -- Only a cell completed by this ordinary exploration pass earns XP.
+    -- A sprite-only/script pass may leave stepJustFinished set on entry;
+    -- overlays, idle callbacks and stale completion flags must not earn it.
+    local wasMoving = player.isMoving and player:updatesEnabled()
     gfx.sprite.update()
+    if wasMoving and not player.isMoving and player.stepJustFinished then
+        game.session:daycareStep()
+    end
     self.owner:_presentedWorld()
 end
 
@@ -229,6 +236,13 @@ function DoorWarpSubstate:init(owner)
 end
 
 function DoorWarpSubstate:enter(door)
+    if VermilionStory and not VermilionStory.allowDoor(self.owner.game,door) then
+        self.owner.game.player.stepJustFinished=false
+        self.owner.game.player.pendingEdgeDoor=nil
+        self.owner.game.player.pendingConnection=nil
+        self.machine:change("explore")
+        return
+    end
     self.timer = 0
     self.door = door
 end
@@ -245,12 +259,16 @@ function DoorWarpSubstate:update()
         local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
         local provider = WorldDeltas.definitionProvider()
         local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
-        SourceEvents.worldHook("onLeave", self.owner.game, destination)
+        SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
         switchZone(door.to)
         self.owner.machine:change("overworld", {
             entry = { x = door.toX, y = door.toY, facing = facing },
             fromDoor = not door.connection,
         })
+        -- Connections skip Player's ordinary completed-step animation.
+        if door.connection then
+            self.owner.game.session:daycareStep()
+        end
     end
 end
 
@@ -300,10 +318,6 @@ function OverworldState:enter(opts)
         game.lastEncounterSession,game.lastEncounterAttempt=nil,nil
     end
 
-    gfx.sprite.removeAll()
-    setupOverworld()
-    self.builtZone = currentZone
-
     local pos = currentZone.spawn
     local saved = self.savedPos
     local respawn = opts and opts.respawn
@@ -313,6 +327,25 @@ function OverworldState:enter(opts)
     elseif saved and saved.zone == currentZone and not respawn then
         pos = saved
     end
+
+    -- Opted in by root only. A retained visit returns from battle unchanged;
+    -- real entries/reloads restore source blocks before constructing the view.
+    if game.fieldWorld and not (opts and opts.fieldRestore)
+        and self.builtSession == game.session and self.builtZone
+        and (self.builtZone ~= currentZone or entry or respawn or (opts and opts.fieldReloadReason)) then
+        local actors = opts and opts.actors
+        if not actors and self.builtZone == currentZone then
+            actors = game.npcManager.motion:snapshot()
+        end
+        local reason = opts and opts.fieldReloadReason or (self.builtZone == currentZone and "reload" or "map")
+        local accepted, problem = game.fieldWorld.enter(game, self.builtZone.stableID,
+            {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
+            actors or WorldMotionData.empty(), reason)
+        assert(accepted, problem)
+    end
+    gfx.sprite.removeAll()
+    setupOverworld()
+    self.builtZone, self.builtSession = currentZone, game.session
 
     game.player = Player(pos.x, pos.y, currentZone.collision, game.npcManager)
     if pos.facing then

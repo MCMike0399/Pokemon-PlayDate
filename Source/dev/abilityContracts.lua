@@ -37,7 +37,16 @@ function AbilityContracts.run()
     test("All sixteen normal IDs are registered and secondary metadata remains explicit for425 moves",function()
         local b=battle(mon("rattata"),mon("pidgey"));local ids={5,8,9,14,19,50,51,61,62,65,66,67,68,69,71,77}
         for _,id in ipairs(ids) do assert(b.effects:supported(id),"missing ability "..id) end
-        local n=0;for key,m in pairs(moveData) do n=n+1;eq(type(m.contact),"boolean",key.." contact");eq(type(m.hasSecondary),"boolean",key.." secondary");eq(type(m.ohko),"boolean",key.." OHKO") end;eq(n,425);eq(moveData.bide.targetId,7);eq(moveData.bide.damageRule,"bide")
+        local count = 0
+        for key, move in pairs(PartyBattleContracts.generatedCatalog()) do
+            count = count + 1
+            eq(type(move.contact), "boolean", key .. " contact")
+            eq(type(move.hasSecondary), "boolean", key .. " secondary")
+            eq(type(move.ohko), "boolean", key .. " OHKO")
+        end
+        eq(count, 425)
+        eq(moveData.bide.targetId, 7)
+        eq(moveData.bide.damageRule, "bide")
         eq(moveData.poisonSting.hasSecondary,true);eq(moveData.thunderWave.hasSecondary,false);eq(moveData.tackle.contact,true);eq(moveData.earthquake.contact,false);eq(moveData.fissure.ohko,true)
     end)
     test("Q12 factor chain half-up and application half-down remain distinct",function()

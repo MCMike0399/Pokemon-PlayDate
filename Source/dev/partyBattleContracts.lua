@@ -3,6 +3,102 @@ PartyBattleContracts={}
 local function equal(actual,wanted,label)
     assert(actual==wanted,(label or "value") .. ": expected " .. tostring(wanted) .. ", got " .. tostring(actual))
 end
+
+-- The generated catalog remains exactly 425 named rows. Five Blue HMs are
+-- separately installed runtime extensions, never generated metadata rows.
+local generatedKeys <const> = [[
+pound karateChop doubleSlap cometPunch megaPunch payDay firePunch icePunch thunderPunch scratch
+viceGrip guillotine razorWind swordsDance gust wingAttack whirlwind bind slam vineWhip stomp
+doubleKick megaKick jumpKick rollingKick sandAttack headbutt hornAttack furyAttack hornDrill tackle
+bodySlam wrap takeDown thrash doubleEdge tailWhip poisonSting twineedle pinMissile leer bite growl
+roar sing supersonic sonicBoom disable acid ember flamethrower mist waterGun hydroPump iceBeam
+blizzard psybeam bubbleBeam auroraBeam hyperBeam peck drillPeck submission lowKick counter
+seismicToss absorb megaDrain leechSeed growth razorLeaf solarBeam poisonPowder stunSpore sleepPowder
+petalDance stringShot dragonRage fireSpin thunderShock thunderbolt thunderWave thunder rockThrow
+earthquake fissure dig confusion psychic hypnosis meditate agility quickAttack rage teleport
+nightShade mimic screech doubleTeam recover harden minimize smokescreen confuseRay withdraw
+defenseCurl barrier lightScreen haze reflect focusEnergy metronome mirrorMove selfDestruct eggBomb
+lick smog sludge boneClub fireBlast waterfall clamp swift skullBash spikeCannon constrict amnesia
+kinesis softBoiled highJumpKick glare dreamEater poisonGas barrage leechLife lovelyKiss skyAttack
+transform bubble dizzyPunch spore splash acidArmor crabhammer explosion furySwipes bonemerang rest
+rockSlide hyperFang sharpen conversion triAttack superFang slash substitute mindReader nightmare
+flameWheel snore curse flail conversion2 reversal spite powderSnow protect machPunch scaryFace
+feintAttack bellyDrum sludgeBomb mudSlap spikes zapCannon foresight destinyBond perishSong icyWind
+detect boneRush lockOn outrage sandstorm gigaDrain endure rollout falseSwipe swagger spark
+furyCutter meanLook sleepTalk safeguard magnitude dynamicPunch megahorn dragonBreath batonPass
+encore pursuit rapidSpin sweetScent ironTail metalClaw vitalThrow synthesis moonlight crossChop
+twister rainDance sunnyDay crunch mirrorCoat psychUp extremeSpeed ancientPower shadowBall
+futureSight whirlpool fakeOut uproar stockpile spitUp swallow heatWave hail flatter willOWisp
+memento focusPunch followMe charge taunt helpingHand trick rolePlay ingrain superpower magicCoat
+recycle revenge brickBreak yawn knockOff endeavor imprison refresh grudge dive camouflage
+featherDance blazeKick mudSport slackOff hyperVoice poisonFang crushClaw meteorMash astonish
+aromatherapy fakeTears airCutter odorSleuth rockTomb silverWind metalSound tickle cosmicPower
+signalBeam shadowPunch extrasensory skyUppercut sandTomb sheerCold muddyWater bulletSeed aerialAce
+icicleSpear ironDefense block dragonClaw bounce mudShot covet magicalLeaf waterSport calmMind
+leafBlade dragonDance rockBlast shockWave waterPulse roost gravity miracleEye wakeUpSlap hammerArm
+gyroBall healingWish brine naturalGift feint pluck tailwind acupressure closeCombat payback
+assurance fling trumpCard wringOut gastroAcid luckyChant meFirst copycat powerSwap guardSwap
+punishment lastResort worrySeed suckerPunch toxicSpikes aquaRing magnetRise flareBlitz auraSphere
+rockPolish poisonJab darkPulse nightSlash aquaTail seedBomb airSlash xScissor bugBuzz dragonPulse
+dragonRush powerGem vacuumWave braveBird earthPower switcheroo gigaImpact nastyPlot bulletPunch
+avalanche iceShard shadowClaw thunderFang iceFang fireFang mudBomb psychoCut zenHeadbutt mirrorShot
+flashCannon discharge lavaPlume leafStorm powerWhip crossPoison gunkShot ironHead magnetBomb
+stoneEdge captivate stealthRock bugBite chargeBeam woodHammer aquaJet doubleHit wideGuard wonderRoom
+psyshock ragePowder telekinesis smackDown flameBurst sludgeWave quiverDance heavySlam synchronoise
+electroBall soak flameCharge coil lowSweep acidSpray afterYou round chipAway clearSmog storedPower
+quickGuard allySwitch shellSmash healPulse hex skyDrop circleThrow acrobatics reflectType retaliate
+finalGambit bestow inferno bulldoze dragonTail workUp drillRun heartStamp razorShell leafTornado
+steamroller psystrike hurricane icicleCrash charm psywave stormThrow struggle toxic bide
+]]
+function PartyBattleContracts.generatedCatalog()
+    local generated <const> = {}
+    local count = 0
+    for key in generatedKeys:gmatch("%S+") do
+        assert(generated[key] == nil, "duplicate generated move " .. key)
+        generated[key] = assert(moveData[key], "missing generated move " .. key)
+        count = count + 1
+    end
+    equal(count, 425)
+    local extensions <const> = {
+        cut = {name="CUT", type="normal", category="physical", power=50,
+            accuracy=95, pp=30, targetId=10, contact=true, protectable=true},
+        flash = {name="FLASH", type="normal", category="status", power=0,
+            accuracy=100, pp=20, targetId=10, contact=false, protectable=true},
+        fly = {name="FLY", type="flying", category="physical", power=90,
+            accuracy=95, pp=15, targetId=10, contact=true, protectable=true},
+        surf = {name="SURF", type="water", category="special", power=95,
+            accuracy=100, pp=15, targetId=9, contact=false, protectable=true},
+        strength = {name="STRENGTH", type="normal", category="physical", power=80,
+            accuracy=100, pp=15, targetId=10, contact=true, protectable=true},
+    }
+    local added = 0
+    for key, move in pairs(moveData) do
+        if generated[key] == nil then
+            local expected <const> = assert(extensions[key], "unexpected runtime move " .. key)
+            for field, value in pairs(expected) do equal(move[field], value, key .. " " .. field) end
+            equal(move.maxPP, expected.pp, key .. " max PP")
+            equal(move.hasSecondary, false)
+            equal(move.ohko, false)
+            equal(move.breaksProtect, false)
+            equal(move.priority, 0)
+            equal(move.secondaries, nil)
+            if key == "flash" then
+                equal(#move.effects, 1)
+                local effect <const> = move.effects[1]
+                assert(effect:is("ModifyStat"))
+                equal(effect.target, Target.from(DEFENDER))
+                equal(effect.stat, "acc")
+                equal(effect.stages, -1)
+            else
+                equal(move.effects, nil)
+            end
+            added = added + 1
+        end
+    end
+    equal(added, 5)
+    return generated
+end
+
 local function sameRNG(a,b)
     for _,key in ipairs({"algorithm","seed","state","rolls"}) do equal(a[key],b[key],key) end
 end
@@ -234,12 +330,13 @@ function PartyBattleContracts.run()
         local before=RulesRNG.snapshot();e:onSwitchOut()
         equal(e.statusTurns,3);equal(e.sleepDuration,3);sameRNG(RulesRNG.snapshot(),before)
     end)
-    test("Codec5 preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
+    test("Current codec preserves every valid sleep-duration boundary and rejects codec2 explicitly",function()
         for duration=1,3 do
             for remaining=0,duration do
                 local p=Pokemon("charmander",5)
                 p.status,p.statusTurns,p.sleepDuration="sleep",remaining,duration
-                local record=assert(PokemonCodec.encode(p));equal(record.version,7)
+                local record=assert(PokemonCodec.encode(p))
+                equal(record.version,PokemonCodec.VERSION)
                 local restored=assert(PokemonCodec.decode(record))
                 equal(restored.statusTurns,remaining);equal(restored.sleepDuration,duration)
                 local before=RulesRNG.snapshot();restored:onSwitchOut()
@@ -249,7 +346,12 @@ function PartyBattleContracts.run()
         local record=assert(PokemonCodec.encode(Pokemon("charmander",5)));record.version=2
         local restored,problem=PokemonCodec.decode(record);equal(restored,nil)
         assert(problem:find("unsupported%-pokemon%-record%-version"),problem)
-        record.version=3;record.ivs,record.evs=nil,nil;record.sex,record.sexProvenance=nil,nil;record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil;record.sleepDuration=1
+        record.version=3
+        record.acquisition=nil
+        record.ivs,record.evs=nil,nil
+        record.sex,record.sexProvenance=nil,nil
+        record.natureId,record.abilitySlot,record.heldItem=nil,nil,nil
+        record.sleepDuration=1
         restored,problem=PokemonCodec.decode(record);equal(restored,nil);assert(problem:find("invalid%-sleep%-duration"),problem)
     end)
     test("Invalid sleep duration cannot partially switch or reset outgoing stages",function()
@@ -319,7 +421,7 @@ function PartyBattleContracts.run()
     end)
     test("All425 generated moves carry pinned GenV target metadata including added Toxic",function()
         local count=0
-        for key,move in pairs(moveData) do
+        for key,move in pairs(PartyBattleContracts.generatedCatalog()) do
             assert(type(move.targetId)=="number" and math.tointeger(move.targetId) and move.targetId>=1 and move.targetId<=14,"missing target metadata: " .. key)
             count=count+1
         end

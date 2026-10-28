@@ -100,23 +100,43 @@ function SessionBridgeContracts.run()
     test("Ordinary full-party blackout heals all and routes default Pallet checkpoint",function()
         local game=GameContext();local options;controlled(game,function(_,value) options=value end)
         local a,b=Pokemon("charmander",5),Pokemon("squirtle",5)
-        assert(game:recruit(a));assert(game:recruit(b));a.hp=0;b.hp=0
+        assert(game:recruit(a));assert(game:recruit(b))
         local state=BattleState(game);game.machine:register("battle",state)
         assert(game.session:setIntro({stage="done",starter="charmander",rivalStarter="squirtle"}))
-        state.battle=Battle(a,Pokemon("pidgey",3),nil,{party=game.session:party(),session=game.session});state:finish(false,"defeat")
+        assert(FieldBattle.start(game, a, Pokemon("pidgey", 3)))
+        local battle <const> = state.battle
+        a.hp, b.hp = 0, 0
+        battle:runScript(function() return "defeat" end)
+        local advances = 0
+        while battle:phase() == "script" do
+            advances = advances + 1
+            assert(advances <= 200, "terminal fixture did not settle")
+            battle.machine:get("script"):advance()
+        end
+        assert(battle:emitEnd())
         equal(game.lastBattleOutcome.blackout,true);equal(a.hp,a.maxHP);equal(b.hp,b.maxHP)
         equal(currentZone.stableID,"pallet_town");equal(options.entry.x,5);equal(options.entry.y,6);equal(options.entry.facing,"down")
-        equal(game.session:party():activeIndex(),1);state.battle:clearVolatiles()
+        equal(game.session:party():activeIndex(),1);battle:clearVolatiles()
     end)
     test("Usable bench prevents false blackout and remains unhealed during transitional return",function()
         local game=GameContext();local options;controlled(game,function(_,value) options=value end)
         local a,b=Pokemon("charmander",5),Pokemon("squirtle",5)
-        assert(game:recruit(a));assert(game:recruit(b));a.hp=0;b.hp=b.maxHP-2
+        assert(game:recruit(a));assert(game:recruit(b))
         local state=BattleState(game);game.machine:register("battle",state)
         assert(game.session:setIntro({stage="done",starter="charmander",rivalStarter="squirtle"}))
-        state.battle=Battle(a,Pokemon("pidgey",3),nil,{party=game.session:party(),session=game.session});state:finish(false,"defeat")
+        assert(FieldBattle.start(game, a, Pokemon("pidgey", 3)))
+        local battle <const> = state.battle
+        a.hp, b.hp = 0, b.maxHP - 2
+        battle:runScript(function() return "defeat" end)
+        local advances = 0
+        while battle:phase() == "script" do
+            advances = advances + 1
+            assert(advances <= 200, "terminal fixture did not settle")
+            battle.machine:get("script"):advance()
+        end
+        assert(battle:emitEnd())
         equal(game.lastBattleOutcome.blackout,false);equal(a.hp,0);equal(b.hp,b.maxHP-2)
-        equal(game:getPlayerPokemon(),b);equal(options,nil);state.battle:clearVolatiles()
+        equal(game:getPlayerPokemon(),b);equal(options,nil);battle:clearVolatiles()
     end)
     return report
 end

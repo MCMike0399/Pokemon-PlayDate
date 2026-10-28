@@ -90,11 +90,34 @@ CODEC_FIELDS = {"version", "pokemonEncoding", "title", "intro", "questFlags", "t
 
 
 def validate_boundary_payload(payload):
-    if not isinstance(payload, dict) or set(payload) != CODEC_FIELDS:
+    version = payload.get("version") if isinstance(payload, dict) else None
+    expected = CODEC_FIELDS
+    if version in (2, 3):
+        expected = expected | {"fieldWorld"}
+    if version == 3:
+        expected = expected | {"daycare"}
+    if not isinstance(payload, dict) or set(payload) != expected:
         raise ProtocolError("incomplete canonical Save/Continue payload")
-    if type(payload["version"]) is not int or payload["version"] < 1 or payload["pokemonEncoding"] != "decimal-counters-v1":
+    if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3) or payload["pokemonEncoding"] != "decimal-counters-v1":
         raise ProtocolError("invalid canonical Save/Continue encoding")
-    owners = CODEC_FIELDS - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
+    if version in (2, 3):
+        field = payload["fieldWorld"]
+        if (not isinstance(field, dict) or set(field) != {"version", "mapPalOffset"}
+                or type(field["version"]) is not int or field["version"] != 1
+                or type(field["mapPalOffset"]) is not int or field["mapPalOffset"] not in (0, 6)):
+            raise ProtocolError("invalid canonical field world record")
+    if version == 3:
+        daycare = payload["daycare"]
+        if (not isinstance(daycare, dict)
+                or set(daycare) not in ({"version", "earned"}, {"version", "earned", "pokemon"})
+                or type(daycare["version"]) is not int or daycare["version"] != 1
+                or not isinstance(daycare["earned"], str)
+                or not re.fullmatch(r"0|[1-9][0-9]{0,6}", daycare["earned"])
+                or int(daycare["earned"]) > 1250000
+                or ("pokemon" in daycare and not isinstance(daycare["pokemon"], dict))
+                or ("pokemon" not in daycare and daycare["earned"] != "0")):
+            raise ProtocolError("invalid canonical Day Care record")
+    owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
     if any(not isinstance(payload[field], dict) for field in owners):
         raise ProtocolError("invalid canonical Save/Continue owner record")
     for field in ("questFlags", "trainerFlags"):
@@ -177,6 +200,9 @@ def source_models(source):
                                raw["directional_rules"]["ledges"], raw["directional_rules"]["forbidden_tile_pairs"], events)
         if (model.width, model.height) != (entry["width"], entry["height"]):
             raise ProtocolError("source cache dimensions disagree")
+        # Background text can share walkable floor or a warp (the robbed
+        # house's wall hole). The source collision decides passability.
+        model.signs = {point for point in model.signs if model.collision[point[1]][point[0]]}
         model.source_data, model.descriptor = raw, desc
         model.padding, model.counter_feet = entry["padding"], tuple(raw["tileset"]["counter_tiles"])
         models[entry["id"]] = model
@@ -410,8 +436,9 @@ class CeruleanJourney(BrockJourney):
                 continue
             zone, origin = node
             model = self.models[zone]
-            occupied = self.occupied() if node == start else {(e["x"], e["y"]) for e in model.events["objects"]
-                if e["id"] not in {row[0] for row in FOSSILS.values()} or not any(self.flag(row[2]) for row in FOSSILS.values())}
+            # Future actors may move or disappear before arrival. Plan that
+            # leg from terrain, then replan with live occupancy on entering it.
+            occupied = self.occupied() if node == start else set()
             if zone == target_id:
                 try:
                     if goal is not None:
@@ -455,7 +482,7 @@ class CeruleanJourney(BrockJourney):
                 self.summary["transitions"].append({"from": origin, "kind": kind,
                     "source": detail["id"] if kind == "warp" else detail[0], "to": destination})
             except NaturalBlackout:
-                if self.config["name"] != "cerulean-natural" or getattr(self, "blackout_probe", False):
+                if self.config["name"] not in {"cerulean-natural", "vermilion-natural"} or getattr(self, "blackout_probe", False):
                     raise
                 self.recover_path_blackout("travel to " + target_id)
                 # Replan every portal from the game's actual checkpoint pose.
@@ -529,7 +556,7 @@ class CeruleanJourney(BrockJourney):
                     raise ProtocolError("required actual trainer victory receipt missing: " + trainer_id)
                 return
             except NaturalBlackout:
-                if self.config["name"] != "cerulean-natural" or getattr(self, "blackout_probe", False):
+                if self.config["name"] not in {"cerulean-natural", "vermilion-natural"} or getattr(self, "blackout_probe", False):
                     raise
                 self.recover_path_blackout("fight " + trainer_id)
         raise ProtocolError("Cerulean trainer retry budget exhausted: " + trainer_id)

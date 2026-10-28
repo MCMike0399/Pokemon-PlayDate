@@ -169,3 +169,7 @@ function Party:_withActiveForEntry(index, build)
     if not result[1] then state.active=previous;error(result[2],0) end
     return table.unpack(result,2,result.n)
 end
+
+-- Session-only atomic exchange: source remove-and-append ordering, with a
+-- prebuilt roster so even a last-member exchange never exposes an empty party.
+-- Keep the old active object's identity if it survives and remains usable.

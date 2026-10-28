@@ -36,6 +36,20 @@
       "native_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-private-catalog-20261026-01",
       "native_source_sha256": "49ea71a83102814744a07493d9dcdbe8cb257b1f67723e504386abc707f181ef",
       "protected_other_images_exact": 2493
+    },
+    {
+      "date": "2026-10-28",
+      "path": "pewter-Route2-collision.png",
+      "reason": "Four Route 2 door cells become walkable for the new interiors; collision diagnostic only.",
+      "user_approval": "Explicit user approval: Approve diagnostic update (Recommended).",
+      "changed_pixels": 4096,
+      "alpha_pixels": 0,
+      "before_sha256": "69765cb7c787cfd4529c2f06991fab5100d62aee468201225339f996c2c3b486",
+      "after_sha256": "251397ac02162652e78ccab00bf2c9268537c82cec1140d1d2b7d43f36dbb9c6",
+      "before_artifact": "../catalog-pewter-history/pewter-Route2-collision-before-doors-20261028.png",
+      "native_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-journey-ready-sdk-20261028-01",
+      "native_source_sha256": "a44c7b887d5bf4772db14ed097290603d9652f3eea153434c25be41f8986bb00",
+      "protected_other_images_exact": 2493
     }
   ]
 }

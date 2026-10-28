@@ -802,7 +802,7 @@
       "handler": "standard-damage"
     },
     "odorSleuth": {
-      "gap": "volatileStatus, onTryHit"
+      "handler": "battle-condition"
     },
     "rockTomb": {
       "handler": "standard-damage"

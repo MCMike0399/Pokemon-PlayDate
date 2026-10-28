@@ -20,10 +20,11 @@ class SourceMapManifestTests(unittest.TestCase):
         self.assertEqual(self.manifest["schema"], 1)
         self.assertEqual(self.manifest["source_revision"], "af519899719f0754965776faac0e836a3b906e6d")
         additions = json.loads((ROOT / 'Source/data/sourceSlice/manifest-entries.json').read_bytes())['maps']
-        expected = set(additions) | set(self.pewter) | {"Route1", "ViridianCity", "ViridianMart", "ViridianPokecenter"}
+        vermilion = json.loads((ROOT / 'Source/data/vermilionPreparation/manifest-entries.json').read_bytes())['maps']
+        expected = set(additions) | set(vermilion) | set(self.pewter) | {"Route1", "ViridianCity", "ViridianMart", "ViridianPokecenter"}
         self.assertEqual(set(self.maps), expected)
-        self.assertEqual(len({entry["id"] for entry in self.maps.values()}), 30)
-        self.assertEqual(len({entry["key"] for entry in self.maps.values()}), 30)
+        self.assertEqual(len({entry["id"] for entry in self.maps.values()}), 65)
+        self.assertEqual(len({entry["key"] for entry in self.maps.values()}), 65)
 
     def test_original_map_inputs_authored_pallet_and_renderers_are_unchanged(self):
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
@@ -36,7 +37,9 @@ class SourceMapManifestTests(unittest.TestCase):
         for name, entry in self.maps.items():
             with self.subTest(name=name):
                 path = ROOT / "Source" / entry["path"]
-                self.assertEqual(entry["path"], f'data/{entry["profile"]}Slice/{name}.json')
+                vermilion = entry['path'].startswith('data/vermilionPreparation/')
+                package = 'vermilionPreparation' if vermilion else entry['profile'] + 'Slice'
+                self.assertEqual(entry["path"], f'data/{package}/{name}.json')
                 raw = json.loads(path.read_text())
                 self.assertEqual(raw["name"], name)
                 self.assertEqual(raw["id"], entry["id"])
@@ -45,7 +48,8 @@ class SourceMapManifestTests(unittest.TestCase):
                 self.assertEqual(entry["width"], max(13, width))
                 self.assertEqual(entry["height"], height)
                 self.assertEqual(entry["padding"], max(0, (13 - width) // 2))
-                original = subprocess.check_output(["git", "show", f'{"7eae5e1" if entry["profile"] == "source" else BASE}:Source/{entry["path"]}'], cwd=ROOT)
+                pin = 'b2a497b' if vermilion else '7eae5e1' if entry['profile'] == 'source' else BASE
+                original = subprocess.check_output(["git", "show", f'{pin}:Source/{entry["path"]}'], cwd=ROOT)
                 self.assertEqual(hashlib.sha256(path.read_bytes()).digest(), hashlib.sha256(original).digest())
                 for events in raw["events"].values():
                     for event in events:
@@ -132,6 +136,9 @@ class GeneratedSourceCacheTests(unittest.TestCase):
             for field, value in original.items():
                 if name == "PewterCity" and field == "blocked":
                     opened = {"pokered:PEWTER_CITY:warps:1", "pokered:PEWTER_CITY:warps:2"}
+                    value = {cell: event for cell, event in value.items() if event not in opened}
+                if name == "Route2" and field == "blocked":
+                    opened = {f'pokered:ROUTE_2:warps:{index}' for index in (1, 3, 4, 5)}
                     value = {cell: event for cell, event in value.items() if event not in opened}
                 self.assertEqual(self.compact["maps"][name][field], value, (name, field))
         city = self.compact["maps"]["ViridianCity"]
@@ -257,7 +264,7 @@ class SourceMapExtensionTests(unittest.TestCase):
         fixture = records(reference)
         self.assertEqual((ROOT / 'Source/dev/sourceMapFixture.json').read_bytes(), canonical(fixture))
         compact = fixture['data/sourceMapCache/compact.json']
-        self.assertEqual(len(compact['maps']), 31)
+        self.assertEqual(len(compact['maps']), 66)
         self.assertNotIn('pokered:VIRIDIAN_CITY:warps:3', compact['maps']['ViridianCity']['blocked'].values())
         for name in ('Route22', 'ViridianSchoolHouse'):
             d = fixture[f'dev/source-map-extension/{name}.json']

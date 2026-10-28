@@ -230,12 +230,44 @@ import "dev/entryAbilityContracts"
 Contracts.register("entry-abilities", EntryAbilityContracts.run)
 import "dev/contactAbilityContracts"
 Contracts.register("contact-abilities", ContactAbilityContracts.run)
+import "dev/fieldMoveContracts"
+Contracts.register("field-moves", FieldMoveContracts.run)
+import "dev/fieldWorldContracts"
+Contracts.register("field-world", FieldWorldContracts.run)
+import "dev/vermilionGiftsContracts"
+Contracts.register("vermilion-gifts", VermilionGiftsContracts.run)
+import "dev/vermilionStoryFixture"
+import "dev/vermilionStoryContracts"
+Contracts.register("vermilion-story", function()
+    return VermilionStoryContracts.run(VermilionStoryFixture.withScene)
+end)
+import "dev/daycareContracts"
+Contracts.register("daycare", DaycareContracts.run)
+import "dev/vermilionPreparationContracts"
+Contracts.register("vermilion-preparation", VermilionPreparationContracts.run)
+import "dev/vermilionShipContracts"
+Contracts.register("vermilion-ship", function()
+    return VermilionShipContracts.run(VermilionStoryFixture.withScene)
+end)
 import "dev/fieldAcquisitionContracts"
 Contracts.register("field-acquisition", FieldAcquisitionContracts.run)
 import "dev/vermilionAbilityContracts"
 Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
+import "dev/vermilionCatalogExporter"
+import "dev/vermilionCatalogContracts"
+Contracts.register("vermilion-catalog", VermilionCatalogContracts.run)
 import "dev/caveEncounterContracts"
 Contracts.register("cave-encounters", CaveEncounterContracts.run)
+
+import "dev/pickupContracts"
+Contracts.register("pickup", PickupContracts.run)
+import "dev/grassCutContracts"
+Contracts.register("grass-cut", GrassCutContracts.run)
+import "dev/vermilionAmbientContracts"
+Contracts.register("vermilion-ambient", VermilionAmbientContracts.run)
+
+-- @harness content-ready
+VermilionCatalogExporter.register()
 
 -- @harness runtime
 harness = Harness

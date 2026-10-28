@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SessionCodec v2 fieldWorld owner record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "mapPalOffset"],
+  "properties": {
+    "version": {"const": 1},
+    "mapPalOffset": {"type": "integer", "enum": [0, 6]}
+  }
+}

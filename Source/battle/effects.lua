@@ -1,6 +1,7 @@
 -- Gen V ability hooks owned by one actual Battle. No persistent volatile state.
 import "battle/contactAbilities"
 import "battle/ordinaryAbilities"
+import "battle/pickupHeld"
 Class("BattleEffects")
 local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function nativeAbility(mon) return mon and mon.ability and mon:ability() or 0 end
@@ -208,7 +209,7 @@ function BattleEffects:drainSeed(drained, receiver, amount)
 end
 
 function BattleEffects:speed(mon, value)
-    return self.ordinaryAbilities:speed(mon, value)
+    return PickupHeld.speed(self, mon, self.ordinaryAbilities:speed(mon, value))
 end
 
 -- Ground immunity is evaluated with the actual current types/ability before
@@ -216,6 +217,7 @@ end
 function BattleEffects:groundImmune(source, target, move)
     return move.type == "ground" and move.category ~= "status"
         and self:active(source) and source:isAlive()
+        and not PickupHeld.has(self, target, "ironBall")
         and self:livingAbility(target, 26)
 end
 
@@ -402,6 +404,7 @@ function BattleEffects:recoilBlocked(mon,move)
     return (id==69 or id==98) and not move.struggleRecoil
 end
 function BattleEffects:grounded(mon)
+    if PickupHeld.has(self, mon, "ironBall") then return true end
     return not has(self, mon, "flying") and not self:livingAbility(mon, 26)
 end
 function BattleEffects:withdrawBlocked(mon)
@@ -480,6 +483,8 @@ function BattleEffects:events()
     for _,side in ipairs({"player","enemy"}) do
         local mon=self.battle[side]
         if alive(mon) then
+            local heldEvent = PickupHeld.event(self, mon, side)
+            if heldEvent then events[#events + 1] = heldEvent end
             if self:weatherId()=="sandstorm" then events[#events+1]={kind="sand",order=1,side=side,pokemon=mon,owner="effects"} end
             if self:effectiveAbility(mon)==87 and self:weatherId()=="raindance" then
                 events[#events+1]={kind="drySkin",order=1,side=side,pokemon=mon,owner="effects"}
@@ -491,7 +496,9 @@ function BattleEffects:events()
 end
 function BattleEffects:residual(event)
     local b,mon=self.battle,event.pokemon
-    if event.kind=="weatherTick" then
+    if event.kind == "leftovers" then
+        PickupHeld.residual(self, event)
+    elseif event.kind=="weatherTick" then
         if self.weather then
             self.weather.turns=self.weather.turns-1
             if self.weather.turns==0 then

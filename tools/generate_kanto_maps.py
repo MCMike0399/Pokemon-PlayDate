@@ -311,7 +311,7 @@ def encounters(reference, map_id):
             'rate_interpretation': 'original rate byte; not a percentage or current runtime rule', **tables}
 
 
-def decode_map(reference, name):
+def decode_map(reference, name, *, linked_layout_tail=None):
     constants = map_constants(reference)
     header_path = f'data/maps/headers/{name}.asm'
     header = reference.text(header_path)
@@ -325,6 +325,24 @@ def decode_map(reference, name):
     layout_path = bindings(reference.text('maps.asm'), 'Blocks').get(name)
     if not layout_path: raise MapError('map block layout binding missing')
     layout = reference.bytes(layout_path)
+    layout_extent = None
+    if linked_layout_tail is not None:
+        # Opt-in bounded ROMX continuation, never implicit padding. Some source
+        # layouts intentionally run into the immediately following INCBIN.
+        tail_path, tail_size = linked_layout_tail
+        declaration = (r'^' + re.escape(name) + r'_Blocks: INCBIN "' + re.escape(layout_path)
+                       + r'"\n\w+_Blocks: INCBIN "' + re.escape(tail_path) + r'"$')
+        if (type(tail_size) is not int or tail_size <= 0
+                or len(layout) + tail_size != dims['width'] * dims['height']
+                or not re.search(declaration, reference.text('maps.asm'), re.M)):
+            raise MapError('unverified adjacent layout continuation')
+        tail = reference.bytes(tail_path)
+        if len(tail) < tail_size:
+            raise MapError('short adjacent layout continuation')
+        layout_extent = {'primary': layout_path, 'primary_size': len(layout),
+                         'continuation': tail_path, 'offset': 0, 'size': tail_size,
+                         'proof': 'consecutive INCBIN declarations in pinned maps.asm'}
+        layout += tail[:tail_size]
     if len(layout) != dims['width'] * dims['height']:
         raise MapError(f'{name}: layout dimensions mismatch: {len(layout)} bytes vs {dims["width"]}x{dims["height"]}; no padding exception')
     tile_constants = re.findall(r'^\s*const (\w+)', reference.text('constants/tileset_constants.asm'), re.M)
@@ -395,7 +413,7 @@ def decode_map(reference, name):
     for row in records(reference.text('data/tilesets/pair_collision_tile_ids.asm'), 'db'):
         if len(row['args']) == 3 and row['args'][0] == tileset_constant:
             pairs.append([integer(value) for value in row['args'][1:]])
-    return {'schema':SCHEMA,'source_revision':REVISION,'version':'English Blue','id':f'pokered:{constant}',
+    result = {'schema':SCHEMA,'source_revision':REVISION,'version':'English Blue','id':f'pokered:{constant}',
             'name':name,'source_map_id':dims['id'],'source_map_constant':constant,
             'dimensions':{'blocks':[dims['width'],dims['height']],'cells':[width,height],'original_pixels':[width*16,height*16],'playdate_pixels':[width*32,height*32]},
             'tileset':{'constant':tileset_constant,'index':index,'name':tile_name,'graphics':png_path,'blockset':blockset_path,
@@ -408,6 +426,9 @@ def decode_map(reference, name):
                       'states_referenced':sorted(set(re.findall(r'\bSCRIPT_[A-Z0-9_]+',script))),
                       'status':'unimplemented source script; no parcel/shop/NPC movement behavior claimed'},
             'runtime_adapter':{'integrated':False,'padding_cells':[0,0],'npc_images_rendered':False,'terrain_alpha':False}}
+    if layout_extent is not None:
+        result['layout_extent'] = layout_extent
+    return result
 
 
 def validate_grid(grid):

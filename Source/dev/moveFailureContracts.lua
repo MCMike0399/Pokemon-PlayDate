@@ -209,6 +209,134 @@ function MoveFailureContracts.run()
             end
         end
     end)
+    test("Odor Sleuth identifies in singles with target-owned evasion and Ghost immunity cleanup", function()
+        -- Oracle: 9b136a8 data/moves.ts odorsleuth -> foresight.condition;
+        -- gen8/7/6/5 do not replace its behavior. sim/pokemon.ts addVolatile
+        -- rejects a repeat without onRestart. Rare unsupported producers
+        -- (Miracle Eye, reflection, Substitute, Baton Pass) are outside this case.
+        eq(moveData.odorSleuth.accuracy, 0)
+        eq(moveData.odorSleuth.maxPP, 40)
+        for _, side in ipairs({ "player", "enemy" }) do
+            local source = Pokemon("pidgey", 100)
+            local target = Pokemon("gastly", 100)
+            local sources = roster(source, Pokemon("pidgey", 100))
+            local targets = roster(target, Pokemon("gastly", 100))
+            local other = side == "player" and "enemy" or "player"
+            local b = Battle(side == "player" and source or target,
+                side == "player" and target or source, "TRAINER", {
+                    party = side == "player" and sources or targets,
+                    enemyParty = side == "player" and targets or sources,
+                })
+            battles[#battles + 1] = b
+            settle(b)
+            local first, second = b:effectiveTypes(target)
+            local hp = target.hp
+            source.statStages.acc = -6
+            target.statStages.eva = 6
+            eq(b:typeMatchup("normal", target), 0)
+            eq(b:typeMatchup("fighting", target), 0)
+            source.status = "sleep"
+            source.statusTurns = 2
+            source.sleepDuration = 2
+            RulesRNG.seed(19)
+            attempt(b, "odorSleuth", side)
+            eq(source.pp.odorSleuth, 40, "sleep blocks before attempted PP")
+            eq(b.conditions:identified(target), false)
+            source.status = nil
+            source.statusTurns = 0
+            source.sleepDuration = 0
+            b.conditions:of(target).protect = true
+            RulesRNG.seed(19)
+            assert(attempt(b, "odorSleuth", side):find("protected itself!", 1, true))
+            eq(b.conditions:identified(target), false)
+            eq(source.pp.odorSleuth, 39)
+            eq(RulesRNG.snapshot().rolls, 0)
+            b.conditions:of(target).protect = nil
+            assert(attempt(b, "odorSleuth", side):find("was identified!", 1, true))
+            eq(source.pp.odorSleuth, 39)
+            eq(RulesRNG.snapshot().rolls, 0, "never-miss status uses no accuracy roll")
+            eq(target.hp, hp)
+            eq(target.status, nil)
+            eq(target.statStages.eva, 6)
+            assert(attempt(b, "odorSleuth", side):find("But it failed!", 1, true))
+            eq(source.pp.odorSleuth, 39)
+            eq(RulesRNG.snapshot().rolls, 0)
+            source.statStages.acc = -1
+            eq(accuracyThreshold(moveData.growl, source, target, b.effects), 75)
+            target.statStages.eva = -2
+            source.statStages.acc = -3
+            eq(accuracyThreshold(moveData.sleepPowder, source, target, b.effects), 56,
+                "negative evasion and user accuracy still apply")
+            source.statStages.acc = -6
+            target.statStages.eva = 6
+            local seed = 1
+            while RulesRNG.new(seed):random(1, 100) <= 33 do
+                seed = seed + 1
+            end
+            RulesRNG.seed(seed)
+            assert(attempt(b, "growl", side):find("attack missed!", 1, true))
+            eq(target.statStages.atk, 0)
+            eq(RulesRNG.snapshot().rolls, 1)
+            source.statStages.acc = 0
+            attempt(b, "growl", side)
+            eq(target.statStages.atk, -1, "ordinary status ignores positive evasion")
+            eq(target.statStages.eva, 6)
+            eq(b:typeMatchup("normal", target), 1)
+            eq(b:typeMatchup("fighting", target), 0.5, "Poison resistance survives")
+            eq(b:typeMatchup("ground", target), 2)
+            eq(b:typeMatchup("ghost", source), 0, "opponent is not identified")
+            RulesRNG.seed(1)
+            attempt(b, "sonicBoom", side)
+            eq(target.hp, hp - 20, "actual Normal fixed hit")
+            attempt(b, "seismicToss", side)
+            eq(target.hp, hp - 120, "actual Fighting fixed hit")
+            eq(target.type, first)
+            eq(target.type2, second)
+            local effectiveFirst, effectiveSecond = b:effectiveTypes(target)
+            eq(effectiveFirst, first)
+            eq(effectiveSecond, second)
+            -- Withdrawing the source leaves identification on the target.
+            RulesRNG.seed(1)
+            attempt(b, "roar", other)
+            assert(b[side] ~= source)
+            eq(b.conditions:identified(target), true)
+            -- Withdrawing the target clears it; its replacement inherits none.
+            attempt(b, "roar", side)
+            assert(b[other] ~= target)
+            eq(b.conditions:identified(target), false)
+            eq(b.conditions:identified(b[other]), false)
+            attempt(b, "roar", side)
+            eq(b[other], target)
+            eq(b:typeMatchup("normal", target), 0, "return restores Ghost immunity")
+            attempt(b, "odorSleuth", side)
+            target:takeDamage(target.hp)
+            b:setDirection(side)
+            b:runScript(function()
+                local result = b:handleFaint()
+                eq(result, "replacement")
+                return b:finishRound()
+            end)
+            settle(b)
+            eq(b.conditions:identified(target), false, "faint cleanup")
+            if b:needsForcedSwitch() then
+                assert(b:chooseParty(2))
+                settle(b)
+            end
+            attempt(b, "odorSleuth", side)
+            local active = b[other]
+            eq(b.conditions:identified(active), true)
+            eq(#b:getMoveGaps(), 0)
+            b:clearVolatiles()
+            eq(b.conditions:identified(active), false, "battle cleanup")
+            eq(b:typeMatchup("normal", active), 0)
+        end
+        local b = fresh()
+        local hp = b.enemy.hp
+        attempt(b, "odorSleuth")
+        eq(b.conditions:identified(b.enemy), true, "non-Ghost identification")
+        eq(b.enemy.hp, hp)
+        eq(b:typeMatchup("fighting", b.enemy), 2, "ordinary weakness survives")
+    end)
     test("Magnitude selects all seven powers before accuracy and damage without changing shared move data", function()
         -- Pinned Showdown 9b136a8 data/moves.ts, inherited through gen5.
         -- Seeds 1..100 visit each of its 100 selection buckets exactly once.

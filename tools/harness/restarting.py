@@ -28,6 +28,14 @@ def validate(scenario, qualification=False):
     groups = scenario['processes']
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
         raise ProtocolError('processes requires 2..8 process groups')
+    first = groups[0].get('journey', {}) if isinstance(groups[0], dict) else {}
+    if first.get('name') == 'vermilion-natural':
+        starting = scenario.get('initial_save', {})
+        if (not isinstance(starting, dict) or set(starting) != {'milestone', 'starter'}
+                or starting['milestone'] not in {'5.3', '5.4'}
+                or starting['starter'] != first.get('starter', 'squirtle')):
+            raise ProtocolError('Vermilion requires its Cerulean save or an earned checkpoint')
+        # Exact slot hashes and the accepted Cerulean origin are checked before boot.
     for index, group in enumerate(groups):
         if not isinstance(group, dict) or set(group) - {'restart', 'requests', 'journey', 'outputs'}:
             raise ProtocolError('invalid process group fields')
@@ -41,10 +49,14 @@ def validate(scenario, qualification=False):
                 raise ProtocolError('process requests requires nonempty command arrays')
         else:
             journey=group['journey']
-            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy','fossil','max_transitions'}
-            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue','cerulean-natural','cerulean-continue'}:
+            allowed={'name','starter','seed','max_actions','max_steps','max_encounters','location','training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy','fossil','max_transitions','max_puzzle_attempts','case','supplementary'}
+            if isinstance(journey,dict) and isinstance(journey.get('name'),str) and journey['name'].startswith('vermilion-'):
+                allowed = allowed | {'content_scope', 'vermilion_actions','collection_steps','collection_battles','collection_phase_battles','collection_balls','collection_ball_stock','collection_balls_per_battle','collection_money_reserve'}
+            if not isinstance(journey,dict) or set(journey)-allowed or journey.get('name') not in {'brock-natural','brock-continue','npc-motion-save','npc-motion-continue','cerulean-natural','cerulean-continue','vermilion-natural','vermilion-continue','vermilion-supplementary','vermilion-supplementary-continue'}:
                 raise ProtocolError('unknown or malformed process journey')
             name=journey['name']
+            if not name.startswith('vermilion-') and set(journey) & {'max_puzzle_attempts','case','supplementary'}:
+                raise ProtocolError('Vermilion options cannot mix with earlier journeys')
             if name.startswith('npc-motion'):
                 if set(journey)&{'training_level','max_training_battles','max_capture_attempts','max_blackouts','evolution_policy'}:raise ProtocolError('Brock options cannot mix with NPC motion')
                 from tools.harness.motion_journey import validate_config
@@ -53,6 +65,9 @@ def validate(scenario, qualification=False):
                     raise ProtocolError('motion Save must be first process')
                 if name=='npc-motion-continue' and (index==0 or groups[index-1].get('journey',{}).get('name') not in {'npc-motion-save','npc-motion-continue'}):
                     raise ProtocolError('motion Continue requires prior saved motion receipt')
+            elif name.startswith('vermilion-'):
+                from tools.harness.vermilion_journey import validate_process_journey
+                validate_process_journey(journey,index,groups[index-1].get('journey',{}) if index else {})
             elif name.startswith('cerulean-'):
                 from tools.harness.cerulean_journey import validate_process_journey
                 validate_process_journey(journey,index,groups[index-1].get('journey',{}) if index else {})
@@ -86,8 +101,11 @@ def read_receipt(reference, metadata):
     if hashlib.sha256(raw).hexdigest()!=reference['sha256']:raise ProtocolError('prior journey receipt changed')
     try:packet=json.loads(raw)
     except (UnicodeDecodeError,ValueError) as error:raise ProtocolError('malformed prior journey receipt')from error
-    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
+    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved','vermilion-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
         raise ProtocolError('wrong-build or malformed prior journey receipt')
+    if packet["kind"]=="vermilion-saved":
+        from tools.harness.vermilion_journey import validate_receipt_state
+        validate_receipt_state(packet["state"])
     if packet["kind"]=="cerulean-saved":
         from tools.harness.cerulean_journey import validate_receipt_state
         validate_receipt_state(packet["state"])
@@ -170,15 +188,35 @@ def import_chain_save(scenario, project, data, output):
     if spec is None:
         return None
     if (not isinstance(spec, dict) or set(spec) != {'milestone', 'starter'}
-            or spec['milestone'] not in {'5.2', '5.3'}
+            or spec['milestone'] not in {'5.2', '5.3', '5.4'}
             or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
         raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
-    if first.get('name') != 'cerulean-natural' or first.get('starter') != spec['starter']:
+    expected = spec['milestone']
+    if first.get('name') == 'vermilion-natural' and expected not in {'5.3', '5.4'}:
+        raise ProtocolError('Vermilion must start from Cerulean or its earned checkpoint')
+    if (first.get('name') not in {'cerulean-natural', 'vermilion-natural'}
+            or first.get('starter') != spec['starter'] or spec['milestone'] != expected):
         raise ProtocolError('starting save does not match journey')
     manifest = json.loads((project / 'docs/validation/chain-saves.json').read_text())
     record = next(row for row in manifest['saves'] if row['starter'] == spec['starter']
                   and row['from_milestone'] == spec['milestone'])
+    if first['name'] == 'vermilion-natural':
+        origin = record
+        if spec['milestone'] == '5.4':
+            if record.get('resume_checkpoint') is not True or record.get('origin_milestone') != '5.3':
+                raise ProtocolError('in-progress save lacks its Cerulean origin')
+            origin = next(row for row in manifest['saves']
+                          if row['starter'] == spec['starter'] and row['from_milestone'] == '5.3')
+        proof = json.loads((project / 'docs/validation/cerulean-acceptance-20261028.json').read_text())
+        if (proof.get('milestone_accepted') is not True or proof.get('milestone') != '5.3'
+                or origin.get('accepted_commit') != proof.get('accepted_main_code')
+                or origin.get('accepted_source_sha256') != proof.get('source_sha256')
+                or not any(row.get('starter') == spec['starter'] for row in proof.get('starters', []))):
+            raise ProtocolError('starting save lacks accepted Cerulean proof')
+    if {item['file'] for item in record['files']} != {'adventure.a.json', 'adventure.b.json'}:
+        raise ProtocolError('starting save must include both exact slots')
+    contents = {}
     for item in record['files']:
         name = item['file']
         if name not in {'adventure.a.json', 'adventure.b.json'}:
@@ -186,6 +224,8 @@ def import_chain_save(scenario, project, data, output):
         content = (Path(record['directory']) / name).read_bytes()
         if hashlib.sha256(content).hexdigest() != item['sha256']:
             raise ProtocolError('accepted starting save checksum changed')
+        contents[name] = content
+    for name, content in contents.items():
         (data / name).write_bytes(content)
     atomic_json(output / 'starting-save.json', record)
     return record
@@ -195,7 +235,13 @@ def export_chain_save(scenario, data, output, metadata):
     spec = scenario.get('initial_save')
     if spec is None:
         return
-    destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain/5.3' / spec['starter']
+    first = scenario['processes'][0].get('journey', {})
+    if first.get('name') == 'vermilion-natural' and (
+            len(scenario['processes']) != 2
+            or scenario['processes'][1].get('journey', {}).get('name') != 'vermilion-continue'):
+        raise ProtocolError('Vermilion chain export requires its two-process Save/Continue')
+    milestone = '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
+    destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain' / milestone / spec['starter']
     destination.mkdir(parents=True, exist_ok=True)
     files = []
     for name in ('adventure.a.json', 'adventure.b.json'):
@@ -203,8 +249,10 @@ def export_chain_save(scenario, data, output, metadata):
         (destination / name).write_bytes(content)
         files.append({'file': name, 'sha256': hashlib.sha256(content).hexdigest()})
     atomic_json(destination / 'provenance.json', {
-        'milestone': '5.3', 'starter': spec['starter'], 'evidence': str(output),
+        'milestone': milestone, 'starter': spec['starter'], 'evidence': str(output),
         'build_id': metadata['build_id'], 'files': files,
+        'source_sha256': metadata.get('source_sha256'),
+        'starting_save': json.loads((output / 'starting-save.json').read_text()),
         'status': 'journey passed Save/Continue; milestone review pending'})
 
 
@@ -259,7 +307,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 atomic_json(evidence / 'process.json', record); publish()
                 if 'journey' in group:
                     from tools.harness import journeys
-                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue'} else None
+                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue','vermilion-continue','vermilion-supplementary-continue'} else None
                     summary=journeys.run(client,{'journey':group['journey']},evidence,
                         build_evidence=output,prior_receipt=prior,capture_dir=output/'frames')
                     if not isinstance(summary,dict)or summary.get('ok') is not True:raise ProtocolError('process journey failed')

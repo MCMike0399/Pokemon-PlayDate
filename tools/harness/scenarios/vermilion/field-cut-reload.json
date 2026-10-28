@@ -1,0 +1,33 @@
+{
+  "processes": [
+    {
+      "journey": {
+        "name": "vermilion-supplementary",
+        "supplementary": true,
+        "case": "field-cut-reload",
+        "starter": "squirtle",
+        "fossil": "dome",
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64,
+        "max_transitions": 128,
+        "max_puzzle_attempts": 240
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "name": "vermilion-supplementary-continue",
+        "supplementary": true,
+        "case": "field-cut-reload",
+        "starter": "squirtle",
+        "fossil": "dome",
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64,
+        "max_transitions": 128,
+        "max_puzzle_attempts": 240
+      }
+    }
+  ]
+}

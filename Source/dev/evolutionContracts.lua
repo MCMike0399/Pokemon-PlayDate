@@ -168,10 +168,24 @@ function EvolutionContracts.run()
             eq(mon.maxHP,28);eq(mon.hp,fainted and 0 or 28);eq(mon.status,"badPoison");eq(mon.pp.tackle,0)
         end
     end)
-    test("Codec6 supports exact legacy3 names XP sleep PP and no inferred pending event",function()
+    test("Current codec supports exact legacy3 names XP sleep PP and no inferred pending event",function()
         local mon=Pokemon("abra",16);mon.name="OLD NAME";mon.status,mon.statusTurns,mon.sleepDuration="sleep",1,3;mon.pp.teleport=2;mon.nextMoveChoiceId=2147483647
-        local legacy=record(mon);legacy.version=3;legacy.ivs,legacy.evs=nil,nil;legacy.sex,legacy.sexProvenance=nil,nil;legacy.natureId,legacy.abilitySlot,legacy.heldItem=nil,nil,nil;local restored=assert(PokemonCodec.decode(legacy));eq(restored.pendingEvolution,nil)
-        local expected=Party._primitive(legacy);expected.version=7;expected.ivs,expected.evs=IndividualStats.zero(),IndividualStats.zero();expected.sex="male";expected.sexProvenance={version=1,kind="legacy-default"};expected.natureId,expected.abilitySlot,expected.heldItem=0,"first","none";same(record(restored),expected)
+        local legacy=record(mon)
+        legacy.version=3
+        legacy.acquisition=nil
+        legacy.ivs,legacy.evs=nil,nil
+        legacy.sex,legacy.sexProvenance=nil,nil
+        legacy.natureId,legacy.abilitySlot,legacy.heldItem=nil,nil,nil
+        local restored=assert(PokemonCodec.decode(legacy))
+        eq(restored.pendingEvolution,nil)
+        local expected=Party._primitive(legacy)
+        expected.version=PokemonCodec.VERSION
+        expected.acquisition={version=1,kind="neutral"}
+        expected.ivs,expected.evs=IndividualStats.zero(),IndividualStats.zero()
+        expected.sex="male"
+        expected.sexProvenance={version=1,kind="legacy-default"}
+        expected.natureId,expected.abilitySlot,expected.heldItem=0,"first","none"
+        same(record(restored),expected)
         for _,version in ipairs({1,2}) do local bad=Party._primitive(legacy);bad.version=version;eq(PokemonCodec.decode(bad),nil) end
         legacy.pendingEvolution={species="abra",level=16};eq(PokemonCodec.decode(legacy),nil)
     end)
@@ -186,7 +200,12 @@ function EvolutionContracts.run()
         local game,mon=pendingGame();local valid=record(mon)
         for _,pending in ipairs({{species="kadabra",level=16},{species="abra",level=15},{species="abra",level=16,extra=true},{species="abra",level=16.5}}) do local bad=Party._primitive(valid);bad.pendingEvolution=pending;eq(PokemonCodec.validate(bad),false) end
         assert(Evolution.complete(assert(Evolution.prepare(game.session,mon,{kind="level"}))));local evolved=record(mon);assert(PokemonCodec.validate(evolved));eq(evolved.pendingMoveChoices[1].reason,"evolution")
-        evolved.version=3;evolved.ivs,evolved.evs=nil,nil;evolved.sex,evolved.sexProvenance=nil,nil;evolved.natureId,evolved.abilitySlot,evolved.heldItem=nil,nil,nil;eq(PokemonCodec.validate(evolved),false)
+        evolved.version=3
+        evolved.acquisition=nil
+        evolved.ivs,evolved.evs=nil,nil
+        evolved.sex,evolved.sexProvenance=nil,nil
+        evolved.natureId,evolved.abilitySlot,evolved.heldItem=nil,nil,nil
+        eq(PokemonCodec.validate(evolved),false)
     end)
     test("Trade requires explicit external policy hook; four targets stay original roster",function()
         for _,species in ipairs({"kadabra","machoke","graveler","haunter"}) do
@@ -208,7 +227,18 @@ function EvolutionContracts.run()
         local zone=getCurrentZoneKey()
         local ok,why=pcall(function()
         local game,mon=pendingGame("bulbasaur",15,16);ui(game);local state=BattleState(game);game.machine:register("battle",state)
-        local enemy=Pokemon("rattata",5);mon.hp,enemy.hp=0,0;state.battle=Battle(mon,enemy,nil,{session=game.session});state:finish(true,"victory")
+        local enemy <const> = Pokemon("rattata", 5)
+        assert(FieldBattle.start(game, mon, enemy))
+        local battle <const> = state.battle
+        mon.hp, enemy.hp = 0, 0 -- Final recoil after admission, not an invalid field entry.
+        battle:runScript(function() return "victory" end)
+        local advances = 0
+        while battle:phase() == "script" do
+            advances = advances + 1
+            assert(advances <= 200, "terminal fixture did not settle")
+            battle.machine:get("script"):advance()
+        end
+        assert(battle:emitEnd())
         eq(game.lastBattleOutcome.blackout,true);eq(game.lastBattleOutcome.player_hp,0);eq(game.lastBattleOutcome.enemy_hp,0);eq(game.lastBattleOutcome.kind,"victory")
         eq(game.machine:getCurrent(),"evolution");eq(mon.hp,mon.maxHP);eq(mon.species,"bulbasaur")
         beginAnimation(game.machine:current());runAnimation(game);eq(mon.species,"ivysaur");eq(mon.hp,45)

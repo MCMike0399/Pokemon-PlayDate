@@ -1,0 +1,13 @@
+{
+  "base": "e4dd170",
+  "mode": "compile-only",
+  "sdk_version": "3.1.2",
+  "revision": "e4dd1701caa28c69b90788fe77ea3b290735b7b7",
+  "source_sha256": "5a1dbc9e548012c2bd368b38317d824ddda41c9d97d801f25467b10088eef7ca",
+  "composed_source_sha256": "49bc2cf91c59a96e69c26263a1b57f1ceadcf96abcfccf003bda95ffd9cd8efd",
+  "patch_sha256": "42b0191be60b88ef9114d35bf758318cbd298135e70c3f23482700f3314b03e9",
+  "runtime_executed": false,
+  "device_executed": false,
+  "production": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/approved-pickup-compile-20261026-03/production",
+  "sdk_prepared": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/approved-pickup-compile-20261026-03/harness"
+}

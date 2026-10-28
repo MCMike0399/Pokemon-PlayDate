@@ -1,0 +1,11 @@
+diff --git a/tools/harness/dev_imports.lua b/tools/harness/dev_imports.lua
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -235,5 +235,7 @@ Contracts.register("field-moves", FieldMoveContracts.run)
+ import "dev/fieldWorldContracts"
+ Contracts.register("field-world", FieldWorldContracts.run)
++import "dev/grassCutContracts"
++Contracts.register("grass-cut", GrassCutContracts.run)
+ import "dev/vermilionGiftsContracts"
+ Contracts.register("vermilion-gifts", VermilionGiftsContracts.run)
+ import "dev/vermilionStoryFixture"

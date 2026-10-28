@@ -1,0 +1,76 @@
+{
+  "nativeRevision": "b279bbefa99bb2f6fbabcc95e4b6d3e939290353",
+  "showdownRevision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "files": {
+    "return": {
+      "path": "tools/references/pickup/event_battle_return.c",
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov166/event_battle_return.c",
+      "sha256": "6165ec0229b0c67201e489226b9ae215aaf1bd5fa69fbdf441943ca730adc68e"
+    },
+    "main": {
+      "path": "tools/references/pickup/btl_main.c",
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_main.c",
+      "sha256": "4a94eb399501b1eda6cd1fce05870eec9e481296bdd1bfc7904a5cd159d7b9dc"
+    },
+    "calc": {
+      "path": "tools/references/pickup/btl_calc.c",
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/src/ov167/btl_calc.c",
+      "sha256": "7a85311212044df299b64ebe9de1996c1ac3a736a591217973c4cf0e71b6ba17"
+    },
+    "prices": {
+      "path": "tools/references/pickup/gen5_items.csv",
+      "url": "https://raw.githubusercontent.com/veekun/pokedex/17d1c0e9c385db18fe6b9c8457f61c0ce79bf818/pokedex/data/csv/items.csv",
+      "sha256": "563a1f986d9a738079f4a5bbc7c6b9e8d4d3848833099bc0a41d988faae3e03b"
+    },
+    "ids": {
+      "path": "tools/references/traits/generated_items.txt",
+      "url": "https://raw.githubusercontent.com/fuddlesworth/pokebw2/b279bbefa99bb2f6fbabcc95e4b6d3e939290353/generated/items.txt",
+      "sha256": "565a8abd48d786bd166f3c93b522644b7a4a1aacfc54b329767a84c7c84f7f23"
+    },
+    "items": {
+      "path": "tools/references/traits/items.csv",
+      "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/2bf639e5572812a67d2b94903fdcb9d095f5aeb2/data/v2/csv/items.csv",
+      "sha256": "f08cd6dc30b447cb91cbe9232c79052e8521f32f6105bb1489b5bfabf4ca3241"
+    },
+    "indices": {
+      "path": "tools/references/traits/item_game_indices.csv",
+      "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/2bf639e5572812a67d2b94903fdcb9d095f5aeb2/data/v2/csv/item_game_indices.csv",
+      "sha256": "ad7576a23dea4e136ea887f5f04b680abc4f72131812fa011bdddeb54760c653"
+    },
+    "ps_data_items.ts": {
+      "path": "tools/references/traits/ps_data_items.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/items.ts",
+      "sha256": "6a9c7eeb9cfda861d9fb22084b10af46d03da4729981424ff155399907b66ed4"
+    },
+    "ps_data_mods_gen8_items.ts": {
+      "path": "tools/references/traits/ps_data_mods_gen8_items.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen8/items.ts",
+      "sha256": "a25ed92ee7583d2e94694d0c816fbe1f2dd9159ac3dfeeb5b24f3f273a256bcd"
+    },
+    "ps_data_mods_gen7_items.ts": {
+      "path": "tools/references/traits/ps_data_mods_gen7_items.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen7/items.ts",
+      "sha256": "bfbaa542ff6316b38466349b188d9f6e50500b1264d6acd3f80396f3c1473fd9"
+    },
+    "ps_data_mods_gen6_items.ts": {
+      "path": "tools/references/traits/ps_data_mods_gen6_items.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen6/items.ts",
+      "sha256": "e0c90477ad51f763bc093632344f8377f3b0c53e8cc3dff18601c79f95841841"
+    },
+    "ps_data_mods_gen5_items.ts": {
+      "path": "tools/references/traits/ps_data_mods_gen5_items.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/data/mods/gen5/items.ts",
+      "sha256": "513d574b63eb7a66c120027e74fd02379b8c746b76dcb0f4148c21ae6aac75cc"
+    },
+    "ps_sim_battle-actions.ts": {
+      "path": "tools/references/traits/ps_sim_battle-actions.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/battle-actions.ts",
+      "sha256": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4"
+    },
+    "ps_sim_pokemon.ts": {
+      "path": "tools/references/pickup/ps_sim_pokemon.ts",
+      "url": "https://raw.githubusercontent.com/smogon/pokemon-showdown/9b136a8c8cdb860a8ab96fa063f906604e352547/sim/pokemon.ts",
+      "sha256": "42ebab9dcfc823b032d40dabb8aafc9e76276030f89bd9a0e98b5e7fb54cb607"
+    }
+  }
+}

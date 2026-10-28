@@ -1,0 +1,96 @@
+{
+  "provenance": {
+    "reference": "hardware-pins.json",
+    "method": "Literal expectations transcribed from documented counter arithmetic; noise cross-checked using independent MSB-first string shift; no renderer/oracle imports. Not measured hardware output."
+  },
+  "pulse_duties": [
+    "00000001",
+    "10000001",
+    "10000111",
+    "01111110"
+  ],
+  "periods": {
+    "pulse_0": 8192,
+    "pulse_1280": 3072,
+    "pulse_2047": 4,
+    "wave_1280": 1536,
+    "noise_0": 8,
+    "noise_1": 16,
+    "noise_8": 8,
+    "noise_33": 64
+  },
+  "noise15": [
+    16384,
+    24576,
+    28672,
+    30720,
+    31744,
+    32256,
+    32512,
+    32640,
+    32704,
+    32736,
+    32752,
+    32760,
+    32764,
+    32766,
+    16383,
+    24575,
+    28671,
+    30719,
+    31743,
+    32255,
+    32511,
+    32639,
+    32703,
+    32735
+  ],
+  "noise7": [
+    16448,
+    24672,
+    28784,
+    30840,
+    31868,
+    32382,
+    16191,
+    24543,
+    28655,
+    30711,
+    31739,
+    32253,
+    16062,
+    7967,
+    20431,
+    26599,
+    29683,
+    31225,
+    15548,
+    24158,
+    12079,
+    22487,
+    27627,
+    30197
+  ],
+  "envelope_down_15_pace1": [
+    15,
+    14,
+    13,
+    12,
+    11
+  ],
+  "sweep_add_shift1_initial512": [
+    768,
+    1152,
+    1728
+  ],
+  "sweep_add_shift1_active": [
+    true,
+    true,
+    false
+  ],
+  "clock_frames": {
+    "1": 738,
+    "60": 44301,
+    "120000": 88602401
+  }
+}

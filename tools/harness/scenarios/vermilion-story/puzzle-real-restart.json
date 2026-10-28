@@ -1,0 +1,169 @@
+{
+  "processes": [
+    {
+      "requests": [
+        [
+          {
+            "op": "fixture",
+            "options": {
+              "seed": 42,
+              "intro": "skip",
+              "zone": "VermilionGym",
+              "entry": {
+                "x": 2,
+                "y": 10,
+                "facing": "up"
+              },
+              "quest_flags": {
+                "EVENT_1ST_LOCK_OPENED": true,
+                "VERMILION_SCENE_V1_INITIALIZED": true,
+                "VERMILION_SCENE_V1_SECOND_0": true
+              }
+            }
+          }
+        ],
+        [
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "dialog",
+            "frames": 600
+          }
+        ],
+        [
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 600
+          },
+          "press a",
+          "wait 2"
+        ],
+        [
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 600
+          },
+          "press a",
+          "wait 2"
+        ],
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 600
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_2ND_LOCK_OPENED",
+            "equals": true
+          },
+          "shot solved-door"
+        ],
+        [
+          "press b",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "pause",
+            "frames": 600
+          }
+        ],
+        [
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press down",
+          "wait 2",
+          "press a",
+          {
+            "op": "await",
+            "path": "pause.phase",
+            "equals": "save",
+            "frames": 600
+          }
+        ],
+        [
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "dialog",
+            "frames": 600
+          }
+        ],
+        [
+          {
+            "op": "await",
+            "path": "dialog.ready",
+            "equals": true,
+            "frames": 600
+          },
+          "press a",
+          "wait 2"
+        ],
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 600
+          },
+          "observe saved",
+          "shot saved-exploration"
+        ]
+      ],
+      "outputs": [
+        "solved-door.png",
+        "saved-exploration.png"
+      ]
+    },
+    {
+      "restart": true,
+      "requests": [
+        [
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "title",
+            "frames": 600
+          },
+          "shot fresh-continue-menu"
+        ],
+        [
+          "press a",
+          {
+            "op": "await",
+            "path": "root",
+            "equals": "overworld",
+            "frames": 600
+          },
+          "observe loaded"
+        ],
+        [
+          {
+            "op": "assert",
+            "path": "zone",
+            "equals": "VermilionGym"
+          },
+          {
+            "op": "assert",
+            "path": "session.flags.quest.EVENT_2ND_LOCK_OPENED",
+            "equals": true
+          },
+          "shot continued-solved-door"
+        ]
+      ],
+      "outputs": [
+        "fresh-continue-menu.png",
+        "continued-solved-door.png"
+      ]
+    }
+  ]
+}

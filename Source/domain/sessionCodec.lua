@@ -1,5 +1,5 @@
 -- Complete session snapshot, validated before candidate objects are published.
-SessionCodec={VERSION=1,POKEMON_ENCODING="decimal-counters-v1"}
+SessionCodec={VERSION=3,POKEMON_ENCODING="decimal-counters-v1"}
 local function copy(value) return GameSession._copy(value) end
 local function object(value,fields) GameSession._object(value,fields) end
 local function array(value,limit)
@@ -50,8 +50,8 @@ local function normalize(record,deps)
     deps=GameSession._dependencies(deps)
     local data=copy(record)
     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true})
-    assert(data.version==SessionCodec.VERSION and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
+        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true})
+    assert((data.version==1 or data.version==2 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
     object(data.title,{playerName=true,rivalName=true})
     assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
     local intro=introFromWire(data.intro)
@@ -60,8 +60,12 @@ local function normalize(record,deps)
     local trainers=GameSession._flags(data.trainerFlags,4096)
     local dex=GameSession._dex(data.pokedex)
     local world=GameSession._world(deps,data.world)
-    local location=GameSession._location(deps,data.location,world)
+    local location=GameSession._location(deps,data.location,world,true)
     local checkpoint=GameSession._location(deps,data.checkpoint,world)
+    -- Version1 has no palette provenance. Migrate deterministically to light;
+    -- never infer a Flash use or grant a field effect from map names.
+    if data.version==1 then assert(data.fieldWorld==nil,"v1 cannot contain fieldWorld") end
+    local fieldWorld=GameSession._fieldData(data.version==1 and {version=1,mapPalOffset=0} or data.fieldWorld)
     local rng=GameSession._rngData(data.rng)
     local motion=data.worldMotion
     if motion==nil then motion={version=1,rng=WorldMotionData.newWorldRNG(rng):toData(),actors=WorldMotionData.empty()}end
@@ -78,11 +82,20 @@ local function normalize(record,deps)
         local mon=pokemonFromWire(record,false)
         assert(dex.owned[mon.species] and dex.seen[mon.species],"owned Pokemon missing dex flags")
         count=count+1
+        return mon
     end
     for _,record in ipairs(data.party.members) do checkMon(record) end
     for _,box in ipairs(data.storage.boxes) do
         array(box,20); for _,record in ipairs(box) do checkMon(record) end
     end
+    -- v1/v2 had no Day Care provenance. They must migrate to an empty slot;
+    -- v3 requires the field and never repairs a missing or malformed record.
+    local daycareRecord = data.daycare
+    if data.version < 3 then
+        assert(daycareRecord == nil, "legacy session cannot contain daycare")
+        daycareRecord = {version=1, earned="0"}
+    end
+    local daycare = Daycare.normalize(daycareRecord, checkMon)
     local early=intro.stage=="pre_oak" or intro.stage=="choose"
     if early then assert(count==0 and next(dex.owned)==nil,"pre-starter session cannot own Pokemon")
     else assert(#data.party.members>=1 and dex.owned[intro.starter],"starter session requires party and owned starter") end
@@ -96,8 +109,8 @@ local function normalize(record,deps)
     if stored==nil then stored={version=1,slots={}}end
     local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
     ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
-    return {itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
-        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion}
+    return {daycare=daycare,itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
+        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld}
 end
 function SessionCodec.encode(session,gate)
     local ok,result=pcall(function()
@@ -111,11 +124,12 @@ function SessionCodec.encode(session,gate)
             return pokemonToWire(mon)
         end
         local data={version=SessionCodec.VERSION,pokemonEncoding=SessionCodec.POKEMON_ENCODING,
-            title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
+            fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
             party=assert(current.party:toData(unique)),storage=assert(current.storage:toData(unique)),inventory=current.inventory:toData(),itemStorage=current.itemStorage:toData()}
+        data.daycare = Daycare.toData(session, unique)
         normalize(data,current.deps)
         return data
     end)
@@ -134,7 +148,10 @@ function SessionCodec.decode(record,deps)
         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
         local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,itemStorage=assert(ItemStorage.fromData(prepared.deps.itemDefinitions,prepared.itemStorage)),intro=prepared.intro,
             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
-            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng})
+            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld})
+        GameSession._state(session).daycare = Daycare.restore(session, prepared.daycare, function(value)
+            return pokemonFromWire(value, true)
+        end)
         session:_installWorldMotion(prepared.worldMotion)
         return session
     end)

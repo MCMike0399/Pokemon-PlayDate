@@ -1,0 +1,30 @@
+{
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "files": {
+    "scripts/VermilionCity.asm": "fa420deacc5767693f85908f53ed6a1409c433e2101de7c53bc34f078284fc02",
+    "scripts/VermilionDock.asm": "0ebb952ac9cf70982ae2847e54f774fcbada5d0970802c32701957f2d10abd08",
+    "scripts/SSAnne2F.asm": "d5000f06c80c2bf750c3d2514b9897992ff2b53c3fc5df2c55f7de71b1b7bccb",
+    "scripts/SSAnneCaptainsRoom.asm": "d79e5edeb4cb2cda93bf44d2472d772df5b84f36ec4596cf6504ef6beae271b2",
+    "scripts/VermilionGym.asm": "bd40d78e0f5ffa80ae1b6eb56e6101200b9f2a76bead36e77fc135c324655c69",
+    "engine/events/hidden_events/vermilion_gym_trash.asm": "6e1ad45aa5fc3c72d6c28ead6a5b9906465c45afd4e95fc48fefb4c389cf74b5",
+    "engine/overworld/hidden_events.asm": "fef85fd5061948d93e68210b59a19adda555079406d01747b0c61891d5fc92d8",
+    "data/events/hidden_events.asm": "1ca366dcbba1be0f4b19696be8aeb9eed8158e75bd852d4faf2119231a836877",
+    "data/maps/objects/SSAnne2F.asm": "8a78ffbf91fae7a4155052c05d1bda24fde18682d949b2afb3aefae0bc60a8f4",
+    "data/maps/objects/VermilionCity.asm": "0c85e51210db41ab8b2742a6bff18703ada17f1d187f6d6207b662504ee084d3",
+    "data/maps/objects/VermilionDock.asm": "18fb0b72c5f0c39e01cd0abcdac7d756075a733934e46be95836e0c21d0035a0",
+    "data/maps/objects/SSAnne1F.asm": "361245ac785dd8c708414094a780a3f7af85737d009de1dc8a55617b008ed043",
+    "data/maps/objects/SSAnneCaptainsRoom.asm": "2221f666cb23ccfce92130910988af75cc89439f291df107de2b2d3eb8862f29",
+    "data/maps/objects/VermilionGym.asm": "6fda47678115f64f0dfb3d1fb4f5be7daad642e9e29a2331d9b69992f5edf99b",
+    "data/trainers/parties.asm": "61eac58fe43a181fcd936d5366457a940cf805ee15c787ff5957e175f83b217d",
+    "data/trainers/pic_pointers_money.asm": "2552aaedfe77527e69e2d18995dee0f7a3a01b2a2a2cc259a6c5d17e606a8543",
+    "text/SSAnne2F.asm": "9bb366f8a35cf51a92f1583fe7bb36edf7b6d3fbcb398c2b96869edf6f2edc47",
+    "text/SSAnneCaptainsRoom.asm": "61078383df95e954f7496b006e286edf6cc9d6ceac6b57003e627abf8aef49b6",
+    "text/VermilionCity.asm": "911c59191a5604a56c2f11eb87b9b7d61feb527ca38c580fc51d60826ef060ec",
+    "text/VermilionGym.asm": "a86cc1d21e1d358be6a0e29062683a5fb925361ff5edc256b43f9af9e0b1fa7b",
+    "text/VermilionGym_2.asm": "4124c8f028bdba194822cb4ab35b3a3eb0d26abe178d2a18fb6ae3d878a0c709",
+    "data/text/text_2.asm": "ba97e54e9feafb22816b449841181b64234537bac9ccdef6aa3d79f4153e23b9",
+    "gfx/blocksets/gym.bst": "3119e3db40900f277fd2680078c109f5a5556b928f2691265dd7917b08c06edc",
+    "gfx/blocksets/ship_port.bst": "da9a4c4ccc2fb2751e0de751ba1d1aa48c5d785f804b8ab9ec19fa19a634d336"
+  }
+}

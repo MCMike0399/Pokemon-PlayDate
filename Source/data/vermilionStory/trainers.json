@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "trainers": {
+    "pokered:SS_ANNE_2F:objects:2": {
+      "id": "pokered:SS_ANNE_2F:objects:2",
+      "map_id": "pokered:SS_ANNE_2F",
+      "name": "BLUE",
+      "party": [
+        {
+          "level": 19,
+          "species": "pidgeotto"
+        },
+        {
+          "level": 16,
+          "species": "raticate"
+        },
+        {
+          "level": 18,
+          "species": "kadabra"
+        },
+        {
+          "level": 20,
+          "species": "wartortle"
+        }
+      ],
+      "payout": 1300,
+      "rival_parties": {
+        "bulbasaur": {
+          "party": [
+            {
+              "level": 19,
+              "species": "pidgeotto"
+            },
+            {
+              "level": 16,
+              "species": "raticate"
+            },
+            {
+              "level": 18,
+              "species": "kadabra"
+            },
+            {
+              "level": 20,
+              "species": "charmeleon"
+            }
+          ],
+          "payout": 1300
+        },
+        "charmander": {
+          "party": [
+            {
+              "level": 19,
+              "species": "pidgeotto"
+            },
+            {
+              "level": 16,
+              "species": "raticate"
+            },
+            {
+              "level": 18,
+              "species": "kadabra"
+            },
+            {
+              "level": 20,
+              "species": "wartortle"
+            }
+          ],
+          "payout": 1300
+        },
+        "squirtle": {
+          "party": [
+            {
+              "level": 19,
+              "species": "pidgeotto"
+            },
+            {
+              "level": 16,
+              "species": "raticate"
+            },
+            {
+              "level": 18,
+              "species": "kadabra"
+            },
+            {
+              "level": 20,
+              "species": "ivysaur"
+            }
+          ],
+          "payout": 1300
+        }
+      },
+      "sight_range_cells": 0,
+      "source_flag": "EVENT_BEAT_SS_ANNE_RIVAL",
+      "sprite_source": "SPRITE_BLUE",
+      "talk_only": true
+    },
+    "pokered:VERMILION_GYM:objects:1": {
+      "id": "pokered:VERMILION_GYM:objects:1",
+      "map_id": "pokered:VERMILION_GYM",
+      "name": "LT.SURGE",
+      "party": [
+        {
+          "level": 21,
+          "species": "voltorb"
+        },
+        {
+          "level": 18,
+          "species": "pikachu"
+        },
+        {
+          "level": 24,
+          "species": "raichu"
+        }
+      ],
+      "payout": 2376,
+      "sight_range_cells": 0,
+      "source_flag": "EVENT_BEAT_LT_SURGE",
+      "sprite_source": "SPRITE_ROCKER",
+      "talk_only": true
+    }
+  }
+}

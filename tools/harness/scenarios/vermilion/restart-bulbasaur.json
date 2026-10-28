@@ -1,0 +1,43 @@
+{
+  "initial_save": {
+    "milestone": "5.3",
+    "starter": "bulbasaur"
+  },
+  "processes": [
+    {
+      "journey": {
+        "name": "vermilion-natural",
+        "starter": "bulbasaur",
+        "fossil": "dome",
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64,
+        "max_blackouts": 1,
+        "max_transitions": 128,
+        "max_puzzle_attempts": 240,
+        "evolution_policy": "accept",
+        "vermilion_actions": 30000,
+        "collection_steps": 6000,
+        "collection_battles": 60,
+        "collection_phase_battles": 20,
+        "collection_balls": 80,
+        "collection_ball_stock": 20,
+        "collection_balls_per_battle": 12,
+        "collection_money_reserve": 600,
+        "content_scope": "full"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "name": "vermilion-continue",
+        "starter": "bulbasaur",
+        "fossil": "dome",
+        "max_actions": 20000,
+        "max_steps": 5000,
+        "max_encounters": 64,
+        "content_scope": "full"
+      }
+    }
+  ]
+}

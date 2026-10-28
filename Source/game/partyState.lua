@@ -39,7 +39,17 @@ end
 function PartyState:actions()
     self.view=self.view+1
     self.phase = "actions"
-    self.menu:show({"STATS", "SWITCH", "ITEM", "CANCEL"}, self:fieldGuard(function(index)
+    local mon = self.session:party():get(self.selected)
+    local fields = FieldMoves and FieldMoves.known(mon) or {}
+    local options = {}
+    for _, key in ipairs(fields) do options[#options + 1] = key:upper() end
+    for _, label in ipairs({"STATS", "SWITCH", "ITEM", "CANCEL"}) do options[#options + 1] = label end
+    self.actionCount = #options
+    self.menu:show(options, self:fieldGuard(function(index)
+        if index <= #fields then
+            return FieldMoveState.open(self.game, self, mon, fields[index])
+        end
+        index = index - #fields
         if index == 1 then
             self.phase = "stats";self.view=self.view+1;self.menu:hide()
         elseif index == 2 then
@@ -108,7 +118,10 @@ end
 -- A forced pop need not call Bag's normal cancellation callback. Recover only
 -- on the next top update, after same-call successful/cancel callbacks can finish.
 function PartyState:update()
-    if self.active and self:isTop() and self.game.session==self.session and self.phase=="held-wait" then self:heldActions() end
+    if self.active and self:isTop() and self.game.session==self.session then
+        if self.phase=="held-wait" then self:heldActions()
+        elseif self.phase=="field-wait" then self:actions() end
+    end
 end
 
 function PartyState:handleInput()
@@ -120,7 +133,7 @@ function PartyState:handleInput()
         if playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonJustPressed(playdate.kButtonB) then self:heldActions() end
         return
     end
-    if self.phase=="held-wait" then return end
+    if self.phase=="held-wait" or self.phase=="field-wait" then return end
     if self.phase == "stats" or self.phase=="info" then
         if playdate.buttonJustPressed(playdate.kButtonB) then self.phase="list";self.menu:hide()
         elseif playdate.buttonJustPressed(playdate.kButtonA) then self.phase=self.phase=="stats" and "info" or "stats" end
@@ -161,6 +174,7 @@ function PartyState:handleInput()
 end
 
 function PartyState:draw()
+    if self.phase == "field-wait" then return end
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     gfx.clear(gfx.kColorWhite)
@@ -203,7 +217,7 @@ function PartyState:draw()
         local prompt = self.phase == "swap" and "Move to which position?"
             or self.message or self.options.prompt or "Choose a POKEMON.  B: Back"
         gfx.drawText(prompt, 12, 216)
-        if self.phase=="actions" then self.menu:draw(210,126,180,96)
+        if self.phase=="actions" then self.menu:draw(210,222-(16+(self.actionCount or 4)*20),180,16+(self.actionCount or 4)*20)
         elseif self.phase=="held-actions" then self.menu:draw(210,146,180,76) end
         if self.phase=="held-message" then
             gfx.setColor(gfx.kColorWhite);gfx.fillRect(4,174,392,62)

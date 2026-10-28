@@ -1,0 +1,13 @@
+{
+  "mode": "compile-only",
+  "base_commit": "c6882b696fa9e0b8b4f43e7bb46fffacceeb11f6",
+  "runtime_executed": false,
+  "root_patch_applied_only_to_stage": true,
+  "sdk_version": "3.1.2",
+  "source_sha256": "9207b566561ef7bf4bdff33458b385afb84bc9d7cc6dcfbdfab8239a89c9ccb8",
+  "compiled_source_sha256": "b0a9a0bad2ee053a2e6eb892dd083a93b5a4b673ea46150a2cdeb4e84dae5665",
+  "exit_code": 0,
+  "prepared_sdk_contracts": 16,
+  "host_tests_passed": 15,
+  "artifact_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/preparation/field-cut-flash/sdk-prepared-final"
+}

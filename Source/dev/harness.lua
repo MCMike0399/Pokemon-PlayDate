@@ -203,7 +203,10 @@ local function normalize(value)
         if value.frames ~= nil then valid = valid and integer(value.frames, 1, 18000) end
     elseif op == "observe" then
         valid = #args == 1 and (args[1] == "owners" or args[1] == "validate" or args[1] == "purity"
-            or args[1] == "saved" or args[1] == "loaded")
+            or args[1] == "saved" or args[1] == "loaded"
+            or args[1] == "vermilion-owners" or args[1] == "vermilion-collection"
+            or args[1] == "vermilion-encounter-terrain" or args[1] == "vermilion-aide-fixture"
+            or args[1] == "vermilion-daycare" or args[1] == "vermilion-world")
     elseif op == "fixture" then
         local options = value.options or {}
         assert(type(options) == "table", "fixture options required")

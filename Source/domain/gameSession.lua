@@ -2,6 +2,11 @@
 Class("GameSession")
 local state=setmetatable({}, {__mode="k"})
 local activeRNGSession=nil
+local fieldEpoch = 0
+local function nextFieldEpoch()
+    fieldEpoch = fieldEpoch + 1
+    return fieldEpoch
+end
 local stages={pre_oak=true,lab_greet=true,choose=true,pre_rival=true,rival_fight=true,goodbye=true,done=true}
 local counters={bulbasaur="charmander",charmander="squirtle",squirtle="bulbasaur"}
 local facings={up=true,down=true,left=true,right=true}
@@ -10,6 +15,14 @@ local function object(value,allowed)
     assert(type(value)=="table" and getmetatable(value)==nil,"plain object required")
     for key in pairs(value) do assert(allowed[key],"unknown field: "..tostring(key)) end
 end
+-- wMapPalOffset belongs to the saved session, not a per-map flag.
+local function fieldData(value)
+    object(value, {version = true, mapPalOffset = true})
+    assert(value.version == 1 and (value.mapPalOffset == 0 or value.mapPalOffset == 6), "invalid field world data")
+    return {version = 1, mapPalOffset = value.mapPalOffset}
+end
+GameSession._fieldData = fieldData
+
 local function stable(id)
     return type(id)=="string" and #id>=1 and #id<=128 and id:match("^[A-Za-z0-9][A-Za-z0-9_:.%/-]*$")~=nil
 end
@@ -63,10 +76,11 @@ local function world(deps,payload)
     retainedFields(before,normalized)
     return copy(normalized)
 end
-local function location(deps,value,candidateWorld)
+local function location(deps,value,candidateWorld,player)
     object(value,{zone_id=true,x=true,y=true,facing=true})
     assert(stable(value.zone_id) and Party._integer(value.x,0,4095) and Party._integer(value.y,0,4095) and facings[value.facing],"invalid location fields")
-    local resolved=deps.resolveLocation(copy(value),copy(candidateWorld))
+    local resolver = player and deps.resolvePlayerLocation or deps.resolveLocation
+    local resolved = resolver(copy(value), copy(candidateWorld))
     assert(type(resolved)=="table","unsupported/blocked session location")
     object(resolved,{zone_id=true,x=true,y=true,facing=true})
     assert(resolved.zone_id==value.zone_id and resolved.x==value.x and resolved.y==value.y and resolved.facing==value.facing,"resolver must validate without relocating")
@@ -80,10 +94,18 @@ end
 local function dependencies(deps)
     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
     assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
+    assert(deps.resolvePlayerLocation == nil or type(deps.resolvePlayerLocation) == "function",
+        "pure player location validator required")
     local definitions={}
     for id,entry in pairs(assert(deps.itemDefinitions,"item definitions required")) do definitions[id]={keyItem=entry.keyItem} end
     Inventory(definitions) -- validates configuration without modifying callers.
-    return {itemDefinitions=definitions,validateWorld=deps.validateWorld,resolveLocation=deps.resolveLocation,validateActors=deps.validateActors}
+    return {
+        itemDefinitions = definitions,
+        validateWorld = deps.validateWorld,
+        resolveLocation = deps.resolveLocation,
+        validateActors = deps.validateActors,
+        resolvePlayerLocation = deps.resolvePlayerLocation or deps.resolveLocation
+    }
 end
 -- Internal serialization seam; consumers use SessionCodec rather than mutating.
 GameSession._copy,GameSession._object,GameSession._flags=copy,object,flags
@@ -93,14 +115,28 @@ function GameSession:init(deps,options)
     deps=dependencies(deps); options=options or {}
     object(options,{world=true,location=true,checkpoint=true,seed=true})
     local payload=world(deps,options.world or {schema=1,zones={},zone_count=0})
-    local start=location(deps,assert(options.location,"starting location required"),payload)
+    local start=location(deps,assert(options.location,"starting location required"),payload,true)
     local checkpoint=location(deps,options.checkpoint or start,payload)
     local stream=RulesRNG.new(options.seed or 1)
-    state[self]={deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
+    state[self]={daycare=Daycare.empty(),deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
+        fieldWorld = {version = 1, mapPalOffset = 0},
+        fieldEpoch = nextFieldEpoch(),
         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
 end
 function GameSession.newSession(deps,options) return GameSession(deps,options) end
+function GameSession:resolveDaycare(request, decision)
+    local ok, result = Daycare._resolve(self, request, decision)
+    if ok and result.kind ~= "cancelled" then
+        self:invalidateFieldWorldContext()
+    end
+    return ok, result
+end
+
+function GameSession:daycareStep()
+    return Daycare._step(self)
+end
+
 function GameSession:party() return state[self].party end
 function GameSession:storage() return state[self].storage end
 function GameSession:inventory() return state[self].inventory end
@@ -271,7 +307,7 @@ function GameSession:transact(expected,changes)
     return true
 end
 -- Badge bits are represented by stable quest flags in the existing codec.
-local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE"}
+local badgeFlags={boulder="BADGE_BOULDER",cascade="BADGE_CASCADE",thunder="BADGE_THUNDER"}
 function GameSession:hasBadge(name)
     local id=assert(badgeFlags[name],"unsupported badge name")
     return self:questFlag(id)
@@ -289,20 +325,31 @@ end
 function GameSession:location() return copy(state[self].location) end
 function GameSession:checkpoint() return copy(state[self].checkpoint) end
 function GameSession:captureTraversal(snapshot)
-    local current=state[self]
-    local ok,prepared=pcall(function()
-        object(snapshot,{location=true,world=true,checkpoint=true,actors=true})
-        local normalized=world(current.deps,assert(snapshot.world,"candidate world required"))
-        local position=location(current.deps,assert(snapshot.location,"candidate location required"),normalized)
-        local checkpoint=location(current.deps,snapshot.checkpoint or current.checkpoint,normalized)
-        local actors=GameSession._validateActors(current.deps,snapshot.actors or WorldMotionData.empty(),normalized,position,self:flags())
-        return {world=normalized,location=position,checkpoint=checkpoint,actors=actors}
+    local current = state[self]
+    local ok, prepared = pcall(function()
+        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true})
+        local normalized = world(current.deps, assert(snapshot.world, "candidate world required"))
+        local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true)
+        local checkpoint = location(current.deps, snapshot.checkpoint or current.checkpoint, normalized)
+        local actors = GameSession._validateActors(current.deps,
+            snapshot.actors or WorldMotionData.empty(), normalized, position, self:flags())
+        return {
+            world = normalized,
+            location = position,
+            checkpoint = checkpoint,
+            actors = actors,
+            fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld)
+        }
     end)
-    if not ok then return false,tostring(prepared) end
-    current.world,current.location,current.checkpoint=prepared.world,prepared.location,prepared.checkpoint
-    current.currentActors=prepared.actors
+    if not ok then
+        return false, tostring(prepared)
+    end
+    current.world, current.location, current.checkpoint = prepared.world, prepared.location, prepared.checkpoint
+    current.currentActors = prepared.actors
+    current.fieldWorld, current.fieldEpoch = prepared.fieldWorld, nextFieldEpoch()
     return true
 end
+
 function GameSession:setLocation(value,asCheckpoint)
     if asCheckpoint~=nil and type(asCheckpoint)~="boolean" then return false,"invalid-checkpoint-mode" end
     local current=state[self]
@@ -345,6 +392,8 @@ function GameSession._restore(deps,values)
     -- All values are privately constructed by SessionCodec after full preflight.
     local session=setmetatable({},GameSession)
     values.deps=dependencies(deps); values.rngActive=false
+    values.fieldWorld = fieldData(values.fieldWorld)
+    values.fieldEpoch = nextFieldEpoch()
     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
     state[session]=values
     return session
@@ -464,3 +513,188 @@ function GameSession:useEscapeRope(request) return FieldItems._commit(self,reque
 function GameSession:itemStorage()return state[self].itemStorage end
 function GameSession:selectPCItem(operation,index)return PCItems.prepare(self,operation,index)end
 function GameSession:resolvePCItem(request,quantity,decision)return PCItems.resolve(self,request,quantity,decision)end
+
+function GameSession:fieldWorldData()
+    return copy(state[self].fieldWorld)
+end
+
+function GameSession:fieldWorldEpoch()
+    return state[self].fieldEpoch
+end
+
+-- CAS changes only the persisted palette offset; reads never initialize or roll.
+function GameSession:clearFieldDarkness(expectedEpoch)
+    local current = state[self]
+    if current.fieldEpoch ~= expectedEpoch or current.fieldWorld.mapPalOffset ~= 6 then
+        return false, "stale-darkness"
+    end
+    current.fieldWorld = {version = 1, mapPalOffset = 0}
+    current.fieldEpoch = nextFieldEpoch()
+    return true
+end
+
+-- Existing source-scene owners call this after a successful same-map commit.
+function GameSession:invalidateFieldWorldContext()
+    state[self].fieldEpoch = nextFieldEpoch()
+end
+
+local function sceneEqual(a, b)
+    if type(a) ~= type(b) then
+        return false
+    end
+    if type(a) ~= "table" then
+        return a == b
+    end
+    for key, value in pairs(a) do
+        if not sceneEqual(value, b[key]) then
+            return false
+        end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+
+local sceneIntents = setmetatable({}, {__mode = "k"})
+function GameSession:forkWorldRNG()
+    local stream = RulesRNG.new(1)
+    stream:restoreData(self:worldRngData())
+    local token = {}
+    sceneIntents[token] = {
+        session = self,
+        epoch = state[self].sceneEpoch or 0,
+        fieldEpoch = self:fieldWorldEpoch(),
+    }
+    return stream, token
+end
+
+function GameSession:transactScene(expected, changes, scene)
+    local current = state[self]
+    local ticket = type(scene) == "table" and sceneIntents[scene.token]
+    if not ticket or ticket.session ~= self
+        or ticket.epoch ~= (current.sceneEpoch or 0)
+        or ticket.fieldEpoch ~= self:fieldWorldEpoch() then
+        return false, "stale-scene-intent"
+    end
+    -- A ticket allows one attempt, including a rejected validation.
+    sceneIntents[scene.token] = nil
+    local ok, prepared = pcall(function()
+        assert(GameSession.activeRNGSession() == self, "inactive-scene-session")
+        object(scene, {beforeWorld=true, world=true, beforeRng=true,
+            rng=true, location=true, token=true})
+        assert(sceneEqual(WorldDeltas.export(), scene.beforeWorld), "stale-scene-world")
+        assert(sceneEqual(self:worldRngData(), scene.beforeRng), "stale-scene-world-rng")
+        local candidate = world(current.deps, scene.world)
+        local position = location(current.deps, scene.location, candidate, true)
+        local checkpoint = location(current.deps, current.checkpoint, candidate)
+        local stream = RulesRNG.new(1)
+        stream:restoreData(rngData(scene.rng))
+        return {
+            world = candidate,
+            location = position,
+            checkpoint = checkpoint,
+            stream = stream,
+            actors = WorldMotionData.empty(),
+        }
+    end)
+    if not ok then
+        return false, tostring(prepared)
+    end
+    -- Native application returns an undo. No callback or yield separates it
+    -- from the session transaction, which retains bag and party identities.
+    local applied, undo = pcall(WorldDeltas.apply, prepared.world)
+    if not applied then
+        return false, tostring(undo)
+    end
+    local accepted, reason = self:transact(expected, changes)
+    if not accepted then
+        undo()
+        return false, reason
+    end
+    current.world = prepared.world
+    current.location = prepared.location
+    current.checkpoint = prepared.checkpoint
+    current.worldRng = prepared.stream
+    current.currentActors = prepared.actors
+    current.sceneEpoch = (current.sceneEpoch or 0) + 1
+    self:invalidateFieldWorldContext()
+    return true
+end
+
+-- One field-battle receipt, then detached planning; no bag-capacity dependency.
+function GameSession:beginPickupBattle(battle, fieldType)
+    return Pickup._bind(self, battle, fieldType)
+end
+
+function GameSession:resolvePickupBattle(battle, won, kind)
+    local ok, plan = pcall(Pickup._plan, self, battle, won, kind)
+    if not ok then
+        return false, tostring(plan)
+    end
+    -- The production restore validates before assignment and cannot yield.
+    -- All following assignments are existing primitive Pokemon fields.
+    if plan.rng then
+        RulesRNG.restore(plan.rng)
+    end
+    for _, award in ipairs(plan.awards) do
+        award.mon.heldItem = award.item
+    end
+    return true, plan.report
+end
+
+-- Repeating source dialogue may clear flags or add a seen entry. Item/reward
+-- grants retain their separate one-time transaction and inventory guards.
+function GameSession:transactSourceEffects(expected, changes)
+    local current <const> = state[self]
+    local ok, result = pcall(function()
+        object(expected, {flags=true, seen=true, items=true})
+        object(changes, {flags=true, seen=true, items=true})
+        assert(next(expected.items or {}) == nil and next(changes.items or {}) == nil,
+            "source effects cannot transfer items")
+        local required <const> = flags(expected.flags, 32)
+        local writes <const> = flags(changes.flags, 32)
+        local seenRequired <const> = expected.seen or {}
+        local seenWrites <const> = changes.seen or {}
+        object(seenRequired, pokemonData)
+        object(seenWrites, pokemonData)
+        local count = 0
+        for id, value in pairs(required) do
+            if (current.questFlags[id] == true) ~= value then
+                error("stale-flag", 0)
+            end
+            count = count + 1
+        end
+        for id in pairs(writes) do
+            assert(required[id] ~= nil, "unguarded source flag")
+        end
+        for species, value in pairs(seenRequired) do
+            assert(type(value) == "boolean", "boolean seen guard required")
+            if (current.dex.seen[species] == true) ~= value then
+                error("stale-seen", 0)
+            end
+            count = count + 1
+        end
+        for species, value in pairs(seenWrites) do
+            assert(value == true and seenRequired[species] ~= nil, "guarded seen addition required")
+        end
+        assert(count > 0 and count <= 32, "bounded source effect guards required")
+        local combined <const> = copy(current.questFlags)
+        local discovered <const> = copy(current.dex)
+        for id, value in pairs(writes) do
+            combined[id] = value
+        end
+        for species in pairs(seenWrites) do
+            discovered.seen[species] = true
+        end
+        return {flags=flags(combined, 4096), dex=dex(discovered)}
+    end)
+    if not ok then
+        return false, tostring(result)
+    end
+    current.questFlags = result.flags
+    current.dex = result.dex
+    return true
+end

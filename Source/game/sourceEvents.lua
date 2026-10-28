@@ -113,6 +113,8 @@ local function trainer(d, state, id)
         local r = d.reward
         plan.steps[#plan.steps + 1] = dialog(r.before)
         if state.can_add[r.item] then
+            plan.ram = plan.ram or {}
+            plan.ram.wStringBuffer = assert(ItemData.definitions[r.item]).name
             plan.expected, plan.changes = reward(r.item, r.flag, state, id)
             plan.steps[#plan.steps + 1] = dialog(r.success, "receipt")
             plan.failure_labels = copy(r.full)
@@ -144,6 +146,16 @@ function SourceEvents.validateStep(step)
             nextByte = choice.max + 1
         end
         assert(nextByte == 256, "source byte partition must cover all 256 values")
+    elseif op == "source-audio" then
+        assert(step.cue == "cry" and pokemonData[step.species]
+            and type(step.wait_for_completion) == "boolean" and step.owner == "SourceAudio",
+            "explicit source cry and future owner required")
+    elseif op == "show-pokemon" then
+        assert(pokemonData[step.species], "known source display species required")
+        SourceEvents.validateStep(assert(step.audio, "source display cry required"))
+        assert(step.audio.species == step.species, "source display cry identity required")
+    elseif op == "face-player" then
+        assert(directions[step.direction], "bounded player facing required")
     elseif op == "move" or op == "move-npc" then
         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
         if op == "move-npc" then assert(type(step.id) == "string", "stable source actor ID required") end
@@ -196,6 +208,16 @@ local function program(d, state)
             end
             if step.op == "warp" then assert(index == #d.steps, "warp must terminate source program") end
             plan.steps[#plan.steps + 1] = step
+        end
+    end
+    if d.transaction ~= nil then
+        assert(d.transaction == "source-effects" and plan.expected and #plan.changes.items == 0
+            and not hasBattle, "source effects require a flag-only program")
+        plan.transaction = d.transaction
+        plan.expected.seen, plan.changes.seen = {}, {}
+        for _, flag in ipairs(d.guard_flags or {}) do
+            assert(type(flag) == "string", "stable source flag guard required")
+            plan.expected.flags[flag] = state.flags[flag] == true
         end
     end
     assert(not hasBattle or not plan.expected, "battle return owns subsequent durable effects")

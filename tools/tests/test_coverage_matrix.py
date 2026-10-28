@@ -7,7 +7,7 @@ class CurrentMatrixTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):cls.data=json.loads((ROOT/'docs/validation/coverage-current.json').read_text())
  def test_complete_source_indices_without_completion_promotion(self):
-  result=validate(self.data,ROOT);self.assertEqual(result['rows'],1501);self.assertEqual(result['map_slots'],248);self.assertEqual(result['moves'],425);self.assertEqual(result['audio_sources'],375)
+  result=validate(self.data,ROOT);self.assertEqual(result['rows'],1512);self.assertEqual(result['map_slots'],248);self.assertEqual(result['moves'],430);self.assertEqual(result['generated_moves'],425);self.assertEqual(result['runtime_moves'],5);self.assertEqual(result['items'],131);self.assertEqual(result['pickup_items'],6);self.assertEqual(result['audio_sources'],375)
   self.assertEqual(self.data['accepted_milestone_rows'],[])
  def test_layer_mutants_and_unknown_evidence_rejected(self):
   for change in('evidence','acceptance','due','unknown'):
@@ -18,12 +18,14 @@ class CurrentMatrixTests(unittest.TestCase):
    else:row['complete_everything']=True
    with self.assertRaises(AssertionError):validate(d,ROOT)
  def test_dependency_missing_cycle_and_inventory_deletion_rejected(self):
-  for change in('missing','cycle','map','move'):
+  for change in('missing','cycle','map','move','runtime_move','pickup_item'):
    d=copy.deepcopy(self.data)
    if change=='missing':d['rows'][0]['dependencies'].append('invented-owner')
    elif change=='cycle':d['rows'][0]['dependencies'].append(d['rows'][0]['id'])
    elif change=='map':d['rows']=[r for r in d['rows']if r['id']!='map:ROUTE_22']
-   else:d['rows']=[r for r in d['rows']if r['id']!='move:mirrorMove']
+   else:
+    removed={'move':'move:mirrorMove','runtime_move':'move:fly','pickup_item':'item:heartScale'}[change]
+    d['rows']=[r for r in d['rows']if r['id']!=removed]
    with self.assertRaises(AssertionError):validate(d,ROOT)
  def test_old_false_missing_private_conflation_and_stale_source_rejected(self):
   for change in('protect','private','snapshot'):

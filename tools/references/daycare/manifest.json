@@ -1,0 +1,17 @@
+{
+  "files": {
+    "data/moves/hm_moves.asm": "acbbc891bef56bd94ff44eb3fc0270c58d88c5d7cfa5bec99bab6dd576baa518",
+    "engine/events/poison.asm": "04711320ea48938981bcf5cce6dbd7252f21d89fb8252539e9fc427f4083c7c4",
+    "engine/math/bcd.asm": "66d3c45fa971cb429f633cc49a2a644d718348d032237b12388512423991199f",
+    "engine/overworld/daycare_exp.asm": "747cc4fadfc2ef959aea8cd363e72a3c05cab1958968dd9c3cfc186fbb34c68b",
+    "engine/pokemon/add_mon.asm": "4a0c02fbbfdd6dc1e9357069be2b4b94342777de94efb2a67bd4e25ca62bddfe",
+    "engine/pokemon/bills_pc.asm": "f123f75a572c33887a28637eab894588f04a546593f61f07f4716ff9ae361ccf",
+    "engine/pokemon/evos_moves.asm": "b54c8d1fd73c332e75406882a52a0762ce630256f27cf1434c75a0831f2b3f24",
+    "scripts/Daycare.asm": "ba236f94460202ac5c1033ee524ba47e9fa8d3eee13f44bbeefac5aff58d52f8",
+    "text/Daycare.asm": "6ea4ab1938bc861e9127b029a4fa96d4b27c33435bed57ce933798595facc74a",
+    "text/Daycare_2.asm": "e4888e2ed90f3c37356befb2a02ed16edd322fbc74f69777e73623120a82f5a9"
+  },
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "schema": 1
+}

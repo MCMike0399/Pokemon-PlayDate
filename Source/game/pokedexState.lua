@@ -8,11 +8,25 @@ function PokedexState:init(game)
     self.game,self.selected,self.phase=game,1,"closed"
     self.fronts={}
 end
-function PokedexState:enter()
-    self.selected,self.phase=1,"list"
+function PokedexState:enter(options)
+    self.sourceDisplay = nil
+    self.selected, self.phase = 1, "list"
+    if options then
+        assert(type(options) == "table" and type(options.onComplete) == "function",
+            "guarded source encyclopedia display required")
+        for index, entry in ipairs(PokedexData) do
+            if entry.species == options.sourceSpecies then
+                self.selected, self.phase = index, "entry"
+                self.sourceDisplay = options
+                return
+            end
+        end
+        error("unknown source encyclopedia species")
+    end
 end
 function PokedexState:exit()
     self.phase="closed"
+    self.sourceDisplay = nil
     gfx.sprite.addDirtyRect(0,0,400,240)
 end
 function PokedexState:select(index)
@@ -27,6 +41,11 @@ function PokedexState:move(delta)
 end
 function PokedexState:entryView()
     local entry=PokedexData[self.selected]
+    if self.sourceDisplay then
+        local owned <const> = self.game.session:pokedex().owned[entry.species] == true
+        return {dex=entry.dex, species=entry.species, seen=true, owned=owned,
+            name=entry.name, details=owned and entry or nil}
+    end
     local dex=self.game.session:pokedex()
     local seen,owned=dex.seen[entry.species]==true,dex.owned[entry.species]==true
     -- No undiscovered name/flavor escapes the view consumed by the UI.
@@ -39,12 +58,22 @@ function PokedexState:openEntry()
     self.phase="entry";return true
 end
 function PokedexState:back()
+    if self.sourceDisplay then
+        local complete <const> = self.sourceDisplay.onComplete
+        self.machine:pop()
+        complete()
+        return true
+    end
     if self.phase=="entry" then self.phase="list";return true end
     if self.phase=="list" then self.machine:pop();return true end
     return false,"closed"
 end
 function PokedexState:handleInput()
     if self.phase=="closed" then return end
+    if self.sourceDisplay and playdate.buttonJustPressed(playdate.kButtonA) then
+        self:back()
+        return
+    end
     if playdate.buttonJustPressed(playdate.kButtonB) then self:back()
     elseif playdate.buttonJustPressed(playdate.kButtonA) then self:openEntry()
     elseif playdate.buttonJustPressed(playdate.kButtonUp) then self:move(-1)

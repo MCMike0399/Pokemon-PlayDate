@@ -98,12 +98,39 @@ function HeldItemContracts.run()
         local ok,why=game.session:giveHeldItem(p,"potion");eq(ok,false);eq(why,"invalid-pokemon");same(bag:toData(),before);eq(p.heldItem,"townMap");same(RulesRNG.snapshot(),rng)
     end)
     test("Blue49 plus native Light Ball holdable catalog IDs give and take; data support is not held battle effects",function()
-        local count=0
+        local legacy <const> = {
+            antidote=18, awakening=21, burnHeal=19, calcium=49,
+            carbos=48, direHit=56, elixir=40, escapeRope=78,
+            ether=38, fireStone=82, freshWater=30, fullHeal=27,
+            fullRestore=23, greatBall=3, guardSpec=55, hpUp=45,
+            hyperPotion=25, iceHeal=20, iron=47, leafStone=85,
+            lemonade=32, masterBall=1, maxElixir=41, maxEther=39,
+            maxPotion=24, maxRepel=77, maxRevive=29, moonStone=81,
+            nugget=92, parlyzHeal=22, pokeBall=4, pokeDoll=63,
+            potion=17, ppUp=51, protein=46, rareCandy=50,
+            repel=79, revive=28, sodaPop=31, superPotion=26,
+            superRepel=76, thunderStone=83, ultraBall=2, waterStone=84,
+            xAccuracy=60, xAttack=57, xDefend=58, xSpecial=61,
+            xSpeed=59, lightBall=236,
+        }
+        local additions <const> = {
+            sunStone=80, heartScale=93, kingsRock=198,
+            ironBall=255, prismScale=580, leftovers=211,
+        }
+        local count, added = 0, 0
+        for id, value in pairs(legacy) do eq(SpecimenData.holdable[id], value, id) end
+        for id, value in pairs(additions) do eq(SpecimenData.holdable[id], value, id) end
         for id,legal in pairs(SpecimenData.holdable)do if legal then
+            if legacy[id] then count = count + 1
+            else
+                eq(legal, assert(additions[id], "unexpected holdable " .. id), id)
+                added = added + 1
+            end
             local game,p,bag=setup();assert(bag:add(id,1));assert(game.session:giveHeldItem(p,id));eq(p.heldItem,id);eq(bag:quantity(id),0)
-            assert(game.session:takeHeldItem(p));eq(p.heldItem,"none");eq(bag:quantity(id),1);count=count+1
+            assert(game.session:takeHeldItem(p));eq(p.heldItem,"none");eq(bag:quantity(id),1)
         end end
         eq(count,50)
+        eq(added,6)
     end)
     test("Actual identity remains target after party reorder; active identity is unchanged",function()
         local game,p,bag=setup();local q=Pokemon("squirtle",5);assert(game:recruit(q));assert(bag:add("potion",1));assert(game.session:party():swap(1,2))

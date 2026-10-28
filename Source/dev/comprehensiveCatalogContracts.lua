@@ -24,8 +24,10 @@ function ComprehensiveCatalogContracts.run()
     test("Full inventory declares original1635 and859 additions with all8 unvisited maps",function()
         local inventory=VisualCatalog.expectedInventory()
         local additions=CeruleanCatalogExporter.inventory()
-        eq(#inventory.images,2494+#additions.images)
+        local vermilion = VermilionCatalogExporter.inventory()
+        eq(#inventory.images, 2494 + #additions.images + #vermilion.images)
         assert(CatalogRuntime.same(inventory.exporters.cerulean,additions),"explicit Cerulean inventory differs")
+        assert(CatalogRuntime.same(inventory.exporters.vermilion, vermilion), "explicit Vermilion inventory differs")
         eq(#inventory.exporters.pewter.images,859)
         local paths={};for _,entry in ipairs(inventory.images) do assert(not paths[entry.path]);paths[entry.path]=true end
         for _,name in ipairs(PewterSlice.names()) do

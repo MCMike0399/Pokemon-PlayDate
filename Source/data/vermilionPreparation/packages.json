@@ -1,0 +1,1 @@
+{"actor_owner":"CeruleanContent","actor_profile":"source","packages":[{"id":"cerulean","root":"data/sourceSlice/"},{"id":"vermilion","root":"data/vermilionPreparation/"}],"policy":"One source resolver; extend immutable package lookup, never register an overlapping profile.","schema":1,"source_revision":"af519899719f0754965776faac0e836a3b906e6d"}

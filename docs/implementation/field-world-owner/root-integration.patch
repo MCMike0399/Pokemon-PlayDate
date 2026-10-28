@@ -1,0 +1,76 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -35,6 +35,7 @@
+ import "domain/sessionCodec"
+ import "domain/fieldMoves"
+ import "game/fieldMoveWorld"
++import "domain/fieldWorld"
+ import "data/captureData"
+ import "domain/capture"
+ import "game/sourceText"
+--- a/Source/game/context.lua
++++ b/Source/game/context.lua
+@@ -20,6 +20,8 @@
+     options=options or {}
+     self.sessionLocationPolicy=options.sessionLocationPolicy
+     self.machine=StateMachine(); self.camera=Camera(); self.npcManager=NPCManager(self); self.debugMenu=DebugMenu()
++    self.fieldWorld=FieldWorld
++    self.fieldDarkness=FieldWorld.darknessAdapter()
+     self.player=nil; self.transitionLog={}
+     -- Inactive: isolated contexts must not seize the live rules stream.
+     self.session=newModel(self,options.seed or 1)
+@@ -32,6 +34,7 @@
+ function GameContext:getSessionDependencies()
+     assert(ItemData and ItemData.definitions,"production item definitions required")
+     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
++        resolvePlayerLocation=function(location,world) return WorldDeltas.resolvePlayerLocation(location,world,self.sessionLocationPolicy) end,
+         resolveLocation=function(location,world) return WorldDeltas.resolveLocation(location,world,self.sessionLocationPolicy) end}
+ end
+ function GameContext:getPlayerPokemon() return self.session:activePokemon() end
+@@ -138,7 +141,7 @@
+     local position=self.session:checkpoint()
+     self:getSessionDependencies().resolveLocation(position,WorldDeltas.export())
+     switchZone(zoneKey(position.zone_id))
+-    self.machine:change("overworld",{entry={x=position.x,y=position.y,facing=position.facing}})
++    self.machine:change("overworld",{entry={x=position.x,y=position.y,facing=position.facing},fieldReloadReason="blackout"})
+ end
+ -- Explicit development fixture: replace the single fixture party, preserving
+ -- starter acquisition history via the authoritative codec, never a loose owner.
+--- a/Source/game/fieldItems.lua
++++ b/Source/game/fieldItems.lua
+@@ -106,10 +106,12 @@
+     local checkpointed,undo=pcall(WorldDeltas.checkpointRuntime)
+     if not checkpointed then return false,"runtime-preflight-failed"end
+     local previous={zone=currentZone,position=position(game),actors=game.npcManager.motion:snapshot(),rules=RulesRNG.toData(),worldRng=game.session:worldRngData()}
++    local traversal={world=game.session:worldData(),location=game.session:location(),
++        checkpoint=game.session:checkpoint(),actors=game.session:actorData(),fieldWorld=game.session:fieldWorldData()}
+     p.status="transporting"
+     local ok,result=pcall(function()
+         switchZone(p.key)
+-        game.machine:change("overworld",{entry={x=p.target.x,y=p.target.y,facing=p.target.facing},actors=p.actors})
++        game.machine:change("overworld",{entry={x=p.target.x,y=p.target.y,facing=p.target.facing},actors=p.actors,fieldReloadReason="escape"})
+         p.readyToCommit=true
+         local accepted,receipt=game.session:useEscapeRope(request)
+         assert(accepted,receipt)
+@@ -119,8 +121,9 @@
+     p.status="failed"
+     local restored,problem=pcall(function()
+         undo();currentZone=previous.zone
++        assert(game.session:captureTraversal(traversal))
+         RulesRNG.restoreData(previous.rules);GameSession._state(p.session).worldRng:restoreData(previous.worldRng)
+-        game.machine:change("overworld",{entry={x=previous.position.x,y=previous.position.y,facing=previous.position.facing},actors=previous.actors})
++        game.machine:change("overworld",{entry={x=previous.position.x,y=previous.position.y,facing=previous.position.facing},actors=previous.actors,fieldRestore=true})
+     end)
+     game.lastFieldItem={kind="escape-rope",ok=false,reason=tostring(result),restored=restored,rollback_error=not restored and tostring(problem)or nil}
+     return false,"transition-failed"
+--- a/Source/game/fieldMoveWorld.lua
++++ b/Source/game/fieldMoveWorld.lua
+@@ -10,7 +10,7 @@
+     local deps = game:getSessionDependencies()
+     local checked, candidate = pcall(function()
+         local world = deps.validateWorld(after)
+-        deps.resolveLocation(position,world)
++        (deps.resolvePlayerLocation or deps.resolveLocation)(position,world)
+         deps.resolveLocation(session:checkpoint(),world)
+         -- captureTraversal validates actors again after native application.
+         if deps.validateActors then deps.validateActors(actors,world,position,session:flags()) end

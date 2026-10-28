@@ -77,7 +77,22 @@ function EventState:enter(id,options)
     self.phase,self.waiting,self.index,self.committed="running","none",1,false
     self.ops,self.receipts,self.books={},{},{}
     self.npcMove,self.pendingWarp=nil,nil
-    self.randomDialogPose=nil
+    self.interactionPose=nil
+    self.audioGaps = {}
+    -- Interaction facing is transient for STAY actors as well as wanderers.
+    -- NPCMotion retains the completed source pose; execution never changes it
+    -- merely because the player talked from another side.
+    if descriptor.restore_interaction_facing then
+        for _, npc in ipairs(self.game.npcManager.npcs) do
+            if npc.def and npc.def.source_event_id == id then
+                local pose <const> = self.game.npcManager.motion:actor(npc)
+                if pose then
+                    self.interactionPose = {npc=npc, pose=pose}
+                end
+                break
+            end
+        end
+    end
     self.npcLeases = {}
     self.hasFailureText=false
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
@@ -117,6 +132,9 @@ function EventState:enter(id,options)
         elseif step.op=="trainer" then
             assert(extended and step.id==id and self.game.trainers,"explicit source trainer owner required")
             self.ops[#self.ops+1]=step
+        elseif step.op=="face-player" then
+            SourceEvents.validateStep(step)
+            self.ops[#self.ops+1]=step
         elseif step.op=="move" then
             assert(DELTA[step.direction] and type(step.count)=="number" and step.count%1==0 and step.count>=1 and step.count<=8,"bounded movement required")
             for _=1,step.count do self.ops[#self.ops+1]={op="move",direction=step.direction} end
@@ -127,7 +145,8 @@ function EventState:enter(id,options)
         elseif step.op=="warp" then
             assert(index==#plan.steps,"warp must terminate source plan")
             self.ops[#self.ops+1]=step
-        elseif step.op=="shop" or step.op=="heal" or step.op=="random-dialog" then self.ops[#self.ops+1]=step
+        elseif step.op=="shop" or step.op=="heal" or step.op=="random-dialog"
+            or step.op=="source-audio" or step.op=="show-pokemon" then self.ops[#self.ops+1]=step
         else error("unsupported slice operation: "..tostring(step.op)) end
     end
     if plan.scene=="oak-pokedex" then self.ops[#self.ops+1]={op="oak-depart"} end
@@ -150,7 +169,12 @@ function EventState:finish()
 end
 function EventState:commit()
     if self.plan.expected then
-        local ok,reason=self.session:transact(self.plan.expected,self.plan.changes)
+        local ok, reason
+        if self.plan.transaction == "source-effects" then
+            ok, reason = self.session:transactSourceEffects(self.plan.expected, self.plan.changes)
+        else
+            ok, reason = self.session:transact(self.plan.expected, self.plan.changes)
+        end
         if not ok then self:failureDialogue(reason);return end
         self.committed=true
         SourceEvents.afterCommit(self.game,self.plan)
@@ -177,11 +201,11 @@ function EventState:advance()
         -- hRandomAdd is sampled separately on each interaction, not shared by
         -- these NPCs. Use the persistent world stream, never the rules stream.
         SourceEvents.validateStep(step)
-        if not self.randomDialogPose then
+        if not self.interactionPose then
             for _,npc in ipairs(self.game.npcManager.npcs) do
                 if npc.def and npc.def.source_event_id==self.id then
                     local pose=self.game.npcManager.motion:actor(npc)
-                    if pose then self.randomDialogPose={npc=npc,pose=pose} end
+                    if pose then self.interactionPose={npc=npc,pose=pose} end
                     break
                 end
             end
@@ -193,6 +217,17 @@ function EventState:advance()
                 return
             end
         end
+    elseif step.op == "source-audio" then
+        -- Global audio remains unimplemented. Keep exact source cues/waits for
+        -- SourceAudio; do not simulate playback or accept source audio timing.
+        self.audioGaps[#self.audioGaps + 1] = step
+        self:advance()
+    elseif step.op == "show-pokemon" then
+        self:showPokemon(step)
+    elseif step.op=="face-player" then
+        self.player.facing=step.direction
+        self.player:updateSprite()
+        self:advance()
     elseif step.op=="move" then self:startMove(step.direction)
     elseif step.op=="move-npc" then self:startNPCMove(step)
     elseif step.op=="warp" then self:prepareWarp(step)
@@ -374,19 +409,24 @@ function EventState:exit()
     -- STAY actors do not get NPCMotion's wandering interaction token. Restore
     -- only this operation's unchanged logical actor pose, like nurse facing.
     -- A replaced context, removed actor or completed scripted move wins.
-    local saved=self.randomDialogPose
+    local saved=self.interactionPose
     if saved and self.game.session==self.session and self.game.player==self.player and currentZone==self.zone then
         local pose=self.game.npcManager.motion:actor(saved.npc)
         if pose and pose.id==saved.pose.id and pose.x==saved.pose.x and pose.y==saved.pose.y
             and pose.facing==saved.pose.facing then saved.npc:setFacing(pose.facing) end
     end
-    self.randomDialogPose=nil
+    self.interactionPose=nil
     gfx.sprite.addDirtyRect(0,0,400,240)
 end
 function EventState:getSnapshot()
     local options={};for i,value in ipairs(self.menu.options) do options[i]=value end
+    local gaps = {}
+    for index, cue in ipairs(self.audioGaps or {}) do
+        gaps[index] = GameSession._copy(cue)
+    end
     return {id=self.id or "none",phase=self.phase,waiting=self.waiting,
         menu={active=self.menu.isActive,selected=self.menu.selectedIndex,options=options},
+        audio_gaps=gaps,
         trainer=self.game.trainers and self.game.trainers:snapshot() or {phase="idle"}}
 end
 function EventState:draw()
@@ -533,4 +573,28 @@ function EventState:prepareWarp(step)
     -- until the guarded transaction and its receipt have both completed.
     self.pendingWarp = step
     self:advance()
+end
+
+
+-- DisplayPokedex marks seen only after the source display returns. This uses
+-- the existing encyclopedia renderer and a session transaction, not a Dex copy
+-- owned by the event. Its callback has the same stale/cancel guards as dialog.
+function EventState:showPokemon(step)
+    local species <const> = step.species
+    local seen <const> = self.session:pokedex().seen[species] == true
+    self.audioGaps[#self.audioGaps + 1] = GameSession._copy(step.audio)
+    self.phase, self.waiting = "source-pokedex", species
+    self.machine:push("pokedex", {
+        sourceSpecies = species,
+        onComplete = self:guard(function()
+            local ok, reason = self.session:transactSourceEffects(
+                {flags={}, seen={[species]=seen}},
+                {flags={}, seen={[species]=true}})
+            if not ok then
+                self:fail(reason)
+                return
+            end
+            self:advance()
+        end),
+    })
 end

@@ -1,0 +1,64 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -22,6 +22,7 @@
+ import "data/typechart"
+ import "battle/dsl"
+ import "battle/moves"
++import "data/fieldMoveBattleData"
+ import "domain/pokemonCodec"
+ import "domain/saveStore"
+ import "data/items"
+@@ -33,6 +34,8 @@
+ import "domain/gameSession"
+ import "domain/teaching"
+ import "domain/sessionCodec"
++import "domain/fieldMoves"
++import "game/fieldMoveWorld"
+ import "data/captureData"
+ import "domain/capture"
+ import "game/sourceText"
+@@ -58,6 +61,7 @@
+ import "game/titleState"
+ import "game/pauseState"
+ import "game/partyState"
++import "game/fieldMoveState"
+ import "game/bagState"
+ import "game/shopState"
+ import "data/pilotWorld"
+@@ -142,6 +146,7 @@
+ machine:register("title", TitleState(game))
+ machine:register("pause", PauseState(game))
+ machine:register("party", PartyState(game))
++machine:register("fieldMove", FieldMoveState(game))
+ machine:register("bag", BagState(game))
+ machine:register("shop", ShopState(game))
+ machine:register("event", KantoServicesState(game))
+--- a/Source/game/context.lua
++++ b/Source/game/context.lua
+@@ -166,3 +166,8 @@
+     for key,value in pairs(replacement) do mon[key]=value end
+     return mon
+ end
++
++-- Prepared field transaction adapter; apply only with source reload ownership.
++function GameContext:commitFieldTerrain(before, after, position, actors)
++    return FieldMoveWorld.commit(self, before, after, position, actors)
++end
+--- a/Source/world/overworld.lua
++++ b/Source/world/overworld.lua
+@@ -154,3 +154,15 @@
+     assert(currentZone, "no active world zone")
+     return currentZone:setTile(gx, gy, id)
+ end
++
++-- Scoped native-view ownership for prepared SDK contracts only.
++function WorldView.withIsolation(callback)
++    assert(HarnessBuild and HarnessBuild.enabled, "development view scope required")
++    local previous = activeView
++    activeView = nil
++    local ok, result = pcall(callback)
++    if activeView then activeView:dispose() end
++    activeView = previous
++    if not ok then error(result, 0) end
++    return result
++end

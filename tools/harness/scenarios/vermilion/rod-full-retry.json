@@ -1,0 +1,14 @@
+{
+  "journey": {
+    "name": "vermilion-supplementary",
+    "supplementary": true,
+    "case": "rod-full-retry",
+    "starter": "squirtle",
+    "fossil": "dome",
+    "max_actions": 20000,
+    "max_steps": 5000,
+    "max_encounters": 64,
+    "max_transitions": 128,
+    "max_puzzle_attempts": 240
+  }
+}

@@ -1,0 +1,26 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -36,2 +36,3 @@
+ import "domain/gameSession"
++import "domain/npcTrades"
+ import "domain/teaching"
+@@ -104,2 +105,3 @@
+ import "game/daycareState"
++import "game/npcTradeState"
+ import "game/pokedexState"
+@@ -154,2 +156,3 @@
+ Daycare.install()
++NPCTrades.install()
+ -- @harness content-ready
+@@ -177,3 +180,3 @@
+ machine:register("shop", ShopState(game))
+-machine:register("event", DaycareState(game))
++machine:register("event", NPCTradeState(game))
+ machine:register("tutorial-escort", TutorialEscortState(game))
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -273 +273,4 @@
+ harness = Harness
++
++import "dev/npcTradeContracts"
++Contracts.register("npc-trades", NPCTradeContracts.run)

@@ -1,0 +1,16 @@
+{
+  "mode": "compile-only",
+  "base": "095598fe59b56a4db9c943dbf6b057f33d89b48e",
+  "source_sha256": "6d083c967549d018bc66e5e8b7a42eec6d1e5ed5fcd17868a874c11e554a2bee",
+  "sdk_compiled_source_sha256": "4c220e106d74c405826f0798ec7992843488def7e060d8cca0e3532a09aa079e",
+  "sdk_version": "3.1.2",
+  "host_passed": 17,
+  "host_skipped": 0,
+  "sdk_contracts_prepared": 14,
+  "runtime_executed": false,
+  "simulator_executed": false,
+  "device_executed": false,
+  "sdk_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/preparation/grass-cut-095598f/final-sdk",
+  "production_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/preparation/grass-cut-095598f/final-production/stage",
+  "integration_patch_sha256": "5005e89cb8d58f127526cc24678671cf136abc46eacc98f8efb36ee27262c1b2"
+}

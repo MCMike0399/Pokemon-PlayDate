@@ -396,6 +396,9 @@ def run(client, scenario, evidence_dir, build_evidence=None, prior_receipt=None,
     config = scenario["journey"]
     if not isinstance(config, dict):
         raise ProtocolError("journey must be an object")
+    if config.get("name") in {"vermilion-natural", "vermilion-continue", "vermilion-supplementary", "vermilion-supplementary-continue"}:
+        from tools.harness.vermilion_journey import run as run_vermilion
+        return run_vermilion(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)
     if config.get("name") in {"cerulean-natural", "cerulean-continue", "cerulean-supplementary"}:
         from tools.harness.cerulean_journey import run as run_cerulean
         return run_cerulean(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)

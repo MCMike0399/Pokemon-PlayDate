@@ -256,7 +256,7 @@ function SourceMapContracts.run()
         end
         local ok, problem = pcall(function()
             SourceMaps._withRecords(records, function()
-                equal(#SourceMaps.names(), 31)
+                equal(#SourceMaps.names(), 66)
                 local profiles = SourceMaps.legacyProfiles({ dispatch = function() error("fixture cannot dispatch") end,
                     questFlag = function() return false end, sourceFlag = function() return false end })
                 -- Test content adapter supplies only inert NPC data. Geometry,
@@ -273,7 +273,7 @@ function SourceMapContracts.run()
                 zoneRegistry, zoneList, currentZone = {}, {}, nil
                 local provider = SourceMaps.createProvider(profiles, TileRegistry())
                 local loaded, failure = pcall(function()
-                    equal(#provider:inventory(), 31)
+                    equal(#provider:inventory(), 66)
                     local school = provider:ensure("fixture_ViridianSchoolHouse")
                     local route = provider:ensure("fixture_Route22")
                     equal(school.width, 13)
@@ -332,7 +332,7 @@ function SourceMapContracts.run()
         local count = #zoneList
         local zones = KantoWorld.install(game)
         equal(#zoneList, count)
-        equal(#provider:inventory(), 30)
+        equal(#provider:inventory(), 65)
         equal(provider:snapshot().capacity, 6)
         for _, name in ipairs(SourceMaps.names("viridian")) do
             local entry = SourceMaps.entry(name)
@@ -394,7 +394,7 @@ function SourceMapContracts.run()
     test("unloaded validation allocates no native tiles or Zones for either region", function()
         scope(function(provider, registry, context)
             local ids = registry:maxID()
-            equal(#provider:inventory(), 30)
+            equal(#provider:inventory(), 65)
             for _, name in ipairs(SourceMaps.names()) do
                 local entry = SourceMaps.entry(name)
                 local location = { zone_id = entry.id, x = entry.spawn.x, y = entry.spawn.y, facing = "up" }
@@ -434,7 +434,7 @@ function SourceMapContracts.run()
             local ok, problem = pcall(function()
                 local provider = PewterWorld.createProvider(context, registry)
                 equal(next(loaded), nil)
-                equal(#provider:inventory(), 30)
+                equal(#provider:inventory(), 65)
                 equal(next(loaded), nil)
                 local route = provider:ensure("kanto_route1")
                 equal(loaded.Route1, 1)
@@ -580,12 +580,12 @@ function SourceMapContracts.run()
         if not ok then error(problem, 0) end
     end)
 
-    test("Pewter descriptors retain prior data except the declared museum openings", function()
+    test("Pewter descriptors retain prior data except declared museum and four Route2 openings", function()
         scope(function(provider)
             for _, original in pairs(assert(json.decodeFile("data/pewterSlice/compact.json")).maps) do
                 local descriptor = provider:descriptor(original.id)
-                for _, field in ipairs({ "id", "key", "revision", "width", "height", "padding", "source_width", "palette", "tile_rows", "blocked" }) do
-                    local expected = original[field]
+                for field, value in pairs(original) do
+                    local expected = value
                     if field == "blocked" and original.id == "pokered:PEWTER_CITY" then
                         expected = GameSession._copy(expected)
                         for cell, id in pairs(expected) do
@@ -593,6 +593,26 @@ function SourceMapContracts.run()
                                 expected[cell] = nil
                             end
                         end
+                    end
+                    if field == "blocked" and original.id == "pokered:ROUTE_2" then
+                        -- These exact source warp cells now bind installed maps.
+                        -- This is no approval of the changed collision diagnostic;
+                        -- its protected-image approval gate remains open at root.
+                        expected = GameSession._copy(expected)
+                        local resolved <const> = {
+                            ["193"] = "pokered:ROUTE_2:warps:1",
+                            ["396"] = "pokered:ROUTE_2:warps:3",
+                            ["717"] = "pokered:ROUTE_2:warps:4",
+                            ["796"] = "pokered:ROUTE_2:warps:5",
+                        }
+                        local count = 0
+                        for cell, id in pairs(resolved) do
+                            equal(expected[cell], id)
+                            equal(descriptor.blocked[cell], nil)
+                            expected[cell] = nil
+                            count = count + 1
+                        end
+                        equal(count, 4)
                     end
                     same(descriptor[field], expected)
                 end

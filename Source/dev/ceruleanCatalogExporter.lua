@@ -19,11 +19,22 @@ local function actors()
     return SourceMaps.record("data/sourceSlice/sprites.json").sprites
 end
 
+local function maps()
+    local names = {}
+    local prefix = "data/sourceSlice/"
+    for _, name in ipairs(SourceMaps.names("source")) do
+        if SourceMaps.entry(name).path:sub(1, #prefix) == prefix then
+            names[#names + 1] = name
+        end
+    end
+    return names
+end
+
 function CeruleanCatalogExporter.tiles()
     local metadata = SourceMaps.compact()
     local legacy = PewterCatalogExporter.legacyTiles()
     local result = {}
-    for _, name in ipairs(SourceMaps.names("source")) do
+    for _, name in ipairs(maps()) do
         for _, key in ipairs(metadata.maps[name].palette) do
             if not legacy[key] then result[key] = assert(metadata.tiles[key], "source palette tile missing") end
         end
@@ -39,9 +50,9 @@ function CeruleanCatalogExporter.frame(source, index)
     return SpriteFactory.makeSprite(assert(strip.frames[tostring(index)], "missing original actor frame"), {0,0})
 end
 
-function CeruleanCatalogExporter.poses()
+function CeruleanCatalogExporter.poseInventory(sources, prefix)
     local result = {}
-    for _, source in ipairs(keys(actors())) do
+    for _, source in ipairs(keys(sources)) do
         local strip = CeruleanContent.sprite(source)
         for _, pose in ipairs({ "stand", "walk", "alternate" }) do
             if pose == "stand" or next(strip.walking) then
@@ -53,7 +64,7 @@ function CeruleanCatalogExporter.poses()
                     local flip = not strip.fixed and (direction == "right"
                         or pose == "alternate" and (direction == "up" or direction == "down")) or false
                     result[#result + 1] = {
-                        name = "cerulean-pose-" .. source .. "-" .. pose .. "-" .. direction,
+                        name = prefix .. "-pose-" .. source .. "-" .. pose .. "-" .. direction,
                         source = source, source_id = strip.id, source_path = strip.source,
                         source_sha256 = strip.sha256, source_frame = index, flip_x = flip,
                         pose = pose, direction = direction,
@@ -71,6 +82,10 @@ function CeruleanCatalogExporter.poses()
         end
     end
     return result
+end
+
+function CeruleanCatalogExporter.poses()
+    return CeruleanCatalogExporter.poseInventory(actors(), "cerulean")
 end
 
 local function render(width, height, color, callback)
@@ -100,6 +115,9 @@ local function sourceStrip(source)
     end)
 end
 
+CeruleanCatalogExporter.render = render
+CeruleanCatalogExporter.sourceStrip = sourceStrip
+
 function CeruleanCatalogExporter.inventory()
     local result = { images = {}, map_count = 18, tile_count = 154, actor_strip_count = 28,
         source_frame_count = 124, directional_pose_count = 240, tutorial_art_count = 5,
@@ -117,14 +135,14 @@ function CeruleanCatalogExporter.inventory()
             end
         end
     end
-    local maps = SourceMaps.names("source")
-    assert(#maps == result.map_count, "explicit Cerulean map inventory changed")
+    local mapNames = maps()
+    assert(#mapNames == result.map_count, "explicit Cerulean map inventory changed")
     local tiles = keys(CeruleanCatalogExporter.tiles())
     assert(#tiles == result.tile_count, "explicit Cerulean tile inventory changed")
     for _, key in ipairs(tiles) do
         asset("tile_imported_" .. VisualCatalog.stableName(key), 32, 32, "imported-tile", false)
     end
-    for _, name in ipairs(maps) do
+    for _, name in ipairs(mapNames) do
         local descriptor = SourceMaps.descriptor(name)
         for _, kind in ipairs(mapKinds) do
             local viewport = kind == "viewport"
@@ -167,10 +185,10 @@ function CeruleanCatalogExporter.inventory()
     return result
 end
 
-function CeruleanCatalogExporter.hiddenEvents(name)
+function CeruleanCatalogExporter.hiddenEvents(name, scriptPath)
     local descriptor = SourceMaps.descriptor(name)
     local result = {}
-    for _, event in ipairs(SourceMaps.record("data/sourceSlice/scripts.json").hidden_events) do
+    for _, event in ipairs(SourceMaps.record(scriptPath or "data/sourceSlice/scripts.json").hidden_events) do
         if event.map_id == descriptor.id then
             local index = #result + 1
             result[index] = { id = descriptor.id .. ":hidden_events:" .. index, kind = "hidden",
@@ -182,7 +200,7 @@ function CeruleanCatalogExporter.hiddenEvents(name)
     return result
 end
 
-local function mapImages(name, sink)
+local function mapImages(name, sink, packagePrefix, hiddenEvents)
     local descriptor = SourceMaps.descriptor(name)
     local definition = SourceMaps.padded(name)
     local zone = SourceMaps.isolated(name)
@@ -192,7 +210,7 @@ local function mapImages(name, sink)
         view = WorldView(zone, { attach = false })
         local terrain = view:render()
         local width, height = terrain:getSize()
-        local prefix = "cerulean-" .. name .. "-"
+        local prefix = (packagePrefix or "cerulean") .. "-" .. name .. "-"
         sink.save(prefix .. "terrain", terrain, "terrain")
         local cx = math.max(0, math.min(width - 400, zone.spawn.x * TILE_SIZE - 200))
         local cy = math.max(0, math.min(height - 240, zone.spawn.y * TILE_SIZE - 120))
@@ -242,7 +260,7 @@ local function mapImages(name, sink)
                         status = assert(specs[event.id]).status, destination = event.destination, sprite = event.sprite }
                 end
             end
-            for index, event in ipairs(CeruleanCatalogExporter.hiddenEvents(name)) do
+            for index, event in ipairs((hiddenEvents or CeruleanCatalogExporter.hiddenEvents)(name)) do
                 label(event.x*TILE_SIZE, event.y*TILE_SIZE, "H" .. index)
                 events[#events + 1] = event
             end
@@ -268,6 +286,8 @@ local function mapImages(name, sink)
     return result
 end
 
+CeruleanCatalogExporter.mapImages = mapImages
+
 function CeruleanCatalogExporter.writer(sink)
     local report = { schema = 1, source_revision = revision, maps = {}, tiles = {}, characters = {},
         strips = {}, tutorial = {}, missing = {}, phase_policy = "explicit-zero; BLUE world poses retain legacy-omitted",
@@ -279,7 +299,7 @@ function CeruleanCatalogExporter.writer(sink)
         report.tiles[#report.tiles + 1] = { stable_key = key, path = name .. ".png",
             terrain = tile.terrain, collision = tile.collision }
     end
-    for _, name in ipairs(SourceMaps.names("source")) do report.maps[#report.maps + 1] = mapImages(name, sink) end
+    for _, name in ipairs(maps()) do report.maps[#report.maps + 1] = mapImages(name, sink) end
     for _, source in ipairs(keys(actors())) do
         local strip = CeruleanContent.sprite(source)
         sink.asset("cerulean-strip-" .. source, sourceStrip(source), "source-strip", true)
@@ -321,9 +341,13 @@ function CeruleanCatalogExporter.register()
     local tiles = CeruleanCatalogExporter.tiles()
     local npcs = {}
     for source in pairs(actors()) do npcs[CeruleanContent.key(source)] = true end
+    local ownedMaps = {}
+    for _, name in ipairs(maps()) do
+        ownedMaps[SourceMaps.entry(name).id] = true
+    end
     return VisualCatalog.registerExporter("cerulean", {
         inventory = CeruleanCatalogExporter.inventory, writer = CeruleanCatalogExporter.writer,
-        ownsZone = function(zone) return SourceMaps.nameForID(zone.stableID, "source") ~= nil end,
+        ownsZone = function(zone) return ownedMaps[zone.stableID] == true end,
         ownsTile = function(key) return tiles[key] ~= nil end,
         ownsNPC = function(key) return npcs[key] == true end,
     })

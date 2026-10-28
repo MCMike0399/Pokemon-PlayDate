@@ -1,0 +1,39 @@
+{
+  "base_fee": 100,
+  "events": {
+    "pokered:DAYCARE:objects:1": {
+      "content": "daycare",
+      "kind": "bespoke",
+      "service": "daycare"
+    }
+  },
+  "fee_limit": 9999,
+  "hm_moves": [
+    "cut",
+    "fly",
+    "surf",
+    "strength",
+    "flash"
+  ],
+  "labels": [
+    "_DaycareGentlemanAllRightThenText",
+    "_DaycareGentlemanCantAcceptMonWithHMText",
+    "_DaycareGentlemanComeAgainText",
+    "_DaycareGentlemanComeSeeMeInAWhileText",
+    "_DaycareGentlemanGotMonBackText",
+    "_DaycareGentlemanHeresYourMonText",
+    "_DaycareGentlemanIntroText",
+    "_DaycareGentlemanMonHasGrownText",
+    "_DaycareGentlemanMonNeedsMoreTimeText",
+    "_DaycareGentlemanNoRoomForMonText",
+    "_DaycareGentlemanNotEnoughMoneyText",
+    "_DaycareGentlemanOnlyHaveOneMonText",
+    "_DaycareGentlemanOweMoneyText",
+    "_DaycareGentlemanWhichMonText",
+    "_DaycareGentlemanWillLookAfterMonText"
+  ],
+  "per_level_fee": 100,
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "xp_per_step": 1
+}
