@@ -198,6 +198,7 @@ class VermilionJourney(cj.CeruleanJourney):
         self.vermilion_active = False
         self.cut_cells = []
         self.cut_witnesses = 0
+        self.completed_steps = set()
         self.acquisition_active = False
         self.acquisition_targets = set()
         self.collection = {'steps': 0, 'battles': 0, 'balls': 0, 'purchased': 0,
@@ -800,6 +801,7 @@ class VermilionJourney(cj.CeruleanJourney):
         if (provenance.get('from_milestone') not in {'5.3', '5.4'}
                 or provenance.get('starter') != self.starter):
             raise ProtocolError('Vermilion requires the accepted Cerulean save for this starter')
+        self.completed_steps = set(provenance.get('completed_steps', []))
         self.dependencies()
         self.require(root='title', **{'title.phase': 'menu'})
         options = sequence(lookup(self.state, 'title.menu.options'), 'title menu')
@@ -848,7 +850,8 @@ class VermilionJourney(cj.CeruleanJourney):
         if not any(m['species'] == 'bellsprout' for m in self.party()):
             raise ProtocolError('actual Cut-compatible Bellsprout did not remain in the party')
         self.travel(self.zone('Route5'))
-        self.daycare_service()
+        if 'daycare' not in self.completed_steps:
+            self.daycare_service()
         self.travel(self.zone('UndergroundPathRoute5'))
         self.travel(self.zone('UndergroundPathNorthSouth'))
         self.travel(self.zone('UndergroundPathRoute6'))
@@ -907,7 +910,7 @@ class VermilionJourney(cj.CeruleanJourney):
         # travelling to the map name alone would cover only the first cabin.
         for event in model.events['warps']:
             point = (event['x'], event['y'])
-            goals = set(model.approaches(point))
+            goals = set(model.approaches(point)) - model.warps
             if not goals:
                 raise ProtocolError('source cabin has no passable approach')
             self.travel(model.name, goals)
