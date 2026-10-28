@@ -1,0 +1,43 @@
+{
+  "archive_sha256": "9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2",
+  "archive_url": "https://ftp.gnu.org/gnu/bison/bison-3.8.2.tar.xz",
+  "build": {
+    "commands": [
+      "./configure --prefix=/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/bison/3.8.2/install",
+      "/usr/bin/make -j2",
+      "/usr/bin/make install"
+    ],
+    "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "environment": {
+      "CC": "/usr/bin/clang",
+      "CFLAGS": "-O2",
+      "M4": "/usr/bin/m4",
+      "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"
+    },
+    "exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "logs_sha256": {
+      "build.log": "04def9e65eba60f872813bccfee5bf992d75c0616182d11e07e6e65c8eb03370",
+      "configure.log": "5048028ce03b952515d04cd9dfd446c6f4f8f377546752254d62dd439f0594b0",
+      "install.log": "d86cf6c10d5b75ac4a8062eda22873adca238e210bf9c5ac32de04c3f6e055b8"
+    },
+    "m4": "GNU M4 1.4.6",
+    "m4_sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "make": "GNU Make 3.81",
+    "official_index_sha256": "c9ad8efd9918fd19376777f9f8ada1b38ca537a5c50a723f78765b8a71b65ff7"
+  },
+  "consumed_binary": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/bison/3.8.2/install/bin/bison",
+    "sha256": "4f2e3bcf5a0b238fde287ec617d5590da9b15aeaac10f1d6ded5aef1291ff17b",
+    "version": "bison (GNU Bison) 3.8.2"
+  },
+  "official_index_url": "https://ftp.gnu.org/gnu/bison/",
+  "prefix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/bison/3.8.2/install",
+  "provenance": "Fetched directly over HTTPS from official GNU distribution; archive SHA-256 pinned locally. Detached signature not verified.",
+  "schema": 1,
+  "source_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/toolchains/bison/3.8.2/bison-3.8.2",
+  "version": "3.8.2"
+}
