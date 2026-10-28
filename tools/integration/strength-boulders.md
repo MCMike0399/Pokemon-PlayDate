@@ -93,3 +93,45 @@ Initial SDK3.1.2 compile passed; 33 existing motion/source-event/placement host
 checks passed. Art/behavior/native timing/SaveContinue execution remains root-only.
 No Simulator, baseline edits, push or delegation. Field worker received the API
 through the authorized thread message.
+
+## One root-only Warden behavior contract
+
+`dev/strengthBoulderContracts.lua` contributes exactly one game-behavior test,
+using the existing `VermilionStoryFixture.withScene` on the actual Warden map.
+It checks the real source descriptor, protected cells, original fixed art,
+origin/destination reservations, native eight-tick interpolation, incomplete
+cancellation, the real Player's blocked/opened path, boundary rejection, settled
+SessionCodec round-trip with the player on the boulder's original home, explicit
+legacy-overlap rejection, fresh-entry reset, stale-owner cancellation and both
+unchanged RNG streams. No new fixture, driver, test helper infrastructure or
+host tests were added. Input authorization and field UI integration remain field
+worker responsibilities; the contract supplies only the existing owner capability
+interface and does not claim a real button-driven journey.
+
+Root applies only the small harness registration patch:
+
+```sh
+git apply --check tools/integration/strength-boulder-contract-root.patch
+git apply tools/integration/strength-boulder-contract-root.patch
+```
+
+It imports the module and registers `strength-boulder` through the existing
+Contracts API. The patch is unapplied here; no main or shared-overlay edit.
+SDK compilation with the private registration overlay passed, and the actual main
+PDZ includes the new contract. Root alone executes it in the integrated Simulator.
+Final compile evidence: environment `evidence/m55-strength-registered-compile-01/`.
+
+Final scoped host gate: 33 passed, zero skips. All nine source checksums and the
+actual Warden fixed sprite/initial floor cells were verified separately. An added
+run of the existing source-map-pipeline suite fails 108 old-inventory/fixture
+assertions against root's newly activated 171 maps; its expectations still assume
+65 maps and the former sourceSlice-only path layout. Those fixture/baseline files
+were deliberately not edited or regenerated. This is a reported integration-gate
+failure, not a passing native test. The Warden behavior contract has compiled but
+has not run.
+
+The collision follow-up also preserves Blue's exact player-current-tile versus
+two-steps-ahead tile-pair check (`CheckForTilePairCollisions2`), and rejects source
+stairs tile `$15` even when it has no registered warp. Normal NPC tile-pair checks
+remain unchanged. The shared descriptor's pure `canPush` is used by preview;
+NPCMotion still owns every reservation and pixel of actual translation.

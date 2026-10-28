@@ -205,9 +205,13 @@ function SourceActors.describeSource(zoneID, world, game)
     local function canStand(spec,x,y,runtimeZone)
         local cell = y * surface.width + x + 1
         if spec.role == "boulder" then
-            return x >= 0 and y >= 0 and x < surface.width and y < surface.height
-                and not protected[cell]
-                and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0
+            if x < 0 or y < 0 or x >= surface.width or y >= surface.height
+                or protected[cell]
+                or (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] ~= 0 then
+                return false
+            end
+            local foot = runtimeZone and runtimeZone:terrainAt(x,y).foot_tile or surface.feet[y+1][x+1]
+            return foot ~= 0x15 -- Blue explicitly forbids pushing onto stairs.
         end
         if spec.blocked_home and x == spec.x and y == spec.y
             and x >= 0 and y >= 0 and x < surface.width and y < surface.height
@@ -228,14 +232,33 @@ function SourceActors.describeSource(zoneID, world, game)
         local b=runtimeZone and runtimeZone:terrainAt(tx,ty).foot_tile or surface.feet[ty+1][tx+1]
         local direction=tx>x and "RIGHT"or tx<x and "LEFT"or ty>y and "DOWN"or "UP"
         for _,ledge in ipairs(rules.ledges)do if ledge.facing=="SPRITE_FACING_"..direction and ledge.standing_foot_tile==a and ledge.target_foot_tile==b then return false end end
-        for _,pair in ipairs(rules.forbidden_tile_pairs)do if a==pair[1]and b==pair[2]or a==pair[2]and b==pair[1]then return false end end
+        if spec.role ~= "boulder" then
+            for _,pair in ipairs(rules.forbidden_tile_pairs)do if a==pair[1]and b==pair[2]or a==pair[2]and b==pair[1]then return false end end
+        end
+        return true
+    end
+    local function canPush(spec,px,py,x,y,tx,ty,runtimeZone)
+        if spec.role ~= "boulder" or not canStep(spec,x,y,tx,ty,runtimeZone)
+            or px ~= x - (tx-x) or py ~= y - (ty-y)
+            or px < 0 or py < 0 or px >= surface.width or py >= surface.height then
+            return false
+        end
+        -- Blue compares the player's current foot tile with the tile two steps
+        -- ahead, not the boulder's current tile with its destination.
+        local a = runtimeZone and runtimeZone:terrainAt(px,py).foot_tile or surface.feet[py+1][px+1]
+        local b = runtimeZone and runtimeZone:terrainAt(tx,ty).foot_tile or surface.feet[ty+1][tx+1]
+        for _, pair in ipairs(rules.forbidden_tile_pairs) do
+            if a == pair[1] and b == pair[2] or a == pair[2] and b == pair[1] then
+                return false
+            end
+        end
         return true
     end
     local function canWanderStep(spec,x,y,tx,ty,runtimeZone)
         return canWander(spec,x,y,runtimeZone) and canWander(spec,tx,ty,runtimeZone) and canStep(spec,x,y,tx,ty,runtimeZone)
     end
     return {zone_id=zoneID,revision=surface.revision,width=surface.width,height=surface.height,actors=specList,
-        canStand=canStand,canStep=canStep,canWanderStep=canWanderStep,protected=protected}
+        canStand=canStand,canStep=canStep,canPush=canPush,canWanderStep=canWanderStep,protected=protected}
 end
 
 -- Existing installation calls keep their provider identity while covering new

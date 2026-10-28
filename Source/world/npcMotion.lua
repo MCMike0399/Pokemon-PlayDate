@@ -378,7 +378,7 @@ function NPCMotion:previewBoulderPush(npc, direction)
         return nil, "player-not-behind-boulder"
     end
     local x, y = value.x + delta[1], value.y + delta[2]
-    if not s.descriptor.canStep(actor.spec, value.x, value.y, x, y, s.zone)
+    if not s.descriptor.canPush(actor.spec, player.gridX, player.gridY, value.x, value.y, x, y, s.zone)
         or s.descriptor.protected[y * s.descriptor.width + x + 1] then
         return nil, "blocked-boulder-surface"
     end
