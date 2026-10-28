@@ -172,6 +172,7 @@ function HarnessDiagnostics.snapshot(game)
             inMoveSelect = battleState.scene.inMoveSelect,
             enemy = pokemon(battle.enemy), player = pokemon(battle.player),
             waiting = battle.machine:current().waiting, runAttempts = battle.runAttempts,
+            shift_choice = battle.shiftChoice ~= nil,
             menu = menu(battleState.scene.mainMenu),
             moveMenu = menu(battleState.scene.moveMenu) } or { present = false },
         dialog = { active = root:is("dialog") and dialog.isActive, line = dialog.currentLine,

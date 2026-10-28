@@ -343,7 +343,13 @@ class BrockJourney(ParcelJourney):
             for info in sequence(battle.get('legal_moves',[]),'battle.legal_moves'):self.observed_moves[info['key']]=info
             if phase=='ended':
                 terminal={'kind':battle['outcome'],'player':battle['player'],'enemy':battle['enemy']};self.checkpoint(name+'-terminal');self.send('press a')
-            elif phase=='script':self.send('wait 12','press a')if battle.get('waiting')else self.send('wait 2')
+            elif phase == 'script':
+                if battle.get('shift_choice'):
+                    self.send('press b')
+                elif battle.get('waiting'):
+                    self.send('wait 12', 'press a')
+                else:
+                    self.send('wait 2')
             elif phase=='forcedSwitch':
                 # The rules enter this phase before the controller opens Party
                 # on its next update. Wait for that owner; never pick an outcome.

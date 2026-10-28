@@ -8,7 +8,7 @@ function BideTeachingContracts.run()
         g=GameContext();local p=Pokemon("squirtle",100);assert(g:recruit(p));assert(g.session:setIntro({stage="done",starter="squirtle",rivalStarter="bulbasaur",rivalOutcome=true}))
         local bag=g.session:inventory();assert(bag:add("tm34",1));local old=p.moves[1];p.pp[old]=4
         local before=RulesRNG.snapshot();local request=assert(Teaching.prepare(g.session,p,"tm34"));local taught,result=Teaching.complete(request,"learn",1);assert(taught,result)
-        assert(result.consumed and bag:quantity("tm34")==0,"TM34 consumed exactly once")
+        assert(not result.consumed and bag:quantity("tm34")==1,"Reusable TM34 retains its stock")
         assert(g.session:party():active()==p and g.session:inventory()==bag,"same owned/bag identities")
         assert(p.moves[1]=="bide" and p.pp.bide==4 and p.pp[old]==nil,"actual teaching slot/PP policy")
         assert(RulesRNG.snapshot().state==before.state and RulesRNG.snapshot().rolls==before.rolls,"teaching noRNG")

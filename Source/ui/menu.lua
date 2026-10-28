@@ -1,3 +1,5 @@
+import "ui/crankScroll"
+
 local gfx <const> = playdate.graphics
 
 Class("BattleMenu")
@@ -9,9 +11,11 @@ function BattleMenu:init()
     self.onSelect = nil
     self.onCancel = nil
     self.columns = 1
+    self.crank = CrankScroll()
 end
 
 function BattleMenu:show(options, onSelect, onCancel)
+    self.crank:reset()
     self.options = options
     self.selectedIndex = 1
     self.isActive = true
@@ -26,6 +30,7 @@ end
 function BattleMenu:handleInput()
     if not self.isActive then return end
 
+    local scrolled = self.crank:move(self.selectedIndex, #self.options)
     local cols = self.columns
     local rows = math.ceil(#self.options / cols)
     local col = (self.selectedIndex - 1) % cols
@@ -59,6 +64,8 @@ function BattleMenu:handleInput()
         if self.onCancel then
             self.onCancel()
         end
+    else
+        self.selectedIndex = scrolled
     end
 end
 
@@ -73,11 +80,17 @@ function BattleMenu:draw(x, y, w, h)
     local cols = self.columns
     local colW = math.floor(w / cols)
 
-    for i, option in ipairs(self.options) do
+    local visibleRows = math.max(1, math.floor((h - 8) / 20))
+    local selectedRow = math.floor((self.selectedIndex - 1) / cols)
+    local firstRow = math.max(0, selectedRow - visibleRows + 1)
+    local first = firstRow * cols + 1
+    local last = math.min(#self.options, (firstRow + visibleRows) * cols)
+    for i = first, last do
+        local option = self.options[i]
         local col = (i - 1) % cols
         local row = math.floor((i - 1) / cols)
         local optX = x + col * colW + 8
-        local optY = y + 8 + row * 20
+        local optY = y + 8 + (row - firstRow) * 20
         if i == self.selectedIndex then
             gfx.drawText(">" .. option, optX, optY)
         else

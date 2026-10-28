@@ -77,11 +77,9 @@ function Teaching._commitPlan(session,request,decision,slot)
     if not candidate then return nil,error end
     local bag,problem=Inventory.fromData(GameSession._state(session).deps.itemDefinitions,r.bag:toData())
     if not bag then return nil,problem end
-    if plan.machine.consume then
-        local ok,reason=bag:consume(r.item,1)
-        if not ok then return nil,reason end
-        result.consumed=true
-    end
+    -- Generated consume flags describe Blue's source economy. The approved
+    -- Gen V policy reuses TMs; HMs already reuse their existing stock.
+    -- Keep the validated bag candidate and all stale transaction checks.
     result.forgotten=forgotten
     return {request=r,pokemon=r.pokemon,moves=candidate.moves,pp=candidate.pp,
         bag=r.bag,bagData=bag:toData(),result=result}

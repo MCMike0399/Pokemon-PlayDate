@@ -4,9 +4,11 @@ Class("PartyState"):extends(State)
 function PartyState:init(game)
     PartyState.super.init(self, "party")
     self.game, self.menu = game, BattleMenu()
+    self.crank = CrankScroll()
 end
 
 function PartyState:enter(options)
+    self.crank:reset()
     self.visit=(self.visit or 0)+1
     self.view=0;self.active=true;self.session=self.game.session
     self.options = options or {}
@@ -128,6 +130,10 @@ function PartyState:handleInput()
     if not self.active or self.game.session~=self.session then return end
     local party = self.game.session:party()
     local count = party:count()
+    local scrolled = self.selected
+    if self.phase == "list" then
+        scrolled = self.crank:move(self.selected, count)
+    end
     if self.phase == "actions" or self.phase=="held-actions" then self.menu:handleInput(); return end
     if self.phase=="held-message" then
         if playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonJustPressed(playdate.kButtonB) then self:heldActions() end
@@ -169,6 +175,8 @@ function PartyState:handleInput()
                 end
             elseif self.options.onSelect then self:close(self.selected)
             else self:actions() end
+        elseif self.phase == "list" then
+            self.selected = scrolled
         end
     end
 end
@@ -226,4 +234,9 @@ function PartyState:draw()
         end
     end
     gfx.setDrawOffset(x, y)
+end
+
+function PartyState:resume()
+    self.crank:reset()
+    self.menu.crank:reset()
 end

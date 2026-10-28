@@ -11,6 +11,10 @@ end
 local function scene(r)
     local b=Battle(Pokemon("charmander",5),Pokemon("rattata",5))
     local s=BattleScene(b);s.introPhase="ready";s.introDrawing=false;b.captureResult=r
+    -- Isolate capture gating from the separate narration acknowledgement gate.
+    s:syncMessage()
+    s.messageDialog:advance()
+    s.messageDialog:advance()
     return s,b
 end
 local function finish(a)

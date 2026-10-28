@@ -171,6 +171,7 @@ machine:register("learning", LearningState(game))
 machine:register("evolution", EvolutionState(game))
 machine:register("title", TitleState(game))
 machine:register("pause", PauseState(game))
+machine:register("options", OptionsState(game))
 machine:register("party", PartyState(game))
 machine:register("fieldMove", FieldMoveState(game))
 machine:register("bag", BagState(game))
@@ -197,8 +198,7 @@ end)
 -- ============================================================
 -- GAME LOOP
 -- ============================================================
--- New game: the intro questline starts in Red's bedroom with Oak's
--- monologue (debug menu "Skip Intro" jumps straight to free play)
+-- Show the title before New Game or Continue. New Game starts Oak's opening.
 game.saves:start()
 
 ---@diagnostic disable-next-line: duplicate-set-field

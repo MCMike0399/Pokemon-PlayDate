@@ -8,13 +8,15 @@ end
 
 function PauseState:enter()
     self.phase = "menu"
-    local options = {"POKEMON", "ITEM", "RED", "SAVE", "CLOSE"}
+    local options = {"POKEMON", "ITEM", "RED", "SAVE", "OPTIONS", "CLOSE"}
     if self.game.session:questFlag("EVENT_GOT_POKEDEX") then table.insert(options, 1, "POKEDEX") end
     self.menu:show(options, function(index)
         local selected = options[index]
         if selected == "POKEDEX" or selected == "POKEMON" or selected == "ITEM" then
             self.machine:pop()
             self.machine:push(({POKEDEX="pokedex", POKEMON="party", ITEM="bag"})[selected])
+        elseif selected == "OPTIONS" then
+            self.machine:push("options")
         elseif selected == "RED" then
             self.phase = "trainer"
         elseif selected == "SAVE" then
@@ -75,4 +77,8 @@ function PauseState:draw()
         end
     end
     gfx.setDrawOffset(x, y)
+end
+
+function PauseState:resume()
+    self.menu.crank:reset()
 end

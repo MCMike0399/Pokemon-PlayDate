@@ -7,8 +7,10 @@ function PokedexState:init(game)
     PokedexState.super.init(self,"pokedex")
     self.game,self.selected,self.phase=game,1,"closed"
     self.fronts={}
+    self.crank = CrankScroll()
 end
 function PokedexState:enter(options)
+    self.crank:reset()
     self.sourceDisplay = nil
     self.selected, self.phase = 1, "list"
     if options then
@@ -64,7 +66,11 @@ function PokedexState:back()
         complete()
         return true
     end
-    if self.phase=="entry" then self.phase="list";return true end
+    if self.phase=="entry" then
+        self.crank:reset()
+        self.phase = "list"
+        return true
+    end
     if self.phase=="list" then self.machine:pop();return true end
     return false,"closed"
 end
@@ -79,7 +85,10 @@ function PokedexState:handleInput()
     elseif playdate.buttonJustPressed(playdate.kButtonUp) then self:move(-1)
     elseif playdate.buttonJustPressed(playdate.kButtonDown) then self:move(1)
     elseif playdate.buttonJustPressed(playdate.kButtonLeft) then self:move(-8)
-    elseif playdate.buttonJustPressed(playdate.kButtonRight) then self:move(8) end
+    elseif playdate.buttonJustPressed(playdate.kButtonRight) then self:move(8)
+    elseif self.phase == "list" then
+        self:select(self.crank:move(self.selected, 151))
+    end
 end
 function PokedexState:getSnapshot()
     local view=self:entryView()

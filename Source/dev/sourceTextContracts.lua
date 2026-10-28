@@ -42,7 +42,9 @@ function SourceTextContracts.run()
         Contracts.progress("source-text",name,"running")
         gfx.pushContext()
         gfx.setFont(gfx.getSystemFont())
+        local textSpeed = GameOptions.textSpeed()
         local ok, problem = pcall(fn)
+        GameOptions.set("textSpeed", textSpeed)
         gfx.popContext()
         Contracts.progress("source-text",name,"returned")
         report.tests[#report.tests + 1] = {name = name, ok = ok, error = not ok and tostring(problem) or nil}
@@ -161,8 +163,12 @@ function SourceTextContracts.run()
 
     test("UTF-8 typewriter publishes only complete characters and A reveals then advances once", function()
         local d, completed = Dialog(), 0
+        -- MEDIUM reveals one character every two ticks. FAST deliberately
+        -- reveals three, while this case witnesses every UTF-8 boundary.
+        assert(GameOptions.set("textSpeed", "MEDIUM"))
         d:show({"é¥♂♀…"}, function() completed = completed + 1 end)
         for i = 1, 5 do
+            d:update()
             d:update()
             equal(utf8.len(d.lines[1]:sub(1, d.charIndex)), i)
             native(drawDialog(d), "source-text-typing-" .. i)

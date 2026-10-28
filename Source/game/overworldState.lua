@@ -1,3 +1,5 @@
+import "game/fieldGestures"
+
 -- game/overworldState.lua — Overworld play, with its own substate machine
 --
 -- Substates:
@@ -22,6 +24,16 @@ Class("ExploreSubstate"):extends(State)
 function ExploreSubstate:init(owner)
     ExploreSubstate.super.init(self, "explore")
     self.owner = owner   -- the OverworldState
+end
+
+function ExploreSubstate:enter()
+    self.gestures = FieldGestures()
+    self.pendingAction = nil
+    self.owner.game.player.running = false
+end
+
+function ExploreSubstate:exit()
+    self.owner.game.player.running = false
 end
 
 function ExploreSubstate:update()
@@ -112,16 +124,69 @@ function ExploreSubstate:update()
     self.owner:_presentedWorld()
 end
 
+function ExploreSubstate:interact()
+    local game = self.owner.game
+    local player = game.player
+    local fx, fy = player:getFacingTile()
+    if Story.tryInteract(game, fx, fy) then
+        return
+    end
+    if KantoWorld and KantoWorld.tryInteract(game) then
+        return
+    end
+    local npc = game.npcManager:getNPCAt(fx, fy)
+    if npc then
+        npc:faceTowards(player.gridX, player.gridY)
+        local rootMachine = self.owner.machine
+        local lines = npc:getDialogLines()
+        local battleData = npc:getBattleData()
+        if battleData and not npc:hasInteracted() and game.session:party():firstUsable() then
+            local session=game.session
+            rootMachine:push("dialog", lines, function()
+                if game.session ~= session or rootMachine:current() ~= self.owner
+                    or not Specimen.isActiveSession(session) or not session:party():firstUsable() then
+                    return false, "stale-trainer-creation"
+                end
+                local enemy = assert(Specimen.createForSession(session,battleData.species,battleData.level,"trainer",
+                    Specimen.blueTrainerPolicy(assert(npc.trainerID,"missing-authored-trainer-identity"))))
+                assert(FieldBattle.start(game, game:getPlayerPokemon(), enemy, npc))
+            end)
+        else
+            rootMachine:push("dialog", lines)
+        end
+    end
+end
+
 function ExploreSubstate:handleInput()
     local game = self.owner.game
     local player = game.player
-    if player.isMoving then return end
-    if playdate.buttonJustPressed(playdate.kButtonB) then
-        game.npcManager.motion:cancelPending()
-        self.owner.machine:push("pause")
+    local direction = playdate.buttonIsPressed(playdate.kButtonUp)
+        or playdate.buttonIsPressed(playdate.kButtonDown)
+        or playdate.buttonIsPressed(playdate.kButtonLeft)
+        or playdate.buttonIsPressed(playdate.kButtonRight)
+    local action, running = self.gestures:step(playdate.buttonIsPressed(playdate.kButtonA),
+        playdate.buttonIsPressed(playdate.kButtonB), direction, player.isMoving)
+    self.pendingAction = self.pendingAction or action
+    player.running = running and not self.pendingAction
+    if self.pendingAction then
+        if player.isMoving or player.stepJustFinished then
+            return
+        end
+        local selected = self.pendingAction
+        self.pendingAction = nil
+        if selected == "registered" then
+            BagState.useRegistered(game)
+        elseif selected == "pause" then
+            game.npcManager.motion:cancelPending()
+            self.owner.machine:push("pause")
+        else
+            self:interact()
+        end
         return
     end
-
+    if player.isMoving or self.gestures.phase == "a" or self.gestures.phase == "consumed" then
+        return
+    end
     if playdate.buttonIsPressed(playdate.kButtonUp) then
         player:tryMove(0, -1)
     elseif playdate.buttonIsPressed(playdate.kButtonDown) then
@@ -130,31 +195,6 @@ function ExploreSubstate:handleInput()
         player:tryMove(-1, 0)
     elseif playdate.buttonIsPressed(playdate.kButtonRight) then
         player:tryMove(1, 0)
-    end
-
-    -- A: story interactions first, then source events/counters, then legacy NPCs
-    if playdate.buttonJustPressed(playdate.kButtonA) then
-        local fx, fy = player:getFacingTile()
-        if Story.tryInteract(game, fx, fy) then return end
-        if KantoWorld and KantoWorld.tryInteract(game) then return end
-        local npc = game.npcManager:getNPCAt(fx, fy)
-        if npc then
-            npc:faceTowards(player.gridX, player.gridY)
-            local rootMachine = self.owner.machine
-            local lines = npc:getDialogLines()
-            local battleData = npc:getBattleData()
-            if battleData and not npc:hasInteracted() and game.session:party():firstUsable() then
-                local session=game.session
-                rootMachine:push("dialog", lines, function()
-                    if game.session~=session or rootMachine:current()~=self.owner or not Specimen.isActiveSession(session) or not session:party():firstUsable() then return false,"stale-trainer-creation" end
-                    local enemy = assert(Specimen.createForSession(session,battleData.species,battleData.level,"trainer",
-                        Specimen.blueTrainerPolicy(assert(npc.trainerID,"missing-authored-trainer-identity"))))
-                    assert(FieldBattle.start(game, game:getPlayerPokemon(), enemy, npc))
-                end)
-            else
-                rootMachine:push("dialog", lines)
-            end
-        end
     end
 end
 
@@ -395,6 +435,16 @@ end
 -- Menus/dialogue retain world rendering and tile animation, while movement,
 -- encounter/door triggers and actor update callbacks wait for the overlay.
 function OverworldState:pause()
+    if self.game.player then
+        self.game.player.running = false
+    end
+    local explore = self.sub and self.sub:get("explore")
+    if explore then
+        if explore.gestures then
+            explore.gestures:reset()
+        end
+        explore.pendingAction = nil
+    end
     self.pausedSprites = {}
     local function suspend(sprite)
         if sprite and sprite.updatesEnabled then

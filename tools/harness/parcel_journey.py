@@ -304,6 +304,8 @@ class ParcelJourney(Journey):
         return flags.get(name, False)
 
     def pause_option(self, name):
+        if self.state.get("root") == "overworld":
+            self.await_value("root", "pause", frames=8)
         options = sequence(lookup(self.state, "pause.menu.options"), "pause.menu.options")
         if any(not isinstance(option, str) for option in options) or options.count(name) != 1:
             raise ProtocolError("pause menu requires exactly one option: " + name)
@@ -501,7 +503,7 @@ class ParcelJourney(Journey):
         approaches = model.approaches(target)
         self.navigate(set(approaches))
         self.face(approaches[self.position()])
-        self.send("press a")
+        self.send("press a", "wait 2")
         self.drain(stop_phase=stop_phase)
 
     def leave_lab(self):

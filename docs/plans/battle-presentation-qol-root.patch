@@ -1,0 +1,22 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -176,6 +176,7 @@
+ machine:register("evolution", EvolutionState(game))
+ machine:register("title", TitleState(game))
+ machine:register("pause", PauseState(game))
++machine:register("options", OptionsState(game))
+ machine:register("party", PartyState(game))
+ machine:register("fieldMove", FieldMoveState(game))
+ machine:register("bag", BagState(game))
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -266,6 +266,9 @@
+ import "dev/vermilionAmbientContracts"
+ Contracts.register("vermilion-ambient", VermilionAmbientContracts.run)
+ 
++import "dev/battlePresentationContracts"
++Contracts.register("battle-presentation", BattlePresentationContracts.run)
++
+ -- @harness content-ready
+ VermilionCatalogExporter.register()
+ 

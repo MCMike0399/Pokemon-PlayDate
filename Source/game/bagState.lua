@@ -1,9 +1,80 @@
 local gfx <const> = playdate.graphics
 Class("BagState"):extends(State)
 
+-- Registration and ordinary USE share these exact supported key-item actions.
+local fieldKeyActions = {
+    townMap = function(bag)
+        return TownMapState.open(bag.game)
+    end,
+}
+
+function BagState.canRegister(id)
+    local item = ItemData.definitions[id]
+    return item ~= nil and item.keyItem and fieldKeyActions[id] ~= nil
+end
+
+function BagState:fieldBag()
+    return self.active and self:isTop() and self.game.session == self.session
+        and not self.options.mode and not self.options.trySelect and not self.battle
+end
+
+function BagState:registerItem(id)
+    if not self:fieldBag() or not BagState.canRegister(id)
+        or (self.session:inventory():quantity(id) or 0) < 1 then
+        return false, "unavailable-key-item"
+    end
+    local previous = GameOptions.registeredItem()
+    local selected = previous ~= id and id or nil
+    assert(GameOptions.setRegisteredItem(selected))
+    if not GameOptions.save() then
+        GameOptions.setRegisteredItem(previous)
+        self:showMessage("Registration could not be saved.")
+        return false, "save-failed"
+    end
+    self:showMessage(selected and (ItemData.definitions[id].name .. " registered. Use A+B in the field.")
+        or "Key item registration cleared.")
+    return true
+end
+
+function BagState.useRegistered(game)
+    local world = game.machine:get("overworld")
+    local player = game.player
+    if game.machine:current() ~= world or game.machine:depth() ~= 1
+        or not world or not world.sub:is("explore") or not player or player.isMoving
+        or player.isJumping or player.stepJustFinished or player.pendingEdgeDoor or player.pendingConnection then
+        return false, "field-only"
+    end
+    local id = GameOptions.registeredItem()
+    if not id or not BagState.canRegister(id) or (game.session:inventory():quantity(id) or 0) < 1 then
+        game.machine:push("dialog", {"Register a usable key item in your Bag first."})
+        return false, "unavailable-key-item"
+    end
+    game.machine:push("bag", {registeredShortcut = true})
+    return true
+end
+
+function BagState:sortBag()
+    if not self:fieldBag() then
+        return false, "field-only"
+    end
+    assert(self.session:inventory():sort())
+    self.selected = 1
+    self:showMessage("Bag sorted: key items first, then by name.")
+    return true
+end
+
+function BagState:listCount()
+    local count = #self:visibleSlots()
+    if self.active and self.options and not self.options.mode and not self.options.trySelect and not self.battle and count > 1 then
+        return count + 1
+    end
+    return count
+end
+
 function BagState:init(game)
     BagState.super.init(self, "bag")
     self.game, self.menu = game, BattleMenu()
+    self.crank = CrankScroll()
 end
 
 -- Explicit field-only selection mode; validates before pushing any state.
@@ -53,11 +124,40 @@ function BagState:enter(options)
     self.visit=(self.visit or 0)+1
     self.heldReceipt=nil
     self.options = options or {}
+    self.shortcutPending = self.options.registeredShortcut == true
+    self.shortcutOpened = false
+    self.crank:reset()
     self.selected, self.phase, self.message = 1, "list", nil
     self.menu:hide()
     self.active = true
     self.session,self.battle=self.game.session,self.options.battle
     self.battleSerial=(self.battleSerial or 0)+1
+    if self.shortcutPending then
+        self:update()
+    end
+end
+
+function BagState:update()
+    if not self.active or not self:isTop() or not self.shortcutPending then
+        return
+    end
+    self.shortcutPending = false
+    local id = GameOptions.registeredItem()
+    if self.game.session ~= self.session or not id or not BagState.canRegister(id)
+        or (self.session:inventory():quantity(id) or 0) < 1 then
+        self:showMessage("That registered item is no longer available.")
+        return
+    end
+    self.shortcutOpened = true
+    self:chooseTarget(id)
+end
+
+function BagState:resume()
+    self.crank:reset()
+    self.menu.crank:reset()
+    if self.options and self.options.registeredShortcut and self.shortcutOpened then
+        self.machine:pop()
+    end
 end
 
 function BagState:exit()
@@ -123,11 +223,18 @@ function BagState:useMachine(id,index)
 end
 function BagState:chooseTarget(id)
     local item = ItemData.definitions[id]
+    if not self.active or not self:isTop() or self.game.session ~= self.session
+        or not item or (self.session:inventory():quantity(id) or 0) < 1 then
+        self:showMessage("That item is no longer in your bag.")
+        return false, "unavailable-item"
+    end
     if id=="escapeRope"then return FieldItems.confirmEscape(self) end
-    if id=="townMap"then
-        local ok,reason=TownMapState.open(self.game)
-        if not ok then self:showMessage("That item can't be used here.")end
-        return ok,reason
+    if fieldKeyActions[id] then
+        local ok, reason = fieldKeyActions[id](self)
+        if not ok then
+            self:showMessage("That item can't be used here.")
+        end
+        return ok, reason
     end
     if item.effect == "unsupported" and not Evolution.isStone(id) and not Teaching.isMachine(id) then self:showMessage("That item can't be used here."); return end
     if self.game.session:party():count() == 0 then self:showMessage("You have no POKEMON yet."); return end
@@ -156,22 +263,56 @@ end
 
 function BagState:actions(id)
     self.phase = "actions"
-    self.menu:show({"USE", "TOSS", "CANCEL"}, function(index)
-        if index == 1 then
-            self.phase = "list"; self.menu:hide()
+    local options = {"USE", "TOSS"}
+    if self:fieldBag() and BagState.canRegister(id) then
+        options[#options + 1] = GameOptions.registeredItem() == id and "UNREGISTER" or "REGISTER"
+    end
+    options[#options + 1] = "CANCEL"
+    local visit, session = self.visit, self.session
+    self.menu:show(options, function(index)
+        if not self.active or not self:isTop() or self.visit ~= visit or self.session ~= session
+            or self.game.session ~= session then
+            return
+        end
+        local action = options[index]
+        if action == "USE" then
+            self.phase = "list"
+            self.menu:hide()
             self:chooseTarget(id)
-        elseif index == 2 then
-            if ItemData.definitions[id].keyItem then self:showMessage("That's too important to toss."); return end
+        elseif action == "REGISTER" or action == "UNREGISTER" then
+            self:registerItem(id)
+        elseif action == "TOSS" then
+            if ItemData.definitions[id].keyItem then
+                self:showMessage("That's too important to toss.")
+                return
+            end
             self.phase = "toss"
             self.menu:show({"NO", "YES"}, function(choice)
+                if not self.active or not self:isTop() or self.visit ~= visit or self.game.session ~= session then
+                    return
+                end
                 if choice == 2 then
-                    local ok = self.game.session:inventory():consume(id, 1)
+                    local ok = session:inventory():consume(id, 1)
                     self:showMessage(ok and "Threw away one " .. ItemData.definitions[id].name .. "."
                         or "That item is no longer in your bag.")
-                else self.phase = "list"; self.menu:hide() end
-            end, function() self.phase = "list"; self.menu:hide() end)
-        else self.phase = "list"; self.menu:hide() end
-    end, function() self.phase = "list"; self.menu:hide() end)
+                else
+                    self.phase = "list"
+                    self.menu:hide()
+                end
+            end, function()
+                self.phase = "list"
+                self.menu:hide()
+            end)
+        else
+            self.phase = "list"
+            self.menu:hide()
+            self.crank:reset()
+        end
+    end, function()
+        self.phase = "list"
+        self.menu:hide()
+        self.crank:reset()
+    end)
 end
 
 function BagState:handleInput()
@@ -179,14 +320,20 @@ function BagState:handleInput()
     if self.options.mode=="held" and self.game.session~=self.session then return end
     if self.phase == "message" then
         if playdate.buttonJustPressed(playdate.kButtonA) or playdate.buttonJustPressed(playdate.kButtonB) then
-            self.phase = "list"
+            if self.options.registeredShortcut then
+                self.machine:pop()
+            else
+                self.phase = "list"
+                self.crank:reset()
+            end
         end
         return
     end
     if self.phase ~= "list" then self.menu:handleInput(); return end
     local slots = self:visibleSlots()
-    local count = #slots
-    self.selected = math.max(1, math.min(self.selected, count))
+    local count = self:listCount()
+    self.selected = math.max(1, math.min(self.selected, math.max(1, count)))
+    local scrolled = self.crank:move(self.selected, count)
     if playdate.buttonJustPressed(playdate.kButtonB) then
         if self.options.mode=="held" then
             local callback=self.options.onCancel;self.machine:pop();if callback then callback() end
@@ -195,6 +342,10 @@ function BagState:handleInput()
         if playdate.buttonJustPressed(playdate.kButtonUp) then self.selected = (self.selected - 2) % count + 1
         elseif playdate.buttonJustPressed(playdate.kButtonDown) then self.selected = self.selected % count + 1
         elseif playdate.buttonJustPressed(playdate.kButtonA) then
+            if self.selected > #slots then
+                self:sortBag()
+                return
+            end
             local id = slots[self.selected].id
             if self.options.mode=="held" then self:selectHeld(id)
             elseif self.options.trySelect then
@@ -209,6 +360,8 @@ function BagState:handleInput()
                         or "That item can't be used here.")
                 end
             else self:actions(id) end
+        else
+            self.selected = scrolled
         end
     end
 end
@@ -221,14 +374,33 @@ function BagState:draw()
     gfx.drawText(self.options and self.options.mode=="held" and ("GIVE: "..self.options.holder.name) or "ITEM", 12, 8)
     gfx.drawText("$" .. self.game.session:inventory():money(), 286, 8)
     local slots = self:visibleSlots()
-    local first = math.max(1, self.selected - 7)
-    if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
-    for i = first, math.min(#slots, first + 7) do
-        local slot, top = slots[i], 36 + (i - first) * 21
-        gfx.drawText((i == self.selected and "> " or "  ") .. ItemData.definitions[slot.id].name, 12, top)
-        gfx.drawText("x" .. slot.quantity, 328, top)
+    local first = math.max(1, self.selected - 6)
+    if not self.options.mode then
+        local id = GameOptions.registeredItem()
+        local item = id and ItemData.definitions[id]
+        local label = item and item.name or "NONE"
+        if item and (self.game.session:inventory():quantity(id) or 0) < 1 then
+            label = label .. " (missing)"
+        end
+        gfx.drawText("Registered: " .. label, 12, 27)
     end
-    gfx.drawText(self.options and self.options.mode=="held" and "A: Give  B: Back" or "A: Choose  B: Back", 12, 218)
+    if #slots == 0 then gfx.drawText(self.options and self.options.mode=="held" and "No holdable items in your bag." or "Your bag is empty.", 16, 64) end
+    for i = first, math.min(self:listCount(), first + 6) do
+        local slot = slots[i]
+        local top = 50 + (i - first) * 21
+        local prefix = i == self.selected and "> " or "  "
+        if slot then
+            gfx.drawText(prefix .. ItemData.definitions[slot.id].name, 12, top)
+            gfx.drawText("x" .. slot.quantity, 328, top)
+        else
+            gfx.drawText(prefix .. "SORT BAG", 12, top)
+        end
+    end
+    local hint = self.options.mode == "held" and "A: Give  B: Back" or "A: Choose  B: Back"
+    if GameOptions.crankScrolling() and self:listCount() >= 5 then
+        hint = hint .. "  Crank: Scroll"
+    end
+    gfx.drawText(hint, 12, 218)
     if self.phase == "message" then
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(4, 174, 392, 62)
         gfx.setColor(gfx.kColorBlack); gfx.drawRect(4, 174, 392, 62)
@@ -242,7 +414,7 @@ function BagState:draw()
         gfx.setColor(gfx.kColorWhite); gfx.fillRect(8, 112, 384, 40)
         gfx.setColor(gfx.kColorBlack); gfx.drawText("Throw away one item?", 18, 122)
         self.menu:draw(208, 152, 180, 60)
-    elseif self.phase == "actions" then self.menu:draw(208, 144, 180, 76) end
+    elseif self.phase == "actions" then self.menu:draw(208, 120, 180, 16 + #self.menu.options * 20) end
     gfx.setDrawOffset(x, y)
 end
 

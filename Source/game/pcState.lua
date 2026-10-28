@@ -12,11 +12,13 @@ local errors={
 function PCState:init(game)
     PCState.super.init(self,"pc");self.game,self.menu=game,BattleMenu();self.font=pcFont
     self.epoch,self.serial,self.active,self.phase=0,0,false,"closed"
+    self.crank = CrankScroll()
 end
 function PCState:live()
     return self.active and self:isTop() and self.game.session==self.session
 end
 function PCState:hideMenu()
+    self.crank:reset()
     self.serial=self.serial+1;self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
 end
 function PCState:showMenu(options,choose,cancel,selected)
@@ -159,7 +161,22 @@ end
 function PCState:handleInput()
     for _,button in ipairs({"b","a","up","down"}) do
         local keys={b=playdate.kButtonB,a=playdate.kButtonA,up=playdate.kButtonUp,down=playdate.kButtonDown}
-        if playdate.buttonJustPressed(keys[button]) then self:handleButton(button);return end
+        if playdate.buttonJustPressed(keys[button]) then
+            self.crank:reset()
+            self.menu.crank:reset()
+            self:handleButton(button)
+            return
+        end
+    end
+    if not self:live() then
+        return
+    end
+    if self.menu.isActive then
+        self.menu.selectedIndex = self.menu.crank:move(self.menu.selectedIndex, #self.menu.options)
+    elseif self.phase == "list" then
+        self.selected = self.crank:move(self.selected, self:count())
+    elseif self.phase == "boxes" then
+        self.box = self.crank:move(self.box, Storage.BOX_COUNT)
     end
 end
 function PCState:getSnapshot()
@@ -222,4 +239,9 @@ function PCState:draw()
         or self.result and self.result.message or self.phase=="boxes" and "Choose a POKEMON BOX.  B: Back" or "A: Choose   B: Back"
     gfx.drawTextInRect(prompt,20,194,360,32)
     gfx.popContext()
+end
+
+function PCState:resume()
+    self.crank:reset()
+    self.menu.crank:reset()
 end

@@ -9,6 +9,7 @@ local messages={
 function ItemPCState:init(game)
     ItemPCState.super.init(self,"itemPC");self.game,self.menu=game,BattleMenu();self.epoch=0;self.serial=0;self.phase="closed"
     self.font=assert(gfx.font.new("/System/Fonts/Asheville-Sans-14-Bold"))
+    self.crank = CrankScroll()
 end
 local function settled(game)
     local p=game.player;local world=game.machine:get("overworld")
@@ -30,6 +31,7 @@ function ItemPCState:live()
         and self.player.gridX==self.x and self.player.gridY==self.y and settled(self.game)
 end
 function ItemPCState:hideMenu()
+    self.crank:reset()
     self.serial=self.serial+1;self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
 end
 function ItemPCState:cancelSelection()
@@ -112,7 +114,20 @@ function ItemPCState:handleButton(button)
 end
 function ItemPCState:handleInput()
     for _,button in ipairs({"b","a","up","down"})do
-        if playdate.buttonJustPressed(({b=playdate.kButtonB,a=playdate.kButtonA,up=playdate.kButtonUp,down=playdate.kButtonDown})[button])then self:handleButton(button);return end
+        if playdate.buttonJustPressed(({b=playdate.kButtonB,a=playdate.kButtonA,up=playdate.kButtonUp,down=playdate.kButtonDown})[button])then
+            self.crank:reset()
+            self.menu.crank:reset()
+            self:handleButton(button)
+            return
+        end
+    end
+    if not self:live() then
+        return
+    end
+    if self.menu.isActive then
+        self.menu.selectedIndex = self.menu.crank:move(self.menu.selectedIndex, #self.menu.options)
+    elseif self.phase == "list" then
+        self.selected = self.crank:move(self.selected, #self:slots())
     end
 end
 function ItemPCState:getSnapshot()
@@ -138,4 +153,9 @@ function ItemPCState:draw()
     panel(12,184,376,44)
     local text=self.result and self.result.message or self.phase=="confirm"and "Is it OK to throw away this item?"or "A: Choose   B: Back"
     gfx.drawTextInRect(text,20,190,360,36);gfx.popContext()
+end
+
+function ItemPCState:resume()
+    self.crank:reset()
+    self.menu.crank:reset()
 end

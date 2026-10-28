@@ -26,7 +26,7 @@ function Inventory:init(definitions)
     for id, item in pairs(definitions) do
         assert(type(id) == "string" and id:match("^[a-z][A-Za-z0-9]*$") and type(item) == "table"
             and type(item.keyItem) == "boolean", "invalid item definition")
-        defs[id] = { keyItem = item.keyItem }
+        defs[id] = { keyItem = item.keyItem, name = type(item.name) == "string" and item.name or id }
     end
     states[self] = { definitions = defs, slots = {}, money = 0 }
 end
@@ -122,5 +122,36 @@ function Inventory:_replaceData(data)
     if not replacement then return false,reason end
     local prepared=states[replacement]
     current.slots,current.money=prepared.slots,prepared.money
+    return true
+end
+
+-- Atomic stable sort: key items first, then case-insensitive display name.
+-- Original positions break ties, retaining separate stacks and their quantities.
+function Inventory:sort()
+    local state = states[self]
+    local ordered = {}
+    for index, slot in ipairs(state.slots) do
+        local definition = state.definitions[slot.id]
+        ordered[index] = {
+            slot = {id = slot.id, quantity = slot.quantity},
+            group = definition.keyItem and 0 or 1,
+            name = definition.name:upper(),
+            position = index,
+        }
+    end
+    table.sort(ordered, function(a, b)
+        if a.group ~= b.group then
+            return a.group < b.group
+        end
+        if a.name ~= b.name then
+            return a.name < b.name
+        end
+        return a.position < b.position
+    end)
+    local slots = {}
+    for index, entry in ipairs(ordered) do
+        slots[index] = entry.slot
+    end
+    state.slots = slots
     return true
 end

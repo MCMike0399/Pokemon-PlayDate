@@ -3,11 +3,26 @@ BattleLearningContracts={}
 local function eq(a,b,label) assert(a==b,(label or "value")..": expected "..tostring(b)..", got "..tostring(a)) end
 local function sameRNG(a) local b=RulesRNG.snapshot();for _,k in ipairs({"seed","state","rolls"}) do eq(b[k],a[k],"RNG "..k) end end
 local function own(mon,moves) mon.moves,mon.pp={},{};for i,key in ipairs(moves) do mon.moves[i]=key;mon.pp[key]=moveData[key].maxPP end end
-local function settle(b)
-    local count=0
-    while b:phase()=="script" and not b:getLearningSnapshot().pending do
-        count=count+1;assert(count<300,"script did not reach command/learning");assert(b.machine:get("script"):advance())
+local scenes = setmetatable({}, {__mode = "k"})
+local function settle(b, stopMessage)
+    local scene = assert(scenes[b], "learning fixture requires its production scene")
+    for _ = 1, 10000 do
+        scene:update()
+        if b:phase() ~= "script" or b:getLearningSnapshot().pending then
+            return
+        end
+        if not b.presentationRequest and not scene:isVitalsBlocking() then
+            if stopMessage and b.message:find(stopMessage, 1, true) then
+                return
+            end
+            if b.shiftChoice then
+                assert(b:declineShift())
+            else
+                assert(b.machine:get("script"):advance())
+            end
+        end
     end
+    error("script did not reach command/learning after presentation")
 end
 local function setup(species,level,moves,two,enemyLevel)
     local game=GameContext();local mon=Pokemon(species or "squirtle",level or 6);assert(game:recruit(mon))
@@ -23,6 +38,7 @@ local function setup(species,level,moves,two,enemyLevel)
     game.machine:register("overworld",State("overworld"));game.machine:register("learning",LearningState(game))
     local owner=BattleState(game);game.machine:register("battle",owner)
     game.machine:change("battle",mon,enemy,{name="LEARNING TEST",markInteracted=function(self) self.fixtureDefeated=true end},enemies)
+    scenes[owner.battle] = owner.scene
     settle(owner.battle)
     return game,owner,mon,enemy,reserve
 end
@@ -160,7 +176,11 @@ function BattleLearningContracts.run()
     test("Input-opened overlay never receives the A that advances the level message",function()
         local game,owner,p=setup(nil,nil,{"tackle","tailWhip","withdraw","waterGun"});local b=owner.battle;b.enemy.hp=0
         b:runScript(function() return b:handleFaint("enemy") end)
-        local n=0;while not b.message:find("grew to",1,true) do n=n+1;assert(n<50);assert(b.machine:get("script"):advance()) end
+        settle(b, "grew to")
+        -- Present the complete level page; the tested A acknowledges it rather
+        -- than being the earlier press that only reveals its remaining text.
+        owner.scene:syncMessage()
+        owner.scene.messageDialog:advance()
         b.machine:get("script").messageTimer=11;owner.scene.introPhase="ready";owner.scene.introDrawing=false
         Autopilot.step({"hold","a"},game);game.machine:handleInput();eq(game.machine:getCurrent(),"learning")
         local learning=game.machine:get("learning");eq(learning.phase,"ask");Autopilot.beginFrame();game.machine:handleInput();eq(learning.phase,"ask")

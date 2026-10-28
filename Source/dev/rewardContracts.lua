@@ -8,9 +8,28 @@ local function zero()return IndividualStats.zero()end
 local function stats(p)return {hp=p.hp,maxHP=p.maxHP,atk=p.atk,def=p.def,spa=p.spa,spd=p.spd,spe=p.spe}end
 local function rec(p)return assert(PokemonCodec.encode(p))end
 local function own(p,moves)p.moves,p.pp={},{};for i,key in ipairs(moves)do p.moves[i]=key;p.pp[key]=moveData[key].maxPP end end
-local function settle(b)
-    local n=0
-    while b:phase()=="script"and not b:getLearningSnapshot().pending do n=n+1;assert(n<300,"reward script did not settle");assert(b.machine:get("script"):advance())end
+local function settle(b, scene, stopMessage)
+    for _ = 1, 10000 do
+        if scene then
+            scene:update()
+        end
+        if b:phase() ~= "script" or b:getLearningSnapshot().pending then
+            return
+        end
+        if not b.presentationRequest and (not scene or not scene:isVitalsBlocking()) then
+            if stopMessage and b.message:find(stopMessage, 1, true) then
+                return
+            end
+            if b.shiftChoice then
+                assert(b:declineShift())
+            else
+                assert(b.machine:get("script"):advance())
+            end
+        else
+            assert(scene, "reward presentation requires its production scene")
+        end
+    end
+    error("reward script did not settle after presentation")
 end
 local function fresh(p,foe,bench,enemies)
     local party=Party();assert(party:add(p));if bench then assert(party:add(bench))end
@@ -173,7 +192,19 @@ function RewardContracts.run()
     local scene=BattleScene(b);local bars={};local draw=scene.drawHPBar
     scene.drawHPBar=function(self,x,y,w,h,hp,maximum)bars[#bars+1]={hp,maximum};return draw(self,x,y,w,h,hp,maximum)end
     local image=playdate.graphics.image.new(400,240,playdate.graphics.kColorWhite);playdate.graphics.pushContext(image);scene:drawBattleField();playdate.graphics.popContext();eq(bars[2][1],18);eq(bars[2][2],20)
-    assert(b.machine:get("script"):advance());assert(b.message:find(" grew to Lv7!",1,true));local level,hp,maximum=b:presentationVitals(p);eq(level,7);eq(hp,20);eq(maximum,22);same(RulesRNG.snapshot(),before)
+    assert(b.machine:get("script"):advance())
+    eq(b.presentationRequest.kind, "experience")
+    local level, hp, maximum = b:presentationVitals(p)
+    eq(level, 6)
+    eq(hp, 18)
+    eq(maximum, 20)
+    settle(b, scene, " grew to Lv7!")
+    assert(b.message:find(" grew to Lv7!", 1, true))
+    level, hp, maximum = b:presentationVitals(p)
+    eq(level, 7)
+    eq(hp, 20)
+    eq(maximum, 22)
+    same(RulesRNG.snapshot(), before)
     bars={};playdate.graphics.pushContext(image);scene:drawBattleField();playdate.graphics.popContext();eq(bars[2][1],20);eq(bars[2][2],22);scene:exit();b:clearVolatiles()
  end)
  test("active second member stays held while first bench member narrates and learns",function()

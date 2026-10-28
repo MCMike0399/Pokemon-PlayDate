@@ -76,13 +76,7 @@ function GameSaves:recover(source)
 end
 
 function GameSaves:start()
-    local candidate, metadata = self:inspect()
-    if candidate or metadata.reason ~= "empty" then
-        self.game.machine:change("title")
-    else
-        assert(self.game:beginNewSession(RulesRNG.snapshot().seed))
-        self.game.machine:push("dialog", Story.openingLines)
-    end
+    self.game.machine:change("title")
 end
 
 -- Synchronous trusted-PC transaction; this never makes an ordinary overlay

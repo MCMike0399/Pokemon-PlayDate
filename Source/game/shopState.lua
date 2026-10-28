@@ -15,11 +15,13 @@ function ShopState:init(game)
     ShopState.super.init(self,"shop")
     self.game,self.menu=game,BattleMenu()
     self.epoch,self.menuSerial=0,0
+    self.crank = CrankScroll()
     self.active,self.phase,self.selected,self.quantity=false,"closed",1,1
 end
 function ShopState:inventory() return self.game.session:inventory() end
 function ShopState:live() return self.active and self:isTop() end
 function ShopState:hideMenu()
+    self.crank:reset()
     self.menuSerial=self.menuSerial+1
     self.menu:hide();self.menu.onSelect,self.menu.onCancel=nil,nil
 end
@@ -137,7 +139,20 @@ end
 function ShopState:handleInput()
     for _,button in ipairs({"b","a","up","down","left","right"}) do
         local key=({b=playdate.kButtonB,a=playdate.kButtonA,up=playdate.kButtonUp,down=playdate.kButtonDown,left=playdate.kButtonLeft,right=playdate.kButtonRight})[button]
-        if playdate.buttonJustPressed(key) then self:handleButton(button);return end
+        if playdate.buttonJustPressed(key) then
+            self.crank:reset()
+            self.menu.crank:reset()
+            self:handleButton(button)
+            return
+        end
+    end
+    if not self:live() then
+        return
+    end
+    if self.menu.isActive then
+        self.menu.selectedIndex = self.menu.crank:move(self.menu.selectedIndex, #self.menu.options)
+    elseif self.phase == "browse" then
+        self.selected = self.crank:move(self.selected, #self:rows())
     end
 end
 function ShopState:getSnapshot()
@@ -195,4 +210,9 @@ function ShopState:draw()
         end
     end
     gfx.popContext()
+end
+
+function ShopState:resume()
+    self.crank:reset()
+    self.menu.crank:reset()
 end

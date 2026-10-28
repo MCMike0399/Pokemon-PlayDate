@@ -10,6 +10,27 @@
 
 Class("BattleState"):extends(State)
 
+-- Bespoke registrations omit class_source; their stable identities supply
+-- the source class without treating a displayed trainer name as metadata.
+local bespokeTrainerClasses <const> = {
+    ["authored:oaks_lab:npc:2"] = "OPP_RIVAL1",
+    ["authored:pallet_town:npc:1"] = "OPP_RIVAL1",
+    ["authored:test_zone:npc:2"] = "OPP_RIVAL1",
+    ["pokered:ROUTE_22:objects:1"] = "OPP_RIVAL1",
+    ["pokered:CERULEAN_CITY:objects:1"] = "OPP_RIVAL1",
+    ["pokered:SS_ANNE_2F:objects:2"] = "OPP_RIVAL2",
+    ["pokered:CERULEAN_GYM:objects:1"] = "OPP_MISTY",
+    ["pokered:MT_MOON_B2F:objects:1"] = "OPP_SUPER_NERD",
+    ["pokered:VERMILION_GYM:objects:1"] = "OPP_LT_SURGE",
+}
+
+function BattleState.trainerClassFor(id, definition)
+    if definition and definition.class_source then
+        return definition.class_source
+    end
+    return bespokeTrainerClasses[id]
+end
+
 function BattleState:init(game)
     BattleState.super.init(self, "battle")
     self.game = game
@@ -23,6 +44,12 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     assert(plan,reason)
     local battle,scene=FieldBattle.construct(plan)
     self.npc = npc
+    if npc then
+        local id = npc.trainerID or npc.def and npc.def.source_event_id
+        local definition = self.game.trainers and self.game.trainers:definition(id)
+        battle.trainerClass = BattleState.trainerClassFor(id, definition)
+        scene.trainerClass = battle.trainerClass
+    end
     self.finished=false;self.epoch=(self.epoch or 0)+1;self.trainerToken=nil
     self.battle,self.scene=battle,scene
     assert(self.game.session:beginPickupBattle(battle, npc and 1 or 0))
