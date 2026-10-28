@@ -36,7 +36,7 @@ COLLECTION_BOUNDS = {
     'collection_balls_per_battle': (1, 16), 'collection_money_reserve': (0, 3000),
 }
 BOUNDS = dict(cj.BOUNDS, max_puzzle_attempts=(1, 512), **COLLECTION_BOUNDS)
-PROJECTION = 'data/vermilionJourney.json'
+PROJECTION = 'dev/vermilionJourney.json'
 
 
 def validate_config(config):

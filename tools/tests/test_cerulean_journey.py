@@ -161,7 +161,7 @@ class SourceContractTests(unittest.TestCase):
         export["sources"] = {"data/sourceMaps.json": "stale"}
         with self.assertRaises(ProtocolError):
             cj.validate_export(export, source)
-        projected = self.source.read("data/ceruleanJourney.json")
+        projected = self.source.read("dev/ceruleanJourney.json")
         self.assertEqual(cj.validate_export(projected, self.source), projected)
         archived = self.build / "original-main.lua"
         original = archived.read_bytes()

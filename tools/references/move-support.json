@@ -10,7 +10,7 @@
       "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
     }
   },
-  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified.",
+  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified. Camouflage follows the selected Gen V override: Ground without a field model. Magnitude supports ordinary singles power selection; doubling against an underground Dig target remains unsupported because Dig has no producer.",
   "moves": {
     "pound": {
       "handler": "standard-damage"
@@ -154,7 +154,7 @@
       "handler": "engine-dsl"
     },
     "disable": {
-      "gap": "volatileStatus, onTryHit"
+      "handler": "battle-condition"
     },
     "acid": {
       "handler": "standard-damage"
@@ -295,7 +295,7 @@
       "handler": "engine-dsl"
     },
     "teleport": {
-      "gap": "missing status effect"
+      "handler": "wild-escape"
     },
     "nightShade": {
       "handler": "engine-dsl"
@@ -595,7 +595,7 @@
       "handler": "engine-dsl"
     },
     "magnitude": {
-      "gap": "onModifyMove, onUseMoveMessage"
+      "handler": "engine-dsl"
     },
     "dynamicPunch": {
       "handler": "standard-damage"
@@ -610,10 +610,10 @@
       "gap": "onHit, selfSwitch"
     },
     "encore": {
-      "gap": "volatileStatus"
+      "handler": "battle-condition"
     },
     "pursuit": {
-      "gap": "basePowerCallback, onModifyMove"
+      "handler": "switch-intercept"
     },
     "rapidSpin": {
       "handler": "engine-dsl"
@@ -763,7 +763,7 @@
       "gap": "onTryMove"
     },
     "camouflage": {
-      "gap": "onHit"
+      "handler": "battle-condition"
     },
     "featherDance": {
       "handler": "dsl"
@@ -871,7 +871,7 @@
       "handler": "standard-damage"
     },
     "waterSport": {
-      "gap": "volatileStatus"
+      "handler": "battle-condition"
     },
     "calmMind": {
       "handler": "dsl"

@@ -457,7 +457,7 @@ function Battle:availableMoves(pokemon)
     local choices = {}
     for index, key in ipairs(pokemon.moves) do
         local move = moveData[key]
-        if move and not move.noPP and pokemon:hasPP(key) then
+        if move and not move.noPP and pokemon:hasPP(key) and self.conditions:moveAllowed(pokemon,key) then
             choices[#choices + 1] = {index = index, key = key, move = move}
         end
     end
@@ -523,6 +523,7 @@ function Battle:selectMove(moveIndex)
         if moveIndex < 1 or not key then return false, "invalid-index" end
         playerMove = moveData[key]
         if not playerMove or playerMove.noPP then return false, "unknown-move" end
+        if not locked and not self.conditions:moveAllowed(self.player,key) then return false,"disabled-move" end
         if not locked and not self.player:hasPP(key) then return false, "no-pp" end
     end
     assert(playerMove, "Struggle definition must be generated")
@@ -718,9 +719,20 @@ function Battle:chooseParty(index)
     if not forced and self.conditions:locked(self.player) then return false,"locked-move" end
     if not forced and (self.conditions:trapped(self.player) or self.effects:withdrawBlocked(self.player)) then return false,"trapped" end
     local old=self.player
-    self.effects:beginRound()
-    commitActiveMember(self,"player",index)
+    local enemyTurn=not forced and self:enemyTurn() or nil
+    self.effects:beginRound(enemyTurn and {enemyTurn} or nil)
+    local pursuit=enemyTurn and enemyTurn.key=="pursuit"
+    if not pursuit then commitActiveMember(self,"player",index) end
     self:runScript(function()
+        if pursuit then
+            -- The opponent's one selected action attacks the outgoing identity.
+            self.effects.round.withdrawing=old
+            local outcome=self:resolveTurn(enemyTurn)
+            self.effects.round.withdrawing=nil
+            if outcome and outcome~="replacement" then return outcome end
+            if not old:isAlive() then return self:finishRound() end
+            commitActiveMember(self,"player",index)
+        end
         if not forced then self:say(old.name .. ", come back!") end
         self:say("Go! " .. chosen.name .. "!")
         self.conditions:entry(chosen,"player")
@@ -732,7 +744,7 @@ function Battle:chooseParty(index)
             return self:finishRound()
         end
         if forced then return "command" end
-        local outcome=self:resolveTurn(self:enemyTurn())
+        local outcome=not pursuit and self:resolveTurn(enemyTurn) or nil
         if outcome and outcome~="replacement" then return outcome end
         return self:finishRound()
     end)
@@ -863,7 +875,20 @@ function Battle:resolveTurn(turn)
     if turn.actor~=self[turn.side] or self.outcome or self.effects.closed then return nil end
     self:setDirection(turn.side)
     local attacker = self.attacker
-    self.effects:beginAction(turn,attacker)
+    local key = turn.key
+    if not key then
+        for _,owned in ipairs(attacker.moves) do if moveData[owned]==turn.move then key=owned;break end end
+    end
+    -- Override a queued selection too, when Encore lands before this action.
+    -- This is an ordinary use with ordinary PP, never a locked continuation.
+    local queuedTurn = turn
+    local encore = self.conditions:encoreKey(attacker)
+    if encore and turn.move ~= moveData.struggle and not self.conditions:locked(attacker) then
+        key = attacker:hasPP(encore) and encore or nil
+        turn = {side=turn.side, actor=attacker, key=key,
+            move=key and moveData[key] or moveData.struggle}
+    end
+    self.effects:beginAction(queuedTurn,attacker)
 
     -- Fainted by the earlier half-turn: skip
     if not attacker:isAlive() then return nil end
@@ -902,6 +927,12 @@ function Battle:resolveTurn(turn)
         return interrupted()
     end
 
+    -- Disable BeforeMove precedes confusion/paralysis and never spends PP.
+    if self.conditions:disabled(attacker,key) then
+        self:say(attacker.name.."'s "..turn.move.name.." is disabled!")
+        return interrupted()
+    end
+
     -- Confusion (volatile, decrements per attacking turn; 50% self-hit
     -- with a 40-power typeless physical attack)
     if attacker.confusion then
@@ -936,15 +967,12 @@ function Battle:resolveTurn(turn)
         return interrupted()
     end
     if not turn.move.noPP and not turn.continuation then
-        local key = turn.key
-        if not key then
-            for _, owned in ipairs(attacker.moves) do if moveData[owned] == turn.move then key = owned; break end end
-        end
         if not key or not attacker:usePP(key) then
             self:say(attacker.name .. " has no PP left for that move!")
             return interrupted()
         end
     end
+    self.conditions:of(attacker).lastMove=key or "struggle"
     return self:performMove(turn.move)
 end
 
@@ -1000,7 +1028,8 @@ function Battle:performMove(move)
     if not handler then
         gap = gap or "unreviewed move dispatch"
     elseif move.category == "status" and handler ~= "intentional-no-effect"
-        and handler ~= "singles-no-target" and not move.attemptRule then
+        and handler ~= "singles-no-target" and handler ~= "wild-escape"
+        and handler ~= "battle-condition" and not move.attemptRule then
         local concrete = false
         for _, effect in ipairs(move.effects or {}) do
             if not effect:is("NoEffect") then concrete = true end
@@ -1017,7 +1046,43 @@ function Battle:performMove(move)
 
     if move.damageRule=="bide" then return self.conditions:bide() end
 
+    -- Showdown 9b136a8 gen5 inherits Magnitude's ModifyMove selection.
+    -- Keep it local to this use, before immunity/protection/accuracy and damage.
+    local magnitude
+    if self.currentMoveKey == "magnitude" then
+        local roll = RulesRNG.random(100)
+        local thresholds = { 5, 15, 35, 65, 85, 95, 100 }
+        local powers = { 10, 30, 50, 70, 90, 110, 150 }
+        for index, threshold in ipairs(thresholds) do
+            if roll <= threshold then
+                magnitude = index + 3
+                -- Active-use copy: damage receipts and modifiers must see a
+                -- damaging move, while the registry keeps its zero base power.
+                local activeMove = {}
+                for key, value in pairs(move) do activeMove[key] = value end
+                activeMove.power = powers[index]
+                move = activeMove
+                self.currentMove = move
+                break
+            end
+        end
+    end
+
     self:say(attacker.name .. " used " .. move.name .. "!")
+    if magnitude then self:say("Magnitude " .. magnitude .. "!") end
+    if handler == "wild-escape" then
+        -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
+        -- zero, no selfSwitch, trainer failure even with a usable reserve.
+        -- Wild encounters extend that trainer-only oracle with self escape.
+        local escaped = self.trainerName == nil
+        self.conditions:moveFinished(move, escaped)
+        if not escaped then
+            self:say("But it failed!")
+            return nil
+        end
+        self:say(attacker.name .. " fled!")
+        return "run"
+    end
     -- Charging is a TryMove stage before target/type/accuracy. Skull Bash can
     -- prepare against Ghost, then fail its Normal release without an accuracy roll.
     if move.chargeRule and self.conditions:charge(move) then return nil end
@@ -1087,6 +1152,15 @@ function Battle:performMove(move)
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say(attacker.name .. "'s attack missed!")
         self.conditions:moveFinished(move,false)
+        return nil
+    end
+
+    if handler=="battle-condition" then
+        if self.currentMoveKey=="disable" then self.conditions:disable()
+        elseif self.currentMoveKey=="camouflage" then self.conditions:camouflage()
+        elseif self.currentMoveKey=="encore" then self.conditions:encore()
+        elseif self.currentMoveKey=="waterSport" then self.conditions:waterSport()
+        else error("unsupported battle-condition move") end
         return nil
     end
 

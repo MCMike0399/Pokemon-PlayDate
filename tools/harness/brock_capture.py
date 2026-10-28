@@ -18,13 +18,14 @@ def qualify(build,png,state,kind):
     if image.getchannel('A').getextrema()!=(255,255):raise ProtocolError('Brock capture must be opaque')
     if len(set(image.getdata()))<2:raise ProtocolError('Brock capture is blank; semantic success does not qualify presentation')
     report={'method':'native-panel-nonblank-RGBA','kind':kind,'png_sha256':hashlib.sha256(png.read_bytes()).hexdigest(),'tick':state['frame']['tick']}
-    if kind=='world':
+    if kind in {'world', 'world-basic'}:
         player=state.get('player',{})
         if state.get('root')!='overworld'or state.get('overworld')!='explore'or player.get('settled')is not True or any(player.get(k)for k in ['moving','isJumping','pendingEdgeDoor']):raise ProtocolError('Brock world capture requires settled exploration')
-        from tools.harness.motion_journey import verify_rendered_poses
-        poses=verify_rendered_poses(build,png,state)
-        if sum(actor['opaque_pixels_checked']for actor in poses['actors'])<32:raise ProtocolError('Brock world capture lacks visible source actors')
-        report.update(poses)
+        if kind == 'world':
+            from tools.harness.motion_journey import verify_rendered_poses
+            poses=verify_rendered_poses(build,png,state)
+            if sum(actor['opaque_pixels_checked']for actor in poses['actors'])<32:raise ProtocolError('Brock world capture lacks visible source actors')
+            report.update(poses)
     elif kind=='title':
         if state.get('root')!='title'or state.get('title',{}).get('phase')!='menu':raise ProtocolError('Brock title evidence requires actual title menu')
         menu=state['title'].get('menu',{});options=menu.get('options',[]);selected=state['title'].get('selected')

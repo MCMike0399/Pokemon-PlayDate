@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "58495ebbf67c2a49bb53293fc98d99b00bf136e8",
-    "source_sha256": "2673b352e62b8e145b8a7e19b055db47479bc4f4100caf6f2835137ee85fe079",
-    "policy_date": "2026-10-26",
+    "commit": "1794e48d00f0148c9c696c715cadb584e1b87707",
+    "source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529",
+    "policy_date": "2026-10-28",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "WholeoriginalBluecampaign/postgame, original151, GenVmechanics. Snapshot not timeless live truth.",
-    "acceptance_context": "private-foundation-candidate-not-main-or-milestone"
+    "acceptance_context": "main-cerulean-5.3-accepted"
   },
   "accepted_milestone_rows": [],
   "schedule": {
@@ -99,9 +99,9 @@
     },
     "runtime-scopes": {
       "path": "tools/references/runtime-move-coverage.json",
-      "sha256": "6ade4dc051440d3363f7cfe8bf5e0b5cb17dbbcec8a67d9c38ea099050d8e8e9",
+      "sha256": "1190c945fb01fa7fbb51759ecfeb886ceb9e22f7e4ce75ab8ba4bf3a9c2ea0e7",
       "kind": "private_verified",
-      "scope": "All 50 curated records unchanged from candidate 1250; every named curated assertion succeeded in native 1274. Ten unverified records remain stale. No new mechanics, regional or campaign acceptance."
+      "scope": "50 curated original move scopes retained; nine named owner selections reviewed against accepted 27443af and actual successful SDK assertions. All ten unverified records retain old stale hashes."
     },
     "exposure-current": {
       "path": "docs/validation/coverage-evidence/exposure511.json",
@@ -129,45 +129,45 @@
     },
     "production-battle": {
       "path": "Source/battle/battle.lua",
-      "sha256": "27b07760d1f2d7ba735fc345078bf94365e7549429c19cd31fae4f83495b2003",
+      "sha256": "2970be8fdf9d4f349d1332b4d27cbd385bfb5eb7d6184eba4b6350783682cc3e",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-effects": {
       "path": "Source/battle/effects.lua",
-      "sha256": "bf1d22cd32a193522fc6024e855e0a824e06ce40c838056eb695efd126c437fc",
+      "sha256": "574845de5045d1d76846bea1fa962ebe19407751f9255f0a140766480578aeab",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-conditions": {
       "path": "Source/battle/conditions.lua",
-      "sha256": "4a683f622781e48623e46170d88ca7ae6e1022997bc7c2f4ddd9a1751a742f90",
+      "sha256": "e855ec5a01221bf017edee4eb05df28b56badb62979fd936f351e01566e9b085",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-dsl": {
       "path": "Source/battle/dsl.lua",
-      "sha256": "5c2be3d6a5e4fddafd8a2a9a05440abbbff6ebdf0298038729e548c0c01fde29",
+      "sha256": "06dcea645ce3c9c7afcabe98a0f790a13564a9b47e6b70964224af1cd28ecd93",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-moves": {
       "path": "Source/battle/moves.lua",
       "sha256": "c9ff133241f3fd447d94edf8a265b5eabb57c5dfe008c76a657d79fdb1ebb365",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-sessionCodec": {
       "path": "Source/domain/sessionCodec.lua",
       "sha256": "08ef57bd47fd06e8c1738e6e77918dba895fe5702ff9fad1c3621c5f8833a111",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "production-maps": {
       "path": "Source/data/maps.lua",
       "sha256": "fcfd2ead05a05e1d334a3d16862156b25c1334c408d7c90cfd7a8ec89781db16",
       "kind": "production",
-      "scope": "Final native candidate 58495eb Source declaration pin only; bounded behavior uses reviewed runtime registry. No campaign or milestone acceptance inferred."
+      "scope": "Frozen private Cerulean b1f0bd8 declaration pin only; named assertions and review limits in cerulean1659. No campaign/milestone acceptance inferred."
     },
     "held-native-index": {
       "path": "docs/validation/coverage-evidence/held-native-index.json",
@@ -202,8 +202,25 @@
     "candidate1274": {
       "path": "docs/validation/coverage-evidence/candidate1274-summary.json",
       "sha256": "770bd3a97495225fce365c048d38162f69865f4001de93a68c7c822ba97dbb2c",
+      "kind": "historical",
+      "scope": "Historical native foundation packet; that exact Source was subsequently accepted at main 27443af for milestone 5.2. This packet is not current Cerulean or broad mechanics acceptance."
+    },
+    "cerulean1659": {
+      "path": "docs/validation/coverage-evidence/cerulean1659-summary.json",
+      "sha256": "5920db288c2c38f2c3a229ba663fd9eeeea410dada9bad827bdeb9ea5154a875",
       "kind": "private_verified",
-      "scope": "Root-executed final foundation candidate component evidence only. Main milestone 5.1 was accepted at 9104499 on Source 44bd25 with all three starters and supplements. This newer Source has no milestone 5.2 or all-starter journey acceptance; full campaign and full mechanics remain unfinished."
+      "scope": "Frozen b1f0bd8: complete actual 1659/0 report; reviewed named owner scopes only. No milestone 5.3, natural starter/restart, release or device acceptance."
+    },
+    "production-sourceMaps": {
+      "path": "Source/data/sourceMaps.json",
+      "sha256": "d856d6ad0c0c835faee8eb40f7ff16cd0b8689a1d8f1d0f3503bc5cfc0a0802c",
+      "kind": "source",
+      "scope": "Frozen b1f0bd8 shared manifest declares thirty installed maps, eighteen added since accepted main. Declaration only, not event/reachability or regional acceptance."
+    },
+    "cerulean-acceptance": {
+      "kind": "accepted-summary",
+      "path": "docs/validation/cerulean-acceptance-20261028.json",
+      "sha256": "f21e91abf2c6424228a95b1886f8cd5a521a60aa14b336767cc72c396f1f70dc"
     }
   },
   "source_inventory_summary": {
@@ -449,12 +466,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -472,7 +489,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:LAVENDER_TOWN",
@@ -1069,12 +1091,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -1094,9 +1116,9 @@
       },
       "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
       "staged": {
-        "implementation": "private_archived",
-        "verification": "unrun",
-        "scope": "Bounded source/runtime preparations; not current production or accepted maps."
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
       }
     },
     {
@@ -1130,12 +1152,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -1155,9 +1177,9 @@
       },
       "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors. Original hidden/unused LASS31 remains indexed, not exposed as an available battle without hide/show+script proof.",
       "staged": {
-        "implementation": "private_archived",
-        "verification": "unrun",
-        "scope": "Bounded source/runtime preparations; not current production or accepted maps."
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
       }
     },
     {
@@ -2143,12 +2165,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -2168,9 +2190,9 @@
       },
       "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors. First optional rival due after Brockfreeze; second original late rival depends ViridianGym milestone, not a fake rematch flag.",
       "staged": {
-        "implementation": "private_frozen",
-        "verification": "compile_host_only",
-        "scope": "Route22 first-rival/Gate19SDK groups UNRUN; source/provenance94catalog additions unreviewed; later rival remains deferred"
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
       }
     },
     {
@@ -2260,12 +2282,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -2283,7 +2305,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:ROUTE_25",
@@ -2316,12 +2343,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -2339,7 +2366,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:REDS_HOUSE_1F",
@@ -3230,12 +3262,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3253,7 +3285,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:MUSEUM_2F",
@@ -3286,12 +3323,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3309,7 +3346,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:PEWTER_GYM",
@@ -3628,12 +3670,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3644,18 +3686,18 @@
         "notes": "Source indexed; behavior/reachability unreviewed."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
+        "notes": "cave-encounters: MtMoon1F non-grass land reaches Blue byte 9 accepted and 10 rejected. Source slots, rejected terrain and RNG boundaries only; no regional or natural campaign acceptance."
       },
       "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
       "staged": {
-        "implementation": "private_archived",
-        "verification": "unrun",
-        "scope": "Bounded source/runtime preparations; not current production or accepted maps."
+        "implementation": "private_candidate",
+        "verification": "sdk_scoped",
+        "scope": "Installed in frozen b1f0bd8; cave encounter scope only. Natural journey acceptance pending."
       }
     },
     {
@@ -3689,12 +3731,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3705,18 +3747,18 @@
         "notes": "Source indexed; behavior/reachability unreviewed."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
+        "notes": "cave-encounters: MtMoonB1F non-grass land reaches Blue byte 9 accepted and 10 rejected. Source slots, rejected terrain and RNG boundaries only; no regional or natural campaign acceptance."
       },
       "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
       "staged": {
-        "implementation": "private_archived",
-        "verification": "unrun",
-        "scope": "Bounded source/runtime preparations; not current production or accepted maps."
+        "implementation": "private_candidate",
+        "verification": "sdk_scoped",
+        "scope": "Installed in frozen b1f0bd8; cave encounter scope only. Natural journey acceptance pending."
       }
     },
     {
@@ -3750,12 +3792,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3766,18 +3808,18 @@
         "notes": "Source indexed; behavior/reachability unreviewed."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
+        "notes": "cave-encounters: MtMoonB2F non-grass land reaches Blue byte 9 accepted and 10 rejected. Source slots, rejected terrain and RNG boundaries only; no regional or natural campaign acceptance."
       },
       "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
       "staged": {
-        "implementation": "private_archived",
-        "verification": "unrun",
-        "scope": "Bounded source/runtime preparations; not current production or accepted maps."
+        "implementation": "private_candidate",
+        "verification": "sdk_scoped",
+        "scope": "Installed in frozen b1f0bd8; cave encounter scope only. Natural journey acceptance pending."
       }
     },
     {
@@ -3811,12 +3853,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3834,7 +3876,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:CERULEAN_TRADE_HOUSE",
@@ -3923,12 +3970,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -3946,7 +3993,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:CERULEAN_GYM",
@@ -3979,12 +4031,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -4002,7 +4054,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:BIKE_SHOP",
@@ -4035,12 +4092,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -4058,7 +4115,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:CERULEAN_MART",
@@ -4091,12 +4153,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -4114,7 +4176,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:MT_MOON_POKECENTER",
@@ -4147,12 +4214,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -5272,12 +5339,12 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "production-sourceMaps"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Installed in private b1f0bd8 manifest. Natural progression, event reachability and milestone 5.3 remain unaccepted."
       },
       "regional_fidelity": {
         "implementation": "indexed",
@@ -5295,7 +5362,12 @@
         ],
         "notes": "Regional actual-producer mechanics audit due before this region is accepted; no broad whole-engine claim."
       },
-      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors."
+      "notes": "Indexed source object/party counts are not natural reachability or completion. Copy/alias slots require script/warp review; do not duplicate actors.",
+      "staged": {
+        "implementation": "private_candidate",
+        "verification": "source_only",
+        "scope": "Installed in frozen Cerulean Source; regional review and natural starter/restart acceptance pending."
+      }
     },
     {
       "id": "map:VERMILION_POKECENTER",
@@ -15823,9 +15895,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -16247,9 +16320,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -16701,9 +16775,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "ActualBide storage/release3rd/PP/receipt/protection scopes; nativeC-vsPS policy explicit. Not missing-damage-dispatch. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "ActualBide storage/release3rd/PP/receipt/protection scopes; nativeC-vsPS policy explicit. Not missing-damage-dispatch. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -16866,9 +16941,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -17787,9 +17863,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -18681,9 +18758,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -18741,9 +18819,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -18801,9 +18880,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -20062,9 +20142,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -20311,9 +20392,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -20456,9 +20538,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -20870,9 +20953,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -21661,9 +21745,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -23312,9 +23397,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -24217,9 +24303,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -24453,9 +24540,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -24789,9 +24877,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -26627,9 +26716,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -27003,9 +27093,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -27610,9 +27701,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -27807,9 +27899,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -28284,9 +28377,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -28337,9 +28431,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -28438,9 +28533,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -28542,9 +28638,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -28997,11 +29094,12 @@
           "runtime-scopes",
           "production-battle",
           "production-moves",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation; Roar-specific Soundproof gate. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls."
+        "notes": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation; Roar-specific Soundproof gate. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
-      "notes": "",
+      "notes": " Current Teleport edit changes shared dispatch hashes; older scoped evidence stays historical. All 1660 SDK cases passed in m53-teleport-sdk-20261028-01.",
       "capabilities": []
     },
     {
@@ -29527,9 +29625,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -30053,9 +30152,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -30473,9 +30573,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -30534,9 +30635,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact16-row critStage1 metadata +shared critical stage/damage endpoints; remainingmove semantics unreviewed, not missing critical modifier. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -30778,9 +30880,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -31339,9 +31442,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -31941,9 +32045,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": [
@@ -32329,9 +32434,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -32658,9 +32764,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -33039,9 +33146,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -33321,9 +33429,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -34514,11 +34623,12 @@
           "runtime-scopes",
           "production-battle",
           "production-moves",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation, Protect, priority and switch lifecycle assertions. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls."
+        "notes": "Candidate SDK subset: real wild run/level failure, trainer reserve replacement, PP/RNG and actor cancellation, Protect, priority and switch lifecycle assertions. No exhaustive move/ability/item interactions, campaign acceptance or full mechanics certification. The combined suites contain 33 cases, including unrelated loud-failure controls. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
-      "notes": "",
+      "notes": " Current Teleport edit changes shared dispatch hashes; older scoped evidence stays historical. All 1660 SDK cases passed in m53-teleport-sdk-20261028-01.",
       "capabilities": []
     },
     {
@@ -34883,9 +34993,10 @@
           "current1091",
           "runtime-scopes",
           "candidate1250",
-          "candidate1274"
+          "candidate1274",
+          "cerulean1659"
         ],
-        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance."
+        "notes": "Exact named meaningful assertions scoped in34rowerratum; not exhaustive native/full-engine proof. Historical 1091 reran the same scoped assertions; no full move/family or main acceptance. Historical 1091 remains source-specific; candidate 1274 reran the unchanged named component scopes only. No main/milestone acceptance. Private Cerulean rerun retains this bounded scope after explicit owner review; no new branches or acceptance inferred."
       },
       "notes": "",
       "capabilities": []
@@ -35193,14 +35304,14 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Stench: contact-abilities: Stench real full turn flinches before target PP without mutating the move. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Native rate-down family truncates byte rates and halves unit rates purely. Pure byte/unit rate-down arithmetic for all three IDs; actual encounter witness for Stench only. White Smoke/Quick Feet actual encounter use remains unverified."
     },
     {
       "id": "ability:4",
@@ -35596,12 +35707,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Water Absorb: vermilion-abilities: Water Absorb actual Water Gun heals a quarter, caps and remains immune at full HP. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -35889,12 +36000,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Flash Fire: vermilion-abilities: Flash Fire actual Ember absorbs repeatedly with PP only, no RNG or receipt. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36038,12 +36149,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Intimidate: entry-abilities: Intimidate real initial entry lowers living Inner Focus opponent without RNG. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": "Current field distribution/suppression portions have separate owner/evidence; field hook is not full battle ability."
     },
@@ -36088,12 +36199,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Levitate: vermilion-abilities: Levitate actual Mud-Slap and Bulldoze stop before accuracy secondary and hit receipts. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36136,12 +36247,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Effect Spore: contact-abilities: Effect Spore real Scratch has one 11/10/9 draw and real sleep duration. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36185,14 +36296,14 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Synchronize: contact-abilities: Synchronize reflects real Toxic as bad poison without extra chance draws. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Synchronize literal 49/50 gates retain the ordinary nature draw. Physical-lead Synchronize 49/50 nature gates retain ordinary nature sample; not general acquisition acceptance."
     },
     {
       "id": "ability:29",
@@ -36232,12 +36343,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Clear Body: vermilion-abilities: Clear Body actual direct stat moves share the DSL guard. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36280,12 +36391,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Natural Cure: contact-abilities: Natural Cure real voluntary withdrawal cures major status and toxic state. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36438,12 +36549,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Swift Swim: vermilion-abilities: Swift Swim actual Rain Dance changes real round order without a speed-tie trial. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36542,14 +36653,14 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Actual physical-lead rate doubling, independent of selected usable member; byte/unit rate queries. Remaining field hooks are unverified. Named assertion: field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates"
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates. Actual physical-lead rate doubling, independent of selected usable member; byte/unit rate queries. Remaining field hooks are unverified."
     },
     {
       "id": "ability:36",
@@ -36697,12 +36808,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Inner Focus: common-abilities: Inner Focus real Bite round preserves chance draw and allows target action/PP. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36744,12 +36855,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Water Veil: entry-abilities: Water Veil rejects Ember burn payload after chance draw and preserves damage and PP. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -36839,12 +36950,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Soundproof: entry-abilities: Soundproof general Supersonic Sing Growl Screech and damaging sound guard before accuracy. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -37388,14 +37499,14 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Cute Charm: contact-abilities: Cute Charm binds identities, stops before PP, and permits the other half of its coin. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Cute Charm literal 66/67 gates include failure-only fallback draw. Physical-lead Cute Charm 66/67 sex gates and failure-only fallback sample; not general acquisition acceptance."
     },
     {
       "id": "ability:60",
@@ -37633,12 +37744,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Liquid Ooze: vermilion-abilities: Liquid Ooze actual Absorb reverses drain even at full recipient HP. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -37980,12 +38091,11 @@
         "implementation": "partial",
         "verification": "sdk_scoped",
         "evidence": [
-          "main950",
-          "production-effects"
+          "cerulean1659"
         ],
-        "notes": "Bounded registered hooks only, not completeability semantics."
+        "notes": "Actual physical-lead rate doubling, independent of selected usable member; byte/unit rate queries. Remaining field hooks are unverified. Named assertion: field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates"
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates. Actual physical-lead rate doubling, independent of selected usable member; byte/unit rate queries. Remaining field hooks are unverified."
     },
     {
       "id": "ability:72",
@@ -38027,12 +38137,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Vital Spirit: entry-abilities: Vital Spirit rejects actual Sleep Powder after accuracy without sleep duration RNG. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38079,12 +38189,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Shell Armor: entry-abilities: Shell Armor rejects sampled critical after its trial, without favorable stage bypass. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38374,12 +38484,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Anger Point: contact-abilities: Anger Point uses actual critical calculation and only surviving recipients. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38468,12 +38578,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Dry Skin: common-abilities: Dry Skin Water Gun heals floor quarter and consumes only attempted PP, no accuracy/damage RNG. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38653,12 +38763,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Skill Link: entry-abilities: Skill Link actual Icicle Spear lands five independently rolled hits without count draw. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38803,7 +38913,7 @@
         ],
         "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Native rate-down family truncates byte rates and halves unit rates purely. Pure byte/unit rate-down arithmetic for all three IDs; actual encounter witness for Stench only. White Smoke/Quick Feet actual encounter use remains unverified."
     },
     {
       "id": "ability:97",
@@ -38846,12 +38956,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Sniper: entry-abilities: Sniper real Water Gun critical applies final half-down modifier after resistance. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38896,12 +39006,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Magic Guard: contact-abilities: Magic Guard real Toxic ticks without HP loss or hurt-this-round ledger. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -38944,14 +39054,14 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "No Guard: entry-abilities: No Guard on either living participant bypasses accuracy stages without accuracy RNG. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
-      "notes": ""
+      "notes": " Field scope: field-acquisition: Rate-up dispatch uses physical Diglett Staryu and No Guard Machop without gates. Actual physical-lead rate doubling, independent of selected usable member; byte/unit rate queries. Remaining field hooks are unverified."
     },
     {
       "id": "ability:101",
@@ -38993,12 +39103,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Technician: vermilion-abilities: Technician actual Scratch boosts damage without changing PP or RNG trials. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -39226,12 +39336,12 @@
         "notes": "Regional availability owner must declare actual producer."
       },
       "full_mechanics": {
-        "implementation": "indexed",
-        "verification": "unreviewed",
+        "implementation": "partial",
+        "verification": "sdk_scoped",
         "evidence": [
-          "kanto-inventory"
+          "cerulean1659"
         ],
-        "notes": "Indexed original151 ability union; fullbehavior pending. Field-only partial effects may exist independently."
+        "notes": "Forewarn: entry-abilities: Forewarn real initial entry chooses declared strongest even with zero PP. Only that selected literal assertion scope is credited; other branches, field effects and acquisition remain separately unverified."
       },
       "notes": ""
     },
@@ -70928,6 +71038,6 @@
     "Source indexed counts \u2260 naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
     "104path-present/34promotion reports remain historical; exact34rowerratum overrides broad promotion.",
     "No all425/111 fullmechanics, campaigncompletion or physicaldevice claim.",
-    "950, 1059, 1091 and candidate 1250 remain historical scoped evidence. Final native candidate 58495eb has 1274 passing SDK contracts. Main milestone 5.1 is accepted at 9104499 on Source 44bd25; this newer Source has no milestone 5.2 or all-starter acceptance."
+    "Historical 950/1059/1091/1250/1274 evidence remains source-specific. Accepted main is 27443af, Source 2673b352, through Brock (5.2). Private b1f0bd8 has 1659 scoped SDK successes; milestone 5.3 and starter/restart journeys remain unaccepted."
   ]
 }

@@ -116,7 +116,7 @@ class ProjectionTests(unittest.TestCase):
         manifest['maps'].pop('Route5', None)
         manifest_path.write_text(json.dumps(manifest))
         projected = generator.project(cls.build / 'Source')
-        (cls.build / 'Source/data/vermilionJourney.json').write_text(json.dumps(projected))
+        (cls.build / 'Source/dev/vermilionJourney.json').write_text(json.dumps(projected))
         cls.rehash()
 
     @classmethod
@@ -131,7 +131,7 @@ class ProjectionTests(unittest.TestCase):
 
     def test_generation_is_exact_and_pins_every_map_and_three_counter_teams(self):
         actual = generator.project(ROOT / 'Source')
-        saved = json.loads((ROOT / 'Source/data/vermilionJourney.json').read_text())
+        saved = json.loads((ROOT / 'Source/dev/vermilionJourney.json').read_text())
         self.assertEqual(actual, saved)
         self.assertEqual(len(actual['maps']), 35)
         self.assertEqual({m['path'] for m in actual['maps'].values()} - set(actual['sources']), set())

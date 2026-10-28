@@ -143,7 +143,7 @@ class RecruitmentBoundaryTests(unittest.TestCase):
 class PlanningBoundaryTests(unittest.TestCase):
     def test_common_blue_tables_and_actual_machine_compatibility_are_projected(self):
         projected = generator.project(ROOT / 'Source')
-        self.assertEqual(projected, json.loads((ROOT / 'Source/data/vermilionJourney.json').read_text()))
+        self.assertEqual(projected, json.loads((ROOT / 'Source/dev/vermilionJourney.json').read_text()))
         expected = {'Route24': ['bellsprout', 'caterpie', 'metapod', 'pidgey'], 'Route6': ['meowth'],
                     'Route11': ['sandshrew', 'spearow', 'drowzee'], 'DiglettsCave': ['diglett']}
         for name, targets in expected.items():

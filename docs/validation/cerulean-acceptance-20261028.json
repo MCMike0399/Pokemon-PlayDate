@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "milestone": "5.3",
+  "milestone_accepted": true,
+  "accepted_main_code": "1794e48d00f0148c9c696c715cadb584e1b87707",
+  "source_sha256": "44280b886e08a3549f502b4383e9e191f7264b85a9f3bc7a6881f2268c989529",
+  "maps_playable_on_main": 30,
+  "maps_goal": 222,
+  "sdk": {
+    "passed": 1666,
+    "failed": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-accepted-moves-sdk-20261028-01",
+    "raw_result_sha256": "26758227ca0aabeb25b72e037ad757cb7cbdbf8942f0e65fed22f6803c7f1f64"
+  },
+  "host": {
+    "passed": 723,
+    "failed": 0,
+    "skipped": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-accepted-host-20261028.log"
+  },
+  "protected_catalog": {
+    "exact": 2494,
+    "additions_reviewed": 2448,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-accepted-moves-sdk-20261028-01/comparison.json",
+    "museum_change_previously_approved": true
+  },
+  "starters": [
+    {
+      "starter": "bulbasaur",
+      "path_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-rested-20261028-01/01-cerulean--restart-bulbasaur",
+      "path_source_sha256": "90d232f1840ee33f9e524b21b0fd330631a72807a4fe233e345418f2f49f318e",
+      "save_continue_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-rested-20261028-01/01-cerulean--restart-bulbasaur",
+      "save_continue_source_sha256": "90d232f1840ee33f9e524b21b0fd330631a72807a4fe233e345418f2f49f318e",
+      "original_path_runner_passed": true,
+      "recovered_screenshot_failure": false,
+      "preparation_battles": 0
+    },
+    {
+      "starter": "squirtle",
+      "path_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-chained-journeys-20261028-01/02-cerulean--restart-squirtle",
+      "path_source_sha256": "d257ce193bd6227205ef521003e8390aa848a88b6f07cfe3d3a6a2ce99543056",
+      "save_continue_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-main-squirtle-continue-20261028-01",
+      "save_continue_source_sha256": "90d232f1840ee33f9e524b21b0fd330631a72807a4fe233e345418f2f49f318e",
+      "original_path_runner_passed": false,
+      "recovered_screenshot_failure": true,
+      "preparation_battles": 0
+    },
+    {
+      "starter": "charmander",
+      "path_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-chained-journeys-20261028-01/03-cerulean--restart-charmander",
+      "path_source_sha256": "d257ce193bd6227205ef521003e8390aa848a88b6f07cfe3d3a6a2ce99543056",
+      "save_continue_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-main-charmander-continue-20261028-01",
+      "save_continue_source_sha256": "90d232f1840ee33f9e524b21b0fd330631a72807a4fe233e345418f2f49f318e",
+      "original_path_runner_passed": false,
+      "recovered_screenshot_failure": true,
+      "preparation_battles": 0
+    }
+  ],
+  "supplementary_cases": [
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-and-retries-20261028-01/02-cerulean--ticket-full-retry",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-and-retries-20261028-01/03-cerulean--tm11-full-retry",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-and-retries-20261028-01/04-cerulean--fossil-full-retry-dome",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-and-retries-20261028-01/05-cerulean--fossil-full-retry-helix",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-bulbasaur-and-retries-20261028-01/06-cerulean--blackout"
+  ],
+  "screenshots_reviewed": true,
+  "chain_manifest": "docs/validation/chain-saves.json",
+  "cleanup": {
+    "evidence_gb_freed": 15.3,
+    "clean_worktrees_removed_at_least": 93,
+    "branches_kept": true
+  },
+  "limitations": [
+    "Squirtle and Charmander completed the path before later move fixes. Their earned saves passed two-process Continue on the merged game. The battle changes were checked by native contracts; the paths were not replayed for a screenshot failure.",
+    "Encore and Water Sport were fixed after the final natural journey; native contracts passed. Their changes affect battle state only.",
+    "Original failed run results remain failed.",
+    "Simulator only; device, full campaign, audio and release remain unfinished."
+  ]
+}

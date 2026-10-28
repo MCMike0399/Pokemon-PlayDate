@@ -62,7 +62,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
                 support.render(root)
 
     def test_damage_and_partial_status_special_cases_cannot_pass_as_plain_attacks(self):
-        keys = ('dig', 'razorWind', 'magnitude', 'furyCutter', 'gyroBall',
+        keys = ('dig', 'razorWind', 'furyCutter', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
                 'selfDestruct', 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
                 'reflect', 'haze', 'rest', 'substitute', 'transform', 'metronome',
@@ -74,7 +74,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
     def test_explicit_existing_handlers_are_not_mistaken_for_empty_effects(self):
         # These rules intentionally have no generic effects array or zero power.
         for key in ('bide', 'solarBeam', 'skullBash', 'petalDance', 'rollout',
-                    'electroBall', 'endeavor', 'suckerPunch', 'feint', 'struggle',
+                    'electroBall', 'magnitude', 'endeavor', 'suckerPunch', 'feint', 'struggle',
                     'guillotine', 'sonicBoom', 'psywave', 'ragePowder', 'helpingHand'):
             with self.subTest(move=key):
                 self.assertIn('handler', self.inventory['moves'][key])

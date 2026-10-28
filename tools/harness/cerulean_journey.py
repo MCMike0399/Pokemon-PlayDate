@@ -231,7 +231,7 @@ def validate_export(export, source):
         raise ProtocolError("missing six registered rival counter teams")
     for relative, digest in export["sources"].items():
         path_parts = Path(relative)
-        if path_parts.is_absolute() or ".." in path_parts.parts or relative == "data/ceruleanJourney.json":
+        if path_parts.is_absolute() or ".." in path_parts.parts or relative == "dev/ceruleanJourney.json":
             raise ProtocolError("unsafe or recursive owner source dependency")
         if source.manifest.get(relative) != digest:
             raise ProtocolError("Cerulean owner projection has stale source: " + relative)
@@ -298,7 +298,7 @@ class CeruleanJourney(BrockJourney):
         missing = REQUIRED_MAPS - set(self.map_manifest["maps"])
         if missing:
             raise ProtocolError("missing root map integration: " + ", ".join(sorted(missing)))
-        self.export = validate_export(source.read("data/ceruleanJourney.json"), source)
+        self.export = validate_export(source.read("dev/ceruleanJourney.json"), source)
         self.source_trainers.update(self.export["trainers"])
         self.source_trainers[BRIDGE_RIVAL] = self.export["rivals"][BRIDGE_RIVAL][self.starter]
         self.scenes = source.read("data/ceruleanStory/scenes.json")
@@ -306,7 +306,7 @@ class CeruleanJourney(BrockJourney):
         if observed != {"kind": "owners", "valid": True, "version": self.export["session_codec"]}:
             raise ProtocolError("actual registered owners did not qualify")
         self.summary["cerulean_dependencies"] = {"build_id": self.client.identity["build_id"],
-            "source_revision": REVISION, "owner_export_sha256": source.manifest["data/ceruleanJourney.json"],
+            "source_revision": REVISION, "owner_export_sha256": source.manifest["dev/ceruleanJourney.json"],
             "status": "host contracts only; native and visual acceptance pending"}
         atomic_json(self.evidence / "cerulean-dependencies.json", self.summary["cerulean_dependencies"])
 
@@ -344,7 +344,12 @@ class CeruleanJourney(BrockJourney):
         return None
 
     def save(self):
-        super().save()
+        self.save_number = getattr(self, 'save_number', 0) + 1
+        self.saving = True
+        try:
+            super().save()
+        finally:
+            self.saving = False
         self.boundary_payload = self.codec_guard("saved")
 
 
@@ -457,21 +462,34 @@ class CeruleanJourney(BrockJourney):
         if isinstance(goal, tuple):
             goal = {goal}
         for _ in range(self.config.get("max_transitions", 64)):
-            portal = self.route_portal(target_id, goal)
-            if portal is None:
-                if goal is not None:
-                    self.navigate(goal)
-                return
-            point, kind, detail, destination = portal
-            origin = self.state["zone_id"]
-            if kind == "warp":
-                self.warp(destination[0], event_id=detail["id"])
-            else:
-                self.navigate(point)
-                self.cross(detail[0], *destination)
-            self.summary["transitions"].append({"from": origin, "kind": kind,
-                "source": detail["id"] if kind == "warp" else detail[0], "to": destination})
+            try:
+                portal = self.route_portal(target_id, goal)
+                if portal is None:
+                    if goal is not None:
+                        self.navigate(goal)
+                    return
+                point, kind, detail, destination = portal
+                origin = self.state["zone_id"]
+                if kind == "warp":
+                    self.warp(destination[0], event_id=detail["id"])
+                else:
+                    self.navigate(point)
+                    self.cross(detail[0], *destination)
+                self.summary["transitions"].append({"from": origin, "kind": kind,
+                    "source": detail["id"] if kind == "warp" else detail[0], "to": destination})
+            except NaturalBlackout:
+                if self.config["name"] != "cerulean-natural" or getattr(self, "blackout_probe", False):
+                    raise
+                self.recover_path_blackout("travel to " + target_id)
+                # Replan every portal from the game's actual checkpoint pose.
         raise ProtocolError("Cerulean physical transition budget exhausted")
+
+    def recover_path_blackout(self, context):
+        try:
+            self.recover_blackout()
+            self.codec_guard()
+        except ProtocolError as error:
+            raise ProtocolError("Cerulean " + context + ": " + str(error)) from error
 
     def zone(self, name):
         return self.map_manifest["maps"][name]["id"]
@@ -485,24 +503,59 @@ class CeruleanJourney(BrockJourney):
                 raise ProtocolError("missing/mismatched root read-only actual trainer team diagnostic: " + str(trainer_id))
         if getattr(self, "blackout_probe", False):
             expected = "loss"
-        result = super().battle(name, strategy, expected)
+        try:
+            result = super().battle(name, strategy, expected)
+        except NaturalBlackout:
+            # Brock records the terminal outcome before raising. Retain that
+            # source loss receipt too, rather than recording only later wins.
+            self.record_source_outcome(trainer_id)
+            raise
+        self.record_source_outcome(trainer_id)
+        if getattr(self, "blackout_probe", False) and lookup(self.state, "last_battle_outcome.blackout"):
+            raise NaturalBlackout("supplementary actual trainer loss reached checkpoint")
+        return result
+
+    def record_source_outcome(self, trainer_id):
         if self.stage == "cerulean" and trainer_id in self.source_trainers:
             outcome = lookup(self.state, "last_battle_outcome")
             if outcome.get("trainer_id") != trainer_id:
                 raise ProtocolError("actual trainer outcome lacks stable trainer receipt ID")
             self.summary["source_receipts"].append(copy.deepcopy(outcome))
-            if getattr(self, "blackout_probe", False) and outcome.get("blackout"):
-                raise NaturalBlackout("supplementary actual trainer loss reached checkpoint")
-        return result
+
+    def flee(self):
+        if self.stage != "cerulean":
+            return super().flee()
+        before_money = self.inventory()["money"]
+        try:
+            return super().flee()
+        except ProtocolError as error:
+            # Parcel's RUN driver already records the real encounter and final
+            # packet, but reports a blackout as a plain ProtocolError.
+            if (str(error) != "natural parcel walk interrupted by real blackout"
+                    or not lookup(self.state, "last_battle_outcome.blackout")):
+                raise
+            outcome = copy.deepcopy(lookup(self.state, "last_battle_outcome"))
+            self.summary["battles"].append({"name": "cerulean-travel-run", "trainer_id": None,
+                "money_before": before_money, "outcome": outcome})
+            raise NaturalBlackout("actual blackout during Cerulean RUN inputs") from error
 
     def fight(self, trainer_id):
         zone = self.source_trainers[trainer_id]["map_id"]
         event = next(e for e in self.models[zone].events["objects"] if e["id"] == trainer_id)
-        self.travel(zone, set(self.models[zone].approaches((event["x"], event["y"]))))
-        if not self.defeated(trainer_id):
-            self.interact(source_id=trainer_id)
-        if not self.defeated(trainer_id) or not any(r.get("trainer_id") == trainer_id and r.get("won") for r in self.summary["source_receipts"]):
-            raise ProtocolError("required actual trainer victory receipt missing: " + trainer_id)
+        for _ in range(self.config.get("max_blackouts", 1) + 1):
+            try:
+                self.travel(zone, set(self.models[zone].approaches((event["x"], event["y"]))))
+                if not self.defeated(trainer_id):
+                    self.interact(source_id=trainer_id)
+                if not self.defeated(trainer_id) or not any(
+                        r.get("trainer_id") == trainer_id and r.get("won") for r in self.summary["source_receipts"]):
+                    raise ProtocolError("required actual trainer victory receipt missing: " + trainer_id)
+                return
+            except NaturalBlackout:
+                if self.config["name"] != "cerulean-natural" or getattr(self, "blackout_probe", False):
+                    raise
+                self.recover_path_blackout("fight " + trainer_id)
+        raise ProtocolError("Cerulean trainer retry budget exhausted: " + trainer_id)
 
     def heal_here(self, name):
         center = self.zone(name)
@@ -534,17 +587,25 @@ class CeruleanJourney(BrockJourney):
     def stock_up(self, name):
         zone = self.zone(name)
         clerk = zone + ":objects:1"
-        self.require_shop_stock(clerk, "potion")
-        price = self.export["shops"][clerk]["prices"]["potion"]
-        count = min(max(0, 15 - self.quantity("potion")), self.inventory()["money"] // price)
-        if count:
-            self.travel(zone)
-            self.buy_item(clerk, "potion", count, price)
+        # Reserve a few poison cures before spending the remaining money on
+        # Potions. Both are used by Brock's existing real battle Bag policy.
+        for item, target in (("antidote", 3), ("potion", 15)):
+            self.require_shop_stock(clerk, item)
+            price = self.export["shops"][clerk]["prices"][item]
+            count = min(max(0, target - self.quantity(item)), self.inventory()["money"] // price)
+            if count:
+                self.travel(zone)
+                # Travel can earn a payout or incur a real blackout penalty.
+                count = min(max(0, target - self.quantity(item)), self.inventory()["money"] // price)
+                if count:
+                    self.buy_item(clerk, item, count, price)
 
     def capture_presentation(self, label, kind):
         if self.stage == "cerulean":
             label = "cerulean-" + label
-        return super().capture_presentation(label, kind)
+        if getattr(self, 'saving', False):
+            label = 'save-' + str(self.save_number) + '-' + label
+        return super().capture_presentation(label, 'world-basic' if kind == 'world' else kind)
 
     def fossil_exclusion(self):
         chosen = FOSSILS[self.config.get("fossil", "dome")]
@@ -583,24 +644,64 @@ class CeruleanJourney(BrockJourney):
         self.checkpoint("cerulean-bill-restored")
 
     def natural(self):
-        super().natural()  # Retains full capture/party/medicine/evolution evidence.
+        self.dependencies()
+        self.require(root="title", **{"title.phase": "menu"})
+        options = sequence(lookup(self.state, "title.menu.options"), "title menu")
+        self.select("title.selected", options.index("CONTINUE") + 1)
+        self.send("press a")
+        self.drain()
+        if not self.defeated("pokered:PEWTER_GYM:objects:1") or not self.flag("BADGE_BOULDER"):
+            raise ProtocolError("starting save has not completed Brock")
+        if not any(mon["species"] in FAMILIES[self.starter] for mon in self.party()):
+            raise ProtocolError("starting save has the wrong starter")
         self.stage = "cerulean"
-        self.summary["acceptance"] = "Brock saved; Cerulean pending"
-        self.stock_up("PewterMart")
-        self.travel(self.zone("Route3"))
+        self.summary["acceptance"] = "Continued accepted Brock save; Cerulean pending"
+        self.summary["preparation_policy"] = {"max_new_training_battles": 0, "use_centers_and_medicine": True}
+        starting = self.build_evidence / 'starting-save.json'
+        if starting.is_file():
+            provenance = json.loads(starting.read_text())
+            if provenance.get('from_milestone') == '5.3':
+                # The preceding real-input run already earned and saved these
+                # rewards. Check that save, then retry only Save/Continue.
+                for flag in ('EVENT_GOT_SS_TICKET', 'EVENT_USED_CELL_SEPARATOR_ON_BILL',
+                             'EVENT_LEFT_BILLS_HOUSE_AFTER_HELPING', 'EVENT_GOT_NUGGET'):
+                    if not self.flag(flag):
+                        raise ProtocolError('incomplete saved campaign: ' + flag)
+                if not self.defeated(MISTY):
+                    raise ProtocolError('saved campaign has not beaten Misty')
+                self.fossil_exclusion()
+                self.save()
+                self.write_receipt()
+                self.summary.update(resumed_from_save=provenance['source'],
+                                    acceptance='Saved completed path; process restart pending')
+                return
         trainers = sorted((d for d in self.source_trainers.values() if d["map_id"] == self.zone("Route3")),
                           key=lambda d: d["source_object_index"])
-        for trainer in trainers:
-            self.fight(trainer["id"])
+        if any(not self.defeated(trainer["id"]) for trainer in trainers):
+            self.heal_here("PewterPokecenter")
+            self.stock_up("PewterMart")
+            for trainer in trainers:
+                if not self.defeated(trainer["id"]):
+                    self.fight(trainer["id"])
+                    self.heal_here("PewterPokecenter")
+            self.stock_up("PewterMart")
         self.heal_here("MtMoonPokecenter")
-        self.travel(self.zone("MtMoon1F"))
-        self.reward(sid("MT_MOON_1F", 9), "moonStone", "PICKUP:" + sid("MT_MOON_1F", 9))
-        self.fight(sid("MT_MOON_B2F", 2))
-        trigger = self.scenes["fossil_trigger"]
-        self.travel(self.zone("MtMoonB2F"), (trigger["x"] + self.models[self.zone("MtMoonB2F")].padding, trigger["y"]))
-        # Natural source positional trigger must produce the Nerd's own receipt.
-        if not self.defeated(NERD) or not any(r.get("trainer_id") == NERD and r.get("won") for r in self.summary["source_receipts"]):
-            raise ProtocolError("required Super Nerd positional battle integration missing")
+        self.save()
+        stone = sid("MT_MOON_1F", 9)
+        if not self.flag("PICKUP:" + stone):
+            self.travel(self.zone("MtMoon1F"))
+            self.reward(stone, "moonStone", "PICKUP:" + stone)
+        rocket = sid("MT_MOON_B2F", 2)
+        if not self.defeated(rocket):
+            self.heal_here("MtMoonPokecenter")
+            self.fight(rocket)
+            self.heal_here("MtMoonPokecenter")
+            self.save()
+        if not self.defeated(NERD):
+            trigger = self.scenes["fossil_trigger"]
+            self.travel(self.zone("MtMoonB2F"), (trigger["x"] + self.models[self.zone("MtMoonB2F")].padding, trigger["y"]))
+            if not self.defeated(NERD) or not any(r.get("trainer_id") == NERD and r.get("won") for r in self.summary["source_receipts"]):
+                raise ProtocolError("Super Nerd victory receipt missing")
         self.reward(*FOSSILS[self.config.get("fossil", "dome")])
         self.fossil_exclusion()
         self.checkpoint("cerulean-fossil-choice")
@@ -614,11 +715,15 @@ class CeruleanJourney(BrockJourney):
         self.checkpoint("cerulean-misty-badge-tm11")
         self.heal_here("CeruleanPokecenter")
         self.fight(BRIDGE_RIVAL)
+        self.heal_here("CeruleanPokecenter")
+        self.stock_up("CeruleanMart")
         for index in (6, 5, 4, 3, 2, 1):
             self.fight(sid("ROUTE_24", index))
         if not self.flag("EVENT_GOT_NUGGET") or self.quantity("nugget") != 1:
             raise ProtocolError("missing root Nugget Bridge gift/battle integration")
         self.checkpoint("cerulean-nugget-bridge")
+        self.heal_here("CeruleanPokecenter")
+        self.stock_up("CeruleanMart")
         self.travel(self.zone("Route25"))
         self.bill_scene()
         self.reward(TICKET, "ssTicket", "EVENT_GOT_SS_TICKET")

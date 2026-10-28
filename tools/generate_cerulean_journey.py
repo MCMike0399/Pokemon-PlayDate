@@ -125,12 +125,13 @@ def main():
     parser.add_argument('--output', type=Path)
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
-    output = args.output or args.source / 'data/ceruleanJourney.json'
+    output = args.output or args.source / 'dev/ceruleanJourney.json'
     result = json.dumps(project(args.source), indent=2, sort_keys=True) + '\n'
     if args.check:
         if not output.is_file() or output.read_text() != result:
             parser.exit(1, 'Cerulean journey projection is stale; regenerate after composition\n')
     else:
+        output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(result)
 
 

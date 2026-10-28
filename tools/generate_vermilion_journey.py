@@ -78,7 +78,7 @@ def project(source):
             cut_species.append(species)
     if not cut_species:
         raise ValueError('review changed machine compatibility declaration')
-    for relative in ('main.lua', 'data/ceruleanJourney.json', 'data/sourceMaps.json',
+    for relative in ('main.lua', 'dev/ceruleanJourney.json', 'data/sourceMaps.json',
                      'data/sourceMapCache/compact.json', 'data/sourceMapCache/tile-grids.json',
                      'data/vermilionPreparation/reservations.json', 'data/vermilionPreparation/packages.json',
                      'data/vermilionStory/terrain.json', 'data/items.lua',
@@ -167,7 +167,7 @@ def main():
     parser.add_argument('--output', type=Path)
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
-    output = args.output or args.source / 'data/vermilionJourney.json'
+    output = args.output or args.source / 'dev/vermilionJourney.json'
     encoded = json.dumps(project(args.source), indent=2, sort_keys=True) + '\n'
     if args.check:
         if not output.is_file() or output.read_text() != encoded:

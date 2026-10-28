@@ -31,7 +31,7 @@ class Current1091RefreshTests(unittest.TestCase):
   private=json.loads((ROOT/'tools/references/runtime-move-coverage-private1059.json').read_text());self.assertEqual(private['sdk_result']['passed'],1059)
  def test_matrix_candidate_sdk_not_campaign_or_future_content_acceptance(self):
   d=json.loads((ROOT/'docs/validation/coverage-current.json').read_text());rows={r['id']:r for r in d['rows']}
-  self.assertEqual(d['snapshot']['acceptance_context'],'private-foundation-candidate-not-main-or-milestone');self.assertEqual(d['accepted_milestone_rows'],[])
+  self.assertEqual(d['snapshot']['acceptance_context'],'private-cerulean-candidate-not-main-or-milestone');self.assertEqual(d['accepted_milestone_rows'],[])
   for key in ('system:current-reward-correctness','system:safe-newgame-recovery'):
    self.assertEqual(rows[key]['campaign_path']['implementation'],'integrated');self.assertEqual(rows[key]['campaign_path']['verification'],'sdk_scoped')
   for key in ('system:natural-all3-freeze','map:ROUTE_22','move:mirrorMove'):

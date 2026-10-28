@@ -11,6 +11,33 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Course correction — 2026-10-28
+
+Finish and accept one milestone before resuming the next. Freeze Vermilion,
+Saffron guards, trades and audio until 5.3 is accepted on main. Keep only one
+next-milestone branch checked out. No policy questions beyond 5.4 for now.
+
+Natural journeys start from the previous milestone's accepted save for that
+starter, stored outside Git at `~/Developer/Pokemon-PlayDate-env/evidence/chain/<milestone>/<starter>`.
+Commit only save hashes and provenance. Run all three starters with
+`--continue-on-failure`. Only the release pass replays New Game through credits.
+Cap preparation battles; use medicine and Centers instead of grinding.
+
+A harness failure is a tooling bug. If the same check fails twice for reasons
+unrelated to gameplay, simplify or remove it instead of adding diagnostics.
+After each journey, count missing effects in its logs and fix the most frequent
+ones first, starting with wild Teleport. Use Showdown gen5 and one contract per
+new behavior. Do not add contracts for fixtures or repeat accepted proofs.
+Fix a shared fixture factory rather than repairing many individual fixtures.
+
+Every ledger update reports playable source maps on main out of 222 and the
+current milestone. Keep acceptance entries and commit messages in plain words.
+Remove clean superseded worktrees without force, retaining branches. Delete
+compile-only and superseded evidence, retaining acceptance references, ledger
+references and the newest failure per milestone. Keep journey data outside
+production Source. Generate large reference extracts from the reference
+checkout and record checksums instead of committing the extracts.
+
 ## 1. What we are building
 
 A complete, enjoyable, native Lua recreation of **Pokémon Blue** for Playdate.

@@ -242,7 +242,7 @@ local function codecObservation(game, payload)
     return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true, payload=payload}
 end
 local function observeOwners(game)
-    local export = assert(json.decodeFile("data/ceruleanJourney.json"), "missing owner projection")
+    local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")
     assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale owner projection")
     local actual = SourceEvents.trainerDefinitions()
     local expected = GameSession._copy(export.trainers)
@@ -297,7 +297,7 @@ function HarnessDiagnostics.observe(game, kind)
         return {kind="purity", valid=true, version=SessionCodec.VERSION}
     end
     if kind == "vermilion-owners" then
-        local export = assert(json.decodeFile("data/vermilionJourney.json"))
+        local export = assert(json.decodeFile("dev/vermilionJourney.json"))
         assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale Vermilion projection")
         local actual = SourceEvents.trainerDefinitions()
         for id, definition in pairs(export.trainers) do
@@ -340,7 +340,7 @@ function HarnessDiagnostics.observe(game, kind)
     if kind == "vermilion-world" then
         local zone = assert(currentZone)
         local cells = {}
-        local export = assert(json.decodeFile("data/vermilionJourney.json"))
+        local export = assert(json.decodeFile("dev/vermilionJourney.json"))
         if zone.stableID == "pokered:VERMILION_CITY" then
             local padding = export.maps.VermilionCity.padding
             for _, site in ipairs(export.cut_sites) do

@@ -22,6 +22,7 @@ function BattleConditions:side(mon) return mon==self.battle.player and "player" 
 function BattleConditions:types(mon)
     local first,second=mon.type,mon.type2
     local state=self.members[mon]
+    if state and state.changedType then first,second=state.changedType,nil end
     if state and state.roost then
         if first=="flying" then first=nil end
         if second=="flying" then second=nil end
@@ -29,6 +30,85 @@ function BattleConditions:types(mon)
         if not first then first="normal" end -- GenV fallback, not GenIV ???.
     end
     return first,second
+end
+-- Disable inherits the pinned base condition in the Gen5 mod chain.
+function BattleConditions:disabled(mon,key)
+    local state=self.members[mon]
+    return key~=nil and state and state.disable and state.disable.key==key or false
+end
+function BattleConditions:canDisable(mon)
+    local state=self.members[mon]
+    local key=state and state.lastMove
+    if not key or key=="struggle" or state.disable then return false end
+    for _,move in ipairs(mon.moves) do
+        if move==key then return mon:hasPP(key) end
+    end
+    return false
+end
+function BattleConditions:disable()
+    local b=self.battle
+    local mon=b.defender
+    if not self:canDisable(mon) then b:say("But it failed!")
+    return false end
+    local state=self:of(mon)
+    local key=state.lastMove
+    -- Four residual ticks if the target still has its action; otherwise five.
+    state.disable={key=key,turns=b.effects:pendingMove(mon) and 4 or 5}
+    b:say(mon.name.."'s "..moveData[key].name.." was disabled!")
+    return true
+end
+-- Encore inherits the base condition through the selected Gen5 chain.
+-- Gen6 replaces calling-move flags, so those moves can be encored in Gen5.
+local encoreFailures <const> = {
+    encore=true, mimic=true, mirrorMove=true, sketch=true,
+    struggle=true, transform=true,
+}
+function BattleConditions:encoreKey(mon)
+    local state = self.members[mon]
+    local encore = state and state.encore
+    if not encore then return nil end
+    for _, key in ipairs(mon.moves) do
+        if key == encore.key then return key end
+    end
+end
+function BattleConditions:canEncore(mon)
+    local state = self.members[mon]
+    local key = state and state.lastMove
+    if not key or encoreFailures[key] or state.encore then return false end
+    for _, owned in ipairs(mon.moves) do
+        if owned == key then return mon:hasPP(key) end
+    end
+    return false
+end
+function BattleConditions:encore()
+    local b = self.battle
+    local mon = b.defender
+    if not self:canEncore(mon) then
+        b:say("But it failed!")
+        return false
+    end
+    local state = self:of(mon)
+    -- Three residual ticks, plus one when this round's action already ran.
+    state.encore = {key=state.lastMove, turns=b.effects:pendingMove(mon) and 3 or 4}
+    b:say(mon.name .. " received an encore!")
+    return true
+end
+function BattleConditions:moveAllowed(mon, key)
+    local encore = self:encoreKey(mon)
+    return not self:disabled(mon, key) and (not encore or encore == key)
+end
+function BattleConditions:camouflage()
+    local battle = self.battle
+    local mon = battle.attacker
+    -- The selected Showdown gen5 override uses Ground without a field model.
+    local first, second = self:types(mon)
+    if first == "ground" and not second then
+        battle:say("But it failed!")
+        return false
+    end
+    self:of(mon).changedType = "ground"
+    battle:say(mon.name .. " transformed into the GROUND type!")
+    return true
 end
 function BattleConditions:roost()
     local b=self.battle;local mon=b.attacker
@@ -256,12 +336,29 @@ function BattleConditions:rawPower(mon,move,power)
     return power
 end
 -- Pure active-holder observation; withdrawal/defeat cannot contribute a modifier.
-function BattleConditions:mudSportCount()
-    local count=0
-    for _,active in ipairs({self.battle.player,self.battle.enemy}) do
-        if alive(active) and (self.members[active] or {}).mudSport then count=count+1 end
+function BattleConditions:sportCount(kind)
+    local count = 0
+    for _, active in ipairs({self.battle.player, self.battle.enemy}) do
+        if alive(active) and (self.members[active] or {})[kind] then
+            count = count + 1
+        end
     end
     return count
+end
+function BattleConditions:mudSportCount()
+    return self:sportCount("mudSport")
+end
+function BattleConditions:waterSport()
+    local b = self.battle
+    local state = self:of(b.attacker)
+    if state.waterSport then
+        b:say("But it failed!")
+        return false
+    end
+    -- Gen5 replaces the later field timer with a user volatile.
+    state.waterSport = true
+    b:say("Fire's power was weakened!")
+    return true
 end
 function BattleConditions:mudSport()
     local b=self.battle;local state=self:of(b.attacker)
@@ -351,6 +448,8 @@ function BattleConditions:events()
         local function add(kind,order) events[#events+1]={side=side,pokemon=mon,kind=kind,order=order} end
         if alive(mon) then
             if state.roost then events[#events+1]={side=side,pokemon=mon,kind="roostEnd",order=25,record=state.roost} end
+            if state.disable then add("disable",17) end
+            if state.encore then add("encore",16) end
             if state.seed then add("seed",8) end
             if mon.status=="poison" or mon.status=="badPoison" then add("status",9) end
             if mon.status=="burn" then add("status",10) end
@@ -387,7 +486,19 @@ function BattleConditions:residual(event)
     end
     local mon=event.pokemon;local state=self:of(mon)
     if not alive(mon) then return end
-    if event.kind=="rampageEnd" then
+    if event.kind == "encore" and state.encore then
+        state.encore.turns = state.encore.turns - 1
+        local key = self:encoreKey(mon)
+        if state.encore.turns == 0 or not key or not mon:hasPP(key) then
+            state.encore = nil
+            b:say(mon.name .. "'s encore ended!")
+        end
+    elseif event.kind=="disable" and state.disable then
+        state.disable.turns=state.disable.turns-1
+        if state.disable.turns==0 then
+            state.disable=nil;b:say(mon.name.." is no longer disabled!")
+        end
+    elseif event.kind=="rampageEnd" then
         local rampage=state.rampage
         if rampage then self:endRampage(mon,rampage.interrupted and rampage.remaining==1) end
     elseif event.kind=="seed" and state.seed then

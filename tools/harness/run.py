@@ -241,6 +241,7 @@ def _run(args):
     if 'processes' in scenario:
         confirmed_exit = True
         try:
+            restarting.import_chain_save(scenario, PROJECT, data, output)
             return restarting.run(args, scenario, metadata, output, data, owner, sys.modules[__name__])
         except restarting.UnconfirmedExit:
             confirmed_exit = False
