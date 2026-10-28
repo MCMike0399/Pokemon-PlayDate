@@ -431,17 +431,14 @@ function GrassCutContracts.run()
             local calls = 0
             deps.validateActors = function(...)
                 calls = calls + 1
-                if calls == 2 then
-                    eq(currentZone:isTallGrass(6, 14), false)
-                    error("grass-cut injected session rejection", 0)
-                end
-                return original(...)
+                eq(currentZone:isTallGrass(6, 14), false)
+                error("grass-cut injected session rejection", 0)
             end
             local called, accepted, reason = pcall(FieldMoves.complete, token)
             deps.validateActors = original
             assert(called)
             eq(accepted, false)
-            eq(calls, 2)
+            eq(calls, 1)
             assert(tostring(reason):find("grass-cut injected session rejection", 1, true))
             same(snapshot(g), before)
             eq(currentZone:isTallGrass(6, 14), true)
@@ -506,6 +503,7 @@ function GrassCutContracts.run()
 
     test("grass-cut: saved terrain decodes then public Continue restores source grass and position", function()
         scene(function(g, mon, party)
+            assert(g.session:activateRNG())
             cut(g, party, mon)
             g.machine:pop()
             local prefix = "grass-cut-contract-" .. tostring(playdate.getCurrentTimeMilliseconds())

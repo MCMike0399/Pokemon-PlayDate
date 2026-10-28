@@ -113,6 +113,8 @@ local function trainer(d, state, id)
         local r = d.reward
         plan.steps[#plan.steps + 1] = dialog(r.before)
         if state.can_add[r.item] then
+            plan.ram = plan.ram or {}
+            plan.ram.wStringBuffer = assert(ItemData.definitions[r.item]).name
             plan.expected, plan.changes = reward(r.item, r.flag, state, id)
             plan.steps[#plan.steps + 1] = dialog(r.success, "receipt")
             plan.failure_labels = copy(r.full)

@@ -38,6 +38,8 @@ local function scene(fn)
             zoneList[#zoneList + 1] = key
         end
     end
+    local liveView = getOverworldView()
+    if liveView then liveView.zone:detachView(liveView) end
     local ok, problem = pcall(function()
         WorldDeltas._withDefinitionProvider(provider, function()
             WorldView.withIsolation(function()
@@ -73,6 +75,11 @@ local function scene(fn)
             end)
         end)
     end)
+    if liveView then
+        liveView.zone:attachView(liveView)
+        eq(getOverworldView(), liveView)
+        assert(not liveView.disposed)
+    end
     if g then
         while #g.machine.stack > 0 do
             local state = table.remove(g.machine.stack)
