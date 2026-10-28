@@ -1,0 +1,10 @@
+{
+  "files": {
+    "scripts/CeladonGym.asm": "c4e6ffeaca1c93ab3bb60ddb73f3dd3a3cadab96b2d718bf295f8dbf4be05113",
+    "scripts/FightingDojo.asm": "adf0aa41baa28244a6750198b4753e326b8d6399a3e6d2081bcb239ad07cc660",
+    "scripts/FuchsiaGym.asm": "566b412f9086e058c7e4b3d690bd0e1ce89a7da3938e41a62ef6da5c3e2c4963",
+    "scripts/SaffronGym.asm": "c7b674f94dc1733fdaf672843826f5ba3e97d753150c0fac54d9d7f589ad192d"
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
