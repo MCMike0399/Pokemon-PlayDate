@@ -184,11 +184,13 @@ def import_chain_save(scenario, project, data, output):
     if spec is None:
         return None
     if (not isinstance(spec, dict) or set(spec) != {'milestone', 'starter'}
-            or spec['milestone'] not in {'5.2', '5.3'}
+            or spec['milestone'] not in {'5.2', '5.3', '5.4'}
             or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
         raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
-    expected = '5.3' if first.get('name') == 'vermilion-natural' else spec['milestone']
+    expected = spec['milestone']
+    if first.get('name') == 'vermilion-natural' and expected not in {'5.3', '5.4'}:
+        raise ProtocolError('Vermilion must start from Cerulean or its earned checkpoint')
     if (first.get('name') not in {'cerulean-natural', 'vermilion-natural'}
             or first.get('starter') != spec['starter'] or spec['milestone'] != expected):
         raise ProtocolError('starting save does not match journey')
@@ -196,10 +198,16 @@ def import_chain_save(scenario, project, data, output):
     record = next(row for row in manifest['saves'] if row['starter'] == spec['starter']
                   and row['from_milestone'] == spec['milestone'])
     if first['name'] == 'vermilion-natural':
+        origin = record
+        if spec['milestone'] == '5.4':
+            if record.get('resume_checkpoint') is not True or record.get('origin_milestone') != '5.3':
+                raise ProtocolError('in-progress save lacks its Cerulean origin')
+            origin = next(row for row in manifest['saves']
+                          if row['starter'] == spec['starter'] and row['from_milestone'] == '5.3')
         proof = json.loads((project / 'docs/validation/cerulean-acceptance-20261028.json').read_text())
         if (proof.get('milestone_accepted') is not True or proof.get('milestone') != '5.3'
-                or record.get('accepted_commit') != proof.get('accepted_main_code')
-                or record.get('accepted_source_sha256') != proof.get('source_sha256')
+                or origin.get('accepted_commit') != proof.get('accepted_main_code')
+                or origin.get('accepted_source_sha256') != proof.get('source_sha256')
                 or not any(row.get('starter') == spec['starter'] for row in proof.get('starters', []))):
             raise ProtocolError('starting save lacks accepted Cerulean proof')
     if {item['file'] for item in record['files']} != {'adventure.a.json', 'adventure.b.json'}:

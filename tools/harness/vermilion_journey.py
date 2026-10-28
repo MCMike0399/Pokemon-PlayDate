@@ -249,7 +249,7 @@ class VermilionJourney(cj.CeruleanJourney):
                 self.send('record vermilion-ship-departure 90')
                 return True
         if (self.vermilion_active and self.state.get('root') == 'event'
-                and lookup(self.state, 'event.phase') == 'story-choice'):
+                and lookup(self.state, 'event.phase') in {'story-choice', 'service-choice'}):
             event = lookup(self.state, 'event.id')
             if event not in {v[0] for v in GIFTS.values()} | {DAYCARE}:
                 raise ProtocolError('unplanned Vermilion service choice: ' + str(event))
@@ -792,7 +792,8 @@ class VermilionJourney(cj.CeruleanJourney):
 
     def continue_cerulean(self):
         provenance = json.loads((self.build_evidence / 'starting-save.json').read_text())
-        if provenance.get('from_milestone') != '5.3' or provenance.get('starter') != self.starter:
+        if (provenance.get('from_milestone') not in {'5.3', '5.4'}
+                or provenance.get('starter') != self.starter):
             raise ProtocolError('Vermilion requires the accepted Cerulean save for this starter')
         self.dependencies()
         self.require(root='title', **{'title.phase': 'menu'})
