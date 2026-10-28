@@ -26,7 +26,8 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     if npc then
         local id = npc.trainerID or npc.def and npc.def.source_event_id
         local definition = self.game.trainers and self.game.trainers:definition(id)
-        battle.trainerClass = definition and definition.class_source or npc.name
+        local rivalClass = id == "pokered:SS_ANNE_2F:objects:2" and "OPP_RIVAL2" or nil
+        battle.trainerClass = definition and definition.class_source or rivalClass or npc.name
         scene.trainerClass = battle.trainerClass
     end
     self.finished=false;self.epoch=(self.epoch or 0)+1;self.trainerToken=nil
