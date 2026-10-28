@@ -66,3 +66,14 @@ They are not release-accepted until native checks and motion review pass.
 | Battle effects | Original move animation scripts | Ten reusable 1-bit effects, with an OFF option | Native presentation within the project scope | Prepared; motion review pending |
 | Trainer choices | Original trainer-class move priorities | Use those class layers with Gen V types and avoid clearly wasted effects | Keep trainer battles purposeful | Prepared; native checks pending |
 | Title | Original logo and version identity | Use source logo, Blue wordmark and existing Blastoise art on the title screen | A complete native opening screen | Prepared; native review pending |
+
+
+The user approved all four additional quality-of-life proposals on 2026-10-28.
+Implementation and native acceptance are tracked separately from this approval.
+
+| Area | Original reference behavior | Project decision | Reason | Evidence/status |
+|---|---|---|---|---|
+| Crank | Blue has directional menu input | Optional crank scrolling in menus and PC boxes, with D-pad retained | Native Playdate controls | User approved; implementation in progress |
+| Registered key item | Blue requires opening the Bag | Register one key item in the Bag and use A+B in the field | Convenient access to existing item actions | User approved; implementation in progress |
+| Bag sorting | Blue preserves manual item order | Explicit manual Sort command with key-item grouping and stable ties | Easier inventory navigation | User approved; implementation in progress |
+| TMs | Blue consumes TMs | Reusable Gen V TMs, with compatibility and move-learning confirmation retained | Selected modern quality-of-life policy | User approved; implementation in progress |

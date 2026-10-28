@@ -490,3 +490,12 @@ Required reading, in order:
 9. [kanto-content-inventory.md](../research/kanto-content-inventory.md)
 
 Read other `docs/validation/*.md` files only when you touch their area.
+
+
+### Approved quality-of-life additions — 2026-10-28
+
+The user approved optional crank scrolling, a registered key item on field A+B,
+manual Bag sorting, and reusable Gen V TMs. Implement these through existing
+input, inventory and teaching systems. Keep D-pad control and existing item
+validations, compatibility and move-learning confirmation. Approval does not
+replace native checks before release integration.
