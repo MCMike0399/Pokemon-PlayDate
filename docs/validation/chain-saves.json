@@ -125,10 +125,9 @@
       "starter": "bulbasaur",
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
-      "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-09/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-bulbasaur-20261028-09",
-      "status": "earned Flash checkpoint; final build Continue verification pending",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/bulbasaur",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-final-build-continue-bulbasaur-20261028-02",
+      "status": "accepted milestone 5.4; actual process Continue verified",
       "files": [
         {
           "file": "adventure.a.json",
@@ -136,25 +135,26 @@
         },
         {
           "file": "adventure.b.json",
-          "sha256": "336a214dd1c505cbc05e19615c846929f82b713e6f4ae263b82f381ee5b4890e"
+          "sha256": "9a8c8964c02f54a6b7caabe05e8cb5f90e7212175d25bd5a8b7d73626ff91963"
         }
       ],
       "completed_steps": [
         "daycare"
-      ]
+      ],
+      "accepted_commit": "c42c3f5821cb374bd1e484971b7aa385bae420a9",
+      "accepted_source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1"
     },
     {
       "starter": "charmander",
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
-      "resume_checkpoint": true,
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-09/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-charmander-20261028-09",
-      "status": "earned Flash checkpoint; final build Continue verification pending",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/charmander",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-final-build-continue-charmander-20261028-02",
+      "status": "accepted milestone 5.4; actual process Continue verified",
       "files": [
         {
           "file": "adventure.a.json",
-          "sha256": "bba9fc1c55d80609f6ad45bd300f80b923d6793e60fb7288c54e634a40b55de5"
+          "sha256": "eed2e8510b53b8414e9e1c3cad31c72932b635b85f13442c965270f342e88228"
         },
         {
           "file": "adventure.b.json",
@@ -163,19 +163,20 @@
       ],
       "completed_steps": [
         "daycare"
-      ]
+      ],
+      "accepted_commit": "c42c3f5821cb374bd1e484971b7aa385bae420a9",
+      "accepted_source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1"
     },
     {
       "starter": "squirtle",
       "from_milestone": "5.4",
       "origin_milestone": "5.3",
-      "resume_checkpoint": true,
       "completed_steps": [
         "daycare"
       ],
-      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-09/runtime-data",
-      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-progress-retry-squirtle-20261028-09",
-      "status": "earned Flash checkpoint; final build Continue verification pending",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.4/squirtle",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-final-build-continue-squirtle-20261028-02",
+      "status": "accepted milestone 5.4; actual process Continue verified",
       "files": [
         {
           "file": "adventure.a.json",
@@ -183,9 +184,11 @@
         },
         {
           "file": "adventure.b.json",
-          "sha256": "98345a33f3bfa13e255d2f43923585019adb97a86aa21cd2abe45bf70e8c39d7"
+          "sha256": "9102df2cfd326543aacca5d265b1422504d37843d9831dbee2e21ad3127e9339"
         }
-      ]
+      ],
+      "accepted_commit": "c42c3f5821cb374bd1e484971b7aa385bae420a9",
+      "accepted_source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1"
     }
   ]
 }

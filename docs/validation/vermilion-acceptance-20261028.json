@@ -1,7 +1,7 @@
 {
   "milestone": "5.4",
-  "milestone_accepted": false,
-  "status": "gameplay landed on main; playable packages and real-speed showcase pending",
+  "milestone_accepted": true,
+  "status": "accepted on main; packages and real-speed video delivered",
   "main_game_code": "1a4a7894aa40125147e8f2d227fd1da6320dd341",
   "source_sha256": "3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d",
   "maps_playable_on_main": 65,
@@ -91,8 +91,47 @@
     "Saffron gate guards"
   ],
   "delivery": {
-    "production_packages": "pending",
-    "real_speed_showcase": "pending"
+    "packages": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.4-playable-20261028",
+    "launch": "Double-click <starter>/Play.command and choose CONTINUE; normal saves are isolated. Quit with Command-Q.",
+    "showcase": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4",
+    "showcase_sha256": "7cd0a01d5656f6c1e8465ada9b3b92a4961d4b4e1a104ca64f2d4c3a9ba6e5a5",
+    "seconds": 84.902,
+    "audio": "silent; audio remains a separate quality track",
+    "scope": "actual native frame sequences at original timestamps; staged supplemental scenes are visibly labelled; not natural pacing proof",
+    "provenance": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/milestone-5.4-showcase-20261028/provenance.json"
   },
-  "later_milestones": "not complete"
+  "later_milestones": "not complete",
+  "accepted_main_code": "c42c3f5821cb374bd1e484971b7aa385bae420a9",
+  "accepted_source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1",
+  "final_build_verification": {
+    "source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1",
+    "starters": [
+      {
+        "starter": "bulbasaur",
+        "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-final-build-continue-bulbasaur-20261028-02",
+        "scope": "finished earned checkpoint saved and actual process restart/Continue; no campaign replay"
+      },
+      {
+        "starter": "charmander",
+        "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-final-build-continue-charmander-20261028-02",
+        "scope": "finished earned checkpoint saved and actual process restart/Continue; no campaign replay"
+      },
+      {
+        "starter": "squirtle",
+        "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-final-build-continue-squirtle-20261028-02",
+        "scope": "finished earned checkpoint saved and actual process restart/Continue; no campaign replay"
+      }
+    ],
+    "sdk": {
+      "passed": 2090,
+      "failed": 0,
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-main-quality-sdk-20261028-01"
+    },
+    "host": {
+      "passed": 918,
+      "failed": 0,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m54-main-host-20261028-02.log"
+    },
+    "source_note": "The three campaign paths used the earlier gameplay source. Approved display/UI/QoL code passed native contracts and supplemental input/motion, then all three earned checkpoints passed Save/Continue in the final build."
+  }
 }

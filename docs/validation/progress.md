@@ -1,7 +1,7 @@
 # Full-game execution ledger
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
-Progress: **65 / 222 source maps playable on main. Current milestone: 5.4 — delivery pending.**
+Progress: **65 / 222 source maps playable on main. Current milestone: 5.5.**
 5.4 elapsed: **7.89 h**; current pace: **106.46 maps/day**.
 [Milestone times](milestone-times.json) include waits and provider limits.
 
@@ -17,8 +17,8 @@ receive Cut, beat Surge, cross Diglett's Cave and receive Flash. All three start
 passed an actual process exit and Continue at the Flash aide. The required route
 already visited Route11; a compulsory second cave crossing was removed.
 
-The 5.4 game code is on main. The milestone stays open until production packages
-with earned saves and a 60–90 second real-speed showcase are delivered. Later
+The 5.4 game code is on main. Milestone 5.4 is accepted. Production bundles with earned saves and an 84.9-second
+real-speed native showcase are delivered outside Git. Later
 Kanto, the League, postgame and device release remain unfinished. Nothing pushed.
 
 ## 2. Milestones and evidence
@@ -29,7 +29,7 @@ Kanto, the League, postgame and device release remain unfinished. Nothing pushed
 | 5.1 Pallet to Brock | Done | 5.62 h | [Brock](brock-acceptance-20261026.json): three starters, rewards, restart, blackout and evolution |
 | 5.2 Shared foundations | Done | 1.79 h | [Foundations](foundation-acceptance-20261026.json): 605 host, 1274 SDK and preserved art |
 | 5.3 Cerulean, Misty and Bill | Done | 37.35 h | [Cerulean](cerulean-acceptance-20261028.json): three chained saves, 723 host, 1666 SDK; scope limits retained |
-| 5.4 Vermilion and HMs | Gameplay passed; delivery pending | 7.89 h | [Vermilion](vermilion-acceptance-20261028.json): 918 host, 2077 SDK, all 2494 images exact |
+| 5.4 Vermilion and HMs | Accepted | 7.89 h | [Vermilion](vermilion-acceptance-20261028.json): 918 host, 2077 SDK, all 2494 images exact |
 
 All three 5.4 journeys began from accepted Cerulean saves, preserving actual
 progress across tooling retries. Final runs are
@@ -69,8 +69,8 @@ recipes and an actual-window recorder are ready; they are not natural journey pr
 
 ## 4. Remaining work and order
 
-Finish 5.4 delivery, integrate verified quality changes, then begin 5.5 from the
-earned Flash saves. NPC trades and Saffron guards are preserved on
+5.4 is accepted. Begin 5.5 from the earned Flash saves. Verified display and
+non-audio QoL changes are on main. NPC trades and Saffron guards are preserved on
 `parked/npc-trades-saffron-20261028` and excluded from this 5.4 game. Pickup stays.
 Workers use GPT-6.1 Sol at medium effort; root alone controls the Simulator.
 
@@ -93,3 +93,11 @@ remain recorded. Crank scrolling, registered A+B, manual Bag sorting and reusabl
 Gen V TMs were explicitly approved; do not ask those policy questions again.
 
 Commit locally. Push only when asked. The full-game goal is still active.
+
+Production packages: `/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.4-playable-20261028`. Double-click the starter’s `Play.command`
+and choose CONTINUE. Normal saves are untouched.
+
+Showcase: `/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`
+(84.9 seconds, original native frame timing, clearly labelled supplemental scenes, silent).
+Final-build checks: 2090 SDK, 918 host, all three actual process continuations.
+Audio remains unaccepted; the full-game goal is unfinished. Nothing pushed.
