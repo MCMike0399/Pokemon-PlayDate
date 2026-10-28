@@ -204,6 +204,57 @@ class MidgameJourney(vj.VermilionJourney):
         self.drain()
         self.require(root='overworld', **{'field_move.lastResult.ok': True})
 
+    def retrieve_hm_user(self, move, compatible):
+        owner = self.collection_owner()
+        boxes = sequence(owner['storage']['boxes'], 'PC boxes')
+        stored = next(((box, index, mon) for box, rows in enumerate(boxes, 1)
+                       for index, mon in enumerate(sequence(rows, 'PC box'), 1)
+                       if mon['species'] in compatible), None)
+        if stored is None:
+            return False
+        box, index, expected = stored
+        if not self.state['zone_id'].endswith('POKECENTER'):
+            self.heal_here('CeruleanPokecenter' if move == 'flash' else 'FuchsiaPokecenter')
+        self.navigate((13, 4))
+        self.face('up')
+        self.send('wait 1', 'press a')
+        self.require(root='pc', **{'pc.phase': 'top'})
+        self.select('pc.menu.selected', 1)
+        self.send('press a')
+        if len(self.party()) == 6:
+            deposit = next(i for i in range(len(self.party()), 0, -1)
+                           if self.party()[i - 1]['species'] not in cj.FAMILIES[self.starter]
+                           and not any(key in HMS for key in self.party()[i - 1]['moves']))
+            self.select('pc.menu.selected', 2)
+            self.send('press a')
+            self.select('pc.selected', deposit)
+            self.send('press a', 'press a')
+            self.require(**{'pc.phase': 'result', 'pc.result.ok': True})
+            self.send('press b', 'press b')
+        if lookup(self.state, 'pc.box') != box:
+            self.select('pc.menu.selected', 4)
+            self.send('press a')
+            self.select('pc.menu.selected', 1)
+            self.send('press a')
+            self.require(**{'pc.phase': 'boxes'})
+            self.select('pc.box', box)
+            self.send('press a')
+            self.require(**{'pc.phase': 'result', 'pc.result.ok': True})
+            self.send('press b')
+        self.select('pc.menu.selected', 1)
+        self.send('press a')
+        self.require(**{'pc.phase': 'list', 'pc.operation': 'withdraw'})
+        self.select('pc.selected', index)
+        self.send('press a', 'press a')
+        self.require(**{'pc.phase': 'result', 'pc.result.ok': True})
+        actual = self.collection_owner()['party']['members'][-1]
+        if actual != expected:
+            raise ProtocolError('PC withdrawal changed the earned Pokemon')
+        self.send('press b', 'press b', 'press b', 'press b')
+        self.require(root='overworld')
+        self.summary['party_changes'].append({'kind': 'withdraw-for-' + move, 'species': expected['species']})
+        return True
+
     def teach(self, move):
         known = next((i for i, mon in enumerate(self.party(), 1) if move in mon['moves']), None)
         if known:
@@ -213,7 +264,12 @@ class MidgameJourney(vj.VermilionJourney):
         if not isinstance(compatible, list):
             raise ProtocolError('actual HM compatibility observation unavailable: ' + move)
         index = next((i for i, mon in enumerate(self.party(), 1) if mon['species'] in compatible), None)
+        if index is None and self.retrieve_hm_user(move, set(compatible)):
+            index = next(i for i, mon in enumerate(self.party(), 1) if mon['species'] in compatible)
         if index is None:
+            if move == 'flash':
+                self.summary['flash'] = {'used': False, 'reason': 'no compatible earned Pokemon; fixed route stays dark'}
+                return None
             raise ProtocolError('no earned compatible HM user: ' + move)
         item = HMS[move]
         quantity = self.quantity(item)
@@ -284,9 +340,12 @@ class MidgameJourney(vj.VermilionJourney):
         if self.observe('midgame-state')['fieldWorld']['mapPalOffset'] != 6:
             raise ProtocolError('actual outside Rock Tunnel entry did not set darkness')
         self.checkpoint('rock-tunnel-dark-before-flash')
-        self.use_field(flash, 'flash')
-        if self.observe('midgame-state')['fieldWorld']['mapPalOffset'] != 0:
-            raise ProtocolError('actual Flash did not clear darkness')
+        if flash is not None:
+            self.use_field(flash, 'flash')
+            self.summary['flash'] = {'used': True}
+        expected_darkness = 0 if flash is not None else 6
+        if self.observe('midgame-state')['fieldWorld']['mapPalOffset'] != expected_darkness:
+            raise ProtocolError('Rock Tunnel darkness differs from actual Flash use')
         ladders = [('RockTunnel1F', 5, 'RockTunnelB1F'), ('RockTunnelB1F', 2, 'RockTunnel1F'),
                    ('RockTunnel1F', 7, 'RockTunnelB1F'), ('RockTunnelB1F', 4, 'RockTunnel1F'),
                    ('RockTunnel1F', 3, 'Route10')]
@@ -294,7 +353,7 @@ class MidgameJourney(vj.VermilionJourney):
             self.require(zone_id=self.zone(name))
             stable = self.zone(name) + ':warps:' + str(warp)
             self.warp(self.zone(target), stable)
-            if target.startswith('RockTunnel') and self.observe('midgame-state')['fieldWorld']['mapPalOffset'] != 0:
+            if target.startswith('RockTunnel') and self.observe('midgame-state')['fieldWorld']['mapPalOffset'] != expected_darkness:
                 raise ProtocolError('Flash state was lost between connected tunnel floors')
         self.heal_here('LavenderPokecenter')
         if self.config['content_scope'] == 'optional':
