@@ -321,7 +321,12 @@ class CeruleanJourney(BrockJourney):
         return None
 
     def save(self):
-        super().save()
+        self.save_number = getattr(self, 'save_number', 0) + 1
+        self.saving = True
+        try:
+            super().save()
+        finally:
+            self.saving = False
         self.boundary_payload = self.codec_guard("saved")
 
 
@@ -575,6 +580,8 @@ class CeruleanJourney(BrockJourney):
     def capture_presentation(self, label, kind):
         if self.stage == "cerulean":
             label = "cerulean-" + label
+        if getattr(self, 'saving', False):
+            label = 'save-' + str(self.save_number) + '-' + label
         return super().capture_presentation(label, 'world-basic' if kind == 'world' else kind)
 
     def fossil_exclusion(self):
@@ -645,23 +652,33 @@ class CeruleanJourney(BrockJourney):
                 self.summary.update(resume_tool_failure=provenance['resume_tool_failure'],
                                     acceptance='Saved completed path; process restart pending')
                 return
-        self.heal_here("PewterPokecenter")
-        self.stock_up("PewterMart")
-        self.travel(self.zone("Route3"))
         trainers = sorted((d for d in self.source_trainers.values() if d["map_id"] == self.zone("Route3")),
                           key=lambda d: d["source_object_index"])
-        for trainer in trainers:
-            self.fight(trainer["id"])
+        if any(not self.defeated(trainer["id"]) for trainer in trainers):
             self.heal_here("PewterPokecenter")
+            self.stock_up("PewterMart")
+            for trainer in trainers:
+                if not self.defeated(trainer["id"]):
+                    self.fight(trainer["id"])
+                    self.heal_here("PewterPokecenter")
+            self.stock_up("PewterMart")
         self.heal_here("MtMoonPokecenter")
-        self.travel(self.zone("MtMoon1F"))
-        self.reward(sid("MT_MOON_1F", 9), "moonStone", "PICKUP:" + sid("MT_MOON_1F", 9))
-        self.fight(sid("MT_MOON_B2F", 2))
-        trigger = self.scenes["fossil_trigger"]
-        self.travel(self.zone("MtMoonB2F"), (trigger["x"] + self.models[self.zone("MtMoonB2F")].padding, trigger["y"]))
-        # Natural source positional trigger must produce the Nerd's own receipt.
-        if not self.defeated(NERD) or not any(r.get("trainer_id") == NERD and r.get("won") for r in self.summary["source_receipts"]):
-            raise ProtocolError("required Super Nerd positional battle integration missing")
+        self.save()
+        stone = sid("MT_MOON_1F", 9)
+        if not self.flag("PICKUP:" + stone):
+            self.travel(self.zone("MtMoon1F"))
+            self.reward(stone, "moonStone", "PICKUP:" + stone)
+        rocket = sid("MT_MOON_B2F", 2)
+        if not self.defeated(rocket):
+            self.heal_here("MtMoonPokecenter")
+            self.fight(rocket)
+            self.heal_here("MtMoonPokecenter")
+            self.save()
+        if not self.defeated(NERD):
+            trigger = self.scenes["fossil_trigger"]
+            self.travel(self.zone("MtMoonB2F"), (trigger["x"] + self.models[self.zone("MtMoonB2F")].padding, trigger["y"]))
+            if not self.defeated(NERD) or not any(r.get("trainer_id") == NERD and r.get("won") for r in self.summary["source_receipts"]):
+                raise ProtocolError("Super Nerd victory receipt missing")
         self.reward(*FOSSILS[self.config.get("fossil", "dome")])
         self.fossil_exclusion()
         self.checkpoint("cerulean-fossil-choice")
