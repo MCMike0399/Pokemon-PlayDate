@@ -173,6 +173,7 @@ def main():
         if not output.is_file() or output.read_text() != encoded:
             parser.exit(1, 'Vermilion projection is stale; regenerate after root composition\n')
     else:
+        output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(encoded)
 
 

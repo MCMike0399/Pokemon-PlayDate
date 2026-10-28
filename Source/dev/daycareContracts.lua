@@ -56,92 +56,6 @@ local function drain(g)
 end
 -- Failure-only native context. These probes forward the exact production calls;
 -- they never advance Player, manufacture a completion, or change gate results.
-local function diagnoseMovement(g, owner, fn)
-    local events, restores = {}, {}
-    local player = g.player
-    local function context()
-        local added = false
-        for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
-            if sprite == player then
-                added = true
-            end
-        end
-        local view = getOverworldView()
-        return {
-            stack = g.machine:stackNames(),
-            substate = owner.sub:getCurrent(),
-            top = owner:isTop(),
-            samePlayer = g.player == player,
-            enabled = player:updatesEnabled(),
-            added = added,
-            moving = player.isMoving,
-            moveFrames = player.moveFrames,
-            stepJustFinished = player.stepJustFinished,
-            x = player.gridX,
-            y = player.gridY,
-            pixelX = player.x,
-            pixelY = player.y,
-            pendingEdgeDoor = player.pendingEdgeDoor ~= nil,
-            pendingConnection = player.pendingConnection ~= nil,
-            traversalBlock = player.lastTraversalBlock,
-            zone = currentZone and currentZone.stableID or "none",
-            builtZoneMatches = owner.builtZone == currentZone,
-            viewZoneMatches = view ~= nil and view.zone == currentZone,
-            viewDisposed = view ~= nil and view.disposed == true,
-            intro = g.session:getIntro().stage,
-            storyBound = Story.currentContext() == g,
-            transitions = g:recentTransitions(),
-        }
-    end
-    local function record(event, result)
-        if #events < 80 then
-            events[#events + 1] = {event=event, result=tostring(result), context=context()}
-        end
-    end
-    local function watch(target, key, label)
-        local own = rawget(target, key)
-        local original = target[key]
-        restores[#restores + 1] = function()
-            target[key] = own
-        end
-        target[key] = function(...)
-            local event = label
-            if target == SourceEvents then
-                event = event .. "/" .. tostring(select(1, ...))
-            end
-            record(event .. ":before", "called")
-            local results = table.pack(original(...))
-            record(event .. ":after", results[1])
-            return table.unpack(results, 1, results.n)
-        end
-    end
-    watch(Story, "check", "Story.check")
-    watch(SourceEvents, "worldHook", "SourceEvents.worldHook")
-    watch(PewterWorld, "trySight", "PewterWorld.trySight")
-    watch(g.npcManager.motion, "tick", "NPCMotion.tick")
-    watch(gfx.sprite, "update", "sprite.update")
-    watch(player, "update", "Player.update")
-    local ok, problem = pcall(fn)
-    -- Capture while the fixture still owns its view, sprites and motion state.
-    local diagnostic
-    if not ok then
-        local captured, result = pcall(function()
-            return json.encode({
-                tag = "daycare-movement-native-context-v1",
-                final = context(),
-                motion = g.npcManager.motion:snapshot(),
-                events = events,
-            })
-        end)
-        diagnostic = captured and result or ("capture failed: " .. tostring(result))
-    end
-    for i = #restores, 1, -1 do
-        restores[i]()
-    end
-    if not ok then
-        error(tostring(problem) .. "\nDay Care native context: " .. diagnostic, 0)
-    end
-end
 local function worldScene(name, entry, fn)
     local oldRegistry, oldList, oldZone = zoneRegistry, zoneList, currentZone
     local oldStory, oldRNG, oldOwner = Story.currentContext(), RulesRNG.toData(), GameSession.activeRNGSession()
@@ -187,13 +101,7 @@ local function worldScene(name, entry, fn)
                 assert(owner:isTop(), "Day Care fixture must own the root world")
                 eq(owner.sub:getCurrent(), "explore", "Day Care fixture substate")
                 assert(g.player:updatesEnabled(), "Day Care fixture Player callbacks must be enabled")
-                if name == "Daycare" then
-                    diagnoseMovement(g, owner, function()
-                        fn(g, owner, provider)
-                    end)
-                else
-                    fn(g, owner, provider)
-                end
+                fn(g, owner, provider)
             end)
         end)
     end)
