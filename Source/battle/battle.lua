@@ -1000,7 +1000,7 @@ function Battle:performMove(move)
     if not handler then
         gap = gap or "unreviewed move dispatch"
     elseif move.category == "status" and handler ~= "intentional-no-effect"
-        and handler ~= "singles-no-target" and not move.attemptRule then
+        and handler ~= "singles-no-target" and handler ~= "wild-escape" and not move.attemptRule then
         local concrete = false
         for _, effect in ipairs(move.effects or {}) do
             if not effect:is("NoEffect") then concrete = true end
@@ -1018,6 +1018,19 @@ function Battle:performMove(move)
     if move.damageRule=="bide" then return self.conditions:bide() end
 
     self:say(attacker.name .. " used " .. move.name .. "!")
+    if handler == "wild-escape" then
+        -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
+        -- zero, no selfSwitch, trainer failure even with a usable reserve.
+        -- Wild encounters extend that trainer-only oracle with self escape.
+        local escaped = self.trainerName == nil
+        self.conditions:moveFinished(move, escaped)
+        if not escaped then
+            self:say("But it failed!")
+            return nil
+        end
+        self:say(attacker.name .. " fled!")
+        return "run"
+    end
     -- Charging is a TryMove stage before target/type/accuracy. Skull Bash can
     -- prepare against Ghost, then fail its Normal release without an accuracy roll.
     if move.chargeRule and self.conditions:charge(move) then return nil end

@@ -149,6 +149,66 @@ function MoveFailureContracts.run()
         assert(attempt(b, "roar"):find("But it failed!", 1, true)); eq(b.outcome, nil)
         eq(#b:getMoveGaps(), 0)
     end)
+    test("Teleport escapes wild battles without rewards and fails in trainer battles through the normal action lifecycle", function()
+        -- Pinned Showdown 9b136a8 gen7 override, inherited by gen5:
+        -- priority 0, selfSwitch false, onTry false. Wild escape is the
+        -- project's encounter extension; Showdown only models trainer battles.
+        eq(moveData.teleport.priority, 0)
+        eq(moveData.teleport.targetId, 7)
+        for _, trainer in ipairs({ false, "TRAINER" }) do
+            for _, side in ipairs({ "enemy", "player" }) do
+                local player, enemy = Pokemon("pidgey", 10), Pokemon("abra", 8)
+                local session = GameSession.newSession({ itemDefinitions = ItemData.definitions,
+                    validateWorld = WorldDeltas.validate, resolveLocation = WorldDeltas.resolveLocation },
+                    { location = { zone_id = "reds_house_2f", x = 5, y = 3, facing = "up" }, seed = 42 })
+                assert(session:recruit(player))
+                local reserve = Pokemon("abra", 8)
+                local enemies = trainer and roster(enemy, reserve) or nil
+                local b = Battle(player, enemy, trainer or nil, { session = session, enemyParty = enemies })
+                battles[#battles + 1] = b
+                settle(b)
+                local actor, other = b[side], b[side == "player" and "enemy" or "player"]
+                own(actor, "teleport"); own(other, "splash")
+                -- Exercise actual command ordering: Teleport acts first, and
+                -- only trainer failure lets the queued opposing action run.
+                actor.spe, other.spe = 100, 1
+                local xp, money = player.xp, session:inventory():money()
+                local pHP, eHP = player.hp, enemy.hp
+                local evs = {}; for key, value in pairs(player.evs) do evs[key] = value end
+                local ended, won, kind = 0
+                b:on("battleEnd", function(victory, outcome)
+                    ended, won, kind = ended + 1, victory, outcome
+                end)
+                RulesRNG.seed(19)
+                assert(b:selectMove(1))
+                local text = settle(b)
+                eq(actor.pp.teleport, 19)
+                eq(player.hp, pHP); eq(enemy.hp, eHP)
+                eq(player.xp, xp); eq(session:inventory():money(), money)
+                for key, value in pairs(evs) do eq(player.evs[key], value, "escape EV " .. key) end
+                eq(b:getRewardSnapshot().awards, 0)
+                eq(#b:getMoveGaps(), 0)
+                eq(b.effects.round, nil, "action queue released")
+                -- Enemy choice consumes the sole roll; Teleport never rolls
+                -- accuracy, damage, escape odds or a replacement selection.
+                eq(RulesRNG.snapshot().rolls, 1)
+                if trainer then
+                    assert(text:find("But it failed!", 1, true))
+                    eq(b.outcome, nil); eq(b:phase(), "command")
+                    eq(ended, 0); eq(other.pp.splash, 39)
+                    eq(b.enemy, enemy); eq(enemies:active(), enemy)
+                    eq(b.effects.closed, false)
+                else
+                    assert(text:find(actor.name .. " fled!", 1, true))
+                    eq(b.outcome, "run"); eq(b:phase(), "ended")
+                    eq(ended, 1); eq(won, false); eq(kind, "run")
+                    eq(other.pp.splash, 40)
+                    eq(b.effects.closed, true)
+                    eq(b:emitEnd(), false, "return emitted once")
+                end
+            end
+        end
+    end)
     RulesRNG.restore(saved)
     return report
 end

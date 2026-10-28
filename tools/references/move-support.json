@@ -295,7 +295,7 @@
       "handler": "engine-dsl"
     },
     "teleport": {
-      "gap": "missing status effect"
+      "handler": "wild-escape"
     },
     "nightShade": {
       "handler": "engine-dsl"
