@@ -163,6 +163,8 @@ import "game/silphStory"
 import "game/silphStoryWorld"
 import "game/silphStoryController"
 import "game/midgameStoryWarps"
+import "game/celadonServices"
+import "game/celadonServicesController"
 import "game/hideoutTowerContent"
 import "game/hideoutTowerController"
 
@@ -199,6 +201,7 @@ Daycare.install()
 NPCTrades.install()
 SaffronGuards.install()
 HideoutTowerContent.install()
+CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
 MidgameStoryWarps.install()
 -- @harness content-ready
 SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})

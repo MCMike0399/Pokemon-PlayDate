@@ -5,20 +5,24 @@ function HideoutTowerController.enter(state)
     TowerStoryController.enter(state)
     MidgameGymStoryController.enter(state)
     SilphStoryController.enter(state)
+    CeladonServicesController.enter(state)
 end
 function HideoutTowerController.advance(state)
     return RocketHideoutStoryController.advance(state) or TowerStoryController.advance(state)
         or MidgameGymStoryController.advance(state) or SilphStoryController.advance(state)
+        or CeladonServicesController.advance(state)
 end
 function HideoutTowerController.update(state)
     RocketHideoutStoryController.update(state)
 end
 function HideoutTowerController.handleButton(state, button)
     return RocketHideoutStoryController.handleButton(state, button) or SilphStoryController.handleButton(state, button)
+        or CeladonServicesController.handleButton(state, button)
 end
 function HideoutTowerController.draw(state)
     RocketHideoutStoryController.draw(state)
     SilphStoryController.draw(state)
+    CeladonServicesController.draw(state)
 end
 function HideoutTowerController.cancel(state)
     RocketHideoutStoryController.exit(state)

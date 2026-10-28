@@ -80,7 +80,7 @@ end
 function HideoutTowerContent.actorMetadata(id, game)
     local result = {visibility = {}}
     for _, extra in ipairs({RocketHideoutStory.actorMetadata(id, game), TowerStory.actorMetadata(id, game),
-        SnorlaxStory.actorMetadata(id), MidgameGymStory.actorMetadata(id), SilphStory.actorMetadata(id, game)}) do
+        SnorlaxStory.actorMetadata(id), MidgameGymStory.actorMetadata(id), SilphStory.actorMetadata(id, game), CeladonServices.actorMetadata(id)}) do
         for _, condition in ipairs(extra.visibility or {}) do
             result.visibility[#result.visibility + 1] = copy(condition)
         end
