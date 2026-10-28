@@ -3885,5 +3885,5 @@ function Pokemon:calcExpGain(defeated, trainerBattle, participants)
     assert(participants and participants>=1 and participants<=6,"invalid conscious participant count")
     if not self:isAlive() or self.level == 100 then return 0 end
     return math.min(self:xpForLevel(100) - self.xp,
-        Growth.battleAward(baseExpYield(defeated.species), defeated.level, self.level, trainerBattle, participants, NPCTrades.isOutsider(self)))
+        Growth.battleAward(baseExpYield(defeated.species), defeated.level, self.level, trainerBattle, participants))
 end

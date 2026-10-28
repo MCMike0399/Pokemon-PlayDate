@@ -34,7 +34,6 @@ import "domain/itemStorage"
 import "domain/pcItems"
 import "domain/pickup"
 import "domain/gameSession"
-import "domain/npcTrades"
 import "domain/teaching"
 import "domain/sessionCodec"
 import "game/daycare"
@@ -103,8 +102,6 @@ import "game/vermilionStoryIntent"
 import "game/vermilionStoryHooks"
 import "game/vermilionStoryState"
 import "game/daycareState"
-import "game/npcTradeState"
-import "game/saffronGuards"
 import "game/pokedexState"
 import "game/pcState"
 import "game/evolutionState"
@@ -155,8 +152,6 @@ KantoServices.install()
 VermilionGifts.install()
 VermilionStory.install({reconcileActors=KantoScenes.reconcileActors})
 Daycare.install()
-NPCTrades.install()
-SaffronGuards.install()
 -- @harness content-ready
 SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
 SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
@@ -180,7 +175,7 @@ machine:register("party", PartyState(game))
 machine:register("fieldMove", FieldMoveState(game))
 machine:register("bag", BagState(game))
 machine:register("shop", ShopState(game))
-machine:register("event", NPCTradeState(game))
+machine:register("event", DaycareState(game))
 machine:register("tutorial-escort", TutorialEscortState(game))
 machine:register("pokedex", PokedexState(game))
 machine:register("pc", PCState(game))

@@ -407,7 +407,7 @@
     "game/sourceEventHandlers.lua": "7a89e76c1c80d9ce7af9f23bbe853f042215c404a21089f292436354e41b2518",
     "game/sourceEvents.lua": "433aed36c1361ff4782c2043d34b2538b0616be4eb9af88a16b853d228b29f26",
     "game/trainerEvents.lua": "57227fc6e13e9427340bb7fd1613700eb3244084c1c40f7d831450eee069758b",
-    "main.lua": "bbeadbe34203a70a9ffd738e8c9f0512daa43515134b52f672f488a291707552"
+    "main.lua": "b6a528a2fd5ea5cde180c92c2958d321cda6bd06faa930c1f9a585524981b821"
   },
   "trainers": {
     "pokered:CERULEAN_CITY:objects:2": {

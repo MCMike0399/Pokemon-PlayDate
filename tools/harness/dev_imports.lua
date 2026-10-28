@@ -271,8 +271,3 @@ VermilionCatalogExporter.register()
 
 -- @harness runtime
 harness = Harness
-
-import "dev/npcTradeContracts"
-Contracts.register("npc-trades", NPCTradeContracts.run)
-import "dev/saffronGuardContracts"
-Contracts.register("saffron-guards", SaffronGuardContracts.run)
