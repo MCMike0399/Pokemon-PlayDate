@@ -10,7 +10,7 @@
       "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
     }
   },
-  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified. Camouflage follows the requested fieldless Normal policy; the pinned Gen5 onHit override instead sets Ground.",
+  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified. Camouflage follows the selected Gen V override: Ground without a field model.",
   "moves": {
     "pound": {
       "handler": "standard-damage"

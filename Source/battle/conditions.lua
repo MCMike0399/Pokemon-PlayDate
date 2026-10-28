@@ -54,14 +54,16 @@ function BattleConditions:disable()
     return true
 end
 function BattleConditions:camouflage()
-    local b=self.battle;local mon=b.attacker
-    -- Campaign policy: Normal without a game-field environment. The pinned
-    -- PS base callback defaults to Normal; its Gen5 override instead uses
-    -- Ground. Do not infer a field environment from the overworld map art.
-    local first,second=self:types(mon)
-    if first=="normal" and not second then b:say("But it failed!");return false end
-    self:of(mon).changedType="normal"
-    b:say(mon.name.." transformed into the NORMAL type!")
+    local battle = self.battle
+    local mon = battle.attacker
+    -- The selected Showdown gen5 override uses Ground without a field model.
+    local first, second = self:types(mon)
+    if first == "ground" and not second then
+        battle:say("But it failed!")
+        return false
+    end
+    self:of(mon).changedType = "ground"
+    battle:say(mon.name .. " transformed into the GROUND type!")
     return true
 end
 function BattleConditions:roost()
