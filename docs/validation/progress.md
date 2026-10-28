@@ -123,7 +123,7 @@ Next runs start there and continue after individual failures.
 | Branch | Current work |
 |---|---|
 | `main` | Root accepts and commits each finished milestone locally. **12 / 222 source maps playable; milestone 5.3.** No push is planned. |
-| `wip/cerulean-integration` | `3ad7059`: all three journeys now load the accepted Brock saves. The old visible-NPC requirement was removed for Cerulean save screenshots. Existing host checks: 39 passed; SDK build and Simulator smoke passed. Wild Teleport is being fixed before the next three-starter run with continue-on-failure. |
+| `wip/cerulean-integration` | Wild Teleport now lets wild Abra flee without XP or money. All 1660 SDK checks pass and all 2494 protected images match. Three journeys are running from the accepted Brock saves in `m53-chained-journeys-20261028-01`, with continue-on-failure and no new grinding. Bulbasaur has beaten five Route 3 trainers. Cerulean is not accepted yet. |
 | `wip/vermilion-integration` | Frozen at `380104e`. Resume only after Cerulean is accepted on main. |
 | `wip/audio-integration`, trade and guard branches | Frozen; branches retained, clean superseded checkouts removed. |
 
