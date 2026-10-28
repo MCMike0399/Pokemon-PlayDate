@@ -68,7 +68,7 @@ Audio and later campaign work remain parked.
 | Branch | Next step |
 |---|---|
 | `main` / root | 30/222 maps; 5.3 accepted. GPT-6.1 Sol integrates and validates; only root runs the Simulator. |
-| `wip/vermilion-integration` | 2168 native and 866 host checks pass; approved Route2 baseline gives 2494 exact protected images. In `m54-chained-journeys-20261028-05`, Bulbasaur/Charmander stopped at an unanswered Day Care menu; both have actual progress saves for retry. The menu handler is fixed. Squirtle passed real deposit, walking growth and paid withdrawal and reached Route6. All cases continue after failures, with no XP farming or increased caps. The 35 new map viewports and 14 actor families were inspected; ship/Cut motion and full journeys remain pending. |
+| `wip/vermilion-integration` | 2168 native and 866 host checks pass; all 2494 protected images match the approved baseline. In `m54-chained-journeys-20261028-05`, Squirtle passed Day Care and reached Anne cabins; an exit mat was wrongly chosen as a walking goal. That is fixed. Bulbasaur/Charmander menu stops are fixed too. All three now have earned progress saves, and continue-on-failure retries are running in `m54-progress-retry-<starter>-20261028-02`. Saves retain their accepted Cerulean origin; no game progress is fabricated or replayed from New Game. Motion and full journeys remain pending. |
 | Audio, trades and Saffron branches | Parked. Existing needed 5.4 content is handled only through the Vermilion branch. |
 
 Workers use `gpt-6.1-sol` at medium effort in separate worktrees.
