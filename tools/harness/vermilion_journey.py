@@ -537,7 +537,10 @@ class VermilionJourney(cj.CeruleanJourney):
                 raise ProtocolError('invalid or duplicate actual encounter terrain cell')
             seen.add(point)
             shadow.grass[point[1]][point[0]] = True
-        return training_lane(shadow, self.position(), self.occupied())
+        lane = ((35, 30), (35, 31))
+        if any(point not in seen or point in model.warps for point in lane):
+            raise ProtocolError('the fixed cave collection lane is not eligible terrain')
+        return lane
 
     def collect(self, name, targets, center, mart, *, minimum_owned=None, required=True):
         policy = self.vermilion['collection'][name]
@@ -992,6 +995,7 @@ class VermilionJourney(cj.CeruleanJourney):
         self.enter_flash_gate()
         self.checkpoint('vermilion-visit-route2gate')
         self.gift('hm05')
+        self.save()
         self.leave_flash_gate()
         self.cross_digletts_cave(reverse=True)
         self.travel(self.zone('Route11'))
@@ -1011,7 +1015,7 @@ class VermilionJourney(cj.CeruleanJourney):
         self.require(zone_id=self.zone('Route2Gate'))
 
     def leave_flash_gate(self):
-        self.navigate((5, 0), transition=self.zone('Route2'))
+        self.navigate((6, 0), transition=self.zone('Route2'))
         if self.state['zone_id'] == self.zone('Route2Gate'):
             self.send('press up', 'wait 15')
             self.drain()
