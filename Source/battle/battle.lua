@@ -1037,7 +1037,30 @@ function Battle:performMove(move)
 
     if move.damageRule=="bide" then return self.conditions:bide() end
 
+    -- Showdown 9b136a8 gen5 inherits Magnitude's ModifyMove selection.
+    -- Keep it local to this use, before immunity/protection/accuracy and damage.
+    local magnitude
+    if self.currentMoveKey == "magnitude" then
+        local roll = RulesRNG.random(100)
+        local thresholds = { 5, 15, 35, 65, 85, 95, 100 }
+        local powers = { 10, 30, 50, 70, 90, 110, 150 }
+        for index, threshold in ipairs(thresholds) do
+            if roll <= threshold then
+                magnitude = index + 3
+                -- Active-use copy: damage receipts and modifiers must see a
+                -- damaging move, while the registry keeps its zero base power.
+                local activeMove = {}
+                for key, value in pairs(move) do activeMove[key] = value end
+                activeMove.power = powers[index]
+                move = activeMove
+                self.currentMove = move
+                break
+            end
+        end
+    end
+
     self:say(attacker.name .. " used " .. move.name .. "!")
+    if magnitude then self:say("Magnitude " .. magnitude .. "!") end
     if handler == "wild-escape" then
         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
         -- zero, no selfSwitch, trainer failure even with a usable reserve.

@@ -209,6 +209,78 @@ function MoveFailureContracts.run()
             end
         end
     end)
+    test("Magnitude selects all seven powers before accuracy and damage without changing shared move data", function()
+        -- Pinned Showdown 9b136a8 data/moves.ts, inherited through gen5.
+        -- Seeds 1..100 visit each of its 100 selection buckets exactly once.
+        local bands = { {5, 10}, {15, 30}, {35, 50}, {65, 70}, {85, 90}, {95, 110}, {100, 150} }
+        local counts = { 0, 0, 0, 0, 0, 0, 0 }
+        local shared = {}
+        for key, value in pairs(moveData.magnitude) do shared[key] = value end
+        for seed = 1, 100 do
+            local source, target = Pokemon("geodude", 20), Pokemon("chansey", 100)
+            local side = seed % 2 == 0 and "player" or "enemy"
+            local b = side == "player" and Battle(source, target) or Battle(target, source)
+            battles[#battles + 1] = b
+            settle(b)
+            b:setDirection(side)
+            RulesRNG.seed(seed)
+            local roll = RulesRNG.random(100)
+            local band
+            for index, entry in ipairs(bands) do
+                if roll <= entry[1] then band = index; break end
+            end
+            counts[band] = counts[band] + 1
+            RulesRNG.random(1, 100) -- accuracy follows selection
+            local expected = calcDamage(source, target, moveData.magnitude, bands[band][2], b.effects)
+            local after = RulesRNG.snapshot()
+            local hp = target.hp
+            RulesRNG.seed(seed)
+            local text = attempt(b, "magnitude", side)
+            assert(text:find("Magnitude " .. (band + 3) .. "!", 1, true))
+            eq(target.hp, hp - expected.damage, "selected power damage")
+            eq(b.lastDamage, expected.damage)
+            eq(b.currentMove.power, bands[band][2], "active move power")
+            assert(b.currentMove ~= moveData.magnitude)
+            eq(source.pp.magnitude, 29)
+            eq(RulesRNG.snapshot().state, after.state, "selection, accuracy, crit, damage order")
+            eq(RulesRNG.snapshot().rolls, 4)
+            eq(#b:getMoveGaps(), 0)
+            for key, value in pairs(shared) do eq(moveData.magnitude[key], value, key) end
+            for key in pairs(moveData.magnitude) do assert(shared[key] ~= nil, key) end
+        end
+        for index, expected in ipairs({5, 10, 20, 30, 20, 10, 5}) do
+            eq(counts[index], expected, "Magnitude distribution " .. (index + 3))
+        end
+        -- A miss still announces its level and spends PP, without crit/damage.
+        local b = fresh(Pokemon("chansey", 100))
+        b.player.statStages.acc = -6
+        local missSeed = 1
+        while true do
+            local stream = RulesRNG.new(missSeed)
+            stream:random(100)
+            if stream:random(1, 100) > 33 then break end
+            missSeed = missSeed + 1
+        end
+        RulesRNG.seed(missSeed)
+        local hp = b.enemy.hp
+        local text = attempt(b, "magnitude")
+        assert(text:find("Magnitude ", 1, true))
+        assert(text:find("attack missed!", 1, true))
+        eq(b.enemy.hp, hp)
+        eq(b.player.pp.magnitude, 29)
+        eq(RulesRNG.snapshot().rolls, 2)
+        eq(#b:getMoveGaps(), 0)
+        -- Selection also precedes Ground immunity; no accuracy/crit/damage.
+        b = fresh(Pokemon("pidgey", 100))
+        RulesRNG.seed(19)
+        text = attempt(b, "magnitude")
+        assert(text:find("Magnitude ", 1, true))
+        assert(text:find("doesn't affect", 1, true))
+        eq(b.enemy.hp, b.enemy.maxHP)
+        eq(b.player.pp.magnitude, 29)
+        eq(RulesRNG.snapshot().rolls, 1)
+        eq(#b:getMoveGaps(), 0)
+    end)
     test("Pursuit intercepts voluntary withdrawal once at double power, including a faint before replacement", function()
         local b = fresh()
         own(b.enemy, "pursuit")

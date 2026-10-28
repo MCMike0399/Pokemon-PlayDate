@@ -10,7 +10,7 @@
       "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
     }
   },
-  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified. Camouflage follows the selected Gen V override: Ground without a field model.",
+  "policy": "Explicit reviewed dispatch coverage; not full mechanics acceptance. New moves fail closed until classified. Camouflage follows the selected Gen V override: Ground without a field model. Magnitude supports ordinary singles power selection; doubling against an underground Dig target remains unsupported because Dig has no producer.",
   "moves": {
     "pound": {
       "handler": "standard-damage"
@@ -595,7 +595,7 @@
       "handler": "engine-dsl"
     },
     "magnitude": {
-      "gap": "onModifyMove, onUseMoveMessage"
+      "handler": "engine-dsl"
     },
     "dynamicPunch": {
       "handler": "standard-damage"
