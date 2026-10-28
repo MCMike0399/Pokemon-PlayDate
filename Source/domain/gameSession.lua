@@ -1,4 +1,5 @@
 -- Persistent session owner. No sprites, Story singleton or filesystem access.
+import "domain/sourceEncounters"
 Class("GameSession")
 local state=setmetatable({}, {__mode="k"})
 local activeRNGSession=nil
@@ -169,12 +170,20 @@ end
 function GameSession:purchaseGiftPokemon(offer, expectedMoney)
     local current = state[self]
     local ok, prepared = pcall(function()
-        object(offer, {species=true, level=true, price=true, flag=true})
+        object(offer, {species=true, level=true, price=true, flag=true, guard_flags=true, extra_flags=true})
         assert(Specimen.isActiveSession(self), "inactive-specimen-session")
         assert(stable(offer.flag), "invalid-gift-flag")
         assert(Party._integer(offer.price, 0, Inventory.MONEY_LIMIT), "invalid-gift-price")
         assert(Party._integer(expectedMoney, 0, Inventory.MONEY_LIMIT), "invalid-money-guard")
         if self:questFlag(offer.flag) then error("already-complete", 0) end
+        local giftGuards = flags(offer.guard_flags or {}, 32)
+        local giftWrites = flags(offer.extra_flags or {}, 32)
+        for id, value in pairs(giftGuards) do
+            if self:questFlag(id) ~= value then error("stale-flag", 0) end
+        end
+        for id, value in pairs(giftWrites) do
+            assert(value == true and giftGuards[id] == false, "guarded one-time gift flag required")
+        end
         if current.inventory:money() ~= expectedMoney then error("stale-money", 0) end
         local bag = assert(Inventory.fromData(current.deps.itemDefinitions, current.inventory:toData()))
         local paid, reason = bag:spend(offer.price)
@@ -185,6 +194,9 @@ function GameSession:purchaseGiftPokemon(offer, expectedMoney)
         end
         local combined = copy(current.questFlags)
         combined[offer.flag] = true
+        for id, value in pairs(giftWrites) do
+            combined[id] = value
+        end
         combined = flags(combined, 4096)
         local stream = RulesRNG.new(1)
         stream:restoreData(self:rngData())
@@ -744,4 +756,190 @@ function GameSession:resolveNPCTrade(request, context)
     prepared.request.status = "committed"
     self:invalidateFieldWorldContext()
     return true, prepared.result
+end
+
+-- Transient source encounter lifecycle is attached to this authoritative owner.
+-- It is never serialized or owned by an event/controller singleton.
+function GameSession:prepareSourceEncounter(request, location)
+    local current = state[self]
+    if current.sourcePending or current.sourceBattle then
+        return nil, "source-encounter-already-active"
+    end
+    local ok, prepared = pcall(SourceEncounters.prepare, self, request, location)
+    if not ok then return nil, tostring(prepared) end
+    current.sourcePending = prepared
+    return prepared.token, prepared.enemy
+end
+function GameSession:sourceEncounterToken(enemy)
+    local prepared = state[self].sourcePending
+    return prepared and prepared.enemy == enemy and prepared.token or nil
+end
+function GameSession:cancelSourceEncounter(token)
+    local current = state[self]
+    if not current.sourcePending or current.sourcePending.token ~= token then
+        return false, "stale-source-intent"
+    end
+    current.sourcePending = nil
+    return true
+end
+function GameSession:bindSourceBattle(battle, token, zoneID)
+    local current = state[self]
+    local ok, prepared = pcall(function()
+        assert(battle.session == self and battle.party == current.party and not battle.trainerName,
+            "foreign-source-battle")
+        assert(not current.sourceBattle, "source-battle-already-bound")
+        local record
+        if token then
+            record = assert(current.sourcePending, "absent-source-intent")
+            assert(record.token == token and record.enemy == battle.enemy and record.zone_id == zoneID
+                and record.party == current.party and record.phase == "prepared", "stale-source-intent")
+            assert(SourceEncounters.equal(RulesRNG.snapshot(), record.beforeRng), "stale-source-rng")
+            for id, value in pairs(record.guards.flags) do
+                assert(self:questFlag(id) == value, "stale-source-flag")
+            end
+            for id, value in pairs(record.guards.items) do
+                assert(current.inventory:quantity(id) == value, "stale-source-item")
+            end
+        else
+            local policy = zoneID and SourceEncounters.policy(self, zoneID)
+            if not policy then return nil end
+            record = {enemy = battle.enemy, party = current.party, zone_id = zoneID, policy = policy, guards = {}}
+        end
+        record.beforeFlags = copy(current.questFlags)
+        record.beforeDex = copy(current.dex)
+        local combined = copy(current.questFlags)
+        if record.definition and record.definition.fight then
+            combined[record.definition.fight] = false
+        end
+        return {record = record, flags = flags(combined, 4096)}
+    end)
+    if not ok then return false, tostring(prepared) end
+    if not prepared then return true, nil end
+    local record = prepared.record
+    record.phase, record.battle = "active", battle
+    current.sourcePending, current.sourceBattle = nil, record
+    current.questFlags = prepared.flags
+    if record.rng then RulesRNG.restore(record.rng) end
+    return true, copy(record.policy)
+end
+function GameSession:sourceBattlePolicy(battle)
+    local record = state[self].sourceBattle
+    if record and record.battle == battle then
+        SourceEncounters.current(self, record, battle)
+        return copy(record.policy)
+    end
+end
+function GameSession:abortSourceBattle(battle, failedConstruction)
+    local current = state[self]
+    local record = current.sourceBattle
+    if not record or record.battle ~= battle then return false end
+    if failedConstruction then
+        current.questFlags, current.dex = record.beforeFlags, record.beforeDex
+        if record.beforeRng then RulesRNG.restore(record.beforeRng) end
+    end
+    current.sourceBattle = nil
+    return true
+end
+function GameSession:attemptSourceCapture(battle, ballID)
+    local current = state[self]
+    local record = current.sourceBattle
+    local ok, prepared = pcall(function()
+        SourceEncounters.current(self, record, battle)
+        assert(battle:isAwaitingCommand() and not battle.outcome and not battle.endEmitted,
+            "wrong-source-capture-phase")
+        assert(not record.capture or not record.capture.caught, "source-capture-already-pending")
+        assert(battle.enemy:isAlive() and not Party._owner(battle.enemy), "invalid-source-capture-target")
+        local context = {pokemon = battle.enemy, wild = true}
+        local caughtCount = 0
+        for _, owned in pairs(current.dex.owned) do
+            if owned then caughtCount = caughtCount + 1 end
+        end
+        local parameters, reason = Capture.parameters(context, ballID, caughtCount)
+        assert(parameters, reason)
+        if current.party:count() >= Party.CAPACITY and current.storage:count() >= Storage.BOX_CAPACITY then
+            error("storage-full", 0)
+        end
+        assert(PokemonCodec.encode(battle.enemy), "invalid-source-capture-specimen")
+        local bag = assert(Inventory.fromData(current.deps.itemDefinitions, current.inventory:toData()))
+        local consumed
+        consumed, reason = bag:consume(ballID, 1)
+        assert(consumed, reason)
+        local futureFlags = copy(current.questFlags)
+        if record.definition then futureFlags[record.definition.flag] = true end
+        flags(futureFlags, 4096)
+        local stream = RulesRNG.new(1)
+        stream:restore(RulesRNG.snapshot())
+        local result
+        if record.policy.capture == false then
+            -- Blue removes the thrown ball, but never rolls capture for ghosts.
+            result = {caught = false, source_blocked = true, displayShakes = 0}
+        else
+            result, reason = Capture.attempt(context, ballID, caughtCount, stream)
+            assert(result, reason)
+        end
+        return {result = result, bag = bag:toData(), rng = stream:snapshot(),
+            partyCount = current.party:count(), box = current.storage:activeBox(), boxCount = current.storage:count()}
+    end)
+    if not ok then return nil, tostring(prepared) end
+    local accepted, reason = Inventory._replaceData(current.inventory, prepared.bag)
+    if not accepted then return nil, reason end
+    RulesRNG.restore(prepared.rng)
+    record.capture = {caught = prepared.result.caught, result = prepared.result, enemy = battle.enemy,
+        partyCount = prepared.partyCount, box = prepared.box, boxCount = prepared.boxCount}
+    return prepared.result
+end
+function GameSession:resolveSourceEncounter(battle, won, kind)
+    local current = state[self]
+    local record = current.sourceBattle
+    if not record or record.battle ~= battle then return true, nil end
+    local ok, prepared = pcall(function()
+        local terminal = SourceEncounters.terminal(self, record, battle, won, kind)
+        local combined = copy(current.questFlags)
+        for id, value in pairs(terminal.flags) do combined[id] = value end
+        combined = flags(combined, 4096)
+        local discovered = copy(current.dex)
+        local destination
+        if kind == "caught" then
+            assert(current.party:count() == record.capture.partyCount
+                and current.storage:activeBox() == record.capture.box
+                and current.storage:count() == record.capture.boxCount, "stale-source-capture-capacity")
+            assert(not Party._owner(battle.enemy) and PokemonCodec.encode(battle.enemy), "invalid-source-capture-claim")
+            destination = current.party:count() < Party.CAPACITY and "party" or "storage"
+            if destination == "storage" then
+                assert(current.storage:count() < Storage.BOX_CAPACITY, "storage-full")
+            end
+            discovered.seen[battle.enemy.species], discovered.owned[battle.enemy.species] = true, true
+        end
+        return {flags = combined, dex = dex(discovered), destination = destination,
+            receipt = record.id and {id = record.id, zone_id = record.zone_id, confirmed = true,
+                kind = kind, completed = terminal.completed} or nil}
+    end)
+    if not ok then return false, tostring(prepared) end
+    if prepared.destination then
+        local accepted, index
+        if prepared.destination == "party" then
+            accepted, index = current.party:add(battle.enemy)
+        else
+            accepted, index = current.storage:receive(battle.enemy)
+        end
+        if not accepted then return false, index end
+        record.capture.result.destination = {destination = prepared.destination, index = index,
+            box = prepared.destination == "storage" and current.storage:activeBox() or nil}
+    end
+    -- Recruitment and only this source actor's completion flags publish without
+    -- any callback/yield or fallible operation between the owner assignments.
+    current.questFlags, current.dex = prepared.flags, prepared.dex
+    current.currentActors = WorldMotionData.empty()
+    record.phase, current.sourceBattle = "complete", nil
+    if prepared.receipt and kind ~= "defeat" then
+        current.sourceReceipt = prepared.receipt
+    end
+    return true, copy(prepared.receipt)
+end
+function GameSession:takeSourceReceipt(id)
+    local current = state[self]
+    local receipt = current.sourceReceipt
+    if not receipt or receipt.id ~= id then return nil end
+    current.sourceReceipt = nil
+    return copy(receipt)
 end

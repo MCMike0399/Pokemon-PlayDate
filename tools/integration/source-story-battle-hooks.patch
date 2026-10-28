@@ -4,47 +4,24 @@
      -- Receipt ownership changes only on this explicit controller entry, never
      -- during diagnostics, previews or repeated read-only observations.
      if extended and self.game.trainers then observation.receipt=self.game.trainers:takeReceipt(id) end
-+    if extended and FieldBattle.takeSourceReceipt then
++    if extended then
 +        observation.source_receipt = FieldBattle.takeSourceReceipt(self.game, id)
 +    end
      local plan=SourceEvents.plan(id,observation)
      assert(type(plan.steps)=="table" and #plan.steps<=16,"event step limit")
      self.epoch=self.epoch+1;self.active=true;self.serial=0
---- a/Source/game/battleState.lua
-+++ b/Source/game/battleState.lua
-@@ -43,6 +43,10 @@
-     local plan,reason=FieldBattle.prepare(self.game,playerPokemon,enemyPokemon,npc,enemyParty)
-     assert(plan,reason)
-     local battle,scene=FieldBattle.construct(plan)
-+    if FieldBattle.attachSourceEncounter then
-+        local attached, problem = FieldBattle.attachSourceEncounter(self.game, battle)
-+        assert(attached, problem)
-+    end
-     self.npc = npc
-     if npc then
-         local id = npc.trainerID or npc.def and npc.def.source_event_id
-@@ -89,6 +93,12 @@
-     end
-     local pickupOK, pickupReceipt = game.session:resolvePickupBattle(self.battle, won, kind)
-     assert(pickupOK, pickupReceipt)
-+    local sourceReceipt
-+    if FieldBattle.resolveSourceEncounter then
-+        local accepted, result = FieldBattle.resolveSourceEncounter(game, self.battle, won, kind)
-+        assert(accepted, result)
-+        sourceReceipt = result
-+    end
-     self.finished=true
-     if Evolution then assert(Evolution.afterBattle(game.session,kind)) end
-     game.lastBattleOutcome = {kind = kind, won = won, blackout = blackout,
-@@ -117,6 +127,11 @@
-     end
-     if game.trainers then game.trainers:restoreReturnedTrainer() end
-     game:offerPartyLearning(function()
-+        if sourceReceipt and not blackout and game.machine:getCurrent() == "overworld"
-+            and currentZone.stableID == sourceReceipt.zone_id then
-+            SourceEvents.dispatch(game, sourceReceipt.id)
-+            return
-+        end
-         if not receipt then return end
-         if not receipt.won then
-             local descriptor = SourceEvents.descriptor(receipt.id)
+--- a/Source/game/towerStoryController.lua
++++ b/Source/game/towerStoryController.lua
+@@ -173,10 +173,10 @@
+     elseif script == "ghost-return" then
+         local receipt <const> = state.plan.source_receipt
+         assert(receipt.id == TowerStory.GHOST and receipt.confirmed, "confirmed ghost result required")
+-        if receipt.kind == "victory" then
++        if receipt.kind == "victory" and receipt.completed then
+             assert(state.session:questFlag("EVENT_BEAT_GHOST_MAROWAK"), "uncommitted ghost result")
+             text(state, {"_PokemonTower6FGhostWasCubonesMotherText", "_PokemonTower6FSoulWasCalmedText"})
+-        elseif receipt.kind == "run" then
++        elseif receipt.kind == "run" or not receipt.completed then
+             queue(state, function()
+                 state:startMove("right")
+             end)

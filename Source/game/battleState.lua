@@ -89,6 +89,8 @@ function BattleState:finish(won, kind)
     end
     local pickupOK, pickupReceipt = game.session:resolvePickupBattle(self.battle, won, kind)
     assert(pickupOK, pickupReceipt)
+    local sourceOK, sourceReceipt = FieldBattle.resolveSourceEncounter(game, self.battle, won, kind)
+    assert(sourceOK, sourceReceipt)
     self.finished=true
     if Evolution then assert(Evolution.afterBattle(game.session,kind)) end
     game.lastBattleOutcome = {kind = kind, won = won, blackout = blackout,
@@ -117,6 +119,11 @@ function BattleState:finish(won, kind)
     end
     if game.trainers then game.trainers:restoreReturnedTrainer() end
     game:offerPartyLearning(function()
+        if sourceReceipt and not blackout and game.machine:getCurrent() == "overworld"
+            and currentZone.stableID == sourceReceipt.zone_id then
+            SourceEvents.dispatch(game, sourceReceipt.id)
+            return
+        end
         if not receipt then return end
         if not receipt.won then
             local descriptor = SourceEvents.descriptor(receipt.id)
@@ -142,7 +149,10 @@ function BattleState:exit()
     self.epoch=(self.epoch or 0)+1
     if self.trainerToken and self.game.trainers then self.game.trainers:abortBattle(self.trainerToken) end
     self.trainerToken=nil
-    if self.battle then self.battle:cancelPendingLearning() end
+    if self.battle then
+        self.game.session:abortSourceBattle(self.battle)
+        self.battle:cancelPendingLearning()
+    end
     self.learningRequest = nil
     if self.battle and not self.battle.emittingEnd then self.battle:clearVolatiles() end
     if self.scene then self.scene:exit() end

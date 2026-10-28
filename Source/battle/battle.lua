@@ -290,7 +290,7 @@ Class("Battle"):includes(Signal)
 function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     dependencies = dependencies or {}
     assert(type(dependencies) == "table", "battle dependencies required")
-    for key in pairs(dependencies) do assert(key == "party" or key == "session" or key == "enemyParty", "unsupported battle dependency") end
+    for key in pairs(dependencies) do assert(key == "party" or key == "session" or key == "enemyParty" or key == "sourceFieldContext", "unsupported battle dependency") end
     self.session = dependencies.session
     self.party = dependencies.party or (self.session and self.session:party())
     self.enemyParty = dependencies.enemyParty
@@ -338,6 +338,14 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     self.machine:register("script", BattleScriptPhase(self))
     self.machine:register("ended", BattleEndedPhase(self))
 
+    if dependencies.sourceFieldContext then
+        assert(self.session and not trainerName, "field source policy requires a session wild battle")
+        local context = dependencies.sourceFieldContext
+        local accepted, policy = self.session:bindSourceBattle(self, context.token, context.zone_id)
+        assert(accepted, policy)
+        self.sourceEncounter = policy
+    end
+
     self:runScript(function()
         if self.trainerName then
             self:say(self.trainerName .. " wants to battle!")
@@ -353,11 +361,29 @@ function Battle:init(playerPokemon, enemyPokemon, trainerName, dependencies)
     end)
 end
 
+function Battle:sourceSay(labels)
+    local policy = assert(self.sourceEncounter, "source battle policy missing")
+    local pages = SourceEvents.pages(policy.text_event_id, labels, {
+        wEnemyMonNick = (policy.unidentified or policy.restless_soul) and "GHOST" or self.enemy.name,
+        wBattleMonNick = self.player.name,
+    })
+    for _, page in ipairs(pages) do self:say(page.text) end
+end
+function Battle:opponentDisplayName()
+    return self.sourceEncounter and self.sourceEncounter.unidentified and "GHOST" or self.enemy.name
+end
+
 -- Discovery belongs to actual opponent entry, never team construction/bench.
 -- Mark immediately before its visible announcement, including replacements.
 function Battle:opponentEntered(cause)
     assert(cause==nil or cause=="phaze","invalid opponent-entry cause")
     if self.enemyParty then assert(self.enemyParty:active()==self.enemy,"opponent entry active mismatch") end
+    if self.sourceEncounter and not cause then
+        self:sourceSay(self.sourceEncounter.intro_labels)
+        if self.sourceEncounter.unidentified then
+            return
+        end
+    end
     if self.session then assert(self.session:markSeen(self.enemy.species)) end
     if cause=="phaze" then self:say(self.enemy.name.." was dragged out!")
     elseif self.trainerName then self:say(self.trainerName .. " sent out " .. self.enemy.name .. "!")
@@ -536,6 +562,9 @@ function Battle:clearVolatiles()
     self.effects:close()
 end
 function Battle:enemyTurn()
+    if self.sourceEncounter and self.sourceEncounter.unidentified then
+        return {side="enemy", actor=self.enemy, move=moveData.struggle}
+    end
     local locked=self.conditions:lockedKey(self.enemy)
     if locked then return {side="enemy",actor=self.enemy,move=moveData[locked],key=locked,continuation=true} end
     local choices = self:availableMoves(self.enemy)
@@ -836,17 +865,26 @@ function Battle:throwBall(ballId)
     local inventory=self.session:inventory()
     local quantity,why=Inventory.quantity(inventory,ballId)
     if not quantity or quantity<1 then return false,why or "insufficient-items" end
-    local result,captureError=Capture.attempt(context,ballId,caughtCount,RulesRNG)
+    local result, captureError
+    if self.sourceEncounter then
+        result, captureError = self.session:attemptSourceCapture(self, ballId)
+    else
+        result, captureError = Capture.attempt(context, ballId, caughtCount, RulesRNG)
+    end
     if not result then return false,captureError end
     -- No yield/callback between preflight, trial RNG completion and these
     -- synchronous production commits. Same enemy identity enters the session.
-    assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
+    if not self.sourceEncounter then
+        assert(Inventory.consume(inventory,ballId,1),"capture ball consumption invariant")
+    end
     if result.caught then
         self.enemy:resetStages()
         self:clearHitPresentation()
-        local recruited,destination=GameSession.recruit(self.session,self.enemy)
-        assert(recruited,"capture recruitment invariant: " .. tostring(destination))
-        result.destination=destination
+        if not self.sourceEncounter then
+            local recruited,destination=GameSession.recruit(self.session,self.enemy)
+            assert(recruited,"capture recruitment invariant: " .. tostring(destination))
+            result.destination=destination
+        end
         self.caughtPokemon=self.enemy
     end
     self.effects:beginRound()
@@ -859,6 +897,13 @@ function Battle:throwBall(ballId)
             self:say("Gotcha! " .. self.enemy.name .. " was caught!")
             self.message=self.enemy.name .. " was caught!"
             return "caught" -- Catching grants no XP in Gen V.
+        end
+        if result.source_blocked then
+            self:say("It dodged the thrown BALL!")
+            self:say("This POKEMON can't be caught!")
+            local outcome = self:resolveTurn(self:enemyTurn())
+            if outcome and outcome ~= "replacement" then return outcome end
+            return self:finishRound()
         end
         local message=result.displayShakes==0 and "Oh no! The POKEMON broke free!"
             or (result.displayShakes==1 and "Aww! It appeared to be caught!" or "Aargh! Almost had it!")
@@ -933,6 +978,15 @@ function Battle:resolveTurn(turn)
     if turn.actor~=self[turn.side] or self.outcome or self.effects.closed then return nil end
     self:setDirection(turn.side)
     local attacker = self.attacker
+    if self.sourceEncounter and self.sourceEncounter.unidentified then
+        if turn.side == "enemy" then
+            self:sourceSay({self.sourceEncounter.enemy_block_label})
+            return nil
+        elseif attacker.status ~= "sleep" and attacker.status ~= "freeze" then
+            self:sourceSay({self.sourceEncounter.player_block_label})
+            return nil
+        end
+    end
     local key = turn.key
     if not key then
         for _,owned in ipairs(attacker.moves) do if moveData[owned]==turn.move then key=owned;break end end
@@ -977,6 +1031,11 @@ function Battle:resolveTurn(turn)
             self:say(attacker.name .. " is frozen solid!")
             return interrupted()
         end
+    end
+
+    if self.sourceEncounter and self.sourceEncounter.unidentified then
+        self:sourceSay({self.sourceEncounter.player_block_label})
+        return interrupted()
     end
 
     if attacker.flinched then
