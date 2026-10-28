@@ -229,7 +229,7 @@ function SourceActors.describeSource(zoneID, world, game)
         if (runtimeZone and runtimeZone.collision or surface.collision)[ty+1][tx+1] ~= 0
             and not spec.script_collision_positions[target] then return false end
         local a=runtimeZone and runtimeZone:terrainAt(x,y).foot_tile or surface.feet[y+1][x+1]
-        local b=runtimeZone and runtimeZone:terrainAt(tx,ty).foot_tile or surface.feet[ty+1][tx+1]
+        local b=runtimeZone and runtimeZone:terrainAt(tx, ty).foot_tile or surface.feet[ty + 1][tx + 1]
         local direction=tx>x and "RIGHT"or tx<x and "LEFT"or ty>y and "DOWN"or "UP"
         for _,ledge in ipairs(rules.ledges)do if ledge.facing=="SPRITE_FACING_"..direction and ledge.standing_foot_tile==a and ledge.target_foot_tile==b then return false end end
         if spec.role ~= "boulder" then
@@ -237,16 +237,16 @@ function SourceActors.describeSource(zoneID, world, game)
         end
         return true
     end
-    local function canPush(spec,px,py,x,y,tx,ty,runtimeZone)
-        if spec.role ~= "boulder" or not canStep(spec,x,y,tx,ty,runtimeZone)
-            or px ~= x - (tx-x) or py ~= y - (ty-y)
+    local function canPush(spec, px, py, x, y, tx, ty, runtimeZone)
+        if spec.role ~= "boulder" or not canStep(spec, x, y, tx, ty, runtimeZone)
+            or px ~= x - (tx - x) or py ~= y - (ty - y)
             or px < 0 or py < 0 or px >= surface.width or py >= surface.height then
             return false
         end
         -- Blue compares the player's current foot tile with the tile two steps
         -- ahead, not the boulder's current tile with its destination.
-        local a = runtimeZone and runtimeZone:terrainAt(px,py).foot_tile or surface.feet[py+1][px+1]
-        local b = runtimeZone and runtimeZone:terrainAt(tx,ty).foot_tile or surface.feet[ty+1][tx+1]
+        local a = runtimeZone and runtimeZone:terrainAt(px, py).foot_tile or surface.feet[py + 1][px + 1]
+        local b = runtimeZone and runtimeZone:terrainAt(tx, ty).foot_tile or surface.feet[ty + 1][tx + 1]
         for _, pair in ipairs(rules.forbidden_tile_pairs) do
             if a == pair[1] and b == pair[2] or a == pair[2] and b == pair[1] then
                 return false
