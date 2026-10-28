@@ -169,9 +169,10 @@ def import_chain_save(scenario, project, data, output):
     spec = scenario.get('initial_save')
     if spec is None:
         return None
-    if spec not in ({'milestone': '5.2', 'starter': starter}
-                    for starter in ('bulbasaur', 'squirtle', 'charmander')):
-        raise ProtocolError('unknown accepted starting save')
+    if (not isinstance(spec, dict) or set(spec) != {'milestone', 'starter'}
+            or spec['milestone'] not in {'5.2', '5.3'}
+            or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
+        raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
     if first.get('name') != 'cerulean-natural' or first.get('starter') != spec['starter']:
         raise ProtocolError('starting save does not match journey')

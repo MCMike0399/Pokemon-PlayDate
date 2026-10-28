@@ -627,6 +627,24 @@ class CeruleanJourney(BrockJourney):
         self.stage = "cerulean"
         self.summary["acceptance"] = "Continued accepted Brock save; Cerulean pending"
         self.summary["preparation_policy"] = {"max_new_training_battles": 0, "use_centers_and_medicine": True}
+        starting = self.build_evidence / 'starting-save.json'
+        if starting.is_file():
+            provenance = json.loads(starting.read_text())
+            if provenance.get('resume_tool_failure'):
+                # The preceding real-input run already earned and saved these
+                # rewards. Check that save, then retry only Save/Continue.
+                for flag in ('EVENT_GOT_SS_TICKET', 'EVENT_USED_CELL_SEPARATOR_ON_BILL',
+                             'EVENT_LEFT_BILLS_HOUSE_AFTER_HELPING', 'EVENT_GOT_NUGGET'):
+                    if not self.flag(flag):
+                        raise ProtocolError('incomplete saved campaign: ' + flag)
+                if not self.defeated(MISTY):
+                    raise ProtocolError('saved campaign has not beaten Misty')
+                self.fossil_exclusion()
+                self.save()
+                self.write_receipt()
+                self.summary.update(resume_tool_failure=provenance['resume_tool_failure'],
+                                    acceptance='Saved completed path; process restart pending')
+                return
         self.heal_here("PewterPokecenter")
         self.stock_up("PewterMart")
         self.travel(self.zone("Route3"))
