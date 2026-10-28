@@ -258,7 +258,7 @@ def proposal(artifacts, packet, base=None):
             **{'proposed-' + name: canonical(json.loads(data)) for name, data in cache.items()}}
 
 
-def build(reference_root, packet, pins=None):
+def build(reference_root, packet, pins=None, manifest=None):
     names = PACKETS[packet]
     if pins is None:
         pin = json.loads(pin_path(packet).read_bytes())
@@ -434,7 +434,19 @@ def build(reference_root, packet, pins=None):
                      runtime_x=e['x'] + entries[name]['padding'], runtime_y=e['y'],
                      reserved=next((r['reason'] for r in reservations if r['id'] == e['id']), None))
                 for e in d['events']['objects']]) for name, d in definitions.items()}))
-    output.update(proposal(output, packet))
+    active = manifest if manifest is not None else json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
+    overlap = set(entries) & set(active['maps'])
+    if overlap and overlap != set(entries):
+        raise ValueError('partial installed midgame packet: ' + packet)
+    if overlap:
+        # Root owns activation policy, including added blockers and contexts.
+        # Verify the packet's immutable identity/geometry without replacing it.
+        for name, entry in entries.items():
+            for field in ('id', 'key', 'path', 'profile', 'width', 'height', 'padding', 'source_sha256'):
+                if active['maps'][name].get(field) != entry[field]:
+                    raise ValueError('installed midgame entry drift: ' + name + ':' + field)
+    else:
+        output.update(proposal(output, packet, active))
     # Verify every descriptor text reference exists before publishing a package.
     def labels(value):
         if isinstance(value, dict):
