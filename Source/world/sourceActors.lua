@@ -50,6 +50,13 @@ local function content(profile)
     return assert(contentResolvers[profile], "source actor content resolver missing: " .. tostring(profile))
 end
 
+-- Blue identifies pushable objects by movement byte 2, not by a terrain tile.
+-- Their single fixed source frame always faces down; push direction is separate.
+function SourceActors.isBoulderEvent(event)
+    return event.sprite == "SPRITE_BOULDER"
+        and event.range_or_facing == "BOULDER_MOVEMENT_BYTE_2"
+end
+
 function SourceActors.installArt(name, definition)
     return content(SourceMaps.entry(name).profile).install(definition)
 end
@@ -75,6 +82,7 @@ function SourceActors.objectDefinition(d, event, spec, options)
     end
     local def = { gridX=event.x, gridY=event.y, name=trainer and trainer.name or event.text_id,
         sprite=key, source_event_id=event.id, source_sprite=event.sprite,
+        source_boulder=SourceActors.isBoulderEvent(event),
         source_movement={kind=event.movement, range=event.range_or_facing},
         facing=({UP="up", DOWN="down", LEFT="left", RIGHT="right", LEFT_RIGHT="left"})[event.range_or_facing] or "down",
         dialog=function()
@@ -124,6 +132,7 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     for _,event in ipairs(d.events.objects)do
         local trainer=trainers[event.id];local item=event.kind=="item"
+        local boulder = SourceActors.isBoulderEvent(event)
         if trainer then
             assert(trainer.map_id == zoneID and trainer.sprite_source == event.sprite, "trainer differs from source object")
         end
@@ -131,10 +140,14 @@ function SourceActors.describeSource(zoneID, world, game)
         for direction in pairs(strip.standing)do faces[direction]=true end
         if faces.left then faces.right=true end
         local facing=({UP="up",DOWN="down",LEFT="left",RIGHT="right",LEFT_RIGHT="left",UP_DOWN="down",NONE="down",ANY_DIR="down"})[event.range_or_facing]
+        if boulder then
+            assert(event.movement == "STAY" and strip.fixed, "source boulder must use fixed stationary art")
+            facing = "down"
+        end
         assert(facing and faces[facing],"source actor initial facing missing exact pose")
-        local spec={id=event.id,order=event.source_index,x=event.x,y=event.y,role=trainer and "trainer"or item and "item"or "npc",
+        local spec={id=event.id,order=event.source_index,x=event.x,y=event.y,role=boulder and "boulder" or trainer and "trainer"or item and "item"or "npc",
             movement=event.movement,selector=event.range_or_facing,sprite_source=event.sprite,content_profile=profile,faces=faces,facing=facing,
-            random=not trainer and not item,visibility={},script_positions={}}
+            random=not boulder and not trainer and not item,visibility={},script_positions={}}
         if trainer then
             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end
@@ -180,6 +193,9 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     local function canWander(spec,x,y,runtimeZone)
         if x<0 or y<0 or x>=surface.width or y>=surface.height or (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1]~=0 then return false end
+        if spec.role == "boulder" then
+            return false
+        end
         if spec.role=="trainer"then return spec.script_positions[y*surface.width+x+1]==true end
         if spec.movement~="WALK"then return x==spec.x and y==spec.y end
         if math.abs(x-spec.x)>4 or math.abs(y-spec.y)>4 or protected[y*surface.width+x+1]then return false end
@@ -188,6 +204,11 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     local function canStand(spec,x,y,runtimeZone)
         local cell = y * surface.width + x + 1
+        if spec.role == "boulder" then
+            return x >= 0 and y >= 0 and x < surface.width and y < surface.height
+                and not protected[cell]
+                and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 0
+        end
         if spec.blocked_home and x == spec.x and y == spec.y
             and x >= 0 and y >= 0 and x < surface.width and y < surface.height
             and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 1 then return true end
