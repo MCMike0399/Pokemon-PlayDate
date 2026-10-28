@@ -27,12 +27,12 @@ deploy: compile
 	$(PDUTIL) $$DEVICE datadisk; \
 	echo "Waiting for PLAYDATE volume to mount..."; \
 	TRIES=0; \
-	while [ ! -d /Volumes/PLAYDATE/Games ] && [ $$TRIES -lt 30 ]; do \
+	while [ ! -d /Volumes/PLAYDATE/Games ] && [ $$TRIES -lt 90 ]; do \
 		sleep 1; \
 		TRIES=$$((TRIES + 1)); \
 	done; \
 	if [ ! -d /Volumes/PLAYDATE/Games ]; then \
-		echo "Error: PLAYDATE volume did not mount after 30s."; \
+		echo "Error: PLAYDATE volume did not mount after 90s."; \
 		exit 1; \
 	fi; \
 	echo "Copying $(PRODUCT) to Playdate..."; \
