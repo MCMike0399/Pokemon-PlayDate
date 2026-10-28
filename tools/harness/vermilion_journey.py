@@ -821,6 +821,8 @@ class VermilionJourney(cj.CeruleanJourney):
         if not self.defeated(rocket):
             self.heal_here('CeruleanPokecenter')
             self.stock_up('CeruleanMart')
+            self.travel(self.zone('CeruleanCity'))
+            self.travel(self.zone('CeruleanTrashedHouse'))
             self.fight(rocket)
         self.collect('Route24', ['bellsprout'], 'CeruleanPokecenter', 'CeruleanMart')
         self.collect('Route24', ['caterpie', 'metapod', 'pidgey'], 'CeruleanPokecenter', 'CeruleanMart')
