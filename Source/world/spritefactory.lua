@@ -104,27 +104,56 @@ import "world/sprites/daisy"
 -- Assemble: player (7 frames) + NPCs (down/up/left, right = flip).
 -- ------------------------------------------------------------
 
--- PLAYER (RED)
-local P <const> = SpriteFactory.grids.red
-local stand = { down = make(P.down), up = make(P.up), left = make(P.left) }
-stand.right = flip(stand.left)
-local walk1 = { down = make(P.down_walk), up = make(P.up_walk), left = make(P.left_walk1) }
-walk1.right = flip(walk1.left)
--- walk2 vertical frames are the walk frames X-flipped (Gen 1 lead-foot trick)
-local walk2 = { down = flip(make(P.down_walk)), up = flip(make(P.up_walk)), left = make(P.left_walk2) }
-walk2.right = flip(walk2.left)
-
-SpriteFactory.playerStand = stand
-SpriteFactory.playerWalk1 = walk1
-SpriteFactory.playerWalk2 = walk2
-
--- NPCs: up/left fall back to down until authored; right = flipped left.
+-- Player imports capture these tables before startup; publish frames in place.
+SpriteFactory.playerStand = {}
+SpriteFactory.playerWalk1 = {}
+SpriteFactory.playerWalk2 = {}
 SpriteFactory.npc = {}
-for _, key in ipairs({ "oak", "rival", "mom", "daisy" }) do
-    local frames = SpriteFactory.grids[key]
-    local set = { down = make(frames.down) }
-    set.up = frames.up and make(frames.up) or set.down
-    set.left = frames.left and make(frames.left) or set.down
-    set.right = frames.left and flip(set.left) or set.down
-    SpriteFactory.npc[key] = set
+
+local initialized = false
+
+local function copyFrames(target, frames)
+    for direction, image in pairs(frames) do
+        target[direction] = image
+    end
+end
+
+-- Called once by the root initialization coroutine before content or actors.
+function SpriteFactory.initialize()
+    if initialized then
+        return
+    end
+
+    -- PLAYER (RED)
+    local P <const> = SpriteFactory.grids.red
+    local stand = { down = make(P.down), up = make(P.up), left = make(P.left) }
+    stand.right = flip(stand.left)
+    GameBootstrap.yieldIfDue()
+    local walk1 = { down = make(P.down_walk), up = make(P.up_walk), left = make(P.left_walk1) }
+    walk1.right = flip(walk1.left)
+    GameBootstrap.yieldIfDue()
+    -- walk2 vertical frames are the walk frames X-flipped (Gen 1 lead-foot trick)
+    local walk2 = { down = flip(make(P.down_walk)), up = flip(make(P.up_walk)), left = make(P.left_walk2) }
+    walk2.right = flip(walk2.left)
+    GameBootstrap.yieldIfDue()
+
+    copyFrames(SpriteFactory.playerStand, stand)
+    copyFrames(SpriteFactory.playerWalk1, walk1)
+    copyFrames(SpriteFactory.playerWalk2, walk2)
+
+    -- NPCs: up/left fall back to down until authored; right = flipped left.
+    for _, key in ipairs({ "oak", "rival", "mom", "daisy" }) do
+        local frames = SpriteFactory.grids[key]
+        local set = { down = make(frames.down) }
+        GameBootstrap.yieldIfDue()
+        set.up = frames.up and make(frames.up) or set.down
+        GameBootstrap.yieldIfDue()
+        set.left = frames.left and make(frames.left) or set.down
+        GameBootstrap.yieldIfDue()
+        set.right = frames.left and flip(set.left) or set.down
+        GameBootstrap.yieldIfDue()
+        SpriteFactory.npc[key] = set
+    end
+
+    initialized = true
 end
