@@ -4,9 +4,17 @@
     "pokered:ROCK_TUNNEL_B1F"
   ],
   "maps": {
+    "pokered:CELADON_CITY": {
+      "name": "CeladonCity",
+      "path": "data/fieldMoveMaps/CeladonCity.json"
+    },
     "pokered:CERULEAN_CITY": {
       "name": "CeruleanCity",
       "path": "data/fieldMoveMaps/CeruleanCity.json"
+    },
+    "pokered:LAVENDER_TOWN": {
+      "name": "LavenderTown",
+      "path": "data/fieldMoveMaps/LavenderTown.json"
     },
     "pokered:PEWTER_CITY": {
       "name": "PewterCity",
@@ -15,6 +23,10 @@
     "pokered:ROUTE_1": {
       "name": "Route1",
       "path": "data/fieldMoveMaps/Route1.json"
+    },
+    "pokered:ROUTE_10": {
+      "name": "Route10",
+      "path": "data/fieldMoveMaps/Route10.json"
     },
     "pokered:ROUTE_11": {
       "name": "Route11",
@@ -51,6 +63,18 @@
     "pokered:ROUTE_6": {
       "name": "Route6",
       "path": "data/fieldMoveMaps/Route6.json"
+    },
+    "pokered:ROUTE_7": {
+      "name": "Route7",
+      "path": "data/fieldMoveMaps/Route7.json"
+    },
+    "pokered:ROUTE_8": {
+      "name": "Route8",
+      "path": "data/fieldMoveMaps/Route8.json"
+    },
+    "pokered:ROUTE_9": {
+      "name": "Route9",
+      "path": "data/fieldMoveMaps/Route9.json"
     },
     "pokered:VERMILION_CITY": {
       "name": "VermilionCity",

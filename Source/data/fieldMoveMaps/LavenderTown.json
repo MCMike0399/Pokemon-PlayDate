@@ -1,0 +1,14 @@
+{
+  "id": "pokered:LAVENDER_TOWN",
+  "record": {
+    "grass_sites": [],
+    "height": 18,
+    "layout_sha256": "dcee65f0f3da941d086f4039dcfa7f69dc915fd7204cd1ed9cdacff1b1741cbd",
+    "name": "LavenderTown",
+    "sites": [],
+    "tileset": "OVERWORLD",
+    "width": 20
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
