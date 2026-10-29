@@ -237,6 +237,31 @@ hashes; regenerating the two development-only files changed only those hashes,
 and all 50 relevant host checks then passed. The remaining coverage snapshot is
 still stale and has not been relabeled as current evidence.
 
+### Baseline-row memory change, 2026-10-29
+
+Progress remains **0/222 hardware-verified maps; 65/222 route-verified in
+Simulator; checkpoint 5.5a frozen**. Factory-created maps now share their initial
+tile/collision rows with the reset baseline and copy a row before its first
+write. Public constructors retain defensive copies. The existing 16 world,
+20 source-map and 16 field SDK cases passed in the 16 MB pool:
+`evidence/p0-world-contracts-16mb-20261029-08`,
+`evidence/p0-map-contracts-16mb-20261029-01` and
+`evidence/p0-field-contracts-16mb-20261029-05`.
+
+Exact build `22b14e0ddd3b4053af0b52d9d234178f` reached all smoke steps in
+`evidence/p0-exact-game-smoke-20261029-11`. Live Lua heap was 5.06 MiB and sampled
+peak 5.87 MiB. Timing still fails: worst ordinary update 11.956 ms, worst slice
+44 ms, map wall span 322 ms and provisional device estimate 4.15 seconds. These
+are Simulator results; no new game build was sent to hardware.
+
+The compact field-JSON candidate remains on its worker branch at `80d9524`.
+Although it saves 172,681 serialized bytes with identical values, alternating
+30-call SDK measurements found almost no decoding gain: Route2 averaged
+1.342 ms before and 1.310 ms after; effect data 1.198 ms before and 1.182 ms after.
+`evidence/p0-field-json-profile-20261029-01` records the isolated comparison.
+Its full-route run at `evidence/p0-compact-field-smoke-20261029-01` also failed
+timing. This candidate was not merged as a performance fix. Nothing pushed.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |
