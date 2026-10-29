@@ -109,8 +109,12 @@ device loading-work threshold; Simulator stays at 8 ms. Hardware smoke passed in
 All 36 SDK cases, the one review, production compile and 54 protocol checks pass.
 The duplicate-validation candidate did not help (2,924 ms) and stays off main.
 The old assumption that Viridian tiles were preloaded was wrong after lazy startup.
-Root is validating flat, per-tileset PDT atlases next. Regeneration now uses current
-source grids and the unchanged qualified formula, without an unmerged Git dependency. Actual phase ratios are in the no-wall run’s
+Flat PDT atlas candidate `015ccfc` passed 16 SDK world cases, one review and a
+native check of all **497,664 pixels across 486 keys**, fresh-image isolation,
+actual compiled-path use and two-slot eviction. No protected pixels changed.
+Regeneration uses current grids and the unchanged qualified formula, without an
+unmerged Git dependency. The exact safe build is now measuring on hardware;
+no speed gain or acceptance is claimed yet. Actual phase ratios are in the no-wall run’s
 `device-simulator-phase-ratios.json`; they are not one universal CPU factor.
 `wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
 current P0 code and verify that its 16 MB heap stays close to the 65-map result.
