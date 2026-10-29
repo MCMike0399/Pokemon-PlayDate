@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **21.16 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **21.50 h**; hardware pace: **0 maps/day**.
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -45,16 +45,16 @@ Then accept 5.5a (Rock Tunnel/Lavender/Celadon/Erika/Hideout/Scope),
 Only one starter covers optional content. Sets continue after a starter fails.
 ## 3. Current evidence and blockers
 
-Latest 108-map hardware build `2cb0ecebdb0243c2967dd928aacc4bdf` completed
-title, earned 5.4 Continue, save, doors, Cut and a wild Diglett battle. Errorlog
-and crashlog remain exact. Lua live/peak **4.00 / 5.61 MiB**; worst door load
-**3,040 ms**, battle start **20 ms**. Last `battle.live.after_gc`: **4.24 MiB**.
-Skipping Hideout spinner lookup on unrelated maps improves recorded walking to
-**30.23 / 26.76 fps** (Route2/cave), from **16.56 / 15.19** with the same recorder.
-These windows include settling and diagnostics; they are not physical user play.
-The filter passed review and five host checks and stays private. Map loading and
-user play remain open. [Exact comparison](device-walking-108-20261029.json).
-The device returned to the USB keeper. Original failed timing reports remain.
+Latest 108-map Save-only build `d6e78c1253664f05b28e05f339a5f683` completed
+the earned-save hardware smoke with exact error/crash logs. Save measured
+**6.528 s**, versus **9.193 s** on its matched baseline; the 2 s target stays open.
+Boot/title **18.447 s**, Continue **7.929 s**, Route2 door **3.082 s**, battle
+**19 ms**, cave walking p95 **97.26 ms**. App-start/walk-ready proxy **28.351 s**;
+physical power-on is unmeasured. Lua live/peak **4.01 / 5.65 MiB**; last battle
+phase **4.24 MiB**. [Exact phase results](device-save-latency-20261029.json).
+The original hook filter improved mean walking to 30.23/26.76 fps, but that does
+not meet the newer cave-p95 bar. Device is back on the USB keeper. Old reports
+remain exact; fresh phase reports separate diagnostic GC and timing remainder.
 
 Flat atlases passed 16 SDK world cases, one review and all **497,664 native
 pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
@@ -108,12 +108,13 @@ publication parsing/checksums and removing the observer's redundant load. It
 passed 17 native fault cases. Review caught a retained-validator alias in optional
 inspection caching; root fixed it before another callback, extending the existing
 mutation case. The SDK suite failed on the alias, then all 17 passed. Candidate
-`5ce731bd` is being prepared for its first device measurement. Production inspect
-reuse stays disabled without a proven stable validation epoch. Save <=2 s is unproven.
+`5ce731bd` improved the measured Save and is integrated on main (`7291113e`);
+17 native persistence cases also pass on main. Production inspect reuse stays
+disabled without a proven stable epoch. Save <=2 s remains unproven.
 
-Static loading `4cd93146` and bounded production trace buffering `8f5d4f5b` passed
-one review each; native timing comparisons remain pending, in that order after
-Save. The membership and lazy-audio packets stay parked. No new regions or audio
+Static loading `4cd93146` passed five native presentation cases and one review;
+its exact smoke and separate device comparison are running. Production trace
+buffering `8f5d4f5b` passed review and is next, after cadence measurement. The membership and lazy-audio packets stay parked. No new regions or audio
 are activated. An unattended two-hour title/overworld soak remains required.
 Fresh device reports use phase targets and exclude diagnostic-GC frames from
 ordinary walking; historical reports remain exact. Earlier reports are archived.
