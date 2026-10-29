@@ -113,7 +113,9 @@ from 0.173 ms to 0.082 ms over 1,000 calls; it is now on main.
 `wip/p0-loading-caches` remains private. Its first cache candidate passed 36 SDK
 cases and all 2,494 protected images, but did not improve route timing. A follow-up
 packed constructor passed 44 SDK cases and reduced isolated Route2 construction
-from 20.9 ms to 12.6 ms. The exact `p0-packed-cache-smoke-20261029-01` is in flight.
+from 20.9 ms to 12.6 ms. The exact `p0-packed-cache-smoke-20261029-01` failed timing: 173 ms map wall
+span, 2.37 s provisional device estimate, 6.6 ms ordinary update and 31 ms slice.
+Final packed-candidate catalog exports and independent review are pending.
 Next: inspect that run, compare protected pixels and review integrity before merging. Only a passing Simulator proof may proceed to the hardware cycle.
 Workers use GPT-6.1 Sol at medium effort in isolated worktrees.
 
