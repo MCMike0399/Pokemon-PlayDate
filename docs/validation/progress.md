@@ -45,17 +45,16 @@ Then accept 5.5a (Rock Tunnel/Lavender/Celadon/Erika/Hideout/Scope),
 Only one starter covers optional content. Sets continue after a starter fails.
 ## 3. Current evidence and blockers
 
-Latest 108-map hardware build `1e8581864b0b4312b330da59da441fa0` completed
+Latest 108-map hardware build `2cb0ecebdb0243c2967dd928aacc4bdf` completed
 title, earned 5.4 Continue, save, doors, Cut and a wild Diglett battle. Errorlog
-and crashlog remain exact. Lua live/peak **4.00 / 5.61 MiB**; worst map load
-**3,060 ms** per door; battle **20 ms**. The earlier exact baseline measured
-**4,036 ms** for Continue installation.
-Ordinary max active frame **189 ms**; last `battle.live.after_gc` **4.24 MiB**.
-Recorded walking means are **16.56 / 15.19 fps** (Route2/cave), including test
-recorder overhead. Median 33 ms does not prove the 25 fps target. Loading,
-walking and user play remain unaccepted. [Raw scope and
-assessment](device-smoke-108-20261029.json). No legacy failure report was relabelled.
-Device is now on the USB keeper, preventing indefinite test-recorder idle work.
+and crashlog remain exact. Lua live/peak **4.00 / 5.61 MiB**; worst door load
+**3,040 ms**, battle start **20 ms**. Last `battle.live.after_gc`: **4.24 MiB**.
+Skipping Hideout spinner lookup on unrelated maps improves recorded walking to
+**30.23 / 26.76 fps** (Route2/cave), from **16.56 / 15.19** with the same recorder.
+These windows include settling and diagnostics; they are not physical user play.
+The filter passed review and five host checks and stays private. Map loading and
+user play remain open. [Exact comparison](device-walking-108-20261029.json).
+The device returned to the USB keeper. Original failed timing reports remain.
 
 Flat atlases passed 16 SDK world cases, one review and all **497,664 native
 pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
@@ -93,19 +92,20 @@ Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps. Three chained
 journeys use hash-verified partial Saves and actual Continue; no completed travel
 is replayed or save state invented. Current set:
-`evidence/m55a-icebeam-lift-resumed-20261029-01`, revision `81a8d046`.
-Charmander reached the Hideout lift but failed a driver arrival expectation
-(y=2 versus the explicit lift binding's y=1). The other starters continue.
-The checkout stays frozen until the set ends. Squirtle now obtains and teaches
-the earned rooftop Ice Beam before Erika instead of grinding. Medicine and
-Revives use real purchases and battle turns. No journey is accepted yet.
+`evidence/m55a-lift-projection-resumed-20261029-01`, revision `08cb33d1`.
+All three reached the same driver lift-arrival mismatch (y=2 expected, actual
+explicit binding y=1). Correction `08cb33d1` passed 103 host checks; the retry is
+`evidence/m55a-lift-projection-resumed-20261029-01`. Its checkout stays frozen.
+Squirtle obtained rooftop Ice Beam, beat Erika and saved; no grinding or save
+edits. One Aromatherapy gap appeared; a worker is repairing that game behavior.
+Medicine and Revives spend real money and turns. No journey is accepted yet.
 
 The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
 pass. It passed the earlier native JSON abort points. Longer travel then exposed
 Lua memory pressure during battle return. Private journey mode now releases
 completed replies and collects its diagnostic allocations before the next input;
 it cannot establish production memory or pacing. Three real saved boundaries
-avoid replaying completed travel. No missing-effect hits have appeared so far.
+avoid replaying completed travel. The completed logs rank one Aromatherapy hit; the other two starters had none.
 
 Private `20c8c5b` restores six missing generated field-map records; accepted map
 records remain exact. Native 108-map memory and content results above remain

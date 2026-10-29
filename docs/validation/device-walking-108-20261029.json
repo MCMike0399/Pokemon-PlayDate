@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "build_id": "2cb0ecebdb0243c2967dd928aacc4bdf",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-hideout-map-filter-hardware-20261029-01",
+  "scope": "108-map private candidate; identical serial-driven smoke to recorder-only baseline; no milestone acceptance",
+  "change_commit": "1c1fad85",
+  "measurements": {
+    "battle_start_ms": 20.0,
+    "frame_ms": 122.07,
+    "heap_live_bytes": 4198576.128,
+    "heap_peak_bytes": 5880462.336,
+    "map_load_ms": 3040.0,
+    "slice_ms": 2161.979
+  },
+  "walking": {
+    "pokered:ROUTE_2": {
+      "samples": 518,
+      "fps_reciprocal_mean": 30.229347374067725,
+      "p95_ms": 35.629000000000815,
+      "max_ms": 37.64899999999034
+    },
+    "pokered:DIGLETTS_CAVE": {
+      "samples": 266,
+      "fps_reciprocal_mean": 26.7585632180613,
+      "p95_ms": 96.21899999999732,
+      "max_ms": 102.77400000000489
+    }
+  },
+  "logs_unchanged_sha256": {
+    "errorlog.txt": "83baa80db49d3f3cc9f289dd5ff0a39c69574fed5226c9f1dc14aa56fd02f442",
+    "crashlog.txt": "f3e71f81d3001b084f6879f03dcadc8f5b077fb9280c18799eae21d79d8083ce"
+  },
+  "last_phase": "battle.live.after_gc",
+  "last_phase_heap_kib": 4339.276,
+  "decision": "Retain the hook filter privately: measured walking improves. Map loading still fails the 1.5 s target. Hardware user play and production pacing remain unaccepted.",
+  "baseline_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-recorder-handle-hardware-20261029-01",
+  "keeper_returncode": 0
+}
