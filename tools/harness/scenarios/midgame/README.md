@@ -79,3 +79,32 @@ The legacy `root-registration.patch` and `root-followup.patch` are historical
 handoffs already installed by root. Do not reapply them to this base. Source-only
 preparation and host checks are distinct from native acceptance; this worker
 runs SDK compile only and never launches Simulator.
+
+## Host preflight before another set
+
+From the repository root, without building or launching anything:
+
+```sh
+python3 tools/harness/preflight_midgame.py \
+  --output "$HOME/Developer/Pokemon-PlayDate-env/evidence/midgame-host-preflight/report.json"
+```
+
+This audits immutable `baaf6368c57e3c9db2863cfc3b7c530d1bae1d88`
+(108 maps, Mansion arrival repair) and, separately, inactive prepared
+`0406bf301ce0d3d4792fc152429f3cbec990ac2d` (171 maps). Both objects must
+exist locally. `preflight-routes.json` names host geometry segments; it is not
+a replacement journey and is not installed into the root-owned driver.
+The report includes every fixed Hideout/Safari step, spinner forced path,
+named stair chain, selected maps' warps and header edge cells, source SHA256s,
+counts, all failures, exclusions and exact unresolved driver call sites.
+Store elevator exclusions reuse the driver's existing portal policy.
+
+Exit 1 means the report contains an unreachable route or an explicit coverage
+gap. Review all findings together. Missing connections beyond the active map
+manifest are boundary gaps, not evidence that the checkpoint's route is broken.
+Prepared 5.5b failures do not block 5.5a. Source actors are omitted explicitly;
+Cut, guard doors, ghost/Snorlax removal, boulder pushes, field travel and UI
+transactions require earned runtime state. The exact dynamic calls remain in
+`uncheckable_driver_calls`; this audit fails closed until their origins and
+occupancy are declared. Passing geometry does not replace actual journeys,
+Save/Continue, production memory measurements or existing acceptance evidence.
