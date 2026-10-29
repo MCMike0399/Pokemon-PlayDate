@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps verified playable on Playdate hardware; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for P0 device boot.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**, from [milestone times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **7.59 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **10.22 h**; hardware pace: **0 maps/day**.
 
 ## 1. Accepted game and current main
 
@@ -16,7 +16,7 @@ Cerulean saves and passed actual process exit/Continue. These are Simulator resu
 **The game is not yet playable on Playdate hardware.** The last hardware game build
 requested a restart. Only the small calibration app has since passed on hardware.
 
-Main's current P0 game change is `bf2a8c2`; it has no hardware acceptance.
+Main's current P0 game change is `0271b7b`; it has no hardware acceptance.
 The approved GB tones and non-audio QoL remain on main. No new regions are active.
 Production 5.4 packages and earned saves: `evidence/player-packages/5.4-playable-20261028`.
 Showcase: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
@@ -76,9 +76,11 @@ SDK cases passed after restoring the public copy boundary. Evidence:
 The standards review also required this shorter ledger; earlier text is archived.
 After the alias fix, production compilation and all 54 protocol host tests passed.
 
-Full host run: **956/960 passed**, zero skips, in
-`evidence/p0-current-host-20261029-03.log`. Three stale journey-hash failures were
-then repaired; 50 related checks passed. Coverage remains stale and is not relabeled.
+Full host run: **958/961 passed**, zero skips, in
+`evidence/p0-current-host-20261029-04.log`. The two geometry-loader errors were
+then fixed by comparing exact original startup bodies; 62 relevant checks passed,
+including both formerly failing cases. The collision reference was not changed.
+Coverage remains stale and is not relabeled. Development journey hashes were refreshed.
 The latest earlier-P0 protected catalog comparison matched all **2,494** images:
 `evidence/p0-protected-catalog-16mb-20261029-01/comparison.json`.
 It combines two separate runtime exports and is not hardware acceptance.
@@ -104,8 +106,15 @@ All 2,494 protected images matched in
 The shared source check still compares original bodies; four manual mutations
 of wrappers, map cells and rendering helpers were rejected. Private collector-mode
 experiments `p0-generational-smoke-20261029-01` through `-04` reduced some costs but
-still failed timing; collector mode on main is unchanged.
-Next: reduce repeated map-constructor work without weakening public validation, then rerun the exact smoke. Only a passing Simulator proof may proceed to the hardware cycle.
+still failed timing. Main now switches to generational collection after startup;
+71 existing world/encounter/specimen/save SDK cases and 54 protocol checks passed.
+The private snapshot comparator passed 55 SDK cases and cut a six-member read
+from 0.173 ms to 0.082 ms over 1,000 calls; it is now on main.
+`wip/p0-loading-caches` remains private. Its first cache candidate passed 36 SDK
+cases and all 2,494 protected images, but did not improve route timing. A follow-up
+packed constructor passed 44 SDK cases and reduced isolated Route2 construction
+from 20.9 ms to 12.6 ms. The exact `p0-packed-cache-smoke-20261029-01` is in flight.
+Next: inspect that run, compare protected pixels and review integrity before merging. Only a passing Simulator proof may proceed to the hardware cycle.
 Workers use GPT-6.1 Sol at medium effort in isolated worktrees.
 
 `wip/midgame-integration`: 108-map checkpoint A candidate, frozen; needs current P0
