@@ -107,7 +107,8 @@ def smoke_gate(args, stage, pdx):
     if getattr(args, 'calibration_build', None):
         raise ValueError('smoke cannot use calibration metadata')
     build = smoke.verify(stage)
-    if build.get('diagnostic_only'):
+    safety_only = getattr(args, 'safety_only', False)
+    if build.get('diagnostic_only') and not safety_only:
         raise ValueError('diagnostic builds cannot supply hardware admission proof')
     if pdx.resolve() != (stage / 'DeviceSmoke.pdx').resolve():
         raise ValueError('smoke candidate must be the exact retained DeviceSmoke.pdx')
@@ -123,7 +124,8 @@ def smoke_gate(args, stage, pdx):
     path = Path(args.simulator_smoke).expanduser().resolve()
     report = json.loads(path.read_text())
     runtime = json.loads((path.parent / 'run.json').read_text())
-    if (report.get('status') != 'simulator-smoke-passed' or report.get('build') != build
+    allowed_status = {'simulator-smoke-passed', 'failed'} if safety_only else {'simulator-smoke-passed'}
+    if (report.get('status') not in allowed_status or report.get('build') != build
             or report.get('device_gate_passed') is not False
             or any(report.get(key) for key in ('error', 'measurement_error'))
             or any(row.get('build') != build or row.get('malloc_pool_mb') != 16
@@ -145,7 +147,14 @@ def smoke_gate(args, stage, pdx):
     if type(factor) not in (int, float) or not math.isfinite(factor) or factor <= 0:
         raise ValueError('invalid Simulator timing factor')
     recomputed = smoke.measurements(path.parent / 'runtime-data', build['build_id'], factor)
-    if (recomputed['budget_failures']
+    safety_limits = {'heap_peak_bytes': 9 * 1024**2, 'slice_ms': 150}
+    safety_failures = [name for name, limit in safety_limits.items()
+                       if recomputed['measurements'][name] is None
+                       or recomputed['measurements'][name] > limit]
+    safety_failures += [name for name in recomputed['budget_failures']
+                        if name in {'runtime-error-or-no-frames', 'missing-title-or-Continue-live-heap'}]
+    failures = safety_failures if safety_only else recomputed['budget_failures']
+    if (failures
             or any(type(v) not in (int, float) or not math.isfinite(v) or v < 0
                    for v in recomputed['measurements'].values())
             or any(report.get(k) != v for k, v in recomputed.items())):
@@ -179,7 +188,9 @@ def smoke_gate(args, stage, pdx):
     prior = json.loads((path.parent / 'earned-save.json').read_text())
     if earned.get('files') != prior.get('files'):
         raise ValueError('smoke earned slots differ from Simulator input')
-    return build, report, {'classification': 'exact private DeviceSmoke; Simulator admission only',
+    return build, report, {'classification': ('hardware measurement safety only; not playability acceptance'
+                                             if safety_only else 'exact private DeviceSmoke; Simulator admission only'),
+                          'safety_only': safety_only, 'safety_limits': safety_limits if safety_only else None,
                           'simulator_report': str(path), 'simulator_report_sha256': sha(path),
                           'commands': bodies, 'commands_sha256': tree_hash(bodies)}
 
@@ -740,6 +751,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--execute-root', action='store_true', required=True,
                         help='explicit root operator authorization; workers must not execute')
+    parser.add_argument('--safety-only', action='store_true',
+                        help='admit a complete error-free 16 MB smoke with <=9 MiB peak and <=150 ms slices; not playability acceptance')
     parser.add_argument('--validate-only', action='store_true', help='local admission only; no ownership locks or device access')
     parser.add_argument('--pdx', required=True)
     parser.add_argument('--build-stage', required=True)

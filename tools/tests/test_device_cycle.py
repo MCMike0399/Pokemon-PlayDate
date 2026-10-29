@@ -213,6 +213,21 @@ class SmokeCycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'measurements'):
             self.gate()
 
+    def test_measurement_safety_gate_keeps_runtime_and_slice_guards(self):
+        from tools.device import simulator_smoke as smoke
+        self.args.safety_only = True
+        frames = self.evidence / 'runtime-data/device-smoke-frames.tsv'
+        frames.write_text(frames.read_text().replace('return\t1\t', 'return\t100\t'))
+        self.report.update(smoke.measurements(frames.parent, self.identity, 2))
+        self.report['status'] = 'failed'
+        self.write_report()
+        self.assertTrue(self.gate()[2]['safety_only'])
+        frames.write_text(frames.read_text().replace('return\t100\t', 'return\t151\t'))
+        self.report.update(smoke.measurements(frames.parent, self.identity, 2))
+        self.write_report()
+        with self.assertRaisesRegex(ValueError, 'budgets failed'):
+            self.gate()
+
     def test_failed_gate_precedes_locks_and_device_access(self):
         from types import SimpleNamespace
         self.report['status'] = 'failed'

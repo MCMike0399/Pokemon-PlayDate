@@ -13,6 +13,19 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ## P0 device boot gate — 2026-10-28 night
 
+**2026-10-29 midday correction:** separate measurement safety from playability.
+Hardware measurement may proceed after the exact 16 MB Simulator route completes
+without error, with guards active, <=9 MiB sampled peak Lua heap and <=150 ms
+uninterrupted slices. The guessed 35.11 factor and earlier 0.5 s map target do
+not block measurement. Collect per-phase hardware/Simulator ratios. Hardware
+playability requires no crash/errorlog, map load about <=1.5 s with fade running,
+typical walking >=25 fps without non-transition hitches >300 ms, and battle
+start <=1 s. Then ask the user to play it. Keep 0.5 s/30 fps as polish targets.
+Before unfreezing 5.5a, the 108-map build must fit the same current-map heap budget.
+For internal performance changes, use targeted SDK cases and one review; pixel
+checks are needed when rendering changes. Save/rules/gameplay changes keep both
+reviews. The older targets below are superseded where they conflict.
+
 Hardware boot takes priority. Freeze new map/region integration on main and
 checkpoint A; pause root audio, cleanup and Safari work until the hardware gate
 passes. Simulator acceptance alone does not establish playability.

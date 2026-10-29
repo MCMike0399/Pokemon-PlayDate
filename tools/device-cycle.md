@@ -1,5 +1,23 @@
 # Root-only device cycle
 
+## Safety admission for hardware measurement (2026-10-29)
+
+Use `--simulator-smoke <retained report> --safety-only` for a measurement
+attempt. The exact 16 MB run must complete title, earned Continue, save and its
+whole recorded input route without runtime errors. Raw evidence is rechecked;
+peak Lua heap must be <=9 MiB and the longest uninterrupted slice <=150 ms.
+Frame and map estimates based on the provisional factor do not block this mode.
+An old failed performance report remains failed; it is never relabeled as an
+acceptance pass. Instrumented builds may measure, but acceptance is separate.
+
+Hardware playability is measured on the device: about 1.5 s map load with the
+fade running, typical walking >=25 fps with no non-transition hitch >300 ms,
+and battle start <=1 s, with no crash/errorlog. Then the user plays it. A 0.5 s
+load and locked 30 fps remain polish targets. Hard crashes still stop attempts.
+
+The original stricter admission below remains available without `--safety-only`.
+
+
 This worker packet performs no runtime or hardware acceptance. Root owns the
 PDX, BootTrace, test-only auto-lock/error hooks, Simulator and all device runs.
 This extension starts at exact main `309194ee0b35f329426d21f8c19b9c0442780d11`.
