@@ -34,7 +34,6 @@ function GameBootstrap.showLoading()
     local progress = math.min((BootTrace.sequence or 0) / 340, 0.95)
     gfx.drawRect(20, 202, 360, 10)
     gfx.fillRect(22, 204, math.floor(356 * progress), 6)
-    playdate.display.flush()
 end
 
 function GameBootstrap.drawError()

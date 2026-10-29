@@ -59,16 +59,18 @@ function WorldView:init(zone, options)
     self.tilemap:setSize(zone.width, zone.height)
     self.emptyImage = gfx.image.new(TILE_SIZE, TILE_SIZE)
     self.walls = {}
+    local tileIDs = {}
     for y = 1, zone.height do
         self.walls[y] = {}
         for x = 1, zone.width do
-            self.tilemap:setTileAtPosition(x, y, zone.tiles[y][x])
+            tileIDs[#tileIDs + 1] = zone.tiles[y][x]
             if zone.collision[y][x] == 1 then self.walls[y][x] = self:_wall(x - 1, y - 1) end
         end
         if GameBootstrap then
             GameBootstrap.yieldIfDue()
         end
     end
+    self.tilemap:setTiles(tileIDs, zone.width)
     self.sprite = gfx.sprite.new()
     self.sprite:setTilemap(self.tilemap)
     self.sprite:setCenter(0, 0)
