@@ -148,3 +148,58 @@ superseded worktrees. Further cleanup is paused during P0; no new freed-space cl
 Journey data lives under `Source/dev`; external references regenerate from checksum
 manifests. Production bundles, earned saves and real-speed clips stay outside Git.
 **Local commits are waiting to be pushed. Push only when asked. The full game is unfinished.**
+
+
+## Superseded work queue before full-latency steer
+
+## 4. Work in flight
+
+Root owns main, Simulator and hardware. The user cannot access the Playdate
+right now and asked to keep progressing. No repeated setup or feedback request.
+Unattended device measurements return to the USB keeper before Simulator work.
+The 5 s crash guard remains below the 10 s watchdog.
+
+Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
+regenerated caches and flat atlases. Main remains at 65 maps. Three chained
+journeys use hash-verified partial Saves and actual Continue; no completed travel
+is replayed or save state invented. Current set:
+`evidence/m55a-lift-projection-resumed-20261029-01`; next revision `06ee7f4f`.
+All three obtained Silph Scope, then failed the planner route from the B1F lift.
+Fixed B2F spinner exit `81b9d95c` and a real post-Scope Save are integrated.
+Running: `evidence/m55a-fixed-hideout-exit-resumed-20261029-01`, revision `06ee7f4f`.
+Squirtle obtained rooftop Ice Beam, beat Erika and saved; no grinding or save
+edits. One Aromatherapy gap appeared; its Gen V party cure now passes on main and privately.
+Medicine and Revives spend real money and turns. No journey is accepted yet.
+
+The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
+pass. It passed the earlier native JSON abort points. Longer travel then exposed
+Lua memory pressure during battle return. Private journey mode now releases
+completed replies and collects its diagnostic allocations before the next input;
+it cannot establish production memory or pacing. Three real saved boundaries
+avoid replaying completed travel. The completed logs rank one Aromatherapy hit; the other two starters had none.
+
+Private `20c8c5b` restores six missing generated field-map records; accepted map
+records remain exact. Native 108-map memory and content results above remain
+separate from this restoration. Full host rerun: **1001 tests, 1000 passed, one
+stale coverage fingerprint, no skips**. The inventory snapshot is now refreshed
+privately (`808ec87`), retaining every row/evidence facet; its four checks pass.
+Hardware loading and user play still block milestone acceptance, not Simulator
+preparation. Sparse WorldView `79e42dc1` was rejected after hardware (3,199 vs 3,234 ms;
+no material gain). Continue shortcut `f0774168` was rejected before runtime:
+it removed validation required by candidate-bound owners. Both checks stay.
+Pose metadata `6334e989` passed review, eight native cases and the safety smoke,
+but was rejected after hardware: 3,046 vs 3,040 ms, no material gain. Root audio,
+cleanup and Safari polish remain paused. Nothing pushed.
+Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
+outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
+All starters beat Erika; Charmander received the badge/TM21 and 2,871 payout.
+The city tree correctly returned on leaving the Gym; the driver now cuts it
+again before returning to the Center. Full journeys and Hideout remain unaccepted.
+The preceding 108-map fade build also passed the 16 MB production probe:
+**5.615 MiB title / 5.778 MiB Continue / 6.793 MiB phase peak**. Its real-input
+smoke peaked at **7.294 MiB**, max slice **45.40 ms**; hardware unmeasured.
+Battle HUDs now appear with each presented Pokémon (`178b7f6f`): ten native
+cases, frame inspection and independent review passed. Visible HUD pixels, rules
+and timing remain unchanged; this is separate from campaign acceptance.
+Evidence: `evidence/p0-checkpoint-a-current-p0-resources-20261029-01` and
+`evidence/p0-checkpoint-a-current-p0-smoke-20261029-01`.

@@ -13,6 +13,23 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ## P0 device boot gate — 2026-10-28 night
 
+**2026-10-29 full-latency correction:** prioritize measured user waits, in this
+order: Save, static loading cadence, production trace I/O, JSON versus generated
+Lua cache decoding, then the Route 2 outlier. Provisional device targets are
+app boot to title <=10 s with no boot slice >1 s; Continue <=4 s; Save <=2 s;
+door <=1.5 s; battle start <=1 s; cave walking p95 <=50 ms. Also report app start
+to walking, clearly distinguished from unmeasured physical power-on. Every device
+cycle reports one phase table, including diagnostic full-GC contribution and
+honestly labelled active/residual wall time. Exclude diagnostic-GC updates from
+ordinary frame statistics; retain raw timing and the unchanged measurement-safety
+gate. Never rewrite old reports to make them pass. Run an unattended title then
+overworld soak (60 minutes each), sampling heap once per minute, before calling
+the earlier idle guard resolved. Before another midgame journey set, preflight
+all planned 5.5a/5.5b waypoints and portals against source geometry and report all
+unreachable routes in one pass. Performance-only work uses one review, including
+Save parsing/checksum reuse; validation of new bytes and both session-owner
+validation contexts remain required.
+
 **2026-10-29 midday correction:** separate measurement safety from playability.
 Hardware measurement may proceed after the exact 16 MB Simulator route completes
 without error, with guards active, <=9 MiB sampled peak Lua heap and <=150 ms
@@ -33,8 +50,9 @@ passes. Simulator acceptance alone does not establish playability.
 Collect errorlog.txt, crashlog.txt and the persistent boot trace for the exact
 installed build before each new fix. Instrument import groups, content installs,
 context/state setup, title, earned Continue, map load and battle start. Every
-trace line records phase, clock, time since yield and Lua heap, and flushes the
-file so a watchdog kill preserves it. Compare matching Simulator/device phases
+trace line records phase, clock, time since yield and Lua heap. Flush each line
+through first title and in default device-test builds; production afterward may
+buffer bounded records and flush at phase ends and errors. Compare matching Simulator/device phases
 to derive actual slice/frame budgets; keep a startup/memory check in the SDK suite.
 
 Move heavy work out of import time and into cooperative initialization or lazy

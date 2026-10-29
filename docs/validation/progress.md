@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **19.82 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **21.16 h**; hardware pace: **0 maps/day**.
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -83,55 +83,40 @@ These are Simulator results, not hardware validation of the 108-map build.
 
 ## 4. Work in flight
 
-Root owns main, Simulator and hardware. The user cannot access the Playdate
-right now and asked to keep progressing. No repeated setup or feedback request.
-Unattended device measurements return to the USB keeper before Simulator work.
-The 5 s crash guard remains below the 10 s watchdog.
+Root owns main, Simulator and hardware; the user is away. No setup question or
+push. Main remains **65/222 Simulator route-verified; 0/222 hardware accepted**.
+The provisional full-latency targets are in the goal: boot/title 10 s, Continue
+4 s, Save 2 s, doors 1.5 s, battle start 1 s, cave p95 50 ms; boot slices 1 s.
+App-start-to-walking is also reported; physical power-on remains unmeasured.
+Save is first, then static loading cadence, trace I/O, JSON/Lua decoding and Route2.
 
-Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
-regenerated caches and flat atlases. Main remains at 65 maps. Three chained
-journeys use hash-verified partial Saves and actual Continue; no completed travel
-is replayed or save state invented. Current set:
-`evidence/m55a-lift-projection-resumed-20261029-01`; next revision `06ee7f4f`.
-All three obtained Silph Scope, then failed the planner route from the B1F lift.
-Fixed B2F spinner exit `81b9d95c` and a real post-Scope Save are integrated.
-Running: `evidence/m55a-fixed-hideout-exit-resumed-20261029-01`, revision `06ee7f4f`.
-Squirtle obtained rooftop Ice Beam, beat Erika and saved; no grinding or save
-edits. One Aromatherapy gap appeared; its Gen V party cure now passes on main and privately.
-Medicine and Revives spend real money and turns. No journey is accepted yet.
+Private 108-map revision `baaf6368` fixed Mansion's blocked stair arrival from
+exact Blue code. One native contract and both reviews pass. Charmander then
+obtained Eevee and completed a genuine one-coin slot spin. Its prize window
+exposed another real interaction bug: signs must win before counter-range NPC
+lookup (`home/overworld.asm:1076–1126`). Private `b676f305` fixes both dispatchers;
+red/green native evidence and 20 host checks pass; both reviews have no defects.
 
-The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
-pass. It passed the earlier native JSON abort points. Longer travel then exposed
-Lua memory pressure during battle return. Private journey mode now releases
-completed replies and collects its diagnostic allocations before the next input;
-it cannot establish production memory or pacing. Three real saved boundaries
-avoid replaying completed travel. The completed logs rank one Aromatherapy hit; the other two starters had none.
+`evidence/m55a-arrival-restart-resumed-20261029-01` has two complete passes:
+Bulbasaur and Squirtle, including real process Continue, with earned slots in
+`chain/5.5a/<starter>`. Charmander's real Save includes Scope, drink rewards and
+Eevee. No old failed run was promoted. No new journey set starts before the
+all-routes host preflight is complete; its first report retains explicit gaps.
 
-Private `20c8c5b` restores six missing generated field-map records; accepted map
-records remain exact. Native 108-map memory and content results above remain
-separate from this restoration. Full host rerun: **1001 tests, 1000 passed, one
-stale coverage fingerprint, no skips**. The inventory snapshot is now refreshed
-privately (`808ec87`), retaining every row/evidence facet; its four checks pass.
-Hardware loading and user play still block milestone acceptance, not Simulator
-preparation. Sparse WorldView `79e42dc1` was rejected after hardware (3,199 vs 3,234 ms;
-no material gain). Continue shortcut `f0774168` was rejected before runtime:
-it removed validation required by candidate-bound owners. Both checks stay.
-Pose metadata `6334e989` passed review, eight native cases and the safety smoke,
-but was rejected after hardware: 3,046 vs 3,040 ms, no material gain. Root audio,
-cleanup and Safari polish remain paused. Nothing pushed.
-Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
-outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
-All starters beat Erika; Charmander received the badge/TM21 and 2,871 payout.
-The city tree correctly returned on leaving the Gym; the driver now cuts it
-again before returning to the Center. Full journeys and Hideout remain unaccepted.
-The preceding 108-map fade build also passed the 16 MB production probe:
-**5.615 MiB title / 5.778 MiB Continue / 6.793 MiB phase peak**. Its real-input
-smoke peaked at **7.294 MiB**, max slice **45.40 ms**; hardware unmeasured.
-Battle HUDs now appear with each presented Pokémon (`178b7f6f`): ten native
-cases, frame inspection and independent review passed. Visible HUD pixels, rules
-and timing remain unchanged; this is separate from campaign acceptance.
-Evidence: `evidence/p0-checkpoint-a-current-p0-resources-20261029-01` and
-`evidence/p0-checkpoint-a-current-p0-smoke-20261029-01`.
+Save candidate `4c7cbd65` preserves default dynamic validators while reusing exact
+publication parsing/checksums and removing the observer's redundant load. It
+passed 17 native fault cases. Review caught a retained-validator alias in optional
+inspection caching; root fixed it before another callback, extending the existing
+mutation case. The SDK suite failed on the alias, then all 17 passed. Candidate
+`5ce731bd` is being prepared for its first device measurement. Production inspect
+reuse stays disabled without a proven stable validation epoch. Save <=2 s is unproven.
+
+Static loading `4cd93146` and bounded production trace buffering `8f5d4f5b` passed
+one review each; native timing comparisons remain pending, in that order after
+Save. The membership and lazy-audio packets stay parked. No new regions or audio
+are activated. An unattended two-hour title/overworld soak remains required.
+Fresh device reports use phase targets and exclude diagnostic-GC frames from
+ordinary walking; historical reports remain exact. Earlier reports are archived.
 
 ## 5. Decisions and history
 
