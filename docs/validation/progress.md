@@ -81,12 +81,16 @@ Use small existing SDK batches: the monolithic development harness exceeds 16 MB
 
 ## 4. Work in flight
 
-Root owns main, Simulator and hardware. A Sol/medium worker is preparing fewer
-static wall sprites in an isolated branch, preserving exact collision, registration,
-visibility and rollback. Root will run the existing SDK coverage/rollback cases,
-compare pixels and measure before integration. Current main host checks are next.
-The terrain-image cache, whitespace-only JSON compaction and update-flag/GC-step
-experiments showed no useful route gain and remain excluded.
+Root owns main, Simulator and hardware. Wall rectangles remain off main: all
+17 SDK collision/rollback cases passed, but map load was 177 ms versus 172 ms
+before, with the same timing failures. Ordinary maximum was 3.210 ms and loading
+slice 29.691 ms; heap remained within budget. Collision edits would scan the
+whole map, so the extra complexity has no demonstrated benefit.
+Evidence: `evidence/p0-wall-rectangles-decision-20261029.json` and
+`evidence/p0-wall-rectangles-smoke-20261029-01`. No hardware attempt occurred.
+Next: reduce the measured map reload work; keep the timing limits unchanged.
+Terrain-image caching, whitespace-only JSON compaction and update-flag/GC-step
+experiments also remain excluded after showing no useful route gain.
 
 `wip/midgame-integration`: 108-map checkpoint A, frozen; needs current P0 changes
 and the same memory/device gate. Later content, trades and guards remain parked.
