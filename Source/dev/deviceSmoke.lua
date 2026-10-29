@@ -18,6 +18,7 @@ local originalJustPressed <const> = playdate.buttonJustPressed
 local originalJustReleased <const> = playdate.buttonJustReleased
 local originalButtonState <const> = playdate.getButtonState
 local physicalControls = false
+local frameFile
 local active, failure, runtimeGame
 local tick, lastSequence = 0, 0
 local held, pressed, released = 0, 0, 0
@@ -222,6 +223,10 @@ local function receive(message)
     elseif op == "manual" then
         -- One-way handoff for user play after the recorded smoke. State reads
         -- remain available; serial inputs cannot compete with physical buttons.
+        if frameFile then
+            frameFile:close()
+            frameFile = nil
+        end
         held, pressed, released = 0, 0, 0
         playdate.buttonIsPressed = originalPressed
         playdate.buttonJustPressed = originalJustPressed
@@ -334,7 +339,7 @@ function DeviceSmoke.installSimulatorObserver()
     local excluded, pauseDepth, pauseStarted = 0, 0, nil
     local updateThread
     function DeviceSmoke.pauseTiming()
-        if not started then
+        if not started or physicalControls then
             return false
         end
         if pauseDepth == 0 then
@@ -351,6 +356,9 @@ function DeviceSmoke.installSimulatorObserver()
         end
     end
     local function record(kind)
+        if not started or physicalControls then
+            return
+        end
         local elapsed = clock() - started - excluded
         if pauseStarted then
             elapsed = elapsed - clock() + pauseStarted
@@ -361,11 +369,12 @@ function DeviceSmoke.installSimulatorObserver()
             transition = true
         end
         segmentID = segmentID + 1
-        local file = assert(playdate.file.open("device-smoke-frames.tsv", playdate.file.kFileAppend))
-        assert(file:write(string.format("%s\t%d\t%d\t%s\t%.3f\t%.3f\t%d\t%.3f\n",
+        -- Retain one append handle; flush every complete row for watchdog evidence.
+        frameFile = frameFile or assert(playdate.file.open("device-smoke-frames.tsv", playdate.file.kFileAppend))
+        assert(frameFile:write(string.format("%s\t%d\t%d\t%s\t%.3f\t%.3f\t%d\t%.3f\n",
             DEVICE_TEST_ID, updateID, segmentID, kind, elapsed, collectgarbage("count"),
             transition and 1 or 0, started + clockOffset)))
-        file:close()
+        frameFile:flush()
     end
     local yield <const> = coroutine.yield
     coroutine.yield = function(...)
@@ -376,22 +385,26 @@ function DeviceSmoke.installSimulatorObserver()
         started = nil
         local values = table.pack(yield(...))
         poll()
-        started = clock()
-        excluded, pauseDepth, pauseStarted = 0, 0, nil
-        loadingSegment = GameBootstrap.isLoading()
-        segmentTrace = BootTrace.sequence or 0
+        if not physicalControls then
+            started = clock()
+            excluded, pauseDepth, pauseStarted = 0, 0, nil
+            loadingSegment = GameBootstrap.isLoading()
+            segmentTrace = BootTrace.sequence or 0
+        end
         return table.unpack(values, 1, values.n)
     end
     local callback = playdate.update
     local wrapper
     wrapper = function()
         poll()
-        updateID = updateID + 1
-        segmentID = 0
-        started = clock()
-        excluded, pauseDepth, pauseStarted = 0, 0, nil
-        loadingSegment = GameBootstrap.isLoading()
-        segmentTrace = BootTrace.sequence or 0
+        if not physicalControls then
+            updateID = updateID + 1
+            segmentID = 0
+            started = clock()
+            excluded, pauseDepth, pauseStarted = 0, 0, nil
+            loadingSegment = GameBootstrap.isLoading()
+            segmentTrace = BootTrace.sequence or 0
+        end
         updateThread = coroutine.running()
         local ok, problem = pcall(callback)
         record(ok and "return" or "error")
