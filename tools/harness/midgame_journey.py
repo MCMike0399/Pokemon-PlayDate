@@ -629,7 +629,8 @@ class MidgameJourney(vj.VermilionJourney):
                 raise ProtocolError('fixed Hideout script lost source approach: ' + str(step))
             self.send('press ' + step['direction'], 'wait 10')
             self.drain()
-            if number == len(route['steps']) - 1 and self.state['zone_id'] == self.zone(destination):
+            if (number == len(route['steps']) - 1 and destination != route['map']
+                    and self.state['zone_id'] == self.zone(destination)):
                 break
             expected = tuple(step.get('stop_cell', step['to_cell']))
             if self.position() != expected:
@@ -826,6 +827,9 @@ class MidgameJourney(vj.VermilionJourney):
         self.route_celadon()
         if 'hideout-scope' not in self.completed_steps:
             self.route_hideout()
+        elif self.state['zone_id'] == self.zone('RocketHideoutB4F'):
+            # Continue from the actual post-Scope Save, without replaying fights.
+            self.leave_hideout()
         if self.config['content_scope'] == 'optional':
             self.celadon_services_a()
         if (not self.flag('BADGE_RAINBOW') or not self.flag('EVENT_GOT_TM21')
@@ -878,12 +882,27 @@ class MidgameJourney(vj.VermilionJourney):
         self.fight(cj.sid('ROCKET_HIDEOUT_B4F', 1))
         self.pickup(cj.sid('ROCKET_HIDEOUT_B4F', 8), 'silphScope')
         self.completed_steps.add('hideout-scope')
+        self.save()
+        self.leave_hideout()
+
+    def leave_hideout(self):
+        self.require(zone_id=self.zone('RocketHideoutB4F'))
+        if (self.quantity('silphScope') != 1
+                or not all(self.defeated(cj.sid('ROCKET_HIDEOUT_B4F', index)) for index in (1, 2, 3))):
+            raise ProtocolError('Hideout exit requires earned Scope and confirmed Giovanni/guard victories')
         self.warp(self.zone('RocketHideoutElevator'))
-        self.floor_choice = 'B1F'
+        # B1F's lift component stays sealed until its own Rocket is beaten.
+        # Return through B2F's source spinner and entrance stairs instead.
+        self.floor_choice = 'B2F'
         self.background('pokered:ROCKET_HIDEOUT_ELEVATOR:background_events:1')
         self.floor_choice = None
-        self.exit_hideout_lift('RocketHideoutB1F')
-        self.travel(self.zone('GameCorner'))
+        self.exit_hideout_lift('RocketHideoutB2F')
+        self.fixed_hideout(4, 'RocketHideoutB2F')
+        self.fixed_warp(1, (26, 8))
+        self.require(zone_id=self.zone('RocketHideoutB1F'), **{'player.x': 23, 'player.y': 3})
+        self.source_waypoint(22, 3)
+        self.fixed_warp(2, (22, 2))
+        self.require(zone_id=self.zone('GameCorner'), **{'player.x': 17, 'player.y': 5})
         self.heal_here('CeladonPokecenter')
         self.save()
 
