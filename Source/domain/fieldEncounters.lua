@@ -27,7 +27,13 @@ local function object(value,fields)
     for key in pairs(value)do assert(fields[key],"unknown encounter descriptor field: "..tostring(key))end
 end
 local function roster(party)
-    return assert(party:toData(function(mon)return assert(PokemonCodec._snapshot(mon))end))
+    local result = {active=party:activeIndex(), members={}}
+    for i, mon in ipairs(party:members()) do
+        -- These private snapshots are immutable and replaced after a change.
+        -- Keeping their references avoids copying every move and trait per step.
+        result.members[i] = assert(PokemonCodec._snapshot(mon))
+    end
+    return result
 end
 local function policy(zone,x,y)
     local data,reason=zone:encounterPolicyAt(x,y)
@@ -78,7 +84,8 @@ local function current(r)
     for i, mon in ipairs(members) do
         assert(mon == r.members[i], "stale-encounter-member")
         local record = PokemonCodec._snapshot(mon)
-        assert(record and same(r.roster.members[i], record), "stale-encounter-roster")
+        assert(record and (record == r.roster.members[i] or same(r.roster.members[i], record)),
+            "stale-encounter-roster")
     end
     local data,total=policy(r.zone,r.x,r.y)
     assert(data and total==r.total and same(data,r.data),"stale-encounter-table-or-terrain")
