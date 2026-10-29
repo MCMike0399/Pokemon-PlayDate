@@ -1,5 +1,13 @@
 # Exact private DeviceSmoke Simulator smoke
 
+The 2026-10-29 user decision splits this report from hardware safety admission.
+Existing performance reports retain their original verdict. To measure on the
+device, `device_cycle.py --simulator-smoke <report> --safety-only` rechecks the
+exact complete error-free route, 16 MB pool, <=9 MiB sampled peak and <=150 ms
+uninterrupted slices. The provisional-factor timing targets below do not block
+that measurement mode. Hardware measurements and user play determine playability.
+
+
 This tooling is based on `33f778389ffbd8baac19fefd965da74748577cff`.
 Root owns all execution and Source integration. The worker compiled and ran host
 checks only. No Simulator, USB, device run or hardware gate has passed here.

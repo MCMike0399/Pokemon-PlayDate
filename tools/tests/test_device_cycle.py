@@ -281,6 +281,13 @@ class SmokeCycleTests(unittest.TestCase):
     def response(self, sequence, status, value):
         return ('DS1 ' + json.dumps(dict(build=self.identity, seq=sequence, status=status, value=value)) + '\n').encode()
 
+    def test_serial_command_echo_is_not_a_game_reply(self):
+        serial, read = self.transport([b'\r\nmsg DS1 1 state\r\n' + self.response(1, 'done', {'ready': True})])
+        with patch.object(device.select, 'select', return_value=([123], [], [])), patch.object(device.os, 'read', side_effect=read):
+            rows = serial.read()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['seq'], 1)
+
     def test_transport_fragmented_boottrace_and_single_command(self):
         trace = self.trace.replace('platform\tsimulator', 'platform\tdevice')
         payload = b''.join(('BOOTTRACE\t' + line + '\n').encode() for line in trace.splitlines())

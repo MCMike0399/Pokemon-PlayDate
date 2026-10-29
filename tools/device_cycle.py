@@ -253,6 +253,9 @@ class SmokeSerial:
                 elif '\terror.' in text:
                     raise ValueError('device BootTrace guard failed')
                 self.cycle.event('boottrace', line=text)
+            # The device echoes host serial commands before printing replies.
+            if line.strip().startswith(b'msg DS1 '):
+                continue
             if b'DS1 ' not in line:
                 continue
             row, _ = json.JSONDecoder().raw_decode(line.split(b'DS1 ', 1)[1].decode('utf-8'))
