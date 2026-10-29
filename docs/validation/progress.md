@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **21.62 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **21.73 h**; hardware pace: **0 maps/day**.
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -100,8 +100,8 @@ red/green native evidence and 20 host checks pass; both reviews have no defects.
 `evidence/m55a-arrival-restart-resumed-20261029-01` has two complete passes:
 Bulbasaur and Squirtle, including real process Continue, with earned slots in
 `chain/5.5a/<starter>`. Charmander's real Save includes Scope, drink rewards and
-Eevee. No old failed run was promoted. No new journey set starts before the
-all-routes host preflight is complete. Current-checkout audit: 1,566 checks,
+Eevee. Only Charmander is now retrying the remaining prize interaction from that
+real Save (`evidence/m55a-charmander-prize-resumed-20261029-01`). No failed run was promoted. The all-routes host preflight is complete. Current-checkout audit: 1,566 checks,
 zero unexplained current 5.5a blockers; inactive 5.5b has two unreachable points
 and six explicit field/actor gaps. Those are not current acceptance.
 
@@ -117,7 +117,8 @@ disabled without a proven stable epoch. Save <=2 s remains unproven.
 Static loading is on main (`ad037673`): five native presentation cases pass
 privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,
 Continue 7.929→7.057 s and Save 6.528→5.891 s, with unchanged logs. Targets stay
-open. Trace buffering `8f5d4f5b` passed review; its separate smoke/cycle is running. The membership and lazy-audio packets stay parked. No new regions or audio
+open. Trace buffering `8f5d4f5b` passed review; its separate device cycle completed; all provisional latency targets except battle
+and one cave door remain open. The membership and lazy-audio packets stay parked. No new regions or audio
 are activated. An unattended two-hour title/overworld soak remains required.
 Fresh device reports use phase targets and exclude diagnostic-GC frames from
 ordinary walking; historical reports remain exact. Earlier reports are archived.

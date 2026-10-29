@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "ad0376730da47658f1d71a93e812e109eef2ddd1",
-    "source_sha256": "7a47acbb3b8475708f1d1feec173ffbf0992f0e4331ed388484454154f48c8a9",
+    "commit": "c2a3c036f43e4d312f703ab77ec7afa60a9e0200",
+    "source_sha256": "2862c3d77f382840696a9c7a81da8144fd16abaae3a6bb689cdb91a58af3c46d",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "65 main maps verified by Simulator milestone 5.4 journeys. No milestone hardware-playability acceptance. Private 108-map 5.5a work is separate. Inventory identity only; historical evidence keeps its source and scope.",
