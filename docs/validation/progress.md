@@ -106,14 +106,10 @@ latency, soak, delivery and user play remain; no milestone acceptance is claimed
 Current-checkout preflight: 1,566 checks, no unexplained 5.5a geometry blockers.
 Inactive 5.5b keeps two unreachable points and six explicit field/actor gaps.
 
-Save candidate `4c7cbd65` preserves default dynamic validators while reusing exact
-publication parsing/checksums and removing the observer's redundant load. It
-passed 17 native fault cases. Review caught a retained-validator alias in optional
-inspection caching; root fixed it before another callback, extending the existing
-mutation case. The SDK suite failed on the alias, then all 17 passed. Candidate
-`5ce731bd` improved the measured Save and is integrated on main (`7291113e`);
-17 native persistence cases also pass on main. Production inspect reuse stays
-disabled without a proven stable epoch. Save <=2 s remains unproven.
+Save parsing reuse is on main (`7291113e`), with dynamic validators preserved.
+Review caught an optional-cache alias; the extended existing SDK case failed,
+then passed after the fix. All 17 persistence cases pass on main. Production
+inspect reuse remains disabled without a stable validation epoch; Save still exceeds 2 s.
 
 Static loading is on main (`ad037673`): five native presentation cases pass
 privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,
@@ -132,7 +128,10 @@ The device decode benchmark completed 24 calls and 12 typed comparisons. Route2
 JSON/Lua medians were 79.63/46.91 ms; Vermilion index 86.37/94.80 ms and
 midgame index 112.98/121.38 ms. Keep JSON indexes: Lua was slower for both.
 [Exact results and hashes](device-decode-benchmark-20261029.json).
-This does not explain the 2.15 s registration span; transient field reuse is under review.
+This does not explain the 2.15 s registration span. Candidate `a318caec` reuses
+transient fields, reducing loader calls 2,274→6, and adds cooperative yields.
+Review, compile, 35 host checks and 182 targeted SDK cases pass; the exact
+16 MB input smoke is running. No hardware speedup is claimed.
 
 ## 5. Decisions and history
 
