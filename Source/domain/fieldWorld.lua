@@ -49,11 +49,9 @@ function FieldWorld.resolvePlayerLocation(position, world, options)
         return result
     end
     local originalError = result
-    -- Source StepOutFromDoor intentionally bypasses collision for one down
-    -- step. Root's immutable helper identifies only exact supported arrivals.
+    -- Saffron's scripted counter position is a separate exact source policy.
     local arrival = descriptor(position.zone_id)
-    if arrival and ((SourceMaps.isDoorArrival and SourceMaps.isDoorArrival(arrival.name, position.x, position.y))
-        or (SaffronGuards and SaffronGuards.isCounterArrival(position))) then
+    if arrival and SaffronGuards and SaffronGuards.isCounterArrival(position) then
         local normalized = WorldDeltas.validate(world)
         GameSession._object(position, {zone_id = true, x = true, y = true, facing = true})
         assert(options and options.sliceZones and options.sliceZones[arrival.id] == true, "unsupported door arrival slice")

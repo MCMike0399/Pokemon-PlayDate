@@ -1326,8 +1326,7 @@ class MidgameJourney(vj.VermilionJourney):
             self.sell_old_item(mart)
 
     def mansion_step_warp(self, index, destination):
-        # Fixed source backstairs. These preserve root's original forced-down
-        # arrival even when its normal collision is solid; no tile is changed.
+        # Fixed source backstairs use the shared collision-checked arrival.
         event = next(e for e in self.model().events['warps'] if e['source_index'] == index)
         target = self.models[self.zone(destination)]
         declared = event['destination']
@@ -1335,10 +1334,9 @@ class MidgameJourney(vj.VermilionJourney):
             raise ProtocolError('fixed Mansion script differs from source warp')
         if declared['kind'] == 'last_outdoor_map' and self.model().descriptor['last_outdoor'] != destination:
             raise ProtocolError('fixed Mansion outdoor context differs')
-        arrival = target.events['warps'][declared['warp_index'] - 1]
-        x, y = arrival['x'], arrival['y']
-        if target.feet[y][x] in self.doors.get(target.source_data['tileset']['constant'], []):
-            y += 1
+        projected, (x, y) = self.project_warp(self.model(), event)
+        if projected != target.name:
+            raise ProtocolError('fixed Mansion projection differs from source destination')
         self.navigate((event['x'], event['y']), transition=self.zone(destination))
         if self.state['zone_id'] != self.zone(destination) and event['y'] in {0, self.model().height - 1}:
             self.send('press ' + ('up' if event['y'] == 0 else 'down'), 'wait 15')

@@ -419,7 +419,9 @@ class CeruleanJourney(BrockJourney):
         if arrival is None:
             raise ProtocolError("staged destination warp index absent")
         x, y = arrival["x"], arrival["y"]
-        if target.feet[y][x] in self.doors.get(target.source_data["tileset"]["constant"], []):
+        # The single simulated DOWN input still checks static land collision.
+        if (target.feet[y][x] in self.doors.get(target.source_data["tileset"]["constant"], [])
+                and target.inside((x, y + 1)) and not target.collision[y + 1][x]):
             y += 1
         if not target.inside((x, y)) or target.collision[y][x]:
             raise ProtocolError("staged warp arrival blocked")

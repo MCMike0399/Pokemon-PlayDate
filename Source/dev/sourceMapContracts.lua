@@ -652,24 +652,52 @@ function SourceMapContracts.run()
         end
     end)
 
-    test("source door arrivals retain the forced step over solid mansion stairs", function()
-        local cases = {
-            {"CeladonMansion1F", 5},
-            {"CeladonMansion2F", 3},
-            {"CeladonMansion2F", 4},
-            {"CeladonMansion3F", 4},
-            {"CeladonMansionRoof", 2},
-        }
-        for _, case in ipairs(cases) do
-            local event = SourceMaps.descriptor(case[1]).warps[case[2]]
-            local spec = SourceMaps.warpSpec(case[1], event)
+    test("source door input checks land collision and leaves mansion rear stairs accessible", function()
+        scope(function(provider, _, context)
+            local world = WorldDeltas.export()
+            local cases = {
+                {"CeladonMansion1F", 5, "CeladonMansion2F", 4},
+                {"CeladonMansion2F", 3, "CeladonMansion1F", 4},
+                {"CeladonMansion2F", 4, "CeladonMansion3F", 6},
+                {"CeladonMansion3F", 4, "CeladonMansion2F", 6},
+                {"CeladonMansionRoof", 2, "CeladonMansion3F", 4},
+            }
+            for _, case in ipairs(cases) do
+                local spec = SourceMaps.warpSpec(case[1], SourceMaps.descriptor(case[1]).warps[case[2]])
+                equal(spec.status, "bound")
+                equal(spec.target_name, case[3])
+                equal(spec.toX, case[4])
+                equal(spec.toY, 1)
+                equal(spec.arrival_advance, 0)
+                equal(spec.facing, "down")
+                equal(spec.preserveFacing, false)
+                equal(SourceMaps.cell(case[3], spec.toX, 2).collision, 1)
+                local location = {zone_id=SourceMaps.entry(case[3]).id, x=spec.toX, y=1, facing="down"}
+                same(FieldWorld.resolvePlayerLocation(location, world, context.sessionLocationPolicy), location)
+                rejects(function()
+                    FieldWorld.resolvePlayerLocation({zone_id=location.zone_id, x=location.x, y=2, facing="down"},
+                        world, context.sessionLocationPolicy)
+                end)
+            end
+            -- Actual ordinary cardinal movement reaches the next rear stair.
+            for _, case in ipairs({{"CeladonMansion2F", 4, "right"}, {"CeladonMansion3F", 6, "left"}}) do
+                local zone = provider:ensure(SourceMaps.entry(case[1]).key)
+                local first = zone:movementRule(case[2], 1, case[3])
+                equal(first.kind, "walk")
+                local second = zone:movementRule(first.x, first.y, case[3])
+                equal(second.kind, "walk")
+                assert(zone:getDoorAt(second.x, second.y))
+            end
+            -- A normal accessible exterior door still advances one cell.
+            local spec = SourceMaps.warpSpec("ViridianMart", SourceMaps.descriptor("ViridianMart").warps[1])
             equal(spec.status, "bound")
+            equal(spec.to, SourceMaps.entry("ViridianCity").key)
+            equal(spec.toX, 29)
+            equal(spec.toY, 20)
             equal(spec.arrival_advance, 1)
             equal(spec.facing, "down")
-            equal(SourceMaps.isDoorArrival(spec.target_name, spec.toX, spec.toY), true)
-            equal(SourceMaps.cell(spec.target_name, spec.toX, spec.toY).collision, 1)
-            equal(SourceMaps.isDoorArrival(spec.target_name, spec.toX, spec.toY + 1), false)
-        end
+            equal(SourceMaps.cell("ViridianCity", spec.toX, spec.toY).collision, 0)
+        end)
     end)
 
     test("one ledger preserves evicted Viridian and Pewter changes across reset and reload", function()

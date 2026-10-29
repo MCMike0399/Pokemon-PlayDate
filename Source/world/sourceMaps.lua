@@ -517,27 +517,6 @@ function SourceMaps.isDoor(name, x, y)
     return false
 end
 
--- pokered steps down from door tiles with simulated input. Its land collision
--- check deliberately permits that step even when the destination is solid.
--- This qualifies standing only; ordinary movement and terrain stay unchanged.
-function SourceMaps.isDoorArrival(name, x, y)
-    local d = compactData().maps[name]
-    if not d or x < 0 or x >= d.width or y <= 0 or y >= d.height then
-        return false
-    end
-    if d.blocked[tostring(y * d.width + x + 1)] then
-        return false
-    end
-    for _, warp in ipairs(d.warps) do
-        if warp.x == x and warp.y + 1 == y
-            and not d.blocked[tostring(warp.y * d.width + x + 1)]
-            and SourceMaps.isDoor(name, warp.x, warp.y) then
-            return true
-        end
-    end
-    return false
-end
-
 local function blocksEvent(entry, id)
     for _, blocked in ipairs(entry.blocked_events or {}) do
         if blocked == id then return true end
@@ -598,20 +577,24 @@ function SourceMaps.warpSpec(name, event)
         or d.blocked[tostring(arrival.y * d.width + arrival.x + 1)] then
         return blockedWarp(entry)
     end
-    local advance = SourceMaps.isDoor(target, arrival.x, arrival.y) and 1 or 0
+    -- PlayerStepOutFromDoor queues one DOWN input. The input index is
+    -- decremented from 1 to 0 before CollisionCheckOnLand, so solid terrain
+    -- blocks that step (home/overworld.asm:1224-1226,1844-1856).
+    local door = SourceMaps.isDoor(target, arrival.x, arrival.y)
+    local advance = door and arrival.y + 1 < d.height
+        and SourceMaps.cell(target, arrival.x, arrival.y + 1).collision == 0 and 1 or 0
     local x, y = arrival.x, arrival.y + advance
     assert(y < d.height and not d.blocked[tostring(y * d.width + x + 1)]
-        and (SourceMaps.cell(target, x, y).collision == 0
-            or advance == 1 and SourceMaps.isDoorArrival(target, x, y)),
+        and SourceMaps.cell(target, x, y).collision == 0,
         "original warp arrival is blocked")
     if entry.profile == "viridian" then
         return { status = "bound", to = d.key, toX = x, toY = y,
-            facing = advance == 1 and "down" or "up", source_target_map = d.source_map_constant,
+            facing = door and "down" or "up", source_target_map = d.source_map_constant,
             source_target_warp = destination.warp_index, source_target_x = arrival.x, source_target_y = arrival.y,
             arrival_advance = advance, reason = "explicit LAST_MAP resolves only to original Viridian exterior" }
     end
-    return { status = "bound", to = d.key, toX = x, toY = y, facing = advance == 1 and "down" or nil,
-        preserveFacing = advance == 0, target_name = target, target_warp = destination.warp_index,
+    return { status = "bound", to = d.key, toX = x, toY = y, facing = door and "down" or nil,
+        preserveFacing = not door, target_name = target, target_warp = destination.warp_index,
         source_target_x = arrival.source_x, source_target_y = arrival.source_y, arrival_advance = advance }
 end
 
