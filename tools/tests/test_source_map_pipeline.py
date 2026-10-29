@@ -29,10 +29,14 @@ class SourceMapManifestTests(unittest.TestCase):
     def test_original_map_inputs_authored_pallet_and_renderers_are_unchanged(self):
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
                         "Source/data/viridianSlice", "Source/data/pewterSlice",
-                        "Source/data/maps.lua", "Source/world/sprites", "Source/images",
+                        "Source/world/sprites", "Source/images",
                         "Source/lib/shade.lua",
                         ":(exclude)Source/images/title"],
                        cwd=ROOT, check=True, capture_output=True)
+        from tools.tests.source_preservation import assert_startup_preserved
+        path = "Source/data/maps.lua"
+        original = subprocess.check_output(["git", "show", BASE + ":" + path], cwd=ROOT)
+        assert_startup_preserved(path, original, (ROOT / path).read_bytes())
         # Image-table caching may change; authored drawing code and tile grids
         # remain exact. Native pixel comparison covers the cached outputs.
         import re

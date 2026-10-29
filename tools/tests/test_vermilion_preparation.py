@@ -45,7 +45,13 @@ class VermilionPreparationTests(unittest.TestCase):
         exact = {'Source/world/spritefactory.lua', 'Source/lib/shade.lua'}
         for path in tracked:
             if path in exact or path.startswith(roots):
-                self.assertEqual((g.ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]), path)
+                original = subprocess.check_output(['git', 'show', BASE + ':' + path])
+                current = (g.ROOT / path).read_bytes()
+                if path == 'Source/world/spritefactory.lua':
+                    from tools.tests.source_preservation import assert_startup_preserved
+                    assert_startup_preserved(path, original, current)
+                else:
+                    self.assertEqual(current, original, path)
         # The reviewed P0 change caches image tables and yields while building
         # them. Keep all rendering helpers and tile/grid definitions exact on
         # both sides of that section, including the complete end of the file.
