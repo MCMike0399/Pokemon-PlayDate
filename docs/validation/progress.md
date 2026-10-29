@@ -231,6 +231,12 @@ at `evidence/p0-step-cost-20261029-01` and `-02` are supplemental diagnosis,
 not hardware admission. They locate first-use Cut costs in terrain planning
 and effect preparation. Main contains none of those temporary probes.
 
+The full host run in `evidence/p0-current-host-20261029-03.log` completed 960
+tests: 956 passed and four failed. Three failures were outdated journey input
+hashes; regenerating the two development-only files changed only those hashes,
+and all 50 relevant host checks then passed. The remaining coverage snapshot is
+still stale and has not been relabeled as current evidence.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |
