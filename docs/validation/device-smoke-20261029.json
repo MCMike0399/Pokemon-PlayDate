@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "main_source_commit": "95fea99",
+  "build_id": "3f89d85554a74258bb56b3ea2670bd5d",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-game-device-measurement-20261029-05",
+  "hardware_route_complete": true,
+  "user_play_accepted": false,
+  "playability_accepted": false,
+  "new_error_or_crash_logs": false,
+  "measurements": {
+    "battle_start_ms": 22.0,
+    "frame_ms": 129.445,
+    "heap_live_bytes": 3647485.952,
+    "heap_peak_bytes": 4858947.584,
+    "map_load_ms": 4789.0,
+    "slice_ms": 1048.609
+  },
+  "walking": {
+    "pokered:ROUTE_2": {
+      "frames": 317,
+      "median_wall_ms": 33.0,
+      "typical_fps": 30.303030303030305,
+      "p95_wall_ms": 34.35199999999895,
+      "max_wall_ms": 39.39100000000326,
+      "max_active_ms": 29.312,
+      "median_active_ms": 12.16
+    },
+    "pokered:DIGLETTS_CAVE": {
+      "frames": 217,
+      "median_wall_ms": 33.0,
+      "typical_fps": 30.303030303030305,
+      "p95_wall_ms": 106.16400000000431,
+      "max_wall_ms": 114.92999999999302,
+      "max_active_ms": 94.68,
+      "median_active_ms": 10.305
+    }
+  },
+  "remaining": "Map loading exceeds the revised approximately 1.5 second target."
+}
