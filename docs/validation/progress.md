@@ -88,7 +88,8 @@ push. Main remains **65/222 Simulator route-verified; 0/222 hardware accepted**.
 The provisional full-latency targets are in the goal: boot/title 10 s, Continue
 4 s, Save 2 s, doors 1.5 s, battle start 1 s, cave p95 50 ms; boot slices 1 s.
 App-start-to-walking is also reported; physical power-on remains unmeasured.
-Save is first, then static loading cadence, trace I/O, JSON/Lua decoding and Route2.
+Save parsing, static loading cadence and trace buffering are measured and retained.
+JSON/Lua decoding is measured; startup registration and the Route2 outlier are next.
 
 Private 108-map revision `baaf6368` fixed Mansion's blocked stair arrival from
 exact Blue code. One native contract and both reviews pass. Charmander then
@@ -119,9 +120,18 @@ privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,
 Continue 7.929→7.057 s and Save 6.528→5.891 s, with unchanged logs. Targets stay
 open. Trace buffering `8f5d4f5b` passed review; its separate device cycle completed; all provisional latency targets except battle
 and one cave door remain open. The membership and lazy-audio packets stay parked. No new regions or audio
-are activated. An unattended two-hour title/overworld soak remains required.
+are activated. An unattended two-hour title/overworld soak is being deployed. Its exact fresh
+16 MB short proof passes at 33 ms / 6.21 MiB, including a retained post-check
+witness (`evidence/private-soak-postcheck-short-20261029-01`). Hardware completion
+is unverified; the device reservation protects the attempt.
 Fresh device reports use phase targets and exclude diagnostic-GC frames from
 ordinary walking; historical reports remain exact. Earlier reports are archived.
+
+The device decode benchmark completed 24 calls and 12 typed comparisons. Route2
+JSON/Lua medians were 79.63/46.91 ms; Vermilion index 86.37/94.80 ms and
+midgame index 112.98/121.38 ms. Keep JSON indexes: Lua was slower for both.
+Evidence: `evidence/p0-load-method-bench-hardware-20261029-07/comparison.json`.
+This does not explain the 2.15 s registration span; transient field reuse is under review.
 
 ## 5. Decisions and history
 
