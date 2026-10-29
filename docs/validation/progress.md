@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **12.20 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **15.89 h**; hardware pace: **0 maps/day**.
 
 ## 1. Accepted game and current main
 
@@ -71,26 +71,30 @@ the user is trying it.** This is a guarded test build, not a production release.
 The one-way test-only `manual` command restores SDK buttons and refuses later
 serial inputs; production contains no test module or command handler.
 
-The paired 16 MB heap probe passed on 65 maps: title **5.01 MiB**, Continue
-**5.09 MiB**. Private 108-map `fe8d49c` still stopped at **6.04 MiB** title live
-(after releasing 90 KiB of preview session data; originally 6.13 MiB). Its Continue
-was not measured. Candidate `e022538e` releases complete content-package indexes
-and loads field indexes on demand. One review and existing host/build checks pass;
-Root is measuring it in `evidence/p0-checkpoint-a-field-index-heap-20261029-01`.
-No budget increase or unfreezing is authorized by these preparation results.
+The paired 16 MB heap check now passes on private 108-map `e022538e`:
+title **5.614 MiB**, earned Continue **5.776 MiB**, observed phase peak
+**6.744 MiB**. The same observer on 65 maps measured **5.014 / 5.088 / 6.002 MiB**.
+Evidence: `evidence/p0-checkpoint-a-field-index-heap-20261029-01`.
+The 6 MiB title/Continue and 9 MiB peak guards remain unchanged. Existing SDK
+content/event and world batches pass **80/80**; one review found no defect.
+Field indexes may reload after GC, so journey latency still needs measurement.
+These are Simulator results, not hardware validation of the 108-map build.
 
 ## 4. Work in flight
 
-Root owns main, Simulator and hardware. Current priority: the 108-map heap result
-and user play feedback. Simulator work may continue with closed serial readers;
-do not disturb the user's physical session. The 5 s crash guard remains below
-the 10 s watchdog. Hard crashes stop automatic hardware attempts.
+Root owns main, Simulator and hardware. The user cannot access the Playdate
+right now and asked to keep progressing. No repeated setup or feedback request.
+The guarded physical build stays available; no device inputs or reinstall during
+this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
 
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
-regenerated binary cells/content indexes and flat atlases. It remains separate
-from main and the original frozen branch. Source maps on main remain 65.
-After memory and user-play gates, finish 5.5a's three chained earned journeys.
-Root audio, cleanup and Safari polish remain paused. No push without a request.
+regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
+branch is preserved. Three chained 5.5a journeys are running in the background
+on `e022538e`, with Charmander covering optional content and the other two the
+critical path. Failures do not abort later starters. Evidence:
+`evidence/m55a-memory-ready-journeys-20261029-01`.
+Hardware loading and user play still block milestone acceptance, not Simulator
+preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
 
 ## 5. Decisions and history
 
