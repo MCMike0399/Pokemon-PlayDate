@@ -685,18 +685,25 @@ local function prepareWorld(payload, purpose)
         for _,value in ipairs(providerPlan.zones) do normalized[#normalized+1]=value end
     end
     table.sort(normalized, function(a, b) return a.zone_id < b.zone_id end)
-    for _, zone in pairs(indexed) do
-        local value = nil
-        for _, candidate in ipairs(payload.zones) do if candidate.zone_id == zone.stableID then value = candidate end end
-        value = value or { schema = 1, zone_id = zone.stableID, definition_revision = zoneData[zone].revision, tile_count = 0, tiles = {} }
-        plans[#plans + 1] = { zone = zone, changes = zone:_prepareDeltas(value, purpose or "apply") }
+    if purpose ~= "validate" then
+        for _, zone in pairs(indexed) do
+            local value
+            for _, candidate in ipairs(payload.zones) do
+                if candidate.zone_id == zone.stableID then
+                    value = candidate
+                end
+            end
+            value = value or {schema = 1, zone_id = zone.stableID,
+                definition_revision = zoneData[zone].revision, tile_count = 0, tiles = {}}
+            plans[#plans + 1] = {zone = zone, changes = zone:_prepareDeltas(value, purpose or "apply")}
+        end
     end
-    return plans, { schema = 1, zone_count = #normalized, zones = normalized }, providerPlan
+    return plans, {schema = 1, zone_count = #normalized, zones = normalized}, providerPlan, indexed
 end
 -- Validation is pure: no registry allocation, view update, or domain mutation.
 -- Returned records are defensive values; apply always preflights again.
 function WorldDeltas.validate(payload)
-    local _, normalized = prepareWorld(payload, "candidate")
+    local _, normalized = prepareWorld(payload, "validate")
     return normalized
 end
 function WorldDeltas.resolveLocation(location, candidateWorld, options)
@@ -706,18 +713,23 @@ function WorldDeltas.resolveLocation(location, candidateWorld, options)
     end
     assert(type(location.zone_id) == "string", "stable world location ID required")
     assert(location.facing == "up" or location.facing == "down" or location.facing == "left" or location.facing == "right", "invalid world facing")
-    local plans,_,providerPlan = prepareWorld(candidateWorld, "candidate")
+    local _, _, providerPlan, indexed = prepareWorld(candidateWorld, "validate")
     if definitionProvider and definitionProvider:hasID(location.zone_id) then
         return definitionProvider:resolveLocation(location,providerPlan,options)
     end
-    local selected
-    for _, plan in ipairs(plans) do if plan.zone.stableID == location.zone_id then selected = plan end end
-    assert(selected, "unknown world location zone")
-    local zone = selected.zone
+    local zone = indexed[location.zone_id]
+    assert(zone, "unknown world location zone")
+    local changes = {}
+    for _, value in ipairs(candidateWorld.zones) do
+        if value.zone_id == location.zone_id then
+            changes = zone:_prepareDeltas(value, "candidate")
+            break
+        end
+    end
     bounds(zone, location.x, location.y)
     local namedSlice = options and options.sliceZones and options.sliceZones[zone.stableID] == true
     assert(zone:isCampaignReady() or (namedSlice and zone:isSliceReady()), "unresolved campaign world location")
-    local tile = selected.changes[location.y * zone.width + location.x + 1]
+    local tile = changes[location.y * zone.width + location.x + 1]
     local collision = tile and tile.collision or zoneData[zone].collision[location.y + 1][location.x + 1]
     assert(collision == 0, "world location is blocked in candidate world")
     return { zone_id = zone.stableID, x = location.x, y = location.y, facing = location.facing }
