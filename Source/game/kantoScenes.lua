@@ -30,7 +30,9 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})
+    GameBootstrap.yieldIfDue()
     CeruleanRoutes.install({reconcileActors=KantoScenes.reconcileActors})
+    GameBootstrap.yieldIfDue()
     SourceEvents.registerWorldHooks(CeruleanRoutes.ROUTE, {
         beforeSpawn=function(game, context)
             local before = game.session:flags().quest

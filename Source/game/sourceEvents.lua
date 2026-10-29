@@ -485,6 +485,9 @@ local function registerEvents(name, events, readOnly)
         assert(stable
             and not eventExists(id) and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     eventSources[name] = {records = readOnly and events or copy(events)}
 end
@@ -548,6 +551,9 @@ local function registerTrainers(name, definitions)
         assert(Party._array(d.party, 6) and #d.party > 0, "bounded source trainer party required")
         for _, mon in ipairs(d.party) do
             assert(pokemonData[mon.species] and boundedInteger(mon.level, 1, 100), "unresolved source trainer party")
+        end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
         end
     end
     -- Resolve once at installation; later caller mutations cannot change saves
