@@ -230,6 +230,26 @@ function SaveContracts.run()
         end}))
         local data,metadata=faulty:load(); eq(data,nil); eq(metadata.reason,"io-error")
         local ok; ok,metadata=faulty:save(payload(3)); eq(ok,false); eq(metadata.reason,"io-error"); unchanged(paths,before)
+        local folder = prefix .. "-archive-1.manifest.json"
+        assert(playdate.file.mkdir(folder))
+        local directoryFault = SaveStore(prefix, validate, {
+            list = fs.list,
+            read = function(path)
+                if path == folder then
+                    return nil, "injected directory read error"
+                end
+                return fs.read(path)
+            end,
+            write = fs.write,
+            rename = fs.rename,
+        })
+        data, metadata = directoryFault:load()
+        eq(data, nil)
+        eq(metadata.reason, "archive-verification-failed")
+        ok, metadata = directoryFault:save(payload(3))
+        eq(ok, false)
+        unchanged(paths, before)
+        assert(playdate.file.delete(folder))
         local huge=payload(3); huge.padding=string.rep("x",SaveStore.MAX_PAYLOAD)
         ok,metadata=base:save(huge); eq(ok,false); eq(metadata.reason,"invalid-payload"); unchanged(paths,before)
         local envelope=json.decode(before.b); envelope.sequence=1

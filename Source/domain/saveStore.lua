@@ -346,8 +346,11 @@ function SaveStore:_listedArchiveIndexes()
             return nil
         end
         count = count + 1
-        if name:sub(1, #stem) == stem then
-            local text <const>, suffix <const> = name:sub(#stem + 1):match("^([1-9][0-9]*)%.(.+)$")
+        -- SDK listings suffix directories with '/'. A directory occupying an
+        -- archive path still needs the normal read/error checks, not omission.
+        local basename <const> = name:gsub("/$", "")
+        if basename:sub(1, #stem) == stem then
+            local text <const>, suffix <const> = basename:sub(#stem + 1):match("^([1-9][0-9]*)%.(.+)$")
             local index <const> = text and DecimalInteger.decode(text, 1, SaveStore.MAX_ARCHIVES)
             if index and suffixes[suffix] then
                 indexes[index] = true
