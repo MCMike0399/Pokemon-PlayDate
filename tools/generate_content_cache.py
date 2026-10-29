@@ -16,7 +16,7 @@ DESTINATION = ROOT / 'Source/data/contentCache'
 
 
 def canonical(value):
-    return (json.dumps(value, sort_keys=True, separators=(',', ':')) + '\n').encode()
+    return (json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')) + '\n').encode()
 
 
 def require(condition, message):
