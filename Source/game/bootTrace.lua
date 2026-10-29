@@ -1,4 +1,5 @@
--- First-import phase recorder. Each line is flushed to survive a watchdog.
+-- First-import phase recorder. Startup and device tests flush every line;
+-- production after title batches bounded evidence until a phase ends or fails.
 BootTrace = {}
 local clock <const> = playdate.getCurrentTimeMilliseconds
 local filename <const> = "boot-trace.tsv"
@@ -9,6 +10,13 @@ local peakHeap = 0
 local buildID = DEVICE_TEST_ID or "unbound"
 local pendingCollection
 local traceFile
+local titleStarted = false
+local diagnosticProductionPolicy = false
+local failed = false
+local buffered = {}
+local bufferedBytes = 0
+local maxBufferedBytes <const> = 8192
+local maxBufferedLines <const> = 64
 
 if json and playdate.file.exists("boot-profile-build.json") then
     local identity = json.decodeFile("boot-profile-build.json")
@@ -17,30 +25,80 @@ if json and playdate.file.exists("boot-profile-build.json") then
     end
 end
 
-local function write(line, mode)
+function BootTrace.flush()
+    if #buffered == 0 then
+        return
+    end
+    assert(traceFile:write(table.concat(buffered, "\n") .. "\n"), "cannot write boot trace")
+    traceFile:flush()
+    -- Keep the existing prefix on EVERY serial line, including batched output.
+    print("BOOTTRACE\t" .. table.concat(buffered, "\nBOOTTRACE\t"))
+    buffered = {}
+    bufferedBytes = 0
+end
+
+local function write(line, mode, flush)
     if not traceFile then
+        -- The first open truncates the old run; never append a prior run's tail.
         traceFile = assert(playdate.file.open(filename, mode), "cannot open boot trace")
     end
-    assert(traceFile:write(line .. "\n"), "cannot write boot trace")
-    traceFile:flush()
-    print("BOOTTRACE\t" .. line)
+    if bufferedBytes + #line + 1 > maxBufferedBytes or #buffered >= maxBufferedLines then
+        BootTrace.flush()
+    end
+    buffered[#buffered + 1] = line
+    bufferedBytes = bufferedBytes + #line + 1
+    if flush or bufferedBytes >= maxBufferedBytes or #buffered >= maxBufferedLines then
+        BootTrace.flush()
+    end
 end
 
 write(
     "schema\t1\tbuild\t" .. buildID .. "\tplatform\t" .. (playdate.isSimulator and "simulator" or "device"),
-    playdate.file.kFileWrite
+    playdate.file.kFileWrite,
+    true
 )
 write(
     "sequence\tphase\tclock_ms\tsince_yield_ms\tphase_ms\theap_kib\tobserved_peak_kib",
-    playdate.file.kFileAppend
+    playdate.file.kFileAppend,
+    true
 )
+
+-- Private staged-main measurement ONLY: leaves DEVICE_TEST_BUILD and all its
+-- guards/collections intact. Serial sampler builds must keep the default.
+function BootTrace.useProductionTracePolicyForDiagnostic()
+    assert(DEVICE_TEST_BUILD, "diagnostic trace policy requires a device-test build")
+    BootTrace.flush()
+    diagnosticProductionPolicy = true
+    BootTrace.mark("diagnostic.trace_policy.production")
+    BootTrace.flush()
+end
 
 function BootTrace.mark(phase, errorScreen)
     local now = clock()
     local heap = collectgarbage("count")
     peakHeap = math.max(peakHeap, heap)
     sequence = sequence + 1
+    -- Bound individual records as well as the batch, including arbitrary errors.
     phase = tostring(phase):gsub("[\t\r\n]", " ")
+    if #phase > 512 then
+        local cut = 513
+        while phase:byte(cut) >= 128 and phase:byte(cut) <= 191 do
+            cut = cut - 1
+        end
+        phase = phase:sub(1, cut - 1)
+    end
+    if phase:match("^error%.") or errorScreen then
+        failed = true
+    end
+    -- Error-screen heartbeats must not replace the caught diagnostic reason.
+    if not errorScreen then
+        BootTrace.phase = phase
+    end
+    BootTrace.sequence = sequence
+    local flush = not titleStarted or failed
+        or (DEVICE_TEST_BUILD and not diagnosticProductionPolicy)
+        or phase:match("%.end$") or phase:match("%.after_gc$")
+        or phase == "initialize.ready"
     write(
         string.format(
             "%d\t%s\t%d\t%d\t%d\t%.3f\t%.3f",
@@ -52,13 +110,15 @@ function BootTrace.mark(phase, errorScreen)
             heap,
             peakHeap
         ),
-        playdate.file.kFileAppend
+        playdate.file.kFileAppend,
+        flush
     )
     previous = clock()
-    BootTrace.phase = phase
-    BootTrace.sequence = sequence
     if not errorScreen then
         BootTrace.checkGuard()
+    end
+    if phase == "title.start.end" then
+        titleStarted = true
     end
 end
 
@@ -103,9 +163,11 @@ function BootTrace.checkGuard()
     end
     local heap = collectgarbage("count")
     if heap > 9 * 1024 then
+        BootTrace.flush()
         error("device-test memory guard: " .. tostring(heap) .. " KiB at " .. tostring(BootTrace.phase))
     end
     if BootTrace.sinceYield() > 5000 then
+        BootTrace.flush()
         error("device-test slice guard at " .. tostring(BootTrace.phase))
     end
 end
