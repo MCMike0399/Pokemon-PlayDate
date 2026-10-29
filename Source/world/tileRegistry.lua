@@ -136,6 +136,11 @@ function TileRegistry:id(value)
 end
 function TileRegistry:key(value) return stores[self].entries[self:id(value)].key end
 function TileRegistry:entry(value) return copy(stores[self].entries[self:id(value)]) end
+-- Read scalar collision policy without cloning the grid/terrain record.
+function TileRegistry:collisionPolicy(value)
+    local entry = stores[self].entries[self:id(value)]
+    return entry.collision, entry.terrain.land_passable
+end
 local function normalizeBatch(registry, entries)
     assert(type(entries) == "table", "tile batch required")
     local length, found = #entries, 0

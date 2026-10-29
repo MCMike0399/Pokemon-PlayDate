@@ -193,6 +193,19 @@ function Zone:init(config)
     end
 
     assert(integer(self.width) and integer(self.height) and self.width > 0 and self.height > 0, "invalid zone dimensions")
+    if owned then
+        -- The factory checked cell shape and collision while building these
+        -- private arrays. Recheck the live registry once per palette entry.
+        for id, terrain in pairs(owned.terrainPalette) do
+            local collision, passable = self.registry:collisionPolicy(id)
+            assert(terrain.land_passable == passable, "numeric zone terrain disagrees with stable tile key")
+            assert(collision == (passable and 0 or 1), "numeric zone collision disagrees with stable tile key")
+        end
+        self.collision = config.collision
+        captureDefinition(self, config.terrain, config.sourceRevision, config.bindingIssues,
+            config.blockedBindings, config.compactTerrain, true)
+        return
+    end
     rectangle(self.tiles, self.width, self.height, "zone tiles", function(id) self.registry:id(id) end)
     if not owned then
         self.tiles = deepCopy(self.tiles)
@@ -600,8 +613,12 @@ function Zone.fromMapDefinition(definition, registry, options)
             tiles[y], collision[y], terrain[y] = {}, {}, {}
             for x = 1, width do
                 local localID = definition.tile_ids[y][x]
+                assert(integer(localID) and entries[localID], "unknown imported tile ID")
+                local solid = definition.collision[y][x]
+                assert((solid == 0 or solid == 1) and solid == entries[localID].collision,
+                    "imported collision/terrain mismatch")
                 tiles[y][x] = ids[localID]
-                collision[y][x] = blocked[y] and blocked[y][x] and 1 or definition.collision[y][x]
+                collision[y][x] = blocked[y] and blocked[y][x] and 1 or solid
                 local id <const> = ids[localID]
                 if not terrainPalette[id] then
                     terrainPalette[id] = registry:preparedTerrain(preparedBatch, localID)
@@ -622,7 +639,7 @@ function Zone.fromMapDefinition(definition, registry, options)
             sourceRevision = definition.source_revision, bindingIssues = issues, blockedBindings = blocked,
             spawn = deepCopy(spawn), npcs = slicePlan and slicePlan.npcs, doors = slicePlan and slicePlan.doors,
             encounters = slicePlan and slicePlan.encounters }
-        ownedConfigs[config] = true
+        ownedConfigs[config] = {terrainPalette = terrainPalette}
         local zone <const> = Zone(config)
         zoneData[zone].slicePlan = slicePlan
         -- pokered TryDoWildEncounter permits non-grass indoor land except FOREST.
