@@ -10,7 +10,12 @@ local rawCache = setmetatable({}, { __mode = "v" })
 local function copy(value)
     if type(value) ~= "table" then return value end
     local result = {}
-    for key, item in pairs(value) do result[key] = copy(item) end
+    local count = 0
+    for key, item in pairs(value) do
+        result[key] = copy(item)
+        count = count + 1
+        if count % 32 == 0 and GameBootstrap then GameBootstrap.yieldIfDue() end
+    end
     return result
 end
 
@@ -22,6 +27,7 @@ local function catalogue()
             assert(type(name) == "string" and not ids[entry.id] and not keys[entry.key], "duplicate source map identity")
             assert(entry.profile == "viridian" or entry.profile == "pewter" or entry.profile == "source", "unknown source binding profile")
             ids[entry.id], keys[entry.key] = true, true
+            if GameBootstrap then GameBootstrap.yieldIfDue() end
         end
         manifest = data.maps
     end
@@ -63,6 +69,7 @@ local function compactData()
             for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
                 assert(descriptor[field] == entry[field], "generated source descriptor differs from manifest")
             end
+            if GameBootstrap then GameBootstrap.yieldIfDue() end
         end
         for name in pairs(catalogue()) do assert(data.maps[name], "generated source descriptor missing") end
         compact = data
@@ -72,6 +79,16 @@ end
 
 function SourceMaps.compact()
     return copy(compactData())
+end
+
+-- Internal provider input only. Consumers must treat this validated catalogue
+-- as read-only; public compact/descriptor/tile getters still return copies.
+function SourceMaps._sharedCompact()
+    return compactData()
+end
+
+function SourceMaps._isSharedCompact(data)
+    return compact ~= nil and data == compact
 end
 
 function SourceMaps.tile(key)
@@ -139,6 +156,7 @@ function SourceMaps.padded(name)
                 collision[x + entry.padding] = data.collision[y][x]
             end
             data.tile_ids[y], data.collision[y] = tiles, collision
+            if GameBootstrap then GameBootstrap.yieldIfDue() end
         end
     end
     -- Viridian historically adds source_x/y only to padded rooms. Preserve that

@@ -16,6 +16,7 @@ local function ensureKeys(registry, tiles)
             seen[tile.key] = true
             entries[#entries + 1] = SourceMaps.tile(tile.key)
         end
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
     end
     if #entries > 0 then registry:registerBatch(entries) end
 end
@@ -61,21 +62,19 @@ end
 function SourceMaps.createProvider(profiles, registry)
     registry = registry or WorldTiles
     assert(type(profiles) == "table", "explicit bespoke source binding profiles required")
-    local data = SourceMaps.compact()
+    local data = SourceMaps._sharedCompact()
     local function profile(name)
         local entry = SourceMaps.entry(name)
         local adapter = assert(profiles[entry.profile], "missing bespoke source binding profile")
         assert(type(adapter.options) == "function", "explicit source content options required")
         return adapter, entry
     end
-    local residentKeys = {}
     for _, name in ipairs(SourceMaps.names()) do
-        local _, entry = profile(name)
-        if entry.resident then residentKeys[entry.key] = true end
+        profile(name)
+        if GameBootstrap then GameBootstrap.yieldIfDue() end
     end
     return ImportedMaps(data, {
         registry = registry,
-        residentKeys = residentKeys,
         ensureKeys = function(tiles) ensureKeys(registry, tiles) end,
         release = function(zone) zone:disposeView() end,
         create = function(name, desired)

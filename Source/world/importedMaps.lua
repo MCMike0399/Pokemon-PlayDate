@@ -2,7 +2,17 @@
 -- bounded Zone/view cache. Validation never calls the factory/registry.
 Class("ImportedMaps")
 local stores=setmetatable({},{__mode="k"})
-local function copy(v) if type(v)~="table" then return v end;local out={};for k,x in pairs(v) do out[k]=copy(x) end;return out end
+local function copy(value)
+    if type(value) ~= "table" then return value end
+    local result = {}
+    local count = 0
+    for key, item in pairs(value) do
+        result[key] = copy(item)
+        count = count + 1
+        if count % 32 == 0 and GameBootstrap then GameBootstrap.yieldIfDue() end
+    end
+    return result
+end
 local function object(value,allowed)
     assert(type(value)=="table" and getmetatable(value)==nil,"plain imported world record required")
     for key in pairs(value) do assert(allowed[key],"unsupported imported world field: "..tostring(key)) end
@@ -61,9 +71,15 @@ end
 function ImportedMaps:init(data,factory)
     assert(type(data)=="table" and data.schema==1 and data.source_revision=="af519899719f0754965776faac0e836a3b906e6d","unverified compact imported definitions")
     assert(type(factory)=="table" and type(factory.create)=="function" and type(factory.ensureKeys)=="function" and type(factory.release)=="function","explicit native imported factory required")
-    local store={data=copy(data),factory=factory,byID={},byKey={},base={},ledger={},cache={},order={},pins={},count=0}
-    -- Preserve the four original eager Zone identities inside this same cache.
-    -- Other source maps share the existing two disposable actor/view slots.
+    -- Only the validated SourceMaps catalogue may be shared read-only. Arbitrary
+    -- constructor inputs retain defensive ownership, even with a pinned revision.
+    local definitions = data
+    if not (SourceMaps and SourceMaps._isSharedCompact(data)) then
+        definitions = copy(data)
+    end
+    local store={data=definitions,factory=factory,byID={},byKey={},base={},ledger={},cache={},order={},pins={},count=0}
+    -- Explicit constructor fixtures may reserve identities. The shipping source
+    -- provider reserves none: every imported map uses the two disposable slots.
     store.resident = copy(factory.residentKeys or {})
     store.residentCount = 0
     for id=1,37 do local entry=WorldTiles:entry(id);store.base[entry.key]={key=entry.key,collision=entry.collision,terrain=entry.terrain} end
@@ -72,7 +88,10 @@ function ImportedMaps:init(data,factory)
         assert(integer(d.width,1,4096) and integer(d.height,1,4096),"invalid imported descriptor dimensions");array(d.tile_rows,d.height)
         for _,row in ipairs(d.tile_rows) do assert(type(row)=="string" and #row==d.width*2 and not row:find("[^0-9a-f]"),"invalid compact imported row") end
         for _,key in ipairs(d.palette) do metadata(store,key) end
-        for y=0,d.height-1 do for x=0,d.width-1 do rowKey(store,d,x,y) end end
+        for y = 0, d.height - 1 do
+            for x = 0, d.width - 1 do rowKey(store, d, x, y) end
+            if GameBootstrap then GameBootstrap.yieldIfDue() end
+        end
         store.byID[d.id],store.byKey[d.key]=d,d;store.count=store.count+1
     end
     for key, resident in pairs(store.resident) do

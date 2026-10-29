@@ -1,13 +1,22 @@
 -- Explicit reviewed four-map traversal and root-event dispatch.
 KantoWorld = {}
-local names={"Route1","ViridianCity","ViridianMart","ViridianPokecenter"}
 local keys={Route1="kanto_route1",ViridianCity="kanto_viridian_city",ViridianMart="kanto_viridian_mart",ViridianPokecenter="kanto_viridian_center"}
+local legacyKeys = {}
+for _, key in pairs(keys) do legacyKeys[key] = true end
 local stable={Route1="pokered:ROUTE_1",ViridianCity="pokered:VIRIDIAN_CITY",ViridianMart="pokered:VIRIDIAN_MART",ViridianPokecenter="pokered:VIRIDIAN_POKECENTER"}
 local byID={};for name,id in pairs(stable) do byID[id]=name end
 local installed=setmetatable({},{__mode="k"})
 local directions={up={0,-1},down={0,1},left={-1,0},right={1,0}}
 local function inside(zone,x,y) return type(x)=="number" and type(y)=="number" and x%1==0 and y%1==0 and x>=0 and y>=0 and x<zone.width and y<zone.height end
-local function refs(zones) local copy={};for key,zone in pairs(zones) do copy[key]=zone end;return copy end
+-- Resolve each legacy lookup through the cache. Never retain an evicted Zone
+-- in this facade; callers may still request the historical four map keys.
+local function refs(provider)
+    return setmetatable({}, {
+        __index = function(_, key)
+            if legacyKeys[key] then return provider:ensure(key) end
+        end,
+    })
+end
 local function block(player,kind,id) if player then player.lastTraversalBlock={kind=kind,id=id} end end
 function KantoWorld.locationPolicy()
     local list={};for _,id in pairs(stable) do list[id]=true end
@@ -20,28 +29,14 @@ function KantoWorld.install(game)
         assert(policy and policy[id] == true, "explicit Kanto save-location policy required")
     end
     if installed[game] then
-        SliceSprites.install()
-        for key, zone in pairs(installed[game]) do
-            assert(zoneRegistry[key] == zone, "installed Kanto map registry replaced")
-        end
+        assert(WorldDeltas.definitionProvider() == installed[game], "installed Kanto provider replaced")
         return refs(installed[game])
     end
-    -- The legacy facade keeps its four stable Zone references, but their
-    -- construction, durable deltas and cache ownership now use one provider.
+    -- Installation validates the provider only. Maps and their art are created
+    -- on first entry through the existing bounded cache.
     local provider = PewterWorld.install(game)
-    local zones = {}
-    local restoreCache = provider:checkpointRuntime()
-    local restoreTiles = WorldTiles:checkpointRuntime()
-    local ok, problem = pcall(function()
-        for _, name in ipairs(names) do zones[keys[name]] = provider:ensure(keys[name]) end
-    end)
-    if not ok then
-        restoreCache()
-        restoreTiles()
-        error(problem, 0)
-    end
-    installed[game] = zones
-    return refs(zones)
+    installed[game] = provider
+    return refs(provider)
 end
 function KantoWorld.connection(game,zone,x,y,direction)
     local d=directions[direction]
@@ -58,6 +53,17 @@ function KantoWorld.connection(game,zone,x,y,direction)
     local ok,value=pcall(KantoSlice.connection,name,x,y,direction,"done")
     if not ok then return nil,"unimplemented-connection:"..zone.stableID..":"..direction end
     local target=zoneRegistry[value.to]
+    -- The authored Pallet seam can be the first request for Route1. Validate
+    -- unloaded durable deltas before constructing its actors/collision surface.
+    local provider = WorldDeltas.definitionProvider()
+    if provider and provider:hasKey(value.to) then
+        local descriptor = provider:descriptor(value.to)
+        local valid = pcall(provider.resolveLocation, provider,
+            { zone_id = descriptor.id, x = value.x, y = value.y, facing = value.facing },
+            provider:export(), game.sessionLocationPolicy)
+        if not valid then return nil, "blocked-connection-arrival" end
+        target = provider:ensure(value.to)
+    end
     if not target or not inside(target,value.x,value.y) or target.collision[value.y+1][value.x+1]~=0 then return nil,"blocked-connection-arrival" end
     for _,npc in ipairs(target.npcDefs) do
         if npc.gridX==value.x and npc.gridY==value.y and (not npc.appearsIf or npc.appearsIf()) then return nil,"occupied-connection-arrival" end
