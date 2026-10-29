@@ -59,7 +59,7 @@ The device returned to the USB keeper. Original failed timing reports remain.
 Flat atlases passed 16 SDK world cases, one review and all **497,664 native
 pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
 Compile and 54 protocol checks pass. Main’s full host suite passes **963 tests,
-no skips** (`evidence/main-current-host-20261029-01.log`). Cold per-image files and duplicate-validation
+no skips** (`evidence/main-aromatherapy-host-20261029-01.log`). Cold per-image files and duplicate-validation
 fast paths were rejected after actual device comparisons. No universal guessed
 factor blocks deployment; safety is the completed 16 MB route, <=9 MiB sampled
 peak, <=150 ms Simulator slices and active crash guards.
@@ -95,7 +95,7 @@ is replayed or save state invented. Current set:
 `evidence/m55a-lift-projection-resumed-20261029-01`; next revision `06ee7f4f`.
 All three obtained Silph Scope, then failed the planner route from the B1F lift.
 Fixed B2F spinner exit `81b9d95c` and a real post-Scope Save are integrated.
-Next: `evidence/m55a-fixed-hideout-exit-resumed-20261029-01`, after device collection.
+Running: `evidence/m55a-fixed-hideout-exit-resumed-20261029-01`, revision `06ee7f4f`.
 Squirtle obtained rooftop Ice Beam, beat Erika and saved; no grinding or save
 edits. One Aromatherapy gap appeared; its Gen V party cure now passes on main and privately.
 Medicine and Revives spend real money and turns. No journey is accepted yet.
@@ -116,8 +116,8 @@ Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Sparse WorldView `79e42dc1` was rejected after hardware (3,199 vs 3,234 ms;
 no material gain). Continue shortcut `f0774168` was rejected before runtime:
 it removed validation required by candidate-bound owners. Both checks stay.
-Pose metadata `6334e989` passes review, eight native actor cases and the 16 MB
-safety smoke; its device load comparison is running. Root audio,
+Pose metadata `6334e989` passed review, eight native cases and the safety smoke,
+but was rejected after hardware: 3,046 vs 3,040 ms, no material gain. Root audio,
 cleanup and Safari polish remain paused. Nothing pushed.
 Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
 outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
