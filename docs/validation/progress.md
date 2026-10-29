@@ -115,7 +115,10 @@ cases and all 2,494 protected images, but did not improve route timing. A follow
 packed constructor passed 44 SDK cases and reduced isolated Route2 construction
 from 20.9 ms to 12.6 ms. The exact `p0-packed-cache-smoke-20261029-01` failed timing: 173 ms map wall
 span, 2.37 s provisional device estimate, 6.6 ms ordinary update and 31 ms slice.
-Final packed-candidate catalog exports and independent review are pending.
+Both independent reviews found no actionable issue; the packed candidate's
+2,494 protected images matched. The terrain-image cache showed no route gain
+and was dropped. Final cell-only smoke still fails timing (143 ms map wall,
+2.25 s estimate, 7.215 ms ordinary update, 30 ms slice); final catalog is pending.
 Next: inspect that run, compare protected pixels and review integrity before merging. Only a passing Simulator proof may proceed to the hardware cycle.
 Workers use GPT-6.1 Sol at medium effort in isolated worktrees.
 
