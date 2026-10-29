@@ -180,13 +180,36 @@ candidate Data are refused, without deleting them. Save backup/import hash check
 and errorlog/crashlog comparisons remain mandatory. `--leave-running` relaunches
 only after collection and crash-log checks; it never replays DS1 inputs.
 
-`outcome.json` describes cycle/collection success, always with boot acceptance
-false. `device-smoke.json` records actual hardware observations and, when present,
-physical timing/heap measurements against the unchanged 6/9 MiB, 500 ms map/battle,
-33 ms ordinary-frame and 1000 ms slice limits. Missing metrics/observations are
-explicit failures; no Simulator estimates substitute for device measurements.
-Root must inspect this report and the archived crash/error comparison before any
-hardware acceptance. Native memory and between-sample peaks remain unmeasured.
+`outcome.json` describes collection success, always with boot acceptance false.
+Fresh `device-smoke.json` reports retain the six measurement keys and add separate
+phase measurements. Device targets: boot→title ≤10000 ms, boot slices ≤1000 ms,
+Continue ≤4000 ms, Save ≤2000 ms, doors ≤1500 ms, battle ≤1000 ms, cave walking
+nearest-rank p95 ≤50 ms; Lua live/peak remain ≤6/9 MiB. Missing required phase
+measurements fail. `frame_ms` maximum and whole-route `slice_ms` are diagnostics;
+acceptance uses scoped walking p95 and boot slices. Simulator raw safety admission
+is unchanged: error-free completed 16 MB route, peak ≤9 MiB, raw slice ≤150 ms
+(including diagnostic collections). Factor estimates never establish acceptance.
+Historical reports are never rewritten; use a fresh run directory.
+
+Each collected smoke cycle writes and prints one `device-phases.md` table with
+explicit boundaries, measured active elapsed, residual wall, and diagnostic GC
+wall/raw `phase_ms`. These are elapsed timings, not pure CPU attribution. Updates
+overlapping test full-GC windows are excluded from ordinary/walking metrics;
+raw frames/windows remain archived and contribute to raw safety. Walking uses
+same-zone Route2/cave explore press-completes-moving then wait-completes-settled
+responses: wrapper update=tick+1, sampled updates accepted.tick+2 through
+wait.done.tick+1, each compared with the next ordinary update start. These are
+**scripted settled windows, not physical player FPS**. Boot→Continue-ready and
+boot→first scripted walk are app-clock proxies including title input wait;
+physical power-on before `boot.begin`, native memory and unsampled peaks remain
+unmeasured. Root/user hardware acceptance remains separate.
+
+Read-only dispatch-profile reproduction (`p0-load-method-profile-dispatch-hardware-20261029-01`):
+boot.begin→title.live.before_gc =17962 ms (reviewer); boot.begin→title.start.end
+=17934 ms (table target endpoint, 28 ms earlier). Continue.begin→Continue.end
+=7776 ms; Save.begin→Save.publish.end =9229 ms. Task-begin endpoints add 28/29 ms
+respectively. Diagnostic title/Continue/Save collections separately cost
+891/637/620 ms wall (raw phase_ms 888/634/617). No universal Simulator factor applies.
 
 ### Integrated Source metrics hook and exact root commands
 

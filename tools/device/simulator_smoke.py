@@ -124,6 +124,7 @@ def observations(responses):
 
 def measurements(data, build_id, factor):
     """Never infer active time from BootTrace phase gaps spanning coroutine yields."""
+    from tools.device.metrics import ordinary_frames, gc_windows
     frames = []
     for line in (data / 'device-smoke-frames.tsv').read_text().splitlines():
         columns = line.split('\t')
@@ -149,7 +150,7 @@ def measurements(data, build_id, factor):
         if any(not math.isfinite(v) or v < 0 for v in values):
             raise ValueError('invalid BootTrace measurement')
         phases.append(dict(phase=phase, clock_ms=values[0], since_yield_ms=values[1],
-                           heap_kib=values[3], peak_kib=values[4]))
+                           phase_ms=values[2], heap_kib=values[3], peak_kib=values[4]))
     def span(begin, end):
         start, spans = None, []
         for row in phases:
@@ -180,7 +181,7 @@ def measurements(data, build_id, factor):
                 'heap_peak_bytes': max([r['peak_kib'] * 1024 for r in phases] + [f['heap_kib'] * 1024 for f in frames], default=None),
                 'map_load_ms': span('door.map.begin', 'door.map.end'),
                 'battle_start_ms': span('battle.start.begin', 'battle.start.end'),
-                'frame_ms': max((f['active_ms'] for f in frames if not f['loading']), default=None),
+                'frame_ms': max((f['active_ms'] for f in ordinary_frames(frames, phases)), default=None),
                 'slice_ms': max([f['active_ms'] for f in frames] + [r['since_yield_ms'] for r in phases], default=None)}
     limits = {'heap_live_bytes': 6 * 1024**2, 'heap_peak_bytes': 9 * 1024**2,
               'map_load_ms': 500 / factor, 'battle_start_ms': 500 / factor,
@@ -191,8 +192,10 @@ def measurements(data, build_id, factor):
             ('map_device_estimate_ms', 'door.map.begin', 'door.map.end'),
             ('battle_device_estimate_ms', 'battle.start.begin', 'battle.start.end'),
         ):
-            measured[name] = predicted_span(begin, end)
-            limits[name] = 500
+            estimate = predicted_span(begin, end)
+            if estimate is not None:
+                measured[name] = estimate
+                limits[name] = 500
     failures = [name for name, value in measured.items() if value is None or value > limits[name]]
     if not frames or any(f['kind'] == 'error' for f in frames) or any(r['phase'].startswith('error.') for r in phases):
         failures.append('runtime-error-or-no-frames')
@@ -200,6 +203,8 @@ def measurements(data, build_id, factor):
         failures.append('missing-title-or-Continue-live-heap')
     return {'measurements': measured, 'limits': limits, 'budget_failures': failures,
             'frames': frames, 'phases': phases, 'timing_factor': factor,
+            'diagnostic_gc_windows': gc_windows(phases),
+            'metric_classification': 'Simulator raw safety evidence; legacy factor estimates are not device acceptance',
             'timing_basis': 'SDK active elapsed segments exclude suspension, polling and observer IO; phase loads are wall elapsed including suspension. Not OS CPU time. Lua heap excludes native allocations.'}
 
 

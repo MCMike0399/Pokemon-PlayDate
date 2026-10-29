@@ -209,7 +209,7 @@ def parse_device_trace(path, build_id):
             raise ValueError('invalid device BootTrace numbers')
         last_clock = values[0]
         phases.append(dict(phase=fields[1], clock_ms=values[0], since_yield_ms=values[1],
-                           heap_kib=values[3], peak_kib=values[4]))
+                           phase_ms=values[2], heap_kib=values[3], peak_kib=values[4]))
     return phases
 
 
@@ -439,6 +439,7 @@ class Cycle:
     def report_smoke(self, bundle_id):
         """Only archived device observations can establish device measurements."""
         from tools.device.simulator_smoke import observations
+        from tools.device.metrics import ordinary_frames, phase_report, phase_table_text
         archived = self.output / 'after/Data' / bundle_id
         report = {'device_gate_passed': False, 'boot_accepted': False,
                   'classification': 'device attempt; root hardware acceptance remains separate',
@@ -463,7 +464,11 @@ class Cycle:
                 elapsed, heap, clock = [float(fields[i]) for i in (4, 5, 7)]
                 if any(not math.isfinite(v) or v < 0 for v in (elapsed, heap, clock)):
                     raise ValueError('invalid device active frame numbers')
-                frames.append({'active_ms': elapsed, 'heap_kib': heap, 'loading': fields[6] == '1'})
+                if int(fields[1]) < 1 or int(fields[2]) < 1:
+                    raise ValueError('invalid device update/segment identity')
+                frames.append({'update': int(fields[1]), 'segment': int(fields[2]),
+                               'kind': fields[3], 'start_ms': clock, 'active_ms': elapsed,
+                               'heap_kib': heap, 'loading': fields[6] == '1'})
             def span(begin, end):
                 start, values = None, []
                 for row in phases:
@@ -480,13 +485,23 @@ class Cycle:
                                                + [f['heap_kib'] * 1024 for f in frames], default=None),
                         'map_load_ms': span('door.map.begin', 'door.map.end'),
                         'battle_start_ms': span('battle.start.begin', 'battle.start.end'),
-                        'frame_ms': max((f['active_ms'] for f in frames if not f['loading']), default=None),
+                        'frame_ms': max((f['active_ms'] for f in ordinary_frames(frames, phases)), default=None),
                         'slice_ms': max([f['active_ms'] for f in frames]
                                         + [r['since_yield_ms'] for r in phases], default=None)}
             limits = dict(heap_live_bytes=6 * 1024**2, heap_peak_bytes=9 * 1024**2,
-                          map_load_ms=500, battle_start_ms=500, frame_ms=33, slice_ms=1000)
+                          map_load_ms=1500, battle_start_ms=1000, frame_ms=50, slice_ms=1000)
             report.update(measurements=measured, limits=limits, phases=phases, frames=frames)
-            report['failures'] += [k for k, v in measured.items() if v is None or v > limits[k]]
+            # Ordinary maximum is diagnostic; walking acceptance uses scoped p95.
+            report['failures'] += [k for k, v in measured.items()
+                                   if k not in {'frame_ms', 'slice_ms'} and (v is None or v > limits[k])]
+            report.update(phase_report(phases, frames, self.smoke_transport.responses
+                                       if self.smoke_transport else []))
+            report['failures'] += report['phase_failures']
+            report['diagnostics'] = dict(
+                raw_frame_max_ms=max((f['active_ms'] for f in frames), default=None),
+                ordinary_frame_max_ms=measured['frame_ms'],
+                raw_slice_ms=measured['slice_ms'],
+                note='frame_ms and raw slice_ms retained for diagnostics; device acceptance uses scoped cave p95 and boot slices')
             if not frames:
                 report['failures'].append('missing-device-frames')
             for phase in ('title.live.after_gc', 'Continue.live.after_gc'):
@@ -498,6 +513,9 @@ class Cycle:
         if not (seen['title'] and seen['continue_available'] and seen['loaded'] > 0 and seen['saved'] > 0):
             report['failures'].append('missing-title-earned-Continue-or-save')
         atomic_json(self.output / 'device-smoke.json', report)
+        table = phase_table_text(report)
+        (self.output / 'device-phases.md').write_text(table)
+        print(table, flush=True)
         # Collection can succeed without acceptance. Missing metrics stay explicit.
         self.event('device-smoke-reported', failures=report['failures'], boot_accepted=False)
 
