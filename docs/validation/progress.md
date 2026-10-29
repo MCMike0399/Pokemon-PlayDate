@@ -16,7 +16,7 @@ All passed actual process exit/Continue. These are Simulator results.
 **Hardware now boots and loads the earned save; playability is not accepted yet.**
 The full hardware smoke passed, but map loads still exceed the revised target.
 
-Current P0 game change on main: `95fea99`. Imported maps use two cache slots.
+Current P0 game change on main: `64558de`. Imported maps use two cache slots.
 Startup work yields; map cells use validated packed rows. Field data/art prepares
 at map entry. Encounter policy reads retain every commit guard without repeated
 slot copying. Original source grids, world/story/rules and protected pixels remain.
@@ -76,8 +76,12 @@ SDK 3.1.2 does not expose `debug.sethook`: the attempted sampling build stopped
 with that explicit error (`evidence/p0-sampled-load-20261029-01`). Native Sampler
 UI automation is unavailable because Accessibility permission is false. Do not
 claim a sampling profile. Device phase timing is available and ranks view work first.
-The only SDK collision query consumer is a dev contract; production Player uses
-the collision grid. Remove unused wall sprites next, then measure on hardware.
+Removed unused SDK wall sprites on main; production Player and the updated
+rollback case use the Zone collision grid. The hardware smoke passed again in
+`evidence/p0-no-wall-hardware-20261029-01`: map load **4,284 ms** (505 ms faster),
+battle start **19 ms**, live/peak Lua **3.47 / 4.56 MiB**, no new error/crash logs.
+All 17 SDK world/rollback cases passed. An image-wrapper identity assertion was
+corrected to compare actual pixels; no animation behavior changed.
 
 ## 4. Work in flight
 
@@ -88,11 +92,14 @@ The hardware crash guard is 5 s, below the 10 s watchdog. Hard crashes still sto
 attempts and require one A press; none occurred in these guarded game attempts.
 
 The wall-rectangle experiment remains excluded after no useful Simulator gain.
-Its replacement will remove unused SDK wall sprites, keeping collision in Zone.
+Its replacement removes unused SDK wall sprites, keeping collision in Zone.
 Compiled terrain was retested on hardware and stays off main: worst map load
 worsened from **4,789 to 6,262 ms**, with a complete smoke and no new crash logs.
 See `evidence/p0-device-terrain-decision-20261029.json`. Removing unused wall
-sprites is next; its single static review was clear and Root is running SDK cases.
+sprites is now on main after a clear review, SDK checks and the hardware gain.
+Root is preparing a device-only method profile of rendering, collection, loading
+drawing and trace I/O to separate the remaining view/load costs. No sampling
+result is claimed, and no further speculative performance branch is active.
 `wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
 current P0 code and verify that its 16 MB heap stays close to the 65-map result.
 Root audio, cleanup and Safari polish remain paused. No new regions are on main.
