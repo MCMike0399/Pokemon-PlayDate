@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"That BILL!"},{"op":"para","source_line":4,"text":"I heard that"},{"op":"line","source_line":5,"text":"he'll do whatever"},{"op":"cont","source_line":6,"text":"it takes to get"},{"op":"cont","source_line":7,"text":"rare #MON!"},{"op":"control","source":"done","source_line":8}],"source":"text/CeruleanPokecenter.asm"}

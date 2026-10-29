@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":82,"text":"You have to face"},{"op":"line","source_line":83,"text":"other trainers to"},{"op":"cont","source_line":84,"text":"find out how good"},{"op":"cont","source_line":85,"text":"you really are."},{"op":"control","source":"done","source_line":86}],"source":"text/CeruleanGym.asm"}

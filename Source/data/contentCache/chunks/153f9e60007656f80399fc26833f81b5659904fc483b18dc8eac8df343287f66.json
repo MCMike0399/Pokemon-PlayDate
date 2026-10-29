@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":21,"symbol":"wStringBuffer"},{"op":"text","source_line":22,"text":" went"},{"op":"line","source_line":23,"text":"to @"},{"op":"text_ram","source_line":24,"symbol":"wLinkEnemyTrainerName"},{"op":"text","source_line":25,"text":"."},{"op":"control","source":"done","source_line":26}],"source":"data/text/text_2.asm"}

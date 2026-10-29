@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":72,"text":"<TARGET>"},{"op":"line","source_line":73,"text":"was poisoned!"},{"op":"control","source":"prompt","source_line":74}],"source":"data/text/text_3.asm"}

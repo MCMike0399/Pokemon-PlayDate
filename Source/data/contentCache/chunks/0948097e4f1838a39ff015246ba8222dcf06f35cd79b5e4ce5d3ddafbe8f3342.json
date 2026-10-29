@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"We're careful"},{"op":"line","source_line":3,"text":"about pollution!"},{"op":"para","source_line":5,"text":"We've heard GRIMER"},{"op":"line","source_line":6,"text":"multiplies in"},{"op":"cont","source_line":7,"text":"toxic sludge!"},{"op":"control","source":"done","source_line":8}],"source":"text/VermilionCity.asm"}

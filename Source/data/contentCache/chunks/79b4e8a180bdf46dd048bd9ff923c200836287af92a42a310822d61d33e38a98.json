@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":110,"text":"That bush in"},{"op":"line","source_line":111,"text":"front of the shop"},{"op":"cont","source_line":112,"text":"is in the way."},{"op":"para","source_line":114,"text":"There might be a"},{"op":"line","source_line":115,"text":"way around."},{"op":"control","source":"done","source_line":116}],"source":"text/CeruleanCity.asm"}

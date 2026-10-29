@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":45,"text":"This requires"},{"op":"line","source_line":46,"text":"STRENGTH to move!"},{"op":"control","source":"done","source_line":47}],"source":"data/text/text_1.asm"}

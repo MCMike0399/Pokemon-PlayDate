@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1757,"text":"Do you want to"},{"op":"line","source_line":1758,"text":"give a nickname"},{"op":"cont","source_line":1759,"text":"to @"},{"op":"text_ram","source_line":1760,"symbol":"wNameBuffer"},{"op":"text","source_line":1761,"text":"?"},{"op":"control","source":"done","source_line":1762}],"source":"data/text/text_2.asm"}

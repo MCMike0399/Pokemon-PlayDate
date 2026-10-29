@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"The party's over."},{"op":"line","source_line":3,"text":"The ship will be"},{"op":"cont","source_line":4,"text":"departing soon."},{"op":"control","source":"done","source_line":5}],"source":"text/SSAnneBow.asm"}

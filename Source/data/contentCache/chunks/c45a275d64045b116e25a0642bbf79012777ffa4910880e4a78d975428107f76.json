@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":1418,"symbol":"wNameBuffer"},{"op":"control","source":"text_start","source_line":1419},{"op":"line","source_line":1420,"text":"woke up!"},{"op":"control","source":"done","source_line":1421}],"source":"data/text/text_2.asm"}

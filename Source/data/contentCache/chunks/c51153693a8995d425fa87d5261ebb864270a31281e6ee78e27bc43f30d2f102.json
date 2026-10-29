@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":876,"text":"<PLAYER> defeated"},{"op":"line","source_line":877,"text":"@"},{"op":"text_ram","source_line":878,"symbol":"wTrainerName"},{"op":"text","source_line":879,"text":"!"},{"op":"control","source":"prompt","source_line":880}],"source":"data/text/text_2.asm"}

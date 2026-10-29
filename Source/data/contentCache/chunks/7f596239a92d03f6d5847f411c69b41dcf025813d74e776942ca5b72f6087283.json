@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":65,"text":"Stop!"},{"op":"line","source_line":66,"text":"You're very good!"},{"op":"control","source":"prompt","source_line":67}],"source":"text/VermilionGym_2.asm"}

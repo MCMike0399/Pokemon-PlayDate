@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":103,"text":"You're a trainer"},{"op":"line","source_line":104,"text":"too? Collecting,"},{"op":"cont","source_line":105,"text":"fighting, it's a"},{"op":"cont","source_line":106,"text":"tough life."},{"op":"control","source":"done","source_line":107}],"source":"text/CeruleanCity.asm"}

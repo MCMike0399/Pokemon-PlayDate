@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":38,"text":"<PLAYER> flashed"},{"op":"line","source_line":39,"text":"the S.S.TICKET!"},{"op":"para","source_line":41,"text":"Great! Welcome to"},{"op":"line","source_line":42,"text":"S.S.ANNE!"},{"op":"control","source":"done","source_line":43}],"source":"text/VermilionCity.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":759,"text":"But, <PLAYER> has"},{"op":"line","source_line":760,"text":"no more room for"},{"op":"cont","source_line":761,"text":"other items!"},{"op":"control","source":"done","source_line":762}],"source":"data/text/text_2.asm"}

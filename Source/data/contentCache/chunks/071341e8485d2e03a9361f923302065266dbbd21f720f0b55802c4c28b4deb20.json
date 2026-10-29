@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":304,"text":"All #MON types"},{"op":"line","source_line":305,"text":"have strong and"},{"op":"cont","source_line":306,"text":"weak points"},{"op":"cont","source_line":307,"text":"against others."},{"op":"control","source":"done","source_line":308}],"source":"data/text/text_2.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1072,"text":"<USER>'s"},{"op":"line","source_line":1073,"text":"@"},{"op":"text_ram","source_line":1074,"symbol":"wNameBuffer"},{"op":"text","source_line":1075,"text":" is"},{"op":"cont","source_line":1076,"text":"disabled!"},{"op":"control","source":"prompt","source_line":1077}],"source":"data/text/text_2.asm"}

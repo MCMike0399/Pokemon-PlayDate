@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":578,"text":"<PLAYER> is"},{"op":"line","source_line":579,"text":"playing the SNES!"},{"op":"cont","source_line":580,"text":"...Okay!"},{"op":"cont","source_line":581,"text":"It's time to go!"},{"op":"control","source":"done","source_line":582}],"source":"data/text/text_2.asm"}

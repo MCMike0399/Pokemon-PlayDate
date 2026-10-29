@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":883,"symbol":"wBattleMonNick"},{"op":"control","source":"text_start","source_line":884},{"op":"line","source_line":885,"text":"fainted!"},{"op":"control","source":"prompt","source_line":886}],"source":"data/text/text_2.asm"}

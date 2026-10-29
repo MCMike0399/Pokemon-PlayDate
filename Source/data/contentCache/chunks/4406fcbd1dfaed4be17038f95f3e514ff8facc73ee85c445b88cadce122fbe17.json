@@ -1,0 +1,1 @@
+{"recipe":[{"op":"control","source":"text_start","source_line":41},{"op":"line","source_line":42,"text":"into @"},{"op":"text_ram","source_line":43,"symbol":"wNameBuffer"},{"op":"text","source_line":44,"text":"!"},{"op":"control","source":"done","source_line":45}],"source":"data/text/text_3.asm"}

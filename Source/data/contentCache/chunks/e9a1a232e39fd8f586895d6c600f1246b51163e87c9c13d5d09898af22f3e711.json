@@ -1,0 +1,1 @@
+{"cases":[{"then":{"kind":"program","steps":[{"labels":["_CeruleanTrashedHouseFishingGuruWhatsLostIsLostText"],"op":"dialog"}]},"when":{"items_min":{"tm28":1}}}],"content":"cerulean","kind":"cases","otherwise":{"kind":"program","steps":[{"labels":["_CeruleanTrashedHouseFishingGuruTheyStoleATMText"],"op":"dialog"}]}}

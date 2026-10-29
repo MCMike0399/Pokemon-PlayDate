@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":21,"text":"I can't accept a"},{"op":"line","source_line":22,"text":"#MON that"},{"op":"cont","source_line":23,"text":"knows an HM move."},{"op":"control","source":"done","source_line":24}],"source":"text/Daycare_2.asm"}

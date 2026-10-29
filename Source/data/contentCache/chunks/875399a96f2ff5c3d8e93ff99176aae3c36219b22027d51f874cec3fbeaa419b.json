@@ -1,0 +1,1 @@
+{"content":"viridian","kind":"program","source":"engine/events/pokecenter.asm:DisplayPokemonCenterDialogue_","steps":[{"after":"_PokemonFightingFitText","before":"_NeedYourPokemonText","farewell":"_PokemonCenterFarewellText","id":"viridianPokecenter","op":"heal","prompt":"_ShallWeHealYourPokemonText","welcome":"_PokemonCenterWelcomeText"}]}

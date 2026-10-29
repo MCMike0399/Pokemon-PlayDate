@@ -1,0 +1,1 @@
+{"content":"vermilion","kind":"program","restore_interaction_facing":true,"steps":[{"labels":["_VermilionPidgeyHousePidgeyText"],"op":"dialog"},{"cue":"cry","op":"source-audio","owner":"SourceAudio","species":"pidgey","wait_for_completion":true}]}

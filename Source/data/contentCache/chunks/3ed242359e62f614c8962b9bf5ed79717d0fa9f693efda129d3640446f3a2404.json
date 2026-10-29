@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":43,"text":"<PLAYER>! What are"},{"op":"line","source_line":44,"text":"you, seasick?"},{"op":"para","source_line":46,"text":"You should shape"},{"op":"line","source_line":47,"text":"up, pal!"},{"op":"control","source":"prompt","source_line":48}],"source":"text/SSAnne2F.asm"}

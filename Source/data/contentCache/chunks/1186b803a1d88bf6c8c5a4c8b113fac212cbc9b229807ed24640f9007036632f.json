@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":92,"text":"Fire defrosted"},{"op":"line","source_line":93,"text":"<TARGET>!"},{"op":"control","source":"prompt","source_line":94}],"source":"data/text/text_3.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1729,"text":"First, what is"},{"op":"line","source_line":1730,"text":"your name?"},{"op":"control","source":"prompt","source_line":1731}],"source":"data/text/text_2.asm"}

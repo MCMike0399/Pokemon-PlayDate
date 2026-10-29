@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":925,"symbol":"wTrainerName"},{"op":"text","source_line":926,"text":" sent"},{"op":"line","source_line":927,"text":"out @"},{"op":"text_ram","source_line":928,"symbol":"wEnemyMonNick"},{"op":"text","source_line":929,"text":"!"},{"op":"control","source":"done","source_line":930}],"source":"data/text/text_2.asm"}

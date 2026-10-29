@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":98,"text":"Abandon learning"},{"op":"line","source_line":99,"text":"@"},{"op":"text_ram","source_line":100,"symbol":"wStringBuffer"},{"op":"text","source_line":101,"text":"?"},{"op":"control","source":"done","source_line":102}],"source":"data/text/text_4.asm"}

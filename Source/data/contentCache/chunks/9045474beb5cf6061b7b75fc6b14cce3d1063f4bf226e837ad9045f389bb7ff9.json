@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":21,"text":"TM11 teaches"},{"op":"line","source_line":22,"text":"BUBBLEBEAM!"},{"op":"para","source_line":24,"text":"Use it on an"},{"op":"line","source_line":25,"text":"aquatic #MON!"},{"op":"control","source":"done","source_line":26}],"source":"text/CeruleanGym.asm"}

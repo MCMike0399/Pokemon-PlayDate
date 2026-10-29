@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":161,"text":"Welcome to our"},{"op":"line","source_line":162,"text":"#MON CENTER!"},{"op":"para","source_line":164,"text":"We heal your"},{"op":"line","source_line":165,"text":"#MON back to"},{"op":"cont","source_line":166,"text":"perfect health!"},{"op":"control","source":"prompt","source_line":167}],"source":"data/text/text_4.asm"}

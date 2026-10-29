@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":22,"text":"There are other"},{"op":"line","source_line":23,"text":"kinds of #MON"},{"op":"cont","source_line":24,"text":"than those found"},{"op":"cont","source_line":25,"text":"in the forest!"},{"op":"control","source":"done","source_line":26}],"source":"text/Route3.asm"}

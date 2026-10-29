@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":48,"text":"My Pa said there"},{"op":"line","source_line":49,"text":"are 100 kinds of"},{"op":"cont","source_line":50,"text":"#MON. I think"},{"op":"cont","source_line":51,"text":"there are more."},{"op":"control","source":"done","source_line":52}],"source":"text/SSAnneBow.asm"}

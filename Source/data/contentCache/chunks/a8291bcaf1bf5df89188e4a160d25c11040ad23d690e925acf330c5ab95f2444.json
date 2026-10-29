@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":24,"text":"You can't sneak"},{"op":"line","source_line":25,"text":"in the back way!"},{"op":"para","source_line":27,"text":"Oh, whatever!"},{"op":"line","source_line":28,"text":"Do you know what"},{"op":"cont","source_line":29,"text":"AMBER is?"},{"op":"control","source":"done","source_line":30}],"source":"text/Museum1F.asm"}

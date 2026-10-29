@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":31,"text":"Choose a"},{"op":"line","source_line":32,"text":"<PKMN> BOX.@"},{"op":"control","source":"text_end","source_line":33}],"source":"data/text/text_3.asm"}

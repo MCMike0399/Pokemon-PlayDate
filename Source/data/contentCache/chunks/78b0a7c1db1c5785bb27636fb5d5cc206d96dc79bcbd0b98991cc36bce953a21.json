@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":74,"text":"If a #MON BOX"},{"op":"line","source_line":75,"text":"on the PC gets"},{"op":"cont","source_line":76,"text":"full, just switch"},{"op":"cont","source_line":77,"text":"to another BOX!"},{"op":"control","source":"done","source_line":78}],"source":"text/Route3.asm"}

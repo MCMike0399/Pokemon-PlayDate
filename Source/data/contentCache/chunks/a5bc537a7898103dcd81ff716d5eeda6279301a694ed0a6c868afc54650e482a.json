@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":92,"text":"Stop!"},{"op":"line","source_line":93,"text":"I give up! I'll"},{"op":"cont","source_line":94,"text":"leave quietly!"},{"op":"control","source":"prompt","source_line":95}],"source":"text/CeruleanCity.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":85,"text":"Which do you like,"},{"op":"line","source_line":86,"text":"a strong or a"},{"op":"cont","source_line":87,"text":"rare #MON?"},{"op":"control","source":"done","source_line":88}],"source":"text/SSAnne2FRooms.asm"}

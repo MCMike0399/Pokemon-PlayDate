@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1381,"text":"Move #MON"},{"op":"line","source_line":1382,"text":"where?"},{"op":"control","source":"done","source_line":1383}],"source":"data/text/text_2.asm"}

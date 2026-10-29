@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":1259,"symbol":"wTrainerName"},{"op":"text","source_line":1260,"text":" wants"},{"op":"line","source_line":1261,"text":"to fight!"},{"op":"control","source":"prompt","source_line":1262}],"source":"data/text/text_2.asm"}

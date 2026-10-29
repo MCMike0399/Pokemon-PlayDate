@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":15,"text":"My #MON was"},{"op":"line","source_line":16,"text":"poisoned! It"},{"op":"cont","source_line":17,"text":"fainted while we"},{"op":"cont","source_line":18,"text":"were walking!"},{"op":"control","source":"done","source_line":19}],"source":"text/VermilionPokecenter.asm"}

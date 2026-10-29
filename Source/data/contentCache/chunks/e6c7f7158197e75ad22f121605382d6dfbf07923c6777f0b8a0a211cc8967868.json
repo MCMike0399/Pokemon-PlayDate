@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":18,"text":"There might not"},{"op":"line","source_line":19,"text":"be any more"},{"op":"cont","source_line":20,"text":"mushrooms here."},{"op":"para","source_line":22,"text":"I think I got"},{"op":"line","source_line":23,"text":"them all."},{"op":"control","source":"done","source_line":24}],"source":"text/Route4.asm"}

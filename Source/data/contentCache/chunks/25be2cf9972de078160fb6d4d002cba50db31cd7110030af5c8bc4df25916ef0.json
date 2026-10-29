@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":79,"text":"Waiter, I would"},{"op":"line","source_line":80,"text":"like a cherry pie"},{"op":"cont","source_line":81,"text":"please!"},{"op":"control","source":"done","source_line":82}],"source":"text/SSAnne1FRooms.asm"}

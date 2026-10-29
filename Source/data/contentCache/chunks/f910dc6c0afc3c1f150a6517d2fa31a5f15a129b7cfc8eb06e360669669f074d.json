@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":67,"text":"<TARGET>'s"},{"op":"line","source_line":68,"text":"already asleep!"},{"op":"control","source":"prompt","source_line":69}],"source":"data/text/text_3.asm"}

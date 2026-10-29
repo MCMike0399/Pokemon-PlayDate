@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":97,"text":"Not enough"},{"op":"line","source_line":98,"text":"coins!"},{"op":"control","source":"prompt","source_line":99}],"source":"data/text/text_2.asm"}

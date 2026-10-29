@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":49,"text":"<PLAYER> got"},{"op":"line","source_line":50,"text":"@"},{"op":"text_ram","source_line":51,"symbol":"wDayCareMonName"},{"op":"text","source_line":52,"text":" back!"},{"op":"control","source":"done","source_line":53}],"source":"text/Daycare.asm"}

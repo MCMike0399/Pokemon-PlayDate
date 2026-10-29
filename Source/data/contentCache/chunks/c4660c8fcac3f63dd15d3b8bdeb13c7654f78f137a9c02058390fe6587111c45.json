@@ -1,0 +1,1 @@
+{"recipe":[{"op":"control","source":"text_decimal wExpAmountGained, 2, 4","source_line":1225},{"op":"text","source_line":1226,"text":" EXP. Points!"},{"op":"control","source":"prompt","source_line":1227}],"source":"data/text/text_2.asm"}

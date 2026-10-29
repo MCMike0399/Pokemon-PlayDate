@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":24,"text":"I want a PIKACHU!"},{"op":"line","source_line":25,"text":"It's so cute!"},{"op":"para","source_line":27,"text":"I asked my Daddy"},{"op":"line","source_line":28,"text":"to catch me one!"},{"op":"control","source":"done","source_line":29}],"source":"text/Museum2F.asm"}

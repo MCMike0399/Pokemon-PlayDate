@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":219,"text":"<TARGET>'s"},{"op":"line","source_line":220,"text":"paralyzed! It may"},{"op":"cont","source_line":221,"text":"not attack!"},{"op":"control","source":"prompt","source_line":222}],"source":"data/text/text_3.asm"}

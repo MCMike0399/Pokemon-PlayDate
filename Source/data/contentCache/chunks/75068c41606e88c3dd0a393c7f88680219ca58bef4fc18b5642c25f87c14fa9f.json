@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":979,"text":"Hit the enemy"},{"op":"line","source_line":980,"text":"@"},{"op":"control","source":"text_decimal wPlayerNumHits, 1, 1","source_line":981},{"op":"text","source_line":982,"text":" times!"},{"op":"control","source":"prompt","source_line":983}],"source":"data/text/text_2.asm"}

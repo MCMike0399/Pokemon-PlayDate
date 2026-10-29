@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":186,"text":"I want a bright"},{"op":"line","source_line":187,"text":"red BICYCLE!"},{"op":"para","source_line":189,"text":"I'll keep it at"},{"op":"line","source_line":190,"text":"home, so it won't"},{"op":"cont","source_line":191,"text":"get dirty!"},{"op":"control","source":"done","source_line":192}],"source":"text/CeruleanCity.asm"}

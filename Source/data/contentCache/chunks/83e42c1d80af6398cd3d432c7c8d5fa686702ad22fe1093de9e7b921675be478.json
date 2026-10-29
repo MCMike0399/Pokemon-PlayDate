@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1571,"text":"You can't deposit"},{"op":"line","source_line":1572,"text":"the last #MON!"},{"op":"control","source":"prompt","source_line":1573}],"source":"data/text/text_2.asm"}

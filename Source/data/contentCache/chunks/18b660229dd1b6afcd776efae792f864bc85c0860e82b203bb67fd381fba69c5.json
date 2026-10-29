@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":39,"text":"How do you like"},{"op":"line","source_line":40,"text":"your new BICYCLE?"},{"op":"para","source_line":42,"text":"You can take it"},{"op":"line","source_line":43,"text":"on CYCLING ROAD"},{"op":"cont","source_line":44,"text":"and in caves!"},{"op":"control","source":"done","source_line":45}],"source":"text/BikeShop.asm"}

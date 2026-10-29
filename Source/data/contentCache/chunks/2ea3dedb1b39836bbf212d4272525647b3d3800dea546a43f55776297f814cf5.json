@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1245,"text":"The hooked"},{"op":"line","source_line":1246,"text":"@"},{"op":"text_ram","source_line":1247,"symbol":"wEnemyMonNick"},{"op":"control","source":"text_start","source_line":1248},{"op":"cont","source_line":1249,"text":"attacked!"},{"op":"control","source":"prompt","source_line":1250}],"source":"data/text/text_2.asm"}

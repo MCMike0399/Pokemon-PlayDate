@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":364,"text":"#MON of the"},{"op":"line","source_line":365,"text":"same kind and"},{"op":"cont","source_line":366,"text":"level are not"},{"op":"cont","source_line":367,"text":"identical?"},{"op":"control","source":"done","source_line":368}],"source":"data/text/text_2.asm"}

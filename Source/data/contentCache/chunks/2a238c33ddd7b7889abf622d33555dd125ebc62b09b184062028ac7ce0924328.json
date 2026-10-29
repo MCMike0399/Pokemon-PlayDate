@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":41,"text":"<RIVAL>: What?"},{"op":"line","source_line":42,"text":"Why do I have 2"},{"op":"cont","source_line":43,"text":"#MON?"},{"op":"para","source_line":45,"text":"You should catch"},{"op":"cont","source_line":46,"text":"some more too!"},{"op":"control","source":"prompt","source_line":47}],"source":"text/Route22.asm"}

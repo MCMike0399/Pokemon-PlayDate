@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":357,"text":"Are thunder moves"},{"op":"line","source_line":358,"text":"effective against"},{"op":"cont","source_line":359,"text":"ground element-"},{"op":"cont","source_line":360,"text":"type #MON?"},{"op":"control","source":"done","source_line":361}],"source":"data/text/text_2.asm"}

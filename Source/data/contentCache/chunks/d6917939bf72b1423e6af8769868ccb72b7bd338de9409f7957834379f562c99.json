@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":43,"text":"Hello there,"},{"op":"line","source_line":44,"text":"<PLAYER>!"},{"op":"para","source_line":46,"text":"How are the fish"},{"op":"line","source_line":47,"text":"biting?"},{"op":"control","source":"done","source_line":48}],"source":"text/VermilionOldRodHouse.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":395,"text":"TELEPORTER is"},{"op":"line","source_line":396,"text":"displayed on the"},{"op":"cont","source_line":397,"text":"PC monitor."},{"op":"control","source":"done","source_line":398}],"source":"data/text/text_2.asm"}

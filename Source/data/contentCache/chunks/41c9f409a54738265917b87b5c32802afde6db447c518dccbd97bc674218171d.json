@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1139,"text":"It doesn't affect"},{"op":"line","source_line":1140,"text":"<TARGET>!"},{"op":"control","source":"prompt","source_line":1141}],"source":"data/text/text_2.asm"}

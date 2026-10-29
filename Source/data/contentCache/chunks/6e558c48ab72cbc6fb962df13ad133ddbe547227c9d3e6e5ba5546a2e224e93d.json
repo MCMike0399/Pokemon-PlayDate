@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"The file data is"},{"op":"line","source_line":3,"text":"destroyed!"},{"op":"control","source":"prompt","source_line":4}],"source":"data/text/text_3.asm"}

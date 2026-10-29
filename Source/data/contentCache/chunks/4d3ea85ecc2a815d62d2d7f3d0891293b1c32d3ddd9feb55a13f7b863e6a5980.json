@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":42,"text":"CAPTAIN: Whew!"},{"op":"para","source_line":44,"text":"Now that I'm not"},{"op":"line","source_line":45,"text":"sick any more, I"},{"op":"cont","source_line":46,"text":"guess it's time."},{"op":"control","source":"done","source_line":47}],"source":"text/SSAnneCaptainsRoom.asm"}

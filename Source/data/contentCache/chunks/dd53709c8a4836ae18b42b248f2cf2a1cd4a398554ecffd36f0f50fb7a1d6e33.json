@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":8,"text":"Humph! My PIKACHU"},{"op":"line","source_line":9,"text":"is twice as cute"},{"op":"cont","source_line":10,"text":"as that one!"},{"op":"control","source":"done","source_line":11}],"source":"text/PokemonFanClub.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":1394,"symbol":"wNameBuffer"},{"op":"text","source_line":1395,"text":" was"},{"op":"line","source_line":1396,"text":"cured of poison!"},{"op":"control","source":"done","source_line":1397}],"source":"data/text/text_2.asm"}

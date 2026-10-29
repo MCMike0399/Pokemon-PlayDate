@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":30,"text":"Welcome to S.S."},{"op":"line","source_line":31,"text":"ANNE!"},{"op":"para","source_line":33,"text":"Excuse me, do you"},{"op":"line","source_line":34,"text":"have a ticket?"},{"op":"control","source":"prompt","source_line":35}],"source":"text/VermilionCity.asm"}

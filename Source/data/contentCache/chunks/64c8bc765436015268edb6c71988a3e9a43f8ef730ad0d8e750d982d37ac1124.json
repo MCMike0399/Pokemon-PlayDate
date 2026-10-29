@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":271,"text":"TEAM ROCKET took"},{"op":"line","source_line":272,"text":"off! We can go"},{"op":"cont","source_line":273,"text":"out safely again!"},{"op":"cont","source_line":274,"text":"That's great!"},{"op":"control","source":"done","source_line":275}],"source":"data/text/text_2.asm"}

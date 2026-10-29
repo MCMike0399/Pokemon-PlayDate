@@ -1,0 +1,1 @@
+{"content":"vermilion","kind":"program","restore_interaction_facing":true,"steps":[{"labels":["_SSAnneB1FRoomsMachokeText"],"op":"dialog"},{"cue":"cry","op":"source-audio","owner":"SourceAudio","species":"machoke","wait_for_completion":false}]}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"control","source":"text_start","source_line":6},{"op":"line","source_line":7,"text":"The CARD KEY"},{"op":"cont","source_line":8,"text":"opened the door!"},{"op":"control","source":"done","source_line":9}],"source":"data/text/text_1.asm"}

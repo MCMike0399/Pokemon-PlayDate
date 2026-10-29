@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":19,"text":"#MON can CUT"},{"op":"line","source_line":20,"text":"down small bushes."},{"op":"control","source":"done","source_line":21}],"source":"text/SSAnne2FRooms.asm"}

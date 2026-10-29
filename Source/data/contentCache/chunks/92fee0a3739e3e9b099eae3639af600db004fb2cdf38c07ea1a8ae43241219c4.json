@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":49,"text":"You can't carry"},{"op":"line","source_line":50,"text":"any more items."},{"op":"control","source":"prompt","source_line":51}],"source":"data/text/text_4.asm"}

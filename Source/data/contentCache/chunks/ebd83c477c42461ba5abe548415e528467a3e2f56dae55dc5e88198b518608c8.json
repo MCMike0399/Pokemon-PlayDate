@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":745,"text":"Nope! There's"},{"op":"line","source_line":746,"text":"only trash here."},{"op":"cont","source_line":747,"text":"Hey! The electric"},{"op":"cont","source_line":748,"text":"locks were reset!@"},{"op":"control","source":"text_end","source_line":749}],"source":"data/text/text_2.asm"}

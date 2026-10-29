@@ -1,0 +1,1 @@
+{"cases":[{"then":{"kind":"program","steps":[{"labels":["_ViridianCityGirlWhenIGoShopText"],"op":"dialog"}]},"when":{"flags":{"EVENT_GOT_POKEDEX":true}}}],"content":"viridian","kind":"cases","otherwise":{"kind":"program","steps":[{"labels":["_ViridianCityGirlHasntHadHisCoffeeYetText"],"op":"dialog"}]},"source":"scripts/ViridianCity.asm:ViridianCityGirlText"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":193,"text":"If you have too"},{"op":"line","source_line":194,"text":"many #MON, you"},{"op":"cont","source_line":195,"text":"should store them"},{"op":"cont","source_line":196,"text":"via PC!"},{"op":"control","source":"done","source_line":197}],"source":"data/text/text_2.asm"}

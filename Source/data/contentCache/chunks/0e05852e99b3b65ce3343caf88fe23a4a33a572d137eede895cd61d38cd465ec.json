@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":869,"text":"<PLAYER> got \u00a5@"},{"op":"control","source":"text_bcd wAmountMoneyWon, 3 | LEADING_ZEROES | LEFT_ALIGN","source_line":870},{"op":"control","source":"text_start","source_line":871},{"op":"line","source_line":872,"text":"for winning!"},{"op":"control","source":"prompt","source_line":873}],"source":"data/text/text_2.asm"}

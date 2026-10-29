@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":85,"symbol":"wLearnMoveMonName"},{"op":"text","source_line":86,"text":" learned"},{"op":"line","source_line":87,"text":"@"},{"op":"text_ram","source_line":88,"symbol":"wStringBuffer"},{"op":"text","source_line":89,"text":"!@"},{"op":"control","source":"text_end","source_line":90}],"source":"data/text/text_4.asm"}

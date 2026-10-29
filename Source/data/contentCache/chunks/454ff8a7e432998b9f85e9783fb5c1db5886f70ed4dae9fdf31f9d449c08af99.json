@@ -1,0 +1,1 @@
+{"recipe":[{"op":"control","source":"text_decimal hTextID, 1, 2","source_line":1785},{"op":"text","source_line":1786,"text":" ERROR."},{"op":"control","source":"done","source_line":1787}],"source":"data/text/text_2.asm"}

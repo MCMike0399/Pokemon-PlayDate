@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1345,"text":"<PLAYER> picked up"},{"op":"line","source_line":1346,"text":"\u00a5@"},{"op":"control","source":"text_bcd wTotalPayDayMoney, 3 | LEADING_ZEROES | LEFT_ALIGN","source_line":1347},{"op":"text","source_line":1348,"text":"!"},{"op":"control","source":"prompt","source_line":1349}],"source":"data/text/text_2.asm"}

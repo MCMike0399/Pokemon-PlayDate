@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":159,"text":"#MON CENTERs"},{"op":"line","source_line":160,"text":"heal your tired,"},{"op":"cont","source_line":161,"text":"hurt or fainted"},{"op":"cont","source_line":162,"text":"#MON!"},{"op":"control","source":"done","source_line":163}],"source":"data/text/text_2.asm"}

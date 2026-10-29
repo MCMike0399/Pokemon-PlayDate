@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"I'm getting my"},{"op":"line","source_line":3,"text":"PIDGEY to fly a"},{"op":"cont","source_line":4,"text":"letter to SAFFRON"},{"op":"cont","source_line":5,"text":"in the north!"},{"op":"control","source":"done","source_line":6}],"source":"text/VermilionPidgeyHouse.asm"}

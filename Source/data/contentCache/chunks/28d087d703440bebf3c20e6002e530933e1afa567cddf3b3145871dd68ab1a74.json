@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1516,"text":"Withdrew"},{"op":"line","source_line":1517,"text":"@"},{"op":"text_ram","source_line":1518,"symbol":"wNameBuffer"},{"op":"text","source_line":1519,"text":"."},{"op":"control","source":"prompt","source_line":1520}],"source":"data/text/text_2.asm"}

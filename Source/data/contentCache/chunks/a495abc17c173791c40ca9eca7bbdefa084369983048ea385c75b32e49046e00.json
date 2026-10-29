@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":181,"text":"<USER>"},{"op":"line","source_line":182,"text":"learned"},{"op":"cont","source_line":183,"text":"@"},{"op":"text_ram","source_line":184,"symbol":"wNameBuffer"},{"op":"text","source_line":185,"text":"!"},{"op":"control","source":"prompt","source_line":186}],"source":"data/text/text_3.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":50,"symbol":"wNameBuffer"},{"op":"text","source_line":51,"text":" is"},{"op":"line","source_line":52,"text":"transferred."},{"op":"control","source":"done","source_line":53}],"source":"data/text/text_2.asm"}

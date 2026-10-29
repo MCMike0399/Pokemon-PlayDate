@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":13,"text":"<PLAYER> is out of"},{"op":"line","source_line":14,"text":"useable #MON!"},{"op":"para","source_line":16,"text":"<PLAYER> blacked"},{"op":"line","source_line":17,"text":"out!"},{"op":"control","source":"prompt","source_line":18}],"source":"data/text/text_4.asm"}

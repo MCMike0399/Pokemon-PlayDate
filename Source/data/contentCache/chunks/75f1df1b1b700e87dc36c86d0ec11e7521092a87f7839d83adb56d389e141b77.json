@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":19,"text":"You don't have"},{"op":"line","source_line":20,"text":"enough money."},{"op":"control","source":"prompt","source_line":21}],"source":"text/Museum1F.asm"}

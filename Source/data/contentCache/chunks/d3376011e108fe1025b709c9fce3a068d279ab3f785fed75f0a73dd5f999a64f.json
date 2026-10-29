@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"I run a DAYCARE."},{"op":"line","source_line":3,"text":"Would you like me"},{"op":"cont","source_line":4,"text":"to raise one of"},{"op":"cont","source_line":5,"text":"your #MON?"},{"op":"control","source":"done","source_line":6}],"source":"text/Daycare.asm"}

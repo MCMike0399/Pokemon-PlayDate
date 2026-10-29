@@ -2,20 +2,13 @@
 -- bindings, actors and event execution remain in their shared owners.
 CeruleanContent = {}
 local contentName <const> = "cerulean"
-local cached = setmetatable({}, {__mode = "v"})
 local packages = {}
 local installed = false
 local signsInstalled = false
 local actorMetadata
 local rendered = {}
 local walks = {}
-
-local function record(name)
-    if not cached[name] then
-        cached[name] = SourceMaps.record("data/sourceSlice/" .. name .. ".json")
-    end
-    return cached[name]
-end
+local baseRoot <const> = "data/sourceSlice/"
 
 local function copy(value)
     if type(value) ~= "table" then return value end
@@ -23,81 +16,44 @@ local function copy(value)
     for key, item in pairs(value) do result[key] = copy(item) end
     return result
 end
-
-local function equal(a, b)
-    if type(a) ~= type(b) then
-        return false
-    end
-    if type(a) ~= "table" then
-        return a == b
-    end
-    for key, value in pairs(a) do
-        if not equal(value, b[key]) then
-            return false
-        end
-    end
-    for key in pairs(b) do
-        if a[key] == nil then
-            return false
-        end
-    end
-    return true
+local function recordIndex(root, recordName, field)
+    return SourceEvents._contentIndex(root).records[recordName][field]
 end
-
-local function immutableLookup(recordName, field, id, validationRecord)
-    local found = (validationRecord or record(recordName))[field][id]
-    for _, package in pairs(packages) do
-        local candidate = package[recordName][field][id]
-        assert(not found or not candidate or equal(found, candidate), "conflicting immutable source package record")
+local function immutableDigest(recordName, field, id)
+    local found = recordIndex(baseRoot, recordName, field)[id]
+    for _, root in pairs(packages) do
+        local candidate = recordIndex(root, recordName, field)[id]
+        assert(not found or not candidate or found == candidate, "conflicting immutable source package record")
         found = found or candidate
     end
     return found
 end
+local function immutableLookup(recordName, field, id)
+    return SourceEvents._contentRecord(immutableDigest(recordName, field, id))
+end
+local function catalog(recordName, field)
+    local result = {}
+    for id, digest in pairs(recordIndex(baseRoot, recordName, field)) do
+        result[id] = copy(SourceEvents._contentRecord(digest))
+    end
+    return result
+end
 
--- Adds immutable records to the existing source resolver. No second actor
--- resolver, geometry provider or scene registration is created.
+-- Generated indexes validate duplicate text/art by canonical record checksum.
+-- Only explicit registration activates a package; catalog presence does not.
 function CeruleanContent.registerPackage(name, root)
     assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
     assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
-    local package = {}
-    for _, recordName in ipairs({"dialogue", "sprites", "events", "trainers"}) do
-        package[recordName] = SourceMaps.record(root .. recordName .. ".json")
-        assert(package[recordName].schema == 1
-            and package[recordName].source_revision == "af519899719f0754965776faac0e836a3b906e6d",
-            "unverified source package record")
-    end
-    -- Validate duplicate text/art before publishing the package or rendering.
+    local index = SourceEvents._contentIndex(root)
     for recordName, field in pairs({dialogue="texts", sprites="sprites"}) do
-        local validationRecord = record(recordName)
-        for id, value in pairs(package[recordName][field]) do
-            local previous = immutableLookup(recordName, field, id, validationRecord)
-            assert(not previous or equal(previous, value), "conflicting immutable source package record")
-            if previous then
-                package[recordName][field][id] = previous
-            end
+        for id, digest in pairs(index.records[recordName][field]) do
+            local previous = immutableDigest(recordName, field, id)
+            assert(not previous or previous == digest, "conflicting immutable source package record")
         end
     end
-    local events = {}
-    for id, descriptor in pairs(package.events.events) do
-        events[id] = descriptor
-    end
-    for id, descriptor in pairs(package.events.signs) do
-        assert(not events[id], "duplicate source package event")
-        events[id] = descriptor
-    end
-    -- Script-selected rivals/leaders remain the scene owner's responsibility.
-    local trainers = {}
-    for id, descriptor in pairs(events) do
-        if descriptor.kind == "trainer" then
-            trainers[id] = assert(package.trainers.trainers[id], "source package roster missing")
-        end
-    end
+    SourceEvents._registerContent(name, index, {"events", "signs"}, index.ordinary_trainers)
     SourceEvents.registerTextSource(name, CeruleanContent.text)
-    SourceEvents.registerImmutableTrainerSource(name, trainers)
-    SourceEvents.registerImmutableEventSource(name, events)
-    -- Event/trainer records are now owned by their validated registrations.
-    -- Keep only the resources used by subsequent package lookups.
-    packages[name] = {dialogue = package.dialogue, sprites = package.sprites}
+    packages[name] = root
 end
 
 function CeruleanContent.text(label)
@@ -105,19 +61,19 @@ function CeruleanContent.text(label)
 end
 
 function CeruleanContent.trainers()
-    return copy(record("trainers").trainers)
+    return catalog("trainers", "trainers")
 end
 
 function CeruleanContent.rivalClasses()
-    return copy(record("trainers").rival_classes)
+    return catalog("trainers", "rival_classes")
 end
 
 function CeruleanContent.events()
-    return copy(record("events").events)
+    return catalog("events", "events")
 end
 
 function CeruleanContent.signs()
-    return copy(record("events").signs)
+    return catalog("events", "signs")
 end
 
 function CeruleanContent.sprite(source)
@@ -125,7 +81,7 @@ function CeruleanContent.sprite(source)
 end
 
 function CeruleanContent.key(source)
-    assert(immutableLookup("sprites", "sprites", source), "unknown Blue source actor")
+    assert(immutableDigest("sprites", "sprites", source), "unknown Blue source actor")
     return "cerulean_" .. source:lower()
 end
 
@@ -234,8 +190,8 @@ function CeruleanContent.install(metadataResolver)
     end
     actorMetadata = metadataResolver
     SourceEvents.registerTextSource(contentName, CeruleanContent.text)
-    SourceEvents.registerImmutableTrainerSource(contentName, record("trainers").trainers)
-    SourceEvents.registerImmutableEventSource(contentName, record("events").events)
+    local index = SourceEvents._contentIndex(baseRoot)
+    SourceEvents._registerContent(contentName, index, {"events"}, index.records.trainers.trainers)
     SourceActors.registerContent("source", {
         sprite = CeruleanContent.sprite,
         key = CeruleanContent.key,
@@ -246,21 +202,23 @@ function CeruleanContent.install(metadataResolver)
     installed = true
 end
 
--- Foundation candidate 9f3e37b accepts only object IDs in registerEventSource.
--- Root widens that validation to background_events before calling this method.
--- The separate name keeps ordinary installation usable until that API repair.
+-- Keep the established separate sign registration and content identity.
 function CeruleanContent.installSigns()
     if signsInstalled then return end
-    local signs = {}
-    for id, original in pairs(record("events").signs) do
-        local descriptor = {}
-        for key, value in pairs(original) do
-            descriptor[key] = value
-        end
-        descriptor.content = "cerulean-signs"
-        signs[id] = descriptor
-    end
+    local index = SourceEvents._contentIndex(baseRoot)
+    SourceEvents._registerContent("cerulean-signs", index, {"signs"}, nil, "cerulean-signs")
     SourceEvents.registerTextSource("cerulean-signs", CeruleanContent.text)
-    SourceEvents.registerImmutableEventSource("cerulean-signs", signs)
     signsInstalled = true
+end
+
+-- SourceEvents owns SDK registration scopes, including this adapter's lazy
+-- package membership and install guards. Nested/error scopes restore by reference.
+function CeruleanContent._registrationScope()
+    local oldPackages, oldInstalled, oldSigns, oldMetadata = packages, installed, signsInstalled, actorMetadata
+    local scoped = {}
+    for name, root in pairs(packages) do scoped[name] = root end
+    packages = scoped
+    return function()
+        packages, installed, signsInstalled, actorMetadata = oldPackages, oldInstalled, oldSigns, oldMetadata
+    end
 end

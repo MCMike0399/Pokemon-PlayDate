@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":42,"text":"Meteorite that"},{"op":"line","source_line":43,"text":"fell on MT.MOON."},{"op":"cont","source_line":44,"text":"(MOON STONE?)"},{"op":"control","source":"done","source_line":45}],"source":"text/Museum2F.asm"}

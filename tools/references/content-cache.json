@@ -1,0 +1,21 @@
+{
+  "inputs": {
+    "data/pewterSlice/trainerNames.json": "1e3733784c526d07460c2880bf1ed2f2dad1df348c3f93c3d7ba3c66c87f2e7f",
+    "data/pewterSlice/trainers.json": "65db8aba87ef485ff49af10b3ee7af3dfc8def867a792788bf3033d5253d6e41",
+    "data/sourceEvents.json": "3a2595132641b1b89149211e96ee2d241dc2e9030792499c56237b8a94aa1008",
+    "data/sourceSlice/dialogue.json": "0433bf79db8193f60a2dc52624df73d892a390d59e11ab5420d42dc101ffa44b",
+    "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
+    "data/sourceSlice/sprites.json": "36607f119763ce98a5a189a0725541e71e4c6f6dccebf815f9e8ec29f3f769b6",
+    "data/sourceSlice/trainers.json": "d57e41eaa26bc725236407d19d4c32c914dd3ed8ed47eb236504738761e9460e",
+    "data/vermilionPreparation/dialogue.json": "615d8cbaf52396596e949672a76dc37f2aaad3179d149aeb4b49359966e0042a",
+    "data/vermilionPreparation/events.json": "9cf06d2468f2ee7e79a1a2b9f175f4101074a636581b249598c51e6518cdd635",
+    "data/vermilionPreparation/sprites.json": "9c985fbd5b6fc73ef7bff457572702fa608d64531702bed1f001fdfa3737feb7",
+    "data/vermilionPreparation/trainers.json": "6ac1c6a49a3cf913f795660d95b2be9c8bce943e55984e36d38b107bc3fd6da3"
+  },
+  "packages": [
+    "data/sourceSlice/",
+    "data/vermilionPreparation/"
+  ],
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

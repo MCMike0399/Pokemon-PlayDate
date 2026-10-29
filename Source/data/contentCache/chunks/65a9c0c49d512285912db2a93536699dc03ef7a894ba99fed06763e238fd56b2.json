@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"Ouch! I tripped"},{"op":"line","source_line":3,"text":"over a rocky"},{"op":"cont","source_line":4,"text":"#MON, GEODUDE!"},{"op":"control","source":"done","source_line":5}],"source":"text/Route4.asm"}

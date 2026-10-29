@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":1765,"text":"Right! So your"},{"op":"line","source_line":1766,"text":"name is <PLAYER>!"},{"op":"control","source":"prompt","source_line":1767}],"source":"data/text/text_2.asm"}

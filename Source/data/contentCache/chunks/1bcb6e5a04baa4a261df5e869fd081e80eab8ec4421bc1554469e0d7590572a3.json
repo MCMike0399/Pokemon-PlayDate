@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text_ram","source_line":1176,"symbol":"wBattleMonNick"},{"op":"control","source":"text_start","source_line":1177},{"op":"line","source_line":1178,"text":"ignored orders!"},{"op":"control","source":"prompt","source_line":1179}],"source":"data/text/text_2.asm"}

@@ -1,0 +1,27 @@
+diff --git a/Source/game/ceruleanStory.lua b/Source/game/ceruleanStory.lua
+--- a/Source/game/ceruleanStory.lua
++++ b/Source/game/ceruleanStory.lua
+@@ -49,9 +49,9 @@
+     return copy(assert(record, "missing bespoke story text: " .. tostring(label)))
+ end
+ function CeruleanStory.registerTrainers()
+-    local existing, missing = SourceEvents.trainerDefinitions(), {}
++    local missing = {}
+     for id, expected in pairs(CeruleanStory.trainers()) do
+-        local actual = existing[id]
++        local actual = SourceEvents.trainerDefinition(id)
+         if actual then
+             assert(actual.map_id == expected.map_id and actual.sprite_source == expected.sprite_source
+                 and actual.payout == expected.payout and #actual.party == #expected.party,
+diff --git a/Source/game/ceruleanRoutes.lua b/Source/game/ceruleanRoutes.lua
+--- a/Source/game/ceruleanRoutes.lua
++++ b/Source/game/ceruleanRoutes.lua
+@@ -154,7 +154,7 @@
+     assert(not integration, "Blue route scripts already installed")
+     assert(options and type(options.reconcileActors) == "function", "root source actor reconciliation required")
+     integration = options
+-    assert(SourceEvents.trainerDefinitions()[THIEF] and SourceEvents.trainerDefinitions()[NUGGET],
++    assert(SourceEvents.trainerDefinition(THIEF) and SourceEvents.trainerDefinition(NUGGET),
+         "install imported ordinary Rocket teams first")
+     SourceEvents.registerTrainerSource(CONTENT, CeruleanRoutes.trainers)
+     local events = CeruleanRoutes.descriptors()

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":180,"text":"Thank you!"},{"op":"line","source_line":181,"text":"Your #MON are"},{"op":"cont","source_line":182,"text":"fighting fit!"},{"op":"control","source":"prompt","source_line":183}],"source":"data/text/text_4.asm"}

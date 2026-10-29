@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":38,"text":"Ahoy there!"},{"op":"line","source_line":39,"text":"Are you seasick?"},{"op":"control","source":"done","source_line":40}],"source":"text/SSAnneBow.asm"}

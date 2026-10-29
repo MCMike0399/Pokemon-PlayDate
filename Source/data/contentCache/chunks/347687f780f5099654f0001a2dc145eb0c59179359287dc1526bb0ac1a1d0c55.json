@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":8,"text":"Once a #MON"},{"op":"line","source_line":9,"text":"learns FLASH, you"},{"op":"cont","source_line":10,"text":"can get through"},{"op":"cont","source_line":11,"text":"ROCK TUNNEL."},{"op":"control","source":"done","source_line":12}],"source":"text/Route2Gate.asm"}

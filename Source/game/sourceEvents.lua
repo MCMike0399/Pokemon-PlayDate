@@ -3,37 +3,81 @@
 import "game/sourceEventHandlers"
 SourceEvents = {}
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
-local cached
-local eventSources = {}
-local mergedEvents
-local textSources, trainerSources = {}, {}
+local eventSources, trainerSources, textSources = {}, {}, {}
 local worldHooks, hookOrder = {}, {}
 local directions = { up = true, down = true, left = true, right = true }
+local catalog, base
+local contentIndexes = {}
+-- Only the last eight immutable records are owned by this cache. Eviction
+-- drops our reference; an active controller's descriptor remains valid.
+local recent, recentOrder = {}, {}
 local function copy(value)
     if type(value) ~= "table" then return value end
     local result = {}
     for key, item in pairs(value) do result[key] = copy(item) end
     return result
 end
-local function definitions()
-    if not cached then
-        local data = assert(json.decodeFile("data/sourceEvents.json"), "source event data missing")
-        assert(data.schema == 1 and data.source_revision == REVISION, "unverified source events")
-        cached = data.events
-    end
-    if mergedEvents then return mergedEvents end
+local function shallow(value)
     local result = {}
-    for id, descriptor in pairs(cached) do
-        result[id] = descriptor
+    for key, item in pairs(value) do result[key] = item end
+    return result
+end
+local function readIndex(name)
+    local data = assert(json.decodeFile("data/contentCache/" .. name .. ".json"), "content index missing")
+    assert(data.schema == 1 and data.source_revision == REVISION, "unverified content index")
+    return data
+end
+local function baseIndex()
+    if not base then base = readIndex("base") end
+    return base
+end
+-- Private immutable loader shared with CeruleanContent. Public getters copy.
+function SourceEvents._contentIndex(root)
+    if not contentIndexes[root] then
+        if not catalog then catalog = readIndex("catalog") end
+        contentIndexes[root] = readIndex(assert(catalog.packages[root], "unverified source package root"))
     end
-    for _, events in pairs(eventSources) do
-        for id, descriptor in pairs(events) do
-            assert(not result[id], "duplicate source event")
-            result[id] = descriptor
+    return contentIndexes[root]
+end
+function SourceEvents._contentRecord(digest)
+    if not digest then return nil end
+    local value = recent[digest]
+    for index, key in ipairs(recentOrder) do
+        if key == digest then
+            table.remove(recentOrder, index)
+            break
         end
     end
-    mergedEvents = result
-    return result
+    if not value then
+        value = assert(json.decodeFile("data/contentCache/chunks/" .. digest .. ".json"), "content chunk missing")
+    end
+    recent[digest] = value
+    recentOrder[#recentOrder + 1] = digest
+    if #recentOrder > 8 then recent[table.remove(recentOrder, 1)] = nil end
+    return value
+end
+local function resolve(source, id)
+    local value = source.records[id]
+    if source.lazy then value = SourceEvents._contentRecord(value) end
+    if value and source.content then
+        value = copy(value)
+        value.content = source.content
+    end
+    return value
+end
+local function eventExists(id)
+    if baseIndex().records.events.events[id] then return true end
+    for _, source in pairs(eventSources) do
+        if source.records[id] then return true end
+    end
+    return false
+end
+local function definition(id)
+    local digest = baseIndex().records.events.events[id]
+    if digest then return SourceEvents._contentRecord(digest) end
+    for _, source in pairs(eventSources) do
+        if source.records[id] then return resolve(source, id) end
+    end
 end
 local function dialog(labels, op)
     return { op = op or "dialog", labels = copy(labels) }
@@ -274,13 +318,20 @@ function SourceEvents.itemIDs()
         end
         for _, child in pairs(value) do visit(child) end
     end
-    visit(definitions())
+    for _, id in ipairs(baseIndex().items.events) do found[id] = true end
+    for _, source in pairs(eventSources) do
+        if source.lazy then
+            for _, id in ipairs(source.items) do found[id] = true end
+        else
+            visit(source.records)
+        end
+    end
     local ids = {}
     for id in pairs(found) do ids[#ids + 1] = id end
     table.sort(ids)
     return ids
 end
-function SourceEvents.descriptor(id) return copy(definitions()[id]) end
+function SourceEvents.descriptor(id) return copy(definition(id)) end
 -- Optional source metadata belongs to the actor's stable object descriptor.
 -- Scripts cannot supply an ad hoc placement exemption at execution time.
 function SourceEvents.validateActorPositions(id, positions)
@@ -302,29 +353,30 @@ function SourceEvents.actorPositions(id)
     if hooks and hooks.actorPositions then
         return SourceEvents.validateActorPositions(id, hooks.actorPositions(id))
     end
-    local descriptor = definitions()[id]
+    local descriptor = definition(id)
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_positions or {})
 end
 -- Player movement and autonomous wandering retain original collision.
 function SourceEvents.actorCollisionPositions(id)
-    local descriptor = definitions()[id]
+    local descriptor = definition(id)
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_collision_positions or {})
 end
 function SourceEvents.has(id, content)
-    local d = definitions()[id]
-    return d ~= nil and (content == nil or d.content == content)
+    if content == nil then return eventExists(id) end
+    local d = definition(id)
+    return d ~= nil and d.content == content
 end
 function SourceEvents.plan(id, state)
     assert(type(id) == "string" and SourceEvents.has(id), "unimplemented source event: " .. tostring(id))
-    return SourceEvents.compile(definitions()[id], state, id)
+    return SourceEvents.compile(definition(id), state, id)
 end
 function SourceEvents.isPickup(id)
-    local d = definitions()[id]
+    local d = definition(id)
     return d ~= nil and d.kind == "pickup"
 end
 function SourceEvents.pickupFlag(id)
     assert(SourceEvents.isPickup(id), "unknown source pickup")
-    return definitions()[id].flag
+    return definition(id).flag
 end
 -- New regions register immutable data resolvers, not per-event Lua handlers.
 function SourceEvents.registerTextSource(name, resolver)
@@ -334,7 +386,7 @@ function SourceEvents.registerTextSource(name, resolver)
     textSources[name] = resolver
 end
 function SourceEvents.pages(id, labels, ram)
-    local content = assert(definitions()[id]).content
+    local content = assert(definition(id)).content
     if content == "viridian" then return EventText.pages(labels) end
     local resolver = content == "pewter" and PewterSlice.text or textSources[content]
     return EventText.pagesFrom(labels, assert(resolver, "source text resolver missing"), ram)
@@ -352,17 +404,15 @@ end
 -- Install immutable event data separately from trainer rosters and text.
 local function registerEvents(name, events, readOnly)
     assert(type(name) == "string" and type(events) == "table" and not eventSources[name], "named event source required")
-    local current = definitions()
     for id, descriptor in pairs(events) do
         local stable = type(id) == "string" and (id:match("^pokered:[^:]+:objects:%d+$")
             or id:match("^pokered:[^:]+:background_events:%d+$")
             or id:match("^pokered:[^:]+:hidden_events:%d+$"))
         assert(stable
-            and not current[id] and type(descriptor) == "table" and descriptor.content == name,
+            and not eventExists(id) and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")
     end
-    eventSources[name] = readOnly and events or copy(events)
-    mergedEvents = nil
+    eventSources[name] = {records = readOnly and events or copy(events)}
 end
 
 function SourceEvents.registerEventSource(name, events)
@@ -376,10 +426,16 @@ end
 
 -- Scoped SDK content fixtures; restores registrations even on failed assertions.
 function SourceEvents._withSources(fn)
-    local oldEvents, oldTrainers, oldText, oldMerged = eventSources, trainerSources, textSources, mergedEvents
-    eventSources, trainerSources, textSources = copy(eventSources), copy(trainerSources), copy(textSources)
+    local oldEvents, oldTrainers, oldText = eventSources, trainerSources, textSources
+    local oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog = contentIndexes, recent, recentOrder, base, catalog
+    -- Registrations are replaced, never mutated. Do not deep-copy lazy indexes.
+    eventSources, trainerSources, textSources = shallow(eventSources), shallow(trainerSources), shallow(textSources)
+    contentIndexes, recent, recentOrder = shallow(contentIndexes), shallow(recent), copy(recentOrder)
+    local restoreContent = CeruleanContent and CeruleanContent._registrationScope()
     local ok, result = pcall(fn)
-    eventSources, trainerSources, textSources, mergedEvents = oldEvents, oldTrainers, oldText, oldMerged
+    if restoreContent then restoreContent() end
+    eventSources, trainerSources, textSources = oldEvents, oldTrainers, oldText
+    contentIndexes, recent, recentOrder, base, catalog = oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog
     if not ok then error(result, 0) end
     return result
 end
@@ -388,6 +444,10 @@ local function registerTrainers(name, definitions)
     assert(type(name) == "string" and type(definitions) == "table", "named trainer source required")
     assert(not trainerSources[name], "source trainer resolver replaced")
     for id, d in pairs(definitions) do
+        assert(not baseIndex().records.trainers.trainers[id], "duplicate source trainer")
+        for _, source in pairs(trainerSources) do
+            assert(not source.records[id], "duplicate source trainer")
+        end
         assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$") and d.id == id
             and d.map_id == "pokered:" .. id:match("^pokered:([^:]+):"), "stable source trainer identity required")
         assert(type(d.name) == "string" and type(d.sprite_source) == "string"
@@ -414,7 +474,7 @@ local function registerTrainers(name, definitions)
     end
     -- Resolve once at installation; later caller mutations cannot change saves
     -- or live encounters beneath their immutable definition identity.
-    trainerSources[name] = definitions
+    trainerSources[name] = {records = definitions}
 end
 function SourceEvents.registerTrainerSource(name, resolver)
     assert(type(name) == "string" and type(resolver) == "function", "named trainer source required")
@@ -426,64 +486,100 @@ function SourceEvents.registerImmutableTrainerSource(name, definitions)
     registerTrainers(name, definitions)
 end
 
--- Capture registration membership without copying every immutable roster.
--- Returned definitions are still private copies; later registrations do not
--- change a controller's captured lookup.
+-- Generated packages are validated against pinned inputs by the host generator.
+-- Registration checks membership using indexes; it never decodes descriptors.
+function SourceEvents._registerContent(name, index, fields, trainers, contentOverride)
+    assert(type(name) == "string" and not eventSources[name], "named event source required")
+    assert(not trainers or not trainerSources[name], "source trainer resolver replaced")
+    local records, items = {}, {}
+    for _, field in ipairs(fields) do
+        for _, content in ipairs(index.contents[field]) do
+            assert(content == name or contentOverride == name, "source content name differs")
+        end
+        for id, digest in pairs(index.records.events[field]) do
+            assert(not records[id] and not eventExists(id), "duplicate source event")
+            records[id] = digest
+        end
+        for _, item in ipairs(index.items[field]) do items[item] = true end
+    end
+    if trainers then
+        local current = baseIndex().records.trainers.trainers
+        for id in pairs(trainers) do
+            assert(not current[id], "duplicate source trainer")
+            for _, source in pairs(trainerSources) do
+                assert(not source.records[id], "duplicate source trainer")
+            end
+        end
+    end
+    local list = {}
+    for item in pairs(items) do list[#list + 1] = item end
+    eventSources[name] = {records = records, lazy = true, items = list, content = contentOverride}
+    if trainers then
+        trainerSources[name] = {records = trainers, lazy = true, flags = index.trainer_flags}
+    end
+end
+
+-- Captured membership is immutable. Only a requested roster is decoded/copied;
+-- later registrations and temporary SDK scopes do not alter this lookup.
 function SourceEvents.trainerLookup()
-    local index = PewterSlice.trainers()
-    for _, definitions in pairs(trainerSources) do
-        for id, definition in pairs(definitions) do
-            assert(not index[id] and definition.id == id, "duplicate or unstable source trainer")
-            index[id] = definition
+    local sources = {{records = baseIndex().records.trainers.trainers,
+        lazy = true, flags = baseIndex().trainer_flags}}
+    local membership = {}
+    for _, source in pairs(trainerSources) do sources[#sources + 1] = source end
+    for _, source in ipairs(sources) do
+        for id in pairs(source.records) do
+            assert(not membership[id], "duplicate or unstable source trainer")
+            membership[id] = source
         end
     end
     local function lookup(id)
-        return copy(index[id])
+        local source = membership[id]
+        return source and copy(resolve(source, id)) or nil
     end
     local function sourceID(flag)
-        if index[flag] then
-            return flag
-        end
-        for id, definition in pairs(index) do
-            if definition.source_flag == flag then
-                return id
+        if membership[flag] then return flag end
+        for id, source in pairs(membership) do
+            local sourceFlag
+            if source.lazy then
+                sourceFlag = source.flags[id]
+            else
+                sourceFlag = source.records[id].source_flag
             end
+            if sourceFlag == flag then return id end
         end
     end
     return lookup, sourceID
 end
 
 function SourceEvents.trainerDefinition(id)
-    local result = PewterSlice.trainer(id)
-    for _, definitions in pairs(trainerSources) do
-        local definition = definitions[id]
-        if definition then
-            assert(not result and definition.id == id, "duplicate or unstable source trainer")
-            result = copy(definition)
+    local result = SourceEvents._contentRecord(baseIndex().records.trainers.trainers[id])
+    for _, source in pairs(trainerSources) do
+        if source.records[id] then
+            assert(not result, "duplicate or unstable source trainer")
+            result = resolve(source, id)
         end
     end
-    return result
+    return copy(result)
 end
 
 function SourceEvents.trainerDefinitions()
-    local result = PewterSlice.trainers()
-    for _, definitions in pairs(trainerSources) do
-        for id, definition in pairs(definitions) do
-            assert(not result[id] and definition.id == id, "duplicate or unstable source trainer")
-            result[id] = copy(definition)
-        end
+    local lookup = SourceEvents.trainerLookup()
+    local result = {}
+    for id in pairs(baseIndex().records.trainers.trainers) do result[id] = lookup(id) end
+    for _, source in pairs(trainerSources) do
+        for id in pairs(source.records) do result[id] = lookup(id) end
     end
     return result
 end
 function SourceEvents.rewardPlan(id, state)
-    local d = definitions()[id]
+    local d = definition(id)
     if not d or not d.reward or not state.trainers[id] or state.flags[d.reward.flag] then return nil, "no-pending-tm-reward" end
     local expected, changes = reward(d.reward.item, d.reward.flag, state, id)
     return { expected = expected, changes = changes }
 end
 -- TrainerEvents calls this only inside its confirmed-victory transaction.
 function SourceEvents.victoryChanges(id, session, expected, changes)
-    local d = definitions()[id]
+    local d = definition(id)
     if not d or not d.victory then return end
     for trainerID, value in pairs(d.victory.trainers or {}) do
         expected.trainers[trainerID] = session:trainerDefeated(trainerID)
