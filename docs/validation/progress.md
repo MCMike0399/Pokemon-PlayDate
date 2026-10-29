@@ -46,89 +46,51 @@ Then accept 5.5a (Rock Tunnel/Lavender/Celadon/Erika/Hideout/Scope),
 5.5c (Saffron/Silph/Sabrina/Dojo/Fly), each on main with three chained earned saves.
 Only one starter covers optional content. Sets continue after a starter fails.
 
-## 3. Hardware result and remaining loading problem
+## 3. Current evidence and blockers
 
-Main `95fea99` completed the real hardware smoke in
-`evidence/p0-game-device-measurement-20261029-05` (build `3f89d85554a74258bb56b3ea2670bd5d`).
-Title, earned Continue, a verified save, doors, Cut and wild Diglett battle all ran.
-No new errorlog/crashlog appeared. Lua heap: **3.48 MiB live / 4.63 MiB sampled peak**.
-The save repair passed on device: the SDK had refused publication onto an existing
-inactive slot. SaveStore now keeps the latest opposite slot and verified candidate
-while replacing the inactive target. Seventeen SDK save cases and 64 event cases
-passed; both save reviews and the startup performance review were clear.
-Compile and all 54 protocol checks passed. No protected art or rendering changed.
+Main's game Source at `b4ef728` completed the hardware smoke: title, earned
+Continue, verified save, doors, Cut and wild battle, with no new error/crash logs.
+Latest measured build: `b295f7aebf024c1fbf2a6da618ff5ce3`,
+`evidence/p0-flat-atlas-hardware-20261029-01`. Live/peak Lua **3.48 / 4.85 MiB**;
+worst map load **2,662 ms**, battle start **19 ms**. Loading remains above ~1.5 s.
+Sampled walking on the earlier same-route smoke was typically 33 ms per frame,
+with no non-transition hitch over 300 ms. Source grids and protected pixels stay exact.
 
-Hardware battle start was **22 ms**. Across the sampled walking commands:
-Route2 median **33 ms**, p95 **34.35 ms**, worst **39.39 ms** (317 frames);
-Diglett's Cave median **33 ms**, p95 **106.16 ms**, worst **114.93 ms** (217 frames).
-These wall intervals include observer/display overhead; they are not a campaign-wide
-frame guarantee. See `hardware-summary.json` in the run. Device playability is
-not accepted yet: map loads were **4,789 / 1,337 / 1,705 ms**, above the ~1.5 s target.
-The player has not yet tried a normal production build.
+Flat atlases passed 16 SDK world cases, one review and all **497,664 native
+pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
+Compile and 54 protocol checks pass. Cold per-image files and duplicate-validation
+fast paths were rejected after actual device comparisons. No universal guessed
+factor blocks deployment; safety is the completed 16 MB route, <=9 MiB sampled
+peak, <=150 ms Simulator slices and active crash guards.
 
-Measured Route2 load costs, including cooperative waits: view **1,995 ms**,
-Zone construction **1,163 ms**, field preparation **373 ms**, definition **268 ms**,
-field reload **245 ms**. Raw phase/active segments are in `hardware-phase-spans.json`.
-The provisional 35.11 estimate no longer blocks deployment or establishes acceptance.
-Actual phase ratios will replace it; wall spans containing waits are not CPU ratios.
+The user's guarded build `2e450cd96ab54b5f875037322671c917` passed the full hardware
+smoke and is now at title with physical controls restored. Handoff:
+`evidence/p0-user-play-handoff-20261029-01/handoff.json`.
+User feedback was requested once. **Do not send device inputs or reinstall while
+the user is trying it.** This is a guarded test build, not a production release.
+The one-way test-only `manual` command restores SDK buttons and refuses later
+serial inputs; production contains no test module or command handler.
 
-SDK 3.1.2 does not expose `debug.sethook`: the attempted sampling build stopped
-with that explicit error (`evidence/p0-sampled-load-20261029-01`). Native Sampler
-UI automation is unavailable because Accessibility permission is false. Do not
-claim a sampling profile. Device phase timing is available and ranks view work first.
-Removed unused SDK wall sprites on main; production Player and the updated
-rollback case use the Zone collision grid. The hardware smoke passed again in
-`evidence/p0-no-wall-hardware-20261029-01`: map load **4,284 ms** (505 ms faster),
-battle start **19 ms**, live/peak Lua **3.47 / 4.56 MiB**, no new error/crash logs.
-All 17 SDK world/rollback cases passed. An image-wrapper identity assertion was
-corrected to compare actual pixels; no animation behavior changed.
+The paired 16 MB heap probe passed on 65 maps: title **5.01 MiB**, Continue
+**5.09 MiB**. Private 108-map `fe8d49c` still stopped at **6.04 MiB** title live
+(after releasing 90 KiB of preview session data; originally 6.13 MiB). Its Continue
+was not measured. Candidate `e022538e` releases complete content-package indexes
+and loads field indexes on demand. One review and existing host/build checks pass;
+Root is measuring it in `evidence/p0-checkpoint-a-field-index-heap-20261029-01`.
+No budget increase or unfreezing is authorized by these preparation results.
 
 ## 4. Work in flight
 
-Root owns main, Simulator and hardware. Hardware memory/boot/save are now proven;
-loading speed remains the P0 blocker. Use the new safety admission (9 MiB peak,
-150 ms Simulator slice, active crash guards), not guessed-factor performance gates.
-The hardware crash guard is 5 s, below the 10 s watchdog. Hard crashes still stop
-attempts and require one A press; none occurred in these guarded game attempts.
+Root owns main, Simulator and hardware. Current priority: the 108-map heap result
+and user play feedback. Simulator work may continue with closed serial readers;
+do not disturb the user's physical session. The 5 s crash guard remains below
+the 10 s watchdog. Hard crashes stop automatic hardware attempts.
 
-The wall-rectangle experiment remains excluded after no useful Simulator gain.
-Its replacement removes unused SDK wall sprites, keeping collision in Zone.
-Compiled terrain was retested on hardware and stays off main: worst map load
-worsened from **4,789 to 6,262 ms**, with a complete smoke and no new crash logs.
-See `evidence/p0-device-terrain-decision-20261029.json`. Removing unused wall
-sprites is now on main after a clear review, SDK checks and the hardware gain.
-The device method profile completed without errors in
-`evidence/p0-device-method-profile-hardware-20261029-01`. Route2 costs: registry
-preparation 622 ms and binding specs 538 ms (inclusive, containing yields), trace
-writes 393 ms, terrain rendering 391 ms, loading drawing 168 ms, GC steps 2.5 ms.
-Do not sum inclusive costs or label them CPU samples. Leave GC unchanged.
-Main `4da7f65` avoids full map copies for a connection Boolean and uses a 24 ms
-device loading-work threshold; Simulator stays at 8 ms. Hardware smoke passed in
-`evidence/p0-load-slices-hardware-20261029-01`: **2,851 ms** worst map load,
-**19 ms** battle start, **3.47 / 4.85 MiB** live/peak, no new crash logs.
-All 36 SDK cases, the one review, production compile and 54 protocol checks pass.
-The duplicate-validation candidate did not help (2,924 ms) and stays off main.
-The old assumption that Viridian tiles were preloaded was wrong after lazy startup.
-Flat PDT atlas candidate `015ccfc` passed 16 SDK world cases, one review and a
-native check of all **497,664 pixels across 486 keys**, fresh-image isolation,
-actual compiled-path use and two-slot eviction. No protected pixels changed.
-Regeneration uses current grids and the unchanged qualified formula, without an
-unmerged Git dependency. The exact safe build is now measuring on hardware;
-the hardware smoke passed with **2,662 ms** worst map load and no new crash logs
-(`evidence/p0-flat-atlas-hardware-20261029-01`). Atlases are now on main.
-
-The paired 16 MB heap probe passed on main's 65-map build: title **5.01 MiB**,
-earned Continue **5.09 MiB**. Private 108-map candidate `fe8d49c` stops at the
-title's 6 MiB live guard: **6.04 MiB** after replacing its full decoded preview
-session with display numbers (90 KiB released; original title was 6.13 MiB).
-Continue has not been measured on that candidate. Root will reduce retained
-108-map data rather than raise the limit. Runs: `p0-main65-root-heap-20261029-01`,
-`p0-checkpoint-a-root-heap-20261029-01`, `p0-checkpoint-a-title-preview-20261029-01`.
-All are under evidence/. No new region or private A code is accepted on main. Actual phase ratios are in the no-wall run’s
-`device-simulator-phase-ratios.json`; they are not one universal CPU factor.
-`wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
-current P0 code and verify that its 16 MB heap stays close to the 65-map result.
-Root audio, cleanup and Safari polish remain paused. No new regions are on main.
+Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
+regenerated binary cells/content indexes and flat atlases. It remains separate
+from main and the original frozen branch. Source maps on main remain 65.
+After memory and user-play gates, finish 5.5a's three chained earned journeys.
+Root audio, cleanup and Safari polish remain paused. No push without a request.
 
 ## 5. Decisions and history
 
