@@ -356,7 +356,7 @@ class SmokeCycleTests(unittest.TestCase):
         cycle = device.Cycle(SimpleNamespace(output=str(self.root / 'cycle'), volume=str(self.root / 'volume')))
         cycle.serial = '/host-fixture'
         cycle.smoke_build, cycle.smoke_report = self.build, self.report
-        with patch.object(device, 'simulator_usb_preflight'), patch.object(device.os, 'open', return_value=123), patch.object(device.os, 'close') as close, patch.object(device.SmokeSerial, 'command', side_effect=[{'ready': False}, {'ready': True}, {}, {}, {}]) as command:
+        with patch.object(device, 'simulator_usb_preflight'), patch.object(device.os, 'open', return_value=123), patch.object(device.os, 'close') as close, patch.object(device.SmokeSerial, 'read', return_value=[{'seq': 0, 'status': 'ready'}]), patch.object(device.SmokeSerial, 'command', side_effect=[{'ready': False}, {'ready': True}, {}, {}, {}]) as command:
             cycle.wait_smoke(device.time.monotonic() + 2)
         self.assertEqual([row.args[0] for row in command.call_args_list], ['state', 'state', *self.bodies, 'state'])
         close.assert_called_once_with(123)
@@ -375,7 +375,7 @@ class SmokeCycleTests(unittest.TestCase):
         cycle = device.Cycle(args)
         cycle.serial = '/host-fixture'
         cycle.smoke_build, cycle.smoke_report = self.build, self.report
-        with patch.object(device, 'simulator_usb_preflight'), patch.object(device.os, 'open', return_value=123), patch.object(device.os, 'close') as close, patch.object(device.SmokeSerial, 'command', side_effect=TimeoutError('uncertain')):
+        with patch.object(device, 'simulator_usb_preflight'), patch.object(device.os, 'open', return_value=123), patch.object(device.os, 'close') as close, patch.object(device.SmokeSerial, 'read', return_value=[{'seq': 0, 'status': 'ready'}]), patch.object(device.SmokeSerial, 'command', side_effect=TimeoutError('uncertain')):
             with self.assertRaises(TimeoutError):
                 cycle.wait_smoke(device.time.monotonic() + 1)
             close.assert_called_once_with(123)

@@ -417,6 +417,14 @@ class Cycle:
         transport = SmokeSerial(self, descriptor, self.smoke_build['build_id'], deadline)
         self.smoke_transport = transport
         try:
+            # A command sent while the application imports has no callback yet.
+            # Wait for this build's module announcement (or its later trace
+            # header) before sending the first read-only readiness command.
+            installed = False
+            while not installed:
+                rows = transport.read()
+                installed = transport.trace_identity or any(
+                    row.get('seq') == 0 and row.get('status') == 'ready' for row in rows)
             while transport.command('state').get('ready') is not True:
                 time.sleep(min(0.05, max(0, deadline - time.monotonic())))
             for body in self.smoke_report['commands']:

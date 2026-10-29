@@ -7,6 +7,9 @@ attempt. The exact 16 MB run must complete title, earned Continue, save and its
 whole recorded input route without runtime errors. Raw evidence is rechecked;
 peak Lua heap must be <=9 MiB and the longest uninterrupted slice <=150 ms.
 Frame and map estimates based on the provisional factor do not block this mode.
+The private build keeps a 5 s slice crash guard, below the 10 s watchdog; this
+is a safety ceiling, not a playability target. Serial input waits for the module
+announcement or matching trace header before its first readiness command.
 An old failed performance report remains failed; it is never relabeled as an
 acceptance pass. Instrumented builds may measure, but acceptance is separate.
 
