@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for P0 device boot.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **11.40 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **12.20 h**; hardware pace: **0 maps/day**.
 
 ## 1. Accepted game and current main
 
