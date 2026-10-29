@@ -149,6 +149,35 @@ function SaveContracts.run()
         local ok=store:save(payload(3)); eq(ok,false); unchanged(paths,before)
         assert(store:recover("published")); data=assert(store:load()); eq(data.revision,1)
     end)
+    test("published saves rotate when the filesystem refuses rename over an existing slot", function()
+        local rejectPublication = false
+        local adapter = wrapped({rename = function(from, to)
+            if playdate.file.exists(to) or rejectPublication and from:match("%.candidate%.json$") then
+                return false, "destination-exists-or-interrupted"
+            end
+            return fs.rename(from, to)
+        end})
+        adapter.remove = function(path)
+            return playdate.file.delete(path)
+        end
+        local store, paths = fixture("no-overwrite", adapter)
+        assert(store:save(payload(1)))
+        assert(store:save(payload(2)))
+        assert(store:save(payload(3)))
+        local data = assert(store:load())
+        eq(data.revision, 3)
+        local newest = assert(fs.read(paths.a))
+        rejectPublication = true
+        local accepted = store:save(payload(4))
+        eq(accepted, false)
+        eq(fs.read(paths.a), newest)
+        data = assert(store:load())
+        eq(data.revision, 3)
+        rejectPublication = false
+        assert(store:recover("candidate"))
+        data = assert(store:load())
+        eq(data.revision, 4)
+    end)
     test("short write and candidate verification failures retain committed bytes",function()
         for _,kind in ipairs({"short","corrupt","throw"}) do
             local base,paths,prefix=fixture("write-"..kind)

@@ -88,6 +88,9 @@ function SaveStore.sdkFilesystem()
         end,
         list=type(sdkFile.listFiles)=="function" and function(path) return sdkFile.listFiles(path) end or nil,
         rename=function(from,to) return sdkFile.rename(from,to) end,
+        remove = function(path)
+            return sdkFile.delete(path)
+        end,
     }
 end
 local function call(fs,op,...)
@@ -213,6 +216,32 @@ function SaveStore:_envelope(data,sequence)
     if not ok or type(bytes)~="string" or #bytes>SaveStore.MAX_FILE then return nil,tostring(bytes) end
     return bytes
 end
+-- FAT filesystems may refuse rename over an existing file. The caller has
+-- verified the complete candidate and selected an inactive slot (or archived
+-- the prior files for explicit recovery/replacement). The newest published
+-- slot and the candidate survive if removal or the second rename fails.
+function SaveStore:_promoteCandidate(target, bytes)
+    local destination = self._paths[target]
+    local accepted, problem = call(self._fs, "rename", self._paths.candidate, destination)
+    if accepted == true or type(self._fs.remove) ~= "function" then
+        return accepted, problem
+    end
+    -- A fault adapter may report failure after a successful rename. Never
+    -- remove the newly published file when the candidate has already moved.
+    if call(self._fs, "read", self._paths.candidate) ~= bytes then
+        return accepted, problem
+    end
+    local previous = call(self._fs, "read", destination)
+    if previous == nil then
+        return accepted, problem
+    end
+    local removed, removalProblem = call(self._fs, "remove", destination)
+    if removed ~= true then
+        return false, removalProblem
+    end
+    return call(self._fs, "rename", self._paths.candidate, destination)
+end
+
 function SaveStore:_publish(bytes,target,sequence)
     local ok,err=call(self._fs,"write",self._paths.candidate,bytes)
     if ok~=true then return false,{reason="candidate-write-failed",error=err} end
@@ -220,7 +249,7 @@ function SaveStore:_publish(bytes,target,sequence)
     if verified.state~="valid" or verified.sequence~=sequence then return false,{reason="candidate-verification-failed",error=verified.error} end
     local exact=call(self._fs,"read",self._paths.candidate)
     if exact~=bytes then return false,{reason="candidate-bytes-differ"} end
-    ok,err=call(self._fs,"rename",self._paths.candidate,self._paths[target])
+    ok,err=self:_promoteCandidate(target, bytes)
     if ok~=true then return false,{reason="publication-failed",error=err,recoverableCandidate=true} end
     local published=self:_read(self._paths[target])
     if published.state~="valid" or published.sequence~=sequence then return false,{reason="published-verification-failed",error=published.error} end
@@ -262,7 +291,7 @@ function SaveStore:recover(source)
         if not snapshot then return false,{reason="archive-read-failed",error=problem} end
         local archived,archiveMetadata=self:_archive(snapshot,selected.bytes,target,"recovery")
         if not archived then return false,archiveMetadata end
-        local ok,err=call(self._fs,"rename",self._paths.candidate,self._paths[target])
+        local ok,err=self:_promoteCandidate(target, selected.bytes)
         if ok~=true then return false,{reason="recovery-publication-failed",error=err} end
         local verified=self:_read(self._paths[target])
         if verified.state~="valid" or verified.sequence~=selected.sequence or verified.payload~=selected.payload then
