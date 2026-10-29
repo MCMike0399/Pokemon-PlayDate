@@ -7,7 +7,13 @@ local eventSources, trainerSources, textSources = {}, {}, {}
 local worldHooks, hookOrder = {}, {}
 local directions = { up = true, down = true, left = true, right = true }
 local catalog, base
-local contentIndexes = {}
+-- Registration keeps only event/trainer membership. The full package index
+-- also contains every dialogue/art digest and must not pin those at title.
+local function weakValues()
+    return setmetatable({}, {__mode = "v"})
+end
+local contentIndexes = weakValues()
+local contentFields = weakValues()
 -- Only the last eight immutable records are owned by this cache. Eviction
 -- drops our reference; an active controller's descriptor remains valid.
 local recent, recentOrder = {}, {}
@@ -39,15 +45,29 @@ local function baseIndex()
     end
     return base
 end
--- Private immutable loader shared with CeruleanContent. Public getters copy.
-function SourceEvents._contentIndex(root)
-    if not contentIndexes[root] then
-        if not catalog then
-            catalog = readIndex("catalog")
-        end
-        contentIndexes[root] = readIndex(assert(catalog.packages[root], "unverified source package root"))
+local function packageName(root)
+    if not catalog then
+        catalog = readIndex("catalog")
     end
-    return contentIndexes[root]
+    return assert(catalog.packages[root], "unverified source package root")
+end
+-- Private immutable loaders shared with CeruleanContent. Public getters copy.
+function SourceEvents._contentIndex(root)
+    local value = contentIndexes[root]
+    if not value then
+        value = readIndex(packageName(root))
+        contentIndexes[root] = value
+    end
+    return value
+end
+function SourceEvents._contentField(root, record, field)
+    local name = packageName(root) .. "-" .. record .. "-" .. field
+    local value = contentFields[name]
+    if not value then
+        value = readIndex(name).records
+        contentFields[name] = value
+    end
+    return value
 end
 function SourceEvents._contentRecord(digest)
     if not digest then
@@ -507,9 +527,12 @@ end
 function SourceEvents._withSources(fn)
     local oldEvents, oldTrainers, oldText = eventSources, trainerSources, textSources
     local oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog = contentIndexes, recent, recentOrder, base, catalog
+    local oldFields = contentFields
     -- Registrations are replaced, never mutated. Do not deep-copy lazy indexes.
     eventSources, trainerSources, textSources = shallow(eventSources), shallow(trainerSources), shallow(textSources)
-    contentIndexes, recent, recentOrder = shallow(contentIndexes), shallow(recent), copy(recentOrder)
+    contentIndexes = setmetatable(shallow(contentIndexes), {__mode = "v"})
+    contentFields = setmetatable(shallow(contentFields), {__mode = "v"})
+    recent, recentOrder = shallow(recent), copy(recentOrder)
     local restoreContent = CeruleanContent and CeruleanContent._registrationScope()
     local ok, result = pcall(fn)
     if restoreContent then
@@ -517,6 +540,7 @@ function SourceEvents._withSources(fn)
     end
     eventSources, trainerSources, textSources = oldEvents, oldTrainers, oldText
     contentIndexes, recent, recentOrder, base, catalog = oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog
+    contentFields = oldFields
     if not ok then
         error(result, 0)
     end

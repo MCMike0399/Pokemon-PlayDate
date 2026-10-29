@@ -21,7 +21,7 @@ local function copy(value)
     return result
 end
 local function recordIndex(root, recordName, field)
-    return SourceEvents._contentIndex(root).records[recordName][field]
+    return SourceEvents._contentField(root, recordName, field)
 end
 local function immutableDigest(recordName, field, id)
     local found = recordIndex(baseRoot, recordName, field)[id]

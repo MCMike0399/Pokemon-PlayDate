@@ -91,6 +91,12 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
         data['bespoke_trainers'] = {key: digest for key, digest in data['records'].get('trainers', {}).get('trainers', {}).items()
                                     if records.get('events', {}).get('events', {}).get(key, {}).get('kind') == 'bespoke'}
         files[name + '.json'] = canonical(data)
+        # Registration uses the complete index transiently. Runtime lookups
+        # need one field, without decoding all dialogue/art/membership again.
+        for record, fields in data['records'].items():
+            for field, values in fields.items():
+                files[f'{name}-{record}-{field}.json'] = canonical(dict(
+                    schema=1, source_revision=REVISION, records=values))
 
     events = read('data/sourceEvents.json')['events']
     trainer_meta = read('data/pewterSlice/trainerNames.json')
