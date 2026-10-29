@@ -22,7 +22,8 @@
     "Route9",
     "Route10",
     "CeladonCity",
-    "LavenderTown"
+    "LavenderTown",
+    "CeladonGym"
   ],
   "pokered": {
     "engine/overworld/cut.asm": "9062c09d8a39fc0be5abccc6cd35ac422e18c9ab477464d9c91b8316bea57693",
@@ -88,7 +89,9 @@
     "data/maps/headers/CeladonCity.asm": "ca78a438281c4cc9556ef448bf1ca8e3d6c5a7e59a90c9de13b73e094b0ece6d",
     "maps/CeladonCity.blk": "ab2e5139c31c1962e8e391ccd11843d0fb9008c6d39c7398ba79044e5b6403c6",
     "data/maps/headers/LavenderTown.asm": "924a5eeb50c0d1d8f4570be3632f202890c60db62b69a890e978a345a5773b24",
-    "maps/LavenderTown.blk": "dcee65f0f3da941d086f4039dcfa7f69dc915fd7204cd1ed9cdacff1b1741cbd"
+    "maps/LavenderTown.blk": "dcee65f0f3da941d086f4039dcfa7f69dc915fd7204cd1ed9cdacff1b1741cbd",
+    "data/maps/headers/CeladonGym.asm": "1202ee2c0f43f921c0a1653fd62d051276b86dfdcf385ffb29354806e33ec05c",
+    "maps/CeladonGym.blk": "a60417fabc754fd4141d1a3791c57bb1f87c7bbb43dc666c5364f4775dc7f928"
   },
   "showdown": {
     "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",

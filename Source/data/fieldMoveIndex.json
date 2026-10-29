@@ -8,6 +8,10 @@
       "name": "CeladonCity",
       "path": "data/fieldMoveMaps/CeladonCity.json"
     },
+    "pokered:CELADON_GYM": {
+      "name": "CeladonGym",
+      "path": "data/fieldMoveMaps/CeladonGym.json"
+    },
     "pokered:CERULEAN_CITY": {
       "name": "CeruleanCity",
       "path": "data/fieldMoveMaps/CeruleanCity.json"

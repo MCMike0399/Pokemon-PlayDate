@@ -909,6 +909,130 @@
       "tileset": "OVERWORLD",
       "width": 50
     },
+    "pokered:CELADON_GYM": {
+      "grass_sites": [],
+      "height": 18,
+      "layout_sha256": "a60417fabc754fd4141d1a3791c57bb1f87c7bbb43dc666c5364f4775dc7f928",
+      "name": "CeladonGym",
+      "sites": [
+        {
+          "block": 60,
+          "cells": [
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:40-41-50-51",
+              "x": 2,
+              "y": 4
+            },
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:2b-2b-2b-2b",
+              "x": 3,
+              "y": 4
+            },
+            {
+              "after": "pokered:GYM:cell:2c-2d-2e-2f",
+              "before": "pokered:GYM:cell:2c-2d-2e-2f",
+              "x": 2,
+              "y": 5
+            },
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:2b-2b-2b-2b",
+              "x": 3,
+              "y": 5
+            }
+          ],
+          "replacement": 53,
+          "targets": [
+            {
+              "x": 2,
+              "y": 4
+            }
+          ],
+          "x": 2,
+          "y": 4
+        },
+        {
+          "block": 61,
+          "cells": [
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:2b-2b-2b-2b",
+              "x": 6,
+              "y": 4
+            },
+            {
+              "after": "pokered:GYM:cell:2c-2d-2e-2f",
+              "before": "pokered:GYM:cell:2c-2d-2e-2f",
+              "x": 7,
+              "y": 4
+            },
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:2b-2b-2b-2b",
+              "x": 6,
+              "y": 5
+            },
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:40-41-50-51",
+              "x": 7,
+              "y": 5
+            }
+          ],
+          "replacement": 54,
+          "targets": [
+            {
+              "x": 7,
+              "y": 5
+            }
+          ],
+          "x": 6,
+          "y": 4
+        },
+        {
+          "block": 63,
+          "cells": [
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:2b-2b-2b-2b",
+              "x": 4,
+              "y": 6
+            },
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:2b-2b-2b-2b",
+              "x": 5,
+              "y": 6
+            },
+            {
+              "after": "pokered:GYM:cell:2c-2d-2e-2f",
+              "before": "pokered:GYM:cell:2c-2d-2e-2f",
+              "x": 4,
+              "y": 7
+            },
+            {
+              "after": "pokered:GYM:cell:2b-2b-2b-2b",
+              "before": "pokered:GYM:cell:40-41-50-51",
+              "x": 5,
+              "y": 7
+            }
+          ],
+          "replacement": 53,
+          "targets": [
+            {
+              "x": 5,
+              "y": 7
+            }
+          ],
+          "x": 4,
+          "y": 6
+        }
+      ],
+      "tileset": "GYM",
+      "width": 10
+    },
     "pokered:CERULEAN_CITY": {
       "grass_sites": [],
       "height": 36,
@@ -16781,6 +16905,96 @@
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "tiles": {
+    "pokered:GYM:cell:2b-2b-2b-2b": {
+      "collision": 0,
+      "grid": [
+        "2.1.2.2.2.1.2.2.",
+        "...1.2.2...1.2.2",
+        "....1.......1...",
+        ".1.1...2.1.1...2",
+        "2.1.2.2.2.1.2.2.",
+        "...2.1.....2.1..",
+        "2.1.2...2.1.2...",
+        ".2.2...2.2.2...2",
+        "2.1.2.2.2.1.2.2.",
+        "...1.2.2...1.2.2",
+        "....1.......1...",
+        ".1.1...2.1.1...2",
+        "2.1.2.2.2.1.2.2.",
+        "...2.1.....2.1..",
+        "2.1.2...2.1.2...",
+        ".2.2...2.2.2...2"
+      ],
+      "key": "pokered:GYM:cell:2b-2b-2b-2b",
+      "terrain": {
+        "counter": false,
+        "foot_tile": 43,
+        "grass": false,
+        "land_passable": true,
+        "warp_tile": false,
+        "water_candidate": false
+      }
+    },
+    "pokered:GYM:cell:2c-2d-2e-2f": {
+      "collision": 1,
+      "grid": [
+        "1.1.1.###.1.1.1.",
+        ".1.###.1.###.1.1",
+        "12#1#11.1.#2#.1.",
+        ".1#111.1.121#1.1",
+        "1#1#2#1.121#2#1.",
+        ".#21#12#2#222#.1",
+        "1##2121212#2##2.",
+        "#121212#2#2#2##1",
+        "##2222#2#2#2#2#.",
+        "#2##22222#2#22#1",
+        "2##2#2#2#2#2##1.",
+        ".#2#2###2###2#.1",
+        "1.###2#######21.",
+        ".12####22###21.1",
+        "1.122#2112#22.2.",
+        ".1.122####22.1.1"
+      ],
+      "key": "pokered:GYM:cell:2c-2d-2e-2f",
+      "terrain": {
+        "counter": false,
+        "foot_tile": 46,
+        "grass": false,
+        "land_passable": false,
+        "warp_tile": false,
+        "water_candidate": false
+      }
+    },
+    "pokered:GYM:cell:40-41-50-51": {
+      "collision": 1,
+      "grid": [
+        "1.1.1.1.1.#.#.1.",
+        ".1.2.2.1##2#2#.1",
+        "12#.#.2.#2#222#.",
+        ".#2#2#.12#2#2#2#",
+        "#22222#.#####2#.",
+        ".#2#2###2#2#2#.1",
+        "###2####1##2##2.",
+        ".#2###2#121##1.1",
+        "1.#.##2222#.1.1.",
+        ".1.2.2#22#.1.1.1",
+        "121.1.#.1#1.1.1.",
+        ".1.1.1#.1#.1.1.1",
+        "1.1.2#.1.1#21.1.",
+        ".1.1#21.112#21.1",
+        "1.1.2##22##21.2.",
+        ".1.1.22##221.1.1"
+      ],
+      "key": "pokered:GYM:cell:40-41-50-51",
+      "terrain": {
+        "counter": false,
+        "foot_tile": 80,
+        "grass": false,
+        "land_passable": false,
+        "warp_tile": false,
+        "water_candidate": false
+      }
+    },
     "pokered:OVERWORLD:cell:2c-2c-2c-2c": {
       "collision": 0,
       "grid": [

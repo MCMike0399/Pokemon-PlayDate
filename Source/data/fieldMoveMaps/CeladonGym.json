@@ -1,0 +1,129 @@
+{
+  "id": "pokered:CELADON_GYM",
+  "record": {
+    "grass_sites": [],
+    "height": 18,
+    "layout_sha256": "a60417fabc754fd4141d1a3791c57bb1f87c7bbb43dc666c5364f4775dc7f928",
+    "name": "CeladonGym",
+    "sites": [
+      {
+        "block": 60,
+        "cells": [
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:40-41-50-51",
+            "x": 2,
+            "y": 4
+          },
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:2b-2b-2b-2b",
+            "x": 3,
+            "y": 4
+          },
+          {
+            "after": "pokered:GYM:cell:2c-2d-2e-2f",
+            "before": "pokered:GYM:cell:2c-2d-2e-2f",
+            "x": 2,
+            "y": 5
+          },
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:2b-2b-2b-2b",
+            "x": 3,
+            "y": 5
+          }
+        ],
+        "replacement": 53,
+        "targets": [
+          {
+            "x": 2,
+            "y": 4
+          }
+        ],
+        "x": 2,
+        "y": 4
+      },
+      {
+        "block": 61,
+        "cells": [
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:2b-2b-2b-2b",
+            "x": 6,
+            "y": 4
+          },
+          {
+            "after": "pokered:GYM:cell:2c-2d-2e-2f",
+            "before": "pokered:GYM:cell:2c-2d-2e-2f",
+            "x": 7,
+            "y": 4
+          },
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:2b-2b-2b-2b",
+            "x": 6,
+            "y": 5
+          },
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:40-41-50-51",
+            "x": 7,
+            "y": 5
+          }
+        ],
+        "replacement": 54,
+        "targets": [
+          {
+            "x": 7,
+            "y": 5
+          }
+        ],
+        "x": 6,
+        "y": 4
+      },
+      {
+        "block": 63,
+        "cells": [
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:2b-2b-2b-2b",
+            "x": 4,
+            "y": 6
+          },
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:2b-2b-2b-2b",
+            "x": 5,
+            "y": 6
+          },
+          {
+            "after": "pokered:GYM:cell:2c-2d-2e-2f",
+            "before": "pokered:GYM:cell:2c-2d-2e-2f",
+            "x": 4,
+            "y": 7
+          },
+          {
+            "after": "pokered:GYM:cell:2b-2b-2b-2b",
+            "before": "pokered:GYM:cell:40-41-50-51",
+            "x": 5,
+            "y": 7
+          }
+        ],
+        "replacement": 53,
+        "targets": [
+          {
+            "x": 5,
+            "y": 7
+          }
+        ],
+        "x": 4,
+        "y": 6
+      }
+    ],
+    "tileset": "GYM",
+    "width": 10
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
