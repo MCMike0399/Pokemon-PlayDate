@@ -673,6 +673,9 @@ class MidgameJourney(vj.VermilionJourney):
             raise ProtocolError('actual leader/badge/TM reward missing: ' + stable)
         self.completed_steps.add(constant.lower())
         self.checkpoint(constant.lower() + '-badge-and-' + tm)
+        if constant == 'CELADON_GYM':
+            # Leaving the Gym begins a new city visit and restores its tree.
+            self.field_cut(cut, 'CeladonCity', (35, 32))
         self.travel(self.zone(center))
         self.heal_here(center)
         self.save()
