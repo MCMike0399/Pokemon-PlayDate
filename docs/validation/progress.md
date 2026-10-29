@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **15.89 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **17.52 h**; hardware pace: **0 maps/day**.
 
 ## 1. Accepted game and current main
 
@@ -114,6 +114,14 @@ stale coverage fingerprint, no skips**. The inventory snapshot is now refreshed
 privately (`808ec87`), retaining every row/evidence facet; its four checks pass.
 Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
+Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
+outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
+Erika is reachable in the source collision model only after Cut. Native pending.
+The preceding 108-map fade build also passed the 16 MB production probe:
+**5.615 MiB title / 5.778 MiB Continue / 6.793 MiB phase peak**. Its real-input
+smoke peaked at **7.294 MiB**, max slice **45.40 ms**; hardware unmeasured.
+Evidence: `evidence/p0-checkpoint-a-current-p0-resources-20261029-01` and
+`evidence/p0-checkpoint-a-current-p0-smoke-20261029-01`.
 
 ## 5. Decisions and history
 
