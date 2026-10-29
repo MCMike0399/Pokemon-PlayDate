@@ -90,9 +90,12 @@ this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
 branch is preserved. Three chained 5.5a journeys are running in the background
-on `e022538e`, with Charmander covering optional content and the other two the
+on private `9175a9e`, with Charmander covering optional content and the other two the
 critical path. Failures do not abort later starters. Evidence:
-`evidence/m55a-memory-ready-journeys-20261029-01`.
+`evidence/m55a-utf8-journeys-20261029-01`.
+The first set stopped before travel on invalid UTF-8 in generated trainer names.
+The cache now emits literal UTF-8; all 1,882 decoded records remain identical.
+Eight existing host checks, generator verification and production compilation pass.
 Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
 
