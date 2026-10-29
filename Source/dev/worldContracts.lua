@@ -79,6 +79,11 @@ function WorldContracts.run()
         value.grid[1] = string.rep("#", 16); value.terrain.grass = true
         equal(registry:entry("test:immutable").grid[1], string.rep("1", 16))
         equal(registry:entry("test:immutable").terrain.grass, false)
+        local validated = registry:validateBatch({entry("test:immutable", "1", 0)})
+        validated[1].grid[1] = string.rep("#", 16)
+        validated[1].terrain.land_passable = false
+        equal(registry:entry("test:immutable").grid[1], string.rep("1", 16))
+        equal(registry:entry("test:immutable").terrain.land_passable, true)
         local bad = entry("test:cycle", ".", 0); bad.terrain.loop = bad.terrain
         rejects(function() registry:registerBatch({ bad }) end)
     end)

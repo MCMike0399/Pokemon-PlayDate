@@ -170,7 +170,9 @@ local function normalizeBatch(registry, entries)
     return normalized
 end
 function TileRegistry:validateBatch(entries)
-    return normalizeBatch(self, entries)
+    -- Public validation returns detached values; only opaque preparation may
+    -- retain an immutable record already held by this registry.
+    return copy(normalizeBatch(self, entries))
 end
 function TileRegistry:prepareBatch(entries)
     local normalized <const> = normalizeBatch(self, entries)
