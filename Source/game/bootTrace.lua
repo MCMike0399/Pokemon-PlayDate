@@ -1,4 +1,4 @@
--- First-import phase recorder. Closing each line preserves it after a watchdog.
+-- First-import phase recorder. Each line is flushed to survive a watchdog.
 BootTrace = {}
 local clock <const> = playdate.getCurrentTimeMilliseconds
 local filename <const> = "boot-trace.tsv"
@@ -8,6 +8,7 @@ local sequence = 0
 local peakHeap = 0
 local buildID = DEVICE_TEST_ID or "unbound"
 local pendingCollection
+local traceFile
 
 if json and playdate.file.exists("boot-profile-build.json") then
     local identity = json.decodeFile("boot-profile-build.json")
@@ -17,9 +18,11 @@ if json and playdate.file.exists("boot-profile-build.json") then
 end
 
 local function write(line, mode)
-    local file = assert(playdate.file.open(filename, mode), "cannot open boot trace")
-    assert(file:write(line .. "\n"), "cannot write boot trace")
-    file:close()
+    if not traceFile then
+        traceFile = assert(playdate.file.open(filename, mode), "cannot open boot trace")
+    end
+    assert(traceFile:write(line .. "\n"), "cannot write boot trace")
+    traceFile:flush()
     print("BOOTTRACE\t" .. line)
 end
 

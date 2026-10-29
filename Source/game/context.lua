@@ -106,8 +106,14 @@ end
 function GameContext:installSession(candidate)
     local payload,reason=SessionCodec.encode(candidate,{root="overworld",overworld="explore",settled=true})
     if not payload then return false,reason end
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     local valid,problem=SessionCodec.validate(payload,self:getSessionDependencies())
     if not valid then return false,problem end
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     local location=candidate:location()
     local located,key=pcall(zoneKey,location.zone_id)
     if not located then return false,tostring(key) end
@@ -172,5 +178,7 @@ end
 
 -- Prepared field transaction adapter; apply only with source reload ownership.
 function GameContext:commitFieldTerrain(before, after, position, actors)
-    return FieldMoveWorld.commit(self, before, after, position, actors)
+    return SourceMaps._withRuntimeDefinitions(function()
+        return FieldMoveWorld.commit(self, before, after, position, actors)
+    end)
 end

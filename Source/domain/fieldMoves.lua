@@ -251,8 +251,16 @@ local function valid(p, state)
     local roster = g.session:party():members()
     if #roster ~= #p.roster then return false end
     for i, mon in ipairs(roster) do if mon ~= p.roster[i] then return false end end
-    local record = monRecord(p.session,p.mon,p.key)
-    if not record or not same(record,p.record) then return false end
+    if Party._owner(p.mon) ~= p.session:party() or not p.mon:hasMove(p.key) then
+        return false
+    end
+    if not PokemonCodec.matchesSnapshot(p.mon, p.record) then
+        -- Legacy/defaulted records retain the original normalization path.
+        local record = monRecord(p.session, p.mon, p.key)
+        if not record or not same(record, p.record) then
+            return false
+        end
+    end
     if p.key == "cut" then
         return not occupied(g, p.plan.endpoints, p.plan.kind == "grass")
     end
@@ -279,6 +287,10 @@ end
 function FieldMoves.complete(token, state)
     local p = requests[token]
     if not FieldMoves.isCurrent(token,state) then return false, "stale-selection" end
+    local record = monRecord(p.session, p.mon, p.key)
+    if not record or not same(record, p.record) then
+        return false, "stale-selection"
+    end
     p.status = "committing"
     local called, accepted, reason = pcall(function()
         if p.key == "cut" then

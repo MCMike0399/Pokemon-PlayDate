@@ -111,17 +111,60 @@ local function checked(record)
         status=record.status,statusTurns=record.statusTurns,sleepDuration=record.sleepDuration,moves=moves,pp=pp,pendingMoveChoices=pending,nextMoveChoiceId=record.nextMoveChoiceId,pendingEvolution=evolution,
         natureId=attributes.natureId,abilitySlot=attributes.abilitySlot,heldItem=attributes.heldItem,sex=attributes.sex,sexProvenance=attributes.sexProvenance,ivs=attributes.ivs,evs=attributes.evs}
 end
-function PokemonCodec.encode(mon)
-    if type(mon)~="table" or type(mon.is)~="function" or not mon:is("Pokemon") then return nil,"invalid-pokemon" end
+local function currentRecord(mon)
     local acquisition = mon.acquisition
     if acquisition == nil then
         acquisition = {version=1, kind="neutral"}
     end
-    local ok,data=pcall(checked,{acquisition=acquisition,version=PokemonCodec.VERSION,species=mon.species,name=mon.name,level=mon.level,xp=mon.xp,hp=mon.hp,
-        status=mon.status or "none",statusTurns=mon.statusTurns,sleepDuration=mon.sleepDuration,moves=mon.moves,pp=mon.pp,
-        pendingMoveChoices=mon.pendingMoveChoices,nextMoveChoiceId=mon.nextMoveChoiceId,pendingEvolution=mon.pendingEvolution,
-        natureId=mon.natureId,abilitySlot=mon.abilitySlot,heldItem=mon.heldItem,sex=mon.sex,sexProvenance=mon.sexProvenance,ivs=mon.ivs,evs=mon.evs})
-    if not ok then return nil,tostring(data) end
+    return {
+        acquisition = acquisition, version = PokemonCodec.VERSION,
+        species = mon.species, name = mon.name, level = mon.level, xp = mon.xp, hp = mon.hp,
+        status = mon.status or "none", statusTurns = mon.statusTurns, sleepDuration = mon.sleepDuration,
+        moves = mon.moves, pp = mon.pp, pendingMoveChoices = mon.pendingMoveChoices,
+        nextMoveChoiceId = mon.nextMoveChoiceId, pendingEvolution = mon.pendingEvolution,
+        natureId = mon.natureId, abilitySlot = mon.abilitySlot, heldItem = mon.heldItem,
+        sex = mon.sex, sexProvenance = mon.sexProvenance, ivs = mon.ivs, evs = mon.evs,
+    }
+end
+
+local function sameSnapshot(actual, expected)
+    if type(actual) ~= type(expected) then
+        return false
+    end
+    if type(actual) ~= "table" then
+        return actual == expected
+    end
+    if getmetatable(actual) ~= nil then
+        return false
+    end
+    for key, value in pairs(actual) do
+        if not sameSnapshot(value, expected[key]) then
+            return false
+        end
+    end
+    for key in pairs(expected) do
+        if actual[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+
+-- Compare an already validated request snapshot without rebuilding its stats.
+-- This is a freshness check; encode still performs full commit validation.
+function PokemonCodec.matchesSnapshot(mon, snapshot)
+    return type(mon) == "table" and type(mon.is) == "function" and mon:is("Pokemon")
+        and sameSnapshot(currentRecord(mon), snapshot)
+end
+
+function PokemonCodec.encode(mon)
+    if type(mon) ~= "table" or type(mon.is) ~= "function" or not mon:is("Pokemon") then
+        return nil, "invalid-pokemon"
+    end
+    local ok, data = pcall(checked, currentRecord(mon))
+    if not ok then
+        return nil, tostring(data)
+    end
     return data
 end
 function PokemonCodec.decode(record)

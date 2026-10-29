@@ -1,6 +1,11 @@
 -- Complete session snapshot, validated before candidate objects are published.
 SessionCodec={VERSION=3,POKEMON_ENCODING="decimal-counters-v1"}
 local function copy(value) return GameSession._copy(value) end
+local function checkpoint()
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
+end
 local function object(value,fields) GameSession._object(value,fields) end
 local function array(value,limit)
     assert(Party._array(value,limit),"invalid collection array")
@@ -30,7 +35,10 @@ local function pokemonFromWire(record,construct)
         choice.id=assert(DecimalInteger.decode(choice.id,1,DecimalInteger.MAX))
     end
     local valid,reason=PokemonCodec.validate(data); assert(valid,reason)
-    return construct and assert(PokemonCodec.decode(data)) or data
+    checkpoint()
+    local result = construct and assert(PokemonCodec.decode(data)) or data
+    checkpoint()
+    return result
 end
 local function introToWire(value)
     return {stage=value.stage,starter=value.starter or "none",rivalStarter=value.rivalStarter or "none",
@@ -49,6 +57,7 @@ local safeStages={pre_oak=true,choose=true,pre_rival=true,done=true}
 local function normalize(record,deps)
     deps=GameSession._dependencies(deps)
     local data=copy(record)
+    checkpoint()
     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
         location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true})
     assert((data.version==1 or data.version==2 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
@@ -60,8 +69,10 @@ local function normalize(record,deps)
     local trainers=GameSession._flags(data.trainerFlags,4096)
     local dex=GameSession._dex(data.pokedex)
     local world=GameSession._world(deps,data.world)
+    checkpoint()
     local location=GameSession._location(deps,data.location,world,true)
-    local checkpoint=GameSession._location(deps,data.checkpoint,world)
+    local savedCheckpoint=GameSession._location(deps,data.checkpoint,world)
+    checkpoint()
     -- Version1 has no palette provenance. Migrate deterministically to light;
     -- never infer a Flash use or grant a field effect from map names.
     if data.version==1 then assert(data.fieldWorld==nil,"v1 cannot contain fieldWorld") end
@@ -71,6 +82,7 @@ local function normalize(record,deps)
     if motion==nil then motion={version=1,rng=WorldMotionData.newWorldRNG(rng):toData(),actors=WorldMotionData.empty()}end
     object(motion,{version=true,rng=true,actors=true});assert(motion.version==1,"unsupported world motion version")
     motion={version=1,rng=GameSession._rngData(motion.rng),actors=GameSession._validateActors(deps,motion.actors,world,location,{quest=quests,trainers=trainers})}
+    checkpoint()
     object(data.party,{version=true,active=true,members=true})
     assert(data.party.version==1,"unsupported-party-version"); array(data.party.members,6)
     data.party.active=integer(data.party.active,#data.party.members>0 and 1 or 0,#data.party.members)
@@ -82,6 +94,7 @@ local function normalize(record,deps)
         local mon=pokemonFromWire(record,false)
         assert(dex.owned[mon.species] and dex.seen[mon.species],"owned Pokemon missing dex flags")
         count=count+1
+        checkpoint()
         return mon
     end
     for _,record in ipairs(data.party.members) do checkMon(record) end
@@ -103,6 +116,7 @@ local function normalize(record,deps)
     assert(data.inventory.version==1,"unsupported-inventory-version"); array(data.inventory.slots,20)
     for _,slot in ipairs(data.inventory.slots) do object(slot,{id=true,quantity=true}) end
     assert(Inventory.fromData(deps.itemDefinitions,data.inventory),"invalid inventory")
+    checkpoint()
     -- Old valid schema1 has no provenance for an initial Potion withdrawal.
     -- Missing itemStorage migrates EMPTY, never an inferred reward/regrant.
     local stored=data.itemStorage
@@ -110,7 +124,7 @@ local function normalize(record,deps)
     local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
     ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
     return {daycare=daycare,itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
-        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld}
+        location=location,checkpoint=savedCheckpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld}
 end
 function SessionCodec.encode(session,gate)
     local ok,result=pcall(function()
