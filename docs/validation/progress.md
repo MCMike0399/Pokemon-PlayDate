@@ -16,7 +16,7 @@ All passed actual process exit/Continue. These are Simulator results.
 **Hardware now boots and loads the earned save; playability is not accepted yet.**
 The full hardware smoke passed, but map loads still exceed the revised target.
 
-Current P0 game change on main: `b4ef728`. Imported maps use two cache slots.
+Current P0 game change on main: `152470a0`. Imported maps use two cache slots.
 Startup work yields; map cells use validated packed rows. Field data/art prepares
 at map entry. Encounter policy reads retain every commit guard without repeated
 slot copying. Original source grids, world/story/rules and protected pixels remain.
@@ -89,37 +89,24 @@ this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
 
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
-branch is preserved. Three chained 5.5a journeys are running on private
-`f0e74af`, with Charmander covering optional content and the other two the
-critical path. Failures do not abort later starters. Evidence:
-`evidence/m55a-sampled-trace-journeys-20261029-01`.
-The UTF-8 repair preserves all 1,882 decoded records. The next set stopped in
-early travel with 11–13.5 MiB of tooling-heavy Lua heap. Journey builds now
-exclude every contract and catalog exporter, including their compiled modules.
-Input, snapshots and captures remain. Driver JSON and source proofs remain available.
-Full contract builds remain unchanged; 42 existing host checks and SDK
-compilation pass. Trace sampling alone did not fix the later stops. The actual
-owned Simulator crash dump (PID 27370, SIGABRT) identifies “not enough memory”
-inside JSON string-buffer growth. Evidence:
-`evidence/m55a-json-encoder-crash-20261029-01/summary.json`.
-The SDK file encoder is now on main (`09154f9e`); 54 protocol checks and one
-review pass. Its private journey has passed the old crash points, saved for real
-and reached Cerulean. Whole-journey validation is still running. Full host result:
-**979 tests, 4 failures, 4 errors, no skips**. Remaining inputs/exports are being
-repaired: verified references restored, projection hashes refreshed, and six
-missing field-map records restored privately in `20c8c5b`. Existing field checks
-18/18 and projection/rules checks 59/59 pass. A full host rerun is in progress;
-coverage freshness remains separate from native acceptance. The smaller profile is also on main (`85c188f8`).
+branch is preserved. Three chained 5.5a journeys are running from hash-verified
+partial Saves (actual stopped processes and real Continue), on Source `2984348e`.
+The checkout is frozen for this set; documentation changes stay on its branch.
+Charmander covers optional content; the other two the critical path. Evidence:
+`evidence/m55a-resumed-request-cleanup-20261029-01`.
 
-Private door-fade candidate `b51e4831` passed the fixed-route 16 MB smoke:
-title, earned Continue, verified save, three doors, Cut and a natural wild battle.
-Peak **6.52 MiB**, longest slice **30.94 ms**, worst map wall **172 ms** in the
-Simulator. One review passes. All 36 native fade frames were inspected; three
-fixed-phase stages darken the outgoing scene without showing unfinished maps.
-Visual capture timings are excluded. Targeted presentation cases and hardware
-measurement remain pending; it is not on main. Evidence:
-`evidence/p0-door-fade-waypoint-smoke-20261029-01`,
-`evidence/p0-door-fade-visual-build-20261029-01/visual-review.json`.
+The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
+pass. It passed the earlier native JSON abort points. Longer travel then exposed
+Lua memory pressure during battle return. Private journey mode now releases
+completed replies and collects its diagnostic allocations before the next input;
+it cannot establish production memory or pacing. Three real saved boundaries
+avoid replaying completed travel. No missing-effect hits have appeared so far.
+
+Private `20c8c5b` restores six missing generated field-map records; accepted map
+records remain exact. Native 108-map memory and content results above remain
+separate from this restoration. Full host rerun: **1001 tests, 1000 passed, one
+stale coverage fingerprint, no skips**. The inventory snapshot is now refreshed
+privately (`808ec87`), retaining every row/evidence facet; its four checks pass.
 Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
 
