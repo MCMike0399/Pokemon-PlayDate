@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build and run a private identified Playdate Simulator session."""
 import argparse
+import glob
 import hashlib
 import json
 import os
@@ -18,6 +19,26 @@ from tools.harness.protocol import Client, OwnerLock, ProtocolError, atomic_json
 from tools.harness.build import overlay_imports
 
 PROJECT = Path(__file__).resolve().parents[2]
+
+
+def device_lock_path():
+    return Path('/private/tmp') / f'pokemon-playdate-device-{os.getuid()}.lock'
+
+
+def simulator_usb_preflight():
+    ports = sorted(glob.glob('/dev/cu.usbmodemPD*') + glob.glob('/dev/tty.usbmodemPD*'))
+    if not ports:
+        return
+    try:
+        result = subprocess.run(['lsof', '-Fpcn', '--', *ports],
+                                capture_output=True, text=True, timeout=3)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise ProtocolError('Cannot verify Playdate USB serial ownership: ' + str(error)) from error
+    if result.stdout.strip():
+        raise ProtocolError('Playdate USB serial port is occupied; close its reader before starting the Simulator. '
+                            'lsof ownership: ' + result.stdout.strip().replace('\n', '; '))
+    if result.returncode not in (0, 1) or result.stderr.strip():
+        raise ProtocolError('Cannot verify Playdate USB serial ownership: ' + result.stderr.strip())
 
 
 def sdk_path(explicit=None):
@@ -255,6 +276,7 @@ def _run(args):
                 owner.__exit__()
     try:
         with (output / 'simulator.log').open('w') as log:
+            simulator_usb_preflight()
             process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
             metadata['simulator_pid'] = process.pid
             atomic_json(output / 'run.json', metadata)
@@ -327,7 +349,8 @@ def run(args):
     sdk = sdk_path(args.sdk)
     if args.build_only:
         return _run(args)
-    with OwnerLock(runtime_lock_path(sdk)):
+    with OwnerLock(runtime_lock_path(sdk)), OwnerLock(device_lock_path()):
+        simulator_usb_preflight()
         return _run(args)
 
 
