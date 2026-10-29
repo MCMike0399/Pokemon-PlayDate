@@ -14,6 +14,7 @@ from tools.harness.brock_journey import BrockJourney, NaturalBlackout, choose_ba
 from tools.harness.journeys import DIRECTIONS, lookup
 from tools.harness.parcel_journey import sequence
 from tools.harness.protocol import ProtocolError, atomic_json
+from tools.verify_moves.parse_lua import read_table
 
 NAMES = {'midgame-natural', 'midgame-continue'}
 SCENARIOS = Path(__file__).with_name('scenarios') / 'midgame'
@@ -84,7 +85,8 @@ def validate_partial_state(state):
     steps = state['completed_steps']
     allowed = {'vermilion-return', 'cerulean-arrival', 'rock-tunnel-center',
                'rock-tunnel-flash-lavender', 'celadon-arrival', 'celadon_gym', 'hideout-scope',
-               'celadon-vending-drinks', 'celadon-eevee', 'celadon-coins-prize-slot'}
+               'celadon-vending-drinks', 'celadon-eevee', 'celadon-coins-prize-slot',
+               'squirtle-ice-beam-preparation'}
     if (not isinstance(steps, list) or any(not isinstance(step, str) for step in steps)
             or steps != sorted(set(steps)) or not set(steps) <= allowed):
         raise ProtocolError('invalid partial route steps')
@@ -294,31 +296,50 @@ class MidgameJourney(vj.VermilionJourney):
         self.summary['party_changes'].append({'kind': 'withdraw-for-' + move, 'species': expected['species']})
         return True
 
-    def teach(self, move):
-        known = next((i for i, mon in enumerate(self.party(), 1) if move in mon['moves']), None)
+    def teach(self, move, *, item=None, target=None):
+        machine_target = target is not None
+        if machine_target:
+            source = cj.StagedSource(self.build_evidence)
+            relative = 'data/machineData.lua'
+            path = source.build / 'Source' / relative
+            if hashlib.sha256(path.read_bytes()).hexdigest() != source.manifest.get(relative):
+                raise ProtocolError('changed staged machine definitions')
+            machines = read_table(path, 'MachineData')
+            if (not 1 <= target <= len(self.party())
+                    or machines['definitions'].get(item, {}).get('move') != move
+                    or not machines['compatibility'].get(self.party()[target - 1]['species'], {}).get(item)):
+                raise ProtocolError('source machine move/target compatibility unavailable: ' + str(item))
+        known = next((i for i, mon in enumerate(self.party(), 1)
+                      if move in mon['moves'] and (target is None or i == target)), None)
         if known:
             return known
-        owners = self.observe('midgame-owners')
-        compatible = owners.get('hm_compatibility', {}).get(HMS[move])
-        if not isinstance(compatible, list):
-            raise ProtocolError('actual HM compatibility observation unavailable: ' + move)
-        index = next((i for i, mon in enumerate(self.party(), 1) if mon['species'] in compatible), None)
-        if index is None and self.retrieve_hm_user(move, set(compatible)):
-            index = next(i for i, mon in enumerate(self.party(), 1) if mon['species'] in compatible)
+        if machine_target:
+            index = target
+        else:
+            owners = self.observe('midgame-owners')
+            compatible = owners.get('hm_compatibility', {}).get(HMS[move])
+            if not isinstance(compatible, list):
+                raise ProtocolError('actual HM compatibility observation unavailable: ' + move)
+            index = next((i for i, mon in enumerate(self.party(), 1) if mon['species'] in compatible), None)
+            if index is None and self.retrieve_hm_user(move, set(compatible)):
+                index = next(i for i, mon in enumerate(self.party(), 1) if mon['species'] in compatible)
         if index is None:
             if move == 'flash':
                 self.summary['flash'] = {'used': False, 'reason': 'no compatible earned Pokemon; fixed route stays dark'}
                 return None
             raise ProtocolError('no earned compatible HM user: ' + move)
-        item = HMS[move]
+        item = item if machine_target else HMS[move]
         quantity = self.quantity(item)
+        before_bag = copy.deepcopy(self.inventory())
+        expected_moves = [list(mon['moves']) for mon in self.party()]
+        replacement = None
         self.send('press b')
         self.pause_option('ITEM')
         self.send('press a')
         self.require(root='bag', **{'bag.phase': 'list'})
         slot = next((i for i, s in enumerate(self.inventory()['slots'], 1) if s['id'] == item), None)
         if slot is None:
-            raise ProtocolError('earned HM missing: ' + item)
+            raise ProtocolError('earned machine missing: ' + item)
         self.select('bag.selected', slot)
         self.send('press a')
         self.select('bag.menu.selected', 1)
@@ -326,6 +347,8 @@ class MidgameJourney(vj.VermilionJourney):
         self.require(root='party')
         self.select('party_ui.selected', index)
         self.send('press a')
+        if machine_target:
+            self.require(root='learning', **{'learning.move_info.key': move})
         for _ in range(160):
             if self.state.get('root') != 'learning':
                 break
@@ -347,11 +370,23 @@ class MidgameJourney(vj.VermilionJourney):
             elif phase == 'idle':
                 self.send('wait 2')
             else:
-                raise ProtocolError('unavailable HM teaching phase: ' + str(phase))
+                raise ProtocolError('unavailable machine teaching phase: ' + str(phase))
         else:
-            raise ProtocolError('HM teaching action bound exhausted')
+            raise ProtocolError('machine teaching action bound exhausted')
         if move not in self.party()[index - 1]['moves'] or self.quantity(item) != quantity:
-            raise ProtocolError('actual reusable HM teaching did not complete: ' + move)
+            raise ProtocolError('actual reusable machine teaching did not complete: ' + move)
+        if machine_target:
+            if replacement is None:
+                expected_moves[index - 1].append(move)
+            else:
+                expected_moves[index - 1][replacement - 1] = move
+            if (self.inventory() != before_bag
+                    or [mon['moves'] for mon in self.party()] != expected_moves):
+                raise ProtocolError('machine teaching changed unexpected items or known moves')
+            self.summary.setdefault('equipment_preparation', []).append(dict(
+                item=item, move=move, party_index=index, species=self.party()[index - 1]['species'],
+                known_moves=expected_moves[index - 1], replaced_slot=replacement,
+                quantity_before=quantity, quantity_after=self.quantity(item)))
         self.send('press b')
         self.require(root='overworld')
         return index
@@ -723,8 +758,57 @@ class MidgameJourney(vj.VermilionJourney):
             self.heal_here('CeladonPokecenter')
             self.complete_at_center('celadon-arrival')
         if 'celadon_gym' not in self.completed_steps:
+            if self.starter == 'squirtle':
+                self.prepare_squirtle_ice_beam()
             self.ensure_room('CeladonMart2F')
             self.leader('CELADON_GYM', 'BADGE_RAINBOW', 'tm21', 'CeladonPokecenter', 'CeladonMart2F')
+
+    def prepare_squirtle_ice_beam(self):
+        # Equipment for the earned starter, using only the existing Blue service
+        # and Bag/Party/learning UI. Charmander retains all optional roof gifts.
+        policy = cj.StagedSource(self.build_evidence).read('data/celadonServices/policy.json')['policy']
+        drink = next((d for d in policy['drinks'] if d['item'] == 'freshWater'), None)
+        if (drink is None or drink['price'] != 200 or drink['tm'] != 'tm13'
+                or drink['flag'] != 'EVENT_GOT_TM13'):
+            raise ProtocolError('source Fresh Water/TM13 exchange unavailable')
+        targets = [i for i, mon in enumerate(self.party(), 1) if mon['species'] in cj.FAMILIES['squirtle']]
+        if len(targets) != 1:
+            raise ProtocolError('equipment preparation requires exactly one earned Squirtle-family starter')
+        target = targets[0]
+        step = 'squirtle-ice-beam-preparation'
+        if step in self.completed_steps:
+            if (not self.flag(drink['flag']) or self.quantity('tm13') < 1
+                    or 'iceBeam' not in self.party()[target - 1]['moves']):
+                raise ProtocolError('saved Squirtle equipment preparation was lost')
+            return
+        self.ensure_room('CeladonMart2F')
+        if not self.flag(drink['flag']):
+            self.travel(self.zone('CeladonMartRoof'))
+            before = copy.deepcopy(self.inventory())
+            water, tm = self.quantity('freshWater'), self.quantity('tm13')
+            money = before['money']
+            if money < drink['price']:
+                raise ProtocolError('earned money cannot afford Fresh Water equipment exchange')
+            self.celadon_service('pokered:CELADON_MART_ROOF:background_events:1',
+                ['FRESH WATER  ¥' + str(drink['price'])], background=True)
+            if (self.quantity('freshWater') != water + 1
+                    or self.inventory()['money'] != money - drink['price']):
+                raise ProtocolError('actual Fresh Water purchase did not conserve money/items')
+            self.celadon_service(cj.sid('CELADON_MART_ROOF', 2), ['YES', 'FRESH WATER'])
+            expected = {slot['id']: slot['quantity'] for slot in before['slots']}
+            expected['tm13'] = tm + 1
+            if (not self.flag(drink['flag']) or self.quantity('freshWater') != water
+                    or self.inventory()['money'] != money - drink['price']
+                    or {slot['id']: slot['quantity'] for slot in self.inventory()['slots']} != expected):
+                raise ProtocolError('actual Fresh Water exchange did not grant exactly TM13')
+            self.summary['rewards'].append(dict(id=cj.sid('CELADON_MART_ROOF', 2),
+                item='tm13', flag=drink['flag'], cost=drink['price']))
+        if self.quantity('tm13') < 1:
+            raise ProtocolError('earned rooftop TM13 missing')
+        self.teach('iceBeam', item='tm13', target=target)
+        self.heal_here('CeladonPokecenter')
+        self.require(root='overworld', zone_id=self.zone('CeladonPokecenter'))
+        self.complete_at_center(step)
 
     def route_a(self):
         self.route_celadon()
