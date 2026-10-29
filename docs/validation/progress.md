@@ -174,6 +174,32 @@ command completions despite much larger outer timing spans; the discrepancy
 requires review before hardware admission. Temporary probes were removed.
 No new game hardware attempt and no push occurred.
 
+### Encounter-step performance, 2026-10-29
+
+Progress remains **0/222 maps verified on hardware; 65/222 route-verified in
+Simulator; checkpoint 5.5a frozen**. Independent review showed that recurring
+spikes belonged to the update after a movement completion, when encounter
+processing runs, rather than to the completion reply. The reviewed code then
+encoded all six party members repeatedly during each attempt. Unchanged field
+reads now reuse private validated snapshots; changed values and save encoding
+still take the full validation path. World-hook entries without a callback no
+longer repeat context checks. No RNG draw order or encounter rates changed.
+
+Existing SDK results: 18 encounter cases in
+`evidence/p0-encounter-contracts-16mb-20261029-01`; 21 specimen cases, including
+snapshot isolation and invalid-value rejection, in
+`evidence/p0-specimen-contracts-16mb-20261029-03`; 15 acquisition cases in
+`evidence/p0-acquisition-contracts-16mb-20261029-01`; and 64 event cases in
+`evidence/p0-source-event-contracts-16mb-20261029-01`. The preceding full host run
+completed 960 tests: 959 passed, with the stale coverage snapshot as its only
+failure. Coverage was not relabeled.
+
+A supplemental backend profile is retained at
+`evidence/p0-encounter-profile-20261029-01`: warm snapshot reads averaged 0.027 ms,
+versus 0.217 ms for a full lead encoding; prepare/resolve averaged 2.07 ms. This
+is not a gameplay or hardware timing pass. The exact route still failed timing
+in `evidence/p0-exact-game-smoke-20261029-05`; no new hardware attempt or push.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |
