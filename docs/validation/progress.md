@@ -28,7 +28,7 @@ These are not verified device deliveries.
 
 ## 2. Current checkpoint and checklist
 
-**P0 hardware loading and 108-map memory: in progress. Checkpoint 5.5a: frozen.**
+**108-map hardware smoke passes; loading/playability remains open. 5.5a: frozen.**
 
 - [x] Persistent phase trace, guarded error screen, cooperative loading.
 - [x] Simulator 16 MB pool verified (`MallocPoolSize=16645684`).
@@ -48,13 +48,14 @@ Only one starter covers optional content. Sets continue after a starter fails.
 
 ## 3. Current evidence and blockers
 
-Main's game Source at `b4ef728` completed the hardware smoke: title, earned
-Continue, verified save, doors, Cut and wild battle, with no new error/crash logs.
-Latest measured build: `b295f7aebf024c1fbf2a6da618ff5ce3`,
-`evidence/p0-flat-atlas-hardware-20261029-01`. Live/peak Lua **3.48 / 4.85 MiB**;
-worst map load **2,662 ms**, battle start **19 ms**. Loading remains above ~1.5 s.
-Sampled walking on the earlier same-route smoke was typically 33 ms per frame,
-with no non-transition hitch over 300 ms. Source grids and protected pixels stay exact.
+Latest 108-map hardware build `df4a421a8ef94b64b54c4c30203b078d` completed
+title, earned 5.4 Continue, save, doors, Cut and a wild Diglett battle. Errorlog
+and crashlog remain exact. Lua live/peak **4.00 / 5.61 MiB**; worst map load
+**3,234 ms**, battle start **19 ms**, ordinary max active frame **189 ms**.
+Last phase `battle.live.after_gc`: **4.24 MiB**. Map loading exceeds ~1.5 s;
+typical walking distribution and user play remain to qualify. [Raw scope and
+assessment](device-smoke-108-20261029.json). No legacy failure report was relabelled.
+Device is now on the USB keeper, preventing indefinite test-recorder idle work.
 
 Flat atlases passed 16 SDK world cases, one review and all **497,664 native
 pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
@@ -63,13 +64,12 @@ fast paths were rejected after actual device comparisons. No universal guessed
 factor blocks deployment; safety is the completed 16 MB route, <=9 MiB sampled
 peak, <=150 ms Simulator slices and active crash guards.
 
-The user's guarded build `2e450cd96ab54b5f875037322671c917` passed the full hardware
-smoke and is now at title with physical controls restored. Handoff:
-`evidence/p0-user-play-handoff-20261029-01/handoff.json`.
-User feedback was requested once. **Do not send device inputs or reinstall while
-the user is trying it.** This is a guarded test build, not a production release.
-The one-way test-only `manual` command restores SDK buttons and refuses later
-serial inputs; production contains no test module or command handler.
+The earlier user-play build `2e450cd9` reached its 9 MiB guard after about
+100 minutes idle at title. Its exact trace was archived before replacement.
+No leak cause is established. Recorder `5899775` reuses one flushed handle and
+stops metrics after physical handoff; compile/host checks pass, runtime pending.
+The user is away; no repeated setup or feedback request. Production excludes
+all serial-input and frame-recorder code.
 
 The paired 16 MB heap check now passes on private 108-map `e022538e`:
 title **5.614 MiB**, earned Continue **5.776 MiB**, observed phase peak
