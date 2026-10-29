@@ -88,7 +88,10 @@ slice 29.691 ms; heap remained within budget. Collision edits would scan the
 whole map, so the extra complexity has no demonstrated benefit.
 Evidence: `evidence/p0-wall-rectangles-decision-20261029.json` and
 `evidence/p0-wall-rectangles-smoke-20261029-01`. No hardware attempt occurred.
-Next: reduce the measured map reload work; keep the timing limits unchanged.
+The next SDK profile found session traversal taking 6–8 ms per transition
+in `evidence/p0-reload-cost-20261029-01`. A Sol/medium worker is reducing
+repeated traversal copies in `gameSession.lua` alone. Root will validate the
+returned change with existing SDK cases and the same route; limits stay unchanged.
 Terrain-image caching, whitespace-only JSON compaction and update-flag/GC-step
 experiments also remain excluded after showing no useful route gain.
 
