@@ -17,6 +17,9 @@ local function copy(value)
     return result
 end
 local function same(a, b)
+    if a == b then
+        return true
+    end
     if type(a) ~= type(b) then return false end
     if type(a) ~= "table" then return a == b end
     for key, value in pairs(a) do if not same(value, b[key]) then return false end end

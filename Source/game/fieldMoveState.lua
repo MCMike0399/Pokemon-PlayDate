@@ -42,7 +42,7 @@ function FieldMoveState:enter(token, party)
     self.token, self.party, self.session = token, party, self.game.session
     self.phase, self.frame, self.active = "confirm", 0, true
     self.preview = assert(FieldMoves.preview(token))
-    self.effect = FieldMoves.effectData()
+    self.effect = FieldMoves._effectData()
     self.ground, self.grassPresentation = nil, nil
     if self.preview.kind == "grass" then
         self.grassPresentation = FieldMoveState.prepareGrassPresentation(self.effect, self.preview)

@@ -71,6 +71,10 @@ end
 function FieldMoves.tile(key)
     return copy(readPart("fieldMoveTiles").tiles[key])
 end
+-- Internal presentation input stays read-only; public callers receive copies.
+function FieldMoves._effectData()
+    return readPart("fieldMoveEffects")
+end
 function FieldMoves.effectData()
     local data = readPart("fieldMoveEffects")
     return copy({tree_grid = data.tree_grid, tree_frames = data.tree_frames,
