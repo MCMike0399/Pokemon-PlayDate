@@ -594,6 +594,18 @@ class MidgameJourney(vj.VermilionJourney):
                 continue
             yield point, kind, detail
 
+    def project_warp(self, model, event):
+        # Hideout lift entries use explicit cabin positions without a door step.
+        scenes = self.scene_data('data/rocketHideoutStory/scenes.json')
+        for floor in scenes['elevator']:
+            if model.name != floor['map_id']:
+                continue
+            for index, exit in enumerate(floor['exits'], start=1):
+                if event['source_index'] == exit['warp']:
+                    cabin = self.models[self.zone('RocketHideoutElevator')]
+                    return cabin.name, (index + 1 + cabin.padding, 1)
+        return super().project_warp(model, event)
+
     def source_waypoint(self, x, y):
         self.navigate((x + self.model().padding, y))
 
