@@ -120,7 +120,9 @@ are activated. The unattended two-hour title/overworld soak is running on build 
 Launch: `evidence/private-soak-hardware-launch-20261029-01`. Its exact fresh
 16 MB short proof passes at 33 ms / 6.21 MiB, including a retained post-check
 witness (`evidence/private-soak-postcheck-short-20261029-01`). Hardware completion
-is unverified; the device reservation protects the attempt.
+is unverified; the device reservation protects the attempt. The root collector is
+scheduled for launch +125 minutes and will retain failures or restore the keeper
+after verified collection (`evidence/private-soak-collection-schedule-20261029-01.json`).
 Fresh device reports use phase targets and exclude diagnostic-GC frames from
 ordinary walking; historical reports remain exact. Earlier reports are archived.
 
@@ -131,7 +133,8 @@ midgame index 112.98/121.38 ms. Keep JSON indexes: Lua was slower for both.
 This does not explain the 2.15 s registration span. Candidate `a318caec` reuses
 transient fields, reducing loader calls 2,274→6, and adds cooperative yields.
 Review, compile, 35 host checks and 182 targeted SDK cases pass; the exact
-16 MB input smoke is running. No hardware speedup is claimed.
+16 MB input smoke passes at 42.04 ms maximum raw slice and 7.01 MiB sampled
+peak. Hardware comparison waits until the soak releases the device; no speedup claimed.
 
 ## 5. Decisions and history
 
