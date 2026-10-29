@@ -93,52 +93,180 @@ end
 -- PUBLIC API
 -- ============================================================
 
-function TileFactory.generateAll(registry)
-    local count = registry and registry:maxID() or NUM_TILE_TYPES
-    local tiles = gfx.imagetable.new(count)
+local baseImages
+local function generateBaseImages()
+    local tiles = gfx.imagetable.new(NUM_TILE_TYPES)
     tiles:setImage(1,  TileFactory.grass())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(2,  TileFactory.path())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(3,  TileFactory.wall())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(4,  TileFactory.water())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(5,  TileFactory.tree())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(6,  TileFactory.door())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(7,  TileFactory.fence())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(8,  TileFactory.tallGrass())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(9,  TileFactory.roof())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(10, TileFactory.sign())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(11, TileFactory.flowers())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(12, TileFactory.shore())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(13, TileFactory.labWall())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(14, TileFactory.mailbox())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(15, TileFactory.roofLeft())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(16, TileFactory.roofRight())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(17, TileFactory.wallWindow())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(18, TileFactory.grassA())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(19, TileFactory.grassB())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(20, TileFactory.grassC())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     -- Roof corners composited over textured ground (resolved in Zone:init):
     -- the triangle outside the diagonal shows the surrounding terrain
     -- instead of punching a white hole into it
     tiles:setImage(21, TileFactory.roofLeft(TileFactory.path()))
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(22, TileFactory.roofRight(TileFactory.path()))
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(23, TileFactory.roofLeft(TileFactory.tallGrass()))
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(24, TileFactory.roofRight(TileFactory.tallGrass()))
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     -- Interior tiles (houses, Oak's lab)
     tiles:setImage(25, TileFactory.floor())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(26, TileFactory.interiorWall())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(27, TileFactory.mat())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(28, TileFactory.table())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(29, TileFactory.bookshelf())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(30, TileFactory.tv())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(31, TileFactory.plant())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(32, TileFactory.stairs())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(33, TileFactory.bed())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(34, TileFactory.pc())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(35, TileFactory.labMachine())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(36, TileFactory.void())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
     tiles:setImage(37, TileFactory.tableBall())
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
+    return tiles
+end
+
+function TileFactory.generateAll(registry)
+    if not baseImages then
+        baseImages = generateBaseImages()
+    end
+    local count = registry and registry:maxID() or NUM_TILE_TYPES
+    local tiles = gfx.imagetable.new(count)
+    for id = 1, NUM_TILE_TYPES do
+        tiles:setImage(id, baseImages:getImage(id))
+    end
     if registry then
-        for id = 38, count do tiles:setImage(id, registry:renderImported(id, TileFactory.renderGrid)) end
+        for id = 38, count do
+            tiles:setImage(id, registry:renderImported(id, TileFactory.renderGrid))
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
+        end
     end
     return tiles
 end

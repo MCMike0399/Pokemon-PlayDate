@@ -10,13 +10,25 @@ local WATER_SHIFTS <const> = { 0, 1, 2, 3, 4, 3, 2, 1 }
 local FLOWER_SEQ <const> = { 1, 2, 3, 1 }
 
 local function animatedTiles()
+    if WorldView.animationImages then
+        return WorldView.animationImages
+    end
     local water, shore, flowers = {}, {}, {}
     for i, shift in ipairs(WATER_SHIFTS) do
         water[i] = TileFactory.water(shift)
         shore[i] = TileFactory.shore(shift)
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
-    for i, frame in ipairs(FLOWER_SEQ) do flowers[i] = TileFactory.flowers(frame) end
-    return { water = water, shore = shore, flowers = flowers }
+    for i, frame in ipairs(FLOWER_SEQ) do
+        flowers[i] = TileFactory.flowers(frame)
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
+    end
+    WorldView.animationImages = { water = water, shore = shore, flowers = flowers }
+    return WorldView.animationImages
 end
 function generateTileImages(registry)
     return TileFactory.generateAll(registry or (currentZone and currentZone.registry) or WorldTiles)
@@ -52,6 +64,9 @@ function WorldView:init(zone, options)
         for x = 1, zone.width do
             self.tilemap:setTileAtPosition(x, y, zone.tiles[y][x])
             if zone.collision[y][x] == 1 then self.walls[y][x] = self:_wall(x - 1, y - 1) end
+        end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
         end
     end
     self.sprite = gfx.sprite.new()

@@ -87,16 +87,22 @@ function TileRegistry.renderImportedGrid(rows, renderer)
     local image = gfx.image.new(32, 32, gfx.kColorWhite)
     gfx.pushContext(image)
     for y, row in ipairs(rows) do
-        for x = 1, 16 do
+        local x = 1
+        while x <= 16 do
             local shade = row:sub(x, x)
+            local last = x
+            while last < 16 and row:sub(last + 1, last + 1) == shade do
+                last = last + 1
+            end
             if shade ~= "." then
                 if shade == "#" then
                     gfx.setColor(gfx.kColorBlack)
                 else
                     gfx.setPattern(shade == "1" and policy.light or policy.dark, 0, 0)
                 end
-                gfx.fillRect((x - 1) * 2, (y - 1) * 2, 2, 2)
+                gfx.fillRect((x - 1) * 2, (y - 1) * 2, (last - x + 1) * 2, 2)
             end
+            x = last + 1
         end
     end
     Shade.reset()
@@ -144,7 +150,9 @@ function TileRegistry:validateBatch(entries)
         assert(not existing or same(existing, entry), "conflicting duplicate tile key: " .. entry.key)
         pending[entry.key] = entry
         normalized[i] = entry
-    end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end    end
     return normalized
 end
 function TileRegistry:registerBatch(entries)
