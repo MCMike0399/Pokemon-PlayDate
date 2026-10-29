@@ -2,13 +2,14 @@
 
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps verified playable on Playdate hardware; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for P0 device boot.**
-5.4 elapsed: **7.89 h**; current pace: **106.46 maps/day**.
+Last accepted Simulator milestone, 5.4: **7.89 h**, **106.46 maps/day**.
+P0 elapsed since the first guarded trace commit: **7.15 h**; hardware pace: **0 maps/day**.
 [Milestone times](milestone-times.json) include waits and provider limits.
 
 ## 1. Current game on main — not yet playable on Playdate hardware
 
-Gameplay code: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
-The approved display update is `a6298a6`. Current Source: `7dded0135055be1edd14035a192a65770feb4126516243501303d8c6e4cb1930`.
+Simulator-accepted 5.4 baseline code: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
+The approved display update is `a6298a6`. That baseline Source: `7dded0135055be1edd14035a192a65770feb4126516243501303d8c6e4cb1930`.
 The three journeys used gameplay Source `3ac88fe4dad4d0b1f5624a6f3eac025ac8814cb57fc14a4b3e7eb7cb34ca628d`; the display update changes rendering only.
 
 Players can continue an earned Cerulean save, cross Routes5/6 and the Underground
@@ -199,6 +200,36 @@ A supplemental backend profile is retained at
 versus 0.217 ms for a full lead encoding; prepare/resolve averaged 2.07 ms. This
 is not a gameplay or hardware timing pass. The exact route still failed timing
 in `evidence/p0-exact-game-smoke-20261029-05`; no new hardware attempt or push.
+
+### Remaining loading costs, 2026-10-29
+
+Progress: **0/222 maps verified on hardware; 65/222 route-verified in Simulator.
+Checkpoint 5.5a remains frozen.** The latest exact private build is
+`26f1123b02144acd89ffe2f7c74af27c`, retained in
+`evidence/p0-exact-game-smoke-build-20261029-10`. Its real-input run at
+`evidence/p0-exact-game-smoke-20261029-10` reached title, earned Continue, save,
+doors, Cut and a wild battle without a runtime error. It still fails the timing
+gate: worst ordinary update 14.376 ms, worst slice 46 ms, worst map-load wall
+span 363 ms. The provisional factor predicts 4.76 seconds for that map span;
+this is not a hardware measurement. Lua heap was 5.06 MiB live and 5.96 MiB at
+sampled peak. No game build was sent to the device.
+
+Encounter requests retain immutable private snapshots instead of copying all
+six records. Map construction validates tile IDs and collision in one pass and
+reuses matching registry records; publication still checks conflicts. Field
+freshness reads compare session values without cloning them, and Cut reads the
+shared effect data while the public getter still returns copies. The full-route
+results do not establish a map latency improvement.
+
+Existing SDK checks passed under the 16 MB pool: 18 encounter cases in
+`evidence/p0-encounter-contracts-16mb-20261029-02`, 16 world cases in
+`evidence/p0-world-contracts-16mb-20261029-07`, and 16 field cases in
+`evidence/p0-field-contracts-16mb-20261029-04`. The focused host groups passed
+33 map checks, 45 device/field checks and 27 field/map checks; these groups
+overlap. No new behavior contracts were added. Temporary private timing builds
+at `evidence/p0-step-cost-20261029-01` and `-02` are supplemental diagnosis,
+not hardware admission. They locate first-use Cut costs in terrain planning
+and effect preparation. Main contains none of those temporary probes.
 
 ## 2. Milestones and evidence
 
