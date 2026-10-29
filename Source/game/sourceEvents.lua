@@ -17,13 +17,21 @@ local contentFields = weakValues()
 -- Only the last eight immutable records are owned by this cache. Eviction
 -- drops our reference; an active controller's descriptor remains valid.
 local recent, recentOrder = {}, {}
-local function copy(value)
+local function yieldIfDue()
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
+end
+local function copy(value, cooperative)
     if type(value) ~= "table" then
         return value
     end
     local result = {}
     for key, item in pairs(value) do
-        result[key] = copy(item)
+        result[key] = copy(item, cooperative)
+        if cooperative then
+            yieldIfDue()
+        end
     end
     return result
 end
@@ -601,22 +609,27 @@ end
 function SourceEvents._registerContent(name, index, fields, trainers, contentOverride, overrides)
     assert(type(name) == "string" and not eventSources[name], "named event source required")
     assert(not trainers or not trainerSources[name], "source trainer resolver replaced")
+    yieldIfDue()
     local records, items = {}, {}
     for _, field in ipairs(fields) do
         for _, content in ipairs(index.contents[field]) do
             assert(content == name or contentOverride == name, "source content name differs")
+            yieldIfDue()
         end
         for id, digest in pairs(index.records.events[field]) do
             assert(not records[id] and not eventExists(id), "duplicate source event")
             records[id] = digest
+            yieldIfDue()
         end
         for _, item in ipairs(index.items[field]) do
             items[item] = true
+            yieldIfDue()
         end
     end
     for id, descriptor in pairs(overrides or {}) do
         assert(records[id] or not eventExists(id), "duplicate source event")
-        records[id] = copy(descriptor)
+        records[id] = copy(descriptor, true)
+        yieldIfDue()
     end
     if trainers then
         local current = baseIndex().records.trainers.trainers
@@ -624,21 +637,33 @@ function SourceEvents._registerContent(name, index, fields, trainers, contentOve
             assert(not current[id], "duplicate source trainer")
             for _, source in pairs(trainerSources) do
                 assert(not source.records[id], "duplicate source trainer")
+                yieldIfDue()
             end
+            yieldIfDue()
         end
     end
     local list = {}
     for item in pairs(items) do
         list[#list + 1] = item
+        yieldIfDue()
     end
-    eventSources[name] = {records = records, lazy = true, items = list, content = contentOverride}
+    local flags
     if trainers then
-        local flags = shallow(index.trainer_flags)
+        flags = {}
+        for id, flag in pairs(index.trainer_flags) do
+            flags[id] = flag
+            yieldIfDue()
+        end
         for id, definition in pairs(trainers) do
             if type(definition) == "table" then
                 flags[id] = definition.source_flag
             end
+            yieldIfDue()
         end
+    end
+    -- Finish cooperative preparation before publishing either namespace.
+    eventSources[name] = {records = records, lazy = true, items = list, content = contentOverride}
+    if trainers then
         trainerSources[name] = {records = trainers, lazy = true, flags = flags}
     end
 end
