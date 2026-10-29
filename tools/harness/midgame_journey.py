@@ -646,6 +646,9 @@ class MidgameJourney(vj.VermilionJourney):
         self.require_event(stable)
         self.heal_here(center)
         self.restock(mart)
+        if constant == 'CELADON_GYM':
+            cut = self.teach('cut')
+            self.field_cut(cut, 'CeladonCity', (35, 32))
         self.fight(stable)
         if not self.flag(badge) or not self.flag('EVENT_GOT_' + tm.upper()) or self.quantity(tm) < 1:
             raise ProtocolError('actual leader/badge/TM reward missing: ' + stable)
