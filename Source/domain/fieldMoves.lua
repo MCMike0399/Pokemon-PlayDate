@@ -244,9 +244,10 @@ local function valid(p, state)
     local g = p.game
     if g.session ~= p.session or g.player ~= p.player or currentZone ~= p.zone
         or p.party.visit ~= p.visit or p.party.view ~= p.view or not boundary(g,p.party,state)
-        or not same(position(g),p.position) or not same(g.session:flags(),p.flags)
-        or g.session:party():activeIndex() ~= p.activeIndex or not same(g.session:checkpoint(),p.checkpoint)
-        or not same(WorldDeltas.export(),p.world) or not same(g.session:worldData(),p.sessionWorld)
+        or not same(position(g),p.position)
+        or not g.session:matchesFieldSnapshot(p.flags, p.checkpoint, p.sessionWorld)
+        or g.session:party():activeIndex() ~= p.activeIndex
+        or not same(WorldDeltas.export(),p.world)
         or not same(g.npcManager.motion:snapshot(),p.actors) then return false end
     local roster = g.session:party():members()
     if #roster ~= #p.roster then return false end

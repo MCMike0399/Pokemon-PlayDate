@@ -558,6 +558,16 @@ local function sceneEqual(a, b)
     return true
 end
 
+-- Field requests compare their captured values without copying session state
+-- on every animation frame. No internal table escapes through this query.
+function GameSession:matchesFieldSnapshot(expectedFlags, expectedCheckpoint, expectedWorld)
+    local current = state[self]
+    return sceneEqual(current.questFlags, expectedFlags.quest)
+        and sceneEqual(current.trainerFlags, expectedFlags.trainers)
+        and sceneEqual(current.checkpoint, expectedCheckpoint)
+        and sceneEqual(current.world, expectedWorld)
+end
+
 local sceneIntents = setmetatable({}, {__mode = "k"})
 function GameSession:forkWorldRNG()
     local stream = RulesRNG.new(1)
