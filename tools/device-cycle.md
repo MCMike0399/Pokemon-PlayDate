@@ -167,26 +167,18 @@ explicit failures; no Simulator estimates substitute for device measurements.
 Root must inspect this report and the archived crash/error comparison before any
 hardware acceptance. Native memory and between-sample peaks remain unmeasured.
 
-### Unapplied Source metrics hook and exact root commands
+### Integrated Source metrics hook and exact root commands
 
-The checked-in Source observer returns early on hardware, so it does not yet
-provide hardware frame metrics. `tools/device/device-smoke-metrics.patch` is
-**unapplied**: it lets the existing observer write active-segment timing/heap rows
-on hardware while keeping all mailbox IO Simulator-only. It adds no command or
-fixture. Root must review it, apply it, compile a fresh one-module build and obtain
-a new Simulator smoke pass for that exact build. Its measurement overhead and
-hardware behavior have not been accepted. Without it, collection is possible but
-missing frame metrics prevent hardware acceptance. Source remains untouched in
-this worker commit.
+The private Source observer now writes active timing/heap segments on hardware
+and polls the file mailbox only in Simulator. It adds no gameplay command or
+fixture. Compile a fresh one-module build and obtain its genuine Simulator pass
+before hardware admission. Observer IO is excluded from the active segment timer
+and remains test-build overhead; hardware behavior is not yet accepted.
 
 Root commands (replace the absolute evidence paths with the retained new build,
 its genuine passed run, and its earned-save manifest):
 
 ```sh
-# Review/apply only as root, before compiling a new candidate.
-git apply --check tools/device/device-smoke-metrics.patch
-git apply tools/device/device-smoke-metrics.patch
-
 # Compile only. Then run the existing documented Simulator smoke as root.
 python3 tools/device/build_smoke.py --output /absolute/evidence/new-smoke-build
 

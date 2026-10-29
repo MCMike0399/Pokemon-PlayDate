@@ -413,8 +413,8 @@ class SmokeCycleTests(unittest.TestCase):
         self.assertTrue(report['failures'])
 
 
-class DeviceMetricsPatchCompileTests(unittest.TestCase):
-    def test_unapplied_metrics_patch_compiles_in_disposable_project(self):
+class DeviceMetricsCompileTests(unittest.TestCase):
+    def test_device_metrics_compile_with_simulator_only_mailbox(self):
         import subprocess
         from tools.device import build_smoke
         from tools.device import simulator_smoke
@@ -424,10 +424,10 @@ class DeviceMetricsPatchCompileTests(unittest.TestCase):
             root = Path(root)
             candidate = root / 'candidate'
             shutil.copytree(project / 'Source', candidate / 'Source')
-            subprocess.run(['patch', '-p1', '-i', str(project / 'tools/device/device-smoke-metrics.patch')],
-                           cwd=candidate, check=True, capture_output=True)
             module = (candidate / 'Source/dev/deviceSmoke.lua').read_text()
             self.assertIn('local function poll()\n        if not playdate.isSimulator then', module)
+            observer = module.split('function DeviceSmoke.installSimulatorObserver()', 1)[1]
+            self.assertFalse(observer.lstrip().startswith('if not playdate.isSimulator'))
             with patch.object(build_smoke.subprocess, 'check_output', return_value='309194ee0b35f329426d21f8c19b9c0442780d11\n'):
                 metadata = build_smoke.prepare(candidate, run.sdk_path(), root / 'build')
             self.assertEqual(simulator_smoke.verify(root / 'build'), metadata)

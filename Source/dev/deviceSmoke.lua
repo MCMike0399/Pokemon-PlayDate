@@ -36,6 +36,7 @@ function playdate.getButtonState()
 end
 
 local function reply(sequence, status, value)
+    local paused = DeviceSmoke.pauseTiming and DeviceSmoke.pauseTiming()
     local encoded = json.encode({
         build = DEVICE_TEST_ID,
         seq = sequence,
@@ -48,6 +49,9 @@ local function reply(sequence, status, value)
         local file = assert(playdate.file.open("device-smoke-replies.jsonl", playdate.file.kFileAppend))
         assert(file:write(encoded .. "\n"))
         file:close()
+    end
+    if paused then
+        DeviceSmoke.resumeTiming()
     end
 end
 
@@ -284,10 +288,11 @@ reply(0, "ready", "serial-installed; gameplay pending")
 -- Each yield/return row is one SDK update segment, not an entire yielding task.
 DeviceSmoke.simulatorTransportVersion = 1
 function DeviceSmoke.installSimulatorObserver()
-    if not playdate.isSimulator then
-        return
-    end
+    -- Root-only optional device metrics hook. Keep mailbox IO Simulator-only.
     local function poll()
+        if not playdate.isSimulator then
+            return
+        end
         local name = "device-smoke-command.txt"
         if not playdate.file.exists(name) then
             return
@@ -305,14 +310,41 @@ function DeviceSmoke.installSimulatorObserver()
     local clockOffset <const> = playdate.getCurrentTimeMilliseconds() - clock()
     local started, updateID, segmentID = nil, 0, 0
     local loadingSegment = false
+    local segmentTrace = 0
+    local excluded, pauseDepth, pauseStarted = 0, 0, nil
     local updateThread
+    function DeviceSmoke.pauseTiming()
+        if not started then
+            return false
+        end
+        if pauseDepth == 0 then
+            pauseStarted = clock()
+        end
+        pauseDepth = pauseDepth + 1
+        return true
+    end
+    function DeviceSmoke.resumeTiming()
+        pauseDepth = pauseDepth - 1
+        if pauseDepth == 0 then
+            excluded = excluded + clock() - pauseStarted
+            pauseStarted = nil
+        end
+    end
     local function record(kind)
-        local elapsed = clock() - started
+        local elapsed = clock() - started - excluded
+        if pauseStarted then
+            elapsed = elapsed - clock() + pauseStarted
+        end
+        local transition = loadingSegment or GameBootstrap.isLoading()
+        if (BootTrace.sequence or 0) > segmentTrace
+            and (BootTrace.phase == "battle.start.end" or BootTrace.phase == "battle.live.after_gc") then
+            transition = true
+        end
         segmentID = segmentID + 1
         local file = assert(playdate.file.open("device-smoke-frames.tsv", playdate.file.kFileAppend))
         assert(file:write(string.format("%s\t%d\t%d\t%s\t%.3f\t%.3f\t%d\t%.3f\n",
             DEVICE_TEST_ID, updateID, segmentID, kind, elapsed, collectgarbage("count"),
-            (loadingSegment or GameBootstrap.isLoading()) and 1 or 0, started + clockOffset)))
+            transition and 1 or 0, started + clockOffset)))
         file:close()
     end
     local yield <const> = coroutine.yield
@@ -325,7 +357,9 @@ function DeviceSmoke.installSimulatorObserver()
         local values = table.pack(yield(...))
         poll()
         started = clock()
+        excluded, pauseDepth, pauseStarted = 0, 0, nil
         loadingSegment = GameBootstrap.isLoading()
+        segmentTrace = BootTrace.sequence or 0
         return table.unpack(values, 1, values.n)
     end
     local callback = playdate.update
@@ -335,7 +369,9 @@ function DeviceSmoke.installSimulatorObserver()
         updateID = updateID + 1
         segmentID = 0
         started = clock()
+        excluded, pauseDepth, pauseStarted = 0, 0, nil
         loadingSegment = GameBootstrap.isLoading()
+        segmentTrace = BootTrace.sequence or 0
         updateThread = coroutine.running()
         local ok, problem = pcall(callback)
         record(ok and "return" or "error")

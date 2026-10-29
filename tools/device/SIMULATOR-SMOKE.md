@@ -4,11 +4,10 @@ This tooling is based on `33f778389ffbd8baac19fefd965da74748577cff`.
 Root owns all execution and Source integration. The worker compiled and ran host
 checks only. No Simulator, USB, device run or hardware gate has passed here.
 
-Root must review and apply `tools/device/device-smoke-simulator.patch` to
-`Source/dev/deviceSmoke.lua` before building. This patch is deliberately unapplied
-in the worker commit. It adds a Simulator transport and observer to the existing
-small module. It changes no DS1 command, serial callback or gameplay operation.
-No full harness is staged. The production build remains free of dev modules.
+The device metrics hook is integrated in Source/dev/deviceSmoke.lua. It changes
+no DS1 command or gameplay operation. Only Simulator runs poll the file mailbox;
+both platforms record active timing segments. No full harness is staged.
+Production builds remain free of dev modules.
 
 Build once in a fresh directory, then verify without launching anything:
 
@@ -65,8 +64,8 @@ The mailbox atomically publishes one ASCII DS1 payload in private Data as
 `device-smoke-command.txt`. The module removes it before calling the unchanged
 `playdate.serialMessageReceived`. Printed serial responses remain unchanged;
 Simulator responses additionally append to `device-smoke-replies.jsonl`. The
-hardware path returns before observer installation and performs no mailbox
-existence checks, reads, writes or polling. Root can deploy precisely this PDX
+hardware path records metrics but performs no mailbox existence checks, reads,
+writes or polling. Root can deploy precisely this PDX
 without stripping anything or rebuilding it.
 
 The observer wraps the SDK update function, follows initialization/error update
@@ -118,3 +117,15 @@ endpoint allowance. Display/yield waits are not multiplied by a Lua CPU factor.
 Both raw wall time and the estimated device phase must stay below 500 ms. Old
 rows without start times retain the stricter legacy check and cannot use this
 separation. The frozen command list and its hash are recorded for hardware replay.
+
+The optional device metrics hook is now applied. Both platforms record active
+segments; hardware polling returns before any mailbox filesystem access. The
+segment observer's own writes remain excluded and are test-build overhead.
+Battle admission is a transition measured against the separate 500 ms phase
+budget, not a normal 33 ms gameplay frame. Loading/yield and slice limits still
+apply. Frames after admission remain ordinary gameplay frames.
+
+DS1 reply serialization, console output and reply-file writes are test transport,
+so their elapsed time is now paused out of the game timer. Snapshot reads and
+all production callbacks remain included. This prevents every command completion
+from appearing as a game-frame stall. The metrics file write is also excluded.
