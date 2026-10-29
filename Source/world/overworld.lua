@@ -4,7 +4,6 @@ local error <const> = error
 local ipairs <const> = ipairs
 local pairs <const> = pairs
 local pcall <const> = pcall
-local TILE_SIZE <const> = TILE_SIZE
 
 -- Owns only a map view and its static wall sprites. Offscreen instances exercise
 -- exactly the same SDK tilemap/registry path without tearing down the live game.
@@ -55,22 +54,28 @@ function WorldView:_wall(x, y, width)
     wall:setCollideRect(0, 0, pixelWidth, TILE_SIZE)
     return wall
 end
-function WorldView:_wallRow(y, blocked, previousRuns)
+function WorldView:_wallRow(y, blocked, previousRuns, styles)
     local walls, runs = {}, {}
     local x = 1
     while x <= self.zone.width do
         if blocked[x] then
             local first = x
+            local style = styles and styles[x]
             repeat
                 x = x + 1
-            until x > self.zone.width or not blocked[x]
+            until x > self.zone.width or not blocked[x] or styles and styles[x] ~= style
             local last = x - 1
             local run = previousRuns and previousRuns[first]
             if not run or run.last ~= last then
-                run = {
-                    last = last,
-                    wall = self:_wall(first - 1, y - 1, last - first + 1),
-                }
+                local registered = self.attached
+                if styles then
+                    registered = (style & 1) ~= 0
+                end
+                local wall = self:_wall(first - 1, y - 1, last - first + 1)
+                if styles then
+                    wall:setVisible((style & 2) ~= 0)
+                end
+                run = {last = last, wall = wall, registered = registered}
             end
             runs[first] = run
             for column = first, last do
@@ -166,9 +171,27 @@ function WorldView:applyTiles(plan)
 
     -- Prepare only changed collision rows. Exact run boundaries retain their
     -- objects and registration; tile-only edits do not touch wall ownership.
-    local removed, created = {}, {}
+    local removed, created, present = {}, {}, {}
+    if next(rows) then
+        for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
+            present[sprite] = true
+        end
+    end
     for y, row in pairs(rows) do
-        row.nextWalls, row.nextRuns = self:_wallRow(y, row.blocked, row.runs)
+        local styles = {}
+        for x in pairs(row.blocked) do
+            if row.blocked[x] then
+                local wall = row.walls[x]
+                local registered = self.attached
+                local visible = true
+                if wall then
+                    registered = present[wall] == true
+                    visible = wall:isVisible()
+                end
+                styles[x] = (registered and 1 or 0) + (visible and 2 or 0)
+            end
+        end
+        row.nextWalls, row.nextRuns = self:_wallRow(y, row.blocked, row.runs, styles)
         for first, run in pairs(row.runs) do
             if row.nextRuns[first] ~= run then
                 removed[#removed + 1] = { wall = run.wall, visible = run.wall:isVisible() }
@@ -176,25 +199,17 @@ function WorldView:applyTiles(plan)
         end
         for first, run in pairs(row.nextRuns) do
             if row.runs[first] ~= run then
-                created[#created + 1] = run.wall
+                created[#created + 1] = {wall = run.wall, registered = run.registered}
             end
         end
     end
-    if #removed > 0 then
-        -- Attach policy and visibility do not describe actual SDK membership.
-        -- A root may remove attached walls or register an offscreen wall.
-        local present = {}
-        for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
-            present[sprite] = true
-        end
-        for _, item in ipairs(removed) do
-            item.present = present[item.wall] == true
-        end
+    for _, item in ipairs(removed) do
+        item.present = present[item.wall] == true
     end
 
     local function restore()
-        for _, wall in ipairs(created) do
-            wall:remove()
+        for _, item in ipairs(created) do
+            item.wall:remove()
         end
         for y, row in pairs(rows) do
             self.walls[y], self.wallRuns[y] = row.walls, row.runs
@@ -222,9 +237,9 @@ function WorldView:applyTiles(plan)
         for _, item in ipairs(removed) do
             item.wall:remove()
         end
-        if self.attached then
-            for _, wall in ipairs(created) do
-                wall:add()
+        for _, item in ipairs(created) do
+            if item.registered then
+                item.wall:add()
             end
         end
         for y, row in pairs(rows) do
