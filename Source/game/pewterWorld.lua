@@ -138,15 +138,31 @@ function PewterWorld.tryInteract(game)
     if not PewterSlice.nameForID(currentZone.stableID) then return false end
     local player=game.player;local x,y=player:getFacingTile()
     if x<0 or y<0 or x>=currentZone.width or y>=currentZone.height then return false end
-    local npc=game.npcManager:getNPCAt(x,y)
-    if not npc and currentZone:terrainAt(x,y).counter then
-        local d=dirs[player.facing];x,y=x+d[1],y+d[2]
-        if x>=0 and y>=0 and x<currentZone.width and y<currentZone.height then npc=game.npcManager:getNPCAt(x,y) end
+    local id
+    for _, event in ipairs(currentZone:sourceEventsAt(x, y)) do
+        if event.kind == "background_events" then
+            id = event.id
+            break
+        end
     end
-    local id=npc and npc.def and npc.def.source_event_id
+    local npc
+    if not id then
+        npc = game.npcManager:getNPCAt(x, y)
+        if not npc and currentZone:terrainAt(x, y).counter then
+            local direction = dirs[player.facing]
+            x, y = x + direction[1], y + direction[2]
+            if x >= 0 and y >= 0 and x < currentZone.width and y < currentZone.height then
+                npc = game.npcManager:getNPCAt(x, y)
+            end
+        end
+        id = npc and npc.def and npc.def.source_event_id
+    end
     if not id and x>=0 and y>=0 and x<currentZone.width and y<currentZone.height then
         for _,event in ipairs(currentZone:sourceEventsAt(x,y)) do
-            if event.kind=="background_events" or event.kind=="warps" and event.status=="blocked" then id=event.id;break end
+            if event.kind == "warps" and event.status == "blocked" then
+                id = event.id
+                break
+            end
         end
         id=id or PewterWorld.hiddenAt(x,y)
     end

@@ -220,5 +220,37 @@ function CeladonServicesContracts.run()
         example.bet = 2
         assert(CeladonSlots.match(example) == "SLOTS7")
     end)
+    test("facing source background events precede counter range extension", function()
+        CeruleanSceneContracts.withScene("GameCornerPrizeRoom", {x=2, y=3, facing="up"}, function(game)
+            game.machine:register("event", NPCTradeState(game))
+            assert(game.session:inventory():add("coinCase", 1))
+            local before = RulesRNG.snapshot()
+            local x, y = game.player:getFacingTile()
+            assert(currentZone:terrainAt(x, y).counter)
+            assert(KantoWorld.tryInteract(game), "facing prize window must dispatch")
+            local event = game.machine:get("event")
+            assert(event.id == "pokered:GAME_CORNER_PRIZE_ROOM:background_events:1")
+            for _ = 1, 128 do
+                if game.machine:getCurrent() == "dialog" then
+                    local dialog = game.machine:get("dialog")
+                    dialog.dialog:advance()
+                    dialog:handleInput()
+                elseif event.phase == "celadon-menu" then
+                    break
+                else
+                    game.machine:update()
+                end
+            end
+            assert(event.phase == "celadon-menu" and event.menu.isActive)
+            assert(event.menu.options[1] == "ABRA  120")
+            same(RulesRNG.snapshot(), before)
+            assert(game.session:coins() == 0)
+        end)
+        CeruleanSceneContracts.withScene("CeladonPokecenter", {x=3, y=3, facing="up"}, function(game)
+            game.machine:register("event", NPCTradeState(game))
+            assert(KantoWorld.tryInteract(game), "counter nurse fallback must dispatch")
+            assert(game.machine:get("event").id == "pokered:CELADON_POKECENTER:objects:1")
+        end)
+    end)
     return report
 end
