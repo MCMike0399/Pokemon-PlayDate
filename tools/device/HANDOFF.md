@@ -141,3 +141,14 @@ and bundle hash is
 Verify-only mode accepted those exact retained bytes. This serial-only artifact
 has no Simulator transport until root applies the patch and compiles a fresh
 bundle; it is not runtime evidence. No Simulator, device or USB execution ran.
+
+## Physical controls after the smoke
+
+The private test build also accepts `DS1 <next-sequence> manual` once it is
+ready and no synthetic command is active. This restores all four original SDK
+button functions, releases synthetic buttons and returns `physical_controls=true`.
+It changes no game/session data. Later serial input commands are refused; only
+state reads remain available. A fresh app launch returns to automated mode.
+Production builds still contain no DeviceSmoke module or serial command handler.
+This lets the user try the guarded measured build without replacing it with an
+unmeasured production binary. It is user feedback, not a production-release claim.

@@ -6,8 +6,8 @@ import "game/fieldGestures"
 --   explore  — normal play: movement, NPC interaction, wild encounter checks
 --   irisOut  — Gen 1 battle transition: world keeps animating while a black
 --              iris closes in, then fires a callback (usually -> battle)
---   doorWarp — door/mat/stairs transition: GB-style shade fade to black,
---              then re-enters the overworld in the door's target zone
+--   doorWarp — door/mat/stairs transition: GB-style shade fade to black
+--              while loading the door's target zone cooperatively
 --
 -- Dialog and the debug menu are NOT substates: they are pushed onto the ROOT
 -- machine, so the overworld keeps updating (and drawing) beneath them while
@@ -314,6 +314,23 @@ Class("DoorWarpSubstate"):extends(State)
 
 local DOOR_FADE_FRAMES <const> = 12
 
+local function drawDoorFade(image, frame)
+    -- Fade the settled source frame, never a partially built destination.
+    -- Screen coordinates keep the Bayer phase fixed throughout the transition.
+    gfx.pushContext()
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.clear(gfx.kColorBlack)
+    local t = frame / DOOR_FADE_FRAMES
+    if t < 2 / 3 then
+        local alpha = t < 1 / 3 and 0.875 or 0.5
+        image:drawFaded(0, 0, alpha, gfx.image.kDitherTypeBayer8x8)
+    end
+    gfx.popContext()
+end
+
 function DoorWarpSubstate:init(owner)
     DoorWarpSubstate.super.init(self, "doorWarp")
     self.owner = owner
@@ -344,15 +361,20 @@ function DoorWarpSubstate:enter(door)
     end
     self.timer = 0
     self.door = door
+    self.fadeImage = nil
 end
 
 function DoorWarpSubstate:update()
     self.timer = self.timer + 1
     playdate.frameTimer.updateTimers()
+    if not self.fadeImage then
+        gfx.sprite.addDirtyRect(0, 0, 400, 240)
+    end
     gfx.sprite.update()
     self.owner:_presentedWorld()
+    self.fadeImage = self.fadeImage or gfx.getWorkingImage():copy()
 
-    if self.timer >= DOOR_FADE_FRAMES then
+    if GameBootstrap or self.timer >= DOOR_FADE_FRAMES then
         local door = self.door
         self.door = nil
         local function load()
@@ -380,30 +402,34 @@ function DoorWarpSubstate:update()
             end
         end
         if GameBootstrap then
-            GameBootstrap.withLoading("door", load)
+            local image, frame = self.fadeImage, self.timer
+            self.fadeImage = nil
+            GameBootstrap.withLoading("door", function()
+                load()
+                -- Fast destinations still finish the fade. These presentation
+                -- waits stay outside the unchanged door.map timing interval.
+                while frame <= DOOR_FADE_FRAMES do
+                    GameBootstrap.checkpoint()
+                end
+            end, function()
+                drawDoorFade(image, frame)
+                frame = frame + 1
+            end)
         else
             load()
+            self.fadeImage = nil
         end
     end
 end
 
 function DoorWarpSubstate:draw()
-    -- GB-style palette fade: light -> dark -> black over the whole screen
-    local game = self.owner.game
-    game.camera:reset()
-
-    local t = self.timer / DOOR_FADE_FRAMES
-    if t < 1 / 3 then
-        Shade.set(Shade.LIGHT)
-    elseif t < 2 / 3 then
-        Shade.set(Shade.DARK)
-    else
-        Shade.set(Shade.BLACK)
+    if self.fadeImage then
+        drawDoorFade(self.fadeImage, self.timer)
     end
-    gfx.fillRect(0, 0, 400, 240)
-    Shade.reset()
+end
 
-    game.camera:apply()
+function DoorWarpSubstate:exit()
+    self.fadeImage = nil
 end
 
 -- ============================================================
