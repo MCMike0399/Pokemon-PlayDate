@@ -234,6 +234,10 @@ function RocketHideoutStory.install(content, options)
                 and not game.session:questFlag(RocketHideoutStory.GUARD_LEFT) then
                 return SourceEvents.dispatch(game, RocketHideoutStory.GUARD)
             end
+            if currentZone.stableID ~= "pokered:ROCKET_HIDEOUT_B2F"
+                and currentZone.stableID ~= "pokered:ROCKET_HIDEOUT_B3F" then
+                return false
+            end
             local routes <const> = RocketHideoutStory.scenes().spinners[currentZone.stableID]
             for _, route in ipairs(routes or {}) do
                 if game.player.gridX == route.x + RocketHideoutStory.padding(currentZone.stableID)
