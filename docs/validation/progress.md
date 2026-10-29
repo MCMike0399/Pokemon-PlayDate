@@ -1,6 +1,6 @@
 # Full-game execution ledger
 
-Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps verified playable on Playdate hardware; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for P0 device boot.**
 5.4 elapsed: **7.89 h**; current pace: **106.46 maps/day**.
 [Milestone times](milestone-times.json) include waits and provider limits.
@@ -112,6 +112,39 @@ files. The existing 16 save SDK cases passed with that change in
 excluded. The native view rollback case passed in
 `evidence/p0-view-contracts-16mb-20261028-01`. Progress is still **0/222 on
 hardware, 65/222 in Simulator; checkpoint 5.5a remains frozen**.
+
+### Hardware preparation, 2026-10-29
+
+Progress: **0/222 maps verified on hardware; 65/222 route-verified in Simulator.
+Checkpoint 5.5a remains frozen.** Lazy content loading reduced post-Continue Lua
+heap to about 5.03 MiB. The exact real-input run in
+`evidence/p0-exact-game-smoke-20261029-01` still reached save, doors, Cut and a
+wild battle without a runtime error. Its map, frame and slice estimates fail;
+no hardware game build was deployed. The calibration app remains the only
+successful hardware run.
+
+Cut diagnosis found an unnecessary full-atlas load and whole-map actor surfaces.
+Skipping known tile keys and reading actor cells on demand reduced the measured
+commit from 80 ms to 35 ms with temporary probes present. Those probes are removed.
+World validation now avoids allocating apply plans it never uses. Field snapshot
+checks compare unchanged records cheaply and retain full validation at commit.
+Cooperative field publication holds the last animation image instead of exposing
+an intermediate world. These changes still need the next exact smoke measurement.
+
+Current SDK evidence in the 16 MB pool: 16 field cases in
+`evidence/p0-field-contracts-16mb-20261029-02`, 16 world cases in
+`evidence/p0-world-contracts-16mb-20261029-01`, 8 generic actor cases in
+`evidence/p0-generic-actor-contracts-16mb-20261029-01`, and native wall coverage/
+rollback in `evidence/p0-view-contracts-16mb-20261028-04`. Focused host checks:
+43 passed in `evidence/p0-integrated-focused-host-20261029-01.log`. The full host
+run had 941 tests, 12 failures and 5 errors; stale projections, generator inventories,
+old renderer checks and protocol fixtures remain to fix. Coverage is stale.
+
+The full development contract run
+`evidence/p0-lazy-content-full-sdk-20261028-03` ran out of memory after reaching
+its save/recovery suites. It is a failure, not accepted SDK evidence. Further
+existing suites will run in smaller production-based batches without enlarging
+the Simulator memory pool. No protected image baseline changed. Nothing pushed.
 
 ## 2. Milestones and evidence
 
