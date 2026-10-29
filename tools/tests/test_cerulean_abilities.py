@@ -1,9 +1,9 @@
 """Data exposure checks only. Mechanics witnesses must execute in the real SDK."""
 import hashlib
-import re
 import unittest
 
 from tools.audit_cerulean_abilities import ROOT, inventory
+from tools.verify_moves.parse_lua import LuaParser
 
 
 class CeruleanAbilityExposureTests(unittest.TestCase):
@@ -66,16 +66,13 @@ class CeruleanAbilityExposureTests(unittest.TestCase):
                           self.rows[species]['exposure'])
 
     def test_reachable_trigger_moves_are_in_realistic_level_up_data(self):
-        text = (ROOT / 'Source/data/pokemon.lua').read_text()
+        species_data = LuaParser(ROOT / 'Source/data/pokemon.lua').parse()
         for species, key, level in (('squirtle','waterGun',15), ('charmander','ember',15),
                                     ('rattata','bite',15), ('paras','stunSpore',15),
                                     ('shellder','icicleSpear',16), ('pidgey','whirlwind',18)):
-            block = re.search(r'^    '+species+r' = \{(.*?)(?=\n    \w+ = \{|\Z)',
-                              text, re.M | re.S)[1]
-            learnset = [(move,int(lvl)) for move,lvl in re.findall(
-                r'\{ move = "(\w+)", level = (\d+)',block)]
-            self.assertTrue(any(move == key and lvl <= level for move,lvl in learnset),
-                            (species,key,level))
+            learnset = species_data[species]['learnset']
+            self.assertTrue(any(row['move'] == key and row['level'] <= level
+                                for row in learnset), (species, key, level))
 
 
 if __name__ == '__main__':

@@ -102,7 +102,12 @@ class RestartTests(unittest.TestCase):
 
     def run_job(self, groups):
         scenario={'processes':groups};restarting.validate(scenario)
-        with patch.object(restarting.subprocess,'Popen',MailboxProcess):
+        # Scope the process double to restart launches. Patching the shared
+        # subprocess module also captures USB/preflight subprocess.run calls.
+        process_api = SimpleNamespace(Popen=MailboxProcess, STDOUT=subprocess.STDOUT,
+                                      TimeoutExpired=subprocess.TimeoutExpired)
+        with patch.object(restarting, 'subprocess', process_api), \
+             patch.object(runner, 'simulator_preflight'):
             result=restarting.run(self.args,scenario,self.metadata,self.output,self.data,self.owner,runner)
         for process in MailboxProcess.instances:
             self.assertFalse(process.thread.is_alive());self.assertEqual(process.errors,[])

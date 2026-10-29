@@ -14,6 +14,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from tools.generate_cerulean_journey import project
 from tools.harness import cerulean_journey as cj, suite
 from tools.harness.brock_journey import BrockJourney, SourceGeometry
 from tools.harness.protocol import ProtocolError
@@ -112,6 +113,11 @@ class SourceContractTests(unittest.TestCase):
         cls.build = Path(cls.temporary.name)
         # This is ordinary data staging, not a pretend SDK or game runtime.
         shutil.copytree(ROOT / "Source", cls.build / "Source")
+        # This validator fixture needs a projection of its own staged inputs.
+        # Checked-in projection freshness is tested independently; do not repair
+        # Source/dev or accept stale hashes here.
+        (cls.build / "Source/dev/ceruleanJourney.json").write_text(
+            json.dumps(project(cls.build / "Source"), indent=2, sort_keys=True) + "\n")
         shutil.copyfile(cls.build / "Source/main.lua", cls.build / "original-main.lua")
         manifest = {p.relative_to(cls.build / "Source").as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                     for p in (cls.build / "Source").rglob("*") if p.is_file()}

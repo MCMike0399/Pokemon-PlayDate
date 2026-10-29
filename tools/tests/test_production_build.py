@@ -79,12 +79,16 @@ class ProductionBuildTests(unittest.TestCase):
         context = staged.index('game = GameContext(')
         self.assertLess(package, exporter)
         self.assertLess(exporter, context)
-        imports = re.findall(r'^import "([^"]+)"$', staged, re.M)
-        self.assertEqual(imports, ['dev/harness_build'] + [name for name in BASELINE['imports'] if name != 'dev/harness_build'])
-        self.assertEqual([line for line in staged.splitlines() if line.startswith('Contracts.register(')
-                          or line.startswith('PewterCatalogExporter.register(')
-                          or line.startswith('CeruleanCatalogExporter.register(')
-                          or line.startswith('VermilionCatalogExporter.register(')], BASELINE['registrations'])
+        imports = re.findall(r'^[ \t]*import "([^"]+)"$', staged, re.M)
+        # 80a9419 introduced the loading bootstrap; 91d3769 moved it before
+        # the SDK imports and added boot tracing. Retain the frozen inventory
+        # and permit only these two reviewed additions in their required order.
+        self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
+                         + [name for name in BASELINE['imports'] if name != 'dev/harness_build'])
+        self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
+                          or line.lstrip().startswith('PewterCatalogExporter.register(')
+                          or line.lstrip().startswith('CeruleanCatalogExporter.register(')
+                          or line.lstrip().startswith('VermilionCatalogExporter.register(')], BASELINE['registrations'])
 
     def test_staging_preserves_every_non_entry_source_asset(self):
         for original in (PROJECT / 'Source').rglob('*'):

@@ -223,7 +223,10 @@ def proposed_pipeline(artifacts, *, manifest=None):
                                else (ROOT / 'Source' / entry['path']).read_bytes())
         cache = cache_build(manifest_path, source)
     return {'proposed-source-maps.json': raw,
-            **{'proposed-' + name: canonical(json.loads(data)) for name, data in cache.items()}}
+            # Preparation owns only the original JSON proposal pair. The active
+            # cache generator also emits runtime map files for production.
+            **{'proposed-' + name: canonical(json.loads(cache[name]))
+               for name in ('compact.json', 'tile-grids.json')}}
 
 
 def build(reference_root):

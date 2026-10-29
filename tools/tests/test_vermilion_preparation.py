@@ -42,11 +42,33 @@ class VermilionPreparationTests(unittest.TestCase):
         tracked = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BASE, 'Source'], text=True).splitlines()
         roots = ('Source/images/', 'Source/world/sprites/',
                  'Source/data/viridianSlice/', 'Source/data/pewterSlice/', 'Source/data/sourceSlice/')
-        exact = {'Source/world/tilefactory.lua',
-                 'Source/world/spritefactory.lua', 'Source/lib/shade.lua'}
+        exact = {'Source/world/spritefactory.lua', 'Source/lib/shade.lua'}
         for path in tracked:
             if path in exact or path.startswith(roots):
                 self.assertEqual((g.ROOT / path).read_bytes(), subprocess.check_output(['git', 'show', BASE + ':' + path]), path)
+        # The reviewed P0 change caches image tables and yields while building
+        # them. Keep all rendering helpers and tile/grid definitions exact on
+        # both sides of that section, including the complete end of the file.
+        path = 'Source/world/tilefactory.lua'
+        original = subprocess.check_output(['git', 'show', BASE + ':' + path])
+        current = (g.ROOT / path).read_bytes()
+        public = b'-- PUBLIC API\n'
+        definitions = b'-- TILE DEFINITIONS\n'
+        for marker in (public, definitions):
+            self.assertEqual(original.count(marker), 1)
+            self.assertEqual(current.count(marker), 1)
+        self.assertEqual(current.split(public)[0], original.split(public)[0], path)
+        self.assertEqual(current.split(definitions)[1], original.split(definitions)[1], path)
+        # Only the exact image-table caching section reviewed at 309194ee is
+        # exempt from the older byte comparison. Further edits need review.
+        cache_section = current.split(public)[1].split(definitions)[0]
+        self.assertEqual(hashlib.sha256(cache_section).hexdigest(),
+                         '1a688c48bfd384b46ec0d716419547806973e2e5968e72df66080009b3d3b709')
+        # Base-image assignments within the cache section still use every
+        # original tile constructor in its original order.
+        assignments = rb'^    tiles:setImage\(\d+,.*$'
+        self.assertEqual(re.findall(assignments, current, re.M),
+                         re.findall(assignments, original, re.M), path)
         active = json.loads((g.ROOT / 'Source/data/sourceMaps.json').read_bytes())
         previous = json.loads(subprocess.check_output(['git', 'show', BASE + ':Source/data/sourceMaps.json']))
         self.assertEqual(len(active['maps']), 65)

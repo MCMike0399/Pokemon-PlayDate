@@ -49,3 +49,65 @@ For real SDK sessions, follow [the harness contract](harness.md). Only the
 designated runtime owner may launch them; use fresh evidence paths and retain
 the exact Source fingerprint. The current executed outcomes and remaining
 defects belong in [the progress ledger](progress.md), not this command recipe.
+
+The P0 host fixtures based on `309194ee` retain the original Vermilion proposal
+inventory: the manifest, compact cache and tile grids. Runtime map JSON belongs
+to the active cache generator, not that historical preparation inventory.
+Restart mailbox doubles replace only the restart module's process API and stub
+its runtime preflight; they never replace the shared Python subprocess API or
+probe the physical device. Learnset exposure checks use the shared Python data
+parser, which accepts compact and expanded records without executing Lua.
+
+The frozen import fixture remains unchanged. The production artifact check
+retains its complete ordered inventory and registrations, permits only the
+reviewed `game/bootTrace` and `game/bootstrap` additions, and reads indented
+imports and registrations. Renderer preservation compares the original helpers
+and complete tile definitions byte for byte; only the exact reviewed image-table
+cache section is pinned separately. Original tile constructor assignments remain
+protected as well.
+
+After root finishes changing Source, regenerate the two journey projections
+from the integrated checkout, review their diff, and check them again:
+
+```sh
+source ~/Developer/Pokemon-PlayDate-env/env.sh
+python3 tools/generate_cerulean_journey.py --source Source
+python3 tools/generate_vermilion_journey.py --source Source
+python3 tools/generate_cerulean_journey.py --source Source --check
+python3 tools/generate_vermilion_journey.py --source Source --check
+```
+
+The strict preparation verifier still rejects stale provenance. Changing the
+preparation generator or its shared cache generator changes their recorded
+hashes even when every generated content artifact is identical. Generate fresh
+candidates outside Source and compare them before root decides how to record
+the new provenance; do not modify accepted evidence to make a check pass:
+
+```sh
+regeneration_root=$(mktemp -d "$HOME/Developer/Pokemon-PlayDate-env/evidence/p0-host-regeneration.XXXXXX")
+python3 tools/generate_vermilion_preparation.py --reference "$POKERED_REFERENCE_DIR" --output "$regeneration_root/vermilion-preparation"
+python3 tools/generate_vermilion_preparation.py --reference "$POKERED_REFERENCE_DIR" --output "$regeneration_root/vermilion-preparation" --check
+python3 tools/generate_source_map_cache.py --manifest Source/data/sourceMaps.json --source-root Source --output "$regeneration_root/source-map-cache"
+python3 tools/generate_source_map_cache.py --manifest Source/data/sourceMaps.json --source-root Source --output "$regeneration_root/source-map-cache" --check
+diff -ru Source/data/vermilionPreparation "$regeneration_root/vermilion-preparation"
+diff -ru Source/data/sourceMapCache "$regeneration_root/source-map-cache"
+```
+
+A `diff` exit status of 1 means differences require review. The preparation
+comparison at this base differs only in the generator hashes in `provenance.json`.
+The strict installed-output checks intentionally remain red until root resolves
+that provenance. Their missing, mutated and extra artifact rejection stays intact.
+
+Coverage freshness is independent of these fixtures. There is no checked-in
+coverage-matrix generator. Root must review the matrix's rows, source snapshot
+and evidence references after integration, preserving historical evidence
+identities; changing only its fingerprint would relabel stale evidence. Validate
+that reviewed result with:
+
+```sh
+python3 tools/check_coverage_matrix.py --project "$PWD" --matrix docs/validation/coverage-current.json
+```
+
+Then rebuild the compile-only bundle used by `PARCEL_BUNDLE_SOURCE` and rerun the
+complete host recipe above. These commands provide no Simulator or hardware
+acceptance.
