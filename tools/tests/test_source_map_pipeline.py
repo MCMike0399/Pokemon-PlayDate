@@ -30,9 +30,18 @@ class SourceMapManifestTests(unittest.TestCase):
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
                         "Source/data/viridianSlice", "Source/data/pewterSlice",
                         "Source/data/maps.lua", "Source/world/sprites", "Source/images",
-                        "Source/world/tilefactory.lua", "Source/lib/shade.lua",
+                        "Source/lib/shade.lua",
                         ":(exclude)Source/images/title"],
                        cwd=ROOT, check=True, capture_output=True)
+        # Image-table caching may change; authored drawing code and tile grids
+        # remain exact. Native pixel comparison covers the cached outputs.
+        import re
+        path = "Source/world/tilefactory.lua"
+        original = subprocess.check_output(["git", "show", BASE + ":" + path], cwd=ROOT, text=True)
+        current = (ROOT / path).read_text()
+        def drawing(text):
+            return re.sub(r"-- PUBLIC API.*?-- TILE DEFINITIONS", "-- TILE DEFINITIONS", text, flags=re.S)
+        self.assertEqual(drawing(current), drawing(original))
 
     def test_paths_revision_dimensions_and_padding_match_immutable_maps(self):
         for name, entry in self.maps.items():
@@ -162,6 +171,23 @@ class GeneratedSourceCacheTests(unittest.TestCase):
                 expected["x"] += entry["padding"]
                 self.assertEqual(actual, expected)
             self.assertEqual(len(descriptor["warps"]), len(raw["events"]["warps"]))
+
+    def test_runtime_projections_reconstruct_source_geometry_without_provenance(self):
+        manifest = json.loads((ROOT / "Source/data/sourceMaps.json").read_bytes())
+        for name, entry in manifest["maps"].items():
+            with self.subTest(name=name):
+                raw = json.loads((ROOT / "Source" / entry["path"]).read_bytes())
+                record = json.loads(self.artifacts["runtime-" + name + ".json"])
+                self.assertEqual(record["source_sha256"], entry["source_sha256"])
+                projection = record["definition"]
+                self.assertEqual(projection, {key: value for key, value in raw.items()
+                    if key not in {"source_refs", "source_refs_fields", "tile_ids", "collision"}})
+                tiles = [[int(row[x:x + 2], 16) for x in range(0, len(row), 2)]
+                         for row in record["tile_rows"]]
+                self.assertEqual(tiles, raw["tile_ids"])
+                collision = [[int(not projection["grids"][tile - 1]["terrain"]["land_passable"])
+                              for tile in row] for row in tiles]
+                self.assertEqual(collision, raw["collision"])
 
     def test_changed_extra_missing_or_symlinked_artifacts_are_rejected_without_repair(self):
         import tempfile

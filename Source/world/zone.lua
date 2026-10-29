@@ -184,12 +184,12 @@ function Zone:init(config)
         rectangle(config.collision, self.width, self.height, "zone collision", function(value)
             assert(value == 0 or value == 1, "unknown zone collision value")
         end)
-        local verifiedEntries=config.compactTerrain and {} or nil
+        local verifiedEntries = {}
         rectangle(config.terrain, self.width, self.height, "zone terrain", function(value, x, y)
             assert(type(value) == "table" and type(value.land_passable) == "boolean", "zone terrain requires passability")
             local id=self.tiles[y][x]
-            local entry=verifiedEntries and verifiedEntries[id] or self.registry:entry(id)
-            if verifiedEntries then verifiedEntries[id]=entry end
+            local entry = verifiedEntries[id] or self.registry:entry(id)
+            verifiedEntries[id] = entry
             assert(value.land_passable == entry.terrain.land_passable, "numeric zone terrain disagrees with stable tile key")
             local blocker = config.blockedBindings and config.blockedBindings[y] and config.blockedBindings[y][x]
             assert(config.collision[y][x] == (blocker and 1 or entry.collision), "numeric zone collision disagrees with stable tile key")

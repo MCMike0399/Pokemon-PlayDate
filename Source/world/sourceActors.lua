@@ -276,7 +276,7 @@ end
 function SourceActors.refresh(game, zone)
     local name = SourceMaps.nameForID(zone.stableID)
     if not name or SourceMaps.entry(name).profile ~= "source" then return end
-    local d = SourceMaps.padded(name)
+    local d = SourceMaps._runtimePadded(name)
     local events = {}
     for _, event in ipairs(d.events.objects) do events[event.id] = event end
     local definitions = {}

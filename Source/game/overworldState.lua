@@ -397,13 +397,17 @@ function OverworldState:enter(opts)
             actors = game.npcManager.motion:snapshot()
         end
         local reason = opts and opts.fieldReloadReason or (self.builtZone == currentZone and "reload" or "map")
+        BootTrace.mark("overworld.field_reload.begin")
         local accepted, problem = game.fieldWorld.enter(game, self.builtZone.stableID,
             {zone_id = currentZone.stableID, x = pos.x, y = pos.y, facing = pos.facing or "down"},
             actors or WorldMotionData.empty(), reason)
         assert(accepted, problem)
+        BootTrace.mark("overworld.field_reload.end")
     end
     gfx.sprite.removeAll()
+    BootTrace.mark("overworld.view.begin")
     setupOverworld()
+    BootTrace.mark("overworld.view.end")
     self.builtZone, self.builtSession = currentZone, game.session
 
     game.player = Player(pos.x, pos.y, currentZone.collision, game.npcManager)
@@ -420,9 +424,11 @@ function OverworldState:enter(opts)
     end
     local context = {actors=actorRecord,reconcile=reconcile}
     SourceEvents.worldHook("beforeSpawn", game, context)
+    BootTrace.mark("overworld.actors.begin")
     currentZone:spawnNPCs(game.npcManager)
     game.npcManager.motion:attach(game,currentZone,context.actors,context.reconcile)
     SourceEvents.worldHook("onEnter", game, opts)
+    BootTrace.mark("overworld.actors.end")
 
     -- An empty session remains empty until an explicit acquisition.
 

@@ -5,6 +5,7 @@ local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local manifest
 local compact, tileGrids
 local recordOverrides
+local runtimeDefinitions
 local rawCache = setmetatable({}, { __mode = "v" })
 
 local function copy(value)
@@ -156,9 +157,40 @@ function SourceMaps.definition(name)
     return copy(rawDefinition(name))
 end
 
+local function runtimeDefinition(name, entry)
+    if recordOverrides then
+        return rawDefinition(name)
+    end
+    local record = SourceMaps.record("data/sourceMapCache/runtime-" .. name .. ".json")
+    assert(record.manifest_sha256 == compactData().manifest_sha256
+        and record.source_sha256 == entry.source_sha256, "runtime map cache differs from manifest")
+    local definition = record.definition
+    assert(definition.name == name and definition.id == entry.id, "runtime map identity mismatch")
+    local width, height = table.unpack(definition.dimensions.cells)
+    assert(#record.tile_rows == height, "runtime map row count differs")
+    definition.tile_ids = {}
+    definition.collision = {}
+    for y, row in ipairs(record.tile_rows) do
+        assert(#row == width * 2, "runtime map row width differs")
+        local tiles, collision = {}, {}
+        for x = 1, width do
+            local id = assert(tonumber(row:sub(x * 2 - 1, x * 2), 16), "invalid runtime tile ID")
+            local tile = assert(definition.grids[id], "unknown runtime tile ID")
+            tiles[x] = id
+            collision[x] = tile.terrain.land_passable and 0 or 1
+        end
+        definition.tile_ids[y] = tiles
+        definition.collision[y] = collision
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
+    end
+    return definition
+end
+
 local function padded(name, runtime)
     local entry = SourceMaps.entry(name)
-    local original = rawDefinition(name)
+    local original = runtime and runtimeDefinition(name, entry) or rawDefinition(name)
     local projection = original
     if runtime then
         projection = {}
@@ -168,7 +200,7 @@ local function padded(name, runtime)
             end
         end
     end
-    local data = copy(projection)
+    local data = runtime and not recordOverrides and projection or copy(projection)
     local width, height = table.unpack(data.dimensions.cells)
     assert(entry.height == height and entry.width >= width, "source manifest dimensions differ")
     assert(entry.padding == math.max(0, (entry.width - width) // 2), "source manifest padding differs")
@@ -217,7 +249,29 @@ function SourceMaps.padded(name)
 end
 
 function SourceMaps._runtimePadded(name)
-    return padded(name, true)
+    if runtimeDefinitions and runtimeDefinitions[name] then
+        return runtimeDefinitions[name]
+    end
+    local definition = padded(name, true)
+    if runtimeDefinitions then
+        runtimeDefinitions[name] = definition
+    end
+    return definition
+end
+
+-- A load may validate actors several times before publishing a world change.
+-- Keep its private immutable definition only until that load finishes.
+function SourceMaps._withRuntimeDefinitions(callback)
+    if runtimeDefinitions then
+        return callback()
+    end
+    runtimeDefinitions = {}
+    local results = table.pack(pcall(callback))
+    runtimeDefinitions = nil
+    if not results[1] then
+        error(results[2], 0)
+    end
+    return table.unpack(results, 2, results.n)
 end
 
 -- Ordinary geometry is projected from the same cache used by ImportedMaps.
@@ -319,10 +373,13 @@ end
 -- and all caches even when a contract fails; never installs campaign locations.
 function SourceMaps._withRecords(records, fn)
     local oldManifest, oldCompact, oldGrids, oldRaw, oldOverrides = manifest, compact, tileGrids, rawCache, recordOverrides
+    local oldRuntime = runtimeDefinitions
+    runtimeDefinitions = runtimeDefinitions and {} or nil
     manifest, compact, tileGrids = nil, nil, nil
     rawCache, recordOverrides = setmetatable({}, { __mode = "v" }), records
     local ok, result = pcall(fn)
     manifest, compact, tileGrids, rawCache, recordOverrides = oldManifest, oldCompact, oldGrids, oldRaw, oldOverrides
+    runtimeDefinitions = oldRuntime
     if not ok then error(result, 0) end
     return result
 end

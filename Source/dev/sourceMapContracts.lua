@@ -230,6 +230,7 @@ function SourceMapContracts.run()
             blocked("occupied-connection-arrival")
             npc.appearsIf = function() return false end
             assert(KantoWorld.connection(context, city, 0, 16, "left"))
+            city = provider:ensure("kanto_viridian_city")
             city:setTile(0, 16, "base:3")
             local door, reason = KantoWorld.connection(context, route, 39, 8, "right")
             equal(door, nil)
@@ -326,18 +327,18 @@ function SourceMapContracts.run()
         if not ok then error(problem,0) end
     end)
 
-    test("both live installation facades share all thirty definitions and resident Viridian Zones", function()
+    test("both live installation facades share all definitions and load Viridian maps on demand", function()
         local provider = WorldDeltas.definitionProvider()
         equal(PewterWorld.install(game), provider)
         local count = #zoneList
         local zones = KantoWorld.install(game)
         equal(#zoneList, count)
         equal(#provider:inventory(), 65)
-        equal(provider:snapshot().capacity, 6)
+        equal(provider:snapshot().capacity, 2)
         for _, name in ipairs(SourceMaps.names("viridian")) do
             local entry = SourceMaps.entry(name)
             equal(zones[entry.key], zoneRegistry[entry.key])
-            assert(provider:owns(zones[entry.key]), "legacy eager map bypassed shared provider")
+            assert(provider:owns(zones[entry.key]), "legacy map lookup bypassed shared provider")
         end
     end)
 
@@ -425,11 +426,15 @@ function SourceMapContracts.run()
 
     test("provider installation and direct tile lookup never load unrelated full map definitions", function()
         scope(function(_, registry, context)
-            local definition = SourceMaps.definition
+            local read = SourceMaps.record
             local loaded = {}
-            SourceMaps.definition = function(name)
-                loaded[name] = (loaded[name] or 0) + 1
-                return definition(name)
+            SourceMaps.record = function(path)
+                local name = path:match("^data/sourceMapCache/runtime%-(.+)%.json$")
+                if name then
+                    loaded[name] = (loaded[name] or 0) + 1
+                end
+                assert(not path:match("^data/viridianSlice/"), "runtime read original decoded map")
+                return read(path)
             end
             local ok, problem = pcall(function()
                 local provider = PewterWorld.createProvider(context, registry)
@@ -445,7 +450,7 @@ function SourceMapContracts.run()
                 for name in pairs(loaded) do equal(name, "Route1") end
                 provider:disposeCache()
             end)
-            SourceMaps.definition = definition
+            SourceMaps.record = read
             if not ok then error(problem, 0) end
         end)
     end)
@@ -471,7 +476,7 @@ function SourceMapContracts.run()
                     end
                 end
             end
-            equal(#provider:snapshot().cached, 6)
+            equal(#provider:snapshot().cached, 2)
         end)
     end)
 
@@ -620,7 +625,7 @@ function SourceMapContracts.run()
         end)
     end)
 
-    test("one ledger owns resident Viridian changes and evicted Pewter changes across reset and reload", function()
+    test("one ledger preserves evicted Viridian and Pewter changes across reset and reload", function()
         scope(function(provider, registry)
             local route1 = provider:ensure("kanto_route1")
             local route2 = provider:ensure("kanto_route2")
@@ -632,7 +637,8 @@ function SourceMapContracts.run()
             provider:ensure("kanto_pewter_mart")
             equal(provider:owns(route2), false)
             rejects(function() route2:setTile(8, 70, "base:2") end)
-            equal(provider:owns(route1), true)
+            equal(provider:owns(route1), false)
+            rejects(function() route1:setTile(10, 35, "base:2") end)
             route2 = provider:ensure("kanto_route2")
             equal(registry:key(route2.tiles[71][9]), "base:2")
             local undo = WorldDeltas.apply({ schema = 1, zone_count = 0, zones = {} })
@@ -640,7 +646,9 @@ function SourceMapContracts.run()
             undo()
             same(WorldDeltas.export(), saved)
             provider:disposeCache()
-            equal(zoneRegistry.kanto_route1, route1)
+            equal(zoneRegistry.kanto_route1, nil)
+            route1 = provider:ensure("kanto_route1")
+            equal(registry:key(route1.tiles[36][11]), "base:2")
             equal(zoneRegistry.kanto_route2, nil)
             route2 = provider:ensure("kanto_route2")
             equal(registry:key(route2.tiles[71][9]), "base:2")

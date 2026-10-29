@@ -42,6 +42,10 @@ def records(reference_root):
         path = source / 'manifest.json'
         path.write_bytes(canonical(manifest))
         for name, content in build(path, source).items():
+            # Overrides exercise raw extension records; runtime projections are
+            # independently regenerated and need not duplicate this fixture.
+            if name.startswith('runtime-'):
+                continue
             result['data/sourceMapCache/' + name] = json.loads(content)
     result['data/sourceMaps.json'] = manifest
     return result

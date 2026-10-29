@@ -97,6 +97,9 @@ function GameBootstrap.withLoading(phase, callback)
         if not previous then
             GameBootstrap.checkpoint()
         end
+        if SourceMaps and SourceMaps._withRuntimeDefinitions then
+            return SourceMaps._withRuntimeDefinitions(callback)
+        end
         return callback()
     end)
     collectgarbage("setpause", pause)

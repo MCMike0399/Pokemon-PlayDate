@@ -178,13 +178,31 @@ function ImportedMaps:ensure(key)
     if not ok then undoCache();undoTiles();error(result,0) end
     return result
 end
+local function sameTiles(first, second)
+    local a = first and first.tiles or {}
+    local b = second and second.tiles or {}
+    if #a ~= #b then
+        return false
+    end
+    for index, tile in ipairs(a) do
+        local other = b[index]
+        if tile.x ~= other.x or tile.y ~= other.y or tile.key ~= other.key then
+            return false
+        end
+    end
+    return true
+end
+
 function ImportedMaps:apply(payload)
     local store=stores[self];local desired=normalized(store,payload);local ledger=asLedger(desired);local undo={}
     local undoRegistry=(store.factory.registry or WorldTiles):checkpointRuntime()
     local ok,problem=pcall(function()
         for id,zone in pairs(store.cache) do
-            local record=ledger[id] or empty(store.byID[id]);store.factory.ensureKeys(record.tiles)
-            undo[#undo+1]=zone:_commitTiles(zone:_prepareDeltas(record))
+            local record = ledger[id] or empty(store.byID[id])
+            if not sameTiles(record, store.ledger[id]) then
+                store.factory.ensureKeys(record.tiles)
+                undo[#undo + 1] = zone:_commitTiles(zone:_prepareDeltas(record, "apply"))
+            end
         end
     end)
     if not ok then for i=#undo,1,-1 do undo[i]() end;undoRegistry();error(problem,0) end

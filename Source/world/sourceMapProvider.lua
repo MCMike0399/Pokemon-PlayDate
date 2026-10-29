@@ -58,11 +58,10 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
     end
     options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
     options.bindingAdapter = SourceBindings
-    -- Retain each reviewed adapter's terrain/source representation.
-    if entry.profile ~= "viridian" then
-        options.compactTerrain = true
-        definition.source_refs = nil
-    end
+    -- Terrain is immutable per tile key. Public accessors still return copies;
+    -- cells keep private shared records instead of duplicating every flag.
+    options.compactTerrain = true
+    definition.source_refs = nil
     if BootTrace then
         BootTrace.mark("map." .. name .. ".zone.begin")
     end

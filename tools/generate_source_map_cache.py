@@ -52,6 +52,7 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
     compact = dict(header, maps={}, tiles={}, door_tiles=door_tiles)
     atlas = dict(header, tiles={})
     identities, keys = set(), set()
+    runtime = {}
     for name, entry in sorted(manifest["maps"].items()):
         require(entry["profile"] in VOID_KEYS, "unknown binding profile")
         path = (source_root / entry["path"]).resolve()
@@ -65,6 +66,14 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
         require(entry["id"] not in identities and entry["key"] not in keys, "duplicate source identity")
         identities.add(entry["id"])
         keys.add(entry["key"])
+        # Runtime geometry uses compact rows and omits extraction provenance.
+        # The decoded source remains unchanged and is checked above.
+        projection = {key: value for key, value in definition.items()
+                      if key not in {"source_refs", "source_refs_fields", "tile_ids", "collision"}}
+        runtime["runtime-" + name + ".json"] = canonical(dict(
+            header, source_sha256=entry["source_sha256"], definition=projection,
+            tile_rows=["".join(f"{tile:02x}" for tile in row)
+                       for row in definition["tile_ids"]]))
         width, height = definition["dimensions"]["cells"]
         require(integer(width, 1, 4096) and integer(height, 1, 4096), "invalid source dimensions")
         require(entry["width"] == max(width, 13) and entry["height"] == height
@@ -157,7 +166,7 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
             context = next(iter(candidates))
         require(context in candidates, "LAST_MAP context has no matching source ingress: " + name)
         descriptor["last_outdoor"] = context
-    return {"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)}
+    return dict(runtime, **{"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)})
 
 
 def check(artifacts, directory):
