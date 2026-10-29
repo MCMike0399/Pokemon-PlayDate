@@ -257,6 +257,11 @@ local function writeCatalog(outputDir)
         assert(category==declared.category and (mask or false)==declared.mask,"catalog metadata differs from declaration: "..filename)
         playdate.simulator.writeToFile(image, outputDir .. "/" .. filename)
         manifest.images[#manifest.images + 1] = { path = filename, width = w, height = h, category = category, mask = mask or false }
+        -- Native image buffers are larger than their Lua userdata wrappers.
+        -- Release completed exports before the fixed device-sized pool fills.
+        if #manifest.images % 32 == 0 then
+            collectgarbage("collect")
+        end
     end
     local function asset(name, image, category, backgrounds)
         save(name, image, category)
@@ -386,13 +391,20 @@ local function writeCatalog(outputDir)
             local prefix=zone.imported and importedMapName(zone) or "map_"..key
             local events={}
             local registryKeys={}
+            local kinds = {}
             local w, h = zone.width * TILE_SIZE, zone.height * TILE_SIZE
             local map = render(w, h, gfx.kColorWhite, function()
                 for y = 1, zone.height do for x = 1, zone.width do
                     local id=zone.tiles[y][x]
                     local stable=zone.registry:key(id)
                     registryKeys[stable]=true
-                    local image=zone.registry:entry(id).kind=="base" and tiles:getImage(zone.registry:id(id)) or assert(localImages[stable],"catalog imported tile missing")
+                    local kind = kinds[id]
+                    if not kind then
+                        kind = zone.registry:entry(id).kind
+                        kinds[id] = kind
+                    end
+                    local image = kind == "base" and tiles:getImage(zone.registry:id(id))
+                        or assert(localImages[stable], "catalog imported tile missing")
                     image:draw((x - 1) * TILE_SIZE, (y - 1) * TILE_SIZE)
                 end end
             end)
