@@ -159,3 +159,26 @@ game loaded, in `PlaydateSerialOpen` / `tcsetattr`. Unplugging the physical
 Playdate restored readiness. The sample is
 `evidence/m55a-visible-resume-20261028-05/charmander-startup-sample.txt`.
 These startup failures do not provide checkpoint A gameplay acceptance.
+
+## First 16 MB boot profile — P0
+
+Hardware-verified frontier remains **0/222**; 65 maps have Simulator route
+evidence. Checkpoint 5.5a is frozen. The user selected the Simulator's 16 MB
+pool; SDK 3.1.2 persisted `MallocPoolSize=16645684`. This value is now required
+by runtime preflight. It is a memory constraint, not CPU emulation.
+
+`evidence/p0-guarded-profile-16mb-20261028-02` recorded KantoWorld installation
+at 473 ms on the M5, with Lua heap rising from 6691.8 to 12719.8 KiB. The
+9 MiB test guard rejected it. The subsequent sliced profile at
+`evidence/p0-sliced-profile-16mb-20261028-03` stopped at the same installation;
+its error screen continued updating through at least 90 frames, recorded in
+`runtime-data/boot-trace.tsv`. Neither run is a passed memory or hardware gate.
+
+BootTrace now writes and closes a phase line to Data and prints it over serial.
+Imports remain inside PDZ loading and have a protected Lua-error path; content
+installation runs in the SDK update coroutine with cooperative boundaries.
+Title/Continue, door and battle phases are instrumented. Device-test guards stop
+at 9 MiB observed heap, 6 MiB post-GC live heap, or a 1-second unchecked slice.
+The 1-second ceiling avoids crashes; calibrated performance limits remain
+unmeasured and cannot be treated as passed. The Simulator/device factor is still
+unknown. No new device build has been deployed since the failed loading build.

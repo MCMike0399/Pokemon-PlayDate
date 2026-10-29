@@ -40,6 +40,9 @@ function BattleState:init(game)
 end
 
 function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
+    if BootTrace then
+        BootTrace.mark("battle.start.begin")
+    end
     local plan,reason=FieldBattle.prepare(self.game,playerPokemon,enemyPokemon,npc,enemyParty)
     assert(plan,reason)
     local battle,scene=FieldBattle.construct(plan)
@@ -65,6 +68,12 @@ function BattleState:enter(playerPokemon, enemyPokemon, npc, enemyParty)
     self.battle:on("battleEnd", function(won, kind)
         if self.battle==ownedBattle and self.game.session==ownedSession and self.epoch==epoch then self:finish(won,kind) end
     end)
+    if BootTrace then
+        BootTrace.mark("battle.start.end")
+        if DEVICE_TEST_BUILD then
+            BootTrace.collect("battle.live")
+        end
+    end
 end
 
 function BattleState:finish(won, kind)

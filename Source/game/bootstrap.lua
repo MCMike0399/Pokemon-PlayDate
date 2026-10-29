@@ -3,6 +3,14 @@ GameBootstrap = {}
 local gfx <const> = playdate.graphics
 local pending = {}
 local started, loading, ready = false, false, false
+local failure
+local sliceStart = playdate.getCurrentTimeMilliseconds()
+local sliceBudget = 8
+local errorFrames = 0
+
+if DEVICE_TEST_BUILD then
+    playdate.setAutoLockDisabled(true)
+end
 
 function GameBootstrap.afterReady(callback)
     assert(type(callback) == "function", "startup callback required")
@@ -20,16 +28,86 @@ function GameBootstrap.showLoading()
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawText("Pokemon Blue", 146, 96)
-    gfx.drawText("Loading...", 160, 124)
+    gfx.drawText("Loading...", 160, 112)
+    gfx.drawText(tostring(BootTrace.phase or "starting"):sub(1, 48), 8, 144)
+    gfx.drawText("Phase " .. tostring(BootTrace.sequence or 0), 8, 168)
+    local progress = math.min((BootTrace.sequence or 0) / 340, 0.95)
+    gfx.drawRect(20, 202, 360, 10)
+    gfx.fillRect(22, 204, math.floor(356 * progress), 6)
     playdate.display.flush()
+end
+
+function GameBootstrap.drawError()
+    errorFrames = errorFrames + 1
+    if errorFrames == 1 or errorFrames % 30 == 0 then
+        BootTrace.mark("error.alive." .. tostring(errorFrames), true)
+    end
+    collectgarbage("step", 1)
+    gfx.setDrawOffset(0, 0)
+    gfx.clearClipRect()
+    gfx.clearStencil()
+    gfx.clear(gfx.kColorWhite)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawText("Game stopped safely", 12, 20)
+    gfx.drawText(tostring(BootTrace.phase or "unknown phase"):sub(1, 48), 12, 52)
+    local text = tostring(failure or "unknown error")
+    for line = 0, 5 do
+        gfx.drawText(text:sub(line * 46 + 1, (line + 1) * 46), 12, 84 + line * 20)
+    end
+end
+
+function GameBootstrap.fail(message)
+    failure = tostring(message)
+    loading = false
+    pcall(BootTrace.mark, "error." .. failure:sub(1, 160))
+    print("BOOTERROR\t" .. failure)
+    if DEVICE_TEST_BUILD then
+        playdate.setAutoLockDisabled(true)
+        if DeviceSmoke then
+            DeviceSmoke.fail(failure)
+        end
+    end
+    playdate.update = GameBootstrap.drawError
 end
 
 function GameBootstrap.checkpoint()
     if not loading then
         return
     end
+    BootTrace.checkGuard()
     GameBootstrap.showLoading()
+    BootTrace.mark("initialize.yield")
+    BootTrace.yielded()
     coroutine.yield()
+    sliceStart = playdate.getCurrentTimeMilliseconds()
+end
+
+function GameBootstrap.yieldIfDue()
+    BootTrace.checkGuard()
+    if loading and playdate.getCurrentTimeMilliseconds() - sliceStart >= sliceBudget then
+        GameBootstrap.checkpoint()
+    end
+end
+
+function GameBootstrap.runFrame(callback, game)
+    if failure then
+        GameBootstrap.drawError()
+        return
+    end
+    BootTrace.yielded()
+    local ok, message = pcall(function()
+        BootTrace.checkGuard()
+        if DEVICE_TEST_BUILD and DeviceSmoke then
+            DeviceSmoke.runFrame(game, callback)
+        else
+            callback()
+        end
+        BootTrace.checkGuard()
+    end)
+    if not ok then
+        GameBootstrap.fail(message)
+        GameBootstrap.drawError()
+    end
 end
 
 function GameBootstrap.start(initialize)
@@ -37,12 +115,24 @@ function GameBootstrap.start(initialize)
     started = true
     playdate.update = function()
         loading = true
-        initialize()
+        sliceStart = playdate.getCurrentTimeMilliseconds()
+        BootTrace.yielded()
+        local ok, message = pcall(initialize)
+        if not ok then
+            GameBootstrap.fail(message)
+            GameBootstrap.drawError()
+            return
+        end
         loading, ready = false, true
+        BootTrace.mark("initialize.ready")
         local callbacks = pending
         pending = {}
         for _, callback in ipairs(callbacks) do
-            callback()
+            local accepted, problem = pcall(callback)
+            if not accepted then
+                GameBootstrap.fail(problem)
+                return
+            end
         end
     end
 end

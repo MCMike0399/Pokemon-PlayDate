@@ -85,7 +85,7 @@ end
     return before + text + after
 
 
-def prepare(project, sdk, output, session, mode, checkpoint=None):
+def prepare(project, sdk, output, session, mode, checkpoint=None, device_test=False):
     output.mkdir(parents=True, exist_ok=False)
     if mode == 'harness':
         metadata = run.prepare(project, sdk, output, session)
@@ -108,6 +108,8 @@ def prepare(project, sdk, output, session, mode, checkpoint=None):
                     'source_sha256': run.fingerprint(project)}
     main = output / 'Source/main.lua'
     original = main.read_text()
+    if device_test:
+        original = "DEVICE_TEST_BUILD = true\n" + original
     staged_hash = run.fingerprint(output, exclude_generated=False)
     if checkpoint:
         if mode != 'production':
@@ -155,14 +157,19 @@ def execute(metadata, output, timeout):
         if hashlib.sha256(content).hexdigest() != record['sha256']:
             raise ProtocolError('private checkpoint seed bytes changed after compilation')
         (data / record['file']).write_bytes(content)
+    atomic_json(data / 'boot-profile-build.json', {'build_id': metadata.get('build_id', metadata['main_pdz_sha256'])})
     process = None
     try:
         with OwnerLock(data / 'owner.lock'), (output / 'simulator.log').open('w') as log:
             try:
+                run.simulator_preflight()
                 process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
                 atomic_json(output / 'run.json', dict(metadata, simulator_pid=process.pid))
                 deadline = time.monotonic() + timeout
                 while not (data / 'startup-probe.json').exists():
+                    trace = data / 'boot-trace.tsv'
+                    if trace.exists() and '\terror.' in trace.read_text():
+                        raise ProtocolError('guarded profile stopped; inspect runtime-data/boot-trace.tsv')
                     if process.poll() is not None or time.monotonic() >= deadline:
                         raise ProtocolError('startup probe exited or timed out before publication')
                     time.sleep(0.05)
@@ -199,6 +206,7 @@ def main():
     parser.add_argument('--project', type=Path, default=run.PROJECT, help='read-only source checkout to measure')
     parser.add_argument('--sdk')
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--device-test', action='store_true', help='enable crash-avoidance guards for the private profile')
     parser.add_argument('--timeout', type=float, default=30)
     parser.add_argument('--checkpoint', action='store_true', help='supplemental earned-save resource probe, production only')
     parser.add_argument('--save-dir', type=Path, help='actual earned slot directory, copied without edits')
@@ -222,7 +230,7 @@ def main():
     elif args.save_dir:
         parser.error('--save-dir requires the labelled --checkpoint mode')
     with OwnerLock(run.runtime_lock_path(sdk)) if args.execute else nullcontext():
-        metadata = prepare(args.project.expanduser().resolve(), sdk, output, uuid.uuid4().hex, args.mode, checkpoint)
+        metadata = prepare(args.project.expanduser().resolve(), sdk, output, uuid.uuid4().hex, args.mode, checkpoint, args.device_test)
         if args.execute:
             execute(metadata, output, args.timeout)
     print(output)

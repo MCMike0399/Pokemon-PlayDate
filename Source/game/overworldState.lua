@@ -276,6 +276,9 @@ function DoorWarpSubstate:init(owner)
 end
 
 function DoorWarpSubstate:enter(door)
+    if BootTrace then
+        BootTrace.mark("door.begin")
+    end
     if VermilionStory and not VermilionStory.allowDoor(self.owner.game,door) then
         self.owner.game.player.stepJustFinished=false
         self.owner.game.player.pendingEdgeDoor=nil
@@ -300,11 +303,20 @@ function DoorWarpSubstate:update()
         local provider = WorldDeltas.definitionProvider()
         local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
         SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
+        if BootTrace then
+            BootTrace.mark("door.map.begin")
+        end
         switchZone(door.to)
         self.owner.machine:change("overworld", {
             entry = { x = door.toX, y = door.toY, facing = facing },
             fromDoor = not door.connection,
         })
+        if BootTrace then
+            BootTrace.mark("door.map.end")
+            if DEVICE_TEST_BUILD then
+                BootTrace.collect("door.live")
+            end
+        end
         -- Connections skip Player's ordinary completed-step animation.
         if door.connection then
             self.owner.game.session:daycareStep()

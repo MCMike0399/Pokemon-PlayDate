@@ -48,6 +48,15 @@ def sdk_path(explicit=None):
     return sdk
 
 
+def simulator_preflight():
+    simulator_usb_preflight()
+    settings = Path.home() / 'Library/Preferences/com.panic.Playdate Simulator.ini'
+    # SDK 3.1.2 wrote this usable pool size when the user selected 16MB.
+    values = dict(line.split('=', 1) for line in settings.read_text().splitlines() if '=' in line)
+    if values.get('MallocPoolSize') != '16645684':
+        raise ProtocolError('Select Playdate > Malloc Pool > 16MB in the Simulator before runtime checks.')
+
+
 def fingerprint(project, exclude_generated=True):
     digest = hashlib.sha256()
     for path in sorted((project / 'Source').rglob('*')):
@@ -276,7 +285,7 @@ def _run(args):
                 owner.__exit__()
     try:
         with (output / 'simulator.log').open('w') as log:
-            simulator_usb_preflight()
+            simulator_preflight()
             process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
             metadata['simulator_pid'] = process.pid
             atomic_json(output / 'run.json', metadata)
@@ -350,7 +359,7 @@ def run(args):
     if args.build_only:
         return _run(args)
     with OwnerLock(runtime_lock_path(sdk)), OwnerLock(device_lock_path()):
-        simulator_usb_preflight()
+        simulator_preflight()
         return _run(args)
 
 

@@ -52,6 +52,9 @@ function GameSaves:beginNewGame(seed)
 end
 
 function GameSaves:continueGame()
+    if BootTrace then
+        BootTrace.mark("Continue.begin")
+    end
     local payload, metadata = self.store:load()
     if not payload then return false, metadata end
     local candidate, decodeProblem = SessionCodec.decode(payload, self.game:getSessionDependencies())
@@ -60,13 +63,25 @@ function GameSaves:continueGame()
         local prepared,reason=self.game.fieldWorld.prepareContinue(candidate)
         if not prepared then return false,{reason="invalid-field-reload",error=reason} end
     end
+    if BootTrace then
+        BootTrace.mark("Continue.map.begin")
+    end
     local ok, problem = self.game:installSession(candidate)
+    if BootTrace then
+        BootTrace.mark("Continue.map.end")
+    end
     if ok then
         if self._replacement then self.store:cancelReplacement(self._replacement.ticket); self._replacement=nil end
         if self.observeBoundary then
             self.observeBoundary(candidate, "loaded", payload, metadata)
         end
         self.game:offerPartyLearning()
+    end
+    if BootTrace then
+        BootTrace.mark("Continue.end")
+    end
+    if BootTrace and DEVICE_TEST_BUILD and ok then
+        BootTrace.collect("Continue.live")
     end
     return ok, ok and metadata or {reason = "cannot-install-session", error = problem}
 end

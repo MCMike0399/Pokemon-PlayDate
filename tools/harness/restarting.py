@@ -290,7 +290,7 @@ def run(args, scenario, metadata, output, data, owner, runner):
             from tools.harness import catalog_qualification
             catalog_qualification.prepare(output)
             with (evidence / 'simulator.log').open('w') as log:
-                runner.simulator_usb_preflight()
+                runner.simulator_preflight()
                 process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
                 record['pid'] = process.pid
                 if process.pid == prior_pid:

@@ -49,7 +49,9 @@ def prepare(project, sdk, output):
     original = (source / 'main.lua').read_text()
     if 'dev/deviceSmoke' in original or 'DEVICE_TEST_BUILD = ' in original:
         raise ValueError('private device import/flag must not be in the project entry point')
-    if original.count(FRAME_HOOK) == 1:
+    if 'GameBootstrap.runFrame(updateGame, game)' in original:
+        root_hook = original
+    elif original.count(FRAME_HOOK) == 1:
         root_hook = original
     else:
         root_hook = replace_once(original, FRAME_ANCHOR, FRAME_HOOK)
