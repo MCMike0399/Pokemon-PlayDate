@@ -110,3 +110,34 @@ bootstrap guard. Hard stalls, watchdog termination, allocation failure and SDK
 native crashes cannot be recovered by this module. Frame counts are not wall
 time deadlines; BootTrace and budget/stall guards remain root-owned. No crank,
 button chords, screenshots, save copying or automatic journey driver is supplied.
+
+## Exact-bundle Simulator tooling at base 33f7783
+
+The worker added `simulator_smoke.py` and extended `build_smoke.py` with exact
+source, compiler and compiled-bundle identity. Root must apply the deliberately
+unapplied `device-smoke-simulator.patch` to its owned dev module, then compile
+once and reuse that exact PDX. The mailbox calls the existing DS1 serial callback
+only in the Simulator; hardware performs no mailbox polling. The observer splits
+active frame timing at coroutine suspension rather than timing the whole task.
+[SIMULATOR-SMOKE.md](SIMULATOR-SMOKE.md) gives root commands, earned-slot manifest
+format, measurements, failure semantics and limits. Runtime and hardware
+acceptance are pending. The existing device-cycle prohibition on dev builds is
+unchanged; root owns private hardware deployment integration.
+
+The final focused host run passed 14 checks, including the new 10 smoke checks,
+existing device-cycle checks and a real SDK 3.1.2 compile of the patched module
+in a disposable Source fixture. The decoded private PDZ retained exactly
+`dev/deviceSmoke`. `make test-harness` ran 54 checks with five restart-test
+failures. A fresh archive of exact base `33f7783` reproduced all five failures:
+its mocked `MailboxProcess` rejects preflight subprocess argument `text`.
+No unrelated test or harness changes were made.
+
+A retained compile of the unchanged root-owned module is available at
+`~/Developer/Pokemon-PlayDate-env/evidence/device-smoke-worker-33f7783-compile-20261028-01`.
+Its build ID is `9ddb257cb78f41a4afed459df6cc64ac`, Source fingerprint is
+`ee0c36f5adf9d35bf0022d4822d083a877381c43fb322ed75f46a43bd3d70a3c`,
+and bundle hash is
+`e5bb2301fad49641b4cfcd8e22427db732365c4d8ca65c7152a3fbbabf6ac72c`.
+Verify-only mode accepted those exact retained bytes. This serial-only artifact
+has no Simulator transport until root applies the patch and compiles a fresh
+bundle; it is not runtime evidence. No Simulator, device or USB execution ran.

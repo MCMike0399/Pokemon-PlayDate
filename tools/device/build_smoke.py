@@ -5,7 +5,6 @@ import difflib
 import hashlib
 import json
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import uuid
@@ -13,6 +12,8 @@ import uuid
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.build import stage_production
+from tools.device_cycle import inventory, tree_hash
+from tools.harness.run import fingerprint
 
 PROJECT = Path(__file__).resolve().parents[2]
 FRAME_ANCHOR = '        else\n            updateGame()\n        end\n'
@@ -31,6 +32,8 @@ def replace_once(text, before, after):
 
 
 def manifest(source):
+    if source.is_symlink() or any(path.is_symlink() for path in source.rglob('*')):
+        raise ValueError('symlink refused in retained source')
     return {path.relative_to(source).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(source.rglob('*')) if path.is_file()}
 
@@ -60,10 +63,14 @@ def prepare(project, sdk, output):
                            'import "CoreLibs/graphics"\nimport "dev/deviceSmoke"\n')
     identity = uuid.uuid4().hex
     private = f'DEVICE_TEST_BUILD = true\nDEVICE_TEST_ID = "{identity}"\n' + private
+    module = (project / 'Source/dev/deviceSmoke.lua').read_bytes()
+    simulator_transport = b'DeviceSmoke.simulatorTransportVersion = 1' in module
+    if simulator_transport:
+        private += '\nDeviceSmoke.installSimulatorObserver()\n'
     (source / 'main.lua').write_text(private)
     (output / 'private-main.patch').write_text(diff(original, private))
     (source / 'dev').mkdir()
-    shutil.copyfile(project / 'Source/dev/deviceSmoke.lua', source / 'dev/deviceSmoke.lua')
+    (source / 'dev/deviceSmoke.lua').write_bytes(module)
     info_path = source / 'pdxinfo'
     info = info_path.read_text()
     bundle_id = f'com.poc.pokemon.device-test.{identity}'
@@ -85,6 +92,15 @@ def prepare(project, sdk, output):
     metadata = {
         'mode': 'device-test-compile-only', 'protocol': 'DS1', 'build_id': identity,
         'bundle_id': bundle_id, 'bundle': str(bundle),
+        'revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip(),
+        'project_source_sha256': fingerprint(project, exclude_generated=False),
+        'source_sha256': fingerprint(output, exclude_generated=False),
+        'production_source_sha256': tree_hash(original_manifest),
+        'compiled_source_sha256': tree_hash(staged_manifest),
+        'pdx_files': inventory(bundle),
+        'pdx_sha256': tree_hash(inventory(bundle)),
+        'compiler_sha256': hashlib.sha256((sdk / 'bin/pdc').read_bytes()).hexdigest(),
+        'simulator_transport_version': 1 if simulator_transport else None,
         'sdk_version': (sdk / 'VERSION.txt').read_text().strip(),
         'production_source_manifest': original_manifest, 'compiled_source_manifest': staged_manifest,
         'limitations': ['No runtime, serial, device, or Simulator execution.',
