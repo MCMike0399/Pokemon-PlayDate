@@ -378,7 +378,7 @@ function PickupContracts.run()
         for index, id in ipairs(ids) do eq(continued:party():get(index).heldItem, id) end
         same(continued:rngData(), beforeRules)
         same(continued:worldRngData(), beforeWorld)
-        eq(SessionCodec.VERSION, 3)
+        same(continued:fieldTravelData(), game.session:fieldTravelData())
     end)
     test("Pickup rejects non-field binding and inactive eligible attempt without RNG", function()
         local game = owned()

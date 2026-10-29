@@ -63,11 +63,12 @@ class ContentCacheTests(unittest.TestCase):
 
     def test_pins_are_exact_starting_revision_inputs_and_map_activation_is_unchanged(self):
         for path, digest in self.pins['inputs'].items():
-            baseline = subprocess.check_output(['git', 'show', 'd858032:Source/' + path])
+            revision = '93d480b77f3d231c7c806cf57f71c5e064fba3f0' if path.startswith('data/midgameEast/') else 'd858032'
+            baseline = subprocess.check_output(['git', 'show', revision + ':Source/' + path])
             self.assertEqual(hashlib.sha256(baseline).hexdigest(), digest, path)
         manifest = SOURCE / 'data/sourceMaps.json'
-        self.assertEqual(manifest.read_bytes(), subprocess.check_output(['git', 'show', 'd858032:Source/data/sourceMaps.json']))
-        self.assertEqual(len(json.loads(manifest.read_bytes())['maps']), 65)
+        self.assertEqual(manifest.read_bytes(), subprocess.check_output(['git', 'show', '93d480b77f3d231c7c806cf57f71c5e064fba3f0:Source/data/sourceMaps.json']))
+        self.assertEqual(len(json.loads(manifest.read_bytes())['maps']), 108)
 
     def test_registered_package_event_and_trainer_membership_stays_disjoint(self):
         base = json.loads(self.files['base.json'])

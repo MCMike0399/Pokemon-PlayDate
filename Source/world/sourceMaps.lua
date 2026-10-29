@@ -41,6 +41,7 @@ local function packedRow(bytes)
     packedRows[row] = bytes
     return row
 end
+local warpResolvers = {}
 local rawCache = setmetatable({}, { __mode = "v" })
 
 local function copy(value)
@@ -516,6 +517,27 @@ function SourceMaps.isDoor(name, x, y)
     return false
 end
 
+-- pokered steps down from door tiles with simulated input. Its land collision
+-- check deliberately permits that step even when the destination is solid.
+-- This qualifies standing only; ordinary movement and terrain stay unchanged.
+function SourceMaps.isDoorArrival(name, x, y)
+    local d = compactData().maps[name]
+    if not d or x < 0 or x >= d.width or y <= 0 or y >= d.height then
+        return false
+    end
+    if d.blocked[tostring(y * d.width + x + 1)] then
+        return false
+    end
+    for _, warp in ipairs(d.warps) do
+        if warp.x == x and warp.y + 1 == y
+            and not d.blocked[tostring(warp.y * d.width + x + 1)]
+            and SourceMaps.isDoor(name, warp.x, warp.y) then
+            return true
+        end
+    end
+    return false
+end
+
 local function blocksEvent(entry, id)
     for _, blocked in ipairs(entry.blocked_events or {}) do
         if blocked == id then return true end
@@ -528,8 +550,38 @@ local function blockedWarp(entry)
         and "source event outside implemented parcel handlers" or "original target map outside reviewed Pewter slice" }
 end
 
+function SourceMaps.registerScriptedWarp(id, resolver)
+    assert(type(id) == "string" and type(resolver) == "function" and not warpResolvers[id],
+        "unique scripted source warp required")
+    warpResolvers[id] = resolver
+end
+
+function SourceMaps.resolveScriptedWarp(game, door)
+    assert(currentZone and door.source_event_id:match("^(pokered:[^:]+):warps:") == currentZone.stableID,
+        "scripted warp belongs to another map")
+    local resolver = assert(warpResolvers[door.source_event_id], "source warp handler missing")
+    local resolved, reason = resolver(game.session, door.source_event_id)
+    if not resolved then
+        return nil, reason or "source warp context missing"
+    end
+    local result = copy(resolved)
+    local name = assert(SourceMaps.nameForID(result.to), "scripted destination outside source manifest")
+    local entry = SourceMaps.entry(name)
+    local position = {zone_id = entry.id, x = result.toX, y = result.toY,
+        facing = result.preserveFacing and game.player.facing or result.facing or "down"}
+    WorldDeltas.resolvePlayerLocation(position, WorldDeltas.export(), game.sessionLocationPolicy)
+    result.to = entry.key
+    result.source_event_id = door.source_event_id
+    return result
+end
+
 function SourceMaps.warpSpec(name, event)
     local entry = SourceMaps.entry(name)
+    for _, id in ipairs(entry.scripted_warps or {}) do
+        if id == event.id then
+            return {status = "scripted", source_event_id = id}
+        end
+    end
     if blocksEvent(entry, event.id) then return blockedWarp(entry) end
     local destination = event.destination
     local target = destination.kind == "last_outdoor_map" and compactData().maps[name].last_outdoor
@@ -548,7 +600,10 @@ function SourceMaps.warpSpec(name, event)
     end
     local advance = SourceMaps.isDoor(target, arrival.x, arrival.y) and 1 or 0
     local x, y = arrival.x, arrival.y + advance
-    assert(y < d.height and SourceMaps.cell(target, x, y).collision == 0, "original warp arrival is blocked")
+    assert(y < d.height and not d.blocked[tostring(y * d.width + x + 1)]
+        and (SourceMaps.cell(target, x, y).collision == 0
+            or advance == 1 and SourceMaps.isDoorArrival(target, x, y)),
+        "original warp arrival is blocked")
     if entry.profile == "viridian" then
         return { status = "bound", to = d.key, toX = x, toY = y,
             facing = advance == 1 and "down" or "up", source_target_map = d.source_map_constant,

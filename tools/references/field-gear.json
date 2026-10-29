@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "inputs": {
+    "home/overworld.asm": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a",
+    "data/tilesets/bike_riding_tilesets.asm": "e6eb63baa307fb3eb5cd465945506d16e7f3dbd411a2e897aab696329e4fc4fd",
+    "engine/overworld/player_state.asm": "55cd81415319a4c87fcd7d05eab816124a2d9e79229a27645309a2af80861fcf",
+    "engine/items/item_effects.asm": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1",
+    "engine/menus/start_sub_menus.asm": "cce764b4234f1f2a97c8062654061a7af759e5ed9567ddb9c980776166c0c8d5",
+    "data/maps/force_bike_surf.asm": "3f6baa7ea4bdc21ec801b4b0694720286fda1e7b4b5a2ba849449d510b7dfd8e",
+    "data/wild/good_rod.asm": "8bffd666de48695bb0cd2df58b1543f2f05bc3b1c7a5d2864d66be9ccfe7caa3",
+    "data/wild/super_rod.asm": "e57753ee17ab273c15c5423970f088cbb3ef38992c73fe71c81dd07183373062",
+    "scripts/Route16Gate1F.asm": "be8a78c628b4aba55b7824095b2854449cffeb16f0325d5d2fd440ebb2391139",
+    "scripts/Route18Gate1F.asm": "26d4f5fc2ca21dfa4ef5bab8cb38fa123fb00628d7698426bf7a9efb3c361f21"
+  }
+}

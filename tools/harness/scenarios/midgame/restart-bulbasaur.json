@@ -1,0 +1,37 @@
+{
+  "initial_save": {
+    "milestone": "5.4",
+    "starter": "bulbasaur"
+  },
+  "processes": [
+    {
+      "journey": {
+        "starter": "bulbasaur",
+        "packet": "5.5a",
+        "content_scope": "critical",
+        "evolution_policy": "accept",
+        "max_actions": 120000,
+        "max_steps": 20000,
+        "max_encounters": 256,
+        "max_blackouts": 1,
+        "max_transitions": 512,
+        "name": "midgame-natural"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "starter": "bulbasaur",
+        "packet": "5.5a",
+        "content_scope": "critical",
+        "evolution_policy": "accept",
+        "max_actions": 120000,
+        "max_steps": 20000,
+        "max_encounters": 256,
+        "max_blackouts": 1,
+        "max_transitions": 512,
+        "name": "midgame-continue"
+      }
+    }
+  ]
+}

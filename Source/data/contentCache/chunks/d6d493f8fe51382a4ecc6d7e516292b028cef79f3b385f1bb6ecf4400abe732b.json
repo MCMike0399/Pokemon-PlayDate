@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"Welcome!"},{"op":"para","source_line":4,"text":"You can exchange"},{"op":"line","source_line":5,"text":"your coins for"},{"op":"cont","source_line":6,"text":"fabulous prizes"},{"op":"cont","source_line":7,"text":"next door."},{"op":"control","source":"done","source_line":8}],"source":"text/GameCorner.asm"}

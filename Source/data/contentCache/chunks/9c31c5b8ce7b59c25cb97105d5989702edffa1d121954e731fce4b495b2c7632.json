@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"Wow, are you a"},{"op":"line","source_line":3,"text":"#MANIAC too?"},{"op":"cont","source_line":4,"text":"Want to see my"},{"op":"cont","source_line":5,"text":"collection?"},{"op":"control","source":"done","source_line":6}],"source":"text/Route10.asm"}

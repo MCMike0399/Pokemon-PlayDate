@@ -1,0 +1,18 @@
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -254,6 +254,7 @@
+ import "dev/vermilionAbilityContracts"
+ Contracts.register("vermilion-abilities", VermilionAbilityContracts.run)
+ import "dev/vermilionCatalogExporter"
++import "dev/midgameCatalogExporter"
+ import "dev/vermilionCatalogContracts"
+ Contracts.register("vermilion-catalog", VermilionCatalogContracts.run)
+ import "dev/caveEncounterContracts"
+@@ -273,6 +274,7 @@
+ 
+ -- @harness content-ready
+ VermilionCatalogExporter.register()
++MidgameCatalogExporter.register()
+ 
+ -- @harness runtime
+ harness = Harness

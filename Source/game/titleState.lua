@@ -19,7 +19,14 @@ function TitleState:enter()
 end
 
 function TitleState:refresh()
-    self.candidate, self.metadata = self.game.saves:inspect()
+    local candidate, metadata = self.game.saves:inspect()
+    -- Continue validates and loads the file again. The title needs only these
+    -- preview numbers, not a second party, storage and session kept alive.
+    self.candidate = candidate and {
+        pokemonCount = candidate:party():count(),
+        money = candidate:inventory():money(),
+    } or nil
+    self.metadata = metadata
     local options, actions = {}, {}
     local function add(text, action)
         options[#options + 1], actions[#actions + 1] = text, action
@@ -103,8 +110,8 @@ function TitleState:draw()
         self.menu:draw(16, menuY, 208, menuHeight)
         if self.candidate then
             gfx.drawText("PLAYER  RED", 240, 158)
-            gfx.drawText("POKEMON  " .. self.candidate:party():count(), 240, 180)
-            gfx.drawText("$" .. self.candidate:inventory():money(), 240, 202)
+            gfx.drawText("POKEMON  " .. self.candidate.pokemonCount, 240, 180)
+            gfx.drawText("$" .. self.candidate.money, 240, 202)
         elseif self.metadata.reason ~= "empty" then
             gfx.drawTextInRect("Your save needs attention. It has not been overwritten.", 240, 158, 150, 74)
         end

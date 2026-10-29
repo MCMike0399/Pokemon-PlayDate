@@ -20,6 +20,8 @@ function WorldMotionData.visible(spec,flags)
     return true
 end
 function WorldMotionData.initial(spec)
+    -- Boulders are settled static actors. A new map visit calls initial; a
+    -- current-map Save/Continue or battle return retains the captured pose.
     return {id=spec.id,x=spec.x,y=spec.y,facing=spec.facing,phase=spec.random and "ready"or "static",
         origin_x=spec.x,origin_y=spec.y,target_x=spec.x,target_y=spec.y,tick=0,delay_raw=0,delay_left=0}
 end
@@ -111,6 +113,7 @@ function WorldMotionData.legacyInitial(descriptor,location,flags)
     for _,value in ipairs(result.actors)do
         if value.x==location.x and value.y==location.y then
             local spec=specs[value.id]
+            assert(spec.role ~= "boulder", "legacy boulder overlaps saved player; source pose record required")
             assert(spec.role=="trainer","legacy actor overlap needs review: "..value.id)
             local delta=assert(directions[spec.facing]);local px,py=spec.x,spec.y;local chosen
             for distance=1,math.max(descriptor.width,descriptor.height)do

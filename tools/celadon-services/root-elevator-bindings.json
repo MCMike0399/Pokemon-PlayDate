@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "scripted_warps": {
+    "CeladonMart1F": [
+      "pokered:CELADON_MART_1F:warps:6"
+    ],
+    "CeladonMart2F": [
+      "pokered:CELADON_MART_2F:warps:3"
+    ],
+    "CeladonMart3F": [
+      "pokered:CELADON_MART_3F:warps:3"
+    ],
+    "CeladonMart4F": [
+      "pokered:CELADON_MART_4F:warps:3"
+    ],
+    "CeladonMart5F": [
+      "pokered:CELADON_MART_5F:warps:3"
+    ],
+    "CeladonMartElevator": [
+      "pokered:CELADON_MART_ELEVATOR:warps:1",
+      "pokered:CELADON_MART_ELEVATOR:warps:2"
+    ]
+  }
+}

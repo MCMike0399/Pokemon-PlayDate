@@ -1,0 +1,19 @@
+--- a/Source/world/sourceActors.lua
++++ b/Source/world/sourceActors.lua
+@@ -163,6 +163,16 @@
+                 or event.id == "pokered:SS_ANNE_2F:objects:2"
+                 and position.x == event.x and position.y == event.y+1)
+                 and protected[cell] and not warps[cell]
++            -- Exact terminal cells of pinned source story departure routes.
++            local towerExit = event.id == "pokered:POKEMON_TOWER_7F:objects:1"
++                and position.x == event.x and position.y == 16
++            local towerRivalExit = event.id == "pokered:POKEMON_TOWER_2F:objects:1"
++                and position.x == event.x + 4 and position.y == 9
++            local silphExit = event.id == "pokered:SILPH_CO_7F:objects:9"
++                and position.x == event.x + 2 and position.y == 3
++            if (towerExit or towerRivalExit or silphExit) and warps[cell] then
++                transit = true
++            end
+             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
+             if transit then
+                 spec.script_transit = spec.script_transit or {}

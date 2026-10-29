@@ -1,0 +1,22 @@
+-- Root main imports and installation (after normal source packages/services):
+-- import "game/celadonServices"
+-- import "game/celadonServicesController"
+-- CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
+-- Append CeladonServices.actorMetadata(event.id) to the ONE actor resolver.
+--
+-- Existing final MidgameServicesState delegates these at corresponding seams:
+-- enter, BEFORE parent enter: CeladonServicesController.enter(self)
+-- advance, BEFORE parent advance:
+--   if CeladonServicesController.advance(self) then return end
+-- handleButton, BEFORE parent button handler:
+--   if CeladonServicesController.handleButton(self,button) then return end
+-- update, AFTER parent update: CeladonServicesController.update(self)
+-- draw, AFTER parent draw: CeladonServicesController.draw(self)
+-- exit/fail, BEFORE parent cleanup: CeladonServicesController.exit(self)
+-- No new root state or dispatcher is required.
+--
+-- Existing shared scripted_warps resolver adds this binding source:
+-- CeladonServices.elevatorBindings(session)
+-- Declare original Celadon floor ingress and cabin exit IDs as scripted warps
+-- in the existing source manifest/cache input. See root-elevator-bindings.json.
+-- Unknown cabin floor stays closed; no LAST_MAP route is synthesized.

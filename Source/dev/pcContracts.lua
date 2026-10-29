@@ -245,5 +245,25 @@ function PCContracts.run()
         local loaded=restored:storage():get(1,1);eq(loaded.hp,1);eq(loaded.status,"poison");eq(loaded.pp[loaded.moves[1]],0);assert(loaded~=mon)
         eq(restored:storage():activeBox(),12);eq(restored:party():count(),1)
     end)
+    test("installed source Centers open their original storage PC", function()
+        local definitions = assert(json.decodeFile("data/pcTerminals.json")).terminals
+        for id, terminal in pairs(definitions) do
+            local name = SourceMaps.nameForID(id)
+            if name then
+                local padding = SourceMaps.entry(name).padding
+                local position = {zone_id=id, x=terminal.x + padding,
+                    y=terminal.y + 1, facing="up"}
+                eq(assert(PCTerminals.query(position)).id, terminal.id)
+                position.facing = "down"
+                eq(PCTerminals.query(position), nil)
+            end
+        end
+        VermilionStoryFixture.withScene("CeruleanPokecenter", {x=13, y=4, facing="up"}, function(g)
+            g.machine:register("pc", PCState(g))
+            assert(PCTerminals.tryInteract(g))
+            eq(g.machine:getCurrent(), "pc")
+            eq(g.machine:get("pc").phase, "top")
+        end)
+    end)
     return report
 end

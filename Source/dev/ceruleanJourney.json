@@ -341,7 +341,7 @@
     }
   },
   "schema": 1,
-  "session_codec": 3,
+  "session_codec": 4,
   "shops": {
     "pokered:CERULEAN_MART:objects:1": {
       "prices": {
@@ -386,7 +386,7 @@
   },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
-    "data/ceruleanContent.lua": "ff41ef08a4748dfaa33c56b83a0d7179f63fc2ad3026f49cd073aff104924812",
+    "data/ceruleanContent.lua": "fe8172889e1771d9d7cec0b8bbf175f2e45c33f051fc4258eb506a26c288b27d",
     "data/ceruleanRoutes/scenes.json": "2d3d96278725c52eaad9011599868abdfc892ebde5fbadc3a8dff9aac6dc65ce",
     "data/ceruleanStory/events.json": "9c7910d423cd592cf3ed1291d87903c6c75e3fed80605ca50584f6ec5b619c83",
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
@@ -396,18 +396,18 @@
     "data/pewterSlice/trainerNames.json": "1e3733784c526d07460c2880bf1ed2f2dad1df348c3f93c3d7ba3c66c87f2e7f",
     "data/pewterSlice/trainers.json": "65db8aba87ef485ff49af10b3ee7af3dfc8def867a792788bf3033d5253d6e41",
     "data/sourceEvents.json": "3a2595132641b1b89149211e96ee2d241dc2e9030792499c56237b8a94aa1008",
-    "data/sourceMaps.json": "47e295dd5e39d2894e39e6dccbd13b148525a9712478202a424201c4220294b4",
+    "data/sourceMaps.json": "29d97d4ee42a0f8d3f7365f4bfad806d360441424baef4c8d683eacd3ad522d7",
     "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
     "data/sourceSlice/trainers.json": "d57e41eaa26bc725236407d19d4c32c914dd3ed8ed47eb236504738761e9460e",
-    "domain/sessionCodec.lua": "0dda9b70d83b02a4f81f729c9a218d6a0b89557ca36c4485c90b553aa0e26afb",
+    "domain/sessionCodec.lua": "f553cb30d6918bf297adda3c042bf202ec98e0ab9a79d9f326a9a3b251aaf5a9",
     "game/ceruleanRoutes.lua": "1d13a20d16bfde03ff9b8679b43d5731952ca2ec097b5a4b7880ee5991d7c78e",
     "game/ceruleanStory.lua": "5e3b000db05169035f90635c1fb6743ed9b74597ead9a6cc5deadff138c04671",
-    "game/eventState.lua": "8a52747a30e7ede9580d149878c3e077b56ae35d0bc1a19f9566830888ecaaab",
+    "game/eventState.lua": "de1b0438a7c60e71fa0e54b0a9a26c0d8e78cba0679230374e3039999b59f441",
     "game/shopState.lua": "e435a8608db5c29a9aaee2e54f41dc09d927bcc9e65aed831e0aa2b292a94220",
     "game/sourceEventHandlers.lua": "7a89e76c1c80d9ce7af9f23bbe853f042215c404a21089f292436354e41b2518",
-    "game/sourceEvents.lua": "bbeaa7f73b0f78b76bfc9855575f32338e3811b98472e3921ac3553611c86d30",
+    "game/sourceEvents.lua": "04184ab7d36ba89b5af79362dc3a6c89b0d6fe3844235c2499986222ea4da346",
     "game/trainerEvents.lua": "3cca86644f8dc93fceb96d2924fae64454db27c2d527db274fe408a7cc5446a2",
-    "main.lua": "b1cefbd1487cfee7b343686964b85693ae0eba2e76e290b1e386cd45bc6969aa"
+    "main.lua": "0c2c77071a5d323e335812b9d0e7b2060e526ae1a334b86ee6e745e73e0a0528"
   },
   "trainers": {
     "pokered:CERULEAN_CITY:objects:2": {

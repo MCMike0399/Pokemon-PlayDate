@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":9,"text":"My #MON are"},{"op":"line","source_line":10,"text":"weak, so I often"},{"op":"cont","source_line":11,"text":"have to go to the"},{"op":"cont","source_line":12,"text":"DRUG STORE."},{"op":"control","source":"done","source_line":13}],"source":"text/CeladonDiner.asm"}

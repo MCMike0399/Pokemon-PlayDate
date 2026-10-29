@@ -1,0 +1,2146 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_BetHowManySlotMachineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 88,
+          "text": "Bet how many"
+        },
+        {
+          "op": "line",
+          "source_line": 89,
+          "text": "coins?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 90
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_BoxIsFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 95,
+          "text": "There's no more"
+        },
+        {
+          "op": "line",
+          "source_line": 96,
+          "text": "room for #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 98,
+          "text": "The #MON BOX"
+        },
+        {
+          "op": "line",
+          "source_line": 99,
+          "text": "is full and can't"
+        },
+        {
+          "op": "cont",
+          "source_line": 100,
+          "text": "accept any more!"
+        },
+        {
+          "op": "para",
+          "source_line": 102,
+          "text": "Change the BOX at"
+        },
+        {
+          "op": "line",
+          "source_line": 103,
+          "text": "a #MON CENTER!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 104
+        }
+      ],
+      "source": "data/text/text_5.asm"
+    },
+    "_CeladonMansionRoofHouseHikerText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I know everything"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "about the world"
+        },
+        {
+          "op": "cont",
+          "source_line": 4,
+          "text": "of #MON in"
+        },
+        {
+          "op": "cont",
+          "source_line": 5,
+          "text": "your GAME BOY!"
+        },
+        {
+          "op": "para",
+          "source_line": 7,
+          "text": "Get together with"
+        },
+        {
+          "op": "line",
+          "source_line": 8,
+          "text": "your friends and"
+        },
+        {
+          "op": "cont",
+          "source_line": 9,
+          "text": "trade #MON!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 10
+        }
+      ],
+      "source": "text/CeladonMansionRoofHouse.asm"
+    },
+    "_CeladonMartRoofCurrentFloorSignText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 125,
+          "text": "ROOFTOP SQUARE:"
+        },
+        {
+          "op": "line",
+          "source_line": 126,
+          "text": "VENDING MACHINES"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 127
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlGiveHerADrinkText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 117,
+          "text": "I'm thirsty!"
+        },
+        {
+          "op": "line",
+          "source_line": 118,
+          "text": "I want something"
+        },
+        {
+          "op": "cont",
+          "source_line": 119,
+          "text": "to drink!"
+        },
+        {
+          "op": "para",
+          "source_line": 121,
+          "text": "Give her a drink?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 122
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlGiveHerWhichDrinkText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Give her which"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "drink?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 4
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlImNotThirstyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 95,
+          "text": "No thank you!"
+        },
+        {
+          "op": "line",
+          "source_line": 96,
+          "text": "I'm not thirsty"
+        },
+        {
+          "op": "cont",
+          "source_line": 97,
+          "text": "after all!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 98
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlImThirstyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 111,
+          "text": "I'm thirsty!"
+        },
+        {
+          "op": "line",
+          "source_line": 112,
+          "text": "I want something"
+        },
+        {
+          "op": "cont",
+          "source_line": 113,
+          "text": "to drink!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 114
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlNoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 90,
+          "text": "You don't have"
+        },
+        {
+          "op": "line",
+          "source_line": 91,
+          "text": "space for this!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 92
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlReceivedTM13Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 18,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 19,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 20,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 21,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 22
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlReceivedTM48Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 48,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 49,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 50,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 51,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 52
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlReceivedTM49Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 78,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 79,
+          "text": "TM49!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 80
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlTM13ExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 25
+        },
+        {
+          "op": "para",
+          "source_line": 27,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 28,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 29,
+          "text": " contains"
+        },
+        {
+          "op": "line",
+          "source_line": 30,
+          "text": "ICE BEAM!"
+        },
+        {
+          "op": "para",
+          "source_line": 32,
+          "text": "It can freeze the"
+        },
+        {
+          "op": "line",
+          "source_line": 33,
+          "text": "target sometimes!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 34
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlTM48ExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 55
+        },
+        {
+          "op": "para",
+          "source_line": 57,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 58,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 59,
+          "text": " contains"
+        },
+        {
+          "op": "line",
+          "source_line": 60,
+          "text": "ROCK SLIDE!"
+        },
+        {
+          "op": "para",
+          "source_line": 62,
+          "text": "It can spook the"
+        },
+        {
+          "op": "line",
+          "source_line": 63,
+          "text": "target sometimes!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 64
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlTM49ExplanationText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 83
+        },
+        {
+          "op": "para",
+          "source_line": 85,
+          "text": "TM49 contains"
+        },
+        {
+          "op": "line",
+          "source_line": 86,
+          "text": "TRI ATTACK!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 87
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlYayFreshWaterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 7,
+          "text": "Yay!"
+        },
+        {
+          "op": "para",
+          "source_line": 9,
+          "text": "FRESH WATER!"
+        },
+        {
+          "op": "para",
+          "source_line": 11,
+          "text": "Thank you!"
+        },
+        {
+          "op": "para",
+          "source_line": 13,
+          "text": "You can have this"
+        },
+        {
+          "op": "line",
+          "source_line": 14,
+          "text": "from me!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 15
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlYayLemonadeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 67,
+          "text": "Yay!"
+        },
+        {
+          "op": "para",
+          "source_line": 69,
+          "text": "LEMONADE!"
+        },
+        {
+          "op": "para",
+          "source_line": 71,
+          "text": "Thank you!"
+        },
+        {
+          "op": "para",
+          "source_line": 73,
+          "text": "You can have this"
+        },
+        {
+          "op": "line",
+          "source_line": 74,
+          "text": "from me!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 75
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofLittleGirlYaySodaPopText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 37,
+          "text": "Yay!"
+        },
+        {
+          "op": "para",
+          "source_line": 39,
+          "text": "SODA POP!"
+        },
+        {
+          "op": "para",
+          "source_line": 41,
+          "text": "Thank you!"
+        },
+        {
+          "op": "para",
+          "source_line": 43,
+          "text": "You can have this"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "from me!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 45
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_CeladonMartRoofSuperNerdText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 101,
+          "text": "My sister is a"
+        },
+        {
+          "op": "line",
+          "source_line": 102,
+          "text": "trainer, believe"
+        },
+        {
+          "op": "cont",
+          "source_line": 103,
+          "text": "it or not."
+        },
+        {
+          "op": "para",
+          "source_line": 105,
+          "text": "But, she's so"
+        },
+        {
+          "op": "line",
+          "source_line": 106,
+          "text": "immature, she"
+        },
+        {
+          "op": "cont",
+          "source_line": 107,
+          "text": "drives me nuts!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 108
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_DroppedHiddenCoinsText": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 779
+        },
+        {
+          "op": "para",
+          "source_line": 781,
+          "text": "Oops! Dropped"
+        },
+        {
+          "op": "line",
+          "source_line": 782,
+          "text": "some coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 783
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_ExchangeCoinsForPrizesText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1630,
+          "text": "We exchange your"
+        },
+        {
+          "op": "line",
+          "source_line": 1631,
+          "text": "coins for prizes."
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 1632
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_FoundHiddenCoins2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 772,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 773,
+          "text": "@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd hCoins, 2 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 774
+        },
+        {
+          "op": "text",
+          "source_line": 775,
+          "text": " coins!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 776
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_FoundHiddenCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 765,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 766,
+          "text": "@"
+        },
+        {
+          "op": "control",
+          "source": "text_bcd hCoins, 2 | LEADING_ZEROES | LEFT_ALIGN",
+          "source_line": 767
+        },
+        {
+          "op": "text",
+          "source_line": 768,
+          "text": " coins!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 769
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_FoundHiddenItemText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 752,
+          "text": "<PLAYER> found"
+        },
+        {
+          "op": "line",
+          "source_line": 753,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 754,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 755,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 756
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_GameCornerBeauty1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "Welcome!"
+        },
+        {
+          "op": "para",
+          "source_line": 4,
+          "text": "You can exchange"
+        },
+        {
+          "op": "line",
+          "source_line": 5,
+          "text": "your coins for"
+        },
+        {
+          "op": "cont",
+          "source_line": 6,
+          "text": "fabulous prizes"
+        },
+        {
+          "op": "cont",
+          "source_line": 7,
+          "text": "next door."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 8
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerBeauty2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 56,
+          "text": "I think these"
+        },
+        {
+          "op": "line",
+          "source_line": 57,
+          "text": "machines have"
+        },
+        {
+          "op": "cont",
+          "source_line": 58,
+          "text": "different odds."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 59
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk1CantAffordTheCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 33,
+          "text": "You can't afford"
+        },
+        {
+          "op": "line",
+          "source_line": 34,
+          "text": "the coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 35
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk1CoinCaseIsFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 38,
+          "text": "Oops! Your COIN"
+        },
+        {
+          "op": "line",
+          "source_line": 39,
+          "text": "CASE is full."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 40
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk1DoYouNeedSomeGameCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 11,
+          "text": "Welcome to ROCKET"
+        },
+        {
+          "op": "line",
+          "source_line": 12,
+          "text": "GAME CORNER!"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "Do you need some"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "game coins?"
+        },
+        {
+          "op": "para",
+          "source_line": 17,
+          "text": "It's ¥1000 for 50"
+        },
+        {
+          "op": "line",
+          "source_line": 18,
+          "text": "coins. Would you"
+        },
+        {
+          "op": "cont",
+          "source_line": 19,
+          "text": "like some?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 20
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk1DontHaveCoinCaseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 43,
+          "text": "You don't have a"
+        },
+        {
+          "op": "line",
+          "source_line": 44,
+          "text": "COIN CASE!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 45
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk1PleaseComePlaySometimeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 28,
+          "text": "No? Please come"
+        },
+        {
+          "op": "line",
+          "source_line": 29,
+          "text": "play sometime!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 30
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk1ThanksHereAre50CoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 23,
+          "text": "Thanks! Here are"
+        },
+        {
+          "op": "line",
+          "source_line": 24,
+          "text": "your 50 coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 25
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk2INeedMoreCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 135,
+          "text": "Darn! I need more"
+        },
+        {
+          "op": "line",
+          "source_line": 136,
+          "text": "coins for the"
+        },
+        {
+          "op": "cont",
+          "source_line": 137,
+          "text": "#MON I want!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 138
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk2Received20CoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 125,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 126,
+          "text": "20 coins!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 127
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk2WantSomeCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 120,
+          "text": "What's up? Want"
+        },
+        {
+          "op": "line",
+          "source_line": 121,
+          "text": "some coins?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 122
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerClerk2YouHaveLotsOfCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 130,
+          "text": "You have lots of"
+        },
+        {
+          "op": "line",
+          "source_line": 131,
+          "text": "coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 132
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerCoinCaseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 444,
+          "text": "A COIN CASE is"
+        },
+        {
+          "op": "line",
+          "source_line": 445,
+          "text": "required!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 446
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_GameCornerFishingGuruDontNeedMyCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 72,
+          "text": "You don't need my"
+        },
+        {
+          "op": "line",
+          "source_line": 73,
+          "text": "coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 74
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerFishingGuruReceived10CoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 67,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 68,
+          "text": "10 coins!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 69
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerFishingGuruWantToPlayText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 62,
+          "text": "Kid, do you want"
+        },
+        {
+          "op": "line",
+          "source_line": 63,
+          "text": "to play?"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 64
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerFishingGuruWinsComeAndGoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 77,
+          "text": "Wins seem to come"
+        },
+        {
+          "op": "line",
+          "source_line": 78,
+          "text": "and go."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 79
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGamblerText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 114,
+          "text": "Games are scary!"
+        },
+        {
+          "op": "line",
+          "source_line": 115,
+          "text": "It's so easy to"
+        },
+        {
+          "op": "cont",
+          "source_line": 116,
+          "text": "get hooked!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 117
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGentlemanCloselyWatchTheReelsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 158,
+          "text": "The trick is to"
+        },
+        {
+          "op": "line",
+          "source_line": 159,
+          "text": "watch the reels"
+        },
+        {
+          "op": "cont",
+          "source_line": 160,
+          "text": "closely!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 161
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGentlemanReceived20CoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 148,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 149,
+          "text": "20 coins!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 150
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGentlemanThrowingMeOffText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 141,
+          "text": "Hey, what? You're"
+        },
+        {
+          "op": "line",
+          "source_line": 142,
+          "text": "throwing me off!"
+        },
+        {
+          "op": "cont",
+          "source_line": 143,
+          "text": "Here are some"
+        },
+        {
+          "op": "cont",
+          "source_line": 144,
+          "text": "coins, shoo!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 145
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGentlemanYouGotYourOwnCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 153,
+          "text": "You've got your"
+        },
+        {
+          "op": "line",
+          "source_line": 154,
+          "text": "own coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 155
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGymGuideChampInMakingText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 87,
+          "text": "Hey!"
+        },
+        {
+          "op": "para",
+          "source_line": 89,
+          "text": "You have better"
+        },
+        {
+          "op": "line",
+          "source_line": 90,
+          "text": "things to do,"
+        },
+        {
+          "op": "cont",
+          "source_line": 91,
+          "text": "champ in making!"
+        },
+        {
+          "op": "para",
+          "source_line": 93,
+          "text": "CELADON GYM's"
+        },
+        {
+          "op": "line",
+          "source_line": 94,
+          "text": "LEADER is ERIKA!"
+        },
+        {
+          "op": "cont",
+          "source_line": 95,
+          "text": "She uses grass-"
+        },
+        {
+          "op": "cont",
+          "source_line": 96,
+          "text": "type #MON!"
+        },
+        {
+          "op": "para",
+          "source_line": 98,
+          "text": "She might appear"
+        },
+        {
+          "op": "line",
+          "source_line": 99,
+          "text": "docile, but don't"
+        },
+        {
+          "op": "cont",
+          "source_line": 100,
+          "text": "be fooled!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 101
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerGymGuideTheyOfferRarePokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 104,
+          "text": "They offer rare"
+        },
+        {
+          "op": "line",
+          "source_line": 105,
+          "text": "#MON that can"
+        },
+        {
+          "op": "cont",
+          "source_line": 106,
+          "text": "be exchanged for"
+        },
+        {
+          "op": "cont",
+          "source_line": 107,
+          "text": "your coins."
+        },
+        {
+          "op": "para",
+          "source_line": 109,
+          "text": "But, I just can't"
+        },
+        {
+          "op": "line",
+          "source_line": 110,
+          "text": "seem to win!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 111
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerMiddleAgedMan1Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 48,
+          "text": "Keep this quiet."
+        },
+        {
+          "op": "para",
+          "source_line": 50,
+          "text": "It's rumored that"
+        },
+        {
+          "op": "line",
+          "source_line": 51,
+          "text": "this place is run"
+        },
+        {
+          "op": "cont",
+          "source_line": 52,
+          "text": "by TEAM ROCKET."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 53
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerMiddleAgedWomanText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 82,
+          "text": "I'm having a"
+        },
+        {
+          "op": "line",
+          "source_line": 83,
+          "text": "wonderful time!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 84
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerNoCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 449,
+          "text": "You don't have"
+        },
+        {
+          "op": "line",
+          "source_line": 450,
+          "text": "any coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 451
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_GameCornerOopsForgotCoinCaseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 188,
+          "text": "Oops! Forgot the"
+        },
+        {
+          "op": "line",
+          "source_line": 189,
+          "text": "COIN CASE!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 190
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerOutOfOrderText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 454,
+          "text": "OUT OF ORDER"
+        },
+        {
+          "op": "line",
+          "source_line": 455,
+          "text": "This is broken."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 456
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_GameCornerOutToLunchText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 459,
+          "text": "OUT TO LUNCH"
+        },
+        {
+          "op": "line",
+          "source_line": 460,
+          "text": "This is reserved."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 461
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_GameCornerPosterSwitchBehindPosterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 180,
+          "text": "Hey!"
+        },
+        {
+          "op": "para",
+          "source_line": 182,
+          "text": "A switch behind"
+        },
+        {
+          "op": "line",
+          "source_line": 183,
+          "text": "the poster!?"
+        },
+        {
+          "op": "cont",
+          "source_line": 184,
+          "text": "Let's push it!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 185
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerPrizeRoomBaldingGuyText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "I sure do fancy"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "that PORYGON!"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "But, it's hard to"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "win at slots!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 7
+        }
+      ],
+      "source": "text/GameCornerPrizeRoom.asm"
+    },
+    "_GameCornerPrizeRoomGamblerText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 10,
+          "text": "I had a major"
+        },
+        {
+          "op": "line",
+          "source_line": 11,
+          "text": "haul today!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 12
+        }
+      ],
+      "source": "text/GameCornerPrizeRoom.asm"
+    },
+    "_GameCornerRocketAfterBattleText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 174,
+          "text": "Our hideout might"
+        },
+        {
+          "op": "line",
+          "source_line": 175,
+          "text": "be discovered! I"
+        },
+        {
+          "op": "cont",
+          "source_line": 176,
+          "text": "better tell BOSS!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 177
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerRocketBattleEndText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 170,
+          "text": "Dang!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 171
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerRocketImGuardingThisPosterText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 164,
+          "text": "I'm guarding this"
+        },
+        {
+          "op": "line",
+          "source_line": 165,
+          "text": "poster!"
+        },
+        {
+          "op": "cont",
+          "source_line": 166,
+          "text": "Go away, or else!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 167
+        }
+      ],
+      "source": "text/GameCorner.asm"
+    },
+    "_GameCornerSomeonesKeysText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 464,
+          "text": "Someone's keys!"
+        },
+        {
+          "op": "line",
+          "source_line": 465,
+          "text": "They'll be back."
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 466
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_GotMonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 76,
+          "text": "<PLAYER> got"
+        },
+        {
+          "op": "line",
+          "source_line": 77,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 78,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 79,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 80
+        }
+      ],
+      "source": "data/text/text_5.asm"
+    },
+    "_HereYouGoText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1640,
+          "text": "Here you go!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 1641
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_HiddenItemBagFullText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 759,
+          "text": "But, <PLAYER> has"
+        },
+        {
+          "op": "line",
+          "source_line": 760,
+          "text": "no more room for"
+        },
+        {
+          "op": "cont",
+          "source_line": 761,
+          "text": "other items!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 762
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_LinedUpText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 107,
+          "text": " lined up!"
+        },
+        {
+          "op": "line",
+          "source_line": 108,
+          "text": "Scored @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 109,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 110,
+          "text": " coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 111
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_NotEnoughCoinsSlotMachineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 97,
+          "text": "Not enough"
+        },
+        {
+          "op": "line",
+          "source_line": 98,
+          "text": "coins!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 99
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_NotThisTimeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 114,
+          "text": "Not this time!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 115
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_OhFineThenText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1661,
+          "text": "Oh, fine then.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 1662
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_OneMoreGoSlotMachineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 102,
+          "text": "One more "
+        },
+        {
+          "op": "line",
+          "source_line": 103,
+          "text": "go?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 104
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_OopsYouDontHaveEnoughRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1656,
+          "text": "Oops! You don't"
+        },
+        {
+          "op": "line",
+          "source_line": 1657,
+          "text": "have enough room.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 1658
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_OutOfCoinsSlotMachineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 83,
+          "text": "Darn!"
+        },
+        {
+          "op": "line",
+          "source_line": 84,
+          "text": "Ran out of coins!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 85
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_PlaySlotMachineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 78,
+          "text": "A slot machine!"
+        },
+        {
+          "op": "line",
+          "source_line": 79,
+          "text": "Want to play?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 80
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_RequireCoinCaseText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1625,
+          "text": "A COIN CASE is"
+        },
+        {
+          "op": "line",
+          "source_line": 1626,
+          "text": "required!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 1627
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_SentToBoxText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 83,
+          "text": "There's no more"
+        },
+        {
+          "op": "line",
+          "source_line": 84,
+          "text": "room for #MON!"
+        },
+        {
+          "op": "cont",
+          "source_line": 85,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 86,
+          "symbol": "wBoxMonNicks"
+        },
+        {
+          "op": "text",
+          "source_line": 87,
+          "text": " was"
+        },
+        {
+          "op": "cont",
+          "source_line": 88,
+          "text": "sent to #MON"
+        },
+        {
+          "op": "cont",
+          "source_line": 89,
+          "text": "BOX @"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 90,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 91,
+          "text": " on PC!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 92
+        }
+      ],
+      "source": "data/text/text_5.asm"
+    },
+    "_SoYouWantPrizeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1644,
+          "text": "So, you want"
+        },
+        {
+          "op": "line",
+          "source_line": 1645,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 1646,
+          "symbol": "wNameBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 1647,
+          "text": "?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 1648
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_SorryNeedMoreCoinsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1651,
+          "text": "Sorry, you need"
+        },
+        {
+          "op": "line",
+          "source_line": 1652,
+          "text": "more coins.@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 1653
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_StartSlotMachineText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 93,
+          "text": "Start!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 94
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_VendingMachineText1": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 130,
+          "text": "A vending machine!"
+        },
+        {
+          "op": "line",
+          "source_line": 131,
+          "text": "Here's the menu!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 132
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_VendingMachineText4": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 135,
+          "text": "Oops, not enough"
+        },
+        {
+          "op": "line",
+          "source_line": 136,
+          "text": "money!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 137
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_VendingMachineText5": {
+      "recipe": [
+        {
+          "op": "text_ram",
+          "source_line": 140,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 141
+        },
+        {
+          "op": "line",
+          "source_line": 142,
+          "text": "popped out!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 143
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_VendingMachineText6": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 146,
+          "text": "There's no more"
+        },
+        {
+          "op": "line",
+          "source_line": 147,
+          "text": "room for stuff!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 148
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_VendingMachineText7": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 151,
+          "text": "Not thirsty!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 152
+        }
+      ],
+      "source": "text/CeladonMartRoof.asm"
+    },
+    "_WhichPrizeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 1635,
+          "text": "Which prize do"
+        },
+        {
+          "op": "line",
+          "source_line": 1636,
+          "text": "you want?"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 1637
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    },
+    "_YeahText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 118,
+          "text": "Yeah!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 119
+        }
+      ],
+      "source": "data/text/text_2.asm"
+    }
+  }
+}

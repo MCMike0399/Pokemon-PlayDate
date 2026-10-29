@@ -22,14 +22,6 @@ local function array(value, low, high)
     for key in pairs(value) do if not integer(key,1,#value) then return false end; count=count+1 end
     return count==#value
 end
--- Keep neutral v8 records readable after parking the unreleased trade feature.
-local function neutralAcquisition(value)
-    if value ~= nil then
-        assert(object(value, {version=true, kind=true}), "invalid-neutral-acquisition")
-        assert(value.version == 1 and value.kind == "neutral", "trade-save-feature-parked")
-    end
-    return {version=1, kind="neutral"}
-end
 local function checked(record)
     assert(object(record,fields),"invalid-record-fields")
     assert(record.version==PokemonCodec.VERSION or record.version==7 or record.version==6 or record.version==5 or record.version==4 or record.version==3,"unsupported-pokemon-record-version")
@@ -38,7 +30,7 @@ local function checked(record)
     if record.version == 8 then
         assert(type(record.acquisition) == "table", "required-acquisition-provenance")
     end
-    local acquisition <const> = neutralAcquisition(record.acquisition)
+    local acquisition <const> = NPCTrades.provenance(record.acquisition, record.species)
     if record.version<6 then assert(record.sex==nil and record.sexProvenance==nil,"legacy-sex-fields") end
     local attributes
     if record.version==3 or record.version==4 then

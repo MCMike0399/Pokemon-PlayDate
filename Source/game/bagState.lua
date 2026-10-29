@@ -6,9 +6,29 @@ local fieldKeyActions = {
     townMap = function(bag)
         return TownMapState.open(bag.game)
     end,
+    bicycle = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
+        return FieldGearState.open(bag.game, bag, "bicycle")
+    end,
+    oldRod = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
+        return FieldGearState.open(bag.game, bag, "oldRod")
+    end,
+    goodRod = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
+        return FieldGearState.open(bag.game, bag, "goodRod")
+    end,
+    superRod = function(bag)
+        if not FieldGearState then return false, "field-gear-state-not-installed" end
+        return FieldGearState.open(bag.game, bag, "superRod")
+    end,
 }
 
 function BagState.canRegister(id)
+    if (id == "bicycle" or id == "oldRod" or id == "goodRod" or id == "superRod")
+        and not FieldGearState then
+        return false
+    end
     local item = ItemData.definitions[id]
     return item ~= nil and item.keyItem and fieldKeyActions[id] ~= nil
 end
@@ -367,6 +387,9 @@ function BagState:handleInput()
 end
 
 function BagState:draw()
+    if self.phase == "field-wait" then
+        return
+    end
     local x, y = gfx.getDrawOffset()
     gfx.setDrawOffset(0, 0)
     gfx.clear(gfx.kColorWhite)

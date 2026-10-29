@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":38,"text":"Wow! Excellent!"},{"op":"line","source_line":39,"text":"You completed"},{"op":"cont","source_line":40,"text":"your #DEX!"},{"op":"cont","source_line":41,"text":"Congratulations!"},{"op":"cont","source_line":42,"text":"...@"},{"op":"control","source":"text_end","source_line":43}],"source":"text/CeladonMansion3F.asm"}

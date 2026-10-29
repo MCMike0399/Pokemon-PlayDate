@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from PIL import Image
 
+from tools.tests.host_fixtures import installed_map_names, build_vermilion_preparation
 from tools import generate_vermilion_ship as ship
 from tools import generate_vermilion_preparation as preparation
 
@@ -23,7 +24,7 @@ class VermilionShipSources(unittest.TestCase):
         cls.artifacts = ship.build()
         cls.art = json.loads(cls.artifacts['art.json'])
         cls.timing = json.loads(cls.artifacts['timing.json'])
-        cls.prepared = preparation.build(cls.reference)
+        cls.prepared = build_vermilion_preparation(cls.reference)
 
     def test_exact_reproduction_from_vendored_and_external_pinned_source(self):
         self.assertEqual(self.artifacts, ship.build(self.reference))
@@ -143,7 +144,7 @@ class VermilionShipSources(unittest.TestCase):
         path = 'Source/data/sourceMaps.json'
         previous = json.loads(subprocess.check_output(['git', 'show', BASE + ':' + path]))
         active = json.loads((ROOT / path).read_bytes())
-        self.assertEqual(len(active['maps']), 65)
+        self.assertEqual(set(active['maps']), installed_map_names())
         for name, entry in previous['maps'].items():
             self.assertEqual(active['maps'][name], entry, name)
         path = 'Source/data/sourceMapCache/tile-grids.json'

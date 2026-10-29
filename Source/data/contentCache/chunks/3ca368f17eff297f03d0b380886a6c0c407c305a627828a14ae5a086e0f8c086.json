@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":58,"text":"When #MON grow"},{"op":"line","source_line":59,"text":"up they get ugly!"},{"op":"cont","source_line":60,"text":"They shouldn't"},{"op":"cont","source_line":61,"text":"evolve!"},{"op":"control","source":"done","source_line":62}],"source":"text/Route8.asm"}

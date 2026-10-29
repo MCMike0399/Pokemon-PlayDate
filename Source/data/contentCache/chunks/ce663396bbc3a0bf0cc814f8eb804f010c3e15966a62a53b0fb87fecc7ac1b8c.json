@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":95,"text":"The #MON here"},{"op":"line","source_line":96,"text":"are so chunky!"},{"op":"cont","source_line":97,"text":"There should be a"},{"op":"cont","source_line":98,"text":"pink one with a"},{"op":"cont","source_line":99,"text":"floral pattern!"},{"op":"control","source":"done","source_line":100}],"source":"text/Route10.asm"}

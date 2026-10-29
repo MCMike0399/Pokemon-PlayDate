@@ -311,7 +311,7 @@ def encounters(reference, map_id):
             'rate_interpretation': 'original rate byte; not a percentage or current runtime rule', **tables}
 
 
-def decode_map(reference, name, *, linked_layout_tail=None):
+def decode_map(reference, name, *, linked_layout_tail=None, extra_blocks=()):
     constants = map_constants(reference)
     header_path = f'data/maps/headers/{name}.asm'
     header = reference.text(header_path)
@@ -374,6 +374,9 @@ def decode_map(reference, name, *, linked_layout_tail=None):
             combinations.add(ids)
             row.append([offset, block, quadrant])
         source_refs.append(row)
+    for block in extra_blocks:
+        for quadrant in range(4):
+            combinations.add(tuple(quadrant_ids(blockset, block, quadrant)))
     dictionary, lookup = [], {}
     for ordinal, ids in enumerate(sorted(combinations), 1):
         grid = compose_grid(tiles, ids)

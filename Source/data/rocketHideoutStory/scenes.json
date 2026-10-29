@@ -1,0 +1,1027 @@
+{
+  "scenes": {
+    "elevator": [
+      {
+        "destination": {
+          "x": 25,
+          "y": 19
+        },
+        "exits": [
+          {
+            "warp": 3,
+            "x": 24,
+            "y": 19
+          },
+          {
+            "warp": 5,
+            "x": 25,
+            "y": 19
+          }
+        ],
+        "floor": "B1F",
+        "map_id": "pokered:ROCKET_HIDEOUT_B1F",
+        "source_warp_byte": 4
+      },
+      {
+        "destination": {
+          "x": 25,
+          "y": 19
+        },
+        "exits": [
+          {
+            "warp": 3,
+            "x": 24,
+            "y": 19
+          },
+          {
+            "warp": 5,
+            "x": 25,
+            "y": 19
+          }
+        ],
+        "floor": "B2F",
+        "map_id": "pokered:ROCKET_HIDEOUT_B2F",
+        "source_warp_byte": 4
+      },
+      {
+        "destination": {
+          "x": 25,
+          "y": 15
+        },
+        "exits": [
+          {
+            "warp": 2,
+            "x": 24,
+            "y": 15
+          },
+          {
+            "warp": 3,
+            "x": 25,
+            "y": 15
+          }
+        ],
+        "floor": "B4F",
+        "map_id": "pokered:ROCKET_HIDEOUT_B4F",
+        "source_warp_byte": 2
+      }
+    ],
+    "guard": {
+      "paths": {
+        "around": [
+          "down",
+          "right",
+          "right",
+          "up",
+          "right",
+          "right",
+          "right",
+          "right"
+        ],
+        "direct": [
+          "right",
+          "right",
+          "right",
+          "right",
+          "right"
+        ]
+      },
+      "script_positions": [
+        {
+          "x": 9,
+          "y": 5
+        },
+        {
+          "x": 9,
+          "y": 6
+        },
+        {
+          "x": 10,
+          "y": 5
+        },
+        {
+          "x": 10,
+          "y": 6
+        },
+        {
+          "x": 11,
+          "y": 5
+        },
+        {
+          "x": 11,
+          "y": 6
+        },
+        {
+          "x": 12,
+          "y": 5
+        },
+        {
+          "x": 13,
+          "y": 5
+        },
+        {
+          "x": 14,
+          "y": 5
+        },
+        {
+          "x": 15,
+          "y": 5
+        }
+      ]
+    },
+    "spinners": {
+      "pokered:ROCKET_HIDEOUT_B2F": [
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1001",
+          "path": [
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement1",
+          "x": 4,
+          "y": 9
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1002",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout2ArrowMovement2",
+          "x": 4,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1003",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "up",
+            "up",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement3",
+          "x": 4,
+          "y": 15
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1004",
+          "path": [
+            "up",
+            "right",
+            "right",
+            "right",
+            "right",
+            "up",
+            "up",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement4",
+          "x": 4,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1005",
+          "path": [
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement1",
+          "x": 4,
+          "y": 19
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1006",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement5",
+          "x": 4,
+          "y": 22
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1007",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement6",
+          "x": 5,
+          "y": 14
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1008",
+          "path": [
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement7",
+          "x": 6,
+          "y": 22
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1009",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement8",
+          "x": 6,
+          "y": 24
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1010",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement9",
+          "x": 8,
+          "y": 9
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1011",
+          "path": [
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement10",
+          "x": 8,
+          "y": 12
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1012",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement8",
+          "x": 8,
+          "y": 15
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1013",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement9",
+          "x": 8,
+          "y": 19
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1014",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement11",
+          "x": 8,
+          "y": 23
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1015",
+          "path": [
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement12",
+          "x": 9,
+          "y": 14
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1016",
+          "path": [
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement12",
+          "x": 9,
+          "y": 22
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1017",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement13",
+          "x": 10,
+          "y": 9
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1018",
+          "path": [
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement14",
+          "x": 10,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1019",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up",
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement15",
+          "x": 10,
+          "y": 15
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1020",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement16",
+          "x": 10,
+          "y": 17
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1021",
+          "path": [
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement17",
+          "x": 10,
+          "y": 19
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1022",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout2ArrowMovement2",
+          "x": 10,
+          "y": 25
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1023",
+          "path": [
+            "down",
+            "down",
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement18",
+          "x": 11,
+          "y": 14
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1024",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement19",
+          "x": 11,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1025",
+          "path": [
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement12",
+          "x": 11,
+          "y": 18
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1026",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement20",
+          "x": 12,
+          "y": 9
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1027",
+          "path": [
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement21",
+          "x": 12,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1028",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement22",
+          "x": 12,
+          "y": 13
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1029",
+          "path": [
+            "right",
+            "right",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement23",
+          "x": 12,
+          "y": 17
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1030",
+          "path": [
+            "down",
+            "down",
+            "right"
+          ],
+          "source_label": "RocketHideout2ArrowMovement24",
+          "x": 13,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1031",
+          "path": [
+            "right"
+          ],
+          "source_label": "RocketHideout2ArrowMovement25",
+          "x": 13,
+          "y": 12
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1032",
+          "path": [
+            "right",
+            "right",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement26",
+          "x": 13,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1033",
+          "path": [
+            "left",
+            "left",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement27",
+          "x": 13,
+          "y": 18
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1034",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement28",
+          "x": 13,
+          "y": 19
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1035",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement29",
+          "x": 13,
+          "y": 22
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1036",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "up",
+            "up",
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement30",
+          "x": 13,
+          "y": 23
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1037",
+          "path": [
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement31",
+          "x": 14,
+          "y": 17
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1038",
+          "path": [
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout2ArrowMovement12",
+          "x": 15,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1039",
+          "path": [
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement32",
+          "x": 16,
+          "y": 14
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1040",
+          "path": [
+            "up",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement33",
+          "x": 16,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1041",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout2ArrowMovement34",
+          "x": 16,
+          "y": 18
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1042",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "down",
+            "down",
+            "right"
+          ],
+          "source_label": "RocketHideout2ArrowMovement35",
+          "x": 17,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1043",
+          "path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout2ArrowMovement36",
+          "x": 17,
+          "y": 11
+        }
+      ],
+      "pokered:ROCKET_HIDEOUT_B3F": [
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1001",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement6",
+          "x": 10,
+          "y": 13
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1002",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "up",
+            "up",
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement1",
+          "x": 10,
+          "y": 19
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1003",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout3ArrowMovement2",
+          "x": 11,
+          "y": 18
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1004",
+          "path": [
+            "left",
+            "left"
+          ],
+          "source_label": "RocketHideout3ArrowMovement3",
+          "x": 12,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1005",
+          "path": [
+            "right",
+            "right",
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement4",
+          "x": 12,
+          "y": 17
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1006",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "right",
+            "right",
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement5",
+          "x": 12,
+          "y": 20
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1007",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement6",
+          "x": 13,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1008",
+          "path": [
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement7",
+          "x": 14,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1009",
+          "path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement6",
+          "x": 14,
+          "y": 15
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1010",
+          "path": [
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement8",
+          "x": 14,
+          "y": 17
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1011",
+          "path": [
+            "up",
+            "up",
+            "up",
+            "up",
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement9",
+          "x": 14,
+          "y": 19
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1012",
+          "path": [
+            "right",
+            "right"
+          ],
+          "source_label": "RocketHideout3ArrowMovement7",
+          "x": 15,
+          "y": 16
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1013",
+          "path": [
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout3ArrowMovement10",
+          "x": 15,
+          "y": 18
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1014",
+          "path": [
+            "up",
+            "up"
+          ],
+          "source_label": "RocketHideout3ArrowMovement11",
+          "x": 16,
+          "y": 13
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1015",
+          "path": [
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "source_label": "RocketHideout3ArrowMovement10",
+          "x": 17,
+          "y": 12
+        },
+        {
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1016",
+          "path": [
+            "up"
+          ],
+          "source_label": "RocketHideout3ArrowMovement12",
+          "x": 18,
+          "y": 16
+        }
+      ]
+    },
+    "terrain": {
+      "b1-closed": {
+        "block": 84,
+        "keys": [
+          "pokered:FACILITY:cell:08-08-18-18",
+          "pokered:FACILITY:cell:08-08-18-18",
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01"
+        ],
+        "map": "RocketHideoutB1F",
+        "x": 12,
+        "y": 8
+      },
+      "b1-open": {
+        "block": 14,
+        "keys": [
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01"
+        ],
+        "map": "RocketHideoutB1F",
+        "x": 12,
+        "y": 8
+      },
+      "b4-closed": {
+        "block": 45,
+        "keys": [
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:08-08-18-18",
+          "pokered:FACILITY:cell:08-08-18-18"
+        ],
+        "map": "RocketHideoutB4F",
+        "x": 12,
+        "y": 5
+      },
+      "b4-open": {
+        "block": 14,
+        "keys": [
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01",
+          "pokered:FACILITY:cell:01-01-01-01"
+        ],
+        "map": "RocketHideoutB4F",
+        "x": 12,
+        "y": 5
+      },
+      "entrance-closed": {
+        "block": 42,
+        "keys": [
+          "pokered:LOBBY:cell:01-01-21-21",
+          "pokered:LOBBY:cell:01-01-21-21",
+          "pokered:LOBBY:cell:37-45-45-37",
+          "pokered:LOBBY:cell:37-45-45-37"
+        ],
+        "map": "GameCorner",
+        "x": 8,
+        "y": 2
+      },
+      "entrance-open": {
+        "block": 67,
+        "keys": [
+          "pokered:LOBBY:cell:01-01-21-21",
+          "pokered:LOBBY:cell:0a-0b-1a-1b",
+          "pokered:LOBBY:cell:37-45-45-37",
+          "pokered:LOBBY:cell:37-45-45-37"
+        ],
+        "map": "GameCorner",
+        "x": 8,
+        "y": 2
+      }
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
