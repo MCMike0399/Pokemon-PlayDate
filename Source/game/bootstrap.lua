@@ -150,7 +150,14 @@ function GameBootstrap.start(initialize)
         loading = true
         sliceStart = playdate.getCurrentTimeMilliseconds()
         BootTrace.yielded()
-        local ok, message = pcall(initialize)
+        local ok, message = pcall(function()
+            initialize()
+            -- Startup definitions are long-lived; collect short-lived runtime
+            -- allocations without repeatedly tracing the whole retained heap.
+            BootTrace.mark("gc.generational.begin")
+            collectgarbage("generational", 20, 100)
+            BootTrace.mark("gc.generational.end")
+        end)
         if not ok then
             GameBootstrap.fail(message)
             GameBootstrap.drawError()
