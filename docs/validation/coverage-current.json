@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "4b86875a7d86b44faed959306545335c41653527",
-    "source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1",
-    "policy_date": "2026-10-28",
+    "commit": "2984348eaa31c348cf6d061f8081868a93f58a51",
+    "source_sha256": "8b586a72d6415239efa68f6109579380bcad82cd93e1ab2c1b0a5dad8f45ca94",
+    "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "65 playable maps on main; 5.4 delivery pending. Approved display and QoL changes integrated. Inventory snapshot only; historical evidence and all three acceptance layers retain their scope.",
-    "acceptance_context": "main-5.4-delivery-pending"
+    "scope": "Private 108-map checkpoint 5.5a preparation. Main has 65 Simulator-route maps; no milestone is accepted for hardware playability. Inventory identity only. Every existing evidence record and acceptance facet retains its original scope.",
+    "acceptance_context": "private-5.5a-preparation-hardware-pending"
   },
   "accepted_milestone_rows": [],
   "schedule": {
-    "policy": "5.3 is accepted on main. Finish private Vermilion 5.4 before later regions. Retain all original coverage rows and full-mechanics requirements; source indexing does not promote acceptance.",
+    "policy": "5.4 is accepted from Simulator journeys. Finish checkpoint 5.5a from earned saves and pass the hardware playability gate before accepting it on main. Preserve all rows and all three independent evidence layers.",
     "gates": [
       "system:current-reward-correctness",
       "system:safe-newgame-recovery",
@@ -14653,7 +14653,7 @@
     {
       "id": "system:natural-all3-freeze",
       "kind": "system",
-      "title": "Current integrated natural Bulbasaur/Charmander/Squirtle\u2192Brock",
+      "title": "Current integrated natural Bulbasaur/Charmander/Squirtle→Brock",
       "owner": "root",
       "dependencies": [
         "system:current-reward-correctness",
@@ -40714,7 +40714,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -40758,7 +40758,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -40802,7 +40802,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -40846,7 +40846,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -40890,7 +40890,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -40934,7 +40934,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -40978,7 +40978,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41022,7 +41022,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41066,7 +41066,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41110,7 +41110,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41154,7 +41154,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41198,7 +41198,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41242,7 +41242,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41286,7 +41286,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41330,7 +41330,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41374,7 +41374,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41418,7 +41418,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41462,7 +41462,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41506,7 +41506,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41550,7 +41550,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41594,7 +41594,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41638,7 +41638,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41682,7 +41682,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41726,7 +41726,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41770,7 +41770,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41814,7 +41814,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41858,7 +41858,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41902,7 +41902,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41946,7 +41946,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41990,7 +41990,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42034,7 +42034,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42078,7 +42078,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42122,7 +42122,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42166,7 +42166,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42210,7 +42210,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42254,7 +42254,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42298,7 +42298,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42342,7 +42342,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42386,7 +42386,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42430,7 +42430,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42474,7 +42474,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42518,7 +42518,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42562,7 +42562,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42606,7 +42606,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42650,7 +42650,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42694,7 +42694,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42738,7 +42738,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42782,7 +42782,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42826,7 +42826,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42870,7 +42870,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42914,7 +42914,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42958,7 +42958,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43002,7 +43002,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43046,7 +43046,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43090,7 +43090,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43134,7 +43134,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43178,7 +43178,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43222,7 +43222,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43266,7 +43266,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43310,7 +43310,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43354,7 +43354,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43398,7 +43398,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43442,7 +43442,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43486,7 +43486,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43530,7 +43530,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43574,7 +43574,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43618,7 +43618,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43662,7 +43662,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43706,7 +43706,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43750,7 +43750,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43794,7 +43794,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43838,7 +43838,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43882,7 +43882,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43926,7 +43926,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43970,7 +43970,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44014,7 +44014,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44058,7 +44058,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44102,7 +44102,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44146,7 +44146,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44190,7 +44190,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44234,7 +44234,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44278,7 +44278,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44322,7 +44322,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44366,7 +44366,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44410,7 +44410,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44454,7 +44454,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44498,7 +44498,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44542,7 +44542,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44586,7 +44586,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44630,7 +44630,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44674,7 +44674,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44718,7 +44718,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44762,7 +44762,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44806,7 +44806,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44850,7 +44850,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44894,7 +44894,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44938,7 +44938,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44982,7 +44982,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45026,7 +45026,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45070,7 +45070,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45114,7 +45114,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45158,7 +45158,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45202,7 +45202,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45246,7 +45246,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45290,7 +45290,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45334,7 +45334,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45378,7 +45378,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45422,7 +45422,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45466,7 +45466,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45510,7 +45510,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45554,7 +45554,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45598,7 +45598,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45642,7 +45642,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45686,7 +45686,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45730,7 +45730,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45774,7 +45774,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45818,7 +45818,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45862,7 +45862,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45906,7 +45906,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45950,7 +45950,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45994,7 +45994,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46038,7 +46038,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46082,7 +46082,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46126,7 +46126,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46170,7 +46170,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46214,7 +46214,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46258,7 +46258,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46302,7 +46302,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46346,7 +46346,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46390,7 +46390,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46434,7 +46434,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46478,7 +46478,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46522,7 +46522,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46566,7 +46566,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46610,7 +46610,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46654,7 +46654,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46698,7 +46698,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46742,7 +46742,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46786,7 +46786,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46830,7 +46830,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46874,7 +46874,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46918,7 +46918,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46962,7 +46962,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47006,7 +47006,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47050,7 +47050,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47094,7 +47094,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47138,7 +47138,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47182,7 +47182,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47226,7 +47226,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47270,7 +47270,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47314,7 +47314,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -71534,7 +71534,7 @@
     }
   ],
   "limits": [
-    "Source indexed counts \u2260 naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
+    "Source indexed counts ≠ naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
     "104path-present/34promotion reports remain historical; exact34rowerratum overrides broad promotion.",
     "No all425/111 fullmechanics, campaigncompletion or physicaldevice claim.",
     "Accepted 5.3 summary and chain saves remain authoritative for that milestone. This private Vermilion 5.4 snapshot does not refresh or promote any historical SDK/native evidence. Full mechanics, later campaign, release and device remain unfinished."
