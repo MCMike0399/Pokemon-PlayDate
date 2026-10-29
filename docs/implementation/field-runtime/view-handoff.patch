@@ -1,0 +1,18 @@
+--- a/Source/world/overworld.lua
++++ b/Source/world/overworld.lua
+@@ -145,6 +145,15 @@
+     activeView = WorldView(currentZone)
+ end
+ function getOverworldView() return activeView end
++
++-- Field traversal stages the complete target before publishing its session.
++-- The caller keeps the old view for rollback and disposes it only on success.
++function WorldView.exchangePrepared(view)
++    assert(view and not view.disposed, "live prepared world view required")
++    local previous = activeView
++    activeView = view
++    return previous
++end
+ function updateOverworldAnimations()
+     if activeView then activeView:updateAnimations() end
+ end

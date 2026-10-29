@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":13,"text":"The TEAM ROCKET"},{"op":"line","source_line":14,"text":"HQ has 4 basement"},{"op":"cont","source_line":15,"text":"floors. Can you"},{"op":"cont","source_line":16,"text":"reach the BOSS?"},{"op":"control","source":"done","source_line":17}],"source":"text/RocketHideoutB2F.asm"}

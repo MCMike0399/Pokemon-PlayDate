@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":23,"text":"Ease up!"},{"op":"line","source_line":24,"text":"What am I doing?"},{"op":"cont","source_line":25,"text":"Which way is out?"},{"op":"control","source":"prompt","source_line":26}],"source":"text/RockTunnel1F.asm"}

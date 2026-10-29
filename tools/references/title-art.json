@@ -493,6 +493,16 @@
       ],
       "output": "trainers/LANCE.png",
       "scale": 2
+    },
+    {
+      "path": "gfx/battle/ghost.png",
+      "sha256": "11bb8d85c76b4dce2dd0def8cd7f7ef3b6cbe3bf5dae9a7bdc300c967497f36e",
+      "size": [
+        48,
+        48
+      ],
+      "output": "ghost.png",
+      "scale": 2
     }
   ],
   "sources": [

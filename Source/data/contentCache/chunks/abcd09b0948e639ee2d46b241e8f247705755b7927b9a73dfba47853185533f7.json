@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":120,"text":"What's up? Want"},{"op":"line","source_line":121,"text":"some coins?"},{"op":"control","source":"prompt","source_line":122}],"source":"text/GameCorner.asm"}

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "inputs": {
+    "engine/menus/start_sub_menus.asm": "cce764b4234f1f2a97c8062654061a7af759e5ed9567ddb9c980776166c0c8d5",
+    "constants/map_constants.asm": "4129ef4e6908267e554c0308254f2269f1fb8f75b5c529faad6fd14c92119271",
+    "constants/map_object_constants.asm": "c428ba18036b393b6b1416a549d7c4276586b280d52685a5f90a00d0cc06d3c5",
+    "constants/sprite_constants.asm": "8eca089d8f95af392140afe9367908ec2c6c8cc8bf8c682f8ce4fbbffaaaf8e0",
+    "engine/overworld/field_move_messages.asm": "2dfecbe4f37e901f9601beaa5f3d247fc6927ff77f1e1f6a5d9e2135aa6006f2",
+    "engine/overworld/push_boulder.asm": "970dd0a9c45f5252817cd50f468551214660c35854d0a022cc4789110da8c153",
+    "engine/overworld/toggleable_objects.asm": "8d53800e0e970f8f2b886821cf884f2116ff09a6450c00f2d3178e09cfc4da92",
+    "engine/items/town_map.asm": "e6e3df35c2cf2c66c4b30dbd3afeab50000969f49c60ebf9391e4ecffeab55ad",
+    "engine/items/item_effects.asm": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1",
+    "home/overworld.asm": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a",
+    "data/maps/special_warps.asm": "d96914d09a633328dd1a8a81bdf0e2d58a0ce82b3d988d1efb5a9ae5f7314283",
+    "data/maps/objects/WardensHouse.asm": "40e487f7ec17c4c57229e05b113a7ef6d679b639284e47bedaa1771a38e4ea30",
+    "data/tilesets/pair_collision_tile_ids.asm": "d7ed744bfa0fcaf8e7f69a23f9e3d44cdcf9f3c3f9931d93926f5084f1c4466b",
+    "data/tilesets/water_tilesets.asm": "c37911107dc60805a56c1fd8718dd1aa95c2ae5ccd99b6fcb2620617d9f48d09"
+  }
+}

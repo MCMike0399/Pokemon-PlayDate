@@ -1,0 +1,17 @@
+{
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "files": {
+    "scripts/Route5Gate.asm": "6872a5bcf34643acba02adc3d159551e30b932da6ee25b127c687c0e491f9af3",
+    "scripts/Route6Gate.asm": "bf34274a40c2e89675a7159c763d2a9ef243bc6c9e323d85634c3fd9b14b3791",
+    "scripts/Route7Gate.asm": "25d3888932d815b281e3c2093735248221fa9152d28286db69502d8bdbff6925",
+    "scripts/Route8Gate.asm": "fcab0bf6f7ca516fdd1764960b0ce4b511ebcbcb4988c43e46752908a8f7ea5a",
+    "data/maps/objects/Route5Gate.asm": "5314f9c3869e2202dd0e6e65cd201fd6cb28e8c8c56ea56638afe22c1bc9daba",
+    "data/maps/objects/Route6Gate.asm": "45e6fff1781c960920e16eb083a17fb2a0c628097106059d0d8c4a179f7230b5",
+    "data/maps/objects/Route7Gate.asm": "78961a31925a14aaa5e6b4612d9b46c5d9c2ba088bc42328afd3ba2e935879b0",
+    "data/maps/objects/Route8Gate.asm": "21aecce467c5c3db05b49d36017d6624edeee4c0143e866cab7ce1e4d196e1e4",
+    "text/SaffronGates.asm": "e328e9cbb7455cbe48bac6dda8e45a3bb31880ebad4927d8702d8034a1193e7d",
+    "engine/events/saffron_guards.asm": "919336e3f646a11482ac96a85ea913ba6aca44b75bea7fe4efb32594e5600f29",
+    "data/items/guard_drink_items.asm": "131066a067a0c0225ebb56acc3447892b7fcabde5f1284395c0f7adc6ced74c4",
+    "constants/ram_constants.asm": "b4fbed09d7b966481e43a9690f3bc8cb27a700ddf7c60d61d8f0f3d40f8eb5cf"
+  }
+}

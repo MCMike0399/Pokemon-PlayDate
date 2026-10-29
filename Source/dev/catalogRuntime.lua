@@ -157,3 +157,13 @@ function CatalogRuntime.guard(callback)
     error((values[1] and "catalog exporter side effect: "..tostring(changed) or tostring(values[2]))
         ..(remaining and "; unrestored/unsupported state: "..tostring(remaining) or "; supported live state restored"),0)
 end
+
+-- Accepted base art plus every currently registered extension. Later regions
+-- extend the inventory without changing the earlier regions' own assertions.
+function CatalogRuntime.declaredImageCount(inventory)
+    local count = 1635
+    for _, exporter in pairs(inventory.exporters) do
+        count = count + #exporter.images
+    end
+    return count
+end

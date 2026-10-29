@@ -1,0 +1,1858 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "content_commit": "f2166ef97451bef837952d2c7604fb329ce18b91",
+  "status": "source collision projection; native acceptance pending",
+  "routes": [
+    {
+      "map": "RocketHideoutB2F",
+      "start": [
+        27,
+        8
+      ],
+      "goal": [
+        21,
+        8
+      ],
+      "walk_steps": 18,
+      "spinner_waypoints": [],
+      "steps": [
+        {
+          "direction": "down",
+          "from_cell": [
+            27,
+            8
+          ],
+          "to_cell": [
+            27,
+            9
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            27,
+            9
+          ],
+          "to_cell": [
+            27,
+            10
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            27,
+            10
+          ],
+          "to_cell": [
+            27,
+            11
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            27,
+            11
+          ],
+          "to_cell": [
+            27,
+            12
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            27,
+            12
+          ],
+          "to_cell": [
+            27,
+            13
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            27,
+            13
+          ],
+          "to_cell": [
+            27,
+            14
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            27,
+            14
+          ],
+          "to_cell": [
+            26,
+            14
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            26,
+            14
+          ],
+          "to_cell": [
+            25,
+            14
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            25,
+            14
+          ],
+          "to_cell": [
+            24,
+            14
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            24,
+            14
+          ],
+          "to_cell": [
+            23,
+            14
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            23,
+            14
+          ],
+          "to_cell": [
+            22,
+            14
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            22,
+            14
+          ],
+          "to_cell": [
+            22,
+            13
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            22,
+            13
+          ],
+          "to_cell": [
+            22,
+            12
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            22,
+            12
+          ],
+          "to_cell": [
+            22,
+            11
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            22,
+            11
+          ],
+          "to_cell": [
+            22,
+            10
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            22,
+            10
+          ],
+          "to_cell": [
+            22,
+            9
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            22,
+            9
+          ],
+          "to_cell": [
+            22,
+            8
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            22,
+            8
+          ],
+          "to_cell": [
+            21,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "map": "RocketHideoutB3F",
+      "start": [
+        25,
+        6
+      ],
+      "goal": [
+        19,
+        18
+      ],
+      "walk_steps": 50,
+      "spinner_waypoints": [
+        {
+          "approach": [
+            13,
+            11
+          ],
+          "step": "left",
+          "trigger": [
+            12,
+            11
+          ],
+          "stop": [
+            10,
+            11
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1004"
+        },
+        {
+          "approach": [
+            10,
+            12
+          ],
+          "step": "down",
+          "trigger": [
+            10,
+            13
+          ],
+          "stop": [
+            14,
+            13
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1001"
+        },
+        {
+          "approach": [
+            10,
+            18
+          ],
+          "step": "right",
+          "trigger": [
+            11,
+            18
+          ],
+          "stop": [
+            15,
+            22
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1003"
+        }
+      ],
+      "steps": [
+        {
+          "direction": "down",
+          "from_cell": [
+            25,
+            6
+          ],
+          "to_cell": [
+            25,
+            7
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            25,
+            7
+          ],
+          "to_cell": [
+            24,
+            7
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            24,
+            7
+          ],
+          "to_cell": [
+            23,
+            7
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            23,
+            7
+          ],
+          "to_cell": [
+            22,
+            7
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            22,
+            7
+          ],
+          "to_cell": [
+            21,
+            7
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            21,
+            7
+          ],
+          "to_cell": [
+            20,
+            7
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            20,
+            7
+          ],
+          "to_cell": [
+            20,
+            8
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            20,
+            8
+          ],
+          "to_cell": [
+            20,
+            9
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            20,
+            9
+          ],
+          "to_cell": [
+            19,
+            9
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            19,
+            9
+          ],
+          "to_cell": [
+            18,
+            9
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            18,
+            9
+          ],
+          "to_cell": [
+            17,
+            9
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            17,
+            9
+          ],
+          "to_cell": [
+            16,
+            9
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            16,
+            9
+          ],
+          "to_cell": [
+            15,
+            9
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            15,
+            9
+          ],
+          "to_cell": [
+            14,
+            9
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            14,
+            9
+          ],
+          "to_cell": [
+            14,
+            10
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            14,
+            10
+          ],
+          "to_cell": [
+            13,
+            10
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            13,
+            10
+          ],
+          "to_cell": [
+            13,
+            11
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            13,
+            11
+          ],
+          "to_cell": [
+            12,
+            11
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1004",
+          "automatic_path": [
+            "left",
+            "left"
+          ],
+          "stop_cell": [
+            10,
+            11
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            10,
+            11
+          ],
+          "to_cell": [
+            10,
+            12
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            10,
+            12
+          ],
+          "to_cell": [
+            10,
+            13
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1001",
+          "automatic_path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "stop_cell": [
+            14,
+            13
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            14,
+            13
+          ],
+          "to_cell": [
+            13,
+            13
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            13,
+            13
+          ],
+          "to_cell": [
+            12,
+            13
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            12,
+            13
+          ],
+          "to_cell": [
+            12,
+            14
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            12,
+            14
+          ],
+          "to_cell": [
+            12,
+            15
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            12,
+            15
+          ],
+          "to_cell": [
+            12,
+            16
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            12,
+            16
+          ],
+          "to_cell": [
+            11,
+            16
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            11,
+            16
+          ],
+          "to_cell": [
+            10,
+            16
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            10,
+            16
+          ],
+          "to_cell": [
+            9,
+            16
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            9,
+            16
+          ],
+          "to_cell": [
+            9,
+            17
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            9,
+            17
+          ],
+          "to_cell": [
+            9,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            9,
+            18
+          ],
+          "to_cell": [
+            10,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            10,
+            18
+          ],
+          "to_cell": [
+            11,
+            18
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1003",
+          "automatic_path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down",
+            "down",
+            "down"
+          ],
+          "stop_cell": [
+            15,
+            22
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            15,
+            22
+          ],
+          "to_cell": [
+            14,
+            22
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            14,
+            22
+          ],
+          "to_cell": [
+            13,
+            22
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            13,
+            22
+          ],
+          "to_cell": [
+            13,
+            23
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            13,
+            23
+          ],
+          "to_cell": [
+            13,
+            24
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            13,
+            24
+          ],
+          "to_cell": [
+            13,
+            25
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            13,
+            25
+          ],
+          "to_cell": [
+            14,
+            25
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            14,
+            25
+          ],
+          "to_cell": [
+            15,
+            25
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            15,
+            25
+          ],
+          "to_cell": [
+            16,
+            25
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            16,
+            25
+          ],
+          "to_cell": [
+            17,
+            25
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            17,
+            25
+          ],
+          "to_cell": [
+            17,
+            24
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            17,
+            24
+          ],
+          "to_cell": [
+            18,
+            24
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            18,
+            24
+          ],
+          "to_cell": [
+            18,
+            23
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            18,
+            23
+          ],
+          "to_cell": [
+            18,
+            22
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            18,
+            22
+          ],
+          "to_cell": [
+            18,
+            21
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            18,
+            21
+          ],
+          "to_cell": [
+            19,
+            21
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            19,
+            21
+          ],
+          "to_cell": [
+            19,
+            20
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            19,
+            20
+          ],
+          "to_cell": [
+            19,
+            19
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            19,
+            19
+          ],
+          "to_cell": [
+            19,
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "map": "RocketHideoutB3F",
+      "start": [
+        19,
+        18
+      ],
+      "goal": [
+        25,
+        6
+      ],
+      "walk_steps": 21,
+      "spinner_waypoints": [
+        {
+          "approach": [
+            18,
+            17
+          ],
+          "step": "up",
+          "trigger": [
+            18,
+            16
+          ],
+          "stop": [
+            18,
+            15
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1016"
+        },
+        {
+          "approach": [
+            17,
+            13
+          ],
+          "step": "left",
+          "trigger": [
+            16,
+            13
+          ],
+          "stop": [
+            16,
+            11
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1014"
+        }
+      ],
+      "steps": [
+        {
+          "direction": "left",
+          "from_cell": [
+            19,
+            18
+          ],
+          "to_cell": [
+            18,
+            18
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            18,
+            18
+          ],
+          "to_cell": [
+            18,
+            17
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            18,
+            17
+          ],
+          "to_cell": [
+            18,
+            16
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1016",
+          "automatic_path": [
+            "up"
+          ],
+          "stop_cell": [
+            18,
+            15
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            18,
+            15
+          ],
+          "to_cell": [
+            17,
+            15
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            17,
+            15
+          ],
+          "to_cell": [
+            17,
+            14
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            17,
+            14
+          ],
+          "to_cell": [
+            17,
+            13
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            17,
+            13
+          ],
+          "to_cell": [
+            16,
+            13
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B3F:hidden_events:1014",
+          "automatic_path": [
+            "up",
+            "up"
+          ],
+          "stop_cell": [
+            16,
+            11
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            16,
+            11
+          ],
+          "to_cell": [
+            17,
+            11
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            17,
+            11
+          ],
+          "to_cell": [
+            18,
+            11
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            18,
+            11
+          ],
+          "to_cell": [
+            19,
+            11
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            19,
+            11
+          ],
+          "to_cell": [
+            20,
+            11
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            20,
+            11
+          ],
+          "to_cell": [
+            20,
+            10
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            20,
+            10
+          ],
+          "to_cell": [
+            20,
+            9
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            20,
+            9
+          ],
+          "to_cell": [
+            20,
+            8
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            20,
+            8
+          ],
+          "to_cell": [
+            20,
+            7
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            20,
+            7
+          ],
+          "to_cell": [
+            20,
+            6
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            20,
+            6
+          ],
+          "to_cell": [
+            21,
+            6
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            21,
+            6
+          ],
+          "to_cell": [
+            22,
+            6
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            22,
+            6
+          ],
+          "to_cell": [
+            23,
+            6
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            23,
+            6
+          ],
+          "to_cell": [
+            24,
+            6
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            24,
+            6
+          ],
+          "to_cell": [
+            25,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "map": "RocketHideoutB2F",
+      "start": [
+        21,
+        8
+      ],
+      "goal": [
+        24,
+        19
+      ],
+      "walk_steps": 45,
+      "spinner_waypoints": [
+        {
+          "approach": [
+            18,
+            11
+          ],
+          "step": "left",
+          "trigger": [
+            17,
+            11
+          ],
+          "stop": [
+            2,
+            9
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1043"
+        },
+        {
+          "approach": [
+            4,
+            14
+          ],
+          "step": "right",
+          "trigger": [
+            5,
+            14
+          ],
+          "stop": [
+            9,
+            16
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1007"
+        },
+        {
+          "approach": [
+            10,
+            16
+          ],
+          "step": "right",
+          "trigger": [
+            11,
+            16
+          ],
+          "stop": [
+            15,
+            18
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1024"
+        },
+        {
+          "approach": [
+            14,
+            18
+          ],
+          "step": "left",
+          "trigger": [
+            13,
+            18
+          ],
+          "stop": [
+            11,
+            20
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1033"
+        },
+        {
+          "approach": [
+            14,
+            22
+          ],
+          "step": "left",
+          "trigger": [
+            13,
+            22
+          ],
+          "stop": [
+            9,
+            24
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1035"
+        },
+        {
+          "approach": [
+            10,
+            24
+          ],
+          "step": "down",
+          "trigger": [
+            10,
+            25
+          ],
+          "stop": [
+            14,
+            25
+          ],
+          "id": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1022"
+        }
+      ],
+      "steps": [
+        {
+          "direction": "down",
+          "from_cell": [
+            21,
+            8
+          ],
+          "to_cell": [
+            21,
+            9
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            21,
+            9
+          ],
+          "to_cell": [
+            21,
+            10
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            21,
+            10
+          ],
+          "to_cell": [
+            21,
+            11
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            21,
+            11
+          ],
+          "to_cell": [
+            20,
+            11
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            20,
+            11
+          ],
+          "to_cell": [
+            19,
+            11
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            19,
+            11
+          ],
+          "to_cell": [
+            18,
+            11
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            18,
+            11
+          ],
+          "to_cell": [
+            17,
+            11
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1043",
+          "automatic_path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "up",
+            "up",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left",
+            "left"
+          ],
+          "stop_cell": [
+            2,
+            9
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            2,
+            9
+          ],
+          "to_cell": [
+            3,
+            9
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            3,
+            9
+          ],
+          "to_cell": [
+            3,
+            10
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            3,
+            10
+          ],
+          "to_cell": [
+            3,
+            11
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            3,
+            11
+          ],
+          "to_cell": [
+            3,
+            12
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            3,
+            12
+          ],
+          "to_cell": [
+            3,
+            13
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            3,
+            13
+          ],
+          "to_cell": [
+            4,
+            13
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            4,
+            13
+          ],
+          "to_cell": [
+            4,
+            14
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            4,
+            14
+          ],
+          "to_cell": [
+            5,
+            14
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1007",
+          "automatic_path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down"
+          ],
+          "stop_cell": [
+            9,
+            16
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            9,
+            16
+          ],
+          "to_cell": [
+            10,
+            16
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            10,
+            16
+          ],
+          "to_cell": [
+            11,
+            16
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1024",
+          "automatic_path": [
+            "right",
+            "right",
+            "right",
+            "right",
+            "down",
+            "down"
+          ],
+          "stop_cell": [
+            15,
+            18
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            15,
+            18
+          ],
+          "to_cell": [
+            14,
+            18
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            14,
+            18
+          ],
+          "to_cell": [
+            13,
+            18
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1033",
+          "automatic_path": [
+            "left",
+            "left",
+            "down",
+            "down"
+          ],
+          "stop_cell": [
+            11,
+            20
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            11,
+            20
+          ],
+          "to_cell": [
+            12,
+            20
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            12,
+            20
+          ],
+          "to_cell": [
+            13,
+            20
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            13,
+            20
+          ],
+          "to_cell": [
+            14,
+            20
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            14,
+            20
+          ],
+          "to_cell": [
+            14,
+            21
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            14,
+            21
+          ],
+          "to_cell": [
+            14,
+            22
+          ]
+        },
+        {
+          "direction": "left",
+          "from_cell": [
+            14,
+            22
+          ],
+          "to_cell": [
+            13,
+            22
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1035",
+          "automatic_path": [
+            "left",
+            "left",
+            "left",
+            "left",
+            "down",
+            "down"
+          ],
+          "stop_cell": [
+            9,
+            24
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            9,
+            24
+          ],
+          "to_cell": [
+            10,
+            24
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            10,
+            24
+          ],
+          "to_cell": [
+            10,
+            25
+          ],
+          "spinner": "pokered:ROCKET_HIDEOUT_B2F:hidden_events:1022",
+          "automatic_path": [
+            "right",
+            "right",
+            "right",
+            "right"
+          ],
+          "stop_cell": [
+            14,
+            25
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            14,
+            25
+          ],
+          "to_cell": [
+            15,
+            25
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            15,
+            25
+          ],
+          "to_cell": [
+            16,
+            25
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            16,
+            25
+          ],
+          "to_cell": [
+            16,
+            24
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            16,
+            24
+          ],
+          "to_cell": [
+            16,
+            23
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            16,
+            23
+          ],
+          "to_cell": [
+            16,
+            22
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            16,
+            22
+          ],
+          "to_cell": [
+            16,
+            21
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            16,
+            21
+          ],
+          "to_cell": [
+            16,
+            20
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            16,
+            20
+          ],
+          "to_cell": [
+            17,
+            20
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            17,
+            20
+          ],
+          "to_cell": [
+            18,
+            20
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            18,
+            20
+          ],
+          "to_cell": [
+            19,
+            20
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            19,
+            20
+          ],
+          "to_cell": [
+            19,
+            19
+          ]
+        },
+        {
+          "direction": "up",
+          "from_cell": [
+            19,
+            19
+          ],
+          "to_cell": [
+            19,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            19,
+            18
+          ],
+          "to_cell": [
+            20,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            20,
+            18
+          ],
+          "to_cell": [
+            21,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            21,
+            18
+          ],
+          "to_cell": [
+            22,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            22,
+            18
+          ],
+          "to_cell": [
+            23,
+            18
+          ]
+        },
+        {
+          "direction": "right",
+          "from_cell": [
+            23,
+            18
+          ],
+          "to_cell": [
+            24,
+            18
+          ]
+        },
+        {
+          "direction": "down",
+          "from_cell": [
+            24,
+            18
+          ],
+          "to_cell": [
+            24,
+            19
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":111,"text":"I'm thirsty!"},{"op":"line","source_line":112,"text":"I want something"},{"op":"cont","source_line":113,"text":"to drink!"},{"op":"control","source":"done","source_line":114}],"source":"text/CeladonMartRoof.asm"}

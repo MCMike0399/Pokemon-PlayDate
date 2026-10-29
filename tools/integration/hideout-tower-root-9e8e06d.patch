@@ -1,0 +1,135 @@
+--- a/Source/data/ceruleanContent.lua
++++ b/Source/data/ceruleanContent.lua
+@@ -56,7 +56,7 @@
+ 
+ -- Adds immutable records to the existing source resolver. No second actor
+ -- resolver, geometry provider or scene registration is created.
+-function CeruleanContent.registerPackage(name, root)
++function CeruleanContent.registerPackage(name, root, transform)
+     assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
+     assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
+     local package = {}
+@@ -78,12 +78,21 @@
+         assert(not events[id], "duplicate source package event")
+         events[id] = copy(descriptor)
+     end
++    local extraTrainers = {}
++    if transform then
++        events, extraTrainers = transform(copy(events), copy(package.trainers))
++        assert(type(events) == "table" and type(extraTrainers) == "table", "detached content transform required")
++    end
+     -- Script-selected rivals/leaders remain the scene owner's responsibility.
+     local trainers = {}
+     for id, descriptor in pairs(events) do
+         if descriptor.kind == "trainer" then
+             trainers[id] = copy(assert(package.trainers.trainers[id], "source package roster missing"))
+         end
++    end
++    for id, definition in pairs(extraTrainers) do
++        assert(not trainers[id], "duplicate story trainer")
++        trainers[id] = copy(definition)
+     end
+     SourceEvents.registerTextSource(name, CeruleanContent.text)
+     SourceEvents.registerTrainerSource(name, function() return copy(trainers) end)
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -141,18 +141,35 @@
+ 
+ -- @harness imports-7
+ 
++import "game/rocketHideoutStory"
++import "game/rocketHideoutStoryWorld"
++import "game/rocketHideoutStoryController"
++import "game/towerStory"
++import "game/snorlaxStory"
++import "game/towerStoryController"
++import "game/hideoutTowerContent"
++import "game/hideoutTowerController"
++
+ local function campaignActorMetadata(definition, event, runtimeGame)
+     local metadata = KantoScenes.actorMetadata(definition, event, runtimeGame)
+     local extra = VermilionStory.actorMetadata(event.id, runtimeGame)
+     for _, condition in ipairs(extra.visibility or {}) do
+         metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
+     end
++    local story = HideoutTowerContent.actorMetadata(event.id, runtimeGame)
++    for _, condition in ipairs(story.visibility) do
++        metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
++    end
+     return metadata
+ end
+ 
+ CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
+-CeruleanContent.registerPackage("midgameEast", "data/midgameEast/")
+-CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/")
++CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
++    return HideoutTowerContent.package("midgameEast", events, trainers)
++end)
++CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
++    return HideoutTowerContent.package("midgameSouth", events, trainers)
++end)
+ CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/")
+ CeruleanContent.install(campaignActorMetadata)
+ CeruleanContent.installSigns()
+@@ -163,6 +180,7 @@
+ Daycare.install()
+ NPCTrades.install()
+ SaffronGuards.install()
++HideoutTowerContent.install()
+ -- @harness content-ready
+ SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
+ SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
+--- a/Source/game/npcTradeState.lua
++++ b/Source/game/npcTradeState.lua
+@@ -16,6 +16,7 @@
+ end
+ Class("NPCTradeState"):extends(DaycareState)
+ function NPCTradeState:enter(id, options)
++    HideoutTowerController.enter(self)
+     self.tradeStarted, self.tradeRequest = false, nil
+     self.tradeContext = self.game
+     NPCTradeState.super.enter(self, id, options)
+@@ -25,6 +26,9 @@
+     self:serviceText({"_" .. branch .. offer.dialogue .. "Text"}, callback)
+ end
+ function NPCTradeState:advance()
++    if HideoutTowerController.advance(self) then
++        return
++    end
+     if not self.plan or self.plan.scene ~= "npc-trade" then
+         return NPCTradeState.super.advance(self)
+     end
+@@ -115,3 +119,33 @@
+     self.tradeRequest, self.tradeContext = nil, nil
+     NPCTradeState.super.exit(self)
+ end
++
++-- Root-owned composition preserving this controller and its complete parent chain.
++local previousUpdate = NPCTradeState.update
++function NPCTradeState:update()
++    previousUpdate(self)
++    HideoutTowerController.update(self)
++end
++local previousButton = NPCTradeState.handleButton
++function NPCTradeState:handleButton(button)
++    if HideoutTowerController.handleButton(self, button) then
++        return
++    end
++    previousButton(self, button)
++end
++local previousDraw = NPCTradeState.draw
++function NPCTradeState:draw()
++    previousDraw(self)
++    HideoutTowerController.draw(self)
++end
++local previousFail = NPCTradeState.fail
++function NPCTradeState:fail(reason)
++    HideoutTowerController.cancel(self)
++    previousFail(self, reason)
++end
++local previousExit = NPCTradeState.exit
++function NPCTradeState:exit()
++    HideoutTowerController.cancel(self)
++    previousExit(self)
++    HideoutTowerController.afterExit(self)
++end

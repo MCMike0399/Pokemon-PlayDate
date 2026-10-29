@@ -1,11 +1,13 @@
 """Primary bytes, generated grids and bounded source inventory; no Lua execution."""
 import hashlib
 import os
+import re
 from pathlib import Path
 
 import json
 import unittest
 
+from tools.tests.host_fixtures import accepted_source_json
 from tools import generate_field_moves as gen
 from tools.generate_kanto_maps import decode_png, tile_grids
 
@@ -42,7 +44,16 @@ class GrassCutDataTests(unittest.TestCase):
                     self.assertTrue(self.data['tiles'][cell['before']]['terrain']['grass'])
                     self.assertFalse(self.data['tiles'][cell['after']]['terrain']['grass'])
                     self.assertEqual(self.data['tiles'][cell['after']]['collision'], 0)
-        self.assertEqual(count, 255)
+        # Count primary layout blocks rather than freezing the growing recipe
+        # total. The accepted map subset must still keep its exact 255 blocks.
+        pins = json.loads((gen.INPUT / 'pins.json').read_bytes())
+        expected = sum((gen.INPUT / 'pokered/maps' / (name + '.blk')).read_bytes().count(0x0b)
+                       for name in pins['maps']
+                       if re.search(r'\bmap_header\s+\w+,\s*\w+,\s*OVERWORLD\b',
+                                    (gen.INPUT / 'pokered/data/maps/headers' / (name + '.asm')).read_text()))
+        self.assertEqual(count, expected)
+        old_maps = accepted_source_json('data/fieldMoves.json')['maps']
+        self.assertEqual(sum(len(self.data['maps'][key]['grass_sites']) for key in old_maps), 255)
         self.assertEqual(len(self.data['maps']['pokered:ROUTE_6']['grass_sites']), 45)
 
     def test_all_installed_overworld_maps_are_pinned_without_pallet_recipe(self):

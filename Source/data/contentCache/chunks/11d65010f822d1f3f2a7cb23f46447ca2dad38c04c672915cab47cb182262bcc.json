@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":10,"text":"I'm on vacation"},{"op":"line","source_line":11,"text":"with my brother"},{"op":"cont","source_line":12,"text":"and boy friend."},{"op":"para","source_line":14,"text":"CELADON is such a"},{"op":"line","source_line":15,"text":"pretty city!"},{"op":"control","source":"done","source_line":16}],"source":"text/CeladonHotel.asm"}

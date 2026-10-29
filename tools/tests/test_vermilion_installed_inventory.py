@@ -7,6 +7,7 @@ from unittest.mock import patch
 from pathlib import Path
 import unittest
 
+from tools.tests.host_fixtures import installed_map_names, build_vermilion_preparation
 from tools import generate_vermilion_preparation as g
 
 
@@ -26,7 +27,7 @@ class VermilionInstalledInventory(unittest.TestCase):
         self.assertTrue(g.verify_installed_entries(self.artifacts, self.promoted))
         expected = {name: raw for name, raw in self.artifacts.items() if name.startswith('proposed-')}
         self.assertEqual(g.proposed_pipeline(self.artifacts, manifest=self.promoted), expected)
-        self.assertEqual(len(self.promoted['maps']), 65)
+        self.assertEqual(set(self.promoted['maps']), installed_map_names())
 
     def test_full_build_accepts_an_installed_manifest_in_a_private_source_inventory(self):
         # A real filesystem inventory, not an SDK or Lua substitute. Only the
@@ -85,8 +86,9 @@ class VermilionInstalledInventory(unittest.TestCase):
                 self.assertEqual(g.canonical(manifest), before)
 
     def test_original_strict_artifact_preservation_verifier_is_unchanged(self):
-        g.verify(self.artifacts, g.OUTPUT)
-        changed = dict(self.artifacts)
+        artifacts = build_vermilion_preparation(Path(os.environ['POKERED_REFERENCE_DIR']))
+        g.verify(artifacts, g.OUTPUT)
+        changed = dict(artifacts)
         changed['VermilionGym.json'] += b' '
         with self.assertRaisesRegex(ValueError, 'artifact drift'):
             g.verify(changed, g.OUTPUT)
@@ -98,7 +100,7 @@ class VermilionInstalledInventory(unittest.TestCase):
         before = [path.read_bytes() for path in paths]
         g.proposed_pipeline(self.artifacts, manifest=self.promoted)
         self.assertEqual([path.read_bytes() for path in paths], before)
-        self.assertEqual(len(json.loads(before[0])['maps']), 65)
+        self.assertEqual(set(json.loads(before[0])['maps']), installed_map_names())
 
 if __name__ == '__main__':
     unittest.main()

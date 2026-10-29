@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":51,"text":"<PLAYER> received"},{"op":"line","source_line":52,"text":"a @"},{"op":"text_ram","source_line":53,"symbol":"wStringBuffer"},{"op":"text","source_line":54,"text":"!@"},{"op":"control","source":"text_end","source_line":55}],"source":"text/MrFujisHouse.asm"}

@@ -16,7 +16,13 @@
     "Route1",
     "Route22",
     "Route3",
-    "Route4"
+    "Route4",
+    "Route7",
+    "Route8",
+    "Route9",
+    "Route10",
+    "CeladonCity",
+    "LavenderTown"
   ],
   "pokered": {
     "engine/overworld/cut.asm": "9062c09d8a39fc0be5abccc6cd35ac422e18c9ab477464d9c91b8316bea57693",
@@ -70,7 +76,19 @@
     "data/maps/headers/Route3.asm": "d0df69562f4501b6d84908351bd58449bcaa10d4d71efb854b3ee22706b6ece3",
     "maps/Route3.blk": "189694e837f01c7d22e06253ed49302ff666a744bd173119e4c01b5b2c781038",
     "data/maps/headers/Route4.asm": "7b3e58e2d3985cb6c76d109c47fb0538f400daef2281a19796007bc9ca5d337d",
-    "maps/Route4.blk": "dcdd83b25091fbbfa9229e497b86dd80017476675fd764f9c077194050750677"
+    "maps/Route4.blk": "dcdd83b25091fbbfa9229e497b86dd80017476675fd764f9c077194050750677",
+    "data/maps/headers/Route7.asm": "297cce9d69c20b0b433cf492b35c2bef0120d0a4b71c9b06e996302783a29c55",
+    "maps/Route7.blk": "ab6eea59b149b98989befd3b805ce4ae1ef56ffdefc2054e50d6036598875234",
+    "data/maps/headers/Route8.asm": "c7c19107d6b966089b6799fa7dbddf2d5cc3b442dbeb01e1cff80023b6920602",
+    "maps/Route8.blk": "f34029dcd34c13d105703684ec758424252e0919d992c7195ad5101c7d49c511",
+    "data/maps/headers/Route9.asm": "e3db7d7d25a64e31a5149f870d406050ff23f1261bd6ce1cc0495f035d1c1aa6",
+    "maps/Route9.blk": "d159adb3e793f29d2c9f1f2a662cf6328379414d6bd9f9edc3a2d204a7398c86",
+    "data/maps/headers/Route10.asm": "3809acfdc85abd996cdd56f835108fa73db8a50d9e31f7ce9a2c44b556fee064",
+    "maps/Route10.blk": "b100290fa5973a42964d36f3231c2f3551aaad242c958662bb8c153c3831a87d",
+    "data/maps/headers/CeladonCity.asm": "ca78a438281c4cc9556ef448bf1ca8e3d6c5a7e59a90c9de13b73e094b0ece6d",
+    "maps/CeladonCity.blk": "ab2e5139c31c1962e8e391ccd11843d0fb9008c6d39c7398ba79044e5b6403c6",
+    "data/maps/headers/LavenderTown.asm": "924a5eeb50c0d1d8f4570be3632f202890c60db62b69a890e978a345a5773b24",
+    "maps/LavenderTown.blk": "dcee65f0f3da941d086f4039dcfa7f69dc915fd7204cd1ed9cdacff1b1741cbd"
   },
   "showdown": {
     "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",

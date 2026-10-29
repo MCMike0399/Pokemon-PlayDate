@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"That's odd, MR.FUJI"},{"op":"line","source_line":3,"text":"isn't here."},{"op":"cont","source_line":4,"text":"Where'd he go?"},{"op":"control","source":"done","source_line":5}],"source":"text/MrFujisHouse.asm"}

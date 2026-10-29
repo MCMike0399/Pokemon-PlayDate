@@ -1,0 +1,10 @@
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -276,6 +276,7 @@
+ end
+ 
+ function DoorWarpSubstate:enter(door)
++    door = RocketHideoutStory.resolveDoor(self.owner.game, door)
+     if VermilionStory and not VermilionStory.allowDoor(self.owner.game,door) then
+         self.owner.game.player.stepJustFinished=false
+         self.owner.game.player.pendingEdgeDoor=nil

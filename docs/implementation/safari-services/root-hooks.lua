@@ -1,0 +1,74 @@
+-- Imports before GameSession construction:
+-- import "domain/safariGame"
+-- import "domain/coinWallet"
+-- import "domain/safariBattle"
+-- After NPCTradeState's existing import:
+-- import "game/midgameServices"
+-- import "game/midgameServicesState"
+--
+-- Once, AFTER installing the existing source packages:
+-- MidgameServices.install()
+-- Replace the existing event executor registration (do not register a second):
+-- machine:register("event", MidgameServicesState(game))
+--
+-- After applying root-api.patch, root owns entrance/return transition hooks:
+-- game:prepareSafariPassage(eventOwner, admissionPlan, expectedFieldEpoch)
+--   -> guarded fee/counter commit closure | nil,reason
+-- Preflight the exact source path/warp and retain EventState's current actor,
+-- player and zone until its dialogue completes. Commit ONLY the source fee and
+-- tuple here; queue the immutable entrance warp through the existing executor.
+-- Preserve root's native transition failure recovery. No invented free-cell warp.
+-- If a later passage fails, root must recover the admission consistently.
+--
+-- SafariZoneGate script trigger, through the EXISTING one dispatcher:
+-- SourceEvents.registerWorldHooks("pokered:SAFARI_ZONE_GATE:script:admission", {
+--     explore = MidgameServices.checkEntrance,
+-- })
+-- Exact trigger: source y=2, x=3/4. Source aligns to x=4, then walks up three
+-- simulated inputs; native warps retain their source coordinates. Refusal/
+-- insufficient money walks down once. Gate object1 is the admission/return
+-- worker; object2 is the source information worker, not an invented cashier.
+--
+-- On each completed counted cell (ordinary AND source simulated entrance/
+-- rest-house movement), exactly once:
+-- local plan = SafariGame.step(session:safariData())
+-- if plan then session:commitSafari(plan, session:fieldWorldEpoch()) end
+-- Count no idle/overlay/interpolation frame. Preserve Blue's zero-check before
+-- decrement and raw 502 initialization; do not reinterpret it as 500 here.
+-- Source checks apply while EVENT_IN_SAFARI_ZONE is active, including interiors.
+--
+-- Before ordinary wild battle admission:
+-- if SafariGame.isBattleMap(currentZone.stableID) and session:safariData().active
+-- then use Safari's own battle state, never BattleState/normal Bag/attack menus.
+-- SafariBattle.begin(safari, enemy) makes the command tuple; prepare/commit use
+-- actual Specimen-created enemy and the existing rules stream/capture owners.
+-- Root supplies the explicit captureAttempt callback after settling the capture
+-- seam in capture-foundation.md. No Great Ball or bag-ball fallback exists.
+-- Commands are exactly "ball", "bait", "rock", "run". No attacks, switch, XP
+-- or ordinary bag consumption occurs. cancel(token) on every overlay exit.
+--
+-- After Safari battle ends, commit SafariGame.check(...), THEN, if ending is
+-- steps/balls, start the exact gate return through root's existing warp owner.
+-- Gate destination is source warp3 (source3,0); script walks down three inputs.
+-- Last-ball captures recruit before this return. Gate receipt uses source PA/
+-- game-over text; do not report capture or payout before the session commit.
+-- Confirmed early leave uses SafariGame.leave(value,true); NO retains the game
+-- and simulates one up input. Completed forced return uses leave(value,false).
+-- Clear source flags/balls through commitSafari with that completed return.
+--
+-- The existing HM03 gift and Gold Teeth pickup need NO new registration:
+-- pokered:SAFARI_ZONE_SECRET_HOUSE:objects:1 / EVENT_GOT_HM03 / hm03
+-- pokered:SAFARI_ZONE_WEST:objects:4 / source pickup flag / goldTeeth
+-- Warden is registered by MidgameServices: pokered:WARDENS_HOUSE:objects:1.
+--
+-- SDK overlay, root alone executes:
+-- import "dev/safariServicesContracts"
+-- Contracts.register("safari-services", SafariServicesContracts.run)
+
+-- Private schema remains v4. Accepted v3 migrates Safari inactive/coins zero;
+-- v4 requires both. session:coins() is the exact 0..9999 numeric counter.
+-- SafariGame.observe(game) reports sessionInstalled / battleRegistered,
+-- active / steps / balls / ending, plus source HM03/Teeth/HM04 flags.
+-- Existing Escape Rope's session entry point is wrapped in root-api.patch to
+-- clear Safari and balls in the same successful item/world publication.
+-- No changes to Player/Overworld/FieldWorld/FieldItems are applied here.

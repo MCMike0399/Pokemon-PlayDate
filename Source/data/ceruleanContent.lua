@@ -45,7 +45,7 @@ end
 
 -- Generated indexes validate duplicate text/art by canonical record checksum.
 -- Only explicit registration activates a package; catalog presence does not.
-function CeruleanContent.registerPackage(name, root)
+function CeruleanContent.registerPackage(name, root, transform)
     assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
     assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
     local index = SourceEvents._contentIndex(root)
@@ -55,7 +55,49 @@ function CeruleanContent.registerPackage(name, root)
             assert(not previous or previous == digest, "conflicting immutable source package record")
         end
     end
-    SourceEvents._registerContent(name, index, {"events", "signs"}, index.ordinary_trainers)
+    local overrides, trainers
+    if transform then
+        -- The story adapter reads and edits a sparse set. Preserve untouched
+        -- descriptors and rosters as lazy digests, including ordinary trainers.
+        local function records(field)
+            return setmetatable({}, {__index = function(values, id)
+                local value = copy(SourceEvents._contentRecord(field[id]))
+                rawset(values, id, value)
+                return value
+            end})
+        end
+        local eventDigests = {}
+        for _, field in ipairs({"events", "signs"}) do
+            for id, digest in pairs(index.records.events[field]) do
+                eventDigests[id] = digest
+            end
+        end
+        local events = records(eventDigests)
+        -- The adapter retains existing bespoke trainer rosters as well as
+        -- trainers changed into bespoke story encounters by its additions.
+        for id in pairs(index.bespoke_trainers) do
+            local _ = events[id]
+        end
+        local extra
+        overrides, extra = transform(events, {
+            trainers = records(index.records.trainers.trainers),
+            rival_classes = records(index.records.trainers.rival_classes),
+        })
+        assert(type(overrides) == "table" and type(extra) == "table", "detached content transform required")
+        setmetatable(overrides, nil)
+        trainers = copy(index.ordinary_trainers)
+        for id, descriptor in pairs(overrides) do
+            trainers[id] = descriptor.kind == "trainer" and index.records.trainers.trainers[id] or nil
+            if descriptor.kind == "trainer" then
+                assert(trainers[id], "source package roster missing")
+            end
+        end
+        for id, definition in pairs(extra) do
+            assert(not trainers[id], "duplicate story trainer")
+            trainers[id] = copy(definition)
+        end
+    end
+    SourceEvents._registerContent(name, index, {"events", "signs"}, trainers or index.ordinary_trainers, nil, overrides)
     SourceEvents.registerTextSource(name, CeruleanContent.text)
     packages[name] = root
 end

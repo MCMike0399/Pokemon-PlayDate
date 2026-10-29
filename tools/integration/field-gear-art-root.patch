@@ -1,0 +1,45 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -11,6 +11,7 @@
+ import "world/tilefactory"
+ import "world/tileRegistry"
+ import "world/spritefactory"
++import "world/fieldGearArt"
+ import "world/zone"
+ import "data/individualData"
+ import "domain/individualStats"
+--- a/Source/dev/midgameCatalogExporter.lua
++++ b/Source/dev/midgameCatalogExporter.lua
+@@ -142,6 +142,14 @@
+     for _, pose in ipairs(MidgameCatalogExporter.poses()) do
+         result.directional_pose_count = result.directional_pose_count + 1
+         asset(pose.name, 32, 32, "midgame-character", true)
++    end
++    result.field_gear_assets = #FieldGearArt.catalogInventory()
++    for _, entry in ipairs(FieldGearArt.catalogInventory()) do
++        add(entry.name, entry.width, entry.height, entry.category)
++        add(entry.name .. "__mask", entry.width, entry.height, entry.category, true)
++        for _, background in ipairs({"white", "black", "texture"}) do
++            add(entry.name .. "__" .. background, entry.width, entry.height, entry.category .. "-background")
++        end
+     end
+     table.sort(result.images, function(a, b)
+         return a.path < b.path
+@@ -186,10 +194,17 @@
+     for _, pose in ipairs(report.characters) do
+         sink.asset(pose.name, CeruleanContent.poseImage(pose.source, pose.pose, pose.direction), "midgame-character", true)
+     end
++    report.field_gear = {images={}, reused_exclamation="pewter-exclamation.png",
++        timing=FieldGearArt.data().timing, rod_directions=FieldGearArt.data().rod.directions}
++    for _, entry in ipairs(FieldGearArt.catalogAssets()) do
++        sink.asset(entry.name, entry.image, entry.category, true)
++        report.field_gear.images[#report.field_gear.images + 1] = entry.name .. ".png"
++    end
+     return report
+ end
+ 
+ function MidgameCatalogExporter.register()
++    FieldGearArt.prepare()
+     local maps, npcs = {}, {}
+     local tiles <const> = MidgameCatalogExporter.tiles()
+     for _, name in ipairs(MidgameCatalogExporter.maps()) do

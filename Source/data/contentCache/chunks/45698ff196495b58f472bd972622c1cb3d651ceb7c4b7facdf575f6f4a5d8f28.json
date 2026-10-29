@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":16,"text":"Don't touch the"},{"op":"line","source_line":17,"text":"poster at the"},{"op":"cont","source_line":18,"text":"GAME CORNER!"},{"op":"para","source_line":20,"text":"There's no secret"},{"op":"line","source_line":21,"text":"switch behind it!"},{"op":"control","source":"done","source_line":22}],"source":"text/CeladonChiefHouse.asm"}

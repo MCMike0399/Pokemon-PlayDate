@@ -72,7 +72,7 @@ function SourceEvents._contentRecord(digest)
 end
 local function resolve(source, id)
     local value = source.records[id]
-    if source.lazy then
+    if source.lazy and type(value) == "string" then
         value = SourceEvents._contentRecord(value)
     end
     if value and source.content then
@@ -165,6 +165,7 @@ local function gift(d, state)
         else
             plan.steps[#plan.steps + 1] = dialog(d.success)
             plan.expected, plan.changes = reward(d.item, d.flag, state, nil, true)
+            plan.ram = { wStringBuffer = assert(ItemData.definitions[d.item]).name }
         end
     end
     return plan
@@ -388,6 +389,7 @@ function SourceEvents.itemIDs()
             for _, id in ipairs(source.items) do
                 found[id] = true
             end
+            visit(source.records)
         else
             visit(source.records)
         end
@@ -572,7 +574,7 @@ end
 
 -- Generated packages are validated against pinned inputs by the host generator.
 -- Registration checks membership using indexes; it never decodes descriptors.
-function SourceEvents._registerContent(name, index, fields, trainers, contentOverride)
+function SourceEvents._registerContent(name, index, fields, trainers, contentOverride, overrides)
     assert(type(name) == "string" and not eventSources[name], "named event source required")
     assert(not trainers or not trainerSources[name], "source trainer resolver replaced")
     local records, items = {}, {}
@@ -587,6 +589,10 @@ function SourceEvents._registerContent(name, index, fields, trainers, contentOve
         for _, item in ipairs(index.items[field]) do
             items[item] = true
         end
+    end
+    for id, descriptor in pairs(overrides or {}) do
+        assert(records[id] or not eventExists(id), "duplicate source event")
+        records[id] = copy(descriptor)
     end
     if trainers then
         local current = baseIndex().records.trainers.trainers
@@ -603,7 +609,13 @@ function SourceEvents._registerContent(name, index, fields, trainers, contentOve
     end
     eventSources[name] = {records = records, lazy = true, items = list, content = contentOverride}
     if trainers then
-        trainerSources[name] = {records = trainers, lazy = true, flags = index.trainer_flags}
+        local flags = shallow(index.trainer_flags)
+        for id, definition in pairs(trainers) do
+            if type(definition) == "table" then
+                flags[id] = definition.source_flag
+            end
+        end
+        trainerSources[name] = {records = trainers, lazy = true, flags = flags}
     end
 end
 

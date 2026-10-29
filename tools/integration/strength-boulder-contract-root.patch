@@ -1,0 +1,11 @@
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -82,6 +82,8 @@
+ import "dev/specimenOwnershipContracts"
+ Contracts.register("specimen-ownership", SpecimenOwnershipContracts.run)
+ import "dev/npcMotionContracts"
++import "dev/strengthBoulderContracts"
++Contracts.register("strength-boulder", StrengthBoulderContracts.run)
+ Contracts.register("npcMotionContracts", NPCMotionContracts.run)
+ import "dev/npcMotionLegacyContracts"
+ Contracts.register("npcMotionLegacyContracts", NPCMotionLegacyContracts.run)

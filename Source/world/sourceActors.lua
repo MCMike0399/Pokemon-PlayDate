@@ -50,6 +50,13 @@ local function content(profile)
     return assert(contentResolvers[profile], "source actor content resolver missing: " .. tostring(profile))
 end
 
+-- Blue identifies pushable objects by movement byte 2, not by a terrain tile.
+-- Their single fixed source frame always faces down; push direction is separate.
+function SourceActors.isBoulderEvent(event)
+    return event.sprite == "SPRITE_BOULDER"
+        and event.range_or_facing == "BOULDER_MOVEMENT_BYTE_2"
+end
+
 function SourceActors.installArt(name, definition)
     return content(SourceMaps.entry(name).profile).install(definition)
 end
@@ -75,6 +82,7 @@ function SourceActors.objectDefinition(d, event, spec, options)
     end
     local def = { gridX=event.x, gridY=event.y, name=trainer and trainer.name or event.text_id,
         sprite=key, source_event_id=event.id, source_sprite=event.sprite,
+        source_boulder=SourceActors.isBoulderEvent(event),
         source_movement={kind=event.movement, range=event.range_or_facing},
         facing=({UP="up", DOWN="down", LEFT="left", RIGHT="right", LEFT_RIGHT="left"})[event.range_or_facing] or "down",
         dialog=function()
@@ -125,6 +133,7 @@ function SourceActors.describeSource(zoneID, world, game)
     for _,event in ipairs(d.events.objects)do
         local trainer = trainerFor(event.id)
         local item = event.kind == "item"
+        local boulder = SourceActors.isBoulderEvent(event)
         if trainer then
             assert(trainer.map_id == zoneID and trainer.sprite_source == event.sprite, "trainer differs from source object")
         end
@@ -132,10 +141,14 @@ function SourceActors.describeSource(zoneID, world, game)
         for direction in pairs(strip.standing)do faces[direction]=true end
         if faces.left then faces.right=true end
         local facing=({UP="up",DOWN="down",LEFT="left",RIGHT="right",LEFT_RIGHT="left",UP_DOWN="down",NONE="down",ANY_DIR="down"})[event.range_or_facing]
+        if boulder then
+            assert(event.movement == "STAY" and strip.fixed, "source boulder must use fixed stationary art")
+            facing = "down"
+        end
         assert(facing and faces[facing],"source actor initial facing missing exact pose")
-        local spec={id=event.id,order=event.source_index,x=event.x,y=event.y,role=trainer and "trainer"or item and "item"or "npc",
+        local spec={id=event.id,order=event.source_index,x=event.x,y=event.y,role=boulder and "boulder" or trainer and "trainer"or item and "item"or "npc",
             movement=event.movement,selector=event.range_or_facing,sprite_source=event.sprite,content_profile=profile,faces=faces,facing=facing,
-            random=not trainer and not item,visibility={},script_positions={}}
+            random=not boulder and not trainer and not item,visibility={},script_positions={}}
         if trainer then
             local delta=({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
             for i=0,math.max(0,trainer.sight_range_cells-1)do spec.script_positions[(event.y+delta[2]*i)*surface.width+event.x+delta[1]*i+1]=true end
@@ -151,6 +164,16 @@ function SourceActors.describeSource(zoneID, world, game)
                 or event.id == "pokered:SS_ANNE_2F:objects:2"
                 and position.x == event.x and position.y == event.y+1)
                 and protected[cell] and not warps[cell]
+            -- Exact terminal cells of pinned source story departure routes.
+            local towerExit = event.id == "pokered:POKEMON_TOWER_7F:objects:1"
+                and position.x == event.x and position.y == 16
+            local towerRivalExit = event.id == "pokered:POKEMON_TOWER_2F:objects:1"
+                and position.x == event.x + 4 and position.y == 9
+            local silphExit = event.id == "pokered:SILPH_CO_7F:objects:9"
+                and position.x == event.x + 2 and position.y == 3
+            if (towerExit or towerRivalExit or silphExit) and warps[cell] then
+                transit = true
+            end
             assert(not protected[cell] or transit, "script position on protected warp/connection cell")
             if transit then
                 spec.script_transit = spec.script_transit or {}
@@ -167,10 +190,10 @@ function SourceActors.describeSource(zoneID, world, game)
         end
         spec.visibility = Party._primitive(metadata.visibility or {})
         -- Source objects may stand on a machine, counter or water tile that
-        -- blocks the player. Only the original STAY home gets this permission;
+        -- blocks the player. Only the original home gets this permission;
         -- world deltas and script routes cannot create new blocked homes.
         local home = event.y * surface.width + event.x + 1
-        spec.blocked_home = event.movement == "STAY" and not protected[home]
+        spec.blocked_home = not boulder and not protected[home]
             and d.collision[event.y+1][event.x+1] == 1
             and surface.collision[event.y+1][event.x+1] == 1
         local descriptor = SourceEvents.descriptor(event.id)
@@ -181,6 +204,9 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     local function canWander(spec,x,y,runtimeZone)
         if x<0 or y<0 or x>=surface.width or y>=surface.height or (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1]~=0 then return false end
+        if spec.role == "boulder" then
+            return false
+        end
         if spec.role=="trainer"then return spec.script_positions[y*surface.width+x+1]==true end
         if spec.movement~="WALK"then return x==spec.x and y==spec.y end
         if math.abs(x-spec.x)>4 or math.abs(y-spec.y)>4 or protected[y*surface.width+x+1]then return false end
@@ -189,6 +215,15 @@ function SourceActors.describeSource(zoneID, world, game)
     end
     local function canStand(spec,x,y,runtimeZone)
         local cell = y * surface.width + x + 1
+        if spec.role == "boulder" then
+            if x < 0 or y < 0 or x >= surface.width or y >= surface.height
+                or protected[cell]
+                or (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] ~= 0 then
+                return false
+            end
+            local foot = runtimeZone and runtimeZone:terrainAt(x,y).foot_tile or surface.feet[y+1][x+1]
+            return foot ~= 0x15 -- Blue explicitly forbids pushing onto stairs.
+        end
         if spec.blocked_home and x == spec.x and y == spec.y
             and x >= 0 and y >= 0 and x < surface.width and y < surface.height
             and (runtimeZone and runtimeZone.collision or surface.collision)[y+1][x+1] == 1 then return true end
@@ -205,17 +240,39 @@ function SourceActors.describeSource(zoneID, world, game)
         if (runtimeZone and runtimeZone.collision or surface.collision)[ty+1][tx+1] ~= 0
             and not spec.script_collision_positions[target] then return false end
         local a=runtimeZone and runtimeZone:terrainAt(x,y).foot_tile or surface.feet[y+1][x+1]
-        local b=runtimeZone and runtimeZone:terrainAt(tx,ty).foot_tile or surface.feet[ty+1][tx+1]
+        local b=runtimeZone and runtimeZone:terrainAt(tx, ty).foot_tile or surface.feet[ty + 1][tx + 1]
         local direction=tx>x and "RIGHT"or tx<x and "LEFT"or ty>y and "DOWN"or "UP"
         for _,ledge in ipairs(rules.ledges)do if ledge.facing=="SPRITE_FACING_"..direction and ledge.standing_foot_tile==a and ledge.target_foot_tile==b then return false end end
-        for _,pair in ipairs(rules.forbidden_tile_pairs)do if a==pair[1]and b==pair[2]or a==pair[2]and b==pair[1]then return false end end
+        if spec.role ~= "boulder" then
+            for _,pair in ipairs(rules.forbidden_tile_pairs)do if a==pair[1]and b==pair[2]or a==pair[2]and b==pair[1]then return false end end
+        end
         return true
     end
-    local function canWanderStep(spec,x,y,tx,ty,runtimeZone)
-        return canWander(spec,x,y,runtimeZone) and canWander(spec,tx,ty,runtimeZone) and canStep(spec,x,y,tx,ty,runtimeZone)
+    local function canPush(spec, px, py, x, y, tx, ty, runtimeZone)
+        if spec.role ~= "boulder" or not canStep(spec, x, y, tx, ty, runtimeZone)
+            or px ~= x - (tx - x) or py ~= y - (ty - y)
+            or px < 0 or py < 0 or px >= surface.width or py >= surface.height then
+            return false
+        end
+        -- Blue compares the player's current foot tile with the tile two steps
+        -- ahead, not the boulder's current tile with its destination.
+        local a = runtimeZone and runtimeZone:terrainAt(px, py).foot_tile or surface.feet[py + 1][px + 1]
+        local b = runtimeZone and runtimeZone:terrainAt(tx, ty).foot_tile or surface.feet[ty + 1][tx + 1]
+        for _, pair in ipairs(rules.forbidden_tile_pairs) do
+            if a == pair[1] and b == pair[2] or a == pair[2] and b == pair[1] then
+                return false
+            end
+        end
+        return true
+    end
+    local function canWanderStep(spec, x, y, tx, ty, runtimeZone)
+        local originAllowed = canWander(spec, x, y, runtimeZone)
+            or spec.blocked_home and x == spec.x and y == spec.y and canStand(spec, x, y, runtimeZone)
+        return originAllowed and canWander(spec, tx, ty, runtimeZone)
+            and canStep(spec, x, y, tx, ty, runtimeZone)
     end
     return {zone_id=zoneID,revision=surface.revision,width=surface.width,height=surface.height,actors=specList,
-        canStand=canStand,canStep=canStep,canWanderStep=canWanderStep,protected=protected}
+        canStand=canStand,canStep=canStep,canPush=canPush,canWanderStep=canWanderStep,protected=protected}
 end
 
 -- Existing installation calls keep their provider identity while covering new

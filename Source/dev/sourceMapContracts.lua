@@ -257,7 +257,7 @@ function SourceMapContracts.run()
         end
         local ok, problem = pcall(function()
             SourceMaps._withRecords(records, function()
-                equal(#SourceMaps.names(), 66)
+                equal(#SourceMaps.names(), before + 1)
                 local profiles = SourceMaps.legacyProfiles({ dispatch = function() error("fixture cannot dispatch") end,
                     questFlag = function() return false end, sourceFlag = function() return false end })
                 -- Test content adapter supplies only inert NPC data. Geometry,
@@ -274,7 +274,7 @@ function SourceMapContracts.run()
                 zoneRegistry, zoneList, currentZone = {}, {}, nil
                 local provider = SourceMaps.createProvider(profiles, TileRegistry())
                 local loaded, failure = pcall(function()
-                    equal(#provider:inventory(), 66)
+                    equal(#provider:inventory(), before + 1)
                     local school = provider:ensure("fixture_ViridianSchoolHouse")
                     local route = provider:ensure("fixture_Route22")
                     equal(school.width, 13)
@@ -333,7 +333,7 @@ function SourceMapContracts.run()
         local count = #zoneList
         local zones = KantoWorld.install(game)
         equal(#zoneList, count)
-        equal(#provider:inventory(), 65)
+        equal(#provider:inventory(), #SourceMaps.names())
         equal(provider:snapshot().capacity, 2)
         for _, name in ipairs(SourceMaps.names("viridian")) do
             local entry = SourceMaps.entry(name)
@@ -395,7 +395,7 @@ function SourceMapContracts.run()
     test("unloaded validation allocates no native tiles or Zones for either region", function()
         scope(function(provider, registry, context)
             local ids = registry:maxID()
-            equal(#provider:inventory(), 65)
+            equal(#provider:inventory(), #SourceMaps.names())
             for _, name in ipairs(SourceMaps.names()) do
                 local entry = SourceMaps.entry(name)
                 local location = { zone_id = entry.id, x = entry.spawn.x, y = entry.spawn.y, facing = "up" }
@@ -439,7 +439,7 @@ function SourceMapContracts.run()
             local ok, problem = pcall(function()
                 local provider = PewterWorld.createProvider(context, registry)
                 equal(next(loaded), nil)
-                equal(#provider:inventory(), 65)
+                equal(#provider:inventory(), #SourceMaps.names())
                 equal(next(loaded), nil)
                 local route = provider:ensure("kanto_route1")
                 equal(loaded.Route1, 1)
@@ -623,6 +623,53 @@ function SourceMapContracts.run()
                 end
             end
         end)
+    end)
+
+    test("source elevators resolve only their recorded floor through the shared map pipeline", function()
+        for _, owner in ipairs({RocketHideoutStory, SilphStoryWorld}) do
+            local bindings = owner.elevatorBindings(nil)
+            local sourceID, ingress = next(bindings)
+            local sourceMap = assert(sourceID:match("^(pokered:[^:]+):warps:"))
+            local cabin = assert(SourceMaps.nameForID(ingress.to))
+            VermilionStoryFixture.withScene(cabin, {x=1, y=1}, function(context)
+                local entry = SourceMaps.entry(cabin)
+                local event = SourceMaps.descriptor(cabin).warps[1]
+                equal(SourceMaps.warpSpec(cabin, event).status, "scripted")
+                local door = {source_event_id=event.id, scripted=true}
+                equal(SourceMaps.resolveScriptedWarp(context, door), nil)
+                local before = context.session:rngData()
+                local enter = owner.enterLift
+                if not enter then
+                    enter = SilphStoryWorld.enterLift
+                end
+                assert(enter(context.session, sourceMap))
+                local resolved = assert(SourceMaps.resolveScriptedWarp(context, door))
+                equal(resolved.to, SourceMaps.entry(assert(SourceMaps.nameForID(sourceMap))).key)
+                equal(SourceMaps.cell(cabin, event.x, event.y).collision, 0)
+                equal(entry.id, ingress.to)
+                same(context.session:rngData(), before)
+            end)
+        end
+    end)
+
+    test("source door arrivals retain the forced step over solid mansion stairs", function()
+        local cases = {
+            {"CeladonMansion1F", 5},
+            {"CeladonMansion2F", 3},
+            {"CeladonMansion2F", 4},
+            {"CeladonMansion3F", 4},
+            {"CeladonMansionRoof", 2},
+        }
+        for _, case in ipairs(cases) do
+            local event = SourceMaps.descriptor(case[1]).warps[case[2]]
+            local spec = SourceMaps.warpSpec(case[1], event)
+            equal(spec.status, "bound")
+            equal(spec.arrival_advance, 1)
+            equal(spec.facing, "down")
+            equal(SourceMaps.isDoorArrival(spec.target_name, spec.toX, spec.toY), true)
+            equal(SourceMaps.cell(spec.target_name, spec.toX, spec.toY).collision, 1)
+            equal(SourceMaps.isDoorArrival(spec.target_name, spec.toX, spec.toY + 1), false)
+        end
     end)
 
     test("one ledger preserves evicted Viridian and Pewter changes across reset and reload", function()

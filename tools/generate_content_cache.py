@@ -88,6 +88,8 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
                                          if value.get('source_flag')}
         data['ordinary_trainers'] = {key: digest for key, digest in data['records'].get('trainers', {}).get('trainers', {}).items()
                                      if records.get('events', {}).get('events', {}).get(key, {}).get('kind') == 'trainer'}
+        data['bespoke_trainers'] = {key: digest for key, digest in data['records'].get('trainers', {}).get('trainers', {}).items()
+                                    if records.get('events', {}).get('events', {}).get(key, {}).get('kind') == 'bespoke'}
         files[name + '.json'] = canonical(data)
 
     events = read('data/sourceEvents.json')['events']
