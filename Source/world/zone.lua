@@ -552,13 +552,22 @@ function Zone.fromMapDefinition(definition, registry, options)
     array(definition.grids, #entries, "imported grids")
     assert(#entries > 0, "imported palette is empty")
     local preparedBatch <const> = registry:prepareBatch(entries)
-    rectangle(definition.tile_ids, width, height, "imported tile IDs", function(id)
-        assert(integer(id) and localKeys[id], "unknown imported tile ID")
-    end)
-    rectangle(definition.collision, width, height, "imported collision", function(collision, x, y)
-        assert(collision == 0 or collision == 1, "unknown imported collision value")
-        assert(collision == entries[definition.tile_ids[y][x]].collision, "imported collision/terrain mismatch")
-    end)
+    array(definition.tile_ids, height, "imported tile IDs")
+    array(definition.collision, height, "imported collision")
+    for y = 1, height do
+        local tiles, collisions = definition.tile_ids[y], definition.collision[y]
+        array(tiles, width, "imported tile IDs row " .. y)
+        array(collisions, width, "imported collision row " .. y)
+        for x = 1, width do
+            local id, collision = tiles[x], collisions[x]
+            assert(integer(id) and localKeys[id], "unknown imported tile ID")
+            assert(collision == 0 or collision == 1, "unknown imported collision value")
+            assert(collision == entries[id].collision, "imported collision/terrain mismatch")
+        end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
+    end
     local bindings=options.bindingAdapter or MapBindings
     assert(bindings==MapBindings or bindings==PewterBindings or bindings==SourceBindings,"unreviewed source binding adapter")
     local slicePlan = options.sliceBindings and bindings.prepare(definition, options.sliceBindings, options) or nil

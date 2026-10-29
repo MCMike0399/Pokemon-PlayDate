@@ -62,7 +62,7 @@ local function imported(entry)
         assert(entry.terrain[flag] == nil or type(entry.terrain[flag]) == "boolean", "terrain flags must be boolean")
     end
     plain(entry.terrain)
-    return { key = entry.key, grid = copy(entry.grid), collision = entry.collision, terrain = copy(entry.terrain), kind = "grid" }
+    return { key = entry.key, grid = entry.grid, collision = entry.collision, terrain = entry.terrain, kind = "grid" }
 end
 
 -- Reviewed global imported-terrain tones. Authored art and SpriteFactory
@@ -155,8 +155,11 @@ local function normalizeBatch(registry, entries)
         local entry = imported(value)
         local existing = store.keys[entry.key] and store.entries[store.keys[entry.key]] or pending[entry.key]
         assert(not existing or same(existing, entry), "conflicting duplicate tile key: " .. entry.key)
-        pending[entry.key] = entry
-        normalized[i] = entry
+        -- Validation above reads every incoming field. Equal private entries
+        -- are immutable, so only a new definition needs a defensive snapshot.
+        local retained = existing or copy(entry)
+        pending[entry.key] = retained
+        normalized[i] = retained
         if GameBootstrap then
             GameBootstrap.yieldIfDue()
         end
