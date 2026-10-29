@@ -32,6 +32,14 @@ manifest, generated overlay names, and a second hash of the exact final compiled
 source tree are recorded. The ready handshake must identify the same compiled build/session. Production builds have
 `HarnessBuild.enabled=false` and do not intercept input or poll mailboxes.
 
+Scenario sets containing only journeys use the `journey` harness profile. It
+keeps input, snapshots, captures and reset support, but does not import or compile
+contract suites or catalog exporters. Contract/catalog command builds retain the
+full overlay. `build.json` records the profile and excluded development files;
+the original source manifest remains intact and the compiled hash covers the
+actual reduced staging tree. This keeps journey tooling from consuming the
+16 MB pool needed by the game. It does not change production Source or rules.
+
 Simulator Data uses `SDK/Disk/Data/com.poc.pokemon.harness.<UUID>` because the
 installed Lua file API is sandboxed by bundle ID. This isolates saves from the
 normal game's bundle. Before staging a runtime job, the host acquires a global per-user Simulator
