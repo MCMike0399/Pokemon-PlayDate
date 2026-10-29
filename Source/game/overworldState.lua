@@ -357,7 +357,9 @@ function DoorWarpSubstate:update()
                 end
             end, function()
                 drawDoorFade(image, frame)
+                local finished = frame >= DOOR_FADE_FRAMES
                 frame = frame + 1
+                return finished
             end)
         else
             load()

@@ -5,11 +5,35 @@ local pending = {}
 local started, loading, ready = false, false, false
 local failure
 local sliceStart = playdate.getCurrentTimeMilliseconds()
--- Leave display/trace time within a 33 ms device loading frame. Simulator
--- slices stay fine-grained; hardware measurements determine playability.
+-- Animated loading draws retain the ordinary frame cadence. Only a presented
+-- static screen permits longer device slices and SDK uncapped updates.
 local sliceBudget <const> = playdate.isSimulator and 8 or 24
+local staticSliceBudget <const> = playdate.isSimulator and 8 or 120
 local errorFrames = 0
 local loadingDraw
+local staticReady = false
+local savedRefreshRate
+local loadingGeneration = 0
+
+local function restoreRefreshRate()
+    if savedRefreshRate ~= nil then
+        playdate.display.setRefreshRate(savedRefreshRate)
+        savedRefreshRate = nil
+    end
+end
+
+local function updateLoadingRate()
+    if loading and staticReady and not playdate.isSimulator then
+        if savedRefreshRate == nil then
+            savedRefreshRate = playdate.display.getRefreshRate()
+            -- SDK 3.1.2: 0 resumes update as soon as possible, at an
+            -- indeterminate rate. Never use this for frame-based animation.
+            playdate.display.setRefreshRate(0)
+        end
+    else
+        restoreRefreshRate()
+    end
+end
 
 if DEVICE_TEST_BUILD then
     playdate.setAutoLockDisabled(true)
@@ -29,8 +53,8 @@ function GameBootstrap.showLoading()
     gfx.clearClipRect()
     gfx.clearStencil()
     if loadingDraw then
-        loadingDraw()
-        return
+        -- Existing callbacks remain paced unless they explicitly opt in.
+        return loadingDraw() == true
     end
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
@@ -41,6 +65,7 @@ function GameBootstrap.showLoading()
     local progress = math.min((BootTrace.sequence or 0) / 340, 0.95)
     gfx.drawRect(20, 202, 360, 10)
     gfx.fillRect(22, 204, math.floor(356 * progress), 6)
+    return true
 end
 
 function GameBootstrap.drawError()
@@ -64,7 +89,10 @@ end
 
 function GameBootstrap.fail(message)
     failure = tostring(message)
+    loadingGeneration = loadingGeneration + 1
     loading = false
+    loadingDraw, staticReady = nil, false
+    restoreRefreshRate()
     pcall(BootTrace.mark, "error." .. failure:sub(1, 160))
     print("BOOTERROR\t" .. failure)
     if DEVICE_TEST_BUILD then
@@ -80,13 +108,24 @@ function GameBootstrap.checkpoint()
     if not loading then
         return
     end
+    local generation = loadingGeneration
     BootTrace.checkGuard()
     collectgarbage("step", 32)
-    GameBootstrap.showLoading()
+    local presentedStatic = GameBootstrap.showLoading()
+    if generation ~= loadingGeneration then
+        error(failure or "loading cancelled", 0)
+    end
     BootTrace.mark("initialize.yield")
     BootTrace.yielded()
     coroutine.yield()
     BootTrace.yielded()
+    if generation ~= loadingGeneration then
+        error(failure or "loading cancelled", 0)
+    end
+    -- The draw has now spent one full frame on the display, including the
+    -- final paced fade frame. Do not uncap before that presentation yield.
+    staticReady = presentedStatic
+    updateLoadingRate()
     sliceStart = playdate.getCurrentTimeMilliseconds()
 end
 
@@ -95,8 +134,11 @@ function GameBootstrap.isLoading()
 end
 
 function GameBootstrap.withLoading(phase, callback, draw)
-    local previous, previousDraw = loading, loadingDraw
+    local generation = loadingGeneration
+    local previous, previousDraw, previousStatic = loading, loadingDraw, staticReady
     loading, loadingDraw = true, draw
+    staticReady = false
+    updateLoadingRate()
     local pause = collectgarbage("setpause", 110)
     local ok, first, second = pcall(function()
         BootTrace.mark(phase .. ".task.begin")
@@ -109,7 +151,14 @@ function GameBootstrap.withLoading(phase, callback, draw)
         return callback()
     end)
     collectgarbage("setpause", pause)
-    loading, loadingDraw = previous, previousDraw
+    -- fail() invalidates suspended scopes; their finalizers cannot reinstate
+    -- a loading draw or uncapped rate after the safe error screen takes over.
+    if generation == loadingGeneration then
+        loading, loadingDraw, staticReady = previous, previousDraw, previousStatic
+        updateLoadingRate()
+    else
+        error(failure or "loading cancelled", 0)
+    end
     if not ok then
         error(first, 0)
     end
@@ -118,7 +167,8 @@ end
 
 function GameBootstrap.yieldIfDue()
     BootTrace.checkGuard()
-    if loading and playdate.getCurrentTimeMilliseconds() - sliceStart >= sliceBudget then
+    local budget = staticReady and staticSliceBudget or sliceBudget
+    if loading and playdate.getCurrentTimeMilliseconds() - sliceStart >= budget then
         GameBootstrap.checkpoint()
     end
 end
@@ -149,6 +199,7 @@ function GameBootstrap.start(initialize)
     assert(not started and type(initialize) == "function", "one startup initializer required")
     started = true
     playdate.update = function()
+        local generation = loadingGeneration
         loading = true
         sliceStart = playdate.getCurrentTimeMilliseconds()
         BootTrace.yielded()
@@ -160,12 +211,16 @@ function GameBootstrap.start(initialize)
             collectgarbage("generational", 20, 100)
             BootTrace.mark("gc.generational.end")
         end)
+        if generation ~= loadingGeneration then
+            return
+        end
         if not ok then
             GameBootstrap.fail(message)
             GameBootstrap.drawError()
             return
         end
-        loading, ready = false, true
+        loading, ready, staticReady = false, true, false
+        restoreRefreshRate()
         BootTrace.mark("initialize.ready")
         local callbacks = pending
         pending = {}
