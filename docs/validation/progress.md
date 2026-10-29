@@ -90,15 +90,18 @@ this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
 branch is preserved. Three chained 5.5a journeys are running on private
-`9510e51`, with Charmander covering optional content and the other two the
+`f0e74af`, with Charmander covering optional content and the other two the
 critical path. Failures do not abort later starters. Evidence:
-`evidence/m55a-small-harness-journeys-20261029-01`.
+`evidence/m55a-sampled-trace-journeys-20261029-01`.
 The UTF-8 repair preserves all 1,882 decoded records. The next set stopped in
 early travel with 11–13.5 MiB of tooling-heavy Lua heap. Journey builds now
 exclude every contract and catalog exporter, including their compiled modules.
-The six remaining development modules retain input, snapshots and captures.
+Input, snapshots and captures remain. Driver JSON and source proofs remain available.
 Full contract builds remain unchanged; 42 existing host checks and SDK
-compilation pass. The smaller profile is also on main (`85c188f8`).
+compilation pass. Two later runs reached Diglett’s Cave but stopped with heavy
+per-frame diagnostic allocation. Private journey mode now writes full trace
+snapshots at completed commands and every 30 frames, preserving gameplay,
+heartbeats, captures and recording cadence. Its runtime check is in progress. The smaller profile is also on main (`85c188f8`).
 
 Private door-fade candidate `b51e4831` starts destination work during the fade.
 One review and compilation pass. Its exact 16 MB smoke saves and traverses doors
