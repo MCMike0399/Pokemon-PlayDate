@@ -1,0 +1,53 @@
+{
+  "id": "pokered:VERMILION_CITY",
+  "record": {
+    "grass_sites": [],
+    "height": 36,
+    "layout_sha256": "bf81c1399b34e7c0e4e924268d00f90fecd7c67d9a7a3af87db3f587ef92f2c8",
+    "name": "VermilionCity",
+    "sites": [
+      {
+        "block": 53,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 14,
+            "y": 18
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 15,
+            "y": 18
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 14,
+            "y": 19
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 15,
+            "y": 19
+          }
+        ],
+        "replacement": 76,
+        "targets": [
+          {
+            "x": 15,
+            "y": 18
+          }
+        ],
+        "x": 14,
+        "y": 18
+      }
+    ],
+    "tileset": "OVERWORLD",
+    "width": 40
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

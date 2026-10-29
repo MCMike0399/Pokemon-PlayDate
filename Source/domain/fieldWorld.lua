@@ -49,7 +49,7 @@ function FieldWorld.resolvePlayerLocation(position, world, options)
         return result
     end
     local originalError = result
-    local spec = FieldMoves.data().maps[position.zone_id]
+    local spec = FieldMoves._mapData(position.zone_id)
     local d = spec and descriptor(position.zone_id)
     if not d or d.name ~= spec.name or d.source_width ~= spec.width or d.height ~= spec.height then
         error(originalError, 0)
@@ -85,7 +85,7 @@ function FieldWorld.reloadWorld(world, ids)
     local candidate = WorldDeltas.validate(world)
     for _, id in ipairs(ids) do
         local d = descriptor(id)
-        if d and FieldMoves.data().maps[id] then
+        if d and FieldMoves.hasMap(id) then
             candidate = FieldMoves.reloadWorld(candidate, id, d.padding)
         end
     end
@@ -95,11 +95,7 @@ end
 -- Inactive candidate only. installSession owns atomic publication and actor/
 -- player reconstruction; a failed install cannot mutate the previous session.
 function FieldWorld.prepareContinue(candidate)
-    local ids = {}
-    for id in pairs(FieldMoves.data().maps) do
-        ids[#ids + 1] = id
-    end
-    table.sort(ids)
+    local ids = FieldMoves.mapIDs()
     local ok, world = pcall(FieldWorld.reloadWorld, candidate:worldData(), ids)
     if not ok then
         return false, tostring(world)
@@ -131,7 +127,7 @@ end
 
 -- Declared source-map eligibility. Absent Rock Tunnel is never synthesized.
 function FieldWorld.eligibleDarkMap(id, resolveDescriptor)
-    for _, eligible in ipairs(FieldMoves.data().dark_maps) do
+    for _, eligible in ipairs(FieldMoves.darkMaps()) do
         if eligible == id then
             local d = (resolveDescriptor or descriptor)(id)
             return d ~= nil and d.id == id and d.revision == revision

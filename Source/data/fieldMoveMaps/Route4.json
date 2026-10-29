@@ -1,0 +1,780 @@
+{
+  "id": "pokered:ROUTE_4",
+  "record": {
+    "grass_sites": [
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 64,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 65,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 64,
+            "y": 11
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 65,
+            "y": 11
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 64,
+            "y": 10
+          },
+          {
+            "x": 65,
+            "y": 10
+          },
+          {
+            "x": 64,
+            "y": 11
+          },
+          {
+            "x": 65,
+            "y": 11
+          }
+        ],
+        "x": 64,
+        "y": 10
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 66,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 67,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 66,
+            "y": 11
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 67,
+            "y": 11
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 66,
+            "y": 10
+          },
+          {
+            "x": 67,
+            "y": 10
+          },
+          {
+            "x": 66,
+            "y": 11
+          },
+          {
+            "x": 67,
+            "y": 11
+          }
+        ],
+        "x": 66,
+        "y": 10
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 68,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 69,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 68,
+            "y": 11
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 69,
+            "y": 11
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 68,
+            "y": 10
+          },
+          {
+            "x": 69,
+            "y": 10
+          },
+          {
+            "x": 68,
+            "y": 11
+          },
+          {
+            "x": 69,
+            "y": 11
+          }
+        ],
+        "x": 68,
+        "y": 10
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 70,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 71,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 70,
+            "y": 11
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 71,
+            "y": 11
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 70,
+            "y": 10
+          },
+          {
+            "x": 71,
+            "y": 10
+          },
+          {
+            "x": 70,
+            "y": 11
+          },
+          {
+            "x": 71,
+            "y": 11
+          }
+        ],
+        "x": 70,
+        "y": 10
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 72,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 73,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 72,
+            "y": 11
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 73,
+            "y": 11
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 72,
+            "y": 10
+          },
+          {
+            "x": 73,
+            "y": 10
+          },
+          {
+            "x": 72,
+            "y": 11
+          },
+          {
+            "x": 73,
+            "y": 11
+          }
+        ],
+        "x": 72,
+        "y": 10
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 64,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 65,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 64,
+            "y": 13
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 65,
+            "y": 13
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 64,
+            "y": 12
+          },
+          {
+            "x": 65,
+            "y": 12
+          },
+          {
+            "x": 64,
+            "y": 13
+          },
+          {
+            "x": 65,
+            "y": 13
+          }
+        ],
+        "x": 64,
+        "y": 12
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 66,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 67,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 66,
+            "y": 13
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 67,
+            "y": 13
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 66,
+            "y": 12
+          },
+          {
+            "x": 67,
+            "y": 12
+          },
+          {
+            "x": 66,
+            "y": 13
+          },
+          {
+            "x": 67,
+            "y": 13
+          }
+        ],
+        "x": 66,
+        "y": 12
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 68,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 69,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 68,
+            "y": 13
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 69,
+            "y": 13
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 68,
+            "y": 12
+          },
+          {
+            "x": 69,
+            "y": 12
+          },
+          {
+            "x": 68,
+            "y": 13
+          },
+          {
+            "x": 69,
+            "y": 13
+          }
+        ],
+        "x": 68,
+        "y": 12
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 70,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 71,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 70,
+            "y": 13
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 71,
+            "y": 13
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 70,
+            "y": 12
+          },
+          {
+            "x": 71,
+            "y": 12
+          },
+          {
+            "x": 70,
+            "y": 13
+          },
+          {
+            "x": 71,
+            "y": 13
+          }
+        ],
+        "x": 70,
+        "y": 12
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 72,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 73,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 72,
+            "y": 13
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 73,
+            "y": 13
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 72,
+            "y": 12
+          },
+          {
+            "x": 73,
+            "y": 12
+          },
+          {
+            "x": 72,
+            "y": 13
+          },
+          {
+            "x": 73,
+            "y": 13
+          }
+        ],
+        "x": 72,
+        "y": 12
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 64,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 65,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 64,
+            "y": 15
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 65,
+            "y": 15
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 64,
+            "y": 14
+          },
+          {
+            "x": 65,
+            "y": 14
+          },
+          {
+            "x": 64,
+            "y": 15
+          },
+          {
+            "x": 65,
+            "y": 15
+          }
+        ],
+        "x": 64,
+        "y": 14
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 66,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 67,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 66,
+            "y": 15
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 67,
+            "y": 15
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 66,
+            "y": 14
+          },
+          {
+            "x": 67,
+            "y": 14
+          },
+          {
+            "x": 66,
+            "y": 15
+          },
+          {
+            "x": 67,
+            "y": 15
+          }
+        ],
+        "x": 66,
+        "y": 14
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 68,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 69,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 68,
+            "y": 15
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 69,
+            "y": 15
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 68,
+            "y": 14
+          },
+          {
+            "x": 69,
+            "y": 14
+          },
+          {
+            "x": 68,
+            "y": 15
+          },
+          {
+            "x": 69,
+            "y": 15
+          }
+        ],
+        "x": 68,
+        "y": 14
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 70,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 71,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 70,
+            "y": 15
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 71,
+            "y": 15
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 70,
+            "y": 14
+          },
+          {
+            "x": 71,
+            "y": 14
+          },
+          {
+            "x": 70,
+            "y": 15
+          },
+          {
+            "x": 71,
+            "y": 15
+          }
+        ],
+        "x": 70,
+        "y": 14
+      },
+      {
+        "block": 11,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 72,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 73,
+            "y": 14
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 72,
+            "y": 15
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:52-52-52-52",
+            "x": 73,
+            "y": 15
+          }
+        ],
+        "kind": "grass",
+        "replacement": 10,
+        "targets": [
+          {
+            "x": 72,
+            "y": 14
+          },
+          {
+            "x": 73,
+            "y": 14
+          },
+          {
+            "x": 72,
+            "y": 15
+          },
+          {
+            "x": 73,
+            "y": 15
+          }
+        ],
+        "x": 72,
+        "y": 14
+      }
+    ],
+    "height": 18,
+    "layout_sha256": "dcdd83b25091fbbfa9229e497b86dd80017476675fd764f9c077194050750677",
+    "name": "Route4",
+    "sites": [],
+    "tileset": "OVERWORLD",
+    "width": 90
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

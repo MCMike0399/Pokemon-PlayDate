@@ -1,0 +1,53 @@
+{
+  "id": "pokered:PEWTER_CITY",
+  "record": {
+    "grass_sites": [],
+    "height": 36,
+    "layout_sha256": "2b0acb694cdbf0915b5e77885d17a75b11b302d1990ed46b95b17b9a7d356da0",
+    "name": "PewterCity",
+    "sites": [
+      {
+        "block": 52,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 26,
+            "y": 4
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 27,
+            "y": 4
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 26,
+            "y": 5
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 27,
+            "y": 5
+          }
+        ],
+        "replacement": 111,
+        "targets": [
+          {
+            "x": 26,
+            "y": 4
+          }
+        ],
+        "x": 26,
+        "y": 4
+      }
+    ],
+    "tileset": "OVERWORLD",
+    "width": 40
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

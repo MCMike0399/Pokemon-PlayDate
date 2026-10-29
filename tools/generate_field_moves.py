@@ -165,7 +165,18 @@ moveData.strength = Move{ name="STRENGTH", type="normal", category="physical", p
 -- Intentionally leave MoveSupport untouched. Its existing unknown-dispatch guard
 -- says "But it failed!" and records a gap until the battle owner reviews support.
 '''
-    return {'fieldMoves.json': canonical(result), 'fieldMoveBattleData.lua': battle.encode()}
+    artifacts = {'fieldMoves.json': canonical(result), 'fieldMoveBattleData.lua': battle.encode()}
+    index = {'schema': 1, 'source_revision': REVISION, 'maps': {}, 'dark_maps': result['dark_maps']}
+    for identity, definition in result['maps'].items():
+        path = 'fieldMoveMaps/' + definition['name'] + '.json'
+        index['maps'][identity] = {'path': 'data/' + path, 'name': definition['name']}
+        artifacts[path] = canonical({'schema': 1, 'source_revision': REVISION,
+                                     'id': identity, 'record': definition})
+    artifacts['fieldMoveIndex.json'] = canonical(index)
+    artifacts['fieldMoveTiles.json'] = canonical({'schema': 1, 'source_revision': REVISION, 'tiles': result['tiles']})
+    effects = {key: value for key, value in result.items() if key not in ('maps', 'tiles', 'dark_maps')}
+    artifacts['fieldMoveEffects.json'] = canonical(effects)
+    return artifacts
 
 
 def main():

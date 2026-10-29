@@ -2,7 +2,9 @@
 FieldMoves = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local requests = setmetatable({}, {__mode="k"})
-local source
+local combined = setmetatable({}, {__mode="v"})
+local maps = setmetatable({}, {__mode="v"})
+local parts = {}
 local function copy(value)
     if value == nil then return nil end
     return Party._primitive(value)
@@ -15,22 +17,62 @@ local function same(a, b)
     return true
 end
 FieldMoves.same = same
-local function readData()
-    if not source then
-        source = assert(json.decodeFile("data/fieldMoves.json"))
-        assert(source.schema == 1 and source.source_revision == revision, "unverified field move data")
+local function readPart(name)
+    if not parts[name] then
+        local value = assert(json.decodeFile("data/" .. name .. ".json"), "field data missing")
+        assert(value.schema == 1 and value.source_revision == revision, "unverified field data")
+        parts[name] = value
     end
-    return source
+    return parts[name]
+end
+local function readData()
+    if not combined[1] then
+        local value = assert(json.decodeFile("data/fieldMoves.json"))
+        assert(value.schema == 1 and value.source_revision == revision, "unverified field move data")
+        combined[1] = value
+    end
+    return combined[1]
+end
+local function readMap(id)
+    local entry = readPart("fieldMoveIndex").maps[id]
+    if not entry then
+        return nil
+    end
+    if not maps[id] then
+        assert(entry.path:match("^data/fieldMoveMaps/[%w_]+%.json$"), "invalid field map path")
+        local value = assert(json.decodeFile(entry.path), "field map missing")
+        assert(value.schema == 1 and value.source_revision == revision and value.id == id,
+            "unverified field map")
+        assert(value.record.name == entry.name, "field map identity differs")
+        maps[id] = value.record
+    end
+    return maps[id]
 end
 function FieldMoves.data()
     return copy(readData())
 end
-function FieldMoves.tile(key)
-    return copy(readData().tiles[key])
+function FieldMoves._mapData(id)
+    return readMap(id)
 end
--- Keep per-frame effect reads bounded as the source-map inventory grows.
+function FieldMoves.hasMap(id)
+    return readPart("fieldMoveIndex").maps[id] ~= nil
+end
+function FieldMoves.mapIDs()
+    local result = {}
+    for id in pairs(readPart("fieldMoveIndex").maps) do
+        result[#result + 1] = id
+    end
+    table.sort(result)
+    return result
+end
+function FieldMoves.darkMaps()
+    return copy(readPart("fieldMoveIndex").dark_maps)
+end
+function FieldMoves.tile(key)
+    return copy(readPart("fieldMoveTiles").tiles[key])
+end
 function FieldMoves.effectData()
-    local data = readData()
+    local data = readPart("fieldMoveEffects")
     return copy({tree_grid = data.tree_grid, tree_frames = data.tree_frames,
         grass_leaf = data.grass_leaf, grass_animation = data.grass_animation,
         grass_frames = data.grass_frames, flash_white_frames = data.flash_white_frames})
@@ -109,8 +151,7 @@ end
 
 function FieldMoves.cutPlan(game)
     local zone = currentZone
-    local data = readData()
-    local spec = data.maps[zone.stableID]
+    local spec = readMap(zone.stableID)
     if not zone.imported or not spec then return nil, "nothing-to-cut" end
     local provider = WorldDeltas.definitionProvider()
     if not provider or not provider:owns(zone) then return nil, "unsupported-map" end
@@ -154,7 +195,7 @@ function FieldMoves.cutPlan(game)
 end
 function FieldMoves.validDarknessInput(zoneID, input)
     local eligible = false
-    for _, id in ipairs(readData().dark_maps) do if id == zoneID then eligible = true end end
+    for _, id in ipairs(FieldMoves.darkMaps()) do if id == zoneID then eligible = true end end
     return eligible and type(input) == "table" and input.zone_id == zoneID
         and input.source_revision == revision and input.offset == 6
         and type(input.epoch) == "number" and input.epoch % 1 == 0 and input.epoch >= 1
@@ -254,7 +295,7 @@ end
 -- Root invokes this on map reload/Continue, never merely on overlay/battle return.
 function FieldMoves.reloadWorld(world, zoneID, padding)
     local out = copy(world)
-    local spec = readData().maps[zoneID]
+    local spec = readMap(zoneID)
     if not spec then return out end
     for index, record in ipairs(out.zones) do
         if record.zone_id == zoneID then

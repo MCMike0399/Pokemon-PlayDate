@@ -1,0 +1,70 @@
+{
+  "dark_maps": [
+    "pokered:ROCK_TUNNEL_1F",
+    "pokered:ROCK_TUNNEL_B1F"
+  ],
+  "maps": {
+    "pokered:CERULEAN_CITY": {
+      "name": "CeruleanCity",
+      "path": "data/fieldMoveMaps/CeruleanCity.json"
+    },
+    "pokered:PEWTER_CITY": {
+      "name": "PewterCity",
+      "path": "data/fieldMoveMaps/PewterCity.json"
+    },
+    "pokered:ROUTE_1": {
+      "name": "Route1",
+      "path": "data/fieldMoveMaps/Route1.json"
+    },
+    "pokered:ROUTE_11": {
+      "name": "Route11",
+      "path": "data/fieldMoveMaps/Route11.json"
+    },
+    "pokered:ROUTE_2": {
+      "name": "Route2",
+      "path": "data/fieldMoveMaps/Route2.json"
+    },
+    "pokered:ROUTE_22": {
+      "name": "Route22",
+      "path": "data/fieldMoveMaps/Route22.json"
+    },
+    "pokered:ROUTE_24": {
+      "name": "Route24",
+      "path": "data/fieldMoveMaps/Route24.json"
+    },
+    "pokered:ROUTE_25": {
+      "name": "Route25",
+      "path": "data/fieldMoveMaps/Route25.json"
+    },
+    "pokered:ROUTE_3": {
+      "name": "Route3",
+      "path": "data/fieldMoveMaps/Route3.json"
+    },
+    "pokered:ROUTE_4": {
+      "name": "Route4",
+      "path": "data/fieldMoveMaps/Route4.json"
+    },
+    "pokered:ROUTE_5": {
+      "name": "Route5",
+      "path": "data/fieldMoveMaps/Route5.json"
+    },
+    "pokered:ROUTE_6": {
+      "name": "Route6",
+      "path": "data/fieldMoveMaps/Route6.json"
+    },
+    "pokered:VERMILION_CITY": {
+      "name": "VermilionCity",
+      "path": "data/fieldMoveMaps/VermilionCity.json"
+    },
+    "pokered:VERMILION_GYM": {
+      "name": "VermilionGym",
+      "path": "data/fieldMoveMaps/VermilionGym.json"
+    },
+    "pokered:VIRIDIAN_CITY": {
+      "name": "ViridianCity",
+      "path": "data/fieldMoveMaps/ViridianCity.json"
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -21,7 +21,8 @@ PINS = ROOT / 'tools/references/field-moves/pins.json'
 
 def reference_root():
     environment = Path(os.environ.get('POKEMON_ENV', Path.home() / 'Developer/Pokemon-PlayDate-env'))
-    return environment.expanduser().resolve() / 'references/field-moves'
+    identity = hashlib.sha256(PINS.read_bytes()).hexdigest()
+    return environment.expanduser().resolve() / 'references/field-moves-pins' / identity
 
 
 def verify_cache(directory):
@@ -52,8 +53,6 @@ def materialize(pokered, showdown=None, fetch_showdown=False):
         raise ValueError('The field-move cache must be outside the repository.')
     if destination.exists():
         return verify_cache(destination)
-    if showdown is None and not fetch_showdown:
-        raise ValueError('Provide --showdown or explicitly enable --fetch-showdown.')
     pins = json.loads(PINS.read_bytes())
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.field-moves-', dir=destination.parent) as temporary:
@@ -63,14 +62,19 @@ def materialize(pokered, showdown=None, fetch_showdown=False):
         for kind, revision, files in [('pokered', pins['source_revision'], pins['pokered']),
                                       ('showdown', pins['showdown']['revision'], pins['showdown']['files'])]:
             for name, digest in files.items():
-                if kind == 'pokered':
+                legacy = destination.parent.parent / 'field-moves' / kind / name
+                if legacy.is_file() and hashlib.sha256(legacy.read_bytes()).hexdigest() == digest:
+                    raw = legacy.read_bytes()
+                elif kind == 'pokered':
                     raw = git_bytes(pokered, revision, name)
                 elif showdown is not None:
                     raw = git_bytes(showdown, revision, name)
-                else:
+                elif fetch_showdown:
                     url = 'https://raw.githubusercontent.com/smogon/pokemon-showdown/' + revision + '/' + name
                     with urllib.request.urlopen(url, timeout=60) as response:
                         raw = response.read()
+                else:
+                    raise ValueError('Missing verified input; provide --showdown or --fetch-showdown: ' + name)
                 if hashlib.sha256(raw).hexdigest() != digest:
                     raise ValueError('Pinned source checksum differs: ' + kind + '/' + name)
                 path = stage / kind / name

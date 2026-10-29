@@ -1,0 +1,14 @@
+{
+  "id": "pokered:VERMILION_GYM",
+  "record": {
+    "grass_sites": [],
+    "height": 18,
+    "layout_sha256": "6469e306f4e9d7a2c4e6cde4bb04151e6305c789ed2da0bad5db2ebe6096e755",
+    "name": "VermilionGym",
+    "sites": [],
+    "tileset": "GYM",
+    "width": 10
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
