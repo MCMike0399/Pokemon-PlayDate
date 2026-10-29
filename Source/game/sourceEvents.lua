@@ -728,13 +728,17 @@ function SourceEvents.worldHook(phase, game, ...)
     local session, player, zone = game.session, game.player, currentZone
     for _, id in ipairs(hookOrder) do
         local callback = worldHooks[id][phase]
-        if callback and callback(game, ...) then
-            return true
+        if callback then
+            if callback(game, ...) then
+                return true
+            end
+            -- A hook that starts an overlay or replaces context has claimed
+            -- this boundary even if it forgot to return the dispatch result.
+            if guarded and (not settledWorld(game) or game.session ~= session
+                or game.player ~= player or currentZone ~= zone) then
+                return true
+            end
         end
-        -- A hook that starts an overlay or replaces context has claimed this
-        -- boundary even if it forgot to return the dispatch result.
-        if guarded and (not settledWorld(game) or game.session ~= session
-            or game.player ~= player or currentZone ~= zone) then return true end
     end
     return false
 end
