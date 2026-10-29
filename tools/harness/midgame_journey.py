@@ -681,6 +681,10 @@ class MidgameJourney(vj.VermilionJourney):
             # Stock and prices come from the existing midgame-owners projection.
             self.require_shop_stock(clerk, 'revive')
             purchases.insert(0, ('revive', 2))
+            if self.starter == 'squirtle':
+                # Use earned money against the Grass Gym rather than add XP
+                # farming. Existing affordability caps keep the 1,200 reserve.
+                purchases = [('revive', 4), ('antidote', 2), ('superPotion', 10)]
         for item, target in purchases:
             if item not in shop['stock']:
                 continue
