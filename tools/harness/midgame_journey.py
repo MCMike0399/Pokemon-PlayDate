@@ -465,9 +465,21 @@ class MidgameJourney(vj.VermilionJourney):
 
     def natural(self):
         self.start_earned()
-        self.route_lavender()
+        phases = [self.route_lavender]
         if self.config['packet'] == '5.5a':
-            self.route_a()
+            phases.append(self.route_a)
+        for phase in phases:
+            for _ in range(self.config.get('max_blackouts', 1) + 1):
+                try:
+                    phase()
+                    break
+                except NaturalBlackout:
+                    # Keep the real loss, half-money penalty and restored
+                    # checkpoint. Won trainer flags persist through the retry.
+                    self.recover_path_blackout(phase.__name__)
+                    self.save()
+            else:
+                raise ProtocolError('midgame checkpoint recovery budget exhausted')
         self.save()
         self.write_receipt()
         self.summary['acceptance'] = 'earned candidate saved; actual process restart pending'
