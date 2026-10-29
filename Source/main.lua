@@ -173,6 +173,15 @@ local bootAccepted, bootProblem = pcall(function()
             RulesRNG.seed(playdate.getSecondsSinceEpoch())
         end
 
+        BootTrace.mark("SpriteFactory.initialize.begin")
+        SpriteFactory.initialize()
+        BootTrace.mark("SpriteFactory.initialize.end")
+        GameBootstrap.checkpoint()
+        BootTrace.mark("AuthoredMaps.initialize.begin")
+        AuthoredMaps.initialize()
+        BootTrace.mark("AuthoredMaps.initialize.end")
+        GameBootstrap.checkpoint()
+
         BootTrace.mark("CeruleanContent.registerPackage.begin")
         CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
         BootTrace.mark("CeruleanContent.registerPackage.end")
