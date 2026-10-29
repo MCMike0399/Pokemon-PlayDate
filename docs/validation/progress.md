@@ -120,7 +120,8 @@ privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,
 Continue 7.929→7.057 s and Save 6.528→5.891 s, with unchanged logs. Targets stay
 open. Trace buffering `8f5d4f5b` passed review; its separate device cycle completed; all provisional latency targets except battle
 and one cave door remain open. The membership and lazy-audio packets stay parked. No new regions or audio
-are activated. An unattended two-hour title/overworld soak is being deployed. Its exact fresh
+are activated. The unattended two-hour title/overworld soak is running on build `c87b9ee8`.
+Launch: `evidence/private-soak-hardware-launch-20261029-01`. Its exact fresh
 16 MB short proof passes at 33 ms / 6.21 MiB, including a retained post-check
 witness (`evidence/private-soak-postcheck-short-20261029-01`). Hardware completion
 is unverified; the device reservation protects the attempt.
