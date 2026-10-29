@@ -146,6 +146,34 @@ its save/recovery suites. It is a failure, not accepted SDK evidence. Further
 existing suites will run in smaller production-based batches without enlarging
 the Simulator memory pool. No protected image baseline changed. Nothing pushed.
 
+### Protected catalog and current gate, 2026-10-29
+
+Progress remains **0/222 hardware-verified maps; 65/222 route-verified in
+Simulator. Checkpoint 5.5a is frozen.** All 2,494 protected images match exactly
+in `evidence/p0-protected-catalog-16mb-20261029-01/comparison.json`, assembled
+from separate successful legacy (1,635) and Pewter (859) exports under the 16 MB
+pool. The aggregate records both source builds and every image hash; it is not
+a single-runtime or hardware acceptance claim. Larger export attempts failed
+memory checks and remain failures. No baseline changed.
+
+The lower-copy constructor passed the existing world SDK cases. The extended
+registry case checks immutable prepared snapshots, forged/foreign handles,
+conflicts before publication, rollback and reuse: 16 cases passed in
+`evidence/p0-world-contracts-16mb-20261029-03`. Save listing now preserves read
+errors for directory names matching archive files: the existing case went red
+and then all 16 cases passed in `evidence/p0-save-archive-directory-green-20261029-01`.
+The 37 Vermilion generation checks pass; only current generator hashes changed.
+Historical acceptance and evidence identities were not rewritten.
+
+The guarded hardware replay tooling is integrated, including exact-build proof
+checks and metrics. Its 33 host checks pass. It must reject the current failed
+Simulator proof before any device access. The exact game run
+`evidence/p0-exact-game-smoke-20261029-03` still fails frame, slice and predicted
+map latency. A temporary diagnostic found sub-millisecond game updates at many
+command completions despite much larger outer timing spans; the discrepancy
+requires review before hardware admission. Temporary probes were removed.
+No new game hardware attempt and no push occurred.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |
