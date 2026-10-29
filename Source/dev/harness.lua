@@ -289,7 +289,10 @@ local function normalize(value)
     return value
 end
 local function finish(game, status, message)
-    local interruptedSnapshot = HarnessDiagnostics.snapshot(game)
+    local interruptedSnapshot
+    if status == "cancelled" or status == "timeout" then
+        interruptedSnapshot = HarnessDiagnostics.snapshot(game)
+    end
     if status ~= "ok" then
         HarnessCapture.write("failure")
     end
@@ -299,14 +302,29 @@ local function finish(game, status, message)
     if status == "cancelled" or status == "timeout" then
         HarnessFixtures.reset(game, { seed = 0 })
     end
+    local last = entries[#entries]
+    local finalSnapshot
+    if status == "ok" and last and last.tick == tick then
+        finalSnapshot = last.snapshot
+    else
+        finalSnapshot = HarnessDiagnostics.snapshot(game)
+    end
     publish("result.json", { id = request.id, status = status, error = message,
-        results = entries, snapshot = HarnessDiagnostics.snapshot(game),
+        results = entries, snapshot = finalSnapshot,
         interrupted_snapshot = (status == "cancelled" or status == "timeout") and interruptedSnapshot or nil,
         catalog = Autopilot.catalog, quiescent = Harness.isQuiescent,
         rng_data = RulesRNG.toData(),
         error_code = message and message:find("integer-wire:", 1, true) and "invalid-integer-wire" or nil })
     request, commands, complete, failure = nil, nil, false, nil
+    entries = {}
     Autopilot.catalog = nil
+    if config.journey_profile then
+        -- Full snapshots and JSON observations belong to the test harness.
+        -- Reclaim them before the next real game action. Journey timings and
+        -- heap samples are not production performance measurements.
+        finalSnapshot, interruptedSnapshot, last = nil, nil, nil
+        collectgarbage("collect")
+    end
 end
 local function poll(game)
     local incoming, wire = read("request.json")

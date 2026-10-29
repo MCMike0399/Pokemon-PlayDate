@@ -40,7 +40,11 @@ JSON data remains available. Full snapshots and trace rows are written on comman
 completion and every 30 frames; heartbeats, every gameplay frame, input handling,
 named captures and recordings keep their original cadence. Transitions wait for
 the next trace row. Contract/catalog command builds retain the full overlay and
-per-frame trace. `build.json` records the profile and excluded development files;
+per-frame trace. Journey reply boundaries release completed request tables and
+collect diagnostic allocations before the next input. This changes collection
+cadence only in the private journey profile: its timings and heap samples are
+not production performance evidence. Use the separate production resource probe
+and exact device smoke for those gates. `build.json` records the profile and excluded development files;
 the original source manifest remains intact and the compiled hash covers the
 actual reduced staging tree. This keeps journey tooling from consuming the
 16 MB pool needed by the game. It does not change production Source or rules.
