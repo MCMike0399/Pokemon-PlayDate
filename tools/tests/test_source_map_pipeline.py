@@ -33,7 +33,7 @@ class SourceMapManifestTests(unittest.TestCase):
                         "Source/lib/shade.lua",
                         ":(exclude)Source/images/title"],
                        cwd=ROOT, check=True, capture_output=True)
-        from tools.tests.source_preservation import assert_startup_preserved
+        from tools.source_preservation import assert_startup_preserved
         path = "Source/data/maps.lua"
         original = subprocess.check_output(["git", "show", BASE + ":" + path], cwd=ROOT)
         assert_startup_preserved(path, original, (ROOT / path).read_bytes())

@@ -177,7 +177,12 @@ def load_geometry(evidence):
     manifest = json.loads((evidence / "source-manifest.json").read_text())
     authored = json.loads(Path(__file__).with_name("parcel_authored.json").read_text())
     source = evidence / "Source" / authored["source_file"]
-    if hashlib.sha256(source.read_bytes()).hexdigest() != authored["source_sha256"]:
+    from tools.source_preservation import canonical_startup_source
+    try:
+        canonical = canonical_startup_source("Source/" + authored["source_file"], source.read_bytes())
+    except (AssertionError, ValueError) as exc:
+        raise ProtocolError("authored Pallet/lab startup body changed") from exc
+    if hashlib.sha256(canonical).hexdigest() != authored["source_sha256"]:
         raise ProtocolError("authored Pallet/lab Source changed; regenerate reviewed SDK collision reference")
     models = {}
     for key, entry in authored["maps"].items():

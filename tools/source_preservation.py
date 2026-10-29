@@ -18,16 +18,13 @@ _LAYOUTS = {
 }
 
 
-def assert_startup_preserved(path, original, current):
-    if original == current:
-        return
+def canonical_startup_source(path, current):
     marker, old_marker, wrapper_hash, yields = _LAYOUTS[path]
-    old = original.decode()
     new = current.decode()
-    assert old.count(old_marker) == 1, path
+    if marker not in new:
+        return current
     assert new.count(marker) == 1, path
     header, _ = new.split(marker, 1)
-    assert header == old.split(old_marker, 1)[0], path
     guard = '        return\n    end\n\n'
     start = new.index(guard) + len(guard)
     assert hashlib.sha256(new[len(header):start].encode()).hexdigest() == wrapper_hash, path
@@ -42,4 +39,8 @@ def assert_startup_preserved(path, original, current):
         for name, local in [('playerStand', 'stand'), ('playerWalk1', 'walk1'), ('playerWalk2', 'walk2')]:
             body = body.replace(f'copyFrames(SpriteFactory.{name}, {local})', f'SpriteFactory.{name} = {local}')
         body = body.replace('for _, key in ipairs', 'SpriteFactory.npc = {}\nfor _, key in ipairs', 1)
-    assert header + body.rstrip('\n') + '\n' == old, path
+    return (header + body.rstrip('\n') + '\n').encode()
+
+
+def assert_startup_preserved(path, original, current):
+    assert canonical_startup_source(path, current) == original, path

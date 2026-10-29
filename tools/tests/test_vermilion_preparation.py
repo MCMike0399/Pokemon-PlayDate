@@ -48,7 +48,7 @@ class VermilionPreparationTests(unittest.TestCase):
                 original = subprocess.check_output(['git', 'show', BASE + ':' + path])
                 current = (g.ROOT / path).read_bytes()
                 if path == 'Source/world/spritefactory.lua':
-                    from tools.tests.source_preservation import assert_startup_preserved
+                    from tools.source_preservation import assert_startup_preserved
                     assert_startup_preserved(path, original, current)
                 else:
                     self.assertEqual(current, original, path)
