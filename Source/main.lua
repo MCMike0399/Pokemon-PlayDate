@@ -372,8 +372,6 @@ local bootAccepted, bootProblem = pcall(function()
         return metadata
     end
 
-    -- @harness content-ready
-
     local function initialize()
         BootTrace.mark("initialize.begin")
         playdate.display.setRefreshRate(30)
@@ -393,6 +391,8 @@ local bootAccepted, bootProblem = pcall(function()
         CeruleanContent.installSigns()
         BootTrace.mark("CeruleanContent.installSigns.end")
         GameBootstrap.yieldIfDue()
+
+        -- @harness content-ready
         BootTrace.mark("KantoScenes.install.begin")
         KantoScenes.install()
         BootTrace.mark("KantoScenes.install.end")

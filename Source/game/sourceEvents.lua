@@ -12,14 +12,20 @@ local contentIndexes = {}
 -- drops our reference; an active controller's descriptor remains valid.
 local recent, recentOrder = {}, {}
 local function copy(value)
-    if type(value) ~= "table" then return value end
+    if type(value) ~= "table" then
+        return value
+    end
     local result = {}
-    for key, item in pairs(value) do result[key] = copy(item) end
+    for key, item in pairs(value) do
+        result[key] = copy(item)
+    end
     return result
 end
 local function shallow(value)
     local result = {}
-    for key, item in pairs(value) do result[key] = item end
+    for key, item in pairs(value) do
+        result[key] = item
+    end
     return result
 end
 local function readIndex(name)
@@ -28,19 +34,25 @@ local function readIndex(name)
     return data
 end
 local function baseIndex()
-    if not base then base = readIndex("base") end
+    if not base then
+        base = readIndex("base")
+    end
     return base
 end
 -- Private immutable loader shared with CeruleanContent. Public getters copy.
 function SourceEvents._contentIndex(root)
     if not contentIndexes[root] then
-        if not catalog then catalog = readIndex("catalog") end
+        if not catalog then
+            catalog = readIndex("catalog")
+        end
         contentIndexes[root] = readIndex(assert(catalog.packages[root], "unverified source package root"))
     end
     return contentIndexes[root]
 end
 function SourceEvents._contentRecord(digest)
-    if not digest then return nil end
+    if not digest then
+        return nil
+    end
     local value = recent[digest]
     for index, key in ipairs(recentOrder) do
         if key == digest then
@@ -53,12 +65,16 @@ function SourceEvents._contentRecord(digest)
     end
     recent[digest] = value
     recentOrder[#recentOrder + 1] = digest
-    if #recentOrder > 8 then recent[table.remove(recentOrder, 1)] = nil end
+    if #recentOrder > 8 then
+        recent[table.remove(recentOrder, 1)] = nil
+    end
     return value
 end
 local function resolve(source, id)
     local value = source.records[id]
-    if source.lazy then value = SourceEvents._contentRecord(value) end
+    if source.lazy then
+        value = SourceEvents._contentRecord(value)
+    end
     if value and source.content then
         value = copy(value)
         value.content = source.content
@@ -66,38 +82,56 @@ local function resolve(source, id)
     return value
 end
 local function eventExists(id)
-    if baseIndex().records.events.events[id] then return true end
+    if baseIndex().records.events.events[id] then
+        return true
+    end
     for _, source in pairs(eventSources) do
-        if source.records[id] then return true end
+        if source.records[id] then
+            return true
+        end
     end
     return false
 end
 local function definition(id)
     local digest = baseIndex().records.events.events[id]
-    if digest then return SourceEvents._contentRecord(digest) end
+    if digest then
+        return SourceEvents._contentRecord(digest)
+    end
     for _, source in pairs(eventSources) do
-        if source.records[id] then return resolve(source, id) end
+        if source.records[id] then
+            return resolve(source, id)
+        end
     end
 end
 local function dialog(labels, op)
     return { op = op or "dialog", labels = copy(labels) }
 end
 local function append(steps, values)
-    for _, step in ipairs(values or {}) do steps[#steps + 1] = copy(step) end
+    for _, step in ipairs(values or {}) do
+        steps[#steps + 1] = copy(step)
+    end
 end
 local function matches(condition, state)
     for id, value in pairs(condition.flags or {}) do
-        if (state.flags[id] == true) ~= value then return false end
+        if (state.flags[id] == true) ~= value then
+            return false
+        end
     end
     for id, value in pairs(condition.items_equal or {}) do
-        if (state.items[id] or 0) ~= value then return false end
+        if (state.items[id] or 0) ~= value then
+            return false
+        end
     end
     for id, value in pairs(condition.items_min or {}) do
-        if (state.items[id] or 0) < value then return false end
+        if (state.items[id] or 0) < value then
+            return false
+        end
     end
     if condition.any then
         for _, choice in ipairs(condition.any) do
-            if matches(choice, state) then return true end
+            if matches(choice, state) then
+                return true
+            end
         end
         return false
     end
@@ -105,7 +139,9 @@ local function matches(condition, state)
 end
 local function reward(item, flag, state, trainer, defaultZero)
     local quantity = state.items[item]
-    if defaultZero then quantity = quantity or 0 end
+    if defaultZero then
+        quantity = quantity or 0
+    end
     local expected = { flags = { [flag] = false }, items = { [item] = quantity } }
     local changes = { flags = { [flag] = true }, items = { { op = "add", id = item, quantity = 1 } } }
     if trainer then
@@ -123,7 +159,9 @@ local function gift(d, state)
         append(plan.steps, d.prefix)
         if state.can_add[d.item] ~= true then
             plan.status, plan.retry = "bag-full", true
-            if d.full then plan.steps[#plan.steps + 1] = dialog(d.full) end
+            if d.full then
+                plan.steps[#plan.steps + 1] = dialog(d.full)
+            end
         else
             plan.steps[#plan.steps + 1] = dialog(d.success)
             plan.expected, plan.changes = reward(d.item, d.flag, state, nil, true)
@@ -182,7 +220,9 @@ function SourceEvents.validateStep(step)
     local op = step.op
     if op == "dialog" or op == "receipt" or op == "confirmed-dialog" then
         assert(type(step.labels) == "table" and #step.labels > 0 and #step.labels <= 12, "bounded source labels required")
-        for _, label in ipairs(step.labels) do assert(type(label) == "string" and #label <= 128, "source label required") end
+        for _, label in ipairs(step.labels) do
+            assert(type(label) == "string" and #label <= 128, "source label required")
+        end
     elseif op == "random-dialog" then
         assert(Party._array(step.choices, 16) and #step.choices > 0, "bounded source byte choices required")
         local nextByte = 0
@@ -205,7 +245,9 @@ function SourceEvents.validateStep(step)
         assert(directions[step.direction], "bounded player facing required")
     elseif op == "move" or op == "move-npc" then
         assert(directions[step.direction] and boundedInteger(step.count, 1, 8), "bounded movement required")
-        if op == "move-npc" then assert(type(step.id) == "string", "stable source actor ID required") end
+        if op == "move-npc" then
+            assert(type(step.id) == "string", "stable source actor ID required")
+        end
     elseif op == "give-item" then
         assert(type(step.id) == "string" and boundedInteger(step.quantity, 1, 99), "bounded item grant required")
     elseif op == "set-flag" then
@@ -248,12 +290,16 @@ local function program(d, state)
                 plan.changes.flags[step.id] = step.value
             end
         else
-            if step.op == "battle" then step.op = "trainer" end
+            if step.op == "battle" then
+                step.op = "trainer"
+            end
             if step.op == "trainer" then
                 assert(index == #d.steps, "battle must terminate source program")
                 hasBattle = true
             end
-            if step.op == "warp" then assert(index == #d.steps, "warp must terminate source program") end
+            if step.op == "warp" then
+                assert(index == #d.steps, "warp must terminate source program")
+            end
             plan.steps[#plan.steps + 1] = step
         end
     end
@@ -287,7 +333,9 @@ local function compile(d, state, id, depth)
     elseif d.kind == "bespoke" then plan = assert(SourceEventHandlers[id], "unimplemented bespoke source script")(copy(state))
     else error("unknown source descriptor kind: " .. tostring(d.kind)) end
     for _, key in ipairs({ "source", "fidelity" }) do
-        if d[key] then plan[key] = d[key] end
+        if d[key] then
+            plan[key] = d[key]
+        end
     end
     return plan
 end
@@ -298,11 +346,15 @@ function SourceEvents.compile(descriptor, state, id)
     assert(state.intro == "done", "source events require completed intro/rival sequence")
     local plan = compile(descriptor, state, id, 1)
     plan.id = id
-    if descriptor.content and descriptor.content ~= "viridian" then plan.source_content = descriptor.content end
+    if descriptor.content and descriptor.content ~= "viridian" then
+        plan.source_content = descriptor.content
+    end
     assert(type(plan.steps) == "table" and #plan.steps <= 16, "event step limit")
     for _, step in ipairs(plan.steps) do
         SourceEvents.validateStep(step)
-        if step.op == "trainer" then assert(step.id == id, "event must own its trainer encounter") end
+        if step.op == "trainer" then
+            assert(step.id == id, "event must own its trainer encounter")
+        end
     end
     return plan
 end
@@ -310,24 +362,40 @@ end
 function SourceEvents.itemIDs()
     local found = {}
     local function visit(value)
-        if type(value) ~= "table" then return end
-        if value.item then found[value.item] = true end
-        if value.op == "give-item" then found[value.id] = true end
-        for _, field in ipairs({ "items_equal", "items_min" }) do
-            for id in pairs(value[field] or {}) do found[id] = true end
+        if type(value) ~= "table" then
+            return
         end
-        for _, child in pairs(value) do visit(child) end
+        if value.item then
+            found[value.item] = true
+        end
+        if value.op == "give-item" then
+            found[value.id] = true
+        end
+        for _, field in ipairs({ "items_equal", "items_min" }) do
+            for id in pairs(value[field] or {}) do
+                found[id] = true
+            end
+        end
+        for _, child in pairs(value) do
+            visit(child)
+        end
     end
-    for _, id in ipairs(baseIndex().items.events) do found[id] = true end
+    for _, id in ipairs(baseIndex().items.events) do
+        found[id] = true
+    end
     for _, source in pairs(eventSources) do
         if source.lazy then
-            for _, id in ipairs(source.items) do found[id] = true end
+            for _, id in ipairs(source.items) do
+                found[id] = true
+            end
         else
             visit(source.records)
         end
     end
     local ids = {}
-    for id in pairs(found) do ids[#ids + 1] = id end
+    for id in pairs(found) do
+        ids[#ids + 1] = id
+    end
     table.sort(ids)
     return ids
 end
@@ -341,7 +409,9 @@ function SourceEvents.validateActorPositions(id, positions)
     for _, position in ipairs(positions) do
         assert(type(position) == "table" and boundedInteger(position.x, 0, 1023)
             and boundedInteger(position.y, 0, 1023), "bounded script position required")
-        for key in pairs(position) do assert(key == "x" or key == "y", "unknown script position field") end
+        for key in pairs(position) do
+            assert(key == "x" or key == "y", "unknown script position field")
+        end
         local key = position.x .. ":" .. position.y
         assert(not seen[key], "duplicate script position")
         seen[key] = true
@@ -362,7 +432,9 @@ function SourceEvents.actorCollisionPositions(id)
     return SourceEvents.validateActorPositions(id, descriptor and descriptor.script_collision_positions or {})
 end
 function SourceEvents.has(id, content)
-    if content == nil then return eventExists(id) end
+    if content == nil then
+        return eventExists(id)
+    end
     local d = definition(id)
     return d ~= nil and d.content == content
 end
@@ -387,7 +459,9 @@ function SourceEvents.registerTextSource(name, resolver)
 end
 function SourceEvents.pages(id, labels, ram)
     local content = assert(definition(id)).content
-    if content == "viridian" then return EventText.pages(labels) end
+    if content == "viridian" then
+        return EventText.pages(labels)
+    end
     local resolver = content == "pewter" and PewterSlice.text or textSources[content]
     return EventText.pagesFrom(labels, assert(resolver, "source text resolver missing"), ram)
 end
@@ -433,10 +507,14 @@ function SourceEvents._withSources(fn)
     contentIndexes, recent, recentOrder = shallow(contentIndexes), shallow(recent), copy(recentOrder)
     local restoreContent = CeruleanContent and CeruleanContent._registrationScope()
     local ok, result = pcall(fn)
-    if restoreContent then restoreContent() end
+    if restoreContent then
+        restoreContent()
+    end
     eventSources, trainerSources, textSources = oldEvents, oldTrainers, oldText
     contentIndexes, recent, recentOrder, base, catalog = oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog
-    if not ok then error(result, 0) end
+    if not ok then
+        error(result, 0)
+    end
     return result
 end
 
@@ -500,7 +578,9 @@ function SourceEvents._registerContent(name, index, fields, trainers, contentOve
             assert(not records[id] and not eventExists(id), "duplicate source event")
             records[id] = digest
         end
-        for _, item in ipairs(index.items[field]) do items[item] = true end
+        for _, item in ipairs(index.items[field]) do
+            items[item] = true
+        end
     end
     if trainers then
         local current = baseIndex().records.trainers.trainers
@@ -512,7 +592,9 @@ function SourceEvents._registerContent(name, index, fields, trainers, contentOve
         end
     end
     local list = {}
-    for item in pairs(items) do list[#list + 1] = item end
+    for item in pairs(items) do
+        list[#list + 1] = item
+    end
     eventSources[name] = {records = records, lazy = true, items = list, content = contentOverride}
     if trainers then
         trainerSources[name] = {records = trainers, lazy = true, flags = index.trainer_flags}
@@ -525,7 +607,9 @@ function SourceEvents.trainerLookup()
     local sources = {{records = baseIndex().records.trainers.trainers,
         lazy = true, flags = baseIndex().trainer_flags}}
     local membership = {}
-    for _, source in pairs(trainerSources) do sources[#sources + 1] = source end
+    for _, source in pairs(trainerSources) do
+        sources[#sources + 1] = source
+    end
     for _, source in ipairs(sources) do
         for id in pairs(source.records) do
             assert(not membership[id], "duplicate or unstable source trainer")
@@ -537,7 +621,9 @@ function SourceEvents.trainerLookup()
         return source and copy(resolve(source, id)) or nil
     end
     local function sourceID(flag)
-        if membership[flag] then return flag end
+        if membership[flag] then
+            return flag
+        end
         for id, source in pairs(membership) do
             local sourceFlag
             if source.lazy then
@@ -545,7 +631,9 @@ function SourceEvents.trainerLookup()
             else
                 sourceFlag = source.records[id].source_flag
             end
-            if sourceFlag == flag then return id end
+            if sourceFlag == flag then
+                return id
+            end
         end
     end
     return lookup, sourceID
@@ -565,28 +653,40 @@ end
 function SourceEvents.trainerDefinitions()
     local lookup = SourceEvents.trainerLookup()
     local result = {}
-    for id in pairs(baseIndex().records.trainers.trainers) do result[id] = lookup(id) end
+    for id in pairs(baseIndex().records.trainers.trainers) do
+        result[id] = lookup(id)
+    end
     for _, source in pairs(trainerSources) do
-        for id in pairs(source.records) do result[id] = lookup(id) end
+        for id in pairs(source.records) do
+            result[id] = lookup(id)
+        end
     end
     return result
 end
 function SourceEvents.rewardPlan(id, state)
     local d = definition(id)
-    if not d or not d.reward or not state.trainers[id] or state.flags[d.reward.flag] then return nil, "no-pending-tm-reward" end
+    if not d or not d.reward or not state.trainers[id] or state.flags[d.reward.flag] then
+        return nil, "no-pending-tm-reward"
+    end
     local expected, changes = reward(d.reward.item, d.reward.flag, state, id)
     return { expected = expected, changes = changes }
 end
 -- TrainerEvents calls this only inside its confirmed-victory transaction.
 function SourceEvents.victoryChanges(id, session, expected, changes)
     local d = definition(id)
-    if not d or not d.victory then return end
+    if not d or not d.victory then
+        return
+    end
     for trainerID, value in pairs(d.victory.trainers or {}) do
         expected.trainers[trainerID] = session:trainerDefeated(trainerID)
         changes.trainers[trainerID] = value
     end
-    for _, flag in ipairs(d.victory.guard_flags or {}) do expected.flags[flag] = session:questFlag(flag) end
-    for flag, value in pairs(d.victory.flags or {}) do changes.flags[flag] = value end
+    for _, flag in ipairs(d.victory.guard_flags or {}) do
+        expected.flags[flag] = session:questFlag(flag)
+    end
+    for flag, value in pairs(d.victory.flags or {}) do
+        changes.flags[flag] = value
+    end
 end
 function SourceEvents.dispatch(game, id, options)
     assert(game.session:getIntro().stage == "done", "Kanto events require completed original intro")
@@ -608,7 +708,9 @@ function SourceEvents.registerWorldHooks(id, hooks)
         assert(allowed[name] and type(callback) == "function", "unknown source world hook")
     end
     worldHooks[id] = {}
-    for name, callback in pairs(hooks) do worldHooks[id][name] = callback end
+    for name, callback in pairs(hooks) do
+        worldHooks[id][name] = callback
+    end
     hookOrder[#hookOrder + 1] = id
 end
 local function settledWorld(game)
@@ -620,11 +722,15 @@ local function settledWorld(game)
 end
 function SourceEvents.worldHook(phase, game, ...)
     local guarded = phase == "explore" or phase == "interact" or phase == "suppressEncounters"
-    if guarded and not settledWorld(game) then return false end
+    if guarded and not settledWorld(game) then
+        return false
+    end
     local session, player, zone = game.session, game.player, currentZone
     for _, id in ipairs(hookOrder) do
         local callback = worldHooks[id][phase]
-        if callback and callback(game, ...) then return true end
+        if callback and callback(game, ...) then
+            return true
+        end
         -- A hook that starts an overlay or replaces context has claimed this
         -- boundary even if it forgot to return the dispatch result.
         if guarded and (not settledWorld(game) or game.session ~= session
@@ -637,6 +743,8 @@ function SourceEvents._withWorldHooks(fn)
     worldHooks, hookOrder = {}, {}
     local ok, result = pcall(fn)
     worldHooks, hookOrder = oldHooks, oldOrder
-    if not ok then error(result, 0) end
+    if not ok then
+        error(result, 0)
+    end
     return result
 end

@@ -154,7 +154,7 @@ function CeruleanRoutes.install(options)
     assert(not integration, "Blue route scripts already installed")
     assert(options and type(options.reconcileActors) == "function", "root source actor reconciliation required")
     integration = options
-    assert(SourceEvents.trainerDefinitions()[THIEF] and SourceEvents.trainerDefinitions()[NUGGET],
+    assert(SourceEvents.trainerDefinition(THIEF) and SourceEvents.trainerDefinition(NUGGET),
         "install imported ordinary Rocket teams first")
     SourceEvents.registerTrainerSource(CONTENT, CeruleanRoutes.trainers)
     local events = CeruleanRoutes.descriptors()

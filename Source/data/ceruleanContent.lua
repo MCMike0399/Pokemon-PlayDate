@@ -11,9 +11,13 @@ local walks = {}
 local baseRoot <const> = "data/sourceSlice/"
 
 local function copy(value)
-    if type(value) ~= "table" then return value end
+    if type(value) ~= "table" then
+        return value
+    end
     local result = {}
-    for key, item in pairs(value) do result[key] = copy(item) end
+    for key, item in pairs(value) do
+        result[key] = copy(item)
+    end
     return result
 end
 local function recordIndex(root, recordName, field)
@@ -104,7 +108,9 @@ function CeruleanContent.poseImage(source, pose, facing)
         -- SDK 3.1.2 renders omitted phase differently from explicit zero. Keep
         -- its additive strides in that family; never normalize protected art.
         local greyhair = {}
-        for row, cells in ipairs(grid) do greyhair[row] = cells:gsub("1", ".") end
+        for row, cells in ipairs(grid) do
+            greyhair[row] = cells:gsub("1", ".")
+        end
         image = SpriteFactory.makeSprite(greyhair)
     else
         image = SpriteFactory.makeSprite(grid, {0,0})
@@ -138,7 +144,9 @@ function CeruleanContent.installArt(definition)
             for direction in pairs(strip.standing) do
                 images[direction] = CeruleanContent.poseImage(source, "stand", direction)
             end
-            if images.left then images.right = CeruleanContent.poseImage(source, "stand", "right") end
+            if images.left then
+                images.right = CeruleanContent.poseImage(source, "stand", "right")
+            end
             rendered[key] = images
         end
         SpriteFactory.npc[key] = rendered[key]
@@ -149,7 +157,9 @@ function CeruleanContent.stepImage(source, facing, tick)
     local pose = CeruleanContent.poseAtTick(tick)
     local key = CeruleanContent.key(source)
     local standing = assert(SpriteFactory.npc[key], "source actor art not installed")
-    if pose == "stand" then return assert(standing[facing], "source actor has no standing pose") end
+    if pose == "stand" then
+        return assert(standing[facing], "source actor has no standing pose")
+    end
     if not walks[source] then
         local strip = immutableLookup("sprites", "sprites", source)
         local images, alternate = {}, {}
@@ -204,7 +214,9 @@ end
 
 -- Keep the established separate sign registration and content identity.
 function CeruleanContent.installSigns()
-    if signsInstalled then return end
+    if signsInstalled then
+        return
+    end
     local index = SourceEvents._contentIndex(baseRoot)
     SourceEvents._registerContent("cerulean-signs", index, {"signs"}, nil, "cerulean-signs")
     SourceEvents.registerTextSource("cerulean-signs", CeruleanContent.text)
@@ -216,7 +228,9 @@ end
 function CeruleanContent._registrationScope()
     local oldPackages, oldInstalled, oldSigns, oldMetadata = packages, installed, signsInstalled, actorMetadata
     local scoped = {}
-    for name, root in pairs(packages) do scoped[name] = root end
+    for name, root in pairs(packages) do
+        scoped[name] = root
+    end
     packages = scoped
     return function()
         packages, installed, signsInstalled, actorMetadata = oldPackages, oldInstalled, oldSigns, oldMetadata

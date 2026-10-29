@@ -49,9 +49,9 @@ function CeruleanStory.text(label)
     return copy(assert(record, "missing bespoke story text: " .. tostring(label)))
 end
 function CeruleanStory.registerTrainers()
-    local existing, missing = SourceEvents.trainerDefinitions(), {}
+    local missing = {}
     for id, expected in pairs(CeruleanStory.trainers()) do
-        local actual = existing[id]
+        local actual = SourceEvents.trainerDefinition(id)
         if actual then
             assert(actual.map_id == expected.map_id and actual.sprite_source == expected.sprite_source
                 and actual.payout == expected.payout and #actual.party == #expected.party,
