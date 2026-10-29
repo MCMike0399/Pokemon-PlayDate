@@ -14,6 +14,7 @@ sys.path.insert(0, str(PROJECT))
 from tools.build import stage_production
 from tools.device.build_smoke import manifest, replace_once
 from tools.device_cycle import inventory, tree_hash, sha
+from tools.device.soak.evidence import TOOL_PATHS
 
 SNAPSHOT = '''local function snapshot()
     local result = {ready=runtimeGame ~= nil, error=failure, loaded=loaded,
@@ -36,6 +37,7 @@ end
 
 
 def prepare(project, sdk, output, earned_path):
+    dependencies = {name: sha(PROJECT/name) for name in TOOL_PATHS}
     earned = json.loads(earned_path.read_text())
     slots = earned['files']
     if (len(slots) != 2 or len({r['file'] for r in slots}) != len(slots)
@@ -99,12 +101,18 @@ def prepare(project, sdk, output, earned_path):
     with (output / 'build.log').open('w') as log:
         subprocess.run([str(sdk/'bin/pdc'), str(source), str(bundle)],
                        stdout=log, stderr=subprocess.STDOUT, check=True)
-    packet = Path(__file__).parent
-    tool_names = ['prepare.py', 'sampler.lua', 'evidence.py', 'simulator.py', 'lifecycle.py', 'device-cycle-root.patch']
-    (output/'soak-tools').mkdir()
-    for name in tool_names:
-        shutil.copyfile(packet/name, output/'soak-tools'/name)
-    result = dict(tool_files={name: sha(output/'soak-tools'/name) for name in tool_names}, mode='private-soak-compile-only-NOT-ADMITTED', build_id=identity,
+    # Snapshot the helpers actually imported by this Python process, not merely
+    # the selected game's Source checkout. Root's owner patch must precede this.
+    tool_files = dependencies
+    if {name: sha(PROJECT/name) for name in TOOL_PATHS} != tool_files:
+        raise ValueError('executing dependency changed during preparation; rebuild')
+    for name in TOOL_PATHS:
+        target = output/'soak-tools'/name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(PROJECT/name, target)
+    if inventory(output/'soak-tools') != tool_files:
+        raise ValueError('dependency changed while retaining packet')
+    result = dict(tool_files=tool_files, mode='private-soak-compile-only-NOT-ADMITTED', build_id=identity,
         bundle_id=bundle_id, bundle=str(bundle),
         revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip(),
         git_status=subprocess.check_output(['git', 'status', '--porcelain'], cwd=project, text=True),

@@ -1,165 +1,121 @@
-# Tightened private idle soak — root handoff
+# Soak safety correction against 0607cde0782b1d747641b522d9131cd6fa146d23
 
-Compile/host preparation only. No Simulator, USB, device runtime, deployment,
-push, delegation or production Source edits occurred. Runtime safety and soak
-acceptance remain pending. The original ac0d62d6 packet is superseded for design;
-its retained artifacts have not been modified or relabeled.
+Implementation only: no production Source/shared owner edits, Simulator, hardware,
+USB operations, push or delegation. The minute schedule and earned save inputs
+are unchanged. No packet has been prepared against the unpatched owner. Root
+must finish its intended `tools/device_cycle.py` integration FIRST, then prepare
+and prove a new packet from the final executing checkout. The adjacent owner
+patch remains an unapplied coordination template, not a change to the owner.
 
-Final retained stage:
-`/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/private-soak-tightened-20261029-05`.
-Build ID `0d8daab29a7c45d5859fb4761ea78c42`; PDX SHA256
-`9e990e5f7af1c613338cdabfdaf169828d964d85bd5c2ba32746f64b4fdf7d2d`.
-Compiled from clean main `a790b79f07e0c785c14daa4837f79a1723409a6c`
-(the main checkout, explicitly selected via --project), including Save byte reuse,
-static loading cadence and production trace buffering. Both source revision and
-main ref at preparation are recorded. Source has 65 maps, with no content overlay.
-Earlier tightened stages 01–03 used older 9de2195f Source; 04 preceded the final
-import-slice counter correction. All are superseded;
-03 honestly records that main had advanced. No artifact is automatically current
-when main advances again. Rebuild for later changes; never edit old build metadata.
+`evidence/private-soak-short-proof-20261029-01` remains FAILED and unchanged.
+Its completed phases and reported 29 ms / 6.18 MiB do not admit this candidate:
+the 8192-byte startup-only console did not match the file markers, and its last
+application slice excluded completion work. Earlier stages/proofs are not reused.
 
-`build.json` retains original and compiled source inventories, exact PDX payload,
-compiler/SDK identity, earned slot hashes/provenance and tool hashes. `soak-tools/`
-retains the builder, sampler, validators, Simulator driver, lifecycle hooks and
-unapplied root patch. Verification refuses changed current or retained tools.
-`host-validation.json` records decoded PDZ Lua modules: exactly dev/deviceSmoke
-and dev/soakSampler. SDK 3.1.2 compile, Python syntax, four host rejection tests
-(including eleven corruption cases), and root patch apply/syntax checks pass.
-These tests exercise synthetic host evidence and reservation behavior only.
+## Timing and publication boundary
 
-## Runtime contract
+Sampler schema 3 retains coroutine yield/resume accounting and the original
+BootTrace guard on every existing call. The wrapper additionally calls that
+original guard after `afterFrame` AND `finish`, while the application segment
+clock remains live. Thus completion JSON encoding, open/write/close/print, and
+the final game guard are included before `observeSegment` and clock clearing.
+Imports before wrapper installation remain covered by since-yield maxima.
+There is no subtraction of instrumentation or renaming completion as observer IO.
 
-The private overlay calls the ORIGINAL BootTrace.checkGuard on every existing
-ordinary-frame/loading check, before and after ordinary game work. Its 5 s slice
-crash ceiling and 9 MiB heap ceiling remain unchanged. Count reads additionally
-update aggregate observed heap/guard-cost counters; they are safety guards, not
-snapshots or sample records. Scalar maximum active slice, segment count and
-per-frame overlay cost counters retain no history and perform no frame IO.
-Guard since-yield maxima also cover top-level imports before the update wrapper
-is installed. Coroutine yield/resume accounting excludes suspension/display waiting while
-including game work, guard work, minute sampling and its file/print IO.
+After this measured application boundary, the producer publishes one `safety`
+row carrying its final application counters. This is a measurement observer:
+its own encoding/IO cannot be contained in the values being encoded. The
+original guard runs again after that row. `soak-publication.json` and matching
+`SOAK-PUBLISHED` console receipt carry the measured safety-publication cost,
+heap and conservative since-yield maximum up to that receipt's construction.
+The receipt does NOT claim to contain its own cost or heap allocations.
 
-Production automatic GC, ordinary step, loading steps, startup full collection
-and generational-mode selection remain intact. Only DEVICE_TEST diagnostic full
-collections/requestCollect are suppressed. There is no periodic full GC and no
-6 MiB post-full-GC live-heap claim. Observed heap excludes native allocations and
-is an observed maximum, not a proof of every allocation's peak.
+After receipt encode/write/close/print, the ORIGINAL guard runs again. Local
+assertions require BOTH the entire terminal observer and the combined final
+application-plus-observer active segment to remain <=150 ms, with observed heap
+<=9 MiB. The receipt tail has a checked upper bound, not an exact reported cost.
+A failure appends an error row and enters the existing failure path; strict row
+order/count and console checks reject it. No overhead is deducted for admission.
+Both short and full validators apply these limits.
 
-After title arms, trace marks update scalar phase/sequence and retain guards;
-they do not write trace rows. Minute snapshots/heap/JSON/file/serial samples stay
-once per 60000 active ms, with no catch-up loop. Four explicit phase/completion
-markers and the bounded DS1 ready/accepted/done audit are additional boundary IO.
-The ready audit is persisted on both platforms so collection can check the same
-real DS1 action. No mailbox or external input is accepted. Per-frame idle checks
-use existing owners and scalar load/save/error counters, without snapshots.
+Only after these checks does the wrapper stop future game/artifact updates and
+print `SOAK-DONE <build>`. This last bounded acknowledgement print and return
+bookkeeping are unavoidable, unmeasured measurement-observer publication. They
+are explicitly outside the measured/checkable interval; do not claim an exact
+whole-process maximum, all-allocation peak or a 150 ms bound on that last print.
+The game guard runs after final sampler/receipt work, before this observer-only
+acknowledgement. Numeric maxima reported in evidence stop before receipt IO;
+the terminal receipt tail is admitted conservatively through local assertions,
+witnessed by DONE in the fresh short proof. Hardware additionally requires clean
+unchanged crash/error logs and exact rows; a short proof never accepts hardware.
 
-The default schedule is 60 full active minutes at title, exactly the existing
-`DS1 1 press a 1`, its normal release/done plus verified GameSaves load into
-settled overworld, then 60 full active minutes there. It writes exactly 124 rows:
-60 ordered minute rows per phase and four boundary rows. Movement, extra load,
-save, error, missing rows or changed earned bytes fail. Epoch values are strings
-to preserve integer precision through SDK JSON. Both active and wall durations
-are checked. Hardware ignores Simulator profile files and collection rejects one.
+Production automatic GC, normal steps/loading/startup full collection and
+collection mode are unchanged. Only private DEVICE_TEST diagnostic full GC is
+suppressed. Heap remains observed Lua heap, excluding native allocations.
+The minute-cost total/max/last still describes minute snapshots, not all observer
+or wrapper cost. Scalar and guard counters retain no history. Default execution
+still waits 60 full active minutes at title, performs exactly DS1 press A and
+its real Continue/release, then 60 full active minutes at the unchanged earned
+position. New terminal safety evidence makes 125 rows, with the same 120 minute
+rows. Short mode still waits one full 60000 ms minute per phase: seven rows.
 
-Minute rows carry the preceding sampler duration; complete carries total/max/last.
-The validator reconstructs that summary exactly, and reports scalar/guard totals.
-Costs are instrumented SDK elapsed ms, not OS CPU or a baseline performance gain.
-The final summary publication and timing-hook bookkeeping after the last clock
-read are not measured. No overhead result has been measured yet.
+## Owned console capture and cleanup
 
-## Root's exact short Simulator admission
+`simulator.py` now launches the exact SDK child with an owned PTY stdout/stderr
+slave, closes the parent's slave, and continuously drains the master to the raw
+log. A file `complete` marker alone never triggers termination. Before stopping,
+it requires DONE, valid safety/receipt evidence and exact console/file equality
+for every SOAK1 row and the publication receipt. The raw log is retained without
+rewriting its PTY line endings. After SIGTERM it keeps draining while waiting,
+uses SIGKILL only on that owned PID if needed, confirms child reap, and drains to
+PTY EOF. Both cleanup confirmations are required for admission. The two existing
+locks remain held through archive and verification. Runtime Data is archived;
+no broad process termination or deletion of unrelated Data occurs.
 
-`simulator.py` verifies only by default. Root may later use --execute-root on the
-SAME compiled Soak.pdx: it imports exact retained earned bytes into fresh private
-SDK Data and writes a Simulator-only profile once, before launch. Hardware always
-uses 60+60. Short mode uses ONE FULL MINUTE per phase, keeping minute cadence;
-it is about two minutes plus boot/Continue, with a 240 s host deadline.
+The existing real pool/USB preflight still runs. Immediately before launch the
+actual Simulator preferences bytes are retained in `malloc-preflight.ini` and
+parsed; the measured MallocPoolSize must be 16645684 (SDK's 16 MB setting).
+`run.json` and proof retain its digest and actual parsed value. Admission checks
+those bytes again, rather than trusting a driver-assigned constant.
 
-The existing OwnerLock runtime/device locks, exact SDK executable, real 16 MB
-MallocPoolSize preflight and USB ownership checks are reused. Only the owned PID
-is terminated. All raw SDK Data, console, identity and file inventories are
-retained. Validation checks exact source/PDX/tool/earned hashes, all phase and
-console/file markers, DS1 accepted/done, verified load, errors, minute timing,
-overhead summary and monotonic aggregate counters. Admission recomputes from raw
-files and requires <=150 ms maximum active slice and <=9 MiB observed heap.
-It never substitutes a performance gate or old DeviceSmoke report. Short mode
-always records hardware_soak_accepted=false. It cannot satisfy 120-minute rows.
-No Simulator process has been launched by this implementation agent.
+## Dependency freeze and root sequence
 
-Example ROOT-ONLY later command, not executed here:
+The retained `soak-tools/` now uses repository-relative paths and pins the exact
+six packet files PLUS the executing `tools/device_cycle.py`, `tools/harness/run.py`,
+`tools/harness/protocol.py`, `tools/harness/build.py`, `tools/harness/__init__.py`,
+`tools/harness/dev_imports.lua`, `tools/build.py`, and
+`tools/device/build_smoke.py`. These cover the static project import closure for
+preparation, ownership, staging, verification and locks. Dynamic visual/scenario
+helpers are not used in this execution. Dependency snapshots bracket preparation;
+retained bytes and the complete fixed path set are checked at every verification.
+Source's DS1 seam is separately pinned as before. Changing ANY pinned helper,
+including root's owner patch, requires preparing and proving a new packet.
 
-```sh
-python3 tools/device/soak/simulator.py \
-  --build-stage /absolute/retained-stage \
-  --sdk /Users/burbujamc/Developer/PlaydateSDK \
-  --output /absolute/new-proof-output --execute-root
-```
+1. Integrate/review root's intended owner patch in the executing checkout. Keep
+   production Source byte-identical to the chosen production input from 0607cde's
+   retained stage (its `production_source_manifest` is the authority); do not
+   substitute the newer HEAD merely because it is available. The soak source
+   overlay remains only private main/pdxinfo and the two private modules.
+2. Run the existing host checks and compile, then `prepare.py --project <exact
+   intended production checkout> --sdk <SDK> --earned-save <unchanged earned
+   manifest> --output <fresh stage>`. Verify against the original production
+   inventory and confirm final executing shared-owner bytes are pinned. No final
+   packet should be built before the owner change and dependency freeze.
+3. ROOT ONLY: `simulator.py --build-stage <fresh stage> --sdk <SDK> --output
+   <fresh proof> --execute-root`. No old proof or edited build JSON is admissible.
+4. Inspect the fresh seven rows, complete then safety, exact SOAK1 console/file
+   equality, matching publication receipt, DONE, DS1 ready/accepted/done and real
+   Continue, unchanged earned bytes, raw <=150 ms / <=9 MiB evidence and checked
+   terminal bounds, actual retained 16 MB preflight, exact dependency/PDX hashes,
+   no runtime errors, confirmed owned-child reap and PTY EOF. Re-run `admission`
+   against the retained proof. Root review closure is required BEFORE hardware.
+5. Only then use the reviewed owner launch/collect hooks. Full hardware still
+   needs 60+60 active minutes, all 125 rows and existing installed identity,
+   earned bytes, error/crash log and reservation checks. No acceptance claimed.
 
-## Unapplied root-owned launch/collect patch
-
-Review `device-cycle-root.patch`; it is intentionally UNAPPLIED. Shared
-`tools/device_cycle.py` remains untouched. The patch adds only a soak gate branch,
-launch/collect flags and narrow lifecycle calls, reusing existing validation,
-backups, verified copies, ownership preflight, archive, disk/eject/run and locks.
-It is not a framework and does not weaken the normal smoke/calibration gates.
-Root must integrate these hooks before any hardware launch. Do not route this
-packet through another existing gate or fabricate a short proof.
-
-Under the existing runtime THEN device lock, every patched Cycle consults a
-persistent reservation at `str(device_lock_path()) + '.soak.json'` BEFORE any
-device command. Launch reserves a random attempt tied to exact manifest/build
-and evidence directory, starting in `launching`. Fresh private device Data is
-required. Normal existing backup/install/copy verification/import/eject/run follows.
-After pdutil exits, launch confirms serial presence and no reader ownership,
-records `running`, exact serial port and volume, then RETURNS out of both locks.
-No host serial descriptor is ever opened by these soak hooks. The app writes its
-samples independently; no two-hour owner process or reader is needed. A successful
-launch means the run request completed, not that title or the soak passed.
-
-The reservation, unlike flock, persists across process exit. It blocks all other
-patched device Cycle candidates (including calibration), so releasing device and
-Simulator locks cannot overwrite an active soak. Ordinary Simulator journeys do
-not consult it and retain their usual USB preflight and locks. Root must route
-ALL physical installs through this owner while reserved; independent legacy
-make deploy/manual USB tools cannot be fenced by a Python ownership convention.
-
-Collection takes both existing locks again, matches the exact launch attempt and
-manifest, serial and volume, then records `collecting` BEFORE its single owned
-Data Disk entry. It never reruns the app. It archives all Data/logs, compares the
-entire installed PDX inventory, installed identity, earned bytes, unchanged
-error/crash logs, and all 124 hardware rows. Only complete acceptance clears the
-reservation. Missing USB, changed ownership/identity, command uncertainty, Lua
-errors or incomplete rows keep it reserved and fail closed. No timeout expiry,
-retry, reset, automatic cleanup, recovery or forced takeover exists. Root must
-inspect failed/uncertain reservations before another hardware attempt. Hard
-crash/disappeared USB retains the existing stop rule: device needs one A press;
-stop the device queue. Healthy unattended operation needs no A/unlock/replug.
-
-ROOT-ONLY after applying/reviewing the patch and obtaining the exact short proof:
-
-```sh
-python3 tools/device_cycle.py --execute-root \
-  --pdx /absolute/retained-stage/Soak.pdx --build-stage /absolute/retained-stage \
-  --soak-proof /absolute/proof/simulator-soak-proof.json --soak-launch \
-  --earned-save /absolute/retained-stage/earned-save.json --output /absolute/new-launch
-
-# Later, after 120 active minutes PLUS boot/Continue/time margin; do not collect early.
-python3 tools/device_cycle.py --execute-root \
-  --pdx /absolute/retained-stage/Soak.pdx --build-stage /absolute/retained-stage \
-  --soak-proof /absolute/proof/simulator-soak-proof.json --soak-collect /absolute/new-launch \
-  --earned-save /absolute/retained-stage/earned-save.json --output /absolute/new-collection
-```
-
-Host checks, safe to repeat without runtime:
-
-```sh
-python3 -m unittest tools.device.soak.test_evidence -v
-python3 -m py_compile tools/device/soak/*.py
-git apply --check tools/device/soak/device-cycle-root.patch
-python3 tools/device/soak/simulator.py --build-stage /absolute/retained-stage
-```
-
-To rebuild, use prepare.py with --project selecting the intended main checkout,
---earned-save selecting the original accepted earned-input.json (or this stage's
-verified earned-save.json), --sdk, and a fresh --output. Keep the output stage and
-proof immutable. Runtime and hardware acceptance are entirely pending.
+Existing checks: four soak host tests (fixture updated for schema 3; no test-count
+increase), 25 device-cycle host tests, Python syntax and unapplied owner patch
+apply check pass. SDK 3.1.2 compile of a COPY of retained stage 05 with only the
+new sampler succeeds at `/var/folders/w6/k16ngbtn5_qgp2ph4h65y7p80000gn/T/soak-safety-compile-auqtdkvo`.
+This copy is compile evidence only, not a prepared/admitted packet. No runtime
+behavior, PTY witness or new resource maxima were measured by this worker.

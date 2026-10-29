@@ -42,7 +42,7 @@ local function emit(row)
     row.wall_seconds = tostring(playdate.getSecondsSinceEpoch())
     local encoded = json.encode(row)
     local file = assert(playdate.file.open("soak-minute.jsonl", playdate.file.kFileAppend))
-    assert(file:write(encoded .. "\n"))
+    assert(file:write(encoded .. "\n") == #encoded+1, "short soak write")
     file:close()
     print("SOAK1 " .. encoded)
 end
@@ -90,7 +90,7 @@ local function afterFrame()
     local status, loaded, saved, inputActive = DeviceSmoke.soakStatus()
     assert(not status, status)
     assert(saved == 0, "unexpected save")
-    if not armed or phase == "complete" or phase == "error" then return end
+    if not armed or phase == "complete" or phase == "publishing" or phase == "error" then return end
     -- Per-frame checks read existing owners without allocating snapshots.
     local machine = game.machine
     local name = machine:getCurrent()
@@ -140,7 +140,7 @@ end
 
 local function finish()
     if phase == "finishing" then
-        phase = "complete"
+        phase = "publishing"
         emit({kind="complete", samples=count, sampler_total_ms=totalMS,
             sampler_max_ms=maxMS, sampler_last_ms=previousMS,
             suppressed_test_full_collections=suppressedCollections,
@@ -157,7 +157,7 @@ function DeviceSmoke.installSoak()
             and title.actions[1] == "continue", "earned Continue must be selected at title")
         phase, phaseStart, nextSample, armed = "title", clock(), clock()+minute, true
         emit({kind="title-start", setup_full_gc="production startup only; no test full GC",
-            guard="unchanged 5 s/9 MiB guard every frame and loading check", sampler_version=2,
+            guard="unchanged 5 s/9 MiB guard every frame and loading check", sampler_version=3,
             phase_samples=phaseSamples, sample_interval_ms=minute})
     end)
     local yield <const> = coroutine.yield
@@ -182,9 +182,44 @@ function DeviceSmoke.installSoak()
             local cost = elapsed()-start
             scalarTotal, scalarMax = scalarTotal+cost, math.max(scalarMax, cost)
         end
+        -- Completion JSON/open/write/close/print and its final ordinary guard
+        -- belong to this application slice. Never clear the clock before them.
+        if ok then ok, problem = pcall(finish) end
+        if ok then ok, problem = pcall(BootTrace.checkGuard) end
+        local finalSegmentStart = segmentStart
         observeSegment()
         segmentStart, updateThread = nil, nil
-        if ok then ok, problem = pcall(finish) end
+        if ok and phase == "publishing" then
+            -- The application is now stopped. Publishing its measured result is
+            -- an explicit observer, not a renamed application completion.
+            ok, problem = pcall(function()
+                local observerStart = elapsed()
+                emit({kind="safety", boundary="after complete IO and final game guard",
+                    observer="separate terminal publication; not application work"})
+                BootTrace.checkGuard()
+                local publication = {build=DEVICE_TEST_ID, kind="publication",
+                    application_maximum_slice_ms=maximumSlice,
+                    observer_ms=elapsed()-observerStart,
+                    observed_heap_kib=math.max(observedHeap, collectgarbage("count")),
+                    guard_after_safety=true,
+                    receipt_tail="receipt encode/write/close/print and guard checked locally; DONE print unmeasured"}
+                local encoded = json.encode(publication)
+                local file = assert(playdate.file.open("soak-publication.json", playdate.file.kFileWrite))
+                assert(file:write(encoded .. "\n") == #encoded+1, "short soak write")
+                file:close()
+                print("SOAK-PUBLISHED " .. encoded)
+                -- Retain the real game guard AFTER all final sampler file/print
+                -- work, and enforce the SAME raw admission limits on this whole
+                -- observer slice (including receipt IO); no subtraction.
+                BootTrace.checkGuard()
+                maximumSlice = math.max(maximumSlice, elapsed()-finalSegmentStart)
+                assert(elapsed()-observerStart <= 150, "terminal observer exceeded 150 ms")
+                assert(maximumSlice <= 150 and observedHeap <= 9*1024, "soak safety admission failed")
+                phase = "complete"
+                playdate.update = function() end -- no more game or artifact producers
+                print("SOAK-DONE " .. DEVICE_TEST_ID) -- sole unmeasured receipt of those checks
+            end)
+        end
         if not ok and phase ~= "error" then
             phase = "error"
             playdate.setAutoLockDisabled(true)
@@ -192,7 +227,7 @@ function DeviceSmoke.installSoak()
                 sampler_total_ms=totalMS, sampler_max_ms=maxMS})
             GameBootstrap.fail(problem)
         end
-        if playdate.update ~= wrapper then
+        if phase ~= "complete" and playdate.update ~= wrapper then
             callback = playdate.update
             playdate.update = wrapper
         end

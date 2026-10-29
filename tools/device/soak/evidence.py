@@ -5,6 +5,14 @@ from pathlib import Path
 from tools.device_cycle import inventory, tree_hash, sha, SLOTS
 
 
+PROJECT = Path(__file__).resolve().parents[3]
+TOOL_PATHS = tuple('tools/device/soak/'+name for name in (
+    'prepare.py', 'sampler.lua', 'evidence.py', 'simulator.py', 'lifecycle.py', 'device-cycle-root.patch')) + (
+    'tools/device_cycle.py', 'tools/harness/run.py', 'tools/harness/protocol.py',
+    'tools/harness/build.py', 'tools/harness/dev_imports.lua', 'tools/harness/__init__.py',
+    'tools/build.py', 'tools/device/build_smoke.py')
+
+
 def require(condition, message):
     if not condition:
         raise ValueError(message)
@@ -13,8 +21,9 @@ def require(condition, message):
 def verify(stage):
     stage = Path(stage).resolve()
     build = json.loads((stage / 'build.json').read_text())
+    require(set(build['tool_files']) == set(TOOL_PATHS), 'incomplete tool dependency closure')
     require(inventory(stage/'soak-tools') == build['tool_files'], 'retained tools changed')
-    require(all(sha(Path(__file__).parent/name) == digest for name, digest in build['tool_files'].items()), 'current tools differ from compiled packet; rebuild')
+    require(all(sha(PROJECT/name) == digest for name, digest in build['tool_files'].items()), 'current dependencies differ from compiled packet; rebuild AFTER root owner patch')
     source = inventory(stage / 'Source')
     base = build['production_source_manifest']
     require(build['mode'] == 'private-soak-compile-only-NOT-ADMITTED', 'wrong build mode')
@@ -41,9 +50,9 @@ def rows(data, build, short=False):
     """Recompute from raw rows. A short proof cannot satisfy hardware acceptance."""
     raw = (data/'soak-minute.jsonl').read_text().splitlines()
     count = 1 if short else 60
-    require(len(raw) == 2*count+4, 'incomplete/extra soak rows')
+    require(len(raw) == 2*count+5, 'incomplete/extra soak rows')
     records = [json.loads(line) for line in raw]
-    expected = ['title-start']+['minute']*count+['continue-input', 'overworld-start']+['minute']*count+['complete']
+    expected = ['title-start']+['minute']*count+['continue-input', 'overworld-start']+['minute']*count+['complete', 'safety']
     require([r['kind'] for r in records] == expected, 'marker order')
     profile = 'simulator-short-v1' if short else 'hardware-60+60'
     last_clock, last_wall = -1, -1
@@ -56,9 +65,9 @@ def rows(data, build, short=False):
             value = row[key]
             require(type(value) in (int, float) and math.isfinite(value) and value >= previous, 'invalid aggregate '+key)
             monotonic[key] = value
-    title, world, end = records[0], records[count+2], records[-1]
-    require(title['sampler_version'] == 2 and title['phase_samples'] == count and title['sample_interval_ms'] == 60000, 'sampler schema')
-    for phase, start, samples in [('title', title, records[1:count+1]), ('overworld', world, records[count+3:-1])]:
+    title, world, end, safety = records[0], records[count+2], records[-2], records[-1]
+    require(title['sampler_version'] == 3 and title['phase_samples'] == count and title['sample_interval_ms'] == 60000, 'sampler schema')
+    for phase, start, samples in [('title', title, records[1:count+1]), ('overworld', world, records[count+3:-2])]:
         previous = start
         for index, row in enumerate(samples, 1):
             require(row['phase'] == phase and row['minute'] == index and row['state'] == phase, 'minute phase/order')
@@ -90,12 +99,26 @@ def rows(data, build, short=False):
     trace = (data/'boot-trace.tsv').read_text()
     require(trace.startswith(f"schema\t1\tbuild\t{build['build_id']}\tplatform\t"+('simulator' if short else 'device')+'\n')
             and '\terror.' not in trace, 'trace error/identity')
-    if short:
-        require(end['maximum_slice_ms'] <= 150 and end['observed_heap_kib'] <= 9*1024, '150 ms/9 MiB admission failed')
-    return dict(profile=profile, samples=2*count, maximum_slice_ms=end['maximum_slice_ms'],
-                observed_heap_bytes=end['observed_heap_kib']*1024,
+    require(safety['boundary'] == 'after complete IO and final game guard', 'final application boundary missing')
+    publication = json.loads((data/'soak-publication.json').read_text())
+    require(publication['build'] == build['build_id'] and publication['kind'] == 'publication'
+            and publication['guard_after_safety'] is True, 'terminal publication identity/guard')
+    for key in ('application_maximum_slice_ms', 'observer_ms', 'observed_heap_kib'):
+        value = publication[key]
+        require(type(value) in (int, float) and math.isfinite(value) and value >= 0, 'invalid publication '+key)
+    require(publication['application_maximum_slice_ms'] >= safety['maximum_slice_ms']
+            and publication['observed_heap_kib'] >= safety['observed_heap_kib'], 'publication regressed')
+    require(publication['application_maximum_slice_ms'] <= 150 and publication['observer_ms'] <= 150
+            and publication['observed_heap_kib'] <= 9*1024, '150 ms/9 MiB admission failed')
+    return dict(profile=profile, samples=2*count, maximum_slice_ms=publication['application_maximum_slice_ms'],
+                observed_heap_bytes=publication['observed_heap_kib']*1024,
+                terminal_observer_ms=publication['observer_ms'],
+                maximum_slice_measurement_boundary='before publication receipt IO; complete IO and final application guard included',
+                terminal_combined_slice_asserted_upper_bound_ms=150,
+                terminal_observed_heap_asserted_upper_bound_bytes=9*1024*1024,
+                terminal_receipt_tail='locally guarded/asserted <=150 ms including receipt; DONE print unmeasured',
                 sampler_total_ms=end['sampler_total_ms'], sampler_max_ms=end['sampler_max_ms'],
-                guard_total_ms=end['guard_total_ms'], scalar_total_ms=end['scalar_total_ms'],
+                guard_total_ms=safety['guard_total_ms'], scalar_total_ms=safety['scalar_total_ms'],
                 hardware_soak_accepted=not short)
 
 
@@ -114,7 +137,13 @@ def admission(stage, report_path):
     require(not any(word in log.read_text().lower() for word in ('booterror', 'not enough memory', 'update failed', 'soak1 {"kind":"error"')), 'runtime error log')
     console_rows(log, report_path.parent/'runtime-data')
     run = json.loads((report_path.parent/'run.json').read_text())
-    require(run['build'] == build and run['malloc_pool_preflight'] == 16645684, 'run identity/pool')
+    require(run['build'] == build and run['malloc_pool_preflight'] == report['malloc_pool_preflight'], 'run identity/pool')
+    preflight = report_path.parent/'malloc-preflight.ini'
+    require(sha(preflight) == report['malloc_preflight_sha256'] == run['malloc_preflight_sha256'], 'pool preflight bytes changed')
+    values = dict(line.split('=', 1) for line in preflight.read_text().splitlines() if '=' in line)
+    require(int(values['MallocPoolSize']) == report['malloc_pool_preflight'], 'pool preflight measurement mismatch')
+    require(report['owned_child_reaped'] is True and report['pty_eof'] is True
+            and report['publication_confirmed'] is True and run['capture'] == 'owned-child-pty', 'unconfirmed publication/cleanup')
     return build, report
 
 
@@ -126,3 +155,10 @@ def console_rows(log, data):
             observed.append(row)
     expected = [json.loads(line) for line in (data/'soak-minute.jsonl').read_text().splitlines()]
     require(observed == expected, 'console/file markers differ')
+
+    publication = json.loads((data/'soak-publication.json').read_text())
+    receipts = [json.loads(line.split('SOAK-PUBLISHED ', 1)[1])
+                for line in log.read_text().splitlines() if 'SOAK-PUBLISHED ' in line]
+    require(receipts == [publication], 'publication console/file markers differ')
+    require([line for line in log.read_text().splitlines() if line.startswith('SOAK-DONE ')]
+            == ['SOAK-DONE '+publication['build']], 'post-publication guard acknowledgement missing')

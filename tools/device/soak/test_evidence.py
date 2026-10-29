@@ -21,17 +21,21 @@ class EvidenceTests(unittest.TestCase):
                       guard_total_ms=10, guard_max_ms=1, scalar_total_ms=10, scalar_max_ms=1)
         def row(kind, clock, **values):
             return dict(common, kind=kind, clock_ms=clock, wall_seconds=str(1000000000+clock//1000), **values)
-        self.records = [row('title-start', 0, sampler_version=2, phase_samples=1, sample_interval_ms=60000),
+        self.records = [row('title-start', 0, sampler_version=3, phase_samples=1, sample_interval_ms=60000),
                         row('minute', 60000, phase='title', minute=1, state='title', loaded=0, saved=0, heap_kib=4000, elapsed_ms=60000, previous_sampler_ms=0),
                         row('continue-input', 60001, command='DS1 1 press a 1'),
                         row('overworld-start', 61000, zone='pallet', player={'moving': False}),
                         row('minute', 121000, phase='overworld', minute=1, state='overworld', loaded=1, saved=0, heap_kib=4000, elapsed_ms=60000, previous_sampler_ms=1, zone='pallet', player={'moving': False}),
-                        row('complete', 121001, samples=2, idle_full_gc=0, sampler_total_ms=2, sampler_max_ms=1, sampler_last_ms=1)]
+                        row('complete', 121001, samples=2, idle_full_gc=0, sampler_total_ms=2, sampler_max_ms=1, sampler_last_ms=1),
+                        row('safety', 121002, boundary='after complete IO and final game guard')]
         (self.data/'device-smoke-replies.jsonl').write_text('\n'.join(json.dumps(dict(build='test', seq=seq, status=status, value=value)) for seq, status, value in [(0, 'ready', 'ready'), (1, 'accepted', 'press'), (1, 'done', {'loaded': 1, 'saved': 0})]))
         (self.data/'boot-trace.tsv').write_text('schema\t1\tbuild\ttest\tplatform\tsimulator\n')
 
     def check_rows(self, records=None, short=True):
         (self.data/'soak-minute.jsonl').write_text('\n'.join(map(json.dumps, records or self.records)))
+        (self.data/'soak-publication.json').write_text(json.dumps(dict(
+            build='test', kind='publication', guard_after_safety=True,
+            application_maximum_slice_ms=50, observer_ms=1, observed_heap_kib=4000)))
         return rows(self.data, self.build, short)
 
     def test_short_never_hardware_acceptance(self):
@@ -44,7 +48,8 @@ class EvidenceTests(unittest.TestCase):
                  (4, 'elapsed_ms', 59999), (4, 'loaded', 0), (4, 'saved', 1),
                  (4, 'player', {'moving': True}), (5, 'sampler_total_ms', 3),
                  (0, 'profile', 'hardware-60+60'), (2, 'command', 'direct load'),
-                 (3, 'build', 'other'), (5, 'kind', 'error')]
+                 (3, 'build', 'other'), (5, 'kind', 'error'), (6, 'boundary', 'before completion'),
+                 (6, 'maximum_slice_ms', 151), (6, 'observed_heap_kib', 9217)]
         for index, key, value in cases:
             with self.subTest(key=key, index=index):
                 changed = copy.deepcopy(self.records)
