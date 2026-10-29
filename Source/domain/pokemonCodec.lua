@@ -2,6 +2,7 @@
 -- Import after data/pokemon, battle/moves. Caller restricts session saves to
 -- outside battle; stat stages/confusion/flinch are intentionally transient.
 PokemonCodec = { VERSION = 8 }
+local snapshots <const> = setmetatable({}, {__mode = "k"})
 local MAX_INTEGER = 2147483647 -- Installed SDK signed-int ceiling; no float counter coercion.
 local statuses = { none=true, burn=true, poison=true,badPoison=true, paralyze=true, sleep=true, freeze=true }
 local fields = {acquisition=true,version=true,species=true,name=true,level=true,xp=true,hp=true,status=true,statusTurns=true,sleepDuration=true,
@@ -165,8 +166,24 @@ function PokemonCodec.encode(mon)
     if not ok then
         return nil, tostring(data)
     end
+    snapshots[mon] = Party._primitive(data)
     return data
 end
+
+-- Internal read-only snapshot for repeated field freshness checks. Canonical
+-- definitions are immutable; changed Pokemon values still run the full codec.
+function PokemonCodec._snapshot(mon)
+    local previous = snapshots[mon]
+    if previous and PokemonCodec.matchesSnapshot(mon, previous) then
+        return previous
+    end
+    local data, reason = PokemonCodec.encode(mon)
+    if not data then
+        return nil, reason
+    end
+    return snapshots[mon]
+end
+
 function PokemonCodec.decode(record)
     local ok,data=pcall(checked,record)
     if not ok then return nil,tostring(data) end

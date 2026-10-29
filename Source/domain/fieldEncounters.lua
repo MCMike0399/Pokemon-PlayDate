@@ -27,7 +27,7 @@ local function object(value,fields)
     for key in pairs(value)do assert(fields[key],"unknown encounter descriptor field: "..tostring(key))end
 end
 local function roster(party)
-    return assert(party:toData(function(mon)return assert(PokemonCodec.encode(mon))end))
+    return assert(party:toData(function(mon)return assert(PokemonCodec._snapshot(mon))end))
 end
 local function policy(zone,x,y)
     local data,reason=zone:encounterPolicyAt(x,y)
@@ -73,9 +73,13 @@ end
 local function current(r)
     assert(Specimen.isActiveSession(r.session)and r.session:party()==r.party,"stale-encounter-owner")
     assert(same(r.rules,RulesRNG.snapshot()),"stale-encounter-rng")
-    local members=r.party:members();assert(#members==#r.members,"stale-encounter-roster")
-    for i,mon in ipairs(members)do assert(mon==r.members[i],"stale-encounter-member")end
-    assert(same(r.roster,roster(r.party)),"stale-encounter-roster")
+    local members = r.party:members()
+    assert(#members == #r.members and r.party:activeIndex() == r.roster.active, "stale-encounter-roster")
+    for i, mon in ipairs(members) do
+        assert(mon == r.members[i], "stale-encounter-member")
+        local record = PokemonCodec._snapshot(mon)
+        assert(record and same(r.roster.members[i], record), "stale-encounter-roster")
+    end
     local data,total=policy(r.zone,r.x,r.y)
     assert(data and total==r.total and same(data,r.data),"stale-encounter-table-or-terrain")
 end

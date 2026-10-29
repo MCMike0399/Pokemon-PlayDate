@@ -203,6 +203,17 @@ function SpecimenContracts.run()
         local game=owned(p);local data=assert(SessionCodec.encode(game.session,{root="overworld",overworld="explore",settled=true}))
         local before=RulesRNG.snapshot();local again=assert(SessionCodec.decode(json.decode(json.encode(data)),game:getSessionDependencies())):party():get(1)
         eq(again.natureId,22);eq(again.abilitySlot,"hidden");eq(again.heldItem,"potion");eq(again:ability(),31);eq(again.name,"SPARK");eq(again.hp,1);eq(again.sleepDuration,3);sameRNG(before)
+        local exported = assert(PokemonCodec.encode(p))
+        exported.hp = 0
+        exported.ivs.hp = 31
+        eq(assert(PokemonCodec._snapshot(p)).hp, 1)
+        eq(PokemonCodec._snapshot(p).ivs.hp, p.ivs.hp)
+        p.hp = 2
+        eq(assert(PokemonCodec._snapshot(p)).hp, 2)
+        p.hp = p.maxHP + 1
+        eq(PokemonCodec._snapshot(p), nil)
+        p.hp = 1
+        sameRNG(before)
     end)
     test("HA provenance survives Caterpie Metapod Butterfree with nature held PP sleep preserved",function()
         local p=Pokemon("caterpie",6,attributes(10,"hidden","potion"));p.pp.tackle=2;p.status="sleep";p.statusTurns=0;p.sleepDuration=3

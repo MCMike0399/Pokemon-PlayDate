@@ -78,9 +78,9 @@ local function encounterInfo(token)
     assert(value.session:party()==value.party and value.party:get(1)==value.lead
         and value.lead.species==value.species and value.lead.abilitySlot==value.slot
         and value.lead:ability()==value.ability,"stale-encounter-lead")
+    assert(PokemonCodec._snapshot(value.lead), "invalid-encounter-lead")
     assert(value.lead.natureId==value.nature and value.lead:getSex()==value.sex
         and value.lead.hp==value.hp,"stale-encounter-lead-traits")
-    assert(PokemonCodec.encode(value.lead),"invalid-encounter-lead")
     local now=RulesRNG.snapshot()
     for _,key in ipairs({"algorithm","seed","state","rolls"}) do assert(now[key]==value.rules[key],"stale-encounter-rng") end
     return value
@@ -91,7 +91,7 @@ function Specimen.planEncounter(session)
     local ok,token=pcall(function()
         assert(Specimen.isActiveSession(session),"inactive-encounter-session")
         local party=session:party();local lead=assert(party:get(1),"missing-encounter-lead")
-        assert(PokemonCodec.encode(lead),"invalid-encounter-lead")
+        assert(PokemonCodec._snapshot(lead), "invalid-encounter-lead")
         local token={};encounters[token]={session=session,party=party,lead=lead,species=lead.species,
             slot=lead.abilitySlot,ability=lead:ability(),nature=lead.natureId,sex=lead:getSex(),hp=lead.hp,
             rules=RulesRNG.snapshot()};return token
