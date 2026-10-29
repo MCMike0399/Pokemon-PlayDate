@@ -38,6 +38,9 @@ local function checksum(bytes)
         -- Explicit signed low32 normalization also works in a 64-bit Lua;
         -- int32 SDK multiplication wraps by definition before this mask.
         hash=(product&0x7fffffff)+(((product>>31)&1)==1 and (-2147483647-1) or 0)
+        if i % 512 == 0 and GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     return string.format("%02x%02x%02x%02x",(hash>>24)&255,(hash>>16)&255,(hash>>8)&255,hash&255)
 end

@@ -72,14 +72,14 @@ without stripping anything or rebuilding it.
 The observer wraps the SDK update function, follows initialization/error update
 replacements, and brackets explicit coroutine yields. Each row in
 `device-smoke-frames.tsv` is one active SDK update segment, with build ID, logical
-update ID, segment index, termination kind, elapsed milliseconds and Lua heap.
+update ID, segment index, termination kind, elapsed milliseconds, Lua heap and a loading-segment flag.
 A yielding update produces multiple rows. The pre-yield timer stops before
 suspension; resume resets it after polling. These are SDK elapsed spans, not OS
 CPU samples. Only yields in the SDK update coroutine split the timer; nested
 battle script coroutine yields preserve the running frame and their return values.
 Suspension, mailbox polling and frame-observer writes are excluded.
 Other work inside the callback, including GC, DS1 replies and BootTrace IO, is
-included. Integer clock resolution and observer overhead remain limitations.
+included. The observer uses the SDK microsecond-accuracy elapsed clock; float precision and observer overhead remain limitations.
 Imports precede observer installation and are covered by BootTrace, not frame
 rows. A native/internal yield that bypasses Lua coroutine.yield is not observed;
 current game cooperative loading uses the explicit bootstrap coroutine.yield.
@@ -88,8 +88,8 @@ current game cooperative loading uses the explicit bootstrap coroutine.yield.
 row, title/Continue availability, verified load/save counters and DS1 snapshots.
 Raw trace, replies, slots and Simulator log remain available even after failure.
 Post-GC title/Continue heap must be at most 6 MiB; observed Lua peak at most
-9 MiB. Map-load/battle-start wall spans must be at most 500/factor ms; active
-frames at most 33/factor ms; slices at most 1000/factor ms. Door measurement is
+9 MiB. Map-load/battle-start wall spans must be at most 500/factor ms; ordinary gameplay
+frames at most 33/factor ms; all slices, including loading, at most 1000/factor ms. Door measurement is
 `door.map.begin` to `door.map.end`, excluding the intentional door fade. Phase
 spans include suspension and are never presented as active frame time. Heap
 sampling cannot establish native allocation peaks or the true between-sample

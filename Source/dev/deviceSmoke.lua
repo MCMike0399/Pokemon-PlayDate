@@ -1,4 +1,4 @@
--- Private device builds only. No fixtures, filesystem mailbox, or game writes.
+-- Private device builds only. Simulator transport calls the unchanged DS1 callback.
 if DEVICE_TEST_BUILD ~= true then
     return
 end
@@ -36,13 +36,19 @@ function playdate.getButtonState()
 end
 
 local function reply(sequence, status, value)
-    print("DS1 " .. json.encode({
+    local encoded = json.encode({
         build = DEVICE_TEST_ID,
         seq = sequence,
         status = status,
         tick = tick,
         value = value,
-    }))
+    })
+    print("DS1 " .. encoded)
+    if playdate.isSimulator then
+        local file = assert(playdate.file.open("device-smoke-replies.jsonl", playdate.file.kFileAppend))
+        assert(file:write(encoded .. "\n"))
+        file:close()
+    end
 end
 
 local function menuState(menu)
@@ -272,3 +278,75 @@ end
 
 playdate.setAutoLockDisabled(true)
 reply(0, "ready", "serial-installed; gameplay pending")
+
+-- Installed by private staging after main. Hardware returns before any mailbox IO.
+-- Active elapsed spans exclude coroutine suspension, polling and observer writes.
+-- Each yield/return row is one SDK update segment, not an entire yielding task.
+DeviceSmoke.simulatorTransportVersion = 1
+function DeviceSmoke.installSimulatorObserver()
+    if not playdate.isSimulator then
+        return
+    end
+    local function poll()
+        local name = "device-smoke-command.txt"
+        if not playdate.file.exists(name) then
+            return
+        end
+        local file = assert(playdate.file.open(name, playdate.file.kFileRead))
+        local message = file:read(97)
+        file:close()
+        assert(playdate.file.delete(name))
+        playdate.serialMessageReceived(message)
+    end
+    local elapsed <const> = playdate.getElapsedTime
+    local function clock()
+        return elapsed() * 1000
+    end
+    local started, updateID, segmentID = nil, 0, 0
+    local loadingSegment = false
+    local updateThread
+    local function record(kind)
+        local elapsed = clock() - started
+        segmentID = segmentID + 1
+        local file = assert(playdate.file.open("device-smoke-frames.tsv", playdate.file.kFileAppend))
+        assert(file:write(string.format("%s\t%d\t%d\t%s\t%.3f\t%.3f\t%d\n",
+            DEVICE_TEST_ID, updateID, segmentID, kind, elapsed, collectgarbage("count"),
+            (loadingSegment or GameBootstrap.isLoading()) and 1 or 0)))
+        file:close()
+    end
+    local yield <const> = coroutine.yield
+    coroutine.yield = function(...)
+        if not started or coroutine.running() ~= updateThread then
+            return yield(...)
+        end
+        record("yield")
+        started = nil
+        local values = table.pack(yield(...))
+        poll()
+        started = clock()
+        loadingSegment = GameBootstrap.isLoading()
+        return table.unpack(values, 1, values.n)
+    end
+    local callback = playdate.update
+    local wrapper
+    wrapper = function()
+        poll()
+        updateID = updateID + 1
+        segmentID = 0
+        started = clock()
+        loadingSegment = GameBootstrap.isLoading()
+        updateThread = coroutine.running()
+        local ok, problem = pcall(callback)
+        record(ok and "return" or "error")
+        started = nil
+        updateThread = nil
+        if not ok then
+            DeviceSmoke.fail(problem)
+        end
+        if playdate.update ~= wrapper then
+            callback = playdate.update
+            playdate.update = wrapper
+        end
+    end
+    playdate.update = wrapper
+end

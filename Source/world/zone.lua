@@ -133,12 +133,12 @@ local function captureDefinition(zone, terrain, revision, issues, blocked, compa
             end
         end
         zoneData[zone]={tiles=deepCopy(zone.tiles),collision=deepCopy(zone.collision),terrain=current,baselineTerrain=baseline,
-            revision=revision or "authored-v1",issues=deepCopy(issues or {}),blocked=deepCopy(blocked or {}),compactTerrain=true}
+            revision=revision or "authored-v1",issues=deepCopy(issues or {}),blocked=deepCopy(blocked or {}),compactTerrain=true, touched={}}
         return
     end
     zoneData[zone] = { tiles = deepCopy(zone.tiles), collision = deepCopy(zone.collision),
         terrain = deepCopy(terrain), baselineTerrain = deepCopy(terrain), revision = revision or "authored-v1",
-        issues = deepCopy(issues or {}), blocked = deepCopy(blocked or {}), view = nil }
+        issues = deepCopy(issues or {}), blocked = deepCopy(blocked or {}), view = nil, touched = {} }
 end
 local function blockedAt(data, x, y) return data.blocked[y + 1] and data.blocked[y + 1][x + 1] end
 
@@ -357,6 +357,7 @@ function Zone:_commitTiles(plan)
             self.tiles[change.y + 1][change.x + 1] = change.id
             self.collision[change.y + 1][change.x + 1] = change.collision
             data.terrain[change.y + 1][change.x + 1] = change.terrain
+            data.touched[change.y * self.width + change.x + 1] = true
         end
     end
     local ok, problem = pcall(assign, plan)
@@ -428,15 +429,26 @@ function Zone:_prepareDeltas(payload, purpose)
         return true
     end
     local desired = {}
-    if purpose ~= "candidate" then
+    local function restoreCell(x, y)
+        local id = data.tiles[y][x]
+        if purpose ~= "apply" or not matches(x - 1, y - 1, id,
+            data.collision[y][x], data.baselineTerrain[y][x]) then
+            desired[(y - 1) * self.width + x] = {
+                x = x - 1, y = y - 1, id = id,
+                collision = data.collision[y][x], terrain = data.baselineTerrain[y][x],
+            }
+        end
+    end
+    if purpose == "apply" then
+        -- All runtime cell writes pass through _commitTiles. This index only
+        -- narrows baseline comparisons; the cells remain the authoritative data.
+        for index in pairs(data.touched) do
+            restoreCell((index - 1) % self.width + 1, (index - 1) // self.width + 1)
+        end
+    elseif purpose ~= "candidate" then
         for y = 1, self.height do
             for x = 1, self.width do
-                local id = data.tiles[y][x]
-                if purpose ~= "apply" or not matches(x - 1, y - 1, id,
-                    data.collision[y][x], data.baselineTerrain[y][x]) then
-                    desired[(y - 1) * self.width + x] = {x=x - 1, y=y - 1, id=id,
-                        collision=data.collision[y][x], terrain=data.baselineTerrain[y][x]}
-                end
+                restoreCell(x, y)
             end
         end
     end
@@ -450,11 +462,12 @@ function Zone:_prepareDeltas(payload, purpose)
     end
     if purpose == "apply" then
         local result = {}
-        for index = 1, self.width * self.height do
-            if desired[index] then
-                result[#result + 1] = desired[index]
-            end
+        for _, change in pairs(desired) do
+            result[#result + 1] = change
         end
+        table.sort(result, function(a, b)
+            return a.y == b.y and a.x < b.x or a.y < b.y
+        end)
         return result
     end
     return desired

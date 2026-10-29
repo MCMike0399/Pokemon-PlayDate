@@ -10,10 +10,26 @@ function GameSaves:inspect()
     return SessionCodec.load(self.store, self.game:getSessionDependencies())
 end
 
-function GameSaves:save()
+local function saveGame(self)
+    BootTrace.mark("Save.begin")
     local payload, problem = self.game:captureSession()
-    if not payload then return false, {reason = "unsafe-save-state", error = problem} end
-    return self:_publishPayload(payload)
+    if not payload then
+        return false, {reason = "unsafe-save-state", error = problem}
+    end
+    BootTrace.mark("Save.capture.end")
+    GameBootstrap.yieldIfDue()
+    local ok, metadata = self:_publishPayload(payload)
+    BootTrace.mark("Save.publish.end")
+    if DEVICE_TEST_BUILD then
+        BootTrace.requestCollect("Save.live")
+    end
+    return ok, metadata
+end
+
+function GameSaves:save()
+    return GameBootstrap.withLoading("Save", function()
+        return saveGame(self)
+    end)
 end
 
 -- Both permitted capture boundaries share the exact same publication authority.

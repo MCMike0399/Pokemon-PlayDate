@@ -126,12 +126,16 @@ def measurements(data, build_id, factor):
     """Never infer active time from BootTrace phase gaps spanning coroutine yields."""
     frames = []
     for line in (data / 'device-smoke-frames.tsv').read_text().splitlines():
-        identity, update, segment, kind, elapsed, heap = line.split('\t')
+        columns = line.split('\t')
+        if len(columns) not in (6, 7) or (len(columns) == 7 and columns[6] not in {'0', '1'}):
+            raise ValueError('invalid frame columns')
+        identity, update, segment, kind, elapsed, heap = columns[:6]
         values = [float(elapsed), float(heap)]
         if identity != build_id or kind not in {'yield', 'return', 'error'} or any(not math.isfinite(v) or v < 0 for v in values):
             raise ValueError('invalid frame measurement or build identity')
         frames.append({'update': int(update), 'segment': int(segment), 'kind': kind,
-                       'active_ms': values[0], 'heap_kib': values[1]})
+                       'active_ms': values[0], 'heap_kib': values[1],
+                       'loading': len(columns) == 7 and columns[6] == '1'})
     lines = (data / 'boot-trace.tsv').read_text().splitlines()
     if not lines or lines[0] != f'schema\t1\tbuild\t{build_id}\tplatform\tsimulator':
         raise ValueError('BootTrace identity/platform mismatch')
@@ -157,7 +161,7 @@ def measurements(data, build_id, factor):
                 'heap_peak_bytes': max([r['peak_kib'] * 1024 for r in phases] + [f['heap_kib'] * 1024 for f in frames], default=None),
                 'map_load_ms': span('door.map.begin', 'door.map.end'),
                 'battle_start_ms': span('battle.start.begin', 'battle.start.end'),
-                'frame_ms': max((f['active_ms'] for f in frames), default=None),
+                'frame_ms': max((f['active_ms'] for f in frames if not f['loading']), default=None),
                 'slice_ms': max([f['active_ms'] for f in frames] + [r['since_yield_ms'] for r in phases], default=None)}
     limits = {'heap_live_bytes': 6 * 1024**2, 'heap_peak_bytes': 9 * 1024**2,
               'map_load_ms': 500 / factor, 'battle_start_ms': 500 / factor,
