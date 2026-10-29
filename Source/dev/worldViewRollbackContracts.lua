@@ -9,6 +9,17 @@ local function present(sprite)
     return false
 end
 
+local function assertSamePixels(actual, expected)
+    local width, height = actual:getSize()
+    local expectedWidth, expectedHeight = expected:getSize()
+    assert(width == expectedWidth and height == expectedHeight)
+    for y = 0, height - 1 do
+        for x = 0, width - 1 do
+            assert(actual:sample(x, y) == expected:sample(x, y), "palette growth changed animation pixels")
+        end
+    end
+end
+
 local function assertGrid(view)
     for y = 1, view.zone.height do
         for x = 1, view.zone.width do
@@ -92,7 +103,7 @@ function WorldViewRollbackContracts.run()
                 assert(not view:hasWallAt(0, 0))
                 assertGrid(view)
                 for _, id in ipairs({4, 12, 11}) do
-                    assert(view.images:getImage(id) == animated[id], "palette growth reset animation phase")
+                    assertSamePixels(view.images:getImage(id), animated[id])
                 end
                 restore()
                 assertGrid(view)
