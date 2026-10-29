@@ -5,6 +5,7 @@ import "domain/decimalInteger"
 Class("SaveStore")
 SaveStore.SCHEMA,SaveStore.MAX_SEQUENCE=1,2147483647
 SaveStore.MAX_PAYLOAD,SaveStore.MAX_FILE=262144,1048576
+local type <const>, pairs <const>, getmetatable <const> = type, pairs, getmetatable
 local FORMAT="pokemon-playdate-save"
 local function integer(n,low,high) return type(n)=="number" and n%1==0 and n>=low and n<=high end
 local function primitive(value,seen,depth)
@@ -59,13 +60,14 @@ end
 -- Small internal test seam for independent envelope fault cases/known vectors.
 SaveStore._checksum,SaveStore._boundChecksum=checksum,boundChecksum
 function SaveStore.sdkFilesystem()
+    local sdkFile <const> = playdate.file
     return {
         read=function(path)
-            if not playdate.file.exists(path) then return nil,"missing" end
-            local size=playdate.file.getSize(path)
+            if not sdkFile.exists(path) then return nil,"missing" end
+            local size=sdkFile.getSize(path)
             if not integer(size,0,SaveStore.MAX_FILE) then return nil,"file-size-invalid" end
             if size==0 then return "" end
-            local file,err=playdate.file.open(path,playdate.file.kFileRead)
+            local file,err=sdkFile.open(path,sdkFile.kFileRead)
             if not file then return nil,err or "open-failed" end
             local ok,bytes,count=pcall(function() return file:read(size) end)
             local closed=pcall(function() file:close() end)
@@ -73,7 +75,7 @@ function SaveStore.sdkFilesystem()
             return bytes
         end,
         write=function(path,bytes)
-            local file,err=playdate.file.open(path,playdate.file.kFileWrite)
+            local file,err=sdkFile.open(path,sdkFile.kFileWrite)
             if not file then return false,err or "open-failed" end
             local ok,count=pcall(function()
                 local written=file:write(bytes)
@@ -84,7 +86,8 @@ function SaveStore.sdkFilesystem()
             if not ok or not closed or count~=#bytes then return false,"write-failed" end
             return true
         end,
-        rename=function(from,to) return playdate.file.rename(from,to) end,
+        list=type(sdkFile.listFiles)=="function" and function(path) return sdkFile.listFiles(path) end or nil,
+        rename=function(from,to) return sdkFile.rename(from,to) end,
     }
 end
 local function call(fs,op,...)
@@ -314,6 +317,48 @@ function SaveStore:_archivePaths(index)
         proposal=prefix..".proposal.json",manifest=prefix..".manifest.json",
         pending=prefix..".receipt-pending.json",receipt=prefix..".receipt.json"}
 end
+-- A listing narrows discovery only. Every selected index still uses the
+-- original read probes and content validation, with no cross-call cache.
+function SaveStore:_listedArchiveIndexes()
+    if type(self._fs.list) ~= "function" then
+        return nil
+    end
+    local directory <const>, basename <const> = self._prefix:match("^(.*)/([^/]+)$")
+    local entries <const>, problem <const> = call(self._fs, "list", directory or ".")
+    if problem ~= nil then
+        return nil
+    end
+    if type(entries) ~= "table" or getmetatable(entries) ~= nil then
+        return nil
+    end
+
+    local indexes <const> = {}
+    local stem <const> = (basename or self._prefix) .. "-archive-"
+    local suffixes <const> = {
+        ["a.json"]=true, ["b.json"]=true, ["candidate.json"]=true,
+        ["proposal.json"]=true, ["manifest.json"]=true,
+        ["receipt-pending.json"]=true, ["receipt.json"]=true,
+    }
+    local count = 0
+    for key, name in pairs(entries) do
+        -- An unusable listing cannot establish that any path is absent.
+        if not integer(key, 1, #entries) or type(name) ~= "string" then
+            return nil
+        end
+        count = count + 1
+        if name:sub(1, #stem) == stem then
+            local text <const>, suffix <const> = name:sub(#stem + 1):match("^([1-9][0-9]*)%.(.+)$")
+            local index <const> = text and DecimalInteger.decode(text, 1, SaveStore.MAX_ARCHIVES)
+            if index and suffixes[suffix] then
+                indexes[index] = true
+            end
+        end
+    end
+    if count ~= #entries then
+        return nil
+    end
+    return indexes
+end
 function SaveStore:_rawSnapshot()
     local snapshot={}
     for _,role in ipairs(ROLES) do
@@ -389,12 +434,23 @@ function SaveStore:_verifiedArchive(index,committed)
 end
 function SaveStore:_archiveInfo()
     local latestReceipt,latestManifest
+    local indexes <const> = self:_listedArchiveIndexes()
     for index=1,SaveStore.MAX_ARCHIVES do
-        local paths=self:_archivePaths(index)
-        local receipt,err=call(self._fs,"read",paths.receipt)
-        if receipt~=nil then latestReceipt=index elseif err~="missing" then return nil,"unreadable-receipt" end
-        local manifest,problem=call(self._fs,"read",paths.manifest)
-        if manifest~=nil then latestManifest=index elseif problem~="missing" then return nil,"unreadable-manifest" end
+        if not indexes or indexes[index] then
+            local paths <const> = self:_archivePaths(index)
+            local receipt <const>, err <const> = call(self._fs, "read", paths.receipt)
+            if receipt ~= nil then
+                latestReceipt = index
+            elseif err ~= "missing" then
+                return nil, "unreadable-receipt"
+            end
+            local manifest <const>, problem <const> = call(self._fs, "read", paths.manifest)
+            if manifest ~= nil then
+                latestManifest = index
+            elseif problem ~= "missing" then
+                return nil, "unreadable-manifest"
+            end
+        end
     end
     -- Never fall back to an older receipt when the latest is corrupt.
     local record,problem
@@ -418,10 +474,17 @@ function SaveStore:_archive(snapshot,proposal,target,mode)
     local matches,problem=self:_matches(snapshot)
     if not matches then return false,{reason="stale-replacement",error=problem} end
     local highest=0
+    local indexes <const> = self:_listedArchiveIndexes()
     for n=1,SaveStore.MAX_ARCHIVES do
-        for _,path in pairs(self:_archivePaths(n)) do
-            local bytes,err=call(self._fs,"read",path)
-            if bytes~=nil then highest=n elseif err~="missing" then return false,{reason="archive-read-failed"} end
+        if not indexes or indexes[n] then
+            for _, path in pairs(self:_archivePaths(n)) do
+                local bytes <const>, err <const> = call(self._fs, "read", path)
+                if bytes ~= nil then
+                    highest = n
+                elseif err ~= "missing" then
+                    return false, {reason="archive-read-failed"}
+                end
+            end
         end
     end
     if highest>=SaveStore.MAX_ARCHIVES then return false,{reason="archive-limit"} end

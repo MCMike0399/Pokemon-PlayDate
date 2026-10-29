@@ -35,3 +35,17 @@ python3 -c 'from pathlib import Path; import json; from tools.harness.save_recov
 ```
 
 The production implementation was accepted by root with 1089 SDK passes and an inspected actual two-process journey; the portable runner itself must be run on the integrated checkout before claiming its own native proof. This qualification closes a save correctness defect, not the Pallet-to-Brock or full-game goal.
+
+## Archive discovery on the device
+
+The SDK filesystem adapter may list the save prefix's parent directory to select
+archive indexes. Each operation takes a fresh listing, then reads and validates
+the selected archive files through the existing checks. Exact archive names,
+canonical indexes, corrupt-latest rejection and interrupted-write recovery are
+unchanged. Missing, unreadable or malformed listings use the original read-probe
+path. No validation result is cached.
+
+Worker `ba2bb86` supplied this optimization. Its Lupa tests and dependency were
+excluded because game Lua must execute in the SDK. Root validates this change
+with the existing SaveContracts suite in the 16 MB Simulator. Native results
+remain separate from physical-device acceptance.
