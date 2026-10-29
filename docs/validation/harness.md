@@ -34,8 +34,13 @@ source tree are recorded. The ready handshake must identify the same compiled bu
 
 Scenario sets containing only journeys use the `journey` harness profile. It
 keeps input, snapshots, captures and reset support, but does not import or compile
-contract suites or catalog exporters. Contract/catalog command builds retain the
-full overlay. `build.json` records the profile and excluded development files;
+contract suites or catalog exporters. The existing Day Care contract source is
+kept for the journey dependency hash, but is not imported or executed. Driver
+JSON data remains available. Full snapshots and trace rows are written on command
+completion and every 30 frames; heartbeats, every gameplay frame, input handling,
+named captures and recordings keep their original cadence. Transitions wait for
+the next trace row. Contract/catalog command builds retain the full overlay and
+per-frame trace. `build.json` records the profile and excluded development files;
 the original source manifest remains intact and the compiled hash covers the
 actual reduced staging tree. This keeps journey tooling from consuming the
 16 MB pool needed by the game. It does not change production Source or rules.
