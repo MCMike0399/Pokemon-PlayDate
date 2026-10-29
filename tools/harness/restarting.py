@@ -156,7 +156,7 @@ def durable_hashes(data):
         relative = path.relative_to(data)
         if path.is_symlink():
             raise ProtocolError('private Data contains symlink: ' + relative.as_posix())
-        if relative.parts[0] == 'recent' or relative.as_posix() in {'owner.lock', 'trace.jsonl', 'captures.jsonl'}:
+        if relative.parts[0] == 'recent' or relative.as_posix() in {'owner.lock', 'trace.jsonl', 'captures.jsonl', 'boot-trace.tsv'}:
             continue
         if relative.as_posix() in TRANSIENT or relative.as_posix() in {name + '.tmp' for name in TRANSIENT}:
             continue
