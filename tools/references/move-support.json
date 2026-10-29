@@ -793,7 +793,7 @@
       "handler": "standard-damage"
     },
     "aromatherapy": {
-      "gap": "onHit"
+      "handler": "battle-condition"
     },
     "fakeTears": {
       "handler": "dsl"
