@@ -98,7 +98,7 @@ pass). Bulbasaur reached a real Rock Tunnel blackout; private `1fd874f` connects
 the existing checkpoint/half-money/healing verifier to midgame retries and saves
 after recovery (63 host checks pass). Neither failed run is called accepted.
 Charmander covers optional content; the other two the critical path. Evidence:
-`evidence/m55a-resumed-request-cleanup-20261029-01`.
+`evidence/m55a-erika-cut-resumed-20261029-01` (current retry).
 
 The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
 pass. It passed the earlier native JSON abort points. Longer travel then exposed
@@ -116,7 +116,9 @@ Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
 Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
 outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
-Erika is reachable in the source collision model only after Cut. Native pending.
+Charmander beat Erika, received the badge/TM21 and the exact 2,871 payout.
+The city tree correctly returned on leaving the Gym; the driver now cuts it
+again before returning to the Center. Remaining starters/Hideout are unaccepted.
 The preceding 108-map fade build also passed the 16 MB production probe:
 **5.615 MiB title / 5.778 MiB Continue / 6.793 MiB phase peak**. Its real-input
 smoke peaked at **7.294 MiB**, max slice **45.40 ms**; hardware unmeasured.
