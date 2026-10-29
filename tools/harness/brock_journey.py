@@ -632,6 +632,11 @@ class BrockJourney(ParcelJourney):
                     raise ProtocolError('interaction follow step differs from source terrain')
                 continue
             self.send('press a')
+            # The field A/B gesture and moving actors can defer dispatch.
+            # Leave neutral frames before retrying A, so a queued interaction
+            # cannot also select the first option in the newly opened menu.
+            if self.state.get('root') == 'overworld':
+                self.send('wait 12')
             dispatched=self.state.get('root')!='overworld'
             self.drain(stop_phase=stop_phase)
             if dispatched:return
