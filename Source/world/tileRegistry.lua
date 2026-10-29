@@ -1,6 +1,8 @@
 -- Stable content keys are persistent identity. Numeric IDs are local render slots.
 Class("TileRegistry")
 local stores = setmetatable({}, { __mode = "k" })
+-- Opaque handles retain normalized snapshots, never caller-owned tables.
+local preparedBatches <const> = setmetatable({}, { __mode = "k" })
 local BASE_COUNT <const> = 37
 local SOLID <const> = {
     false, false, true, true, true, false, true, false, true, true,
@@ -134,7 +136,7 @@ function TileRegistry:id(value)
 end
 function TileRegistry:key(value) return stores[self].entries[self:id(value)].key end
 function TileRegistry:entry(value) return copy(stores[self].entries[self:id(value)]) end
-function TileRegistry:validateBatch(entries)
+local function normalizeBatch(registry, entries)
     assert(type(entries) == "table", "tile batch required")
     local length, found = #entries, 0
     for key in pairs(entries) do
@@ -142,7 +144,7 @@ function TileRegistry:validateBatch(entries)
         found = found + 1
     end
     assert(found == length, "tile batch has holes")
-    local store, pending = stores[self], {}
+    local store, pending = stores[registry], {}
     local normalized = {}
     for i, value in ipairs(entries) do
         local entry = imported(value)
@@ -152,12 +154,36 @@ function TileRegistry:validateBatch(entries)
         normalized[i] = entry
         if GameBootstrap then
             GameBootstrap.yieldIfDue()
-        end    end
+        end
+    end
     return normalized
 end
-function TileRegistry:registerBatch(entries)
-    local normalized = self:validateBatch(entries)
+function TileRegistry:validateBatch(entries)
+    return normalizeBatch(self, entries)
+end
+function TileRegistry:prepareBatch(entries)
+    local normalized <const> = normalizeBatch(self, entries)
+    local handle <const> = {}
+    preparedBatches[handle] = { registry = self, entries = normalized }
+    return handle
+end
+function TileRegistry:preparedTerrain(handle, index)
+    local prepared <const> = preparedBatches[handle]
+    assert(prepared and prepared.registry == self, "prepared tile batch requires its original registry")
+    assert(type(index) == "number" and index % 1 == 0 and prepared.entries[index], "unknown prepared tile index")
+    return copy(prepared.entries[index].terrain)
+end
+function TileRegistry:registerPreparedBatch(handle)
+    local prepared <const> = preparedBatches[handle]
+    assert(prepared and prepared.registry == self, "prepared tile batch requires its original registry")
+    local normalized <const> = prepared.entries
     local store, ids = stores[self], {}
+    -- Preparation can yield. Recheck the entire snapshot before publishing any
+    -- entry, without yielding between this check and the append-only commit.
+    for _, entry in ipairs(normalized) do
+        local id <const> = store.keys[entry.key]
+        assert(not id or same(store.entries[id], entry), "conflicting duplicate tile key: " .. entry.key)
+    end
     for i, entry in ipairs(normalized) do
         local id = store.keys[entry.key]
         if not id then
@@ -168,6 +194,9 @@ function TileRegistry:registerBatch(entries)
         ids[i] = id
     end
     return ids
+end
+function TileRegistry:registerBatch(entries)
+    return self:registerPreparedBatch(self:prepareBatch(entries))
 end
 function TileRegistry:renderImported(value, renderer)
     local id = self:id(value)

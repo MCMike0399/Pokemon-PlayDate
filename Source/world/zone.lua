@@ -92,6 +92,9 @@ end
 
 -- Internal copies are the immutable reset/save reference; callers never receive them.
 local zoneData = setmetatable({}, { __mode = "k" })
+-- Only fromMapDefinition can grant ownership of its fresh cell arrays.
+-- Public configuration fields (including compactTerrain) never grant trust.
+local ownedConfigs <const> = setmetatable({}, { __mode = "k" })
 local function deepCopy(value)
     if type(value) ~= "table" then return value end
     local result = {}
@@ -121,7 +124,18 @@ end
 local function bounds(zone, x, y)
     assert(integer(x) and integer(y) and x >= 0 and y >= 0 and x < zone.width and y < zone.height, "zone coordinate outside bounds")
 end
-local function captureDefinition(zone, terrain, revision, issues, blocked, compact)
+local function captureDefinition(zone, terrain, revision, issues, blocked, compact, owned)
+    if owned then
+        local current <const> = {}
+        for y = 1, zone.height do
+            current[y] = terrain[y]
+        end
+        zoneData[zone] = { tiles = deepCopy(zone.tiles), collision = deepCopy(zone.collision),
+            terrain = current, baselineTerrain = terrain, revision = revision or "authored-v1",
+            issues = deepCopy(issues or {}), blocked = deepCopy(blocked or {}),
+            compactTerrain = compact, touched = {} }
+        return
+    end
     if compact then
         local current,baseline,palette={},{},{}
         for y=1,zone.height do
@@ -145,6 +159,8 @@ local function blockedAt(data, x, y) return data.blocked[y + 1] and data.blocked
 
 function Zone:init(config)
     assert(type(config) == "table", "zone configuration required")
+    local owned <const> = ownedConfigs[config]
+    ownedConfigs[config] = nil
     self.name = config.name or "Unnamed"
     self.stableID = config.id or self.name
     self.registry = config.registry or WorldTiles
@@ -178,7 +194,9 @@ function Zone:init(config)
 
     assert(integer(self.width) and integer(self.height) and self.width > 0 and self.height > 0, "invalid zone dimensions")
     rectangle(self.tiles, self.width, self.height, "zone tiles", function(id) self.registry:id(id) end)
-    self.tiles = deepCopy(self.tiles)
+    if not owned then
+        self.tiles = deepCopy(self.tiles)
+    end
     if config.collision then
         assert(type(config.terrain) == "table", "explicit numeric zones require terrain")
         rectangle(config.collision, self.width, self.height, "zone collision", function(value)
@@ -194,8 +212,8 @@ function Zone:init(config)
             local blocker = config.blockedBindings and config.blockedBindings[y] and config.blockedBindings[y][x]
             assert(config.collision[y][x] == (blocker and 1 or entry.collision), "numeric zone collision disagrees with stable tile key")
         end)
-        self.collision = deepCopy(config.collision)
-        captureDefinition(self, config.terrain, config.sourceRevision, config.bindingIssues, config.blockedBindings, config.compactTerrain)
+        self.collision = owned and config.collision or deepCopy(config.collision)
+        captureDefinition(self, config.terrain, config.sourceRevision, config.bindingIssues, config.blockedBindings, config.compactTerrain, owned)
         return
     end
 
@@ -354,6 +372,15 @@ function Zone:_commitTiles(plan)
     if data.view then undoView = data.view:applyTiles(plan) end
     local function assign(values)
         for _, change in ipairs(values) do
+            local row <const> = change.y + 1
+            if data.terrain[row] == data.baselineTerrain[row] then
+                -- Cell records stay private and immutable; detach just the row.
+                local detached <const> = {}
+                for x = 1, self.width do
+                    detached[x] = data.terrain[row][x]
+                end
+                data.terrain[row] = detached
+            end
             self.tiles[change.y + 1][change.x + 1] = change.id
             self.collision[change.y + 1][change.x + 1] = change.collision
             data.terrain[change.y + 1][change.x + 1] = change.terrain
@@ -511,7 +538,7 @@ function Zone.fromMapDefinition(definition, registry, options)
     end
     array(definition.grids, #entries, "imported grids")
     assert(#entries > 0, "imported palette is empty")
-    registry:validateBatch(entries)
+    local preparedBatch <const> = registry:prepareBatch(entries)
     rectangle(definition.tile_ids, width, height, "imported tile IDs", function(id)
         assert(integer(id) and localKeys[id], "unknown imported tile ID")
     end)
@@ -564,38 +591,57 @@ function Zone.fromMapDefinition(definition, registry, options)
             end
         end
     end
-    local ids = registry:registerBatch(entries)
-    local tiles, collision, terrain = {}, {}, {}
-    for y = 1, height do
-        tiles[y], collision[y], terrain[y] = {}, {}, {}
-        for x = 1, width do
-            local localID = definition.tile_ids[y][x]
-            tiles[y][x] = ids[localID]
-            collision[y][x] = blocked[y] and blocked[y][x] and 1 or definition.collision[y][x]
-            terrain[y][x] = options.compactTerrain and entries[localID].terrain or deepCopy(entries[localID].terrain)
+    local rollbackRegistry <const> = registry:checkpointRuntime()
+    local ok, result = pcall(function()
+        local ids <const> = registry:registerPreparedBatch(preparedBatch)
+        local tiles, collision, terrain = {}, {}, {}
+        local terrainPalette <const> = {}
+        for y = 1, height do
+            tiles[y], collision[y], terrain[y] = {}, {}, {}
+            for x = 1, width do
+                local localID = definition.tile_ids[y][x]
+                tiles[y][x] = ids[localID]
+                collision[y][x] = blocked[y] and blocked[y][x] and 1 or definition.collision[y][x]
+                local id <const> = ids[localID]
+                if not terrainPalette[id] then
+                    terrainPalette[id] = registry:preparedTerrain(preparedBatch, localID)
+                end
+                if options.compactTerrain then
+                    terrain[y][x] = terrainPalette[id]
+                else
+                    terrain[y][x] = deepCopy(terrainPalette[id])
+                end
+            end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
         end
-        if GameBootstrap then
-            GameBootstrap.yieldIfDue()
-        end
+        local config <const> = { name = definition.name, id = definition.id, registry = registry, tiles = tiles,
+            width = width, height = height, collision = collision, terrain = terrain,
+            imported = true, compactTerrain = options.compactTerrain == true, terrainFixture = options.terrainFixture == true,
+            sourceRevision = definition.source_revision, bindingIssues = issues, blockedBindings = blocked,
+            spawn = deepCopy(spawn), npcs = slicePlan and slicePlan.npcs, doors = slicePlan and slicePlan.doors,
+            encounters = slicePlan and slicePlan.encounters }
+        ownedConfigs[config] = true
+        local zone <const> = Zone(config)
+        zoneData[zone].slicePlan = slicePlan
+        -- pokered TryDoWildEncounter permits non-grass indoor land except FOREST.
+        -- FIRST_INDOOR_MAP is $25 at the pinned source revision. A missing grass
+        -- tile alone says nothing about encounters (Centers also use -1).
+        local firstIndoorMap <const> = 0x25
+        local sourceMapID <const> = definition.source_map_id
+        local tileset <const> = definition.tileset
+        zoneData[zone].sourceIndoorLand = integer(sourceMapID)
+            and sourceMapID >= firstIndoorMap and sourceMapID <= 255
+            and type(tileset) == "table" and type(tileset.constant) == "string"
+            and tileset.constant ~= "FOREST"
+        return zone
+    end)
+    if not ok then
+        rollbackRegistry()
+        error(result, 0)
     end
-    local zone = Zone({ name = definition.name, id = definition.id, registry = registry, tiles = tiles,
-        width = width, height = height, collision = collision, terrain = terrain,
-        imported = true, compactTerrain = options.compactTerrain == true, terrainFixture = options.terrainFixture == true,
-        sourceRevision = definition.source_revision, bindingIssues = issues, blockedBindings = blocked,
-        spawn = deepCopy(spawn), npcs = slicePlan and slicePlan.npcs, doors = slicePlan and slicePlan.doors,
-        encounters = slicePlan and slicePlan.encounters })
-    zoneData[zone].slicePlan = slicePlan
-    -- pokered TryDoWildEncounter permits non-grass indoor land except FOREST.
-    -- FIRST_INDOOR_MAP is $25 at the pinned source revision. A missing grass
-    -- tile alone says nothing about encounters (Centers also use -1).
-    local firstIndoorMap <const> = 0x25
-    local sourceMapID <const> = definition.source_map_id
-    local tileset <const> = definition.tileset
-    zoneData[zone].sourceIndoorLand = integer(sourceMapID)
-        and sourceMapID >= firstIndoorMap and sourceMapID <= 255
-        and type(tileset) == "table" and type(tileset.constant) == "string"
-        and tileset.constant ~= "FOREST"
-    return zone
+    return result
 end
 
 WorldDeltas = {}
