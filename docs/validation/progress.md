@@ -130,7 +130,7 @@ ordinary walking; historical reports remain exact. Earlier reports are archived.
 The device decode benchmark completed 24 calls and 12 typed comparisons. Route2
 JSON/Lua medians were 79.63/46.91 ms; Vermilion index 86.37/94.80 ms and
 midgame index 112.98/121.38 ms. Keep JSON indexes: Lua was slower for both.
-Evidence: `evidence/p0-load-method-bench-hardware-20261029-07/comparison.json`.
+[Exact results and hashes](device-decode-benchmark-20261029.json).
 This does not explain the 2.15 s registration span; transient field reuse is under review.
 
 ## 5. Decisions and history
