@@ -421,6 +421,9 @@ end
 function Harness.afterFrame(game, runtimeError)
     HarnessCapture.tick, HarnessCapture.phase = tick, runtimeError and "partial-error" or "completed"
     if runtimeError then
+        -- Preserve the first game failure. A partially completed transition
+        -- must not execute again and overwrite it with secondary errors.
+        playdate.update = function() end
         publish("runtime-error.json", { error = runtimeError, snapshot = HarnessDiagnostics.snapshot(game) })
         if request then finish(game, "error", runtimeError) end
         return
