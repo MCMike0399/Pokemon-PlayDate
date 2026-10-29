@@ -195,7 +195,8 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
         metadata['harness_profile'] = 'journey'
         overlay_imports(source, journey=True)
         keep = {'harness_build.lua', 'harness_capture.lua', 'diagnostics.lua',
-                'fixtures.lua', 'autopilot.lua', 'harness.lua'}
+                'fixtures.lua', 'autopilot.lua', 'harness.lua',
+                'ceruleanJourney.json', 'vermilionJourney.json'}
         if recent_interval > 1:
             keep.add('capture_policy.lua')
         removed = []
