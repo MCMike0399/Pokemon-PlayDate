@@ -99,6 +99,20 @@ matched pixels in `evidence/p0-render-pixels-20261028-01/comparison.json`.
 Generated runtime files reconstruct all 65 original maps exactly; original
 map inputs, source grids and protected image baselines remain unchanged.
 
+The next real-input run reached a wild Diglett battle after Cut and the cave
+entrance: `evidence/p0-exact-game-smoke-20261028-07`, exact build
+`3f5dbee94fff4c3d886691854fe0b4ce`. Title, earned Continue, verified save, doors
+and battle start were observed. Battle start took 4 ms in Simulator; the sampled
+peak was 8.48 MiB. Map-load, ordinary-frame and slice timing still failed, so
+this remains a failed gate and no hardware deployment was attempted.
+
+Archive discovery now uses fresh directory listings instead of probing absent
+files. The existing 16 save SDK cases passed with that change in
+`evidence/p0-save-contracts-16mb-20261028-02`; Lupa tests from the worker were
+excluded. The native view rollback case passed in
+`evidence/p0-view-contracts-16mb-20261028-01`. Progress is still **0/222 on
+hardware, 65/222 in Simulator; checkpoint 5.5a remains frozen**.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |
