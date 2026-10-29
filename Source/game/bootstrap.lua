@@ -5,7 +5,9 @@ local pending = {}
 local started, loading, ready = false, false, false
 local failure
 local sliceStart = playdate.getCurrentTimeMilliseconds()
-local sliceBudget = 8
+-- Leave display/trace time within a 33 ms device loading frame. Simulator
+-- slices stay fine-grained; hardware measurements determine playability.
+local sliceBudget <const> = playdate.isSimulator and 8 or 24
 local errorFrames = 0
 local loadingDraw
 

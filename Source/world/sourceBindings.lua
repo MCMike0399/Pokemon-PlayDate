@@ -35,8 +35,8 @@ function SourceBindings.specs(name, d, hasEvent)
     end
     for _, c in ipairs(d.connections) do
         local supported = SourceMaps.nameForID("pokered:" .. c.target_map) ~= nil or c.target_map == "PALLET_TOWN"
-        for _, id in ipairs(SourceMaps.descriptor(name).blocked_connections) do
-            if id == c.direction .. ":" .. c.target_map then supported = false end
+        if SourceMaps.connectionBlocked(name, c.direction, c.target_map) then
+            supported = false
         end
         specs[c.direction .. ":" .. c.target_map] = { status = supported and "bound" or "blocked",
             reason = viridian and (supported and "explicit slice connection" or "source target outside slice")

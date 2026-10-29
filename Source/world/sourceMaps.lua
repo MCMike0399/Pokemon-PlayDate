@@ -479,6 +479,19 @@ function SourceMaps._runtimeValue(key, create)
 end
 
 -- Ordinary geometry is projected from the same cache used by ImportedMaps.
+-- A Boolean policy query avoids copying tile rows and event records merely
+-- to inspect the immutable connection-blocker list.
+function SourceMaps.connectionBlocked(name, direction, target)
+    local descriptor = assert(compactData().maps[name], "unknown source map")
+    local id = direction .. ":" .. target
+    for _, blocked in ipairs(descriptor.blocked_connections) do
+        if blocked == id then
+            return true
+        end
+    end
+    return false
+end
+
 function SourceMaps.descriptor(name)
     return copy(assert(compactData().maps[name], "unknown source map"))
 end
