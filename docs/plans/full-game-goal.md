@@ -20,7 +20,7 @@ passes. Simulator acceptance alone does not establish playability.
 Collect errorlog.txt, crashlog.txt and the persistent boot trace for the exact
 installed build before each new fix. Instrument import groups, content installs,
 context/state setup, title, earned Continue, map load and battle start. Every
-trace line records phase, clock, time since yield and Lua heap, and closes the
+trace line records phase, clock, time since yield and Lua heap, and flushes the
 file so a watchdog kill preserves it. Compare matching Simulator/device phases
 to derive actual slice/frame budgets; keep a startup/memory check in the SDK suite.
 
@@ -32,8 +32,9 @@ measurements. Device frames target 33 ms, update slices <=1 s, and map/door load
 and battle start each <=0.5 s. Both 65- and 108-map builds must fit.
 
 Automate log collection, verified deployment and post-run collection. Give the
-user one set of button/unlock/USB instructions per cycle. Detect attached USB
-before Simulator launch and fail promptly with the unplug instruction.
+user one set of button/unlock/USB instructions per cycle. Detect serial-port ownership before Simulator launch and fail promptly if a
+reader or another runtime owns it. A healthy calibration keeper can remain
+connected while Simulator runs; close every serial reader first.
 
 Every milestone requires hardware title, earned Continue, one warp, battle start
 and save, no new errorlog entry, plus trace timing/heap within budget. Record the
