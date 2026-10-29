@@ -178,7 +178,16 @@ end
 
 -- Prepared field transaction adapter; apply only with source reload ownership.
 function GameContext:commitFieldTerrain(before, after, position, actors)
-    return SourceMaps._withRuntimeDefinitions(function()
-        return FieldMoveWorld.commit(self, before, after, position, actors)
+    -- Keep the last animation image on screen while the atomic world change
+    -- is validated. Yielding never reveals an intermediate terrain/session.
+    local gfx <const> = playdate.graphics
+    local image = gfx.getWorkingImage():copy()
+    return GameBootstrap.withLoading("field", function()
+        BootTrace.mark("field.world.begin")
+        local ok, result = FieldMoveWorld.commit(self, before, after, position, actors)
+        BootTrace.mark("field.world.end")
+        return ok, result
+    end, function()
+        image:draw(0, 0)
     end)
 end

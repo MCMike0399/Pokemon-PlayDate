@@ -7,6 +7,7 @@ local failure
 local sliceStart = playdate.getCurrentTimeMilliseconds()
 local sliceBudget = 8
 local errorFrames = 0
+local loadingDraw
 
 if DEVICE_TEST_BUILD then
     playdate.setAutoLockDisabled(true)
@@ -25,6 +26,10 @@ function GameBootstrap.showLoading()
     gfx.setDrawOffset(0, 0)
     gfx.clearClipRect()
     gfx.clearStencil()
+    if loadingDraw then
+        loadingDraw()
+        return
+    end
     gfx.clear(gfx.kColorWhite)
     gfx.setColor(gfx.kColorBlack)
     gfx.drawText("Pokemon Blue", 146, 96)
@@ -87,9 +92,9 @@ function GameBootstrap.isLoading()
     return loading
 end
 
-function GameBootstrap.withLoading(phase, callback)
-    local previous = loading
-    loading = true
+function GameBootstrap.withLoading(phase, callback, draw)
+    local previous, previousDraw = loading, loadingDraw
+    loading, loadingDraw = true, draw
     local pause = collectgarbage("setpause", 110)
     local ok, first, second = pcall(function()
         BootTrace.mark(phase .. ".task.begin")
@@ -102,7 +107,7 @@ function GameBootstrap.withLoading(phase, callback)
         return callback()
     end)
     collectgarbage("setpause", pause)
-    loading = previous
+    loading, loadingDraw = previous, previousDraw
     if not ok then
         error(first, 0)
     end
