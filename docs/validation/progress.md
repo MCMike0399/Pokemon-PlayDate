@@ -91,7 +91,12 @@ Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
 branch is preserved. Three chained 5.5a journeys are running from hash-verified
 partial Saves (actual stopped processes and real Continue), on Source `2984348e`.
-The checkout is frozen for this set; documentation changes stay on its branch.
+The checkout is frozen for this set; integrations stay on a separate branch.
+Charmander reached Celadon after 18 battles, then exposed a driver A-button
+retry error at a shop. The shared helper now waits for dispatch (61 host checks
+pass). Bulbasaur reached a real Rock Tunnel blackout; private `1fd874f` connects
+the existing checkpoint/half-money/healing verifier to midgame retries and saves
+after recovery (63 host checks pass). Neither failed run is called accepted.
 Charmander covers optional content; the other two the critical path. Evidence:
 `evidence/m55a-resumed-request-cleanup-20261029-01`.
 
