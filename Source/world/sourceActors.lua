@@ -63,7 +63,7 @@ function SourceActors.objectDefinition(d, event, spec, options)
     local resolver = content(profile)
     local key = resolver.key(event.sprite)
     if not options.isolatedCatalog then assert(SpriteFactory.npc[key], "source actor art not installed") end
-    local trainer = SourceEvents.trainerDefinitions()[event.id]
+    local trainer = SourceEvents.trainerDefinition(event.id)
     local descriptor = SourceEvents.descriptor(event.id)
     local function visibilityFor(game)
         local metadata = resolver.metadata and resolver.metadata(d, event, game) or {}
@@ -105,7 +105,7 @@ function SourceActors.describeSource(zoneID, world, game)
     local profile = SourceMaps.entry(name).profile
     if compatibility[profile] and not compatibility[profile].motion then return nil end
     local resolver = content(profile)
-    local trainers = SourceEvents.trainerDefinitions()
+    local trainerFor = SourceEvents.trainerLookup()
     local provider=assert(WorldDeltas.definitionProvider(),"source actor surface provider missing")
     local surface=provider:surface(zoneID,world);local d=SourceMaps.padded(name)
     local rules=Party._primitive(d.directional_rules)
@@ -123,7 +123,8 @@ function SourceActors.describeSource(zoneID, world, game)
         else local x=connection.direction=="west"and 0 or surface.width-1;for y=0,surface.height-1 do protect(x,y)end end
     end
     for _,event in ipairs(d.events.objects)do
-        local trainer=trainers[event.id];local item=event.kind=="item"
+        local trainer = trainerFor(event.id)
+        local item = event.kind == "item"
         if trainer then
             assert(trainer.map_id == zoneID and trainer.sprite_source == event.sprite, "trainer differs from source object")
         end

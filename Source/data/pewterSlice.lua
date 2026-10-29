@@ -24,7 +24,7 @@ function PewterSlice.definition(name)
     assert(names[name], "map outside Pewter slice")
     return SourceMaps.definition(name)
 end
-function PewterSlice.trainers()
+local function trainers()
     if not trainerData then
         trainerData={}
         local trainerMeta=record("trainerNames");local display=trainerMeta.names
@@ -36,9 +36,14 @@ function PewterSlice.trainers()
             trainerData[d.id]=d
         end
     end
-    return copy(trainerData)
+    return trainerData
 end
-function PewterSlice.trainer(id) return PewterSlice.trainers()[id] end
+function PewterSlice.trainers()
+    return copy(trainers())
+end
+function PewterSlice.trainer(id)
+    return copy(trainers()[id])
+end
 function PewterSlice.sprite(source)
     if not sprites then sprites=record("sprites") end
     local binding=assert(sprites.mapping[source],"unresolved original Pewter sprite constant")

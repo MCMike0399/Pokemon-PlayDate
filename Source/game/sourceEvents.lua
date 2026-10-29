@@ -405,6 +405,45 @@ function SourceEvents.registerTrainerSource(name, resolver)
     -- or live encounters beneath their immutable definition identity.
     trainerSources[name] = definitions
 end
+-- Capture registration membership without copying every immutable roster.
+-- Returned definitions are still private copies; later registrations do not
+-- change a controller's captured lookup.
+function SourceEvents.trainerLookup()
+    local index = PewterSlice.trainers()
+    for _, definitions in pairs(trainerSources) do
+        for id, definition in pairs(definitions) do
+            assert(not index[id] and definition.id == id, "duplicate or unstable source trainer")
+            index[id] = definition
+        end
+    end
+    local function lookup(id)
+        return copy(index[id])
+    end
+    local function sourceID(flag)
+        if index[flag] then
+            return flag
+        end
+        for id, definition in pairs(index) do
+            if definition.source_flag == flag then
+                return id
+            end
+        end
+    end
+    return lookup, sourceID
+end
+
+function SourceEvents.trainerDefinition(id)
+    local result = PewterSlice.trainer(id)
+    for _, definitions in pairs(trainerSources) do
+        local definition = definitions[id]
+        if definition then
+            assert(not result and definition.id == id, "duplicate or unstable source trainer")
+            result = copy(definition)
+        end
+    end
+    return result
+end
+
 function SourceEvents.trainerDefinitions()
     local result = PewterSlice.trainers()
     for _, definitions in pairs(trainerSources) do
