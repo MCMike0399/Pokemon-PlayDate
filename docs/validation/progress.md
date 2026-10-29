@@ -70,6 +70,35 @@ Loading time remains over budget. The observer's old update duration included
 coroutine suspension; it cannot establish CPU slice timing. Rendering and
 loading measurements are still being corrected before hardware deployment.
 
+### Exact private game smoke
+
+Progress remains **0/222 hardware-verified maps; 65/222 route-verified in
+Simulator. Current checkpoint: 5.5a, frozen.** The physical device still runs
+only the safe calibration app; no further Pokémon build has been deployed.
+
+The exact private build `a8b235b94dc34e0390106a283992ce9a` reached its title,
+loaded the accepted Charmander Flash save through real buttons, published a save
+and crossed the north Route 2 Gate door. Evidence:
+`evidence/p0-exact-game-smoke-20261028-04`, with the unchanged compiled bundle in
+`evidence/p0-exact-game-smoke-build-20261028-04`. Lua heap after Continue was
+6108.54 KiB; sampled peak was below 9 MiB. An earlier actual SAVE exceeded the
+memory ceiling; saving now uses cooperative loading and more frequent GC.
+
+This smoke **failed** the performance gate and has not started a battle. The
+map-load span was 343 ms in Simulator, including loading yields; the worst active
+slice was 66.10 ms. These are distinct measurements. The small test build uses
+one private module and the SDK high-resolution elapsed clock. Loading slices
+have the 1-second device ceiling; ordinary gameplay frames have the 33 ms target.
+The conservative synthetic factor remains provisional. Nothing is accepted on
+hardware from these results.
+
+Existing SDK checks run separately in the 16 MB pool: 20 map cases passed in
+`evidence/p0-map-contracts-16mb-20261028-02`, and 16 save cases passed in
+`evidence/p0-save-contracts-16mb-20261028-01`. All 526 authored/imported tile pairs
+matched pixels in `evidence/p0-render-pixels-20261028-01/comparison.json`.
+Generated runtime files reconstruct all 65 original maps exactly; original
+map inputs, source grids and protected image baselines remain unchanged.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |
