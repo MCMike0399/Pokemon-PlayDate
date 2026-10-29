@@ -61,7 +61,8 @@ Device is now on the USB keeper, preventing indefinite test-recorder idle work.
 
 Flat atlases passed 16 SDK world cases, one review and all **497,664 native
 pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
-Compile and 54 protocol checks pass. Cold per-image files and duplicate-validation
+Compile and 54 protocol checks pass. Main’s full host suite passes **963 tests,
+no skips** (`evidence/main-current-host-20261029-01.log`). Cold per-image files and duplicate-validation
 fast paths were rejected after actual device comparisons. No universal guessed
 factor blocks deployment; safety is the completed 16 MB route, <=9 MiB sampled
 peak, <=150 ms Simulator slices and active crash guards.
@@ -115,7 +116,11 @@ separate from this restoration. Full host rerun: **1001 tests, 1000 passed, one
 stale coverage fingerprint, no skips**. The inventory snapshot is now refreshed
 privately (`808ec87`), retaining every row/evidence facet; its four checks pass.
 Hardware loading and user play still block milestone acceptance, not Simulator
-preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
+preparation. Sparse WorldView `79e42dc1` was rejected after hardware (3,199 vs 3,234 ms;
+no material gain). Continue shortcut `f0774168` was rejected before runtime:
+it removed validation required by candidate-bound owners. Both checks stay.
+A recorder-only bundle is prepared for a separate comparison. Root audio,
+cleanup and Safari polish remain paused. Nothing pushed.
 Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
 outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
 Charmander beat Erika, received the badge/TM21 and the exact 2,871 payout.
