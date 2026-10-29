@@ -39,3 +39,10 @@ Root owns integration and runtime acceptance. Scope is the existing singles
 battle model; doubles, Snatch, Substitute and other unsupported producers are
 not introduced or certified. Sap Sipper has no reachable Kanto specimen witness
 in this contract. Nothing was pushed.
+
+Root integration result: the single new SDK contract passed in the private
+candidate and in main, with zero failures. Exact evidence:
+`evidence/m55a-aromatherapy-sdk-20261029-01` and
+`evidence/m55a-aromatherapy-main-sdk-20261029-01`. Both independent reviews
+reported no findings. This closes the scoped move behavior, not campaign or
+device acceptance. Main remains at 65 active maps; the 108-map candidate is private.

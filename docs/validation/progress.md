@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **17.52 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **19.82 h**; hardware pace: **0 maps/day**.
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -85,19 +85,19 @@ These are Simulator results, not hardware validation of the 108-map build.
 
 Root owns main, Simulator and hardware. The user cannot access the Playdate
 right now and asked to keep progressing. No repeated setup or feedback request.
-The guarded physical build stays available; no device inputs or reinstall during
-this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
+Unattended device measurements return to the USB keeper before Simulator work.
+The 5 s crash guard remains below the 10 s watchdog.
 
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps. Three chained
 journeys use hash-verified partial Saves and actual Continue; no completed travel
 is replayed or save state invented. Current set:
-`evidence/m55a-lift-projection-resumed-20261029-01`, revision `08cb33d1`.
-All three reached the same driver lift-arrival mismatch (y=2 expected, actual
-explicit binding y=1). Correction `08cb33d1` passed 103 host checks; the retry is
-`evidence/m55a-lift-projection-resumed-20261029-01`. Its checkout stays frozen.
+`evidence/m55a-lift-projection-resumed-20261029-01`; next revision `06ee7f4f`.
+All three obtained Silph Scope, then failed the planner route from the B1F lift.
+Fixed B2F spinner exit `81b9d95c` and a real post-Scope Save are integrated.
+Next: `evidence/m55a-fixed-hideout-exit-resumed-20261029-01`, after device collection.
 Squirtle obtained rooftop Ice Beam, beat Erika and saved; no grinding or save
-edits. One Aromatherapy gap appeared; a worker is repairing that game behavior.
+edits. One Aromatherapy gap appeared; its Gen V party cure now passes on main and privately.
 Medicine and Revives spend real money and turns. No journey is accepted yet.
 
 The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
@@ -116,13 +116,14 @@ Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Sparse WorldView `79e42dc1` was rejected after hardware (3,199 vs 3,234 ms;
 no material gain). Continue shortcut `f0774168` was rejected before runtime:
 it removed validation required by candidate-bound owners. Both checks stay.
-The recorder-only comparison completed as reported above. Root audio,
+Pose metadata `6334e989` passes review, eight native actor cases and the 16 MB
+safety smoke; its device load comparison is running. Root audio,
 cleanup and Safari polish remain paused. Nothing pushed.
 Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
 outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
-Charmander beat Erika, received the badge/TM21 and the exact 2,871 payout.
+All starters beat Erika; Charmander received the badge/TM21 and 2,871 payout.
 The city tree correctly returned on leaving the Gym; the driver now cuts it
-again before returning to the Center. Remaining starters/Hideout are unaccepted.
+again before returning to the Center. Full journeys and Hideout remain unaccepted.
 The preceding 108-map fade build also passed the 16 MB production probe:
 **5.615 MiB title / 5.778 MiB Continue / 6.793 MiB phase peak**. Its real-input
 smoke peaked at **7.294 MiB**, max slice **45.40 ms**; hardware unmeasured.
