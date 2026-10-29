@@ -38,13 +38,32 @@
     "battle_target_passed": true,
     "ordinary_hitch_ceiling_ms": 300,
     "ordinary_hitch_passed": true,
-    "typical_fps": "pending scoped frame-distribution analysis",
-    "user_play": "pending"
+    "typical_fps": {
+      "route2": {
+        "boundary_median_ms": 33.055,
+        "reciprocal_mean_boundary_fps": 15.79,
+        "p95_boundary_ms": 108.23
+      },
+      "digletts_cave": {
+        "boundary_median_ms": 33.039,
+        "reciprocal_mean_boundary_fps": 14.39,
+        "p95_boundary_ms": 179.812
+      },
+      "scope": "Scripted press/release/settlement windows in the instrumented build, including recorder/serial overhead; not continuous physical production pacing."
+    },
+    "user_play": "pending",
+    "walking_target_demonstrated": false
   },
   "legacy_gate_failures_preserved": [
     "map_load_ms",
     "frame_ms",
     "slice_ms"
   ],
-  "next": "Rank actual map-load phases; keep the device on its calibration keeper between measurements."
+  "next": "Rank actual map-load phases; keep the device on its calibration keeper between measurements.",
+  "scoped_loading": {
+    "continue_install_wall_ms": 4036,
+    "max_door_map_wall_ms": 3234,
+    "note": "Inclusive measured brackets; Continue includes session installation before map definition."
+  },
+  "profile": "evidence/p0-device-profile-108-20261029-01/report.txt"
 }

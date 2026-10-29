@@ -51,9 +51,11 @@ Only one starter covers optional content. Sets continue after a starter fails.
 Latest 108-map hardware build `df4a421a8ef94b64b54c4c30203b078d` completed
 title, earned 5.4 Continue, save, doors, Cut and a wild Diglett battle. Errorlog
 and crashlog remain exact. Lua live/peak **4.00 / 5.61 MiB**; worst map load
-**3,234 ms**, battle start **19 ms**, ordinary max active frame **189 ms**.
-Last phase `battle.live.after_gc`: **4.24 MiB**. Map loading exceeds ~1.5 s;
-typical walking distribution and user play remain to qualify. [Raw scope and
+**3,234 ms** per door, **4,036 ms** Continue installation; battle **19 ms**.
+Ordinary max active frame **189 ms**; last `battle.live.after_gc` **4.24 MiB**.
+Recorded walking means are **15.79 / 14.39 fps** (Route2/cave), including test
+recorder overhead. Median 33 ms does not prove the 25 fps target. Loading,
+walking and user play remain unaccepted. [Raw scope and
 assessment](device-smoke-108-20261029.json). No legacy failure report was relabelled.
 Device is now on the USB keeper, preventing indefinite test-recorder idle work.
 
