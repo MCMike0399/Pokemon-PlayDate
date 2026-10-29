@@ -97,9 +97,16 @@ Compiled terrain was retested on hardware and stays off main: worst map load
 worsened from **4,789 to 6,262 ms**, with a complete smoke and no new crash logs.
 See `evidence/p0-device-terrain-decision-20261029.json`. Removing unused wall
 sprites is now on main after a clear review, SDK checks and the hardware gain.
-Root is preparing a device-only method profile of rendering, collection, loading
-drawing and trace I/O to separate the remaining view/load costs. No sampling
-result is claimed, and no further speculative performance branch is active.
+The device method profile completed without errors in
+`evidence/p0-device-method-profile-hardware-20261029-01`. Route2 costs: registry
+preparation 622 ms and binding specs 538 ms (inclusive, containing yields), trace
+writes 393 ms, terrain rendering 391 ms, loading drawing 168 ms, GC steps 2.5 ms.
+Do not sum inclusive costs or label them CPU samples. Leave GC unchanged.
+Root candidate `4be5e20` avoids full map copies for a connection Boolean and
+uses a 24 ms device loading-work threshold; Simulator stays at 8 ms. One review
+was clear; existing SDK cases and exact safety smoke are running. Hardware will
+decide acceptance. Actual phase ratios are in the no-wall run’s
+`device-simulator-phase-ratios.json`; they are not one universal CPU factor.
 `wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
 current P0 code and verify that its 16 MB heap stays close to the 65-map result.
 Root audio, cleanup and Safari polish remain paused. No new regions are on main.
