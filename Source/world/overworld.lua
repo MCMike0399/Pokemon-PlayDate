@@ -2,10 +2,9 @@ local gfx <const> = playdate.graphics
 local assert <const> = assert
 local error <const> = error
 local ipairs <const> = ipairs
-local pairs <const> = pairs
 local pcall <const> = pcall
 
--- Owns only a map view and its static wall sprites. Offscreen instances exercise
+-- Owns tile rendering only; Zone owns grid collision. Offscreen instances exercise
 -- exactly the same SDK tilemap/registry path without tearing down the live game.
 Class("WorldView")
 local activeView = nil
@@ -43,50 +42,6 @@ function WorldView:_applyAnimationImages(images)
     images:setImage(SHORE_ID, self.animTiles.shore[(self.animStep % #WATER_SHIFTS) + 1])
     images:setImage(FLOWERS_ID, self.animTiles.flowers[(self.animStep % #FLOWER_SEQ) + 1])
 end
-function WorldView:_wall(x, y, width)
-    -- No image is needed: the sprite exists only for SDK collision queries.
-    -- Size the bounds as well as the collide rect to cover the entire run.
-    local wall = gfx.sprite.new()
-    local pixelWidth = width * TILE_SIZE
-    wall:setSize(pixelWidth, TILE_SIZE)
-    wall:setCenter(0, 0)
-    wall:moveTo(x * TILE_SIZE, y * TILE_SIZE)
-    wall:setCollideRect(0, 0, pixelWidth, TILE_SIZE)
-    return wall
-end
-function WorldView:_wallRow(y, blocked, previousRuns, styles)
-    local walls, runs = {}, {}
-    local x = 1
-    while x <= self.zone.width do
-        if blocked[x] then
-            local first = x
-            local style = styles and styles[x]
-            repeat
-                x = x + 1
-            until x > self.zone.width or not blocked[x] or styles and styles[x] ~= style
-            local last = x - 1
-            local run = previousRuns and previousRuns[first]
-            if not run or run.last ~= last then
-                local registered = self.attached
-                if styles then
-                    registered = (style & 1) ~= 0
-                end
-                local wall = self:_wall(first - 1, y - 1, last - first + 1)
-                if styles then
-                    wall:setVisible((style & 2) ~= 0)
-                end
-                run = {last = last, wall = wall, registered = registered}
-            end
-            runs[first] = run
-            for column = first, last do
-                walls[column] = run.wall
-            end
-        else
-            x = x + 1
-        end
-    end
-    return walls, runs
-end
 function WorldView:init(zone, options)
     options = options or {}
     zone:assertEnterable()
@@ -99,17 +54,11 @@ function WorldView:init(zone, options)
     self.tilemap = gfx.tilemap.new()
     self.tilemap:setImageTable(self.images)
     self.tilemap:setSize(zone.width, zone.height)
-    self.walls, self.wallRuns = {}, {}
     local tileIDs = {}
     for y = 1, zone.height do
-        local blocked = {}
         for x = 1, zone.width do
             tileIDs[#tileIDs + 1] = zone.tiles[y][x]
-            if zone.collision[y][x] == 1 then
-                blocked[x] = true
-            end
         end
-        self.walls[y], self.wallRuns[y] = self:_wallRow(y, blocked)
         if GameBootstrap then
             GameBootstrap.yieldIfDue()
         end
@@ -123,11 +72,6 @@ function WorldView:init(zone, options)
     zone:attachView(self)
     if self.attached then
         self.sprite:add()
-        for _, row in ipairs(self.wallRuns) do
-            for _, run in pairs(row) do
-                run.wall:add()
-            end
-        end
     end
 end
 function WorldView:updateAnimations()
@@ -139,7 +83,10 @@ function WorldView:updateAnimations()
 end
 function WorldView:tileAt(x, y) return self.tilemap:getTileAtPosition(x + 1, y + 1) end
 function WorldView:imageAt(x, y) return self.images:getImage(self:tileAt(x, y)) end
-function WorldView:hasWallAt(x, y) return self.walls[y + 1] and self.walls[y + 1][x + 1] ~= nil or false end
+function WorldView:hasWallAt(x, y)
+    local row = self.zone.collision[y + 1]
+    return row ~= nil and row[x + 1] == 1
+end
 function WorldView:applyTiles(plan)
     assert(not self.disposed, "world view disposed")
     local old, oldImages, oldCount = {}, self.images, self.imageCount
@@ -149,79 +96,13 @@ function WorldView:applyTiles(plan)
         self:_applyAnimationImages(images)
     end
 
-    local rows = {}
     for i, change in ipairs(plan) do
         assert(self.zone.registry:has(change.id) and images:getImage(change.id),
             "tile image missing from registry palette")
         old[i] = { x = change.x, y = change.y, id = self:tileAt(change.x, change.y) }
-        local y, x = change.y + 1, change.x + 1
-        local blocked = change.collision == 1
-        local row = rows[y]
-        if not row and blocked ~= (self.walls[y][x] ~= nil) then
-            row = { walls = self.walls[y], runs = self.wallRuns[y], blocked = {} }
-            for column in pairs(row.walls) do
-                row.blocked[column] = true
-            end
-            rows[y] = row
-        end
-        if row then
-            row.blocked[x] = blocked
-        end
-    end
-
-    -- Prepare only changed collision rows. Exact run boundaries retain their
-    -- objects and registration; tile-only edits do not touch wall ownership.
-    local removed, created, present = {}, {}, {}
-    if next(rows) then
-        for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
-            present[sprite] = true
-        end
-    end
-    for y, row in pairs(rows) do
-        local styles = {}
-        for x in pairs(row.blocked) do
-            if row.blocked[x] then
-                local wall = row.walls[x]
-                local registered = self.attached
-                local visible = true
-                if wall then
-                    registered = present[wall] == true
-                    visible = wall:isVisible()
-                end
-                styles[x] = (registered and 1 or 0) + (visible and 2 or 0)
-            end
-        end
-        row.nextWalls, row.nextRuns = self:_wallRow(y, row.blocked, row.runs, styles)
-        for first, run in pairs(row.runs) do
-            if row.nextRuns[first] ~= run then
-                removed[#removed + 1] = { wall = run.wall, visible = run.wall:isVisible() }
-            end
-        end
-        for first, run in pairs(row.nextRuns) do
-            if row.runs[first] ~= run then
-                created[#created + 1] = {wall = run.wall, registered = run.registered}
-            end
-        end
-    end
-    for _, item in ipairs(removed) do
-        item.present = present[item.wall] == true
     end
 
     local function restore()
-        for _, item in ipairs(created) do
-            item.wall:remove()
-        end
-        for y, row in pairs(rows) do
-            self.walls[y], self.wallRuns[y] = row.walls, row.runs
-        end
-        for _, item in ipairs(removed) do
-            if item.present then
-                item.wall:add()
-            else
-                item.wall:remove()
-            end
-            item.wall:setVisible(item.visible)
-        end
         for _, item in ipairs(old) do
             self.tilemap:setTileAtPosition(item.x + 1, item.y + 1, item.id)
         end
@@ -234,17 +115,6 @@ function WorldView:applyTiles(plan)
             self.tilemap:setImageTable(images)
         end
         self.images, self.imageCount = images, self.zone.registry:maxID()
-        for _, item in ipairs(removed) do
-            item.wall:remove()
-        end
-        for _, item in ipairs(created) do
-            if item.registered then
-                item.wall:add()
-            end
-        end
-        for y, row in pairs(rows) do
-            self.walls[y], self.wallRuns[y] = row.nextWalls, row.nextRuns
-        end
         for _, change in ipairs(plan) do
             self.tilemap:setTileAtPosition(change.x + 1, change.y + 1, change.id)
         end
@@ -269,11 +139,6 @@ end
 function WorldView:dispose()
     if self.disposed then return end
     self.sprite:remove()
-    for _, row in ipairs(self.wallRuns) do
-        for _, run in pairs(row) do
-            run.wall:remove()
-        end
-    end
     self.zone:detachView(self)
     self.disposed = true
 end
