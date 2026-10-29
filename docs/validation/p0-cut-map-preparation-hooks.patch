@@ -1,0 +1,22 @@
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -404,6 +404,9 @@
+         assert(accepted, problem)
+         BootTrace.mark("overworld.field_reload.end")
+     end
++    BootTrace.mark("overworld.field_prepare.begin")
++    FieldMoveState.prepareMap(currentZone.stableID)
++    BootTrace.mark("overworld.field_prepare.end")
+     gfx.sprite.removeAll()
+     BootTrace.mark("overworld.view.begin")
+     setupOverworld()
+--- a/Source/dev/vermilionCatalogExporter.lua
++++ b/Source/dev/vermilionCatalogExporter.lua
+@@ -247,6 +247,7 @@
+     local cut = {active = true, phase = "effect", frame = 0, effect = FieldMoves.effectData(),
+         preview = {key = "cut", target = {x = 0.5, y = 0},
+             cells = {{x = 0.5, y = 0, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"}}}}
++    cut.treeFrames, cut.ground = FieldMoveState.prepareTreePresentation(cut.effect, cut.preview)
+     local frames = {}
+     for frame = 0, field.tree_frames - 1 do
+         cut.frame = frame

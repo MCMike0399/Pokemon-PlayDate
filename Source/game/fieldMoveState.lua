@@ -1,6 +1,11 @@
 local gfx <const> = playdate.graphics
 Class("FieldMoveState"):extends(State)
 
+-- Shared immutable source art plus one map's Cut replacement images. No visit,
+-- request, session, actor, or mutable world data is retained here.
+local cutTreeFrames, cutGrassPalettes
+local preparedMap
+
 function FieldMoveState:init(game)
     FieldMoveState.super.init(self, "fieldMove")
     self.game = game
@@ -44,8 +49,11 @@ function FieldMoveState:enter(token, party)
     self.preview = assert(FieldMoves.preview(token))
     self.effect = FieldMoves._effectData()
     self.ground, self.grassPresentation = nil, nil
+    local resources = preparedMap and preparedMap.id == currentZone.stableID and preparedMap.tiles or nil
     if self.preview.kind == "grass" then
-        self.grassPresentation = FieldMoveState.prepareGrassPresentation(self.effect, self.preview)
+        self.grassPresentation = FieldMoveState.prepareGrassPresentation(self.effect, self.preview, resources)
+    elseif self.preview.key == "cut" then
+        self.treeFrames, self.ground = FieldMoveState.prepareTreePresentation(self.effect, self.preview, resources)
     end
     local visit = self.visit
     local function current()
@@ -94,7 +102,7 @@ function FieldMoveState:exit()
     self.menu:hide()
     self.menu.onSelect, self.menu.onCancel = nil, nil
     self.token, self.party, self.session, self.treeFrames = nil, nil, nil, nil
-    self.grassPresentation, self.effect = nil, nil
+    self.grassPresentation, self.effect, self.ground = nil, nil, nil
     gfx.sprite.addDirtyRect(0, 0, 400, 240)
 end
 
@@ -203,6 +211,73 @@ local function grassFrames(leaf)
     return frames
 end
 
+local function groundImage(key, tiles)
+    if not tiles[key] then
+        tiles[key] = TileRegistry.renderImportedGrid(assert(FieldMoves.tile(key)).grid, TileFactory.renderGrid)
+    end
+    return tiles[key]
+end
+
+-- Called inside the existing map-loading owner. The single map art record is
+-- replaced even on maps with no Cut sites; no installed-map traversal occurs.
+function FieldMoveState.prepareMap(id)
+    local spec = FieldMoves.prepareMap(id)
+    if preparedMap and preparedMap.id == id then
+        return
+    end
+    preparedMap = nil
+    if not spec then
+        return
+    end
+    local tiles = {}
+    local effect
+    for _, site in ipairs(spec.sites) do
+        effect = effect or FieldMoves._effectData()
+        cutTreeFrames = cutTreeFrames or treeFrames(effect.tree_grid)
+        for _, target in ipairs(site.targets) do
+            for _, cell in ipairs(site.cells) do
+                if cell.x == target.x and cell.y == target.y then
+                    groundImage(cell.after, tiles)
+                end
+            end
+        end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
+    end
+    for _, site in ipairs(spec.grass_sites or {}) do
+        effect = effect or FieldMoves._effectData()
+        cutGrassPalettes = cutGrassPalettes or grassFrames(effect.grass_leaf)
+        for _, cell in ipairs(site.cells) do
+            groundImage(cell.after, tiles)
+        end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
+    end
+    preparedMap = {id = id, tiles = tiles}
+end
+
+-- Also usable by catalog bootstrap. Gameplay enter retains this lazy fallback
+-- when a move is taught during the visit or the loading hook is not installed.
+function FieldMoveState.prepareTreePresentation(effect, preview, tiles)
+    local frames
+    if rawequal(effect, FieldMoves._effectData()) then
+        cutTreeFrames = cutTreeFrames or treeFrames(effect.tree_grid)
+        frames = cutTreeFrames
+    else
+        frames = treeFrames(effect.tree_grid)
+    end
+    local ground
+    tiles = tiles or {}
+    for _, cell in ipairs(preview.cells) do
+        if cell.x == preview.target.x and cell.y == preview.target.y then
+            ground = groundImage(cell.after, tiles)
+        end
+    end
+    return frames, ground
+end
+
 -- Zero-based source sample at the END of each two-VBlank native interval.
 -- Native updates 0..15 present source frames 1,3,...31 (positions 2..32).
 function FieldMoveState.grassSourceFrame(nativeUpdate)
@@ -212,18 +287,23 @@ end
 
 -- Explicit preparation boundary for gameplay enter and catalog bootstrap.
 -- Drawing never allocates a missing art cache or consults a field token.
-function FieldMoveState.prepareGrassPresentation(effect, preview)
+function FieldMoveState.prepareGrassPresentation(effect, preview, tiles)
     assert(effect.grass_frames == 32 and #effect.grass_animation == 32, "source grass timing required")
-    local ground, tiles = {}, {}
+    local ground = {}
+    tiles = tiles or {}
+    local palettes
+    if rawequal(effect, FieldMoves._effectData()) then
+        cutGrassPalettes = cutGrassPalettes or grassFrames(effect.grass_leaf)
+        palettes = cutGrassPalettes
+    else
+        palettes = grassFrames(effect.grass_leaf)
+    end
     for _, cell in ipairs(preview.cells) do
         local key <const> = cell.after
-        if not tiles[key] then
-            tiles[key] = TileRegistry.renderImportedGrid(assert(FieldMoves.tile(key)).grid, TileFactory.renderGrid)
-        end
-        ground[#ground + 1] = {x = cell.x, y = cell.y, image = tiles[key]}
+        ground[#ground + 1] = {x = cell.x, y = cell.y, image = groundImage(key, tiles)}
     end
     return {
-        palettes = grassFrames(effect.grass_leaf), ground = ground,
+        palettes = palettes, ground = ground,
         animation = effect.grass_animation, target = {x = preview.target.x, y = preview.target.y}
     }
 end
@@ -257,13 +337,10 @@ function FieldMoveState:draw()
             FieldMoveState.drawGrassPresentation(self.grassPresentation,
                 FieldMoveState.grassSourceFrame(self.frame), ox, oy)
         else
-            self.treeFrames = self.treeFrames or treeFrames(self.effect.tree_grid)
             local target = self.preview.target
             local x, y = target.x * 32 + ox, target.y * 32 + oy
             for _, cell in ipairs(self.preview.cells) do
                 if cell.x == target.x and cell.y == target.y then
-                    local entry = assert(FieldMoves.tile(cell.after))
-                    self.ground = self.ground or TileRegistry.renderImportedGrid(entry.grid, TileFactory.renderGrid)
                     self.ground:draw(x, y)
                 end
             end

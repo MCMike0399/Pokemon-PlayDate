@@ -247,6 +247,7 @@ function VermilionCatalogExporter.register()
     local cut = {active = true, phase = "effect", frame = 0, effect = FieldMoves.effectData(),
         preview = {key = "cut", target = {x = 0.5, y = 0},
             cells = {{x = 0.5, y = 0, after = "pokered:OVERWORLD:cell:2c-2c-2c-2c"}}}}
+    cut.treeFrames, cut.ground = FieldMoveState.prepareTreePresentation(cut.effect, cut.preview)
     local frames = {}
     for frame = 0, field.tree_frames - 1 do
         cut.frame = frame

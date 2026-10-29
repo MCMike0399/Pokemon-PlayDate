@@ -3,7 +3,9 @@ FieldMoves = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local requests = setmetatable({}, {__mode="k"})
 local combined = setmetatable({}, {__mode="v"})
-local maps = setmetatable({}, {__mode="v"})
+-- Immutable source records only; retain at most the two most recently read maps.
+local maps = {}
+local recentMap, previousMap
 local parts = {}
 local function copy(value)
     if value == nil then return nil end
@@ -46,7 +48,18 @@ local function readMap(id)
         assert(value.record.name == entry.name, "field map identity differs")
         maps[id] = value.record
     end
+    if recentMap ~= id then
+        if previousMap and previousMap ~= id then
+            maps[previousMap] = nil
+        end
+        previousMap, recentMap = recentMap, id
+    end
     return maps[id]
+end
+-- Internal loading hook. This reads no party, world, flags, or RNG state.
+-- Call for the entering map, never for the installed-map inventory.
+function FieldMoves.prepareMap(id)
+    return readMap(id)
 end
 function FieldMoves.data()
     return copy(readData())
