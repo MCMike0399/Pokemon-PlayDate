@@ -2,6 +2,17 @@
 Specimen={CREATION_VERSION=3,FIELD_CREATION_VERSION=4}
 local slots={first=true,second=true,hidden=true}
 local origins={wild=true,starter=true,trainer=true,gift=true,debug=true,["npc-trade"]=true}
+local sexFields <const> = {version=true, kind=true, protocol=true, origin=true, byte=true, leadSex=true, gateRoll=true}
+local attributeFields <const> = {natureId=true, abilitySlot=true, heldItem=true, sex=true, sexProvenance=true, ivs=true, evs=true}
+local individualFields <const> = {kind=true, sourceId=true}
+local rulesKeys <const> = {"algorithm", "seed", "state", "rolls"}
+local statKeys <const> = {"hp", "atk", "def", "spa", "spd", "spe"}
+local acquisitionGaps <const> = {
+    [42]="magnet-pull-slots",
+    [46]="pressure-level",
+    [55]="hustle-level",
+    [72]="vital-spirit-level",
+}
 local function object(value,allowed)
     assert(type(value)=="table" and getmetatable(value)==nil,"invalid-specimen-attributes")
     for key in pairs(value) do assert(allowed[key],"unknown-specimen-attribute: "..tostring(key)) end
@@ -27,7 +38,7 @@ function Specimen.sexAttributes(species,sex,provenance)
     assert(sex=="male" or sex=="female" or sex=="genderless","invalid-sex")
     assert((ratio==255 and sex=="genderless") or (ratio==254 and sex=="female")
         or (ratio==0 and sex=="male") or (ratio>0 and ratio<254 and sex~="genderless"),"species-sex-mismatch")
-    object(provenance,{version=true,kind=true,protocol=true,origin=true,byte=true,leadSex=true,gateRoll=true})
+    object(provenance,sexFields)
     assert(provenance.version==1,"unsupported-sex-provenance")
     local kind=provenance.kind
     if kind=="field-cute-charm" then
@@ -55,7 +66,7 @@ function Specimen.sexAttributes(species,sex,provenance)
 end
 function Specimen.attributes(attributes,species)
     if attributes==nil then attributes={natureId=0,abilitySlot="first",heldItem="none"} end
-    object(attributes,{natureId=true,abilitySlot=true,heldItem=true,sex=true,sexProvenance=true,ivs=true,evs=true})
+    object(attributes,attributeFields)
     local nature=type(attributes.natureId)=="number" and math.tointeger(attributes.natureId) or nil
     assert(nature and SpecimenData.natures[nature],"invalid-nature")
     assert(slots[attributes.abilitySlot],"invalid-ability-slot")
@@ -82,7 +93,9 @@ local function encounterInfo(token)
     assert(value.lead.natureId==value.nature and value.lead:getSex()==value.sex
         and value.lead.hp==value.hp,"stale-encounter-lead-traits")
     local now=RulesRNG.snapshot()
-    for _,key in ipairs({"algorithm","seed","state","rolls"}) do assert(now[key]==value.rules[key],"stale-encounter-rng") end
+    for _, key in ipairs(rulesKeys) do
+        assert(now[key] == value.rules[key], "stale-encounter-rng")
+    end
     return value
 end
 -- Physical slot1 includes a fainted lead (B2W2 encounter manager semantics).
@@ -103,9 +116,7 @@ end
 -- a dev gap. Never silently accept an unimplemented ordinary callback.
 function Specimen.encounterGap(token)
     local ability <const> = encounterInfo(token).ability
-    local gaps <const> = {[42]="magnet-pull-slots",[46]="pressure-level",
-        [55]="hustle-level",[72]="vital-spirit-level"}
-    return gaps[ability]
+    return acquisitionGaps[ability]
 end
 -- Only Pikachu's current ordinary acquisition is enabled. Other native held
 -- rows remain explicitly pending; no invented rates/items are used for them.
@@ -172,7 +183,7 @@ function Specimen.blueTrainerPolicy(sourceId)
 end
 local function individualPolicy(origin,policy)
     if origin~="trainer"then assert(policy==nil,"unexpected-individual-policy");return "random-normal-v1"end
-    object(policy,{kind=true,sourceId=true})
+    object(policy,individualFields)
     assert(policy.kind=="blue-scripted-v1","invalid-trainer-individual-policy")
     Specimen.blueTrainerPolicy(policy.sourceId)
     return policy.kind
@@ -225,7 +236,9 @@ function Specimen.create(species,level,origin,rng,encounter,policy)
         end
         local ivs=individualKind=="blue-scripted-v1" and IndividualStats.blueTrainer() or IndividualStats.zero()
         if individualKind=="random-normal-v1"then
-            for _,key in ipairs({"hp","atk","def","spa","spd","spe"})do ivs[key]=planned:random(0,31)end
+            for _, key in ipairs(statKeys) do
+                ivs[key] = planned:random(0, 31)
+            end
             draws=draws+6
         end
         draws = draws + extraDraws + flagDraws

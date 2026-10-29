@@ -973,7 +973,7 @@ end
 
 -- Pure descriptor for the normal owned encounter-attempt boundary. Existing
 -- explicit checkEncounter/rollEncounter helpers below retain their old contracts.
-function Zone:encounterPolicyAt(x, y)
+local function encounterPolicyAt(self, x, y)
     if not Party._integer(x, 0, self.width - 1) or not Party._integer(y, 0, self.height - 1) then
         return nil, "invalid-encounter-coordinate"
     end
@@ -991,7 +991,44 @@ function Zone:encounterPolicyAt(x, y)
     else
         rate = { kind = "unit", value = self.encounterRate }
     end
-    return { rate = rate, slots = deepCopy(self.encounters) }
+    return { rate = rate, slots = self.encounters }
+end
+
+function Zone:encounterPolicyAt(x, y)
+    local policy, reason = encounterPolicyAt(self, x, y)
+    if not policy then
+        return nil, reason
+    end
+    policy.slots = deepCopy(policy.slots)
+    return policy
+end
+
+local publicEncounterPolicyAt <const> = Zone.encounterPolicyAt
+-- Internal read-only borrow for FieldEncounters. The request must copy before
+-- retaining it and revalidate live data at commit; this grants no cached trust.
+function Zone._readEncounterPolicyAt(zone, x, y)
+    if zone.encounterPolicyAt ~= publicEncounterPolicyAt then
+        return zone:encounterPolicyAt(x, y)
+    end
+    local policy, reason = encounterPolicyAt(zone, x, y)
+    if not policy then
+        return nil, reason
+    end
+    -- Preserve the public projection for unusual metatable-backed inputs. The
+    -- ordinary plain slot tables can be validated without allocating a copy.
+    if type(policy.slots) == "table" then
+        if getmetatable(policy.slots) ~= nil then
+            policy.slots = deepCopy(policy.slots)
+        else
+            for _, slot in pairs(policy.slots) do
+                if type(slot) == "table" and (getmetatable(slot) ~= nil or type(slot.species) == "table") then
+                    policy.slots = deepCopy(policy.slots)
+                    break
+                end
+            end
+        end
+    end
+    return policy
 end
 
 -- Check wild encounter at grid position

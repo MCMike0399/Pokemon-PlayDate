@@ -16,6 +16,9 @@ function FieldEncounters.effectiveRate(rate,ability)
 end
 local plans=setmetatable({},{__mode="k"})
 local affected={[9]="static",[22]="intimidate",[51]="keen-eye"}
+local policyFields <const> = {rate=true, slots=true}
+local rateFields <const> = {kind=true, value=true}
+local slotFields <const> = {species=true, minLevel=true, maxLevel=true, weight=true}
 local function copy(v)return Party._primitive(v)end
 local function same(a,b)
     if type(a)~=type(b)then return false end;if type(a)~="table"then return a==b end
@@ -36,11 +39,11 @@ local function roster(party)
     return result
 end
 local function policy(zone,x,y)
-    local data,reason=zone:encounterPolicyAt(x,y)
+    local data,reason=Zone._readEncounterPolicyAt(zone,x,y)
     if not data then return nil,reason end
-    object(data,{rate=true,slots=true})
+    object(data,policyFields)
     local rate=data.rate
-    object(rate,{kind=true,value=true})
+    object(rate,rateFields)
     assert(type(rate)=="table"and type(rate.value)=="number"and rate.value==rate.value,"invalid encounter rate")
     if rate.kind=="byte"then assert(Party._integer(rate.value,0,255),"invalid Blue encounter byte")
     else assert(rate.kind=="unit"and rate.value>=0 and rate.value<=1,"invalid authored encounter rate")end
@@ -48,7 +51,7 @@ local function policy(zone,x,y)
     assert(Party._array(data.slots,64)and #data.slots>0,"missing bounded encounter slots")
     local total=0
     for _,slot in ipairs(data.slots)do
-        object(slot,{species=true,minLevel=true,maxLevel=true,weight=true})
+        object(slot,slotFields)
         assert(pokemonData[slot.species],"unknown encounter species")
         assert(Party._integer(slot.minLevel,1,100)and Party._integer(slot.maxLevel,slot.minLevel,100),"invalid encounter level range")
         assert(Party._integer(slot.weight,1,65535),"invalid encounter weight")
@@ -56,6 +59,23 @@ local function policy(zone,x,y)
     end
     assert(total<=1073741823,"encounter weight total out of RNG bounds")
     return data,total
+end
+-- Only called after full schema validation. Keep the request independent
+-- without recursively validating and copying every primitive a second time.
+local function capturePolicy(data)
+    local capturedSlots = {}
+    for i, slot in ipairs(data.slots) do
+        capturedSlots[i] = {
+            species = type(slot.species) == "table" and copy(slot.species) or slot.species,
+            minLevel = slot.minLevel,
+            maxLevel = slot.maxLevel,
+            weight = slot.weight,
+        }
+    end
+    return {
+        rate = {kind=data.rate.kind, value=data.rate.value},
+        slots = capturedSlots,
+    }
 end
 function FieldEncounters.prepare(context)
     local ok,plan,reason=pcall(function()
@@ -67,8 +87,10 @@ function FieldEncounters.prepare(context)
         local usable=party:firstUsable();if not usable then return nil,"no-usable-party"end
         assert(type(zone)=="table"and type(zone.is)=="function"and zone:is("Zone"),"encounter Zone required")
         local data,total=policy(zone,context.x,context.y);if not data then return nil,total end
+        -- Never retain the borrowed live policy, including callback results.
+        local captured = capturePolicy(data)
         local members=party:members();local lead=assert(members[1]);local ability=lead:ability()
-        local token={};plans[token]={session=session,party=party,zone=zone,x=context.x,y=context.y,data=data,total=total,
+        local token={};plans[token]={session=session,party=party,zone=zone,x=context.x,y=context.y,data=captured,total=total,
             members=members,roster=roster(party),lead=lead,ability=ability,usable=usable,level=party:get(usable).level,
             rules=RulesRNG.snapshot(),rulesData=RulesRNG.toData(),specimen=assert(Specimen.planEncounter(session)),done=false}
         return token
