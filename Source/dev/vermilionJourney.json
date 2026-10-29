@@ -3340,7 +3340,7 @@
     "domain/capture.lua": "ca5f58ce8c8e752d95ee5a033588703a75a3b1cdadc7001f550bed37f6f4ccd1",
     "domain/fieldEncounters.lua": "8c91894d9be3feb11a3eff9b119e1fe6bd2560d251c9e32cdae4bca3ac6fd59f",
     "domain/fieldMoves.lua": "ef60646c5fba6f3276cee361b948114034d139925ffcd11caa05166b9a176dfd",
-    "domain/fieldWorld.lua": "a8b19c2f729485026c1970475fee1062db2fd33771821a0c6095de1f84e603f0",
+    "domain/fieldWorld.lua": "96dffc5bd217d793d7f100d857058b9c141e856c66a03a593cc0a9fb6b61489b",
     "domain/gameSession.lua": "3becbe1e43fb62c4ff709dff31e6474e8096c50a20544879835a8a4989578e6b",
     "domain/sessionCodec.lua": "f553cb30d6918bf297adda3c042bf202ec98e0ab9a79d9f326a9a3b251aaf5a9",
     "domain/specimen.lua": "2058b5c9c6581f7fd377bf143dca9bacc6e63f8648587ca2a4f3cf4b6f05de05",
