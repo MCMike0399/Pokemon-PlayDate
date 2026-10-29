@@ -285,23 +285,102 @@ end
 
 -- Pure current-map collision/foot surface for candidate saves. Numeric palette
 -- IDs and native Zones are never allocated; caller receives defensive arrays.
-function ImportedMaps:surface(id,candidateWorld)
-    local store=stores[self];local d=assert(store.byID[id],"unknown imported surface")
-    local records={}
-    for _,record in ipairs(candidateWorld.zones)do if store.byID[record.zone_id]then records[#records+1]=record end end
-    local checked=normalized(store,{schema=1,zone_count=#records,zones=records});local deltas={}
-    for _,record in ipairs(checked.zones)do if record.zone_id==id then
-        for _,tile in ipairs(record.tiles)do deltas[tile.y*d.width+tile.x+1]=tile.key end
-    end end
-    local collision,feet={},{}
-    for y=0,d.height-1 do collision[y+1],feet[y+1]={},{}
-        for x=0,d.width-1 do
-            local index=y*d.width+x+1;local entry=metadata(store,deltas[index]or rowKey(store,d,x,y))
-            collision[y+1][x+1]=d.blocked[tostring(index)]and 1 or entry.collision
-            feet[y+1][x+1]=entry.terrain.foot_tile
+local function actorSurface(provider, id, candidateWorld, shared)
+    local store = stores[provider]
+    local descriptor = assert(store.byID[id], "unknown imported surface")
+    local records = {}
+    for _, record in ipairs(candidateWorld.zones) do
+        if store.byID[record.zone_id] then
+            records[#records + 1] = record
         end
     end
-    return {zone_id=id,revision=d.revision,width=d.width,height=d.height,collision=collision,feet=feet}
+    local checked = normalized(store, {schema = 1, zone_count = #records, zones = records})
+    local desired = empty(descriptor)
+    for _, record in ipairs(checked.zones) do
+        if record.zone_id == id then
+            desired = record
+        end
+    end
+    local cache
+    if shared then
+        cache = SourceMaps._runtimeValue(store, function() return {} end)
+        local previous = cache[id]
+        if previous and sameTiles(previous.record, desired) then
+            return previous.surface
+        end
+    end
+    local deltas = {}
+    for _, tile in ipairs(desired.tiles) do
+        deltas[tile.y * descriptor.width + tile.x + 1] = tile.key
+    end
+    local collision, feet = {}, {}
+    if shared then
+        -- Actor predicates ask about a handful of cells. Resolve those cells
+        -- from the same validated candidate instead of expanding the whole map.
+        local function rowAt(y)
+            if not integer(y, 1, descriptor.height) then
+                return nil
+            end
+            local collisionRow, feetRow = {}, {}
+            local function readCell(x)
+                if not integer(x, 1, descriptor.width) then
+                    return nil
+                end
+                local index = (y - 1) * descriptor.width + x
+                local key = deltas[index] or rowKey(store, descriptor, x - 1, y - 1)
+                local entry = metadata(store, key)
+                local solid = descriptor.blocked[tostring(index)] and 1 or entry.collision
+                rawset(collisionRow, x, solid)
+                rawset(feetRow, x, entry.terrain.foot_tile)
+                return solid, entry.terrain.foot_tile
+            end
+            setmetatable(collisionRow, {__index = function(_, x)
+                return readCell(x)
+            end})
+            setmetatable(feetRow, {__index = function(_, x)
+                local _, foot = readCell(x)
+                return foot
+            end})
+            collision[y], feet[y] = collisionRow, feetRow
+            return collisionRow
+        end
+        setmetatable(collision, {__index = function(_, y)
+            return rowAt(y)
+        end})
+        setmetatable(feet, {__index = function(_, y)
+            rowAt(y)
+            return rawget(feet, y)
+        end})
+    end
+    if not shared then
+        for y = 0, descriptor.height - 1 do
+            collision[y + 1], feet[y + 1] = {}, {}
+            for x = 0, descriptor.width - 1 do
+                local index = y * descriptor.width + x + 1
+                local entry = metadata(store, deltas[index] or rowKey(store, descriptor, x, y))
+                collision[y + 1][x + 1] = descriptor.blocked[tostring(index)] and 1 or entry.collision
+                feet[y + 1][x + 1] = entry.terrain.foot_tile
+            end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
+        end
+    end
+    local surface = {zone_id = id, revision = descriptor.revision,
+        width = descriptor.width, height = descriptor.height, collision = collision, feet = feet}
+    if cache then
+        cache[id] = {record = desired, surface = surface}
+    end
+    return surface
+end
+
+function ImportedMaps:surface(id, candidateWorld)
+    return actorSurface(self, id, candidateWorld, false)
+end
+
+-- Actor descriptors only read these arrays. Public surface() stays defensive.
+function ImportedMaps:_surfaceForActors(id, candidateWorld)
+    return actorSurface(self, id, candidateWorld, true)
 end
 
 -- Shared source importer/factory used by both world installation facades.

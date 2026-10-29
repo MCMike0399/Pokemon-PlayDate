@@ -391,12 +391,17 @@ function Zone:setTile(x, y, tileKeyOrID)
 end
 function Zone:exportDeltas()
     local data, changes = zoneData[self], {}
-    for y = 1, self.height do
-        for x = 1, self.width do
-            local id = self.registry:id(self.tiles[y][x])
-            if id ~= data.tiles[y][x] then changes[#changes + 1] = { x = x - 1, y = y - 1, key = self.registry:key(id) } end
+    for index in pairs(data.touched) do
+        local x = (index - 1) % self.width + 1
+        local y = (index - 1) // self.width + 1
+        local id = self.registry:id(self.tiles[y][x])
+        if id ~= data.tiles[y][x] then
+            changes[#changes + 1] = {x = x - 1, y = y - 1, key = self.registry:key(id)}
         end
     end
+    table.sort(changes, function(a, b)
+        return a.y == b.y and a.x < b.x or a.y < b.y
+    end)
     return { schema = 1, zone_id = self.stableID, definition_revision = data.revision, tiles = changes, tile_count = #changes }
 end
 function Zone:_prepareDeltas(payload, purpose)

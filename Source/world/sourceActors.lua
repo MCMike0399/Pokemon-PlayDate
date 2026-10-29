@@ -107,7 +107,7 @@ function SourceActors.describeSource(zoneID, world, game)
     local resolver = content(profile)
     local trainerFor = SourceEvents.trainerLookup()
     local provider=assert(WorldDeltas.definitionProvider(),"source actor surface provider missing")
-    local surface=provider:surface(zoneID,world);local d=SourceMaps._runtimePadded(name)
+    local surface=provider:_surfaceForActors(zoneID,world);local d=SourceMaps._runtimePadded(name)
     local rules=Party._primitive(d.directional_rules)
     local specList,protected,warps={},{},{}
     local function protect(x,y)if x>=0 and y>=0 and x<surface.width and y<surface.height then protected[y*surface.width+x+1]=true end end

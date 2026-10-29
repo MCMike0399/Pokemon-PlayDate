@@ -10,23 +10,25 @@ local function copy(value)
 end
 
 local function ensureKeys(registry, tiles)
-    if #tiles == 0 then
+    local needed, seen = {}, {}
+    for _, tile in ipairs(tiles) do
+        if not registry:has(tile.key) and not seen[tile.key] then
+            seen[tile.key] = true
+            needed[#needed + 1] = tile.key
+        end
+    end
+    if #needed == 0 then
         return
     end
     SourceMaps.withTiles(function(tileData)
-        local entries, seen = {}, {}
-        for _, tile in ipairs(tiles) do
-            if not registry:has(tile.key) and not seen[tile.key] then
-                seen[tile.key] = true
-                entries[#entries + 1] = tileData(tile.key)
-            end
+        local entries = {}
+        for _, key in ipairs(needed) do
+            entries[#entries + 1] = tileData(key)
             if GameBootstrap then
                 GameBootstrap.yieldIfDue()
             end
         end
-        if #entries > 0 then
-            registry:registerBatch(entries)
-        end
+        registry:registerBatch(entries)
     end)
 end
 

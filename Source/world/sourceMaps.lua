@@ -274,6 +274,19 @@ function SourceMaps._withRuntimeDefinitions(callback)
     return table.unpack(results, 2, results.n)
 end
 
+-- Private values shared by validators during one load, then released together.
+function SourceMaps._runtimeValue(key, create)
+    if not runtimeDefinitions then
+        return create()
+    end
+    local value = runtimeDefinitions[key]
+    if value == nil then
+        value = create()
+        runtimeDefinitions[key] = value
+    end
+    return value
+end
+
 -- Ordinary geometry is projected from the same cache used by ImportedMaps.
 function SourceMaps.descriptor(name)
     return copy(assert(compactData().maps[name], "unknown source map"))
