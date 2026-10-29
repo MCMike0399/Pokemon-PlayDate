@@ -98,10 +98,14 @@ early travel with 11–13.5 MiB of tooling-heavy Lua heap. Journey builds now
 exclude every contract and catalog exporter, including their compiled modules.
 Input, snapshots and captures remain. Driver JSON and source proofs remain available.
 Full contract builds remain unchanged; 42 existing host checks and SDK
-compilation pass. Two later runs reached Diglett’s Cave but stopped with heavy
-per-frame diagnostic allocation. Private journey mode now writes full trace
-snapshots at completed commands and every 30 frames, preserving gameplay,
-heartbeats, captures and recording cadence. Its runtime check is in progress. The smaller profile is also on main (`85c188f8`).
+compilation pass. Trace sampling alone did not fix the later stops. The actual
+owned Simulator crash dump (PID 27370, SIGABRT) identifies “not enough memory”
+inside JSON string-buffer growth. Evidence:
+`evidence/m55a-json-encoder-crash-20261029-01/summary.json`.
+Private `6195b67` uses the SDK file encoder for replies/traces; compilation and
+37 targeted host checks pass, native validation pending. Full host result:
+**979 tests, 4 failures, 4 errors, no skips**. Remaining inputs/exports are being
+repaired on a worker branch; coverage freshness waits for stable Source. The smaller profile is also on main (`85c188f8`).
 
 Private door-fade candidate `b51e4831` starts destination work during the fade.
 One review and compilation pass. Its exact 16 MB smoke saves and traverses doors
