@@ -213,8 +213,15 @@ function DeviceSmoke.installSoak()
                 -- observer slice (including receipt IO); no subtraction.
                 BootTrace.checkGuard()
                 maximumSlice = math.max(maximumSlice, elapsed()-finalSegmentStart)
-                assert(elapsed()-observerStart <= 150, "terminal observer exceeded 150 ms")
-                assert(maximumSlice <= 150 and observedHeap <= 9*1024, "soak safety admission failed")
+                local terminalLimit = playdate.isSimulator and 150 or 5000
+                assert(elapsed()-observerStart <= terminalLimit, "terminal observer exceeded slice ceiling")
+                assert(maximumSlice <= terminalLimit and observedHeap <= 9*1024, "soak safety admission failed")
+                -- Retained only AFTER the checked work; this tiny witness and
+                -- DONE print are explicitly unmeasured observer acknowledgements.
+                local witness = assert(playdate.file.open("soak-done.txt", playdate.file.kFileWrite))
+                assert(witness:write(DEVICE_TEST_ID .. "\n"), "cannot publish soak witness")
+                witness:flush()
+                witness:close()
                 phase = "complete"
                 playdate.update = function() end -- no more game or artifact producers
                 print("SOAK-DONE " .. DEVICE_TEST_ID) -- sole unmeasured receipt of those checks

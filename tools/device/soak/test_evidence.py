@@ -16,6 +16,7 @@ class EvidenceTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.data = Path(self.temp.name).resolve()
         self.build = dict(build_id='test', earned_slots=[])
+        (self.data/'soak-done.txt').write_text('test\n')
         common = dict(build='test', profile='simulator-short-v1', guard_checks=10000,
                       observed_heap_kib=4000, maximum_slice_ms=50, segments=4000,
                       guard_total_ms=10, guard_max_ms=1, scalar_total_ms=10, scalar_max_ms=1)

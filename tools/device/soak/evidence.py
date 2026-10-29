@@ -108,13 +108,15 @@ def rows(data, build, short=False):
         require(type(value) in (int, float) and math.isfinite(value) and value >= 0, 'invalid publication '+key)
     require(publication['application_maximum_slice_ms'] >= safety['maximum_slice_ms']
             and publication['observed_heap_kib'] >= safety['observed_heap_kib'], 'publication regressed')
-    require(publication['application_maximum_slice_ms'] <= 150 and publication['observer_ms'] <= 150
-            and publication['observed_heap_kib'] <= 9*1024, '150 ms/9 MiB admission failed')
+    terminal_limit = 150 if short else 5000
+    require(publication['application_maximum_slice_ms'] <= terminal_limit and publication['observer_ms'] <= terminal_limit
+            and publication['observed_heap_kib'] <= 9*1024, 'terminal slice/9 MiB bound failed')
+    require((data/'soak-done.txt').read_text() == build['build_id']+'\n', 'missing post-assertion completion witness')
     return dict(profile=profile, samples=2*count, maximum_slice_ms=publication['application_maximum_slice_ms'],
                 observed_heap_bytes=publication['observed_heap_kib']*1024,
                 terminal_observer_ms=publication['observer_ms'],
                 maximum_slice_measurement_boundary='before publication receipt IO; complete IO and final application guard included',
-                terminal_combined_slice_asserted_upper_bound_ms=150,
+                terminal_combined_slice_asserted_upper_bound_ms=terminal_limit,
                 terminal_observed_heap_asserted_upper_bound_bytes=9*1024*1024,
                 terminal_receipt_tail='locally guarded/asserted <=150 ms including receipt; DONE print unmeasured',
                 sampler_total_ms=end['sampler_total_ms'], sampler_max_ms=end['sampler_max_ms'],

@@ -119,3 +119,10 @@ apply check pass. SDK 3.1.2 compile of a COPY of retained stage 05 with only the
 new sampler succeeds at `/var/folders/w6/k16ngbtn5_qgp2ph4h65y7p80000gn/T/soak-safety-compile-auqtdkvo`.
 This copy is compile evidence only, not a prepared/admitted packet. No runtime
 behavior, PTY witness or new resource maxima were measured by this worker.
+
+Root closure: a build-identified `soak-done.txt` is written only after final
+application/observer guards and assertions. Hardware collection requires it;
+a receipt prefix alone cannot pass or clear the reservation. Witness IO and
+DONE print are explicitly unmeasured observer acknowledgements. The short
+Simulator still enforces 150 ms / 9 MiB. Hardware retains the existing 5-second crash
+ceiling, not the Simulator CPU-time ceiling; latency acceptance is separate.
