@@ -158,6 +158,62 @@ function PokemonCodec.matchesSnapshot(mon, snapshot)
         and sameSnapshot(currentRecord(mon), snapshot)
 end
 
+local defaultAcquisition <const> = {version=1, kind="neutral"}
+
+-- Expected tables belong to the validated private snapshot. Compare scalar
+-- entries directly rather than recursively calling the public comparator.
+local function sameCachedTable(actual, expected)
+    if type(expected) ~= "table" or getmetatable(actual) ~= nil then
+        return false
+    end
+    for key, value in pairs(actual) do
+        if type(value) == "table" then
+            if not sameCachedTable(value, expected[key]) then
+                return false
+            end
+        elseif value ~= expected[key] then
+            return false
+        end
+    end
+    for key in pairs(expected) do
+        if actual[key] == nil then
+            return false
+        end
+    end
+    return true
+end
+
+local function matchesCachedSnapshot(mon, snapshot)
+    if type(mon) ~= "table" or type(mon.is) ~= "function" or not mon:is("Pokemon") then
+        return false
+    end
+    if snapshot.version ~= PokemonCodec.VERSION then
+        return false
+    end
+    -- Use the codec's complete field set so new durable fields cannot silently
+    -- bypass freshness checks. Only the record version is independent of mon.
+    for key in pairs(fields) do
+        if key ~= "version" then
+            local value = mon[key]
+            if key == "acquisition" and value == nil then
+                value = defaultAcquisition
+            elseif key == "status" then
+                value = value or "none"
+            end
+            if type(value) == "table" then
+                -- Always inspect nested values, even when the live table's
+                -- identity has not changed. Reject metatables as encode does.
+                if not sameCachedTable(value, snapshot[key]) then
+                    return false
+                end
+            elseif value ~= snapshot[key] then
+                return false
+            end
+        end
+    end
+    return true
+end
+
 function PokemonCodec.encode(mon)
     if type(mon) ~= "table" or type(mon.is) ~= "function" or not mon:is("Pokemon") then
         return nil, "invalid-pokemon"
@@ -174,7 +230,7 @@ end
 -- definitions are immutable; changed Pokemon values still run the full codec.
 function PokemonCodec._snapshot(mon)
     local previous = snapshots[mon]
-    if previous and PokemonCodec.matchesSnapshot(mon, previous) then
+    if previous and matchesCachedSnapshot(mon, previous) then
         return previous
     end
     local data, reason = PokemonCodec.encode(mon)
