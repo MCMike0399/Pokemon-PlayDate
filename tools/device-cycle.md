@@ -92,3 +92,20 @@ Host-only validation:
 python3 -m unittest tools.tests.test_device_cycle -v
 python3 -m py_compile tools/device_cycle.py tools/harness/run.py tools/harness/restarting.py
 ```
+
+## Calibration and USB keeper
+
+The minimal calibration app has a separate admission path. Pass its exact
+`--calibration-build` manifest and completed `--calibration-preflight` Simulator
+record instead of a game gate. Only the four-file, calibration-ID bundle is
+admitted; it cannot import earned saves and never counts as a passed game gate.
+Use `--inspect-previous-game PokemonPoC.pdx` to collect the failed game's exact
+installed inventory and logs before installing this separate app. Installed
+`main.pdz` and `pdxinfo` are retained alongside the hashes.
+
+The cycle reads tagged serial output and sends only `msg CAL1 ping`; it records
+print/callback verification and always closes the port before pdutil or Simulator
+work. Missing serial stops the attempt. `--leave-running` ejects the collected
+data disk and promptly launches the verified app again to prevent launcher lock.
+Only macOS `._*` and `.DS_Store` metadata are excluded from payload inventories;
+every actual payload file is hash-verified.
