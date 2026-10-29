@@ -1,7 +1,7 @@
 # Full-game execution ledger
 
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
-Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for P0 device boot.**
+Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
 P0 elapsed since the first guarded trace commit: **12.20 h**; hardware pace: **0 maps/day**.
 
@@ -16,7 +16,7 @@ All passed actual process exit/Continue. These are Simulator results.
 **Hardware now boots and loads the earned save; playability is not accepted yet.**
 The full hardware smoke passed, but map loads still exceed the revised target.
 
-Current P0 game change on main: `4da7f65`. Imported maps use two cache slots.
+Current P0 game change on main: `b4ef728`. Imported maps use two cache slots.
 Startup work yields; map cells use validated packed rows. Field data/art prepares
 at map entry. Encounter policy reads retain every commit guard without repeated
 slot copying. Original source grids, world/story/rules and protected pixels remain.
@@ -28,7 +28,7 @@ These are not verified device deliveries.
 
 ## 2. Current checkpoint and checklist
 
-**P0 hardware boot: in progress. Checkpoint 5.5a: frozen.**
+**P0 hardware loading and 108-map memory: in progress. Checkpoint 5.5a: frozen.**
 
 - [x] Persistent phase trace, guarded error screen, cooperative loading.
 - [x] Simulator 16 MB pool verified (`MallocPoolSize=16645684`).
@@ -114,7 +114,17 @@ native check of all **497,664 pixels across 486 keys**, fresh-image isolation,
 actual compiled-path use and two-slot eviction. No protected pixels changed.
 Regeneration uses current grids and the unchanged qualified formula, without an
 unmerged Git dependency. The exact safe build is now measuring on hardware;
-no speed gain or acceptance is claimed yet. Actual phase ratios are in the no-wall run’s
+the hardware smoke passed with **2,662 ms** worst map load and no new crash logs
+(`evidence/p0-flat-atlas-hardware-20261029-01`). Atlases are now on main.
+
+The paired 16 MB heap probe passed on main's 65-map build: title **5.01 MiB**,
+earned Continue **5.09 MiB**. Private 108-map candidate `fe8d49c` stops at the
+title's 6 MiB live guard: **6.04 MiB** after replacing its full decoded preview
+session with display numbers (90 KiB released; original title was 6.13 MiB).
+Continue has not been measured on that candidate. Root will reduce retained
+108-map data rather than raise the limit. Runs: `p0-main65-root-heap-20261029-01`,
+`p0-checkpoint-a-root-heap-20261029-01`, `p0-checkpoint-a-title-preview-20261029-01`.
+All are under evidence/. No new region or private A code is accepted on main. Actual phase ratios are in the no-wall run’s
 `device-simulator-phase-ratios.json`; they are not one universal CPU factor.
 `wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
 current P0 code and verify that its 16 MB heap stays close to the 65-map result.
