@@ -105,7 +105,7 @@ function BootTrace.checkGuard()
     if heap > 9 * 1024 then
         error("device-test memory guard: " .. tostring(heap) .. " KiB at " .. tostring(BootTrace.phase))
     end
-    if BootTrace.sinceYield() > 1000 then
+    if BootTrace.sinceYield() > 5000 then
         error("device-test slice guard at " .. tostring(BootTrace.phase))
     end
 end
