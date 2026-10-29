@@ -168,3 +168,21 @@ The next three-starter set is `evidence/m55a-loading-chains-20261028-02`; it is
 not acceptance evidence until every required journey and process Continue passes.
 Elapsed checkpoint time and maps/day remain tracked in milestone-times.json;
 accepted new maps/day is zero until these saves are earned and accepted.
+
+## Physical startup follow-up — 2026-10-28
+
+Progress: **65/222 playable maps on main; current checkpoint 5.5a**. The user
+confirmed that the loading-stage build still requested a restart on hardware.
+The preceding device log had advanced past world validation and stalled while
+copying trainer definitions. Controllers now retain a lookup of validated
+registrations and copy only a requested roster; public catalog getters remain
+defensive. Existing trainer/actor host checks passed (13), both builds compiled,
+and `evidence/device-trainer-lookup-sdk-20261028-01` passed all 2090 SDK checks.
+The new physical-device test is pending.
+
+A separate Simulator launch failure was traced to USB serial setup before the
+game loaded, in `PlaydateSerialOpen` / `tcsetattr`. Unplugging the physical
+Playdate restored readiness. The sample is
+`evidence/m55a-visible-resume-20261028-05/charmander-startup-sample.txt`.
+These startup failures do not provide checkpoint A gameplay acceptance.
+

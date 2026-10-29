@@ -20,9 +20,8 @@ local function definition(self,id)
         if owner.game.session:getIntro().stage~="rival_fight" or currentZone.stableID~="oaks_lab" then return nil end
         return {id=LAB,payout=175,initial_lab=true,talk_only=true,party={{species=assert(owner.game.session:getIntro().rivalStarter),level=5}},name="BLUE"}
     end
-    local d=owners[self].definitions[id]
+    local d = owner.lookup(id)
     if d then
-        d = copy(d)
         -- Resolve from the actual session starter into this encounter's private
         -- definition. prepare() freezes it in its opaque token before any RNG.
         if d.rival_parties then
@@ -43,13 +42,16 @@ local function definition(self,id)
 end
 function TrainerEvents:init(game)
     assert(game and game.session and game.npcManager,"authoritative trainer context required")
-    owners[self]={game=game,definitions=SourceEvents.trainerDefinitions()}
+    local lookup, sourceID = SourceEvents.trainerLookup()
+    owners[self] = {game=game, lookup=lookup, sourceID=sourceID}
 end
 function TrainerEvents:sourceFlag(id)
-    local game=owners[self].game
-    if owners[self].definitions[id] then return game.session:trainerDefeated(id) end
-    for stable,d in pairs(owners[self].definitions) do if d.source_flag==id then return game.session:trainerDefeated(stable) end end
-    return game.session:questFlag(id)
+    local owner = owners[self]
+    local stable = owner.sourceID(id)
+    if stable then
+        return owner.game.session:trainerDefeated(stable)
+    end
+    return owner.game.session:questFlag(id)
 end
 function TrainerEvents:definition(id) return definition(self,id) end
 function TrainerEvents:approach(npc,mode)
