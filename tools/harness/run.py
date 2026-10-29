@@ -143,7 +143,7 @@ def validate_recent_interval(value):
     return value
 
 
-def prepare(project, sdk, output, session, recent_interval=1):
+def prepare(project, sdk, output, session, recent_interval=1, journey=False):
     recent_interval = validate_recent_interval(recent_interval)
     source = output / 'Source'
     shutil.copytree(project / 'Source', source)
@@ -191,7 +191,21 @@ def prepare(project, sdk, output, session, recent_interval=1):
         encoded = 'true' if value is True else json.dumps(value, ensure_ascii=False)
         lua_values.append(f'    {key} = {encoded},')
     (source / 'dev/harness_build.lua').write_text('HarnessBuild = {\n' + '\n'.join(lua_values) + '\n}\n')
-    overlay_imports(source)
+    if journey:
+        metadata['harness_profile'] = 'journey'
+        overlay_imports(source, journey=True)
+        keep = {'harness_build.lua', 'harness_capture.lua', 'diagnostics.lua',
+                'fixtures.lua', 'autopilot.lua', 'harness.lua'}
+        if recent_interval > 1:
+            keep.add('capture_policy.lua')
+        removed = []
+        for path in sorted((source / 'dev').rglob('*')):
+            if path.is_file() and path.relative_to(source / 'dev').as_posix() not in keep:
+                removed.append(path.relative_to(source).as_posix())
+                path.unlink()
+        metadata['excluded_development_files'] = removed
+    else:
+        overlay_imports(source)
     pdxinfo = source / 'pdxinfo'
     lines = pdxinfo.read_text().splitlines()
     pdxinfo.write_text('\n'.join('bundleID=' + metadata['bundle_id'] if line.startswith('bundleID=') else line for line in lines) + '\n')
@@ -249,8 +263,14 @@ def _run(args):
         brock_visual_preflight(scenario)
     try:
         interval = validate_recent_interval(getattr(args, 'recent_interval', 1))
-        metadata = (prepare(PROJECT, sdk, output, session, recent_interval=interval)
-                    if interval > 1 else prepare(PROJECT, sdk, output, session))
+        groups = scenario.get('processes', [scenario])
+        journey_only = bool(groups) and all(group.get('journey') for group in groups)
+        if journey_only:
+            metadata = prepare(PROJECT, sdk, output, session,
+                               recent_interval=interval, journey=True)
+        else:
+            metadata = (prepare(PROJECT, sdk, output, session, recent_interval=interval)
+                        if interval > 1 else prepare(PROJECT, sdk, output, session))
         from tools.harness import catalog_qualification
         catalog_qualification.prepare(output, scenario, launching=not args.build_only)
         from tools.harness import field_item_qualification
