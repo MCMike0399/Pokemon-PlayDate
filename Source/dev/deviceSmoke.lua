@@ -13,6 +13,11 @@ local buttons <const> = {
     left = playdate.kButtonLeft,
     right = playdate.kButtonRight,
 }
+local originalPressed <const> = playdate.buttonIsPressed
+local originalJustPressed <const> = playdate.buttonJustPressed
+local originalJustReleased <const> = playdate.buttonJustReleased
+local originalButtonState <const> = playdate.getButtonState
+local physicalControls = false
 local active, failure, runtimeGame
 local tick, lastSequence = 0, 0
 local held, pressed, released = 0, 0, 0
@@ -81,7 +86,8 @@ local function snapshot()
     if GameBootstrap and GameBootstrap.isLoading() then
         return {root = "loading", phase = BootTrace and BootTrace.phase}
     end
-    local result = { ready = runtimeGame ~= nil, error = failure, loaded = loaded, saved = saved }
+    local result = { ready = runtimeGame ~= nil, error = failure, loaded = loaded, saved = saved,
+        physical_controls = physicalControls }
     if not runtimeGame then
         return result
     end
@@ -182,6 +188,8 @@ local function receive(message)
     if op == "state" and #words == 3 then
         reply(sequence, "done", snapshot())
         return
+    elseif op == "manual" and #words == 3 then
+        frames = 0
     elseif op == "press" and #words == 5 then
         button, frames = buttons[words[4]], integer(words[5], 120)
         if not button or not frames then
@@ -209,6 +217,18 @@ local function receive(message)
         reply(sequence, "error", "not-ready")
     elseif active then
         reply(sequence, "error", "busy")
+    elseif physicalControls then
+        reply(sequence, "error", "physical-controls-active")
+    elseif op == "manual" then
+        -- One-way handoff for user play after the recorded smoke. State reads
+        -- remain available; serial inputs cannot compete with physical buttons.
+        held, pressed, released = 0, 0, 0
+        playdate.buttonIsPressed = originalPressed
+        playdate.buttonJustPressed = originalJustPressed
+        playdate.buttonJustReleased = originalJustReleased
+        playdate.getButtonState = originalButtonState
+        physicalControls = true
+        reply(sequence, "done", snapshot())
     else
         active = { seq = sequence, op = op, button = button, frames = frames, elapsed = 0 }
         reply(sequence, "accepted", op)
