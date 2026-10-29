@@ -392,7 +392,7 @@
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
     "data/ceruleanStory/trainers.json": "118650ecf64aecc5a49e30050fb092c47f63859b482adb86bb8bc3a614d4a334",
     "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
-    "data/pewterSlice.lua": "7bd97345379e68f19888b9265f108d1e1c21f203dc43690e3df4e808a5f7f265",
+    "data/pewterSlice.lua": "284b7cceca01358442564c97812de590161082efbb48ad807aafc551a8b8176e",
     "data/pewterSlice/trainerNames.json": "1e3733784c526d07460c2880bf1ed2f2dad1df348c3f93c3d7ba3c66c87f2e7f",
     "data/pewterSlice/trainers.json": "65db8aba87ef485ff49af10b3ee7af3dfc8def867a792788bf3033d5253d6e41",
     "data/sourceEvents.json": "3a2595132641b1b89149211e96ee2d241dc2e9030792499c56237b8a94aa1008",
@@ -405,8 +405,8 @@
     "game/eventState.lua": "de1b0438a7c60e71fa0e54b0a9a26c0d8e78cba0679230374e3039999b59f441",
     "game/shopState.lua": "e435a8608db5c29a9aaee2e54f41dc09d927bcc9e65aed831e0aa2b292a94220",
     "game/sourceEventHandlers.lua": "7a89e76c1c80d9ce7af9f23bbe853f042215c404a21089f292436354e41b2518",
-    "game/sourceEvents.lua": "c9927a17b603c7c57800910a0f5dcda978209b81752f0f4dd50400a181ce9529",
-    "game/trainerEvents.lua": "57227fc6e13e9427340bb7fd1613700eb3244084c1c40f7d831450eee069758b",
+    "game/sourceEvents.lua": "f3b6be0caec5fede0573208466dbc6a4d3ee6f9e9d1571b82bed67ef28363183",
+    "game/trainerEvents.lua": "3cca86644f8dc93fceb96d2924fae64454db27c2d527db274fe408a7cc5446a2",
     "main.lua": "8224bf092f5b064812a96dd4c307e3fe32f283cfe50e031ae9e4ac05969c09f3"
   },
   "trainers": {
