@@ -32,6 +32,20 @@ local function equal(a,b)
     for key in pairs(b) do if a[key]==nil then return false end end
     return true
 end
+-- Copies only already checked primitive records; never roundtrip cached data
+-- through JSON (which can lose SDK integer precision).
+local function copy(value)
+    if type(value) ~= "table" then
+        return value
+    end
+    local result = {}
+    for key, item in pairs(value) do
+        result[key] = copy(item)
+    end
+    return result
+end
+local inspections = setmetatable({}, {__mode="k"})
+local envelopes = setmetatable({}, {__mode="k"})
 local function checksum(bytes)
     local hash=-2128831035 -- FNV offset 0x811c9dc5 as a signed SDK int32
     for i=1,#bytes do
@@ -102,10 +116,24 @@ function SaveStore:init(prefix,validate,filesystem)
     assert(type(prefix)=="string" and #prefix>=1 and #prefix<=120 and not prefix:find("[^%w_/-]")
         and not prefix:find("//",1,true) and prefix:sub(1,1)~="/" and prefix:sub(-1)~="/","safe explicit Data-relative prefix required")
     assert(type(validate)=="function","payload validator required")
+    inspections[self] = nil
+    envelopes[self] = nil
+    self._validationEpoch = nil
+    self._validationToken = {}
     self._prefix=prefix
     self._validate,self._fs=validate,filesystem or SaveStore.sdkFilesystem()
     assert(type(self._fs.read)=="function" and type(self._fs.write)=="function" and type(self._fs.rename)=="function","invalid filesystem adapter")
     self._paths={a=prefix..".a.json",b=prefix..".b.json",candidate=prefix..".candidate.json"}
+end
+-- Reuse requires an explicit stable validation environment. Leave nil for
+-- custom/dynamic validators; change the token whenever their dependencies
+-- change. Function identity alone cannot detect a changed closure environment.
+function SaveStore:setValidationEpoch(epoch)
+    assert(epoch == nil or type(epoch) == "string", "validation epoch must be a string or nil")
+    self._validationEpoch = epoch
+    self._validationToken = {}
+    inspections[self] = nil
+    envelopes[self] = nil
 end
 function SaveStore:_decode(path,bytes,err)
     if bytes==nil then return {state=err=="missing" and "missing" or "io-error",error=err,path=path} end
@@ -140,7 +168,41 @@ function SaveStore:_read(path)
     return record
 end
 function SaveStore:_inspect()
-    local artifacts={a=self:_read(self._paths.a),b=self:_read(self._paths.b),candidate=self:_read(self._paths.candidate)}
+    local raw = {}
+    for _, role in ipairs({"a", "b", "candidate"}) do
+        local bytes, problem = call(self._fs, "read", self._paths[role])
+        raw[role] = {bytes=bytes, error=problem}
+    end
+    local cached = inspections[self]
+    local reusable = self._validationEpoch ~= nil and cached ~= nil
+        and cached.epoch == self._validationEpoch and cached.validate == self._validate
+    for _, role in ipairs({"a", "b", "candidate"}) do
+        if reusable and (raw[role].bytes ~= cached.raw[role].bytes
+            or raw[role].error ~= cached.raw[role].error) then
+            reusable = false
+        end
+    end
+    local artifacts
+    if reusable then
+        artifacts = copy(cached.artifacts)
+    else
+        inspections[self] = nil
+        artifacts = {}
+        local cacheable = self._validationEpoch ~= nil
+        for _, role in ipairs({"a", "b", "candidate"}) do
+            local observed = raw[role]
+            local record = self:_decode(self._paths[role], observed.bytes, observed.error)
+            record.bytes = observed.bytes
+            artifacts[role] = record
+            cacheable = cacheable and (record.state == "valid" or record.state == "missing")
+        end
+        if cacheable then
+            -- Keep the cache private, before archive annotations or caller-owned
+            -- load metadata/data can mutate the inspection result.
+            inspections[self] = {raw=raw, artifacts=copy(artifacts),
+                epoch=self._validationEpoch, validate=self._validate}
+        end
+    end
     local metadata={artifacts={}}
     local archive,archiveError=self:_archiveInfo()
     if archiveError then metadata.reason="archive-verification-failed"; metadata.error=archiveError; return artifacts,nil,metadata end
@@ -199,6 +261,7 @@ function SaveStore:load()
     return latest.data,metadata
 end
 function SaveStore:_envelope(data,sequence)
+    envelopes[self] = nil
     local ok,bytes=pcall(function()
         assert(type(data)=="table","table-payload-required"); primitive(data)
         local payload=json.encode(data)
@@ -206,14 +269,21 @@ function SaveStore:_envelope(data,sequence)
         -- Validator receives a detached JSON decode, never caller live objects.
         local detached=json.decode(payload)
         assert(equal(data,detached),"json-roundtrip-loss")
-        local untouched=json.decode(payload)
+        local untouched=copy(detached)
         local accepted,reason=self._validate(detached)
         assert(accepted==true,reason or "payload-rejected")
         assert(equal(detached,untouched),"validator-mutated-payload")
-        return json.encode({format=FORMAT,schema=SaveStore.SCHEMA,sequence=assert(DecimalInteger.encode(sequence,1,SaveStore.MAX_SEQUENCE)),payload=payload,
-            checksum=boundChecksum(SaveStore.SCHEMA,sequence,payload)})
+        local envelope = {format=FORMAT,schema=SaveStore.SCHEMA,
+            sequence=assert(DecimalInteger.encode(sequence,1,SaveStore.MAX_SEQUENCE)),payload=payload,
+            checksum=boundChecksum(SaveStore.SCHEMA,sequence,payload)}
+        local encoded = json.encode(envelope)
+        -- Check the outer JSON transport once, before any filesystem mutation.
+        assert(type(encoded) == "string" and equal(envelope, json.decode(encoded)), "json-envelope-roundtrip-loss")
+        return encoded
     end)
     if not ok or type(bytes)~="string" or #bytes>SaveStore.MAX_FILE then return nil,tostring(bytes) end
+    envelopes[self] = {bytes=bytes, sequence=sequence, validate=self._validate,
+        epoch=self._validationEpoch, token=self._validationToken}
     return bytes
 end
 -- FAT filesystems may refuse rename over an existing file. The caller has
@@ -243,17 +313,35 @@ function SaveStore:_promoteCandidate(target, bytes)
 end
 
 function SaveStore:_publish(bytes,target,sequence)
+    local validated = envelopes[self]
+    envelopes[self] = nil
+    inspections[self] = nil
+    -- This proof is confined to the just-validated transaction, not a durable
+    -- validation exemption. Validators must remain stable through publication;
+    -- adapters that change validation policy must invalidate via the epoch API.
+    local reusable = validated and validated.bytes == bytes and validated.sequence == sequence
+        and validated.validate == self._validate and validated.epoch == self._validationEpoch and validated.token == self._validationToken
     local ok,err=call(self._fs,"write",self._paths.candidate,bytes)
     if ok~=true then return false,{reason="candidate-write-failed",error=err} end
-    local verified=self:_read(self._paths.candidate)
-    if verified.state~="valid" or verified.sequence~=sequence then return false,{reason="candidate-verification-failed",error=verified.error} end
-    local exact=call(self._fs,"read",self._paths.candidate)
+    local exact, problem = call(self._fs, "read", self._paths.candidate)
+    reusable = reusable and validated.validate == self._validate and validated.epoch == self._validationEpoch and validated.token == self._validationToken
+    if not reusable or exact ~= bytes then
+        local verified = self:_decode(self._paths.candidate, exact, problem)
+        if verified.state ~= "valid" or verified.sequence ~= sequence then
+            return false,{reason="candidate-verification-failed",error=verified.error}
+        end
+    end
     if exact~=bytes then return false,{reason="candidate-bytes-differ"} end
     ok,err=self:_promoteCandidate(target, bytes)
     if ok~=true then return false,{reason="publication-failed",error=err,recoverableCandidate=true} end
-    local published=self:_read(self._paths[target])
-    if published.state~="valid" or published.sequence~=sequence then return false,{reason="published-verification-failed",error=published.error} end
-    exact=call(self._fs,"read",self._paths[target])
+    exact, problem = call(self._fs, "read", self._paths[target])
+    reusable = reusable and validated.validate == self._validate and validated.epoch == self._validationEpoch and validated.token == self._validationToken
+    if not reusable or exact ~= bytes then
+        local published = self:_decode(self._paths[target], exact, problem)
+        if published.state ~= "valid" or published.sequence ~= sequence then
+            return false,{reason="published-verification-failed",error=published.error}
+        end
+    end
     if exact~=bytes then return false,{reason="published-bytes-differ"} end
     return true,{reason="published",slot=target,sequence=sequence}
 end
