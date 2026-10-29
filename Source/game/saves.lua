@@ -39,18 +39,19 @@ function GameSaves:_publishPayload(payload)
         self.store:cancelReplacement(request.ticket); self._replacement=nil
         return false,{reason="replacement-session-changed"}
     end
-    local ok, metadata
+    local ok, metadata, published
     if request then
-        ok, metadata = self.store:replace(payload, request.ticket)
+        ok, metadata, published = self.store:replace(payload, request.ticket)
         if ok then self._replacement = nil end
     else
-        ok, metadata = self.store:save(payload)
+        ok, metadata, published = self.store:save(payload)
     end
     -- Optional read-only observer is installed explicitly by the private
     -- harness. Observe the actual verified disk boundary, never recapture play.
     if ok and self.observeBoundary then
-        local saved, savedMetadata = self.store:load()
-        self.observeBoundary(self.game.session, "saved", saved, savedMetadata)
+        -- SaveStore returns only the detached data from its exact published
+        -- readback. Observing it must not load/decode/encode the same bytes again.
+        self.observeBoundary(self.game.session, "saved", published, GameSession._copy(metadata))
     end
     return ok, metadata
 end
