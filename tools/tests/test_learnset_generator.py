@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from tools import generate_gen5_data as move_generator
-from tools.verify_moves.parse_lua import read_moves
+from tools.verify_moves.parse_lua import read_moves, LuaParser
 
 from tools.generate_learnsets import GenerationError, collect_learnsets, initial_moves, main, render
 
@@ -122,7 +122,11 @@ function Pokemon:fixture() return "sentinel" end
         self.assertIn('type = "fire", type2 = nil', result)
         self.assertIn('baseHP = 39, baseAtk = 52', result)
         self.assertIn('function Pokemon:fixture() return "sentinel" end', result)
-        self.assertIn('move = "ember", level = 7, order = nil, id = 52', result)
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / 'pokemon.lua'
+            candidate.write_text(result)
+            self.assertIn(dict(move='ember', level=7, order=None, id=52),
+                          LuaParser(candidate).parse()['sample']['learnset'])
         self.assertNotIn('"wrong"', result)
 
     def test_check_detects_drift_without_writing(self):

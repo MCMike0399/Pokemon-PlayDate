@@ -27,7 +27,8 @@ class TargetGenerationTests(unittest.TestCase):
             with patch.object(g,'MOVES_INPUT',str(source)),patch.object(g,'MOVES_LUA',str(output)):
                 g.generate_moves(data,preserve_existing=True)
                 generated=output.read_text()
-                actual=re.search(r'^    recover = .*$',generated,re.M)[0]+'\n'
+                from tools.move_producer_contract import read_rows
+                actual='    recover = '+read_rows(generated)['recover']+'\n'
                 # These exact six producer-owned additions are now declared. No
                 # other scalar or effect may disappear behind normalization.
                 from tools.move_producer_contract import fields

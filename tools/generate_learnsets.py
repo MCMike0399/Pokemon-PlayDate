@@ -77,13 +77,11 @@ def render(source, roster, learnsets):
         if key not in roster: raise GenerationError(f'unparsed species block {key}')
         body = re.sub(r'        -- BEGIN B2W2 LEARNSET\n.*?        -- END B2W2 LEARNSET\n', '', body, flags=re.S)
         entries = learnsets[roster[key]['dex']]
-        lines = ['        moves = { ' + ', '.join(json.dumps(e['move']) for e in entries) + ' },',
-                 '        -- BEGIN B2W2 LEARNSET', '        learnset = {']
-        for entry in entries:
-            order = 'nil' if entry['order'] is None else str(entry['order'])
-            lines.append(f'            {{ move = "{entry["move"]}", level = {entry["level"]}, order = {order}, id = {entry["id"]} }},')
-        lines.extend(['        }', '        -- END B2W2 LEARNSET'])
-        body, count = re.subn(r'^        moves = \{[^\n]*\},?\n', '\n'.join(lines) + '\n', body, flags=re.M)
+        encoded = ';'.join(f"{entry['move']}|{entry['level']}|{entry['order'] if entry['order'] is not None else '-'}|{entry['id']}" for entry in entries)
+        lines = ['        moves = false,',
+                 '        -- BEGIN B2W2 LEARNSET', '        learnset = ' + json.dumps(encoded),
+                 '        -- END B2W2 LEARNSET']
+        body, count = re.subn(r'^        moves = (?:\{[^\n]*\}|false),?\n', '\n'.join(lines) + '\n', body, flags=re.M)
         if count != 1: raise GenerationError(f'expected one flat moves declaration for {key}')
         return '    ' + key + ' = {\n' + body + '    },'
     pattern = re.compile(r'^    (\w+) = \{\n(.*?)^    \},', re.M | re.S)
@@ -91,6 +89,12 @@ def render(source, roster, learnsets):
     if count != len(roster): raise GenerationError(f'species coverage: rendered {count}, parsed {len(roster)}')
     generated = generated.replace('-- Gen 1 Pokemon data - all 151 Gen I species with Gen 5 (B/W) movesets',
                                   '-- Gen I species with complete B2W2 level-up learnsets (version group 14).')
+    if 'import "data/lazyLearnsets"' not in generated:
+        generated = 'import "data/lazyLearnsets"\n' + generated
+    if 'PokemonLearnsets.install(pokemonData)' not in generated:
+        blocks = list(pattern.finditer(generated))
+        end = generated.index('\n}', blocks[-1].end()) + 2
+        generated = generated[:end] + '\nPokemonLearnsets.install(pokemonData)' + generated[end:]
     return generated
 
 

@@ -10,6 +10,7 @@ import sys
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.generate_ability_move_metadata import FILES, entries
+from tools.move_producer_contract import read_rows
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT = Path.home() / 'Developer/Pokemon-PlayDate-env/preparation'
@@ -78,7 +79,7 @@ def check(abilities, moves):
             field = re.search(r'^\t\tflags: \{([^}]*)\}', body, re.M)
             if field:
                 flags[key] = bool(re.search(r'\bsound:\s*1\b', field[1]))
-    registry = re.findall(r'^    (\w+) = Move', (ROOT / 'Source/battle/moves.lua').read_text(), re.M)
+    registry = list(read_rows((ROOT / 'Source/battle/moves.lua').read_text()))
     expected = {key for key in registry if flags.get(key.lower(), False)}
     effect_text = (ROOT / 'Source/battle/effects.lua').read_text()
     sound_table = re.search(r'local soundMoves = \{(.*?)\n\}', effect_text, re.S)[1]

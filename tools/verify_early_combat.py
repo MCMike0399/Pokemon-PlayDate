@@ -15,11 +15,11 @@ def scalar(row):
 def projection(rows,keys,transform=lambda x:x):
     return digest(json.dumps({key:transform(rows[key]) for key in sorted(keys)},sort_keys=True,separators=(',',':')).encode())
 def check_moves(source,manifest):
-    rows=dict(re.findall(r'^    (\w+) = (Move[^\n]+)$',Path(source).read_text(),re.M))
     # Reverse only pinned, exact declared producer transitions. The historical
     # scalar/effect/candidate hashes below are deliberately unchanged.
     sys.path.insert(0,str(ROOT))
-    from tools.move_producer_contract import legacy_rows,producer_epoch,load_contract
+    from tools.move_producer_contract import legacy_rows,producer_epoch,load_contract,read_rows
+    rows = read_rows(Path(source).read_text())
     before=set(manifest['original_keys']);extra=set(manifest['new_keys'])
     added=load_contract().get('added_moves',{})
     epoch=producer_epoch(Path(source).read_text())

@@ -229,10 +229,28 @@ def build_effects(key, meta, stat_changes, target_id, is_status):
     return effects
 
 
+def lazy_move_registry(header, rows):
+    """Change construction timing only; canonical rows stay verifier-readable."""
+    text = "\n".join(rows)
+    names = {"Move"} | set(re.findall(r"\b([A-Z]\w*)\(", text))
+    names.update(name for name in ("ATTACKER", "DEFENDER") if name in text)
+    aliases = "\n".join(f"local {name} <const> = {name}" for name in sorted(names))
+    header = header.replace('Class("Move")', 'import "data/moveRegistry"\n\nClass("Move")', 1)
+    header = header.replace("moveData = {\n", aliases + "\n\nmoveData = {\n", 1)
+    wrapped = []
+    for row in rows:
+        match = re.fullmatch(r"    (\w+) = (Move.+),", row)
+        if not match:
+            raise ValueError("unsupported generated move row")
+        wrapped.extend([f"    {match[1]} = function()", f"        return {match[2]}", "    end,"])
+    return header + "\n".join(wrapped) + "\n}\nmoveData = MoveRegistry.new(moveData)\n"
+
+
 def generate_moves(data, preserve_existing=False):
     with open(MOVES_INPUT, encoding="utf-8") as f:
         current = f.read()
-    keys = re.findall(r"^\s*(\w+) = Move[({]", current, re.MULTILINE)
+    from tools import move_producer_contract as move_contract
+    keys = list(move_contract.read_rows(current))
     if not keys:
         sys.exit("no move keys found in moves.lua")
 
@@ -403,7 +421,7 @@ moveData = {
             raise ValueError("refusing unexpected changes to existing move rows: " + ", ".join(changed))
     os.makedirs(os.path.dirname(MOVES_LUA), exist_ok=True)
     with open(MOVES_LUA, "w", encoding="utf-8") as f:
-        f.write(header + "\n".join(out) + "\n}\n")
+        f.write(lazy_move_registry(header, out))
 
     print(f"moves.lua: {len(out)}/{len(keys)} moves written")
     if missing:

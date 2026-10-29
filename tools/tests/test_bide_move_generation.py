@@ -19,7 +19,8 @@ class BideProducerTests(unittest.TestCase):
     def test_full_roster_verifier_rejects_missing_bide_or_unknown_extra_without_hash_waiver(self):
         text=(ROOT/'Source/battle/moves.lua').read_text();manifest=json.loads((ROOT/'tools/references/early-combat.json').read_text())
         import re
-        missing=re.sub(r'^    bide = Move[^\n]+\n','',text,flags=re.M)
+        missing=re.sub(r'^    bide = function\(\)\n.*?^    end,\n','',text,flags=re.M | re.S)
+        self.assertNotEqual(missing, text)
         with tempfile.TemporaryDirectory()as folder:
             path=Path(folder)/'moves.lua'
             for mutant in [missing,text+'\n    invented = Move{ name = "INVENTED", power = 1 },\n']:

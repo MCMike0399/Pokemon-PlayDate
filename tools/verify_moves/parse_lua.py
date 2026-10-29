@@ -77,9 +77,19 @@ class Reader:
             if self.peek(1) == '=':
                 key = self.take(); self.take('=')
                 if key in mapping: raise ParseError(f'duplicate key: {key}')
-                # Move{...} wraps a declarative definition, never execute it.
-                if self.peek() == 'Move' and self.peek(1) == '{': self.take('Move')
+                # Factories may only return a literal Move declaration. Parse
+                # their data without executing Lua or accepting arbitrary code.
+                factory = self.peek() == 'function'
+                if factory:
+                    for token in ('function', '(', ')', 'return', 'Move'):
+                        self.take(token)
+                    if self.peek() != '{':
+                        raise ParseError('move factory must return a literal declaration')
+                elif self.peek() == 'Move' and self.peek(1) == '{':
+                    self.take('Move')
                 mapping[key] = self.value()
+                if factory:
+                    self.take('end')
             else:
                 sequence.append(self.value())
             if self.peek() == ',': self.take(',')
@@ -100,6 +110,19 @@ def read_table(path, name):
     return table
 
 
+def decode_learnset(value):
+    if not isinstance(value, str):
+        return value
+    result = []
+    for row in value.split(';'):
+        match = re.fullmatch(r'([A-Za-z0-9_]+)\|(\d+)\|(-|\d+)\|(\d+)', row)
+        if not match:
+            raise ParseError('invalid compact learnset row')
+        move, level, order, identity = match.groups()
+        result.append(dict(move=move, level=int(level), order=None if order == '-' else int(order), id=int(identity)))
+    return result
+
+
 class LuaParser:
     def __init__(self, lua_path=None):
         self.lua_path = Path(lua_path) if lua_path else ROOT / 'Source/data/pokemon.lua'
@@ -108,6 +131,11 @@ class LuaParser:
         rows = read_table(self.lua_path, 'pokemonData')
         dexes = set()
         for key, row in rows.items():
+            compact = isinstance(row, dict) and isinstance(row.get('learnset'), str)
+            if isinstance(row, dict) and 'learnset' in row:
+                row['learnset'] = decode_learnset(row['learnset'])
+            if compact and row.get('moves') is False:
+                row['moves'] = [entry['move'] for entry in row['learnset']]
             if not isinstance(row, dict) or type(row.get('dex')) is not int or not isinstance(row.get('moves'), list):
                 raise ParseError(f'invalid species definition: {key}')
             if row['dex'] in dexes: raise ParseError(f'duplicate dex: {row["dex"]}')

@@ -1076,8 +1076,15 @@ function Battle:performMove(move)
     local attacker, defender = self.attacker, self.defender
     self.currentMove = move
     self.currentMoveKey = nil
-    for key, definition in pairs(moveData) do
-        if definition == move then self.currentMoveKey = key; break end
+    if MoveRegistry and MoveRegistry.owns(moveData) then
+        self.currentMoveKey = MoveRegistry.keyOf(moveData, move)
+    else
+        for key, definition in pairs(moveData) do
+            if definition == move then
+                self.currentMoveKey = key
+                break
+            end
+        end
     end
     self.lastDamage = 0
 

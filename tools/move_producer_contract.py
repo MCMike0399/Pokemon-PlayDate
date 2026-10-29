@@ -20,6 +20,8 @@ PRODUCER_FIELDS=ABILITY_FIELDS+('critStage',)+RULE_FIELDS+PROTECTION_FIELDS
 def digest(raw):return hashlib.sha256(raw).hexdigest()
 def read_rows(text):
     pairs=re.findall(r'^    (\w+) = (Move[^\n]+)$',text,re.M)
+    pairs += [(key, row + ',') for key, row in re.findall(
+        r'^    (\w+) = function\(\)\n        return (Move[^\n]+)\n    end,?$', text, re.M)]
     if len({key for key,row in pairs})!=len(pairs):raise ValueError('duplicate declarative move row')
     return dict(pairs)
 def fields(row):

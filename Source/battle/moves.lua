@@ -7,6 +7,8 @@
 -- file). drain is % of damage dealt (negative = recoil); minHits/maxHits
 -- mark multi-hit moves (Gen V 2-5 distribution lives in the engine).
 
+import "data/moveRegistry"
+
 Class("Move")
 function Move:init(m)
     self.name = m.name
@@ -45,430 +47,1315 @@ function Move:init(m)
     self.effects = m.effects
 end
 
+local ATTACKER <const> = ATTACKER
+local ApplyStatus <const> = ApplyStatus
+local Chance <const> = Chance
+local CurrentHPOf <const> = CurrentHPOf
+local CurseEffect <const> = CurseEffect
+local DEFENDER <const> = DEFENDER
+local DefenseCurlEffect <const> = DefenseCurlEffect
+local DirectDamage <const> = DirectDamage
+local EntryHazardEffect <const> = EntryHazardEffect
+local FocusEnergyEffect <const> = FocusEnergyEffect
+local ForceSwitchEffect <const> = ForceSwitchEffect
+local Heal <const> = Heal
+local LeechSeedEffect <const> = LeechSeedEffect
+local LevelOf <const> = LevelOf
+local MaxHPOf <const> = MaxHPOf
+local ModifyStat <const> = ModifyStat
+local Move <const> = Move
+local MudSportEffect <const> = MudSportEffect
+local PartialTrapEffect <const> = PartialTrapEffect
+local Product <const> = Product
+local ProtectEffect <const> = ProtectEffect
+local PsywaveDamage <const> = PsywaveDamage
+local RageEffect <const> = RageEffect
+local RandomMajorStatusEffect <const> = RandomMajorStatusEffect
+local RapidSpinEffect <const> = RapidSpinEffect
+local RoostEffect <const> = RoostEffect
+local SandstormEffect <const> = SandstormEffect
+local SecondaryEffect <const> = SecondaryEffect
+local SideConditionEffect <const> = SideConditionEffect
+local WeatherEffect <const> = WeatherEffect
+local WeatherHealEffect <const> = WeatherHealEffect
+local When <const> = When
+local WorrySeedEffect <const> = WorrySeedEffect
+
 moveData = {
-    pound = Move{ name = "POUND", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    karateChop = Move{ name = "KARATE CHOP", type = "fighting", category = "physical", power = 50, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    doubleSlap = Move{ name = "DOUBLE SLAP", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    cometPunch = Move{ name = "COMET PUNCH", type = "normal", category = "physical", power = 18, accuracy = 85, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    megaPunch = Move{ name = "MEGA PUNCH", type = "normal", category = "physical", power = 80, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    payDay = Move{ name = "PAY DAY", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    firePunch = Move{ name = "FIRE PUNCH", type = "fire", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    icePunch = Move{ name = "ICE PUNCH", type = "ice", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } },
-    thunderPunch = Move{ name = "THUNDER PUNCH", type = "electric", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))) } },
-    scratch = Move{ name = "SCRATCH", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    viceGrip = Move{ name = "VICE GRIP", type = "normal", category = "physical", power = 55, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    guillotine = Move{ name = "GUILLOTINE", type = "normal", category = "physical", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true },
-    razorWind = Move{ name = "RAZOR WIND", type = "normal", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    swordsDance = Move{ name = "SWORDS DANCE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 2) } },
-    gust = Move{ name = "GUST", type = "flying", category = "special", power = 40, accuracy = 100, pp = 35, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    wingAttack = Move{ name = "WING ATTACK", type = "flying", category = "physical", power = 60, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    whirlwind = Move{ name = "WHIRLWIND", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6, effects = { ForceSwitchEffect(DEFENDER) } },
-    bind = Move{ name = "BIND", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } },
-    slam = Move{ name = "SLAM", type = "normal", category = "physical", power = 80, accuracy = 75, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    vineWhip = Move{ name = "VINE WHIP", type = "grass", category = "physical", power = 35, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    stomp = Move{ name = "STOMP", type = "normal", category = "physical", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    doubleKick = Move{ name = "DOUBLE KICK", type = "fighting", category = "physical", power = 30, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2 },
-    megaKick = Move{ name = "MEGA KICK", type = "normal", category = "physical", power = 120, accuracy = 75, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    jumpKick = Move{ name = "JUMP KICK", type = "fighting", category = "physical", power = 100, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    rollingKick = Move{ name = "ROLLING KICK", type = "fighting", category = "physical", power = 60, accuracy = 85, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    sandAttack = Move{ name = "SAND ATTACK", type = "ground", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } },
-    headbutt = Move{ name = "HEADBUTT", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    hornAttack = Move{ name = "HORN ATTACK", type = "normal", category = "physical", power = 65, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    furyAttack = Move{ name = "FURY ATTACK", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    hornDrill = Move{ name = "HORN DRILL", type = "normal", category = "physical", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true },
-    tackle = Move{ name = "TACKLE", type = "normal", category = "physical", power = 50, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    bodySlam = Move{ name = "BODY SLAM", type = "normal", category = "physical", power = 85, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    wrap = Move{ name = "WRAP", type = "normal", category = "physical", power = 15, accuracy = 90, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } },
-    takeDown = Move{ name = "TAKE DOWN", type = "normal", category = "physical", power = 90, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -25 },
-    thrash = Move{ name = "THRASH", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    doubleEdge = Move{ name = "DOUBLE EDGE", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 },
-    tailWhip = Move{ name = "TAIL WHIP", type = "normal", category = "status", power = 0, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "def", -1) } },
-    poisonSting = Move{ name = "POISON STING", type = "poison", category = "physical", power = 15, accuracy = 100, pp = 35, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } },
-    twineedle = Move{ name = "TWINEEDLE", type = "bug", category = "physical", power = 25, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "poison"))) } },
-    pinMissile = Move{ name = "PIN MISSILE", type = "bug", category = "physical", power = 14, accuracy = 85, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    leer = Move{ name = "LEER", type = "normal", category = "status", power = 0, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), ModifyStat(DEFENDER, "def", -1)) } },
-    bite = Move{ name = "BITE", type = "dark", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    growl = Move{ name = "GROWL", type = "normal", category = "status", power = 0, accuracy = 100, pp = 40, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -1) } },
-    roar = Move{ name = "ROAR", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6, effects = { ForceSwitchEffect(DEFENDER) } },
-    sing = Move{ name = "SING", type = "normal", category = "status", power = 0, accuracy = 55, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } },
-    supersonic = Move{ name = "SUPERSONIC", type = "normal", category = "status", power = 0, accuracy = 55, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse") } },
-    sonicBoom = Move{ name = "SONIC BOOM", type = "normal", category = "special", power = 0, accuracy = 90, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, 20) } },
-    disable = Move{ name = "DISABLE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    acid = Move{ name = "ACID", type = "poison", category = "special", power = 40, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } },
-    ember = Move{ name = "EMBER", type = "fire", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    flamethrower = Move{ name = "FLAMETHROWER", type = "fire", category = "special", power = 95, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    mist = Move{ name = "MIST", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    waterGun = Move{ name = "WATER GUN", type = "water", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    hydroPump = Move{ name = "HYDRO PUMP", type = "water", category = "special", power = 120, accuracy = 80, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    iceBeam = Move{ name = "ICE BEAM", type = "ice", category = "special", power = 95, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } },
-    blizzard = Move{ name = "BLIZZARD", type = "ice", category = "special", power = 120, accuracy = 70, pp = 5, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } },
-    psybeam = Move{ name = "PSYBEAM", type = "psychic", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "confuse"))) } },
-    bubbleBeam = Move{ name = "BUBBLE BEAM", type = "water", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spe", -1))) } },
-    auroraBeam = Move{ name = "AURORA BEAM", type = "ice", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "atk", -1))) } },
-    hyperBeam = Move{ name = "HYPER BEAM", type = "normal", category = "special", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    peck = Move{ name = "PECK", type = "flying", category = "physical", power = 35, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    drillPeck = Move{ name = "DRILL PECK", type = "flying", category = "physical", power = 80, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    submission = Move{ name = "SUBMISSION", type = "fighting", category = "physical", power = 80, accuracy = 80, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -25 },
-    lowKick = Move{ name = "LOW KICK", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    counter = Move{ name = "COUNTER", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 1, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -5 },
-    seismicToss = Move{ name = "SEISMIC TOSS", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, LevelOf(ATTACKER)) } },
-    absorb = Move{ name = "ABSORB", type = "grass", category = "special", power = 20, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 },
-    megaDrain = Move{ name = "MEGA DRAIN", type = "grass", category = "special", power = 40, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 },
-    leechSeed = Move{ name = "LEECH SEED", type = "grass", category = "status", power = 0, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { LeechSeedEffect() } },
-    growth = Move{ name = "GROWTH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "spa", 1) } },
-    razorLeaf = Move{ name = "RAZOR LEAF", type = "grass", category = "physical", power = 55, accuracy = 95, pp = 25, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    solarBeam = Move{ name = "SOLAR BEAM", type = "grass", category = "special", power = 120, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, sandWeakened = true, chargeRule = "solarBeam" },
-    poisonPowder = Move{ name = "POISON POWDER", type = "poison", category = "status", power = 0, accuracy = 75, pp = 35, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "poison") } },
-    stunSpore = Move{ name = "STUN SPORE", type = "grass", category = "status", power = 0, accuracy = 75, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "paralyze") } },
-    sleepPowder = Move{ name = "SLEEP POWDER", type = "grass", category = "status", power = 0, accuracy = 75, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } },
-    petalDance = Move{ name = "PETAL DANCE", type = "grass", category = "special", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, lockRule = "rampage" },
-    stringShot = Move{ name = "STRING SHOT", type = "bug", category = "status", power = 0, accuracy = 95, pp = 40, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spe", -1) } },
-    dragonRage = Move{ name = "DRAGON RAGE", type = "dragon", category = "special", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, 40) } },
-    fireSpin = Move{ name = "FIRE SPIN", type = "fire", category = "special", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } },
-    thunderShock = Move{ name = "THUNDER SHOCK", type = "electric", category = "special", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))) } },
-    thunderbolt = Move{ name = "THUNDERBOLT", type = "electric", category = "special", power = 95, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))) } },
-    thunderWave = Move{ name = "THUNDER WAVE", type = "electric", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, typeImmunity = true, effects = { ApplyStatus(DEFENDER, "paralyze") } },
-    thunder = Move{ name = "THUNDER", type = "electric", category = "special", power = 120, accuracy = 70, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, weatherAccuracy = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    rockThrow = Move{ name = "ROCK THROW", type = "rock", category = "physical", power = 50, accuracy = 90, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    earthquake = Move{ name = "EARTHQUAKE", type = "ground", category = "physical", power = 100, accuracy = 100, pp = 10, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    fissure = Move{ name = "FISSURE", type = "ground", category = "physical", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true },
-    dig = Move{ name = "DIG", type = "ground", category = "physical", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    confusion = Move{ name = "CONFUSION", type = "psychic", category = "special", power = 50, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "confuse"))) } },
-    psychic = Move{ name = "PSYCHIC", type = "psychic", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } },
-    hypnosis = Move{ name = "HYPNOSIS", type = "psychic", category = "status", power = 0, accuracy = 60, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } },
-    meditate = Move{ name = "MEDITATE", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1) } },
-    agility = Move{ name = "AGILITY", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spe", 2) } },
-    quickAttack = Move{ name = "QUICK ATTACK", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 },
-    rage = Move{ name = "RAGE", type = "normal", category = "physical", power = 20, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { RageEffect() } },
-    teleport = Move{ name = "TELEPORT", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    nightShade = Move{ name = "NIGHT SHADE", type = "ghost", category = "special", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, LevelOf(ATTACKER)) } },
-    mimic = Move{ name = "MIMIC", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    screech = Move{ name = "SCREECH", type = "normal", category = "status", power = 0, accuracy = 85, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "def", -2) } },
-    doubleTeam = Move{ name = "DOUBLE TEAM", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "eva", 1) } },
-    recover = Move{ name = "RECOVER", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },
-    harden = Move{ name = "HARDEN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1) } },
-    minimize = Move{ name = "MINIMIZE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "eva", 2) } },
-    smokescreen = Move{ name = "SMOKESCREEN", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } },
-    confuseRay = Move{ name = "CONFUSE RAY", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse") } },
-    withdraw = Move{ name = "WITHDRAW", type = "water", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1) } },
-    defenseCurl = Move{ name = "DEFENSE CURL", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1), DefenseCurlEffect() } },
-    barrier = Move{ name = "BARRIER", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 2) } },
-    lightScreen = Move{ name = "LIGHT SCREEN", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("lightScreen") } },
-    haze = Move{ name = "HAZE", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    reflect = Move{ name = "REFLECT", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    focusEnergy = Move{ name = "FOCUS ENERGY", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { FocusEnergyEffect() } },
-    metronome = Move{ name = "METRONOME", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    mirrorMove = Move{ name = "MIRROR MOVE", type = "flying", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    selfDestruct = Move{ name = "SELF DESTRUCT", type = "normal", category = "physical", power = 200, accuracy = 100, pp = 5, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    eggBomb = Move{ name = "EGG BOMB", type = "normal", category = "physical", power = 100, accuracy = 75, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    lick = Move{ name = "LICK", type = "ghost", category = "physical", power = 20, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    smog = Move{ name = "SMOG", type = "poison", category = "special", power = 20, accuracy = 70, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(40), ApplyStatus(DEFENDER, "poison"))) } },
-    sludge = Move{ name = "SLUDGE", type = "poison", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } },
-    boneClub = Move{ name = "BONE CLUB", type = "ground", category = "physical", power = 65, accuracy = 85, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } },
-    fireBlast = Move{ name = "FIRE BLAST", type = "fire", category = "special", power = 120, accuracy = 85, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    waterfall = Move{ name = "WATERFALL", type = "water", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } },
-    clamp = Move{ name = "CLAMP", type = "water", category = "physical", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } },
-    swift = Move{ name = "SWIFT", type = "normal", category = "special", power = 60, accuracy = 0, pp = 20, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    skullBash = Move{ name = "SKULL BASH", type = "normal", category = "physical", power = 100, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, chargeRule = "skullBash" },
-    spikeCannon = Move{ name = "SPIKE CANNON", type = "normal", category = "physical", power = 20, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    constrict = Move{ name = "CONSTRICT", type = "normal", category = "physical", power = 10, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spe", -1))) } },
-    amnesia = Move{ name = "AMNESIA", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spd", 2) } },
-    kinesis = Move{ name = "KINESIS", type = "psychic", category = "status", power = 0, accuracy = 80, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } },
-    softBoiled = Move{ name = "SOFT BOILED", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },
-    highJumpKick = Move{ name = "HIGH JUMP KICK", type = "fighting", category = "physical", power = 130, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    glare = Move{ name = "GLARE", type = "normal", category = "status", power = 0, accuracy = 90, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "paralyze") } },
-    dreamEater = Move{ name = "DREAM EATER", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 },
-    poisonGas = Move{ name = "POISON GAS", type = "poison", category = "status", power = 0, accuracy = 80, pp = 40, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "poison") } },
-    barrage = Move{ name = "BARRAGE", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    leechLife = Move{ name = "LEECH LIFE", type = "bug", category = "physical", power = 20, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 },
-    lovelyKiss = Move{ name = "LOVELY KISS", type = "normal", category = "status", power = 0, accuracy = 75, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } },
-    skyAttack = Move{ name = "SKY ATTACK", type = "flying", category = "physical", power = 140, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, critStage = 1, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    transform = Move{ name = "TRANSFORM", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    bubble = Move{ name = "BUBBLE", type = "water", category = "special", power = 20, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spe", -1))) } },
-    dizzyPunch = Move{ name = "DIZZY PUNCH", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "confuse"))) } },
-    spore = Move{ name = "SPORE", type = "grass", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } },
-    splash = Move{ name = "SPLASH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    acidArmor = Move{ name = "ACID ARMOR", type = "poison", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 2) } },
-    crabhammer = Move{ name = "CRABHAMMER", type = "water", category = "physical", power = 90, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    explosion = Move{ name = "EXPLOSION", type = "normal", category = "physical", power = 250, accuracy = 100, pp = 5, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    furySwipes = Move{ name = "FURY SWIPES", type = "normal", category = "physical", power = 18, accuracy = 80, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    bonemerang = Move{ name = "BONEMERANG", type = "ground", category = "physical", power = 50, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2 },
-    rest = Move{ name = "REST", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    rockSlide = Move{ name = "ROCK SLIDE", type = "rock", category = "physical", power = 75, accuracy = 90, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    hyperFang = Move{ name = "HYPER FANG", type = "normal", category = "physical", power = 80, accuracy = 90, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } },
-    sharpen = Move{ name = "SHARPEN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1) } },
-    conversion = Move{ name = "CONVERSION", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    triAttack = Move{ name = "TRI ATTACK", type = "normal", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), RandomMajorStatusEffect(DEFENDER, {"burn", "paralyze", "freeze"}))) } },
-    superFang = Move{ name = "SUPER FANG", type = "normal", category = "physical", power = 0, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, Product(CurrentHPOf(DEFENDER), 0.5)) } },
-    slash = Move{ name = "SLASH", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    substitute = Move{ name = "SUBSTITUTE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    mindReader = Move{ name = "MIND READER", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    nightmare = Move{ name = "NIGHTMARE", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    flameWheel = Move{ name = "FLAME WHEEL", type = "fire", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    snore = Move{ name = "SNORE", type = "normal", category = "special", power = 40, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    curse = Move{ name = "CURSE", type = "ghost", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 1, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, curse = true, effects = { CurseEffect() } },
-    flail = Move{ name = "FLAIL", type = "normal", category = "physical", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    conversion2 = Move{ name = "CONVERSION2", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    reversal = Move{ name = "REVERSAL", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    spite = Move{ name = "SPITE", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    powderSnow = Move{ name = "POWDER SNOW", type = "ice", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } },
-    protect = Move{ name = "PROTECT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4, effects = { ProtectEffect() } },
-    machPunch = Move{ name = "MACH PUNCH", type = "fighting", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 },
-    scaryFace = Move{ name = "SCARY FACE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spe", -2) } },
-    feintAttack = Move{ name = "FEINT ATTACK", type = "dark", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    bellyDrum = Move{ name = "BELLY DRUM", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    sludgeBomb = Move{ name = "SLUDGE BOMB", type = "poison", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } },
-    mudSlap = Move{ name = "MUD SLAP", type = "ground", category = "special", power = 20, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "acc", -1))) } },
-    spikes = Move{ name = "SPIKES", type = "ground", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 6, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { EntryHazardEffect("spikes") } },
-    zapCannon = Move{ name = "ZAP CANNON", type = "electric", category = "special", power = 120, accuracy = 50, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "paralyze"))) } },
-    foresight = Move{ name = "FORESIGHT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    destinyBond = Move{ name = "DESTINY BOND", type = "ghost", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    perishSong = Move{ name = "PERISH SONG", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    icyWind = Move{ name = "ICY WIND", type = "ice", category = "special", power = 55, accuracy = 95, pp = 15, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } },
-    detect = Move{ name = "DETECT", type = "fighting", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4 },
-    boneRush = Move{ name = "BONE RUSH", type = "ground", category = "physical", power = 25, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    lockOn = Move{ name = "LOCK ON", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    outrage = Move{ name = "OUTRAGE", type = "dragon", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    sandstorm = Move{ name = "SANDSTORM", type = "rock", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SandstormEffect() } },
-    gigaDrain = Move{ name = "GIGA DRAIN", type = "grass", category = "special", power = 75, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 },
-    endure = Move{ name = "ENDURE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4 },
-    rollout = Move{ name = "ROLLOUT", type = "rock", category = "physical", power = 30, accuracy = 90, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, rollout = true },
-    falseSwipe = Move{ name = "FALSE SWIPE", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 40, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    swagger = Move{ name = "SWAGGER", type = "normal", category = "status", power = 0, accuracy = 90, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse"), ModifyStat(DEFENDER, "atk", 2) } },
-    spark = Move{ name = "SPARK", type = "electric", category = "physical", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    furyCutter = Move{ name = "FURY CUTTER", type = "bug", category = "physical", power = 20, accuracy = 95, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    meanLook = Move{ name = "MEAN LOOK", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    sleepTalk = Move{ name = "SLEEP TALK", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    safeguard = Move{ name = "SAFEGUARD", type = "normal", category = "status", power = 0, accuracy = 0, pp = 25, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("safeguard") } },
-    magnitude = Move{ name = "MAGNITUDE", type = "ground", category = "physical", power = 0, accuracy = 100, pp = 30, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    dynamicPunch = Move{ name = "DYNAMIC PUNCH", type = "fighting", category = "physical", power = 100, accuracy = 50, pp = 5, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "confuse"))) } },
-    megahorn = Move{ name = "MEGAHORN", type = "bug", category = "physical", power = 120, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    dragonBreath = Move{ name = "DRAGON BREATH", type = "dragon", category = "special", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    batonPass = Move{ name = "BATON PASS", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    encore = Move{ name = "ENCORE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    pursuit = Move{ name = "PURSUIT", type = "dark", category = "physical", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    rapidSpin = Move{ name = "RAPID SPIN", type = "normal", category = "physical", power = 20, accuracy = 100, pp = 40, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { RapidSpinEffect() } },
-    sweetScent = Move{ name = "SWEET SCENT", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "eva", -1) } },
-    ironTail = Move{ name = "IRON TAIL", type = "steel", category = "physical", power = 100, accuracy = 75, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "def", -1))) } },
-    metalClaw = Move{ name = "METAL CLAW", type = "steel", category = "physical", power = 50, accuracy = 95, pp = 35, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(10), ModifyStat(ATTACKER, "atk", 1))) } },
-    vitalThrow = Move{ name = "VITAL THROW", type = "fighting", category = "physical", power = 70, accuracy = 0, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -1 },
-    synthesis = Move{ name = "SYNTHESIS", type = "grass", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherHealEffect() } },
-    moonlight = Move{ name = "MOONLIGHT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherHealEffect() } },
-    crossChop = Move{ name = "CROSS CHOP", type = "fighting", category = "physical", power = 100, accuracy = 80, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    twister = Move{ name = "TWISTER", type = "dragon", category = "special", power = 40, accuracy = 100, pp = 20, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } },
-    rainDance = Move{ name = "RAIN DANCE", type = "water", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherEffect("raindance") } },
-    sunnyDay = Move{ name = "SUNNY DAY", type = "fire", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    crunch = Move{ name = "CRUNCH", type = "dark", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ModifyStat(DEFENDER, "def", -1))) } },
-    mirrorCoat = Move{ name = "MIRROR COAT", type = "psychic", category = "special", power = 0, accuracy = 100, pp = 20, targetId = 1, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -5 },
-    psychUp = Move{ name = "PSYCH UP", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    extremeSpeed = Move{ name = "EXTREME SPEED", type = "normal", category = "physical", power = 80, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 2 },
-    ancientPower = Move{ name = "ANCIENT POWER", type = "rock", category = "special", power = 60, accuracy = 100, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(10), EffectSeq{ ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1), ModifyStat(ATTACKER, "spe", 1) })) } },
-    shadowBall = Move{ name = "SHADOW BALL", type = "ghost", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ModifyStat(DEFENDER, "spd", -1))) } },
-    futureSight = Move{ name = "FUTURE SIGHT", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    whirlpool = Move{ name = "WHIRLPOOL", type = "water", category = "special", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } },
-    fakeOut = Move{ name = "FAKE OUT", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, priority = 3, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "flinch"))) } },
-    uproar = Move{ name = "UPROAR", type = "normal", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 8, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    stockpile = Move{ name = "STOCKPILE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spd", 1) } },
-    spitUp = Move{ name = "SPIT UP", type = "normal", category = "special", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    swallow = Move{ name = "SWALLOW", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.25)) } },
-    heatWave = Move{ name = "HEAT WAVE", type = "fire", category = "special", power = 100, accuracy = 90, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    hail = Move{ name = "HAIL", type = "ice", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    flatter = Move{ name = "FLATTER", type = "dark", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse"), ModifyStat(DEFENDER, "spa", 1) } },
-    willOWisp = Move{ name = "WILL O WISP", type = "fire", category = "status", power = 0, accuracy = 75, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "burn") } },
-    memento = Move{ name = "MEMENTO", type = "dark", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -2), ModifyStat(DEFENDER, "spa", -2) } },
-    focusPunch = Move{ name = "FOCUS PUNCH", type = "fighting", category = "physical", power = 150, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -3 },
-    followMe = Move{ name = "FOLLOW ME", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 3 },
-    charge = Move{ name = "CHARGE", type = "electric", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spd", 1) } },
-    taunt = Move{ name = "TAUNT", type = "dark", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    helpingHand = Move{ name = "HELPING HAND", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 3, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 5 },
-    trick = Move{ name = "TRICK", type = "psychic", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    rolePlay = Move{ name = "ROLE PLAY", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    ingrain = Move{ name = "INGRAIN", type = "grass", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    superpower = Move{ name = "SUPERPOWER", type = "fighting", category = "physical", power = 120, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), EffectSeq{ ModifyStat(ATTACKER, "atk", -1), ModifyStat(ATTACKER, "def", -1) }) } },
-    magicCoat = Move{ name = "MAGIC COAT", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4 },
-    recycle = Move{ name = "RECYCLE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    revenge = Move{ name = "REVENGE", type = "fighting", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -4 },
-    brickBreak = Move{ name = "BRICK BREAK", type = "fighting", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    yawn = Move{ name = "YAWN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    knockOff = Move{ name = "KNOCK OFF", type = "dark", category = "physical", power = 20, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    endeavor = Move{ name = "ENDEAVOR", type = "normal", category = "physical", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, damageRule = "endeavor" },
-    imprison = Move{ name = "IMPRISON", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    refresh = Move{ name = "REFRESH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    grudge = Move{ name = "GRUDGE", type = "ghost", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    dive = Move{ name = "DIVE", type = "water", category = "physical", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    camouflage = Move{ name = "CAMOUFLAGE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    featherDance = Move{ name = "FEATHER DANCE", type = "flying", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -2) } },
-    blazeKick = Move{ name = "BLAZE KICK", type = "fire", category = "physical", power = 85, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, critStage = 1, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    mudSport = Move{ name = "MUD SPORT", type = "ground", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { MudSportEffect() } },
-    slackOff = Move{ name = "SLACK OFF", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },
-    hyperVoice = Move{ name = "HYPER VOICE", type = "normal", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    poisonFang = Move{ name = "POISON FANG", type = "poison", category = "physical", power = 50, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "badPoison"))) } },
-    crushClaw = Move{ name = "CRUSH CLAW", type = "normal", category = "physical", power = 75, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(50), ModifyStat(DEFENDER, "def", -1))) } },
-    meteorMash = Move{ name = "METEOR MASH", type = "steel", category = "physical", power = 100, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(20), ModifyStat(ATTACKER, "atk", 1))) } },
-    astonish = Move{ name = "ASTONISH", type = "ghost", category = "physical", power = 30, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    aromatherapy = Move{ name = "AROMATHERAPY", type = "grass", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    fakeTears = Move{ name = "FAKE TEARS", type = "dark", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spd", -2) } },
-    airCutter = Move{ name = "AIR CUTTER", type = "flying", category = "special", power = 55, accuracy = 95, pp = 25, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    odorSleuth = Move{ name = "ODOR SLEUTH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    rockTomb = Move{ name = "ROCK TOMB", type = "rock", category = "physical", power = 50, accuracy = 80, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } },
-    silverWind = Move{ name = "SILVER WIND", type = "bug", category = "special", power = 60, accuracy = 100, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(10), EffectSeq{ ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1), ModifyStat(ATTACKER, "spe", 1) })) } },
-    metalSound = Move{ name = "METAL SOUND", type = "steel", category = "status", power = 0, accuracy = 85, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spd", -2) } },
-    tickle = Move{ name = "TICKLE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -1), ModifyStat(DEFENDER, "def", -1) } },
-    cosmicPower = Move{ name = "COSMIC POWER", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spd", 1) } },
-    signalBeam = Move{ name = "SIGNAL BEAM", type = "bug", category = "special", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "confuse"))) } },
-    shadowPunch = Move{ name = "SHADOW PUNCH", type = "ghost", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    extrasensory = Move{ name = "EXTRASENSORY", type = "psychic", category = "special", power = 80, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } },
-    skyUppercut = Move{ name = "SKY UPPERCUT", type = "fighting", category = "physical", power = 85, accuracy = 90, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    sandTomb = Move{ name = "SAND TOMB", type = "ground", category = "physical", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } },
-    sheerCold = Move{ name = "SHEER COLD", type = "ice", category = "special", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true },
-    muddyWater = Move{ name = "MUDDY WATER", type = "water", category = "special", power = 95, accuracy = 85, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "acc", -1))) } },
-    bulletSeed = Move{ name = "BULLET SEED", type = "grass", category = "physical", power = 25, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    aerialAce = Move{ name = "AERIAL ACE", type = "flying", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    icicleSpear = Move{ name = "ICICLE SPEAR", type = "ice", category = "physical", power = 25, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    ironDefense = Move{ name = "IRON DEFENSE", type = "steel", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 2) } },
-    block = Move{ name = "BLOCK", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    dragonClaw = Move{ name = "DRAGON CLAW", type = "dragon", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    bounce = Move{ name = "BOUNCE", type = "flying", category = "physical", power = 85, accuracy = 85, pp = 5, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    mudShot = Move{ name = "MUD SHOT", type = "ground", category = "special", power = 55, accuracy = 95, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } },
-    covet = Move{ name = "COVET", type = "normal", category = "physical", power = 60, accuracy = 100, pp = 40, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    magicalLeaf = Move{ name = "MAGICAL LEAF", type = "grass", category = "special", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    waterSport = Move{ name = "WATER SPORT", type = "water", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    calmMind = Move{ name = "CALM MIND", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1) } },
-    leafBlade = Move{ name = "LEAF BLADE", type = "grass", category = "physical", power = 90, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    dragonDance = Move{ name = "DRAGON DANCE", type = "dragon", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "spe", 1) } },
-    rockBlast = Move{ name = "ROCK BLAST", type = "rock", category = "physical", power = 25, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 },
-    shockWave = Move{ name = "SHOCK WAVE", type = "electric", category = "special", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    waterPulse = Move{ name = "WATER PULSE", type = "water", category = "special", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "confuse"))) } },
-    roost = Move{ name = "ROOST", type = "flying", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { RoostEffect() } },
-    gravity = Move{ name = "GRAVITY", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    miracleEye = Move{ name = "MIRACLE EYE", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    wakeUpSlap = Move{ name = "WAKE UP SLAP", type = "fighting", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    hammerArm = Move{ name = "HAMMER ARM", type = "fighting", category = "physical", power = 100, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), ModifyStat(ATTACKER, "spe", -1)) } },
-    gyroBall = Move{ name = "GYRO BALL", type = "steel", category = "physical", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    healingWish = Move{ name = "HEALING WISH", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    brine = Move{ name = "BRINE", type = "water", category = "special", power = 65, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    naturalGift = Move{ name = "NATURAL GIFT", type = "normal", category = "physical", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    feint = Move{ name = "FEINT", type = "normal", category = "physical", power = 30, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = true, protectable = false, priority = 2 },
-    pluck = Move{ name = "PLUCK", type = "flying", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    tailwind = Move{ name = "TAILWIND", type = "flying", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("tailwind") } },
-    acupressure = Move{ name = "ACUPRESSURE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 5, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    closeCombat = Move{ name = "CLOSE COMBAT", type = "fighting", category = "physical", power = 120, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), EffectSeq{ ModifyStat(ATTACKER, "def", -1), ModifyStat(ATTACKER, "spd", -1) }) } },
-    payback = Move{ name = "PAYBACK", type = "dark", category = "physical", power = 50, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    assurance = Move{ name = "ASSURANCE", type = "dark", category = "physical", power = 50, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, powerRule = "assurance" },
-    fling = Move{ name = "FLING", type = "dark", category = "physical", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    trumpCard = Move{ name = "TRUMP CARD", type = "normal", category = "special", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    wringOut = Move{ name = "WRING OUT", type = "normal", category = "special", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    gastroAcid = Move{ name = "GASTRO ACID", type = "poison", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    luckyChant = Move{ name = "LUCKY CHANT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    meFirst = Move{ name = "ME FIRST", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 2, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    copycat = Move{ name = "COPYCAT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    powerSwap = Move{ name = "POWER SWAP", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    guardSwap = Move{ name = "GUARD SWAP", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    punishment = Move{ name = "PUNISHMENT", type = "dark", category = "physical", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    lastResort = Move{ name = "LAST RESORT", type = "normal", category = "physical", power = 140, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    worrySeed = Move{ name = "WORRY SEED", type = "grass", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, attemptRule = "worrySeed", effects = { WorrySeedEffect() } },
-    suckerPunch = Move{ name = "SUCKER PUNCH", type = "dark", category = "physical", power = 80, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, attemptRule = "suckerPunch", priority = 1 },
-    toxicSpikes = Move{ name = "TOXIC SPIKES", type = "poison", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 6, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { EntryHazardEffect("toxicSpikes") } },
-    aquaRing = Move{ name = "AQUA RING", type = "water", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    magnetRise = Move{ name = "MAGNET RISE", type = "electric", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    flareBlitz = Move{ name = "FLARE BLITZ", type = "fire", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, drain = -33, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } },
-    auraSphere = Move{ name = "AURA SPHERE", type = "fighting", category = "special", power = 90, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    rockPolish = Move{ name = "ROCK POLISH", type = "rock", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spe", 2) } },
-    poisonJab = Move{ name = "POISON JAB", type = "poison", category = "physical", power = 80, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } },
-    darkPulse = Move{ name = "DARK PULSE", type = "dark", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } },
-    nightSlash = Move{ name = "NIGHT SLASH", type = "dark", category = "physical", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    aquaTail = Move{ name = "AQUA TAIL", type = "water", category = "physical", power = 90, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    seedBomb = Move{ name = "SEED BOMB", type = "grass", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    airSlash = Move{ name = "AIR SLASH", type = "flying", category = "special", power = 75, accuracy = 95, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    xScissor = Move{ name = "X SCISSOR", type = "bug", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    bugBuzz = Move{ name = "BUG BUZZ", type = "bug", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } },
-    dragonPulse = Move{ name = "DRAGON PULSE", type = "dragon", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    dragonRush = Move{ name = "DRAGON RUSH", type = "dragon", category = "physical", power = 100, accuracy = 75, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } },
-    powerGem = Move{ name = "POWER GEM", type = "rock", category = "special", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    vacuumWave = Move{ name = "VACUUM WAVE", type = "fighting", category = "special", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 },
-    braveBird = Move{ name = "BRAVE BIRD", type = "flying", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 },
-    earthPower = Move{ name = "EARTH POWER", type = "ground", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } },
-    switcheroo = Move{ name = "SWITCHEROO", type = "dark", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    gigaImpact = Move{ name = "GIGA IMPACT", type = "normal", category = "physical", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    nastyPlot = Move{ name = "NASTY PLOT", type = "dark", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 2) } },
-    bulletPunch = Move{ name = "BULLET PUNCH", type = "steel", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 },
-    avalanche = Move{ name = "AVALANCHE", type = "ice", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -4 },
-    iceShard = Move{ name = "ICE SHARD", type = "ice", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 },
-    shadowClaw = Move{ name = "SHADOW CLAW", type = "ghost", category = "physical", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    thunderFang = Move{ name = "THUNDER FANG", type = "electric", category = "physical", power = 65, accuracy = 95, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))), SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } },
-    iceFang = Move{ name = "ICE FANG", type = "ice", category = "physical", power = 65, accuracy = 95, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))), SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } },
-    fireFang = Move{ name = "FIRE FANG", type = "fire", category = "physical", power = 65, accuracy = 95, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))), SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } },
-    mudBomb = Move{ name = "MUD BOMB", type = "ground", category = "special", power = 65, accuracy = 85, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "acc", -1))) } },
-    psychoCut = Move{ name = "PSYCHO CUT", type = "psychic", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    zenHeadbutt = Move{ name = "ZEN HEADBUTT", type = "psychic", category = "physical", power = 80, accuracy = 90, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } },
-    mirrorShot = Move{ name = "MIRROR SHOT", type = "steel", category = "special", power = 65, accuracy = 85, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "acc", -1))) } },
-    flashCannon = Move{ name = "FLASH CANNON", type = "steel", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } },
-    discharge = Move{ name = "DISCHARGE", type = "electric", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } },
-    lavaPlume = Move{ name = "LAVA PLUME", type = "fire", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "burn"))) } },
-    leafStorm = Move{ name = "LEAF STORM", type = "grass", category = "special", power = 140, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), ModifyStat(ATTACKER, "spa", -2)) } },
-    powerWhip = Move{ name = "POWER WHIP", type = "grass", category = "physical", power = 120, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    crossPoison = Move{ name = "CROSS POISON", type = "poison", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, critStage = 1, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "poison"))) } },
-    gunkShot = Move{ name = "GUNK SHOT", type = "poison", category = "physical", power = 120, accuracy = 70, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } },
-    ironHead = Move{ name = "IRON HEAD", type = "steel", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    magnetBomb = Move{ name = "MAGNET BOMB", type = "steel", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    stoneEdge = Move{ name = "STONE EDGE", type = "rock", category = "physical", power = 100, accuracy = 80, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    captivate = Move{ name = "CAPTIVATE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, attemptRule = "oppositeSex", effects = { ModifyStat(DEFENDER, "spa", -2) } },
-    stealthRock = Move{ name = "STEALTH ROCK", type = "rock", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 6, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { EntryHazardEffect("stealthRock") } },
-    bugBite = Move{ name = "BUG BITE", type = "bug", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    chargeBeam = Move{ name = "CHARGE BEAM", type = "electric", category = "special", power = 50, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(70), ModifyStat(ATTACKER, "spa", 1))) } },
-    woodHammer = Move{ name = "WOOD HAMMER", type = "grass", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 },
-    aquaJet = Move{ name = "AQUA JET", type = "water", category = "physical", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 },
-    doubleHit = Move{ name = "DOUBLE HIT", type = "normal", category = "physical", power = 35, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2 },
-    wideGuard = Move{ name = "WIDE GUARD", type = "rock", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 3 },
-    wonderRoom = Move{ name = "WONDER ROOM", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = -7 },
-    psyshock = Move{ name = "PSYSHOCK", type = "psychic", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    ragePowder = Move{ name = "RAGE POWDER", type = "bug", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, attemptRule = "singlesRedirect", priority = 3 },
-    telekinesis = Move{ name = "TELEKINESIS", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    smackDown = Move{ name = "SMACK DOWN", type = "rock", category = "physical", power = 50, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    flameBurst = Move{ name = "FLAME BURST", type = "fire", category = "special", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    sludgeWave = Move{ name = "SLUDGE WAVE", type = "poison", category = "special", power = 95, accuracy = 100, pp = 10, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "poison"))) } },
-    quiverDance = Move{ name = "QUIVER DANCE", type = "bug", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1), ModifyStat(ATTACKER, "spe", 1) } },
-    heavySlam = Move{ name = "HEAVY SLAM", type = "steel", category = "physical", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    synchronoise = Move{ name = "SYNCHRONOISE", type = "psychic", category = "special", power = 70, accuracy = 100, pp = 15, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    electroBall = Move{ name = "ELECTRO BALL", type = "electric", category = "special", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, powerRule = "electroBall" },
-    soak = Move{ name = "SOAK", type = "water", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    flameCharge = Move{ name = "FLAME CHARGE", type = "fire", category = "physical", power = 50, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(100), ModifyStat(ATTACKER, "spe", 1))) } },
-    coil = Move{ name = "COIL", type = "poison", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "acc", 1) } },
-    lowSweep = Move{ name = "LOW SWEEP", type = "fighting", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } },
-    acidSpray = Move{ name = "ACID SPRAY", type = "poison", category = "special", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spd", -2))) } },
-    afterYou = Move{ name = "AFTER YOU", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false },
-    round = Move{ name = "ROUND", type = "normal", category = "special", power = 60, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    chipAway = Move{ name = "CHIP AWAY", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    clearSmog = Move{ name = "CLEAR SMOG", type = "poison", category = "special", power = 50, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    storedPower = Move{ name = "STORED POWER", type = "psychic", category = "special", power = 20, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    quickGuard = Move{ name = "QUICK GUARD", type = "fighting", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 3 },
-    allySwitch = Move{ name = "ALLY SWITCH", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 2 },
-    shellSmash = Move{ name = "SHELL SMASH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", -1), ModifyStat(ATTACKER, "spd", -1), ModifyStat(ATTACKER, "atk", 2), ModifyStat(ATTACKER, "spa", 2), ModifyStat(ATTACKER, "spe", 2) } },
-    healPulse = Move{ name = "HEAL PULSE", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } },
-    hex = Move{ name = "HEX", type = "ghost", category = "special", power = 50, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    skyDrop = Move{ name = "SKY DROP", type = "flying", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    circleThrow = Move{ name = "CIRCLE THROW", type = "fighting", category = "physical", power = 60, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6 },
-    acrobatics = Move{ name = "ACROBATICS", type = "flying", category = "physical", power = 55, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    reflectType = Move{ name = "REFLECT TYPE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    retaliate = Move{ name = "RETALIATE", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    finalGambit = Move{ name = "FINAL GAMBIT", type = "fighting", category = "special", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    bestow = Move{ name = "BESTOW", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    inferno = Move{ name = "INFERNO", type = "fire", category = "special", power = 100, accuracy = 50, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "burn"))) } },
-    bulldoze = Move{ name = "BULLDOZE", type = "ground", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } },
-    dragonTail = Move{ name = "DRAGON TAIL", type = "dragon", category = "physical", power = 60, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6 },
-    workUp = Move{ name = "WORK UP", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "spa", 1) } },
-    drillRun = Move{ name = "DRILL RUN", type = "ground", category = "physical", power = 80, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 },
-    heartStamp = Move{ name = "HEART STAMP", type = "psychic", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    razorShell = Move{ name = "RAZOR SHELL", type = "water", category = "physical", power = 75, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(50), ModifyStat(DEFENDER, "def", -1))) } },
-    leafTornado = Move{ name = "LEAF TORNADO", type = "grass", category = "special", power = 65, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(50), ModifyStat(DEFENDER, "acc", -1))) } },
-    steamroller = Move{ name = "STEAMROLLER", type = "bug", category = "physical", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    psystrike = Move{ name = "PSYSTRIKE", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true },
-    hurricane = Move{ name = "HURRICANE", type = "flying", category = "special", power = 120, accuracy = 70, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, weatherAccuracy = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "confuse"))) } },
-    icicleCrash = Move{ name = "ICICLE CRASH", type = "ice", category = "physical", power = 85, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } },
-    charm = Move{ name = "CHARM", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -2) } },
-    psywave = Move{ name = "PSYWAVE", type = "psychic", category = "special", power = 0, accuracy = 80, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PsywaveDamage() } },
-    stormThrow = Move{ name = "STORM THROW", type = "fighting", category = "physical", power = 40, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, willCrit = true },
-    struggle = Move{ name = "STRUGGLE", type = "normal", category = "physical", power = 50, accuracy = 0, pp = 1, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, typeless = true, noPP = true, struggleRecoil = true },
-    toxic = Move{ name = "TOXIC", type = "poison", category = "status", power = 0, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "badPoison") } },
-    bide = Move{ name = "BIDE", type = "normal", category = "physical", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, damageRule = "bide", priority = 1 },
+    pound = function()
+        return Move{ name = "POUND", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    karateChop = function()
+        return Move{ name = "KARATE CHOP", type = "fighting", category = "physical", power = 50, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    doubleSlap = function()
+        return Move{ name = "DOUBLE SLAP", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    cometPunch = function()
+        return Move{ name = "COMET PUNCH", type = "normal", category = "physical", power = 18, accuracy = 85, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    megaPunch = function()
+        return Move{ name = "MEGA PUNCH", type = "normal", category = "physical", power = 80, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    payDay = function()
+        return Move{ name = "PAY DAY", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    firePunch = function()
+        return Move{ name = "FIRE PUNCH", type = "fire", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    icePunch = function()
+        return Move{ name = "ICE PUNCH", type = "ice", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } }
+    end,
+    thunderPunch = function()
+        return Move{ name = "THUNDER PUNCH", type = "electric", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    scratch = function()
+        return Move{ name = "SCRATCH", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    viceGrip = function()
+        return Move{ name = "VICE GRIP", type = "normal", category = "physical", power = 55, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    guillotine = function()
+        return Move{ name = "GUILLOTINE", type = "normal", category = "physical", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true }
+    end,
+    razorWind = function()
+        return Move{ name = "RAZOR WIND", type = "normal", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    swordsDance = function()
+        return Move{ name = "SWORDS DANCE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 2) } }
+    end,
+    gust = function()
+        return Move{ name = "GUST", type = "flying", category = "special", power = 40, accuracy = 100, pp = 35, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    wingAttack = function()
+        return Move{ name = "WING ATTACK", type = "flying", category = "physical", power = 60, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    whirlwind = function()
+        return Move{ name = "WHIRLWIND", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6, effects = { ForceSwitchEffect(DEFENDER) } }
+    end,
+    bind = function()
+        return Move{ name = "BIND", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } }
+    end,
+    slam = function()
+        return Move{ name = "SLAM", type = "normal", category = "physical", power = 80, accuracy = 75, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    vineWhip = function()
+        return Move{ name = "VINE WHIP", type = "grass", category = "physical", power = 35, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    stomp = function()
+        return Move{ name = "STOMP", type = "normal", category = "physical", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    doubleKick = function()
+        return Move{ name = "DOUBLE KICK", type = "fighting", category = "physical", power = 30, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2 }
+    end,
+    megaKick = function()
+        return Move{ name = "MEGA KICK", type = "normal", category = "physical", power = 120, accuracy = 75, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    jumpKick = function()
+        return Move{ name = "JUMP KICK", type = "fighting", category = "physical", power = 100, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    rollingKick = function()
+        return Move{ name = "ROLLING KICK", type = "fighting", category = "physical", power = 60, accuracy = 85, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    sandAttack = function()
+        return Move{ name = "SAND ATTACK", type = "ground", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } }
+    end,
+    headbutt = function()
+        return Move{ name = "HEADBUTT", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    hornAttack = function()
+        return Move{ name = "HORN ATTACK", type = "normal", category = "physical", power = 65, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    furyAttack = function()
+        return Move{ name = "FURY ATTACK", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    hornDrill = function()
+        return Move{ name = "HORN DRILL", type = "normal", category = "physical", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true }
+    end,
+    tackle = function()
+        return Move{ name = "TACKLE", type = "normal", category = "physical", power = 50, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    bodySlam = function()
+        return Move{ name = "BODY SLAM", type = "normal", category = "physical", power = 85, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    wrap = function()
+        return Move{ name = "WRAP", type = "normal", category = "physical", power = 15, accuracy = 90, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } }
+    end,
+    takeDown = function()
+        return Move{ name = "TAKE DOWN", type = "normal", category = "physical", power = 90, accuracy = 85, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -25 }
+    end,
+    thrash = function()
+        return Move{ name = "THRASH", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    doubleEdge = function()
+        return Move{ name = "DOUBLE EDGE", type = "normal", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 }
+    end,
+    tailWhip = function()
+        return Move{ name = "TAIL WHIP", type = "normal", category = "status", power = 0, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "def", -1) } }
+    end,
+    poisonSting = function()
+        return Move{ name = "POISON STING", type = "poison", category = "physical", power = 15, accuracy = 100, pp = 35, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    twineedle = function()
+        return Move{ name = "TWINEEDLE", type = "bug", category = "physical", power = 25, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    pinMissile = function()
+        return Move{ name = "PIN MISSILE", type = "bug", category = "physical", power = 14, accuracy = 85, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    leer = function()
+        return Move{ name = "LEER", type = "normal", category = "status", power = 0, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), ModifyStat(DEFENDER, "def", -1)) } }
+    end,
+    bite = function()
+        return Move{ name = "BITE", type = "dark", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    growl = function()
+        return Move{ name = "GROWL", type = "normal", category = "status", power = 0, accuracy = 100, pp = 40, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -1) } }
+    end,
+    roar = function()
+        return Move{ name = "ROAR", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6, effects = { ForceSwitchEffect(DEFENDER) } }
+    end,
+    sing = function()
+        return Move{ name = "SING", type = "normal", category = "status", power = 0, accuracy = 55, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } }
+    end,
+    supersonic = function()
+        return Move{ name = "SUPERSONIC", type = "normal", category = "status", power = 0, accuracy = 55, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse") } }
+    end,
+    sonicBoom = function()
+        return Move{ name = "SONIC BOOM", type = "normal", category = "special", power = 0, accuracy = 90, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, 20) } }
+    end,
+    disable = function()
+        return Move{ name = "DISABLE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    acid = function()
+        return Move{ name = "ACID", type = "poison", category = "special", power = 40, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } }
+    end,
+    ember = function()
+        return Move{ name = "EMBER", type = "fire", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    flamethrower = function()
+        return Move{ name = "FLAMETHROWER", type = "fire", category = "special", power = 95, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    mist = function()
+        return Move{ name = "MIST", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    waterGun = function()
+        return Move{ name = "WATER GUN", type = "water", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    hydroPump = function()
+        return Move{ name = "HYDRO PUMP", type = "water", category = "special", power = 120, accuracy = 80, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    iceBeam = function()
+        return Move{ name = "ICE BEAM", type = "ice", category = "special", power = 95, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } }
+    end,
+    blizzard = function()
+        return Move{ name = "BLIZZARD", type = "ice", category = "special", power = 120, accuracy = 70, pp = 5, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } }
+    end,
+    psybeam = function()
+        return Move{ name = "PSYBEAM", type = "psychic", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    bubbleBeam = function()
+        return Move{ name = "BUBBLE BEAM", type = "water", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    auroraBeam = function()
+        return Move{ name = "AURORA BEAM", type = "ice", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "atk", -1))) } }
+    end,
+    hyperBeam = function()
+        return Move{ name = "HYPER BEAM", type = "normal", category = "special", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    peck = function()
+        return Move{ name = "PECK", type = "flying", category = "physical", power = 35, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    drillPeck = function()
+        return Move{ name = "DRILL PECK", type = "flying", category = "physical", power = 80, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    submission = function()
+        return Move{ name = "SUBMISSION", type = "fighting", category = "physical", power = 80, accuracy = 80, pp = 25, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -25 }
+    end,
+    lowKick = function()
+        return Move{ name = "LOW KICK", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    counter = function()
+        return Move{ name = "COUNTER", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 1, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -5 }
+    end,
+    seismicToss = function()
+        return Move{ name = "SEISMIC TOSS", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, LevelOf(ATTACKER)) } }
+    end,
+    absorb = function()
+        return Move{ name = "ABSORB", type = "grass", category = "special", power = 20, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 }
+    end,
+    megaDrain = function()
+        return Move{ name = "MEGA DRAIN", type = "grass", category = "special", power = 40, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 }
+    end,
+    leechSeed = function()
+        return Move{ name = "LEECH SEED", type = "grass", category = "status", power = 0, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { LeechSeedEffect() } }
+    end,
+    growth = function()
+        return Move{ name = "GROWTH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "spa", 1) } }
+    end,
+    razorLeaf = function()
+        return Move{ name = "RAZOR LEAF", type = "grass", category = "physical", power = 55, accuracy = 95, pp = 25, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    solarBeam = function()
+        return Move{ name = "SOLAR BEAM", type = "grass", category = "special", power = 120, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, sandWeakened = true, chargeRule = "solarBeam" }
+    end,
+    poisonPowder = function()
+        return Move{ name = "POISON POWDER", type = "poison", category = "status", power = 0, accuracy = 75, pp = 35, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "poison") } }
+    end,
+    stunSpore = function()
+        return Move{ name = "STUN SPORE", type = "grass", category = "status", power = 0, accuracy = 75, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "paralyze") } }
+    end,
+    sleepPowder = function()
+        return Move{ name = "SLEEP POWDER", type = "grass", category = "status", power = 0, accuracy = 75, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } }
+    end,
+    petalDance = function()
+        return Move{ name = "PETAL DANCE", type = "grass", category = "special", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, lockRule = "rampage" }
+    end,
+    stringShot = function()
+        return Move{ name = "STRING SHOT", type = "bug", category = "status", power = 0, accuracy = 95, pp = 40, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spe", -1) } }
+    end,
+    dragonRage = function()
+        return Move{ name = "DRAGON RAGE", type = "dragon", category = "special", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, 40) } }
+    end,
+    fireSpin = function()
+        return Move{ name = "FIRE SPIN", type = "fire", category = "special", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } }
+    end,
+    thunderShock = function()
+        return Move{ name = "THUNDER SHOCK", type = "electric", category = "special", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    thunderbolt = function()
+        return Move{ name = "THUNDERBOLT", type = "electric", category = "special", power = 95, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    thunderWave = function()
+        return Move{ name = "THUNDER WAVE", type = "electric", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, typeImmunity = true, effects = { ApplyStatus(DEFENDER, "paralyze") } }
+    end,
+    thunder = function()
+        return Move{ name = "THUNDER", type = "electric", category = "special", power = 120, accuracy = 70, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, weatherAccuracy = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    rockThrow = function()
+        return Move{ name = "ROCK THROW", type = "rock", category = "physical", power = 50, accuracy = 90, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    earthquake = function()
+        return Move{ name = "EARTHQUAKE", type = "ground", category = "physical", power = 100, accuracy = 100, pp = 10, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    fissure = function()
+        return Move{ name = "FISSURE", type = "ground", category = "physical", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true }
+    end,
+    dig = function()
+        return Move{ name = "DIG", type = "ground", category = "physical", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    confusion = function()
+        return Move{ name = "CONFUSION", type = "psychic", category = "special", power = 50, accuracy = 100, pp = 25, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    psychic = function()
+        return Move{ name = "PSYCHIC", type = "psychic", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } }
+    end,
+    hypnosis = function()
+        return Move{ name = "HYPNOSIS", type = "psychic", category = "status", power = 0, accuracy = 60, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } }
+    end,
+    meditate = function()
+        return Move{ name = "MEDITATE", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1) } }
+    end,
+    agility = function()
+        return Move{ name = "AGILITY", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spe", 2) } }
+    end,
+    quickAttack = function()
+        return Move{ name = "QUICK ATTACK", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 }
+    end,
+    rage = function()
+        return Move{ name = "RAGE", type = "normal", category = "physical", power = 20, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { RageEffect() } }
+    end,
+    teleport = function()
+        return Move{ name = "TELEPORT", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    nightShade = function()
+        return Move{ name = "NIGHT SHADE", type = "ghost", category = "special", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, LevelOf(ATTACKER)) } }
+    end,
+    mimic = function()
+        return Move{ name = "MIMIC", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    screech = function()
+        return Move{ name = "SCREECH", type = "normal", category = "status", power = 0, accuracy = 85, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "def", -2) } }
+    end,
+    doubleTeam = function()
+        return Move{ name = "DOUBLE TEAM", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "eva", 1) } }
+    end,
+    recover = function()
+        return Move{ name = "RECOVER", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } }
+    end,
+    harden = function()
+        return Move{ name = "HARDEN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1) } }
+    end,
+    minimize = function()
+        return Move{ name = "MINIMIZE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "eva", 2) } }
+    end,
+    smokescreen = function()
+        return Move{ name = "SMOKESCREEN", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } }
+    end,
+    confuseRay = function()
+        return Move{ name = "CONFUSE RAY", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse") } }
+    end,
+    withdraw = function()
+        return Move{ name = "WITHDRAW", type = "water", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1) } }
+    end,
+    defenseCurl = function()
+        return Move{ name = "DEFENSE CURL", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1), DefenseCurlEffect() } }
+    end,
+    barrier = function()
+        return Move{ name = "BARRIER", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 2) } }
+    end,
+    lightScreen = function()
+        return Move{ name = "LIGHT SCREEN", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("lightScreen") } }
+    end,
+    haze = function()
+        return Move{ name = "HAZE", type = "ice", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    reflect = function()
+        return Move{ name = "REFLECT", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    focusEnergy = function()
+        return Move{ name = "FOCUS ENERGY", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { FocusEnergyEffect() } }
+    end,
+    metronome = function()
+        return Move{ name = "METRONOME", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    mirrorMove = function()
+        return Move{ name = "MIRROR MOVE", type = "flying", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    selfDestruct = function()
+        return Move{ name = "SELF DESTRUCT", type = "normal", category = "physical", power = 200, accuracy = 100, pp = 5, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    eggBomb = function()
+        return Move{ name = "EGG BOMB", type = "normal", category = "physical", power = 100, accuracy = 75, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    lick = function()
+        return Move{ name = "LICK", type = "ghost", category = "physical", power = 20, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    smog = function()
+        return Move{ name = "SMOG", type = "poison", category = "special", power = 20, accuracy = 70, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(40), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    sludge = function()
+        return Move{ name = "SLUDGE", type = "poison", category = "special", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    boneClub = function()
+        return Move{ name = "BONE CLUB", type = "ground", category = "physical", power = 65, accuracy = 85, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    fireBlast = function()
+        return Move{ name = "FIRE BLAST", type = "fire", category = "special", power = 120, accuracy = 85, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    waterfall = function()
+        return Move{ name = "WATERFALL", type = "water", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    clamp = function()
+        return Move{ name = "CLAMP", type = "water", category = "physical", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } }
+    end,
+    swift = function()
+        return Move{ name = "SWIFT", type = "normal", category = "special", power = 60, accuracy = 0, pp = 20, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    skullBash = function()
+        return Move{ name = "SKULL BASH", type = "normal", category = "physical", power = 100, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, chargeRule = "skullBash" }
+    end,
+    spikeCannon = function()
+        return Move{ name = "SPIKE CANNON", type = "normal", category = "physical", power = 20, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    constrict = function()
+        return Move{ name = "CONSTRICT", type = "normal", category = "physical", power = 10, accuracy = 100, pp = 35, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    amnesia = function()
+        return Move{ name = "AMNESIA", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spd", 2) } }
+    end,
+    kinesis = function()
+        return Move{ name = "KINESIS", type = "psychic", category = "status", power = 0, accuracy = 80, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "acc", -1) } }
+    end,
+    softBoiled = function()
+        return Move{ name = "SOFT BOILED", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } }
+    end,
+    highJumpKick = function()
+        return Move{ name = "HIGH JUMP KICK", type = "fighting", category = "physical", power = 130, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    glare = function()
+        return Move{ name = "GLARE", type = "normal", category = "status", power = 0, accuracy = 90, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "paralyze") } }
+    end,
+    dreamEater = function()
+        return Move{ name = "DREAM EATER", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 }
+    end,
+    poisonGas = function()
+        return Move{ name = "POISON GAS", type = "poison", category = "status", power = 0, accuracy = 80, pp = 40, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "poison") } }
+    end,
+    barrage = function()
+        return Move{ name = "BARRAGE", type = "normal", category = "physical", power = 15, accuracy = 85, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    leechLife = function()
+        return Move{ name = "LEECH LIFE", type = "bug", category = "physical", power = 20, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 }
+    end,
+    lovelyKiss = function()
+        return Move{ name = "LOVELY KISS", type = "normal", category = "status", power = 0, accuracy = 75, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } }
+    end,
+    skyAttack = function()
+        return Move{ name = "SKY ATTACK", type = "flying", category = "physical", power = 140, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, critStage = 1, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    transform = function()
+        return Move{ name = "TRANSFORM", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    bubble = function()
+        return Move{ name = "BUBBLE", type = "water", category = "special", power = 20, accuracy = 100, pp = 30, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    dizzyPunch = function()
+        return Move{ name = "DIZZY PUNCH", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    spore = function()
+        return Move{ name = "SPORE", type = "grass", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "sleep") } }
+    end,
+    splash = function()
+        return Move{ name = "SPLASH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    acidArmor = function()
+        return Move{ name = "ACID ARMOR", type = "poison", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 2) } }
+    end,
+    crabhammer = function()
+        return Move{ name = "CRABHAMMER", type = "water", category = "physical", power = 90, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    explosion = function()
+        return Move{ name = "EXPLOSION", type = "normal", category = "physical", power = 250, accuracy = 100, pp = 5, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    furySwipes = function()
+        return Move{ name = "FURY SWIPES", type = "normal", category = "physical", power = 18, accuracy = 80, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    bonemerang = function()
+        return Move{ name = "BONEMERANG", type = "ground", category = "physical", power = 50, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2 }
+    end,
+    rest = function()
+        return Move{ name = "REST", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    rockSlide = function()
+        return Move{ name = "ROCK SLIDE", type = "rock", category = "physical", power = 75, accuracy = 90, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    hyperFang = function()
+        return Move{ name = "HYPER FANG", type = "normal", category = "physical", power = 80, accuracy = 90, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    sharpen = function()
+        return Move{ name = "SHARPEN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1) } }
+    end,
+    conversion = function()
+        return Move{ name = "CONVERSION", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    triAttack = function()
+        return Move{ name = "TRI ATTACK", type = "normal", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), RandomMajorStatusEffect(DEFENDER, {"burn", "paralyze", "freeze"}))) } }
+    end,
+    superFang = function()
+        return Move{ name = "SUPER FANG", type = "normal", category = "physical", power = 0, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { DirectDamage(DEFENDER, Product(CurrentHPOf(DEFENDER), 0.5)) } }
+    end,
+    slash = function()
+        return Move{ name = "SLASH", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    substitute = function()
+        return Move{ name = "SUBSTITUTE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    mindReader = function()
+        return Move{ name = "MIND READER", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    nightmare = function()
+        return Move{ name = "NIGHTMARE", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    flameWheel = function()
+        return Move{ name = "FLAME WHEEL", type = "fire", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    snore = function()
+        return Move{ name = "SNORE", type = "normal", category = "special", power = 40, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    curse = function()
+        return Move{ name = "CURSE", type = "ghost", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 1, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, curse = true, effects = { CurseEffect() } }
+    end,
+    flail = function()
+        return Move{ name = "FLAIL", type = "normal", category = "physical", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    conversion2 = function()
+        return Move{ name = "CONVERSION2", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    reversal = function()
+        return Move{ name = "REVERSAL", type = "fighting", category = "physical", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    spite = function()
+        return Move{ name = "SPITE", type = "ghost", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    powderSnow = function()
+        return Move{ name = "POWDER SNOW", type = "ice", category = "special", power = 40, accuracy = 100, pp = 25, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))) } }
+    end,
+    protect = function()
+        return Move{ name = "PROTECT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4, effects = { ProtectEffect() } }
+    end,
+    machPunch = function()
+        return Move{ name = "MACH PUNCH", type = "fighting", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 }
+    end,
+    scaryFace = function()
+        return Move{ name = "SCARY FACE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spe", -2) } }
+    end,
+    feintAttack = function()
+        return Move{ name = "FEINT ATTACK", type = "dark", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    bellyDrum = function()
+        return Move{ name = "BELLY DRUM", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    sludgeBomb = function()
+        return Move{ name = "SLUDGE BOMB", type = "poison", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    mudSlap = function()
+        return Move{ name = "MUD SLAP", type = "ground", category = "special", power = 20, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "acc", -1))) } }
+    end,
+    spikes = function()
+        return Move{ name = "SPIKES", type = "ground", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 6, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { EntryHazardEffect("spikes") } }
+    end,
+    zapCannon = function()
+        return Move{ name = "ZAP CANNON", type = "electric", category = "special", power = 120, accuracy = 50, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    foresight = function()
+        return Move{ name = "FORESIGHT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    destinyBond = function()
+        return Move{ name = "DESTINY BOND", type = "ghost", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    perishSong = function()
+        return Move{ name = "PERISH SONG", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    icyWind = function()
+        return Move{ name = "ICY WIND", type = "ice", category = "special", power = 55, accuracy = 95, pp = 15, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    detect = function()
+        return Move{ name = "DETECT", type = "fighting", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4 }
+    end,
+    boneRush = function()
+        return Move{ name = "BONE RUSH", type = "ground", category = "physical", power = 25, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    lockOn = function()
+        return Move{ name = "LOCK ON", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    outrage = function()
+        return Move{ name = "OUTRAGE", type = "dragon", category = "physical", power = 120, accuracy = 100, pp = 10, targetId = 8, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    sandstorm = function()
+        return Move{ name = "SANDSTORM", type = "rock", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SandstormEffect() } }
+    end,
+    gigaDrain = function()
+        return Move{ name = "GIGA DRAIN", type = "grass", category = "special", power = 75, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = 50 }
+    end,
+    endure = function()
+        return Move{ name = "ENDURE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4 }
+    end,
+    rollout = function()
+        return Move{ name = "ROLLOUT", type = "rock", category = "physical", power = 30, accuracy = 90, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, rollout = true }
+    end,
+    falseSwipe = function()
+        return Move{ name = "FALSE SWIPE", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 40, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    swagger = function()
+        return Move{ name = "SWAGGER", type = "normal", category = "status", power = 0, accuracy = 90, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse"), ModifyStat(DEFENDER, "atk", 2) } }
+    end,
+    spark = function()
+        return Move{ name = "SPARK", type = "electric", category = "physical", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    furyCutter = function()
+        return Move{ name = "FURY CUTTER", type = "bug", category = "physical", power = 20, accuracy = 95, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    meanLook = function()
+        return Move{ name = "MEAN LOOK", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    sleepTalk = function()
+        return Move{ name = "SLEEP TALK", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    safeguard = function()
+        return Move{ name = "SAFEGUARD", type = "normal", category = "status", power = 0, accuracy = 0, pp = 25, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("safeguard") } }
+    end,
+    magnitude = function()
+        return Move{ name = "MAGNITUDE", type = "ground", category = "physical", power = 0, accuracy = 100, pp = 30, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    dynamicPunch = function()
+        return Move{ name = "DYNAMIC PUNCH", type = "fighting", category = "physical", power = 100, accuracy = 50, pp = 5, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    megahorn = function()
+        return Move{ name = "MEGAHORN", type = "bug", category = "physical", power = 120, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    dragonBreath = function()
+        return Move{ name = "DRAGON BREATH", type = "dragon", category = "special", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    batonPass = function()
+        return Move{ name = "BATON PASS", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    encore = function()
+        return Move{ name = "ENCORE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    pursuit = function()
+        return Move{ name = "PURSUIT", type = "dark", category = "physical", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    rapidSpin = function()
+        return Move{ name = "RAPID SPIN", type = "normal", category = "physical", power = 20, accuracy = 100, pp = 40, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { RapidSpinEffect() } }
+    end,
+    sweetScent = function()
+        return Move{ name = "SWEET SCENT", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "eva", -1) } }
+    end,
+    ironTail = function()
+        return Move{ name = "IRON TAIL", type = "steel", category = "physical", power = 100, accuracy = 75, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "def", -1))) } }
+    end,
+    metalClaw = function()
+        return Move{ name = "METAL CLAW", type = "steel", category = "physical", power = 50, accuracy = 95, pp = 35, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(10), ModifyStat(ATTACKER, "atk", 1))) } }
+    end,
+    vitalThrow = function()
+        return Move{ name = "VITAL THROW", type = "fighting", category = "physical", power = 70, accuracy = 0, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -1 }
+    end,
+    synthesis = function()
+        return Move{ name = "SYNTHESIS", type = "grass", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherHealEffect() } }
+    end,
+    moonlight = function()
+        return Move{ name = "MOONLIGHT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherHealEffect() } }
+    end,
+    crossChop = function()
+        return Move{ name = "CROSS CHOP", type = "fighting", category = "physical", power = 100, accuracy = 80, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    twister = function()
+        return Move{ name = "TWISTER", type = "dragon", category = "special", power = 40, accuracy = 100, pp = 20, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    rainDance = function()
+        return Move{ name = "RAIN DANCE", type = "water", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { WeatherEffect("raindance") } }
+    end,
+    sunnyDay = function()
+        return Move{ name = "SUNNY DAY", type = "fire", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    crunch = function()
+        return Move{ name = "CRUNCH", type = "dark", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ModifyStat(DEFENDER, "def", -1))) } }
+    end,
+    mirrorCoat = function()
+        return Move{ name = "MIRROR COAT", type = "psychic", category = "special", power = 0, accuracy = 100, pp = 20, targetId = 1, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -5 }
+    end,
+    psychUp = function()
+        return Move{ name = "PSYCH UP", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    extremeSpeed = function()
+        return Move{ name = "EXTREME SPEED", type = "normal", category = "physical", power = 80, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 2 }
+    end,
+    ancientPower = function()
+        return Move{ name = "ANCIENT POWER", type = "rock", category = "special", power = 60, accuracy = 100, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(10), EffectSeq{ ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1), ModifyStat(ATTACKER, "spe", 1) })) } }
+    end,
+    shadowBall = function()
+        return Move{ name = "SHADOW BALL", type = "ghost", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ModifyStat(DEFENDER, "spd", -1))) } }
+    end,
+    futureSight = function()
+        return Move{ name = "FUTURE SIGHT", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    whirlpool = function()
+        return Move{ name = "WHIRLPOOL", type = "water", category = "special", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } }
+    end,
+    fakeOut = function()
+        return Move{ name = "FAKE OUT", type = "normal", category = "physical", power = 40, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, priority = 3, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    uproar = function()
+        return Move{ name = "UPROAR", type = "normal", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 8, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    stockpile = function()
+        return Move{ name = "STOCKPILE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spd", 1) } }
+    end,
+    spitUp = function()
+        return Move{ name = "SPIT UP", type = "normal", category = "special", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    swallow = function()
+        return Move{ name = "SWALLOW", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.25)) } }
+    end,
+    heatWave = function()
+        return Move{ name = "HEAT WAVE", type = "fire", category = "special", power = 100, accuracy = 90, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    hail = function()
+        return Move{ name = "HAIL", type = "ice", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    flatter = function()
+        return Move{ name = "FLATTER", type = "dark", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "confuse"), ModifyStat(DEFENDER, "spa", 1) } }
+    end,
+    willOWisp = function()
+        return Move{ name = "WILL O WISP", type = "fire", category = "status", power = 0, accuracy = 75, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "burn") } }
+    end,
+    memento = function()
+        return Move{ name = "MEMENTO", type = "dark", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -2), ModifyStat(DEFENDER, "spa", -2) } }
+    end,
+    focusPunch = function()
+        return Move{ name = "FOCUS PUNCH", type = "fighting", category = "physical", power = 150, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -3 }
+    end,
+    followMe = function()
+        return Move{ name = "FOLLOW ME", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 3 }
+    end,
+    charge = function()
+        return Move{ name = "CHARGE", type = "electric", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spd", 1) } }
+    end,
+    taunt = function()
+        return Move{ name = "TAUNT", type = "dark", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    helpingHand = function()
+        return Move{ name = "HELPING HAND", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 3, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 5 }
+    end,
+    trick = function()
+        return Move{ name = "TRICK", type = "psychic", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    rolePlay = function()
+        return Move{ name = "ROLE PLAY", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    ingrain = function()
+        return Move{ name = "INGRAIN", type = "grass", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    superpower = function()
+        return Move{ name = "SUPERPOWER", type = "fighting", category = "physical", power = 120, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), EffectSeq{ ModifyStat(ATTACKER, "atk", -1), ModifyStat(ATTACKER, "def", -1) }) } }
+    end,
+    magicCoat = function()
+        return Move{ name = "MAGIC COAT", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 4 }
+    end,
+    recycle = function()
+        return Move{ name = "RECYCLE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    revenge = function()
+        return Move{ name = "REVENGE", type = "fighting", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -4 }
+    end,
+    brickBreak = function()
+        return Move{ name = "BRICK BREAK", type = "fighting", category = "physical", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    yawn = function()
+        return Move{ name = "YAWN", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    knockOff = function()
+        return Move{ name = "KNOCK OFF", type = "dark", category = "physical", power = 20, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    endeavor = function()
+        return Move{ name = "ENDEAVOR", type = "normal", category = "physical", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, damageRule = "endeavor" }
+    end,
+    imprison = function()
+        return Move{ name = "IMPRISON", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    refresh = function()
+        return Move{ name = "REFRESH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    grudge = function()
+        return Move{ name = "GRUDGE", type = "ghost", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    dive = function()
+        return Move{ name = "DIVE", type = "water", category = "physical", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    camouflage = function()
+        return Move{ name = "CAMOUFLAGE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    featherDance = function()
+        return Move{ name = "FEATHER DANCE", type = "flying", category = "status", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -2) } }
+    end,
+    blazeKick = function()
+        return Move{ name = "BLAZE KICK", type = "fire", category = "physical", power = 85, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, critStage = 1, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    mudSport = function()
+        return Move{ name = "MUD SPORT", type = "ground", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { MudSportEffect() } }
+    end,
+    slackOff = function()
+        return Move{ name = "SLACK OFF", type = "normal", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } }
+    end,
+    hyperVoice = function()
+        return Move{ name = "HYPER VOICE", type = "normal", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    poisonFang = function()
+        return Move{ name = "POISON FANG", type = "poison", category = "physical", power = 50, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "badPoison"))) } }
+    end,
+    crushClaw = function()
+        return Move{ name = "CRUSH CLAW", type = "normal", category = "physical", power = 75, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(50), ModifyStat(DEFENDER, "def", -1))) } }
+    end,
+    meteorMash = function()
+        return Move{ name = "METEOR MASH", type = "steel", category = "physical", power = 100, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(20), ModifyStat(ATTACKER, "atk", 1))) } }
+    end,
+    astonish = function()
+        return Move{ name = "ASTONISH", type = "ghost", category = "physical", power = 30, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    aromatherapy = function()
+        return Move{ name = "AROMATHERAPY", type = "grass", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    fakeTears = function()
+        return Move{ name = "FAKE TEARS", type = "dark", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spd", -2) } }
+    end,
+    airCutter = function()
+        return Move{ name = "AIR CUTTER", type = "flying", category = "special", power = 55, accuracy = 95, pp = 25, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    odorSleuth = function()
+        return Move{ name = "ODOR SLEUTH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    rockTomb = function()
+        return Move{ name = "ROCK TOMB", type = "rock", category = "physical", power = 50, accuracy = 80, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    silverWind = function()
+        return Move{ name = "SILVER WIND", type = "bug", category = "special", power = 60, accuracy = 100, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(10), EffectSeq{ ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1), ModifyStat(ATTACKER, "spe", 1) })) } }
+    end,
+    metalSound = function()
+        return Move{ name = "METAL SOUND", type = "steel", category = "status", power = 0, accuracy = 85, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "spd", -2) } }
+    end,
+    tickle = function()
+        return Move{ name = "TICKLE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -1), ModifyStat(DEFENDER, "def", -1) } }
+    end,
+    cosmicPower = function()
+        return Move{ name = "COSMIC POWER", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "spd", 1) } }
+    end,
+    signalBeam = function()
+        return Move{ name = "SIGNAL BEAM", type = "bug", category = "special", power = 75, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    shadowPunch = function()
+        return Move{ name = "SHADOW PUNCH", type = "ghost", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    extrasensory = function()
+        return Move{ name = "EXTRASENSORY", type = "psychic", category = "special", power = 80, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    skyUppercut = function()
+        return Move{ name = "SKY UPPERCUT", type = "fighting", category = "physical", power = 85, accuracy = 90, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    sandTomb = function()
+        return Move{ name = "SAND TOMB", type = "ground", category = "physical", power = 35, accuracy = 85, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PartialTrapEffect() } }
+    end,
+    sheerCold = function()
+        return Move{ name = "SHEER COLD", type = "ice", category = "special", power = 0, accuracy = 30, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = true, breaksProtect = false, protectable = true }
+    end,
+    muddyWater = function()
+        return Move{ name = "MUDDY WATER", type = "water", category = "special", power = 95, accuracy = 85, pp = 10, targetId = 11, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "acc", -1))) } }
+    end,
+    bulletSeed = function()
+        return Move{ name = "BULLET SEED", type = "grass", category = "physical", power = 25, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    aerialAce = function()
+        return Move{ name = "AERIAL ACE", type = "flying", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    icicleSpear = function()
+        return Move{ name = "ICICLE SPEAR", type = "ice", category = "physical", power = 25, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    ironDefense = function()
+        return Move{ name = "IRON DEFENSE", type = "steel", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", 2) } }
+    end,
+    block = function()
+        return Move{ name = "BLOCK", type = "normal", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    dragonClaw = function()
+        return Move{ name = "DRAGON CLAW", type = "dragon", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    bounce = function()
+        return Move{ name = "BOUNCE", type = "flying", category = "physical", power = 85, accuracy = 85, pp = 5, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    mudShot = function()
+        return Move{ name = "MUD SHOT", type = "ground", category = "special", power = 55, accuracy = 95, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    covet = function()
+        return Move{ name = "COVET", type = "normal", category = "physical", power = 60, accuracy = 100, pp = 40, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    magicalLeaf = function()
+        return Move{ name = "MAGICAL LEAF", type = "grass", category = "special", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    waterSport = function()
+        return Move{ name = "WATER SPORT", type = "water", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    calmMind = function()
+        return Move{ name = "CALM MIND", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1) } }
+    end,
+    leafBlade = function()
+        return Move{ name = "LEAF BLADE", type = "grass", category = "physical", power = 90, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    dragonDance = function()
+        return Move{ name = "DRAGON DANCE", type = "dragon", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "spe", 1) } }
+    end,
+    rockBlast = function()
+        return Move{ name = "ROCK BLAST", type = "rock", category = "physical", power = 25, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 5 }
+    end,
+    shockWave = function()
+        return Move{ name = "SHOCK WAVE", type = "electric", category = "special", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    waterPulse = function()
+        return Move{ name = "WATER PULSE", type = "water", category = "special", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    roost = function()
+        return Move{ name = "ROOST", type = "flying", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { RoostEffect() } }
+    end,
+    gravity = function()
+        return Move{ name = "GRAVITY", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 5, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    miracleEye = function()
+        return Move{ name = "MIRACLE EYE", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 40, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    wakeUpSlap = function()
+        return Move{ name = "WAKE UP SLAP", type = "fighting", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    hammerArm = function()
+        return Move{ name = "HAMMER ARM", type = "fighting", category = "physical", power = 100, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), ModifyStat(ATTACKER, "spe", -1)) } }
+    end,
+    gyroBall = function()
+        return Move{ name = "GYRO BALL", type = "steel", category = "physical", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    healingWish = function()
+        return Move{ name = "HEALING WISH", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    brine = function()
+        return Move{ name = "BRINE", type = "water", category = "special", power = 65, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    naturalGift = function()
+        return Move{ name = "NATURAL GIFT", type = "normal", category = "physical", power = 0, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    feint = function()
+        return Move{ name = "FEINT", type = "normal", category = "physical", power = 30, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = true, protectable = false, priority = 2 }
+    end,
+    pluck = function()
+        return Move{ name = "PLUCK", type = "flying", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    tailwind = function()
+        return Move{ name = "TAILWIND", type = "flying", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { SideConditionEffect("tailwind") } }
+    end,
+    acupressure = function()
+        return Move{ name = "ACUPRESSURE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 5, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    closeCombat = function()
+        return Move{ name = "CLOSE COMBAT", type = "fighting", category = "physical", power = 120, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), EffectSeq{ ModifyStat(ATTACKER, "def", -1), ModifyStat(ATTACKER, "spd", -1) }) } }
+    end,
+    payback = function()
+        return Move{ name = "PAYBACK", type = "dark", category = "physical", power = 50, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    assurance = function()
+        return Move{ name = "ASSURANCE", type = "dark", category = "physical", power = 50, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, powerRule = "assurance" }
+    end,
+    fling = function()
+        return Move{ name = "FLING", type = "dark", category = "physical", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    trumpCard = function()
+        return Move{ name = "TRUMP CARD", type = "normal", category = "special", power = 0, accuracy = 0, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    wringOut = function()
+        return Move{ name = "WRING OUT", type = "normal", category = "special", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    gastroAcid = function()
+        return Move{ name = "GASTRO ACID", type = "poison", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    luckyChant = function()
+        return Move{ name = "LUCKY CHANT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    meFirst = function()
+        return Move{ name = "ME FIRST", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 2, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    copycat = function()
+        return Move{ name = "COPYCAT", type = "normal", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    powerSwap = function()
+        return Move{ name = "POWER SWAP", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    guardSwap = function()
+        return Move{ name = "GUARD SWAP", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    punishment = function()
+        return Move{ name = "PUNISHMENT", type = "dark", category = "physical", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    lastResort = function()
+        return Move{ name = "LAST RESORT", type = "normal", category = "physical", power = 140, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    worrySeed = function()
+        return Move{ name = "WORRY SEED", type = "grass", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, attemptRule = "worrySeed", effects = { WorrySeedEffect() } }
+    end,
+    suckerPunch = function()
+        return Move{ name = "SUCKER PUNCH", type = "dark", category = "physical", power = 80, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, attemptRule = "suckerPunch", priority = 1 }
+    end,
+    toxicSpikes = function()
+        return Move{ name = "TOXIC SPIKES", type = "poison", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 6, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { EntryHazardEffect("toxicSpikes") } }
+    end,
+    aquaRing = function()
+        return Move{ name = "AQUA RING", type = "water", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    magnetRise = function()
+        return Move{ name = "MAGNET RISE", type = "electric", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    flareBlitz = function()
+        return Move{ name = "FLARE BLITZ", type = "fire", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, drain = -33, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    auraSphere = function()
+        return Move{ name = "AURA SPHERE", type = "fighting", category = "special", power = 90, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    rockPolish = function()
+        return Move{ name = "ROCK POLISH", type = "rock", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spe", 2) } }
+    end,
+    poisonJab = function()
+        return Move{ name = "POISON JAB", type = "poison", category = "physical", power = 80, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    darkPulse = function()
+        return Move{ name = "DARK PULSE", type = "dark", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    nightSlash = function()
+        return Move{ name = "NIGHT SLASH", type = "dark", category = "physical", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    aquaTail = function()
+        return Move{ name = "AQUA TAIL", type = "water", category = "physical", power = 90, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    seedBomb = function()
+        return Move{ name = "SEED BOMB", type = "grass", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    airSlash = function()
+        return Move{ name = "AIR SLASH", type = "flying", category = "special", power = 75, accuracy = 95, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    xScissor = function()
+        return Move{ name = "X SCISSOR", type = "bug", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    bugBuzz = function()
+        return Move{ name = "BUG BUZZ", type = "bug", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } }
+    end,
+    dragonPulse = function()
+        return Move{ name = "DRAGON PULSE", type = "dragon", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    dragonRush = function()
+        return Move{ name = "DRAGON RUSH", type = "dragon", category = "physical", power = 100, accuracy = 75, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    powerGem = function()
+        return Move{ name = "POWER GEM", type = "rock", category = "special", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    vacuumWave = function()
+        return Move{ name = "VACUUM WAVE", type = "fighting", category = "special", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 }
+    end,
+    braveBird = function()
+        return Move{ name = "BRAVE BIRD", type = "flying", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 }
+    end,
+    earthPower = function()
+        return Move{ name = "EARTH POWER", type = "ground", category = "special", power = 90, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } }
+    end,
+    switcheroo = function()
+        return Move{ name = "SWITCHEROO", type = "dark", category = "status", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    gigaImpact = function()
+        return Move{ name = "GIGA IMPACT", type = "normal", category = "physical", power = 150, accuracy = 90, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    nastyPlot = function()
+        return Move{ name = "NASTY PLOT", type = "dark", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 2) } }
+    end,
+    bulletPunch = function()
+        return Move{ name = "BULLET PUNCH", type = "steel", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 }
+    end,
+    avalanche = function()
+        return Move{ name = "AVALANCHE", type = "ice", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -4 }
+    end,
+    iceShard = function()
+        return Move{ name = "ICE SHARD", type = "ice", category = "physical", power = 40, accuracy = 100, pp = 30, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 }
+    end,
+    shadowClaw = function()
+        return Move{ name = "SHADOW CLAW", type = "ghost", category = "physical", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    thunderFang = function()
+        return Move{ name = "THUNDER FANG", type = "electric", category = "physical", power = 65, accuracy = 95, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "paralyze"))), SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    iceFang = function()
+        return Move{ name = "ICE FANG", type = "ice", category = "physical", power = 65, accuracy = 95, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "freeze"))), SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    fireFang = function()
+        return Move{ name = "FIRE FANG", type = "fire", category = "physical", power = 65, accuracy = 95, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "burn"))), SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    mudBomb = function()
+        return Move{ name = "MUD BOMB", type = "ground", category = "special", power = 65, accuracy = 85, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "acc", -1))) } }
+    end,
+    psychoCut = function()
+        return Move{ name = "PSYCHO CUT", type = "psychic", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    zenHeadbutt = function()
+        return Move{ name = "ZEN HEADBUTT", type = "psychic", category = "physical", power = 80, accuracy = 90, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(20), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    mirrorShot = function()
+        return Move{ name = "MIRROR SHOT", type = "steel", category = "special", power = 65, accuracy = 85, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ModifyStat(DEFENDER, "acc", -1))) } }
+    end,
+    flashCannon = function()
+        return Move{ name = "FLASH CANNON", type = "steel", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ModifyStat(DEFENDER, "spd", -1))) } }
+    end,
+    discharge = function()
+        return Move{ name = "DISCHARGE", type = "electric", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "paralyze"))) } }
+    end,
+    lavaPlume = function()
+        return Move{ name = "LAVA PLUME", type = "fire", category = "special", power = 80, accuracy = 100, pp = 15, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    leafStorm = function()
+        return Move{ name = "LEAF STORM", type = "grass", category = "special", power = 140, accuracy = 90, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { When(Chance(100), ModifyStat(ATTACKER, "spa", -2)) } }
+    end,
+    powerWhip = function()
+        return Move{ name = "POWER WHIP", type = "grass", category = "physical", power = 120, accuracy = 85, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    crossPoison = function()
+        return Move{ name = "CROSS POISON", type = "poison", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, critStage = 1, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    gunkShot = function()
+        return Move{ name = "GUNK SHOT", type = "poison", category = "physical", power = 120, accuracy = 70, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    ironHead = function()
+        return Move{ name = "IRON HEAD", type = "steel", category = "physical", power = 80, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    magnetBomb = function()
+        return Move{ name = "MAGNET BOMB", type = "steel", category = "physical", power = 60, accuracy = 0, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    stoneEdge = function()
+        return Move{ name = "STONE EDGE", type = "rock", category = "physical", power = 100, accuracy = 80, pp = 5, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    captivate = function()
+        return Move{ name = "CAPTIVATE", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 11, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, attemptRule = "oppositeSex", effects = { ModifyStat(DEFENDER, "spa", -2) } }
+    end,
+    stealthRock = function()
+        return Move{ name = "STEALTH ROCK", type = "rock", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 6, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { EntryHazardEffect("stealthRock") } }
+    end,
+    bugBite = function()
+        return Move{ name = "BUG BITE", type = "bug", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    chargeBeam = function()
+        return Move{ name = "CHARGE BEAM", type = "electric", category = "special", power = 50, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(70), ModifyStat(ATTACKER, "spa", 1))) } }
+    end,
+    woodHammer = function()
+        return Move{ name = "WOOD HAMMER", type = "grass", category = "physical", power = 120, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, drain = -33 }
+    end,
+    aquaJet = function()
+        return Move{ name = "AQUA JET", type = "water", category = "physical", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = 1 }
+    end,
+    doubleHit = function()
+        return Move{ name = "DOUBLE HIT", type = "normal", category = "physical", power = 35, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, minHits = 2, maxHits = 2 }
+    end,
+    wideGuard = function()
+        return Move{ name = "WIDE GUARD", type = "rock", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 3 }
+    end,
+    wonderRoom = function()
+        return Move{ name = "WONDER ROOM", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 12, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = -7 }
+    end,
+    psyshock = function()
+        return Move{ name = "PSYSHOCK", type = "psychic", category = "special", power = 80, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    ragePowder = function()
+        return Move{ name = "RAGE POWDER", type = "bug", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, attemptRule = "singlesRedirect", priority = 3 }
+    end,
+    telekinesis = function()
+        return Move{ name = "TELEKINESIS", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    smackDown = function()
+        return Move{ name = "SMACK DOWN", type = "rock", category = "physical", power = 50, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    flameBurst = function()
+        return Move{ name = "FLAME BURST", type = "fire", category = "special", power = 70, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    sludgeWave = function()
+        return Move{ name = "SLUDGE WAVE", type = "poison", category = "special", power = 95, accuracy = 100, pp = 10, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(10), ApplyStatus(DEFENDER, "poison"))) } }
+    end,
+    quiverDance = function()
+        return Move{ name = "QUIVER DANCE", type = "bug", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "spa", 1), ModifyStat(ATTACKER, "spd", 1), ModifyStat(ATTACKER, "spe", 1) } }
+    end,
+    heavySlam = function()
+        return Move{ name = "HEAVY SLAM", type = "steel", category = "physical", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    synchronoise = function()
+        return Move{ name = "SYNCHRONOISE", type = "psychic", category = "special", power = 70, accuracy = 100, pp = 15, targetId = 9, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    electroBall = function()
+        return Move{ name = "ELECTRO BALL", type = "electric", category = "special", power = 0, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, powerRule = "electroBall" }
+    end,
+    soak = function()
+        return Move{ name = "SOAK", type = "water", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    flameCharge = function()
+        return Move{ name = "FLAME CHARGE", type = "fire", category = "physical", power = 50, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(ATTACKER, When(Chance(100), ModifyStat(ATTACKER, "spe", 1))) } }
+    end,
+    coil = function()
+        return Move{ name = "COIL", type = "poison", category = "status", power = 0, accuracy = 0, pp = 20, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "def", 1), ModifyStat(ATTACKER, "acc", 1) } }
+    end,
+    lowSweep = function()
+        return Move{ name = "LOW SWEEP", type = "fighting", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    acidSpray = function()
+        return Move{ name = "ACID SPRAY", type = "poison", category = "special", power = 40, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spd", -2))) } }
+    end,
+    afterYou = function()
+        return Move{ name = "AFTER YOU", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false }
+    end,
+    round = function()
+        return Move{ name = "ROUND", type = "normal", category = "special", power = 60, accuracy = 100, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    chipAway = function()
+        return Move{ name = "CHIP AWAY", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    clearSmog = function()
+        return Move{ name = "CLEAR SMOG", type = "poison", category = "special", power = 50, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    storedPower = function()
+        return Move{ name = "STORED POWER", type = "psychic", category = "special", power = 20, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    quickGuard = function()
+        return Move{ name = "QUICK GUARD", type = "fighting", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 4, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 3 }
+    end,
+    allySwitch = function()
+        return Move{ name = "ALLY SWITCH", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, priority = 2 }
+    end,
+    shellSmash = function()
+        return Move{ name = "SHELL SMASH", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "def", -1), ModifyStat(ATTACKER, "spd", -1), ModifyStat(ATTACKER, "atk", 2), ModifyStat(ATTACKER, "spa", 2), ModifyStat(ATTACKER, "spe", 2) } }
+    end,
+    healPulse = function()
+        return Move{ name = "HEAL PULSE", type = "psychic", category = "status", power = 0, accuracy = 0, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { Heal(ATTACKER, Product(MaxHPOf(ATTACKER), 0.5)) } }
+    end,
+    hex = function()
+        return Move{ name = "HEX", type = "ghost", category = "special", power = 50, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    skyDrop = function()
+        return Move{ name = "SKY DROP", type = "flying", category = "physical", power = 60, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    circleThrow = function()
+        return Move{ name = "CIRCLE THROW", type = "fighting", category = "physical", power = 60, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6 }
+    end,
+    acrobatics = function()
+        return Move{ name = "ACROBATICS", type = "flying", category = "physical", power = 55, accuracy = 100, pp = 15, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    reflectType = function()
+        return Move{ name = "REFLECT TYPE", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    retaliate = function()
+        return Move{ name = "RETALIATE", type = "normal", category = "physical", power = 70, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    finalGambit = function()
+        return Move{ name = "FINAL GAMBIT", type = "fighting", category = "special", power = 0, accuracy = 100, pp = 5, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    bestow = function()
+        return Move{ name = "BESTOW", type = "normal", category = "status", power = 0, accuracy = 0, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    inferno = function()
+        return Move{ name = "INFERNO", type = "fire", category = "special", power = 100, accuracy = 50, pp = 5, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ApplyStatus(DEFENDER, "burn"))) } }
+    end,
+    bulldoze = function()
+        return Move{ name = "BULLDOZE", type = "ground", category = "physical", power = 60, accuracy = 100, pp = 20, targetId = 9, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(100), ModifyStat(DEFENDER, "spe", -1))) } }
+    end,
+    dragonTail = function()
+        return Move{ name = "DRAGON TAIL", type = "dragon", category = "physical", power = 60, accuracy = 90, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, priority = -6 }
+    end,
+    workUp = function()
+        return Move{ name = "WORK UP", type = "normal", category = "status", power = 0, accuracy = 0, pp = 30, targetId = 7, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = false, effects = { ModifyStat(ATTACKER, "atk", 1), ModifyStat(ATTACKER, "spa", 1) } }
+    end,
+    drillRun = function()
+        return Move{ name = "DRILL RUN", type = "ground", category = "physical", power = 80, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, critStage = 1 }
+    end,
+    heartStamp = function()
+        return Move{ name = "HEART STAMP", type = "psychic", category = "physical", power = 60, accuracy = 100, pp = 25, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    razorShell = function()
+        return Move{ name = "RAZOR SHELL", type = "water", category = "physical", power = 75, accuracy = 95, pp = 10, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(50), ModifyStat(DEFENDER, "def", -1))) } }
+    end,
+    leafTornado = function()
+        return Move{ name = "LEAF TORNADO", type = "grass", category = "special", power = 65, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(50), ModifyStat(DEFENDER, "acc", -1))) } }
+    end,
+    steamroller = function()
+        return Move{ name = "STEAMROLLER", type = "bug", category = "physical", power = 65, accuracy = 100, pp = 20, targetId = 10, contact = true, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    psystrike = function()
+        return Move{ name = "PSYSTRIKE", type = "psychic", category = "special", power = 100, accuracy = 100, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true }
+    end,
+    hurricane = function()
+        return Move{ name = "HURRICANE", type = "flying", category = "special", power = 120, accuracy = 70, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, weatherAccuracy = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "confuse"))) } }
+    end,
+    icicleCrash = function()
+        return Move{ name = "ICICLE CRASH", type = "ice", category = "physical", power = 85, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = true, ohko = false, breaksProtect = false, protectable = true, secondaries = { SecondaryEffect(DEFENDER, When(Chance(30), ApplyStatus(DEFENDER, "flinch"))) } }
+    end,
+    charm = function()
+        return Move{ name = "CHARM", type = "normal", category = "status", power = 0, accuracy = 100, pp = 20, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ModifyStat(DEFENDER, "atk", -2) } }
+    end,
+    psywave = function()
+        return Move{ name = "PSYWAVE", type = "psychic", category = "special", power = 0, accuracy = 80, pp = 15, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { PsywaveDamage() } }
+    end,
+    stormThrow = function()
+        return Move{ name = "STORM THROW", type = "fighting", category = "physical", power = 40, accuracy = 100, pp = 10, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, willCrit = true }
+    end,
+    struggle = function()
+        return Move{ name = "STRUGGLE", type = "normal", category = "physical", power = 50, accuracy = 0, pp = 1, targetId = 10, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, typeless = true, noPP = true, struggleRecoil = true }
+    end,
+    toxic = function()
+        return Move{ name = "TOXIC", type = "poison", category = "status", power = 0, accuracy = 90, pp = 10, targetId = 10, contact = false, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, effects = { ApplyStatus(DEFENDER, "badPoison") } }
+    end,
+    bide = function()
+        return Move{ name = "BIDE", type = "normal", category = "physical", power = 0, accuracy = 0, pp = 10, targetId = 7, contact = true, hasSecondary = false, ohko = false, breaksProtect = false, protectable = true, damageRule = "bide", priority = 1 }
+    end,
 }
+moveData = MoveRegistry.new(moveData)

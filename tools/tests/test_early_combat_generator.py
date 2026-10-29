@@ -24,7 +24,8 @@ class EarlyCombatGeneratorTests(unittest.TestCase):
         spec=importlib.util.spec_from_file_location('verify',ROOT/'tools/verify_early_combat.py');verify=importlib.util.module_from_spec(spec);spec.loader.exec_module(verify)
         manifest=json.loads((ROOT/'tools/references/early-combat.json').read_text())
         self.assertEqual(verify.check_moves(ROOT/'Source/battle/moves.lua',manifest),424)
-        rows=dict(re.findall(r'^    (\w+) = (Move[^\n]+)$',(ROOT/'Source/battle/moves.lua').read_text(),re.M))
+        from tools.move_producer_contract import read_rows
+        rows = read_rows((ROOT/'Source/battle/moves.lua').read_text())
         for field in ['type = "poison"','category = "status"','power = 0','accuracy = 90','pp = 10','targetId = 10','ApplyStatus(DEFENDER, "badPoison")']:self.assertIn(field,rows['toxic'])
     def test_corrupt_source_pin_and_unowned_move_edit_fail(self):
         spec=importlib.util.spec_from_file_location('verify',ROOT/'tools/verify_early_combat.py');verify=importlib.util.module_from_spec(spec);spec.loader.exec_module(verify)

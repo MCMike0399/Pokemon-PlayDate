@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Project pinned Showdown Gen5 contact/secondary/OHKO metadata; no runtime code execution."""
-import argparse,hashlib,json,re,urllib.request
+import argparse,hashlib,json,re,urllib.request,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+if __package__ in (None, ''):
+ sys.path.insert(0, str(ROOT))
 REV='9b136a8c8cdb860a8ab96fa063f906604e352547'
 FILES={'data/moves.ts':'61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7','data/mods/gen8/moves.ts':'d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e','data/mods/gen7/moves.ts':'d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc','data/mods/gen6/moves.ts':'2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb','data/mods/gen5/moves.ts':'b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010'}
 # This is a data-field reader, not a TS evaluator/transpiler. Only exact,
@@ -38,7 +40,8 @@ def generate(cache,moves,fetch=False):
   raw=p.read_bytes()
   if hashlib.sha256(raw).hexdigest()!=sha:raise ValueError('source checksum: '+name)
   texts.append(raw.decode())
- keys=re.findall(r'^    (\w+) = Move',moves.read_text(),re.M)
+ from tools.move_producer_contract import read_rows
+ keys=list(read_rows(moves.read_text()))
  names={k:({'viceGrip':'visegrip'}.get(k) or k.lower()) for k in keys};rows=project(texts,set(names.values()))
  # Every projected ID must exist in the actual primary base registry.
  missing=set(names.values())-set(entries(texts[0]))
