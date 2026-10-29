@@ -10,7 +10,7 @@ from pathlib import Path
 
 from tools.harness import cerulean_journey as cj
 from tools.harness import vermilion_journey as vj
-from tools.harness.brock_journey import BrockJourney, NaturalBlackout
+from tools.harness.brock_journey import BrockJourney, NaturalBlackout, choose_battle_medicine
 from tools.harness.journeys import DIRECTIONS, lookup
 from tools.harness.parcel_journey import sequence
 from tools.harness.protocol import ProtocolError, atomic_json
@@ -645,12 +645,43 @@ class MidgameJourney(vj.VermilionJourney):
         self.require(root='overworld')
         self.summary['party_changes'].append(dict(kind='deposit-for-earned-lapras', species=members[index - 1]['species']))
 
+    def battle_preparation_action(self, battle, options):
+        primary = self.starter_index()
+        active = lookup(self.state, 'session.party.active')
+        if active != primary:
+            starter = self.party()[primary - 1]
+            if starter['hp'] == 0 and self.quantity('revive') > 0:
+                self.battle_medicine('revive', options, target=primary)
+                return True
+            if starter['hp'] > 0:
+                # Spend real turns healing in reserve before exposing the starter.
+                medicine = choose_battle_medicine(starter, self.inventory())
+                if medicine:
+                    self.battle_medicine(medicine, options, target=primary)
+                    return True
+                if self.battle_switch(primary, options, 'return to the earned starter'):
+                    self.switch_back = False
+                    return True
+                # A trapping rejection closes Party without spending a turn.
+                # Reopen the command menu once, then let FIGHT proceed (or fail
+                # honestly on status-only moves), never retry Party in this hook.
+                self.require(root='battle')
+                self.await_value('battle.menu.active', True)
+                self.switch_back = False
+                return False
+        return super().battle_preparation_action(battle, options)
+
     def restock(self, mart):
         clerk = self.zone(mart) + ':objects:1'
         shop = self.vermilion['shops'].get(clerk)
         if not shop:
             raise ProtocolError('actual shop owner unavailable: ' + mart)
-        for item, target in [('antidote', 2), ('superPotion', 4)]:
+        purchases = [('antidote', 2), ('superPotion', 4)]
+        if mart == 'CeladonMart2F':
+            # Stock and prices come from the existing midgame-owners projection.
+            self.require_shop_stock(clerk, 'revive')
+            purchases.insert(0, ('revive', 2))
+        for item, target in purchases:
             if item not in shop['stock']:
                 continue
             price = shop['prices'][item]

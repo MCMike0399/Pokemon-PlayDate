@@ -398,8 +398,22 @@ class BrockJourney(ParcelJourney):
         if name=='rival'and self.state.get('root')=='dialog':self.dialog()
         return bool(outcome.get('won')),terminal['player']['hp']<=0
 
-    def battle_medicine(self,item,options):
+    def battle_medicine(self,item,options,target=None):
         before=self.quantity(item)
+        target=lookup(self.state,'session.party.active') if target is None else target
+        members=self.party()
+        if type(target)is not int or not 1<=target<=len(members):raise ProtocolError('invalid actual battle medicine target')
+        mon=members[target-1]
+        hp,maximum=mon['hp'],mon['maxHP']
+        amounts={'potion':20,'superPotion':50,'hyperPotion':200,'maxPotion':maximum,'fullRestore':maximum}
+        expected_hp=None
+        if item in {'revive','maxRevive'}:
+            if hp!=0:raise ProtocolError('battle revive requires a fainted actual target')
+            expected_hp=max(1,maximum//2) if item=='revive' else maximum
+        elif item in amounts:
+            if hp<=0:raise ProtocolError('battle healing cannot revive a fainted target')
+            expected_hp=min(maximum,hp+amounts[item])
+        if before<1:raise ProtocolError('observed battle medicine no longer in actual bag')
         bag=[i for i,value in enumerate(options,1)if value=='BAG'or isinstance(value,dict)and value.get('action')=='bag']
         if len(bag)!=1:raise ProtocolError('battle requires exactly one real BAG action')
         self.select('battle.menu.selected',bag[0]);self.send('press a');self.require(root='bag')
@@ -407,9 +421,10 @@ class BrockJourney(ParcelJourney):
         index=next((i for i,row in enumerate(slots,1)if row['id']==item),None)
         if index is None:raise ProtocolError('observed battle medicine no longer in actual bag')
         self.select('bag.selected',index);self.send('press a');self.require(root='party')
-        self.select('party_ui.selected',lookup(self.state,'session.party.active'));self.send('press a')
+        self.select('party_ui.selected',target);self.send('press a')
         self.require(root='battle',**{'inventory.quantities.'+item:before-1})
-        self.summary['recoveries'].append({'kind':'battle-medicine','item':item,'party':self.party()})
+        if expected_hp is not None and self.party()[target-1]['hp']!=expected_hp:raise ProtocolError('battle medicine HP differs from exact item effect')
+        self.summary['recoveries'].append({'kind':'battle-medicine','item':item,'target':target,'party':self.party()})
         self.checkpoint('brock-battle-medicine-'+str(len(self.summary['recoveries'])))
 
     def select_grid(self,path,index,columns):
