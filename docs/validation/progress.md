@@ -4,7 +4,6 @@ Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
 P0 elapsed since the first guarded trace commit: **17.52 h**; hardware pace: **0 maps/day**.
-
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -25,7 +24,6 @@ The approved GB tones and non-audio QoL remain; no new regions are active.
 Simulator preview packages: `evidence/player-packages/5.4-playable-20261028`.
 Showcase: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
 These are not verified device deliveries.
-
 ## 2. Current checkpoint and checklist
 
 **108-map hardware smoke passes; loading/playability remains open. 5.5a: frozen.**
@@ -45,15 +43,15 @@ Then accept 5.5a (Rock Tunnel/Lavender/Celadon/Erika/Hideout/Scope),
 5.5b (Tower/Fuji/Flute/Fuchsia/Safari/Koga/Surf/Strength), and
 5.5c (Saffron/Silph/Sabrina/Dojo/Fly), each on main with three chained earned saves.
 Only one starter covers optional content. Sets continue after a starter fails.
-
 ## 3. Current evidence and blockers
 
-Latest 108-map hardware build `df4a421a8ef94b64b54c4c30203b078d` completed
+Latest 108-map hardware build `1e8581864b0b4312b330da59da441fa0` completed
 title, earned 5.4 Continue, save, doors, Cut and a wild Diglett battle. Errorlog
 and crashlog remain exact. Lua live/peak **4.00 / 5.61 MiB**; worst map load
-**3,234 ms** per door, **4,036 ms** Continue installation; battle **19 ms**.
+**3,060 ms** per door; battle **20 ms**. The earlier exact baseline measured
+**4,036 ms** for Continue installation.
 Ordinary max active frame **189 ms**; last `battle.live.after_gc` **4.24 MiB**.
-Recorded walking means are **15.79 / 14.39 fps** (Route2/cave), including test
+Recorded walking means are **16.56 / 15.19 fps** (Route2/cave), including test
 recorder overhead. Median 33 ms does not prove the 25 fps target. Loading,
 walking and user play remain unaccepted. [Raw scope and
 assessment](device-smoke-108-20261029.json). No legacy failure report was relabelled.
@@ -70,7 +68,8 @@ peak, <=150 ms Simulator slices and active crash guards.
 The earlier user-play build `2e450cd9` reached its 9 MiB guard after about
 100 minutes idle at title. Its exact trace was archived before replacement.
 No leak cause is established. Recorder `5899775` reuses one flushed handle and
-stops metrics after physical handoff; compile/host checks pass, runtime pending.
+stops metrics after physical handoff. The exact hardware smoke passes with no
+new logs (`evidence/p0-recorder-handle-hardware-20261029-01`); idle benefit is unmeasured.
 The user is away; no repeated setup or feedback request. Production excludes
 all serial-input and frame-recorder code.
 
@@ -91,17 +90,15 @@ The guarded physical build stays available; no device inputs or reinstall during
 this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
 
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
-regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
-branch is preserved. Three chained 5.5a journeys are running from hash-verified
-partial Saves (actual stopped processes and real Continue), on Source `2984348e`.
-The checkout is frozen for this set; integrations stay on a separate branch.
-Charmander reached Celadon after 18 battles, then exposed a driver A-button
-retry error at a shop. The shared helper now waits for dispatch (61 host checks
-pass). Bulbasaur reached a real Rock Tunnel blackout; private `1fd874f` connects
-the existing checkpoint/half-money/healing verifier to midgame retries and saves
-after recovery (63 host checks pass). Neither failed run is called accepted.
-Charmander covers optional content; the other two the critical path. Evidence:
-`evidence/m55a-erika-cut-resumed-20261029-01` (current retry).
+regenerated caches and flat atlases. Main remains at 65 maps. Three chained
+journeys use hash-verified partial Saves and actual Continue; no completed travel
+is replayed or save state invented. Current set:
+`evidence/m55a-icebeam-lift-resumed-20261029-01`, revision `81a8d046`.
+Charmander reached the Hideout lift but failed a driver arrival expectation
+(y=2 versus the explicit lift binding's y=1). The other starters continue.
+The checkout stays frozen until the set ends. Squirtle now obtains and teaches
+the earned rooftop Ice Beam before Erika instead of grinding. Medicine and
+Revives use real purchases and battle turns. No journey is accepted yet.
 
 The SDK file encoder is on main (`09154f9e`); 54 protocol checks and one review
 pass. It passed the earlier native JSON abort points. Longer travel then exposed
@@ -119,7 +116,7 @@ Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Sparse WorldView `79e42dc1` was rejected after hardware (3,199 vs 3,234 ms;
 no material gain). Continue shortcut `f0774168` was rejected before runtime:
 it removed validation required by candidate-bound owners. Both checks stay.
-A recorder-only bundle is prepared for a separate comparison. Root audio,
+The recorder-only comparison completed as reported above. Root audio,
 cleanup and Safari polish remain paused. Nothing pushed.
 Private `wip/checkpoint-a-erika` restores the Gym’s source Cut data and uses the
 outside (35,32) and inside (5,7) trees. 55 host checks, generator and compile pass;
@@ -129,6 +126,9 @@ again before returning to the Center. Remaining starters/Hideout are unaccepted.
 The preceding 108-map fade build also passed the 16 MB production probe:
 **5.615 MiB title / 5.778 MiB Continue / 6.793 MiB phase peak**. Its real-input
 smoke peaked at **7.294 MiB**, max slice **45.40 ms**; hardware unmeasured.
+Battle HUDs now appear with each presented Pokémon (`178b7f6f`): ten native
+cases, frame inspection and independent review passed. Visible HUD pixels, rules
+and timing remain unchanged; this is separate from campaign acceptance.
 Evidence: `evidence/p0-checkpoint-a-current-p0-resources-20261029-01` and
 `evidence/p0-checkpoint-a-current-p0-smoke-20261029-01`.
 
