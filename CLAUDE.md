@@ -35,7 +35,7 @@ Lua project for the Playdate handheld (400x240, 1-bit display, 30 FPS). All sour
 
 ### Game Loop & State Machine
 
-`main.lua` is the entry point: it imports everything, builds a `GameContext` (global `game`: root machine, camera, npcManager, player, authoritative GameSession, transition log), registers the top-level states, and runs `machine:update()` → `machine:handleInput()` → `machine:draw()` each frame, followed by incremental GC (`collectgarbage("step", 1)`).
+`main.lua` imports definitions, then `GameBootstrap.start` initializes sprites, authored maps and content in the SDK update coroutine before building a `GameContext` (global `game`: root machine, camera, npcManager, player, authoritative GameSession, transition log), registers the top-level states, and runs `machine:update()` → `machine:handleInput()` → `machine:draw()` each frame, followed by incremental GC (`collectgarbage("step", 1)`).
 
 `lib/statemachine.lua` provides `State` (lifecycle: `enter/exit/pause/resume/update/draw/handleInput`) and `StateMachine` — a **stack** machine. `change(name, ...)` replaces the stack; `push(name, ...)`/`pop(...)` overlay states. Every stacked state updates and draws bottom→top each frame, but **only the top state receives `handleInput()`** — so dialog and the debug menu are pushed over the overworld and the world keeps animating beneath them. Overworld overlays keep tile rendering/animation alive but suspend Player/NPC updates and progression triggers. The machine emits a `"changed"` signal (kind, from, to); `GameContext` records the last 12 transitions for triage (`gamestate` autopilot command prints them).
 
@@ -65,7 +65,7 @@ Wiring: `ExploreSubstate:update` calls `Story.check(game, overworldState)` every
 
 Order matters. Key constraints:
 1. `lib/oop.lua` first (provides `Class()` used everywhere), then `lib/statemachine.lua` (provides `State` subclassed by game states and battle phases)
-2. `lib/shade.lua` and `world/tilefactory.lua` before `world/overworld.lua` (tiles generated at import time)
+2. `lib/shade.lua` and `world/tilefactory.lua` before `world/overworld.lua` (the world view uses its generated tile images)
 3. `world/zone.lua` before `data/maps.lua` (Zone class needed for `registerZone()` calls)
 4. `data/pokemon.lua` before `data/maps.lua` (encounters reference Pokemon class)
 5. `battle/dsl.lua` before `battle/moves.lua` (move data instantiates DSL effects at import time)
@@ -115,7 +115,7 @@ NPC defs support story-conditional spawning and content: `appearsIf = function()
 - **Step doors** (`{ x, y, to, toX, toY, facing }`) fire when a step finishes on the tile — outside house doors and stairs. Stepping off and back on re-triggers (Gen 1 stairs behavior).
 - **Edge doors** (`{ x, y, edge="down", to, toX, toY, facing }`) are Gen 2/3-style exit gates: landing on the tile does nothing; the warp fires when the player stands on it and *walks in the edge direction* (into the room boundary). All interior exit mats are edge doors. `Player:tryMove` sets `player.pendingEdgeDoor` when a blocked move matches an edge door; `explore` consumes it and switches to `doorWarp`. The autopilot `move` command reports `edge-door <dir> at x,y` when this happens. While the player stands on an edge-door tile, `Player:updateExitArrow` shows a bobbing **exit arrow** sprite (`getExitArrows` builds the 4 directional images procedurally; z-index 102) in the void tile just past the door, pointing the exit direction — the Gen 2/3 "you can leave here" cursor. `Zone:getEdgeDoorAt(gx, gy, dir)` finds the door (nil `dir` matches any edge door at the tile, used to aim the arrow).
 
-The accepted world reaches Cerulean, Misty and Bill. `SourceMaps` loads the manifest in `data/sourceMaps.json`; `ImportedMaps` owns the shared provider, cache and durable delta ledger. `KantoSlice` and `PewterSlice` are compatibility facades over that pipeline. Four Viridian maps remain resident to preserve existing references, alongside two disposable map slots. Authored Pallet keeps its protected Zone adapter. `tools/generate_source_map_cache.py` verifies the manifest’s pinned decoded inputs and generates compact metadata and direct tile-grid lookup; full definitions load on demand. Adding source data does not bind its events automatically.
+The accepted world reaches Cerulean, Misty and Bill. `SourceMaps` loads the manifest in `data/sourceMaps.json`; `ImportedMaps` owns the shared provider, cache and durable delta ledger. `KantoSlice` and `PewterSlice` are compatibility facades over that pipeline. Every imported map uses the shared two-slot cache; legacy Viridian lookups load through that provider. Authored Pallet keeps its protected Zone adapter. `tools/generate_source_map_cache.py` verifies the manifest’s pinned decoded inputs and generates compact metadata and direct tile-grid lookup; full definitions load on demand. Adding source data does not bind its events automatically.
 
 `SourceEvents` plans stable-ID programs from `data/sourceEvents.json`; `EventState` executes bounded operations, while session and trainer owners commit durable changes and confirmed battle rewards. Ordinary dialogue, gifts, pickups, shops, healing and trainers use descriptors. Genuinely bespoke scripts are keyed in `sourceEventHandlers.lua`. When changing those plans or ownership, read [source-events.md](docs/validation/source-events.md). Scripted NPC movement leases the existing `NPCMotion` owner; read [scripted-npc.md](docs/validation/scripted-npc.md) before changing actor control or allowed script positions.
 
@@ -132,6 +132,8 @@ Simulates the Game Boy's 4-shade palette on Playdate's 1-bit display using order
 **Animated tiles** (`world/overworld.lua`): water, shore, and flowers animate by swapping images into the imagetable in place (tile IDs never change) and marking the tilemap sprite dirty. One shared 10-frame heartbeat reproduces Gen 1's global animation counter (one step per 21 frames at 60fps): water/shore oscillate the wave streaks ±4px (`TileFactory.water(shift)`), flowers cycle bob frames 1,2,3,1. `updateOverworldAnimations()` is driven from `OverworldState:update()`, so animation continues under dialog/debug overlays and during the iris transition.
 
 ### Sprite System (`world/spritefactory.lua`)
+
+`main.lua` calls `SpriteFactory.initialize()` and `AuthoredMaps.initialize()` during cooperative loading, before content and `GameContext`. Player imports capture the original frame tables; initialization fills those tables in place to preserve their identities.
 
 Overworld character sprites (player **and** NPCs) are generated at runtime by `SpriteFactory`, the companion to `TileFactory` — there are **no sprite PNGs**. Frames are authored as 16x16 grids (same `. 1 2 #` convention as tiles) and rendered to 32x32 via the shared `TileFactory.renderGrid`, then given an **alpha mask**: a cell-level border flood-fill marks every `.` cell reachable from the edge through other `.` cells as transparent, so the body must be sealed by a continuous `#` outline. Right-facing frames are the left frame flipped (`SpriteFactory.flipped`).
 

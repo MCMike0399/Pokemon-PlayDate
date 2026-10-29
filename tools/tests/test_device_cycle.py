@@ -194,6 +194,14 @@ class SmokeCycleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'hash mismatch'):
             self.gate()
 
+    def test_diagnostic_build_is_not_hardware_admission(self):
+        self.build['diagnostic_only'] = True
+        (self.stage / 'build.json').write_text(json.dumps(self.build))
+        (self.evidence / 'run.json').write_text(json.dumps(self.report))
+        self.write_report()
+        with self.assertRaisesRegex(ValueError, 'diagnostic'):
+            self.gate()
+
     def test_failed_status_or_forged_measurement_rejected(self):
         self.report['status'] = 'failed'
         self.write_report()

@@ -107,6 +107,8 @@ def smoke_gate(args, stage, pdx):
     if getattr(args, 'calibration_build', None):
         raise ValueError('smoke cannot use calibration metadata')
     build = smoke.verify(stage)
+    if build.get('diagnostic_only'):
+        raise ValueError('diagnostic builds cannot supply hardware admission proof')
     if pdx.resolve() != (stage / 'DeviceSmoke.pdx').resolve():
         raise ValueError('smoke candidate must be the exact retained DeviceSmoke.pdx')
     production = build['production_source_manifest']

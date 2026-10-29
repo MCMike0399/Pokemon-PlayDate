@@ -16,7 +16,7 @@ Cerulean saves and passed actual process exit/Continue. These are Simulator resu
 **The game is not yet playable on Playdate hardware.** The last hardware game build
 requested a restart. Only the small calibration app has since passed on hardware.
 
-Main's current P0 game change is `e8265b3`; it has no hardware acceptance.
+Main's current P0 game change is `bf2a8c2`; it has no hardware acceptance.
 The approved GB tones and non-audio QoL remain on main. No new regions are active.
 Production 5.4 packages and earned saves: `evidence/player-packages/5.4-playable-20261028`.
 Showcase: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
@@ -86,15 +86,26 @@ The monolithic development harness exceeds 16 MB; use small existing SDK batches
 
 ## 4. Work in flight
 
+Diagnostic-only builds are now rejected by hardware admission even if their
+measurements pass; the new host check went red then all 34 device-tool checks
+passed. No USB access occurred.
+
 Root owns main, Simulator and hardware. Independent review is complete and its
 findings are addressed. Cut reset now decodes only maps carrying tile changes;
 16 field-move and 14 field-world SDK cases passed in
 `evidence/p0-field-contracts-16mb-20261029-06` and
 `evidence/p0-field-world-contracts-16mb-20261029-01`.
-The exact `p0-exact-game-smoke-20261029-12` run is in flight. Private collector-mode
-experiments `p0-generational-smoke-20261029-01` through `-03` reduced some costs but
+The exact `p0-exact-game-smoke-20261029-12` run failed timing. Grouped import
+tracing and deferred original sprite/Pallet setup are now on main. The private
+combined run `p0-deferred-authored-smoke-20261029-01` reached all steps but still
+failed timing: ordinary update 14.185 ms, slice 29 ms, map estimate 4.28 s.
+All 2,494 protected images matched in
+`evidence/p0-deferred-authored-protected-catalog-20261029-01/comparison.json`.
+The shared source check still compares original bodies; four manual mutations
+of wrappers, map cells and rendering helpers were rejected. Private collector-mode
+experiments `p0-generational-smoke-20261029-01` through `-04` reduced some costs but
 still failed timing; collector mode on main is unchanged.
-Next: reduce import-time work and trace overhead, then rerun the exact smoke. Only a passing Simulator proof may proceed to the hardware cycle.
+Next: reduce repeated map-constructor work without weakening public validation, then rerun the exact smoke. Only a passing Simulator proof may proceed to the hardware cycle.
 Workers use GPT-6.1 Sol at medium effort in isolated worktrees.
 
 `wip/midgame-integration`: 108-map checkpoint A candidate, frozen; needs current P0
