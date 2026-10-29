@@ -108,3 +108,11 @@ Host checks, including compilation and decoded PDZ module inventory:
 source ~/Developer/Pokemon-PlayDate-env/env.sh
 python3 -m unittest tools.tests.test_device_simulator_smoke -v
 ```
+
+Phase prediction now separates active work from suspension. New frame rows
+include the segment start time aligned to BootTrace. The device estimate is
+observed wall time plus active time times (factor minus one), with a two-ms
+endpoint allowance. Display/yield waits are not multiplied by a Lua CPU factor.
+Both raw wall time and the estimated device phase must stay below 500 ms. Old
+rows without start times retain the stricter legacy check and cannot use this
+separation. The frozen command list and its hash are recorded for hardware replay.

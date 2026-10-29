@@ -302,6 +302,7 @@ function DeviceSmoke.installSimulatorObserver()
     local function clock()
         return elapsed() * 1000
     end
+    local clockOffset <const> = playdate.getCurrentTimeMilliseconds() - clock()
     local started, updateID, segmentID = nil, 0, 0
     local loadingSegment = false
     local updateThread
@@ -309,9 +310,9 @@ function DeviceSmoke.installSimulatorObserver()
         local elapsed = clock() - started
         segmentID = segmentID + 1
         local file = assert(playdate.file.open("device-smoke-frames.tsv", playdate.file.kFileAppend))
-        assert(file:write(string.format("%s\t%d\t%d\t%s\t%.3f\t%.3f\t%d\n",
+        assert(file:write(string.format("%s\t%d\t%d\t%s\t%.3f\t%.3f\t%d\t%.3f\n",
             DEVICE_TEST_ID, updateID, segmentID, kind, elapsed, collectgarbage("count"),
-            (loadingSegment or GameBootstrap.isLoading()) and 1 or 0)))
+            (loadingSegment or GameBootstrap.isLoading()) and 1 or 0, started + clockOffset)))
         file:close()
     end
     local yield <const> = coroutine.yield

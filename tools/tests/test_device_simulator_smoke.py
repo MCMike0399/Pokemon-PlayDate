@@ -136,6 +136,19 @@ class SmokeHostTests(unittest.TestCase):
         self.assertEqual(report['budget_failures'], [])
         self.assertIn('map_load_ms', smoke.measurements(self.root, BUILD, 2)['budget_failures'])
 
+    def test_timestamped_phase_scales_work_without_scaling_suspension(self):
+        self.trace()
+        frames = self.root / 'device-smoke-frames.tsv'
+        frames.write_text(
+            f'{BUILD}\t1\t1\tyield\t1\t5000\t1\t2\n'
+            f'{BUILD}\t1\t2\treturn\t1\t5000\t1\t401\n'
+            f'{BUILD}\t2\t1\treturn\t1\t5000\t0\t403\n')
+        report = smoke.measurements(self.root, BUILD, 2)
+        self.assertEqual(report['measurements']['map_device_estimate_ms'], 404)
+        self.assertEqual(report['budget_failures'], [])
+        frames.write_text(frames.read_text().replace('yield\t1\t', 'yield\t300\t'))
+        self.assertIn('map_device_estimate_ms', smoke.measurements(self.root, BUILD, 2)['budget_failures'])
+
     def test_budget_failure_and_missing_evidence_never_pass(self):
         self.trace()
         frames = self.root / 'device-smoke-frames.tsv'

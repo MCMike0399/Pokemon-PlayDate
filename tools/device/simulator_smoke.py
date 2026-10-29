@@ -127,7 +127,7 @@ def measurements(data, build_id, factor):
     frames = []
     for line in (data / 'device-smoke-frames.tsv').read_text().splitlines():
         columns = line.split('\t')
-        if len(columns) not in (6, 7) or (len(columns) == 7 and columns[6] not in {'0', '1'}):
+        if len(columns) not in (6, 7, 8) or (len(columns) >= 7 and columns[6] not in {'0', '1'}):
             raise ValueError('invalid frame columns')
         identity, update, segment, kind, elapsed, heap = columns[:6]
         values = [float(elapsed), float(heap)]
@@ -135,7 +135,10 @@ def measurements(data, build_id, factor):
             raise ValueError('invalid frame measurement or build identity')
         frames.append({'update': int(update), 'segment': int(segment), 'kind': kind,
                        'active_ms': values[0], 'heap_kib': values[1],
-                       'loading': len(columns) == 7 and columns[6] == '1'})
+                       'loading': len(columns) >= 7 and columns[6] == '1',
+                       'start_ms': float(columns[7]) if len(columns) == 8 else None})
+        if frames[-1]['start_ms'] is not None and (not math.isfinite(frames[-1]['start_ms']) or frames[-1]['start_ms'] < 0):
+            raise ValueError('invalid active segment timestamp')
     lines = (data / 'boot-trace.tsv').read_text().splitlines()
     if not lines or lines[0] != f'schema\t1\tbuild\t{build_id}\tplatform\tsimulator':
         raise ValueError('BootTrace identity/platform mismatch')
@@ -156,6 +159,22 @@ def measurements(data, build_id, factor):
                 spans.append(row['clock_ms'] - start)
                 start = None
         return max(spans) if spans else None
+    def predicted_span(begin, end):
+        start, estimates = None, []
+        for row in phases:
+            if row['phase'] == begin:
+                start = row['clock_ms']
+            elif row['phase'] == end and start is not None:
+                stop = row['clock_ms']
+                active = sum(max(0, min(stop, frame['start_ms'] + frame['active_ms'])
+                                 - max(start, frame['start_ms'])) for frame in frames)
+                wall = stop - start
+                # Two endpoint milliseconds cover alignment with integer phase
+                # clocks. Suspension/display wait is retained at its observed
+                # duration; the Lua calibration factor applies to active work.
+                estimates.append(wall + (min(wall, active + 2) * max(0, factor - 1)))
+                start = None
+        return max(estimates) if estimates else None
     live = [row['heap_kib'] * 1024 for row in phases if row['phase'] in {'title.live.after_gc', 'Continue.live.after_gc'}]
     measured = {'heap_live_bytes': max(live) if live else None,
                 'heap_peak_bytes': max([r['peak_kib'] * 1024 for r in phases] + [f['heap_kib'] * 1024 for f in frames], default=None),
@@ -166,6 +185,14 @@ def measurements(data, build_id, factor):
     limits = {'heap_live_bytes': 6 * 1024**2, 'heap_peak_bytes': 9 * 1024**2,
               'map_load_ms': 500 / factor, 'battle_start_ms': 500 / factor,
               'frame_ms': 33 / factor, 'slice_ms': 1000 / factor}
+    if frames and all(frame['start_ms'] is not None for frame in frames):
+        limits['map_load_ms'] = limits['battle_start_ms'] = 500
+        for name, begin, end in (
+            ('map_device_estimate_ms', 'door.map.begin', 'door.map.end'),
+            ('battle_device_estimate_ms', 'battle.start.begin', 'battle.start.end'),
+        ):
+            measured[name] = predicted_span(begin, end)
+            limits[name] = 500
     failures = [name for name, value in measured.items() if value is None or value > limits[name]]
     if not frames or any(f['kind'] == 'error' for f in frames) or any(r['phase'].startswith('error.') for r in phases):
         failures.append('runtime-error-or-no-frames')
@@ -187,7 +214,8 @@ def execute(stage, sdk, output, earned, bodies, timeout, factor):
     process, mailbox = None, None
     report = {'build': build, 'device_gate_passed': False, 'status': 'failed',
               'classification': 'Simulator only; not yet playable on Playdate hardware',
-              'malloc_pool_mb': 16, 'malloc_pool_preflight': 16645684}
+              'malloc_pool_mb': 16, 'malloc_pool_preflight': 16645684,
+              'commands': bodies, 'commands_sha256': tree_hash(bodies)}
     with OwnerLock(run.runtime_lock_path(sdk)), OwnerLock(run.device_lock_path()):
         run.simulator_preflight()
         data.mkdir(parents=True, exist_ok=False)
