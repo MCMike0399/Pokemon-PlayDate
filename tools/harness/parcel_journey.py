@@ -335,6 +335,8 @@ class ParcelJourney(Journey):
         return {(npc["x"], npc["y"]) for npc in sequence(self.state.get("npcs", []), "npcs")}
 
     def select(self, path, index, bound=24):
+        if path == "battle.menu.selected" and lookup(self.state, "battle.menu.active") is False:
+            self.await_value("battle.menu.active", True, frames=120)
         visited = set()
         for _ in range(bound):
             current = lookup(self.state, path)
