@@ -208,6 +208,11 @@ function SaveStore:_inspect()
         for _, role in ipairs({"a", "b", "candidate"}) do
             local observed = raw[role]
             local record = self:_decode(self._paths[role], observed.bytes, observed.error)
+            if record.state == "valid" then
+                -- A later validator may retain an earlier argument. Detach
+                -- this checked record before any further callback or yield.
+                record = copy(record)
+            end
             record.bytes = observed.bytes
             artifacts[role] = record
             cacheable = cacheable and (record.state == "valid" or record.state == "missing")

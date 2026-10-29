@@ -399,6 +399,25 @@ function SaveContracts.run()
         local good=SaveStore("save-contract-"..runId.."-primitive",validate,fs)
         local cycle={}; cycle.self=cycle
         ok=good:save(cycle); eq(ok,false)
+        local seeded, retainedPaths, retainedPrefix = fixture("retained-validator")
+        assert(seeded:save(payload(1)))
+        assert(seeded:save(payload(2)))
+        assert(seeded:save(payload(3)))
+        local originalBytes = assert(fs.read(retainedPaths.a))
+        local retained
+        local retaining = SaveStore(retainedPrefix, function(data)
+            if data.revision == 3 then
+                retained = data
+            elseif retained then
+                retained.revision = 999
+            end
+            return validate(data)
+        end, fs)
+        retaining:setValidationEpoch("stable-acceptance-policy")
+        local checked = assert(retaining:load())
+        eq(checked.revision, 3)
+        eq(assert(retaining:load()).revision, 3)
+        eq(fs.read(retainedPaths.a), originalBytes)
     end)
     return report
 end
