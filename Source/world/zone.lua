@@ -126,11 +126,13 @@ local function bounds(zone, x, y)
 end
 local function captureDefinition(zone, terrain, revision, issues, blocked, compact, owned)
     if owned then
-        local current <const> = {}
+        local current, tiles, collision = {}, {}, {}
         for y = 1, zone.height do
             current[y] = terrain[y]
+            tiles[y] = zone.tiles[y]
+            collision[y] = zone.collision[y]
         end
-        zoneData[zone] = { tiles = deepCopy(zone.tiles), collision = deepCopy(zone.collision),
+        zoneData[zone] = { tiles = tiles, collision = collision,
             terrain = current, baselineTerrain = terrain, revision = revision or "authored-v1",
             issues = deepCopy(issues or {}), blocked = deepCopy(blocked or {}),
             compactTerrain = compact, touched = {} }
@@ -386,6 +388,22 @@ function Zone:_commitTiles(plan)
     local function assign(values)
         for _, change in ipairs(values) do
             local row <const> = change.y + 1
+            -- Factory-owned rows share their reset baseline until first write.
+            -- Public constructors still use independent defensive arrays.
+            if self.tiles[row] == data.tiles[row] then
+                local detached = {}
+                for x = 1, self.width do
+                    detached[x] = self.tiles[row][x]
+                end
+                self.tiles[row] = detached
+            end
+            if self.collision[row] == data.collision[row] then
+                local detached = {}
+                for x = 1, self.width do
+                    detached[x] = self.collision[row][x]
+                end
+                self.collision[row] = detached
+            end
             if data.terrain[row] == data.baselineTerrain[row] then
                 -- Cell records stay private and immutable; detach just the row.
                 local detached <const> = {}
