@@ -410,6 +410,16 @@ function Harness.afterFrame(game, runtimeError)
     Autopilot.afterFrame()
     HarnessCapture.recent()
     watchMachines(game)
+    if tick % 15 == 0 then
+        publish("heartbeat.json", { status = "alive", active_id = request and request.id, command = index })
+    end
+    -- Journeys need full observations at command boundaries, not a second
+    -- full party/session serialization on every intermediate walking frame.
+    -- Retain periodic samples and transitions until the next recorded frame.
+    if config.journey_profile and tick ~= 1 and not complete
+        and (not request or commands[index]) and tick % 30 ~= 0 then
+        return
+    end
     local snapshot = HarnessDiagnostics.snapshot(game)
     local event = envelope({ active_id = request and request.id, command = request and index,
         input = Autopilot.inputSnapshot(), transitions = transitions, snapshot = snapshot })
@@ -417,9 +427,6 @@ function Harness.afterFrame(game, runtimeError)
     local file = assert(playdate.file.open("trace.jsonl", playdate.file.kFileAppend))
     file:write(json.encode(event) .. "\n"); file:close()
     if tick == 1 then publish("ready.json", { status = "ready", sdk_version = config.sdk_version, snapshot = snapshot }) end
-    if tick % 15 == 0 then
-        publish("heartbeat.json", { status = "alive", active_id = request and request.id, command = index })
-    end
     if not request then return end
     local command = commands[index]
     if command and complete then
