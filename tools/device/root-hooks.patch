@@ -1,0 +1,11 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -237,6 +237,8 @@
+         if harness and playdate.isSimulator then
+             local ok, message = pcall(updateGame)
+             harness.afterFrame(game, not ok and tostring(message) or nil)
++        elseif DEVICE_TEST_BUILD == true then
++            DeviceSmoke.runFrame(game, updateGame)
+         else
+             updateGame()
+         end
