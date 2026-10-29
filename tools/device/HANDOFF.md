@@ -152,3 +152,19 @@ state reads remain available. A fresh app launch returns to automated mode.
 Production builds still contain no DeviceSmoke module or serial command handler.
 This lets the user try the guarded measured build without replacing it with an
 unmeasured production binary. It is user feedback, not a production-release claim.
+
+Recorder update from `3948eee7` (2026-10-29): frame rows now share one append
+handle and flush after each completed row. The one-way `manual` handoff closes
+that handle and stops frame timing/metric rows; raw columns, clocks, exclusions
+and yield/return boundaries before handoff remain unchanged. SDK 3.1.2 private
+compile: `device-smoke-recorder-compile-20261029-01` under the environment evidence
+directory, build `516836541b2f416eb1a6fa12fcdb6404`. Existing device-smoke,
+device-cycle and production-boundary host checks: 41 passed; protocol checks:
+54 passed. These checks and compilation do not validate runtime behavior.
+
+The archived old-build trace is
+`evidence/p0-erika-ready-hardware-20261029-01/before/Data/com.poc.pokemon.device-test.2e450cd96ab54b5f875037322671c917/boot-trace.tsv`.
+It crosses the unchanged 9 MiB guard about 100 minutes after `initialize.ready`;
+this does not establish a leak cause. No Simulator, USB, serial or hardware run,
+push or delegation was performed for this update. Root owns the current hardware
+attempt using its immutable earlier bundle and any idle-memory comparison.
