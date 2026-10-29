@@ -89,8 +89,10 @@ attempts and require one A press; none occurred in these guarded game attempts.
 
 The wall-rectangle experiment remains excluded after no useful Simulator gain.
 Its replacement will remove unused SDK wall sprites, keeping collision in Zone.
-Cold terrain images should be retested against the actual device view cost;
-previous Simulator-only timing was insufficient to rule them out on hardware.
+Compiled terrain was retested on hardware and stays off main: worst map load
+worsened from **4,789 to 6,262 ms**, with a complete smoke and no new crash logs.
+See `evidence/p0-device-terrain-decision-20261029.json`. Removing unused wall
+sprites is next; its single static review was clear and Root is running SDK cases.
 `wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
 current P0 code and verify that its 16 MB heap stays close to the 65-map result.
 Root audio, cleanup and Safari polish remain paused. No new regions are on main.
