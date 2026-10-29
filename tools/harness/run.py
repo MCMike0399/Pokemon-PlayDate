@@ -173,6 +173,8 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
     (output / 'frames').mkdir()
     # JSON strings are Lua-compatible quoted strings for these machine-generated values.
     lua_values = []
+    if journey:
+        metadata['journey_profile'] = True
     if recent_interval > 1:
         metadata['recent_interval'] = recent_interval
         metadata['generated_overlays'].append('Source/dev/capture_policy.lua')
@@ -184,7 +186,7 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
             raise ProtocolError('capture policy overlay would overwrite staged Source')
         target.write_bytes(overlay)
         (source / 'main.lua').write_bytes(original_main + b'\nimport "dev/capture_policy"\n')
-    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval'):
+    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile'):
         if key not in metadata:
             continue
         value = metadata[key]
