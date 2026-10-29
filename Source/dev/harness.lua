@@ -34,7 +34,7 @@ end
 local function publish(path, value)
     local temporary = path .. ".tmp"
     local file = assert(playdate.file.open(temporary, playdate.file.kFileWrite))
-    file:write(json.encode(envelope(value)))
+    json.encodeToFile(file, false, envelope(value))
     file:close()
     assert(playdate.file.rename(temporary, path))
 end
@@ -424,7 +424,9 @@ function Harness.afterFrame(game, runtimeError)
         input = Autopilot.inputSnapshot(), transitions = transitions, snapshot = snapshot })
     transitions = {}
     local file = assert(playdate.file.open("trace.jsonl", playdate.file.kFileAppend))
-    file:write(json.encode(event) .. "\n"); file:close()
+    json.encodeToFile(file, false, event)
+    file:write("\n")
+    file:close()
     if tick == 1 then publish("ready.json", { status = "ready", sdk_version = config.sdk_version, snapshot = snapshot }) end
     if not request then return end
     local command = commands[index]
