@@ -588,8 +588,19 @@ class Cycle:
         build = json.loads((stage / 'build.json').read_text())
         source = inventory(stage / 'Source')
         payload = inventory(pdx)
+        soak_mode = bool(getattr(args, 'soak_proof', None))
         smoke_mode = bool(getattr(args, 'simulator_smoke', None))
-        if smoke_mode:
+        if soak_mode:
+            from tools.device.soak.evidence import admission
+            from tools.device.soak.lifecycle import validate_mode
+            validate_mode(args, stage)
+            build, soak_report = admission(stage, args.soak_proof)
+            if pdx != stage / 'Soak.pdx' or sha(self.sdk / 'bin/pdc') != build['compiler_sha256'] or (self.sdk / 'VERSION.txt').read_text().strip() != build['sdk_version']:
+                raise ValueError('soak SDK/PDX mismatch')
+            soak_admission = {'classification': 'exact short soak safety proof; not hardware acceptance',
+                              'report_sha256': sha(Path(args.soak_proof)), 'report': soak_report}
+
+        elif smoke_mode:
             self.smoke_build, self.smoke_report, smoke_admission = smoke_gate(args, stage, pdx)
             if (sha(self.sdk / 'bin/pdc') != build['compiler_sha256']
                     or (self.sdk / 'VERSION.txt').read_text().strip() != build['sdk_version']):
@@ -606,14 +617,16 @@ class Cycle:
         bundle_id = info.get('bundleID', '').strip()
         if not re.fullmatch(r'[A-Za-z0-9_.-]+', bundle_id) or bundle_id in {'.', '..'}:
             raise ValueError('invalid bundleID')
-        if not smoke_mode and ((stage / 'Source/dev').exists() or any(name.startswith('dev/') for name in payload)):
+        if not (smoke_mode or soak_mode) and ((stage / 'Source/dev').exists() or any(name.startswith('dev/') for name in payload)):
             raise ValueError('development payload refused')
         manifest = {'schema': 1, 'pdx': str(pdx), 'pdx_files': payload,
                     'pdx_sha256': tree_hash(payload), 'source_files': source,
-                    'source_sha256': build['source_sha256'], 'build': build,
+                    'source_sha256': build['compiled_source_sha256'] if soak_mode else build['source_sha256'], 'build': build,
                     'bundle_id': bundle_id, 'stage': str(stage)}
         atomic_json(self.output / 'manifest.json', manifest)
-        if smoke_mode:
+        if soak_mode:
+            gate = soak_admission
+        elif smoke_mode:
             gate = smoke_admission
         elif getattr(args, 'calibration_preflight', None):
             gate = calibration_gate(args, manifest, source)
@@ -663,6 +676,15 @@ class Cycle:
               'serial after run stops device attempts: device needs one A press. '
               'Simulator-only work may continue after the serial reader is closed.', flush=True)
         with OwnerLock(runtime_lock_path(self.sdk)), OwnerLock(device_lock_path()):
+            from tools.device.soak import lifecycle as soak
+            soak.enter(self, manifest)  # All device candidates honor a live soak reservation.
+            if getattr(args, 'soak_collect', None):
+                soak.collect(self, installed, data, payload)
+                return
+            if getattr(args, 'soak_proof', None):
+                from tools.device.soak.evidence import admission
+                if admission(stage, args.soak_proof)[0] != manifest['build']:
+                    raise ValueError('soak changed while acquiring locks')
             if self.smoke_build:
                 checked, _, _ = smoke_gate(args, stage, pdx)
                 if checked != self.smoke_build:
@@ -684,6 +706,8 @@ class Cycle:
             self.step('backup-existing-save-slots' if earned else 'preserve-application-data')
             before_data = inventory(data) if data.exists() else {}
             atomic_json(self.output / 'data-before.json', before_data)
+            if getattr(args, 'soak_launch', False) and before_data:
+                raise ValueError('soak requires fresh private Data')
             if self.smoke_build and any(name in before_data for name in (
                     'boot-profile-build.json', 'device-smoke-command.txt', 'device-smoke-frames.tsv')):
                 raise ValueError('smoke Data contains stale metrics, external identity or an unconsumed command')
@@ -728,6 +752,9 @@ class Cycle:
             simulator_usb_preflight()
             self.ran = True  # a timed-out run command may already have launched
             self.command([str(self.sdk / 'bin/pdutil'), self.serial, 'run', '/Games/' + pdx.name])
+            if getattr(args, 'soak_launch', False):
+                soak.launched(self)
+                return  # subprocess closed serial; context releases BOTH locks
             self.step('wait-for-game')
             deadline = time.monotonic() + args.run_seconds
             attempt_error = None
@@ -787,6 +814,10 @@ def main():
     parser.add_argument('--build-stage', required=True)
     parser.add_argument('--output', required=True, help='fresh evidence directory')
     gates = parser.add_mutually_exclusive_group(required=True)
+    gates.add_argument('--soak-proof', help='exact short Simulator soak proof; not soak acceptance')
+    split = parser.add_mutually_exclusive_group()
+    split.add_argument('--soak-launch', action='store_true')
+    split.add_argument('--soak-collect', help='exact launch evidence directory')
     gates.add_argument('--simulator-smoke', help='exact passed DeviceSmoke report; recomputed before any device access')
     gates.add_argument('--simulator-gate', help='root measured 16 MB game gate for this exact build')
     gates.add_argument('--calibration-preflight', help='completed minimal calibration Simulator record; not a game gate')
