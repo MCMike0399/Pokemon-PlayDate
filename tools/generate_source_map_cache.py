@@ -8,6 +8,7 @@ import argparse
 import copy
 import hashlib
 import json
+import struct
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,7 +37,44 @@ def padding_grid(profile, index):
                         "adapter_padding": True}}
 
 
-def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
+
+# SMC1: magic, little-endian uint16 width/height/palette count, two ASCII
+# SHA256 pins, then row-major tile bytes followed by row-major collision bytes.
+# Bound the native Lua multi-return row construction well below its stack limit.
+CELL_MAX_WIDTH = 128
+CELL_HEADER = struct.Struct("<4sHHH64s64s")
+
+
+def cell_cache(definition, header, entry):
+    width, height = definition["dimensions"]["cells"]
+    palette = len(definition["grids"])
+    if not (1 <= width <= CELL_MAX_WIDTH and 1 <= height <= 65535 and 1 <= palette <= 255):
+        return None
+    prefix = CELL_HEADER.pack(b"SMC1", width, height, palette,
+                              header["manifest_sha256"].encode(), entry["source_sha256"].encode())
+    tiles = bytes(tile for row in definition["tile_ids"] for tile in row)
+    collision = bytes(solid for row in definition["collision"] for solid in row)
+    wire = prefix + tiles + collision
+    # Independent unpacking proves every encoded cell, not just its checksum.
+    magic, w, h, count, manifest_pin, source_pin = CELL_HEADER.unpack_from(wire)
+    require((magic, w, h, count) == (b"SMC1", width, height, palette), "invalid cell cache header")
+    require(manifest_pin.decode() == header["manifest_sha256"]
+            and source_pin.decode() == entry["source_sha256"], "invalid cell cache pins")
+    require(len(wire) == CELL_HEADER.size + width * height * 2, "invalid cell cache byte count")
+    for y in range(height):
+        start = CELL_HEADER.size + y * width
+        decoded_tiles = list(wire[start:start + width])
+        decoded_collision = list(wire[start + width * height:start + width * height + width])
+        require(decoded_tiles == definition["tile_ids"][y], "cell cache tiles differ from source")
+        require(decoded_collision == definition["collision"][y], "cell cache collision differs from source")
+        for tile, solid in zip(decoded_tiles, decoded_collision):
+            require(1 <= tile <= palette and solid in (0, 1), "invalid cell cache value")
+            require(solid == int(not definition["grids"][tile - 1]["terrain"]["land_passable"]),
+                    "cell cache collision differs from terrain")
+    return wire
+
+
+def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts=None):
     manifest_path, source_root = Path(manifest_path), Path(source_root).resolve()
     manifest_bytes = manifest_path.read_bytes()
     manifest = json.loads(manifest_bytes)
@@ -142,6 +180,10 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source"):
             atlas["tiles"][key] = tile
             compact["tiles"][key] = {field: value for field, value in tile.items() if field != "grid"}
         compact["maps"][name] = descriptor
+        if cell_artifacts is not None:
+            cells = cell_cache(definition, header, entry)
+            if cells is not None:
+                cell_artifacts[name + ".bin"] = cells
     # LAST_MAP is stateful in the source. Infer its ordinary unique OVERWORLD
     # ingress; an ambiguous context requires an explicit manifest override (or
     # ultimately a bespoke runtime script), never a regional Lua name branch.
@@ -184,16 +226,24 @@ def main():
     parser.add_argument("--manifest", type=Path, default=MANIFEST)
     parser.add_argument("--source-root", type=Path, default=ROOT / "Source")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--cells-output", type=Path, help="separate versioned binary cell cache directory")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    artifacts = build(args.manifest, args.source_root)
+    cells = {} if args.cells_output else None
+    artifacts = build(args.manifest, args.source_root, cell_artifacts=cells)
+    outputs = [(artifacts, args.output)]
+    if args.cells_output:
+        outputs.append((cells, args.cells_output))
     if args.check:
-        check(artifacts, args.output)
+        for generated, destination in outputs:
+            check(generated, destination)
     else:
-        require(not args.output.exists(), "fresh generated output directory required")
-        args.output.mkdir(parents=True)
-        for name, content in artifacts.items():
-            (args.output / name).write_bytes(content)
+        for _, destination in outputs:
+            require(not destination.exists(), "fresh generated output directory required")
+        for generated, destination in outputs:
+            destination.mkdir(parents=True)
+            for name, content in generated.items():
+                (destination / name).write_bytes(content)
     print("Verified compact source maps:", len(json.loads(artifacts["compact.json"])["maps"]))
 
 

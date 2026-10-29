@@ -570,20 +570,26 @@ function Zone.fromMapDefinition(definition, registry, options)
     array(definition.grids, #entries, "imported grids")
     assert(#entries > 0, "imported palette is empty")
     local preparedBatch <const> = registry:prepareBatch(entries)
-    array(definition.tile_ids, height, "imported tile IDs")
-    array(definition.collision, height, "imported collision")
-    for y = 1, height do
-        local tiles, collisions = definition.tile_ids[y], definition.collision[y]
-        array(tiles, width, "imported tile IDs row " .. y)
-        array(collisions, width, "imported collision row " .. y)
-        for x = 1, width do
-            local id, collision = tiles[x], collisions[x]
-            assert(integer(id) and localKeys[id], "unknown imported tile ID")
-            assert(collision == 0 or collision == 1, "unknown imported collision value")
-            assert(collision == entries[id].collision, "imported collision/terrain mismatch")
-        end
-        if GameBootstrap then
-            GameBootstrap.yieldIfDue()
+    local packedRow, verifyPacked
+    if SourceMaps then
+        packedRow, verifyPacked = SourceMaps._packedCells(definition)
+    end
+    if not packedRow then
+        array(definition.tile_ids, height, "imported tile IDs")
+        array(definition.collision, height, "imported collision")
+        for y = 1, height do
+            local tiles, collisions = definition.tile_ids[y], definition.collision[y]
+            array(tiles, width, "imported tile IDs row " .. y)
+            array(collisions, width, "imported collision row " .. y)
+            for x = 1, width do
+                local id, collision = tiles[x], collisions[x]
+                assert(integer(id) and localKeys[id], "unknown imported tile ID")
+                assert(collision == 0 or collision == 1, "unknown imported collision value")
+                assert(collision == entries[id].collision, "imported collision/terrain mismatch")
+            end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
         end
     end
     local bindings=options.bindingAdapter or MapBindings
@@ -636,28 +642,71 @@ function Zone.fromMapDefinition(definition, registry, options)
         local ids <const> = registry:registerPreparedBatch(preparedBatch)
         local tiles, collision, terrain = {}, {}, {}
         local terrainPalette <const> = {}
-        for y = 1, height do
-            tiles[y], collision[y], terrain[y] = {}, {}, {}
-            for x = 1, width do
-                local localID = definition.tile_ids[y][x]
-                assert(integer(localID) and entries[localID], "unknown imported tile ID")
-                local solid = definition.collision[y][x]
-                assert((solid == 0 or solid == 1) and solid == entries[localID].collision,
+        if packedRow then
+            local replacements, expectedCollision, localIDs = {}, {}, {}
+            for localID, id in ipairs(ids) do
+                local byte = string.char(localID)
+                replacements[byte] = string.pack("<I4", id)
+                expectedCollision[byte] = entries[localID].collision == 0 and "\0" or "\1"
+                localIDs[id] = localID
+            end
+            local format <const> = "<" .. string.rep("I4", width)
+            for y = 1, height do
+                local sourceTiles, sourceCollision = packedRow(y)
+                local encoded <const> = sourceTiles:gsub(".", replacements)
+                -- An unknown ID remains one byte instead of four. Equality also
+                -- rechecks every collision against the current prepared palette.
+                assert(#encoded == width * 4, "unknown imported tile ID")
+                assert(sourceTiles:gsub(".", expectedCollision) == sourceCollision,
                     "imported collision/terrain mismatch")
-                tiles[y][x] = ids[localID]
-                collision[y][x] = blocked[y] and blocked[y][x] and 1 or solid
-                local id <const> = ids[localID]
-                if not terrainPalette[id] then
-                    terrainPalette[id] = registry:preparedTerrain(preparedBatch, localID)
+                local tileRow <const> = { string.unpack(format, encoded) }
+                tileRow[width + 1] = nil -- string.unpack's final cursor is not a cell.
+                local collisionRow <const> = { string.byte(sourceCollision, 1, width) }
+                local terrainRow <const> = {}
+                for x = 1, width do
+                    local id = tileRow[x]
+                    local value = terrainPalette[id]
+                    if not value then
+                        value = registry:preparedTerrain(preparedBatch, localIDs[id])
+                        terrainPalette[id] = value
+                    end
+                    terrainRow[x] = options.compactTerrain and value or deepCopy(value)
                 end
-                if options.compactTerrain then
-                    terrain[y][x] = terrainPalette[id]
-                else
-                    terrain[y][x] = deepCopy(terrainPalette[id])
+                for x in pairs(blocked[y] or {}) do
+                    collisionRow[x] = 1
+                end
+                tiles[y], collision[y], terrain[y] = tileRow, collisionRow, terrainRow
+                if GameBootstrap then
+                    GameBootstrap.yieldIfDue()
                 end
             end
-            if GameBootstrap then
-                GameBootstrap.yieldIfDue()
+            -- Strings stay immutable across callbacks and yields. Check raw
+            -- proxy integrity here and again after all remaining registry reads.
+            verifyPacked()
+        else
+            for y = 1, height do
+                tiles[y], collision[y], terrain[y] = {}, {}, {}
+                for x = 1, width do
+                    local localID = definition.tile_ids[y][x]
+                    assert(integer(localID) and entries[localID], "unknown imported tile ID")
+                    local solid = definition.collision[y][x]
+                    assert((solid == 0 or solid == 1) and solid == entries[localID].collision,
+                        "imported collision/terrain mismatch")
+                    tiles[y][x] = ids[localID]
+                    collision[y][x] = blocked[y] and blocked[y][x] and 1 or solid
+                    local id <const> = ids[localID]
+                    if not terrainPalette[id] then
+                        terrainPalette[id] = registry:preparedTerrain(preparedBatch, localID)
+                    end
+                    if options.compactTerrain then
+                        terrain[y][x] = terrainPalette[id]
+                    else
+                        terrain[y][x] = deepCopy(terrainPalette[id])
+                    end
+                end
+                if GameBootstrap then
+                    GameBootstrap.yieldIfDue()
+                end
             end
         end
         local config <const> = { name = definition.name, id = definition.id, registry = registry, tiles = tiles,
@@ -679,6 +728,9 @@ function Zone.fromMapDefinition(definition, registry, options)
             and sourceMapID >= firstIndoorMap and sourceMapID <= 255
             and type(tileset) == "table" and type(tileset.constant) == "string"
             and tileset.constant ~= "FOREST"
+        if verifyPacked then
+            verifyPacked()
+        end
         return zone
     end)
     if not ok then

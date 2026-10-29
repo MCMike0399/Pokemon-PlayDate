@@ -131,7 +131,7 @@ function SourceBindings.prepare(d, specs, options)
     local result = { bound = bound, npcs = npcs, doors = doors, specs = GameSession._copy(specs), encounters = encounters,
         encounterRateByte = d.encounters.grass.rate_byte, sliceReady = true }
     if viridian then
-        result.source = GameSession._copy(d)
+        result.source = GameSession._copy(SourceMaps._plainRuntimeCells(d))
         result.dispatch = options.dispatch
     else
         result.source = { dimensions = GameSession._copy(d.dimensions), events = GameSession._copy(d.events),
