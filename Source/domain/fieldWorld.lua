@@ -83,10 +83,16 @@ end
 
 function FieldWorld.reloadWorld(world, ids)
     local candidate = WorldDeltas.validate(world)
+    local changed = {}
+    for _, record in ipairs(candidate.zones) do
+        changed[record.zone_id] = true
+    end
     for _, id in ipairs(ids) do
-        local d = descriptor(id)
-        if d and FieldMoves.hasMap(id) then
-            candidate = FieldMoves.reloadWorld(candidate, id, d.padding)
+        if changed[id] then
+            local d = descriptor(id)
+            if d and FieldMoves.hasMap(id) then
+                candidate = FieldMoves.reloadWorld(candidate, id, d.padding)
+            end
         end
     end
     return WorldDeltas.validate(candidate)

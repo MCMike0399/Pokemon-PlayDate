@@ -312,10 +312,14 @@ end
 -- Root invokes this on map reload/Continue, never merely on overlay/battle return.
 function FieldMoves.reloadWorld(world, zoneID, padding)
     local out = copy(world)
-    local spec = readMap(zoneID)
-    if not spec then return out end
+    if not FieldMoves.hasMap(zoneID) then
+        return out
+    end
     for index, record in ipairs(out.zones) do
         if record.zone_id == zoneID then
+            -- An unchanged map has no replacement to reset. Decode its sites
+            -- only when the world actually carries changes for this identity.
+            local spec = assert(readMap(zoneID))
             assert(record.definition_revision == revision, "wrong cut reset revision")
             local byCell, remove = {}, {}
             for _, tile in ipairs(record.tiles) do byCell[tile.y..":"..tile.x] = tile.key end
