@@ -98,9 +98,11 @@ fail the command. Title and Continue post-GC samples, an actual door load, battl
 start and verified save are all required for a Simulator smoke pass.
 
 Every report sets `device_gate_passed` to false. A Simulator smoke pass is not
-hardware acceptance. The existing `device_cycle.py` also rejects dev builds;
-this change does not relax that rule or provide a compatible deployment gate.
-Root owns any later private hardware deployment integration.
+hardware acceptance. The separate `device_cycle.py --simulator-smoke` path admits only this exact
+one-module private build after recomputing a genuine passed report; production
+dev-build rejection remains unchanged. See [device-cycle.md](../device-cycle.md)
+for root commands, raw DS1 replay and the unapplied hardware metrics hook.
+A failed timing report is rejected before any device write.
 
 Host checks, including compilation and decoded PDZ module inventory:
 

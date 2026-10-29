@@ -101,6 +101,187 @@ def calibration_gate(args, manifest, source):
             'simulator_report_sha256': sha(report_path), 'malloc_pool_mb': 16}
 
 
+def smoke_gate(args, stage, pdx):
+    """Recompute the Simulator evidence before acquiring any hardware ownership."""
+    from tools.device import simulator_smoke as smoke
+    if getattr(args, 'calibration_build', None):
+        raise ValueError('smoke cannot use calibration metadata')
+    build = smoke.verify(stage)
+    if pdx.resolve() != (stage / 'DeviceSmoke.pdx').resolve():
+        raise ValueError('smoke candidate must be the exact retained DeviceSmoke.pdx')
+    production = build['production_source_manifest']
+    compiled = build['compiled_source_manifest']
+    if (tree_hash(production) != build['production_source_sha256']
+            or any(name.startswith('dev/') for name in production)
+            or set(compiled) - set(production) != {'dev/deviceSmoke.lua'}
+            or set(production) - set(compiled)
+            or {name for name in production if production[name] != compiled[name]} != {'main.lua', 'pdxinfo'}
+            or build.get('protocol') != 'DS1' or build.get('simulator_transport_version') != 1):
+        raise ValueError('smoke overlay exceeds the exact one-module build')
+    path = Path(args.simulator_smoke).expanduser().resolve()
+    report = json.loads(path.read_text())
+    runtime = json.loads((path.parent / 'run.json').read_text())
+    if (report.get('status') != 'simulator-smoke-passed' or report.get('build') != build
+            or report.get('device_gate_passed') is not False
+            or any(report.get(key) for key in ('error', 'measurement_error'))
+            or any(row.get('build') != build or row.get('malloc_pool_mb') != 16
+                   or row.get('malloc_pool_preflight') != 16645684 for row in (runtime, report))):
+        raise ValueError('matching simulator-smoke-passed report required')
+    # Reuse the shared whitelist and canonical tree hash, including whitespace.
+    bodies = report.get('commands')
+    if (not isinstance(bodies, list) or not bodies or len(bodies) > 10000
+            or any(not isinstance(body, str) or not smoke.COMMAND.fullmatch(body) for body in bodies)):
+        raise ValueError('invalid frozen DS1 commands')
+    for body in bodies:
+        match = smoke.COMMAND.fullmatch(body)
+        if (match[1] and not 1 <= int(match[1]) <= 120) or (match[2] and not 1 <= int(match[2]) <= 300):
+            raise ValueError('invalid frozen DS1 command bounds')
+    if (report.get('commands_sha256') != tree_hash(bodies)
+            or runtime.get('commands') != bodies or runtime.get('commands_sha256') != tree_hash(bodies)):
+        raise ValueError('frozen DS1 commands hash mismatch')
+    factor = report.get('timing_factor')
+    if type(factor) not in (int, float) or not math.isfinite(factor) or factor <= 0:
+        raise ValueError('invalid Simulator timing factor')
+    recomputed = smoke.measurements(path.parent / 'runtime-data', build['build_id'], factor)
+    if (recomputed['budget_failures']
+            or any(type(v) not in (int, float) or not math.isfinite(v) or v < 0
+                   for v in recomputed['measurements'].values())
+            or any(report.get(k) != v for k, v in recomputed.items())):
+        raise ValueError('Simulator smoke measurements changed or budgets failed')
+    responses = json.loads((path.parent / 'responses.json').read_text())
+    raw_responses = [json.loads(line) for line in
+                     (path.parent / 'runtime-data/device-smoke-replies.jsonl').read_text().splitlines()]
+    if raw_responses != responses:
+        raise ValueError('Simulator response archive differs from raw replies')
+    if any(row.get('build') != build['build_id'] or row.get('status') == 'error' for row in responses):
+        raise ValueError('invalid Simulator responses')
+    seen = smoke.observations(responses)
+    if (seen != report.get('observations') or not seen['title'] or not seen['continue_available']
+            or seen['loaded'] <= 0 or seen['saved'] <= 0):
+        raise ValueError('missing Simulator smoke observations')
+    # The route starts only after a completed ready probe; every later command
+    # and the final state must have a unique, contiguous completion.
+    done = [row for row in responses if row.get('status') == 'done']
+    if (len(done) < len(bodies) + 2
+            or [row.get('seq') for row in done] != list(range(1, len(done) + 1))
+            or done[-len(bodies)-2].get('value', {}).get('ready') is not True):
+        raise ValueError('incomplete Simulator command transcript')
+    first = done[-len(bodies)-2]['seq'] + 1
+    for seq, body in enumerate(bodies + ['state'], first):
+        accepted = [r for r in responses if r.get('seq') == seq and r.get('status') == 'accepted']
+        if body != 'state' and (len(accepted) != 1 or accepted[0].get('value') != body.split()[0]):
+            raise ValueError('Simulator command acceptance transcript mismatch')
+    if not args.earned_save:
+        raise ValueError('smoke requires the exact Simulator earned-save manifest')
+    earned = json.loads(Path(args.earned_save).expanduser().read_text())
+    prior = json.loads((path.parent / 'earned-save.json').read_text())
+    if earned.get('files') != prior.get('files'):
+        raise ValueError('smoke earned slots differ from Simulator input')
+    return build, report, {'classification': 'exact private DeviceSmoke; Simulator admission only',
+                          'simulator_report': str(path), 'simulator_report_sha256': sha(path),
+                          'commands': bodies, 'commands_sha256': tree_hash(bodies)}
+
+
+def parse_device_trace(path, build_id):
+    lines = path.read_text().splitlines()
+    if not lines or lines[0] != f'schema\t1\tbuild\t{build_id}\tplatform\tdevice':
+        raise ValueError('device BootTrace identity/platform mismatch')
+    phases, last_clock = [], 0
+    for sequence, line in enumerate(lines[2:], 1):
+        fields = line.split('\t')
+        if len(fields) != 7 or fields[0] != str(sequence) or fields[1].startswith('error.'):
+            raise ValueError('invalid/failed device BootTrace phase')
+        values = [float(v) for v in fields[2:]]
+        if any(not math.isfinite(v) or v < 0 for v in values) or values[0] < last_clock:
+            raise ValueError('invalid device BootTrace numbers')
+        last_clock = values[0]
+        phases.append(dict(phase=fields[1], clock_ms=values[0], since_yield_ms=values[1],
+                           heap_kib=values[3], peak_kib=values[4]))
+    return phases
+
+
+class SmokeSerial:
+    """Single-flight raw transport. An uncertain write/completion is never retried."""
+    def __init__(self, cycle, descriptor, build_id, deadline):
+        self.cycle, self.descriptor, self.build_id, self.deadline = cycle, descriptor, build_id, deadline
+        self.pending = b''
+        self.sequence = 0
+        self.responses = []
+        self.trace = []
+        self.trace_identity = False
+
+    def read(self):
+        if not self.cycle.select_serial():
+            raise RuntimeError('device needs one A press; USB disappeared; no further device attempts')
+        if time.monotonic() >= self.deadline:
+            raise TimeoutError('DS1 completion uncertain; no command replay')
+        readable, _, _ = select.select([self.descriptor], [], [], min(0.2, max(0, self.deadline - time.monotonic())))
+        if not readable:
+            return []
+        try:
+            chunk = os.read(self.descriptor, 8192)
+        except BlockingIOError:
+            return []
+        if not chunk:
+            raise RuntimeError('device needs one A press; USB reader closed; no further device attempts')
+        with (self.cycle.output / 'serial.raw').open('ab') as raw:
+            raw.write(chunk)
+        self.pending += chunk
+        rows = []
+        while b'\n' in self.pending:
+            line, self.pending = self.pending.split(b'\n', 1)
+            if b'BOOTTRACE\t' in line:
+                text = line.split(b'BOOTTRACE\t', 1)[1].decode('utf-8').rstrip('\r')
+                self.trace.append(text)
+                if text.startswith('schema\t'):
+                    if text != f'schema\t1\tbuild\t{self.build_id}\tplatform\tdevice':
+                        raise ValueError('device BootTrace identity mismatch')
+                    self.trace_identity = True
+                elif '\terror.' in text:
+                    raise ValueError('device BootTrace guard failed')
+                self.cycle.event('boottrace', line=text)
+            if b'DS1 ' not in line:
+                continue
+            row, _ = json.JSONDecoder().raw_decode(line.split(b'DS1 ', 1)[1].decode('utf-8'))
+            if not isinstance(row, dict) or row.get('build') != self.build_id:
+                raise ValueError('device DS1 build identity mismatch')
+            self.responses.append(row)
+            self.cycle.event('ds1-response', message=row)
+            if row.get('status') == 'error' or (isinstance(row.get('value'), dict) and row['value'].get('error')):
+                raise ValueError('device DS1 error: ' + str(row.get('value')))
+            rows.append(row)
+        if len(self.pending) > 65536:
+            raise ValueError('serial line exceeds bounded buffer')
+        return rows
+
+    def command(self, body):
+        if time.monotonic() >= self.deadline:
+            raise TimeoutError('DS1 deadline expired; no further command sent')
+        if not self.cycle.select_serial():
+            raise RuntimeError('device needs one A press; USB disappeared; no further device attempts')
+        self.sequence += 1
+        if self.sequence > 16777215:
+            raise ValueError('DS1 sequence exhausted')
+        wire = f'msg DS1 {self.sequence} {body}\n'.encode('ascii')
+        self.cycle.event('ds1-send', sequence=self.sequence, body=body)
+        # A partial/blocked write could already have affected the device. Stop.
+        if os.write(self.descriptor, wire) != len(wire):
+            raise RuntimeError('DS1 write uncertain; no command replay')
+        while True:
+            completed = None
+            for row in self.read():
+                if row.get('seq') == 0 and row.get('status') == 'ready':
+                    continue  # module installed does not mean ordinary game ready
+                if row.get('seq') != self.sequence or row.get('status') not in {'accepted', 'done'}:
+                    raise ValueError('unexpected DS1 sequence/status; no command replay')
+                if row['status'] == 'done':
+                    if completed is not None or not isinstance(row.get('value'), dict):
+                        raise ValueError('invalid DS1 completion')
+                    completed = row['value']
+            if completed is not None:
+                return completed
+
+
 class Cycle:
     def __init__(self, args):
         self.args = args
@@ -111,6 +292,9 @@ class Cycle:
         self.volume = Path(args.volume).absolute()
         self.serial = None
         self.ran = False
+        self.smoke_build = None
+        self.smoke_report = None
+        self.smoke_transport = None
 
     def event(self, status, **fields):
         row = dict(time_ns=time.time_ns(), phase=self.phase, status=status, **fields)
@@ -211,9 +395,95 @@ class Cycle:
             os.close(descriptor)
             atomic_json(self.output / 'serial-transport.json', transport)
 
+    def wait_smoke(self, deadline):
+        simulator_usb_preflight()
+        descriptor = os.open(self.serial, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
+        transport = SmokeSerial(self, descriptor, self.smoke_build['build_id'], deadline)
+        self.smoke_transport = transport
+        try:
+            while transport.command('state').get('ready') is not True:
+                time.sleep(min(0.05, max(0, deadline - time.monotonic())))
+            for body in self.smoke_report['commands']:
+                transport.command(body)
+            transport.command('state')
+        finally:
+            os.close(descriptor)
+            atomic_json(self.output / 'device-responses.json', transport.responses)
+            (self.output / 'serial-boot-trace.tsv').write_text('\n'.join(transport.trace) + '\n')
+            self.event('reader-closed')
+
+    def report_smoke(self, bundle_id):
+        """Only archived device observations can establish device measurements."""
+        from tools.device.simulator_smoke import observations
+        archived = self.output / 'after/Data' / bundle_id
+        report = {'device_gate_passed': False, 'boot_accepted': False,
+                  'classification': 'device attempt; root hardware acceptance remains separate',
+                  'build_id': self.smoke_build['build_id'],
+                  'pdx_sha256': self.smoke_build['pdx_sha256'],
+                  'commands_sha256': self.smoke_report['commands_sha256'],
+                  'observations': observations(self.smoke_transport.responses if self.smoke_transport else []),
+                  'failures': []}
+        try:
+            prior_trace = self.output / 'before/Data' / bundle_id / 'boot-trace.tsv'
+            if prior_trace.exists() and sha(prior_trace) == sha(archived / 'boot-trace.tsv'):
+                raise ValueError('unchanged prior BootTrace is not a new attempt')
+            phases = parse_device_trace(archived / 'boot-trace.tsv', report['build_id'])
+            report['phases'] = phases
+            report['last_phase'] = phases[-1] if phases else None
+            frames = []
+            for line in (archived / 'device-smoke-frames.tsv').read_text().splitlines():
+                fields = line.split('\t')
+                if (len(fields) != 8 or fields[0] != report['build_id']
+                        or fields[3] not in {'yield', 'return'} or fields[6] not in {'0', '1'}):
+                    raise ValueError('invalid device active frame metrics')
+                elapsed, heap, clock = [float(fields[i]) for i in (4, 5, 7)]
+                if any(not math.isfinite(v) or v < 0 for v in (elapsed, heap, clock)):
+                    raise ValueError('invalid device active frame numbers')
+                frames.append({'active_ms': elapsed, 'heap_kib': heap, 'loading': fields[6] == '1'})
+            def span(begin, end):
+                start, values = None, []
+                for row in phases:
+                    if row['phase'] == begin:
+                        start = row['clock_ms']
+                    elif row['phase'] == end and start is not None:
+                        values.append(row['clock_ms'] - start)
+                        start = None
+                return max(values) if values else None
+            live = [row['heap_kib'] * 1024 for row in phases
+                    if row['phase'] in {'title.live.after_gc', 'Continue.live.after_gc'}]
+            measured = {'heap_live_bytes': max(live) if live else None,
+                        'heap_peak_bytes': max([r['peak_kib'] * 1024 for r in phases]
+                                               + [f['heap_kib'] * 1024 for f in frames], default=None),
+                        'map_load_ms': span('door.map.begin', 'door.map.end'),
+                        'battle_start_ms': span('battle.start.begin', 'battle.start.end'),
+                        'frame_ms': max((f['active_ms'] for f in frames if not f['loading']), default=None),
+                        'slice_ms': max([f['active_ms'] for f in frames]
+                                        + [r['since_yield_ms'] for r in phases], default=None)}
+            limits = dict(heap_live_bytes=6 * 1024**2, heap_peak_bytes=9 * 1024**2,
+                          map_load_ms=500, battle_start_ms=500, frame_ms=33, slice_ms=1000)
+            report.update(measurements=measured, limits=limits, phases=phases, frames=frames)
+            report['failures'] += [k for k, v in measured.items() if v is None or v > limits[k]]
+            if not frames:
+                report['failures'].append('missing-device-frames')
+            for phase in ('title.live.after_gc', 'Continue.live.after_gc'):
+                if not any(r['phase'] == phase for r in phases):
+                    report['failures'].append('missing-' + phase)
+        except (ValueError, OSError) as error:
+            report['failures'].append('missing-or-invalid-device-metrics: ' + str(error))
+        seen = report['observations']
+        if not (seen['title'] and seen['continue_available'] and seen['loaded'] > 0 and seen['saved'] > 0):
+            report['failures'].append('missing-title-earned-Continue-or-save')
+        atomic_json(self.output / 'device-smoke.json', report)
+        # Collection can succeed without acceptance. Missing metrics stay explicit.
+        self.event('device-smoke-reported', failures=report['failures'], boot_accepted=False)
+
     def disk(self):
         if not (self.volume / 'Games').is_dir():
-            self.wait_for(self.select_serial, self.args.disk_timeout, 'waiting for unlocked USB serial')
+            if self.ran:
+                if not self.select_serial():
+                    raise RuntimeError('device needs one A press; USB disappeared; no further device attempts')
+            else:
+                self.wait_for(self.select_serial, self.args.disk_timeout, 'waiting for unlocked USB serial')
             simulator_usb_preflight()
             self.command([str(self.sdk / 'bin/pdutil'), self.serial, 'datadisk'])
         self.wait_for(lambda: (self.volume / 'Games').is_dir(), self.args.disk_timeout,
@@ -232,10 +502,28 @@ class Cycle:
             for name in ('main.pdz', 'pdxinfo'):
                 if name in files:
                     copy_verified(installed / name, destination / 'installed-binary' / name, files[name])
+        if files and 'pdxinfo' in files:
+            info = dict(line.split('=', 1) for line in (installed / 'pdxinfo').read_text().splitlines() if '=' in line)
+            actual_id = info.get('bundleID', '').strip()
+            if not re.fullmatch(r'[A-Za-z0-9_.-]+', actual_id) or actual_id in {'.', '..'}:
+                raise ValueError('unsafe installed bundle ID')
+            actual_data = plain_path(self.volume / 'Data' / actual_id, self.volume)
+        else:
+            actual_data = data
+        # Preserve both actual installed Data and candidate Data when IDs differ.
+        for folder in {actual_data, data}:
+            plain_path(folder, self.volume)
+            data_files = inventory(folder) if folder.exists() else {}
+            for name, digest in data_files.items():
+                copy_verified(folder / name, destination / folder.relative_to(self.volume) / name, digest)
+        atomic_json(destination / 'data-inventory.json', {
+            str(folder.relative_to(self.volume)): inventory(folder) if folder.exists() else None
+            for folder in sorted({actual_data, data})})
         logs = {}
         paths = [self.volume / name for name in ('errorlog.txt', 'crashlog.txt')]
         paths += [self.volume / 'System/Logs' / name for name in ('errorlog.txt', 'crashlog.txt')]
-        paths += [data / 'boot-trace.tsv', data / 'calibration.json', data / IDENTITY]
+        paths += [folder / name for folder in sorted({actual_data, data})
+                  for name in ('boot-trace.tsv', 'calibration.json', IDENTITY)]
         for path in paths:
             plain_path(path, self.volume)
             relative = path.relative_to(self.volume).as_posix()
@@ -258,25 +546,34 @@ class Cycle:
         build = json.loads((stage / 'build.json').read_text())
         source = inventory(stage / 'Source')
         payload = inventory(pdx)
-        if inventory(stage / 'Production.pdx') != payload:
-            raise ValueError('PDX differs from retained compiler output')
+        smoke_mode = bool(getattr(args, 'simulator_smoke', None))
+        if smoke_mode:
+            self.smoke_build, self.smoke_report, smoke_admission = smoke_gate(args, stage, pdx)
+            if (sha(self.sdk / 'bin/pdc') != build['compiler_sha256']
+                    or (self.sdk / 'VERSION.txt').read_text().strip() != build['sdk_version']):
+                raise ValueError('SDK differs from exact smoke build')
+        else:
+            if inventory(stage / 'Production.pdx') != payload:
+                raise ValueError('PDX differs from retained compiler output')
+            if (build.get('mode') != 'production' or Path(build['bundle']).resolve() != pdx
+                    or build.get('source_sha256') != fingerprint(stage, exclude_generated=False)):
+                raise ValueError('PDX must match a retained production build stage')
         if not payload or pdx.suffix != '.pdx' or not re.fullmatch(r'[A-Za-z0-9_.-]+\.pdx', pdx.name):
-            raise ValueError('expected a nonempty, safely named production .pdx')
-        if (build.get('mode') != 'production' or Path(build['bundle']).resolve() != pdx
-                or build.get('source_sha256') != fingerprint(stage, exclude_generated=False)):
-            raise ValueError('PDX must match a retained production build stage')
+            raise ValueError('expected a nonempty, safely named .pdx')
         info = dict(line.split('=', 1) for line in (stage / 'Source/pdxinfo').read_text().splitlines() if '=' in line)
         bundle_id = info.get('bundleID', '').strip()
         if not re.fullmatch(r'[A-Za-z0-9_.-]+', bundle_id) or bundle_id in {'.', '..'}:
             raise ValueError('invalid bundleID')
-        if (stage / 'Source/dev').exists() or any(name.startswith('dev/') for name in payload):
+        if not smoke_mode and ((stage / 'Source/dev').exists() or any(name.startswith('dev/') for name in payload)):
             raise ValueError('development payload refused')
         manifest = {'schema': 1, 'pdx': str(pdx), 'pdx_files': payload,
                     'pdx_sha256': tree_hash(payload), 'source_files': source,
                     'source_sha256': build['source_sha256'], 'build': build,
                     'bundle_id': bundle_id, 'stage': str(stage)}
         atomic_json(self.output / 'manifest.json', manifest)
-        if getattr(args, 'calibration_preflight', None):
+        if smoke_mode:
+            gate = smoke_admission
+        elif getattr(args, 'calibration_preflight', None):
             gate = calibration_gate(args, manifest, source)
         else:
             gate = json.loads(Path(args.simulator_gate).expanduser().read_text())
@@ -299,9 +596,8 @@ class Cycle:
                     or not math.isfinite(value) or not math.isfinite(limit) or not 0 <= value <= limit or limit <= 0):
                 raise ValueError('Simulator budget failed: ' + name)
 
-    def execute(self):
+    def validate_earned(self):
         args = self.args
-        pdx, stage, bundle_id, payload, manifest = self.validate_inputs()
         earned = None
         if args.earned_save:
             earned = json.loads(Path(args.earned_save).expanduser().read_text())
@@ -313,12 +609,22 @@ class Cycle:
                 if path.is_symlink() or sha(path) != row['sha256']:
                     raise ValueError('earned save checksum mismatch')
             atomic_json(self.output / 'earned-save.json', earned)
+        return earned
+
+    def execute(self):
+        args = self.args
+        pdx, stage, bundle_id, payload, manifest = self.validate_inputs()
+        earned = self.validate_earned()
         installed = plain_path(self.volume / 'Games' / pdx.name, self.volume)
         data = plain_path(self.volume / 'Data' / bundle_id, self.volume)
         print('Unattended cycle: no routine unlock or replug actions. A hard crash or missing '
               'serial after run stops device attempts: device needs one A press. '
               'Simulator-only work may continue after the serial reader is closed.', flush=True)
         with OwnerLock(runtime_lock_path(self.sdk)), OwnerLock(device_lock_path()):
+            if self.smoke_build:
+                checked, _, _ = smoke_gate(args, stage, pdx)
+                if checked != self.smoke_build:
+                    raise ValueError('smoke build changed while acquiring ownership')
             self.step('deploy-enter-data-disk')
             self.disk()
             self.step('archive-current-install-before-write')
@@ -330,12 +636,15 @@ class Cycle:
                 prior = plain_path(self.volume / 'Games' / prior_name, self.volume)
                 prior_info = dict(line.split('=', 1) for line in (prior / 'pdxinfo').read_text().splitlines() if '=' in line)
                 prior_id = prior_info.get('bundleID', '').strip()
-                if not re.fullmatch(r'[A-Za-z0-9_.-]+', prior_id):
+                if not re.fullmatch(r'[A-Za-z0-9_.-]+', prior_id) or prior_id in {'.', '..'}:
                     raise ValueError('unsafe previous-game bundle ID')
                 self.archive('previous-game', prior, self.volume / 'Data' / prior_id)
             self.step('backup-existing-save-slots' if earned else 'preserve-application-data')
             before_data = inventory(data) if data.exists() else {}
             atomic_json(self.output / 'data-before.json', before_data)
+            if self.smoke_build and any(name in before_data for name in (
+                    'boot-profile-build.json', 'device-smoke-command.txt', 'device-smoke-frames.tsv')):
+                raise ValueError('smoke Data contains stale metrics, external identity or an unconsumed command')
             if earned:
                 for name in sorted(SLOTS):
                     if name in before_data:
@@ -375,11 +684,21 @@ class Cycle:
             self.step('run')
             self.wait_for(self.select_serial, args.disk_timeout, 'waiting for serial after eject/unlock')
             simulator_usb_preflight()
+            self.ran = True  # a timed-out run command may already have launched
             self.command([str(self.sdk / 'bin/pdutil'), self.serial, 'run', '/Games/' + pdx.name])
-            self.ran = True
             self.step('wait-for-game')
             deadline = time.monotonic() + args.run_seconds
-            if getattr(args, 'calibration_preflight', None):
+            attempt_error = None
+            if self.smoke_build:
+                try:
+                    self.wait_smoke(deadline)
+                except Exception as error:
+                    attempt_error = error
+                    self.event('smoke-stopped', error=repr(error), replay=False)
+                # Never issue another hardware command after disappearance.
+                if not self.select_serial():
+                    raise RuntimeError('device needs one A press; USB disappeared; no further device attempts')
+            elif getattr(args, 'calibration_preflight', None):
                 self.wait_calibration(deadline)
             else:
                 while time.monotonic() < deadline:
@@ -392,6 +711,16 @@ class Cycle:
             actual = self.archive('after', installed, data)
             if actual != payload:
                 raise ValueError('installed build changed during cycle')
+            if self.smoke_build:
+                self.report_smoke(bundle_id)
+            before_logs = json.loads((self.output / 'before/logs.json').read_text())
+            after_logs = json.loads((self.output / 'after/logs.json').read_text())
+            for name, record in after_logs.items():
+                if name.endswith(('errorlog.txt', 'crashlog.txt')) and record != before_logs.get(name) and 'sha256' in record:
+                    if (self.output / 'after' / name).stat().st_size:
+                        raise RuntimeError('device needs one A press; new crash log; no further device attempts; Simulator-only work may continue')
+            if attempt_error:
+                raise attempt_error
             if getattr(args, 'leave_running', False):
                 self.step('return-to-running-app')
                 self.command(['diskutil', 'eject', str(self.volume)])
@@ -399,23 +728,22 @@ class Cycle:
                 self.wait_for(self.select_serial, args.disk_timeout, 'waiting for serial after collection')
                 simulator_usb_preflight()
                 self.command([str(self.sdk / 'bin/pdutil'), self.serial, 'run', '/Games/' + pdx.name])
-            before_logs = json.loads((self.output / 'before/logs.json').read_text())
-            after_logs = json.loads((self.output / 'after/logs.json').read_text())
-            for name, record in after_logs.items():
-                if name.endswith(('errorlog.txt', 'crashlog.txt')) and record != before_logs.get(name) and 'sha256' in record:
-                    if (self.output / 'after' / name).stat().st_size:
-                        raise RuntimeError('device needs one A press; new crash log; no further device attempts; Simulator-only work may continue')
-            self.event('complete', note='data disk left mounted; logs can be missing; no boot acceptance inferred')
+                if not self.select_serial():
+                    raise RuntimeError('device needs one A press; USB disappeared; no further device attempts')
+            self.event('complete', leave_running=bool(getattr(args, 'leave_running', False)),
+                       note='logs archived; no boot acceptance inferred')
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--execute-root', action='store_true', required=True,
                         help='explicit root operator authorization; workers must not execute')
+    parser.add_argument('--validate-only', action='store_true', help='local admission only; no ownership locks or device access')
     parser.add_argument('--pdx', required=True)
     parser.add_argument('--build-stage', required=True)
     parser.add_argument('--output', required=True, help='fresh evidence directory')
     gates = parser.add_mutually_exclusive_group(required=True)
+    gates.add_argument('--simulator-smoke', help='exact passed DeviceSmoke report; recomputed before any device access')
     gates.add_argument('--simulator-gate', help='root measured 16 MB game gate for this exact build')
     gates.add_argument('--calibration-preflight', help='completed minimal calibration Simulator record; not a game gate')
     parser.add_argument('--calibration-build', help='exact minimal calibration build manifest')
@@ -434,6 +762,11 @@ def main():
         if any(not math.isfinite(value) or value <= 0 for value in (args.disk_timeout, args.run_seconds)):
             raise ValueError('timeouts must be finite positive seconds')
         cycle = Cycle(args)
+        if args.validate_only:
+            cycle.validate_inputs()
+            cycle.validate_earned()
+            atomic_json(cycle.output / 'outcome.json', {'ok': True, 'validated_only': True, 'boot_accepted': False})
+            return 0
         cycle.execute()
         atomic_json(cycle.output / 'outcome.json', {'ok': True, 'boot_accepted': False})
         return 0
@@ -442,7 +775,10 @@ def main():
             if cycle.ran and isinstance(error, (TimeoutError, subprocess.TimeoutExpired, subprocess.CalledProcessError)):
                 error = RuntimeError('device needs one A press; no further device attempts; Simulator-only work may continue: ' + str(error))
             cycle.event('error', error=repr(error))
-            atomic_json(cycle.output / 'outcome.json', {'ok': False, 'phase': cycle.phase, 'error': repr(error)})
+            atomic_json(cycle.output / 'outcome.json', {
+                'ok': False, 'boot_accepted': False, 'phase': cycle.phase,
+                'device_needs_one_A_press': 'device needs one A press' in str(error),
+                'error': repr(error)})
         print(str(error), file=sys.stderr)
         return 1
 
