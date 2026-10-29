@@ -70,8 +70,91 @@ end
 
 -- Reviewed global imported-terrain tones. Authored art and SpriteFactory
 -- retain their original renderer. Source grids are read without rewriting them.
+-- Lazy terrain-only accelerator. All definitions and identity checks remain
+-- inside the registry; no main import or second world-data owner is added.
+local ATLAS_TILESETS <const> = {
+    CAVERN = true, CLUB = true, FOREST = true, FOREST_GATE = true,
+    GATE = true, GYM = true, HOUSE = true, INTERIOR = true, MART = true,
+    MUSEUM = true, OVERWORLD = true, POKECENTER = true, SHIP = true,
+    SHIP_PORT = true, UNDERGROUND = true,
+}
+local atlasRecent <const> = {}
+local function terrainAtlas(tileset)
+    for i, slot in ipairs(atlasRecent) do
+        if slot.tileset == tileset then
+            table.remove(atlasRecent, i)
+            table.insert(atlasRecent, 1, slot)
+            return slot
+        end
+    end
+    -- Evict before opening another table. Failed loads also occupy one slot,
+    -- avoiding repeated I/O for missing optional assets on the current route.
+    if #atlasRecent == 2 then
+        table.remove(atlasRecent)
+    end
+    local slot = { tileset = tileset }
+    table.insert(atlasRecent, 1, slot)
+    local path <const> = "terrainAtlases/" .. tileset:lower()
+    local ok, descriptor = pcall(json.decodeFile, path .. ".json")
+    if not ok or type(descriptor) ~= "table" or descriptor.schema ~= 1
+        or descriptor.tileset ~= tileset
+        or descriptor.source_revision ~= "af519899719f0754965776faac0e836a3b906e6d"
+        or type(descriptor.entries) ~= "table"
+        or type(descriptor.frame_count) ~= "number" or descriptor.frame_count % 1 ~= 0
+        or descriptor.frame_count < 1 or descriptor.frame_count > 256 then
+        return slot
+    end
+    local loaded, images = pcall(playdate.graphics.imagetable.new, path)
+    if loaded and images and #images == descriptor.frame_count then
+        slot.descriptor = descriptor
+        slot.images = images
+    end
+    return slot
+end
+local function compiledTerrainImage(rows, policy, renderer, sourceKey)
+    if not TileFactory or renderer ~= TileFactory.renderGrid
+        or policy.enabled ~= true or policy.approval ~= "approved"
+        or policy.preview ~= false or policy.family ~= "bayer8"
+        or type(sourceKey) ~= "string" or type(rows) ~= "table" or #rows ~= 16 then
+        return nil
+    end
+    local tileset <const> = sourceKey:match("^pokered:([A-Z_]+):cell:[%da-f%-]+$")
+    if not ATLAS_TILESETS[tileset] then
+        return nil
+    end
+    for y = 1, 16 do
+        if type(rows[y]) ~= "string" or #rows[y] ~= 16 or rows[y]:find("[^%.12#]") then
+            return nil
+        end
+    end
+    local slot <const> = terrainAtlas(tileset)
+    local descriptor <const> = slot.descriptor
+    -- Exact policy equality includes every pattern byte, phase and approval
+    -- field. Source keys alone never authorize a compiled image.
+    if not descriptor or not same(policy, descriptor.policy) then
+        return nil
+    end
+    local entry <const> = descriptor.entries[sourceKey]
+    if type(entry) ~= "table" or entry.grid ~= table.concat(rows)
+        or type(entry.index) ~= "number" or entry.index % 1 ~= 0
+        or entry.index < 1 or entry.index > descriptor.frame_count then
+        return nil
+    end
+    local image <const> = slot.images:getImage(entry.index)
+    if not image then
+        return nil
+    end
+    local width, height = image:getSize()
+    if width ~= 32 or height ~= 32 then
+        return nil
+    end
+    -- Never expose a mutable cached frame. Public renderImportedGrid calls
+    -- without a source key still use the original fresh runtime renderer.
+    return image:copy()
+end
+
 local tonePolicy
-function TileRegistry.renderImportedGrid(rows, renderer)
+function TileRegistry.renderImportedGrid(rows, renderer, sourceKey)
     if tonePolicy == nil then
         tonePolicy = assert(json.decodeFile("data/importedTonePatterns.json"), "missing imported tone policy")
     end
@@ -89,6 +172,10 @@ function TileRegistry.renderImportedGrid(rows, renderer)
         end
     end
     local gfx <const> = playdate.graphics
+    local ok, compiled = pcall(compiledTerrainImage, rows, policy, renderer, sourceKey)
+    if ok and compiled then
+        return compiled
+    end
     local image = gfx.image.new(32, 32, gfx.kColorWhite)
     gfx.pushContext(image)
     for y, row in ipairs(rows) do
@@ -216,7 +303,7 @@ function TileRegistry:renderImported(value, renderer)
     assert(id > BASE_COUNT, "base images are provided by TileFactory")
     local store = stores[self]
     if not store.images[id] then
-        store.images[id] = TileRegistry.renderImportedGrid(copy(store.entries[id].grid), renderer)
+        store.images[id] = TileRegistry.renderImportedGrid(copy(store.entries[id].grid), renderer, store.entries[id].key)
     end
     return store.images[id]
 end
