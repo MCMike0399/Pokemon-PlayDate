@@ -738,6 +738,15 @@ class MidgameJourney(vj.VermilionJourney):
         self.heal_here('CeladonPokecenter')
         self.require(zone_id=self.zone('CeladonPokecenter'))
 
+    def exit_hideout_lift(self, destination):
+        self.require(zone_id=self.zone('RocketHideoutElevator'))
+        # The panel approach can leave RED standing on an exit. Step off it
+        # before walking onto the selected floor's existing source warp.
+        self.source_waypoint(2, 2)
+        self.navigate((2 + self.model().padding, 1), transition=self.zone(destination))
+        self.require(zone_id=self.zone(destination))
+        self.refresh_world()
+
     def route_hideout(self):
         self.scene_data('data/rocketHideoutStory/scenes.json')
         guard = cj.sid('GAME_CORNER', 11)
@@ -764,15 +773,12 @@ class MidgameJourney(vj.VermilionJourney):
         self.floor_choice = 'B4F'
         self.background('pokered:ROCKET_HIDEOUT_ELEVATOR:background_events:1')
         self.floor_choice = None
-        self.navigate((2 + self.model().padding, 1), transition=self.zone('RocketHideoutB4F'))
-        self.require(zone_id=self.zone('RocketHideoutB4F'))
-        self.refresh_world()
+        self.exit_hideout_lift('RocketHideoutB4F')
         self.fight(cj.sid('ROCKET_HIDEOUT_B4F', 2))
         self.fight(cj.sid('ROCKET_HIDEOUT_B4F', 3))
         # Source applies the guard door on map load. Re-enter the selected cabin.
         self.warp(self.zone('RocketHideoutElevator'))
-        self.navigate((2 + self.model().padding, 1), transition=self.zone('RocketHideoutB4F'))
-        self.refresh_world()
+        self.exit_hideout_lift('RocketHideoutB4F')
         self.fight(cj.sid('ROCKET_HIDEOUT_B4F', 1))
         self.pickup(cj.sid('ROCKET_HIDEOUT_B4F', 8), 'silphScope')
         self.completed_steps.add('hideout-scope')
@@ -780,7 +786,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.floor_choice = 'B1F'
         self.background('pokered:ROCKET_HIDEOUT_ELEVATOR:background_events:1')
         self.floor_choice = None
-        self.navigate((2 + self.model().padding, 1), transition=self.zone('RocketHideoutB1F'))
+        self.exit_hideout_lift('RocketHideoutB1F')
         self.travel(self.zone('GameCorner'))
         self.heal_here('CeladonPokecenter')
         self.save()
