@@ -102,18 +102,24 @@ compilation pass. Trace sampling alone did not fix the later stops. The actual
 owned Simulator crash dump (PID 27370, SIGABRT) identifies “not enough memory”
 inside JSON string-buffer growth. Evidence:
 `evidence/m55a-json-encoder-crash-20261029-01/summary.json`.
-Private `6195b67` uses the SDK file encoder for replies/traces; compilation and
-37 targeted host checks pass, native validation pending. Full host result:
+The SDK file encoder is now on main (`09154f9e`); 54 protocol checks and one
+review pass. Its private journey has passed the old crash points, saved for real
+and reached Cerulean. Whole-journey validation is still running. Full host result:
 **979 tests, 4 failures, 4 errors, no skips**. Remaining inputs/exports are being
-repaired on a worker branch; coverage freshness waits for stable Source. The smaller profile is also on main (`85c188f8`).
+repaired: verified references restored, projection hashes refreshed, and six
+missing field-map records restored privately in `20c8c5b`. Existing field checks
+18/18 and projection/rules checks 59/59 pass. A full host rerun is in progress;
+coverage freshness remains separate from native acceptance. The smaller profile is also on main (`85c188f8`).
 
-Private door-fade candidate `b51e4831` starts destination work during the fade.
-One review and compilation pass. Its exact 16 MB smoke saves and traverses doors
-without a runtime error (peak 6.58 MiB, maximum slice 27.74 ms). The old timed
-input script walks farther through the quicker transitions and misses its final
-battle; fixed door waypoints and visual inspection remain necessary. It is not
-on main and has no hardware measurement. Evidence:
-`evidence/p0-door-fade-smoke-20261029-01`.
+Private door-fade candidate `b51e4831` passed the fixed-route 16 MB smoke:
+title, earned Continue, verified save, three doors, Cut and a natural wild battle.
+Peak **6.52 MiB**, longest slice **30.94 ms**, worst map wall **172 ms** in the
+Simulator. One review passes. All 36 native fade frames were inspected; three
+fixed-phase stages darken the outgoing scene without showing unfinished maps.
+Visual capture timings are excluded. Targeted presentation cases and hardware
+measurement remain pending; it is not on main. Evidence:
+`evidence/p0-door-fade-waypoint-smoke-20261029-01`,
+`evidence/p0-door-fade-visual-build-20261029-01/visual-review.json`.
 Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
 
