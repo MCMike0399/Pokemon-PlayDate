@@ -22,11 +22,14 @@ local function definitions()
         cached = data.events
     end
     if mergedEvents then return mergedEvents end
-    local result = copy(cached)
+    local result = {}
+    for id, descriptor in pairs(cached) do
+        result[id] = descriptor
+    end
     for _, events in pairs(eventSources) do
         for id, descriptor in pairs(events) do
             assert(not result[id], "duplicate source event")
-            result[id] = copy(descriptor)
+            result[id] = descriptor
         end
     end
     mergedEvents = result
@@ -347,7 +350,7 @@ function SourceEvents.afterCommit(game, plan)
     end
 end
 -- Install immutable event data separately from trainer rosters and text.
-function SourceEvents.registerEventSource(name, events)
+local function registerEvents(name, events, readOnly)
     assert(type(name) == "string" and type(events) == "table" and not eventSources[name], "named event source required")
     local current = definitions()
     for id, descriptor in pairs(events) do
@@ -358,8 +361,17 @@ function SourceEvents.registerEventSource(name, events)
             and not current[id] and type(descriptor) == "table" and descriptor.content == name,
             "unique stable source object descriptor required")
     end
-    eventSources[name] = copy(events)
+    eventSources[name] = readOnly and events or copy(events)
     mergedEvents = nil
+end
+
+function SourceEvents.registerEventSource(name, events)
+    registerEvents(name, events, false)
+end
+
+-- Internal source loaders own these validated records and never mutate them.
+function SourceEvents.registerImmutableEventSource(name, events)
+    registerEvents(name, events, true)
 end
 
 -- Scoped SDK content fixtures; restores registrations even on failed assertions.
@@ -372,10 +384,9 @@ function SourceEvents._withSources(fn)
     return result
 end
 
-function SourceEvents.registerTrainerSource(name, resolver)
-    assert(type(name) == "string" and type(resolver) == "function", "named trainer source required")
+local function registerTrainers(name, definitions)
+    assert(type(name) == "string" and type(definitions) == "table", "named trainer source required")
     assert(not trainerSources[name], "source trainer resolver replaced")
-    local definitions = copy(resolver())
     for id, d in pairs(definitions) do
         assert(type(id) == "string" and id:match("^pokered:[^:]+:objects:%d+$") and d.id == id
             and d.map_id == "pokered:" .. id:match("^pokered:([^:]+):"), "stable source trainer identity required")
@@ -405,6 +416,16 @@ function SourceEvents.registerTrainerSource(name, resolver)
     -- or live encounters beneath their immutable definition identity.
     trainerSources[name] = definitions
 end
+function SourceEvents.registerTrainerSource(name, resolver)
+    assert(type(name) == "string" and type(resolver) == "function", "named trainer source required")
+    assert(not trainerSources[name], "source trainer resolver replaced")
+    registerTrainers(name, copy(resolver()))
+end
+
+function SourceEvents.registerImmutableTrainerSource(name, definitions)
+    registerTrainers(name, definitions)
+end
+
 -- Capture registration membership without copying every immutable roster.
 -- Returned definitions are still private copies; later registrations do not
 -- change a controller's captured lookup.

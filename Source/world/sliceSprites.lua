@@ -12,20 +12,38 @@ function SliceSprites.key(source)
     assert(keys[name] and data()[name], "unmapped original sprite: " .. tostring(source))
     return keys[name]
 end
-function SliceSprites.install()
-    -- Preflight every key before image allocation or global assignment. Only
-    -- these exact private cached tables count as our previous installation.
-    for _,key in pairs(keys) do
-        local current=SpriteFactory.npc[key]
-        assert(current==nil or current==rendered[key], "conflicting slice sprite key: "..key)
+function SliceSprites.install(sources)
+    local selected = {}
+    if sources then
+        for _, source in ipairs(sources) do
+            local name = assert(source:match("^SPRITE_(.+)$")):lower()
+            selected[name] = SliceSprites.key(source)
+        end
+    else
+        for name, key in pairs(keys) do
+            selected[name] = key
+        end
     end
-    for name,key in pairs(keys) do
+    for _, key in pairs(selected) do
+        local current = SpriteFactory.npc[key]
+        assert(current == nil or current == rendered[key], "conflicting slice sprite key: " .. key)
+    end
+    for name, key in pairs(selected) do
         if not rendered[key] then
-            local source,images = data()[name],{}
-            for dir,index in pairs(source.standing) do images[dir] = SpriteFactory.makeSprite(assert(source.frames[tostring(index)]), { 0, 0 }) end
-            if images.left then images.right = SpriteFactory.flipped(images.left) end
+            local source, images = data()[name], {}
+            for direction, index in pairs(source.standing) do
+                images[direction] = SpriteFactory.makeSprite(assert(source.frames[tostring(index)]), {0, 0})
+                if GameBootstrap then
+                    GameBootstrap.yieldIfDue()
+                end
+            end
+            if images.left then
+                images.right = SpriteFactory.flipped(images.left)
+            end
             rendered[key] = images
         end
     end
-    for _,key in pairs(keys) do SpriteFactory.npc[key] = rendered[key] end
+    for _, key in pairs(selected) do
+        SpriteFactory.npc[key] = rendered[key]
+    end
 end

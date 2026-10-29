@@ -16,15 +16,18 @@ function PewterSprites.frame(source,index)
 end
 function PewterSprites.installFor(definition)
     assert(type(definition)=="table" and definition.source_revision=="af519899719f0754965776faac0e836a3b906e6d","verified source map required")
-    local selected={}
+    local selected = {}
+    local sharedSources = {}
     for _,event in ipairs(definition.events.objects) do
         local key=PewterSprites.key(event.sprite)
-        if not shared[event.sprite] then
+        if shared[event.sprite] then
+            sharedSources[#sharedSources + 1] = event.sprite
+        else
             assert(SpriteFactory.npc[key]==nil or SpriteFactory.npc[key]==rendered[key],"conflicting imported Pewter sprite key")
             selected[event.sprite]=key
         end
     end
-    SliceSprites.install()
+    SliceSprites.install(sharedSources)
     for source,key in pairs(selected) do
         if not rendered[key] then
             local strip=PewterSlice.sprite(source);local images={}

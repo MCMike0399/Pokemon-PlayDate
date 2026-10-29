@@ -113,6 +113,9 @@ local function rectangle(value, width, height, label, validate)
     for y = 1, height do
         array(value[y], width, label .. " row " .. y)
         for x = 1, width do validate(value[y][x], x, y) end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
 end
 local function bounds(zone, x, y)
@@ -257,20 +260,22 @@ function Zone:init(config)
         end
     end
 
-    -- Auto-generate collision from tile types
+    -- Authored terrain is determined by tile type. Read each immutable registry
+    -- entry once, then keep private palette records instead of per-cell copies.
     self.collision = {}
+    local terrain, entries = {}, {}
     for y = 1, self.height do
-        self.collision[y] = {}
+        self.collision[y], terrain[y] = {}, {}
         for x = 1, self.width do
-            self.collision[y][x] = self.registry:entry(self.tiles[y][x]).collision
+            local id = self.tiles[y][x]
+            if not entries[id] then
+                entries[id] = self.registry:entry(id)
+            end
+            self.collision[y][x] = entries[id].collision
+            terrain[y][x] = entries[id].terrain
         end
     end
-    local terrain = {}
-    for y = 1, self.height do
-        terrain[y] = {}
-        for x = 1, self.width do terrain[y][x] = self.registry:entry(self.tiles[y][x]).terrain end
-    end
-    captureDefinition(self, terrain, config.sourceRevision)
+    captureDefinition(self, terrain, config.sourceRevision, nil, nil, true)
 end
 
 function Zone:terrainAt(x, y)
@@ -550,6 +555,9 @@ function Zone.fromMapDefinition(definition, registry, options)
             tiles[y][x] = ids[localID]
             collision[y][x] = blocked[y] and blocked[y][x] and 1 or definition.collision[y][x]
             terrain[y][x] = options.compactTerrain and entries[localID].terrain or deepCopy(entries[localID].terrain)
+        end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
         end
     end
     local zone = Zone({ name = definition.name, id = definition.id, registry = registry, tiles = tiles,

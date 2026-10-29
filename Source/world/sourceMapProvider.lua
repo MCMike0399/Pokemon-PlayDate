@@ -10,22 +10,37 @@ local function copy(value)
 end
 
 local function ensureKeys(registry, tiles)
-    local entries, seen = {}, {}
-    for _, tile in ipairs(tiles) do
-        if not registry:has(tile.key) and not seen[tile.key] then
-            seen[tile.key] = true
-            entries[#entries + 1] = SourceMaps.tile(tile.key)
-        end
-        if GameBootstrap then GameBootstrap.yieldIfDue() end
+    if #tiles == 0 then
+        return
     end
-    if #entries > 0 then registry:registerBatch(entries) end
+    SourceMaps.withTiles(function(tileData)
+        local entries, seen = {}, {}
+        for _, tile in ipairs(tiles) do
+            if not registry:has(tile.key) and not seen[tile.key] then
+                seen[tile.key] = true
+                entries[#entries + 1] = tileData(tile.key)
+            end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
+        end
+        if #entries > 0 then
+            registry:registerBatch(entries)
+        end
+    end)
 end
 
 -- Shared construction only: no provider registration, cache ownership or pinning.
 -- Profiles supply bespoke bindings; the manifest supplies identity and defaults.
 function SourceMaps.createZone(name, adapter, registry, overrides, desired)
     local entry = SourceMaps.entry(name)
-    local definition = SourceMaps.padded(name)
+    if BootTrace then
+        BootTrace.mark("map." .. name .. ".definition.begin")
+    end
+    local definition = SourceMaps._runtimePadded(name)
+    if BootTrace then
+        BootTrace.mark("map." .. name .. ".definition.end")
+    end
     local options = {}
     for key, value in pairs(adapter.options(name, definition)) do options[key] = value end
     for key, value in pairs(overrides or {}) do options[key] = value end
@@ -34,7 +49,13 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
     options.registry = registry
     options.spawn = copy(options.spawn or entry.spawn)
     options.hasEvent = options.hasEvent or function() return false end
+    if BootTrace then
+        BootTrace.mark("map." .. name .. ".art.begin")
+    end
     if not options.isolatedCatalog and adapter.prepare then adapter.prepare(name, definition) end
+    if BootTrace then
+        BootTrace.mark("map." .. name .. ".art.end")
+    end
     options.sliceBindings = SourceBindings.specs(name, definition, options.hasEvent)
     options.bindingAdapter = SourceBindings
     -- Retain each reviewed adapter's terrain/source representation.
@@ -42,7 +63,13 @@ function SourceMaps.createZone(name, adapter, registry, overrides, desired)
         options.compactTerrain = true
         definition.source_refs = nil
     end
+    if BootTrace then
+        BootTrace.mark("map." .. name .. ".zone.begin")
+    end
     local zone = Zone.fromMapDefinition(definition, registry, options)
+    if BootTrace then
+        BootTrace.mark("map." .. name .. ".zone.end")
+    end
     if desired and desired.tile_count > 0 then
         ensureKeys(registry, desired.tiles)
         zone:applyDeltas(desired)
@@ -71,7 +98,9 @@ function SourceMaps.createProvider(profiles, registry)
     end
     for _, name in ipairs(SourceMaps.names()) do
         profile(name)
-        if GameBootstrap then GameBootstrap.yieldIfDue() end
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     return ImportedMaps(data, {
         registry = registry,
@@ -108,7 +137,13 @@ function SourceMaps.legacyProfiles(dependencies)
                         return nil
                     end, questFlag = quest })
             end,
-            prepare = function() SliceSprites.install() end,
+            prepare = function(_, definition)
+                local sources = {}
+                for _, event in ipairs(definition.events.objects) do
+                    sources[#sources + 1] = event.sprite
+                end
+                SliceSprites.install(sources)
+            end,
         },
         pewter = {
             options = function()

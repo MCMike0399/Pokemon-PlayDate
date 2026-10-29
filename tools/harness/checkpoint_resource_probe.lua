@@ -108,7 +108,10 @@ function CheckpointResourceProbe.install()
             if age == 1 then
                 assert(game.machine:getCurrent() == "title", "earned-save probe requires the real title entry")
                 local ok, problem = game.saves:continueGame()
-                assert(ok, type(problem) == "table" and problem.reason or problem)
+                if not ok then
+                    local detail = type(problem) == "table" and problem.error or problem
+                    error(tostring(detail))
+                end
             elseif settled() then
                 report.loaded = {zone_id=currentZone.stableID, x=game.player.gridX, y=game.player.gridY}
                 collectCheckpoint("checkpoint")
@@ -144,6 +147,13 @@ function CheckpointResourceProbe.install()
         if completed then return end
         local measuredPhase = phase
         local start = clock()
+        local suspended = 0
+        local checkpoint = GameBootstrap.checkpoint
+        GameBootstrap.checkpoint = function()
+            local before = clock()
+            checkpoint()
+            suspended = suspended + clock() - before
+        end
         local ok, problem = pcall(function()
             if pending then
                 local action = pending
@@ -152,9 +162,15 @@ function CheckpointResourceProbe.install()
             end
             originalUpdate()
         end)
-        local duration = clock() - start
+        GameBootstrap.checkpoint = checkpoint
+        local wallDuration = clock() - start
+        local duration = wallDuration - suspended
+        report.timing = "active update duration excluding complete loading checkpoints; checkpoint draw/GC and suspension are separately excluded, not a per-slice maximum"
         if measuredPhase == "map_load" or measuredPhase == "battle_start" then
             sample(measuredPhase, duration)
+            local window = report.windows[measuredPhase]
+            window.total_wall_ms = (window.total_wall_ms or 0) + wallDuration
+            window.loading_checkpoint_ms = (window.loading_checkpoint_ms or 0) + suspended
         end
         if not ok then
             publish(problem)

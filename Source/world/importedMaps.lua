@@ -9,7 +9,9 @@ local function copy(value)
     for key, item in pairs(value) do
         result[key] = copy(item)
         count = count + 1
-        if count % 32 == 0 and GameBootstrap then GameBootstrap.yieldIfDue() end
+        if count % 32 == 0 and GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     return result
 end
@@ -90,7 +92,9 @@ function ImportedMaps:init(data,factory)
         for _,key in ipairs(d.palette) do metadata(store,key) end
         for y = 0, d.height - 1 do
             for x = 0, d.width - 1 do rowKey(store, d, x, y) end
-            if GameBootstrap then GameBootstrap.yieldIfDue() end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
         end
         store.byID[d.id],store.byKey[d.key]=d,d;store.count=store.count+1
     end

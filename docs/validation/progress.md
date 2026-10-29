@@ -42,6 +42,34 @@ A hardware acceptance row requires title, earned Continue, warp, battle start an
 save, no new errorlog entry, and trace timings/heap within budget. Until then:
 **not yet playable on Playdate hardware**.
 
+### Overnight device preparation
+
+Progress remains **0/222 maps verified on hardware; 65/222 route-verified in
+Simulator. Checkpoint 5.5a remains frozen.** The calibration app completed on the
+Playdate without a new error log. USB print output and message callbacks work,
+and the Simulator starts with the healthy device connected when serial readers
+are closed. The app remains awake for unattended control.
+
+Exact calibration payload SHA256:
+`dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168`.
+Evidence: `evidence/p0-calibration-device-cycle-20261028-03` and
+`evidence/p0-calibration-simulator-16mb-20261028-01`. Synthetic workloads measured
+16.28–17.25 times slower execution on the device; a conservative factor of 35.11
+is provisional guidance, not a game performance result.
+
+The failed game's logs were archived before deployment. Its later stalls were
+in tile preparation and map bindings, after earlier world-validation and trainer
+copying stalls. No new Pokémon game build has been sent to the device yet.
+
+The guarded 65-map Simulator build now loads the earned Flash save, crosses an
+actual door and starts a supplemental battle in the verified 16 MB pool.
+`evidence/p0-shared-images-profile-16mb-20261028-21` measured 6130.87 KiB after
+Continue, 6889.86 KiB after the door and 6903.55 KiB after battle start; observed
+peak 7616.09 KiB. These are Lua heap measurements, excluding native image memory.
+Loading time remains over budget. The observer's old update duration included
+coroutine suspension; it cannot establish CPU slice timing. Rendering and
+loading measurements are still being corrected before hardware deployment.
+
 ## 2. Milestones and evidence
 
 | Milestone | Status | Wall clock | Evidence | Hardware result |

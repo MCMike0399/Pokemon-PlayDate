@@ -7,6 +7,7 @@ local previous = lastYield
 local sequence = 0
 local peakHeap = 0
 local buildID = DEVICE_TEST_ID or "unbound"
+local pendingCollection
 
 if json and playdate.file.exists("boot-profile-build.json") then
     local identity = json.decodeFile("boot-profile-build.json")
@@ -74,8 +75,21 @@ function BootTrace.collect(phase)
     BootTrace.mark(phase .. ".before_gc")
     collectgarbage("collect")
     BootTrace.mark(phase .. ".after_gc")
-    if DEVICE_TEST_BUILD and collectgarbage("count") > 6 * 1024 then
+    if DEVICE_TEST_BUILD and (phase == "title.live" or phase == "Continue.live")
+        and collectgarbage("count") > 6 * 1024 then
         error("device-test live heap guard at " .. phase)
+    end
+end
+
+function BootTrace.requestCollect(phase)
+    pendingCollection = phase
+end
+
+function BootTrace.finishFrame()
+    local phase = pendingCollection
+    if phase then
+        pendingCollection = nil
+        BootTrace.collect(phase)
     end
 end
 

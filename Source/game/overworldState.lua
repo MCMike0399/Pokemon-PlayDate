@@ -299,27 +299,34 @@ function DoorWarpSubstate:update()
     if self.timer >= DOOR_FADE_FRAMES then
         local door = self.door
         self.door = nil
-        local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
-        local provider = WorldDeltas.definitionProvider()
-        local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
-        SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
-        if BootTrace then
-            BootTrace.mark("door.map.begin")
-        end
-        switchZone(door.to)
-        self.owner.machine:change("overworld", {
-            entry = { x = door.toX, y = door.toY, facing = facing },
-            fromDoor = not door.connection,
-        })
-        if BootTrace then
-            BootTrace.mark("door.map.end")
-            if DEVICE_TEST_BUILD then
-                BootTrace.collect("door.live")
+        local function load()
+            local facing=door.preserveFacing and self.owner.game.player.facing or door.facing
+            local provider = WorldDeltas.definitionProvider()
+            local destination = provider and provider:hasKey(door.to) and provider:descriptor(door.to).id or door.to
+            SourceEvents.worldHook("onLeave", self.owner.game, destination, door)
+            if BootTrace then
+                BootTrace.mark("door.map.begin")
+            end
+            switchZone(door.to)
+            self.owner.machine:change("overworld", {
+                entry = { x = door.toX, y = door.toY, facing = facing },
+                fromDoor = not door.connection,
+            })
+            if BootTrace then
+                BootTrace.mark("door.map.end")
+                if DEVICE_TEST_BUILD then
+                    BootTrace.collect("door.live")
+                end
+            end
+            -- Connections skip Player's ordinary completed-step animation.
+            if door.connection then
+                self.owner.game.session:daycareStep()
             end
         end
-        -- Connections skip Player's ordinary completed-step animation.
-        if door.connection then
-            self.owner.game.session:daycareStep()
+        if GameBootstrap then
+            GameBootstrap.withLoading("door", load)
+        else
+            load()
         end
     end
 end

@@ -75,11 +75,36 @@ function GameBootstrap.checkpoint()
         return
     end
     BootTrace.checkGuard()
+    collectgarbage("step", 32)
     GameBootstrap.showLoading()
     BootTrace.mark("initialize.yield")
     BootTrace.yielded()
     coroutine.yield()
+    BootTrace.yielded()
     sliceStart = playdate.getCurrentTimeMilliseconds()
+end
+
+function GameBootstrap.isLoading()
+    return loading
+end
+
+function GameBootstrap.withLoading(phase, callback)
+    local previous = loading
+    loading = true
+    local pause = collectgarbage("setpause", 110)
+    local ok, first, second = pcall(function()
+        BootTrace.mark(phase .. ".task.begin")
+        if not previous then
+            GameBootstrap.checkpoint()
+        end
+        return callback()
+    end)
+    collectgarbage("setpause", pause)
+    loading = previous
+    if not ok then
+        error(first, 0)
+    end
+    return first, second
 end
 
 function GameBootstrap.yieldIfDue()
@@ -103,6 +128,7 @@ function GameBootstrap.runFrame(callback, game)
             callback()
         end
         BootTrace.checkGuard()
+        BootTrace.finishFrame()
     end)
     if not ok then
         GameBootstrap.fail(message)

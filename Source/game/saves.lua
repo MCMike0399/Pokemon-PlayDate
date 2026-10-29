@@ -51,16 +51,28 @@ function GameSaves:beginNewGame(seed)
     return true
 end
 
-function GameSaves:continueGame()
+local function continueGame(self)
     if BootTrace then
         BootTrace.mark("Continue.begin")
     end
     local payload, metadata = self.store:load()
+    if BootTrace then
+        BootTrace.mark("Continue.store.loaded")
+        GameBootstrap.yieldIfDue()
+    end
     if not payload then return false, metadata end
     local candidate, decodeProblem = SessionCodec.decode(payload, self.game:getSessionDependencies())
+    if BootTrace then
+        BootTrace.mark("Continue.decoded")
+        GameBootstrap.yieldIfDue()
+    end
     if not candidate then return false, {reason="invalid-session", error=decodeProblem, store=metadata} end
     if self.game.fieldWorld then
         local prepared,reason=self.game.fieldWorld.prepareContinue(candidate)
+        if BootTrace then
+            BootTrace.mark("Continue.fieldReload.end")
+        GameBootstrap.yieldIfDue()
+        end
         if not prepared then return false,{reason="invalid-field-reload",error=reason} end
     end
     if BootTrace then
@@ -81,9 +93,18 @@ function GameSaves:continueGame()
         BootTrace.mark("Continue.end")
     end
     if BootTrace and DEVICE_TEST_BUILD and ok then
-        BootTrace.collect("Continue.live")
+        BootTrace.requestCollect("Continue.live")
     end
     return ok, ok and metadata or {reason = "cannot-install-session", error = problem}
+end
+
+function GameSaves:continueGame()
+    if GameBootstrap then
+        return GameBootstrap.withLoading("Continue", function()
+            return continueGame(self)
+        end)
+    end
+    return continueGame(self)
 end
 
 function GameSaves:recover(source)

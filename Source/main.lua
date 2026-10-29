@@ -525,7 +525,7 @@ local bootAccepted, bootProblem = pcall(function()
         -- Debug menu rides on top of the overworld via the system menu
         local sysMenu = playdate.getSystemMenu()
         sysMenu:addMenuItem("Debug", function()
-            if machine:is("overworld") then
+            if machine:is("overworld") and not GameBootstrap.isLoading() then
                 machine:push("debug")
             end
         end)

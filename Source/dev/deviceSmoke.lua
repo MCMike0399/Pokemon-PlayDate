@@ -68,6 +68,9 @@ local function dialogState(dialog)
 end
 
 local function snapshot()
+    if GameBootstrap and GameBootstrap.isLoading() then
+        return {root = "loading", phase = BootTrace and BootTrace.phase}
+    end
     local result = { ready = runtimeGame ~= nil, error = failure, loaded = loaded, saved = saved }
     if not runtimeGame then
         return result
@@ -124,6 +127,9 @@ end
 function DeviceSmoke.fail(message)
     if not failure then
         failure = tostring(message):sub(1, 2048)
+        if BootTrace then
+            pcall(BootTrace.mark, "error." .. failure:sub(1, 160), true)
+        end
         held, pressed, released = 0, 0, 0
         local sequence = active and active.seq or 0
         active = nil

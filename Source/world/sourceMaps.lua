@@ -14,7 +14,9 @@ local function copy(value)
     for key, item in pairs(value) do
         result[key] = copy(item)
         count = count + 1
-        if count % 32 == 0 and GameBootstrap then GameBootstrap.yieldIfDue() end
+        if count % 32 == 0 and GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     return result
 end
@@ -27,7 +29,9 @@ local function catalogue()
             assert(type(name) == "string" and not ids[entry.id] and not keys[entry.key], "duplicate source map identity")
             assert(entry.profile == "viridian" or entry.profile == "pewter" or entry.profile == "source", "unknown source binding profile")
             ids[entry.id], keys[entry.key] = true, true
-            if GameBootstrap then GameBootstrap.yieldIfDue() end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
         end
         manifest = data.maps
     end
@@ -69,7 +73,9 @@ local function compactData()
             for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
                 assert(descriptor[field] == entry[field], "generated source descriptor differs from manifest")
             end
-            if GameBootstrap then GameBootstrap.yieldIfDue() end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
         end
         for name in pairs(catalogue()) do assert(data.maps[name], "generated source descriptor missing") end
         compact = data
@@ -91,13 +97,29 @@ function SourceMaps._isSharedCompact(data)
     return compact ~= nil and data == compact
 end
 
-function SourceMaps.tile(key)
+local function grids()
     if not tileGrids then
+        tileGrids = setmetatable({}, {__mode = "v"})
+    end
+    local value = tileGrids[1]
+    if not value then
         local data = SourceMaps.record("data/sourceMapCache/tile-grids.json")
         assert(data.manifest_sha256 == compactData().manifest_sha256, "generated source cache revisions differ")
-        tileGrids = data.tiles
+        value = data.tiles
+        tileGrids[1] = value
     end
-    return copy(assert(tileGrids[key], "unknown canonical source tile: " .. tostring(key)))
+    return value
+end
+
+function SourceMaps.tile(key)
+    return copy(assert(grids()[key], "unknown canonical source tile: " .. tostring(key)))
+end
+
+function SourceMaps.withTiles(callback)
+    local data = grids()
+    return callback(function(key)
+        return copy(assert(data[key], "unknown canonical source tile: " .. tostring(key)))
+    end)
 end
 
 -- Legacy warp binding needs target warp positions and arrival collision, not
@@ -119,7 +141,7 @@ function SourceMaps.destination(name)
         events = { warps = copy(descriptor.warps) }, collision = collision }
 end
 
-function SourceMaps.definition(name)
+local function rawDefinition(name)
     local entry = SourceMaps.entry(name)
     local data = rawCache[name]
     if not data then
@@ -127,12 +149,26 @@ function SourceMaps.definition(name)
         assert(data.name == name and data.id == entry.id, "source map identity mismatch")
         rawCache[name] = data
     end
-    return copy(data)
+    return data
 end
 
-function SourceMaps.padded(name)
+function SourceMaps.definition(name)
+    return copy(rawDefinition(name))
+end
+
+local function padded(name, runtime)
     local entry = SourceMaps.entry(name)
-    local data = SourceMaps.definition(name)
+    local original = rawDefinition(name)
+    local projection = original
+    if runtime then
+        projection = {}
+        for key, value in pairs(original) do
+            if key ~= "source_refs" then
+                projection[key] = value
+            end
+        end
+    end
+    local data = copy(projection)
     local width, height = table.unpack(data.dimensions.cells)
     assert(entry.height == height and entry.width >= width, "source manifest dimensions differ")
     assert(entry.padding == math.max(0, (entry.width - width) // 2), "source manifest padding differs")
@@ -156,7 +192,9 @@ function SourceMaps.padded(name)
                 collision[x + entry.padding] = data.collision[y][x]
             end
             data.tile_ids[y], data.collision[y] = tiles, collision
-            if GameBootstrap then GameBootstrap.yieldIfDue() end
+            if GameBootstrap then
+                GameBootstrap.yieldIfDue()
+            end
         end
     end
     -- Viridian historically adds source_x/y only to padded rooms. Preserve that
@@ -172,6 +210,14 @@ function SourceMaps.padded(name)
     data.dimensions.cells = { entry.width, height }
     data.dimensions.playdate_pixels = { entry.width * 32, height * 32 }
     return data
+end
+
+function SourceMaps.padded(name)
+    return padded(name, false)
+end
+
+function SourceMaps._runtimePadded(name)
+    return padded(name, true)
 end
 
 -- Ordinary geometry is projected from the same cache used by ImportedMaps.

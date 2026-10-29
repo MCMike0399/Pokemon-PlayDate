@@ -2,7 +2,7 @@
 -- bindings, actors and event execution remain in their shared owners.
 CeruleanContent = {}
 local contentName <const> = "cerulean"
-local cached = {}
+local cached = setmetatable({}, {__mode = "v"})
 local packages = {}
 local installed = false
 local signsInstalled = false
@@ -44,8 +44,8 @@ local function equal(a, b)
     return true
 end
 
-local function immutableLookup(recordName, field, id)
-    local found = record(recordName)[field][id]
+local function immutableLookup(recordName, field, id, validationRecord)
+    local found = (validationRecord or record(recordName))[field][id]
     for _, package in pairs(packages) do
         local candidate = package[recordName][field][id]
         assert(not found or not candidate or equal(found, candidate), "conflicting immutable source package record")
@@ -68,27 +68,36 @@ function CeruleanContent.registerPackage(name, root)
     end
     -- Validate duplicate text/art before publishing the package or rendering.
     for recordName, field in pairs({dialogue="texts", sprites="sprites"}) do
+        local validationRecord = record(recordName)
         for id, value in pairs(package[recordName][field]) do
-            local previous = immutableLookup(recordName, field, id)
+            local previous = immutableLookup(recordName, field, id, validationRecord)
             assert(not previous or equal(previous, value), "conflicting immutable source package record")
+            if previous then
+                package[recordName][field][id] = previous
+            end
         end
     end
-    local events = copy(package.events.events)
+    local events = {}
+    for id, descriptor in pairs(package.events.events) do
+        events[id] = descriptor
+    end
     for id, descriptor in pairs(package.events.signs) do
         assert(not events[id], "duplicate source package event")
-        events[id] = copy(descriptor)
+        events[id] = descriptor
     end
     -- Script-selected rivals/leaders remain the scene owner's responsibility.
     local trainers = {}
     for id, descriptor in pairs(events) do
         if descriptor.kind == "trainer" then
-            trainers[id] = copy(assert(package.trainers.trainers[id], "source package roster missing"))
+            trainers[id] = assert(package.trainers.trainers[id], "source package roster missing")
         end
     end
     SourceEvents.registerTextSource(name, CeruleanContent.text)
-    SourceEvents.registerTrainerSource(name, function() return copy(trainers) end)
-    SourceEvents.registerEventSource(name, events)
-    packages[name] = package
+    SourceEvents.registerImmutableTrainerSource(name, trainers)
+    SourceEvents.registerImmutableEventSource(name, events)
+    -- Event/trainer records are now owned by their validated registrations.
+    -- Keep only the resources used by subsequent package lookups.
+    packages[name] = {dialogue = package.dialogue, sprites = package.sprites}
 end
 
 function CeruleanContent.text(label)
@@ -129,7 +138,7 @@ function CeruleanContent.poseImage(source, pose, facing)
     if source == "SPRITE_BLUE" and pose == "stand" then
         return assert(SpriteFactory.npc.rival[facing], "protected BLUE pose missing")
     end
-    local strip = CeruleanContent.sprite(source)
+    local strip = assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite")
     local direction = strip.fixed and "down" or facing == "right" and "left" or facing
     local index = (pose == "stand" and strip.standing or strip.walking)[direction]
     local grid = assert(strip.frames[tostring(index)], "missing original actor frame")
@@ -225,8 +234,8 @@ function CeruleanContent.install(metadataResolver)
     end
     actorMetadata = metadataResolver
     SourceEvents.registerTextSource(contentName, CeruleanContent.text)
-    SourceEvents.registerTrainerSource(contentName, CeruleanContent.trainers)
-    SourceEvents.registerEventSource(contentName, CeruleanContent.events())
+    SourceEvents.registerImmutableTrainerSource(contentName, record("trainers").trainers)
+    SourceEvents.registerImmutableEventSource(contentName, record("events").events)
     SourceActors.registerContent("source", {
         sprite = CeruleanContent.sprite,
         key = CeruleanContent.key,
@@ -242,9 +251,16 @@ end
 -- The separate name keeps ordinary installation usable until that API repair.
 function CeruleanContent.installSigns()
     if signsInstalled then return end
-    local signs = CeruleanContent.signs()
-    for _, descriptor in pairs(signs) do descriptor.content = "cerulean-signs" end
+    local signs = {}
+    for id, original in pairs(record("events").signs) do
+        local descriptor = {}
+        for key, value in pairs(original) do
+            descriptor[key] = value
+        end
+        descriptor.content = "cerulean-signs"
+        signs[id] = descriptor
+    end
     SourceEvents.registerTextSource("cerulean-signs", CeruleanContent.text)
-    SourceEvents.registerEventSource("cerulean-signs", signs)
+    SourceEvents.registerImmutableEventSource("cerulean-signs", signs)
     signsInstalled = true
 end
