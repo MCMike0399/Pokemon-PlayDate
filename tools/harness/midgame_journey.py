@@ -541,6 +541,24 @@ class MidgameJourney(vj.VermilionJourney):
         self.drain()
         self.refresh_world()
 
+    def portals(self, model):
+        # Ordinary shop trips use these source stair and exit warps. Elevator
+        # travel requires an explicit floor choice through its own menu.
+        stairs = {
+            'CELADON_MART_1F': {1, 2, 3, 4, 5},
+            'CELADON_MART_2F': {1, 2},
+            'CELADON_MART_3F': {1, 2},
+            'CELADON_MART_4F': {1, 2},
+            'CELADON_MART_5F': {1, 2},
+            'CELADON_MART_ROOF': {1},
+        }
+        source = getattr(model, 'source_data', None) or {}
+        allowed = stairs.get(source.get('source_map_constant'))
+        for point, kind, detail in super().portals(model):
+            if allowed is not None and kind == 'warp' and detail['source_index'] not in allowed:
+                continue
+            yield point, kind, detail
+
     def source_waypoint(self, x, y):
         self.navigate((x + self.model().padding, y))
 
