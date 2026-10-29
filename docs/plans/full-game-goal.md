@@ -11,6 +11,36 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## P0 device boot gate — 2026-10-28 night
+
+Hardware boot takes priority. Freeze new map/region integration on main and
+checkpoint A; pause root audio, cleanup and Safari work until the hardware gate
+passes. Simulator acceptance alone does not establish playability.
+
+Collect errorlog.txt, crashlog.txt and the persistent boot trace for the exact
+installed build before each new fix. Instrument import groups, content installs,
+context/state setup, title, earned Continue, map load and battle start. Every
+trace line records phase, clock, time since yield and Lua heap, and closes the
+file so a watchdog kill preserves it. Compare matching Simulator/device phases
+to derive actual slice/frame budgets; keep a startup/memory check in the SDK suite.
+
+Move heavy work out of import time and into cooperative initialization or lazy
+current-map loading. Yield inside heavy loops. Resident memory must scale with
+the current map. Start with live Lua heap <=6 MB at title/earned Continue and
+observed pre-GC heap <=9 MB at map load/battle start; adjust only from device
+measurements. Device frames target 33 ms, update slices <=1 s, and map/door load
+and battle start each <=0.5 s. Both 65- and 108-map builds must fit.
+
+Automate log collection, verified deployment and post-run collection. Give the
+user one set of button/unlock/USB instructions per cycle. Detect attached USB
+before Simulator launch and fail promptly with the unplug instruction.
+
+Every milestone requires hardware title, earned Continue, one warp, battle start
+and save, no new errorlog entry, plus trace timing/heap within budget. Record the
+same gate retroactively for 5.4. Until it passes, report "not yet playable on
+Playdate hardware". Each device-attempt update names build hash, observed screen,
+last phase, heap, error stack and next fix. No push without an explicit request.
+
 ## Visual correction — 2026-10-28
 
 The user rejected whitening and approved the original Game Boy grey target.

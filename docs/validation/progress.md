@@ -1,11 +1,11 @@
 # Full-game execution ledger
 
 Updated 2026-10-28. Follow [the goal](../plans/full-game-goal.md).
-Progress: **65 / 222 source maps playable on main. Current milestone: 5.5a.**
+Progress: **0/222 maps verified playable on Playdate hardware; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for P0 device boot.**
 5.4 elapsed: **7.89 h**; current pace: **106.46 maps/day**.
 [Milestone times](milestone-times.json) include waits and provider limits.
 
-## 1. Current game on main
+## 1. Current game on main — not yet playable on Playdate hardware
 
 Gameplay code: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
 The approved display update is `a6298a6`. Current Source: `7dded0135055be1edd14035a192a65770feb4126516243501303d8c6e4cb1930`.
@@ -21,15 +21,36 @@ The 5.4 game code is on main. Milestone 5.4 is accepted. Production bundles with
 real-speed native showcase are delivered outside Git. Later
 Kanto, the League, postgame and device release remain unfinished. Nothing pushed.
 
+## Hardware gate — P0, 2026-10-28
+
+The game has never reached its title on the physical Playdate. Milestone 5.4's
+acceptance and delivered bundles were Simulator results only. They do not prove
+hardware playability. The loading-stage build also requested a restart; its
+latest error log must be collected before choosing the next fix. The trainer
+lookup change has passed Simulator checks but has not been transferred.
+
+New map/region integration is frozen on main and checkpoint A. Root attention
+is limited to exact-build device logs, persistent phase tracing, measured timing,
+time slicing and memory. Audio, cleanup and Safari polish are paused. The cleanup
+process was stopped; any partial deletion will be audited before reporting space.
+
+Initial memory targets are at most 6 MB live Lua heap at title and earned Continue,
+and 9 MB observed before GC during map load and battle start, subject to actual
+hardware measurements. Device warp/map load and battle start must be at most
+0.5 seconds. Slice and frame budgets must use a measured Simulator/device factor.
+A hardware acceptance row requires title, earned Continue, warp, battle start and
+save, no new errorlog entry, and trace timings/heap within budget. Until then:
+**not yet playable on Playdate hardware**.
+
 ## 2. Milestones and evidence
 
-| Milestone | Status | Wall clock | Evidence |
-|---|---|---:|---|
-| 5.0 DiveMac setup | Done | 0.13 h | [Setup](divemac-baseline-20261026.json): smoke, 529 host, 1091 SDK, 2494 images |
-| 5.1 Pallet to Brock | Done | 5.62 h | [Brock](brock-acceptance-20261026.json): three starters, rewards, restart, blackout and evolution |
-| 5.2 Shared foundations | Done | 1.79 h | [Foundations](foundation-acceptance-20261026.json): 605 host, 1274 SDK and preserved art |
-| 5.3 Cerulean, Misty and Bill | Done | 37.35 h | [Cerulean](cerulean-acceptance-20261028.json): three chained saves, 723 host, 1666 SDK; scope limits retained |
-| 5.4 Vermilion and HMs | Accepted | 7.89 h | [Vermilion](vermilion-acceptance-20261028.json): 918 host, 2077 SDK, all 2494 images exact |
+| Milestone | Status | Wall clock | Evidence | Hardware result |
+|---|---|---:|---|---|
+| 5.0 DiveMac setup | Done | 0.13 h | [Setup](divemac-baseline-20261026.json): smoke, 529 host, 1091 SDK, 2494 images | Not tested on hardware. |
+| 5.1 Pallet to Brock | Done | 5.62 h | [Brock](brock-acceptance-20261026.json): three starters, rewards, restart, blackout and evolution | Not tested on hardware. |
+| 5.2 Shared foundations | Done | 1.79 h | [Foundations](foundation-acceptance-20261026.json): 605 host, 1274 SDK and preserved art | Not tested on hardware. |
+| 5.3 Cerulean, Misty and Bill | Done | 37.35 h | [Cerulean](cerulean-acceptance-20261028.json): three chained saves, 723 host, 1666 SDK; scope limits retained | Not tested on hardware. |
+| 5.4 Vermilion and HMs | Accepted | 7.89 h | [Vermilion](vermilion-acceptance-20261028.json): 918 host, 2077 SDK, all 2494 images exact | Title fails; Continue/warp/battle/save unverified. Not yet playable on Playdate hardware. |
 
 All three 5.4 journeys began from accepted Cerulean saves, preserving actual
 progress across tooling retries. Final runs are
