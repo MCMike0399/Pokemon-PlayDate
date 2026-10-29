@@ -1223,6 +1223,7 @@ function Battle:performMove(move)
 
     if handler=="battle-condition" then
         if self.currentMoveKey=="disable" then self.conditions:disable()
+        elseif self.currentMoveKey=="aromatherapy" then self.conditions:aromatherapy()
         elseif self.currentMoveKey=="camouflage" then self.conditions:camouflage()
         elseif self.currentMoveKey=="encore" then self.conditions:encore()
         elseif self.currentMoveKey=="waterSport" then self.conditions:waterSport()

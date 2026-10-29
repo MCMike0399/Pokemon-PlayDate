@@ -667,6 +667,113 @@ function MoveFailureContracts.run()
         eq(old.type2,second)
         eq(#b:getMoveGaps(),0)
     end)
+    test("Aromatherapy cures the owned living team in Gen V without blocking on Soundproof or an already healthy party", function()
+        for _, side in ipairs({ "player", "enemy" }) do
+            local session = GameSession.newSession({ itemDefinitions = ItemData.definitions,
+                validateWorld = WorldDeltas.validate, resolveLocation = WorldDeltas.resolveLocation },
+                { location = { zone_id = "reds_house_2f", x = 5, y = 3, facing = "up" }, seed = 42 })
+            local players, enemies = {}, {}
+            for index = 1, 6 do
+                players[index] = Pokemon("mr", 100, { natureId = 0, abilitySlot = "first", heldItem = "none" })
+                enemies[index] = Pokemon("mr", 100, { natureId = 0, abilitySlot = "first", heldItem = "none" })
+                assert(session:recruit(players[index]))
+            end
+            local enemyParty = roster(table.unpack(enemies))
+            local b = Battle(players[1], enemies[1], "TRAINER", { session = session, enemyParty = enemyParty })
+            battles[#battles + 1] = b
+            settle(b)
+            local team = side == "player" and players or enemies
+            local opponents = side == "player" and enemies or players
+            local actor = team[1]
+            eq(b.effects:effectiveAbility(actor), 43, "real Soundproof user")
+            local statuses = { "burn", "sleep", "paralyze", "freeze", "poison", "badPoison" }
+            for index, mon in ipairs(team) do
+                mon.status = statuses[index]
+                mon.statusTurns = index == 2 and 2 or 0
+                mon.sleepDuration = index == 2 and 3 or 0
+                mon:takeDamage(1)
+            end
+            opponents[1].status = "burn"
+            team[2].confusion = 3
+            b.conditions:of(actor).toxic = 4
+            actor.statStages.atk = -1
+            local hp = actor.hp
+            local definition = moveData.aromatherapy
+            RulesRNG.seed(19)
+            local before = RulesRNG.snapshot()
+            local text = attempt(b, "aromatherapy", side)
+            assert(not text:find("But it failed!", 1, true))
+            for _, mon in ipairs(team) do
+                eq(mon.status, nil)
+                eq(mon.statusTurns, 0)
+                eq(mon.sleepDuration, 0)
+                eq(mon.hp, mon.maxHP - 1, "cure does not heal HP")
+            end
+            eq(team[2].confusion, 3, "volatile confusion is not cured")
+            eq(actor.statStages.atk, -1)
+            eq(b.conditions:of(actor).toxic, nil)
+            eq(opponents[1].status, "burn", "opposing team is unchanged")
+            eq(actor.pp.aromatherapy, 4)
+            eq(actor.hp, hp)
+            eq(moveData.aromatherapy, definition)
+            eq(definition.power, 0)
+            eq(definition.targetId, 4)
+            eq(definition.effects, nil, "shared move data is unchanged")
+            eq(RulesRNG.snapshot().rolls, before.rolls)
+            eq(RulesRNG.snapshot().state, before.state)
+            -- Gen V's override returns no failure for an already healthy team.
+            text = attempt(b, "aromatherapy", side)
+            assert(not text:find("But it failed!", 1, true))
+            eq(actor.pp.aromatherapy, 4)
+            team[6]:takeDamage(team[6].hp)
+            team[6].status = "poison"
+            attempt(b, "aromatherapy", side)
+            eq(team[6].status, "poison", "fainted reserve is not cured")
+            eq(team[6].hp, 0)
+            -- Existing BeforeMove and PP gates must prevent party cures.
+            team[3].status = "paralyze"
+            actor.status, actor.statusTurns, actor.sleepDuration = "sleep", 2, 2
+            text = attempt(b, "aromatherapy", side)
+            assert(text:find("fast asleep", 1, true))
+            eq(actor.pp.aromatherapy, 5)
+            eq(team[3].status, "paralyze")
+            actor.status, actor.statusTurns, actor.sleepDuration = nil, 0, 0
+            actor.pp.aromatherapy = 0
+            b:runScript(function()
+                b:resolveTurn({ side = side, actor = actor, key = "aromatherapy", move = definition })
+            end)
+            text = settle(b)
+            assert(text:find("no PP left", 1, true))
+            eq(team[3].status, "paralyze")
+            eq(actor.pp.aromatherapy, 0)
+            attempt(b, "aromatherapy", side)
+            eq(team[3].status, nil)
+            eq(RulesRNG.snapshot().rolls, before.rolls)
+            eq(RulesRNG.snapshot().state, before.state)
+            eq(b:phase(), "command")
+            eq(b.outcome, nil)
+            eq(#b:getMoveGaps(), 0)
+            if side == "player" then
+                own(b.enemy, "splash")
+                assert(b:chooseParty(2))
+                settle(b)
+                eq(b.player, team[2])
+                eq(session:party():active(), team[2])
+                eq(actor.status, nil)
+                eq(b.conditions.members[actor], nil, "withdrawal clears the ordinary condition owner")
+            end
+        end
+        -- Standalone wild Battle has no separate party owner to invent.
+        local b = fresh()
+        b.player.status = "burn"
+        b.enemy.status = "poison"
+        attempt(b, "aromatherapy")
+        eq(b.player.status, nil)
+        eq(b.enemy.status, "poison")
+        attempt(b, "aromatherapy", "enemy")
+        eq(b.enemy.status, nil)
+        eq(#b:getMoveGaps(), 0)
+    end)
     RulesRNG.restore(saved)
     return report
 end

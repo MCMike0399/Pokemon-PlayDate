@@ -42,6 +42,29 @@ function BattleConditions:odorSleuth()
     b:say(target.name .. " was identified!")
     return true
 end
+-- Showdown 9b136a8 gen5 overrides onHit: cure the whole living team,
+-- including reserves, and succeed even when there is no status to cure.
+-- Its Sap Sipper/Soundproof ally-side hooks are explicitly removed in gen5.
+function BattleConditions:aromatherapy()
+    local b = self.battle
+    local party = b.attackerSide == "player" and b.party or nil
+    if b.attackerSide == "enemy" then party = b.enemyParty end
+    local cured = {}
+    for _, mon in ipairs(party and party:members() or { b.attacker }) do
+        if alive(mon) and mon.status then
+            mon.status, mon.statusTurns, mon.sleepDuration = nil, 0, 0
+            local state = self.members[mon]
+            if state then state.toxic = nil end
+            cured[#cured + 1] = mon
+        end
+    end
+    -- Commit all durable cures before narration yields to presentation.
+    b:say("A soothing aroma wafted through the area!")
+    for _, mon in ipairs(cured) do
+        b:say(mon.name .. " was cured of its status!")
+    end
+    return true
+end
 -- Read-only battle typing; durable Pokemon species types never change.
 function BattleConditions:types(mon)
     local first,second=mon.type,mon.type2
