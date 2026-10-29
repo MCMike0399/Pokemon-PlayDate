@@ -89,13 +89,24 @@ this Simulator work. The 5 s crash guard remains below the 10 s watchdog.
 
 Private checkpoint A has 108 maps (accepted 65 plus 43 East), current P0 fixes,
 regenerated caches and flat atlases. Main remains at 65 maps; the original frozen
-branch is preserved. Three chained 5.5a journeys are running in the background
-on private `9175a9e`, with Charmander covering optional content and the other two the
+branch is preserved. Three chained 5.5a journeys are running on private
+`9510e51`, with Charmander covering optional content and the other two the
 critical path. Failures do not abort later starters. Evidence:
-`evidence/m55a-utf8-journeys-20261029-01`.
-The first set stopped before travel on invalid UTF-8 in generated trainer names.
-The cache now emits literal UTF-8; all 1,882 decoded records remain identical.
-Eight existing host checks, generator verification and production compilation pass.
+`evidence/m55a-small-harness-journeys-20261029-01`.
+The UTF-8 repair preserves all 1,882 decoded records. The next set stopped in
+early travel with 11–13.5 MiB of tooling-heavy Lua heap. Journey builds now
+exclude every contract and catalog exporter, including their compiled modules.
+The six remaining development modules retain input, snapshots and captures.
+Full contract builds remain unchanged; 42 existing host checks and SDK
+compilation pass. The smaller profile is also on main (`85c188f8`).
+
+Private door-fade candidate `b51e4831` starts destination work during the fade.
+One review and compilation pass. Its exact 16 MB smoke saves and traverses doors
+without a runtime error (peak 6.58 MiB, maximum slice 27.74 ms). The old timed
+input script walks farther through the quicker transitions and misses its final
+battle; fixed door waypoints and visual inspection remain necessary. It is not
+on main and has no hardware measurement. Evidence:
+`evidence/p0-door-fade-smoke-20261029-01`.
 Hardware loading and user play still block milestone acceptance, not Simulator
 preparation. Root audio, cleanup and Safari polish remain paused. Nothing pushed.
 
