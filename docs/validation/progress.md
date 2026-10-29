@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **21.73 h**; hardware pace: **0 maps/day**.
+P0 elapsed since the first guarded trace commit: **21.80 h**; hardware pace: **0 maps/day**.
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -97,13 +97,13 @@ exposed another real interaction bug: signs must win before counter-range NPC
 lookup (`home/overworld.asm:1076–1126`). Private `b676f305` fixes both dispatchers;
 red/green native evidence and 20 host checks pass; both reviews have no defects.
 
-`evidence/m55a-arrival-restart-resumed-20261029-01` has two complete passes:
-Bulbasaur and Squirtle, including real process Continue, with earned slots in
-`chain/5.5a/<starter>`. Charmander's real Save includes Scope, drink rewards and
-Eevee. Only Charmander is now retrying the remaining prize interaction from that
-real Save (`evidence/m55a-charmander-prize-resumed-20261029-01`). No failed run was promoted. The all-routes host preflight is complete. Current-checkout audit: 1,566 checks,
-zero unexplained current 5.5a blockers; inactive 5.5b has two unreachable points
-and six explicit field/actor gaps. Those are not current acceptance.
+All three private 5.5a journeys pass actual process Save/Continue. Bulbasaur and
+Squirtle cover the critical path; Charmander also completed drink rewards,
+Eevee, a genuine slot spin and the Abra prize. [Hashes and exact build scopes](midgame-a-journey-candidates-20261029.json).
+Earned slots are outside Git in `chain/5.5a/<starter>`. Final same-build Continue,
+latency, soak, delivery and user play remain; no milestone acceptance is claimed.
+Current-checkout preflight: 1,566 checks, no unexplained 5.5a geometry blockers.
+Inactive 5.5b keeps two unreachable points and six explicit field/actor gaps.
 
 Save candidate `4c7cbd65` preserves default dynamic validators while reusing exact
 publication parsing/checksums and removing the observer's redundant load. It
