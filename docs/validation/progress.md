@@ -16,7 +16,7 @@ All passed actual process exit/Continue. These are Simulator results.
 **Hardware now boots and loads the earned save; playability is not accepted yet.**
 The full hardware smoke passed, but map loads still exceed the revised target.
 
-Current P0 game change on main: `64558de`. Imported maps use two cache slots.
+Current P0 game change on main: `4da7f65`. Imported maps use two cache slots.
 Startup work yields; map cells use validated packed rows. Field data/art prepares
 at map entry. Encounter policy reads retain every commit guard without repeated
 slot copying. Original source grids, world/story/rules and protected pixels remain.
@@ -102,10 +102,15 @@ The device method profile completed without errors in
 preparation 622 ms and binding specs 538 ms (inclusive, containing yields), trace
 writes 393 ms, terrain rendering 391 ms, loading drawing 168 ms, GC steps 2.5 ms.
 Do not sum inclusive costs or label them CPU samples. Leave GC unchanged.
-Root candidate `4be5e20` avoids full map copies for a connection Boolean and
-uses a 24 ms device loading-work threshold; Simulator stays at 8 ms. One review
-was clear; existing SDK cases and exact safety smoke are running. Hardware will
-decide acceptance. Actual phase ratios are in the no-wall run’s
+Main `4da7f65` avoids full map copies for a connection Boolean and uses a 24 ms
+device loading-work threshold; Simulator stays at 8 ms. Hardware smoke passed in
+`evidence/p0-load-slices-hardware-20261029-01`: **2,851 ms** worst map load,
+**19 ms** battle start, **3.47 / 4.85 MiB** live/peak, no new crash logs.
+All 36 SDK cases, the one review, production compile and 54 protocol checks pass.
+The duplicate-validation candidate did not help (2,924 ms) and stays off main.
+The old assumption that Viridian tiles were preloaded was wrong after lazy startup.
+Root is validating flat, per-tileset PDT atlases next. Regeneration now uses current
+source grids and the unchanged qualified formula, without an unmerged Git dependency. Actual phase ratios are in the no-wall run’s
 `device-simulator-phase-ratios.json`; they are not one universal CPU factor.
 `wip/midgame-integration` remains frozen at 108 maps. Before unfreezing, port the
 current P0 code and verify that its 16 MB heap stays close to the 65-map result.
