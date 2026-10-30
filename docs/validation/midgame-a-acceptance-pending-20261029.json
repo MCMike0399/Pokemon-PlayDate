@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "milestone": "5.5a",
+  "status": "NOT ACCEPTED; pending qualification and hardware smoke",
+  "scope_label_when_accepted": "Simulator-accepted and hardware-safe; device latency targets not yet met",
+  "main_simulator_maps_before": 65,
+  "candidate_maps": 108,
+  "new_maps": 43,
+  "natural_journeys": "docs/validation/midgame-a-journey-candidates-20261029.json",
+  "common_input_restarts": "docs/validation/midgame-a-common-load-20261029.json",
+  "production_package": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-synchronized-20261029-01",
+  "package_manifest_sha256": "c55acfe6d85ea8c03cb10a974aaf3f79a8ff511ce9ddf2ca0079e041c8fa8683",
+  "hardware_smoke_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-build-20261029-01",
+  "hardware_smoke_proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-safety-20261029-01/simulator-smoke.json",
+  "hardware_run_expected": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-hardware-20261029-01",
+  "pending": [
+    "30+30 repaired hardware idle qualification",
+    "108-map hardware smoke, exact no-new-log comparison and heap guards",
+    "Acceptance summary and merge",
+    "60-90 second real-speed milestone clip",
+    "Lazy audio activation after merge"
+  ],
+  "latency_targets_met": false,
+  "push_authorized": false
+}

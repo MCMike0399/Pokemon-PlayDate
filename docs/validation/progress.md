@@ -22,7 +22,8 @@ All three also pass actual-input Continue/Save, exit, Continue/Save on one PDX.
 Original earned files remain unchanged. [Common-build evidence](midgame-a-common-load-20261029.json).
 
 Candidate production PDX and three earned save pairs, outside Git:
-`evidence/player-packages/5.5a-candidate-20261029-01` (not accepted/delivered).
+`evidence/player-packages/5.5a-synchronized-20261029-01` (not accepted/delivered).
+[Acceptance checklist](midgame-a-acceptance-pending-20261029.json).
 Prior 5.4 package: `evidence/player-packages/5.4-playable-20261028`.
 Prior clip: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
 
