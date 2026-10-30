@@ -166,6 +166,9 @@ local bootAccepted, bootProblem = pcall(function()
 
     -- @harness imports-7
 
+    import "game/towerStory"
+    import "game/snorlaxStory"
+    import "game/towerStoryController"
     import "game/rocketHideoutStory"
     import "game/rocketHideoutStoryWorld"
     import "game/rocketHideoutStoryController"

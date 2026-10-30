@@ -19,6 +19,9 @@ function SnorlaxStory.descriptors(content)
     return result
 end
 function SnorlaxStory.actorMetadata(id)
+    if id ~= "pokered:ROUTE_12:objects:1" and id ~= "pokered:ROUTE_16:objects:7" then
+        return {}
+    end
     local definition <const> = SnorlaxStory.definition(id)
     if not definition then
         return {}
@@ -104,9 +107,14 @@ function SnorlaxStory.install(content)
             return SnorlaxStory.plan(stableID, observation)
         end
     end
+    local definitions <const> = TowerStory.scenes().snorlax
     SourceEvents.registerWorldHooks("pokered:ROUTE_12:objects:1", {
         explore = function(game)
-            for _, definition in ipairs(TowerStory.scenes().snorlax) do
+            local zoneID <const> = currentZone.stableID
+            if zoneID ~= "pokered:ROUTE_12" and zoneID ~= "pokered:ROUTE_16" then
+                return false
+            end
+            for _, definition in ipairs(definitions) do
                 if definition.map_id == currentZone.stableID
                     and game.session:questFlag(definition.fight_flag)
                     and not game.session:questFlag(definition.defeated_flag) then
