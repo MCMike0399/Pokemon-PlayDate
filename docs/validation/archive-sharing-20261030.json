@@ -31,5 +31,15 @@
     "observed_delta_gib": -0.02557373046875,
     "free_gib_after": 143.83404159545898,
     "interpretation": "No measurable space recovery; concurrent disk activity and already-shared extents may explain result. Reserve remains unmet; all bytes and save files preserved."
+  },
+  "retention_matcher_optimization": {
+    "commit": "704e54ad",
+    "source": "tools/harness/maintain_storage.py",
+    "sha256": "9a135abce965f19b51036e04a3bd204791a056d4c126e3e5dbd4242fa801f8e1",
+    "host_checks": 29,
+    "review": "No correctness or documented standards findings; matching expressions/locks/protection semantics unchanged",
+    "benchmark": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/reference-matcher-timing-20261030-01.json",
+    "scope": "5000real coverage strings,current309archive names: identical sets. Matching cost0.528s to0.003s; whole-scan improvement unmeasured.",
+    "scan": "Old owned read-only scan stopped, no deletion; new read-only scan02 remains live"
   }
 }
