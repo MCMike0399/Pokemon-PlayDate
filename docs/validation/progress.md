@@ -54,6 +54,7 @@ The latest isolated shipped-data candidates give this measured device table:
 | Phase / target | 108 maps | 149 maps |
 | --- | ---: | ---: |
 | Input-ready title / 10 s | 12.340 s | 13.687 s |
+| Longest boot slice / 1 s | 1.207 s | 1.448 s |
 | Continue / 4 s | 3.224 s | 3.295 s |
 | Save / 2 s | 1.526 s | 1.600 s |
 | Sampled longest door / 1.5 s | 2.957 s | 2.960 s |
@@ -75,15 +76,21 @@ At 149 maps, registration falls **5.363 → 0.171 s** and boot **18.540 → 13.6
 Historical `Daycare.install` includes later installers; it is not an isolated cost.
 Candidates remain on `wip/lazy-region-records-149-20261030-01` and
 `wip/region-scaling-108-20261030-01`; scoped review remains pending.
-Full first-entry region activation, 10 s boot and constant-current-map scaling
+One combined performance review is next; no new boot candidate before merge.
+Story-field deferral is rejected at 7.6% installer gain; it stays off main.
+[Trial](story-field-trial-20261030.json). Full first-entry activation, 10 s boot and constant-current-map scaling
 remain open. [Implementation scope](region-declaration-boot-measurement-20261030.json).
 
 Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
 raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.
 Historical guessed-factor failures remain retained; safety-only admission passes.
 Latency targets gate 5.5c. No accepted checkpoint may regress a phase over 10%.
-Next: finish lazy boot work; physical traversal soak; all-door census and worst
-five on hardware; assess full Zone/binding prefetch and uncapped harness replay.
+Next: review and merge the measured stack, then one composed device run.
+Next title work must report immediate-press walking and 1.5 s dwell, preserve
+full validation, and separate real shipped-equivalent timing from forced GC.
+Then per-installer first-entry activation, all-door/worst-five measurements,
+cave steps, and the remaining B traversal/visual gates. Superseded queued
+journey failure notifications are already handled; do not rerun them.
 Rejected terrain, sparse-view, pose, registration and decode-only prefetch trials
 stay off main. No more evidence compression tooling.
 
