@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "status": "rejected after one hardware measurement; below 10 percent gain",
+  "candidate": "93552a2a",
+  "build_id": "f836d364e1694a19b10574ecdac1db5e",
+  "hardware_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-door-prefetch-hardware-20261029-01",
+  "baseline_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-hardware-20261029-01",
+  "baseline_door_ms": 3002,
+  "candidate_door_ms": 2803,
+  "reduction_percent": 6.63,
+  "decision": "Do not merge or add proof machinery. It hides decode/padding only, not construction or view work.",
+  "main_unchanged": true
+}
