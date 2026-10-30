@@ -143,6 +143,9 @@ door: 3.01 s; cave p95: 101.85 ms. Save's 6.64 s used the diagnostic deep policy
 current production profiling remains pending. Keeper restored; latency unaccepted.
 Physical **6 MiB live / 9 MiB peak** guards stay unchanged. Short-route hardware
 proof does not establish long-route or final B acceptance.
+A streaming-observer 200-round-trip door test plateaus after warm-up: city/Center
+heap ranges 0.09/0.36 KiB, fixed sprites/registry. This is managed Simulator heap;
+30-map, native headroom and device traversal remain open. [Scope](memory-door-plateau-20261030.json).
 [Current evidence](midgame-b-candidate-20261030.json), [history](progress-history-midgame-b-20261030.md).
 
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.

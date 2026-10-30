@@ -1,0 +1,50 @@
+{
+  "status": "Same-pair managed heap plateaus after warm-up; partial memory qualification only.",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/memory-door-pair-plateau-streaming-149-20261030-01",
+  "samples_sha256": "5b482e8dda2813585c3fc5eb08b66385f3982ed497934472e5b166b415de489f",
+  "samples": 401,
+  "transitions": 400,
+  "round_trips": 200,
+  "warm_from_entry": 100,
+  "stats": {
+    "pokered:FUCHSIA_CITY": {
+      "samples": 150,
+      "min_kib": 7625.005859375,
+      "max_kib": 7625.0927734375,
+      "range_kib": 0.0869140625,
+      "first_kib": 7625.0927734375,
+      "last_kib": 7625.005859375,
+      "sprite_counts": [
+        14
+      ],
+      "registry_ids": [
+        130
+      ]
+    },
+    "pokered:FUCHSIA_POKECENTER": {
+      "samples": 151,
+      "min_kib": 7594.5859375,
+      "max_kib": 7594.9462890625,
+      "range_kib": 0.3603515625,
+      "first_kib": 7594.939453125,
+      "last_kib": 7594.8017578125,
+      "sprite_counts": [
+        8
+      ],
+      "registry_ids": [
+        130
+      ]
+    }
+  },
+  "implementation_scope": "Actual production DoorWarp owner, view/fade teardown and ordinary updates under GameBootstrap.runFrame. Diagnostic door invocation omits approach walking and explicitly collects after every entry. No campaign receipt or save export.",
+  "observer_correction": {
+    "prior": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/memory-door-pair-plateau-149-20261030-01",
+    "finding": "The first observer retained every sample table in Lua and introduced its own slope. The streaming observer stores no row history in the game heap; the original run remains unchanged."
+  },
+  "limitations": [
+    "Simulator Lua heap is not the device heap or native allocation measurement.",
+    "The 30-map loop five times is not executed.",
+    "Native image headroom and 100+ transition/20 battle device soak remain open.",
+    "This does not establish that all long-session retention or the original image allocation failure is resolved."
+  ]
+}
