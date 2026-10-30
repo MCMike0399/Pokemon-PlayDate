@@ -104,7 +104,9 @@ moderate gain 0.22, followed by native loading, heap and listening checks.
 The old Simulator-volume question remains closed; do not repeat it.
 Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
 (7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
-silent and not accepted. No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
+silent and not accepted. Current-main refresh `bd842e4b` compiles, passes 76
+host checks and reproduces scores/cries; fresh runtime/listening remains pending.
+No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
 
 5.5b remains private on `t3/midgame-55b-driver`: **149 maps**, starting from
 unchanged accepted A saves. Scope: Tower/Fuji/Flute, Snorlax/Cycling Road,

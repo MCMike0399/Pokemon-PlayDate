@@ -84,5 +84,13 @@
     "charmander": "Queued behind Squirtle; do not infer an outcome.",
     "prepared_repair": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-return-repair-preparation-20261030-01",
     "repair_state": "Unapplied; six host checks pass, including exact reverse-road geometry. Active source unchanged."
+  },
+  "hardware_preparation": {
+    "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-prepare-20261030-01",
+    "build_id": "fdbfa60a356e4c4ba429acea1ce8a0ea",
+    "source_revision": "d2a713152116cd9dbd17b82e9e16ffae173081ea",
+    "maps": 149,
+    "compile": "SDK 3.1.2 passed; only compile preparation",
+    "admission": "Fresh exact-bundle 16 MiB Simulator safety and hardware execution pending; no gate claimed."
   }
 }

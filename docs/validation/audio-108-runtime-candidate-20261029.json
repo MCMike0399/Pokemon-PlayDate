@@ -34,5 +34,22 @@
     "settings_changed": false
   },
   "next": "No repeated volume question. Keep listening acceptance pending; continue independent Save and 5.5b work.",
-  "main_unchanged": true
+  "main_unchanged": true,
+  "current_main_refresh": {
+    "candidate": "bd842e4b",
+    "branch": "t3/lazy-audio-loading",
+    "base_main": "9e8e74d2",
+    "host_checks": 76,
+    "production_compile": "passed SDK 3.1.2",
+    "scores_reproduce": true,
+    "cries_reproduce": true,
+    "evidence_logs": [
+      "audio-current-main-host-20261030-01.log",
+      "audio-current-main-assets-20261030-01.log",
+      "audio-current-main-compile-20261030-01.log",
+      "audio-current-main-scores-20261030-01.log",
+      "audio-current-main-cries-20261030-01.log"
+    ],
+    "runtime": "Not rerun after this merge; listening/system volume remains unaccepted. No settings changed."
+  }
 }
