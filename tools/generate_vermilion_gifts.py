@@ -2,9 +2,12 @@
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+if __package__ in (None, ''):
+    sys.path.insert(0, str(ROOT))
 REFERENCE = ROOT / 'tools/references/vermilion-gifts'
 PREPARATION = ROOT / 'Source/data/vermilionPreparation'
 REVISION = 'af519899719f0754965776faac0e836a3b906e6d'
@@ -57,18 +60,54 @@ def build(reference=REFERENCE):
             prompt=['_OaksAideHiText'],before=['_OaksAideHereYouGoText'],
             declined=['_OaksAideComeBackText'], insufficient=['_OaksAideUhOhText'],
             completed=[explanation],full=['_OaksAideNoRoomText'],success=['_OaksAideGotItemText',explanation])))
+    installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
+    rod_maps = {}
+    for map_name, item, flag, prompt, declined, completed, success in [
+        ('FuchsiaGoodRodHouse', 'goodRod', 'BIT_GOT_GOOD_ROD',
+         '_FuchsiaGoodRodHouseFishingGuruText',
+         '_FuchsiaGoodRodHouseFishingGuruThatsSoDisappointingText',
+         '_FuchsiaGoodRodHouseFishingGuruHowAreTheFishText',
+         ['_FuchsiaGoodRodHouseFishingGuruReceivedGoodRodText']),
+        ('Route12SuperRodHouse', 'superRod', 'BIT_GOT_SUPER_ROD',
+         '_Route12SuperRodHouseFishingGuruDoYouLikeToFishText',
+         '_Route12SuperRodHouseFishingGuruThatsDisappointingText',
+         '_Route12SuperRodHouseFishingGuruTryFishingText',
+         ['_Route12SuperRodHouseFishingGuruReceivedSuperRodText',
+          '_Route12SuperRodHouseFishingGuruFishingWayOfLifeText']),
+    ]:
+        script = sources['scripts/' + map_name + '.asm']
+        assert 'call YesNoChoice' in script
+        assert f'bit {flag}, a' in script and f'set {flag}, [hl]' in script
+        assert f'const {flag}' in sources['constants/ram_constants.asm']
+        assert script.index('call GiveItem') < script.index(f'set {flag}, [hl]')
+        assert 'jr nc, .bag_full' in script
+        assert f'lb bc, {"GOOD_ROD" if item == "goodRod" else "SUPER_ROD"}, 1' in script
+        if map_name in installed:
+            rod_maps[map_name] = ROOT / 'Source/data/midgameSouth'
+            prefix = '_FuchsiaGoodRodHouseFishingGuru' if item == 'goodRod' else '_Route12SuperRodHouseFishingGuru'
+            offers.append((map_name, 1, dict(item=item, flag='pokered:wStatusFlags1:' + flag,
+                prompt=[prompt], before=[], declined=[declined], completed=[completed],
+                full=[prefix + 'NoRoomText'], success=success)))
     ordinary = json.loads((PREPARATION/'events.json').read_text())['events']
     texts = json.loads((PREPARATION/'dialogue.json').read_text())['texts']
     events = {}
     for map_name,index,offer in offers:
-        record = json.loads((PREPARATION/(map_name+'.json')).read_text())
+        package = rod_maps.get(map_name, PREPARATION)
+        record = json.loads((package/(map_name+'.json')).read_text())
+        available_texts = texts
+        if map_name in rod_maps:
+            available_texts = json.loads((package/'dialogue.json').read_text())['texts']
+            from tools.generate_cerulean_content import text_recipes
+            pinned_texts = text_recipes(sources['text/' + map_name + '.asm'])
+            for label, recipe in pinned_texts.items():
+                assert available_texts[label]['recipe'] == recipe, 'rod source text drift: ' + label
         assert record['source_revision'] == REVISION
         actor = record['events']['objects'][index-1]
         identity = actor['id']
         assert actor['source_index'] == index and identity not in ordinary
         for key in ['prompt','before','declined','completed','full','success','insufficient']:
             for label in offer.get(key,[]):
-                assert label in texts, 'missing prepared source text: '+label
+                assert label in available_texts, 'missing prepared source text: '+label
         events[identity] = dict(kind='bespoke',content=CONTENT,**offer)
     output = dict(schema=1, source_revision=REVISION, events=events)
     return {'events.json': (json.dumps(output,indent=2,sort_keys=True,ensure_ascii=False)+'\n').encode()}

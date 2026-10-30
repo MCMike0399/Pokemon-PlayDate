@@ -21,6 +21,10 @@ function VermilionGifts.text(label)
         assert(value.schema == 1 and value.source_revision == REVISION, "unverified prepared text")
         texts = value.texts
     end
+    if not texts[label] and (label:match("^_FuchsiaGoodRodHouseFishingGuru")
+        or label:match("^_Route12SuperRodHouseFishingGuru")) then
+        return CeruleanContent.text(label)
+    end
     return GameSession._copy(assert(texts[label], "missing prepared gift text"))
 end
 -- Catalog/actor registration needs no visibility exemptions or mutable context.

@@ -2,10 +2,14 @@
   "files": {
     "constants/ram_constants.asm": "b4fbed09d7b966481e43a9690f3bc8cb27a700ddf7c60d61d8f0f3d40f8eb5cf",
     "engine/events/oaks_aide.asm": "12a41675113518037f1b06fcaa95500cbe90511fff55b685d98da85c4ea60c2d",
+    "scripts/FuchsiaGoodRodHouse.asm": "60c00b40d13055e2104d68908ed99850c70a89dcabb76440698f69ec502d6d98",
     "scripts/PokemonFanClub.asm": "abcd6ddebb18fe56e7effd0157958bb00069617c7c41c398660e18fb3d4d872f",
     "scripts/Route11Gate2F.asm": "5370f6050c1c4eea856b5cf5a760fbbde29d6acfb5304ab49c26196b94babf1c",
+    "scripts/Route12SuperRodHouse.asm": "9fa34c9fc60ab6bf6adc78fbc3753dff75e7ccc0ac522b81a026dcb2842d9681",
     "scripts/Route2Gate.asm": "b09f7271cf9ae406a94e674973c54c8a4d873bf3a760e1174440e16a4ffa4603",
-    "scripts/VermilionOldRodHouse.asm": "e379524ddd77af9111d77d8131c6672c431ca3432da46f707f02daa8d235a8b3"
+    "scripts/VermilionOldRodHouse.asm": "e379524ddd77af9111d77d8131c6672c431ca3432da46f707f02daa8d235a8b3",
+    "text/FuchsiaGoodRodHouse.asm": "317347f8f2215543febac83af8594c027b3de2dd6ee745ee2d8105b4e09fad66",
+    "text/Route12SuperRodHouse.asm": "c03f729566db982ec20ad57a9a1cafe019945123640cfa9f7a9da243efd39895"
   },
   "revision": "af519899719f0754965776faac0e836a3b906e6d"
 }
