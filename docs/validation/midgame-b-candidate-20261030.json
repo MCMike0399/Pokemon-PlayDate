@@ -414,6 +414,14 @@
     "state": "Started; continue on failure. No outcome inferred.",
     "inputs": "m55b-resume-inputs-20261030-08: Charmander deliberately repeats the original long pre-Safari history to test the OOM after bounded text loading; Bulbasaur and Squirtle use their actual verified Bicycle Saves. Latest Charmander Bicycle marker remains retained separately.",
     "validation": "All 1,039 host tests and production compilation pass. Preflight: 1,572 checks, zero unexplained geometry blockers; eight runtime conditions remain open.",
-    "scope": "Private 149-map candidate, no checkpoint acceptance or gameplay merge."
+    "scope": "Private 149-map candidate, no checkpoint acceptance or gameplay merge.",
+    "charmander_result": {
+      "status": "Failed at the real Flamethrower learning overlay after Route 17 trainer 5; producer stopped.",
+      "error": "learning exceeded bounded semantic inputs",
+      "progress": "Passed the former Route 16 door OOM and trainer 1 brake failure on the full original approach. No primary runtime-error report exists. This is not proof of a retention plateau or native headroom.",
+      "finding": "LearningState waits for both A/B released at entry. The driver retains B as the cycling brake, so repeated wait requests cannot clear input_blocked. Cleanup physically releases B and the guard clears.",
+      "candidate": "m55b-learning-brake-preparation-20261030-01/root.patch: release B at guarded learning entry, restore it within the final committed receipt, and create a real pre-road Save. Unapplied while the other starters run; syntax only.",
+      "earned_save": "Its latest real Bicycle Save is retained; later trainer XP and Flamethrower state were not saved or promoted."
+    }
   }
 }

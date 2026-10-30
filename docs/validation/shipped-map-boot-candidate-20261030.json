@@ -1,0 +1,35 @@
+{
+  "status": "Isolated candidate; device benefit and native safety unmeasured.",
+  "implementation_108": "0fcde0178ab861a8f99a0b834035284e6cb25ebd",
+  "implementation_149": "0833d048",
+  "host": "Eight targeted production/qualification checks pass at each map count. Existing SDK compilation is real; no runtime validation claimed.",
+  "change": "Move exact cache/input verification to production staging, then bypass global descriptor/cell rescans only for SourceMaps private canonical data. Untrusted saves and public constructor inputs keep all checks.",
+  "not_included": [
+    "Cross-package conflict/transform relocation",
+    "Lazy per-region registration",
+    "Plateau or native-headroom tests",
+    "Door census or journey refresh changes"
+  ],
+  "pairs": [
+    {
+      "maps": 108,
+      "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-baseline-prepare-20261030-01",
+      "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-prepare-20261030-01",
+      "baseline_build_id": "b388d240b2654822b74d1285196156a0",
+      "candidate_build_id": "d776497a52484b85b592a19b39a87df6",
+      "production_source_difference": [
+        "game/shippedDataPolicy.lua"
+      ]
+    },
+    {
+      "maps": 149,
+      "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-baseline-prepare-20261030-01",
+      "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-prepare-20261030-01",
+      "baseline_build_id": "ebcc09787fb04e1db64a542ea4d1b79f",
+      "candidate_build_id": "7c4bb9a36e054c8397aa5c4359558082",
+      "production_source_difference": [
+        "game/shippedDataPolicy.lua"
+      ]
+    }
+  ]
+}

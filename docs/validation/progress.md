@@ -83,7 +83,11 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 
 ## Work in flight
 
-Root owns Simulator/device and integration. Bounded workers use Sol/medium.
+Root owns Simulator/device and integration. The input-ready boot metric now
+fails at 18.729/24.945 s for 108/149 maps. An isolated map-validation candidate
+moves checks to build time; eight targeted checks pass at each count. Paired
+profiles differ only in their map-policy literal, and remain unrun while B owns
+the Simulator. [Candidate](shipped-map-boot-candidate-20261030.json).
 Save-tier export is accepted locally after its single review. The exact 108-map
 composition passes 96 native cases and hardware: **Save 1.510 s / Continue 3.335 s**,
 5.63 MiB peak, no new logs. [Acceptance](save-tier-accepted-20261030.json).
@@ -116,7 +120,8 @@ Thirteenth-set Charmander hit a `drawFaded` OOM under the 16 MiB Simulator pool;
 Bulbasaur and Squirtle stopped after a Route 17 trainer because their held brake
 needed physical rearming. The brake correction passes 68 targeted host checks
 and compilation; all 1,039 host tests pass. The fourteenth set is running,
-including a full-history Charmander replay to test the original OOM.
+including a full-history Charmander replay. It passed the old OOM point, then
+stopped at a held-B learning guard; the other two continue frozen.
 
 Both gift-cache variants pass 40 native cases. Bounded text loading removes
 **675.84 KiB** of retained heap and is installed only in private B. A separate
