@@ -141,9 +141,10 @@ is retained in [history](progress-history-midgame-b-20261030.md) and the
 Native APFS compression recovered an observed **14.31 GiB (15.36 GB)** without
 removing referenced evidence. All **178 files / 35.42 GB of logical trace bytes**
 passed full post-write SHA256 checks. Paths, readable bytes and public metadata
-are preserved. The open-path guard stopped further work; free space is **153.5
-GiB**, above the minimum. Automatic integration is pending; no success is claimed
-for later unattended recovery. [Audit](archive-sharing-20261030.json).
+are preserved. That pass stopped at the open-path guard. Automatic compression is
+integrated in `6abf11ec`; its 49 checks pass, but later unattended recovery is
+unmeasured. Free space is now **114 GiB**, below reserve; the live journey owns
+the runtime lock, so maintenance must wait for its safe release. [Audit](archive-sharing-20261030.json).
 
 Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.
 Approved GB imported tones, four QoL controls and Pickup remain.
