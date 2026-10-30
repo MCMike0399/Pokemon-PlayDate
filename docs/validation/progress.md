@@ -103,9 +103,9 @@ scope. Initial hardware split regressed immediate walking and Save, so it is
 rejected. Cache handoff and duplicate checkpoint work are corrected; 103 save/
 session and 42 title/recovery SDK cases pass. Corrected hardware Save is 1.597 s,
 but app → walking is 17.936 s versus baseline 17.321 s; the split stays off main. [Candidate](two-stage-title-candidate-20261030.json).
-Kanto candidate `b56d8456` passes 40 host checks and qualified SDK equality for
-13 events/two teams; only two declaration files load during its installer.
-Hardware completes: installer58ms, boot11.263s; review0/0 and merge checks pass. [Scope](kanto-first-entry-candidate-20261030.json).
+Kanto first-use data is merged in `db4e82e7`, after a clean combined review.
+40 merged host/build checks and 44 native scene cases pass; 13 descriptors and
+two teams match the SDK export. Hardware installer is 58 ms and boot 11.263 s. [Scope](kanto-first-entry-candidate-20261030.json).
 Then per-installer first-entry activation, all-door/worst-five measurements,
 cave steps, and the remaining B traversal/visual gates. Superseded queued
 journey failure notifications are already handled; do not rerun them.
@@ -128,8 +128,8 @@ The original long-journey native `drawFaded` OOM is not universally closed by
 short tests. Physical long traversal and scoped reviews remain before acceptance.
 
 All **2,494 protected images** match exactly. South exports 484 native images
-across 41 maps; all 41 native spawn viewports inspected. Full maps, actor/event overlays,
-Surf/bike/fishing and Safari BALL frames now have supplemental review.
+across 41 maps; all 41 native spawn viewports inspected. Bike, Surf and Safari BALL frames have supplemental input review; full-map
+actor/event overlays and long physical traversal remain.
 [Protected](midgame-b-protected-visuals-20261030.json),
 [new static scope](midgame-b-new-visuals-20261030.json).
 5.5b stays private. C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated preparation.
