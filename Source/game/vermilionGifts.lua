@@ -3,7 +3,7 @@
 VermilionGifts = {}
 local CONTENT <const> = "vermilionGifts"
 local REVISION <const> = "af519899719f0754965776faac0e836a3b906e6d"
-local cached, texts
+local cached
 local function definitions()
     if not cached then
         local value = assert(json.decodeFile("data/vermilionGifts/events.json"))
@@ -16,16 +16,14 @@ function VermilionGifts.descriptors()
     return GameSession._copy(definitions())
 end
 function VermilionGifts.text(label)
-    if not texts then
-        local value = assert(json.decodeFile("data/vermilionPreparation/dialogue.json"))
-        assert(value.schema == 1 and value.source_revision == REVISION, "unverified prepared text")
-        texts = value.texts
-    end
-    if not texts[label] and (label:match("^_FuchsiaGoodRodHouseFishingGuru")
+    -- Preserve this resolver's source namespace while the installed package
+    -- supplies identical recipes through its existing bounded record cache.
+    if not (label:match("^_FuchsiaGoodRodHouseFishingGuru")
         or label:match("^_Route12SuperRodHouseFishingGuru")) then
-        return CeruleanContent.text(label)
+        local records = SourceEvents._contentField("data/vermilionPreparation/", "dialogue", "texts")
+        assert(records[label], "missing prepared gift text")
     end
-    return GameSession._copy(assert(texts[label], "missing prepared gift text"))
+    return CeruleanContent.text(label)
 end
 -- Catalog/actor registration needs no visibility exemptions or mutable context.
 function VermilionGifts.actorMetadata(id)
