@@ -68,6 +68,27 @@ def qualify_shipped_content(project, source, stage):
     return record
 
 
+def qualify_region_declarations(project, source, stage):
+    from tools.generate_region_registrations import build as generate_declarations
+    reference = Path(project) / 'tools/references/content-transforms-108/provenance.json'
+    if not reference.is_file():
+        return None
+    files = generate_declarations(project)
+    for name, raw in files.items():
+        path = source / 'data/regionDeclarations' / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(raw)
+    policy = source / 'game/shippedDataPolicy.lua'
+    text = policy.read_text()
+    marker = 'local regionDeclarationsQualified <const> = false'
+    if text.count(marker) != 1:
+        raise ValueError('region declarations must start unqualified')
+    policy.write_text(text.replace(marker, 'local regionDeclarationsQualified <const> = true'))
+    record = {name: hashlib.sha256(raw).hexdigest() for name, raw in files.items()}
+    (stage / 'region-declarations-qualification.json').write_text(json.dumps(record, indent=2) + '\n')
+    return record
+
+
 def stage_production(project, stage):
     source = stage / 'Source'
     original = project / 'Source'
@@ -76,6 +97,7 @@ def stage_production(project, stage):
                     ignored_source_names(original, directory, names, excluded))
     qualify_shipped_maps(source, stage)
     qualify_shipped_content(project, source, stage)
+    qualify_region_declarations(project, source, stage)
     return source
 
 

@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-transform-108-exact-sdk-20261030-02",
+  "producer_build_sha256": "0c5ba98fba38cea9890c56cae13ccf2d4b12367af352d951b487816ee24e5e3d",
+  "producer_proof_sha256": "03be18c3472b065ebe029d9527a5f3aed951de984dbfecf3b29113c81b10dbdb",
+  "dependencies": {
+    "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
+    "game/rocketHideoutStory.lua": "0d6e8ec3cd50acf584a622c460c15f7bdb4c4e3655e1c2cc7932ecf124c1ff0e",
+    "game/towerStory.lua": "8f8c9e7ac415a5dcbe6bc5a0a899fb6b29b2b15a3482f17de761f89659f1457b",
+    "game/snorlaxStory.lua": "3082c678e72d4f6b0f513c3583ed59bc214e3d71f652982474d26ad983fca726",
+    "game/midgameGymStory.lua": "3d265601843af151584f8808a63477053fe05c54447167d0b31189a858e41976",
+    "data/rocketHideoutStory/scenes.json": "e0efa336b6fcf55cb7125004f02d1e1e0f025be82ef04ec02b2a83707719cc25",
+    "data/towerStory/scenes.json": "fb2faaaa5ecd56a4691585d308f1af87c0b81c527af8ea09ae75d90c7206f253",
+    "data/midgameGymStory/events.json": "91f0b10be4a45a08144bb62197b313312e4caada6a0396a0b21927050bcc3b02",
+    "data/sourceMaps.json": "29d97d4ee42a0f8d3f7365f4bfad806d360441424baef4c8d683eacd3ad522d7",
+    "domain/gameSession.lua": "3becbe1e43fb62c4ff709dff31e6474e8096c50a20544879835a8a4989578e6b",
+    "domain/party.lua": "a2ee6a9b9d44b2140fdbaa5e39e3b836798cc6ee668b81bfaa16efa1af529c97",
+    "world/sourceMaps.lua": "c5337e13f83fa6c736265675be0429308bd67c8de2938c517d75ee79264a61c3"
+  },
+  "content_pins_sha256": "3b5511df171c1ee9e76bae18b25bd78c924c1bf97be6159465ce4185cceb05f1",
+  "exports": {
+    "midgameEast": "3f0873884c97656d4db0cb2cb2bf1f60f2d260ad229f142ee4cbd78002168bf1"
+  },
+  "scope": "Actual SDK post-transform outputs; not a Python translation or new gameplay owner.",
+  "owner_imports": [
+    "game/rocketHideoutStory",
+    "game/midgameGymStory"
+  ]
+}

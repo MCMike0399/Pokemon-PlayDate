@@ -123,7 +123,9 @@ class ProductionBuildTests(unittest.TestCase):
                                  original.read_bytes().replace(b'mapsQualified <const> = false',
                                                                b'mapsQualified <const> = true')
                                  .replace(b'immutableContentQualified <const> = false',
-                                          b'immutableContentQualified <const> = true'))
+                                          b'immutableContentQualified <const> = true')
+                                 .replace(b'regionDeclarationsQualified <const> = false',
+                                          b'regionDeclarationsQualified <const> = true'))
                 self.assertTrue((self.production / 'shipped-map-qualification.json').is_file())
             else:
                 self.assertEqual(original.read_bytes(), (self.production / 'Source' / relative).read_bytes())

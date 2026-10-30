@@ -83,22 +83,27 @@ function SourceEvents._contentField(root, record, field)
     end
     return value
 end
-function SourceEvents._contentRecord(digest)
+function SourceEvents._contentRecord(digest, region)
     if not digest then
         return nil
     end
-    local value = recent[digest]
+    local cacheKey = region and ("region:" .. digest) or digest
+    local value = recent[cacheKey]
     for index, key in ipairs(recentOrder) do
-        if key == digest then
+        if key == cacheKey then
             table.remove(recentOrder, index)
             break
         end
     end
     if not value then
-        value = readContent("data/contentCache/chunks/" .. digest .. ".json")
+        if region then
+            value = ShippedDataPolicy.readBundleJSON("data/regionDeclarations/chunks/" .. digest .. ".json")
+        else
+            value = readContent("data/contentCache/chunks/" .. digest .. ".json")
+        end
     end
-    recent[digest] = value
-    recentOrder[#recentOrder + 1] = digest
+    recent[cacheKey] = value
+    recentOrder[#recentOrder + 1] = cacheKey
     if #recentOrder > 8 then
         recent[table.remove(recentOrder, 1)] = nil
     end
@@ -106,7 +111,9 @@ function SourceEvents._contentRecord(digest)
 end
 local function resolve(source, id)
     local value = source.records[id]
-    if source.lazy and type(value) == "string" then
+    if source.region and source.chunks[value] then
+        value = SourceEvents._contentRecord(value, true)
+    elseif source.lazy and type(value) == "string" then
         value = SourceEvents._contentRecord(value)
     end
     if value and source.content then
@@ -612,6 +619,30 @@ end
 
 -- Generated packages are validated against pinned inputs by the host generator.
 -- Registration checks membership using indexes; it never decodes descriptors.
+function SourceEvents._registerRegionDeclaration(name, root, identity)
+    if not (ShippedDataPolicy and ShippedDataPolicy.regionDeclarations())
+        or (name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
+        return false
+    end
+    local record = ShippedDataPolicy.readBundleJSON("data/regionDeclarations/" .. name .. ".json")
+    if record.root ~= root or record.transform_identity ~= (identity or false) then
+        return false
+    end
+    assert(not eventSources[name] and not trainerSources[name], "region source already declared")
+    for id in pairs(record.records) do
+        assert(not eventExists(id), "duplicate source event")
+    end
+    for id in pairs(record.trainers) do
+        assert(not baseIndex().records.trainers.trainers[id], "duplicate source trainer")
+        for _, source in pairs(trainerSources) do
+            assert(not source.records[id], "duplicate source trainer")
+        end
+    end
+    eventSources[name] = {records=record.records, lazy=true, region=true, chunks=record.chunks, items=record.items}
+    trainerSources[name] = {records=record.trainers, lazy=true, region=true, chunks=record.chunks, flags=record.trainer_flags}
+    return true
+end
+
 function SourceEvents._registerContent(name, index, fields, trainers, contentOverride, overrides)
     assert(type(name) == "string" and not eventSources[name], "named event source required")
     assert(not trainers or not trainerSources[name], "source trainer resolver replaced")
