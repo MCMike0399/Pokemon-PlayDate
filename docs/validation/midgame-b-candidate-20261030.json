@@ -264,6 +264,15 @@
       "failure": "Host advance_event used the old SafariPassage root after observe advanced the game and closed it. It rejected phase closed instead of redispatching.",
       "prepared_fix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-observer-closure-preparation-20261030-01/root.patch",
       "verification": "Exact recorded replies01293/01294 reproduce old failure; patched host driver passes same replay. No game runtime mutation or outcome acceptance."
+    },
+    "terminal_results": {
+      "all_failed": true,
+      "charmander": "Observed SafariPassage closed during read-only request; exact reply replay identifies host race.",
+      "bulbasaur": "Bag16slots, hardcoded PC deposit list exhausted though earned unused TMs/keyitems remain; no resource mutation accepted.",
+      "squirtle": "Earned Surf/Strength saved; Bicycle B hold cleared on successful request, so automatic descent invalidated planned connection coordinates.",
+      "next_fix": "36085523 on private B: async owner redispatch after observations; real PC deposit choices include unused rewards; explicit hold persists until release on successful requests only. Errors/cancel/timeout/quiesce stillclear all controls.",
+      "checks": "63targetedhost+54protocol and SDK compilation pass; native hold lifecycle andfull host pending",
+      "resumes": "m55b-resume-inputs-20261030-05 verifies stopped11thmarkers andAancestry, preserving SquirtleSurf save"
     }
   }
 }
