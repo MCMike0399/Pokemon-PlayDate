@@ -5,20 +5,25 @@ local fileAPI <const> = playdate.file
 local function wrap(owner, name, required)
     local install <const> = owner.install
     owner.install = function(options)
-        local before = SourceEvents.trainerDefinitions()
+        local before = SourceEvents.trainerLookup()
+        local expected = owner.trainers()
         install(options)
         local trainers, dependencies = {}, {}
-        for id, definition in pairs(SourceEvents.trainerDefinitions()) do
-            if not before[id] then trainers[id] = definition end
+        for id in pairs(expected) do
+            if not before(id) then
+                trainers[id] = assert(SourceEvents.trainerDefinition(id))
+            end
         end
         for _, id in ipairs(required) do
-            assert(before[id], "missing shared trainer during export")
+            assert(before(id), "missing shared trainer during export")
             dependencies[#dependencies + 1] = id
         end
         -- Story compares each shared roster in its ordinary deep installer.
         if name == "ceruleanStory" then
-            for id in pairs(owner.trainers()) do
-                if before[id] then dependencies[#dependencies + 1] = id end
+            for id in pairs(expected) do
+                if before(id) then
+                    dependencies[#dependencies + 1] = id
+                end
             end
         end
         sources[name] = {events=owner.descriptors(), trainers=trainers, required_trainers=dependencies}
@@ -37,3 +42,16 @@ GameBootstrap.afterReady(function()
     file:close()
     assert(fileAPI.rename("kanto-first-entry.tmp", "kanto-first-entry.json"))
 end)
+
+-- Refresh the existing East producer pin in this same exact SDK session when
+-- the shared map-reader dependency changes; no host translation of transforms.
+local registerContent <const> = SourceEvents._registerContent
+SourceEvents._registerContent = function(name, index, fields, trainers, contentOverride, overrides)
+    if name == "midgameEast" then
+        local file = assert(fileAPI.open("content-transform-midgameEast.json", fileAPI.kFileWrite))
+        assert(file:write(json.encode({schema=1, name=name, root="data/midgameEast/",
+            fields=fields, trainer_field=false, events=overrides or {}, trainers=trainers or {}})))
+        file:close()
+    end
+    return registerContent(name, index, fields, trainers, contentOverride, overrides)
+end

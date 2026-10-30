@@ -146,6 +146,12 @@ function SourceMaps._isSharedCompact(data)
     return compact ~= nil and data == compact
 end
 
+-- Origin eligibility only; this never grants constructor identity to a value.
+-- Scene membership needs the padding-input fence without decoding every map.
+function SourceMaps._usesQualifiedInputs()
+    return not recordOverrides and ShippedDataPolicy and ShippedDataPolicy.maps()
+end
+
 function SourceMaps._isQualifiedCompact(data)
     return SourceMaps._isSharedCompact(data) and not recordOverrides
         and ShippedDataPolicy and ShippedDataPolicy.maps()

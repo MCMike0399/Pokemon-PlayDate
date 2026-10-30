@@ -174,10 +174,14 @@ function CeruleanRoutes.install(options)
         if declared or descriptor.kind == "bespoke" then
             assert(not SourceEventHandlers[id], "duplicate Blue route handler")
             local stableID = id
-            SourceEventHandlers[id] = function(state) return CeruleanRoutes.plan(stableID,state) end
+            SourceEventHandlers[id] = function(state)
+                return CeruleanRoutes.plan(stableID, state)
+            end
         end
     end
-    if not declared then SourceEvents.registerEventSource(CONTENT, events) end
+    if not declared then
+        SourceEvents.registerEventSource(CONTENT, events)
+    end
     SourceEvents.registerTextSource(CONTENT,CeruleanRoutes.text)
 end
 function CeruleanRoutes.check(game)
