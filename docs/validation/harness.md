@@ -209,6 +209,12 @@ cancelled response. Cancellation and runtime frame timeout stop queued input
 and recording and perform whole-session reset before acknowledgement; the old
 snapshot is retained as `interrupted_snapshot`. If cancellation cannot be
 confirmed, the runner terminates its owned runtime before returning failure.
+A matching `runtime-error.json` means the producer stopped after a game error.
+The client archives and preserves that first error, refuses further input and
+recovery, and reports the game failure rather than a secondary timeout. The
+runner must terminate its owned process and start a new session. Malformed or
+wrong-identity fatal publications also refuse input.
+
 A new request must never be sent after an unconfirmed timeout or a malformed,
 incomplete, or wrong-identity response while a request is pending. Client.send
 blocks reuse in that state. Client.recover() first confirms the pending request

@@ -123,6 +123,7 @@ class Client:
         self.sequence = 0
         self._pending_id = None
         self._quiescent_result = None
+        self._runtime_failure = None
 
     def close(self):
         if self._owns_lock and self.owner.stream is not None and not self.owner.stream.closed:
@@ -137,6 +138,17 @@ class Client:
     def _check_owner(self):
         if self.owner.stream is None or self.owner.stream.closed:
             raise ProtocolError('client owner lock is no longer held')
+
+    def _check_runtime_failure(self):
+        if self._runtime_failure is None:
+            failure = self.read('runtime-error.json')
+            if failure is None:
+                return
+            if not isinstance(failure.get('error'), str):
+                raise ProtocolError('malformed runtime-error.json: error string required')
+            self._runtime_failure = failure
+            atomic_json(self.evidence / 'runtime-error.json', failure)
+        raise ProtocolError('runtime error: ' + self._runtime_failure['error'])
 
     def envelope(self, **values):
         return dict(self.identity, **values)
@@ -171,6 +183,7 @@ class Client:
 
     def send(self, commands, timeout=60, max_frames=1800):
         self._check_owner()
+        self._check_runtime_failure()
         if self._quiescent_result is not None:
             raise ProtocolError('runtime is quiescent; start a new session')
         if self._pending_id is not None:
@@ -186,6 +199,7 @@ class Client:
         atomic_json(self.data / 'request.json', request)
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
+            self._check_runtime_failure()
             rejected = self.read('rejected.json')
             if rejected and rejected.get('id') == request_id:
                 self._pending_id = None
@@ -229,6 +243,7 @@ class Client:
     def recover(self, timeout=5):
         """Confirm pending termination, then reset the actual runtime before reuse."""
         self._check_owner()
+        self._check_runtime_failure()
         request_id = self._pending_id
         if request_id is not None:
             atomic_json(self.data / 'cancel.json', self.envelope(id=request_id))

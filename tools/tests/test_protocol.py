@@ -110,6 +110,36 @@ class ProtocolTests(unittest.TestCase):
         with self.assertRaisesRegex(ProtocolError, 'invalid command'):
             self.client.send(['bogus'], timeout=1)
 
+    def test_published_fatal_error_blocks_input_and_preserves_first_failure(self):
+        fatal = self.response(error='first game failure', snapshot={})
+        atomic_json(self.data / 'runtime-error.json', fatal)
+        with self.assertRaisesRegex(ProtocolError, 'first game failure'):
+            self.client.send(['release b'], timeout=.01)
+        self.assertFalse((self.data / 'request.json').exists())
+        atomic_json(self.data / 'runtime-error.json', self.response(error='later failure', snapshot={}))
+        with self.assertRaisesRegex(ProtocolError, 'first game failure'):
+            self.client.recover(timeout=.01)
+        self.assertEqual(json.loads((self.root / 'evidence/runtime-error.json').read_text()), fatal)
+        self.assertFalse((self.data / 'cancel.json').exists())
+
+    def test_fatal_error_during_request_stops_wait_without_publishing_cancellation(self):
+        def fail(request):
+            atomic_json(self.data / 'runtime-error.json', self.response(error='image allocation failed', snapshot={}))
+        self.runtime(fail)
+        with self.assertRaisesRegex(ProtocolError, 'image allocation failed'):
+            self.client.send(['wait 20'], timeout=.1)
+        sequence = self.client.sequence
+        with self.assertRaisesRegex(ProtocolError, 'image allocation failed'):
+            self.client.send(['release b'], timeout=.01)
+        self.assertEqual(self.client.sequence, sequence)
+        self.assertFalse((self.data / 'cancel.json').exists())
+
+    def test_wrong_identity_fatal_error_refuses_before_input_publication(self):
+        atomic_json(self.data / 'runtime-error.json', self.response(build_id='wrong', error='untrusted failure'))
+        with self.assertRaisesRegex(ProtocolError, 'wrong build_id'):
+            self.client.send(['snapshot'], timeout=.01)
+        self.assertFalse((self.data / 'request.json').exists())
+
     def test_incomplete_success_is_failure(self):
         def reply(request):
             atomic_json(self.data / 'result.json', self.response(id=request['id'], status='ok', results=[], snapshot={}))
