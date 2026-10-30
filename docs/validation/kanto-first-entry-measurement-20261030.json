@@ -1,0 +1,61 @@
+{
+  "status": "Installer gain qualifies for one review; isolated and not accepted on main.",
+  "baseline": {
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-region-declarations-108-hardware-20261030-01/device-smoke.json",
+    "sha256": "ab28dfc0892243c013faafed60c050d7e1876eeef44dcd359d4c1b49a7081a8e",
+    "build_id": "8e912161a8ce44bd85cd1005c4e143ad",
+    "installer_ms": 1119.0,
+    "phase_measurements": {
+      "Continue": 3224.0,
+      "Save": 1526.0,
+      "battle": 18.0,
+      "boot_slice": 1207.0,
+      "boot_title": 12340.0,
+      "cave_walking_p95": 97.93000000000757,
+      "door": 2957.0,
+      "title_artwork": 2523.0
+    },
+    "heap_live_mib": 4.1263828125,
+    "heap_peak_mib": 5.3735068359375,
+    "last_phase": {
+      "clock_ms": 71104.0,
+      "heap_kib": 4462.258,
+      "peak_kib": 5502.471,
+      "phase": "battle.live.after_gc",
+      "phase_ms": 510.0,
+      "since_yield_ms": 542.0
+    }
+  },
+  "candidate": {
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-hardware-20261030-01/device-smoke.json",
+    "sha256": "181bf2831e77d76b03be73d1c66fd8e148afc11bde661a5cda7228335a989d4a",
+    "build_id": "025d4978a1e746abad619fa7accc2d4e",
+    "installer_ms": 58.0,
+    "phase_measurements": {
+      "Continue": 3197.0,
+      "Save": 1613.0,
+      "battle": 19.0,
+      "boot_slice": 1267.0,
+      "boot_title": 11263.0,
+      "cave_walking_p95": 96.96899999999732,
+      "door": 3014.0,
+      "title_artwork": 2580.0
+    },
+    "heap_live_mib": 4.0181259765625,
+    "heap_peak_mib": 5.26133203125,
+    "last_phase": {
+      "clock_ms": 70067.0,
+      "heap_kib": 4415.256,
+      "peak_kib": 5387.604,
+      "phase": "battle.live.after_gc",
+      "phase_ms": 524.0,
+      "since_yield_ms": 558.0
+    }
+  },
+  "installer_gain_percent": 94.81680071492404,
+  "boot_gain_percent": 8.72771474878444,
+  "new_error_or_crash_logs": false,
+  "keeper_restored": true,
+  "screen": "Not directly observed; serial/state evidence.",
+  "scope": "Same108-map earned Route2Gate save and254-command smoke. Diagnostic GC remains included; no shipped-equivalent or immediate-first-A claim. Heavy Kanto data lazy; callbacks still register at boot. Full region activation incomplete."
+}

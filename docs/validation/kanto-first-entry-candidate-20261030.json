@@ -1,5 +1,5 @@
 {
-  "status": "Isolated Kanto lazy-data candidate; qualified SDK equivalence and exact safety admission passed; hardware attempt running.",
+  "status": "Installer gain qualifies for one review; isolated and not accepted on main.",
   "branch": "wip/kanto-first-entry-108-20261030-01",
   "commit": "b56d8456",
   "build_id": "025d4978a1e746abad619fa7accc2d4e",
@@ -21,7 +21,7 @@
   "hardware": {
     "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-hardware-20261030-01",
     "exec_session": 41022,
-    "status": "running; attach handle, do not relaunch"
+    "status": "Completed; no new logs, keeper restored"
   },
   "scope": "Lightweight membership and callback wiring at boot, first-use descriptor/roster/scene data. Partial activation, not every service/import lazy. Constructor identity remains distinct from origin eligibility.",
   "limits": [
@@ -29,5 +29,6 @@
     "Main excludes the rejected two-stage title code.",
     "Public getters, dynamic save validators and harness/custom deep paths remain; callbacks still register at boot.",
     "Fixture eligibility and defensive-copy tests pass; long physical traversal and B release gates remain."
-  ]
+  ],
+  "measurement": "kanto-first-entry-measurement-20261030.json"
 }
