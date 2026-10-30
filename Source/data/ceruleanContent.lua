@@ -79,8 +79,10 @@ function CeruleanContent.registerPackage(name, root, transform)
     yieldIfDue()
     local index = SourceEvents._contentIndex(root)
     yieldIfDue()
-    checkImmutableRecords(index, "dialogue", "texts")
-    checkImmutableRecords(index, "sprites", "sprites")
+    if not (ShippedDataPolicy and ShippedDataPolicy.immutableContent()) then
+        checkImmutableRecords(index, "dialogue", "texts")
+        checkImmutableRecords(index, "sprites", "sprites")
+    end
     local overrides, trainers
     if transform then
         -- The story adapter reads and edits a sparse set. Preserve untouched

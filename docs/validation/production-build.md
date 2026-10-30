@@ -85,3 +85,12 @@ catalogue. It still builds identity lookups, keeps the two-map cache and validat
 all saved world deltas. Arbitrary constructor inputs retain their original deep
 validation and defensive copies. No runtime conflict/transform optimization is
 included in this first map-only candidate. Device benefit remains unmeasured.
+
+The separate immutable-content candidate also regenerates and byte-checks the
+content cache against its pinned inputs. Generation rejects conflicting dialogue
+or sprite records even when an altered input has an updated pin. Only after
+qualification does production omit the registration-time immutable conflict scan.
+Harnesses retain it. Runtime event/trainer registration checks and story transforms
+are unchanged. It does not restore the rejected per-file Lua checksum loops.
+This candidate is separate from the first map-only measurement; no timing gain
+or lazy-region implementation is claimed yet.

@@ -40,3 +40,17 @@ class ShippedMapQualificationTests(unittest.TestCase):
         path.write_bytes(raw)
         with self.assertRaisesRegex(ValueError, 'drift'):
             build.qualify_shipped_maps(self.source, self.stage)
+
+    def test_changed_content_chunk_is_rejected_before_content_flag_publication(self):
+        path = next((self.source / 'data/contentCache/chunks').glob('*.json'))
+        path.write_bytes(path.read_bytes() + b' ')
+        with self.assertRaisesRegex(ValueError, 'content cache drift'):
+            build.qualify_shipped_content(PROJECT, self.source, self.stage)
+        self.assertIn('local immutableContentQualified <const> = false',
+                      (self.source / 'game/shippedDataPolicy.lua').read_text())
+
+    def test_project_without_content_pins_keeps_the_deep_path(self):
+        result = build.qualify_shipped_content(self.stage / 'minimal-project', self.source, self.stage)
+        self.assertIsNone(result)
+        self.assertIn('local immutableContentQualified <const> = false',
+                      (self.source / 'game/shippedDataPolicy.lua').read_text())

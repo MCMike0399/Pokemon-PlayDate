@@ -121,7 +121,9 @@ class ProductionBuildTests(unittest.TestCase):
             elif name == 'game/shippedDataPolicy.lua':
                 self.assertEqual((self.production / 'Source' / relative).read_bytes(),
                                  original.read_bytes().replace(b'mapsQualified <const> = false',
-                                                               b'mapsQualified <const> = true'))
+                                                               b'mapsQualified <const> = true')
+                                 .replace(b'immutableContentQualified <const> = false',
+                                          b'immutableContentQualified <const> = true'))
                 self.assertTrue((self.production / 'shipped-map-qualification.json').is_file())
             else:
                 self.assertEqual(original.read_bytes(), (self.production / 'Source' / relative).read_bytes())
