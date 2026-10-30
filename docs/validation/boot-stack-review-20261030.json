@@ -1,0 +1,62 @@
+{
+  "review": "t3-thread://v1/thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3A525f55ba-d64e-4228-a5be-4d17e7566498",
+  "reviewed_108": "d11e670e",
+  "reviewed_149": "74f0ce6f",
+  "main_merge": "8b581613",
+  "root_corrections_108": "abc6b711",
+  "private_b_corrections": "8e188083",
+  "findings": [
+    {
+      "axis": "Spec",
+      "severity": "P2",
+      "issue": "Qualification checked live inputs rather than the copied runtime tree",
+      "resolution": "Generator validates copied dependency/import bytes; copied cache rehash matches completed qualification. Only explicitly excluded production paths may be absent."
+    },
+    {
+      "axis": "Spec",
+      "severity": "P2",
+      "issue": "Membership registration omitted bounded guard checks",
+      "resolution": "Guard checks before, after, and every 32 membership/reference entries; both namespaces publish after preparation."
+    },
+    {
+      "axis": "Standards",
+      "severity": "P3",
+      "issue": "SDK globals not localized",
+      "resolution": "Immutable file API and JSON decoder aliases."
+    }
+  ],
+  "evidence": {
+    "main_production_and_content_checks": 25,
+    "main_protocol_checks": 57,
+    "private_b_checks": 16,
+    "native_content_activation": {
+      "passed": 182,
+      "failed": 0,
+      "path": "evidence/boot-stack-registration-native-108-20261030-02"
+    },
+    "qualified_guards": {
+      "path": "evidence/boot-registration-guard-sdk-20261030-01",
+      "packages": [
+        {
+          "name": "vermilion",
+          "checks": 6,
+          "events": 110,
+          "trainers": 35
+        },
+        {
+          "name": "midgameEast",
+          "checks": 13,
+          "events": 259,
+          "trainers": 60
+        }
+      ]
+    },
+    "staging_race": {
+      "path": "evidence/boot-review-staging-race-regression-20261030-01",
+      "reviewed_failures": 2,
+      "corrected_failures": 0
+    },
+    "failed_fixture_batch": "evidence/boot-stack-registration-native-108-20261030-01: missing private fixture; fixed only staging, original failure retained"
+  },
+  "limits": "One independent combined static review, then root corrections and targeted verification. No independent re-review claimed. Composed hardware measurement pending; first-entry activation and latency targets remain open."
+}

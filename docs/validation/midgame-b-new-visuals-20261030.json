@@ -22,5 +22,33 @@
     "Live Surf, bicycle and fishing movement/presentation",
     "Safari command/capture presentation",
     "Checkpoint showcase and final release review"
-  ]
+  ],
+  "viewport_review_update": {
+    "count": 41,
+    "native_dimensions": [
+      400,
+      240
+    ],
+    "contact_sheets": [
+      {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-static-review-20261030-01/viewports-1.png",
+        "sha256": "3a72082af98565dd75d9ab904ab81b18ada60fe4f63fdfc08c78599cb980074d"
+      },
+      {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-static-review-20261030-01/viewports-2.png",
+        "sha256": "ba684780ea94c2dcfaa68aea835c6e63ecd05af68e07867263f37c23f2263107"
+      },
+      {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-static-review-20261030-01/viewports-3.png",
+        "sha256": "ff887db0a84af3b1a6c01a5d243cb0ee6dca9545ab208683a81fe6bc591a0f51"
+      },
+      {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-static-review-20261030-01/viewports-4.png",
+        "sha256": "74a76efa758b8832c36b5d94298fa8eb051a059d3dd1da318f9a8f56bc3b2afd"
+      }
+    ],
+    "inventory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-static-review-20261030-01/inventory.json",
+    "finding": "Root inspected all 41 native viewports; no obvious missing textures or unintended clipping identified.",
+    "limits": "Spawn viewports only. Full-map event/actor overlays, live Surf/bicycle/fishing/Safari motion and showcase remain pending."
+  }
 }

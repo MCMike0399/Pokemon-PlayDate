@@ -1,0 +1,61 @@
+{
+  "status": "Reviewed stack merged on main and private B; composed hardware measurement complete. Latency acceptance still fails.",
+  "main_commit": "8b581613",
+  "private_b_commit": "8e188083",
+  "build_id": "1d983974f39046c0b25c4406185f27fb",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-stack-composed-149-hardware-20261030-01/device-smoke.json",
+  "report_sha256": "9076eef07e0a9c50686c8754caef4dc95d983b07846b5c265aa13052027859d9",
+  "phase_measurements": {
+    "Continue": 3339.0,
+    "Save": 1559.0,
+    "battle": 19.0,
+    "boot_slice": 1444.48,
+    "boot_title": 13711.0,
+    "cave_walking_p95": 99.91399999999703,
+    "door": 2978.0,
+    "title_artwork": 2583.0
+  },
+  "installer_ms": {
+    "KantoScenes.install": 1172.0,
+    "KantoServices.install": 20.0,
+    "VermilionGifts.install": 41.0,
+    "VermilionStory.install": 131.0,
+    "Daycare.install": 18.0,
+    "HideoutTowerContent.install": 753.0,
+    "MidgameServices.install": 66.0,
+    "CeladonServices.install": 288.0,
+    "MidgameStoryWarps.install": 112.0,
+    "KantoWorld.install": 1552.0,
+    "PewterWorld.install": 2.0,
+    "title.prepare": 4275.0
+  },
+  "shipped_equivalent": {
+    "measured": false,
+    "reason": "This retained run has DEVICE_TEST forced collections. No subtraction is used; a separate no-forced-collection run remains required."
+  },
+  "boot_diagnostic_gc_ms": 858.0,
+  "heap_live_mib": 4.57312109375,
+  "heap_peak_mib": 5.8664375,
+  "last_phase": {
+    "clock_ms": 73459.0,
+    "heap_kib": 4918.991,
+    "peak_kib": 6007.232,
+    "phase": "battle.live.after_gc",
+    "phase_ms": 591.0,
+    "since_yield_ms": 625.0
+  },
+  "new_error_or_crash_logs": false,
+  "keeper_restored": true,
+  "screen": "Not directly observed; serial/state evidence only.",
+  "safety": {
+    "raw_slice_ms": 89.941,
+    "sampled_peak_mib": 7.7213251953125
+  },
+  "attribution": {
+    "boot_slice_ms": 1444.48,
+    "window": "device update1 segment23, start8995.117ms",
+    "span": "final state registrations plus KantoWorld.install through its first cooperative yield",
+    "lead": "SourceMaps._sharedCompact decoding followed by profile preparation; not an isolated decode measurement"
+  },
+  "limits": "Three sampled doors only, not the worst-door census. No immediate-first-frame A or 1.5s-dwell metric yet. No long physical traversal or B acceptance."
+}

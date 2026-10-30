@@ -74,18 +74,29 @@ memberships; descriptor bodies load on demand through the bounded cache.
 At 149 maps, registration falls **5.363 → 0.171 s** and boot **18.540 → 13.687 s**.
 108-map registration is 0.109 s; saved-map title preparation stays 4.232/4.201 s.
 Historical `Daycare.install` includes later installers; it is not an isolated cost.
-Candidates remain on `wip/lazy-region-records-149-20261030-01` and
-`wip/region-scaling-108-20261030-01`; scoped review remains pending.
-One combined performance review is next; no new boot candidate before merge.
-Story-field deferral is rejected at 7.6% installer gain; it stays off main.
-[Trial](story-field-trial-20261030.json). Full first-entry activation, 10 s boot and constant-current-map scaling
-remain open. [Implementation scope](region-declaration-boot-measurement-20261030.json).
+The combined review found staged-byte qualification and missing bounded guards;
+root corrected both, plus SDK aliases. The real staging-race regression fails
+both mutations before the fix and passes after. Main `8b581613` and private B
+`8e188083` now contain the reviewed stack. Rejected story-field deferral stays off.
+Main compile, 57 protocol checks, 25 focused checks, 182 native cases and the
+qualified guard/publication probe pass; B passes 16 focused/build checks.
+[Review and corrections](boot-stack-review-20261030.json).
+
+Composed B hardware `1d983974`: boot **13.711 s**, raw boot slice **1.444 s**,
+Continue **3.339 s**, Save **1.559 s**, sampled longest door **2.978 s**, cave
+p95 **99.91 ms**, battle **19 ms**, Lua live/peak **4.57/5.87 MiB**. No new logs;
+last `battle.live.after_gc`, keeper restored, screen not directly observed.
+Forced title GC is 0.858 s. **Shipped-equivalent timing is not yet measured**;
+no subtraction or implied 10-second pass. The longest slice includes the provider
+compact decode/profile preparation; it is not isolated decode timing.
+[Composed phases and installer attribution](boot-stack-composed-20261030.json).
+Full first-entry activation and current-map scaling remain open.
 
 Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
 raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.
 Historical guessed-factor failures remain retained; safety-only admission passes.
 Latency targets gate 5.5c. No accepted checkpoint may regress a phase over 10%.
-Next: review and merge the measured stack, then one composed device run.
+Next: two-stage title preparation on the merged stack.
 Next title work must report immediate-press walking and 1.5 s dwell, preserve
 full validation, and separate real shipped-equivalent timing from forced GC.
 Then per-installer first-entry activation, all-door/worst-five measurements,
@@ -110,7 +121,7 @@ The original long-journey native `drawFaded` OOM is not universally closed by
 short tests. Physical long traversal and scoped reviews remain before acceptance.
 
 All **2,494 protected images** match exactly. South exports 484 native images
-across 41 maps; six viewports inspected. Remaining maps, actor/event overlays,
+across 41 maps; all 41 native spawn viewports inspected. Full maps, actor/event overlays,
 Surf/bike/fishing/Safari motion and showcase still need review.
 [Protected](midgame-b-protected-visuals-20261030.json),
 [new static scope](midgame-b-new-visuals-20261030.json).
