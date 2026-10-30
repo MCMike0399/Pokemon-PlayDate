@@ -91,7 +91,7 @@ class ProductionBuildTests(unittest.TestCase):
         # the SDK imports and added boot tracing. Retain the frozen inventory
         # and permit only these two reviewed additions in their required order.
         self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
-                         + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'} and name not in transitive])
+                         + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'}])
         self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
                           or line.lstrip().startswith('PewterCatalogExporter.register(')
                           or line.lstrip().startswith('CeruleanCatalogExporter.register(')
