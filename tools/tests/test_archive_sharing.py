@@ -61,7 +61,7 @@ class ArchiveSharingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'independent regular'):
             sharing.share_pair(self.source, self.target, self.checksum)
         self.target.unlink()
-        self.target.hardlink_to(self.source)
+        os.link(self.source, self.target)
         with self.assertRaisesRegex(ValueError, 'independent regular'):
             sharing.share_pair(self.source, self.target, self.checksum)
 

@@ -20,6 +20,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.harness.cleanup_evidence import inventory, metadata_files, read_json
 from tools.harness.share_archives import share_closed_traces
+from tools.harness.compress_archives import compress_closed_traces
 
 PROJECT = Path(__file__).resolve().parents[2]
 GIB = 1024 ** 3
@@ -271,7 +272,7 @@ def maintain(project, env, refs, minimum, target, age_hours, execute=False,
     before = free_bytes(root)
     report = {'mode': 'execute' if execute else 'dry-run', 'evidence': str(root),
               'minimum_free_bytes': minimum, 'target_free_bytes': target,
-              'free_bytes_before': before, 'entries': [], 'removed': [], 'sharing': None}
+              'free_bytes_before': before, 'entries': [], 'removed': [], 'sharing': None, 'compression': None}
     with ExitStack() as stack:
         if execute and before < minimum:
             for owner in ('storage-maintenance', 'suite', 'simulator', 'device'):
@@ -307,6 +308,10 @@ def maintain(project, env, refs, minimum, target, age_hours, execute=False,
                                 if e['action'] == 'keep' and 'age grace' not in e['reasons']}
                 report['sharing'] = share_closed_traces(
                     root, True, lambda: free_bytes(root) >= target, allowed_roots=old_retained)
+                if free_bytes(root) < target:
+                    report['compression'] = compress_closed_traces(
+                        root, True, lambda: free_bytes(root) >= target, live_paths,
+                        allowed_roots=old_retained)
     report['free_bytes_after'] = free_bytes(root)
     report['observed_free_bytes_delta'] = report['free_bytes_after'] - before
     report['minimum_met'] = report['free_bytes_after'] >= minimum

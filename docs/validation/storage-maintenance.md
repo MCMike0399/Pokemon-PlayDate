@@ -30,6 +30,62 @@ Unsupported clone operations refuse maintenance rather than silently making
 ordinary copies. Reported logical bytes are not a claim of physical space freed;
 the free-space measurements remain authoritative.
 
+If deletions and sharing still leave less than the target, the same executing
+invocation calls `compress_archives.py` while all four global locks remain held.
+This is the native APFS fallback proven by root on 2026-10-30. Root's separate
+pass recovered an observed 14.308 GiB from 178 terminal traces; all 35.424 GB of
+logical content passed full post-write SHA256 verification. Those historical
+results are not a gain claimed for a future invocation. Its audit and script
+remain outside Git in `storage-maintenance-logs/native-trace-compression-20261030-01.json`,
+`native-trace-compression-postverify-20261030-01.json`,
+`native-compression-pilot-20261030-01/report.json`, and
+`compress-closed-traces-20261030-01.py` under the environment directory.
+
+The fallback uses only confirmed terminal `trace.jsonl` files of at least 10 MiB
+inside the old retained archive set already selected for sharing. It requires
+Darwin and an APFS filesystem verified by `diskutil`; other platforms report
+`compression.status: unavailable` without copying or claiming space savings.
+It uses `/usr/bin/ditto --rsrc --extattr --acl --hfsCompression` into a unique
+sibling temporary file. Compression flag 32 is intentional. An ordinary copy,
+no allocation reduction, any other source flag, a hardlink, symlink, nested
+mount or cross-device path never qualifies for publication. Chain saves,
+packages, Source and references are excluded. Published paths and readable
+bytes remain unchanged, with independent future writes.
+
+Before each file, the helper freshly parses and hashes `run.json` and the
+containing archive's completed `suite.json` or terminal `outcome.json`. Every
+recorded process must have exited with a return code. It also takes the archived
+runtime owner lock; this is additional to, and never a substitute for, the four
+global locks. Source inode, length, modification/change times, flags, SHA256,
+owner, group, mode, ACLs and public extended attributes must remain stable.
+The temporary file must have matching bytes and public metadata before atomic
+replacement. Access and modification times are restored and the temporary is
+fsynced. Terminal proof identities and hashes are checked again. Immediately
+before publication, current command/open paths are checked again; only this
+process's exact archived-lock entry is exempt. An archive becoming open is
+skipped with a refusal, retaining prior successes and audit events. No active
+run names are hardcoded, no lock is taken over or expired, and compression
+cannot run alongside a live owner of any global lock.
+
+The fallback lowers its own priority to nice 10 if needed, stops at the target,
+and has an 1800-second publication budget. Each native copy has a timeout of at
+most 180 seconds and no more than the remaining budget. Budget and target checks
+run before each file, after copying and immediately before publication. A copy,
+verification, source race or open-path refusal leaves the original untouched
+and cleans the sibling temporary. Filesystem operations already in progress
+can outlast a budget check; no replacement is authorized after the budget expires.
+
+Compression appends prepared, completed and refused JSON events to the existing
+CLI stderr stream. The wrapper's regular log file is flushed and fsynced for
+each event. No prior audit file is opened or truncated. A prepared event makes
+an interruption between atomic replacement and completion logging diagnosable
+from the path and checksum. If the audit stream fails before publication, the
+original remains. A later audit failure stops compression and returns all
+completed file records with `compression.status: audit unavailable`. The final
+CLI report contains `compression.files`, `refusals` and status. Actual reserve
+measurements remain in the enclosing report. This adds no scheduler option,
+LaunchAgent change or new standalone compressor command.
+
 Root should first integrate the implementation commit into the checkout used
 for maintenance. This is the exact root review command:
 
@@ -119,9 +175,9 @@ are never created. The earlier SHA256-verified COW archives remain independent f
 retain their paths. Automatic cleanup cannot guarantee a reserve if only
 protected evidence remains; root must inspect exit status 2.
 
-## Proposed scheduling, not installed
+## Existing scheduling and historical installation recipe
 
-Root can review a wrapper outside Git at
+The existing root-owned wrapper is outside Git at
 `/Users/burbujamc/Developer/Pokemon-PlayDate-env/maintain-storage.sh`:
 
 ```sh
@@ -139,7 +195,7 @@ exec /usr/bin/python3 /Users/burbujamc/Developer/Pokemon-PlayDate/tools/harness/
   2> "$maintenance_logs/$maintenance_stamp.log"
 ```
 
-A proposed per-user LaunchAgent at
+The root-installed per-user LaunchAgent is at
 `~/Library/LaunchAgents/local.pokemon-playdate.storage-maintenance.plist`:
 
 ```xml
@@ -161,16 +217,41 @@ A proposed per-user LaunchAgent at
 </plist>
 ```
 
-No wrapper, agent file, installation or scheduling command was executed as part
-of this implementation. Root owns installation and log upkeep after review.
+No wrapper, agent file or scheduling configuration was changed by this compression
+implementation. Root verified the existing 30-minute wrapper separately. The
+XML and shell above are the historical installation recipe, not a command run by
+this packet; its old checkpoint selector must not replace the current wrapper.
 The earlier manual audit and scripts remain outside Git at
 `~/Developer/Pokemon-PlayDate-env/cleanup-20261029-night`.
 
 Run the focused host checks without the SDK:
 
 ```sh
-python3 -m unittest tools.tests.test_storage_maintenance -v
+/usr/bin/python3 -m unittest tools.tests.test_storage_maintenance tools.tests.test_archive_sharing tools.tests.test_archive_compression -v
 ```
 
-All deletion tests use temporary directories, temporary Git branches and
-temporary lock files. They do not probe actual SDK Data or device paths.
+Use the actual `/usr/bin/python3` (3.9.6) for these checks. All 29 existing
+storage/sharing tests remain, including the hardlink refusal case expressed
+with Python 3.9's `os.link`. Compression tests cover a disposable native
+roundtrip on supported hosts and explicit unavailability elsewhere, plus
+filesystem/fault adapters for bytes, metadata, open paths, terminal proofs,
+source races, copy failure, temporary cleanup, budgets and audit failures.
+Integration tests check deletion → sharing → compression order and that all
+four global locks are held when the helper runs. No test mutates a real archive,
+SDK Data, Source, device or scheduler. No real archive pass was run for this
+implementation.
+
+Root can verify the CLI without executing maintenance:
+
+```sh
+/usr/bin/python3 tools/harness/maintain_storage.py --help
+```
+
+The review command above remains a dry run. Root owns any subsequent real
+archive execution through the existing wrapper; its configuration is unchanged.
+
+Root recovery after worker usage limit: all 49 focused tests pass under the actual
+`/usr/bin/python3` 3.9.6, including the native disposable APFS case. The helper
+remains isolated pending independent integration review; no real archive pass or
+scheduler configuration change was performed by this packet. The failed worker
+was not restarted or switched to another provider.
