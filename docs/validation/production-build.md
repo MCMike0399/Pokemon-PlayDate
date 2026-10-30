@@ -93,3 +93,12 @@ reads see Data while the qualified SourceMaps reader and binary reader see PDX.
 Unknown read-mode constants disable the fast path. Record-override scopes do not
 receive qualified canonical identity. Saves and unqualified/harness reads retain
 their existing behavior. See `shipped-map-origin-fence-sdk-20261030-01` outside Git.
+
+The separate immutable-content candidate also regenerates and byte-checks the
+content cache against its pinned inputs. Generation rejects conflicting dialogue
+or sprite records even when an altered input has an updated pin. Only after
+qualification does production omit the registration-time immutable conflict scan.
+Harnesses retain it. Runtime event/trainer registration checks and story transforms
+are unchanged. It does not restore the rejected per-file Lua checksum loops.
+This candidate is separate from the first map-only measurement; no timing gain
+or lazy-region implementation is claimed yet.

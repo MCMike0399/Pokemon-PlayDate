@@ -43,6 +43,31 @@ def qualify_shipped_maps(source, stage):
     return record
 
 
+def qualify_shipped_content(project, source, stage):
+    """Qualify immutable package agreement from pinned, copied content bytes."""
+    from tools.generate_content_cache import build as generate_content
+    pins = Path(project) / 'tools/references/content-cache.json'
+    policy = source / 'game/shippedDataPolicy.lua'
+    if not pins.is_file() or not policy.is_file():
+        return None
+    text = policy.read_text()
+    marker = 'local immutableContentQualified <const> = false'
+    if text.count(marker) != 1:
+        raise ValueError('shipped immutable-content policy must start unqualified')
+    artifacts = generate_content(source, pins)
+    cache = source / 'data/contentCache'
+    actual = {path.relative_to(cache).as_posix(): path.read_bytes()
+              for path in cache.rglob('*.json')}
+    if actual != artifacts:
+        raise ValueError('generated immutable content cache drift')
+    record = dict(schema=1, pins_sha256=hashlib.sha256(pins.read_bytes()).hexdigest(),
+                  artifacts={name: hashlib.sha256(raw).hexdigest()
+                             for name, raw in sorted(artifacts.items())})
+    (stage / 'shipped-content-qualification.json').write_text(json.dumps(record, indent=2) + '\n')
+    policy.write_text(text.replace(marker, 'local immutableContentQualified <const> = true'))
+    return record
+
+
 def stage_production(project, stage):
     source = stage / 'Source'
     original = project / 'Source'
@@ -50,6 +75,7 @@ def stage_production(project, stage):
     shutil.copytree(original, source, ignore=lambda directory, names:
                     ignored_source_names(original, directory, names, excluded))
     qualify_shipped_maps(source, stage)
+    qualify_shipped_content(project, source, stage)
     return source
 
 
