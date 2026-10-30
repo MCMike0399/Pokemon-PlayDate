@@ -302,7 +302,9 @@
       "branch": "t3/repair-silph-source-geometry",
       "fix": "Existing VermilionGifts definitions/controller with pinned original Yes/No/full/revisit/flag flow; two gifts only for installed source maps",
       "checks": "14source/texthostchecks, generatorreproduction andSDK3.1.2productioncompile pass; native andbothreviews pending",
-      "scope": "No new dispatcher/owner/savefield, allfourpriorgiftdefinitionsunchanged; liveB/main unchanged"
+      "scope": "No new dispatcher/owner/savefield, allfourpriorgiftdefinitionsunchanged; liveB/main unchanged",
+      "prepared_native_build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gifts-native-prepare-20261030-01",
+      "native_build_scope": "Exact149-map B productionstage with onlyrodgiftLua/data overlays; existingwholegiftcasefactory plus twoUIrows. SDKcompilepassed; notexecutedwhile siblings ownruntime."
     }
   },
   "cave_performance_preparation": {
