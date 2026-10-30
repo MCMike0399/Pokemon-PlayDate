@@ -44,8 +44,11 @@ local function copy(value)
     end
     return result
 end
-local inspections = setmetatable({}, {__mode="k"})
 local envelopes = setmetatable({}, {__mode="k"})
+local diskRecords = setmetatable({}, {__mode="k"})
+-- Authority exists only during the synchronous owner-export publication call.
+-- Public save/replace calls never receive this capability.
+local ownerExports = setmetatable({}, {__mode="k"})
 local function checksum(bytes)
     local hash=-2128831035 -- FNV offset 0x811c9dc5 as a signed SDK int32
     for i=1,#bytes do
@@ -116,8 +119,8 @@ function SaveStore:init(prefix,validate,filesystem)
     assert(type(prefix)=="string" and #prefix>=1 and #prefix<=120 and not prefix:find("[^%w_/-]")
         and not prefix:find("//",1,true) and prefix:sub(1,1)~="/" and prefix:sub(-1)~="/","safe explicit Data-relative prefix required")
     assert(type(validate)=="function","payload validator required")
-    inspections[self] = nil
     envelopes[self] = nil
+    diskRecords[self] = nil
     self._validationEpoch = nil
     self._validationToken = {}
     self._prefix=prefix
@@ -132,8 +135,8 @@ function SaveStore:setValidationEpoch(epoch)
     assert(epoch == nil or type(epoch) == "string", "validation epoch must be a string or nil")
     self._validationEpoch = epoch
     self._validationToken = {}
-    inspections[self] = nil
     envelopes[self] = nil
+    diskRecords[self] = nil
 end
 -- Recheck domain acceptance without decoding/checksumming bytes already proven
 -- in this publication. Dynamic validators still run at each original boundary.
@@ -149,7 +152,7 @@ function SaveStore:_validateRecord(path, record)
     end
     return {state="valid", sequence=record.sequence, payload=record.payload, data=data, path=path}
 end
-function SaveStore:_decode(path,bytes,err)
+function SaveStore:_decodeUncached(path,bytes,err)
     if bytes==nil then return {state=err=="missing" and "missing" or "io-error",error=err,path=path} end
     if type(bytes)~="string" or #bytes>SaveStore.MAX_FILE then return {state="corrupt",error="invalid-file-bytes",path=path} end
     local ok,envelope=pcall(json.decode,bytes)
@@ -175,6 +178,30 @@ function SaveStore:_decode(path,bytes,err)
     if not valid or accepted~=true then return {state="corrupt",error=reason or tostring(accepted),path=path} end
     return {state="valid",sequence=sequence,payload=envelope.payload,data=data,path=path}
 end
+-- Cache only full disk validation, never an owner-export byte proof. Compare
+-- actual strings read on every access; neither sequence nor checksum is identity.
+function SaveStore:_decode(path, bytes, err)
+    local epoch, token, validate = self._validationEpoch, self._validationToken, self._validate
+    local cache = diskRecords[self]
+    local cached = cache and cache[path]
+    if epoch ~= nil and cached and type(bytes) == "string" and err == nil
+        and cached.bytes == bytes and cached.epoch == epoch
+        and cached.token == token and cached.validate == validate then
+        return copy(cached.record)
+    end
+    if cache then
+        cache[path] = nil
+    end
+    local record = self:_decodeUncached(path, bytes, err)
+    if epoch ~= nil and record.state == "valid" and err == nil
+        and self._validationEpoch == epoch and self._validationToken == token
+        and self._validate == validate then
+        cache = diskRecords[self] or {}
+        diskRecords[self] = cache
+        cache[path] = {bytes=bytes, epoch=epoch, token=token, validate=validate, record=copy(record)}
+    end
+    return record
+end
 function SaveStore:_read(path)
     local bytes,err=call(self._fs,"read",path)
     local record=self:_decode(path,bytes,err)
@@ -182,47 +209,21 @@ function SaveStore:_read(path)
     return record
 end
 function SaveStore:_inspect()
-    local token, validate, epoch = self._validationToken, self._validate, self._validationEpoch
     local raw = {}
     for _, role in ipairs({"a", "b", "candidate"}) do
         local bytes, problem = call(self._fs, "read", self._paths[role])
         raw[role] = {bytes=bytes, error=problem}
     end
-    local cached = inspections[self]
-    local reusable = self._validationEpoch ~= nil and cached ~= nil
-        and cached.epoch == epoch and cached.validate == validate and cached.token == token
-        and self._validationToken == token and self._validate == validate and self._validationEpoch == epoch
+    local artifacts = {}
     for _, role in ipairs({"a", "b", "candidate"}) do
-        if reusable and (raw[role].bytes ~= cached.raw[role].bytes
-            or raw[role].error ~= cached.raw[role].error) then
-            reusable = false
+        local observed = raw[role]
+        local record = self:_decode(self._paths[role], observed.bytes, observed.error)
+        if record.state == "valid" then
+            -- A validator may retain its argument. Never expose or reuse it.
+            record = copy(record)
         end
-    end
-    local artifacts
-    if reusable then
-        artifacts = copy(cached.artifacts)
-    else
-        inspections[self] = nil
-        artifacts = {}
-        local cacheable = self._validationEpoch ~= nil
-        for _, role in ipairs({"a", "b", "candidate"}) do
-            local observed = raw[role]
-            local record = self:_decode(self._paths[role], observed.bytes, observed.error)
-            if record.state == "valid" then
-                -- A later validator may retain an earlier argument. Detach
-                -- this checked record before any further callback or yield.
-                record = copy(record)
-            end
-            record.bytes = observed.bytes
-            artifacts[role] = record
-            cacheable = cacheable and (record.state == "valid" or record.state == "missing")
-        end
-        if cacheable and self._validationToken == token and self._validate == validate and self._validationEpoch == epoch then
-            -- Keep the cache private, before archive annotations or caller-owned
-            -- load metadata/data can mutate the inspection result.
-            inspections[self] = {raw=raw, artifacts=copy(artifacts),
-                epoch=epoch, validate=validate, token=token}
-        end
+        record.bytes = observed.bytes
+        artifacts[role] = record
     end
     local metadata={artifacts={}}
     local archive,archiveError=self:_archiveInfo()
@@ -286,29 +287,43 @@ function SaveStore:_envelope(data,sequence)
     local token, validate, epoch = self._validationToken, self._validate, self._validationEpoch
     local record
     local ok,bytes=pcall(function()
-        assert(type(data)=="table","table-payload-required"); primitive(data)
+        local trusted = ownerExports[self] == data
+        assert(type(data) == "table", "table-payload-required")
+        if not trusted then
+            primitive(data)
+        end
         local payload=json.encode(data)
         assert(type(payload)=="string" and #payload<=SaveStore.MAX_PAYLOAD,"payload-too-large")
-        -- Validator receives a detached JSON decode, never caller live objects.
-        local detached=json.decode(payload)
-        assert(equal(data,detached),"json-roundtrip-loss")
-        local untouched=copy(detached)
-        local accepted,reason=self._validate(detached)
-        assert(accepted==true,reason or "payload-rejected")
-        assert(equal(detached,untouched),"validator-mutated-payload")
+        local untouched
+        if trusted then
+            -- The private SessionCodec capture exported checked game owners.
+            -- No decode/normalize/constructor pass over this new payload.
+            untouched = copy(data)
+        else
+            -- Public arbitrary records remain detached and deeply validated.
+            local detached = json.decode(payload)
+            assert(equal(data, detached), "json-roundtrip-loss")
+            untouched = copy(detached)
+            local accepted, reason = self._validate(detached)
+            assert(accepted == true, reason or "payload-rejected")
+            assert(equal(detached, untouched), "validator-mutated-payload")
+        end
         local envelope = {format=FORMAT,schema=SaveStore.SCHEMA,
             sequence=assert(DecimalInteger.encode(sequence,1,SaveStore.MAX_SEQUENCE)),payload=payload,
             checksum=boundChecksum(SaveStore.SCHEMA,sequence,payload)}
         local encoded = json.encode(envelope)
-        -- Check the outer JSON transport once, before any filesystem mutation.
-        assert(type(encoded) == "string" and equal(envelope, json.decode(encoded)), "json-envelope-roundtrip-loss")
+        -- Public inputs also prove the outer JSON transport before mutation.
+        assert(type(encoded) == "string", "invalid-json-envelope")
+        if not trusted then
+            assert(equal(envelope, json.decode(encoded)), "json-envelope-roundtrip-loss")
+        end
         record = {state="valid", sequence=sequence, payload=payload, data=untouched}
         return encoded
     end)
     if not ok or type(bytes)~="string" or #bytes>SaveStore.MAX_FILE then return nil,tostring(bytes) end
     if self._validationToken == token and self._validate == validate and self._validationEpoch == epoch then
         envelopes[self] = {bytes=bytes, sequence=sequence, validate=validate,
-            epoch=epoch, token=token, record=record}
+            epoch=epoch, token=token, record=record, ownerExport=ownerExports[self] == data}
     end
     return bytes
 end
@@ -341,9 +356,8 @@ end
 function SaveStore:_publish(bytes,target,sequence)
     local validated = envelopes[self]
     envelopes[self] = nil
-    inspections[self] = nil
-    -- A byte proof saves JSON/checksum work, not dynamic domain acceptance.
-    -- Only explicit epoch opt-in permits skipping repeated validator calls.
+    -- Only the narrow owner export skips repeated domain acceptance. Public
+    -- payloads retain deep readback checks even on a store with disk caching.
     local function verify(path, exact, problem)
         local reusable = validated and validated.bytes == bytes and validated.sequence == sequence
             and validated.validate == self._validate and validated.epoch == self._validationEpoch
@@ -351,7 +365,7 @@ function SaveStore:_publish(bytes,target,sequence)
         if not reusable then
             return self:_decode(path, exact, problem)
         end
-        if self._validationEpoch == nil then
+        if not validated.ownerExport then
             return self:_validateRecord(path, validated.record)
         end
         local record = copy(validated.record)
@@ -710,4 +724,28 @@ function SaveStore:_restoreArchive(source)
     local snapshot,readError=self:_rawSnapshot()
     if not snapshot then return false,{reason="archive-read-failed",error=readError} end
     return self:_replaceSnapshot(record.data,snapshot,"restore")
+end
+
+-- Explicit capability for SessionCodec/GameSaves only. Possessing a store is
+-- insufficient: ordinary store:save(data) still takes every deep boundary.
+-- The caller must export validated owners and keep this closure private.
+function SaveStore.ownerExportStore(prefix, validate, filesystem)
+    local store = SaveStore(prefix, validate, filesystem)
+    store:setValidationEpoch("session-owner-dependencies-v1")
+    local function publish(data, ticket)
+        assert(ownerExports[store] == nil, "nested-owner-export")
+        ownerExports[store] = data
+        local ok, accepted, metadata, published = pcall(function()
+            if ticket then
+                return store:replace(data, ticket)
+            end
+            return store:save(data)
+        end)
+        ownerExports[store] = nil
+        if not ok then
+            error(accepted)
+        end
+        return accepted, metadata, published
+    end
+    return store, publish
 end
