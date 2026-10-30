@@ -1,0 +1,110 @@
+{
+  "status": "Corrected split remains rejected for merging: earlier menu still does not improve immediate app-to-walking. Save speed is restored.",
+  "baseline": {
+    "app_to_walk_ms": 17321.0,
+    "build_id": "73dfba7347e048dcad0f7138e95f5c94",
+    "forced_diagnostic_gc": false,
+    "input_ready_ms": 13692.0,
+    "keeper_restored": true,
+    "last_phase": {
+      "clock_ms": 71145.0,
+      "heap_kib": 5815.038,
+      "peak_kib": 6012.204,
+      "phase": "battle.live.after_gc",
+      "phase_ms": 0.0,
+      "since_yield_ms": 42.0
+    },
+    "menu_dwell_ms": 157.0,
+    "name": "title-immediate-baseline-149",
+    "new_error_or_crash_logs": false,
+    "ok": true,
+    "phase_measurements": {
+      "Continue": 3412.0,
+      "Save": 1555.0,
+      "battle": 21.0,
+      "boot_slice": 1432.394,
+      "boot_title": 13692.0,
+      "cave_walking_p95": 100.65200000000186,
+      "door": 2954.0,
+      "title_artwork": 2616.0
+    },
+    "press_to_walk_ms": 3463.0,
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-baseline-149-hardware-20261030-02/device-smoke.json",
+    "sampled_peak_mib": 5.87129296875,
+    "screen": "Not directly observed; serial and state evidence only."
+  },
+  "corrected": [
+    {
+      "app_to_walk_ms": 17936.0,
+      "build_id": "a8489ce20a8e401e8ca0ffe6196b29a4",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 10013.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 71942.0,
+        "heap_kib": 6099.563,
+        "peak_kib": 6175.208,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 41.0
+      },
+      "menu_dwell_ms": 41.0,
+      "name": "title-immediate-candidate-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3379.0,
+        "Save": 1597.0,
+        "battle": 27.0,
+        "boot_slice": 1442.533,
+        "boot_title": 10013.0,
+        "cave_walking_p95": 99.50800000000163,
+        "door": 3010.0,
+        "title_artwork": 2636.0
+      },
+      "press_to_walk_ms": 7879.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-candidate-149-hardware-20261030-03/device-smoke.json",
+      "sampled_peak_mib": 6.0350439453125,
+      "screen": "Not directly observed; serial and state evidence only."
+    },
+    {
+      "app_to_walk_ms": 18129.0,
+      "build_id": "e28732cf7b434daab9682416eaef240f",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 10013.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 71573.0,
+        "heap_kib": 6112.247,
+        "peak_kib": 6187.892,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 33.0
+      },
+      "menu_dwell_ms": 1521.0,
+      "name": "title-dwell-candidate-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3379.0,
+        "Save": 1591.0,
+        "battle": 18.0,
+        "boot_slice": 1457.685,
+        "boot_title": 10013.0,
+        "cave_walking_p95": 99.625,
+        "door": 2986.0,
+        "title_artwork": 2603.0
+      },
+      "press_to_walk_ms": 6591.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-dwell-candidate-149-hardware-20261030-03/device-smoke.json",
+      "sampled_peak_mib": 6.0474296875,
+      "screen": "Not directly observed; serial and state evidence only."
+    }
+  ],
+  "immediate_walk_regression_percent": 3.5506033138964264,
+  "save_change_percent": 2.70096463022508,
+  "source_revision": "802ee1e7",
+  "forced_diagnostic_gc": false,
+  "scope": "Diagnostic first-frame A and first eligible frame after1.5s dwell; observed actual dwell retained. Uncollected heap samples are not post-GC live-memory values.",
+  "decision": "Keep this branch off main. Prepare first-entry Kanto loading to remove real startup work; complete B field motion and physical traversal gates."
+}

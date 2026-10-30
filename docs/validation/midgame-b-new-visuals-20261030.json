@@ -1,5 +1,5 @@
 {
-  "status": "Native export complete and image publication validated; review is partial.",
+  "status": "Static views and supplemental bike/Surf/Old Rod input frames reviewed; Safari UI and remaining overlays pending.",
   "catalog": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02",
   "catalog_sha256": "710984b1463416d15bfdf3ae8379cb4c32ecbbcba91dd0e0e261409746d5c593",
   "maps": 41,
@@ -50,5 +50,27 @@
     "inventory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-static-review-20261030-01/inventory.json",
     "finding": "Root inspected all 41 native viewports; no obvious missing textures or unintended clipping identified.",
     "limits": "Spawn viewports only. Full-map event/actor overlays, live Surf/bicycle/fishing/Safari motion and showcase remain pending."
-  }
+  },
+  "field_art_review": {
+    "images": 39,
+    "categories": [
+      "field-gear-character",
+      "field-gear-overlay",
+      "field-gear-placement"
+    ],
+    "inventory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-art-static-review-20261030-01/inventory.json",
+    "contact_sheets": [
+      {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-art-static-review-20261030-01/placement.png",
+        "sha256": "38ebec1cb7301b220cb92c9059e516949402fa125d15274cefb651024d88d232"
+      },
+      {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-art-static-review-20261030-01/poses.png",
+        "sha256": "934dde626de80538422803319f5acdc3c9192e54dbf51f9a30228d51b7a76236"
+      }
+    ],
+    "inspection": "Root inspected bike, Surf and fishing poses plus rod/cast/shake/bubble placements. No obvious cropping or detached placement identified in these static exports.",
+    "limits": "Contact sheets use explicit nearest-neighbor 4x/2x enlargement. Actual Player movement, water-background legibility, fishing cadence and Safari UI are not established."
+  },
+  "live_field_review": "midgame-b-field-motion-20261030.json"
 }

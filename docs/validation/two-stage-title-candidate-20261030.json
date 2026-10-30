@@ -1,0 +1,183 @@
+{
+  "status": "Corrected split remains rejected for merging: earlier menu still does not improve immediate app-to-walking. Save speed is restored.",
+  "branch": "wip/two-stage-title-108-20261030-01",
+  "production_overlay_revision": "802ee1e7",
+  "store_packet": "759d7980",
+  "store_sdk_cases": {
+    "passed": 103,
+    "failed": 0,
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/two-stage-title-store-native-20261030-03"
+  },
+  "title_sdk_cases": {
+    "passed": 42,
+    "failed": 0,
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/two-stage-title-recovery-native-20261030-04"
+  },
+  "host_checks": 22,
+  "shared_gate_tests": 39,
+  "records": [
+    {
+      "name": "title-immediate-baseline-149",
+      "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-baseline-149-prepare-20261030-04",
+      "proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-baseline-149-safety-20261030-04/simulator-smoke.json",
+      "proof_sha256": "afc806837495363da5ae1ac896b73eb8e9db6dc73b65ce0f62c9442f248fb4ae",
+      "build_id": "73dfba7347e048dcad0f7138e95f5c94",
+      "raw_slice_ms": 80.383,
+      "sampled_peak_mib": 8.1196298828125,
+      "diagnostic_only": true,
+      "forced_diagnostic_gc": false
+    },
+    {
+      "name": "title-immediate-candidate-149",
+      "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-candidate-149-prepare-20261030-05",
+      "proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-candidate-149-safety-20261030-05/simulator-smoke.json",
+      "proof_sha256": "1301cfbd1e2a7fe92b32cb3628e0f25ba4ae9a6bcd7da6e7f0bef92b4e321dc0",
+      "build_id": "a8489ce20a8e401e8ca0ffe6196b29a4",
+      "raw_slice_ms": 136.218,
+      "sampled_peak_mib": 8.119951171875,
+      "diagnostic_only": true,
+      "forced_diagnostic_gc": false
+    },
+    {
+      "name": "title-dwell-candidate-149",
+      "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-dwell-candidate-149-prepare-20261030-05",
+      "proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-dwell-candidate-149-safety-20261030-05/simulator-smoke.json",
+      "proof_sha256": "859c63cc094911bd5e8fbb8fcc521551eeca3a0b0062d619f6faf73b3af3bc3c",
+      "build_id": "e28732cf7b434daab9682416eaef240f",
+      "raw_slice_ms": 78.906,
+      "sampled_peak_mib": 8.068322265625,
+      "diagnostic_only": true,
+      "forced_diagnostic_gc": false
+    }
+  ],
+  "hardware_sequence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-input-hardware-sequence-20261030-03.json",
+  "limits": [
+    "No timing acceptance before hardware comparison.",
+    "Immediate A fires through actual button queries on the first eligible ordinary frame; dwell uses app-clock elapsed time.",
+    "Zero-sequence title-observation is a read-only snapshot, permitted only for diagnostic admission. Command done-sequences stay contiguous.",
+    "No forced diagnostic collections; sampled heap is not a post-GC live-memory claim. Production soft collection and generational mode remain.",
+    "Transport preview is not a validated session. Completion reruns dynamic domain checks, constructors, field preparation and normal installation.",
+    "New Game/recovery cancel and unwind the same background loader scope; no second load is decoded on early Continue."
+  ],
+  "failed_or_superseded": [
+    "title-immediate-baseline-149-safety-20261030-02: rejected zero-sequence done observation; retained unchanged.",
+    "two-stage-title-store-native-20261030-01: missing private PC fixture; fixed staging only.",
+    "Compile-only packet generations before final loader-scope correction remain unused."
+  ],
+  "hardware_owner_handle": "exec5719 completed; keeper restored; no active device cycle",
+  "hardware_transport_failure": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-baseline-149-hardware-20261030-01",
+    "build_id": "b3471d3bca9348f3b6a90a1af7d1c4de",
+    "reason": "Host serial reader rejected the new title-observation message; run stopped and exact logs archived.",
+    "device_needs_A": false,
+    "new_error_or_crash_logs": false,
+    "keeper_restored": true,
+    "correction": "Serial reader now permits only the typed zero-sequence diagnostic observation, without counting it as a command completion; 39 host checks pass. Fresh baseline UUID and safety proof retained."
+  },
+  "corrections": [
+    "Fully validated completion now populates the existing explicit-epoch disk cache, preserving ordinary Save speed and detached ownership.",
+    "A private worker checkpoint only suspends its coroutine; the real parent frame/loading operation performs draw/GC/yield once."
+  ],
+  "corrected_immediate_result": {
+    "app_to_walk_ms": 17936.0,
+    "build_id": "a8489ce20a8e401e8ca0ffe6196b29a4",
+    "forced_diagnostic_gc": false,
+    "input_ready_ms": 10013.0,
+    "keeper_restored": true,
+    "last_phase": {
+      "clock_ms": 71942.0,
+      "heap_kib": 6099.563,
+      "peak_kib": 6175.208,
+      "phase": "battle.live.after_gc",
+      "phase_ms": 0.0,
+      "since_yield_ms": 41.0
+    },
+    "menu_dwell_ms": 41.0,
+    "name": "title-immediate-candidate-149",
+    "new_error_or_crash_logs": false,
+    "ok": true,
+    "phase_measurements": {
+      "Continue": 3379.0,
+      "Save": 1597.0,
+      "battle": 27.0,
+      "boot_slice": 1442.533,
+      "boot_title": 10013.0,
+      "cave_walking_p95": 99.50800000000163,
+      "door": 3010.0,
+      "title_artwork": 2636.0
+    },
+    "press_to_walk_ms": 7879.0,
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-candidate-149-hardware-20261030-03/device-smoke.json",
+    "sampled_peak_mib": 6.0350439453125,
+    "screen": "Not directly observed; serial and state evidence only."
+  },
+  "corrected_hardware_results": [
+    {
+      "app_to_walk_ms": 17936.0,
+      "build_id": "a8489ce20a8e401e8ca0ffe6196b29a4",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 10013.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 71942.0,
+        "heap_kib": 6099.563,
+        "peak_kib": 6175.208,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 41.0
+      },
+      "menu_dwell_ms": 41.0,
+      "name": "title-immediate-candidate-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3379.0,
+        "Save": 1597.0,
+        "battle": 27.0,
+        "boot_slice": 1442.533,
+        "boot_title": 10013.0,
+        "cave_walking_p95": 99.50800000000163,
+        "door": 3010.0,
+        "title_artwork": 2636.0
+      },
+      "press_to_walk_ms": 7879.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-candidate-149-hardware-20261030-03/device-smoke.json",
+      "sampled_peak_mib": 6.0350439453125,
+      "screen": "Not directly observed; serial and state evidence only."
+    },
+    {
+      "app_to_walk_ms": 18129.0,
+      "build_id": "e28732cf7b434daab9682416eaef240f",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 10013.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 71573.0,
+        "heap_kib": 6112.247,
+        "peak_kib": 6187.892,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 33.0
+      },
+      "menu_dwell_ms": 1521.0,
+      "name": "title-dwell-candidate-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3379.0,
+        "Save": 1591.0,
+        "battle": 18.0,
+        "boot_slice": 1457.685,
+        "boot_title": 10013.0,
+        "cave_walking_p95": 99.625,
+        "door": 2986.0,
+        "title_artwork": 2603.0
+      },
+      "press_to_walk_ms": 6591.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-dwell-candidate-149-hardware-20261030-03/device-smoke.json",
+      "sampled_peak_mib": 6.0474296875,
+      "screen": "Not directly observed; serial and state evidence only."
+    }
+  ],
+  "next": "First-entry Kanto scene packet is being prepared. Supplemental B field-motion capture uses the free Simulator."
+}

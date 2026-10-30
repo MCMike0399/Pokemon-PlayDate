@@ -1,0 +1,110 @@
+{
+  "status": "Initial title split rejected as a merge candidate: immediate walking and Save regressed despite earlier menu. Corrected retry remains unmeasured.",
+  "reports": [
+    {
+      "app_to_walk_ms": 17321.0,
+      "build_id": "73dfba7347e048dcad0f7138e95f5c94",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 13692.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 71145.0,
+        "heap_kib": 5815.038,
+        "peak_kib": 6012.204,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 42.0
+      },
+      "menu_dwell_ms": 157.0,
+      "name": "title-immediate-baseline-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3412.0,
+        "Save": 1555.0,
+        "battle": 21.0,
+        "boot_slice": 1432.394,
+        "boot_title": 13692.0,
+        "cave_walking_p95": 100.65200000000186,
+        "door": 2954.0,
+        "title_artwork": 2616.0
+      },
+      "press_to_walk_ms": 3463.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-baseline-149-hardware-20261030-02/device-smoke.json",
+      "sampled_peak_mib": 5.87129296875,
+      "screen": "Not directly observed; serial and state evidence only."
+    },
+    {
+      "app_to_walk_ms": 18240.0,
+      "build_id": "163c10a6fb044792ad19abe0a0240b60",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 10084.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 74121.0,
+        "heap_kib": 6319.397,
+        "peak_kib": 6395.042,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 34.0
+      },
+      "menu_dwell_ms": 43.0,
+      "name": "title-immediate-candidate-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3413.0,
+        "Save": 3558.0,
+        "battle": 19.0,
+        "boot_slice": 1422.275,
+        "boot_title": 10084.0,
+        "cave_walking_p95": 99.77000000000407,
+        "door": 2948.0,
+        "title_artwork": 2621.0
+      },
+      "press_to_walk_ms": 8110.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-immediate-candidate-149-hardware-20261030-02/device-smoke.json",
+      "sampled_peak_mib": 6.2497255859375,
+      "screen": "Not directly observed; serial and state evidence only."
+    },
+    {
+      "app_to_walk_ms": 18392.0,
+      "build_id": "5c0ba8dd8d4d4d9380eca20c8ae6d7ca",
+      "forced_diagnostic_gc": false,
+      "input_ready_ms": 10015.0,
+      "keeper_restored": true,
+      "last_phase": {
+        "clock_ms": 73844.0,
+        "heap_kib": 6332.78,
+        "peak_kib": 6408.425,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 0.0,
+        "since_yield_ms": 36.0
+      },
+      "menu_dwell_ms": 1733.0,
+      "name": "title-dwell-candidate-149",
+      "new_error_or_crash_logs": false,
+      "ok": true,
+      "phase_measurements": {
+        "Continue": 3368.0,
+        "Save": 3608.0,
+        "battle": 19.0,
+        "boot_slice": 1431.61,
+        "boot_title": 10015.0,
+        "cave_walking_p95": 101.67200000000594,
+        "door": 2998.0,
+        "title_artwork": 2632.0
+      },
+      "press_to_walk_ms": 6640.0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/title-dwell-candidate-149-hardware-20261030-02/device-smoke.json",
+      "sampled_peak_mib": 6.262794921875,
+      "screen": "Not directly observed; serial and state evidence only."
+    }
+  ],
+  "input_ready_gain_percent": 26.351153958515923,
+  "immediate_walk_regression_percent": 5.3056982853184,
+  "save_regression_percent": 128.81028938906752,
+  "forced_diagnostic_gc": false,
+  "source_revision": "f2a14dbe",
+  "correction": "802ee1e7 restores ordinary validated disk-cache population after full preview completion and removes duplicate worker checkpoint draw/GC work. Full untrusted validation remains. Hardware gain not yet established."
+}

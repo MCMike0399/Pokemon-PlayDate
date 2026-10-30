@@ -1,0 +1,68 @@
+{
+  "status": "Supplemental B real-input field presentation passed; selected ordered native frames inspected. Not campaign or device acceptance.",
+  "input": "Actual final earned Charmander B slots; full loaded-boundary equality checked before input.",
+  "runs": [
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-live-field-motion-20261030-02",
+      "summary_sha256": "8130bbe07914ad96dcd579687cd5c3a05eb05bcbbc2addd293e55a64b27ba77e",
+      "recordings": [
+        {
+          "frames": 16,
+          "name": "m55b-bike-right"
+        },
+        {
+          "frames": 16,
+          "name": "m55b-bike-left"
+        },
+        {
+          "frames": 64,
+          "name": "m55b-surf-board"
+        },
+        {
+          "frames": 16,
+          "name": "m55b-surf-right"
+        },
+        {
+          "frames": 16,
+          "name": "m55b-surf-left"
+        },
+        {
+          "frames": 16,
+          "name": "m55b-surf-land"
+        },
+        {
+          "frames": 128,
+          "name": "m55b-old-rod-cast"
+        }
+      ],
+      "earned_slots_unchanged": true,
+      "private_slots_unchanged": true,
+      "classification": "supplemental real-input presentation; no save or campaign receipt"
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-live-surf-boarding-20261030-01",
+      "summary_sha256": "9f95dbe3510e95112e70cce665bf785e904b0459f6fedf45faba0c8259f8da90",
+      "recordings": [
+        {
+          "frames": 64,
+          "name": "m55b-surf-boarding-effect"
+        }
+      ],
+      "earned_slots_unchanged": true,
+      "private_slots_unchanged": true,
+      "classification": "supplemental real-input presentation; no save or campaign receipt"
+    }
+  ],
+  "observed": [
+    "Bicycle right/left movement and return to walking.",
+    "Surf confirmation, announcement, actual boarding interpolation, water movement both directions and landing back in walking mode. Approved Seel art remains selected on water.",
+    "Old Rod cast, original rod/bubble placements and a genuine fishing encounter; Bag and money unchanged."
+  ],
+  "limits": [
+    "Simulator only, not hardware latency or long-session memory.",
+    "Selected ordered native frames inspected; no complete video or physical screen review claimed.",
+    "Safari battle UI and full map/actor overlays remain pending.",
+    "First capture failed only because its host assertion expected bicycling instead of the source enum bicycle; failed evidence retained.",
+    "No new Save or accepted campaign receipt was written."
+  ]
+}

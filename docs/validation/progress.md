@@ -96,7 +96,13 @@ Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
 raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.
 Historical guessed-factor failures remain retained; safety-only admission passes.
 Latency targets gate 5.5c. No accepted checkpoint may regress a phase over 10%.
-Next: two-stage title preparation on the merged stack.
+Two-stage title is isolated on `wip/two-stage-title-108-20261030-01`.
+Checksum/header preview opens the menu; the same full load continues in bounded
+slices. Early Continue finishes that record, and cancellation unwinds its loader
+scope. Initial hardware split regressed immediate walking and Save, so it is
+rejected. Cache handoff and duplicate checkpoint work are corrected; 103 save/
+session and 42 title/recovery SDK cases pass. Corrected hardware Save is 1.597 s,
+but app → walking is 17.936 s versus baseline 17.321 s; the split stays off main. [Candidate](two-stage-title-candidate-20261030.json).
 Next title work must report immediate-press walking and 1.5 s dwell, preserve
 full validation, and separate real shipped-equivalent timing from forced GC.
 Then per-installer first-entry activation, all-door/worst-five measurements,
