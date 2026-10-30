@@ -272,7 +272,7 @@ class ParcelJourney(Journey):
                     raise ProtocolError("parcel natural journey forbids later fixtures")
                 if not self.config.get("supplementary") and set(command.get("options", {})) != {"seed"}:
                     raise ProtocolError("natural parcel initialization accepts only a seed")
-            elif op not in {"press", "wait", "shot", "record", "snapshot", "await", "assert"}:
+            elif op not in {"press", "hold", "release", "wait", "shot", "record", "snapshot", "await", "assert"}:
                 raise ProtocolError("non-input parcel action forbidden: " + str(op))
         return super().send(*commands)
 

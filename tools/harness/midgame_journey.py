@@ -1420,6 +1420,8 @@ class MidgameJourney(vj.VermilionJourney):
             self.enter_route14_from_east()
             self.finish_eastern_road_to_fuchsia()
             self.heal_here('FuchsiaPokecenter')
+        # Retain real supplies and travel before paying the next admission fee.
+        self.save()
         gate = cj.sid('SAFARI_ZONE_GATE', 1)
         self.require_event(gate)
         self.travel(self.zone('SafariZoneGate'))
@@ -1430,6 +1432,7 @@ class MidgameJourney(vj.VermilionJourney):
             # The source trigger is a completed cell, not worker interaction.
             self.source_waypoint(4, 3)
             self.send('press up', 'wait 2')
+            self.await_value('event.id', gate)
             self.drain()
         finally:
             self.event_choices = {}
@@ -1480,6 +1483,7 @@ class MidgameJourney(vj.VermilionJourney):
         if not self.flag('EVENT_GOT_HM04') or self.quantity('hm04') < 1 or self.quantity('goldTeeth') != 0:
             raise ProtocolError('actual Gold Teeth/Strength transaction unavailable/incomplete')
         strength = self.teach('strength')
+        self.travel(self.zone('WardensHouse'))
         self.use_field(strength, 'strength')
         self.source_waypoint(7, 4)
         self.face('right')
