@@ -498,6 +498,15 @@ class ReceiptAndPatchTests(unittest.TestCase):
 
 
 class MidgameSaveInputTests(unittest.TestCase):
+    def test_fuchsia_bag_room_uses_the_local_item_pc(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
+        with patch.object(driver, 'inventory', side_effect=[{'slots': [None] * 16}, {'slots': [None] * 15}]), \
+                patch.object(driver, 'quantity', return_value=0), \
+                patch.object(driver, 'store_unused_items') as store:
+            driver.ensure_room('FuchsiaMart')
+        store.assert_called_once_with('FuchsiaPokecenter')
+
     def test_fuchsia_route_crosses_fixed_exits_without_reentering_route12(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))

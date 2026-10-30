@@ -1735,9 +1735,9 @@ class MidgameJourney(vj.VermilionJourney):
         self.send('press a', 'press b', 'press b')
         self.drain()
 
-    def store_unused_items(self):
-        # Preserve completed quest items and unused TMs through the real item PC.
-        self.heal_here('LavenderPokecenter')
+    def store_unused_items(self, center):
+        # Preserve completed quest items and unused TMs through the nearby item PC.
+        self.heal_here(center)
         self.source_waypoint(13, 4)
         self.face('up')
         self.send('wait 1', 'press a', 'wait 2')
@@ -1789,7 +1789,10 @@ class MidgameJourney(vj.VermilionJourney):
             if any(self.quantity(item) > 0 for item in sellable):
                 self.sell_old_item(mart)
             else:
-                self.store_unused_items()
+                center = {'CeladonMart2F': 'CeladonPokecenter',
+                          'FuchsiaMart': 'FuchsiaPokecenter',
+                          'SaffronMart': 'SaffronPokecenter'}.get(mart, 'LavenderPokecenter')
+                self.store_unused_items(center)
 
 
     def mansion_step_warp(self, index, destination):
