@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"Oh, hi! I finally"},{"op":"line","source_line":3,"text":"finished #MON!"},{"op":"para","source_line":5,"text":"Not done yet?"},{"op":"line","source_line":6,"text":"This might be"},{"op":"cont","source_line":7,"text":"useful!"},{"op":"control","source":"prompt","source_line":8}],"source":"text/CeladonMart3F.asm"}

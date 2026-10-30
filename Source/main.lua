@@ -46,7 +46,13 @@ local bootAccepted, bootProblem = pcall(function()
     import "domain/itemStorage"
     import "domain/pcItems"
     import "domain/pickup"
+    import "domain/coinWallet"
+    import "domain/safariGame"
+    import "domain/fieldTravel"
+    import "domain/fieldCycling"
+    import "domain/fieldFishing"
     import "domain/gameSession"
+    import "domain/npcTrades"
     import "domain/teaching"
     import "domain/sessionCodec"
     import "game/daycare"
@@ -74,6 +80,7 @@ local bootAccepted, bootProblem = pcall(function()
     import "data/maps"
     BootTrace.mark("import.authoredWorld.end")
     BootTrace.mark("import.gameStates.begin")
+    import "game/fieldTravelWorld"
     import "game/context"
     import "game/overworldState"
     import "game/dialogState"
@@ -125,6 +132,8 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/vermilionStoryHooks"
     import "game/vermilionStoryState"
     import "game/daycareState"
+    import "game/npcTradeState"
+    import "game/saffronGuards"
     import "game/pokedexState"
     import "game/pcState"
     import "game/evolutionState"
@@ -157,10 +166,25 @@ local bootAccepted, bootProblem = pcall(function()
 
     -- @harness imports-7
 
+    import "game/rocketHideoutStory"
+    import "game/rocketHideoutStoryWorld"
+    import "game/rocketHideoutStoryController"
+    import "game/midgameGymStory"
+    import "game/midgameStoryWarps"
+    import "game/celadonServices"
+    import "game/celadonServicesController"
+    import "game/hideoutTowerContent"
+    import "game/hideoutTowerController"
+
+
     local function campaignActorMetadata(definition, event, runtimeGame)
         local metadata = KantoScenes.actorMetadata(definition, event, runtimeGame)
         local extra = VermilionStory.actorMetadata(event.id, runtimeGame)
         for _, condition in ipairs(extra.visibility or {}) do
+            metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
+        end
+        local story = HideoutTowerContent.actorMetadata(event.id, runtimeGame)
+        for _, condition in ipairs(story.visibility) do
             metadata.visibility[#metadata.visibility + 1] = Party._primitive(condition)
         end
         return metadata
@@ -184,6 +208,9 @@ local bootAccepted, bootProblem = pcall(function()
 
         BootTrace.mark("CeruleanContent.registerPackage.begin")
         CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
+        CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
+            return HideoutTowerContent.package("midgameEast", events, trainers)
+        end)
         BootTrace.mark("CeruleanContent.registerPackage.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("CeruleanContent.install.begin")
@@ -214,6 +241,10 @@ local bootAccepted, bootProblem = pcall(function()
         GameBootstrap.yieldIfDue()
         BootTrace.mark("Daycare.install.begin")
         Daycare.install()
+        -- NPC trades and Saffron guards remain parked.
+        HideoutTowerContent.install()
+        CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
+        MidgameStoryWarps.install()
         BootTrace.mark("Daycare.install.end")
         GameBootstrap.yieldIfDue()
         SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
@@ -285,7 +316,7 @@ local bootAccepted, bootProblem = pcall(function()
         BootTrace.mark("state.shop.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.event.begin")
-        machine:register("event", DaycareState(game))
+        machine:register("event", NPCTradeState(game))
         BootTrace.mark("state.event.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.tutorial-escort.begin")

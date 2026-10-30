@@ -1,0 +1,184 @@
+--- a/tools/harness/journeys.py
++++ b/tools/harness/journeys.py
+@@ -393,6 +393,9 @@
+     if scenario.get("journey", {}).get("name") in {"npc-motion", "npc-motion-save", "npc-motion-continue"}:
+         from tools.harness.motion_journey import run as run_motion
+         return run_motion(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)
++    if scenario.get("journey", {}).get("name") in {"midgame-natural", "midgame-continue"}:
++        from tools.harness.midgame_journey import run as run_midgame
++        return run_midgame(client, scenario, evidence_dir, build_evidence, prior_receipt, capture_dir)
+     config = scenario["journey"]
+     if not isinstance(config, dict):
+         raise ProtocolError("journey must be an object")
+--- a/tools/harness/restarting.py
++++ b/tools/harness/restarting.py
+@@ -29,6 +29,10 @@
+     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
+         raise ProtocolError('processes requires 2..8 process groups')
+     first = groups[0].get('journey', {}) if isinstance(groups[0], dict) else {}
++    if first.get('name') == 'midgame-natural':
++        from tools.harness.midgame_journey import validate_scenario
++        validate_scenario(scenario)
++        return
+     if first.get('name') == 'vermilion-natural':
+         starting = scenario.get('initial_save', {})
+         if (not isinstance(starting, dict) or set(starting) != {'milestone', 'starter'}
+@@ -101,8 +105,11 @@
+     if hashlib.sha256(raw).hexdigest()!=reference['sha256']:raise ProtocolError('prior journey receipt changed')
+     try:packet=json.loads(raw)
+     except (UnicodeDecodeError,ValueError) as error:raise ProtocolError('malformed prior journey receipt')from error
+-    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved','vermilion-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
++    if not isinstance(packet,dict)or set(packet)!={'schema','kind','build_id','session_id','state'}or packet['schema']!=1 or packet['kind'] not in {'brock-saved','npc-motion-saved','cerulean-saved','vermilion-saved','midgame-saved'} or packet['build_id']!=metadata['build_id']or packet['session_id']!=metadata['session_id']:
+         raise ProtocolError('wrong-build or malformed prior journey receipt')
++    if packet["kind"] == "midgame-saved":
++        from tools.harness.midgame_journey import validate_receipt_state
++        validate_receipt_state(packet["state"])
+     if packet["kind"]=="vermilion-saved":
+         from tools.harness.vermilion_journey import validate_receipt_state
+         validate_receipt_state(packet["state"])
+@@ -195,12 +202,15 @@
+     expected = spec['milestone']
+     if first.get('name') == 'vermilion-natural' and expected not in {'5.3', '5.4'}:
+         raise ProtocolError('Vermilion must start from Cerulean or its earned checkpoint')
+-    if (first.get('name') not in {'cerulean-natural', 'vermilion-natural'}
++    if (first.get('name') not in {'cerulean-natural', 'vermilion-natural', 'midgame-natural'}
+             or first.get('starter') != spec['starter'] or spec['milestone'] != expected):
+         raise ProtocolError('starting save does not match journey')
+     manifest = json.loads((project / 'docs/validation/chain-saves.json').read_text())
+     record = next(row for row in manifest['saves'] if row['starter'] == spec['starter']
+                   and row['from_milestone'] == spec['milestone'])
++    if first['name'] == 'midgame-natural':
++        from tools.harness.midgame_journey import validate_chain_record
++        validate_chain_record(record, spec, project)
+     if first['name'] == 'vermilion-natural':
+         origin = record
+         if spec['milestone'] == '5.4':
+@@ -236,11 +246,13 @@
+     if spec is None:
+         return
+     first = scenario['processes'][0].get('journey', {})
++    if first.get('name') == 'midgame-natural' and first.get('packet') != 'full':
++        return  # A partial route checkpoint never exports final 5.5 slots.
+     if first.get('name') == 'vermilion-natural' and (
+             len(scenario['processes']) != 2
+             or scenario['processes'][1].get('journey', {}).get('name') != 'vermilion-continue'):
+         raise ProtocolError('Vermilion chain export requires its two-process Save/Continue')
+-    milestone = '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
++    milestone = '5.5' if first.get('name') == 'midgame-natural' else '5.4' if first.get('name') == 'vermilion-natural' else '5.3'
+     destination = Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/chain' / milestone / spec['starter']
+     destination.mkdir(parents=True, exist_ok=True)
+     files = []
+@@ -307,7 +319,7 @@
+                 atomic_json(evidence / 'process.json', record); publish()
+                 if 'journey' in group:
+                     from tools.harness import journeys
+-                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue','vermilion-continue','vermilion-supplementary-continue'} else None
++                    prior=read_receipt(prior_receipt,metadata) if group['journey']['name'] in {'brock-continue','npc-motion-continue','cerulean-continue','vermilion-continue','vermilion-supplementary-continue','midgame-continue'} else None
+                     summary=journeys.run(client,{'journey':group['journey']},evidence,
+                         build_evidence=output,prior_receipt=prior,capture_dir=output/'frames')
+                     if not isinstance(summary,dict)or summary.get('ok') is not True:raise ProtocolError('process journey failed')
+--- a/tools/harness/cerulean_journey.py
++++ b/tools/harness/cerulean_journey.py
+@@ -92,21 +92,23 @@
+ def validate_boundary_payload(payload):
+     version = payload.get("version") if isinstance(payload, dict) else None
+     expected = CODEC_FIELDS
+-    if version in (2, 3):
++    if version in (2, 3, 4):
+         expected = expected | {"fieldWorld"}
+-    if version == 3:
++    if version in (3, 4):
+         expected = expected | {"daycare"}
++    if version == 4:
++        expected = expected | {"fieldTravel"}
+     if not isinstance(payload, dict) or set(payload) != expected:
+         raise ProtocolError("incomplete canonical Save/Continue payload")
+-    if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3) or payload["pokemonEncoding"] != "decimal-counters-v1":
++    if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3, 4) or payload["pokemonEncoding"] != "decimal-counters-v1":
+         raise ProtocolError("invalid canonical Save/Continue encoding")
+-    if version in (2, 3):
++    if version in (2, 3, 4):
+         field = payload["fieldWorld"]
+         if (not isinstance(field, dict) or set(field) != {"version", "mapPalOffset"}
+                 or type(field["version"]) is not int or field["version"] != 1
+                 or type(field["mapPalOffset"]) is not int or field["mapPalOffset"] not in (0, 6)):
+             raise ProtocolError("invalid canonical field world record")
+-    if version == 3:
++    if version in (3, 4):
+         daycare = payload["daycare"]
+         if (not isinstance(daycare, dict)
+                 or set(daycare) not in ({"version", "earned"}, {"version", "earned", "pokemon"})
+@@ -117,6 +119,14 @@
+                 or ("pokemon" in daycare and not isinstance(daycare["pokemon"], dict))
+                 or ("pokemon" not in daycare and daycare["earned"] != "0")):
+             raise ProtocolError("invalid canonical Day Care record")
++    if version == 4:
++        travel = payload["fieldTravel"]
++        if (not isinstance(travel, dict) or set(travel) != {"version", "mode", "strength", "visited"}
++                or travel["version"] != 1 or travel["mode"] not in {"walking", "surfing", "bicycle"}
++                or type(travel["strength"]) is not bool or not isinstance(travel["visited"], list)
++                or len(travel["visited"]) > 11 or any(not isinstance(v, str) for v in travel["visited"])
++                or len(set(travel["visited"])) != len(travel["visited"])):
++            raise ProtocolError("invalid canonical field travel record")
+     owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
+     if any(not isinstance(payload[field], dict) for field in owners):
+         raise ProtocolError("invalid canonical Save/Continue owner record")
+--- a/Source/dev/diagnostics.lua
++++ b/Source/dev/diagnostics.lua
+@@ -279,6 +279,44 @@
+     return {kind="owners", valid=true, version=SessionCodec.VERSION}
+ end
+ function HarnessDiagnostics.observe(game, kind)
++    if kind == "midgame-owners" then
++        local registered, shops, compatibility = {}, {}, {}
++        for _, name in ipairs(SourceMaps.names()) do
++            local definition = SourceMaps.definition(name)
++            local events = {}
++            for _, group in ipairs({"objects", "background_events"}) do
++                for _, event in ipairs(definition.events[group]) do events[#events + 1] = event end
++            end
++            for _, event in ipairs(events) do
++                registered[event.id] = SourceEvents.has(event.id)
++                local descriptor = SourceEvents.descriptor(event.id)
++                local step = descriptor and descriptor.kind == "program" and descriptor.steps[1]
++                if step and step.op == "shop" then
++                    local stock = assert(ItemData.marts[step.id])
++                    local prices = {}
++                    for _, item in ipairs(stock) do prices[item] = ItemData.definitions[item].price end
++                    shops[event.id] = {stock=GameSession._copy(stock), prices=prices}
++                end
++            end
++        end
++        for _, hm in ipairs({"hm01", "hm02", "hm03", "hm04", "hm05"}) do
++            compatibility[hm] = {}
++            for species, moves in pairs(MachineData.compatibility) do
++                if moves[hm] then table.insert(compatibility[hm], species) end
++            end
++            table.sort(compatibility[hm])
++        end
++        armBoundary(game)
++        return {kind=kind, valid=true, version=SessionCodec.VERSION,
++            registered_events=registered, shops=shops, hm_compatibility=compatibility,
++            trainers=SourceEvents.trainerDefinitions()}
++    end
++    if kind == "midgame-state" then
++        return {kind=kind, zone_id=currentZone and currentZone.stableID,
++            fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData(),
++            fieldRuntime=game.getFieldTravelSnapshot and game:getFieldTravelSnapshot() or {installed=false},
++            fieldUI=ui(game.machine:get("fieldTravel"))}
++    end
+     if kind == "purity" then
+         -- Prepared real-SDK witness: repeated requests must preserve the entire
+         -- canonical session, live world/actors, identities and both RNG owners.
+--- a/Source/dev/harness.lua
++++ b/Source/dev/harness.lua
+@@ -206,7 +206,8 @@
+             or args[1] == "saved" or args[1] == "loaded"
+             or args[1] == "vermilion-owners" or args[1] == "vermilion-collection"
+             or args[1] == "vermilion-encounter-terrain" or args[1] == "vermilion-aide-fixture"
+-            or args[1] == "vermilion-daycare" or args[1] == "vermilion-world")
++            or args[1] == "vermilion-daycare" or args[1] == "vermilion-world"
++            or args[1] == "midgame-owners" or args[1] == "midgame-state")
+     elseif op == "fixture" then
+         local options = value.options or {}
+         assert(type(options) == "table", "fixture options required")

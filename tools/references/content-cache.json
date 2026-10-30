@@ -1,5 +1,9 @@
 {
   "inputs": {
+    "data/midgameEast/dialogue.json": "c1b3ecf1c516535f504cf002e4ff86df93c8db1d666ec5f0b4cc94ecdd146c0a",
+    "data/midgameEast/events.json": "0f91c50ff92b0627a5e3d7b7521efaf88cd75017d6e76c2091031fe59c35d778",
+    "data/midgameEast/sprites.json": "600ba881e4ab02f233effb078a13155f0d62182250eae7e5b22b9588e8064045",
+    "data/midgameEast/trainers.json": "9850c31966a48c85453373a27bc8cf0d2e71ed0d3c123a03cc76c92f6354910a",
     "data/pewterSlice/trainerNames.json": "1e3733784c526d07460c2880bf1ed2f2dad1df348c3f93c3d7ba3c66c87f2e7f",
     "data/pewterSlice/trainers.json": "65db8aba87ef485ff49af10b3ee7af3dfc8def867a792788bf3033d5253d6e41",
     "data/sourceEvents.json": "3a2595132641b1b89149211e96ee2d241dc2e9030792499c56237b8a94aa1008",
@@ -14,7 +18,8 @@
   },
   "packages": [
     "data/sourceSlice/",
-    "data/vermilionPreparation/"
+    "data/vermilionPreparation/",
+    "data/midgameEast/"
   ],
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d"

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":141,"text":"Hey, what? You're"},{"op":"line","source_line":142,"text":"throwing me off!"},{"op":"cont","source_line":143,"text":"Here are some"},{"op":"cont","source_line":144,"text":"coins, shoo!"},{"op":"control","source":"prompt","source_line":145}],"source":"text/GameCorner.asm"}

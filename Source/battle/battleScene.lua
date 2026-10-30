@@ -11,6 +11,10 @@ local pokemonSprites = {}
 
 local function getPokemonSprites(species)
     if pokemonSprites[species] then return pokemonSprites[species] end
+    if species == "source-unidentified-ghost" then
+        pokemonSprites[species] = {front=assert(gfx.image.new("images/title/ghost"))}
+        return pokemonSprites[species]
+    end
     local front = gfx.image.new(PokemonArt.path(species, "front"))
     local back = gfx.image.new(PokemonArt.path(species, "back"))
     if front or back then
@@ -378,7 +382,7 @@ function BattleScene:drawBattleField()
         local enemy = self.battle.enemy
         local enemyLevel,enemyHP,enemyMaxHP=self:shownVitals(enemy)
         gfx.setFont(battleFont)
-        local enemyLabel = enemy.name .. "  Lv" .. enemyLevel
+        local enemyLabel = self.battle:opponentDisplayName() .. "  Lv" .. enemyLevel
         local enemyTextW, _ = gfx.getTextSize(enemyLabel)
         local eBoxW = math.max(140, enemyTextW + 20)
         gfx.setColor(gfx.kColorWhite)
@@ -658,7 +662,11 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
         end
     end
     gfx.setClipRect(x, y, 80, 80)
-    self:drawPokemonSprite(mon.species, x + (80 - size) // 2, y + (80 - size) // 2 + drop, isBack, size)
+    local species = mon.species
+    if side == "enemy" and self.battle.sourceEncounter and self.battle.sourceEncounter.unidentified then
+        species = "source-unidentified-ghost"
+    end
+    self:drawPokemonSprite(species, x + (80 - size) // 2, y + (80 - size) // 2 + drop, isBack, size)
     gfx.clearClipRect()
 end
 

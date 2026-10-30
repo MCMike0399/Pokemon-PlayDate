@@ -10,18 +10,27 @@ local rendered = {}
 local walks = {}
 local baseRoot <const> = "data/sourceSlice/"
 
-local function copy(value)
+local function yieldIfDue()
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
+end
+
+local function copy(value, cooperative)
     if type(value) ~= "table" then
         return value
     end
     local result = {}
     for key, item in pairs(value) do
-        result[key] = copy(item)
+        result[key] = copy(item, cooperative)
+        if cooperative then
+            yieldIfDue()
+        end
     end
     return result
 end
 local function recordIndex(root, recordName, field)
-    return SourceEvents._contentIndex(root).records[recordName][field]
+    return SourceEvents._contentField(root, recordName, field)
 end
 local function immutableDigest(recordName, field, id)
     local found = recordIndex(baseRoot, recordName, field)[id]
@@ -43,21 +52,86 @@ local function catalog(recordName, field)
     return result
 end
 
--- Generated indexes validate duplicate text/art by canonical record checksum.
--- Only explicit registration activates a package; catalog presence does not.
-function CeruleanContent.registerPackage(name, root)
-    assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
-    assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
-    local index = SourceEvents._contentIndex(root)
-    for recordName, field in pairs({dialogue="texts", sprites="sprites"}) do
-        for id, digest in pairs(index.records[recordName][field]) do
-            local previous = immutableDigest(recordName, field, id)
-            assert(not previous or previous == digest, "conflicting immutable source package record")
+-- Hold only the fields needed for this conflict pass. The loader's weak
+-- references may otherwise disappear during registration and be decoded again
+-- for each ID. These strong references end before transforms/registration.
+local function checkImmutableRecords(index, recordName, field)
+    yieldIfDue()
+    local previousFields = {recordIndex(baseRoot, recordName, field)}
+    yieldIfDue()
+    for _, root in pairs(packages) do
+        previousFields[#previousFields + 1] = recordIndex(root, recordName, field)
+        yieldIfDue()
+    end
+    for id, digest in pairs(index.records[recordName][field]) do
+        for _, previous in ipairs(previousFields) do
+            assert(not previous[id] or previous[id] == digest, "conflicting immutable source package record")
+            yieldIfDue()
         end
     end
-    SourceEvents._registerContent(name, index, {"events", "signs"}, index.ordinary_trainers)
+end
+
+-- Generated indexes validate duplicate text/art by canonical record checksum.
+-- Only explicit registration activates a package; catalog presence does not.
+function CeruleanContent.registerPackage(name, root, transform)
+    assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
+    assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
+    yieldIfDue()
+    local index = SourceEvents._contentIndex(root)
+    yieldIfDue()
+    checkImmutableRecords(index, "dialogue", "texts")
+    checkImmutableRecords(index, "sprites", "sprites")
+    local overrides, trainers
+    if transform then
+        -- The story adapter reads and edits a sparse set. Preserve untouched
+        -- descriptors and rosters as lazy digests, including ordinary trainers.
+        local function records(field, fallback)
+            return setmetatable({}, {__index = function(values, id)
+                yieldIfDue()
+                local digest = field[id] or (fallback and fallback[id])
+                local value = copy(SourceEvents._contentRecord(digest), true)
+                rawset(values, id, value)
+                yieldIfDue()
+                return value
+            end})
+        end
+        -- Signs had precedence in the merged digest table. Resolve directly
+        -- from those same fields instead of allocating/copying that table.
+        local events = records(index.records.events.signs, index.records.events.events)
+        -- The adapter retains existing bespoke trainer rosters as well as
+        -- trainers changed into bespoke story encounters by its additions.
+        for id in pairs(index.bespoke_trainers) do
+            local _ = events[id]
+            yieldIfDue()
+        end
+        local extra
+        yieldIfDue()
+        overrides, extra = transform(events, {
+            trainers = records(index.records.trainers.trainers),
+            rival_classes = records(index.records.trainers.rival_classes),
+        })
+        yieldIfDue()
+        assert(type(overrides) == "table" and type(extra) == "table", "detached content transform required")
+        setmetatable(overrides, nil)
+        trainers = copy(index.ordinary_trainers, true)
+        for id, descriptor in pairs(overrides) do
+            trainers[id] = descriptor.kind == "trainer" and index.records.trainers.trainers[id] or nil
+            if descriptor.kind == "trainer" then
+                assert(trainers[id], "source package roster missing")
+            end
+            yieldIfDue()
+        end
+        for id, definition in pairs(extra) do
+            assert(not trainers[id], "duplicate story trainer")
+            trainers[id] = copy(definition, true)
+            yieldIfDue()
+        end
+    end
+    yieldIfDue()
+    SourceEvents._registerContent(name, index, {"events", "signs"}, trainers or index.ordinary_trainers, nil, overrides)
     SourceEvents.registerTextSource(name, CeruleanContent.text)
     packages[name] = root
+    yieldIfDue()
 end
 
 function CeruleanContent.text(label)

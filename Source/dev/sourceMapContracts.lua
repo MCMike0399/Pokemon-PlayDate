@@ -257,7 +257,7 @@ function SourceMapContracts.run()
         end
         local ok, problem = pcall(function()
             SourceMaps._withRecords(records, function()
-                equal(#SourceMaps.names(), 66)
+                equal(#SourceMaps.names(), before + 1)
                 local profiles = SourceMaps.legacyProfiles({ dispatch = function() error("fixture cannot dispatch") end,
                     questFlag = function() return false end, sourceFlag = function() return false end })
                 -- Test content adapter supplies only inert NPC data. Geometry,
@@ -274,7 +274,7 @@ function SourceMapContracts.run()
                 zoneRegistry, zoneList, currentZone = {}, {}, nil
                 local provider = SourceMaps.createProvider(profiles, TileRegistry())
                 local loaded, failure = pcall(function()
-                    equal(#provider:inventory(), 66)
+                    equal(#provider:inventory(), before + 1)
                     local school = provider:ensure("fixture_ViridianSchoolHouse")
                     local route = provider:ensure("fixture_Route22")
                     equal(school.width, 13)
@@ -333,7 +333,7 @@ function SourceMapContracts.run()
         local count = #zoneList
         local zones = KantoWorld.install(game)
         equal(#zoneList, count)
-        equal(#provider:inventory(), 65)
+        equal(#provider:inventory(), #SourceMaps.names())
         equal(provider:snapshot().capacity, 2)
         for _, name in ipairs(SourceMaps.names("viridian")) do
             local entry = SourceMaps.entry(name)
@@ -395,7 +395,7 @@ function SourceMapContracts.run()
     test("unloaded validation allocates no native tiles or Zones for either region", function()
         scope(function(provider, registry, context)
             local ids = registry:maxID()
-            equal(#provider:inventory(), 65)
+            equal(#provider:inventory(), #SourceMaps.names())
             for _, name in ipairs(SourceMaps.names()) do
                 local entry = SourceMaps.entry(name)
                 local location = { zone_id = entry.id, x = entry.spawn.x, y = entry.spawn.y, facing = "up" }
@@ -439,7 +439,7 @@ function SourceMapContracts.run()
             local ok, problem = pcall(function()
                 local provider = PewterWorld.createProvider(context, registry)
                 equal(next(loaded), nil)
-                equal(#provider:inventory(), 65)
+                equal(#provider:inventory(), #SourceMaps.names())
                 equal(next(loaded), nil)
                 local route = provider:ensure("kanto_route1")
                 equal(loaded.Route1, 1)
@@ -622,6 +622,81 @@ function SourceMapContracts.run()
                     same(descriptor[field], expected)
                 end
             end
+        end)
+    end)
+
+    test("source elevators resolve only their recorded floor through the shared map pipeline", function()
+        for _, owner in ipairs({RocketHideoutStory, SilphStoryWorld}) do
+            local bindings = owner.elevatorBindings(nil)
+            local sourceID, ingress = next(bindings)
+            local sourceMap = assert(sourceID:match("^(pokered:[^:]+):warps:"))
+            local cabin = assert(SourceMaps.nameForID(ingress.to))
+            VermilionStoryFixture.withScene(cabin, {x=1, y=1}, function(context)
+                local entry = SourceMaps.entry(cabin)
+                local event = SourceMaps.descriptor(cabin).warps[1]
+                equal(SourceMaps.warpSpec(cabin, event).status, "scripted")
+                local door = {source_event_id=event.id, scripted=true}
+                equal(SourceMaps.resolveScriptedWarp(context, door), nil)
+                local before = context.session:rngData()
+                local enter = owner.enterLift
+                if not enter then
+                    enter = SilphStoryWorld.enterLift
+                end
+                assert(enter(context.session, sourceMap))
+                local resolved = assert(SourceMaps.resolveScriptedWarp(context, door))
+                equal(resolved.to, SourceMaps.entry(assert(SourceMaps.nameForID(sourceMap))).key)
+                equal(SourceMaps.cell(cabin, event.x, event.y).collision, 0)
+                equal(entry.id, ingress.to)
+                same(context.session:rngData(), before)
+            end)
+        end
+    end)
+
+    test("source door input checks land collision and leaves mansion rear stairs accessible", function()
+        scope(function(provider, _, context)
+            local world = WorldDeltas.export()
+            local cases = {
+                {"CeladonMansion1F", 5, "CeladonMansion2F", 4},
+                {"CeladonMansion2F", 3, "CeladonMansion1F", 4},
+                {"CeladonMansion2F", 4, "CeladonMansion3F", 6},
+                {"CeladonMansion3F", 4, "CeladonMansion2F", 6},
+                {"CeladonMansionRoof", 2, "CeladonMansion3F", 4},
+            }
+            for _, case in ipairs(cases) do
+                local spec = SourceMaps.warpSpec(case[1], SourceMaps.descriptor(case[1]).warps[case[2]])
+                equal(spec.status, "bound")
+                equal(spec.target_name, case[3])
+                equal(spec.toX, case[4])
+                equal(spec.toY, 1)
+                equal(spec.arrival_advance, 0)
+                equal(spec.facing, "down")
+                equal(spec.preserveFacing, false)
+                equal(SourceMaps.cell(case[3], spec.toX, 2).collision, 1)
+                local location = {zone_id=SourceMaps.entry(case[3]).id, x=spec.toX, y=1, facing="down"}
+                same(FieldWorld.resolvePlayerLocation(location, world, context.sessionLocationPolicy), location)
+                rejects(function()
+                    FieldWorld.resolvePlayerLocation({zone_id=location.zone_id, x=location.x, y=2, facing="down"},
+                        world, context.sessionLocationPolicy)
+                end)
+            end
+            -- Actual ordinary cardinal movement reaches the next rear stair.
+            for _, case in ipairs({{"CeladonMansion2F", 4, "right"}, {"CeladonMansion3F", 6, "left"}}) do
+                local zone = provider:ensure(SourceMaps.entry(case[1]).key)
+                local first = zone:movementRule(case[2], 1, case[3])
+                equal(first.kind, "walk")
+                local second = zone:movementRule(first.x, first.y, case[3])
+                equal(second.kind, "walk")
+                assert(zone:getDoorAt(second.x, second.y))
+            end
+            -- A normal accessible exterior door still advances one cell.
+            local spec = SourceMaps.warpSpec("ViridianMart", SourceMaps.descriptor("ViridianMart").warps[1])
+            equal(spec.status, "bound")
+            equal(spec.to, SourceMaps.entry("ViridianCity").key)
+            equal(spec.toX, 29)
+            equal(spec.toY, 20)
+            equal(spec.arrival_advance, 1)
+            equal(spec.facing, "down")
+            equal(SourceMaps.cell("ViridianCity", spec.toX, spec.toY).collision, 0)
         end)
     end)
 

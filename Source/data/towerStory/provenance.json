@@ -1,0 +1,21 @@
+{
+  "files": {
+    "data/maps/objects/MrFujisHouse.asm": "9ccab50eb7c908b23dbf1788623f0d36f06305e20020b8e8559f1174214f259d",
+    "data/maps/objects/PokemonTower2F.asm": "8681eb100bd226550307a8d84c2e19e62872bcef7a086325c753733995e3befe",
+    "data/maps/objects/PokemonTower6F.asm": "4667d347a7c933b34edc0f795d1cab805f99c35008dae0170b5ecf4a3a247e58",
+    "data/maps/objects/PokemonTower7F.asm": "7b79a1dd938f866b933878da85f0ba9f89997429dd545dd159c9cc0445203dcf",
+    "data/maps/objects/Route12.asm": "c888273202b9d3079fb022a1172e927d71fe7550e61a04ab3635db18ca394856",
+    "data/maps/objects/Route16.asm": "1224404509f253105e7c2bfd0c3c8f5d6aeb8063deaa70147c12ca962e38646b",
+    "engine/battle/common_text.asm": "3b77739b798d4203b98ea26a565657a44d28363069892a268fb635aad148bde3",
+    "engine/battle/core.asm": "36d8ff785fe642d61f6917156e70b78c36fd7cde6c0b8fb582e02f6552e786d0",
+    "engine/items/item_effects.asm": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1",
+    "scripts/MrFujisHouse.asm": "bcb054c91f6e7d1d7f1b7b355eacff6856571141de895342092ecbb00b768019",
+    "scripts/PokemonTower2F.asm": "c63d1abaef21f4b86e00e0dedb9b200b672ffe98958249afa4334bd2b53772b4",
+    "scripts/PokemonTower6F.asm": "beb1c63304437e8e4cb3f6600bee128d2f44f8c18ded4dbf6654e009e1966cb0",
+    "scripts/PokemonTower7F.asm": "7ff31c55ad8c3b487f59d7a2674f9a3d59569c6c69e8f0634d62d8088ec5e1d9",
+    "scripts/Route12.asm": "1b937c27e470eae534a15360de17f9955d9ba93f2207fbfe0f65ab4a68b0bc99",
+    "scripts/Route16.asm": "f126da884812271d59f245011f909db0ce67132b71068cdfc5d4eb2b18eccf4d"
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

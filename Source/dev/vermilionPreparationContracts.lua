@@ -3,6 +3,7 @@ VermilionPreparationContracts = {}
 local root <const> = "data/vermilionPreparation/"
 
 function VermilionPreparationContracts.run()
+    local installedMapCount = #SourceMaps.names()
     local report = {ok=true, passed=0, failed=0, tests={}}
     local function test(name, fn)
         local ok, problem = pcall(fn)
@@ -21,7 +22,7 @@ function VermilionPreparationContracts.run()
         return {intro="done", flags={}, items=items, can_add=canAdd, trainers={}, mode="talk"}
     end
     test("installed batch resolves through the shared sixty-five-map manifest", function()
-        assert(#SourceMaps.names() == 65)
+        assert(#SourceMaps.names() == installedMapCount)
         for name, entry in pairs(entries) do
             assert(SourceMaps.nameForID(entry.id) == name)
             local installed = SourceMaps.entry(name)
@@ -78,7 +79,7 @@ function VermilionPreparationContracts.run()
             local layout = HealingComposition.layout({stableID=d.id})
             assert(layout.monitor.x == 56 and layout.monitor.y == 8 and #layout.balls == 6)
         end)
-        assert(#SourceMaps.names() == 65, "private source records leaked")
+        assert(#SourceMaps.names() == installedMapCount, "private source records leaked")
     end)
     return report
 end

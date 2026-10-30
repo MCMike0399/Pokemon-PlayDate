@@ -4,16 +4,22 @@ import json
 from pathlib import Path
 import re
 import struct
+import subprocess
 import tempfile
 import unittest
 import zlib
 
+from tools.tests.host_fixtures import installed_map_names
 from tools import build
 from tools.harness import run, startup_probe
 from tools.harness.build import overlay_imports
 
 PROJECT = Path(__file__).resolve().parents[2]
-BASELINE = json.loads((Path(__file__).parent / 'fixtures/dev-import-gate.json').read_text())
+# Use checkpoint A's existing frozen import contract without rewriting main's baseline.
+BASELINE = json.loads(subprocess.check_output([
+    'git', '-C', str(PROJECT), 'show',
+    '93d480b77f3d231c7c806cf57f71c5e064fba3f0:tools/tests/fixtures/dev-import-gate.json',
+]))
 
 
 def pdz_modules(path):
@@ -73,7 +79,7 @@ class ProductionBuildTests(unittest.TestCase):
                       'dev/sessionFixture'}
         self.assertTrue(transitive <= set(modules))
         self.assertEqual([name for name in modules if name.startswith('dev/') and name not in transitive],
-                         ['dev/harness_build'] + [name for name in expected if name != 'dev/harness_build'])
+                         ['dev/harness_build'] + [name for name in expected if name not in {'dev/harness_build', 'game/bootstrap'} and name not in transitive])
         staged = (self.harness / 'Source/main.lua').read_text()
         package = staged.index('CeruleanContent.registerPackage("vermilion",')
         exporter = staged.index('VermilionCatalogExporter.register()')
@@ -85,18 +91,34 @@ class ProductionBuildTests(unittest.TestCase):
         # the SDK imports and added boot tracing. Retain the frozen inventory
         # and permit only these two reviewed additions in their required order.
         self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
-                         + [name for name in BASELINE['imports'] if name != 'dev/harness_build'])
+                         + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'}])
         self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
                           or line.lstrip().startswith('PewterCatalogExporter.register(')
                           or line.lstrip().startswith('CeruleanCatalogExporter.register(')
                           or line.lstrip().startswith('VermilionCatalogExporter.register(')], BASELINE['registrations'])
 
     def test_staging_preserves_every_non_entry_source_asset(self):
+        policy = BASELINE['checkpoint_a']
+        self.assertEqual(build.production_exclusions(PROJECT), policy['exclude'])
+        active = json.loads((PROJECT / 'Source/data/sourceMaps.json').read_bytes())
+        self.assertEqual(set(active['maps']), installed_map_names())
+        for name in policy['exclude']:
+            self.assertFalse((self.production / 'Source' / name).exists(), name)
+        for name in policy['retain_shared_dependencies']:
+            self.assertEqual((PROJECT / 'Source' / name).read_bytes(),
+                             (self.production / 'Source' / name).read_bytes(), name)
+        proposals = {'proposed-source-maps.json', 'proposed-compact.json', 'proposed-tile-grids.json'}
         for original in (PROJECT / 'Source').rglob('*'):
             if not original.is_file():
                 continue
             relative = original.relative_to(PROJECT / 'Source')
-            if relative.parts[0] != 'dev':
+            name = relative.as_posix()
+            excluded = relative.parts[0] == 'dev' or relative.name in proposals or any(
+                name == entry.rstrip('/') or entry.endswith('/') and name.startswith(entry)
+                for entry in policy['exclude'])
+            if excluded:
+                self.assertFalse((self.production / 'Source' / relative).exists(), name)
+            else:
                 self.assertEqual(original.read_bytes(), (self.production / 'Source' / relative).read_bytes())
             if str(relative) not in ('main.lua', 'pdxinfo', 'dev/harness_build.lua'):
                 self.assertEqual(original.read_bytes(), (self.harness / 'Source' / relative).read_bytes())

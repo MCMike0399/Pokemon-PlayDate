@@ -9,7 +9,13 @@ function NPCMotion:init(manager)
 end
 function NPCMotion:clear()
     local s=stores[self];s.epoch=s.epoch+1
-    for _,actor in pairs(s.actors)do actor.npc.isMoving=false end
+    for _, actor in pairs(s.actors) do
+        if actor.spec.role == "boulder" and actor.script then
+            actor.script = nil
+            self:_pose(actor)
+        end
+        actor.npc.isMoving = false
+    end
     s.actors,s.specs,s.byNPC={},{},setmetatable({},{__mode="k"})
     s.game,s.zone,s.session,s.descriptor,s.pending,s.interaction,s.migration=nil,nil,nil,nil,nil,nil,nil
 end
@@ -215,7 +221,7 @@ function NPCMotion:startScriptStep(token, direction)
     if lease.move then return false, "script-cell-in-progress" end
     local delta = dirs[direction]
     local v, spec, npc = actor.value, actor.spec, actor.npc
-    if not delta or not spec.faces[direction] then return false, "missing-source-actor-facing" end
+    if not delta or spec.role ~= "boulder" and not spec.faces[direction] then return false, "missing-source-actor-facing" end
     local x, y = v.x + delta[1], v.y + delta[2]
     local cell = y * s.descriptor.width + x + 1
     local player = s.game.player
@@ -225,7 +231,8 @@ function NPCMotion:startScriptStep(token, direction)
         or s.descriptor.protected[cell] and not (spec.script_transit and spec.script_transit[cell])
         or not s.descriptor.canStep(spec,v.x,v.y,x,y,s.zone) then return false, "blocked-scripted-npc-move" end
     -- Verify walking art before reserving or exposing an intermediate pose.
-    local ok = pcall(SourceActors.stepImage,spec.sprite_source,direction,2,spec.content_profile)
+    local ok = spec.role == "boulder" and npc.images[v.facing] ~= nil
+        or pcall(SourceActors.stepImage,spec.sprite_source,direction,2,spec.content_profile)
     if not ok then return false, "missing-source-actor-walking-art" end
     lease.move = {x=v.x,y=v.y,toX=x,toY=y,direction=direction,tick=0}
     npc.isMoving = true
@@ -239,12 +246,19 @@ function NPCMotion:updateScript(token)
     if not move then return false, "no-script-cell" end
     move.tick = move.tick + 1
     local npc, v = actor.npc, actor.value
-    npc.facing = move.direction
+    npc.facing = actor.spec.role == "boulder" and v.facing or move.direction
     npc:moveTo((move.x+(move.toX-move.x)*move.tick/8)*TILE_SIZE,
         (move.y+(move.toY-move.y)*move.tick/8)*TILE_SIZE-8)
-    npc:setImage(SourceActors.stepImage(actor.spec.sprite_source,move.direction,move.tick,actor.spec.content_profile))
+    if actor.spec.role == "boulder" then
+        npc:setImage(assert(npc.images[v.facing], "fixed source boulder art missing"))
+    else
+        npc:setImage(SourceActors.stepImage(actor.spec.sprite_source,move.direction,move.tick,actor.spec.content_profile))
+    end
     if move.tick < 8 then return false, "moving" end
-    v.x,v.y,v.facing = move.toX,move.toY,move.direction
+    v.x,v.y = move.toX,move.toY
+    if actor.spec.role ~= "boulder" then
+        v.facing = move.direction
+    end
     v.origin_x,v.target_x,v.origin_y,v.target_y = v.x,v.x,v.y,v.y
     lease.move = nil
     self:_pose(actor)
@@ -334,4 +348,97 @@ function NPCMotion:placeScript(token, x, y, facing)
     v.origin_x,v.target_x,v.origin_y,v.target_y = x,x,y,y
     self:_pose(actor)
     return true
+end
+
+-- Strength is authorized by the field owner. This API owns only the tracked
+-- actor's one-cell movement, fixed source image, reservations and lease lifetime.
+function NPCMotion:isBoulder(npc)
+    local actor = stores[self].byNPC[npc]
+    return actor ~= nil and actor.spec.role == "boulder"
+end
+
+function NPCMotion:previewBoulderPush(npc, direction)
+    local s = stores[self]
+    local actor = s.byNPC[npc]
+    if not actor or actor.spec.role ~= "boulder" then
+        return nil, "not-source-boulder"
+    end
+    if not s.game or s.game.session ~= s.session or currentZone ~= s.zone then
+        return nil, "stale-boulder-context"
+    end
+    if actor.script or npc.isMoving then
+        return nil, "claimed-source-boulder"
+    end
+    local delta = dirs[direction]
+    local player = s.game.player
+    local value = actor.value
+    if not delta or not player or player.isMoving or player.pendingEdgeDoor or player.pendingConnection
+        or player.facing ~= direction or player.gridX + delta[1] ~= value.x
+        or player.gridY + delta[2] ~= value.y then
+        return nil, "player-not-behind-boulder"
+    end
+    local x, y = value.x + delta[1], value.y + delta[2]
+    if not s.descriptor.canPush(actor.spec, player.gridX, player.gridY, value.x, value.y, x, y, s.zone)
+        or s.descriptor.protected[y * s.descriptor.width + x + 1] then
+        return nil, "blocked-boulder-surface"
+    end
+    local occupant = s.manager:getNPCAt(x, y)
+    if occupant or x == player.gridX and y == player.gridY then
+        return nil, "occupied-boulder-target"
+    end
+    return {id=value.id, x=value.x, y=value.y, toX=x, toY=y, direction=direction}
+end
+
+function NPCMotion:beginBoulderPush(npc, direction, owner)
+    local intent, reason = self:previewBoulderPush(npc, direction)
+    if not intent then
+        return nil, reason
+    end
+    local token, problem = self:claimScript(npc, owner)
+    if not token then
+        return nil, problem
+    end
+    local started, failure = self:startScriptStep(token, direction)
+    if not started then
+        self:releaseScript(token)
+        return nil, failure
+    end
+    local s = stores[self]
+    local _, lease = scriptLease(s, token)
+    lease.push = {playerX=s.game.player.gridX, playerY=s.game.player.gridY}
+    return token
+end
+
+function NPCMotion:cancelBoulderPush(token)
+    local actor, lease = scriptLease(stores[self], token)
+    if not actor or actor.spec.role ~= "boulder" or not lease.push then
+        return false
+    end
+    -- updateScript never advances the completed value before frame eight.
+    -- Keep any completed push; discard only an incomplete interpolation.
+    return self:releaseScript(token)
+end
+
+function NPCMotion:updateBoulderPush(token)
+    local s = stores[self]
+    local actor, lease = scriptLease(s, token)
+    if not actor or actor.spec.role ~= "boulder" or not lease.push then
+        return nil, "stale-boulder-token"
+    end
+    local player = s.game and s.game.player
+    if not player or player ~= lease.player or player.isMoving
+        or player.gridX ~= lease.push.playerX or player.gridY ~= lease.push.playerY then
+        self:cancelBoulderPush(token)
+        return nil, "player-moved-during-boulder-push"
+    end
+    local complete, reason = self:updateScript(token)
+    if complete then
+        self:releaseScript(token)
+        return true, "complete"
+    end
+    if reason == "moving" then
+        return false, reason
+    end
+    self:cancelBoulderPush(token)
+    return nil, reason
 end

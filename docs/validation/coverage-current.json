@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "5fd6880b7b05b6e4a1ac190ab66b8a4f832012d0",
-    "source_sha256": "8e2257494f6abdbf7634d05580a5a317742ce049697c5e064f6820bee14693cd",
+    "commit": "50eb867b3d2fcb4cc17fd347d37a61f16152eb1c",
+    "source_sha256": "24efa94f7cfe564057c8b491e96bc31f862d5646545f7d5204254f8918f860d9",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "65 main maps verified by Simulator milestone 5.4 journeys. No milestone hardware-playability acceptance. Private 108-map 5.5a work is separate. Inventory identity only; historical evidence keeps its source and scope.",
-    "acceptance_context": "main-5.4-simulator-accepted-hardware-playability-pending"
+    "scope": "Private 108-map checkpoint A merge candidate; main has 65 Simulator-route maps and no device-playable milestone. No acceptance promotion.",
+    "acceptance_context": "private-5.5a-preparation-hardware-pending"
   },
   "accepted_milestone_rows": [],
   "schedule": {
-    "policy": "5.4 is accepted in Simulator. Finish 5.5a, then 5.5b and 5.5c from chained earned saves. Hardware loading and user play remain acceptance gates. Source indexing never promotes evidence.",
+    "policy": "5.4 is accepted from Simulator journeys. Finish checkpoint 5.5a from earned saves and pass the hardware playability gate before accepting it on main. Preserve all rows and all three independent evidence layers.",
     "gates": [
       "system:current-reward-correctness",
       "system:safe-newgame-recovery",

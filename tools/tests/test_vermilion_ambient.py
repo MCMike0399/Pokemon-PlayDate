@@ -6,13 +6,14 @@ from pathlib import Path
 import subprocess
 import unittest
 from tools import generate_vermilion_preparation as g
+from tools.tests.host_fixtures import build_vermilion_preparation
 
 
 class VermilionAmbientTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.ref = Path(os.environ['POKERED_REFERENCE_DIR'])
-        cls.artifacts = g.build(cls.ref)
+        cls.artifacts = build_vermilion_preparation(cls.ref)
         cls.events = json.loads(cls.artifacts['events.json'])['events']
 
     def primary(self, path):

@@ -1,0 +1,25 @@
+{
+  "files": {
+    "data/sprites/facings.asm": "519d357bae44590199642812f4140295b08801a9a81619b2fec30f8dd98fc66f",
+    "engine/gfx/mon_icons.asm": "eee1dc90b8a710e0dcd8707767417dc9ee7cc9d3cd2b0b416d77176fa8834119",
+    "engine/gfx/sprite_oam.asm": "d6daebd7c5a4666d05c81cbdd2d58776a1ce3f3fadd97f9f58f68fb539d878fc",
+    "engine/overworld/emotion_bubbles.asm": "5416dcab33cc3687235301025281f70545fe3a8435f36ea2a6b6fb585a4c5737",
+    "engine/overworld/player_animations.asm": "73aa2824e0340db2b54aa38f3dd2200f72ace80428770b70e0f5ff6ddf04a0e7",
+    "gfx/emotes/shock.png": "c76a69ef1bd326fccfd01501dbd93664af4d4469a0e38cea0f6fa1c12f52f7b3",
+    "gfx/fishing.asm": "8dddd15bd0a846fd053bdff702a9018cb3132b3369e7dee33ee40f7ac0f181cd",
+    "gfx/overworld/fishing_rod.png": "9f4682826b3d8c85383fd8776ffdc64ae876c6903b9e82f6d46c9693e35b4d17",
+    "gfx/overworld/red_fish_back.png": "fcf78178ff4bf8001e159d3eee66dfe01b78a9aecae9142dd7d2427b9234708a",
+    "gfx/overworld/red_fish_front.png": "60a3d16c123a657753b6e0dd899e5a4ad5ad68eca4c6908f5bc9786385d9cdee",
+    "gfx/overworld/red_fish_side.png": "6aa80c35791cc3b1bf5d3521f8ba6cfb98ea651e103000328f25ea7acc770dd6",
+    "gfx/sprites.asm": "1e0e5e953d078f578f5a8a64a934d1b26c411b6e8355857089ec87f83508892c",
+    "gfx/sprites/red.png": "ce0ed1df1d4ed3ccc70a637e607e0d92c44c9f5402dbf4df41a5d0e62a9cfcb1",
+    "gfx/sprites/red_bike.png": "314fe8a4e5499525e521bb37e6739f11073b8999eb00922be660a6321ce0e420",
+    "home/oam.asm": "601177b3dae9b5d9a399345214bcbab67611dc1c9b75940344f8f19c7c6970ff",
+    "home/overworld.asm": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a",
+    "home/palettes.asm": "5e6838b4a72662c880142ff8479755a35a69a71a09b1a6f49d2632674263bb75",
+    "macros/gfx.asm": "f378791d40873cb741919bfca688c44ebe26d20db1b6936d7688c941a7369ee4"
+  },
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "schema": 1
+}

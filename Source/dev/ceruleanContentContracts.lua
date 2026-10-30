@@ -24,6 +24,7 @@ local function observation(full)
 end
 
 function CeruleanContentContracts.run()
+    local installedMapCount = #SourceMaps.names()
     local report = { ok = true, passed = 0, failed = 0, tests = {} }
     local function test(name, fn)
         local ok, problem = pcall(fn)
@@ -57,7 +58,7 @@ function CeruleanContentContracts.run()
         end)
     end
     test("installed inventory constructs all thirty maps with actual actor and surface owners", function()
-        assert(#SourceMaps.names() == 65, "installed source inventory differs")
+        assert(#SourceMaps.names() == installedMapCount, "installed source inventory differs")
         local registry = TileRegistry()
         local function absent() return false end
         local profiles = SourceMaps.legacyProfiles({
@@ -69,7 +70,7 @@ function CeruleanContentContracts.run()
         zoneRegistry, zoneList, currentZone = {}, {}, nil
         local ok, problem = pcall(function()
             WorldDeltas._withDefinitionProvider(provider, function()
-                assert(#provider:inventory() == 65)
+                assert(#provider:inventory() == installedMapCount)
                 for _, name in ipairs(SourceMaps.names()) do
                     local entry = SourceMaps.entry(name)
                     local definition = SourceMaps.padded(name)

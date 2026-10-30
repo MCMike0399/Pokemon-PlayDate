@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":18,"text":"All right! Let's"},{"op":"line","source_line":19,"text":"roll the dice!"},{"op":"control","source":"done","source_line":20}],"source":"text/Route8.asm"}

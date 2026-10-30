@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"I got my KOFFING"},{"op":"line","source_line":3,"text":"in CINNABAR!"},{"op":"para","source_line":5,"text":"It's nice, but it"},{"op":"line","source_line":6,"text":"breathes poison"},{"op":"cont","source_line":7,"text":"when it's angry!"},{"op":"control","source":"done","source_line":8}],"source":"text/CeladonCity.asm"}

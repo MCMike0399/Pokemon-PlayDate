@@ -377,8 +377,7 @@ function DaycareContracts.run()
     end)
     test("actual SDK JSON/codec held-mon roundtrip and old-save empty migration", function()
         local g, s = fresh()
-        local old = wire(s)
-        old.version = 1
+        local old = SessionFixture.forVersion(wire(s), 1)
         old.daycare = nil
         old.fieldWorld = nil
         local migrated = assert(SessionCodec.decode(old, g:getSessionDependencies()))
@@ -403,15 +402,14 @@ function DaycareContracts.run()
         for _, offset in ipairs({0, 6}) do
             GameSession._state(s).fieldWorld = {version=1, mapPalOffset=offset}
             local current = wire(s)
-            eq(current.version, 3)
+            eq(current.version, SessionCodec.VERSION)
             eq(current.fieldWorld.mapPalOffset, offset)
-            local legacy = GameSession._copy(current)
-            legacy.version = 2
+            local legacy = SessionFixture.forVersion(current, 2)
             legacy.daycare = nil
             local restored = assert(SessionCodec.decode(legacy, g:getSessionDependencies()))
             eq(wire(restored).fieldWorld.mapPalOffset, offset)
             eq(wire(restored).daycare.pokemon, nil)
-            eq(wire(restored).version, 3)
+            eq(wire(restored).version, SessionCodec.VERSION)
             local malformed = GameSession._copy(current)
             malformed.daycare = nil
             eq(SessionCodec.validate(malformed, g:getSessionDependencies()), false)

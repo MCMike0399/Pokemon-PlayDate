@@ -11,14 +11,17 @@ import tempfile
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.harness.run import sdk_path, fingerprint
+from tools.activate_checkpoint_a import production_exclusions, ignored_source_names
 
 PROJECT = Path(__file__).resolve().parents[1]
 
 
 def stage_production(project, stage):
     source = stage / 'Source'
-    shutil.copytree(project / 'Source', source,
-                    ignore=lambda directory, names: ['dev'] if Path(directory) == project / 'Source' else [])
+    original = project / 'Source'
+    excluded = production_exclusions(project)
+    shutil.copytree(original, source, ignore=lambda directory, names:
+                    ignored_source_names(original, directory, names, excluded))
     return source
 
 

@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "fly": [
+    {
+      "name": "PalletTown",
+      "id": "pallet_town",
+      "source_map": "PALLET_TOWN",
+      "x": 5,
+      "y": 6
+    },
+    {
+      "name": "ViridianCity",
+      "id": "pokered:VIRIDIAN_CITY",
+      "source_map": "VIRIDIAN_CITY",
+      "x": 23,
+      "y": 26
+    },
+    {
+      "name": "PewterCity",
+      "id": "pokered:PEWTER_CITY",
+      "source_map": "PEWTER_CITY",
+      "x": 13,
+      "y": 26
+    },
+    {
+      "name": "CeruleanCity",
+      "id": "pokered:CERULEAN_CITY",
+      "source_map": "CERULEAN_CITY",
+      "x": 19,
+      "y": 18
+    },
+    {
+      "name": "LavenderTown",
+      "id": "pokered:LAVENDER_TOWN",
+      "source_map": "LAVENDER_TOWN",
+      "x": 3,
+      "y": 6
+    },
+    {
+      "name": "VermilionCity",
+      "id": "pokered:VERMILION_CITY",
+      "source_map": "VERMILION_CITY",
+      "x": 11,
+      "y": 4
+    },
+    {
+      "name": "CeladonCity",
+      "id": "pokered:CELADON_CITY",
+      "source_map": "CELADON_CITY",
+      "x": 41,
+      "y": 10
+    },
+    {
+      "name": "FuchsiaCity",
+      "id": "pokered:FUCHSIA_CITY",
+      "source_map": "FUCHSIA_CITY",
+      "x": 19,
+      "y": 28
+    },
+    {
+      "name": "CinnabarIsland",
+      "id": "pokered:CINNABAR_ISLAND",
+      "source_map": "CINNABAR_ISLAND",
+      "x": 11,
+      "y": 12
+    },
+    {
+      "name": "IndigoPlateau",
+      "id": "pokered:INDIGO_PLATEAU",
+      "source_map": "INDIGO_PLATEAU",
+      "x": 9,
+      "y": 6
+    },
+    {
+      "name": "SaffronCity",
+      "id": "pokered:SAFFRON_CITY",
+      "source_map": "SAFFRON_CITY",
+      "x": 9,
+      "y": 30
+    }
+  ],
+  "water_pairs": [
+    {
+      "tileset": "FOREST",
+      "a": 20,
+      "b": 46
+    },
+    {
+      "tileset": "FOREST",
+      "a": 72,
+      "b": 46
+    },
+    {
+      "tileset": "CAVERN",
+      "a": 20,
+      "b": 5
+    }
+  ],
+  "water_tilesets": [
+    "OVERWORLD",
+    "FOREST",
+    "DOJO",
+    "GYM",
+    "SHIP",
+    "SHIP_PORT",
+    "CAVERN",
+    "FACILITY",
+    "PLATEAU"
+  ]
+}

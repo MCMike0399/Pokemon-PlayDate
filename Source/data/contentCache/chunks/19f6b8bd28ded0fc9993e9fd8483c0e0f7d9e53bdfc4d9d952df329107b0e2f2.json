@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"Hi!"},{"op":"para","source_line":4,"text":"We're taking a"},{"op":"line","source_line":5,"text":"break now."},{"op":"control","source":"done","source_line":6}],"source":"text/CeladonDiner.asm"}

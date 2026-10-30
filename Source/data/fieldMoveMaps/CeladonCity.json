@@ -1,0 +1,91 @@
+{
+  "id": "pokered:CELADON_CITY",
+  "record": {
+    "grass_sites": [],
+    "height": 36,
+    "layout_sha256": "ab2e5139c31c1962e8e391ccd11843d0fb9008c6d39c7398ba79044e5b6403c6",
+    "name": "CeladonCity",
+    "sites": [
+      {
+        "block": 53,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 46,
+            "y": 20
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 47,
+            "y": 20
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 46,
+            "y": 21
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 47,
+            "y": 21
+          }
+        ],
+        "replacement": 76,
+        "targets": [
+          {
+            "x": 47,
+            "y": 20
+          }
+        ],
+        "x": 46,
+        "y": 20
+      },
+      {
+        "block": 50,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 34,
+            "y": 32
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 35,
+            "y": 32
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 34,
+            "y": 33
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 35,
+            "y": 33
+          }
+        ],
+        "replacement": 109,
+        "targets": [
+          {
+            "x": 35,
+            "y": 32
+          }
+        ],
+        "x": 34,
+        "y": 32
+      }
+    ],
+    "tileset": "OVERWORLD",
+    "width": 50
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -145,11 +145,13 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
             padded = [len(grids)] * entry["width"]
             padded[entry["padding"]:entry["padding"] + width] = row
             descriptor["tile_rows"].append("".join(f"{tile:02x}" for tile in padded))
+        scripted = set(entry.get("scripted_warps", []))
+        require(len(scripted) == len(entry.get("scripted_warps", [])), "duplicate scripted warp")
         blocked = list(entry.get("blocked_events", []))
         available = {item["id"] for item in manifest["maps"].values()}
         for event in definition["events"]["warps"]:
             destination = event["destination"]
-            if destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
+            if event["id"] not in scripted and destination["kind"] == "map" and "pokered:" + destination["map"] not in available:
                 blocked.append(event["id"])
         require(isinstance(blocked, list) and len(set(blocked)) == len(blocked), "duplicate blocked surface event")
         surfaces, all_events = set(), set()
@@ -172,6 +174,8 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
                     warp["x"] += entry["padding"]
                     descriptor["warps"].append(warp)
         require(set(blocked) <= surfaces, "unknown blocked surface event")
+        require(scripted <= {event["id"] for event in definition["events"]["warps"]}, "unknown scripted warp")
+        require(not scripted.intersection(blocked), "scripted warp is also blocked")
         for grid in grids:
             key = grid["stable_id"]
             tile = {"key": key, "grid": grid["grid"], "terrain": grid["terrain"],
@@ -188,7 +192,11 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
     # ingress; an ambiguous context requires an explicit manifest override (or
     # ultimately a bespoke runtime script), never a regional Lua name branch.
     for name, descriptor in compact["maps"].items():
-        dynamic = [warp for warp in descriptor["warps"] if warp["destination"]["kind"] == "last_outdoor_map"]
+        blocked_events = manifest["maps"][name].get("blocked_events", [])
+        dynamic = [warp for warp in descriptor["warps"]
+                   if warp["destination"]["kind"] == "last_outdoor_map"
+                   and warp["id"] not in blocked_events
+                   and warp["id"] not in manifest["maps"][name].get("scripted_warps", [])]
         if not dynamic:
             continue
         candidates = set()
@@ -208,6 +216,32 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
             context = next(iter(candidates))
         require(context in candidates, "LAST_MAP context has no matching source ingress: " + name)
         descriptor["last_outdoor"] = context
+    # A warp cannot enter an explicitly closed destination. Project the same
+    # return barrier used by SourceMaps.warpSpec into the authoritative surface,
+    # so save validation and the live Zone agree on ordinary collision.
+    names_by_constant = {d["source_map_constant"]: name for name, d in compact["maps"].items()}
+    changed = True
+    while changed:
+        changed = False
+        for descriptor in compact["maps"].values():
+            scripted = manifest["maps"][descriptor["name"]].get("scripted_warps", [])
+            for warp in descriptor["warps"]:
+                if warp["id"] in scripted:
+                    continue
+                cell = str(warp["y"] * descriptor["width"] + warp["x"] + 1)
+                if cell in descriptor["blocked"]:
+                    continue
+                destination = warp["destination"]
+                target_name = (descriptor["last_outdoor"] if destination["kind"] == "last_outdoor_map"
+                               else names_by_constant.get(destination["map"]))
+                target = compact["maps"].get(target_name)
+                if target is None:
+                    continue
+                arrival = target["warps"][destination["warp_index"] - 1]
+                arrival_cell = str(arrival["y"] * target["width"] + arrival["x"] + 1)
+                if arrival_cell in target["blocked"]:
+                    descriptor["blocked"][cell] = warp["id"]
+                    changed = True
     return dict(runtime, **{"compact.json": canonical(compact), "tile-grids.json": canonical(atlas)})
 
 

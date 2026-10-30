@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":6,"text":"It's ¥50 for a"},{"op":"line","source_line":7,"text":"child's ticket."},{"op":"para","source_line":9,"text":"Would you like to"},{"op":"line","source_line":10,"text":"come in?"},{"op":"control","source":"done","source_line":11}],"source":"text/Museum1F.asm"}

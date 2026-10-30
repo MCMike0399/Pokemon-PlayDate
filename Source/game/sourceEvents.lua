@@ -7,17 +7,31 @@ local eventSources, trainerSources, textSources = {}, {}, {}
 local worldHooks, hookOrder = {}, {}
 local directions = { up = true, down = true, left = true, right = true }
 local catalog, base
-local contentIndexes = {}
+-- Registration keeps only event/trainer membership. The full package index
+-- also contains every dialogue/art digest and must not pin those at title.
+local function weakValues()
+    return setmetatable({}, {__mode = "v"})
+end
+local contentIndexes = weakValues()
+local contentFields = weakValues()
 -- Only the last eight immutable records are owned by this cache. Eviction
 -- drops our reference; an active controller's descriptor remains valid.
 local recent, recentOrder = {}, {}
-local function copy(value)
+local function yieldIfDue()
+    if GameBootstrap then
+        GameBootstrap.yieldIfDue()
+    end
+end
+local function copy(value, cooperative)
     if type(value) ~= "table" then
         return value
     end
     local result = {}
     for key, item in pairs(value) do
-        result[key] = copy(item)
+        result[key] = copy(item, cooperative)
+        if cooperative then
+            yieldIfDue()
+        end
     end
     return result
 end
@@ -39,15 +53,29 @@ local function baseIndex()
     end
     return base
 end
--- Private immutable loader shared with CeruleanContent. Public getters copy.
-function SourceEvents._contentIndex(root)
-    if not contentIndexes[root] then
-        if not catalog then
-            catalog = readIndex("catalog")
-        end
-        contentIndexes[root] = readIndex(assert(catalog.packages[root], "unverified source package root"))
+local function packageName(root)
+    if not catalog then
+        catalog = readIndex("catalog")
     end
-    return contentIndexes[root]
+    return assert(catalog.packages[root], "unverified source package root")
+end
+-- Private immutable loaders shared with CeruleanContent. Public getters copy.
+function SourceEvents._contentIndex(root)
+    local value = contentIndexes[root]
+    if not value then
+        value = readIndex(packageName(root))
+        contentIndexes[root] = value
+    end
+    return value
+end
+function SourceEvents._contentField(root, record, field)
+    local name = packageName(root) .. "-" .. record .. "-" .. field
+    local value = contentFields[name]
+    if not value then
+        value = readIndex(name).records
+        contentFields[name] = value
+    end
+    return value
 end
 function SourceEvents._contentRecord(digest)
     if not digest then
@@ -72,7 +100,7 @@ function SourceEvents._contentRecord(digest)
 end
 local function resolve(source, id)
     local value = source.records[id]
-    if source.lazy then
+    if source.lazy and type(value) == "string" then
         value = SourceEvents._contentRecord(value)
     end
     if value and source.content then
@@ -165,6 +193,7 @@ local function gift(d, state)
         else
             plan.steps[#plan.steps + 1] = dialog(d.success)
             plan.expected, plan.changes = reward(d.item, d.flag, state, nil, true)
+            plan.ram = { wStringBuffer = assert(ItemData.definitions[d.item]).name }
         end
     end
     return plan
@@ -388,6 +417,7 @@ function SourceEvents.itemIDs()
             for _, id in ipairs(source.items) do
                 found[id] = true
             end
+            visit(source.records)
         else
             visit(source.records)
         end
@@ -505,9 +535,12 @@ end
 function SourceEvents._withSources(fn)
     local oldEvents, oldTrainers, oldText = eventSources, trainerSources, textSources
     local oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog = contentIndexes, recent, recentOrder, base, catalog
+    local oldFields = contentFields
     -- Registrations are replaced, never mutated. Do not deep-copy lazy indexes.
     eventSources, trainerSources, textSources = shallow(eventSources), shallow(trainerSources), shallow(textSources)
-    contentIndexes, recent, recentOrder = shallow(contentIndexes), shallow(recent), copy(recentOrder)
+    contentIndexes = setmetatable(shallow(contentIndexes), {__mode = "v"})
+    contentFields = setmetatable(shallow(contentFields), {__mode = "v"})
+    recent, recentOrder = shallow(recent), copy(recentOrder)
     local restoreContent = CeruleanContent and CeruleanContent._registrationScope()
     local ok, result = pcall(fn)
     if restoreContent then
@@ -515,6 +548,7 @@ function SourceEvents._withSources(fn)
     end
     eventSources, trainerSources, textSources = oldEvents, oldTrainers, oldText
     contentIndexes, recent, recentOrder, base, catalog = oldIndexes, oldRecent, oldOrder, oldBase, oldCatalog
+    contentFields = oldFields
     if not ok then
         error(result, 0)
     end
@@ -572,21 +606,30 @@ end
 
 -- Generated packages are validated against pinned inputs by the host generator.
 -- Registration checks membership using indexes; it never decodes descriptors.
-function SourceEvents._registerContent(name, index, fields, trainers, contentOverride)
+function SourceEvents._registerContent(name, index, fields, trainers, contentOverride, overrides)
     assert(type(name) == "string" and not eventSources[name], "named event source required")
     assert(not trainers or not trainerSources[name], "source trainer resolver replaced")
+    yieldIfDue()
     local records, items = {}, {}
     for _, field in ipairs(fields) do
         for _, content in ipairs(index.contents[field]) do
             assert(content == name or contentOverride == name, "source content name differs")
+            yieldIfDue()
         end
         for id, digest in pairs(index.records.events[field]) do
             assert(not records[id] and not eventExists(id), "duplicate source event")
             records[id] = digest
+            yieldIfDue()
         end
         for _, item in ipairs(index.items[field]) do
             items[item] = true
+            yieldIfDue()
         end
+    end
+    for id, descriptor in pairs(overrides or {}) do
+        assert(records[id] or not eventExists(id), "duplicate source event")
+        records[id] = copy(descriptor, true)
+        yieldIfDue()
     end
     if trainers then
         local current = baseIndex().records.trainers.trainers
@@ -594,16 +637,34 @@ function SourceEvents._registerContent(name, index, fields, trainers, contentOve
             assert(not current[id], "duplicate source trainer")
             for _, source in pairs(trainerSources) do
                 assert(not source.records[id], "duplicate source trainer")
+                yieldIfDue()
             end
+            yieldIfDue()
         end
     end
     local list = {}
     for item in pairs(items) do
         list[#list + 1] = item
+        yieldIfDue()
     end
+    local flags
+    if trainers then
+        flags = {}
+        for id, flag in pairs(index.trainer_flags) do
+            flags[id] = flag
+            yieldIfDue()
+        end
+        for id, definition in pairs(trainers) do
+            if type(definition) == "table" then
+                flags[id] = definition.source_flag
+            end
+            yieldIfDue()
+        end
+    end
+    -- Finish cooperative preparation before publishing either namespace.
     eventSources[name] = {records = records, lazy = true, items = list, content = contentOverride}
     if trainers then
-        trainerSources[name] = {records = trainers, lazy = true, flags = index.trainer_flags}
+        trainerSources[name] = {records = trainers, lazy = true, flags = flags}
     end
 end
 

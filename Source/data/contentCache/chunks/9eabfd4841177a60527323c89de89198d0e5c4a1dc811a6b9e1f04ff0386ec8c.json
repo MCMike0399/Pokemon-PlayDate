@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":41,"text":"Do you have"},{"op":"line","source_line":42,"text":"something against"},{"op":"cont","source_line":43,"text":"TEAM ROCKET?"},{"op":"control","source":"done","source_line":44}],"source":"text/RocketHideoutB4F.asm"}

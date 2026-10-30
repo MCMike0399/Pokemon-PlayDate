@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Shared cry programs, parameter-checked against the existing source Trace."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tools.audio.catalog import Catalog
+from tools.audio.source import Source, AudioError, REVISION
+from tools.audio.scores import ScoreTrace
+from tools.audio.trace import Trace, BASES
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+class CryProgramTrace(Trace):
+    def __init__(self, catalog, family):
+        self.program = {1: [], 2: [], 4: []}
+        self.decoded = []
+        super().__init__(catalog, family)
+
+    def byte(self, channel):
+        command = self.catalog.commands.get(channel.pc)
+        if command:
+            if command.op not in ('square_note', 'noise_note', 'duty_cycle',
+                                  'duty_cycle_pattern', 'sound_loop', 'sound_ret'):
+                raise AudioError(f'{command.line.location}: unsupported cry command {command.op}')
+            self.decoded.append(command)
+        return super().byte(channel)
+
+    def decode(self, i):
+        self.decoded = []
+        super().decode(i)
+        timed = [c for c in self.decoded if c.op in ('square_note', 'noise_note')]
+        if not timed:
+            return
+        if len(timed) != 1 or i not in (4, 5, 7):
+            raise AudioError('unexpected cry voice or timed-command count')
+        data = timed[0].data
+        value = data[2] | (data[3] << 8 if i != 7 else 0)
+        duty = self.registers[BASES[i % 4]+1] >> 6
+        # Units, envelope, unmodified source frequency/noise byte, note-on duty.
+        self.program[i % 4 + 1].append([1 + (data[0] & 15), data[1], value, duty])
+
+
+def expand(program, pitch, length):
+    """Small score adapter; match source integer arithmetic, not a resampler."""
+    notes = []
+    ends = {}
+    for voice in (1, 2, 4):
+        tick = fraction = 0
+        for units, envelope, raw, duty in program[voice]:
+            modified = voice == 1 or tick < ends[1]
+            tempo = length + 128 if modified and voice != 4 else 256
+            accumulator = (fraction + units * tempo) & 65535
+            gate = (accumulator >> 8) or 256
+            fraction = accumulator & 255
+            value = raw + (pitch if modified else 0)
+            if voice == 4:
+                nr = value & 255
+                hz = 524288 / (8, 16, 32, 48, 64, 80, 96, 112)[nr & 7] / 2 ** (nr >> 4)
+            else:
+                hz = 131072 / (2048 - (value & 2047))
+            volume = (envelope >> 4) / 15
+            if volume:
+                notes.append([tick, voice, gate, round(hz, 4), round(volume, 4),
+                              (.125, .25, .5, .75)[duty], envelope])
+            tick += gate
+        ends[voice] = tick
+    # Secondary channels retry their return until pulse 1 releases the cry.
+    holds = [ends[1], max(ends[1], ends[2]), ends[1], max(ends[1], ends[4])]
+    return dict(ticks=max(holds)+1, loop=None, notes=sorted(notes, key=lambda n: (n[0], n[1])), holds=holds)
+
+
+def generate(source):
+    catalog = Catalog(Source(source))
+    programs, pool, headers = [], {}, {}
+    for asset in sorted({asset for row in catalog.cries for asset in row['assets'].values()}):
+        family = catalog.headers[asset]['family']
+        trace = CryProgramTrace(catalog, family)
+        trace.load(asset, 0, 128)
+        if trace.run()['status'] != 'ended':
+            raise AudioError(f'{asset}: base cry did not end within the default bound')
+        identity = json.dumps(trace.program, sort_keys=True)
+        if identity not in pool:
+            programs.append(trace.program)
+            pool[identity] = len(programs)
+        headers[asset] = pool[identity]
+    # Check all 453 bank/species combinations; no per-species note streams ship.
+    for row in catalog.cries:
+        for family, asset in row['assets'].items():
+            trace = ScoreTrace(catalog, int(family))
+            trace.load(asset, row['pitch'], row['length'])
+            result = trace.run()
+            score = expand(programs[headers[asset]-1], row['pitch'], row['length'])
+            if result['status'] != 'ended' or score['ticks'] != result['ticks'] or score['notes'] != trace.notes:
+                raise AudioError(f'{row["species"]}/{asset}: cry adapter differs from source Trace')
+            released = {e['voice']: e['tick'] for e in trace.events
+                        if e['kind'] == 'ownership' and e.get('asset') is None}
+            if score['holds'] != [released[i] for i in (1, 2, 3, 4)]:
+                raise AudioError(f'{row["species"]}/{asset}: cry voice release differs from source Trace')
+    species = {row['species']: [row['base'], row['pitch'], row['length']]
+               for row in sorted(catalog.cries, key=lambda r: r['species'])}
+    bases = {row['base']: [row['assets'][str(f)] for f in (1, 2, 3)] for row in catalog.cries}
+    lines = ['-- Generated by tools/audio/cries.py; do not hand edit.',
+             '-- program row: source units, envelope, raw period/noise byte, note-on duty',
+             'KantoCryPrograms = {']
+    for program in programs:
+        lines.append('    {')
+        for voice in (1, 2, 4):
+            rows = ','.join('{' + ','.join(map(str, row)) + '}' for row in program[voice])
+            lines.append(f'        [{voice}] = {{{rows}}},')
+        lines.append('    },')
+    lines.append('}')
+    for name, mapping in (('KantoCryHeaders', headers), ('KantoCryBases', bases), ('KantoCrySpecies', species)):
+        lines.append(name + ' = {')
+        for key, value in sorted(mapping.items()):
+            lua = json.dumps(value).replace('[', '{').replace(']', '}')
+            lines.append(f'    [{json.dumps(key)}] = {lua},')
+        lines.append('}')
+    # Select the same source family as the currently playing music.
+    from tools.audio.scores import ASSETS
+    lines.append('KantoCryMusicBanks = {')
+    lines += [f'    {name} = {catalog.headers[asset]["family"]},' for name, asset in ASSETS.items()]
+    lines.append('}\n')
+    payload = '\n'.join(lines).encode()
+    manifest = {'schema': 1, 'revision': REVISION, 'species': species,
+                'headers': headers, 'bases': bases, 'programs': programs,
+                'checked_combinations': 453, 'unavailable': [],
+                'inputs_sha256': dict(sorted(catalog.source.hashes.items())),
+                'tools_sha256': {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in
+                                 ('tools/audio/cries.py', 'tools/audio/scores.py', 'tools/audio/trace.py',
+                                  'tools/audio/catalog.py', 'tools/audio/source.py')},
+                'data_sha256': hashlib.sha256(payload).hexdigest()}
+    return {'Source/audio/crydata.lua': payload,
+            'tools/audio/cry-manifest.json': (json.dumps(manifest, indent=2, sort_keys=True)+'\n').encode()}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source', default=os.environ.get('POKERED_REFERENCE_DIR'))
+    parser.add_argument('--check', action='store_true')
+    args = parser.parse_args()
+    if not args.source:
+        parser.error('--source or POKERED_REFERENCE_DIR required')
+    for name, data in generate(args.source).items():
+        path = ROOT/name
+        if args.check:
+            if not path.exists() or path.read_bytes() != data:
+                raise AudioError(f'{name} differs; regenerate')
+        else:
+            path.write_bytes(data)
+    print('native cry data: ' + ('reproducible' if args.check else 'generated'))
+
+
+if __name__ == '__main__':
+    main()

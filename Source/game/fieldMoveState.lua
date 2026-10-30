@@ -26,6 +26,13 @@ local function failure(reason)
 end
 
 function FieldMoveState.open(game, party, mon, key)
+    if key == "surf" or key == "strength" or key == "fly" then
+        if not FieldTravelState or not game.machine:get("fieldTravel") then
+            party.message = "That move can't be used here."
+            return false, "field-travel-state-not-installed"
+        end
+        return FieldTravelState.open(game, party, mon, key)
+    end
     local state = game.machine:get("fieldMove")
     if not state then
         party.message = "That move can't be used here."

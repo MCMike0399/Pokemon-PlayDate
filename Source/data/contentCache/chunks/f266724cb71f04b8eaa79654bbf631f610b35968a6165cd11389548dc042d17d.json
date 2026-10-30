@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":62,"text":"The elevator"},{"op":"line","source_line":63,"text":"doesn't work? Who"},{"op":"cont","source_line":64,"text":"has the LIFT KEY?"},{"op":"control","source":"done","source_line":65}],"source":"text/RocketHideoutB4F.asm"}

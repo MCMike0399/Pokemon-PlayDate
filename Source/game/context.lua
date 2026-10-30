@@ -34,7 +34,9 @@ end
 function GameContext:getSessionDependencies()
     assert(ItemData and ItemData.definitions,"production item definitions required")
     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
-        resolvePlayerLocation=function(location,world) return WorldDeltas.resolvePlayerLocation(location,world,self.sessionLocationPolicy) end,
+        resolvePlayerLocation=function(location, world, travel)
+            return FieldTravelWorld.resolvePlayerLocation(location, world, self.sessionLocationPolicy, travel)
+        end,
         resolveLocation=function(location,world) return WorldDeltas.resolveLocation(location,world,self.sessionLocationPolicy) end}
 end
 function GameContext:getPlayerPokemon() return self.session:activePokemon() end
@@ -190,4 +192,69 @@ function GameContext:commitFieldTerrain(before, after, position, actors)
     end, function()
         image:draw(0, 0)
     end)
+end
+
+
+function GameContext:fieldTravelRestrictions(position)
+    local forced = self.session:questFlag("pokered:status6:BIT_ALWAYS_ON_BIKE")
+    local currentTooFast = false
+    if position.zone_id == "pokered:SEAFOAM_ISLANDS_B4F" then
+        -- Seafoam is outside 5.5. Its source controller must provide the exact
+        -- stairs/current predicate when those maps become campaign content.
+        error("Seafoam field current controller is not installed", 0)
+    end
+    return {forcedBicycle = forced, currentTooFast = currentTooFast}
+end
+
+function GameContext:commitFieldTravel(expected, plan)
+    if self.session:fieldWorldEpoch() ~= expected.epoch
+        or not FieldMoves.same(WorldDeltas.export(), expected.world)
+        or not FieldMoves.same(FieldTravelRuntime.position(self), expected.position) then
+        return false, "stale-field-travel"
+    end
+    if plan.kind == "strength" then
+        return self.session:captureTraversal({world = expected.world, location = expected.position,
+            actors = self.npcManager.motion:snapshot(), fieldTravel = plan.travel})
+    elseif plan.kind == "surf" then
+        local request, reason = FieldTravelRuntime.step(self, true)
+        if not request or not FieldMoves.same(request.plan, plan) then
+            return false, reason or "changed-surf-target"
+        end
+        return self.player:beginFieldStep(request)
+    elseif plan.kind == "fly" then
+        return FieldTravelRuntime.fly(self, expected, plan)
+    end
+    return false, "unsupported-travel-plan"
+end
+
+
+-- Read-only journey/UI projection. Absence remains explicit; no fixture fields
+-- or inferred success receipts are created by observation.
+function GameContext:getFieldTravelSnapshot()
+    local value = self.session:fieldTravelData()
+    local state = self.machine:get("fieldTravel")
+    local active = state and state.active and self.machine:current() == state
+    local selected = active and state.phase == "destination" and state.choices
+        and state.choices[state.menu.selectedIndex]
+    local pending = self.player and self.player.fieldStep
+    return {
+        installed = state ~= nil,
+        preparedViewHandoff = type(WorldView.exchangePrepared) == "function",
+        mode = value.mode, strength = value.strength, visited = GameSession._copy(value.visited),
+        active = active == true, key = active and state.key or "none",
+        phase = active and state.phase or "closed", selected = selected and selected.id or "none",
+        pendingCell = pending and GameSession._copy(pending.plan.location) or nil,
+        last = self.lastFieldTravel and GameSession._copy(self.lastFieldTravel) or nil
+    }
+end
+
+function GameContext:commitCycling(expected, plan)
+    if self.session:fieldWorldEpoch() ~= expected.epoch
+        or not FieldMoves.same(WorldDeltas.export(), expected.world) then
+        return false, "stale-cycling-world"
+    end
+    if not self.session.commitCycling then
+        return false, "cycling-owner-not-installed"
+    end
+    return self.session:commitCycling(expected.epoch, expected.travel, expected.forced, plan)
 end

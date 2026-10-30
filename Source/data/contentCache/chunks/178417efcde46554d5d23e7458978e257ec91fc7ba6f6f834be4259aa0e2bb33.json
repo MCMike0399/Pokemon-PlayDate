@@ -1,1 +1,0 @@
-{"recipe":[{"op":"text","source_line":59,"text":"I can pay you"},{"op":"line","source_line":60,"text":"\u00a5@"},{"op":"control","source":"text_bcd hMoney, 3 | LEADING_ZEROES | LEFT_ALIGN","source_line":61},{"op":"text","source_line":62,"text":" for that."},{"op":"control","source":"done","source_line":63}],"source":"data/text/text_4.asm"}

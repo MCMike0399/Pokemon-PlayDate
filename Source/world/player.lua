@@ -191,11 +191,19 @@ function Player:moveTo(x, y)
     Player.super.moveTo(self, x, y + SPRITE_Y_OFFSET)
 end
 
+function Player:movementImage(original, pose)
+    local game = self.npcManager.game
+    if FieldGearArt and game and game.session and game.session:fieldTravelData().mode == "bicycle" then
+        return FieldGearArt.bicycle(self.facing, pose)
+    end
+    return original
+end
+
 function Player:updateSprite()
     if self.isMoving then
-        self:setImage(playerWalk1Images[self.facing])
+        self:setImage(self:movementImage(playerWalk1Images[self.facing], "walk"))
     else
-        self:setImage(playerImages[self.facing])
+        self:setImage(self:movementImage(playerImages[self.facing], "stand"))
     end
 end
 
@@ -235,6 +243,16 @@ local function startMove(player,gx,gy,jumping)
     player:updateSprite()
 end
 
+function Player:stepAcrossSourceCounter(event, dx, dy)
+    if not SaffronGuards or not SaffronGuards.permitsCounterStep(event, self, dx, dy) then
+        return false
+    end
+    self.running = false
+    self.facing = "up"
+    startMove(self, self.gridX + dx, self.gridY + dy, false)
+    return true
+end
+
 function Player:tryMove(dx, dy, scriptIntent)
     if self.isMoving then return end
     -- Only the exact, live source escort intent may overlap ambient sprites.
@@ -259,6 +277,18 @@ function Player:tryMove(dx, dy, scriptIntent)
     local targetGY = self.gridY + dy
     self.lastTraversalBlock=nil
     local noclip=DEBUG_FLAGS and DEBUG_FLAGS.noclip
+    local game = self.npcManager.game
+    if not noclip and not scripted and game and FieldTravelRuntime
+        and game.session:fieldTravelData().mode == "surfing"
+        and targetGX >= 0 and targetGY >= 0 and targetGX < currentZone.width and targetGY < currentZone.height then
+        local request, reason = FieldTravelRuntime.step(game, false)
+        if request then
+            self:beginFieldStep(request)
+        else
+            self.lastTraversalBlock = {kind = "surf", id = reason}
+        end
+        return
+    end
     -- The explicit mat exit always wins over any boundary connection.
     if not noclip and not self:canMoveTo(targetGX,targetGY) and currentZone then
         local edge=currentZone:getEdgeDoorAt(self.gridX,self.gridY,self.facing)
@@ -276,11 +306,25 @@ function Player:tryMove(dx, dy, scriptIntent)
     if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
         local occupant = self.npcManager:getNPCAt(targetGX, targetGY)
         if occupant and (not scripted or occupant == guide) then
+            local motion = self.npcManager.motion
+            if not scripted and motion.isBoulder and motion:isBoulder(occupant)
+                and game.session:fieldTravelData().strength then
+                local attempt = self.boulderAttempt
+                if attempt and attempt.npc == occupant and attempt.direction == self.facing then
+                    self.pendingBoulder = {npc = occupant, direction = self.facing}
+                    self.boulderAttempt = nil
+                else
+                    self.boulderAttempt = {npc = occupant, direction = self.facing}
+                end
+            else
+                self.boulderAttempt = nil
+            end
             if currentZone and currentZone:isSliceReady() then self.lastTraversalBlock={kind="npc",id="occupied-next-cell"} end
             return
         end
     end
 
+    self.boulderAttempt = nil
     if not noclip and currentZone and currentZone:isSliceReady() then
         local rule=currentZone:movementRule(self.gridX,self.gridY,self.facing)
         if rule.kind=="ledge" then
@@ -305,6 +349,9 @@ function Player:tryMove(dx, dy, scriptIntent)
 end
 
 function Player:update()
+    if self.fieldStep then
+        return self:updateFieldStep()
+    end
     self.stepJustFinished = false
 
     if self.isMoving then
@@ -327,9 +374,9 @@ function Player:update()
         local walkImages = self.walkToggle and playerWalk1Images or playerWalk2Images
         local strideFrames = jumping and MOVE_FRAMES // 2 or duration // 2
         if self.moveFrames <= strideFrames then
-            self:setImage(walkImages[self.facing])
+            self:setImage(self:movementImage(walkImages[self.facing], self.walkToggle and "walk" or "alternate"))
         else
-            self:setImage(playerImages[self.facing])
+            self:setImage(self:movementImage(playerImages[self.facing], "stand"))
         end
 
         local px = self.startPixelX + (self.targetPixelX - self.startPixelX) * t
@@ -347,7 +394,7 @@ function Player:update()
             self:moveTo(px, py)
         end
     else
-        self:setImage(playerImages[self.facing])
+        self:setImage(self:movementImage(playerImages[self.facing], "stand"))
         if self.jumpShadow then self.jumpShadow:setVisible(false) end
     end
 
@@ -375,4 +422,74 @@ end
 function Player:remove()
     if self.jumpShadow then self.jumpShadow:remove(); self.jumpShadow=nil end
     Player.super.remove(self)
+end
+
+
+-- This path reserves a target while leaving the logical/durable player at its
+-- origin. It uses the same eight-frame interpolation and reviewed RED frames.
+function Player:beginFieldStep(request)
+    if self.isMoving or self.fieldStep or request.player ~= self
+        or request.origin.x ~= self.gridX or request.origin.y ~= self.gridY then
+        return false, "stale-field-step"
+    end
+    self.fieldStep, self.fieldStepResult = request, nil
+    self.isMoving, self.moveFrames, self.running = true, 0, false
+    self.stepJustFinished = false
+    self.walkToggle = not self.walkToggle
+    self.startPixelX, self.startPixelY = self.gridX * TILE_SIZE, self.gridY * TILE_SIZE
+    self.targetPixelX = request.plan.location.x * TILE_SIZE
+    self.targetPixelY = request.plan.location.y * TILE_SIZE
+    return true, {kind = "surf-moving"}
+end
+
+function Player:cancelFieldStep(reason)
+    local request = self.fieldStep
+    if not request then
+        return false
+    end
+    self.fieldStep = nil
+    self.gridX, self.gridY = request.origin.x, request.origin.y
+    self.isMoving, self.stepJustFinished, self.moveFrames = false, false, 0
+    self.fieldStepResult = {ok = false, reason = reason or "cancelled"}
+    self:moveTo(self.gridX * TILE_SIZE, self.gridY * TILE_SIZE)
+    self:updateSprite()
+    return true
+end
+
+function Player:updateFieldStep()
+    local request = self.fieldStep
+    if not request then
+        return
+    end
+    self.stepJustFinished = false
+    local game = self.npcManager.game
+    if game.session ~= request.session or game.player ~= self or currentZone ~= request.zone then
+        self:cancelFieldStep("stale-field-step-owner")
+        return
+    end
+    self.moveFrames = self.moveFrames + 1
+    local fraction = math.min(1, self.moveFrames / MOVE_FRAMES)
+    local rendered, problem = pcall(function()
+        local frames = self.walkToggle and playerWalk1Images or playerWalk2Images
+        self:setImage(self.moveFrames <= MOVE_FRAMES // 2 and frames[self.facing] or playerImages[self.facing])
+        self:moveTo(self.startPixelX + (self.targetPixelX - self.startPixelX) * fraction,
+            self.startPixelY + (self.targetPixelY - self.startPixelY) * fraction)
+        self.grassOverlay:setVisible(false)
+        self.exitArrow:setVisible(false)
+    end)
+    if not rendered then
+        self:cancelFieldStep(tostring(problem))
+        return
+    end
+    if fraction == 1 then
+        local checked, accepted, reason = pcall(FieldTravelRuntime.finishStep, game, request)
+        if not checked or not accepted then
+            self:cancelFieldStep(tostring(checked and reason or accepted))
+            return
+        end
+        -- All fallible rendering/validation is finished before these assignments.
+        self.gridX, self.gridY = request.plan.location.x, request.plan.location.y
+        self.isMoving, self.fieldStep, self.stepJustFinished = false, nil, true
+        self.fieldStepResult = {ok = true, kind = request.plan.kind}
+    end
 end

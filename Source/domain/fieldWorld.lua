@@ -49,6 +49,21 @@ function FieldWorld.resolvePlayerLocation(position, world, options)
         return result
     end
     local originalError = result
+    -- Saffron's scripted counter position is a separate exact source policy.
+    local arrival = descriptor(position.zone_id)
+    if arrival and SaffronGuards and SaffronGuards.isCounterArrival(position) then
+        local normalized = WorldDeltas.validate(world)
+        GameSession._object(position, {zone_id = true, x = true, y = true, facing = true})
+        assert(options and options.sliceZones and options.sliceZones[arrival.id] == true, "unsupported door arrival slice")
+        assert(Party._integer(position.x, 0, arrival.width - 1)
+            and Party._integer(position.y, 0, arrival.height - 1), "invalid door arrival bounds")
+        assert(position.facing == "up" or position.facing == "down"
+            or position.facing == "left" or position.facing == "right", "invalid door arrival facing")
+        assert(not arrival.blocked[tostring(position.y * arrival.width + position.x + 1)], "blocked door arrival binding")
+        assert(candidateKey(normalized, arrival, position.x, position.y) == sourceKey(arrival, position.x, position.y),
+            "changed source door arrival terrain")
+        return copy(position)
+    end
     local spec = FieldMoves._mapData(position.zone_id)
     local d = spec and descriptor(position.zone_id)
     if not d or d.name ~= spec.name or d.source_width ~= spec.width or d.height ~= spec.height then
@@ -106,7 +121,10 @@ function FieldWorld.prepareContinue(candidate)
     if not ok then
         return false, tostring(world)
     end
-    return candidate:captureTraversal({world = world, location = candidate:location(), actors = candidate:actorData()})
+    local travel = FieldTravel.enter(candidate:fieldTravelData(), candidate:location().zone_id,
+        candidate:fieldTravelData().mode)
+    return candidate:captureTraversal({world = world, location = candidate:location(),
+        actors = candidate:actorData(), fieldTravel = travel})
 end
 
 -- Native apply can fail via WorldView; session validation can reject afterward.
@@ -160,6 +178,39 @@ function FieldWorld.transitionOffset(offset, fromID, toID, reason, eligible)
     return 6
 end
 
+-- One plan supplies mode and the source forced-bike bit to the same traversal
+-- commit. It can also be checked before a door starts its native transition.
+function FieldWorld.entryTravel(game, position, world, reason)
+    local mode = game.session:fieldTravelData().mode
+    if reason == "escape" or reason == "blackout" or reason == "fly" then
+        mode = "walking"
+    elseif mode == "surfing" then
+        local cell, descriptor = FieldTravelWorld.cell(position, world, game.sessionLocationPolicy)
+        if not cell or not FieldTravel.surfSurface(cell, descriptor.tileset.constant) then
+            mode = "walking"
+        end
+    end
+    local travel = FieldTravel.enter(game.session:fieldTravelData(), position.zone_id, mode)
+    local name = SourceMaps.nameForID(position.zone_id)
+    local descriptor = name and SourceMaps.descriptor(name)
+    local map = descriptor and descriptor.source_map_constant or position.zone_id:upper()
+    local tileset = descriptor and descriptor.tileset.constant
+        or position.zone_id == "pallet_town" and "OVERWORLD" or "INTERIOR"
+    local forced = game.session:questFlag(FieldCycling.FLAG)
+    local plan, failure = FieldCycling.enter(travel, forced,
+        game.session:inventory():quantity("bicycle") == 1, map, tileset,
+        position.x - (descriptor and descriptor.padding or 0), position.y,
+        reason == "reload" and "map" or reason)
+    if not plan then
+        return nil, failure
+    end
+    local changed
+    if plan.forced ~= forced then
+        changed = plan.forced
+    end
+    return plan.travel, changed
+end
+
 -- Called by the lifecycle owner with the *departing* visit, before rebuilding.
 -- Battle/menu returns do not call this. Target actors are already owned values.
 function FieldWorld.enter(game, fromID, position, actors, reason)
@@ -173,7 +224,13 @@ function FieldWorld.enter(game, fromID, position, actors, reason)
     if not prepared then
         return false, tostring(offset)
     end
+    local travel, cyclingForced = FieldWorld.entryTravel(game, position, world, reason)
+    if not travel then
+        return false, cyclingForced
+    end
     return FieldWorld.commit(game, expected, {
+        fieldTravel = travel,
+        cyclingForced = cyclingForced,
         world = world,
         location = position,
         actors = actors,

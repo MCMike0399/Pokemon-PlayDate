@@ -88,18 +88,36 @@ function KantoWorld.tryInteract(game)
     if PewterWorld and PewterWorld.tryInteract(game) then return true end
     local player=game.player;local fx,fy=player:getFacingTile()
     if not inside(currentZone,fx,fy) then return false end
-    local npc=game.npcManager:getNPCAt(fx,fy)
-    if not npc and currentZone:isSliceReady() and currentZone:terrainAt(fx,fy).counter then
-        local d=directions[player.facing];fx,fy=fx+d[1],fy+d[2]
-        if inside(currentZone,fx,fy) then npc=game.npcManager:getNPCAt(fx,fy) end
+    local id
+    if currentZone:isSliceReady() then
+        for _, event in ipairs(currentZone:sourceEventsAt(fx, fy)) do
+            if event.kind == "background_events" then
+                id = event.id
+                break
+            end
+        end
     end
-    local id=npc and npc.def and npc.def.source_event_id
+    local npc
+    if not id then
+        npc = game.npcManager:getNPCAt(fx, fy)
+        if not npc and currentZone:isSliceReady() and currentZone:terrainAt(fx, fy).counter then
+            local direction = directions[player.facing]
+            fx, fy = fx + direction[1], fy + direction[2]
+            if inside(currentZone, fx, fy) then
+                npc = game.npcManager:getNPCAt(fx, fy)
+            end
+        end
+        id = npc and npc.def and npc.def.source_event_id
+    end
     if not id and npc and npc.name=="OAK" and currentZone.stableID=="oaks_lab" and game.session:getIntro().stage=="done" then
         id="pokered:OAKS_LAB:script:parcel-handoff"
     end
     if not id and currentZone:isSliceReady() and inside(currentZone,fx,fy) then
         for _,event in ipairs(currentZone:sourceEventsAt(fx,fy)) do
-            if event.kind=="background_events" or event.kind=="warps" and event.status=="blocked" then id=event.id;break end
+            if event.kind == "warps" and event.status == "blocked" then
+                id = event.id
+                break
+            end
         end
     end
     if not id then return false end

@@ -1,0 +1,158 @@
+--- a/Source/domain/gameSession.lua
++++ b/Source/domain/gameSession.lua
+@@ -76,11 +76,11 @@
+     retainedFields(before,normalized)
+     return copy(normalized)
+ end
+-local function location(deps,value,candidateWorld,player)
++local function location(deps,value,candidateWorld,player,travel)
+     object(value,{zone_id=true,x=true,y=true,facing=true})
+     assert(stable(value.zone_id) and Party._integer(value.x,0,4095) and Party._integer(value.y,0,4095) and facings[value.facing],"invalid location fields")
+     local resolver = player and deps.resolvePlayerLocation or deps.resolveLocation
+-    local resolved = resolver(copy(value), copy(candidateWorld))
++    local resolved = resolver(copy(value), copy(candidateWorld), copy(travel or FieldTravel.empty()))
+     assert(type(resolved)=="table","unsupported/blocked session location")
+     object(resolved,{zone_id=true,x=true,y=true,facing=true})
+     assert(resolved.zone_id==value.zone_id and resolved.x==value.x and resolved.y==value.y and resolved.facing==value.facing,"resolver must validate without relocating")
+@@ -121,6 +121,7 @@
+     state[self]={daycare=Daycare.empty(),deps=deps,party=Party(),storage=Storage(),inventory=Inventory(deps.itemDefinitions),itemStorage=ItemStorage(deps.itemDefinitions),
+         intro={stage="pre_oak"},questFlags={},trainerFlags={},dex={seen={},owned={}},location=start,checkpoint=checkpoint,
+         fieldWorld = {version = 1, mapPalOffset = 0},
++        fieldTravel = FieldTravel.empty(),
+         fieldEpoch = nextFieldEpoch(),
+         world=payload,rng=stream:toData(),rngActive=false,worldRng=RulesRNG.new(options.seed or 1),currentActors=WorldMotionData.empty()}
+ end
+@@ -327,9 +328,10 @@
+ function GameSession:captureTraversal(snapshot)
+     local current = state[self]
+     local ok, prepared = pcall(function()
+-        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true})
++        object(snapshot, {location = true, world = true, checkpoint = true, actors = true, fieldWorld = true, fieldTravel = true})
+         local normalized = world(current.deps, assert(snapshot.world, "candidate world required"))
+-        local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true)
++        local travel = FieldTravel.normalize(snapshot.fieldTravel or current.fieldTravel)
++        local position = location(current.deps, assert(snapshot.location, "candidate location required"), normalized, true, travel)
+         local checkpoint = location(current.deps, snapshot.checkpoint or current.checkpoint, normalized)
+         local actors = GameSession._validateActors(current.deps,
+             snapshot.actors or WorldMotionData.empty(), normalized, position, self:flags())
+@@ -338,7 +340,8 @@
+             location = position,
+             checkpoint = checkpoint,
+             actors = actors,
+-            fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld)
++            fieldWorld = fieldData(snapshot.fieldWorld or current.fieldWorld),
++            fieldTravel = travel
+         }
+     end)
+     if not ok then
+@@ -346,6 +349,7 @@
+     end
+     current.world, current.location, current.checkpoint = prepared.world, prepared.location, prepared.checkpoint
+     current.currentActors = prepared.actors
++    current.fieldTravel = prepared.fieldTravel
+     current.fieldWorld, current.fieldEpoch = prepared.fieldWorld, nextFieldEpoch()
+     return true
+ end
+@@ -393,6 +397,7 @@
+     local session=setmetatable({},GameSession)
+     values.deps=dependencies(deps); values.rngActive=false
+     values.fieldWorld = fieldData(values.fieldWorld)
++    values.fieldTravel = FieldTravel.normalize(values.fieldTravel)
+     values.fieldEpoch = nextFieldEpoch()
+     values.worldRng=WorldMotionData.newWorldRNG(values.rng);values.currentActors=WorldMotionData.empty()
+     state[session]=values
+@@ -514,6 +519,10 @@
+ function GameSession:selectPCItem(operation,index)return PCItems.prepare(self,operation,index)end
+ function GameSession:resolvePCItem(request,quantity,decision)return PCItems.resolve(self,request,quantity,decision)end
+
++function GameSession:fieldTravelData()
++    return copy(state[self].fieldTravel)
++end
++
+ function GameSession:fieldWorldData()
+     return copy(state[self].fieldWorld)
+ end
+@@ -588,7 +597,7 @@
+         assert(sceneEqual(WorldDeltas.export(), scene.beforeWorld), "stale-scene-world")
+         assert(sceneEqual(self:worldRngData(), scene.beforeRng), "stale-scene-world-rng")
+         local candidate = world(current.deps, scene.world)
+-        local position = location(current.deps, scene.location, candidate, true)
++        local position = location(current.deps, scene.location, candidate, true, current.fieldTravel)
+         local checkpoint = location(current.deps, current.checkpoint, candidate)
+         local stream = RulesRNG.new(1)
+         stream:restoreData(rngData(scene.rng))
+--- a/Source/domain/sessionCodec.lua
++++ b/Source/domain/sessionCodec.lua
+@@ -1,5 +1,5 @@
+ -- Complete session snapshot, validated before candidate objects are published.
+-SessionCodec={VERSION=3,POKEMON_ENCODING="decimal-counters-v1"}
++SessionCodec={VERSION=4,POKEMON_ENCODING="decimal-counters-v1"}
+ local function copy(value) return GameSession._copy(value) end
+ local function object(value,fields) GameSession._object(value,fields) end
+ local function array(value,limit)
+@@ -50,8 +50,8 @@
+     deps=GameSession._dependencies(deps)
+     local data=copy(record)
+     object(data,{version=true,pokemonEncoding=true,title=true,intro=true,questFlags=true,trainerFlags=true,pokedex=true,
+-        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true})
+-    assert((data.version==1 or data.version==2 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
++        location=true,checkpoint=true,world=true,party=true,storage=true,inventory=true,rng=true,worldMotion=true,itemStorage=true,fieldWorld=true,daycare=true,fieldTravel=true})
++    assert((data.version==1 or data.version==2 or data.version==3 or data.version==SessionCodec.VERSION) and data.pokemonEncoding==SessionCodec.POKEMON_ENCODING,"unsupported-session-version-or-Pokemon-encoding")
+     object(data.title,{playerName=true,rivalName=true})
+     assert(data.title.playerName=="RED" and data.title.rivalName=="BLUE","unsupported player/rival title")
+     local intro=introFromWire(data.intro)
+@@ -60,7 +60,13 @@
+     local trainers=GameSession._flags(data.trainerFlags,4096)
+     local dex=GameSession._dex(data.pokedex)
+     local world=GameSession._world(deps,data.world)
+-    local location=GameSession._location(deps,data.location,world,true)
++    local travel = data.fieldTravel
++    if data.version < 4 then
++        assert(travel == nil, "legacy session cannot contain fieldTravel")
++        travel = FieldTravel.empty()
++    end
++    travel = FieldTravel.normalize(travel)
++    local location=GameSession._location(deps,data.location,world,true,travel)
+     local checkpoint=GameSession._location(deps,data.checkpoint,world)
+     -- Version1 has no palette provenance. Migrate deterministically to light;
+     -- never infer a Flash use or grant a field effect from map names.
+@@ -110,7 +116,7 @@
+     local itemStorage=ItemStorage.normalize(deps.itemDefinitions,stored)
+     ItemStorage.checkUnique(deps.itemDefinitions,data.inventory,itemStorage)
+     return {daycare=daycare,itemStorage=itemStorage,deps=deps,data=data,intro=intro,questFlags=quests,trainerFlags=trainers,dex=dex,world=world,
+-        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld}
++        location=location,checkpoint=checkpoint,rng=rng,worldMotion=motion,fieldWorld=fieldWorld,fieldTravel=travel}
+ end
+ function SessionCodec.encode(session,gate)
+     local ok,result=pcall(function()
+@@ -124,7 +130,7 @@
+             return pokemonToWire(mon)
+         end
+         local data={version=SessionCodec.VERSION,pokemonEncoding=SessionCodec.POKEMON_ENCODING,
+-            fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
++            fieldTravel=session:fieldTravelData(),fieldWorld=session:fieldWorldData(),title={playerName="RED",rivalName="BLUE"},intro=introToWire(current.intro),
+             questFlags=copy(current.questFlags),trainerFlags=copy(current.trainerFlags),pokedex=copy(current.dex),
+             location=copy(current.location),checkpoint=copy(current.checkpoint),world=copy(current.world),rng=session:rngData(),
+             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
+@@ -148,7 +154,7 @@
+         local inventory=assert(Inventory.fromData(prepared.deps.itemDefinitions,prepared.data.inventory))
+         local session=GameSession._restore(prepared.deps,{party=party,storage=storage,inventory=inventory,itemStorage=assert(ItemStorage.fromData(prepared.deps.itemDefinitions,prepared.itemStorage)),intro=prepared.intro,
+             questFlags=prepared.questFlags,trainerFlags=prepared.trainerFlags,dex=prepared.dex,world=prepared.world,
+-            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld})
++            location=prepared.location,checkpoint=prepared.checkpoint,rng=prepared.rng,fieldWorld=prepared.fieldWorld,fieldTravel=prepared.fieldTravel})
+         GameSession._state(session).daycare = Daycare.restore(session, prepared.daycare, function(value)
+             return pokemonFromWire(value, true)
+         end)
+--- a/Source/game/context.lua
++++ b/Source/game/context.lua
+@@ -34,7 +34,9 @@
+ function GameContext:getSessionDependencies()
+     assert(ItemData and ItemData.definitions,"production item definitions required")
+     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
+-        resolvePlayerLocation=function(location,world) return WorldDeltas.resolvePlayerLocation(location,world,self.sessionLocationPolicy) end,
++        resolvePlayerLocation=function(location, world, travel)
++            return FieldTravelWorld.resolvePlayerLocation(location, world, self.sessionLocationPolicy, travel)
++        end,
+         resolveLocation=function(location,world) return WorldDeltas.resolveLocation(location,world,self.sessionLocationPolicy) end}
+ end
+ function GameContext:getPlayerPokemon() return self.session:activePokemon() end

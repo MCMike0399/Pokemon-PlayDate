@@ -1,0 +1,23 @@
+{
+  "files": {
+    "data/maps/objects/GameCorner.asm": "77126bc5ea775dcbfe856b3d0d92977715db197e30699781d29f8d43a6f16d8b",
+    "data/maps/objects/RocketHideoutB1F.asm": "c64e6cebf7a00f896713c4e344058bf15f661f5a09db392545be87ef9e3dc67a",
+    "data/maps/objects/RocketHideoutB2F.asm": "ce33bb367b2a0be107e316b998241845f99c732b60ae9adbb3110e481eef59c2",
+    "data/maps/objects/RocketHideoutB3F.asm": "0cc39b6752e150dd38e57c245ce43ce8bf43f0eb1325441ae3a3fb4ec45bc26b",
+    "data/maps/objects/RocketHideoutB4F.asm": "34686b605baadcce32230e920e4054656b41d129c4fe3ac2836cdb4b413a96b3",
+    "data/maps/objects/RocketHideoutElevator.asm": "5572b308ca6352381f5b28d3766ba16f878bbf0aa484926d92a149ab10e807e1",
+    "engine/events/elevator.asm": "7665819f6a4f7667d4cf268a45e28a2142d83b70ff14ddbdb52fe99e8b04af6f",
+    "engine/overworld/spinners.asm": "e9560a574946217265f9f5cef15cf8514d892c2e0a68bf023b8bc0cd660c60e1",
+    "gfx/blocksets/facility.bst": "fe0f7cfa2a00ca75fff6bb38f83c229eb9c6d079ef2d45252955290a72baaa08",
+    "gfx/blocksets/lobby.bst": "9b87dd981f486f7a2685e6c90ad87e5c920affea9d03daefdeef0c7298a56849",
+    "home/map_objects.asm": "d16b4724ff9cceaa1c41cd9131d0578e4e2c3e4309d44dbbf395a88e28313307",
+    "scripts/GameCorner.asm": "d9dd65dcffb975a3ebb0cd8f79f7cb231bb9ac3fa962c3b4c93ca8ba3c86ee10",
+    "scripts/RocketHideoutB1F.asm": "314645db4cbaf099d8701065a50130db84ada9d52e80134519855a1b28a4abeb",
+    "scripts/RocketHideoutB2F.asm": "0179ffcd40ca63d7eb3bfe0147e8c325e4cce1e04a997d975d91bdb30265b6ba",
+    "scripts/RocketHideoutB3F.asm": "7687da2bd2f93e215a7d56cd7fec85d2a60a5b5ed57f4d41cd6787484c43b4ad",
+    "scripts/RocketHideoutB4F.asm": "a4e6e0e97c6c6b52ebadf42ad5df53b823bd7d8d5ca98257f45daca79d063a71",
+    "scripts/RocketHideoutElevator.asm": "2c8bb7f33df5faf6693524a36b7616b1dbd1c705605a07cd0f65bf962b219412"
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "scope": "Checkpoint 5.5a: accepted 65 maps and 43 East maps. Main acceptance remains separate.",
+  "exclude": [
+    "data/midgameSouth/", "data/midgameSaffron/", "data/towerStory/", "data/silphStory/",
+    "data/fieldGearArt.json", "images/title/ghost.png",
+    "game/towerStory.lua", "game/snorlaxStory.lua", "game/towerStoryController.lua",
+    "game/silphStory.lua", "game/silphStoryWorld.lua", "game/silphStoryController.lua",
+    "game/midgameGymStoryController.lua", "game/fieldTravelRequests.lua", "game/fieldTravelRuntime.lua",
+    "game/fieldTravelState.lua", "game/fieldGearRequests.lua", "game/fieldGearState.lua",
+    "world/fieldGearArt.lua", "domain/safariBattle.lua"
+  ],
+  "retain_shared_dependencies": [
+    "domain/fieldTravel.lua", "data/fieldTravel.json", "game/fieldTravelWorld.lua",
+    "domain/safariGame.lua", "data/safariServices.json", "domain/sourceEncounters.lua",
+    "domain/coinWallet.lua", "domain/gameSession.lua", "domain/sessionCodec.lua",
+    "data/midgameGymStory/events.json", "game/midgameGymStory.lua"
+  ],
+  "reason": "Retained mixed files supply schema 4 normalization, ordinary battle compatibility, Celadon coins or Erika. They do not install future map content. Dev is always excluded. Proposal manifest/cache copies are always excluded by filename."
+}

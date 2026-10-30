@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import patch
 
 from tools import generate_vermilion_journey as generator
-from tools.harness import cerulean_journey as cj, vermilion_journey as vj, restarting
+from tools.harness import cerulean_journey as cj, vermilion_journey as vj, midgame_journey as mj, restarting
 from tools.harness.protocol import ProtocolError
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -480,6 +480,39 @@ class ReceiptAndPatchTests(unittest.TestCase):
             result = subprocess.run(['git', 'apply', '--check', str(CASES / 'root-observations.patch')],
                                     cwd=temporary, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+
+class MidgameSaveInputTests(unittest.TestCase):
+    def test_save_releases_dialog_input_before_pressing_b(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5a', content_scope='critical'))
+        # Squirtle trace ticks 2786-2787: final A dismisses healing, then B
+        # arrives while the overworld gesture owner still awaits neutral input.
+        driver.state = {'root': 'overworld', 'overworld': 'explore',
+                        'player': {'settled': True, 'moving': False}}
+        expected = iter([
+            (['wait 1'], driver.state),
+            (['wait 3', 'press b'], driver.state),
+            ([{'op': 'await', 'path': 'root', 'equals': 'pause', 'frames': 8}],
+             {'root': 'pause', 'pause': {'phase': 'menu'}}),
+        ])
+
+        def send(commands, **options):
+            wanted, snapshot = next(expected)
+            self.assertEqual(commands, wanted)
+            return {'snapshot': copy.deepcopy(snapshot)}
+
+        class ReachedSaveMenu(Exception):
+            pass
+
+        # Exercise the inherited Save entry, stopping before any save write.
+        with patch.object(driver.client, 'send', side_effect=send), \
+                patch.object(driver, 'pause_option', side_effect=ReachedSaveMenu) as menu:
+            with self.assertRaises(ReachedSaveMenu):
+                driver.save()
+        menu.assert_called_once_with('SAVE')
+        self.assertEqual(list(expected), [])
+        self.assertFalse(driver.saving)
 
 
 if __name__ == '__main__':

@@ -92,21 +92,25 @@ CODEC_FIELDS = {"version", "pokemonEncoding", "title", "intro", "questFlags", "t
 def validate_boundary_payload(payload):
     version = payload.get("version") if isinstance(payload, dict) else None
     expected = CODEC_FIELDS
-    if version in (2, 3):
+    if version in (2, 3, 4):
         expected = expected | {"fieldWorld"}
-    if version == 3:
+    if version in (3, 4):
         expected = expected | {"daycare"}
+    if version == 4:
+        expected = expected | {"fieldTravel"}
+        if "safari" in payload or "coins" in payload:
+            expected = expected | {"safari", "coins"}
     if not isinstance(payload, dict) or set(payload) != expected:
         raise ProtocolError("incomplete canonical Save/Continue payload")
-    if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3) or payload["pokemonEncoding"] != "decimal-counters-v1":
+    if type(payload["version"]) is not int or payload["version"] not in (1, 2, 3, 4) or payload["pokemonEncoding"] != "decimal-counters-v1":
         raise ProtocolError("invalid canonical Save/Continue encoding")
-    if version in (2, 3):
+    if version in (2, 3, 4):
         field = payload["fieldWorld"]
         if (not isinstance(field, dict) or set(field) != {"version", "mapPalOffset"}
                 or type(field["version"]) is not int or field["version"] != 1
                 or type(field["mapPalOffset"]) is not int or field["mapPalOffset"] not in (0, 6)):
             raise ProtocolError("invalid canonical field world record")
-    if version == 3:
+    if version in (3, 4):
         daycare = payload["daycare"]
         if (not isinstance(daycare, dict)
                 or set(daycare) not in ({"version", "earned"}, {"version", "earned", "pokemon"})
@@ -117,7 +121,24 @@ def validate_boundary_payload(payload):
                 or ("pokemon" in daycare and not isinstance(daycare["pokemon"], dict))
                 or ("pokemon" not in daycare and daycare["earned"] != "0")):
             raise ProtocolError("invalid canonical Day Care record")
-    owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags"}
+    if version == 4:
+        travel = payload["fieldTravel"]
+        if (not isinstance(travel, dict) or set(travel) != {"version", "mode", "strength", "visited"}
+                or travel["version"] != 1 or travel["mode"] not in {"walking", "surfing", "bicycle"}
+                or type(travel["strength"]) is not bool or not isinstance(travel["visited"], list)
+                or len(travel["visited"]) > 11 or any(not isinstance(v, str) for v in travel["visited"])
+                or len(set(travel["visited"])) != len(travel["visited"])):
+            raise ProtocolError("invalid canonical field travel record")
+    if "safari" in expected:
+        safari = payload["safari"]
+        if (not isinstance(safari, dict) or set(safari) != {"version", "active", "steps", "balls", "ending"}
+                or safari["version"] != 1 or type(safari["active"]) is not bool
+                or type(safari["steps"]) is not int or not 0 <= safari["steps"] <= 502
+                or type(safari["balls"]) is not int or not 0 <= safari["balls"] <= 30
+                or safari["ending"] not in {"none", "steps", "balls"}
+                or type(payload["coins"]) is not int or not 0 <= payload["coins"] <= 9999):
+            raise ProtocolError("invalid canonical Safari or coin record")
+    owners = expected - {"version", "pokemonEncoding", "questFlags", "trainerFlags", "coins"}
     if any(not isinstance(payload[field], dict) for field in owners):
         raise ProtocolError("invalid canonical Save/Continue owner record")
     for field in ("questFlags", "trainerFlags"):
@@ -398,7 +419,9 @@ class CeruleanJourney(BrockJourney):
         if arrival is None:
             raise ProtocolError("staged destination warp index absent")
         x, y = arrival["x"], arrival["y"]
-        if target.feet[y][x] in self.doors.get(target.source_data["tileset"]["constant"], []):
+        # The single simulated DOWN input still checks static land collision.
+        if (target.feet[y][x] in self.doors.get(target.source_data["tileset"]["constant"], [])
+                and target.inside((x, y + 1)) and not target.collision[y + 1][x]):
             y += 1
         if not target.inside((x, y)) or target.collision[y][x]:
             raise ProtocolError("staged warp arrival blocked")

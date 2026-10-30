@@ -1,0 +1,189 @@
+{
+  "events": {
+    "pokered:CELADON_GYM:objects:1": {
+      "after": [
+        "_CeladonGymErikaPostBattleAdviceText"
+      ],
+      "before": [
+        "_CeladonGymErikaPreBattleText"
+      ],
+      "content": "midgameEast",
+      "kind": "trainer",
+      "reward": {
+        "before": [
+          "_CeladonGymRainbowBadgeInfoText"
+        ],
+        "flag": "EVENT_GOT_TM21",
+        "full": [
+          "_CeladonGymTM21NoRoomText"
+        ],
+        "full_status": "bag-full",
+        "item": "tm21",
+        "success": [
+          "_CeladonGymReceivedTM21Text",
+          "_TM21ExplanationText"
+        ]
+      },
+      "victory": {
+        "flags": {
+          "BADGE_RAINBOW": true,
+          "EVENT_BEAT_ERIKA": true
+        },
+        "guard_flags": [
+          "EVENT_BEAT_ERIKA",
+          "BADGE_RAINBOW"
+        ],
+        "trainers": {
+          "pokered:CELADON_GYM:objects:2": true,
+          "pokered:CELADON_GYM:objects:3": true,
+          "pokered:CELADON_GYM:objects:4": true,
+          "pokered:CELADON_GYM:objects:5": true,
+          "pokered:CELADON_GYM:objects:6": true,
+          "pokered:CELADON_GYM:objects:7": true,
+          "pokered:CELADON_GYM:objects:8": true
+        }
+      },
+      "won": [
+        "_CeladonGymErikaReceivedRainbowBadgeText"
+      ]
+    },
+    "pokered:FIGHTING_DOJO:objects:1": {
+      "after": [
+        "_FightingDojoKarateMasterIWillGiveYouAPokemonText"
+      ],
+      "before": [
+        "_FightingDojoKarateMasterText"
+      ],
+      "content": "midgameSaffron",
+      "kind": "bespoke",
+      "victory": {
+        "flags": {
+          "EVENT_BEAT_KARATE_MASTER": true
+        },
+        "guard_flags": [
+          "EVENT_BEAT_KARATE_MASTER"
+        ],
+        "trainers": {
+          "pokered:FIGHTING_DOJO:objects:2": true,
+          "pokered:FIGHTING_DOJO:objects:3": true,
+          "pokered:FIGHTING_DOJO:objects:4": true,
+          "pokered:FIGHTING_DOJO:objects:5": true
+        }
+      },
+      "won": [
+        "_FightingDojoKarateMasterDefeatedText"
+      ]
+    },
+    "pokered:FIGHTING_DOJO:objects:6": {
+      "choice_label": "_FightingDojoHitmonleePokeBallText",
+      "content": "midgameSaffron",
+      "flag": "EVENT_GOT_HITMONLEE",
+      "kind": "bespoke",
+      "level": 30,
+      "species": "hitmonlee"
+    },
+    "pokered:FIGHTING_DOJO:objects:7": {
+      "choice_label": "_FightingDojoHitmonchanPokeBallText",
+      "content": "midgameSaffron",
+      "flag": "EVENT_GOT_HITMONCHAN",
+      "kind": "bespoke",
+      "level": 30,
+      "species": "hitmonchan"
+    },
+    "pokered:FUCHSIA_GYM:objects:1": {
+      "after": [
+        "_FuchsiaGymKogaPostBattleAdviceText"
+      ],
+      "before": [
+        "_FuchsiaGymKogaBeforeBattleText"
+      ],
+      "content": "midgameSouth",
+      "kind": "trainer",
+      "reward": {
+        "before": [
+          "_FuchsiaGymKogaSoulBadgeInfoText"
+        ],
+        "flag": "EVENT_GOT_TM06",
+        "full": [
+          "_FuchsiaGymKogaTM06NoRoomText"
+        ],
+        "full_status": "bag-full",
+        "item": "tm06",
+        "success": [
+          "_FuchsiaGymKogaReceivedTM06Text",
+          "_FuchsiaGymKogaTM06ExplanationText"
+        ]
+      },
+      "victory": {
+        "flags": {
+          "BADGE_SOUL": true,
+          "EVENT_BEAT_KOGA": true
+        },
+        "guard_flags": [
+          "EVENT_BEAT_KOGA",
+          "BADGE_SOUL"
+        ],
+        "trainers": {
+          "pokered:FUCHSIA_GYM:objects:2": true,
+          "pokered:FUCHSIA_GYM:objects:3": true,
+          "pokered:FUCHSIA_GYM:objects:4": true,
+          "pokered:FUCHSIA_GYM:objects:5": true,
+          "pokered:FUCHSIA_GYM:objects:6": true,
+          "pokered:FUCHSIA_GYM:objects:7": true
+        }
+      },
+      "won": [
+        "_FuchsiaGymKogaReceivedSoulBadgeText"
+      ]
+    },
+    "pokered:SAFFRON_GYM:objects:1": {
+      "after": [
+        "_SaffronGymSabrinaPostBattleAdviceText"
+      ],
+      "before": [
+        "_SaffronGymSabrinaText"
+      ],
+      "content": "midgameSaffron",
+      "kind": "trainer",
+      "reward": {
+        "before": [
+          "_SaffronGymSabrinaMarshBadgeInfoText"
+        ],
+        "flag": "EVENT_GOT_TM46",
+        "full": [
+          "_SaffronGymSabrinaTM46NoRoomText"
+        ],
+        "full_status": "bag-full",
+        "item": "tm46",
+        "success": [
+          "_SaffronGymSabrinaReceivedTM46Text",
+          "_TM46ExplanationText"
+        ]
+      },
+      "victory": {
+        "flags": {
+          "BADGE_MARSH": true,
+          "EVENT_BEAT_SABRINA": true
+        },
+        "guard_flags": [
+          "EVENT_BEAT_SABRINA",
+          "BADGE_MARSH"
+        ],
+        "trainers": {
+          "pokered:SAFFRON_GYM:objects:2": true,
+          "pokered:SAFFRON_GYM:objects:3": true,
+          "pokered:SAFFRON_GYM:objects:4": true,
+          "pokered:SAFFRON_GYM:objects:5": true,
+          "pokered:SAFFRON_GYM:objects:6": true,
+          "pokered:SAFFRON_GYM:objects:7": true,
+          "pokered:SAFFRON_GYM:objects:8": true
+        }
+      },
+      "won": [
+        "_SaffronGymSabrinaReceivedMarshBadgeText"
+      ]
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

@@ -1,0 +1,1 @@
+{"cases":[{"then":{"kind":"program","steps":[{"labels":["_LavenderMartCooltrainerMNuggetText"],"op":"dialog"}]},"when":{"flags":{"EVENT_RESCUED_MR_FUJI":true}}}],"content":"midgameEast","kind":"cases","otherwise":{"kind":"program","steps":[{"labels":["_LavenderMartCooltrainerMReviveText"],"op":"dialog"}]}}

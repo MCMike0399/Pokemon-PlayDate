@@ -1,0 +1,21 @@
+-- Root main imports (before constructing GameContext):
+-- import "game/fieldTravelRuntime"  -- after FieldTravelWorld/Requests
+-- import "game/fieldTravelState"    -- after State and BattleMenu
+--
+-- Root main state registration:
+-- machine:register("fieldTravel", FieldTravelState(game))
+--
+-- Root GameSession badge table needs the existing source flags:
+-- rainbow="BADGE_RAINBOW", soul="BADGE_SOUL"
+-- No new reward or source badge flag is granted by this hook.
+--
+-- Apply view-handoff.patch to Source/world/overworld.lua. It adds only
+-- WorldView.exchangePrepared(view), with no rendering or lifecycle policy.
+--
+-- Harness overlay: replace the old field-travel registration if already present.
+-- import "dev/fieldTravelContracts"
+-- Contracts.register("field-travel", FieldTravelContracts.run)
+--
+-- FieldTravelContracts has exactly two cases, Surf and Fly. Root's existing
+-- strength-boulder contract is the one Strength/push case. Do not register the
+-- old pure Strength case separately. No fixture/driver contracts are added.

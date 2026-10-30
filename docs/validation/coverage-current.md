@@ -2,25 +2,29 @@
 
 Main has **65/222 maps verified by Simulator journeys**, through Vermilion,
 Surge, Cut and Flash. [Milestone 5.4](vermilion-acceptance-20261028.json) remains
-Simulator acceptance. **0/222 maps have milestone hardware-playability acceptance.**
+a Simulator acceptance. **0/222 maps have milestone hardware-playability acceptance.**
+The physical smoke boots, loads Continue, saves, traverses doors, uses Cut and
+starts a wild battle; cold map loading and user play remain open gates.
 
-The private 108-map checkpoint 5.5a build is separate from main. Its
-[hardware smoke](device-smoke-108-20261029.json) reaches title, earned Continue,
-save, doors, Cut and a wild battle without new crash logs. Loading remains above
-the playability target; current starter journeys and user play are unfinished.
+This matrix identifies private **108-map checkpoint 5.5a preparation** at
+`2984348eaa31c348cf6d061f8081868a93f58a51` with Source SHA256
+`8b586a72d6415239efa68f6109579380bcad82cd93e1ab2c1b0a5dad8f45ca94`. It does not accept those maps or relabel old test results.
+The active 108-map manifest consists of the accepted 65 plus 43 East maps.
+Three earned-save journeys are being run; no completed 5.5a result is claimed.
 
-The JSON matrix identifies the current main Source as an inventory snapshot.
 All **1,512 rows** remain: the original 1,501 plus 11 explicit partial/source rows.
-Campaign path, regional fidelity and full mechanics stay independent. Every
+Campaign path, regional fidelity and full mechanics remain separate. Every
 row's evidence, old source hash, historical declaration and acceptance facet is
-unchanged by this refresh. Narrow proofs retain their original scope.
+unchanged by this inventory refresh. Narrow SDK proofs keep their original
+scope; changed shared code does not silently renew them.
 
-Inventory covers 248 map slots (222 ordinary named slots plus aliases/unused
-entries), 430 moves including five runtime field moves, 131 items including six
-Pickup additions, and 375 audio source files. These are not completion counts.
-The current main manifest has 65 maps; the private checkpoint has 108.
+The matrix indexes 248 map slots (222 ordinary named slots plus aliases and
+unused entries), 430 moves including five runtime field moves, 131 items
+including six Pickup additions, and 375 audio source files. These are inventory
+counts, not implementation or acceptance counts.
 
-[The ledger](progress.md) records current results and blockers.
-[Earned-save hashes](chain-saves.json) retain accepted starter provenance.
-[Earlier Cerulean evidence](coverage-history-cerulean1659.md) remains historical.
-Hardware playability, audio, the rest of Kanto and the full campaign are unfinished.
+Actual saves stay outside Git. [Chain hashes](chain-saves.json) retain accepted
+starter provenance. The [ledger](progress.md) records current results and
+blockers. [The earlier Cerulean report](coverage-history-cerulean1659.md) remains
+historical. Hardware, audio, the rest of Kanto and the complete campaign remain
+unfinished.

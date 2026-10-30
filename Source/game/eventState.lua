@@ -70,6 +70,9 @@ function EventState:enter(id,options)
     -- Receipt ownership changes only on this explicit controller entry, never
     -- during diagnostics, previews or repeated read-only observations.
     if extended and self.game.trainers then observation.receipt=self.game.trainers:takeReceipt(id) end
+    if extended and FieldBattle.takeSourceReceipt then
+        observation.source_receipt = FieldBattle.takeSourceReceipt(self.game, id)
+    end
     local plan=SourceEvents.plan(id,observation)
     assert(type(plan.steps)=="table" and #plan.steps<=16,"event step limit")
     self.epoch=self.epoch+1;self.active=true;self.serial=0
@@ -242,16 +245,28 @@ function EventState:advance()
     else error("unhandled bounded event operation") end
 end
 function EventState:startMove(direction)
-    local d=DELTA[direction];local player=self.player
-    local x,y=player.gridX+d[1],player.gridY+d[2]
-    if not self.zone.collision[y+1] or self.zone.collision[y+1][x+1]~=0 or self.game.npcManager:getNPCAt(x,y) then
-        self:fail("blocked-scripted-move");return
+    local delta = DELTA[direction]
+    local player = self.player
+    local x, y = player.gridX + delta[1], player.gridY + delta[2]
+    local counterStep = SaffronGuards and SaffronGuards.permitsCounterStep(self, player, delta[1], delta[2])
+    if not counterStep and (not self.zone.collision[y + 1] or self.zone.collision[y + 1][x + 1] ~= 0
+        or self.game.npcManager:getNPCAt(x, y)) then
+        self:fail("blocked-scripted-move")
+        return
     end
-    self.moveOrigin={x=player.gridX,y=player.gridY,facing=player.facing,walkToggle=player.walkToggle,
-        image=player:getImage(),rustleFrames=player.rustleFrames}
-    player:tryMove(d[1],d[2])
-    if not player.isMoving or player.isJumping or player.gridX~=x or player.gridY~=y then self:fail("player-rejected-scripted-move");return end
-    self.phase,self.waiting="move",direction
+    self.moveOrigin = {x=player.gridX, y=player.gridY, facing=player.facing, walkToggle=player.walkToggle,
+        image=player:getImage(), rustleFrames=player.rustleFrames}
+    player.running = false
+    if counterStep then
+        player:stepAcrossSourceCounter(self, delta[1], delta[2])
+    else
+        player:tryMove(delta[1], delta[2])
+    end
+    if not player.isMoving or player.isJumping or player.gridX ~= x or player.gridY ~= y then
+        self:fail("player-rejected-scripted-move")
+        return
+    end
+    self.phase, self.waiting = "move", direction
 end
 function EventState:oakAisle()
     for _,x in ipairs({6,5}) do

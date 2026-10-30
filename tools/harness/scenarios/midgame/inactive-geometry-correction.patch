@@ -1,0 +1,34 @@
+--- a/tools/harness/midgame_journey.py
++++ b/tools/harness/midgame_journey.py
+@@ -924,9 +924,9 @@
+                 self.require_event(cj.sid('POKEMON_TOWER_2F', 1))
+                 self.fight(cj.sid('POKEMON_TOWER_2F', 1))
+         self.scripted_wild = dict(species=scenes['ghost']['species'], level=scenes['ghost']['level'])
+-        self.source_waypoint(10, 17)
+-        self.face('up')
+-        self.send('press up', 'wait 10')
++        self.source_waypoint(10, 15)
++        self.face('down')
++        self.send('press down', 'wait 10')
+         self.drain()
+         self.scripted_wild = None
+         if not self.flag('EVENT_BEAT_GHOST_MAROWAK'):
+@@ -1178,13 +1178,14 @@
+         self.pickup(cj.sid('WARDENS_HOUSE', 2), 'rareCandy')
+         self.heal_here('FuchsiaPokecenter')
+         surf = self.teach('surf')
+-        self.travel(self.zone('FuchsiaCity'))
+-        self.source_waypoint(28, 20)
+-        self.face('right')
++        self.travel(self.zone('FuchsiaGoodRodHouse'))
++        self.fixed_warp(1, (2, 1))
++        self.source_waypoint(29, 22)
++        self.face('up')
+         self.use_field(surf, 'surf')
+         if self.observe('midgame-state')['fieldTravel']['mode'] != 'surfing':
+             raise ProtocolError('actual Fuchsia pond Surf did not enter water')
+-        self.send('press left', 'wait 10')
++        self.send('press down', 'wait 10')
+         self.drain()
+         if self.observe('midgame-state')['fieldTravel']['mode'] != 'walking':
+             raise ProtocolError('actual Surf landing did not return to walking')
