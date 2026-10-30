@@ -1,14 +1,10 @@
 {
   "schema": 1,
   "milestone": "5.5a",
-  "status": "private journey candidates passed; milestone NOT accepted",
+  "status": "accepted on main; per-run source identities retained",
   "main_maps": 65,
   "candidate_maps": 108,
-  "requirements_remaining": [
-    "30+30 hardware idle qualification",
-    "108-map hardware smoke without new logs and within memory guards",
-    "acceptance merge and real-speed clip"
-  ],
+  "requirements_remaining": [],
   "starters": {
     "bulbasaur": {
       "build_id": "baaf6368c57e3c9db2863cfc3b7c530d1bae1d88:017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
@@ -73,5 +69,6 @@
     "common_build_continue": "docs/validation/midgame-a-common-load-20261029.json",
     "production_package": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-synchronized-20261029-01",
     "canonical_slots_rechecked": 6
-  }
+  },
+  "accepted_main_code": "c946efdfbf20952844dbca78d97a5a3439212fab"
 }

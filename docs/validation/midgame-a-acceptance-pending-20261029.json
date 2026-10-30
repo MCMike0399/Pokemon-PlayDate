@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "milestone": "5.5a",
-  "status": "NOT ACCEPTED; pending qualification and hardware smoke",
+  "status": "superseded by accepted 5.5a record",
   "scope_label_when_accepted": "Simulator-accepted and hardware-safe; device latency targets not yet met",
   "main_simulator_maps_before": 65,
   "candidate_maps": 108,
@@ -14,10 +14,11 @@
   "hardware_smoke_proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-safety-20261029-01/simulator-smoke.json",
   "hardware_run_expected": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-hardware-20261029-01",
   "pending": [
-    "30+30 repaired hardware idle qualification",
-    "108-map hardware smoke, exact no-new-log comparison and heap guards",
-    "Acceptance summary and merge",
-    "Lazy audio activation after merge"
+    "full two-hour idle soak",
+    "incremental versus generational comparison",
+    "latency targets before 5.5c",
+    "lazy audio activation and native listening",
+    "user physical play judgement"
   ],
   "latency_targets_met": false,
   "push_authorized": false,
@@ -42,5 +43,6 @@
     "audio": "silent",
     "source": "genuine pre-Erika earned partial Save; private input/capture overlay",
     "review": "decoded chapter frames, exact pixel comparisons and timestamps; no hardware pacing claim"
-  }
+  },
+  "superseded_by": "docs/validation/midgame-a-acceptance-20261029.json"
 }

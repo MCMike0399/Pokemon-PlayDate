@@ -189,6 +189,72 @@
       ],
       "accepted_commit": "c42c3f5821cb374bd1e484971b7aa385bae420a9",
       "accepted_source_sha256": "6e641283157d966be5c7c6d80e5185279673054920073c35c2d0ea3594665eb1"
+    },
+    {
+      "starter": "bulbasaur",
+      "from_milestone": "5.5a",
+      "origin_milestone": "5.4",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5a/bulbasaur",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/01-midgame--restart-bulbasaur",
+      "status": "accepted milestone 5.5a; actual process and common-input Continue verified",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "fbff61c6b166867562ee5728d1efd453e5dff3fb8329c18455a9d824e7faa10b"
+        }
+      ],
+      "accepted_commit": "c946efdfbf20952844dbca78d97a5a3439212fab",
+      "accepted_source_sha256": "f7075f0a4b0f0505e3cc60ac425c8ce972d731ea9e052216d2dfd00546d5699d",
+      "journey_source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "acceptance": "docs/validation/midgame-a-acceptance-20261029.json"
+    },
+    {
+      "starter": "squirtle",
+      "from_milestone": "5.5a",
+      "origin_milestone": "5.4",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5a/squirtle",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/02-midgame--restart-squirtle",
+      "status": "accepted milestone 5.5a; actual process and common-input Continue verified",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "33cdbe0d8a1181b4ecdd428496754bf868e2d5c6159d12e9bff2e576f92fa249"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "bf65b9c60fde35d3a7596ba9f6dbf2cf4c4c0f81f7f8db6edac8e7dea2e9b613"
+        }
+      ],
+      "accepted_commit": "c946efdfbf20952844dbca78d97a5a3439212fab",
+      "accepted_source_sha256": "f7075f0a4b0f0505e3cc60ac425c8ce972d731ea9e052216d2dfd00546d5699d",
+      "journey_source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "acceptance": "docs/validation/midgame-a-acceptance-20261029.json"
+    },
+    {
+      "starter": "charmander",
+      "from_milestone": "5.5a",
+      "origin_milestone": "5.4",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5a/charmander",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-charmander-prize-resumed-20261029-01/01-midgame--restart-charmander",
+      "status": "accepted milestone 5.5a; actual process and common-input Continue verified",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "d7db2ec6b994bc463c5a0b1086f437d5b285d57a76a4144a64f887c0fc064559"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "725ae2e24674a9cdba61a97fc6f01d04d8d8e17cdbad728b81370d97b8971111"
+        }
+      ],
+      "accepted_commit": "c946efdfbf20952844dbca78d97a5a3439212fab",
+      "accepted_source_sha256": "f7075f0a4b0f0505e3cc60ac425c8ce972d731ea9e052216d2dfd00546d5699d",
+      "journey_source_sha256": "a239b9a84213f0c4ea34786e754cc5834fc986d5ccce998ff8d6815cb6154b3e",
+      "acceptance": "docs/validation/midgame-a-acceptance-20261029.json"
     }
   ]
 }

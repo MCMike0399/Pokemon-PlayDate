@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "milestone": "5.5a",
+  "milestone_accepted": true,
+  "accepted_main_code": "c946efdfbf20952844dbca78d97a5a3439212fab",
+  "status": "Simulator-accepted and hardware-safe; device latency targets not yet met",
+  "maps_on_main": 108,
+  "new_maps": 43,
+  "production_source_sha256": "f7075f0a4b0f0505e3cc60ac425c8ce972d731ea9e052216d2dfd00546d5699d",
+  "production_source_files_equal_qualified_candidate": true,
+  "natural_journeys": "docs/validation/midgame-a-journey-candidates-20261029.json",
+  "actual_input_common_restarts": "docs/validation/midgame-a-common-load-20261029.json",
+  "starters": [
+    {
+      "status": "accepted natural journey; original source identity retained",
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/01-midgame--restart-bulbasaur",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "fbff61c6b166867562ee5728d1efd453e5dff3fb8329c18455a9d824e7faa10b"
+        }
+      ],
+      "source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "content_scope": "critical",
+      "starter": "bulbasaur"
+    },
+    {
+      "status": "accepted natural journey; original source identity retained",
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/02-midgame--restart-squirtle",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "33cdbe0d8a1181b4ecdd428496754bf868e2d5c6159d12e9bff2e576f92fa249"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "bf65b9c60fde35d3a7596ba9f6dbf2cf4c4c0f81f7f8db6edac8e7dea2e9b613"
+        }
+      ],
+      "source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "content_scope": "critical",
+      "starter": "squirtle"
+    },
+    {
+      "status": "accepted natural journey; original source identity retained",
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-charmander-prize-resumed-20261029-01/01-midgame--restart-charmander",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "d7db2ec6b994bc463c5a0b1086f437d5b285d57a76a4144a64f887c0fc064559"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "725ae2e24674a9cdba61a97fc6f01d04d8d8e17cdbad728b81370d97b8971111"
+        }
+      ],
+      "source_sha256": "a239b9a84213f0c4ea34786e754cc5834fc986d5ccce998ff8d6815cb6154b3e",
+      "content_scope": "optional",
+      "starter": "charmander"
+    }
+  ],
+  "host_suite": {
+    "tests": 1018,
+    "passed": 1018,
+    "skipped": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-main-host-20261029-01.log"
+  },
+  "compile": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-main-compile-20261029-01.log",
+  "simulator": {
+    "malloc_pool_mb": 16,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-safety-20261029-01",
+    "measurements": {
+      "battle_device_estimate_ms": 1.0,
+      "battle_start_ms": 1.0,
+      "frame_ms": 11.77,
+      "heap_live_bytes": 6084812.8,
+      "heap_peak_bytes": 7300783.104,
+      "map_device_estimate_ms": 242.0,
+      "map_load_ms": 242.0,
+      "slice_ms": 124.576
+    },
+    "scope": "Post-GC live heap; sampled Lua peak; map wall time and raw slices, not native memory"
+  },
+  "hardware": {
+    "build_id": "3793be9f239a4a9b949ca727e38faa01",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-hardware-20261029-01",
+    "smoke": "title, earned Continue, save, door, Cut, wild battle; serial-driven real input",
+    "new_error_or_crash_logs": false,
+    "measurements": {
+      "battle_start_ms": 20.0,
+      "frame_ms": 123.695,
+      "heap_live_bytes": 4210575.36,
+      "heap_peak_bytes": 5784116.224,
+      "map_load_ms": 3002.0,
+      "slice_ms": 1284.98
+    },
+    "phase_measurements": {
+      "Continue": 7548.0,
+      "Save": 6049.0,
+      "battle": 20.0,
+      "boot_slice": 1284.98,
+      "boot_title": 16164.0,
+      "cave_walking_p95": 96.96099999999569,
+      "door": 3002.0
+    },
+    "phase_regression_percent": {
+      "Continue": 9.04,
+      "Save": 5.04,
+      "boot_title": 3.38,
+      "cave_walking_p95": -0.74,
+      "door": 1.87
+    },
+    "screen_observation": "Serial/state evidence; handheld display was not directly observed"
+  },
+  "idle_qualification": "docs/validation/device-idle-qualification-20261029.json",
+  "player_package": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-accepted-20261029-01",
+  "package_manifest_sha256": "f873356a0cf6822daa13939071caf953a824fce73e7d8759192dcfcc3326646f",
+  "showcase": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5a-final-20261029-02/PokemonBlue-5.5a-showcase.mp4",
+  "latency_targets_met": false,
+  "device_playable_maps": 0,
+  "remaining": [
+    "full two-hour idle soak",
+    "incremental versus generational comparison",
+    "latency targets before 5.5c",
+    "lazy audio activation and native listening",
+    "user physical play judgement"
+  ],
+  "push_authorized": false
+}
