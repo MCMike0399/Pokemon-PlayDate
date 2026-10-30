@@ -79,6 +79,11 @@ function SourceEncounterContracts.run()
         else report.failed, report.ok = report.failed + 1, false end
     end
     test("source ghosts: identification, fear, uncapturable Marowak and confirmed completion", function()
+        local first = TowerStory.plan(TowerStory.RIVAL, {flags={}, trainers={}})
+        assert(first.scene_script == "tower-rival" and first.confirmed_receipt == nil)
+        local rocket = TowerStory.scenes().rockets[1]
+        local resumed = TowerStory.plan(rocket.id, {flags={}, trainers={[rocket.id]=true}})
+        assert(resumed.scene_script == "rocket-exit" and resumed.confirmed_receipt == nil)
         local game = owned()
         local request = TowerStory.ghostRequest(game.session)
         local forged = GameSession._copy(request)

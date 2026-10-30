@@ -108,7 +108,7 @@ function TowerStory.plan(id, observation)
         end
         return {status = "ready", scene = "tower-story", steps = {},
             scene_script = observation.trainers[id] and "tower-rival-exit" or "tower-rival",
-            confirmed_receipt = copy(observation.receipt),
+            confirmed_receipt = observation.receipt and copy(observation.receipt) or nil,
             ram = observation.receipt and {wAmountMoneyWon = observation.receipt.payout} or nil}
     end
     if id == TowerStory.FUJI then
@@ -144,7 +144,7 @@ function TowerStory.plan(id, observation)
         return {status = "already-complete", steps = {}}
     end
     return {status = "ready", scene = "tower-story", scene_script = "rocket-exit", steps = {},
-        confirmed_receipt = copy(observation.receipt),
+        confirmed_receipt = observation.receipt and copy(observation.receipt) or nil,
         ram = observation.receipt and {wAmountMoneyWon = observation.receipt.payout} or nil}
 end
 function TowerStory.ghostRequest(session)
