@@ -769,6 +769,41 @@ def checkpoint_b_preflight(plan):
             return dict(origin=[9, 0], goal=goal, first_warp=portal[2]['id'],
                         condition='Existing component-aware travel must receive the final Snorlax approach goal.')
         check('Route12 north arrival through gatehouse to Snorlax', 'component-route', route12_gate_approach)
+        def fuchsia_east_route():
+            steps = []
+            model = audit.model('Route13')
+            origin = (51, 0)
+            for name, point, target, arrival in (
+                    ('Route13', (0, 10), 'Route14', (19, 10)),
+                    ('Route14', (0, 44), 'Route15', (59, 8))):
+                model = audit.model(name)
+                occupied = {(row['x'], row['y']) for row in model.events['objects']}
+                route = model.path(origin, {point}, occupied)
+                actual = cj.connection_projection(audit.models, model, point, 'left')
+                if actual != (audit.model(target).name, arrival):
+                    raise ProtocolError('Fixed Fuchsia connection differs from source header')
+                steps.append(dict(map=name, origin=origin, exit=point, walk_steps=len(route), arrival=arrival))
+                origin = arrival
+            for name, index, target in (('Route15', 4, 'Route15Gate1F'),
+                                         ('Route15Gate1F', 2, 'Route15')):
+                model = audit.model(name)
+                event = next(row for row in model.events['warps'] if row['source_index'] == index)
+                point = (event['x'], event['y'])
+                occupied = {(row['x'], row['y']) for row in model.events['objects']}
+                route = model.path(origin, {point}, occupied, {point})
+                destination, arrival = audit.owner.project_warp(model, event)
+                if destination != audit.model(target).name:
+                    raise ProtocolError('Fixed Route15 gate exit differs from source warp')
+                steps.append(dict(map=name, origin=origin, warp=event['id'], walk_steps=len(route), arrival=arrival))
+                origin = arrival
+            model = audit.model('Route15')
+            route = model.path(origin, {(0, 8)}, {(row['x'], row['y']) for row in model.events['objects']})
+            actual = cj.connection_projection(audit.models, model, (0, 8), 'left')
+            if actual != (audit.model('FuchsiaCity').name, (39, 16)):
+                raise ProtocolError('Fixed Fuchsia arrival differs from source header')
+            return dict(legs=steps, final_walk_steps=len(route), final_arrival=actual,
+                        occupancy='All source NPC cells occupied; live movement and trainer battles still require runtime.')
+        check('Route13/14/15 occupied fixed exits and gatehouse', 'component-route', fuchsia_east_route)
         check('Tower 6F actual corridor pickup', 'event-approach', tower_item_route)
         check('Safari fixed input steps', 'fixed-script',
               lambda: audit.fixed('safari-fixed-routes.json'))

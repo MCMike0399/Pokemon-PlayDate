@@ -1330,8 +1330,18 @@ class MidgameJourney(vj.VermilionJourney):
         if 'route12-snorlax' not in self.completed_steps:
             self.wake_snorlax('ROUTE_12', 1, (10, 61))
             self.completed_steps.add('route12-snorlax')
-        for name in ('Route13', 'Route14', 'Route15'):
-            self.travel(self.zone(name))
+            self.save()
+        self.travel(self.zone('Route13'))
+        # These source exits remain reachable with the initial trainer occupancy.
+        # In particular Route14's northern y=6 arrival is blocked by its trainer.
+        self.source_waypoint(0, 10)
+        self.cross('left', self.zone('Route14'), (19, 10))
+        self.source_waypoint(0, 44)
+        self.cross('left', self.zone('Route15'), (59, 8))
+        self.warp(self.zone('Route15Gate1F'), event_id=cj.sid('ROUTE_15', 4, 'warps'))
+        self.warp(self.zone('Route15'), event_id=cj.sid('ROUTE_15_GATE_1F', 2, 'warps'))
+        self.source_waypoint(0, 8)
+        self.cross('left', self.zone('FuchsiaCity'), (39, 16))
         self.heal_here('FuchsiaPokecenter')
         self.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06', 'FuchsiaPokecenter', 'FuchsiaMart')
         self.completed_steps.add('fuchsia-koga')
