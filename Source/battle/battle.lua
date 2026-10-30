@@ -69,6 +69,9 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
         atkStage, defStage = attacker.statStages.atk, defender.statStages.def
     end
 
+    -- Move flags ignore both positive and negative defensive stages, while
+    -- leaving base stats and subsequent ability/weather modifiers intact.
+    if move.ignoreDefensive then defStage = 0 end
     -- Crits ignore stages unfavorable to the attacker
     if isCrit then
         if atkStage < 0 then atkStage = 0 end
@@ -145,6 +148,7 @@ function accuracyThreshold(move, attacker, defender, effects)
     if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move,attacker,defender)) then return 100 end
     local evasion = defender.statStages.eva
     if effects then evasion = effects.battle.conditions:evasionStage(defender) end
+    if move.ignoreEvasion then evasion = 0 end
     local stage = attacker.statStages.acc - evasion
     local base=effects and effects:accuracy(attacker,defender,move) or move.accuracy
     return math.max(0,math.min(100,math.floor(base * accStageMult(stage))))

@@ -1189,7 +1189,7 @@
       "gap": "basePowerCallback, onTry"
     },
     "chipAway": {
-      "gap": "ignoreDefensive, ignoreEvasion"
+      "handler": "standard-damage"
     },
     "clearSmog": {
       "gap": "onHit"

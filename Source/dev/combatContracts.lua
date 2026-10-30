@@ -70,6 +70,104 @@ function CombatContracts.run()
         if ok then report.passed = report.passed + 1 else report.failed = report.failed + 1; report.ok = false end
     end
 
+    test("GenV Chip Away ignores target stages while retaining attacker stages and ordinary hit gates", function()
+        -- PS9b136a8 data/moves.ts inherits both flags through Gen5;
+        -- battle-actions zeroes defensive boosts before ModifyDef/SpD and
+        -- omits only target evasion from the ordinary accuracy calculation.
+        local m = moveData.chipAway
+        equal(m.ignoreDefensive, true)
+        equal(m.ignoreEvasion, true)
+        equal(m.power, 70)
+        equal(m.accuracy, 100)
+        equal(m.pp, 20)
+        equal(m.contact, true)
+        equal(m.protectable, true)
+        local p, e = Pokemon("snorlax", 30), Pokemon("magikarp", 100)
+        assert(p:hasMove("chipAway"), "natural B2W2 Snorlax30 move")
+        p.level, p.atk, e.def = 50, 100, 100
+        for _, vector in ipairs({{-2,21}, {0,40}, {2,79}}) do
+            p.statStages.atk = vector[1]
+            for _, stage in ipairs({-6,-2,0,2,6}) do
+                e.statStages.def = stage
+                RulesRNG.seed(1)
+                local hit = calcDamage(p,e,m)
+                equal(hit.damage,vector[2])
+                equal(hit.isCrit,false)
+                equal(RulesRNG.snapshot().rolls,2, "critical then variance only")
+                equal(RulesRNG.snapshot().state,282475249)
+                equal(p.statStages.atk,vector[1])
+                equal(e.statStages.def,stage)
+            end
+        end
+        local criticalSeed = seedFor(1,16,function(x) return x==1 end)
+        p.statStages.atk = -2
+        e.statStages.def = -6
+        RulesRNG.seed(criticalSeed)
+        local crit = calcDamage(p,e,m)
+        equal(crit.isCrit,true)
+        p.statStages.atk = 0
+        e.statStages.def = 0
+        RulesRNG.seed(criticalSeed)
+        equal(calcDamage(p,e,m).damage,crit.damage)
+        -- An unrelated name and special category exercise the shared flags.
+        local special = Move{name="STAGE VECTOR",type="normal",category="special",power=70,accuracy=80,pp=1,ignoreDefensive=true,ignoreEvasion=true}
+        p.spa,e.spd = 100,100
+        e.statStages.spd = 6
+        RulesRNG.seed(1)
+        equal(calcDamage(p,e,special).damage,40)
+        e.statStages.spd = -6
+        RulesRNG.seed(1)
+        equal(calcDamage(p,e,special).damage,40)
+        p.statStages.acc = -6
+        for _, stage in ipairs({-6,0,6}) do
+            e.statStages.eva = stage
+            equal(accuracyThreshold(m,p,e),33)
+            equal(accuracyThreshold(special,p,e),26,"base accuracy retained")
+        end
+        RulesRNG.seed(seedFor(1,100,function(x) return x>33 end))
+        equal(checkAccuracy(m,p,e),false)
+        equal(RulesRNG.snapshot().rolls,1)
+        p.statStages.acc = 0
+        e.statStages.eva = 6
+        RulesRNG.seed(1)
+        equal(checkAccuracy(m,p,e),true)
+        equal(RulesRNG.snapshot().rolls,1,"100 accuracy still samples")
+        equal(accuracyThreshold(moveData.tackle,p,e),33,"ordinary moves retain evasion")
+        local b = fresh(Pokemon("snorlax",30),Pokemon("sandshrew",100))
+        b.effects.weather = {id="sandstorm",turns=5}
+        b.enemy.statStages.eva = 6
+        equal(b.effects:effectiveAbility(b.enemy),8)
+        equal(accuracyThreshold(m,b.player,b.enemy,b.effects),80,"Sand Veil retained")
+        b.player.statStages.acc = -1
+        equal(accuracyThreshold(m,b.player,b.enemy,b.effects),60)
+        -- Real enemy damaging support, PP and gate order; no changes to the
+        -- source Snorlax loss exercise or its natural moves/HP/outcomes.
+        b = fresh(Pokemon("magikarp",100),Pokemon("snorlax",30))
+        assert(b.enemy:hasMove("chipAway"))
+        b.player.statStages.def,b.player.statStages.eva = 6,6
+        local hp = b.player.hp
+        RulesRNG.seed(1)
+        one(b,"enemy","chipAway")
+        assert(b.player.hp<hp)
+        equal(b.enemy.pp.chipAway,19)
+        equal(RulesRNG.snapshot().rolls,3,"accuracy then critical then variance")
+        equal(RulesRNG.snapshot().state,1622650073)
+        b.conditions:of(b.player).protect = true
+        hp = b.player.hp
+        RulesRNG.seed(1)
+        one(b,"enemy","chipAway")
+        equal(b.player.hp,hp)
+        equal(b.enemy.pp.chipAway,18)
+        equal(RulesRNG.snapshot().rolls,0,"Protect precedes all hit rolls")
+        b = fresh(Pokemon("gastly",100),Pokemon("snorlax",30))
+        hp = b.player.hp
+        RulesRNG.seed(1)
+        one(b,"enemy","chipAway")
+        equal(b.player.hp,hp)
+        equal(b.enemy.pp.chipAway,19)
+        equal(RulesRNG.snapshot().rolls,0,"type immunity precedes all hit rolls")
+    end)
+
     test("Public move commands reject invalid inputs and phase without mutation or RNG", function()
         local b = fresh()
         for _, index in ipairs({-1, 99, 1.5, "1", false, math.huge, -math.huge, 0/0}) do
