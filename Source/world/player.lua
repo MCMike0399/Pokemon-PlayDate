@@ -193,8 +193,13 @@ end
 
 function Player:movementImage(original, pose)
     local game = self.npcManager.game
-    if FieldGearArt and game and game.session and game.session:fieldTravelData().mode == "bicycle" then
-        return FieldGearArt.bicycle(self.facing, pose)
+    if FieldGearArt and game and game.session then
+        local travel = self.fieldStep and self.fieldStep.plan.travel or game.session:fieldTravelData()
+        if travel.mode == "bicycle" then
+            return FieldGearArt.bicycle(self.facing, pose)
+        elseif travel.mode == "surfing" then
+            return FieldGearArt.surf(self.facing, pose)
+        end
     end
     return original
 end
