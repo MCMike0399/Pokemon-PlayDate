@@ -3,7 +3,8 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 5.5a: **33.83 h / 30.51 maps/day**, including device P0 and waits.
-Commit locally. Nothing pushed. The full game remains unfinished.
+Main was pushed through `7bc7cc55` at the user’s request. Later work stays local
+until requested. The full game remains unfinished.
 
 ## Accepted on main
 
@@ -62,14 +63,14 @@ inclusive older profiles, not exclusive CPU. Expected savings are design aims.
 
 | Phase / target | Measured | Main contributors | Structural candidate |
 |---|---:|---|---|
-| Boot → title / 10 s | 16.164 s | inspect 3.326 s; registration 2.15 s; imports about 1.1 s | early title and generated registration; aim to hide/remove 3–5 s |
-| A → walking / 4 s | 7.548 s | store 2.29 s; decode 1.41 s; gate view 1.13 s | retain fully checked title preparation; aim to hide 2–4 s |
+| First title artwork / 10 s | 2.501 s | inspect 3.326 s; registration 2.15 s; imports about 1.1 s | early title and generated registration; aim to hide/remove 3–5 s |
+| A → walking / 4 s | 3.307 s | store 2.29 s; decode 1.41 s; gate view 1.13 s | retain fully checked title preparation; aim to hide 2–4 s |
 | Save / 2 s | 6.049 s | deep validators; copies/encoding; slot I/O | sealed production owner export, checksum/readback; hardware comparison running |
 | Longest door / 1.5 s | 3.002 s | Zone 0.799 s; bindings 0.443 s; view 0.419 s | spare-slot prefetch; decode/padding candidate hides only part of this |
 | Cave p95 / 50 ms | 96.96 ms | encounter prepare/resolve and allocation/GC | prepared policies and synchronous scratch; safety route passed, gain unmeasured |
 
 Other doors: 1.885/1.419 s. Battle start: **20 ms**. App start → walking:
-**25.627 s**; physical power-on is unmeasured. Boot/Continue/Save/door regressions
+**22.566 s** after early-title preparation; physical power-on is unmeasured. Boot/Continue/Save/door regressions
 against the previous 108-map trace run are **3.38/9.04/5.04/1.87%**, all below 10%.
 These results do not meet playability targets. Targets must pass before 5.5c.
 
@@ -81,14 +82,24 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 ## Work in flight
 
 Root owns Simulator/device and integration. Bounded workers use Sol/medium.
-Save-tier baseline/candidate hardware comparison is running, followed by isolated
-early-title, generated-registration and nearby-door candidates. All pass safety;
+Save-tier 65-map hardware Save improves **5.313 → 1.375 s** (74.12%); Continue
+improves **6.127 → 4.481 s**. The 108-map port is prepared but unmeasured.
+[Paired result](device-save-tier-measurement-20261029.json). Hardware comparisons continue for isolated
+early-title. Nearby-door prefetch was rejected at only 6.63% door improvement;
+it stays off main. Generated registration was rejected after
+boot/door regressed to 26.886/5.978 s; it stays off main. All passed safety;
 39 title recovery/bridge and 64 source-event SDK cases also pass.
+Early-title preparation is accepted locally after its single review: 39 merged
+native cases, five artifact cases and compilation pass. Artwork appears in 2.5 s;
+full initialization is 18.546 s (+6.8%). [Evidence](early-title-accepted-20261029.json).
 No unmeasured candidate is on main. [Save candidate](device-save-tier-candidate-20261029.json).
 
 Activate the prepared lazy audio next: town/route/battle music and all 151 cries,
 moderate gain 0.22, followed by native loading, heap and listening checks.
 The old Simulator-volume question remains closed; do not repeat it.
+Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
+(7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
+silent and not accepted. No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
 
 5.5b starts from the three accepted 5.5a saves. Prepared host geometry passes
 1,569 checks with zero blockers, but Surf/actors/Safari remain runtime-unverified.

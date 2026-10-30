@@ -129,5 +129,7 @@
     "lazy audio activation and native listening",
     "user physical play judgement"
   ],
-  "push_authorized": false
+  "push_authorized": true,
+  "pushed_commit": "7bc7cc55",
+  "push_scope": "accepted main through 7bc7cc55; later work not included"
 }

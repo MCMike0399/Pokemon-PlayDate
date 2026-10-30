@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "status": "accepted locally; not pushed",
+  "main_commits": [
+    "07d52c4f",
+    "f95fbb7c"
+  ],
+  "candidate": "b55dba356ed21e4efe2cfc221cc5edfb9224eca3",
+  "hardware_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-early-title-prepared-hardware-20261029-01",
+  "baseline_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-hardware-20261029-01",
+  "metrics_ms": {
+    "first_title_artwork": 2501,
+    "initialization_ready": 18546,
+    "Continue": 3307,
+    "app_start_to_walking": 22566
+  },
+  "baseline_ms": {
+    "initialization_ready": 17366,
+    "Continue": 7548,
+    "app_start_to_walking": 25627
+  },
+  "initialization_regression_percent": 6.8,
+  "app_start_to_walk_reduction_percent": 11.94,
+  "review": "No actionable findings; single read-only combined review 1ead30e2-1511-4440-b572-6344388ffae6",
+  "merged_checks": {
+    "compile": "passed",
+    "production_artifact_cases": 5,
+    "native_title_recovery_archive_session_cases": 39,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/early-title-main-native-sdk-20261029-01"
+  },
+  "scope": "Artwork visibility is distinct from completed preparation; no removal of load or installation validation; no device-playability claim"
+}

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "rejected after first hardware measurement; not merged",
+  "candidate": "422fe9c6",
+  "build_id": "0d33cf236be848ee8d454ca62056af18",
+  "hardware_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-generated-registration-hardware-20261029-01",
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synced-memory-hardware-20261029-01",
+  "candidate_phase_ms": {
+    "Continue": 10927.0,
+    "Save": 8186.0,
+    "battle": 20.0,
+    "boot_slice": 1988.297,
+    "boot_title": 26886.0,
+    "cave_walking_p95": 98.08599999999569,
+    "door": 5978.0
+  },
+  "baseline_phase_ms": {
+    "Continue": 7548.0,
+    "Save": 6049.0,
+    "battle": 20.0,
+    "boot_slice": 1284.98,
+    "boot_title": 16164.0,
+    "cave_walking_p95": 96.96099999999569,
+    "door": 3002.0
+  },
+  "decision": "No phase gain; boot, Continue, Save and doors regress. No further proof or review.",
+  "runtime_safety": "No new crash/error logs; raw report retained",
+  "main_unchanged": true
+}

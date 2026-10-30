@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "status": "65-map measurement passed; 108-map port unmeasured and not merged",
+  "candidate": "c122eec3",
+  "baseline_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-tier-baseline-hardware-20261029-01",
+  "candidate_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-tier-candidate-hardware-20261029-01",
+  "baseline_ms": {
+    "Continue": 6127.0,
+    "Save": 5313.0,
+    "battle": 20.0,
+    "boot_slice": 1103.719,
+    "boot_title": 10766.0,
+    "cave_walking_p95": 95.74199999999837,
+    "door": 2672.0
+  },
+  "candidate_ms": {
+    "Continue": 4481.0,
+    "Save": 1375.0,
+    "battle": 20.0,
+    "boot_slice": 1159.255,
+    "boot_title": 10701.0,
+    "cave_walking_p95": 94.77400000000489,
+    "door": 2684.0
+  },
+  "save_reduction_percent": 74.12,
+  "continue_reduction_percent": 26.86,
+  "next": "Port a6981581, exact 108-map native checks/safety/hardware measurement, then one review",
+  "main_unchanged": true
+}
