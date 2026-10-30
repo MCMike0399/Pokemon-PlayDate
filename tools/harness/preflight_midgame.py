@@ -816,6 +816,13 @@ def main():
                 args.earned_evidence, report['audits'][0]['source_hashes']))):
         try:
             report[key] = collect()
+        except FileNotFoundError as error:
+            if key == 'original_report':
+                report[key] = dict(status='historical comparison unavailable',
+                                   path=str(args.prior_report),
+                                   scope='Current pinned-source geometry and call coverage remain independently checked; no old evidence is reconstructed.')
+            else:
+                report['evidence_errors'].append(key + ': ' + str(error))
         except (OSError, ValueError, KeyError, ProtocolError) as error:
             report['evidence_errors'].append(key + ': ' + str(error))
     report['findings'] = [row for a in report['audits']

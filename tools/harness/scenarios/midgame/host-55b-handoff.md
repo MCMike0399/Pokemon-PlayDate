@@ -30,8 +30,11 @@ tests pass. SDK 3.1.2 production compile passes. Preflight has 1,569 checks:
 5.5a has 656 passes and 158 exclusions; prepared 5.5b has 556 conditional/static
 passes and 199 exclusions. Neither scope has a geometry gap or unreachable route.
 
-Preflight still exits 1: its original `midgame-host-preflight-baaf6368/report.json`
-archive is absent. It does not reconstruct or waive that provenance. Five existing
+Root follow-up: a missing historical comparison report is now reported as unavailable,
+not as a current geometry failure. Existing report corruption still fails. The
+current pinned-source geometry, all call coverage and earned traces remain checked;
+no historical evidence is reconstructed. Preflight now exits 0 with 1,569 checks,
+zero geometry findings and zero evidence errors. Five existing
 earned trace records verify independently. The pinned 169 historical call sites
 retain their classification, including 35 inactive sites; the report separately
 hashes the corrected driver. Actual occupancy, earned actions, animation, commits,
