@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "status": "cold-load-component-passed-NOT-milestone-acceptance",
+  "revision": "2a015c8926305c437637325b041dc0fd4fc5daaf",
+  "production_source_sha256": "6e15ad88d0c28312f851ee473a505137da1c96b635e1e317ed5911829421ac2c",
+  "main_pdz_sha256": "b850e48cc96180fae78418dbf14cffaa2082ae8778a2e0221bd19ac8dacc2844",
+  "scope": "Exact same private PDX; read-only load-boundary comparison against actual capture; no natural journey or device acceptance",
+  "comparison_boundary": "after real GameSaves load, before first overworld update",
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-build-continue-20261029-02",
+  "summary_sha256": "cccdc3d0a84cbca8f85cb559c74be79d36fc4413498d84a448aa92904da453f7",
+  "starters": [
+    {
+      "starter": "bulbasaur",
+      "ok": true,
+      "location": {
+        "facing": "up",
+        "x": 3,
+        "y": 3,
+        "zone_id": "pokered:CELADON_POKECENTER"
+      },
+      "earned_slots": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "fbff61c6b166867562ee5728d1efd453e5dff3fb8329c18455a9d824e7faa10b"
+        }
+      ]
+    },
+    {
+      "starter": "squirtle",
+      "ok": true,
+      "location": {
+        "facing": "up",
+        "x": 3,
+        "y": 3,
+        "zone_id": "pokered:CELADON_POKECENTER"
+      },
+      "earned_slots": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "33cdbe0d8a1181b4ecdd428496754bf868e2d5c6159d12e9bff2e576f92fa249"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "bf65b9c60fde35d3a7596ba9f6dbf2cf4c4c0f81f7f8db6edac8e7dea2e9b613"
+        }
+      ]
+    },
+    {
+      "starter": "charmander",
+      "ok": true,
+      "location": {
+        "facing": "up",
+        "x": 3,
+        "y": 3,
+        "zone_id": "pokered:CELADON_POKECENTER"
+      },
+      "earned_slots": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "d7db2ec6b994bc463c5a0b1086f437d5b285d57a76a4144a64f887c0fc064559"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "725ae2e24674a9cdba61a97fc6f01d04d8d8e17cdbad728b81370d97b8971111"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "GameSaves called directly; this adds no natural-input journey claim",
+    "Not hardware or pacing acceptance",
+    "First observer attempt compared after one NPC update; rejected and preserved unchanged"
+  ]
+}

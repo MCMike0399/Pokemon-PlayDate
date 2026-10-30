@@ -71,14 +71,10 @@ new logs (`evidence/p0-recorder-handle-hardware-20261029-01`); idle benefit is u
 The user is away; no repeated setup or feedback request. Production excludes
 all serial-input and frame-recorder code.
 
-The paired 16 MB heap check now passes on private 108-map `e022538e`:
-title **5.614 MiB**, earned Continue **5.776 MiB**, observed phase peak
-**6.744 MiB**. The same observer on 65 maps measured **5.014 / 5.088 / 6.002 MiB**.
-Evidence: `evidence/p0-checkpoint-a-field-index-heap-20261029-01`.
-The 6 MiB title/Continue and 9 MiB peak guards remain unchanged. Existing SDK
-content/event and world batches pass **80/80**; one review found no defect.
-Field indexes may reload after GC, so journey latency still needs measurement.
-These are Simulator results, not hardware validation of the 108-map build.
+The paired 16 MB heap check passes on private 108-map `e022538e`: title/Continue
+**5.614/5.776 MiB**, peak **6.744 MiB**, versus 65-map **5.014/5.088/6.002 MiB**.
+Evidence: `evidence/p0-checkpoint-a-field-index-heap-20261029-01`; 80 SDK cases
+and one review pass. These are Simulator results; hardware pacing remains open.
 
 ## 4. Work in flight
 
@@ -100,8 +96,10 @@ red/green native evidence and 20 host checks pass; both reviews have no defects.
 All three private 5.5a journeys pass actual process Save/Continue. Bulbasaur and
 Squirtle cover the critical path; Charmander also completed drink rewards,
 Eevee, a genuine slot spin and the Abra prize. [Hashes and exact build scopes](midgame-a-journey-candidates-20261029.json).
-Earned slots are outside Git in `chain/5.5a/<starter>`. Final same-build Continue,
-latency, soak, delivery and user play remain; no milestone acceptance is claimed.
+Earned slots are outside Git in `chain/5.5a/<starter>`. All three also pass
+[exact cold-load session equality on one build](midgame-a-common-load-20261029.json).
+This calls GameSaves directly, adding no natural-input or device claim. Final
+input Continue, latency, soak, delivery and user play remain; no acceptance claimed.
 Current-checkout preflight: 1,566 checks, no unexplained 5.5a geometry blockers.
 Inactive 5.5b keeps two unreachable points and six explicit field/actor gaps.
 
