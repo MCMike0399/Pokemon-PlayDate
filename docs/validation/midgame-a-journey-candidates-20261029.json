@@ -5,12 +5,9 @@
   "main_maps": 65,
   "candidate_maps": 108,
   "requirements_remaining": [
-    "device latency targets",
-    "idle soak",
-    "final same-build Continue verification",
-    "production packages and earned saves",
-    "real-speed clip",
-    "user device play"
+    "30+30 hardware idle qualification",
+    "108-map hardware smoke without new logs and within memory guards",
+    "acceptance merge and real-speed clip"
   ],
   "starters": {
     "bulbasaur": {
@@ -67,5 +64,14 @@
       "provenance_sha256": "a7f67ca1997860dd3717c1308553c36fd730294bd0aa95b6cca8394139493fef",
       "content_scope": "optional"
     }
+  },
+  "playability_requirements_remaining": [
+    "device latency targets before 5.5c",
+    "user device play"
+  ],
+  "completed_followup": {
+    "common_build_continue": "docs/validation/midgame-a-common-load-20261029.json",
+    "production_package": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-synchronized-20261029-01",
+    "canonical_slots_rechecked": 6
   }
 }
