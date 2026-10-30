@@ -15,5 +15,21 @@
   "device_gains_measured": false,
   "review": "No concrete findings in one static performance review",
   "sdk_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-native-sdk-20261029-02/startup-probe.json",
-  "candidate_revision": "6f8f53ad"
+  "candidate_revision": "6f8f53ad",
+  "simulator_proofs": {
+    "baseline": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-baseline-safety-20261029-01/simulator-smoke.json",
+      "sha256": "dd9ab5dd6dcace025bf23b449d31ca2714c4f1db8d0d53485e90074a36d52261",
+      "status": "simulator-smoke-passed",
+      "sampled_peak_bytes": 7352248.32,
+      "maximum_slice_ms": 40.611
+    },
+    "candidate": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-candidate-safety-20261029-01/simulator-smoke.json",
+      "sha256": "24ccd854a048998b4fc98edb8cae228ec4ff0b3b3870440620f28d07747357c4",
+      "status": "simulator-smoke-passed",
+      "sampled_peak_bytes": 7354765.312,
+      "maximum_slice_ms": 39.515
+    }
+  }
 }
