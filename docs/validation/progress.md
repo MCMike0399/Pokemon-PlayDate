@@ -92,7 +92,11 @@ compact decode/profile preparation; it is not isolated decode timing.
 [Composed phases and installer attribution](boot-stack-composed-20261030.json).
 Full first-entry activation and current-map scaling remain open. The reviewed
 Kanto first-use port has its own 149-map SDK export and 40 passing host/build
-checks; exact safety passed and hardware is running in exec 20308.
+checks. The 149-map hardware comparison completed without new logs; keeper restored.
+Kanto installer falls 1,172 → 34 ms; boot 13.711 → 12.580 s. Continue 3.384 s,
+Save 1.648 s, sampled longest door 2.974 s, cave p95 101.51 ms, raw boot
+slice 1.446 s; Lua live/peak 4.53/5.82 MiB. Diagnostic title GC is 0.835 s.
+[108/149 installer comparison](kanto-first-entry-scaling-20261030.md).
 
 Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
 raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.

@@ -1,0 +1,98 @@
+{
+  "status": "Reviewed Kanto first-use implementation merged on main and ported privately to B; latency acceptance remains open.",
+  "runs": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-hardware-20261030-01/device-smoke.json",
+      "sha256": "181bf2831e77d76b03be73d1c66fd8e148afc11bde661a5cda7228335a989d4a",
+      "build_id": "025d4978a1e746abad619fa7accc2d4e",
+      "phase_measurements": {
+        "Continue": 3197.0,
+        "Save": 1613.0,
+        "battle": 19.0,
+        "boot_slice": 1267.0,
+        "boot_title": 11263.0,
+        "cave_walking_p95": 96.96899999999732,
+        "door": 3014.0,
+        "title_artwork": 2580.0
+      },
+      "installer_wall_ms": {
+        "CeruleanContent.registerPackage": 112.0,
+        "CeruleanContent.install": 90.0,
+        "KantoScenes.install": 58.0,
+        "KantoServices.install": 20.0,
+        "VermilionGifts.install": 35.0,
+        "VermilionStory.install": 143.0,
+        "Daycare.install": 740.0,
+        "HideoutTowerContent.install": null,
+        "MidgameServices.install": null,
+        "CeladonServices.install": null,
+        "MidgameStoryWarps.install": null,
+        "KantoWorld.install": 1141.0,
+        "PewterWorld.install": 4.0,
+        "title.prepare": 4184.0
+      },
+      "heap_live_mib": 4.0181259765625,
+      "heap_peak_mib": 5.26133203125,
+      "last_phase": {
+        "clock_ms": 70067.0,
+        "heap_kib": 4415.256,
+        "peak_kib": 5387.604,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 524.0,
+        "since_yield_ms": 558.0
+      },
+      "new_error_or_crash_logs": false,
+      "keeper_restored": true
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-149-hardware-20261030-01/device-smoke.json",
+      "sha256": "f17f6e597e3c5a3326d278eee396847f263b352fbe8dff55286abfa2d59f4687",
+      "build_id": "3d62a607d2d543b4904876c9323662f2",
+      "phase_measurements": {
+        "Continue": 3384.0,
+        "Save": 1648.0,
+        "battle": 20.0,
+        "boot_slice": 1445.924,
+        "boot_title": 12580.0,
+        "cave_walking_p95": 101.50800000000163,
+        "door": 2974.0,
+        "title_artwork": 2617.0
+      },
+      "installer_wall_ms": {
+        "CeruleanContent.registerPackage": 193.0,
+        "CeruleanContent.install": 94.0,
+        "KantoScenes.install": 34.0,
+        "KantoServices.install": 20.0,
+        "VermilionGifts.install": 43.0,
+        "VermilionStory.install": 157.0,
+        "Daycare.install": 21.0,
+        "HideoutTowerContent.install": 768.0,
+        "MidgameServices.install": 67.0,
+        "CeladonServices.install": 283.0,
+        "MidgameStoryWarps.install": 113.0,
+        "KantoWorld.install": 1559.0,
+        "PewterWorld.install": 4.0,
+        "title.prepare": 4296.0
+      },
+      "heap_live_mib": 4.5276787109375,
+      "heap_peak_mib": 5.8223974609375,
+      "last_phase": {
+        "clock_ms": 72560.0,
+        "heap_kib": 4871.818,
+        "peak_kib": 5962.135,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 582.0,
+        "since_yield_ms": 615.0
+      },
+      "new_error_or_crash_logs": false,
+      "keeper_restored": true
+    }
+  ],
+  "149_map_baseline_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-stack-composed-149-hardware-20261030-01/device-smoke.json",
+  "149_map_baseline_installer_ms": 1172.0,
+  "149_map_installer_gain_percent": 97.09897610921502,
+  "149_map_boot_gain_percent": 8.248851287287579,
+  "screen": "Not directly observed; serial state and exact collected trace.",
+  "limits": "Diagnostic full GC included. No shipped-equivalent or immediate-first-A measurement. Native memory and unsampled peaks unmeasured.",
+  "installer_caveat": "108 Daycare span aggregates later installers; not directly comparable with split 149 Daycare. Blank phases have no separate trace boundary. Durations include yields, GC, nested calls and instrumentation."
+}
