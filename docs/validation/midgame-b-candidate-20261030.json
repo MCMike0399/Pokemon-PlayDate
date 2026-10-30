@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "status": "private; journeys running; not accepted",
+  "candidate": "62f46b83",
+  "maps": 149,
+  "new_maps": 41,
+  "parked": [
+    "Route16FlyHouse",
+    "Saffron",
+    "Silph",
+    "Dojo",
+    "Fly",
+    "NPC trades",
+    "guard drinks"
+  ],
+  "preflight": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-ready-preflight-20261030-01.json",
+  "preflight_scope": "No unexplained geometry failures; live capabilities remain conditional",
+  "native_owner_cases": {
+    "passed": 10,
+    "failed": 0,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-05",
+    "checkpoint_c_cases_excluded": [
+      "Fly",
+      "Dojo"
+    ]
+  },
+  "chip_away": {
+    "native_case_passed": true,
+    "behavior_review": "no findings",
+    "standards_review": "four inline control bodies; expanded in c32280cc",
+    "producer_host_cases": 26,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-chip-away-native-20261030-02"
+  },
+  "first_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-first-20261030-01",
+    "result": "All three failed at first Tower rival observation; nil receipt copy; unchanged failed evidence",
+    "fix": "94d149ec; nullable receipts guarded and regression assertions pass"
+  },
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-second-20261030-01",
+  "surf_art": {
+    "source": "existing pinned SeelSprite selected by Blue loader",
+    "native_pose_reference_matches": 12,
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-surf-avatar-native-20261030-01",
+    "motion": "pending earned journey"
+  },
+  "memory": "Private 149-map Simulator measurement profile completed at 6.55 MiB collected checkpoint; physical native 6 MiB guard unchanged; no B hardware result yet",
+  "hardware_blocked_by_active_soak": "docs/validation/idle-soak-active-20261030.json",
+  "main_scope": "108 maps; private B not merged"
+}

@@ -110,6 +110,10 @@ conditions remain. The first matched A-save probes report 6.02 MiB on 108 maps
 and 6.53 MiB at B title. Private B separates Simulator peak/slice measurement
 from the unchanged physical 6 MiB live guard; native B memory is unmeasured.
 Scope: Tower/Fuji/Flute, Snorlax/Cycling Road, Fuchsia/Safari/Koga, Surf/Strength.
+Private B now passes ten focused owner cases plus Chip Away’s native contract.
+Both move reviews are resolved. The first three journeys hit the same nullable
+Tower-receipt bug; fixed with regression assertions. A second frozen set is
+running from earned A saves. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
 ## Storage, decisions and history
