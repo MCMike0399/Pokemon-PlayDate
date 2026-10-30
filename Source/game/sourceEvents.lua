@@ -624,20 +624,35 @@ function SourceEvents._registerRegionDeclaration(name, root, identity)
         or (name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
         return false
     end
+    yieldIfDue()
     local record = ShippedDataPolicy.readBundleJSON("data/regionDeclarations/" .. name .. ".json")
     if record.root ~= root or record.transform_identity ~= (identity or false) then
         return false
     end
     assert(not eventSources[name] and not trainerSources[name], "region source already declared")
+    local prepared = 0
     for id in pairs(record.records) do
         assert(not eventExists(id), "duplicate source event")
+        prepared = prepared + 1
+        if prepared % 32 == 0 then
+            yieldIfDue()
+        end
     end
     for id in pairs(record.trainers) do
+        prepared = prepared + 1
+        if prepared % 32 == 0 then
+            yieldIfDue()
+        end
         assert(not baseIndex().records.trainers.trainers[id], "duplicate source trainer")
         for _, source in pairs(trainerSources) do
             assert(not source.records[id], "duplicate source trainer")
+            prepared = prepared + 1
+            if prepared % 32 == 0 then
+                yieldIfDue()
+            end
         end
     end
+    yieldIfDue()
     eventSources[name] = {records=record.records, lazy=true, region=true, chunks=record.chunks, items=record.items}
     trainerSources[name] = {records=record.trainers, lazy=true, region=true, chunks=record.chunks, flags=record.trainer_flags}
     return true

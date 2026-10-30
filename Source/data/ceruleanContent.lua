@@ -80,6 +80,7 @@ function CeruleanContent.registerPackage(name, root, transform, transformIdentit
         and SourceEvents._registerRegionDeclaration(name, root, transformIdentity) then
         SourceEvents.registerTextSource(name, CeruleanContent.text)
         packages[name] = root
+        yieldIfDue()
         return
     end
     yieldIfDue()
