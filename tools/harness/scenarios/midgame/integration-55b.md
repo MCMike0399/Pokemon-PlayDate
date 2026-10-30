@@ -1,72 +1,66 @@
-# Checkpoint 5.5b integration packet
+# Checkpoint 5.5b driver retry
 
-This is host preparation, blocked on production integration. Root owns Source,
-Simulator, device, locks and acceptance. Do not spend Simulator time until the
-all-waypoint report has been reviewed and these gaps resolved.
+Prepared on exact private B `df85e8d6553c63876d8b27b1988cbc84280cdfab`
+with Sol/medium. Root owns production Source, Simulator, hardware and ledger.
+No Simulator, USB, runtime lock, pinned helper, push or delegation was used.
+The three restart cases still import unchanged accepted A hashes and ancestry.
 
-The new cases are `restart-55b-{bulbasaur,squirtle,charmander}.json`.
-They import only accepted `chain/5.5a` pairs. Charmander is optional;
-Bulbasaur and Squirtle are critical. Earlier A and Lavender cases remain valid.
-B dispatch calls Tower, Fuchsia/Safari and Bicycle/Cycling Road only, then rods
-and fishing for Charmander. No Rock Tunnel/Celadon replay, Saffron, Dojo or Fly.
-The inherited battle/menu/route owners remain responsible for actual input.
+The existing `advance_event` seam now handles actual Safari passage announcement,
+walk/fade and Safari battle message/action/2-column command phases. Optional
+Charmander commits one BALL and retains its real capture receipt, whether caught
+or escaped. Other encounters use RUN. Inventory, money and existing party XP
+must remain unchanged through each committed turn and terminal battle receipt.
+No ordinary battle owner substitutes for Safari.
 
-Import checks the accepted A manifest, exact two hashes, original journey source,
-earned 5.4 ancestry, recorded partial ancestry archives and confirmed stopped
-producer. Its two immutable receipts must agree. The new actual title Continue
-must equal the full accepted canonical codec before travel. A B partial retry
-instead compares its actual saved partial codec, retaining the accepted ancestry;
-only explicitly recorded B steps can skip a group. No progress is inferred.
-Final export requires two exited distinct PIDs, fresh Continue, equal immutable
-receipts, required B steps and unchanged stopped slot hashes. Successful final
-B bytes go only to `chain/5.5b/<starter>`; no slots have been exported by this work.
+Admission walks onto source Gate `(4,2)`, answers YES and checks the completed
+passage: fee 500, three scripted cells, active 499 steps/30 balls, Center `(15,24)`.
+The fixed route starts at that actual arrival, without another Center warp.
+Source Gold Teeth/HM03 are collected. Critical starters use an owned Rope or buy
+one through Lavender Mart's observed stock/price and actual purchase UI. Existing
+retail input makes bag room first; no Rope or money is manufactured.
 
-## Owner hooks and observation gaps
+Optional Charmander uses source grass `(19,5)`/`(19,6)` if the route has not yet
+provided a BALL opportunity. The bounded attempt may fail honestly. After HM03,
+Secret House source `(2,4)`/`(3,4)` consume actual completed cells until expiration.
+Every loop checks live counters and lastStep serial; the final receipt must prove
+500 ordinary counted cells since settled admission, including the zero-before-
+decrement cell, then a completed forced return at Gate `(3,3)`. No duration or
+movement estimate substitutes for those receipts. HM04, Warden push, Surf boarding
+and landing retain the existing actual-input checks.
 
-- Activate the intended B maps/events/trainers through the existing owners.
-  Current Source has 30 missing B maps. `game/towerStory`, `game/snorlaxStory`,
-  `game/fieldTravelRuntime` and `game/fieldTravelState` are not production imports.
-  Existing prepared files and static contracts are not installed gameplay.
-- Keep the existing `midgame-owners`, `midgame-state`, `saved` and `loaded`
-  read-only observations. Existing field runtime observations must report actual
-  installed state, phases and results. Qualify Surf boarding/landing, the Warden
-  two-attempt boulder push and Cycling Road's forced motion with real inputs.
-- Safari has no production battle/menu/resource surface usable by this driver.
-  Root must supply its actual admission, remaining steps/balls, ending reason,
-  battle phase and menu/result observation. Specify the real input flow and
-  capture policy before implementing its driver; do not alias ordinary battle.
-  `safari_journey()` currently fails explicitly before admission. The retained
-  `prepared_safari_route()` is geometry material, not an executable proof of
-  Safari resources, battles, HM03 or HM04. Replace the blocker only after these
-  real owner contracts are defined. Include ball use and step exhaustion proof.
-- Fishing uses the existing FieldGear owner, but `midgame-state` does not expose
-  its detached cast/result observation. Root should expose the existing owner
-  outcome and real UI phase; specify the hook before adding a bounded cast driver.
-  `optional_b()` fails explicitly after rod acquisition. A no-bite outcome must
-  remain honest; do not seed or require an invented guaranteed catch.
+Cycling Road holds B before Route17, briefly releases without direction to
+observe genuine automatic descent, reholds B for ordinary planned travel and
+releases after the long gesture. Before/after position and travel receipts are
+retained. The Bicycle acquisition approach uses the earned eastern route first.
 
-No new observation names or production APIs are proposed here. Generic `drain`
-cannot substitute for Safari/fishing evidence. No final B receipt can succeed
-with these blockers. Trades, guard drinks, Saffron and Fly remain outside scope.
+All three rods use actual FieldGear cast/bite/result phases and the published
+rod/map/result receipt at the Fuchsia pond. Encounter results must open a real
+wild battle; a genuine no-bite is accepted. No catch or no-bite is forced.
+Final B receipt validation additionally checks saved source reward flags, actual
+Flute/Bicycle/HM inventory, returned Teeth, and inactive/settled Safari resources.
+The existing two-process Continue, immutable receipt and stopped-slot export
+guards remain in force. No B save has been exported by this preparation.
 
-## Host verification
+## Host evidence and root follow-up
 
-Reused exact-scope geometry commits `8ab0544e` and `442a0ea4` as local commits
-`05470829` and `51c3d526`. They touch only the allowed driver/preflight/scenarios.
+Evidence directory:
+`~/Developer/Pokemon-PlayDate-env/evidence/host-55b-driver-retry-20261030-096eae0c/`.
+The all-waypoint preflight ran once. Its 1,572 historical checks have no geometry
+finding or evidence error. All three accepted A imports pass read-only. Current B
+has eight remaining conditions: three conditional geometry/capability checks
+(Route17, Route18, Warden push) and five native evidence groups (Safari, fishing,
+Surf/Strength, Cycling Road, three complete B restarts). Static installed owner
+and observation checks pass; missing-API claims are removed. Exit 1 means these
+native conditions remain, not an unexplained source path failure.
 
-Run `python3 tools/harness/preflight_midgame.py --output <outside-repo>/preflight.json`.
-It collects all current B maps, chains, segments, fixed script, interaction
-approaches, accepted imports and owner/observation gaps in one pass. Exit 1 means
-blockers. The separate pinned prepared audits retain 1,569 checks with zero gaps;
-that result does not activate their maps or certify B runtime behavior.
-`checkpoint_5_5b.blockers` is the complete current integration checklist.
+Compile-only SDK 3.1.2 passes. Of 53 focused host checks, 52 pass; the existing
+`ProjectionTests.test_generation_is_exact_and_pins_every_map_and_three_counter_teams`
+fails because `Source/dev/vermilionJourney.json` still pins ten earlier dependency
+hashes. Its projected gameplay data is equal. That Source projection is outside
+worker ownership; root should refresh it using the existing generator. The 12
+changed import/export/input checks pass after the final driver edits.
 
-Evidence: `~/Developer/Pokemon-PlayDate-env/evidence/host-55b-driver-20261029-01/`.
-The initial report records 70 blockers: 30 map activations, 16 interaction
-approaches, 11 waypoints, 3 chains, 1 fixed script, 4 owner imports and 5
-observation/runtime gaps. Many are consequences of the same missing maps.
-All three accepted A ancestry/archive imports pass read-only. SDK 3.1.2
-compile-only succeeds in `compile-stage`; no Simulator or device was launched.
-All 79 focused host checks pass without skips. They cover legacy cases, changed manifests/slots/ancestry,
-unconfirmed producers, archive/receipt tampering, initial Continue mismatch,
-packet dispatch, incomplete B receipts and final restart/export rejection.
+Root must run the three `restart-55b-*.json` cases with continue-on-failure and
+retain real receipts. Host preparation grants no native acceptance or guaranteed
+outcome. The preflight identifies its exact driver hash; later final edits only
+strengthen resource guards/phase receipts and add the already-owned Old Rod cast.

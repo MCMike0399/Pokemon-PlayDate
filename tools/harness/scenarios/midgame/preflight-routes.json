@@ -1007,6 +1007,42 @@
           4
         ],
         "requires": "Actual Strength push must move Warden boulder actor to runtime (10,4). Raw terrain-only pass cannot prove actor occupancy."
+      },
+      {
+        "name": "Safari admission trigger",
+        "map": "SafariZoneGate",
+        "start": [
+          4,
+          3
+        ],
+        "goal": [
+          4,
+          2
+        ]
+      },
+      {
+        "name": "Safari optional grass BALL approach",
+        "map": "SafariZoneWest",
+        "start": [
+          19,
+          6
+        ],
+        "goal": [
+          19,
+          5
+        ]
+      },
+      {
+        "name": "Safari Secret House exhaustion cells",
+        "map": "SafariZoneSecretHouse",
+        "start": [
+          2,
+          4
+        ],
+        "goal": [
+          3,
+          4
+        ]
       }
     ],
     "fixed": [

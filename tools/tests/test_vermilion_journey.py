@@ -37,6 +37,21 @@ def campaign_receipt():
                 inventory={}, party={}, checkpoint={}, codec=payload)
 
 
+def b_codec():
+    codec = campaign_receipt()['codec']
+    codec.update(version=4, fieldWorld=dict(version=1, mapPalOffset=0),
+                 daycare=dict(version=1, earned='0'),
+                 fieldTravel=dict(version=1, mode='walking', strength=False, visited=[]), coins=0)
+    codec['questFlags'] = {flag: True for flag in (
+        'BADGE_SOUL', 'EVENT_GOT_TM06', 'EVENT_RESCUED_MR_FUJI', 'EVENT_GOT_POKE_FLUTE',
+        'EVENT_BEAT_ROUTE12_SNORLAX', 'EVENT_BEAT_ROUTE16_SNORLAX', 'EVENT_GOT_HM03',
+        'EVENT_GOT_HM04', 'EVENT_GAVE_GOLD_TEETH')}
+    codec['inventory'] = dict(money=1000, slots=[dict(id=item, quantity=1)
+        for item in ('pokeFlute', 'bicycle', 'hm03', 'hm04')])
+    codec['safari'] = dict(version=1, active=False, steps=0, balls=0, ending='none')
+    return codec
+
+
 def receipt():
     return dict(campaign=campaign_receipt(), classification='natural', case=None, cut_cells=[])
 
@@ -516,6 +531,41 @@ class MidgameSaveInputTests(unittest.TestCase):
 
 
 class MidgameBImportTests(unittest.TestCase):
+    def test_overlay_input_waits_for_actual_owner_phase(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        driver.state = {'root': 'fieldGear'}
+        for phase, command in [('cast', 'wait 3'), ('bite', 'wait 3'), ('result', 'press a')]:
+            with self.subTest(phase=phase), patch.object(driver, 'observe', return_value={
+                    'fieldGear': dict(installed=True, active=True, phase=phase)}), patch.object(driver, 'send') as send:
+                self.assertTrue(driver.advance_event())
+                send.assert_called_once_with(command)
+        driver.state = {'root': 'safariPassage'}
+        for phase, command in [('announcement', 'press a'), ('before', 'wait 3'), ('fade', 'wait 3'), ('after', 'wait 3')]:
+            with self.subTest(phase=phase), patch.object(driver, 'safari_observation', return_value={
+                    'passage': dict(phase=phase)}), patch.object(driver, 'send') as send:
+                self.assertTrue(driver.advance_event())
+                send.assert_called_once_with(command)
+        with patch.object(driver, 'safari_observation', return_value={'passage': dict(phase='failed', lastFailure='stale')}):
+            with self.assertRaisesRegex(ProtocolError, 'stale'):
+                driver.advance_event()
+
+    def test_safari_run_uses_two_column_cursor_and_requires_commit(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        battle = dict(active=True, phase='command', selected=1, turns=0, encounter=1,
+                      menu=dict(active=True, columns=2, options=['BALL', 'BAIT', 'ROCK', 'RUN']))
+        with patch.object(driver, 'safari_observation', return_value={'battle': battle}), patch.object(driver, 'send') as send, \
+                patch.object(driver, 'inventory', return_value={}), patch.object(driver, 'party', return_value=[]):
+            driver.advance_safari_battle()
+            send.assert_called_once_with('press right')
+            send.reset_mock()
+            battle['selected'] = 2
+            driver.advance_safari_battle()
+            send.assert_called_once_with('press down')
+            battle['selected'] = 4
+            with patch.object(driver, 'inventory', return_value={}), patch.object(driver, 'party', return_value=[]):
+                with self.assertRaisesRegex(ProtocolError, 'did not actually commit'):
+                    driver.advance_safari_battle()
+
     def scenario(self, starter='squirtle'):
         return json.loads((mj.SCENARIOS / ('restart-55b-' + starter + '.json')).read_bytes())
 
@@ -625,13 +675,23 @@ class MidgameBImportTests(unittest.TestCase):
             driver.natural()
         self.assertEqual(calls, ['route_tower', 'route_fuchsia', 'route_bicycle'])
         state = dict(starter='squirtle', packet='5.5b', content_scope='critical',
-                     codec=campaign_receipt()['codec'], completed_steps=sorted(mj.B_STEPS))
+                     codec=b_codec(), completed_steps=sorted(mj.B_STEPS))
         mj.validate_receipt_state(state)
         for step in mj.B_STEPS:
             with self.subTest(step=step), self.assertRaises(ProtocolError):
                 mj.validate_receipt_state(dict(state, completed_steps=sorted(mj.B_STEPS - {step})))
-        with self.assertRaisesRegex(ProtocolError, 'Safari requires'):
-            driver.safari_journey()
+        with patch.object(driver, 'observe', return_value={'safari': {'sessionInstalled': False}}):
+            with self.assertRaisesRegex(ProtocolError, 'Safari requires'):
+                driver.safari_journey()
+        for key, value in [('active', True), ('balls', 1), ('ending', 'steps')]:
+            changed = copy.deepcopy(state)
+            changed['codec']['safari'][key] = value
+            with self.subTest(resource=key), self.assertRaisesRegex(ProtocolError, 'resources'):
+                mj.validate_receipt_state(changed)
+        changed = copy.deepcopy(state)
+        changed['codec']['inventory']['slots'].pop()
+        with self.assertRaisesRegex(ProtocolError, 'rewards'):
+            mj.validate_receipt_state(changed)
 
     def test_b_continue_compares_accepted_codec_before_travel(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -658,7 +718,7 @@ class MidgameBImportTests(unittest.TestCase):
                 (producer / 'starting-save.json').write_text(json.dumps(record))
                 run = json.loads((producer / 'run.json').read_bytes())
                 state = dict(starter='squirtle', packet='5.5b', content_scope='critical',
-                             codec=campaign_receipt()['codec'], completed_steps=sorted(mj.B_STEPS))
+                             codec=b_codec(), completed_steps=sorted(mj.B_STEPS))
                 for index, group in enumerate(run['processes']):
                     packet = dict(schema=1, kind='midgame-saved', state=copy.deepcopy(state), **NoRuntime.identity)
                     if mutation == 'codec' and index == 1:

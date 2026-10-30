@@ -767,14 +767,27 @@ def checkpoint_b_preflight(plan):
                 raise ProtocolError('production import not installed: ' + module)
             return 'import present; native lifecycle unverified'
         check(module, 'owner-integration', installed)
-    # These are explicit unresolved observation seams, not imaginary API names.
+    diagnostics = (ROOT / 'Source/dev/diagnostics.lua').read_text()
+    for name, markers in (
+            ('Safari detached owner observation', ['SafariRuntime.observe(game)']),
+            ('FieldGear detached controller/result observation', ['fieldGear=gearView', 'result = game.lastFieldGear']),
+            ('FieldTravel detached controller observation', ['game:getFieldTravelSnapshot()', 'fieldUI=ui('])):
+        def projected(markers=markers):
+            if any(marker not in diagnostics for marker in markers):
+                raise ProtocolError('installed read-only projection missing: ' + str(markers))
+            return 'existing projection present; actual input evidence remains root-owned'
+        check(name, 'observation-integration', projected)
+    for module in ('game/safariRuntime', 'game/safariBattleState', 'game/safariPassageState', 'game/fieldGearState'):
+        check(module, 'owner-integration', lambda module=module: installed(module))
+    # Static presence removes the old API-unknown blockers. Host checks never
+    # certify native input, resource commits or the earned three-starter restart.
     for name, reason in (
-            ('Safari admission/resources', 'No detached Safari steps/balls/ending observation in midgame-state.'),
-            ('Safari battle input', 'No production Safari battle state/menu or capture-policy integration exposed to this driver.'),
-            ('Fishing outcome', 'No detached fieldGear cast/result observation in midgame-state; generic drain cannot certify a cast.'),
-            ('Surf/Strength execution', 'Prepared terrain and actor geometry do not prove installed field controller, two-attempt push, water move or landing.'),
-            ('Bicycle forced movement', 'Ordinary one-tile walking planner is unqualified for production Cycling Road forced movement.')):
-        checks.append(dict(name=name, category='observation-or-runtime-gap', status='blocked', error=reason))
+            ('Safari real input', 'Root must run fee 500, source 499/30, HM03/Teeth/HM04, committed BALL and actual 500-cell expiration.'),
+            ('Fishing real input', 'Root must run observed cast/bite/result with natural encounter or no-bite outcomes for each rod.'),
+            ('Surf/Strength execution', 'Root must witness actual two-attempt boulder push, Surf board and landing.'),
+            ('Cycling Road execution', 'Root must witness unsteered descent, held-B braking and completed travel.'),
+            ('Three earned B restarts', 'Root must run all accepted A starters through complete B steps and two-process Continue before export.')):
+        checks.append(dict(name=name, category='native-evidence-pending', status='blocked', error=reason))
     return dict(kind='all declared B waypoints and owner gaps; host only',
                 driver_sha256=sha((ROOT / 'tools/harness/midgame_journey.py').read_bytes()),
                 source_commit=git('rev-parse', 'HEAD').decode().strip(), checks=checks,
