@@ -223,5 +223,16 @@
     },
     "host_logs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-trade-host-6dc256f1-20261030-01",
     "log_retention_commit": "b6e9b8a8"
+  },
+  "audio_b_preparation": {
+    "commit": "44f78d7f30c1100205dae08541392d4fb82c166f",
+    "routes": 149,
+    "new_scores": [
+      "SafariZone",
+      "PokemonTower"
+    ],
+    "host_checks": 77,
+    "generators_and_sdk_compile": "passed",
+    "scope": "No B map install; historical24scores/routes/waves/cries preserved; runtime/loading/heap/listening pending"
   }
 }
