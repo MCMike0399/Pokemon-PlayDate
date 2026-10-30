@@ -1,155 +1,120 @@
 # Full-game execution ledger
 
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
-Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
-Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-5.5a elapsed since 5.4: **29.69 h**, **0 accepted maps/day**. P0 elapsed: **23.39 h**; hardware pace: **0 maps/day**.
-## 1. Accepted game and current main
+Progress: **65/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5a.**
+5.4: **8.70 h / 96.55 maps/day**. 5.5a elapsed: **31.57 h / 0 accepted maps/day**.
+P0 elapsed: **25.33 h**. Commit locally; do not push.
 
-Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
-[Acceptance](vermilion-acceptance-20261028.json), [earned-save hashes](chain-saves.json).
-All three starters reached Vermilion, explored Anne, received Cut, beat Surge,
-crossed Diglett's Cave and earned Flash, starting from earned Cerulean saves.
-Bulbasaur covered optional content; the others covered the critical path.
-All passed actual process exit/Continue. These are Simulator results.
-**Hardware now boots and loads the earned save; playability is not accepted yet.**
-The full hardware smoke passed, but map loads still exceed the revised target.
+## Accepted scope and current candidate
 
-Current P0 game change on main: `c2a3c036`. Imported maps use two cache slots.
-Startup work yields; map cells use validated packed rows. Field data/art prepares
-at map entry. Encounter policy reads retain every commit guard without repeated
-slot copying. Original source grids, world/story/rules and protected pixels remain.
-The approved GB tones and non-audio QoL remain; no new regions are active.
+Main's Simulator-accepted 5.4 gameplay is `1a4a7894`.
+[Acceptance](vermilion-acceptance-20261028.json), [chain hashes](chain-saves.json),
+[elapsed-time basis](milestone-times.json). Three starters reached Surge, Cut,
+Diglett's Cave and Flash from earned Cerulean saves. This is not device playability.
+The 108-map private 5.5a build boots and passes its earned-save hardware smoke.
+It fits the same current-map memory budget as 65 maps. No new region is on main.
 
-Simulator preview packages: `evidence/player-packages/5.4-playable-20261028`.
-Showcase: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
-These are not verified device deliveries.
-## 2. Current checkpoint and checklist
+All three natural 5.5a journeys pass Erika, Hideout and Silph Scope, with actual
+process Save/Continue. Charmander covers optional Celadon services, Eevee, a real
+slot spin and Abra; the other starters use the critical path.
+[Journey hashes](midgame-a-journey-candidates-20261029.json).
+All three also pass actual-input Continue/Save, exit, Continue/Save on one PDX.
+Original earned files remain unchanged. [Common-build evidence](midgame-a-common-load-20261029.json).
 
-**108-map hardware smoke passes; loading/playability remains open. 5.5a: frozen.**
+Candidate production PDX and three earned save pairs, outside Git:
+`evidence/player-packages/5.5a-candidate-20261029-01` (not accepted/delivered).
+Prior 5.4 package: `evidence/player-packages/5.4-playable-20261028`.
+Prior clip: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
 
-- [x] Persistent phase trace, guarded error screen, cooperative loading.
-- [x] Simulator 16 MB pool verified (`MallocPoolSize=16645684`).
-- [x] Calibration, serial print/messages and attached-device coexistence verified.
-- [x] Earned-save smoke reaches title, Continue, save, doors, Cut and wild battle.
-- [x] Simulator Lua heap fits 6 MiB live / 9 MiB sampled-peak targets.
-- [x] Hardware measurement safety: error-free 16 MB route, peak <=9 MiB, slice <=150 ms.
-- [ ] Hardware walking, map load and battle start meet the new playability targets.
-- [x] Exact hardware build reaches title and earned Continue.
-- [x] Hardware warp, battle, save and memory smoke pass without new crash logs.
-- [ ] Hardware loading meets the playability target, then the user plays it.
+## Immediate blocker: idle collection
 
-Then accept 5.5a (Rock Tunnel/Lavender/Celadon/Erika/Hideout/Scope),
-5.5b (Tower/Fuji/Flute/Fuchsia/Safari/Koga/Surf/Strength), and
-5.5c (Saffron/Silph/Sabrina/Dojo/Fly), each on main with three chained earned saves.
-Only one starter covers optional content. Sets continue after a starter fails.
-## 3. Current evidence and blockers
+The two-hour hardware soak **FAILED**, build `c87b9ee8`, after 60 title minutes
+and 15 overworld minutes. The software guard saw **9217.205 KiB** after 75/120
+samples; last named phase was Continue.end. No new error/crash log appeared.
+[Exact failure](device-idle-soak-failure-20261029.json). Queued measurements stopped.
+The failed attempt remains reserved while root closes its verified disposition.
 
-Latest 108-map Save-only build `d6e78c1253664f05b28e05f339a5f683` completed
-the earned-save hardware smoke with exact error/crash logs. Save measured
-**6.528 s**, versus **9.193 s** on its matched baseline; the 2 s target stays open.
-Boot/title **18.447 s**, Continue **7.929 s**, Route2 door **3.082 s**, battle
-**19 ms**, cave walking p95 **97.26 ms**. App-start/walk-ready proxy **28.351 s**;
-physical power-on is unmeasured. Lua live/peak **4.01 / 5.65 MiB**; last battle
-phase **4.24 MiB**. [Exact phase results](device-save-latency-20261029.json).
-The original hook filter improved mean walking to 30.23/26.76 fps; cave p95
-still fails. Old reports remain exact; fresh reports separate diagnostic GC.
+Simulator frame-count diagnosis reaches 8.5 MiB then falls to **5.09 MiB** after
+full collection. Growth is collectible; a retained leak is not established.
+Removing the game’s explicit per-frame step alone had no effect. The SDK also
+steps GC each frame. Test timer-removal-table allocation and collection modes.
+Next: soft 8 MiB collection at a safe point; reject >6 MiB after GC or the hard
+limit. Preserve a 9 MiB hard guard. Qualify 30+30 minutes, then two hours overnight.
+Find the retained 1.10 s slice before calling the startup work closed.
 
-Flat atlases passed 16 SDK world cases, one review and all **497,664 native
-pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
-Compile and 54 protocol checks pass. Main’s full host suite passes **963 tests,
-no skips** (`evidence/main-aromatherapy-host-20261029-01.log`). Cold per-image files and duplicate-validation
-fast paths were rejected after actual device comparisons. No universal guessed
-factor blocks deployment; safety is the completed 16 MB route, <=9 MiB sampled
-peak, <=150 ms Simulator slices and active crash guards.
+## One-page device latency budget
 
-The earlier user-play build `2e450cd9` reached its 9 MiB guard after about
-100 minutes idle at title. Its exact trace was archived before replacement.
-No leak cause is established. Recorder `5899775` reuses one flushed handle and
-stops metrics after physical handoff. The exact hardware smoke passes with no
-new logs (`evidence/p0-recorder-handle-hardware-20261029-01`); idle benefit is unmeasured.
-The user is away; no repeated setup or feedback request. Production excludes
-all serial-input and frame-recorder code.
+Measured totals below are the latest paired 108-map trace-policy run. Contributor
+figures are inclusive spans from retained traces; older method profiles are
+labelled and must not be added as exclusive CPU. Savings are design targets,
+not measured claims. [Save evidence](device-save-latency-20261029.json).
 
-The paired 16 MB heap check passes on private 108-map `e022538e`: title/Continue
-**5.614/5.776 MiB**, peak **6.744 MiB**, versus 65-map **5.014/5.088/6.002 MiB**.
-Evidence: `evidence/p0-checkpoint-a-field-index-heap-20261029-01`; 80 SDK cases
-and one review pass. These are Simulator results; hardware pacing remains open.
+| Phase / target | Measured | Top three contributors | Structural change / expected saving |
+|---|---:|---|---|
+| Boot → title / 10 s | 15.636 s | title inspect 3.326 s; registration 2.15 s (older); imports about 1.1 s | minimal title first, finish work in background; generate pure registration data; aim to hide/remove 3–5 s |
+| A → walking / 4 s | Continue 6.922 s | store load 2.29 s; decode 1.41 s; gate view 1.13 s (older profile) | validate disk once, preload saved map while title idles, install prepared result; aim to remove/hide 2–4 s |
+| Save / 2 s | 5.759 s | five deep validator calls; payload copies/encoding; slot IO/readback (current exclusive split unavailable) | production trusted-owner export plus checksum/readback; aim to remove 3–4 s |
+| Route2 door / 1.5 s | 2.947 s | Zone 0.799 s; bindings 0.443 s; view 0.419 s (older profile) | prepare destination in spare cache during approach, fade only installs; aim to hide 1–2 s |
+| Cave p95 / 50 ms | 97.68 ms | encounter prepare, encounter resolve, timer/GC churn; exclusive device split pending | prepare policy on entry, allocation-free completion; aim to remove 40–60 ms |
 
-## 4. Work in flight
+Battle start is **14 ms**, already below 1 s. App-start → walk-ready is **24.476 s**;
+physical power-on is unmeasured. Latest Lua live/peak: **3.95/5.45 MiB**.
+Trace: `evidence/p0-buffered-trace-hardware-20261029-01`.
+65-map paired Simulator title/Continue/peak: **5.014/5.088/6.002 MiB**;
+108-map: **5.614/5.776/6.744 MiB**. Evidence:
+`evidence/p0-checkpoint-a-field-index-heap-20261029-01`. Fresh 65/108 timing
+comparison remains required. Cost growing with installed world size is fixed first.
 
-Root owns Simulator and hardware; the user is away. No setup question or push.
-Main remains **65/222 Simulator route-verified; 0/222 hardware accepted**.
-The provisional full-latency targets are in the goal: boot/title 10 s, Continue
-4 s, Save 2 s, doors 1.5 s, battle start 1 s, cave p95 50 ms; boot slices 1 s.
-App-start-to-walking is also reported; physical power-on remains unmeasured.
-Save parsing, static loading cadence and trace buffering are measured and retained.
-JSON/Lua decoding is measured; startup registration and the Route2 outlier are next.
+## Rules for the next changes
 
-Private 108-map revision `baaf6368` fixed Mansion's blocked stair arrival from
-exact Blue code. One native contract and both reviews pass. Charmander then
-obtained Eevee and completed a genuine one-coin slot spin. Its prize window
-exposed another real interaction bug: signs must win before counter-range NPC
-lookup (`home/overworld.asm:1076–1126`). Private `b676f305` fixes both dispatchers;
-red/green native evidence and 20 host checks pass; both reviews have no defects.
+Production device export is tiered: full validation once for untrusted disk bytes;
+validated owner exports use checksums and exact readback. Harness/dev/contracts
+retain deep validators. Two slots and full load validation remain. Earlier strict
+repeat-validation rules are superseded by the latest user steer.
 
-All three private 5.5a journeys pass actual process Save/Continue. Bulbasaur and
-Squirtle cover the critical path; Charmander also completed drink rewards,
-Eevee, a genuine slot spin and the Abra prize. [Hashes and exact build scopes](midgame-a-journey-candidates-20261029.json).
-Earned slots are outside Git in `chain/5.5a/<starter>`. All three also pass
-[exact cold-load session equality on one build](midgame-a-common-load-20261029.json).
-Actual input restarts also pass for all three on one PDX: Continue/Save, exit,
-Continue/Save; non-motion session values match, original earned slots unchanged.
-Latency, soak, delivery/clip and user play remain; no hardware acceptance claimed.
-Current-checkout preflight: 1,566 checks, no unexplained 5.5a geometry blockers.
-Inactive 5.5b keeps two unreachable points and six explicit field/actor gaps.
+After the 16 MiB safety route, measure on hardware first. Review only phase gains
+of at least 10%; discard the rest after one measurement. No guessed 35.11 factor.
+Safety is guards active, no runtime error, <=9 MiB sampled peak, <=150 ms raw
+Simulator slices. Performance targets do not block measurement.
 
-Save parsing reuse is on main (`7291113e`), with dynamic validators preserved.
-Review caught an optional-cache alias; the extended existing SDK case failed,
-then passed after the fix. All 17 persistence cases pass on main. Production
-inspect reuse remains disabled without a stable epoch; Save still exceeds 2 s.
-[Removing temporary Inventory owners](device-save-inventory-candidate-20261029.json)
-passes review and 64 SDK cases. Both paired builds pass the 16 MB safety route;
-hardware timing waits for the soak. Existing lazy/capacity fixture repairs pass
-253 and 52 native cases; preparation/drain checks pass 152. Production is unchanged.
+The old title-summary shortcut was rejected because it removed constructor and
+fresh dependency checks. Rework load/export structurally under the new tiered
+policy; do not quietly relabel the rejected shortcut as accepted.
+JSON/Lua hardware benchmark: indexes were slower as Lua; keep JSON indexes.
+[Exact decode results](device-decode-benchmark-20261029.json).
+[Save allocation candidate](device-save-inventory-candidate-20261029.json) and
+[walking profiler](device-step-profile-candidate-20261029.json) remain unmeasured
+on hardware. Do not add more machinery around old micro-optimizations.
 
-Static loading is on main (`ad037673`): five native presentation cases pass
-privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,
-Continue 7.929→7.057 s and Save 6.528→5.891 s, with unchanged logs. Targets stay
-open. Trace buffering `8f5d4f5b` passed review; its separate device cycle completed; all provisional latency targets except battle
-and one cave door remain open. The membership and lazy-audio packets stay parked. No new regions or audio
-are activated. The unattended two-hour title/overworld soak is running on build `c87b9ee8`.
-Launch: `evidence/private-soak-hardware-launch-20261029-01`. Its exact fresh
-16 MB short proof passes at 33 ms / 6.21 MiB, including a retained post-check
-witness (`evidence/private-soak-postcheck-short-20261029-01`). Hardware completion
-is unverified; the device reservation protects the attempt. The root collector is
-scheduled for launch +125 minutes and will retain failures or restore the keeper
-after verified collection (`evidence/private-soak-collection-schedule-20261029-01.json`).
-Fresh device reports use phase targets and exclude diagnostic-GC frames from
-ordinary walking; historical reports remain exact. Earlier reports are archived.
+## 5.5 acceptance and parallel work
 
-The device decode benchmark completed 24 calls and 12 typed comparisons. Route2
-JSON/Lua medians were 79.63/46.91 ms; Vermilion index 86.37/94.80 ms and
-midgame index 112.98/121.38 ms. Keep JSON indexes: Lua was slower for both.
-[Exact results and hashes](device-decode-benchmark-20261029.json).
-This does not explain the 2.15 s registration span. Candidate `a318caec` reuses
-transient fields, reducing loader calls 2,274→6, and adds cooperative yields.
-Review, compile, 35 host checks and 182 targeted SDK cases pass; the exact
-16 MB input smoke passes at 42.04 ms maximum raw slice and 7.01 MiB sampled
-peak. Hardware comparison waits until the soak releases the device; no speedup claimed.
+Once the soak passes, merge 5.5a after the 108-map hardware smoke has no new logs
+and fits the memory guards. Label **Simulator-accepted and hardware-safe;
+device latency targets not yet met**. Do not call it playable on device yet.
+Then activate prepared lazy audio. Targets must pass before 5.5c acceptance;
+no checkpoint may regress any phase by more than 10%.
 
-## 5. Decisions and history
+Next checkpoints: 5.5b Tower/Fuji/Flute/Snorlax/Fuchsia/Safari/Koga/Surf/Strength;
+5.5c Saffron/Silph/Sabrina/Dojo/Fly. Each has three earned saves on main and one
+optional starter. Workers may prepare 5.5b host repairs: two unreachable points
+and six explicit field/actor gaps. Root owns Simulator/device time.
+Current preflight: 1,566 checks, no unexplained 5.5a geometry blocker.
 
-Keep Blue world/story/dialogue, Gen V rules, 151 species and protected art.
-Approved display changes: imported GB tones plus museum/Route2 diagnostics.
-Crank, registered A+B, manual Bag sort, reusable TMs and B2W2 Pickup are approved.
-Trades require taking held items first but remain parked. No repeated policy or volume questions.
-Detailed history: [earlier device reports](progress-history-device-p0-20261029.md),
-[loading reports](progress-history-p0-loading-20261029.md).
-Accepted summaries: [setup](divemac-baseline-20261026.json), [Brock](brock-acceptance-20261026.json),
-[foundations](foundation-acceptance-20261026.json), [Cerulean](cerulean-acceptance-20261028.json),
-[Vermilion](vermilion-acceptance-20261028.json).
-Prior housekeeping freed 16.13 GB and removed at least 94 clean worktrees; further cleanup is paused.
-Journey data stays in `Source/dev`; references regenerate from checksum manifests.
-Packages, earned slots and clips remain outside Git. **Local commits await an explicit push request.**
-**The full game remains unfinished.**
+## Storage and housekeeping
+
+Freed **110.48 GiB (118.63 GB)**; now **160.02 GiB free**.
+Removed 83 clean integrated/rejected worktrees and 82 branches,
+plus 648 superseded evidence directories. COW-deduplicated 58 identical
+archived files with SHA256 verification; all retained paths/bytes remain intact.
+[Audit](storage-cleanup-20261029.json). Automatic 150 GiB maintenance is next.
+Keep chain saves, packages, committed validation references and latest passing
+journey/device builds. Journey frames retain failures/checkpoints only.
+
+## Decisions and history
+
+Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.
+GB imported tones, four approved QoL controls and Pickup remain. Trades require
+Take first but trades/guards stay parked. No repeated policy/volume question.
+Detailed [earlier device reports](progress-history-device-p0-20261029.md),
+[loading history](progress-history-p0-loading-20261029.md).
+Nothing pushed. **The full game remains unfinished.**
