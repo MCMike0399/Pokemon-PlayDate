@@ -119,7 +119,9 @@ All 1,036 B host tests pass. Thirteenth-set Charmander saved after Bicycle, then
 failed in `drawFaded` under the 16 MiB Simulator pool after the long route.
 Heap was about 12 MiB, peak 13.53 MiB; this is a real unresolved memory failure,
 not merely the later transport timeout. A 71-map production-resource diagnostic
-is compiled, unrun. Other starters continue frozen. B remains unaccepted.
+is queued behind the frozen suite. Bulbasaur passed that door but stopped after
+a Route 17 trainer because its held brake needed physical rearming. Squirtle
+continues; a driver correction is prepared, unapplied. B remains unaccepted.
 [Evidence and pending reviews](midgame-b-candidate-20261030.json).
 The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
 unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;

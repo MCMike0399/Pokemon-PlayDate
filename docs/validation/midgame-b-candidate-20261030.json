@@ -327,7 +327,7 @@
   "thirteenth_journey_set": {
     "revision": "f949997e",
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-thirteenth-resumed-20261030-01",
-    "state": "Running,continue on failure; no outcomes inferred",
+    "state": "Charmander and Bulbasaur failed; Squirtle remains running on the frozen build.",
     "inputs": "m55b-resume-inputs-20261030-07; exact stopped slots and acceptedA ancestry verified. Unsaved Bicycle state notpromoted.",
     "gift_native_comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gift-native-comparison-20261030-01.json",
     "gate_native_check": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-cycling-gate-supplementary-20261030-03/result.json",
@@ -355,6 +355,20 @@
       "earned_save": "The actual Cerulean Center save after Bicycle acquisition is retained. The producer stopped; later unsaved state is not promoted.",
       "map_memory_diagnostic": "m55b-map-memory-diagnostic-prepare-20261030-01: 71 direct entries through production owners, explicit full collection and fade allocation. Compiled, not executed or accepted.",
       "remaining_starters": "Continue on the frozen build; no outcome is inferred."
+    },
+    "bulbasaur_result": {
+      "status": "Failed after the Route 17 trainer; the process stopped before Squirtle began.",
+      "error": "source-valid walk failed: (10, 19) -> (10, 20), actual (10, 19)",
+      "evidence_requests": [
+        "04419-result.json",
+        "04420-request.json",
+        "04420-result.json",
+        "04421-request.json",
+        "04421-result.json"
+      ],
+      "finding": "The down press did not move while B remained held after trainer dialogue. Cleanup release immediately began genuine automatic descent. The existing consumed A/B gesture requires both buttons released.",
+      "candidate": "m55b-cycling-postbattle-diagnosis-20261030-01/postbattle-brake.patch: rearm physically after battle, then re-plan from the actual resulting cell. Unapplied; Python syntax passes; native verification pending.",
+      "scope": "Driver recovery defect; no production movement or rules change proposed."
     }
   },
   "current_production_profile": {
@@ -383,6 +397,7 @@
       "green_log": "host-fatal-error-green-20261030-01.log",
       "actual_replay": "host-fatal-error-actual-replay-20261030-01.json",
       "scope": "Exact archived OOM report is preserved and input refused in 2 ms. No new SDK/gameplay execution. Active B tool files remain frozen."
-    }
+    },
+    "diagnostic_sequence": "Root process is waiting on the global runtime lock, then runs the old/bounded gift comparison and 71-map diagnostic sequentially under runtime and device locks. Pending output: m55b-memory-diagnostic-sequence-20261030-01.json. No runtime result claimed."
   }
 }
