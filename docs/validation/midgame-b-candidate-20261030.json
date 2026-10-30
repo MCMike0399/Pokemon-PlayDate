@@ -343,5 +343,15 @@
       "sha256": "ab012ed9273d88c33a747995f37ac41df46f68ed34f5560c7655302843777c96",
       "scope": "All currently discovered B host tests and compile-only checks; not campaign/device acceptance"
     }
+  },
+  "current_production_profile": {
+    "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-current-production-profile-prepare-20261030-02",
+    "build_id": "f78c0f0f83cd444e92cd0f6e9b294ba2",
+    "revision": "f949997e",
+    "maps": 149,
+    "status": "SDK3.1.2compiled; no exact safety admission or hardware execution yet",
+    "policy": "Production-profile owner exports with existing device guards; full load validation and deep contract builds retained",
+    "inputs": "Accepted5.4CharmanderRoute2Gate and254baselineDS1commands, byte-identical to priorpairedinput; rehashed for newbuild",
+    "scope": "Currentcode measurement preparation, not reuse ofoldPDX oroldproof; finalBcheckpoint acceptance stillrequires completeearnedjourneys"
   }
 }
