@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "2984348eaa31c348cf6d061f8081868a93f58a51",
-    "source_sha256": "8b586a72d6415239efa68f6109579380bcad82cd93e1ab2c1b0a5dad8f45ca94",
+    "commit": "2a015c8926305c437637325b041dc0fd4fc5daaf",
+    "source_sha256": "6e15ad88d0c28312f851ee473a505137da1c96b635e1e317ed5911829421ac2c",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Private 108-map checkpoint 5.5a preparation. Main has 65 Simulator-route maps; no milestone is accepted for hardware playability. Inventory identity only. Every existing evidence record and acceptance facet retains its original scope.",
