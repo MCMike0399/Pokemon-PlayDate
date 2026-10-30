@@ -17,8 +17,7 @@
     "privately_patched_compile": true
   },
   "remaining_gaps": [
-    "Copycat Poke Doll/TM31 exchange",
-    "Copycat conditional PC",
+    "Copycat runtime/review/Save-Continue acceptance; prepared service is not activated",
     "Center link receptionist",
     "Gift naming",
     "Native guard/Silph/Sabrina/Dojo/Fly acceptance",
@@ -26,5 +25,14 @@
   ],
   "main_activation": false,
   "runtime_executed": false,
-  "scope": "Do not integrate until B acceptance and root performance gates. Existing data/owner seams reused; no 5.6 work."
+  "scope": "Do not integrate until B acceptance and root performance gates. Existing data/owner seams reused; no 5.6 work.",
+  "copycat_packet": {
+    "commit": "8a4a8e4acc17b52f5adcc5ea01a89212dbd99c42",
+    "status": "Prepared separately; unapplied/unaccepted",
+    "host_checks": 38,
+    "sdk_case": "One supplementary case compiled, not executed",
+    "compile": "Production, harness and privately composed root hooks passed SDK 3.1.2",
+    "handoff": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-587ddd36/tools/integration/copycat/README.md",
+    "scope": "Original Doll/TM31 exchange and conditional PC text; no new dispatcher, owner, naming or link play. Native gameplay, sound, timing and Save/Continue pending."
+  }
 }
