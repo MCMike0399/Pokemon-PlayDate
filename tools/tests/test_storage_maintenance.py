@@ -187,7 +187,7 @@ class StorageMaintenanceTests(unittest.TestCase):
             with patch('sys.stdout', io.StringIO()):
                 self.assertEqual(storage.main(['--env', str(self.env)]), 0)
             self.assertFalse(maintain.call_args.args[-1])
-            self.assertEqual(maintain.call_args.args[3:5], (150 * storage.GIB, 170 * storage.GIB))
+            self.assertEqual(maintain.call_args.args[3:5], (50 * storage.GIB, 70 * storage.GIB))
 
     def test_sharing_runs_after_deletion_and_excludes_age_grace(self):
         removable = self.stage('deletable')

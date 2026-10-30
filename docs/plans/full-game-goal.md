@@ -15,7 +15,8 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 This section supersedes earlier P0 freeze and validation rules below.
 
-Keep at least **150 GiB free** on DiveMac automatically. Retain chain saves,
+Keep at least **50 GiB free** on DiveMac automatically (user update, 2026-10-30).
+Automatic cleanup targets 70 GiB once it starts. Retain chain saves,
 player packages, acceptance evidence, references from committed validation JSON,
 and the latest passing journey and device-build runs. Remove superseded retries,
 rejected build stages and clean merged/rejected worktrees and branches. Retain

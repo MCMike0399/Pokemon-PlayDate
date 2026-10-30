@@ -138,15 +138,16 @@ proof does not establish long-route or final B acceptance.
 Initial audited cleanup freed 110.48 GiB; later worktree, COW and compile cleanup
 is retained in [history](progress-history-midgame-b-20261030.md) and the
 [cleanup audit](storage-cleanup-20261029.json). Automatic maintenance uses a
-150 GiB minimum / 170 GiB target every 30 minutes; ownership locks stay enforced.
+50 GiB minimum / 70 GiB target every 30 minutes, per the user’s 2026-10-30
+update; ownership locks stay enforced.
 
 Native APFS compression recovered an observed **14.31 GiB (15.36 GB)** without
 removing referenced evidence. All **178 files / 35.42 GB of logical trace bytes**
 passed full post-write SHA256 checks. Paths, readable bytes and public metadata
 are preserved. That pass stopped at the open-path guard. Automatic compression is
 integrated in `6abf11ec`; its 49 checks pass, but later unattended recovery is
-unmeasured. Free space is now **114 GiB**, below reserve; the live journey owns
-the runtime lock, so maintenance must wait for its safe release. [Audit](archive-sharing-20261030.json).
+unmeasured by that earlier audit. The latest pass recovered an observed
+**9.92 GiB**, leaving about **125 GiB free**, above the new 50 GiB limit. [Audit](archive-sharing-20261030.json).
 
 Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.
 Approved GB imported tones, four QoL controls and Pickup remain.

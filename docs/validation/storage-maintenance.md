@@ -5,9 +5,9 @@ The 2026-10-29 evening storage direction supersedes the earlier cleanup pause.
 existing cleanup inventory helpers. It never launches the Simulator, contacts a
 device, changes a service, or cleans worktrees or branches.
 
-The default is a read-only JSON report. Reclamation starts only below 150 GiB
-available to this user. An executing invocation stops at 170 GiB, or when its
-safe candidates run out. An invocation starting at 150 GiB or higher does no
+The default is a read-only JSON report. Reclamation starts only below 50 GiB
+available to this user. An executing invocation stops at 70 GiB, or when its
+safe candidates run out. An invocation starting at 50 GiB or higher does no
 scan or deletion. This hysteresis avoids repeated cleanup near the minimum.
 An already healthy reserve leaves all files untouched.
 
@@ -94,7 +94,7 @@ for maintenance. This is the exact root review command:
   --project /Users/burbujamc/Developer/Pokemon-PlayDate \
   --env /Users/burbujamc/Developer/Pokemon-PlayDate-env \
   --checkpoint-ref t3/midgame-55b-driver \
-  --minimum-free-gib 150 --target-free-gib 170
+  --minimum-free-gib 50 --target-free-gib 70
 ```
 
 The exact root execution command, after review, is:
@@ -104,7 +104,7 @@ The exact root execution command, after review, is:
   --project /Users/burbujamc/Developer/Pokemon-PlayDate \
   --env /Users/burbujamc/Developer/Pokemon-PlayDate-env \
   --checkpoint-ref t3/midgame-55b-driver \
-  --minimum-free-gib 150 --target-free-gib 170 --execute
+  --minimum-free-gib 50 --target-free-gib 70 --execute
 ```
 
 Update `--checkpoint-ref` when the active checkpoint changes. A missing branch,
@@ -190,7 +190,7 @@ exec /usr/bin/python3 /Users/burbujamc/Developer/Pokemon-PlayDate/tools/harness/
   --project /Users/burbujamc/Developer/Pokemon-PlayDate \
   --env /Users/burbujamc/Developer/Pokemon-PlayDate-env \
   --checkpoint-ref wip/checkpoint-a-erika \
-  --minimum-free-gib 150 --target-free-gib 170 --execute \
+  --minimum-free-gib 50 --target-free-gib 70 --execute \
   > "$maintenance_logs/$maintenance_stamp.json" \
   2> "$maintenance_logs/$maintenance_stamp.log"
 ```
