@@ -42,8 +42,14 @@ local function shallow(value)
     end
     return result
 end
+local function readContent(path)
+    if ShippedDataPolicy and ShippedDataPolicy.immutableContent() then
+        return ShippedDataPolicy.readBundleJSON(path)
+    end
+    return assert(json.decodeFile(path), "content file missing")
+end
 local function readIndex(name)
-    local data = assert(json.decodeFile("data/contentCache/" .. name .. ".json"), "content index missing")
+    local data = readContent("data/contentCache/" .. name .. ".json")
     assert(data.schema == 1 and data.source_revision == REVISION, "unverified content index")
     return data
 end
@@ -89,7 +95,7 @@ function SourceEvents._contentRecord(digest)
         end
     end
     if not value then
-        value = assert(json.decodeFile("data/contentCache/chunks/" .. digest .. ".json"), "content chunk missing")
+        value = readContent("data/contentCache/chunks/" .. digest .. ".json")
     end
     recent[digest] = value
     recentOrder[#recentOrder + 1] = digest

@@ -24,5 +24,5 @@ function ShippedDataPolicy.readBundleJSON(path)
 end
 
 function ShippedDataPolicy.immutableContent()
-    return immutableContentQualified and HarnessBuild == nil
+    return immutableContentQualified and HarnessBuild == nil and playdate.file.kFileRead == 3
 end
