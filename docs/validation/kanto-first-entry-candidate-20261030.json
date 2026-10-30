@@ -30,5 +30,11 @@
     "Public getters, dynamic save validators and harness/custom deep paths remain; callbacks still register at boot.",
     "Fixture eligibility and defensive-copy tests pass; long physical traversal and B release gates remain."
   ],
-  "measurement": "kanto-first-entry-measurement-20261030.json"
+  "measurement": "kanto-first-entry-measurement-20261030.json",
+  "qualified_scene_sdk_cases": {
+    "passed": 44,
+    "failed": 0,
+    "evidence": "evidence/kanto-first-entry-qualified-scenes-sdk-20261030-01",
+    "classification": "Production qualified boot; existing story/scene/route contracts execute after enabling their harness fixture support."
+  }
 }
