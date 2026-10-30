@@ -135,7 +135,8 @@ The latest three Bicycle Saves pass the original ancestry/slot/producer checks.
 All three earned B routes and actual restarts pass and export final chains.
 All three also pass common-build cold load and two real-input Continue/Save
 processes on one PDX, preserving canonical slots. [Scope](midgame-b-common-load-20261030.json).
-Presentation, physical long traversal and scoped reviews remain; B stays private.
+All 2,494 protected images match exactly. New B presentation, physical long
+traversal and scoped reviews remain; B stays private. [Visual scope](midgame-b-protected-visuals-20261030.json).
 
 The earlier 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle
 with unchanged logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s; longest

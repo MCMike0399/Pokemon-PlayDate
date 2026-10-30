@@ -1,0 +1,21 @@
+{
+  "status": "All2494 protected prior images match exact decoded pixels/alpha/masks and inventory.",
+  "comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-protected-catalog-comparison-20261030-01.json",
+  "comparison_sha256": "ae206f3e263a102a3553a36ae9f101479cbae62d201ae824413001e5e68ab9be",
+  "catalog": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-protected-catalog-combined-20261030-01",
+  "batches": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-protected-legacy-catalog-20261030-01",
+      "images": 1635
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-protected-pewter-catalog-20261030-01",
+      "images": 859
+    }
+  ],
+  "failed_combined_export": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-protected-small-catalog-20261030-01",
+    "error": "Catalog memory exhausted; restored supported live state. Not a visual pass."
+  },
+  "scope": "Protected prior art only, through real SDK production renderers. Does not review new B maps, moving field presentation, audio, timing or campaign acceptance."
+}
