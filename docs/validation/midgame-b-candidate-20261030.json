@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; eighth journey set resumes verified Snorlax-cleared saves; not accepted",
-  "candidate": "d2a71315",
+  "status": "private; eighth set terminal; ninth Koga-save resumes prepared; hardware safety in progress",
+  "candidate": "b122e349",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -50,7 +50,6 @@
     "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
     "fix": "3dcf5684 + 65ca3f5b: runtime destination key; real shop sales or conserved item-PC deposits reserve room. 34 host checks, production compilation and ten focused SDK cases pass. Full journey rerun pending."
   },
-  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eighth-resumed-20261030-01",
   "fourth_journey_set": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01",
     "result": "All three earned the Flute and saved after Fuji, then attempted same-map navigation across Route12 gatehouse components.",
@@ -91,6 +90,20 @@
     "source_revision": "d2a713152116cd9dbd17b82e9e16ffae173081ea",
     "maps": 149,
     "compile": "SDK 3.1.2 passed; only compile preparation",
-    "admission": "Fresh exact-bundle 16 MiB Simulator safety and hardware execution pending; no gate claimed."
+    "admission": "Fresh exact-bundle 16 MiB Simulator safety and hardware execution pending; no gate claimed.",
+    "safety_attempts": {
+      "01": "Rejected: baseline Route2 commands incorrectly paired with Celadon A Save; no door/battle coverage.",
+      "02": "Stopped before launch: prior private sandbox retained.",
+      "03": "Running exact same PDX with exact accepted 5.4 Charmander Route2 baseline. Prior private sandbox archived byte-exact after confirming owned PID stopped.",
+      "input_packet": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-inputs-route2-20261030-01"
+    }
+  },
+  "eighth_result": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eighth-resumed-20261030-01",
+    "all_three_koga_saves_verified": true,
+    "bulbasaur_squirtle": "Known late Rope return loop; transport timeout, owned processes confirmed terminated; captures not finalized.",
+    "charmander": "Reached Koga, saved, then moving Center NPC occupied next cell; finalized failed capture evidence.",
+    "repair": "b122e349: early Rope purchase, fixed reverse roads, confirmed Koga continuation, and <=8 retries only for explicit NPC blocked walks. 61 host checks pass.",
+    "resume_inputs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-03"
   }
 }
