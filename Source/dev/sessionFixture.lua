@@ -17,3 +17,25 @@ function SessionFixture.forVersion(record, version)
     end
     return result
 end
+
+-- Imported entries can be absent after any two-map cache eviction.
+function SessionFixture.loadZone(key)
+    local provider = WorldDeltas.definitionProvider()
+    if provider and provider:hasKey(key) then
+        return provider:ensure(key)
+    end
+    return assert(zoneRegistry[key], "fixture zone is not installed: " .. tostring(key))
+end
+
+-- Mutable geometry fixtures use a private registry and the real art preparation.
+function SessionFixture.createZone(name, options)
+    local profiles = SourceMaps.legacyProfiles({
+        dispatch = options.dispatch,
+        questFlag = options.questFlag,
+        sourceFlag = options.sourceFlag or function()
+            return false
+        end,
+    })
+    local profile = profiles[SourceMaps.entry(name).profile]
+    return SourceMaps.createZone(name, profile, options.registry, options)
+end
