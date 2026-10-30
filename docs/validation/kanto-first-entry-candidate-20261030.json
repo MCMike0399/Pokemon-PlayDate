@@ -1,5 +1,5 @@
 {
-  "status": "Installer gain qualifies for one review; isolated and not accepted on main.",
+  "status": "Reviewed and merged on main;40 merged host/build checks and compile pass. Private B port is collecting its own SDK qualification.",
   "branch": "wip/kanto-first-entry-108-20261030-01",
   "commit": "b56d8456",
   "build_id": "025d4978a1e746abad619fa7accc2d4e",
@@ -36,5 +36,11 @@
     "failed": 0,
     "evidence": "evidence/kanto-first-entry-qualified-scenes-sdk-20261030-01",
     "classification": "Production qualified boot; existing story/scene/route contracts execute after enabling their harness fixture support."
+  },
+  "main_merge": "db4e82e7c9635043a3f1e8c6d281944a9124bd2c",
+  "review": "t3-thread://v1/thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3A668996d2-10bc-44eb-9666-a9b31045c07c",
+  "findings": {
+    "Standards": 0,
+    "Spec": 0
   }
 }

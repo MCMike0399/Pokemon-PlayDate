@@ -1,0 +1,63 @@
+{
+  "status": "Supplemental actual-input Safari UI and BALL animation captured; selected native frames inspected.",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-live-safari-20261030-01",
+  "summary_sha256": "c79d11e9dbadd0ed61971e2c062a50183a7b664ddf1419aa1cccb970bb9cedcf",
+  "recordings": [
+    {
+      "frames": 240,
+      "name": "m55b-safari-ball"
+    }
+  ],
+  "observed": [
+    "Actual admission charged500 and initialized499steps/30balls.",
+    "BALL/BAIT/ROCK/RUN command screen; one real Safari Ball consumed, ordinary Bag/XP and step count unchanged during turn.",
+    "Original enemy art and throw/capture/break-free presentation."
+  ],
+  "turn": {
+    "after": {
+      "active": true,
+      "balls": 29,
+      "ending": "none",
+      "steps": 492,
+      "version": 1
+    },
+    "before": {
+      "active": true,
+      "balls": 30,
+      "ending": "none",
+      "steps": 492,
+      "version": 1
+    },
+    "command": "ball",
+    "outcome": "command",
+    "receipt": {
+      "capture": {
+        "ballId": "safariBall",
+        "catchRate": 90,
+        "caught": false,
+        "checks": 2,
+        "critical": false,
+        "criticalRoll": 243,
+        "criticalThreshold": 0,
+        "displayShakes": 1,
+        "guaranteed": false,
+        "modifiedRate4096": 184320,
+        "randomCalls": 3,
+        "rngRolls": 3,
+        "safari": true,
+        "shakeRolls": [
+          25109,
+          48549
+        ],
+        "shakeThreshold": 42473,
+        "successfulChecks": 1
+      },
+      "command": "ball",
+      "fleeRoll": 95,
+      "fleeThreshold": 52
+    },
+    "sequence": 1
+  },
+  "canonical_and_private_slots_unchanged": true,
+  "scope": "Simulator supplemental presentation only; not a campaign replay or hardware/memory acceptance. No Save written. Selected frames, not a complete video or physical screen review."
+}
