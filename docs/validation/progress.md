@@ -40,7 +40,7 @@ full collection. Growth is collectible; a retained leak is not established.
 Removing the game’s explicit per-frame step alone had no effect. SDK timer
 queue reuse now stops growth at matched Simulator frame counts. Soft/live/hard
 checks pass; the full 16 MiB route passes at 29 ms / 6.20 MiB peak. The 30+30
-generational qualification is deploying; incremental comparison remains pending.
+generational qualification is running; incremental comparison is being prepared.
 Next: soft 8 MiB collection at a safe point; reject >6 MiB after GC or the hard
 limit. Preserve a 9 MiB hard guard. Qualify 30+30 minutes, then two hours overnight.
 Find the retained 1.10 s slice before calling the startup work closed.
