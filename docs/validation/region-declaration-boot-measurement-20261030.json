@@ -1,0 +1,41 @@
+{
+  "scope": "Isolated 149-map on-demand record trial, not milestone or latency acceptance.",
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-immutable-content-149-hardware-20261030-01/device-smoke.json",
+  "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-region-declarations-149-hardware-20261030-01/device-smoke.json",
+  "candidate_sha256": "60c96903e6f0712addaa6c233f44e990ca5f411bcbc2717642f5a64e9639e505",
+  "build_id": "09f16f95a81f4d6b813484717c4b93c4",
+  "phase_ms": {
+    "Continue": 3295.0,
+    "Save": 1600.0,
+    "battle": 19.0,
+    "boot_slice": 1448.43,
+    "boot_title": 13687.0,
+    "cave_walking_p95": 102.82800000000861,
+    "door": 2960.0,
+    "title_artwork": 2571.0
+  },
+  "registration_baseline_ms": 5363,
+  "registration_candidate_ms": 171,
+  "registration_gain_percent": 96.81148610852135,
+  "boot_gain_percent": 26.175836030204962,
+  "boot_diagnostic_gc_ms": 898,
+  "heap_live_mib": 4.5735205078125,
+  "heap_peak_mib": 5.8685537109375,
+  "last_phase": {
+    "clock_ms": 73593.0,
+    "heap_kib": 4919.052,
+    "peak_kib": 6009.399,
+    "phase": "battle.live.after_gc",
+    "phase_ms": 555.0,
+    "since_yield_ms": 590.0
+  },
+  "new_error_or_crash_logs": false,
+  "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle.",
+  "equivalence": {
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/region-declaration-sdk-equivalence-20261030-01/startup-probe.json",
+    "events": 563,
+    "trainers": 175,
+    "host_checks": 13
+  },
+  "decision": "Gain qualifies for review. Membership remains immutable and descriptor bodies load on demand; complete region activation at first physical entry is not implemented. Boot, worst-door and cave targets remain unmet."
+}
