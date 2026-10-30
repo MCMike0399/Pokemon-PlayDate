@@ -138,7 +138,9 @@ for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
 
 APFS independent copy-on-write sharing of 1,882 identical archived bundles
 across 40 checkouts recovered an observed **12.16 GiB**; hashes and tracked
-documentation are unchanged. Free space is now **159.0 GiB**. Audit:
+documentation are unchanged. Free space was **159.0 GiB** after sharing.
+Automatic closed-trace sharing now passes 29 host checks and a Python 3.9.6
+APFS integration check after four review fixes. [Validation](archive-sharing-20261030.json). Audit:
 `storage-maintenance-logs/share-immutable-docs-20261030-01.json` outside Git.
 
 Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.

@@ -19,6 +19,7 @@ import time
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.harness.cleanup_evidence import inventory, metadata_files, read_json
+from tools.harness.share_archives import share_closed_traces
 
 PROJECT = Path(__file__).resolve().parents[2]
 GIB = 1024 ** 3
@@ -268,7 +269,7 @@ def maintain(project, env, refs, minimum, target, age_hours, execute=False,
     before = free_bytes(root)
     report = {'mode': 'execute' if execute else 'dry-run', 'evidence': str(root),
               'minimum_free_bytes': minimum, 'target_free_bytes': target,
-              'free_bytes_before': before, 'entries': [], 'removed': []}
+              'free_bytes_before': before, 'entries': [], 'removed': [], 'sharing': None}
     with ExitStack() as stack:
         if execute and before < minimum:
             for owner in ('storage-maintenance', 'suite', 'simulator', 'device'):
@@ -296,6 +297,14 @@ def maintain(project, env, refs, minimum, target, age_hours, execute=False,
                 report['removed'].append(str(path))
                 # Print a durable audit line even if a later revalidation refuses.
                 print(json.dumps({'removed': str(path), 'free_bytes': free_bytes(root)}), file=sys.stderr)
+            if execute and free_bytes(root) < target:
+                # Delete eligible archives first. Share only old retained trees;
+                # refreshed ctimes then enforce a quiet grace period, rather
+                # than recloning on each invocation and postponing deletion.
+                old_retained = {Path(e['path']) for e in report['entries']
+                                if e['action'] == 'keep' and 'age grace' not in e['reasons']}
+                report['sharing'] = share_closed_traces(
+                    root, True, lambda: free_bytes(root) >= target, allowed_roots=old_retained)
     report['free_bytes_after'] = free_bytes(root)
     report['observed_free_bytes_delta'] = report['free_bytes_after'] - before
     report['minimum_met'] = report['free_bytes_after'] >= minimum

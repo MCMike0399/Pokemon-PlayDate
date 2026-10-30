@@ -9,7 +9,26 @@ The default is a read-only JSON report. Reclamation starts only below 150 GiB
 available to this user. An executing invocation stops at 170 GiB, or when its
 safe candidates run out. An invocation starting at 150 GiB or higher does no
 scan or deletion. This hysteresis avoids repeated cleanup near the minimum.
-With the reported 160 GiB reserve, the command should do nothing.
+An already healthy reserve leaves all files untouched.
+
+After deleting eligible archives, execution can share byte-identical `trace.jsonl`
+copies inside confirmed exited harness runs using independent APFS clones.
+Only retained archives outside the age grace qualify. Cloning refreshes their
+change times, so the next invocations leave them alone until the grace expires;
+they can then be deleted first if protection has ended. Sharing cannot renew
+the grace on every invocation. The same ownership locks and required protection inputs apply. Live runs,
+game saves, Source, PDX bundles and frames are excluded. Every source,
+destination and temporary clone is checked by SHA256; changed files or a
+failed clone leave the destination intact. Nested mounts and device boundaries
+are rejected. Different ownership, flags, ACLs or extended attributes refuse a
+pair; matching metadata is verified again before publication. Paths, bytes,
+mode, access time and modification time remain unchanged; inodes and change
+times change. These are not hard links, so later writes
+remain independent. Each completed sharing operation has a durable audit line.
+Referenced evidence retains all of its bytes. Dry runs never clone files.
+Unsupported clone operations refuse maintenance rather than silently making
+ordinary copies. Reported logical bytes are not a claim of physical space freed;
+the free-space measurements remain authoritative.
 
 Root should first integrate the implementation commit into the checkout used
 for maintenance. This is the exact root review command:
@@ -18,7 +37,7 @@ for maintenance. This is the exact root review command:
 /usr/bin/python3 /Users/burbujamc/Developer/Pokemon-PlayDate/tools/harness/maintain_storage.py \
   --project /Users/burbujamc/Developer/Pokemon-PlayDate \
   --env /Users/burbujamc/Developer/Pokemon-PlayDate-env \
-  --checkpoint-ref wip/checkpoint-a-erika \
+  --checkpoint-ref t3/midgame-55b-driver \
   --minimum-free-gib 150 --target-free-gib 170
 ```
 
@@ -28,7 +47,7 @@ The exact root execution command, after review, is:
 /usr/bin/python3 /Users/burbujamc/Developer/Pokemon-PlayDate/tools/harness/maintain_storage.py \
   --project /Users/burbujamc/Developer/Pokemon-PlayDate \
   --env /Users/burbujamc/Developer/Pokemon-PlayDate-env \
-  --checkpoint-ref wip/checkpoint-a-erika \
+  --checkpoint-ref t3/midgame-55b-driver \
   --minimum-free-gib 150 --target-free-gib 170 --execute
 ```
 
@@ -95,8 +114,8 @@ The final JSON records before/after available bytes and their observed delta.
 Entry `bytes` is logical file size, not a promise of reclaimed APFS allocation.
 Concurrent disk activity can affect the free-space delta. Each actual removal
 also emits a JSON audit line to stderr, preserving partial progress if a later
-revalidation refuses. No COW deduplication or hardlink creation is included.
-The root's earlier SHA256-verified COW archives remain independent files and
+revalidation refuses. Copy-on-write sharing also emits an audit line; hard links
+are never created. The earlier SHA256-verified COW archives remain independent files and
 retain their paths. Automatic cleanup cannot guarantee a reserve if only
 protected evidence remains; root must inspect exit status 2.
 

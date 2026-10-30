@@ -188,6 +188,22 @@ class StorageMaintenanceTests(unittest.TestCase):
             self.assertFalse(maintain.call_args.args[-1])
             self.assertEqual(maintain.call_args.args[3:5], (150 * storage.GIB, 170 * storage.GIB))
 
+    def test_sharing_runs_after_deletion_and_excludes_age_grace(self):
+        removable = self.stage('deletable')
+        old = self.stage('old-reference')
+        recent = self.stage('recent-reference', age=1)
+        self.write(self.validation / 'references.json', {
+            'old': 'evidence/old-reference', 'recent': 'evidence/recent-reference'})
+        self.commit()
+        def share(root, execute, enough, allowed_roots):
+            self.assertFalse(removable.exists(), 'Eligible deletion must precede sharing')
+            self.assertIn(old, allowed_roots)
+            self.assertNotIn(recent, allowed_roots, 'Sharing must not renew the age grace')
+            return {'files': []}
+        with patch.object(storage, 'share_closed_traces', side_effect=share) as sharing:
+            self.maintain(True)
+        sharing.assert_called_once()
+
     def test_execution_stops_at_target_and_repeated_call_does_nothing(self):
         first = self.stage('a-stage')
         second = self.stage('b-stage')

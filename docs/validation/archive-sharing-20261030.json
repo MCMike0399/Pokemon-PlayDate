@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "status": "Reviewed candidate corrected by root; targeted validation passed",
+  "review": "thread:delegated-task:command%3Amcp%3Ac2466cd8-2d81-40e0-ab95-31211b037980%3Adelegate-task%3Apokemon-storage-sharing-review-20261030-01",
+  "original_packet": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/archive-sharing-review-20261030-01",
+  "resolutions": {
+    "python39": "Streaming SHA256; actual /usr/bin/python3 3.9.6 default APFS clone/metadata/isolated-write check passed.",
+    "age_grace": "Deletion planning and revalidation run first. Only retained roots outside age grace can be shared, preventing repeated refresh during the grace.",
+    "mounts": "Ancestor mount and root-device checks precede discovery and replacement.",
+    "metadata": "UID/GID/flags/ACL and xattr-value digests must match; destination metadata is checked again on the temporary file before publication."
+  },
+  "host_checks": 29,
+  "checks_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/archive-sharing-host-20261030-02.log",
+  "files": {
+    "tools/harness/share_archives.py": "adab9875d016fa9814820d0d9af0243c449f0a586c88a69ea6d1780e339cdb62",
+    "tools/harness/maintain_storage.py": "62b8c5f99ae7777f49eaff58c88b55f7b945e2c03254d9d7bfd19ae791c24afb",
+    "tools/tests/test_archive_sharing.py": "3d46a16978448ab78843e8be92341b545f86782e8170f1982fd73127b1c490b3",
+    "tools/tests/test_storage_maintenance.py": "0b7d5f706a6623db4cd3ffdc5f842ec824b8d35b46bf8596c06059531fb9967e",
+    "docs/validation/storage-maintenance.md": "7e8806e34a412118f2560c1c43e4596fd686e3469a21151c27ca7e1372244f20"
+  },
+  "scope": "No game/Simulator/device execution or real evidence cleanup performed by validation; native APFS test used disposable files. Earlier manual space recovery is separately recorded."
+}
