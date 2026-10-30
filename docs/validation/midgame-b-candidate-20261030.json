@@ -305,6 +305,12 @@
       "scope": "No new dispatcher/owner/savefield, allfourpriorgiftdefinitionsunchanged; liveB/main unchanged",
       "prepared_native_build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gifts-native-prepare-20261030-01",
       "native_build_scope": "Exact149-map B productionstage with onlyrodgiftLua/data overlays; existingwholegiftcasefactory plus twoUIrows. SDKcompilepassed; notexecutedwhile siblings ownruntime."
+    },
+    "bulbasaur_result": {
+      "status": "failed-exited",
+      "failure": "Same missing FuchsiaGoodRodHouse fisherman binding as Charmander, after real Safari/Warden progression",
+      "common_repair": "164020c3; pending native red/green and both gameplay reviews",
+      "other_starter": "Squirtle continues on frozen source; no outcome inferred"
     }
   },
   "cave_performance_preparation": {
