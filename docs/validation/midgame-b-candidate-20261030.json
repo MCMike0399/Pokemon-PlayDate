@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; fourth earned-save journeys running; not accepted",
-  "candidate": "65ca3f5b",
+  "status": "private; fifth earned-save set resumes verified post-Fuji saves; not accepted",
+  "candidate": "e17891e5",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -50,5 +50,12 @@
     "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
     "fix": "3dcf5684 + 65ca3f5b: runtime destination key; real shop sales or conserved item-PC deposits reserve room. 34 host checks, production compilation and ten focused SDK cases pass. Full journey rerun pending."
   },
-  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01"
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fifth-resumed-20261030-01",
+  "fourth_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01",
+    "result": "All three earned the Flute and saved after Fuji, then attempted same-map navigation across Route12 gatehouse components.",
+    "fix": "e17891e5 passes final goal to existing component-aware travel. 35 host checks pass; source geometry verifies first gatehouse warp.",
+    "resume_inputs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-01",
+    "resume_verification": "All three markers, confirmed stopped producers, archived slot hashes and exact accepted-A ancestry verified by existing importer; actual Continue codec equality remains required."
+  }
 }

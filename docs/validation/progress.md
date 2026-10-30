@@ -118,7 +118,10 @@ Tower-receipt bug; fixed with regression assertions. The second set exposed a Ra
 now earns that pickup. The third set reached Fuji on Bulbasaur but exposed a
 stable-ID/runtime-key mismatch; full bags rejected the other two pickups.
 Private fixes use the runtime key and genuine pre-Tower sales/PC deposits;
-34 host checks and ten focused SDK cases pass. A fourth frozen set is running.
+34 host checks and ten focused SDK cases pass. All three fourth-set journeys earned the Flute and saved. Route12 then
+exposed a missing goal in the existing component-aware travel call; fixed with
+35 host checks and an actual north-entry/gatehouse geometry check. A fifth set
+resumes the verified post-Fuji archives with exact accepted-A ancestry.
 Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
@@ -127,7 +130,7 @@ Both B reviews are resolved, including Safari Surf-step counting and moving Surf
 Freed **110.48 GiB (118.63 GB)** in the audited cleanup. Automatic 150 GiB
 maintenance runs every 30 minutes. A further **9.29 GiB** was freed by
 removing 25 clean merged/rejected worktrees (24 branches); audited free space is
-**155.8 GiB**, restoring the 150 GiB minimum. Both retention-parser fixes
+**155.3 GiB**, restoring the 150 GiB minimum. Both retention-parser fixes
 pass 16 host cases. No referenced evidence or earned saves were removed. Keep chains, packages, committed evidence
 references and latest passing journey/device runs. Retain journey frames only
 for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
