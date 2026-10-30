@@ -32,12 +32,15 @@ The two-hour hardware soak **FAILED**, build `c87b9ee8`, after 60 title minutes
 and 15 overworld minutes. The software guard saw **9217.205 KiB** after 75/120
 samples; last named phase was Continue.end. No new error/crash log appeared.
 [Exact failure](device-idle-soak-failure-20261029.json). Queued measurements stopped.
-The failed attempt remains reserved while root closes its verified disposition.
+Root verified its PDX, slots and logs, closed the terminal failure and restored
+the awake keeper. No acceptance was claimed.
 
 Simulator frame-count diagnosis reaches 8.5 MiB then falls to **5.09 MiB** after
 full collection. Growth is collectible; a retained leak is not established.
-Removing the game’s explicit per-frame step alone had no effect. The SDK also
-steps GC each frame. Test timer-removal-table allocation and collection modes.
+Removing the game’s explicit per-frame step alone had no effect. SDK timer
+queue reuse now stops growth at matched Simulator frame counts. Soft/live/hard
+checks pass; the full 16 MiB route passes at 29 ms / 6.20 MiB peak. The 30+30
+generational qualification is deploying; incremental comparison remains pending.
 Next: soft 8 MiB collection at a safe point; reject >6 MiB after GC or the hard
 limit. Preserve a 9 MiB hard guard. Qualify 30+30 minutes, then two hours overnight.
 Find the retained 1.10 s slice before calling the startup work closed.
@@ -106,7 +109,7 @@ Freed **110.48 GiB (118.63 GB)**; now **160.02 GiB free**.
 Removed 83 clean integrated/rejected worktrees and 82 branches,
 plus 648 superseded evidence directories. COW-deduplicated 58 identical
 archived files with SHA256 verification; all retained paths/bytes remain intact.
-[Audit](storage-cleanup-20261029.json). Automatic 150 GiB maintenance is next.
+[Audit](storage-cleanup-20261029.json). Automatic 150 GiB maintenance runs every 30 minutes.
 Keep chain saves, packages, committed validation references and latest passing
 journey/device builds. Journey frames retain failures/checkpoints only.
 
