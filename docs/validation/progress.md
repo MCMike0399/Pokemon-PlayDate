@@ -112,6 +112,10 @@ but app → walking is 17.936 s versus baseline 17.321 s; the split stays off ma
 Kanto first-use data is merged in `db4e82e7`, after a clean combined review.
 40 merged host/build checks and 44 native scene cases pass; 13 descriptors and
 two teams match the SDK export. Hardware installer is 58 ms and boot 11.263 s. [Scope](kanto-first-entry-candidate-20261030.json).
+Door census qualification: eight measured input trials and two deliberate solid
+boundary gaps; no runtime failure, earned bytes unchanged. Full census launched
+once in exec 6850 (149 maps, 2,445 cases × two trials); results pending.
+[Qualification](door-census-qualification-20261030.json).
 Then per-installer first-entry activation, all-door/worst-five measurements,
 cave steps, and the remaining B traversal/visual gates. Superseded queued
 journey failure notifications are already handled; do not rerun them.

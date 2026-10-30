@@ -1,0 +1,17 @@
+{
+  "status": "Representative SDK qualification complete; full census running, hardware ranking pending.",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-qualification-20261030-01/result.json",
+  "sha256": "20ee4a676badf6386decd0b1deaf5f97cbe221d072c9e3e182987929624aa71c",
+  "input_revision": "76559ac87b210a2e71c0520a1da3f8059a9e8d9c",
+  "build_id": "78461b5212384d2d838380cc43c25a59",
+  "counts": {
+    "gap": 2,
+    "measured": 8
+  },
+  "all_cases_reported": true,
+  "runtime_failure": null,
+  "scope": "Eight measured real-input trials: step door, edge door, connection and scripted elevator. Two deliberate solid-boundary gaps. Exit 1 reflects the deliberate gap, not a runtime error. No same-map scripted surface exists among the inventoried scripted warps; that specific transition class is not claimed. Earned/private slots checked unchanged by the runner.",
+  "full_run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-full-20261030-01",
+  "full_run_exec_session": 6850,
+  "limits": "Isolated placement through ordinary owners, not a natural journey or hardware timing. Full portal/field/actor/script coverage and worst-five ranking remain pending."
+}
