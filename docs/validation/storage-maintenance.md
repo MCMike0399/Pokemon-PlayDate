@@ -251,7 +251,8 @@ The review command above remains a dry run. Root owns any subsequent real
 archive execution through the existing wrapper; its configuration is unchanged.
 
 Root recovery after worker usage limit: all 49 focused tests pass under the actual
-`/usr/bin/python3` 3.9.6, including the native disposable APFS case. The helper
-remains isolated pending independent integration review; no real archive pass or
-scheduler configuration change was performed by this packet. The failed worker
+`/usr/bin/python3` 3.9.6, including the native disposable APFS case. Root subsequently integrated the helper after direct safety inspection, the prior
+reviewed manual algorithm and 49 merged checks. No fresh independent agent review
+was available after the worker usage limit. No new real archive pass or scheduler
+configuration change was performed by this integration. The failed worker
 was not restarted or switched to another provider.

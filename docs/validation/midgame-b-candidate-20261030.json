@@ -323,5 +323,16 @@
     "compile": "SDK3.1.2 productionpassed",
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b149-root-composition-20261030-01",
     "native_and_hardware": "Pending exclusive runtime; no measuredgain oracceptance. Reviewonlyafter>=10percentphaseimprovement."
+  },
+  "thirteenth_journey_set": {
+    "revision": "f949997e",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-thirteenth-resumed-20261030-01",
+    "state": "Running,continue on failure; no outcomes inferred",
+    "inputs": "m55b-resume-inputs-20261030-07; exact stopped slots and acceptedA ancestry verified. Unsaved Bicycle state notpromoted.",
+    "gift_native_comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gift-native-comparison-20261030-01.json",
+    "gate_native_check": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-cycling-gate-supplementary-20261030-03/result.json",
+    "gate_scope": "Supplementary fixture run proves real gate walking/release/rehold and downhill11,1to11,2; not campaignacceptance",
+    "host": "77targeted+4coverage pass; newfullhost running",
+    "reviews": "Bothrodgiftgameplayreviews remain pending; no main gameplaymerge."
   }
 }

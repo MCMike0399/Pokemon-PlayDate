@@ -61,7 +61,11 @@
     "tests": 49,
     "interpreter": "/usr/bin/python3 3.9.6",
     "checks": "Disposable native APFS roundtrip,existingstorage/sharingchecks,copy/race/livepath/metadata/audit/lock/budget faults pass",
-    "activation": "Not integrated onmain; existing schedulerconfiguration unchanged; independentreviewpending",
-    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/compression-integration-host-20261030-01.log"
+    "activation": "Main helper integrated into existing maintenance workflow after direct root safety inspection,49mergedchecks andprior native manualalgorithmreview. Existing schedulerconfiguration unchanged; globalruntime locks prevent maintenance during activeBjourney.",
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/compression-integration-host-20261030-01.log",
+    "integrated_commit": "6abf11ec",
+    "review_scope": "Direct root review; no fresh independent subagent review was available afterworkerusage limit. Terminalproofhashes,exactbytes/metadata,livepaths,prepared/completed audit andfourglobal locks inspected.",
+    "main_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/compression-main-host-20261030-01.log",
+    "free_space_status": "Latest check127GiB,below150minimum. No new automatic recovery claimed; execution waits for free ownership locks."
   }
 }
