@@ -1,0 +1,173 @@
+{
+  "status": "Warm managed heap plateaus across30maps5loops; supplementary Simulator result only.",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/memory-30map-five-loop-streaming-149-20261030-02",
+  "sample_sha256": "eea308ab612019d9730aa27da97b37a8f4ed56cf6ecb8d1f4fc72a5c9c44358a",
+  "entries": 150,
+  "cycles": [
+    {
+      "cycle": 1,
+      "min_kib": 7002.8515625,
+      "max_kib": 7810.58984375,
+      "last_kib": 7670.9580078125
+    },
+    {
+      "cycle": 2,
+      "min_kib": 7380.0390625,
+      "max_kib": 7918.5341796875,
+      "last_kib": 7671.0478515625
+    },
+    {
+      "cycle": 3,
+      "min_kib": 7380.0390625,
+      "max_kib": 7918.5341796875,
+      "last_kib": 7671.2568359375
+    },
+    {
+      "cycle": 4,
+      "min_kib": 7380.0390625,
+      "max_kib": 7918.5341796875,
+      "last_kib": 7671.12109375
+    },
+    {
+      "cycle": 5,
+      "min_kib": 7380.0390625,
+      "max_kib": 7918.5341796875,
+      "last_kib": 7671.1201171875
+    }
+  ],
+  "cycle_2_to_5_same_map_deltas": [
+    {
+      "zone": "pokered:FUCHSIA_POKECENTER",
+      "delta_kib": 0.08984375
+    },
+    {
+      "zone": "pokered:FUCHSIA_CITY",
+      "delta_kib": -0.0869140625
+    },
+    {
+      "zone": "pokered:WARDENS_HOUSE",
+      "delta_kib": -0.0869140625
+    },
+    {
+      "zone": "pokered:FUCHSIA_GOOD_ROD_HOUSE",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:FUCHSIA_MART",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_15",
+      "delta_kib": 0.0732421875
+    },
+    {
+      "zone": "pokered:ROUTE_15_GATE_1F",
+      "delta_kib": -9.0
+    },
+    {
+      "zone": "pokered:ROUTE_14",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_13",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_12",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_12_GATE_1F",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_11_GATE_1F",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_11",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:VERMILION_CITY",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_6",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:UNDERGROUND_PATH_ROUTE_6",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:UNDERGROUND_PATH_NORTH_SOUTH",
+      "delta_kib": 0.087890625
+    },
+    {
+      "zone": "pokered:UNDERGROUND_PATH_ROUTE_5",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_5",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:CERULEAN_CITY",
+      "delta_kib": -0.0869140625
+    },
+    {
+      "zone": "pokered:BIKE_SHOP",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:CERULEAN_POKECENTER",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:CERULEAN_TRASHED_HOUSE",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:LAVENDER_TOWN",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_8",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:UNDERGROUND_PATH_ROUTE_8",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:UNDERGROUND_PATH_WEST_EAST",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:UNDERGROUND_PATH_ROUTE_7",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:ROUTE_7",
+      "delta_kib": 0.0
+    },
+    {
+      "zone": "pokered:CELADON_CITY",
+      "delta_kib": 0.072265625
+    }
+  ],
+  "largest_increase_kib": 0.08984375,
+  "mean_delta_kib": -0.29791666666666666,
+  "scope": "Production map owners and real faded-image allocations, direct diagnostic entries, explicit full GC after each map. No approach walking, campaign, device or native allocation claim.",
+  "prior_failure": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/memory-30map-five-loop-streaming-149-20261030-01",
+    "reason": "Ordinary production soft guard compared 64-bit Simulator live heap against the physical 6MiB target. Not an OOM; original result retained.",
+    "isolated_fix": "49ccf1c1 limits that post-GC device check to hardware. The 16MiB Simulator native pool remains active."
+  },
+  "remaining": [
+    "Native image headroom",
+    "Unattended device100+doors/30+maps/20battles traversal",
+    "Full B resource/common-build acceptance"
+  ]
+}
