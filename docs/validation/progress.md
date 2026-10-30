@@ -118,10 +118,12 @@ receipt name. Private fix `7fb7bf76` uses installed tileset metadata and supplie
 HM04 text RAM. The Rope case fails before/passes after; ten owner SDK cases and
 28 host checks and both reviews pass. Three earned Koga resumes are running;
 preflight has zero unexplained geometry failures. No B acceptance yet.
-Full B host run: 1,033 tests, eight failures and two errors. Isolated fixture
-repair `9a6fd5f3` passes 65 affected checks. Eight omitted outdoor Cut maps are
-prepared from pinned source (11 trees, 70 grass sites); 324 cells and prior-data
-preservation verified, SDK compilation passed. Both packets await integration.
+Private data/fixture repairs `9a6fd5f3` / `6dc256f1` pass 65 / 37 affected
+checks; full host run has 1,051 tests, three stale coverage/projection failures.
+The eight Cut maps preserve prior data; 324 source cells and SDK compile pass.
+Tenth-set Bulbasaur earned Safari/Warden rewards, then a teaching-related Center
+visit left the boulder route on the wrong map. A driver return is prepared;
+Squirtle and Charmander continue on frozen source. No B acceptance.
 The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
 unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
 longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep

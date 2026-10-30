@@ -165,7 +165,15 @@
     "source_revision": "7fb7bf76",
     "status": "Launched; no outcome claimed",
     "preflight": "m55b-preflight-tenth-20261030-01/report.json: zero unexplained geometry failures; eight runtime/capability conditions remain",
-    "inputs": "m55b-resume-inputs-20261030-03: exact stopped-process earned Koga Saves with accepted A ancestry"
+    "inputs": "m55b-resume-inputs-20261030-03: exact stopped-process earned Koga Saves with accepted A ancestry",
+    "bulbasaur_result": {
+      "status": "failed-exited; owned child stopped; final B acceptance absent",
+      "failure": "journey expected player.x=7 got8 in FuchsiaPokecenter during the Warden boulder approach",
+      "verified_progress": "Actual Safari HM03 and Gold Teeth, atomic Forest Rope exit, Warden HM04 receipt and real stored Sandshrew withdrawal/Strength teaching succeeded",
+      "cause": "retrieve_hm_user moved from WardensHouse to FuchsiaPokecenter; driver omitted the return before activating Strength and approaching the boulder",
+      "prepared_fix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-warden-return-preparation-20261030-01/root.patch",
+      "remaining_starters": "Continuing frozen build; outcomes not inferred"
+    }
   },
   "host_validation": {
     "revision": "7fb7bf76",
@@ -180,7 +188,15 @@
       "NPC trade generated event inventory differs from parked policy (two failures)",
       "Coverage snapshot still describes accepted A"
     ],
-    "integration": "Deferred while earned journeys use frozen checkout; full integrated rerun required"
+    "integration": "Deferred while earned journeys use frozen checkout; full integrated rerun required",
+    "data_followup_commit": "6dc256f144620d37e6eef7c0003a74f154ce9576",
+    "followup_full_run": {
+      "tests_run": 1051,
+      "failures": 3,
+      "errors": 0,
+      "skips": 0,
+      "remaining": "Coverage snapshot and two projected fieldMoves dependency fingerprints; production data generators reproduce"
+    }
   },
   "field_cut_preparation": {
     "packet": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-cut-expansion-prepare-20261030-01",
