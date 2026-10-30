@@ -56,5 +56,19 @@
     "remaining_conditions": 6,
     "root_patch": "tools/integration/checkpoint-c/geometry-root-hooks.patch; unapplied",
     "validation": "Generator reproduction, focused host and SDK compile-only pass; inherited map extension fixture stale; no runtime acceptance"
+  },
+  "isolated_geometry_owner_composition": {
+    "commit": "d0da397b",
+    "base_merge": "9a64c690",
+    "branch": "t3/repair-silph-source-geometry",
+    "host_checks": 29,
+    "production_harness_compile": "SDK3.1.2 passed",
+    "cache_reproduction": "passed",
+    "only_compact_change": "Remove /maps/SilphCo11F/blocked/96, the source-qualified inert warp declaration",
+    "runtime_map_and_binary_cells_unchanged": true,
+    "source_main_unchanged": true,
+    "source_case": "Extended one existing activation SDK case; compiled but not executed",
+    "activation": "C package and Copycat main hooks remain unapplied. B acceptance, C reviews/native journeys/device targets still required.",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-geometry-owner-hooks-compile-20261030-01"
   }
 }
