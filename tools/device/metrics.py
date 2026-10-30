@@ -100,7 +100,9 @@ def walking(frames, responses, phases):
 def phase_report(phases, frames, responses):
     windows = gc_windows(phases)
     table = []
-    definitions = [('boot_title', 'boot.begin', 'title.start.end'),
+    # The title ignores A while preparing. Only initialize.ready ends boot.
+    definitions = [('boot_title', 'boot.begin', 'initialize.ready'),
+                   ('title_artwork', 'boot.begin', 'title.visible'),
                    ('Continue', 'Continue.begin', 'Continue.end'),
                    ('Save', 'Save.begin', 'Save.publish.end'),
                    ('door', 'door.map.begin', 'door.map.end'),
@@ -108,10 +110,10 @@ def phase_report(phases, frames, responses):
     for name, begin, end in definitions:
         for a, b in spans(phases, begin, end):
             table.append(interval(name, a, b, frames, windows, begin + ' -> ' + end))
-    # Reviewer boot endpoint includes checkpoint/trace work before the forced GC.
+    # Retain this historical observer endpoint, separately from input readiness.
     for a, b in spans(phases, 'boot.begin', 'title.live.before_gc'):
         table.append(interval('boot_before_diagnostic_gc', a, b, frames, windows,
-                              'boot.begin -> title.live.before_gc (reviewer endpoint)'))
+                              'boot.begin -> title.live.before_gc (historical observer endpoint; not input readiness)'))
     for w in windows:
         table.append(interval('diagnostic_gc.' + w['phase'], w['start_ms'], w['end_ms'],
                               frames, windows, w['phase'] + '.before_gc -> .after_gc'))

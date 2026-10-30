@@ -11,6 +11,26 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Device scaling correction — 2026-10-30
+
+Boot is `boot.begin` to `initialize.ready`: the title accepts A. Its target is
+10 seconds; early artwork does not pass it. Keep old reports intact and derive
+new comparisons from their retained traces. Report 108/149-map phase scaling.
+Shipped data is immutable and checked at build time: move conflict checks,
+transforms and provider validation to checksum-pinned generation. Keep those
+checks in harness/dev contracts, and keep full validation of untrusted saves.
+Register regions lazily at first entry; batch cooperative guard checks.
+
+Before audio, prove memory plateaus with repeated doors and a repeated map loop,
+and qualify a test-only native image-headroom probe. Lua heap is not native
+memory, and Simulator diagnostic heap is not the device live-heap measurement.
+Then census every door/connection, device-measure the worst five, and decide
+whether idle prefetch can build Zones/bindings within the memory guard.
+Try uncapped journey refresh only in a private replay and adopt it only after
+byte-identical saved state and equal receipts. Production pacing stays unchanged.
+Do not interrupt running journeys. Keep their captures to failures/checkpoints;
+do not build more compression tooling. The 50 GiB reserve remains current.
+
 ## Current direction — 2026-10-29 evening
 
 This section supersedes earlier P0 freeze and validation rules below.

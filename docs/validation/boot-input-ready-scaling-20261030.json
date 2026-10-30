@@ -1,0 +1,73 @@
+{
+  "boot_boundary": "boot.begin -> initialize.ready; title accepts A. Early title artwork is descriptive only.",
+  "native_memory_scope": "Simulator Lua-heap diagnostics are not compared with the device live-heap guard. Native image headroom remains unmeasured.",
+  "records": [
+    {
+      "maps": 108,
+      "build_id": "287d46ee3ac5466bbb6177c463bc4e3f",
+      "original_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-tier-title-combined-hardware-01/device-smoke.json",
+      "original_sha256": "c2024dc9a63589d87d422d00500821771cef20373461898ad0e208ec843c739b",
+      "boot_input_ready_ms": 18729.0,
+      "title_artwork_ms": 2460.0,
+      "boot_target_ms": 10000,
+      "boot_passed": false,
+      "packages": [
+        {
+          "name": "vermilion",
+          "immutable_records": 664
+        },
+        {
+          "name": "midgameEast",
+          "immutable_records": 805
+        }
+      ],
+      "phase_wall_ms": {
+        "CeruleanContent.registerPackage": 2527.0,
+        "KantoWorld.install": 5034.0,
+        "PewterWorld.install": 6.0,
+        "title.prepare": 4213.0,
+        "KantoScenes.install": 1175.0,
+        "Daycare.install": 589.0
+      },
+      "scope": "Read-only reanalysis of retained hardware traces; not a new device run."
+    },
+    {
+      "maps": 149,
+      "build_id": "fdbfa60a356e4c4ba429acea1ce8a0ea",
+      "original_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-measurement-20261030-01/device-smoke.json",
+      "original_sha256": "375385fb51aea5ed9cdf3991da24fcd5d3aac95d5cd09580d33f15a577be54c6",
+      "boot_input_ready_ms": 24945.0,
+      "title_artwork_ms": 2616.0,
+      "boot_target_ms": 10000,
+      "boot_passed": false,
+      "packages": [
+        {
+          "name": "vermilion",
+          "immutable_records": 664
+        },
+        {
+          "name": "midgameEast",
+          "immutable_records": 805
+        },
+        {
+          "name": "midgameSouth",
+          "immutable_records": 844
+        }
+      ],
+      "phase_wall_ms": {
+        "CeruleanContent.registerPackage": 6063.0,
+        "KantoWorld.install": 6974.0,
+        "PewterWorld.install": 3.0,
+        "title.prepare": 4233.0,
+        "KantoScenes.install": 1051.0,
+        "Daycare.install": 1008.0
+      },
+      "scope": "Read-only reanalysis of retained hardware traces; not a new device run."
+    }
+  ],
+  "scaling": {
+    "map_ratio": 1.3796296296296295,
+    "registered_immutable_record_ratio": 1.5745405037440436,
+    "register_package_time_ratio": 2.3992876929165017
+  }
+}

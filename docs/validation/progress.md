@@ -59,12 +59,13 @@ comparison remains pending. [Evidence](idle-soak-active-20261030.json).
 
 ## Device latency budget
 
-Totals are measured on the latest 108-map hardware smoke. Contributor spans are
-inclusive older profiles, not exclusive CPU. Expected savings are design aims.
+Boot ends when the title accepts A (`initialize.ready`), not at early artwork.
+Both builds fail its 10 s target. [Scaling](boot-input-ready-scaling-20261030.json).
+Contributor spans are inclusive, not exclusive CPU. Expected savings are aims.
 
 | Phase / target | Measured | Main contributors | Structural candidate |
 |---|---:|---|---|
-| First title artwork / 10 s | 2.501 s | inspect 3.326 s; registration 2.15 s; imports about 1.1 s | early title and generated registration; aim to hide/remove 3–5 s |
+| Input-ready title / 10 s | 18.729 s at 108 maps; 24.945 s at 149 | registration 2.527/6.063 s; provider 5.034/6.974 s; title preparation 4.213/4.233 s | build-time shipped validation, then lazy region registration; unmeasured |
 | A → walking / 4 s | 3.307 s | store 2.29 s; decode 1.41 s; gate view 1.13 s | retain fully checked title preparation; aim to hide 2–4 s |
 | Save / 2 s | 1.510 s | deep validators; copies/encoding; slot I/O | sealed production owner export, checksum/readback; hardware comparison running |
 | Longest door / 1.5 s | 3.002 s | Zone 0.799 s; bindings 0.443 s; view 0.419 s | spare-slot prefetch; decode/padding candidate hides only part of this |
@@ -96,7 +97,8 @@ native cases, five artifact cases and compilation pass. Artwork appears in 2.5 s
 full initialization is 18.546 s (+6.8%). [Evidence](early-title-accepted-20261029.json).
 No unmeasured candidate is on main. [Save candidate](device-save-tier-candidate-20261029.json).
 
-Activate the prepared lazy audio next: town/route/battle music and all 151 cries,
+Hold lazy audio until memory plateaus and native headroom are qualified. Then add
+town/route/battle music and all 151 cries,
 moderate gain 0.22, followed by native loading, heap and listening checks.
 Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
 (7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
@@ -118,9 +120,9 @@ including a full-history Charmander replay to test the original OOM.
 
 Both gift-cache variants pass 40 native cases. Bounded text loading removes
 **675.84 KiB** of retained heap and is installed only in private B. A separate
-71-map diagnostic completes, retaining **6.90–7.96 MiB** after GC. It excludes
-battle/interaction and journey-observer history, so the original OOM remains
-unresolved. [Measured scope](m55b-memory-diagnostics-20261030.json).
+71-map Simulator diagnostic completes at **6.90–7.96 MiB** post-GC. These are not
+device heap values. Plateau tests and native headroom remain open; the original
+OOM remains unresolved. [Measured scope](m55b-memory-diagnostics-20261030.json).
 The latest three Bicycle Saves pass the original ancestry/slot/producer checks.
 No final B receipt exists; both rod gameplay reviews remain pending.
 
