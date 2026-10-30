@@ -182,10 +182,31 @@ class MidgameJourney(vj.VermilionJourney):
         return prefix + self.state.get('zone_id', 'title').replace('pokered:', '').lower() + '-' + label
 
     def send(self, *commands):
+        if (getattr(self, 'restore_learning_brake', False)
+                and self.state.get('root') == 'learning'
+                and lookup(self.state, 'learning.phase') == 'message'
+                and lookup(self.state, 'learning.remaining') == 0):
+            # The choice is committed. Hold B again inside its final receipt,
+            # before returning to the downhill world; menu choices stay unchanged.
+            self.restore_learning_brake = False
+            commands = ('hold b', *commands)
         if commands and commands[0] == 'press b' and self.state.get('root') == 'overworld':
             # Let the existing A/B gesture finish before opening a field menu.
             commands = ('wait 3', *commands)
         return super().send(*commands)
+
+    def learning(self):
+        release = (getattr(self, 'cycling_brake', False)
+                   and lookup(self.state, 'learning.input_blocked')
+                   and lookup(self.state, 'learning.phase') != 'idle')
+        if release:
+            self.send('release b', 'wait 2')
+            self.restore_learning_brake = True
+            self.cycling_brake_needs_rearm = True
+        try:
+            return super().learning()
+        finally:
+            self.restore_learning_brake = False
 
     def rearm_cycling_brake(self):
         if not getattr(self, 'cycling_brake', False):
@@ -1653,11 +1674,19 @@ class MidgameJourney(vj.VermilionJourney):
             self.save()
         if self.quantity('bicycle') != 1:
             raise ProtocolError('actual Bike Voucher exchange did not give Bicycle')
-        self.travel(self.zone('CeladonCity'))
-        self.wake_snorlax('ROUTE_16', 7, (27, 10))
-        self.use_item('bicycle')
+        if self.state['zone_id'] != self.zone('Route16'):
+            self.travel(self.zone('CeladonCity'))
+        if not self.flag('EVENT_BEAT_ROUTE16_SNORLAX'):
+            self.wake_snorlax('ROUTE_16', 7, (27, 10))
+        else:
+            self.travel(self.zone('Route16'))
+        if self.observe('midgame-state')['fieldTravel']['mode'] != 'bicycle':
+            self.use_item('bicycle')
         if self.observe('midgame-state')['fieldTravel']['mode'] != 'bicycle':
             raise ProtocolError('actual Bicycle field service unavailable')
+        # A real Save before the road preserves the cleared Snorlax and bike,
+        # rather than replaying the entire eastern approach after a UI failure.
+        self.save()
         self.cycling_brake = True
         self.send('wait 1', 'hold b', 'wait 12')
         try:
