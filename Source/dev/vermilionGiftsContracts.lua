@@ -1,4 +1,5 @@
 -- Prepared native SDK contracts. No execution claim; root registers/runs these.
+import "dev/sessionFixture"
 VermilionGiftsContracts = {}
 local gate <const> = {root="overworld",overworld="explore",settled=true}
 local function eq(a,b) assert(a==b,tostring(a).." ~= "..tostring(b)) end

@@ -1,5 +1,6 @@
 -- Native SDK witnesses. Requires the root-installed source content and services.
 -- No host Lua, translated code, fake SDK, or Simulator launch from this module.
+import "dev/sessionFixture"
 KantoServicesContracts = {}
 local MUSEUM <const> = "pokered:MUSEUM_1F:objects:1"
 local SALESMAN <const> = "pokered:MT_MOON_POKECENTER:objects:4"
