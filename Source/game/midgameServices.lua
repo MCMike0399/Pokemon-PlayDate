@@ -49,7 +49,7 @@ function MidgameServices.warden(observation)
     steps[#steps + 1] = {op = "dialog", labels = {prefix .. "ThanksText"}}
     steps[#steps + 1] = {op = "receipt", labels = {prefix .. "ReceivedHM04Text"}}
     items[#items + 1] = {op = "add", id = "hm04", quantity = 1}
-    return {status = "ready", steps = steps,
+    return {status = "ready", steps = steps, ram = {wStringBuffer = ItemData.definitions.hm04.name},
         expected = {flags = {EVENT_GOT_HM04 = false, EVENT_GAVE_GOLD_TEETH = observation.flags.EVENT_GAVE_GOLD_TEETH == true},
             items = {goldTeeth = teeth, hm04 = hm}},
         changes = {flags = {EVENT_GOT_HM04 = true, EVENT_GAVE_GOLD_TEETH = true}, items = items},
