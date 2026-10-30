@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; sixth earned-save set running from verified post-Fuji slots; not accepted",
-  "candidate": "c996d618",
+  "status": "private; seventh resumed journey set running; not accepted",
+  "candidate": "59e48463",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -50,7 +50,7 @@
     "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
     "fix": "3dcf5684 + 65ca3f5b: runtime destination key; real shop sales or conserved item-PC deposits reserve room. 34 host checks, production compilation and ten focused SDK cases pass. Full journey rerun pending."
   },
-  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-sixth-resumed-20261030-01",
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-seventh-resumed-20261030-01",
   "fourth_journey_set": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01",
     "result": "All three earned the Flute and saved after Fuji, then attempted same-map navigation across Route12 gatehouse components.",
@@ -63,5 +63,11 @@
     "result": "All three completed gatehouse routing and reached Snorlax, but Bag had no Poke Flute field handler.",
     "fix": "c996d618: settled Bag USE closes and delegates existing Snorlax owner. Source-pinned no-effect dialogue; no registration or battle-effect scope change.",
     "validation": "10 focused SDK cases pass, including actual Bag dispatch/retry, movement rejection and out-of-range no-effect; 40 focused host checks pass. Both independent reviews report no findings."
+  },
+  "sixth_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-sixth-resumed-20261030-01",
+    "result": "All three cleared Route12 Snorlax. Driver alternated Route12/13 until the unchanged transition bound, because future-map occupancy made returning appear cheaper.",
+    "fix": "Fixed source exits Route13 (0,10) -> Route14 (19,10); Route14 (0,44) -> Route15 (59,8); real Route15 gate warps 4/2; Fuchsia arrival (39,16). Existing local navigation, source projections and real inputs retained. Real Save added after Snorlax; local PC fallback avoids unnecessary return to Lavender.",
+    "validation": "37 host checks; complete fixed leg proven against source geometry with every initial NPC cell occupied. No planner, budget, map, reward or Source changes."
   }
 }

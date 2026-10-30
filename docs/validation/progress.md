@@ -123,7 +123,10 @@ exposed a missing goal in the existing component-aware travel call; fixed with
 35 host checks and an actual north-entry/gatehouse geometry check. A fifth set
 passed exact Continue and reached Snorlax, exposing the missing Bag Flute hook.
 The source owner is now connected; ten SDK cases, 40 host checks and both reviews
-pass. A sixth set resumes the same verified post-Fuji archives.
+pass. All three sixth runs cleared Snorlax, then the driver looped across
+Route12/13. Fixed source exits and the Route15 gatehouse now pass 37 host checks
+and occupied-geometry preflight. A seventh set is running; actual Save follows
+Snorlax, and bag-room PC visits use the nearby Center.
 Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
