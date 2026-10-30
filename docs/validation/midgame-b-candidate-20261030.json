@@ -293,6 +293,16 @@
       "resolution_commit": "45610a0b",
       "targeted_coverage_checks_passed": 4,
       "scope": "Original failed full run retained; targeted rerun resolves its sole reported mismatch. No claim of a new full green run."
+    },
+    "charmander_result": {
+      "status": "failed-exited; siblings continue frozen build",
+      "failure": "Missing source Good Rod fisherman binding, needed by earned Surf-user acquisition",
+      "source_cause": "Good/Super Rod objects were reserved South content; field-use runtime existed but gift descriptors were absent",
+      "prepared_commit": "164020c3",
+      "branch": "t3/repair-silph-source-geometry",
+      "fix": "Existing VermilionGifts definitions/controller with pinned original Yes/No/full/revisit/flag flow; two gifts only for installed source maps",
+      "checks": "14source/texthostchecks, generatorreproduction andSDK3.1.2productioncompile pass; native andbothreviews pending",
+      "scope": "No new dispatcher/owner/savefield, allfourpriorgiftdefinitionsunchanged; liveB/main unchanged"
     }
   },
   "cave_performance_preparation": {
