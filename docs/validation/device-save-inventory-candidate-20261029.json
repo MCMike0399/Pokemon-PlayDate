@@ -18,18 +18,22 @@
   "candidate_revision": "6f8f53ad",
   "simulator_proofs": {
     "baseline": {
-      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-baseline-safety-20261029-01/simulator-smoke.json",
-      "sha256": "dd9ab5dd6dcace025bf23b449d31ca2714c4f1db8d0d53485e90074a36d52261",
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-baseline-safety-20261029-03/simulator-smoke.json",
+      "sha256": "0ffa589325f1528c509fc1b19a98ddacd40519f463a10fb320e900f38e4c62fc",
       "status": "simulator-smoke-passed",
-      "sampled_peak_bytes": 7352248.32,
-      "maximum_slice_ms": 40.611
+      "sampled_peak_bytes": 7352246.272,
+      "maximum_slice_ms": 42.936,
+      "current_owner_admission": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-baseline-admission-20261029-03/outcome.json"
     },
     "candidate": {
-      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-candidate-safety-20261029-01/simulator-smoke.json",
-      "sha256": "24ccd854a048998b4fc98edb8cae228ec4ff0b3b3870440620f28d07747357c4",
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-candidate-safety-20261029-03/simulator-smoke.json",
+      "sha256": "ef3c71a1c216632f03572e3f7c6cac4e6c43416eb09fe3516d49a76d4304a90d",
       "status": "simulator-smoke-passed",
-      "sampled_peak_bytes": 7354765.312,
-      "maximum_slice_ms": 39.515
+      "sampled_peak_bytes": 7354664.96,
+      "maximum_slice_ms": 48.0,
+      "current_owner_admission": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-candidate-admission-20261029-03/outcome.json"
     }
-  }
+  },
+  "earlier_proofs": "Safety-01 raw bounds pass but obsolete report classification is not admitted. Safety-02 never launched because the retained SDK namespace already existed. All original reports/logs and exact prior SDK Data were retained unchanged.",
+  "hardware_queue": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-after-soak-measurement-queue-20261029-02.json"
 }
