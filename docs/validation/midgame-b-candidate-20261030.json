@@ -366,5 +366,23 @@
     "policy": "Production-profile owner exports with existing device guards; full load validation and deep contract builds retained",
     "inputs": "Accepted5.4CharmanderRoute2Gate and254baselineDS1commands, byte-identical to priorpairedinput; rehashed for newbuild",
     "scope": "Currentcode measurement preparation, not reuse ofoldPDX oroldproof; finalBcheckpoint acceptance stillrequires completeearnedjourneys"
+  },
+  "memory_failure_followup": {
+    "source_cause": "Not established. Long-route out-of-memory is retained as the primary defect.",
+    "map_diagnostic": "m55b-map-memory-diagnostic-prepare-20261030-01: compiled 71 map entries, unrun while remaining journeys own runtime.",
+    "gift_text_candidate": "m55b-gift-text-memory-preparation-20261030-01: avoids retaining the full 630-recipe table through the existing eight-record cache. Every original record compares equal; public label namespace preserved. Unapplied.",
+    "paired_native_preparation": [
+      "m55b-gift-memory-old-prepare-20261030-01",
+      "m55b-gift-memory-bounded-prepare-20261030-01"
+    ],
+    "paired_scope": "Cold retained-heap comparison plus existing 40 gift cases; compiled, not executed. No saving or OOM fix claimed.",
+    "fatal_transport_fix": {
+      "main_commit": "953e75d0",
+      "host_protocol_checks": 57,
+      "red_log": "host-fatal-error-red-20261030-01.log",
+      "green_log": "host-fatal-error-green-20261030-01.log",
+      "actual_replay": "host-fatal-error-actual-replay-20261030-01.json",
+      "scope": "Exact archived OOM report is preserved and input refused in 2 ms. No new SDK/gameplay execution. Active B tool files remain frozen."
+    }
   }
 }
