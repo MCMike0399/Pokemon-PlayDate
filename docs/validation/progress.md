@@ -3,7 +3,7 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **0/222 maps accepted for device playability; 65/222 route-verified in Simulator. Current checkpoint: 5.5a, frozen for device loading and memory checks.**
 Last accepted Simulator milestone, 5.4: **8.70 h**, **96.55 maps/day**; [times](milestone-times.json).
-P0 elapsed since the first guarded trace commit: **21.80 h**; hardware pace: **0 maps/day**.
+5.5a elapsed since 5.4: **29.69 h**, **0 accepted maps/day**. P0 elapsed: **23.39 h**; hardware pace: **0 maps/day**.
 ## 1. Accepted game and current main
 
 Simulator-accepted 5.4 gameplay: `1a4a7894aa40125147e8f2d227fd1da6320dd341`.
@@ -108,7 +108,9 @@ Review caught an optional-cache alias; the extended existing SDK case failed,
 then passed after the fix. All 17 persistence cases pass on main. Production
 inspect reuse remains disabled without a stable epoch; Save still exceeds 2 s.
 [Removing temporary Inventory owners](device-save-inventory-candidate-20261029.json)
-passes review and 64 SDK cases. Its paired hardware builds are ready, unmeasured.
+passes review and 64 SDK cases. Both paired builds pass the 16 MB safety route;
+hardware timing waits for the soak. Existing lazy/capacity fixture repairs pass
+253 and 52 native cases; preparation/drain checks pass 152. Production is unchanged.
 
 Static loading is on main (`ad037673`): five native presentation cases pass
 privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,
