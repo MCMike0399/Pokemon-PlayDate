@@ -17,7 +17,6 @@
     "30+30 repaired hardware idle qualification",
     "108-map hardware smoke, exact no-new-log comparison and heap guards",
     "Acceptance summary and merge",
-    "60-90 second real-speed milestone clip",
     "Lazy audio activation after merge"
   ],
   "latency_targets_met": false,
@@ -30,5 +29,18 @@
     "skips": 0,
     "candidate_revision": "efa33ee0",
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synchronized-host-20261029-02.log"
+  },
+  "showcase": {
+    "video": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5a-final-20261029-02/PokemonBlue-5.5a-showcase.mp4",
+    "captions": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5a-final-20261029-02/PokemonBlue-5.5a-showcase.srt",
+    "duration_seconds": 89.854,
+    "native_dimensions": [
+      400,
+      240
+    ],
+    "speed": 1,
+    "audio": "silent",
+    "source": "genuine pre-Erika earned partial Save; private input/capture overlay",
+    "review": "decoded chapter frames, exact pixel comparisons and timestamps; no hardware pacing claim"
   }
 }

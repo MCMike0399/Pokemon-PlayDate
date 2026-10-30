@@ -25,6 +25,8 @@ The synchronized candidate passes all 1,018 host tests, with no skips.
 Candidate production PDX and three earned save pairs, outside Git:
 `evidence/player-packages/5.5a-synchronized-20261029-01` (not accepted/delivered).
 [Acceptance checklist](midgame-a-acceptance-pending-20261029.json).
+Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/` (89.854 s,
+original speed; complete Erika and Rocket battles, evolution and departure).
 Prior 5.4 package: `evidence/player-packages/5.4-playable-20261028`.
 Prior clip: `evidence/milestone-5.4-showcase-20261028/PokemonBlue-5.4-showcase.mp4`.
 
