@@ -627,10 +627,14 @@ function SourceEvents._registerRegionDeclaration(name, root, identity)
     end
     if kanto then
         -- Fixture records cannot borrow the shipped map-padding qualification.
-        if not SourceMaps._isQualifiedCompact(SourceMaps._sharedCompact()) then return false end
+        if not SourceMaps._usesQualifiedInputs() then
+            return false
+        end
         -- Optional until Root supplies a fresh, pinned SDK transform export.
         local file = ShippedDataPolicy.openBundle("data/regionDeclarations/" .. name .. ".json")
-        if not file then return false end
+        if not file then
+            return false
+        end
         file:close()
     end
     yieldIfDue()
@@ -644,14 +648,18 @@ function SourceEvents._registerRegionDeclaration(name, root, identity)
     for id in pairs(record.bespoke or {}) do
         assert(record.records[id] and not SourceEventHandlers[id], "duplicate bespoke scene handler")
         prepared = prepared + 1
-        if prepared % 32 == 0 then yieldIfDue() end
+        if prepared % 32 == 0 then
+            yieldIfDue()
+        end
     end
     for _, id in ipairs(record.required_trainers or {}) do
         local found = baseIndex().records.trainers.trainers[id] ~= nil
         for _, source in pairs(trainerSources) do
             found = found or source.records[id] ~= nil
             prepared = prepared + 1
-            if prepared % 32 == 0 then yieldIfDue() end
+            if prepared % 32 == 0 then
+                yieldIfDue()
+            end
         end
         assert(found, "install shared scene trainers first")
     end
