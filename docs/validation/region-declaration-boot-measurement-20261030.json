@@ -37,5 +37,6 @@
     "trainers": 175,
     "host_checks": 13
   },
-  "decision": "Gain qualifies for review. Membership remains immutable and descriptor bodies load on demand; complete region activation at first physical entry is not implemented. Boot, worst-door and cave targets remain unmet."
+  "decision": "Gain qualifies for review. Membership remains immutable and descriptor bodies load on demand; complete region activation at first physical entry is not implemented. Boot, worst-door and cave targets remain unmet.",
+  "attribution_correction": "Historical Daycare.install span also includes HideoutTowerContent, MidgameServices, CeladonServices and scripted warp installs. It is not an isolated Day Care cost. Private 74f0ce6f separates those marks for the next run; no behavior/order changes."
 }
