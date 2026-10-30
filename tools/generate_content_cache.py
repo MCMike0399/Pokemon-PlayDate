@@ -47,6 +47,7 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
     pins = json.loads(pins_bytes)
     require(pins['schema'] == 1 and pins['source_revision'] == REVISION, 'unverified content pins')
     files = {}
+    immutable_records = {'dialogue': {}, 'sprites': {}}
 
     def read(path):
         location = (source_root / path).resolve()
@@ -90,6 +91,14 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
                                      if records.get('events', {}).get('events', {}).get(key, {}).get('kind') == 'trainer'}
         data['bespoke_trainers'] = {key: digest for key, digest in data['records'].get('trainers', {}).get('trainers', {}).items()
                                     if records.get('events', {}).get('events', {}).get(key, {}).get('kind') == 'bespoke'}
+        # The shipped bundle is immutable. Establish all cross-package text/art
+        # agreement here instead of rescanning every prior package at boot.
+        for record, field in (('dialogue', 'texts'), ('sprites', 'sprites')):
+            previous = immutable_records[record]
+            for key, digest in data['records'].get(record, {}).get(field, {}).items():
+                require(key not in previous or previous[key] == digest,
+                        'conflicting immutable source package record: ' + key)
+                previous[key] = digest
         files[name + '.json'] = canonical(data)
         # Registration uses the complete index transiently. Runtime lookups
         # need one field, without decoding all dialogue/art/membership again.

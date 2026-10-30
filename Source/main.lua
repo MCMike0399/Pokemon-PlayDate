@@ -1,6 +1,7 @@
 import "game/bootTrace"
 BootTrace.mark("import.game/bootstrap.begin")
 import "game/bootstrap"
+import "game/shippedDataPolicy"
 BootTrace.mark("import.game/bootstrap.end")
 GameBootstrap.showLoading()
 local bootAccepted, bootProblem = pcall(function()
@@ -211,7 +212,7 @@ local bootAccepted, bootProblem = pcall(function()
             CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
             CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
                 return HideoutTowerContent.package("midgameEast", events, trainers)
-            end)
+            end, "hideout-tower-midgameEast-v1")
             BootTrace.mark("CeruleanContent.registerPackage.end")
             GameBootstrap.yieldIfDue()
             BootTrace.mark("CeruleanContent.install.begin")

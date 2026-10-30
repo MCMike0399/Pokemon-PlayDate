@@ -76,9 +76,12 @@ function ImportedMaps:init(data,factory)
     -- Only the validated SourceMaps catalogue may be shared read-only. Arbitrary
     -- constructor inputs retain defensive ownership, even with a pinned revision.
     local definitions = data
-    if not (SourceMaps and SourceMaps._isSharedCompact(data)) then
+    local shared = SourceMaps and SourceMaps._isSharedCompact(data)
+    if not shared then
         definitions = copy(data)
     end
+    local qualified = shared and SourceMaps._isQualifiedCompact
+        and SourceMaps._isQualifiedCompact(data)
     local store={data=definitions,factory=factory,byID={},byKey={},base={},ledger={},cache={},order={},pins={},count=0}
     -- Explicit constructor fixtures may reserve identities. The shipping source
     -- provider reserves none: every imported map uses the two disposable slots.
@@ -86,14 +89,26 @@ function ImportedMaps:init(data,factory)
     store.residentCount = 0
     for id=1,37 do local entry=WorldTiles:entry(id);store.base[entry.key]={key=entry.key,collision=entry.collision,terrain=entry.terrain} end
     for name,d in pairs(store.data.maps) do
-        assert(d.name==name and not store.byID[d.id] and not store.byKey[d.key] and type(d.revision)=="string","duplicate imported descriptor identity")
-        assert(integer(d.width,1,4096) and integer(d.height,1,4096),"invalid imported descriptor dimensions");array(d.tile_rows,d.height)
-        for _,row in ipairs(d.tile_rows) do assert(type(row)=="string" and #row==d.width*2 and not row:find("[^0-9a-f]"),"invalid compact imported row") end
-        for _,key in ipairs(d.palette) do metadata(store,key) end
-        for y = 0, d.height - 1 do
-            for x = 0, d.width - 1 do rowKey(store, d, x, y) end
-            if GameBootstrap then
-                GameBootstrap.yieldIfDue()
+        if not qualified then
+            assert(d.name == name and not store.byID[d.id] and not store.byKey[d.key]
+                and type(d.revision) == "string", "duplicate imported descriptor identity")
+            assert(integer(d.width, 1, 4096) and integer(d.height, 1, 4096),
+                "invalid imported descriptor dimensions")
+            array(d.tile_rows, d.height)
+            for _, row in ipairs(d.tile_rows) do
+                assert(type(row) == "string" and #row == d.width * 2
+                    and not row:find("[^0-9a-f]"), "invalid compact imported row")
+            end
+            for _, key in ipairs(d.palette) do
+                metadata(store, key)
+            end
+            for y = 0, d.height - 1 do
+                for x = 0, d.width - 1 do
+                    rowKey(store, d, x, y)
+                end
+                if GameBootstrap then
+                    GameBootstrap.yieldIfDue()
+                end
             end
         end
         store.byID[d.id],store.byKey[d.key]=d,d;store.count=store.count+1

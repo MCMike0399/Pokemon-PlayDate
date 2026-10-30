@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import shutil
 import subprocess
 from pathlib import Path
 import tempfile
@@ -141,6 +142,27 @@ class ContentCacheTests(unittest.TestCase):
             for name, raw in self.files.items():
                 if name.startswith('chunks/'):
                     self.assertEqual(files[name], raw)
+
+    def test_conflicting_immutable_package_records_fail_even_with_updated_input_pin(self):
+        for record, field in (('dialogue', 'texts'), ('sprites', 'sprites')):
+            with self.subTest(record=record), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                source = root / 'Source'
+                shutil.copytree(SOURCE, source)
+                relative = 'data/midgameEast/' + record + '.json'
+                path = source / relative
+                data = json.loads(path.read_bytes())
+                base = json.loads((source / ('data/sourceSlice/' + record + '.json')).read_bytes())
+                shared = next(iter(data[field].keys() & base[field].keys()))
+                data[field][shared]['source'] = 'fixture:conflicting-immutable-record'
+                raw = generator.canonical(data)
+                path.write_bytes(raw)
+                pins = copy.deepcopy(self.pins)
+                pins['inputs'][relative] = hashlib.sha256(raw).hexdigest()
+                pinfile = root / 'pins.json'
+                pinfile.write_bytes(generator.canonical(pins))
+                with self.assertRaisesRegex(ValueError, 'conflicting immutable'):
+                    generator.build(source, pinfile)
 
 
 if __name__ == '__main__':
