@@ -85,3 +85,11 @@ catalogue. It still builds identity lookups, keeps the two-map cache and validat
 all saved world deltas. Arbitrary constructor inputs retain their original deep
 validation and defensive copies. No runtime conflict/transform optimization is
 included in this first map-only candidate. Device benefit remains unmeasured.
+
+Qualified map JSON and binary cells use bundle-only reads. SDK 3.1.2 Lua's
+`kFileRead` is 3 and searches Data first; the C read bit 1 reads the PDX only.
+Real SDK probes retain the intentional Data shadow and confirm that default JSON
+reads see Data while the qualified SourceMaps reader and binary reader see PDX.
+Unknown read-mode constants disable the fast path. Record-override scopes do not
+receive qualified canonical identity. Saves and unqualified/harness reads retain
+their existing behavior. See `shipped-map-origin-fence-sdk-20261030-01` outside Git.

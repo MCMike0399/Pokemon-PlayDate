@@ -76,7 +76,15 @@ local function catalogue()
 end
 
 function SourceMaps.record(path)
-    local data = assert(recordOverrides and recordOverrides[path] and copy(recordOverrides[path]) or json.decodeFile(path), "missing pinned source record: " .. path)
+    local data
+    if recordOverrides and recordOverrides[path] then
+        data = copy(recordOverrides[path])
+    elseif ShippedDataPolicy and ShippedDataPolicy.maps() then
+        data = ShippedDataPolicy.readBundleJSON(path)
+    else
+        data = json.decodeFile(path)
+    end
+    assert(data, "missing pinned source record: " .. path)
     assert(data.schema == 1 and data.source_revision == revision, "unverified source record: " .. path)
     return data
 end
@@ -105,7 +113,7 @@ end
 local function compactData()
     if not compact then
         local data = SourceMaps.record("data/sourceMapCache/compact.json")
-        if not (ShippedDataPolicy and ShippedDataPolicy.maps()) then
+        if not (ShippedDataPolicy and ShippedDataPolicy.maps() and not recordOverrides) then
             for name, descriptor in pairs(data.maps) do
                 local entry = assert(catalogue()[name], "generated map outside source manifest")
                 for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
@@ -136,6 +144,11 @@ end
 
 function SourceMaps._isSharedCompact(data)
     return compact ~= nil and data == compact
+end
+
+function SourceMaps._isQualifiedCompact(data)
+    return SourceMaps._isSharedCompact(data) and not recordOverrides
+        and ShippedDataPolicy and ShippedDataPolicy.maps()
 end
 
 local function grids()
@@ -211,7 +224,13 @@ local function binaryCells(name, entry, record)
     local headerSize <const> = 138
     local expectedSize <const> = headerSize + width * height * 2
     local path <const> = "data/sourceMapCells/" .. name .. ".bin"
-    local file <const> = assert(playdate.file.open(path, playdate.file.kFileRead), "missing binary cells: " .. name)
+    local sourceFile
+    if ShippedDataPolicy and ShippedDataPolicy.maps() then
+        sourceFile = ShippedDataPolicy.openBundle(path)
+    else
+        sourceFile = playdate.file.open(path, playdate.file.kFileRead)
+    end
+    local file <const> = assert(sourceFile, "missing binary cells: " .. name)
     local wire, count = file:read(expectedSize + 1)
     file:close()
     assert(type(wire) == "string" and #wire == expectedSize and count == expectedSize,
