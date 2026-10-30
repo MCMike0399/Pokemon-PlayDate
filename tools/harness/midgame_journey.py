@@ -187,6 +187,29 @@ class MidgameJourney(vj.VermilionJourney):
             commands = ('wait 3', *commands)
         return super().send(*commands)
 
+    def step(self, step):
+        zone, origin = self.state['zone_id'], self.position()
+        try:
+            result = super().step(step)
+        except ProtocolError as error:
+            block = lookup(self.state, 'player.lastTraversalBlock')
+            if (step.kind != 'walk' or not str(error).startswith('source-valid walk failed:')
+                    or self.state.get('zone_id') != zone or self.position() != origin
+                    or block != {'kind': 'npc', 'id': 'occupied-next-cell'}):
+                raise
+            key = (zone, origin, step.destination)
+            previous, count = getattr(self, 'npc_step_retry', (None, 0))
+            count = count + 1 if previous == key else 1
+            if count > 8:
+                raise
+            self.npc_step_retry = key, count
+            self.summary.setdefault('npc_step_waits', []).append(dict(
+                zone=zone, origin=origin, target=step.destination, retry=count))
+            self.send('wait 8')
+            return
+        self.npc_step_retry = None, 0
+        return result
+
     def reset(self, **options):
         raise ProtocolError('midgame forbids New Game, resets and fixtures')
 
@@ -916,6 +939,8 @@ class MidgameJourney(vj.VermilionJourney):
         purchases = [('antidote', 2), ('superPotion', 4)]
         if self.config['packet'] == '5.5b':
             purchases = [('revive', 4), ('antidote', 4), ('superPotion', 12)]
+        if self.config['packet'] == '5.5b' and mart == 'LavenderMart' and self.config['content_scope'] == 'critical':
+            purchases.insert(0, ('escapeRope', 1))
         if mart == 'CeladonMart2F':
             # Stock and prices come from the existing midgame-owners projection.
             self.require_shop_stock(clerk, 'revive')
@@ -1332,6 +1357,14 @@ class MidgameJourney(vj.VermilionJourney):
         self.source_waypoint(0, 10)
         self.cross('left', self.zone('Route14'), (19, 10))
 
+    def finish_eastern_road_to_fuchsia(self):
+        self.source_waypoint(0, 44)
+        self.cross('left', self.zone('Route15'), (59, 8))
+        self.warp(self.zone('Route15Gate1F'), event_id=self.zone('Route15') + ':warps:4')
+        self.warp(self.zone('Route15'), event_id=self.zone('Route15Gate1F') + ':warps:2')
+        self.source_waypoint(0, 8)
+        self.cross('left', self.zone('FuchsiaCity'), (39, 16))
+
     def refill_after_route13(self):
         # Real return through already-traversed source roads; no repeat battles or XP farming.
         self.cross('right', self.zone('Route13'), (0, 10))
@@ -1347,6 +1380,12 @@ class MidgameJourney(vj.VermilionJourney):
         self.save()
 
     def route_fuchsia(self):
+        if 'fuchsia_gym' in self.completed_steps:
+            if not self.flag('BADGE_SOUL') or not self.flag('EVENT_GOT_TM06') or self.quantity('tm06') < 1:
+                raise ProtocolError('saved Koga progress lacks the actual badge and TM06')
+            self.completed_steps.add('fuchsia-koga')
+            self.safari_journey()
+            return
         self.heal_here('LavenderPokecenter')
         if 'route12-snorlax' not in self.completed_steps:
             self.wake_snorlax('ROUTE_12', 1, (10, 61))
@@ -1358,12 +1397,7 @@ class MidgameJourney(vj.VermilionJourney):
             self.refill_after_route13()
             self.enter_route14_from_east()
         # Route14's northern y=6 arrival is blocked by its trainer; y=10 is open.
-        self.source_waypoint(0, 44)
-        self.cross('left', self.zone('Route15'), (59, 8))
-        self.warp(self.zone('Route15Gate1F'), event_id=self.zone('Route15') + ':warps:4')
-        self.warp(self.zone('Route15'), event_id=self.zone('Route15Gate1F') + ':warps:2')
-        self.source_waypoint(0, 8)
-        self.cross('left', self.zone('FuchsiaCity'), (39, 16))
+        self.finish_eastern_road_to_fuchsia()
         self.heal_here('FuchsiaPokecenter')
         self.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06', 'FuchsiaPokecenter', 'FuchsiaMart')
         self.completed_steps.add('fuchsia-koga')
@@ -1375,17 +1409,17 @@ class MidgameJourney(vj.VermilionJourney):
 
     def prepared_safari_route(self):
         self.ensure_room('FuchsiaMart')
-        # Buy a real exit item before admission. Stock and price are detached
-        # projections of the installed source shop, checked again by buy_item.
+        # Fresh routes buy this before heading east. Older actual Koga Saves
+        # use the same fixed source return road, never an unbounded map-name trip.
         if self.config['content_scope'] == 'critical' and self.quantity('escapeRope') == 0:
-            clerk = cj.sid('LAVENDER_MART', 1)
-            shop = self.vermilion['shops'].get(clerk, {})
-            if 'escapeRope' not in shop.get('stock', []):
-                raise ProtocolError('observed Lavender stock has no Escape Rope')
-            price = shop['prices']['escapeRope']
-            self.travel(self.zone('LavenderMart'))
-            self.buy_item(clerk, 'escapeRope', 1, price)
-            self.summary['safari_rope_purchase'] = dict(clerk=clerk, price=price)
+            self.return_from_fuchsia_to_route12()
+            self.return_from_route12_to_lavender()
+            self.restock('LavenderMart')
+            if self.quantity('escapeRope') == 0:
+                raise ProtocolError('Safari requires the earned Lavender Escape Rope before admission')
+            self.enter_route14_from_east()
+            self.finish_eastern_road_to_fuchsia()
+            self.heal_here('FuchsiaPokecenter')
         gate = cj.sid('SAFARI_ZONE_GATE', 1)
         self.require_event(gate)
         self.travel(self.zone('SafariZoneGate'))
@@ -1551,11 +1585,29 @@ class MidgameJourney(vj.VermilionJourney):
             self.surf_acquisition = None
         self.heal_here('FuchsiaPokecenter')
 
+    def return_from_fuchsia_to_route12(self):
+        self.travel(self.zone('FuchsiaCity'), goal=(39, 16))
+        self.cross('right', self.zone('Route15'), (0, 8))
+        self.warp(self.zone('Route15Gate1F'), event_id=self.zone('Route15') + ':warps:2')
+        self.warp(self.zone('Route15'), event_id=self.zone('Route15Gate1F') + ':warps:4')
+        self.source_waypoint(59, 8)
+        self.cross('right', self.zone('Route14'), (0, 44))
+        self.source_waypoint(19, 10)
+        self.cross('right', self.zone('Route13'), (0, 10))
+        self.source_waypoint(51, 0)
+        self.cross('up', self.zone('Route12'), (11, 107))
+
+    def return_from_route12_to_lavender(self):
+        self.warp(self.zone('Route12Gate1F'), event_id=self.zone('Route12') + ':warps:3')
+        self.warp(self.zone('Route12'), event_id=self.zone('Route12Gate1F') + ':warps:1')
+        self.source_waypoint(9, 0)
+        self.cross('up', self.zone('LavenderTown'), (9, 17))
+
     def route_bicycle(self):
         # Approach the Bike Voucher/shop on the earned eastern route, avoiding
         # an unbraked Route 17 visit before Bicycle acquisition.
-        self.travel(self.zone('Route15'))
-        self.travel(self.zone('LavenderTown'))
+        self.return_from_fuchsia_to_route12()
+        self.return_from_route12_to_lavender()
         if self.quantity('bicycle') == 0:
             if self.quantity('bikeVoucher') == 0:
                 self.event_offer(cj.sid('POKEMON_FAN_CLUB', 5))
@@ -1594,8 +1646,15 @@ class MidgameJourney(vj.VermilionJourney):
     def optional_b(self):
         # Keep Dojo, Saffron and Fly out of the B packet.
         self.ensure_room('FuchsiaMart')
-        for constant in ('FUCHSIA_GOOD_ROD_HOUSE', 'ROUTE_12_SUPER_ROD_HOUSE'):
-            self.event_offer(cj.sid(constant, 1))
+        self.event_offer(cj.sid('FUCHSIA_GOOD_ROD_HOUSE', 1))
+        self.return_from_fuchsia_to_route12()
+        self.warp(self.zone('Route12SuperRodHouse'), event_id=self.zone('Route12') + ':warps:4')
+        self.event_offer(cj.sid('ROUTE_12_SUPER_ROD_HOUSE', 1))
+        self.warp(self.zone('Route12'), event_id=self.zone('Route12SuperRodHouse') + ':warps:1')
+        self.source_waypoint(11, 107)
+        self.cross('down', self.zone('Route13'), (51, 0))
+        self.enter_route14_from_east()
+        self.finish_eastern_road_to_fuchsia()
         if self.quantity('goodRod') < 1 or self.quantity('superRod') < 1:
             raise ProtocolError('actual rod rewards unavailable')
         for rod in ('oldRod', 'goodRod', 'superRod'):

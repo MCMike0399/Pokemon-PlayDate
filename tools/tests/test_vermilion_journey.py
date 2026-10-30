@@ -498,6 +498,40 @@ class ReceiptAndPatchTests(unittest.TestCase):
 
 
 class MidgameSaveInputTests(unittest.TestCase):
+    def test_moving_npc_rejection_replans_with_the_existing_bound(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
+        driver.state = {'zone_id': 'center', 'player': {'x': 5, 'y': 4,
+            'lastTraversalBlock': {'kind': 'npc', 'id': 'occupied-next-cell'}}}
+        step = type('Step', (), {'kind': 'walk', 'destination': (5, 5)})()
+        failure = ProtocolError('source-valid walk failed: (5, 4) -> (5, 5), actual (5, 4)')
+        with patch.object(vj.VermilionJourney, 'step', side_effect=failure), \
+                patch.object(driver, 'send') as send:
+            for _ in range(8):
+                driver.step(step)
+            with self.assertRaises(ProtocolError):
+                driver.step(step)
+        self.assertEqual(send.call_count, 8)
+        self.assertEqual(driver.position(), (5, 4))
+        driver.state['player']['lastTraversalBlock'] = {'kind': 'terrain', 'id': 'source-collision'}
+        with patch.object(vj.VermilionJourney, 'step', side_effect=failure):
+            with self.assertRaises(ProtocolError):
+                driver.step(step)
+
+    def test_koga_save_skips_roads_only_with_actual_badge_and_tm(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
+        driver.completed_steps = {'fuchsia_gym'}
+        with patch.object(driver, 'flag', return_value=True), patch.object(driver, 'quantity', return_value=1), \
+                patch.object(driver, 'heal_here', side_effect=AssertionError('unnecessary replay')), \
+                patch.object(driver, 'safari_journey') as safari:
+            driver.route_fuchsia()
+        safari.assert_called_once_with()
+        self.assertIn('fuchsia-koga', driver.completed_steps)
+        with patch.object(driver, 'flag', return_value=False):
+            with self.assertRaisesRegex(ProtocolError, 'actual badge'):
+                driver.route_fuchsia()
+
     def test_fuchsia_bag_room_uses_the_local_item_pc(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
