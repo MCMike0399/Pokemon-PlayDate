@@ -1,3 +1,4 @@
+import "dev/sessionFixture"
 RuntimeArtContracts={}
 function RuntimeArtContracts.run()
     local tests={};local function test(name,fn)local ok,error=pcall(fn);tests[#tests+1]={name=name,ok=ok,error=not ok and tostring(error)or nil}end
@@ -10,7 +11,8 @@ function RuntimeArtContracts.run()
         assert(count==50)
     end)
     test("Actual Player jump uses the exact shared catalog shadow object",function()
-        local old=currentZone;currentZone=assert(zoneRegistry.kanto_route1)
+        local old = currentZone
+        currentZone = assert(SessionFixture.loadZone("kanto_route1"))
         local player=Player(4,4,currentZone.collision,NPCManager());player:setUpdatesEnabled(false)
         local ok,error=pcall(function()player:tryMove(0,1);assert(player.isJumping);assert(player.jumpShadow:getImage()==Player.getJumpShadowImage())end)
         player:remove();player.grassOverlay:remove();player.exitArrow:remove();currentZone=old;assert(ok,error)
