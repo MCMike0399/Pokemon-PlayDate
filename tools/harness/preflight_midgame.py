@@ -45,6 +45,7 @@ class Audit:
         self.files = {}
         self.models = {}
         self.owner = None
+        self.qualified = set()
 
     def record(self, name, kind, status='pass', **details):
         self.rows.append(dict(name=name, kind=kind, status=status, scope=self.scope, **details))
@@ -106,7 +107,7 @@ class Audit:
             if not self.clear(model, start) or not self.clear(model, goal):
                 raise ProtocolError('endpoint blocked or outside source geometry')
             steps = model.path(start, {goal}, (), allow)
-            self.record(name, 'segment', 'gap' if requires and self.scope != 'current-5.5a' else 'pass',
+            self.record(name, 'segment', 'gap' if requires and self.scope != 'current-5.5a' and name not in self.qualified else 'pass',
                         steps=len(steps), conditional=bool(requires), **row)
         except ProtocolError as error:
             self.record(name, 'segment', 'unreachable', error=str(error), **row)
@@ -342,6 +343,125 @@ class Audit:
             except (StopIteration, KeyError, ProtocolError) as error:
                 self.record(label, 'access', 'gap', error=str(error), **row)
                 break
+
+    def api_sources(self, interfaces):
+        """Record reviewed prepared owner contracts; this does not execute Lua."""
+        hashes = {}
+        for relative, names in interfaces.items():
+            content = git('show', self.ref + ':Source/' + relative)
+            self.files[relative] = sha(content)
+            hashes[relative] = sha(content)
+            for name in names:
+                if not re.search(r'function\s+' + re.escape(name) + r'\(', content.decode()):
+                    raise ProtocolError('required prepared API absent: ' + name)
+        return hashes
+
+    def field_geometry(self, mutations):
+        """Qualify only the six declared gaps against the full prepared packet.
+
+        These are static input projections of reviewed owner contracts, not
+        capability grants, actor updates, or successful runtime transactions.
+        """
+        self.qualified = set()
+        for mutation in mutations:
+            name = mutation['name']
+            model = self.model(mutation['map'])
+            cell = self.point(model, mutation['cell'])
+            try:
+                actor = next(e for e in model.events['objects']
+                             if (e['x'], e['y']) == cell)
+                if name.endswith('Snorlax removal'):
+                    sources = self.api_sources({
+                        'game/snorlaxStory.lua': ['SnorlaxStory.fluteTarget', 'SnorlaxStory.request',
+                                                  'SnorlaxStory.actorMetadata'],
+                        'game/hideoutTowerContent.lua': ['HideoutTowerContent.actorMetadata'],
+                    })
+                    definition = next(d for d in self.read('data/towerStory/scenes.json')['scenes']['snorlax']
+                                      if d['id'] == actor['id'])
+                    approach = (10, 61) if mutation['map'] == 'Route12' else (27, 10)
+                    if (actor['sprite'] != 'SPRITE_SNORLAX' or definition['map_id'] != model.name
+                            or self.point(model, (definition['x'], definition['y'])) != cell
+                            or dict(zip(('x', 'y'), approach)) not in definition['flute_positions']):
+                        raise ProtocolError('Snorlax source actor or flute range differs')
+                    origin = self.point(model, approach)
+                    if not self.clear(model, cell) or not self.clear(model, origin):
+                        raise ProtocolError('Snorlax source surface blocked')
+                    # Actor removal needs no terrain override: the underlying
+                    # cell is already legal. Never alter the actor collection.
+                    move = model.terrain_step(origin, 'down' if mutation['map'] == 'Route12' else 'left')
+                    if move is None or move.destination != cell:
+                        raise ProtocolError('removed actor cell cannot be entered from flute approach')
+                    details = dict(actor_id=actor['id'], approach=origin, removed_cell=cell,
+                                   removal_flag=definition['defeated_flag'], api_sources=sources)
+                else:
+                    sources = self.api_sources({
+                        'domain/fieldTravel.lua': ['FieldTravel.push'],
+                        'world/sourceActors.lua': ['SourceActors.isBoulderEvent', 'SourceActors.describeSource'],
+                        'world/npcMotion.lua': ['NPCMotion:previewBoulderPush', 'NPCMotion:beginBoulderPush'],
+                    })
+                    origin = self.point(model, (7, 4))
+                    target = (cell[0] + 1, cell[1])
+                    if (actor['sprite'], actor['movement'], actor['range_or_facing']) != (
+                            'SPRITE_BOULDER', 'STAY', 'BOULDER_MOVEMENT_BYTE_2'):
+                        raise ProtocolError('Warden object is not the source pushable actor')
+                    if not all(self.clear(model, p) for p in (origin, cell, target)):
+                        raise ProtocolError('Warden push surface blocked')
+                    if target in model.warps or target in model.signs or model.feet[target[1]][target[0]] == 0x15:
+                        raise ProtocolError('boulder target is protected or stairs')
+                    if any((e['x'], e['y']) == target for e in model.events['objects']):
+                        raise ProtocolError('boulder destination has another source actor')
+                    a, b = model.feet[origin[1]][origin[0]], model.feet[target[1]][target[0]]
+                    if any({a, b} == set(pair) for pair in model.pairs):
+                        raise ProtocolError('player-to-push-destination tile pair forbidden')
+                    for rule in model.rules:
+                        if (rule['facing'] == 'SPRITE_FACING_RIGHT'
+                                and rule['standing_foot_tile'] == model.feet[cell[1]][cell[0]]
+                                and rule['target_foot_tile'] == b):
+                            raise ProtocolError('boulder step is a ledge')
+                    details = dict(actor_id=actor['id'], player=origin, actor_from=cell, actor_to=target,
+                                   required_attempts=2, first_attempt='face(right) sends the first blocked press',
+                                   second_attempt='following press right starts the push',
+                                   player_after_push=origin, api_sources=sources)
+                    self.qualified.add('Warden first push destination requires actual boulder mutation')
+                self.record(name, 'mutation', conditional=True, map=mutation['map'],
+                            requires=mutation['requires'], qualification='static prepared owner inputs only',
+                            source_sha256=model.descriptor['source_sha256'], **details)
+            except (KeyError, StopIteration, ProtocolError, subprocess.CalledProcessError) as error:
+                self.record(name, 'mutation', 'gap', error=str(error), declaration=mutation)
+
+        try:
+            sources = self.api_sources({
+                'domain/fieldCycling.lua': ['FieldCycling.allowed', 'FieldCycling.enter',
+                                           'FieldCycling.motion', 'FieldCycling.gate'],
+                'domain/fieldWorld.lua': ['FieldWorld.entryTravel'],
+            })
+            bicycle = self.read('data/fieldGear.json')['bicycle']
+            for map_name, entry, gate_name in (
+                    ('Route16', (17, 10), 'Route16Gate1F'),
+                    ('Route18', (33, 8), 'Route18Gate1F')):
+                model = self.model(map_name)
+                constant = model.source_data['source_map_constant']
+                declared = dict(map=constant, x=entry[0], y=entry[1])
+                if declared not in bicycle['forced_entries'] or not self.clear(model, self.point(model, entry)):
+                    raise ProtocolError('forced Bicycle entry differs or is blocked')
+                gate_model = self.model(gate_name)
+                gate = next(g for g in bicycle['gates']
+                            if g['map'] == gate_model.source_data['source_map_constant'])
+                if not all(self.clear(gate_model, self.point(gate_model, (p['x'], p['y'])))
+                           for p in gate['stops']):
+                    raise ProtocolError('Bicycle gate stop is blocked')
+                self.record('Bicycle admission ' + map_name, 'field-policy', conditional=True,
+                            entry=declared, gate=gate, api_sources=sources,
+                            requires='Owned Bicycle, real gate and map-entry execution; no admission observed')
+            for map_name in ('Route17', 'Route18'):
+                model = self.model(map_name)
+                if (model.source_data['tileset']['constant'] not in bicycle['tilesets']
+                        and model.source_data['source_map_constant'] not in bicycle['maps']):
+                    raise ProtocolError('Cycling segment outside allowed Bicycle surface')
+            self.qualified.update(('Cycling Road Route17 top to bottom',
+                                   'Cycling Road Route18 west to gate'))
+        except (KeyError, StopIteration, ProtocolError, subprocess.CalledProcessError) as error:
+            self.record('Bicycle prepared policy', 'field-policy', 'gap', error=str(error))
 
     def travel_checks(self, routes):
         # Reuse the driver's existing bounded route solver. This adds no
@@ -597,10 +717,7 @@ def main():
                     audit.gate('b4-open')
                     audit.selected_lift_exits()
                 else:
-                    for mutation in section.get('mutations', []):
-                        audit.record(mutation['name'], 'mutation', 'gap',
-                                     declaration=mutation,
-                                     reason='inactive actor/field-mode mutation; terrain cannot establish occupancy or execution')
+                    audit.field_geometry(section.get('mutations', []))
                 for route in section['chains']:
                     try:
                         audit.chain(route)
@@ -632,28 +749,56 @@ def main():
                 if scope == 'inactive-prepared-5.5b':
                     for correction in plan['inactive_corrections']:
                         model = audit.model(correction['map'])
-                        audit.path('candidate correction ' + correction['map'], model,
+                        audit.path('applied correction ' + correction['map'], model,
                                    audit.point(model, correction['start']), audit.point(model, correction['candidate']))
                         target = audit.point(model, correction['target'])
+                        origin = audit.point(model, correction['candidate'])
+                        delta = cj.DIRECTIONS[correction['direction']]
+                        if target != (origin[0] + delta[0], origin[1] + delta[1]):
+                            raise ProtocolError('corrected input does not enter declared target')
+                        if audit.clear(model, audit.point(model, correction['old'])):
+                            raise ProtocolError('historical blocked waypoint differs from pinned geometry')
                         if correction['map'] == 'FuchsiaCity':
+                            api_sources = audit.api_sources({
+                                'domain/fieldTravel.lua': ['FieldTravel.surf', 'FieldTravel.surfStep'],
+                                'game/fieldTravelRuntime.lua': ['FieldTravelRuntime.step', 'FieldTravelRuntime.finishStep'],
+                                'game/context.lua': ['GameContext:fieldTravelRestrictions', 'GameContext:commitFieldTravel'],
+                            })
                             rules = audit.read('data/fieldTravel.json')
                             tileset = model.source_data['tileset']['constant']
                             if tileset not in rules['water_tilesets'] or model.feet[target[1]][target[0]] != 0x14:
                                 raise ProtocolError('candidate does not face supported source water')
-                            origin = audit.point(model, correction['candidate'])
+                            compact = audit.read('data/sourceMapCache/compact.json')
+                            cells = []
+                            for x, y in (origin, target):
+                                palette = int(model.descriptor['tile_rows'][y][x * 2:x * 2 + 2], 16)
+                                tile = compact['tiles'][model.descriptor['palette'][palette - 1]]
+                                terrain = tile['terrain']
+                                if (str(y * model.width + x + 1) in model.descriptor['blocked']
+                                        or terrain.get('adapter_padding') is True):
+                                    raise ProtocolError('Surf cell is binding blocked or adapter padding')
+                                cells.append(terrain)
+                            if not cells[0]['land_passable'] or not cells[1]['water_candidate']:
+                                raise ProtocolError('Surf board/land inputs differ from source terrain')
                             if any(p['tileset'] == tileset and
                                    {p['a'], p['b']} == {model.feet[origin[1]][origin[0]], 0x14}
                                    for p in rules['water_pairs']):
                                 raise ProtocolError('candidate shore/water pair is prohibited')
+                            audit.record('Fuchsia Surf board and return inputs', 'field-policy',
+                                         conditional=True, origin=origin, water=target, cells=cells,
+                                         api_sources=api_sources,
+                                         requires='Soul Badge and known Surf; unoccupied cells; actual board/landing commits remain unobserved')
                         else:
                             ghost = audit.read('data/towerStory/scenes.json')['scenes']['ghost']
-                            if correction['target'] != [ghost['x'], ghost['y']]:
+                            step = model.terrain_step(origin, correction['direction'])
+                            if (correction['target'] != [ghost['x'], ghost['y']]
+                                    or step is None or step.destination != target):
                                 raise ProtocolError('candidate does not enter actual ghost trigger')
-                        audit.record('candidate target ' + correction['map'], 'correction-evidence',
+                        audit.record('applied target ' + correction['map'], 'correction-evidence',
                                      declaration=correction, target_collision=model.collision[target[1]][target[0]],
                                      target_foot_tile=model.feet[target[1]][target[0]],
                                      source_sha256=model.descriptor['source_sha256'],
-                                     status='excluded', reason='unapplied inactive driver correction; field/battle execution unverified')
+                                     conditional=True, reason='applied dormant driver correction; static geometry only; field/battle execution unverified')
             except (KeyError, ValueError, ProtocolError, subprocess.CalledProcessError) as error:
                 audit.record('source decoding', 'input', 'gap', error=str(error))
             counts = {status: sum(r['status'] == status for r in audit.rows)
@@ -665,17 +810,22 @@ def main():
     classify_calls(report)
     report['historical_manifest_corrections'] = plan['historical_manifest_corrections']
     report['evidence_errors'] = []
-    try:
-        report['original_report'] = prior_evidence(args.prior_report, report['audits'])
-        report['supplemental_earned_evidence'] = earned_evidence(args.earned_evidence, report['audits'][0]['source_hashes'])
-    except (OSError, ValueError, KeyError, ProtocolError) as error:
-        report['evidence_errors'].append(str(error))
+    for key, collect in (
+            ('original_report', lambda: prior_evidence(args.prior_report, report['audits'])),
+            ('supplemental_earned_evidence', lambda: earned_evidence(
+                args.earned_evidence, report['audits'][0]['source_hashes']))):
+        try:
+            report[key] = collect()
+        except (OSError, ValueError, KeyError, ProtocolError) as error:
+            report['evidence_errors'].append(key + ': ' + str(error))
     report['findings'] = [row for a in report['audits']
                           for row in a['checks'] if row['status'] in {'gap', 'unreachable'}]
+    report['prepared_driver_sha256'] = sha((ROOT / 'tools/harness/midgame_journey.py').read_bytes())
+    report['driver_inventory_scope'] = 'Historical BASE call inventory stays pinned; dormant Tower and pond repairs are reported separately by prepared_driver_sha256 and applied correction checks.'
     report['coverage'] = 'conditional static geometry only; 5.5b inactive; actor occupancy, rewards, menus, field modes and new journeys are not acceptance'
-    report['unsupported_modes'] = ['Surf water collision/movement is not modelled by SourceGeometry',
-                                   'Strength actor pushes/occupancy are not terrain',
-                                   'Bicycle forced admission/motion is not walking geometry',
+    report['unsupported_modes'] = ['Surf board/landing inputs are statically checked; interpolation and commit require runtime',
+                                   'Strength source push inputs are checked; live occupancy/lease/commit require runtime',
+                                   'Bicycle policy and land geometry are checked; admission/automatic motion require runtime',
                                    'Safari admission, balls/steps and battle mode require the actual runtime']
     report['remaining_blockers'] = dict(current_5_5a=[r for r in report['findings'] if r['scope'] == 'current-5.5a'],
                                         inactive_5_5b=[r for r in report['findings'] if r['scope'] == 'inactive-prepared-5.5b'],
