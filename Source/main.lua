@@ -184,6 +184,14 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/celadonServicesController"
     import "game/hideoutTowerContent"
     import "game/hideoutTowerController"
+    import "domain/safariBattle"
+    import "game/midgameServices"
+    import "game/midgameServicesState"
+    import "game/safariScene"
+    import "game/safariBattleState"
+    import "game/safariPassage"
+    import "game/safariPassageState"
+    import "game/safariRuntime"
 
 
     local function campaignActorMetadata(definition, event, runtimeGame)
@@ -256,6 +264,10 @@ local bootAccepted, bootProblem = pcall(function()
             Daycare.install()
             -- NPC trades and Saffron guards remain parked.
             HideoutTowerContent.install()
+            MidgameServices.install()
+            SourceEvents.registerWorldHooks("pokered:SAFARI_ZONE_GATE:script:admission", {
+                explore = MidgameServices.checkEntrance,
+            })
             CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
             MidgameStoryWarps.install()
             BootTrace.mark("Daycare.install.end")
@@ -344,7 +356,9 @@ local bootAccepted, bootProblem = pcall(function()
         BootTrace.mark("state.shop.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.event.begin")
-        machine:register("event", NPCTradeState(game))
+        machine:register("event", MidgameServicesState(game))
+        machine:register("safariBattle", SafariBattleState(game))
+        machine:register("safariPassage", SafariPassageState(game))
         BootTrace.mark("state.event.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.tutorial-escort.begin")

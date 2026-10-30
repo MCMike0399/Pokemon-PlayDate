@@ -258,11 +258,17 @@ function Player:tryMove(dx, dy, scriptIntent)
     -- Only the exact, live source escort intent may overlap ambient sprites.
     -- All ordinary callers retain NPC collision, terrain and traversal checks.
     local scripted, guide = false, nil
+    local safariScript = false
     if scriptIntent ~= nil then
         self.running = false
-        if not TutorialEscortPlayer then return end
-        scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
-        if not scripted then return end
+        if SafariPassage and SafariPassage.permits(scriptIntent, self, dx, dy) then
+            scripted = true
+            safariScript = true
+        else
+            if not TutorialEscortPlayer then return end
+            scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
+            if not scripted then return end
+        end
     end
 
     if dy == -1 then self.facing = "up"
@@ -305,7 +311,7 @@ function Player:tryMove(dx, dy, scriptIntent)
     -- Check for NPC at target position (skip during noclip)
     if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
         local occupant = self.npcManager:getNPCAt(targetGX, targetGY)
-        if occupant and (not scripted or occupant == guide) then
+        if occupant and (not scripted or safariScript or occupant == guide) then
             local motion = self.npcManager.motion
             if not scripted and motion.isBoulder and motion:isBoulder(occupant)
                 and game.session:fieldTravelData().strength then

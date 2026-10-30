@@ -40,6 +40,10 @@ function ExploreSubstate:update()
     local game = self.owner.game
     local player = game.player
 
+    if SafariRuntime and SafariRuntime.check(game) then
+        return
+    end
+
     if self.owner.fieldArrival then
         local arrival = self.owner.fieldArrival
         self.owner.fieldArrival = nil
@@ -79,6 +83,9 @@ function ExploreSubstate:update()
         self.owner:_presentedWorld()
         if not player.fieldStep and player.stepJustFinished then
             game.session:daycareStep()
+        if SafariRuntime then
+            SafariRuntime.completedStep(game)
+        end
         end
         return
     end
@@ -127,7 +134,11 @@ function ExploreSubstate:update()
                 local rootMachine=self.owner.machine
                 self.machine:change("irisOut",px+ox,py+oy,function()
                     if game.session~=session or currentZone~=zone or game.player~=player then return false,"stale-wild-transition"end
-                    assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
+                    if SafariGame.isBattleMap(currentZone.stableID) and session:safariData().active then
+                        assert(SafariRuntime.startEncounter(game, enemy))
+                    else
+                        assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
+                    end
                 end)
                 return
             end
@@ -151,6 +162,9 @@ function ExploreSubstate:update()
     gfx.sprite.update()
     if wasMoving and not player.isMoving and player.stepJustFinished then
         game.session:daycareStep()
+        if SafariRuntime then
+            SafariRuntime.completedStep(game)
+        end
     end
     self.owner:_presentedWorld()
 end
@@ -337,6 +351,13 @@ function DoorWarpSubstate:init(owner)
 end
 
 function DoorWarpSubstate:enter(door)
+    if SafariRuntime and not SafariRuntime.allowDoor(self.owner.game, door) then
+        self.owner.game.player.stepJustFinished = false
+        self.owner.game.player.pendingEdgeDoor = nil
+        self.owner.game.player.pendingConnection = nil
+        self.machine:change("explore")
+        return
+    end
     if BootTrace then
         BootTrace.mark("door.begin")
     end

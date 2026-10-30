@@ -17,7 +17,7 @@ end
 function CaptureAnimation:init(receipt)
     assert(type(receipt)=="table" and type(receipt.caught)=="boolean" and type(receipt.critical)=="boolean","invalid capture presentation receipt")
     local ball=receipt.ballId
-    assert(ball=="pokeBall" or ball=="greatBall" or ball=="ultraBall" or ball=="masterBall","unsupported capture presentation ball")
+    assert(ball=="pokeBall" or ball=="greatBall" or ball=="ultraBall" or ball=="masterBall" or ball=="safariBall","unsupported capture presentation ball")
     local shakes=receipt.displayShakes
     assert(shakes==0 or shakes==1 or shakes==3,"invalid capture presentation shakes")
     assert(not receipt.critical or shakes==1,"critical capture must show one shake")
