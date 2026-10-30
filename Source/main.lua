@@ -172,6 +172,12 @@ local bootAccepted, bootProblem = pcall(function()
     import "game/rocketHideoutStory"
     import "game/rocketHideoutStoryWorld"
     import "game/rocketHideoutStoryController"
+    import "game/fieldTravelRequests"
+    import "game/fieldTravelRuntime"
+    import "game/fieldTravelState"
+    import "game/fieldGearRequests"
+    import "game/fieldGearState"
+    import "world/fieldGearArt"
     import "game/midgameGymStory"
     import "game/midgameStoryWarps"
     import "game/celadonServices"
@@ -214,6 +220,9 @@ local bootAccepted, bootProblem = pcall(function()
             CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
             CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
                 return HideoutTowerContent.package("midgameEast", events, trainers)
+            end)
+            CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+                return HideoutTowerContent.package("midgameSouth", events, trainers)
             end)
             BootTrace.mark("CeruleanContent.registerPackage.end")
             GameBootstrap.yieldIfDue()
@@ -322,6 +331,8 @@ local bootAccepted, bootProblem = pcall(function()
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.fieldMove.begin")
         machine:register("fieldMove", FieldMoveState(game))
+        machine:register("fieldTravel", FieldTravelState(game))
+        machine:register("fieldGear", FieldGearState(game))
         BootTrace.mark("state.fieldMove.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.bag.begin")
