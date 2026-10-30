@@ -190,6 +190,7 @@ class MidgameJourney(vj.VermilionJourney):
     def rearm_cycling_brake(self):
         if not getattr(self, 'cycling_brake', False):
             return
+        self.cycling_brake_needs_rearm = False
         before = dict(zone=self.state['zone_id'], position=self.position())
         # A door resets the field gesture to consumed. Release it physically;
         # any genuine first downhill cell is retained before braking again.
@@ -209,6 +210,11 @@ class MidgameJourney(vj.VermilionJourney):
         return result
 
     def step(self, step):
+        if (getattr(self, 'cycling_brake', False)
+                and getattr(self, 'cycling_brake_needs_rearm', False)):
+            self.rearm_cycling_brake()
+            # Re-plan from the actual cell reached during the physical release.
+            return
         zone, origin = self.state['zone_id'], self.position()
         try:
             result = super().step(step)
@@ -1813,7 +1819,10 @@ class MidgameJourney(vj.VermilionJourney):
                     or actual.get('payout') != classes['base_money'] * actual['party'][-1]['level']):
                 raise ProtocolError('actual rival team differs from pinned Blue counter-pick source')
             self.source_trainers[stable] = dict(self.source_trainers.get(stable, {}), **actual)
-        return super().battle(name, strategy, expected)
+        result = super().battle(name, strategy, expected)
+        if getattr(self, 'cycling_brake', False):
+            self.cycling_brake_needs_rearm = True
+        return result
 
     def sell_old_item(self, mart):
         # Actual prior campaign items only, never key items/HMs/new 5.5 rewards.
