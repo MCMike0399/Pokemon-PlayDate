@@ -14,6 +14,9 @@ local function owned(weak)
         lead.moves, lead.pp = {"karateChop"}, {karateChop = moveData.karateChop.maxPP}
     end
     assert(game:recruit(lead))
+    -- Keep a genuinely owned starter while testing a nonstarter battle lead.
+    assert(game:recruit(pokemon("squirtle", 5)))
+    assert(game.session:storage():deposit(game.session:party(), 2))
     assert(game.session:setIntro({stage="done", starter="squirtle", rivalStarter="bulbasaur"}))
     assert(game.session:activateRNG())
     return game

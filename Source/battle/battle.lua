@@ -378,7 +378,7 @@ end
 function Battle:opponentEntered(cause)
     assert(cause==nil or cause=="phaze","invalid opponent-entry cause")
     if self.enemyParty then assert(self.enemyParty:active()==self.enemy,"opponent entry active mismatch") end
-    if self.sourceEncounter and not cause then
+    if self.sourceEncounter and self.sourceEncounter.intro_labels and not cause then
         self:sourceSay(self.sourceEncounter.intro_labels)
         if self.sourceEncounter.unidentified then
             return
