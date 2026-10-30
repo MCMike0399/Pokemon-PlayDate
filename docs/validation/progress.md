@@ -146,8 +146,8 @@ proof does not establish long-route or final B acceptance.
 A streaming-observer 200-round-trip door test plateaus after warm-up: city/Center
 heap ranges 0.09/0.36 KiB, fixed sprites/registry. This is managed Simulator heap;
 The 30-map loop5x also plateaus: largest cycle2→5 same-map increase0.09KiB.
-A test-only loaded-game probe allocates8/8native images (2MiB requested payload)
-on the device, releases them and leaves no newlogs. Long device traversal remains
+A test-only loaded-game probe allocates 8/8 native images (2 MiB requested payload)
+on the device, releases them and leaves no new logs. Long device traversal remains
 open. [Pair](memory-door-plateau-20261030.json), [30-map](memory-30map-plateau-20261030.json), [native scope](native-image-headroom-20261030.json).
 [Current evidence](midgame-b-candidate-20261030.json), [history](progress-history-midgame-b-20261030.md).
 
