@@ -257,6 +257,13 @@
     "host_result": "All discovered tests pass,zero failures/errors/skips; private coverage qualified without checkpoint promotion",
     "resumes": "m55b-resume-inputs-20261030-04; original importer verified all three stopped archives,slots andacceptedA ancestry. Squirtle retains actual earned Surf/Strength Save; others use verified Koga Saves.",
     "preflight": "1572 checks,no unexplained geometry failures; eight runtime conditions remain",
-    "status": "Launched Charmander first for admission feedback,continue on failure; all results pending"
+    "status": "Launched Charmander first for admission feedback,continue on failure; all results pending",
+    "charmander_result": {
+      "status": "failed-exited; other starters continue frozen candidate",
+      "verified_progress": "Real Safari admission and BALL; reached actual forced-return gate",
+      "failure": "Host advance_event used the old SafariPassage root after observe advanced the game and closed it. It rejected phase closed instead of redispatching.",
+      "prepared_fix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-observer-closure-preparation-20261030-01/root.patch",
+      "verification": "Exact recorded replies01293/01294 reproduce old failure; patched host driver passes same replay. No game runtime mutation or outcome acceptance."
+    }
   }
 }
