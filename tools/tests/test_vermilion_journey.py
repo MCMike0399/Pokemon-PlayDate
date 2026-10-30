@@ -510,13 +510,14 @@ class MidgameSaveInputTests(unittest.TestCase):
     def test_fuchsia_route_crosses_fixed_exits_without_reentering_route12(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
-        driver.completed_steps = {'route12-snorlax'}
+        driver.completed_steps = {'route12-snorlax', 'route13-rested'}
         class ReachedFuchsia(Exception):
             pass
         def heal(name):
             if name == 'FuchsiaPokecenter':
                 raise ReachedFuchsia
         with patch.object(driver, 'heal_here', side_effect=heal), \
+                patch.object(driver, 'restock'), \
                 patch.object(driver, 'zone', side_effect=lambda name: name), \
                 patch.object(driver, 'travel') as travel, \
                 patch.object(driver, 'source_waypoint'), \

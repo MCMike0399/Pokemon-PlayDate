@@ -804,6 +804,35 @@ def checkpoint_b_preflight(plan):
             return dict(legs=steps, final_walk_steps=len(route), final_arrival=actual,
                         occupancy='All source NPC cells occupied; live movement and trainer battles still require runtime.')
         check('Route13/14/15 occupied fixed exits and gatehouse', 'component-route', fuchsia_east_route)
+        def lavender_refill_route():
+            model = audit.model('Route13')
+            occupied = {(row['x'], row['y']) for row in model.events['objects']}
+            lengths = [len(model.path((0, 10), {(51, 0)}, occupied))]
+            actual = cj.connection_projection(audit.models, model, (51, 0), 'up')
+            if actual != (audit.model('Route12').name, (11, 107)):
+                raise ProtocolError('Refill return differs from Route13 north header')
+            model = audit.model('Route12')
+            occupied = {(row['x'], row['y']) for row in model.events['objects'] if row['source_index'] != 1}
+            event = next(row for row in model.events['warps'] if row['source_index'] == 3)
+            point = (event['x'], event['y'])
+            lengths.append(len(model.path(actual[1], {point}, occupied, {point})))
+            destination, origin = audit.owner.project_warp(model, event)
+            gate = audit.model('Route12Gate1F')
+            if destination != gate.name:
+                raise ProtocolError('Refill gate ingress differs from source warp')
+            event = next(row for row in gate.events['warps'] if row['source_index'] == 1)
+            point = (event['x'], event['y'])
+            lengths.append(len(gate.path(origin, {point}, {(row['x'], row['y']) for row in gate.events['objects']}, {point})))
+            destination, origin = audit.owner.project_warp(gate, event)
+            if destination != model.name:
+                raise ProtocolError('Refill gate north exit differs from source warp')
+            lengths.append(len(model.path(origin, {(9, 0)}, occupied)))
+            actual = cj.connection_projection(audit.models, model, (9, 0), 'up')
+            if actual != (audit.model('LavenderTown').name, (9, 17)):
+                raise ProtocolError('Refill Lavender arrival differs from source header')
+            return dict(leg_steps=lengths, final_arrival=actual,
+                        condition='Actual Snorlax removal required; real Center heal and purchases remain runtime checks.')
+        check('Route13 earned Center refill through Route12 gate', 'component-route', lavender_refill_route)
         check('Tower 6F actual corridor pickup', 'event-approach', tower_item_route)
         check('Safari fixed input steps', 'fixed-script',
               lambda: audit.fixed('safari-fixed-routes.json'))

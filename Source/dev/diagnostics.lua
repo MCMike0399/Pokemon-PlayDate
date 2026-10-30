@@ -79,7 +79,11 @@ local function learningSnapshot(state)
     if state.active and state.pokemon then
         if state.pendingMove then result.move_info=moveInfo(state.pendingMove) end
         result.known_moves={}
-        for index,key in ipairs(state.pokemon.moves) do result.known_moves[index]=moveInfo(key,index,state.pokemon) end
+        for index, key in ipairs(state.pokemon.moves) do
+            local info <const> = moveInfo(key, index, state.pokemon)
+            info.protected_hm = Teaching.protectedMove(key)
+            result.known_moves[index] = info
+        end
     end
     return result
 end

@@ -23,7 +23,7 @@ BOUNDS = {'max_actions': (1, 120000), 'max_steps': (1, 20000),
 B_STEPS = {'tower-fuji-flute', 'route12-snorlax', 'bicycle-cycling-road',
            'fuchsia-koga', 'safari-hm03-gold-teeth-hm04-strength-surf'}
 B_OPTIONAL = {'rods-fishing'}
-B_AUXILIARY = {'fuchsia_gym'}
+B_AUXILIARY = {'fuchsia_gym', 'route13-rested'}
 HMS = {'cut': 'hm01', 'fly': 'hm02', 'surf': 'hm03', 'strength': 'hm04', 'flash': 'hm05'}
 
 
@@ -914,6 +914,8 @@ class MidgameJourney(vj.VermilionJourney):
         if not shop:
             raise ProtocolError('actual shop owner unavailable: ' + mart)
         purchases = [('antidote', 2), ('superPotion', 4)]
+        if self.config['packet'] == '5.5b':
+            purchases = [('revive', 4), ('antidote', 4), ('superPotion', 12)]
         if mart == 'CeladonMart2F':
             # Stock and prices come from the existing midgame-owners projection.
             self.require_shop_stock(clerk, 'revive')
@@ -1325,17 +1327,37 @@ class MidgameJourney(vj.VermilionJourney):
             raise ProtocolError('actual source Snorlax battle did not remove blocker')
         self.refresh_world()
 
+    def enter_route14_from_east(self):
+        self.travel(self.zone('Route13'))
+        self.source_waypoint(0, 10)
+        self.cross('left', self.zone('Route14'), (19, 10))
+
+    def refill_after_route13(self):
+        # Real return through already-traversed source roads; no repeat battles or XP farming.
+        self.cross('right', self.zone('Route13'), (0, 10))
+        self.source_waypoint(51, 0)
+        self.cross('up', self.zone('Route12'), (11, 107))
+        self.warp(self.zone('Route12Gate1F'), event_id=self.zone('Route12') + ':warps:3')
+        self.warp(self.zone('Route12'), event_id=self.zone('Route12Gate1F') + ':warps:1')
+        self.source_waypoint(9, 0)
+        self.cross('up', self.zone('LavenderTown'), (9, 17))
+        self.heal_here('LavenderPokecenter')
+        self.restock('LavenderMart')
+        self.completed_steps.add('route13-rested')
+        self.save()
+
     def route_fuchsia(self):
         self.heal_here('LavenderPokecenter')
         if 'route12-snorlax' not in self.completed_steps:
             self.wake_snorlax('ROUTE_12', 1, (10, 61))
             self.completed_steps.add('route12-snorlax')
             self.save()
-        self.travel(self.zone('Route13'))
-        # These source exits remain reachable with the initial trainer occupancy.
-        # In particular Route14's northern y=6 arrival is blocked by its trainer.
-        self.source_waypoint(0, 10)
-        self.cross('left', self.zone('Route14'), (19, 10))
+        self.restock('LavenderMart')
+        self.enter_route14_from_east()
+        if 'route13-rested' not in self.completed_steps:
+            self.refill_after_route13()
+            self.enter_route14_from_east()
+        # Route14's northern y=6 arrival is blocked by its trainer; y=10 is open.
         self.source_waypoint(0, 44)
         self.cross('left', self.zone('Route15'), (59, 8))
         self.warp(self.zone('Route15Gate1F'), event_id=self.zone('Route15') + ':warps:4')

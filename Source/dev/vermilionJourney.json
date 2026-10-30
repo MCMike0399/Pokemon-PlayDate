@@ -3335,7 +3335,7 @@
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
     "dev/ceruleanJourney.json": "30c5176929b264f52761e94d6cdfc4f7730aca6241055434189af4640952ba75",
     "dev/daycareContracts.lua": "c3507079193c523b1bd21a6ddefb70164f37e3a31ec0529ed0886174756ee1ec",
-    "dev/diagnostics.lua": "770005d198603e0df6ad169f30460d28f27ca73ae655648065922672a2937bb2",
+    "dev/diagnostics.lua": "9139282c3a3321b1ba51e6a7e84f55a538cc19587d3e0d85fc4d790d8b01da95",
     "dev/fixtures.lua": "b58335badeaf91cd93ac077519559ba0df9eb38490cfb48dec3a799b20e4b6f4",
     "domain/capture.lua": "829c8be6244dde95fba233107139a3ab95950d61a9918b32e6a3eeeb1cf9b56b",
     "domain/fieldEncounters.lua": "8c91894d9be3feb11a3eff9b119e1fe6bd2560d251c9e32cdae4bca3ac6fd59f",
