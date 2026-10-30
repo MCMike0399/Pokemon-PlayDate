@@ -4,7 +4,7 @@ This is a compile-only preparation for root. It is not runtime evidence or an
 acceptance record. No Simulator, GUI, runtime lock, serial, USB, device command,
 canonical save, production module or existing ledger was touched during preparation.
 
-The input is exactly `95436a0edf709699ed1fd2e813fba0517d31cf5e`, whose existing
+The input is exactly `76559ac87b210a2e71c0520a1da3f8059a9e8d9c`, whose existing
 checkout is `/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-2c976160`.
 Run the tool from the implementation checkout. Its `--project` is a read-only
 production input, not the location from which it obtains the new observer.
