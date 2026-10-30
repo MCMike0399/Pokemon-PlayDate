@@ -327,7 +327,7 @@
   "thirteenth_journey_set": {
     "revision": "f949997e",
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-thirteenth-resumed-20261030-01",
-    "state": "Charmander and Bulbasaur failed; Squirtle remains running on the frozen build.",
+    "state": "All three owned processes stopped. Charmander failed with a primary OOM; Bulbasaur and Squirtle failed after the Route 17 trainer with a consumed held-brake gesture.",
     "inputs": "m55b-resume-inputs-20261030-07; exact stopped slots and acceptedA ancestry verified. Unsaved Bicycle state notpromoted.",
     "gift_native_comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gift-native-comparison-20261030-01.json",
     "gate_native_check": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-cycling-gate-supplementary-20261030-03/result.json",
@@ -369,7 +369,13 @@
       "finding": "The down press did not move while B remained held after trainer dialogue. Cleanup release immediately began genuine automatic descent. The existing consumed A/B gesture requires both buttons released.",
       "candidate": "m55b-cycling-postbattle-diagnosis-20261030-01/postbattle-brake.patch: rearm physically after battle, then re-plan from the actual resulting cell. Unapplied; Python syntax passes; native verification pending.",
       "scope": "Driver recovery defect; no production movement or rules change proposed."
-    }
+    },
+    "squirtle_result": {
+      "status": "Failed; producer exit confirmed.",
+      "error": "source-valid walk failed: (10, 19) -> (10, 20), actual (10, 19)",
+      "scope": "Same post-trainer brake recovery defect as Bulbasaur. No primary runtime-error report was published. The actual Cerulean Center Bicycle save remains verified."
+    },
+    "next_inputs": "m55b-resume-inputs-20261030-08: original importer verified all three actual Bicycle save markers, both archived slots, stopped producers and accepted A ancestry. Not launched."
   },
   "current_production_profile": {
     "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-current-production-profile-prepare-20261030-02",
@@ -383,13 +389,13 @@
   },
   "memory_failure_followup": {
     "source_cause": "Not established. Long-route out-of-memory is retained as the primary defect.",
-    "map_diagnostic": "m55b-map-memory-diagnostic-prepare-20261030-01: compiled 71 map entries, unrun while remaining journeys own runtime.",
-    "gift_text_candidate": "m55b-gift-text-memory-preparation-20261030-01: avoids retaining the full 630-recipe table through the existing eight-record cache. Every original record compares equal; public label namespace preserved. Unapplied.",
+    "map_diagnostic": "Completed 71 direct map entries plus earned Continue. All 72 samples and both fade allocations completed; post-GC heap ranges from 7063.82 to 8155.31 KiB. This excludes battle, interaction and journey-observer history; original OOM not reproduced.",
+    "gift_text_candidate": "Integrated only in private B at ddaf3804 after both native variants passed all 40 gift cases. Existing bounded cache removes 675.84 KiB of cold retained heap. No state, source recipe, asset or RNG change; OOM resolution remains unproven.",
     "paired_native_preparation": [
       "m55b-gift-memory-old-prepare-20261030-01",
       "m55b-gift-memory-bounded-prepare-20261030-01"
     ],
-    "paired_scope": "Cold retained-heap comparison plus existing 40 gift cases; compiled, not executed. No saving or OOM fix claimed.",
+    "paired_scope": "Executed cold retained-heap comparison plus existing 40 gift cases per variant. Not whole-route or hardware acceptance.",
     "fatal_transport_fix": {
       "main_commit": "953e75d0",
       "host_protocol_checks": 57,
@@ -398,6 +404,8 @@
       "actual_replay": "host-fatal-error-actual-replay-20261030-01.json",
       "scope": "Exact archived OOM report is preserved and input refused in 2 ms. No new SDK/gameplay execution. Active B tool files remain frozen."
     },
-    "diagnostic_sequence": "Root process is waiting on the global runtime lock, then runs the old/bounded gift comparison and 71-map diagnostic sequentially under runtime and device locks. Pending output: m55b-memory-diagnostic-sequence-20261030-01.json. No runtime result claimed."
+    "diagnostic_sequence": "Completed under the global runtime and device locks: m55b-memory-diagnostic-sequence-20261030-01.json. Exact stage reports and original failures remain retained.",
+    "summary": "docs/validation/m55b-memory-diagnostics-20261030.json",
+    "driver_recovery": "Private B 8b0d2815 rearms B physically after trainer battles and re-plans from the actual resulting cell. 68 targeted host checks and production compilation pass; natural rerun pending."
   }
 }

@@ -15,10 +15,9 @@ Status: **Simulator-accepted and hardware-safe; device latency targets not yet m
 [Acceptance](midgame-a-acceptance-20261029.json), [chain hashes](chain-saves.json),
 [elapsed-time basis](milestone-times.json).
 
-Three natural journeys pass from earned 5.4 saves, including process restart and
-Continue. Charmander covers optional Celadon services, Eevee, a real slot spin
-and Abra. All three also pass actual-input Continue/Save, exit, Continue/Save
-on one PDX. Original earned files are unchanged.
+Three journeys pass from earned 5.4 saves, with actual process Continue/Save
+restarts. Charmander covers Celadon services, Eevee, a real slot spin and Abra.
+Original earned files are unchanged.
 [Journey identities](midgame-a-journey-candidates-20261029.json),
 [common-build checks](midgame-a-common-load-20261029.json).
 Merged main compiles and passes all **1,018 host tests without skips**.
@@ -26,10 +25,8 @@ Merged main compiles and passes all **1,018 host tests without skips**.
 Player package outside Git: `evidence/player-packages/5.5a-accepted-20261029-01/`.
 It contains the production PDX, three earned save pairs and one-line Simulator
 loading instructions. Its production Source exactly matches the qualified build.
-Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/`.
-The 89.854-second original-speed clip includes walking, complete Erika and Rocket
-battles, evolution and guard departure; captions disclose the walking excerpt.
-This is not device pacing proof.
+Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/`, 89.854 seconds
+at original speed, with full Erika/Rocket battles. This is not device pacing proof.
 
 5.4 remains accepted for Simulator gameplay. The 108-map hardware smoke now
 exercises its earned Continue/Route 2/Cut/battle/save surface too. Device latency
@@ -37,12 +34,11 @@ still prevents playable-on-device status. Earlier packages and clips remain reta
 
 ## Hardware result and idle safety
 
-Build `3793be9f` (108 maps) reaches title, loads earned Continue, saves, traverses
-doors, uses Cut and starts a wild battle through serial-driven real input.
-Error/crash logs are unchanged. Live/peak sampled Lua heap: **4.02/5.52 MiB**.
-The handheld screen was not directly observed; serial/state evidence is retained.
-Simulator 16 MiB route: **5.80 MiB post-GC live / 6.96 MiB peak**,
-maximum raw slice 124.576 ms. Native allocations and unsampled peaks remain outside scope.
+Build `3793be9f` passes hardware title, earned Continue, Save, doors, Cut and
+battle with unchanged logs; sampled live/peak **4.02/5.52 MiB**. Serial/state
+proof is retained; the screen was not directly observed. Its 16 MiB Simulator
+route reports **5.80/6.96 MiB** live/peak and a 124.576 ms maximum raw slice.
+Native allocations and unsampled peaks remain outside scope.
 
 Repaired build `eda0ce22` passes **30 minutes title + 30 minutes overworld**:
 heap stays at **3.45/4.02 MiB**, with zero soft collections and no new logs.
@@ -113,24 +109,28 @@ unchanged accepted A saves. Scope: Tower/Fuji/Flute, Snorlax/Cycling Road,
 Fuchsia/Safari/Koga, Surf/Strength. Ten owner SDK cases, Chip Away, both gameplay
 reviews and 59 focused host checks pass. Geometry is conditional on live actors.
 
-All three earned Koga Saves remain verified; Charmander and Squirtle also saved
-Surf/Strength. Rod repair passes 40 native cases; the brake/gate check passes.
-All 1,036 B host tests pass. Thirteenth-set Charmander saved after Bicycle, then
-failed in `drawFaded` under the 16 MiB Simulator pool after the long route.
-Heap was about 12 MiB, peak 13.53 MiB; this is a real unresolved memory failure,
-not merely the later transport timeout. A 71-map production-resource diagnostic
-is queued behind the frozen suite. Bulbasaur passed that door but stopped after
-a Route 17 trainer because its held brake needed physical rearming. Squirtle
-continues; a driver correction is prepared, unapplied. B remains unaccepted.
-[Evidence and pending reviews](midgame-b-candidate-20261030.json).
-The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
-unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
-longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep
-policy; production profiling remains pending. Keeper restored; latency unaccepted.
-[Current evidence](midgame-b-candidate-20261030.json), [integration history](progress-history-midgame-b-20261030.md).
+All three now have verified real Saves with Koga, Surf, Strength and Bicycle.
+Thirteenth-set Charmander hit a `drawFaded` OOM under the 16 MiB Simulator pool;
+Bulbasaur and Squirtle stopped after a Route 17 trainer because their held brake
+needed physical rearming. The brake correction passes 68 targeted host checks
+and compilation; the next natural rerun remains pending.
 
-Private B’s first Simulator checkpoint probe was **6.55 MiB post-GC**; the
-physical **6 MiB live / 9 MiB peak** guards remain unchanged. The measured reference route does not establish final B checkpoint acceptance.
+Both gift-cache variants pass 40 native cases. Bounded text loading removes
+**675.84 KiB** of retained heap and is installed only in private B. A separate
+71-map diagnostic completes, retaining **6.90–7.96 MiB** after GC. It excludes
+battle/interaction and journey-observer history, so the original OOM remains
+unresolved. [Measured scope](m55b-memory-diagnostics-20261030.json).
+The latest three Bicycle Saves pass the original ancestry/slot/producer checks.
+No final B receipt exists; both rod gameplay reviews remain pending.
+
+The earlier 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle
+with unchanged logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s; longest
+door: 3.01 s; cave p95: 101.85 ms. Save's 6.64 s used the diagnostic deep policy;
+current production profiling remains pending. Keeper restored; latency unaccepted.
+Physical **6 MiB live / 9 MiB peak** guards stay unchanged. Short-route hardware
+proof does not establish long-route or final B acceptance.
+[Current evidence](midgame-b-candidate-20261030.json), [history](progress-history-midgame-b-20261030.md).
+
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
 ## Storage, decisions and history
