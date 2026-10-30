@@ -81,6 +81,10 @@ of at least 10%; discard the rest after one measurement. No guessed 35.11 factor
 Safety is guards active, no runtime error, <=9 MiB sampled peak, <=150 ms raw
 Simulator slices. Performance targets do not block measurement.
 
+The isolated early-title candidate passes its 16 MiB smoke (41.3 ms raw slice,
+7.00 MiB peak) and 39 existing recovery/archive/session bridge SDK cases.
+Hardware timing remains unmeasured; it is not merged.
+
 The old title-summary shortcut was rejected because it removed constructor and
 fresh dependency checks. Rework load/export structurally under the new tiered
 policy; do not quietly relabel the rejected shortcut as accepted.
