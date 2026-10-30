@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "360855238e6143254408bfff0472fde80fe952c7",
-    "source_sha256": "b12add7aeae6e657a72c6307511fc872a43c55c27e4df5c4506bcafdc5a31164",
+    "commit": "8b6d3dce64bd7fbf3c4779137d7e4fecc63e15c4",
+    "source_sha256": "95408e358f14e810247dbfff6c3c460a6b0fdeb02be2f0e72e53403568ec0cc9",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Production Source is byte-identical to e7270b8c. Only dev/autopilot.lua and dev/harness.lua changed: successful explicit holds persist until release; terminal error/cancel/timeout/quiesce reset remains.42native protocol checks and exact hold trace pass. Existing B map/rules facets retain original proof scopes; no checkpoint promotion."
+    "review": "Private B additionally installs two pinned rod gift descriptors through the existing gift controller. Four prior definitions unchanged. Native red4failures/green40passes; original proof scopes retained and B checkpoints remain unaccepted. Driver brake release is real input only."
   },
   "accepted_milestone_rows": [],
   "schedule": {
@@ -245,7 +245,7 @@
     },
     "private-b-inventory": {
       "path": "docs/validation/midgame-b-implementation-20261030.json",
-      "sha256": "84887200571152dba115f02208927d4f4b5f88724b9b6903c1923cb7f9a800c8",
+      "sha256": "bf8fff6be9763395c88f6a8b80526e234b82cb3e8c2050ad81865b426f100575",
       "kind": "private_verified"
     }
   },

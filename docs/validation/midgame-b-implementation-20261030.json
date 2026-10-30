@@ -71,5 +71,15 @@
     "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-full-host-integrated-20261030-02.log",
     "sha256": "041100ac7f6ede871cad65ff22485a820be44608b1c6fd62d15aa200b24811ec",
     "scope": "Every host test discovered on this B branch. Worker1051 included additional main-only housekeeping tests; no game or device acceptance inferred."
+  },
+  "rod_gifts": {
+    "packet": "164020c3",
+    "integrated": "e484c15b",
+    "source": "Pinned Blue Good/SuperRod scripts andtexts; existing sharedgiftowner",
+    "native_green_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gifts-native-prepare-20261030-01/startup-probe.json",
+    "native_red_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gifts-native-red-prepare-20261030-01/startup-probe.json",
+    "native_green_cases": 40,
+    "native_red_failed": 4,
+    "scope": "Decline/fullbag/retry/receipt/revisit/replacedowner andcodec cases; not naturalroute/deviceacceptance; reviews pending"
   }
 }
