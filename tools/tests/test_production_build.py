@@ -87,11 +87,30 @@ class ProductionBuildTests(unittest.TestCase):
         self.assertLess(package, exporter)
         self.assertLess(exporter, context)
         imports = re.findall(r'^[ \t]*import "([^"]+)"$', staged, re.M)
-        # 80a9419 introduced the loading bootstrap; 91d3769 moved it before
-        # the SDK imports and added boot tracing. Retain the frozen inventory
-        # and permit only these two reviewed additions in their required order.
-        self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
-                         + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'}])
+        # Preserve the frozen inventory and its order. Boot tracing/bootstrap
+        # precede SDK imports; exact B 7fb7bf76 adds only these explicit story,
+        # field travel/gear and Safari modules at the named historical anchors.
+        additions_before = {
+            'game/rocketHideoutStory': [
+                'game/towerStory', 'game/snorlaxStory', 'game/towerStoryController'],
+        }
+        additions_after = {
+            'game/rocketHideoutStoryController': [
+                'game/fieldTravelRequests', 'game/fieldTravelRuntime', 'game/fieldTravelState',
+                'game/fieldGearRequests', 'game/fieldGearState', 'world/fieldGearArt'],
+            'game/hideoutTowerController': [
+                'domain/safariBattle', 'game/midgameServices', 'game/midgameServicesState',
+                'game/safariScene', 'game/safariBattleState', 'game/safariPassage',
+                'game/safariPassageState', 'game/safariRuntime'],
+        }
+        expected_imports = ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
+        for name in BASELINE['imports']:
+            if name in {'dev/harness_build', 'game/bootstrap'}:
+                continue
+            expected_imports.extend(additions_before.get(name, []))
+            expected_imports.append(name)
+            expected_imports.extend(additions_after.get(name, []))
+        self.assertEqual(imports, expected_imports)
         self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
                           or line.lstrip().startswith('PewterCatalogExporter.register(')
                           or line.lstrip().startswith('CeruleanCatalogExporter.register(')

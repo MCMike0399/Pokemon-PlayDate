@@ -1,5 +1,6 @@
 """Shared host inventories; historical preparation is separate from release scope."""
 import json
+import subprocess
 from functools import partial
 from pathlib import Path
 from unittest.mock import patch
@@ -30,3 +31,20 @@ def build_vermilion_preparation(reference):
     pipeline = preparation.proposed_pipeline
     with patch.object(preparation, 'proposed_pipeline', partial(pipeline, manifest=manifest)):
         return preparation.build(reference)
+
+
+def mock_git_revision(project, revision):
+    """Fake only the revision of a disposable Source-only candidate.
+
+    Activation inventories still read pinned JSON through real git, and SDK
+    compilation still uses the real subprocess.run implementation.
+    """
+    check_output = subprocess.check_output
+
+    def output(command, *args, **kwargs):
+        if (command == ['git', 'rev-parse', 'HEAD'] and not args
+                and kwargs == {'cwd': project, 'text': True}):
+            return revision + '\n'
+        return check_output(command, *args, **kwargs)
+
+    return patch.object(subprocess, 'check_output', side_effect=output)
