@@ -129,6 +129,15 @@ function GameBootstrap.checkpoint()
     sliceStart = playdate.getCurrentTimeMilliseconds()
 end
 
+-- Startup alone owns update until content and save preparation finish. Draw
+-- through the registered title, with the same guarded presentation yields.
+function GameBootstrap.presentStartup(draw)
+    assert(started and loading and not ready, "startup presentation requires initialization")
+    assert(type(draw) == "function", "startup draw required")
+    loadingDraw, staticReady = draw, false
+    GameBootstrap.checkpoint()
+end
+
 function GameBootstrap.isLoading()
     return loading
 end
@@ -221,6 +230,7 @@ function GameBootstrap.start(initialize)
             return
         end
         loading, ready, staticReady = false, true, false
+        loadingDraw = nil
         restoreRefreshRate()
         BootTrace.mark("initialize.ready")
         local callbacks = pending

@@ -1,0 +1,151 @@
+--- a/Source/game/saves.lua
++++ b/Source/game/saves.lua
+@@ -34,6 +34,7 @@
+ 
+ -- Both permitted capture boundaries share the exact same publication authority.
+ function GameSaves:_publishPayload(payload)
++    self:discardPreparedTitle()
+     local request=self._replacement
+     if request and request.session~=self.game.session then
+         self.store:cancelReplacement(request.ticket); self._replacement=nil
+@@ -59,6 +60,7 @@
+ -- Called only by the YES branch of the Title confirmation. No writes happen
+ -- here; the exact observation is tied to the newly installed session identity.
+ function GameSaves:beginNewGame(seed)
++    self:discardPreparedTitle()
+     local ticket,problem=self.store:prepareReplacement()
+     if not ticket then return false,problem end
+     local ok,err=self.game:beginNewSession(seed)
+@@ -68,30 +70,93 @@
+     return true
+ end
+ 
+-local function continueGame(self)
++local function prepareContinue(self, phase)
++    local payload, metadata = self.store:load()
++    if BootTrace then
++        BootTrace.mark(phase .. ".store.loaded")
++        GameBootstrap.yieldIfDue()
++    end
++    if not payload then return nil, metadata end
++    local candidate, decodeProblem = SessionCodec.decode(payload, self.game:getSessionDependencies())
++    if BootTrace then
++        BootTrace.mark(phase .. ".decoded")
++        GameBootstrap.yieldIfDue()
++    end
++    if not candidate then return nil, {reason="invalid-session", error=decodeProblem, store=metadata} end
++    return {candidate=candidate, payload=payload, metadata=metadata,
++        session=self.game.session, store=self.store, fieldWorld=self.game.fieldWorld}
++end
++
++local function prepareField(self, record, phase)
++    if record.fieldReady then return true end
++    if self.game.fieldWorld then
++        local ok, reason = self.game.fieldWorld.prepareContinue(record.candidate)
++        if BootTrace then
++            BootTrace.mark(phase .. ".fieldReload.end")
++            GameBootstrap.yieldIfDue()
++        end
++        if not ok then return false, {reason="invalid-field-reload", error=reason} end
++    end
++    record.fieldReady = true
++    return true
++end
++
++function GameSaves:discardPreparedTitle()
++    self._titleGeneration = (self._titleGeneration or 0) + 1
++    self._preparedTitle = nil
++end
++
++function GameSaves:prepareTitle()
++    local prepared = self._preparedTitle
++    if prepared and prepared.session == self.game.session and prepared.store == self.store
++        and prepared.fieldWorld == self.game.fieldWorld then
++        return prepared.candidate, prepared.metadata
++    end
++    self:discardPreparedTitle()
++    local generation = self._titleGeneration
++    local session, store, fieldWorld = self.game.session, self.store, self.game.fieldWorld
++    -- Same store validation and full decode/constructors as inspect/cold
++    -- Continue. Retain exact load payload for the existing boundary observer.
++    local record, problem = prepareContinue(self, "title.save")
++    if not record then return nil, problem end
++    -- Field failure must not hide the valid inspected save or recovery actions.
++    -- Continue retries through the same owner and reports failure normally.
++    prepareField(self, record, "title.save")
++    if generation == self._titleGeneration and session == self.game.session
++        and store == self.store and fieldWorld == self.game.fieldWorld then
++        record.generation = generation
++        self._preparedTitle = record
++        return record.candidate, record.metadata
++    end
++    return nil, {reason="stale-title-preparation"}
++end
++
++local function continueGame(self, prepared)
++    if prepared and prepared.generation ~= self._titleGeneration then prepared = nil end
+     if BootTrace then
+         BootTrace.mark("Continue.begin")
+     end
+-    local payload, metadata = self.store:load()
+-    if BootTrace then
+-        BootTrace.mark("Continue.store.loaded")
+-        GameBootstrap.yieldIfDue()
+-    end
+-    if not payload then return false, metadata end
+-    local candidate, decodeProblem = SessionCodec.decode(payload, self.game:getSessionDependencies())
+-    if BootTrace then
+-        BootTrace.mark("Continue.decoded")
+-        GameBootstrap.yieldIfDue()
+-    end
+-    if not candidate then return false, {reason="invalid-session", error=decodeProblem, store=metadata} end
+-    if self.game.fieldWorld then
+-        local prepared,reason=self.game.fieldWorld.prepareContinue(candidate)
+-        if BootTrace then
+-            BootTrace.mark("Continue.fieldReload.end")
+-        GameBootstrap.yieldIfDue()
+-        end
+-        if not prepared then return false,{reason="invalid-field-reload",error=reason} end
+-    end
++    self:discardPreparedTitle()
++    local generation = self._titleGeneration
++    if prepared and (prepared.session ~= self.game.session or prepared.store ~= self.store
++        or prepared.fieldWorld ~= self.game.fieldWorld) then
++        prepared = nil
++    end
++    local metadata
++    if prepared then
++        BootTrace.mark("Continue.prepared")
++    else
++        prepared, metadata = prepareContinue(self, "Continue")
++    end
++    if not prepared then return false, metadata end
++    local fieldOK, fieldProblem = prepareField(self, prepared, "Continue")
++    if not fieldOK then return false, fieldProblem end
++    if generation ~= self._titleGeneration or prepared.session ~= self.game.session
++        or prepared.store ~= self.store or prepared.fieldWorld ~= self.game.fieldWorld then
++        return false, {reason="stale-title-preparation"}
++    end
++    local candidate, payload = prepared.candidate, prepared.payload
++    metadata = prepared.metadata
+     if BootTrace then
+         BootTrace.mark("Continue.map.begin")
+     end
+@@ -124,7 +189,17 @@
+     return continueGame(self)
+ end
+ 
++-- Explicit title-only opt-in. Public continueGame still reloads disk on every
++-- call; only this method consumes the fully checked title observation once.
++function GameSaves:continuePreparedTitle()
++    local prepared = self._preparedTitle
++    return GameBootstrap.withLoading("Continue", function()
++        return continueGame(self, prepared)
++    end)
++end
++
+ function GameSaves:recover(source)
++    self:discardPreparedTitle()
+     return self.store:recover(source)
+ end
+ 

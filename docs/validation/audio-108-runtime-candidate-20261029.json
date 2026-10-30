@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "status": "isolated; native runtime passed; listening not accepted",
+  "candidate": "d4dfcc39",
+  "scope": "lazy 108-map music routing and 151 species cries, gain 0.22; actual game hooks enabled only on quality branch",
+  "host_tests": {
+    "audio": 13,
+    "core_audio": 63,
+    "failed": 0
+  },
+  "reproduction": "both score and cry generators pass; optional RGBDS independent qualification unavailable in current PATH",
+  "native_safety": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-108-native-safety-20261029-01",
+    "status": "simulator-smoke-passed",
+    "measurements": {
+      "battle_device_estimate_ms": 1.0,
+      "battle_start_ms": 1.0,
+      "frame_ms": 3.664,
+      "heap_live_bytes": 6285973.504,
+      "heap_peak_bytes": 7595760.64,
+      "map_device_estimate_ms": 213.0,
+      "map_load_ms": 213.0,
+      "slice_ms": 44.123
+    }
+  },
+  "capture": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-108-native-safety-20261029-01/native-capture.log",
+    "status": "incomplete; target exited before capture ended; retained PCM is silent",
+    "accepted": false
+  },
+  "read_only_system_volume": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/audio-system-volume-readonly-20261029-01",
+    "value": 0,
+    "settings_changed": false
+  },
+  "next": "No repeated volume question. Keep listening acceptance pending; continue independent Save and 5.5b work.",
+  "main_unchanged": true
+}
