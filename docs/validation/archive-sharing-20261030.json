@@ -54,5 +54,14 @@
     "same_readable_sha256_every_file": true,
     "scope": "Only confirmed terminal trace.jsonl files under storage/suite/Simulator/device locks; all saves excluded. Native compressionflag is intentional; publicmetadata preserved. Originalreview concerns addressed by active-suite/openpath guards, atomic fsynced audit under lock, per-file target/time bounds and nice10.",
     "automation": "Not installed yet; existing scheduler retains prior behavior"
+  },
+  "automatic_compression_preparation": {
+    "branch": "t3/storage-maintenance-cli",
+    "state": "Recovered staged worker changes after usage-limit failure; committed isolated candidate",
+    "tests": 49,
+    "interpreter": "/usr/bin/python3 3.9.6",
+    "checks": "Disposable native APFS roundtrip,existingstorage/sharingchecks,copy/race/livepath/metadata/audit/lock/budget faults pass",
+    "activation": "Not integrated onmain; existing schedulerconfiguration unchanged; independentreviewpending",
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/compression-integration-host-20261030-01.log"
   }
 }
