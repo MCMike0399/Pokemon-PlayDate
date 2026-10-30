@@ -851,6 +851,38 @@ class MidgameJourney(vj.VermilionJourney):
         self.summary['party_changes'].append(dict(kind='deposit-for-earned-lapras', species=members[index - 1]['species']))
 
     def battle_preparation_action(self, battle, options):
+        targets = getattr(self, 'surf_acquisition', None)
+        if targets and not battle.get('trainerName') and battle['enemy']['species'] in targets:
+            if choose_battle_medicine(battle['player'], self.inventory()):
+                return False
+            ball = next((key for key in ('ultraBall', 'greatBall', 'pokeBall') if self.quantity(key)), None)
+            if not ball:
+                raise ProtocolError('earned Surf-user capture exhausted actual balls')
+            if self.surf_capture_throws >= 24:
+                raise ProtocolError('earned Surf-user capture exceeded its real throw bound')
+            before = self.collection_owner()
+            bag = [i for i, value in enumerate(options, 1)
+                   if value == 'BAG' or isinstance(value, dict) and value.get('action') == 'bag']
+            if len(bag) != 1:
+                raise ProtocolError('Surf-user capture requires the actual BAG action')
+            quantity = self.quantity(ball)
+            self.select('battle.menu.selected', bag[0])
+            self.send('press a')
+            self.require(root='bag')
+            slot = next(i for i, row in enumerate(self.inventory()['slots'], 1) if row['id'] == ball)
+            self.select('bag.selected', slot)
+            self.send('press a')
+            self.require(root='battle')
+            result = copy.deepcopy(lookup(self.state, 'battle.capture_result'))
+            if self.quantity(ball) != quantity - 1 or not isinstance(result, dict):
+                raise ProtocolError('Surf-user capture lacks actual ball consumption/receipt')
+            self.surf_capture_throws += 1
+            record = dict(species=battle['enemy']['species'], ball=ball, result=result)
+            after = self.collection_owner()
+            if result.get('caught'):
+                record['commit'] = vj.verify_capture_commit(before, after, battle['enemy']['species'], result)
+            self.summary.setdefault('surf_user_throws', []).append(record)
+            return True
         primary = self.starter_index()
         active = lookup(self.state, 'session.party.active')
         if active != primary:
@@ -1064,6 +1096,10 @@ class MidgameJourney(vj.VermilionJourney):
         self.save()
 
     def flee(self):
+        targets = getattr(self, 'surf_acquisition', None)
+        enemy = lookup(self.state, 'battle.enemy')
+        if targets and isinstance(enemy, dict) and enemy.get('species') in targets:
+            return self.battle('earned-surf-user')
         expected = getattr(self, 'scripted_wild', None)
         enemy = lookup(self.state, 'battle.enemy')
         if expected and isinstance(enemy, dict) and enemy.get('species') == expected['species'] and enemy.get('level') == expected['level']:
@@ -1387,6 +1423,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.require(**{'player.x': 9, 'player.y': 4})
         self.pickup(cj.sid('WARDENS_HOUSE', 2), 'rareCandy')
         self.heal_here('FuchsiaPokecenter')
+        self.ensure_surf_user()
         surf = self.teach('surf')
         self.travel(self.zone('FuchsiaGoodRodHouse'))
         self.fixed_warp(1, (2, 1))
@@ -1438,6 +1475,44 @@ class MidgameJourney(vj.VermilionJourney):
                     ordinary_cells_since_admission=step['sequence'] - admission_sequence)
                 return
         raise ProtocolError('Safari did not actually expire inside completed-cell bound')
+
+    def ensure_surf_user(self):
+        compatible = set(self.observe('midgame-owners')['hm_compatibility']['hm03'])
+        def available():
+            owner = self.collection_owner()
+            specimens = list(owner['party']['members'])
+            for box in sequence(owner['storage']['boxes'], 'PC boxes'):
+                specimens.extend(sequence(box, 'PC box'))
+            return any(mon['species'] in compatible for mon in specimens)
+        if available():
+            return
+        self.ensure_room('FuchsiaMart')
+        if not self.quantity('goodRod'):
+            self.event_offer(cj.sid('FUCHSIA_GOOD_ROD_HOUSE', 1))
+        clerk = cj.sid('FUCHSIA_MART', 1)
+        self.travel(self.zone('FuchsiaMart'))
+        price = self.vermilion['shops'][clerk]['prices']['greatBall']
+        count = min(12, max(0, (self.inventory()['money'] - 1000) // price))
+        if count:
+            self.buy_item(clerk, 'greatBall', count, price)
+        if not any(self.quantity(key) for key in ('pokeBall', 'greatBall', 'ultraBall')):
+            raise ProtocolError('earned funds cannot supply a mandatory Surf user')
+        self.travel(self.zone('FuchsiaGoodRodHouse'))
+        self.fixed_warp(1, (2, 1))
+        self.source_waypoint(29, 22)
+        self.face('up')
+        self.surf_acquisition = compatible
+        self.surf_capture_throws = 0
+        try:
+            for _ in range(16):
+                if available():
+                    break
+                self.use_item('goodRod')
+            if not available():
+                raise ProtocolError('bounded genuine fishing did not acquire a Surf-compatible Pokemon')
+        finally:
+            self.surf_acquisition = None
+        self.heal_here('FuchsiaPokecenter')
 
     def route_bicycle(self):
         # Approach the Bike Voucher/shop on the earned eastern route, avoiding
