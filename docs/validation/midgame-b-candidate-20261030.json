@@ -135,5 +135,12 @@
     "build_id": "b43fa3279d79492586b76680c3de6293",
     "status": "SDK compiled; private production-profile Save policy verified; no runtime execution/admission yet",
     "scope": "Measures the authorized production owner-export path with device guards. Contract/public paths and checkout policy remain unchanged."
+  },
+  "ninth_live_result": {
+    "bulbasaur": "Actual Safari admission, HM03 and Gold Teeth acquired; Rope USE rejected in Safari West.",
+    "cause": "Legacy fieldItems.json lists 17 tileset symbols and omits Safari West; canonical active map metadata declares FOREST, explicitly permitted by pinned Blue escape_rope_tilesets.asm.",
+    "prepared_fix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rope-eligibility-preparation-20261030-01",
+    "fix_scope": "Unapplied while other starters execute. Reuse SourceMaps metadata, retain existing whitelist/Agatha exclusion and existing GameSession Safari cleanup. Extend existing contract; no new case.",
+    "other_starters": "Continue frozen ninth build; no outcome inferred."
   }
 }

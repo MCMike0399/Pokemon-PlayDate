@@ -115,7 +115,10 @@ reviews and 59 focused host checks pass. Geometry is conditional on live actors.
 
 All three eighth-set journeys earned Koga’s badge/TM06 and saved at Fuchsia.
 The ninth set resumes those exact Saves after return-route and NPC-wait fixes;
-61 host checks and fresh journey compilation pass. No B journey acceptance yet.
+61 host checks and fresh journey compilation pass. Bulbasaur earned Safari
+HM03/Gold Teeth, then Rope eligibility rejected the omitted FOREST map. The
+shared-metadata fix is prepared; other starters continue on the frozen build.
+No B journey acceptance yet.
 The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
 unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
 longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep
