@@ -294,5 +294,16 @@
       "targeted_coverage_checks_passed": 4,
       "scope": "Original failed full run retained; targeted rerun resolves its sole reported mismatch. No claim of a new full green run."
     }
+  },
+  "cave_performance_preparation": {
+    "worker_port": "ae97ca53",
+    "root_hook_commit": "d7211505",
+    "branch": "t3/prepare-cave-encounter-policy",
+    "maps": 149,
+    "source_base": "e7270b8c",
+    "scope": "Only fieldEncounters,Zone private projection,RNGscratch and ordinaryExploreentrypoint. Safari/field/worldowners/data/art/schema preserved.",
+    "compile": "SDK3.1.2 productionpassed",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b149-root-composition-20261030-01",
+    "native_and_hardware": "Pending exclusive runtime; no measuredgain oracceptance. Reviewonlyafter>=10percentphaseimprovement."
   }
 }
