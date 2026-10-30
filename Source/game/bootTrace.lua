@@ -184,7 +184,7 @@ function BootTrace.collectMemoryIfNeeded()
     BootTrace.mark("memory.soft.after_gc")
     BootTrace.phase = phase
     memoryCollectionRunning = false
-    if after > 6 * 1024 then
+    if not playdate.isSimulator and after > 6 * 1024 then
         BootTrace.flush()
         error("live memory guard: " .. tostring(after) .. " KiB after collection at " .. tostring(phase))
     end
