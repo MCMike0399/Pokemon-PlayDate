@@ -117,18 +117,18 @@ Both move reviews are resolved. The first three journeys hit the same nullable
 Tower-receipt bug; fixed with regression assertions. The second set exposed a Rare Candy actor blocking the Tower route. The driver
 now earns that pickup. The third set reached Fuji on Bulbasaur but exposed a
 stable-ID/runtime-key mismatch; full bags rejected the other two pickups.
-Private fixes use the runtime key and genuine pre-Tower sales; 34 host checks
-and compilation pass, with native rerun pending.
+Private fixes use the runtime key and genuine pre-Tower sales/PC deposits;
+34 host checks and ten focused SDK cases pass. A fourth frozen set is running.
 Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
 ## Storage, decisions and history
 
 Freed **110.48 GiB (118.63 GB)** in the audited cleanup. Automatic 150 GiB
-maintenance runs every 30 minutes. Removed seven clean merged worktrees,
-freeing another **2.62 GiB**; free space is currently **147.0 GiB**.
-The path-parser fix passes 15 host checks. Evidence pruning waits for the active
-journey’s ownership locks; the 150 GiB reserve is not yet restored. Keep chains, packages, committed evidence
+maintenance runs every 30 minutes. A further **9.29 GiB** was freed by
+removing 25 clean merged/rejected worktrees (24 branches); audited free space is
+**155.8 GiB**, restoring the 150 GiB minimum. Both retention-parser fixes
+pass 16 host cases. No referenced evidence or earned saves were removed. Keep chains, packages, committed evidence
 references and latest passing journey/device runs. Retain journey frames only
 for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
 

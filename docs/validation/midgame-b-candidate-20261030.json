@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; third journey set failed; fixes compiled, native rerun pending",
-  "candidate": "3dcf5684",
+  "status": "private; fourth earned-save journeys running; not accepted",
+  "candidate": "65ca3f5b",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -18,7 +18,7 @@
   "native_owner_cases": {
     "passed": 10,
     "failed": 0,
-    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-06",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-08",
     "checkpoint_c_cases_excluded": [
       "Fly",
       "Dojo"
@@ -48,6 +48,7 @@
   "third_journey_set": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-third-20261030-01",
     "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
-    "fix": "3dcf5684: runtime destination key; actual pre-Tower shop sales reserve bag room. 34 host checks and production compilation pass; extended existing native case compiled, execution pending."
-  }
+    "fix": "3dcf5684 + 65ca3f5b: runtime destination key; real shop sales or conserved item-PC deposits reserve room. 34 host checks, production compilation and ten focused SDK cases pass. Full journey rerun pending."
+  },
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01"
 }
