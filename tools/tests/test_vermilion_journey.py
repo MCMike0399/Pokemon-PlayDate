@@ -498,6 +498,21 @@ class ReceiptAndPatchTests(unittest.TestCase):
 
 
 class MidgameSaveInputTests(unittest.TestCase):
+    def test_tower_reserves_bag_room_before_entering(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
+        calls = []
+        class EnteredTower(Exception):
+            pass
+        with patch.object(driver, 'scene_data', return_value={}), \
+                patch.object(driver, 'heal_here'), patch.object(driver, 'restock'), \
+                patch.object(driver, 'ensure_room', side_effect=lambda mart: calls.append(mart)), \
+                patch.object(driver, 'zone', side_effect=lambda name: name), \
+                patch.object(driver, 'travel', side_effect=EnteredTower):
+            with self.assertRaises(EnteredTower):
+                driver.route_tower()
+        self.assertEqual(calls, ['LavenderMart'])
+
     def test_save_releases_dialog_input_before_pressing_b(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='squirtle', packet='5.5a', content_scope='critical'))

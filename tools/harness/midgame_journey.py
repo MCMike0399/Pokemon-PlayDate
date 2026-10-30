@@ -1110,6 +1110,7 @@ class MidgameJourney(vj.VermilionJourney):
         scenes = self.scene_data('data/towerStory/scenes.json')
         self.heal_here('LavenderPokecenter')
         self.restock('LavenderMart')
+        self.ensure_room('LavenderMart')
         self.travel(self.zone('PokemonTower1F'))
         for floor in range(2, 7):
             self.warp(self.zone('PokemonTower' + str(floor) + 'F'))

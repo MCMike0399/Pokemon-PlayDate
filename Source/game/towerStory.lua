@@ -116,11 +116,13 @@ function TowerStory.plan(id, observation)
             return {status = "already-complete", steps = {}}
         end
         local target <const> = TowerStory.scenes().fuji.destination
+        local name <const> = assert(SourceMaps.nameForID(target.map_id))
+        local destination <const> = SourceMaps.entry(name)
         return SourceEvents.compile({kind = "program", steps = {
             {op = "dialog", labels = {"_PokemonTower7FMrFujiRescueText"}},
             {op = "set-flag", id = "EVENT_RESCUED_MR_FUJI", value = true},
             {op = "set-flag", id = "EVENT_RESCUED_MR_FUJI_2", value = true},
-            {op = "warp", to = target.map_id, toX = target.x + TowerStory.padding(target.map_id),
+            {op = "warp", to = destination.key, toX = target.x + destination.padding,
                 toY = target.y, facing = target.facing},
         }}, observation, id)
     end

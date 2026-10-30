@@ -79,6 +79,11 @@ function SourceEncounterContracts.run()
         else report.failed, report.ok = report.failed + 1, false end
     end
     test("source ghosts: identification, fear, uncapturable Marowak and confirmed completion", function()
+        local rescue = TowerStory.plan(TowerStory.FUJI, {flags={}, trainers={}})
+        local destination = rescue.steps[#rescue.steps]
+        local house = SourceMaps.entry(assert(SourceMaps.nameForID("pokered:MR_FUJIS_HOUSE")))
+        assert(destination.op == "warp" and destination.to == house.key,
+            "Fuji return must use the runtime map key")
         local first = TowerStory.plan(TowerStory.RIVAL, {flags={}, trainers={}})
         assert(first.scene_script == "tower-rival" and first.confirmed_receipt == nil)
         local rocket = TowerStory.scenes().rockets[1]
