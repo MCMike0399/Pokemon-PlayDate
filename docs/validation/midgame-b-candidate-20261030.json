@@ -407,5 +407,13 @@
     "diagnostic_sequence": "Completed under the global runtime and device locks: m55b-memory-diagnostic-sequence-20261030-01.json. Exact stage reports and original failures remain retained.",
     "summary": "docs/validation/m55b-memory-diagnostics-20261030.json",
     "driver_recovery": "Private B 8b0d2815 rearms B physically after trainer battles and re-plans from the actual resulting cell. 68 targeted host checks and production compilation pass; natural rerun pending."
+  },
+  "fourteenth_journey_set": {
+    "revision": "8888c740",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01",
+    "state": "Started; continue on failure. No outcome inferred.",
+    "inputs": "m55b-resume-inputs-20261030-08: Charmander deliberately repeats the original long pre-Safari history to test the OOM after bounded text loading; Bulbasaur and Squirtle use their actual verified Bicycle Saves. Latest Charmander Bicycle marker remains retained separately.",
+    "validation": "All 1,039 host tests and production compilation pass. Preflight: 1,572 checks, zero unexplained geometry blockers; eight runtime conditions remain open.",
+    "scope": "Private 149-map candidate, no checkpoint acceptance or gameplay merge."
   }
 }

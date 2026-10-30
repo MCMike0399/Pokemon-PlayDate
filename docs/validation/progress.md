@@ -113,7 +113,8 @@ All three now have verified real Saves with Koga, Surf, Strength and Bicycle.
 Thirteenth-set Charmander hit a `drawFaded` OOM under the 16 MiB Simulator pool;
 Bulbasaur and Squirtle stopped after a Route 17 trainer because their held brake
 needed physical rearming. The brake correction passes 68 targeted host checks
-and compilation; the next natural rerun remains pending.
+and compilation; all 1,039 host tests pass. The fourteenth set is running,
+including a full-history Charmander replay to test the original OOM.
 
 Both gift-cache variants pass 40 native cases. Bounded text loading removes
 **675.84 KiB** of retained heap and is installed only in private B. A separate
