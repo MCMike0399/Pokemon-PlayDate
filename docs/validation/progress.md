@@ -122,7 +122,10 @@ Both B reviews are resolved, including Safari Surf-step counting and moving Surf
 ## Storage, decisions and history
 
 Freed **110.48 GiB (118.63 GB)** in the audited cleanup. Automatic 150 GiB
-maintenance runs every 30 minutes. Keep chains, packages, committed evidence
+maintenance runs every 30 minutes. Removed seven clean merged worktrees,
+freeing another **2.62 GiB**; free space is currently **147.0 GiB**.
+The path-parser fix passes 15 host checks. Evidence pruning waits for the active
+journey’s ownership locks; the 150 GiB reserve is not yet restored. Keep chains, packages, committed evidence
 references and latest passing journey/device runs. Retain journey frames only
 for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
 
