@@ -82,7 +82,9 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 ## Work in flight
 
 Root owns Simulator/device and integration. Bounded workers use Sol/medium.
-Save-tier baseline/candidate hardware comparison is running, followed by isolated
+Save-tier 65-map hardware Save improves **5.313 → 1.375 s** (74.12%); Continue
+improves **6.127 → 4.481 s**. The 108-map port is prepared but unmeasured.
+[Paired result](device-save-tier-measurement-20261029.json). Hardware comparisons continue for isolated
 early-title and nearby-door candidates. Generated registration was rejected after
 boot/door regressed to 26.886/5.978 s; it stays off main. All passed safety;
 39 title recovery/bridge and 64 source-event SDK cases also pass.
