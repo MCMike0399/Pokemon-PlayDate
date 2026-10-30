@@ -498,6 +498,27 @@ class ReceiptAndPatchTests(unittest.TestCase):
 
 
 class MidgameSaveInputTests(unittest.TestCase):
+    def test_fuchsia_route_crosses_fixed_exits_without_reentering_route12(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
+        driver.completed_steps = {'route12-snorlax'}
+        class ReachedFuchsia(Exception):
+            pass
+        def heal(name):
+            if name == 'FuchsiaPokecenter':
+                raise ReachedFuchsia
+        with patch.object(driver, 'heal_here', side_effect=heal), \
+                patch.object(driver, 'zone', side_effect=lambda name: name), \
+                patch.object(driver, 'travel') as travel, \
+                patch.object(driver, 'source_waypoint'), \
+                patch.object(driver, 'cross') as cross, patch.object(driver, 'warp'):
+            with self.assertRaises(ReachedFuchsia):
+                driver.route_fuchsia()
+        travel.assert_called_once_with('Route13')
+        self.assertEqual([call.args for call in cross.call_args_list], [
+            ('left', 'Route14', (19, 10)), ('left', 'Route15', (59, 8)),
+            ('left', 'FuchsiaCity', (39, 16))])
+
     def test_snorlax_travel_includes_the_final_component_goal(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
