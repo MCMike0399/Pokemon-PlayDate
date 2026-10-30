@@ -108,7 +108,9 @@ checks and explicit exclusion of the absent Cerulean trade event remain intact.
 
 A fresh SDK compile-only harness bundle and the full host suite completed with
 1,051 tests, three failures, zero errors and zero skips (136.667 seconds). The
-compile log, host log and private bundle are at
+small compile/host logs are retained durably at
+`~/Developer/Pokemon-PlayDate-env/evidence/m55b-field-trade-host-6dc256f1-20261030-01/`
+with SHA256 checks in `retention.json`. The disposable private bundle was staged at
 `/private/tmp/m55b-field-trade-host.6D8aRS/`. Production and private device-test
 compile checks also pass within that full suite.
 
