@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "private; eighth set terminal; ninth Koga-save resumes prepared; hardware safety in progress",
+  "status": "private; ninth set running from verified Koga saves; not accepted",
   "candidate": "b122e349",
   "maps": 149,
   "new_maps": 41,
@@ -104,7 +104,21 @@
       "scope": "Completed exact accepted 5.4 Charmander baseline route: Continue/Save/doors/Cut/wild battle. Strict legacy estimate report remains failed. --safety-only local admission passed; no playability claim."
     },
     "active_measurement": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-measurement-20261030-01",
-    "measurement_status": "Running; deploy/copy underway; no result claimed."
+    "measurement_status": "Completed with exact payload/save verification and no new error/crash logs. Keeper restored. Diagnostic deep Save policy; not production Save pacing.",
+    "measurements": {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-measurement-20261030-01/device-smoke.json",
+      "build_id": "fdbfa60a356e4c4ba429acea1ce8a0ea",
+      "live_mib": 4.4913369140625,
+      "peak_mib": 6.2018349609375,
+      "first_artwork_ms": 2595,
+      "continue_ms": 3547,
+      "diagnostic_deep_save_ms": 6639,
+      "longest_door_ms": 3010,
+      "battle_ms": 18,
+      "cave_p95_ms": 101.85,
+      "last_phase": "battle.live.after_gc",
+      "playability": false
+    }
   },
   "eighth_result": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eighth-resumed-20261030-01",
@@ -114,5 +128,6 @@
     "repair": "b122e349: early Rope purchase, fixed reverse roads, confirmed Koga continuation, and <=8 retries only for explicit NPC blocked walks. 61 host checks pass.",
     "resume_inputs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-03"
   },
-  "ninth_build": "Fresh journey-profile SDK compilation passed at m55b-koga-resume-build-20261030-01; execution waits for exclusive runtime release."
+  "ninth_build": "Fresh journey-profile SDK compilation passed at m55b-koga-resume-build-20261030-01; execution waits for exclusive runtime release.",
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-ninth-koga-resumed-20261030-01"
 }

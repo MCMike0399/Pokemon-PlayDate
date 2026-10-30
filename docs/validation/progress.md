@@ -113,15 +113,13 @@ unchanged accepted A saves. Scope: Tower/Fuji/Flute, Snorlax/Cycling Road,
 Fuchsia/Safari/Koga, Surf/Strength. Ten owner SDK cases, Chip Away, both gameplay
 reviews and 59 focused host checks pass. Geometry is conditional on live actors.
 
-The eighth set is terminal. All three earned Koga’s badge/TM06 and saved at
-Fuchsia. Bulbasaur/Squirtle timed out on the known late Rope return loop;
-Charmander met a moving Center NPC. Process exits are confirmed; the first two
-captures were not finalized. The repair now passes 61 host checks and includes
-bounded NPC-blocked-step retries. Ninth-set inputs verify all three actual Koga
-Saves and accepted-A ancestry; the fresh journey build compiles. The corrected
-149-map route completes with **45.299 ms raw slice / 7.78 MiB peak** under the
-16 MiB pool. Measurement-only admission passes; a bounded hardware cycle is
-running. Legacy timing-estimate failures remain recorded; no playability claim.
+All three eighth-set journeys earned Koga’s badge/TM06 and saved at Fuchsia.
+The ninth set resumes those exact Saves after return-route and NPC-wait fixes;
+61 host checks and fresh journey compilation pass. No B journey acceptance yet.
+The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
+unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
+longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep
+policy; production profiling remains pending. Keeper restored; latency unaccepted.
 [Current evidence](midgame-b-candidate-20261030.json), [integration history](progress-history-midgame-b-20261030.md).
 
 Private B’s first Simulator checkpoint probe was **6.55 MiB post-GC**; the
