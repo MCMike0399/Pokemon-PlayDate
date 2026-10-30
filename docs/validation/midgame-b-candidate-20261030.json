@@ -422,6 +422,26 @@
       "finding": "LearningState waits for both A/B released at entry. The driver retains B as the cycling brake, so repeated wait requests cannot clear input_blocked. Cleanup physically releases B and the guard clears.",
       "candidate": "m55b-learning-brake-preparation-20261030-01/root.patch: release B at guarded learning entry, restore it within the final committed receipt, and create a real pre-road Save. Unapplied while the other starters run; syntax only.",
       "earned_save": "Its latest real Bicycle Save is retained; later trainer XP and Flamethrower state were not saved or promoted."
+    },
+    "bulbasaur_result": {
+      "status": "PASS: two confirmed stopped processes and real Continue.",
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/02-midgame--restart-55b-bulbasaur",
+      "run_sha256": "8cd06ecddca5f9747b0b830290afa56471dec7ccc331f5408919deab5621e0ee",
+      "process_ids": [
+        42701,
+        58536
+      ],
+      "receipt_sha256": [
+        "a6a23b99bbbfc807c25d4ee598afa1c98f1893e98734d158718794aa6d262499",
+        "a6a23b99bbbfc807c25d4ee598afa1c98f1893e98734d158718794aa6d262499"
+      ],
+      "export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/bulbasaur",
+      "provenance_sha256": "afd30b285a576a9944dd2ac9d6b343732e946c6011b7476a8620cd8b4efc42dc",
+      "slots": {
+        "adventure.a.json": "daa9a81c7b1ca2dc6273acc0f409cd119d8235999796299d11c4b54cf3286c07",
+        "adventure.b.json": "ee2d97a44e69c176937869e3d10097e688aa8b6aa36658a29fafc8d2050e9298"
+      },
+      "scope": "First earned B chain passes. No whole-checkpoint, common-build, hardware or latency acceptance is claimed."
     }
   }
 }

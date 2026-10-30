@@ -126,7 +126,8 @@ Both gift-cache variants pass 40 native cases. Bounded text loading removes
 device heap values. Plateau tests and native headroom remain open; the original
 OOM remains unresolved. [Measured scope](m55b-memory-diagnostics-20261030.json).
 The latest three Bicycle Saves pass the original ancestry/slot/producer checks.
-No final B receipt exists; both rod gameplay reviews remain pending.
+Bulbasaur passes both processes and exports its first earned B chain. Charmander
+needs learning-input recovery; Squirtle is running. Both rod reviews remain open.
 
 The earlier 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle
 with unchanged logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s; longest
