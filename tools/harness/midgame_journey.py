@@ -563,8 +563,33 @@ class MidgameJourney(vj.VermilionJourney):
         self.summary['acceptance'] = 'earned candidate saved; actual process restart pending'
 
     def advance_event(self, stop_phase=None):
+        if self.state.get('root') == 'safariPassage':
+            passage = self.safari_observation()['passage']
+            phase = passage['phase']
+            if phase == 'failed':
+                raise ProtocolError('actual Safari passage failed: ' + str(passage.get('lastFailure')))
+            if phase == 'announcement':
+                self.send('press a')
+            elif phase in {'before', 'fade', 'after'}:
+                self.send('wait 3')
+            else:
+                raise ProtocolError('unexpected Safari passage phase: ' + str(phase))
+            return True
+        if self.state.get('root') == 'safariBattle':
+            return self.advance_safari_battle()
         if self.state.get('root') == 'fieldGear':
-            self.send('wait 3', 'press a')
+            gear = self.observe('midgame-state')['fieldGear']
+            if not gear.get('installed') or not gear.get('active'):
+                raise ProtocolError('actual FieldGear controller unavailable')
+            attempt = getattr(self, 'fishing_attempt', None)
+            if attempt is not None:
+                attempt['phases'].append(copy.deepcopy(gear))
+            if gear['phase'] in {'cast', 'bite'}:
+                self.send('wait 3')
+            elif gear['phase'] == 'result':
+                self.send('press a')
+            else:
+                raise ProtocolError('unexpected FieldGear phase: ' + str(gear['phase']))
             return True
         if self.state.get('root') == 'fieldTravel':
             return self.advance_travel()
@@ -606,6 +631,60 @@ class MidgameJourney(vj.VermilionJourney):
                 self.send('press a')
                 return True
         return super().advance_event(stop_phase)
+
+    def safari_observation(self):
+        safari = self.observe('midgame-state').get('safari', {})
+        if not safari.get('sessionInstalled') or not safari.get('battleRegistered'):
+            raise ProtocolError('Safari requires installed resource and battle owners')
+        return safari
+
+    def advance_safari_battle(self):
+        safari = self.safari_observation()
+        battle = safari['battle']
+        if not battle.get('active') or battle.get('lastFailure'):
+            raise ProtocolError('actual Safari battle unavailable/failed: ' + str(battle))
+        if battle['phase'] == 'message':
+            self.send('press a')
+        elif battle['phase'] == 'action':
+            self.send('wait 3')
+        elif battle['phase'] == 'command':
+            menu = battle['menu']
+            if not menu.get('active') or menu.get('columns') != 2 or menu.get('options') != ['BALL', 'BAIT', 'ROCK', 'RUN']:
+                raise ProtocolError('actual Safari command menu differs')
+            # Optional Charmander throws one actual BALL; all other encounters
+            # use RUN. Neither a catch nor an enemy remaining is required.
+            command = 'ball' if (self.config['content_scope'] == 'optional'
+                and not self.summary.get('safari_ball')) else 'run'
+            target = 1 if command == 'ball' else 4
+            selected = battle['selected']
+            if (selected - 1) % 2 != (target - 1) % 2:
+                self.send('press right' if target % 2 == 0 else 'press left')
+            elif (selected - 1) // 2 != (target - 1) // 2:
+                self.send('press down' if target > 2 else 'press up')
+            else:
+                inventory = copy.deepcopy(self.inventory())
+                xp = [mon['xp'] for mon in self.party()]
+                turns = battle['turns']
+                self.send('press a')
+                after = self.safari_observation()['battle']
+                turn = after.get('lastTurn', {})
+                if after.get('turns') != turns + 1 or turn.get('command') != command:
+                    raise ProtocolError('Safari command did not actually commit')
+                if (self.inventory() != inventory or [mon['xp'] for mon in self.party()][:len(xp)] != xp
+                        or turn['before']['steps'] != turn['after']['steps']):
+                    raise ProtocolError('Safari turn changed ordinary bag, money, XP or steps')
+                if command == 'ball':
+                    capture = turn.get('receipt', {}).get('capture', {})
+                    if (turn['before']['balls'] - turn['after']['balls'] != 1
+                            or capture.get('ballId') != 'safariBall' or type(capture.get('caught')) is not bool):
+                        raise ProtocolError('Safari BALL lacks actual resource/capture receipt')
+                    self.summary['safari_ball'] = copy.deepcopy(turn)
+                elif turn['before']['balls'] != turn['after']['balls']:
+                    raise ProtocolError('Safari RUN spent a ball')
+                self.summary.setdefault('safari_turns', []).append(copy.deepcopy(turn))
+        else:
+            raise ProtocolError('unexpected Safari battle phase: ' + str(battle['phase']))
+        return True
 
     def background(self, stable):
         self.require_event(stable)
