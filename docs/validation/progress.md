@@ -28,7 +28,7 @@ loading instructions. Its production Source exactly matches the qualified build.
 Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/`.
 The 89.854-second original-speed clip includes walking, complete Erika and Rocket
 battles, evolution and guard departure; captions disclose the walking excerpt.
-Decoded chapter frames and wall timestamps were checked. It is not device pacing proof.
+This is not device pacing proof.
 
 5.4 remains accepted for Simulator gameplay. The 108-map hardware smoke now
 exercises its earned Continue/Route 2/Cut/battle/save surface too. Device latency
@@ -101,12 +101,11 @@ No unmeasured candidate is on main. [Save candidate](device-save-tier-candidate-
 
 Activate the prepared lazy audio next: town/route/battle music and all 151 cries,
 moderate gain 0.22, followed by native loading, heap and listening checks.
-The old Simulator-volume question remains closed; do not repeat it.
 Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
 (7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
 silent and not accepted. Current-main refresh `bd842e4b` compiles, passes 76
 host checks and reproduces scores/cries; fresh runtime/listening remains pending.
-No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
+[Evidence](audio-108-runtime-candidate-20261029.json).
 
 5.5b remains private on `t3/midgame-55b-driver`: **149 maps**, starting from
 unchanged accepted A saves. Scope: Tower/Fuji/Flute, Snorlax/Cycling Road,
@@ -119,6 +118,10 @@ receipt name. Private fix `7fb7bf76` uses installed tileset metadata and supplie
 HM04 text RAM. The Rope case fails before/passes after; ten owner SDK cases and
 28 host checks and both reviews pass. Three earned Koga resumes are running;
 preflight has zero unexplained geometry failures. No B acceptance yet.
+Full B host run: 1,033 tests, eight failures and two errors. Isolated fixture
+repair `9a6fd5f3` passes 65 affected checks. Eight omitted outdoor Cut maps are
+prepared from pinned source (11 trees, 70 grass sites); 324 cells and prior-data
+preservation verified, SDK compilation passed. Both packets await integration.
 The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
 unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
 longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep

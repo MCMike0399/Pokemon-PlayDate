@@ -166,5 +166,39 @@
     "status": "Launched; no outcome claimed",
     "preflight": "m55b-preflight-tenth-20261030-01/report.json: zero unexplained geometry failures; eight runtime/capability conditions remain",
     "inputs": "m55b-resume-inputs-20261030-03: exact stopped-process earned Koga Saves with accepted A ancestry"
+  },
+  "host_validation": {
+    "revision": "7fb7bf76",
+    "full_run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-full-host-7fb7bf76-20261030-01.log",
+    "tests_run": 1033,
+    "failures": 8,
+    "errors": 2,
+    "fixture_fix_prepared_commit": "9a6fd5f3195699f921e0e22242268c1edd45db44",
+    "affected_checks_passed_on_worker": 65,
+    "remaining_after_targeted_worker_checks": [
+      "Missing eight Cut map definitions",
+      "NPC trade generated event inventory differs from parked policy (two failures)",
+      "Coverage snapshot still describes accepted A"
+    ],
+    "integration": "Deferred while earned journeys use frozen checkout; full integrated rerun required"
+  },
+  "field_cut_preparation": {
+    "packet": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-cut-expansion-prepare-20261030-01",
+    "maps_added": [
+      "FuchsiaCity",
+      "Route12",
+      "Route13",
+      "Route14",
+      "Route15",
+      "Route16",
+      "Route17",
+      "Route18"
+    ],
+    "tree_sites": 11,
+    "grass_sites": 70,
+    "source_cells_verified": 324,
+    "preservation": "Every prior map, tile and other field value unchanged; generated with existing unchanged generator",
+    "compile": "Real SDK 3.1.2 production stage plus overlay passed",
+    "status": "Unapplied; native behavior and integration checks pending"
   }
 }
