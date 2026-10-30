@@ -132,10 +132,10 @@ Both gift-cache variants pass 40 native cases. Bounded text loading removes
 device heap values. Plateau tests and native headroom remain open; the original
 OOM remains unresolved. [Measured scope](m55b-memory-diagnostics-20261030.json).
 The latest three Bicycle Saves pass the original ancestry/slot/producer checks.
-All three earned B routes now pass actual two-process Save/Continue and export
-their final chains. Charmander completes the optional rod/fishing/Safari route
-with the learning-input fix and real pre-road Save. Common-build, presentation,
-resource/hardware and both rod review gates remain open; B stays private.
+All three earned B routes and actual restarts pass and export final chains.
+All three also pass common-build cold load and two real-input Continue/Save
+processes on one PDX, preserving canonical slots. [Scope](midgame-b-common-load-20261030.json).
+Presentation, physical long traversal and scoped reviews remain; B stays private.
 
 The earlier 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle
 with unchanged logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s; longest

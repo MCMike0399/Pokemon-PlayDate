@@ -1,0 +1,100 @@
+{
+  "status": "Three earned B saves pass common cold-load and actual-input restart components; not whole milestone acceptance.",
+  "cold_load": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-build-continue-20261030-01/summary.json",
+    "sha256": "2f5bbfcdf388f7db2fb4d4d4e1ad7198c656e173a226531c005bdfee39e06077",
+    "main_pdz_sha256": "54312f2687b5ad08f2ac4f085b63a9c1eb830ec42cb5cf95a63b3168e783e660",
+    "scope": "Exact complete SessionCodec state at load boundary before ordinary NPC update. Canonical slots unchanged."
+  },
+  "input_restarts": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/summary.json",
+    "sha256": "1850f34d4d1eeafc9486bc10abf6a1015b2802a824c29e83bacb44c4436e5eb5",
+    "build_id": "09f16f95a81f4d6b813484717c4b93c4",
+    "pdx_sha256": "a45b0b68b3f585175195295d5c74b0eb5cb372ef00b7170a91f2ba48525f5076",
+    "scope": "One exact PDX for all six real processes. Actual title/Continue/Save twice per starter. Non-motion session equality; ordinary NPC motion excluded explicitly. Canonical slots unchanged.",
+    "results": [
+      {
+        "canonical_earned_files_unchanged": true,
+        "ok": true,
+        "processes": [
+          {
+            "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/bulbasaur-process-1",
+            "exited": true,
+            "loaded": 1,
+            "non_motion_session_equal": true,
+            "pid": 76801,
+            "saved": 1,
+            "source_slots": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/bulbasaur"
+          },
+          {
+            "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/bulbasaur-process-2",
+            "exited": true,
+            "loaded": 1,
+            "non_motion_session_equal": true,
+            "pid": 76935,
+            "saved": 1,
+            "source_slots": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/bulbasaur-process-1/runtime-data"
+          }
+        ],
+        "starter": "bulbasaur"
+      },
+      {
+        "canonical_earned_files_unchanged": true,
+        "ok": true,
+        "processes": [
+          {
+            "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/squirtle-process-1",
+            "exited": true,
+            "loaded": 1,
+            "non_motion_session_equal": true,
+            "pid": 77096,
+            "saved": 1,
+            "source_slots": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/squirtle"
+          },
+          {
+            "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/squirtle-process-2",
+            "exited": true,
+            "loaded": 1,
+            "non_motion_session_equal": true,
+            "pid": 77201,
+            "saved": 1,
+            "source_slots": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/squirtle-process-1/runtime-data"
+          }
+        ],
+        "starter": "squirtle"
+      },
+      {
+        "canonical_earned_files_unchanged": true,
+        "ok": true,
+        "processes": [
+          {
+            "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/charmander-process-1",
+            "exited": true,
+            "loaded": 1,
+            "non_motion_session_equal": true,
+            "pid": 77324,
+            "saved": 1,
+            "source_slots": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/charmander"
+          },
+          {
+            "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/charmander-process-2",
+            "exited": true,
+            "loaded": 1,
+            "non_motion_session_equal": true,
+            "pid": 77455,
+            "saved": 1,
+            "source_slots": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-02/charmander-process-1/runtime-data"
+          }
+        ],
+        "starter": "charmander"
+      }
+    ]
+  },
+  "rejected_preparation": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-common-input-restarts-20261030-01/summary.json",
+  "remaining": [
+    "Scoped reviews of gameplay/performance changes",
+    "Final protected visuals and presentation",
+    "Physical long traversal/resource acceptance",
+    "Release package/showcase and merge decision"
+  ]
+}
