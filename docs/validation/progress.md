@@ -40,13 +40,10 @@ proof is retained; the screen was not directly observed. Its 16 MiB Simulator
 route reports **5.80/6.96 MiB** live/peak and a 124.576 ms maximum raw slice.
 Native allocations and unsampled peaks remain outside scope.
 
-Repaired build `eda0ce22` passes **30 minutes title + 30 minutes overworld**:
-heap stays at **3.45/4.02 MiB**, with zero soft collections and no new logs.
-A first-minute publication-clock validator failed; its original result is intact.
-[Separate revalidation](device-idle-qualification-20261029.json) checks all 60
-samples, exact installed bytes and post-check witness. The maximum slice is
-1.162 s; that latency target is still open. The older two-hour attempt failed
-under a software guard after collectible garbage accumulated; it is not accepted.
+The earlier 30+30-minute `eda0ce22` soak passes with flat **3.45/4.02 MiB**
+heap and unchanged logs. Its clock-validator failure and separate corrected
+revalidation remain in [the idle record](device-idle-qualification-20261029.json).
+The older two-hour failure was collectible backlog, not a proved retained leak.
 
 Timer removal queues now reuse their existing tables. Production collects at a
 safe point near 8 MiB, rejects over 6 MiB after GC, and retains a hard 9 MiB guard.
@@ -86,8 +83,8 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 Root owns Simulator/device and integration. The input-ready boot metric now
 fails at 18.729/24.945 s for 108/149 maps. An isolated map-validation candidate
 moves checks to build time; eight targeted checks pass at each count. Paired
-profiles differ only in their map-policy literal, and remain unrun while B owns
-the Simulator. [Candidate](shipped-map-boot-candidate-20261030.json).
+profiles differ only in their map-policy literal. Safety runs are queued after
+the complete B suite, without displacing a queued starter. [Candidate](shipped-map-boot-candidate-20261030.json).
 Save-tier export is accepted locally after its single review. The exact 108-map
 composition passes 96 native cases and hardware: **Save 1.510 s / Continue 3.335 s**,
 5.63 MiB peak, no new logs. [Acceptance](save-tier-accepted-20261030.json).

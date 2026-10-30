@@ -31,5 +31,6 @@
         "game/shippedDataPolicy.lua"
       ]
     }
-  ]
+  ],
+  "safety_sequence": "Root process is waiting on the complete journey-suite lock, then runs all four exact 16 MiB safety profiles sequentially. It cannot displace a queued starter. Pending report: evidence/boot-shipped-map-safety-sequence-20261030-01.json."
 }
