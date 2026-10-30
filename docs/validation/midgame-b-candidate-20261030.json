@@ -215,6 +215,13 @@
     "source_cells_verified": 324,
     "preservation": "Every prior map, tile and other field value unchanged; generated with existing unchanged generator",
     "compile": "Real SDK 3.1.2 production stage plus overlay passed",
-    "status": "Unapplied; native behavior and integration checks pending"
+    "status": "Unapplied; native behavior and integration checks pending",
+    "commit": "6dc256f144620d37e6eef7c0003a74f154ce9576",
+    "reviews": {
+      "spec": "No findings; exact pins, generated artifacts, all 324 cells and unchanged prior values verified read-only",
+      "standards": "No documented code violations. Small logs moved from temporary staging to durable external evidence."
+    },
+    "host_logs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-field-trade-host-6dc256f1-20261030-01",
+    "log_retention_commit": "b6e9b8a8"
   }
 }
