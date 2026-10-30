@@ -375,6 +375,50 @@ function SaveContracts.run()
         eq(a.sequence,"3"); eq(b.sequence,"4")
         eq(json.decode(a.payload).revision,3); eq(json.decode(b.payload).revision,4)
     end)
+    test("owner export byte proof never substitutes for first disk validation", function()
+        local _, paths, prefix = fixture("owner-export")
+        local calls = 0
+        local function counted(data)
+            calls = calls + 1
+            return validate(data)
+        end
+        local store, publish = SaveStore.ownerExportStore(prefix, counted, fs)
+        local exported = payload(1)
+        assert(validate(exported)) -- Stand-in for the checked owner export.
+        assert(publish(exported))
+        eq(calls, 0)
+        exported.revision = 999
+        eq(assert(store:load()).revision, 1)
+        eq(calls, 1) -- New disk bytes must take the full validator once.
+        local loaded = assert(store:load())
+        loaded.revision = 777
+        eq(assert(store:load()).revision, 1)
+        eq(calls, 1) -- Exact unchanged strings reuse only detached disk proof.
+        local envelope = json.decode(assert(fs.read(paths.a)))
+        local changed = json.decode(envelope.payload)
+        changed.revision = 2
+        envelope.payload = json.encode(changed)
+        envelope.checksum = SaveStore._boundChecksum(envelope.schema, envelope.sequence, envelope.payload)
+        assert(fs.write(paths.a, json.encode(envelope)))
+        eq(assert(store:load()).revision, 2)
+        eq(calls, 2) -- Same sequence and valid checksum are not cache identity.
+        eq(assert(store:load()).revision, 2)
+        eq(calls, 2)
+        local invalid = payload(3)
+        invalid.pokemon.hp = -1
+        local ok, metadata = store:save(invalid) -- Public API never owns the capability.
+        eq(ok, false)
+        eq(metadata.reason, "invalid-payload")
+        eq(calls, 3)
+        changed.pokemon.hp = -1
+        envelope.payload = json.encode(changed)
+        envelope.checksum = SaveStore._boundChecksum(envelope.schema, envelope.sequence, envelope.payload)
+        assert(fs.write(paths.a, json.encode(envelope)))
+        eq(store:load(), nil)
+        eq(calls, 4)
+        eq(store:load(), nil)
+        eq(calls, 5) -- Rejected disk bytes never enter the cache.
+    end)
     test("sequence cap payload validation callbacks and input isolation",function()
         local base,paths=fixture("sequence")
         local live=payload(1); assert(base:save(live))

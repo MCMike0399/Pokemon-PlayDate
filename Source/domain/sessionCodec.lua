@@ -1,5 +1,7 @@
+import "game/saveBuildPolicy"
 -- Complete session snapshot, validated before candidate objects are published.
 SessionCodec={VERSION=4,POKEMON_ENCODING="decimal-counters-v1"}
+local exportingSession, exportingRecords
 local function copy(value) return GameSession._copy(value) end
 local function checkpoint()
     if GameBootstrap then
@@ -168,7 +170,12 @@ function SessionCodec.encode(session,gate)
             worldMotion={version=1,rng=session:worldRngData(),actors=session:actorData()},
             party=assert(current.party:toData(unique)),storage=assert(current.storage:toData(unique)),inventory=current.inventory:toData(),itemStorage=current.itemStorage:toData()}
         data.daycare = Daycare.toData(session, unique)
-        normalize(data,current.deps)
+        if exportingSession ~= session then
+            normalize(data, current.deps)
+        else
+            -- Seal the exact codec result before returning it to any caller.
+            exportingRecords[data] = copy(data)
+        end
         return data
     end)
     if not ok then return nil,tostring(result) end
@@ -211,4 +218,73 @@ function SessionCodec.load(store,deps)
     local session,reason=SessionCodec.decode(data,deps)
     if not session then return nil,{reason="invalid-session",error=reason,store=metadata} end
     return session,metadata -- root must commit world/RNG/context deliberately.
+end
+
+-- GameSaves alone holds these closures. Foreign sessions, public encode/save,
+-- and load/owner construction never acquire export authority.
+function SessionCodec.gameSaveStore(game, prefix)
+    local deps = GameSession._dependencies(game:getSessionDependencies())
+    if not SaveBuildPolicy.ownerExports() then
+        return SessionCodec.store(prefix, deps)
+    end
+    local store, publish = SaveStore.ownerExportStore(prefix, function(record)
+        return SessionCodec.validate(record, deps)
+    end)
+    local exports = setmetatable({}, {__mode="k"})
+    local function capture(callback)
+        assert(exportingSession == nil, "nested-session-export")
+        local session = game.session
+        local records = {}
+        exportingSession, exportingRecords = session, records
+        local ok, data, problem = pcall(callback)
+        exportingSession, exportingRecords = nil, nil
+        if not ok then
+            error(data)
+        end
+        if data and records[data] and game.session == session then
+            exports[data] = {session=session, record=records[data]}
+        end
+        return data, problem
+    end
+    local function publishExport(data, ticket)
+        local proof = exports[data]
+        if proof then
+            exports[data] = nil
+        end
+        -- A callback cannot substitute or mutate an issued record into trust.
+        -- Only a sealed codec export can use the private publisher.
+        if proof and proof.session == game.session then
+            local function unchanged(a, b)
+                if type(a) ~= type(b) then
+                    return false
+                end
+                if type(a) ~= "table" then
+                    return a == b
+                end
+                if getmetatable(a) ~= nil then
+                    return false
+                end
+                for key, value in pairs(b) do
+                    if not unchanged(a[key], value) then
+                        return false
+                    end
+                end
+                for key in pairs(a) do
+                    if b[key] == nil then
+                        return false
+                    end
+                end
+                return true
+            end
+            if unchanged(data, proof.record) then
+                return publish(proof.record, ticket)
+            end
+        end
+        -- Arbitrary/foreign payloads retain the public deep-validation path.
+        if ticket then
+            return store:replace(data, ticket)
+        end
+        return store:save(data)
+    end
+    return store, capture, publishExport
 end

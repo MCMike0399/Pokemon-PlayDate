@@ -1,9 +1,21 @@
 -- Disk ownership sits beside GameContext; domain/session code stays pure.
 Class("GameSaves")
+local ownerCaptures = setmetatable({}, {__mode="k"})
+local ownerPublishers = setmetatable({}, {__mode="k"})
+local function capture(self, callback)
+    local export = ownerCaptures[self]
+    if export then
+        return export(callback)
+    end
+    return callback()
+end
 
 function GameSaves:init(game, prefix)
     self.game = game
-    self.store = SessionCodec.store(prefix or "adventure", game:getSessionDependencies())
+    local store, captureExport, publishExport = SessionCodec.gameSaveStore(game, prefix or "adventure")
+    self.store = store
+    ownerCaptures[self] = captureExport
+    ownerPublishers[self] = publishExport
 end
 
 function GameSaves:inspect()
@@ -12,7 +24,9 @@ end
 
 local function saveGame(self)
     BootTrace.mark("Save.begin")
-    local payload, problem = self.game:captureSession()
+    local payload, problem = capture(self, function()
+        return self.game:captureSession()
+    end)
     if not payload then
         return false, {reason = "unsafe-save-state", error = problem}
     end
@@ -42,10 +56,20 @@ function GameSaves:_publishPayload(payload)
     end
     local ok, metadata, published
     if request then
-        ok, metadata, published = self.store:replace(payload, request.ticket)
+        local publish = ownerPublishers[self]
+        if publish then
+            ok, metadata, published = publish(payload, request.ticket)
+        else
+            ok, metadata, published = self.store:replace(payload, request.ticket)
+        end
         if ok then self._replacement = nil end
     else
-        ok, metadata, published = self.store:save(payload)
+        local publish = ownerPublishers[self]
+        if publish then
+            ok, metadata, published = publish(payload)
+        else
+            ok, metadata, published = self.store:save(payload)
+        end
     end
     -- Optional read-only observer is installed explicitly by the private
     -- harness. Observe the actual verified disk boundary, never recapture play.
@@ -219,7 +243,9 @@ function GameSaves:changeBoxFromPC(pc,index,epoch)
     local traversal={location=self.game.session:location(),world=self.game.session:worldData(),checkpoint=self.game.session:checkpoint()}
     local ok,result,metadata=pcall(function()
         assert(storage:selectBox(index))
-        local payload,problem=self.game:captureSessionFromPC(pc,epoch)
+        local payload, problem = capture(self, function()
+            return self.game:captureSessionFromPC(pc, epoch)
+        end)
         if not payload then return false,{reason="unsafe-pc-save-state",error=problem} end
         return self:_publishPayload(payload)
     end)
