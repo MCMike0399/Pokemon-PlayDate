@@ -469,5 +469,28 @@
     "geometry_gaps": 0,
     "runtime_conditions": 8,
     "status": "Private driver only. Releases B at guarded learning entry, restores it inside the final committed receipt, and creates a real pre-road Save. Natural replay pending."
-  }
+  },
+  "charmander_learning_retry": {
+    "status": "PASS: natural optional route, real final Save, actual process restart and Continue.",
+    "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-charmander-learning-retry-20261030-01/01-midgame--restart-55b-charmander",
+    "run_sha256": "6ff5594d57d67f9ce50379046e2bd7c66dd11bf66d8cdc469b582cda46a283ad",
+    "revision": "ea3f80a6a208ef5a7b15e678e0c2fffce692a3b6",
+    "build_id": "ea3f80a6a208ef5a7b15e678e0c2fffce692a3b6:02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+    "process_ids": [
+      24842,
+      44495
+    ],
+    "receipt_sha256": [
+      "4d4a20013d084b1f5daa3ba3a551ecb3fda0b5a8be3747fe5405751de6a212ad",
+      "4d4a20013d084b1f5daa3ba3a551ecb3fda0b5a8be3747fe5405751de6a212ad"
+    ],
+    "export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/charmander",
+    "provenance_sha256": "fdc4fc146885d09a0944a18efc854cafaf09c99172837c4431d632a7ca6b9046",
+    "slots": {
+      "adventure.a.json": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0",
+      "adventure.b.json": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801"
+    },
+    "scope": "Third earned B chain passes. Source remains the same gameplay candidate as the two earlier passing chains; common-build, hardware, resource and review gates remain open."
+  },
+  "journey_gate": "All three earned B routes and actual two-process restarts pass. No whole-checkpoint acceptance or main gameplay merge."
 }
