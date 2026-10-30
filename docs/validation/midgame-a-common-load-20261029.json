@@ -79,5 +79,23 @@
     "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-candidate-20261029-01",
     "status": "prepared; NOT accepted or device delivered",
     "description": "production PDX, original earned save pairs, hashes and Simulator instructions"
+  },
+  "host_verification": {
+    "full_run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-build-host-20261029-01.log",
+    "total": 1001,
+    "initial_passed": 1000,
+    "initial_failed": 1,
+    "initial_failure": "stale coverage snapshot fingerprint only",
+    "correction_revision": "32b00784",
+    "targeted_recheck": "4 coverage cases pass; all 1512 row bodies unchanged",
+    "source_unchanged_by_correction": true
+  },
+  "full_sdk_attempt": {
+    "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-build-sdk-contracts-20261029-01",
+    "status": "FAILED; no complete suite report",
+    "error": "dev/harness.lua:448: Too many open files; Simulator paused, then request timeout",
+    "last_suite": "generic-actors",
+    "classification": "runtime tooling failure; not counted as gameplay acceptance",
+    "owned_runtime_exited": true
   }
 }
