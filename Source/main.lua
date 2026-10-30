@@ -1,6 +1,7 @@
 import "game/bootTrace"
 BootTrace.mark("import.game/bootstrap.begin")
 import "game/bootstrap"
+import "game/shippedDataPolicy"
 BootTrace.mark("import.game/bootstrap.end")
 GameBootstrap.showLoading()
 local bootAccepted, bootProblem = pcall(function()

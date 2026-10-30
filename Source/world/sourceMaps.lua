@@ -105,16 +105,20 @@ end
 local function compactData()
     if not compact then
         local data = SourceMaps.record("data/sourceMapCache/compact.json")
-        for name, descriptor in pairs(data.maps) do
-            local entry = assert(catalogue()[name], "generated map outside source manifest")
-            for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
-                assert(descriptor[field] == entry[field], "generated source descriptor differs from manifest")
+        if not (ShippedDataPolicy and ShippedDataPolicy.maps()) then
+            for name, descriptor in pairs(data.maps) do
+                local entry = assert(catalogue()[name], "generated map outside source manifest")
+                for _, field in ipairs({ "id", "key", "width", "height", "padding", "source_sha256" }) do
+                    assert(descriptor[field] == entry[field], "generated source descriptor differs from manifest")
+                end
+                if GameBootstrap then
+                    GameBootstrap.yieldIfDue()
+                end
             end
-            if GameBootstrap then
-                GameBootstrap.yieldIfDue()
+            for name in pairs(catalogue()) do
+                assert(data.maps[name], "generated source descriptor missing")
             end
         end
-        for name in pairs(catalogue()) do assert(data.maps[name], "generated source descriptor missing") end
         compact = data
     end
     return compact

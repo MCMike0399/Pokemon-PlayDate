@@ -90,7 +90,7 @@ class ProductionBuildTests(unittest.TestCase):
         # 80a9419 introduced the loading bootstrap; 91d3769 moved it before
         # the SDK imports and added boot tracing. Retain the frozen inventory
         # and permit only these two reviewed additions in their required order.
-        self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
+        self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap', 'game/shippedDataPolicy']
                          + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'}])
         self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
                           or line.lstrip().startswith('PewterCatalogExporter.register(')
@@ -118,6 +118,11 @@ class ProductionBuildTests(unittest.TestCase):
                 for entry in policy['exclude'])
             if excluded:
                 self.assertFalse((self.production / 'Source' / relative).exists(), name)
+            elif name == 'game/shippedDataPolicy.lua':
+                self.assertEqual((self.production / 'Source' / relative).read_bytes(),
+                                 original.read_bytes().replace(b'mapsQualified <const> = false',
+                                                               b'mapsQualified <const> = true'))
+                self.assertTrue((self.production / 'shipped-map-qualification.json').is_file())
             else:
                 self.assertEqual(original.read_bytes(), (self.production / 'Source' / relative).read_bytes())
             if str(relative) not in ('main.lua', 'pdxinfo', 'dev/harness_build.lua'):

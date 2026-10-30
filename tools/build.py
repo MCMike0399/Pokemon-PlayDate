@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compile a production bundle from a private source tree without dev modules."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -16,12 +17,39 @@ from tools.activate_checkpoint_a import production_exclusions, ignored_source_na
 PROJECT = Path(__file__).resolve().parents[1]
 
 
+def qualify_shipped_maps(source, stage):
+    """Check the copied immutable inputs before allowing the device fast path."""
+    from tools.generate_source_map_cache import build as generate_maps, check
+    policy = source / 'game/shippedDataPolicy.lua'
+    if not policy.is_file():
+        return None  # Older/minimal projects retain their original deep path.
+    text = policy.read_text()
+    marker = 'local mapsQualified <const> = false'
+    if text.count(marker) != 1:
+        raise ValueError('shipped map policy must start unqualified')
+    cells = {}
+    manifest = source / 'data/sourceMaps.json'
+    artifacts = generate_maps(manifest, source, cell_artifacts=cells)
+    check(artifacts, source / 'data/sourceMapCache')
+    check(cells, source / 'data/sourceMapCells')
+    record = dict(schema=1, maps=len(json.loads(manifest.read_bytes())['maps']),
+                  manifest_sha256=hashlib.sha256(manifest.read_bytes()).hexdigest(),
+                  artifacts={name: hashlib.sha256(raw).hexdigest()
+                             for name, raw in sorted(artifacts.items())},
+                  binary_cells={name: hashlib.sha256(raw).hexdigest()
+                                for name, raw in sorted(cells.items())})
+    (stage / 'shipped-map-qualification.json').write_text(json.dumps(record, indent=2) + '\n')
+    policy.write_text(text.replace(marker, 'local mapsQualified <const> = true'))
+    return record
+
+
 def stage_production(project, stage):
     source = stage / 'Source'
     original = project / 'Source'
     excluded = production_exclusions(project)
     shutil.copytree(original, source, ignore=lambda directory, names:
                     ignored_source_names(original, directory, names, excluded))
+    qualify_shipped_maps(source, stage)
     return source
 
 
