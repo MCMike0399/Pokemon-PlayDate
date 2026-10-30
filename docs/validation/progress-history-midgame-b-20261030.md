@@ -29,3 +29,22 @@ stopped it; the driver now uses owner-supplied HM protection and a genuine
 Center refill between roads. 59 host checks and a fresh SDK build pass.
 The eighth set resumes verified Snorlax-cleared saves; earlier losses stay recorded.
 Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
+
+## Storage history before the eleventh B run
+
+Freed **110.48 GiB (118.63 GB)** in the audited cleanup. Automatic 150 GiB
+maintenance runs every 30 minutes. A further **9.29 GiB** was freed by
+removing 25 clean merged/rejected worktrees (24 branches); audited free space is
+**155.3 GiB**, restoring the 150 GiB minimum. Both retention-parser fixes
+pass 16 host cases. No referenced evidence or earned saves were removed. Keep chains, packages, committed evidence
+references and latest passing journey/device runs. Retain journey frames only
+for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
+
+APFS independent copy-on-write sharing of 1,882 identical archived bundles
+across 40 checkouts recovered an observed **12.16 GiB**; hashes and tracked
+documentation are unchanged. Free space was **159.0 GiB** after sharing.
+Automatic closed-trace sharing now passes 29 host checks and a Python 3.9.6
+APFS integration check after four review fixes. Further bounded recovery
+observed 3.51 + 1.92 GiB from closed traces and 0.48 GiB from unused compiles.
+Free space remains volatile and below 150 GiB; host swap usage is about 20 GiB. [Validation](archive-sharing-20261030.json). Audit:
+`storage-maintenance-logs/share-immutable-docs-20261030-01.json` outside Git.

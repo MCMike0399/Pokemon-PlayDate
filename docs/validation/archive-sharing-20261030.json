@@ -41,5 +41,18 @@
     "benchmark": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/reference-matcher-timing-20261030-01.json",
     "scope": "5000real coverage strings,current309archive names: identical sets. Matching cost0.528s to0.003s; whole-scan improvement unmeasured.",
     "scan": "Old owned read-only scan stopped, no deletion; new read-only scan02 remains live"
+  },
+  "native_compression": {
+    "status": "Bounded manual pass stopped safely at an open-path guard; minimum restored,170GiB target not reached",
+    "files": 178,
+    "logical_bytes_postverified": 35424644143,
+    "observed_recovered_bytes": 15363141632,
+    "observed_recovered_gib": 14.308040618896484,
+    "free_gib_latest": 153.53593063354492,
+    "audit": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/native-trace-compression-20261030-01.json",
+    "postverify": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/native-trace-compression-postverify-20261030-01.json",
+    "same_readable_sha256_every_file": true,
+    "scope": "Only confirmed terminal trace.jsonl files under storage/suite/Simulator/device locks; all saves excluded. Native compressionflag is intentional; publicmetadata preserved. Originalreview concerns addressed by active-suite/openpath guards, atomic fsynced audit under lock, per-file target/time bounds and nice10.",
+    "automation": "Not installed yet; existing scheduler retains prior behavior"
   }
 }
