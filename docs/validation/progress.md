@@ -92,7 +92,7 @@ compact decode/profile preparation; it is not isolated decode timing.
 [Composed phases and installer attribution](boot-stack-composed-20261030.json).
 Full first-entry activation and current-map scaling remain open. The reviewed
 Kanto first-use port has its own 149-map SDK export and 40 passing host/build
-checks; exact safety is running in exec 68810.
+checks; exact safety passed and hardware is running in exec 20308.
 
 Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
 raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.

@@ -50,7 +50,9 @@
     "old_east_south_decoded_values": "unchanged",
     "host_build_checks": 40,
     "build_id": "3d62a607d2d543b4904876c9323662f2",
-    "safety_exec_session": 68810,
-    "status": "Exact safety route running; no149-map performance acceptance yet."
+    "safety_exec_session": "completed68810",
+    "status": "Exact16MiB safety admitted; hardware run active.",
+    "hardware_exec_session": 20308,
+    "hardware_output": "evidence/kanto-first-entry-149-hardware-20261030-01"
   }
 }
