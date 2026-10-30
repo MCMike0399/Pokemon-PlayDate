@@ -1723,10 +1723,62 @@ class MidgameJourney(vj.VermilionJourney):
         self.send('press a', 'press b', 'press b')
         self.drain()
 
-    def ensure_room(self, mart):
-        # Make room before entering long dungeons, through genuine retail input.
+    def store_unused_items(self):
+        # Preserve completed quest items and unused TMs through the real item PC.
+        self.heal_here('LavenderPokecenter')
+        self.source_waypoint(13, 4)
+        self.face('up')
+        self.send('wait 1', 'press a', 'wait 2')
+        self.require(root='pc', **{'pc.phase': 'top'})
+        self.select('pc.menu.selected', 2)
+        self.send('press a')
+        self.require(root='itemPC', **{'item_pc.phase': 'menu'})
+        self.select('item_pc.menu.selected', 2)
+        self.send('press a')
+        self.require(**{'item_pc.phase': 'list', 'item_pc.operation': 'deposit'})
+        candidates = ('ssTicket', 'helixFossil', 'domeFossil', 'moonStone',
+                      'tm34', 'tm11', 'tm28', 'tm24', 'coinCase', 'tm48', 'tm49', 'tm18', 'tm13')
         while len(self.inventory()['slots']) > 15:
-            self.sell_old_item(mart)
+            before = self.inventory()
+            item = next((key for key in candidates if self.quantity(key) > 0), None)
+            if item is None:
+                raise ProtocolError('no unused item can be stored for Tower rewards')
+            slots = before['slots']
+            index = next(i for i, slot in enumerate(slots, 1) if slot['id'] == item)
+            quantity = slots[index - 1]['quantity']
+            stored = self.state['session']['item_storage']['slots']
+            totals = {slot['id']: sum(row['quantity'] for row in stored if row['id'] == slot['id'])
+                      for slot in stored}
+            self.select('item_pc.selected', index)
+            self.send('press a')
+            if lookup(self.state, 'item_pc.phase') == 'quantity':
+                for _ in range(quantity - 1):
+                    self.send('press up')
+                self.send('press a')
+            self.require(**{'item_pc.phase': 'message', 'item_pc.result.ok': True})
+            after = self.inventory()
+            actual = self.state['session']['item_storage']['slots']
+            actual_totals = {slot['id']: sum(row['quantity'] for row in actual if row['id'] == slot['id'])
+                             for slot in actual}
+            totals[item] = totals.get(item, 0) + quantity
+            if (after['slots'] != slots[:index - 1] + slots[index:]
+                    or after['money'] != before['money'] or actual_totals != totals):
+                raise ProtocolError('item PC deposit did not conserve the exact earned stack')
+            self.summary.setdefault('item_deposits', []).append(dict(item=item, quantity=quantity))
+            self.send('press a')
+            self.require(**{'item_pc.phase': 'list'})
+        self.send('press b', 'press b', 'press b')
+        self.require(root='overworld')
+
+    def ensure_room(self, mart):
+        # Make room before long dungeons through genuine retail or PC input.
+        sellable = ('nugget', 'tm34', 'tm11', 'tm28', 'tm24')
+        while len(self.inventory()['slots']) > 15:
+            if any(self.quantity(item) > 0 for item in sellable):
+                self.sell_old_item(mart)
+            else:
+                self.store_unused_items()
+
 
     def mansion_step_warp(self, index, destination):
         # Fixed source backstairs use the shared collision-checked arrival.

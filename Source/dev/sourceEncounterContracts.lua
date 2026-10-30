@@ -79,7 +79,8 @@ function SourceEncounterContracts.run()
         else report.failed, report.ok = report.failed + 1, false end
     end
     test("source ghosts: identification, fear, uncapturable Marowak and confirmed completion", function()
-        local rescue = TowerStory.plan(TowerStory.FUJI, {flags={}, trainers={}})
+        local rescue = TowerStory.plan(TowerStory.FUJI,
+            {intro="done", flags={}, items={}, can_add={}, trainers={}, mode="talk"})
         local destination = rescue.steps[#rescue.steps]
         local house = SourceMaps.entry(assert(SourceMaps.nameForID("pokered:MR_FUJIS_HOUSE")))
         assert(destination.op == "warp" and destination.to == house.key,
