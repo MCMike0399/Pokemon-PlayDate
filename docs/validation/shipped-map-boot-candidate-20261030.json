@@ -139,5 +139,14 @@
     "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-region-declarations-149-hardware-20261030-01",
     "scope": "Qualified lightweight membership and on-demand transformed record bodies. Trainer membership snapshots and runtime duplicate checks retained. Not yet full first-entry region activation, and no timing gain claimed.",
     "measurement": "docs/validation/region-declaration-boot-measurement-20261030.json"
+  },
+  "native_headroom_probe": {
+    "status": "Loaded-game 16MiB Simulator probe executed:8/8images, hardware measurement running.",
+    "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-prepare-20261030-01",
+    "safety": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-safety-20261030-01",
+    "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-hardware-20261030-01",
+    "requested_payload_per_image": 262144,
+    "cap": 8,
+    "scope": "Test-only staged hook after real battle start. Requested bitmap payload excludes native allocator headers/masks. Not total native memory, not continuous headroom, not audio acceptance. Production entry point unchanged."
   }
 }
