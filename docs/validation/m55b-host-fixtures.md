@@ -67,3 +67,59 @@ runs 15 tests without skips and retains four failures for root:
 The original root log reported 1033 tests, eight failures and two errors. These
 targeted reruns resolve the two compile setup errors and four fixture failures;
 they are not a new full-suite run or runtime acceptance.
+
+
+## Follow-up data repair
+
+On top of `9a6fd5f3`, apply root's prepared field expansion and trade data patches
+from `m55b-field-cut-expansion-prepare-20261030-01/root.patch` and
+`m55b-trade-data-refresh-prepare-20261030-01/root-data.patch` under the external
+evidence directory. Their generators, installed maps, decoded grids and art are
+unchanged. The original four diagnostic failures above describe the first repair;
+this follow-up resolves the Cut and trade failures without changing coverage.
+
+After applying the new pins, copy the field preparation's `inputs/` directory to
+`tools.materialize_field_moves.reference_root()` only if that directory is absent,
+then call `verify_cache(reference_root())`. The resulting fingerprint directory is
+`397bdbacf17decedbf905f08d6cd4d0b8bd696f2fdc697d82f228a32fce6a732`; all 88 cached
+files verify. Reproduction commands are:
+
+```sh
+source ~/Developer/Pokemon-PlayDate-env/env.sh
+python3 -m tools.materialize_field_moves --check
+python3 -m tools.generate_field_moves --check
+python3 -m tools.generate_npc_trades --check
+python3 -m unittest tools.tests.test_field_move_data tools.tests.test_grass_cut_data tools.tests.test_field_world_data tools.tests.test_field_acquisition_sources tools.tests.test_field_gear_sources tools.tests.test_field_travel_sources tools.tests.test_field_item_qualification tools.tests.test_npc_trades -v
+```
+
+All 37 affected tests pass without skips. Independent comparison against
+`9a6fd5f3` confirms exact equality of every old field map, tile and other field
+value; all 22 old per-map files are also byte-identical. Recursive comparison
+preserves every old pin, index and trade-policy value. The eight added maps have
+11 tree sites and 70 grass sites; all 324 before-cell stable IDs and grids match
+the installed decoded maps. All nine trade records, texts and four old events
+remain exact; only `pokered:ROUTE_18_GATE_2F:objects:1` is added.
+
+The trade identity test now compares exact event membership derived from the
+pinned nine-trade inventory and installed source manifest. Its identity and source
+checks and explicit exclusion of the absent Cerulean trade event remain intact.
+`NPCTrades.install` remains absent from the entry point; trades stay parked.
+
+
+A fresh SDK compile-only harness bundle and the full host suite completed with
+1,051 tests, three failures, zero errors and zero skips (136.667 seconds). The
+compile log, host log and private bundle are at
+`/private/tmp/m55b-field-trade-host.6D8aRS/`. Production and private device-test
+compile checks also pass within that full suite.
+
+The remaining failures are coverage freshness plus two Vermilion projection
+comparisons: `test_common_blue_tables_and_actual_machine_compatibility_are_projected`
+and `test_generation_is_exact_and_pins_every_map_and_three_counter_teams`.
+A read-only recursive diff confirms their only projection difference is
+`/sources/data/fieldMoves.json`: its recorded SHA changes from
+`c58b466b2c9bdbe1f97f1b7fb5e800d658623689c27ee398f1818aac9d36d35b` to
+`fbdede52c487a6c0668b99b79f186101a10db1069b71aba25e8f7ef58f2e5757`.
+The field expansion necessarily changes this dependency hash. Frozen journey
+files and their assertions remain untouched for root to regenerate after the
+freeze. Coverage remains root-owned and unchanged. No native execution, USB,
+runtime lock, root checkout change or push occurred.

@@ -1,0 +1,167 @@
+{
+  "id": "pokered:FUCHSIA_CITY",
+  "record": {
+    "grass_sites": [],
+    "height": 36,
+    "layout_sha256": "90815094e9eb6455e8d15e6250a7e02dd79309499c5ccf63a1a20eb4d9981848",
+    "name": "FuchsiaCity",
+    "sites": [
+      {
+        "block": 96,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 22,
+            "y": 6
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 23,
+            "y": 6
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 22,
+            "y": 7
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 23,
+            "y": 7
+          }
+        ],
+        "replacement": 110,
+        "targets": [
+          {
+            "x": 22,
+            "y": 7
+          }
+        ],
+        "x": 22,
+        "y": 6
+      },
+      {
+        "block": 96,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 16,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 17,
+            "y": 10
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 16,
+            "y": 11
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 17,
+            "y": 11
+          }
+        ],
+        "replacement": 110,
+        "targets": [
+          {
+            "x": 16,
+            "y": 11
+          }
+        ],
+        "x": 16,
+        "y": 10
+      },
+      {
+        "block": 96,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 26,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 27,
+            "y": 12
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 26,
+            "y": 13
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 27,
+            "y": 13
+          }
+        ],
+        "replacement": 110,
+        "targets": [
+          {
+            "x": 26,
+            "y": 13
+          }
+        ],
+        "x": 26,
+        "y": 12
+      },
+      {
+        "block": 96,
+        "cells": [
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "x": 18,
+            "y": 18
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 19,
+            "y": 18
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:2c-2c-2c-2c",
+            "before": "pokered:OVERWORLD:cell:2d-2e-3d-3e",
+            "x": 18,
+            "y": 19
+          },
+          {
+            "after": "pokered:OVERWORLD:cell:40-41-50-51",
+            "before": "pokered:OVERWORLD:cell:40-41-50-51",
+            "x": 19,
+            "y": 19
+          }
+        ],
+        "replacement": 110,
+        "targets": [
+          {
+            "x": 18,
+            "y": 19
+          }
+        ],
+        "x": 18,
+        "y": 18
+      }
+    ],
+    "tileset": "OVERWORLD",
+    "width": 40
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}
