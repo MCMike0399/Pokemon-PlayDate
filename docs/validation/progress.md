@@ -115,7 +115,10 @@ Scope: Tower/Fuji/Flute, Snorlax/Cycling Road, Fuchsia/Safari/Koga, Surf/Strengt
 Private B now passes ten focused owner cases plus Chip Away’s native contract.
 Both move reviews are resolved. The first three journeys hit the same nullable
 Tower-receipt bug; fixed with regression assertions. The second set exposed a Rare Candy actor blocking the Tower route. The driver
-now earns that pickup; a third frozen set is running from earned A saves.
+now earns that pickup. The third set reached Fuji on Bulbasaur but exposed a
+stable-ID/runtime-key mismatch; full bags rejected the other two pickups.
+Private fixes use the runtime key and genuine pre-Tower sales; 34 host checks
+and compilation pass, with native rerun pending.
 Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 

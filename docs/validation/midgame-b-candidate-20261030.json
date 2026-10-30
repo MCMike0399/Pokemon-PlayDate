@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; journeys running; not accepted",
-  "candidate": "62f46b83",
+  "status": "private; third journey set failed; fixes compiled, native rerun pending",
+  "candidate": "3dcf5684",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -18,7 +18,7 @@
   "native_owner_cases": {
     "passed": 10,
     "failed": 0,
-    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-05",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-06",
     "checkpoint_c_cases_excluded": [
       "Fly",
       "Dojo"
@@ -36,7 +36,6 @@
     "result": "All three failed at first Tower rival observation; nil receipt copy; unchanged failed evidence",
     "fix": "94d149ec; nullable receipts guarded and regression assertions pass"
   },
-  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-second-20261030-01",
   "surf_art": {
     "source": "existing pinned SeelSprite selected by Blue loader",
     "native_pose_reference_matches": 12,
@@ -44,6 +43,11 @@
     "motion": "pending earned journey"
   },
   "memory": "Private 149-map Simulator measurement profile completed at 6.55 MiB collected checkpoint; physical native 6 MiB guard unchanged; no B hardware result yet",
-  "hardware_blocked_by_active_soak": "docs/validation/idle-soak-active-20261030.json",
-  "main_scope": "108 maps; private B not merged"
+  "main_scope": "108 maps; private B not merged",
+  "hardware": "Full accepted-A soak collected successfully; no B hardware measurement yet.",
+  "third_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-third-20261030-01",
+    "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
+    "fix": "3dcf5684: runtime destination key; actual pre-Tower shop sales reserve bag room. 34 host checks and production compilation pass; extended existing native case compiled, execution pending."
+  }
 }
