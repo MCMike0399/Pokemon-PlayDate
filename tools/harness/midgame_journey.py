@@ -1313,7 +1313,9 @@ class MidgameJourney(vj.VermilionJourney):
             raise ProtocolError('actual field-item owner unavailable/incomplete: ' + item)
 
     def wake_snorlax(self, constant, index, point):
-        self.travel(self.zone('Route12' if constant == 'ROUTE_12' else 'Route16'))
+        destination = self.zone('Route12' if constant == 'ROUTE_12' else 'Route16')
+        goal = (point[0] + self.models[destination].padding, point[1])
+        self.travel(destination, goal=goal)
         self.source_waypoint(*point)
         self.require_event(cj.sid(constant, index))
         self.scripted_wild = dict(species='snorlax', level=30)

@@ -498,6 +498,20 @@ class ReceiptAndPatchTests(unittest.TestCase):
 
 
 class MidgameSaveInputTests(unittest.TestCase):
+    def test_snorlax_travel_includes_the_final_component_goal(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
+        driver.models = {'route12': type('Model', (), {'padding': 0})()}
+        class ReachedApproach(Exception):
+            pass
+        with patch.object(driver, 'zone', return_value='route12'), \
+                patch.object(driver, 'travel') as travel, \
+                patch.object(driver, 'source_waypoint'), \
+                patch.object(driver, 'require_event', side_effect=ReachedApproach):
+            with self.assertRaises(ReachedApproach):
+                driver.wake_snorlax('ROUTE_12', 1, (10, 61))
+        travel.assert_called_once_with('route12', goal=(10, 61))
+
     def test_tower_reserves_bag_room_before_entering(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))

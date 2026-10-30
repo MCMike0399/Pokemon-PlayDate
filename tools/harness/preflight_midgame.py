@@ -755,6 +755,20 @@ def checkpoint_b_preflight(plan):
             after = model.path(final, {goal}, occupied-{point})
             return dict(item=candy['id'], approach_steps=len(approach), after_pickup_steps=len(after),
                         condition='Driver must earn the actual pickup/removal; this host projection grants nothing.')
+        def route12_gate_approach():
+            model = audit.model('Route12')
+            owner = current_driver.MidgameJourney.__new__(current_driver.MidgameJourney)
+            owner.models, owner.map_manifest, owner.doors = audit.models, audit.manifest, audit.owner.doors
+            owner.build_evidence, owner.config = audit.build, {}
+            owner.state = {'zone_id': model.name, 'player': {'x': 9, 'y': 0},
+                           'npcs': [{'x': row['x'], 'y': row['y']} for row in model.events['objects']]}
+            goal = audit.point(model, (10, 61))
+            portal = owner.route_portal(model.name, {goal})
+            if portal is None or portal[1] != 'warp' or portal[3][0] != audit.model('Route12Gate1F').name:
+                raise ProtocolError('Route12 north approach must traverse the actual gatehouse')
+            return dict(origin=[9, 0], goal=goal, first_warp=portal[2]['id'],
+                        condition='Existing component-aware travel must receive the final Snorlax approach goal.')
+        check('Route12 north arrival through gatehouse to Snorlax', 'component-route', route12_gate_approach)
         check('Tower 6F actual corridor pickup', 'event-approach', tower_item_route)
         check('Safari fixed input steps', 'fixed-script',
               lambda: audit.fixed('safari-fixed-routes.json'))
