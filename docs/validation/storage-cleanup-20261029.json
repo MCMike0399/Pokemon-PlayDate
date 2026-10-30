@@ -12,5 +12,14 @@
   "copy_on_write_duplicate_files": 58,
   "retained_evidence_bytes_unchanged": "Every COW clone was SHA256-verified before atomic replacement. Paths and independent future-write semantics remain unchanged.",
   "audit_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/cleanup-20261029-night",
-  "automatic_maintenance": "implementation pending"
+  "automatic_maintenance": {
+    "installed": true,
+    "launch_agent": "/Users/burbujamc/Library/LaunchAgents/local.pokemon-playdate.storage-maintenance.plist",
+    "interval_seconds": 1800,
+    "wrapper": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/maintain-storage.sh",
+    "minimum_free_gib": 150,
+    "target_free_gib": 170,
+    "first_execution": "reserve already met",
+    "host_checks": 14
+  }
 }
