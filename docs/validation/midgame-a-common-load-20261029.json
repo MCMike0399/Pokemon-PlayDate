@@ -97,5 +97,44 @@
     "last_suite": "generic-actors",
     "classification": "runtime tooling failure; not counted as gameplay acceptance",
     "owned_runtime_exited": true
+  },
+  "sdk_followup": {
+    "batch_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-sdk-batches-20261029-02/summary.json",
+    "registered_case_results": {
+      "passed": 2107,
+      "failed": 167
+    },
+    "scope": "Initial selected-suite batch run; includes tooling dependencies, artifact-memory failures and parked feature cases. NOT a release pass.",
+    "resolved": {
+      "lazy_map_and_art_setup": {
+        "revision": "2e1be415",
+        "rerun_cases": 253,
+        "failed": 0
+      },
+      "batch_dependency_setup": {
+        "batches": [
+          4,
+          5,
+          6
+        ],
+        "rerun_cases": 482,
+        "failed": 0
+      },
+      "preparation_and_drain_setup": {
+        "revision": "c013c68d",
+        "rerun_cases": 152,
+        "failed": 0
+      },
+      "celadon_services": {
+        "rerun_cases": 6,
+        "failed": 0
+      }
+    },
+    "parked_features": "NPC trades and Saffron guards remain uninstalled; their old cases are not evidence for current release scope.",
+    "still_open": [
+      "Full catalog memory in tooling",
+      "Capacity preparation and one Day Care connection case resource pressure"
+    ],
+    "game_production_source_changed_by_fixture_repairs": false
   }
 }
