@@ -1,4 +1,4 @@
-"""Earned 5.4 -> 5.5a input journeys. Root alone owns Simulator and save import.
+"""Earned 5.4 -> 5.5a and accepted 5.5a -> 5.5b input journeys. Root alone owns Simulator and save import.
 
 Reuse existing route, battle, menu, capture and restart owners. No planner,
 fixture, state setter, artificial reward or free preparation battle is provided.
@@ -20,6 +20,10 @@ NAMES = {'midgame-natural', 'midgame-continue'}
 SCENARIOS = Path(__file__).with_name('scenarios') / 'midgame'
 BOUNDS = {'max_actions': (1, 120000), 'max_steps': (1, 20000),
           'max_encounters': (1, 256), 'max_blackouts': (0, 2), 'max_transitions': (1, 512)}
+B_STEPS = {'tower-fuji-flute', 'route12-snorlax', 'bicycle-cycling-road',
+           'fuchsia-koga', 'safari-hm03-gold-teeth-hm04-strength-surf'}
+B_OPTIONAL = {'rods-fishing'}
+B_AUXILIARY = {'fuchsia_gym'}
 HMS = {'cut': 'hm01', 'fly': 'hm02', 'surf': 'hm03', 'strength': 'hm04', 'flash': 'hm05'}
 
 
@@ -30,7 +34,7 @@ def validate_config(config):
     for key, (low, high) in BOUNDS.items():
         if key in config and (type(config[key]) is not int or not low <= config[key] <= high):
             raise ProtocolError('invalid bounded midgame option: ' + key)
-    if config.get('starter') not in cj.FAMILIES or config.get('packet') not in {'lavender', '5.5a'}:
+    if config.get('starter') not in cj.FAMILIES or config.get('packet') not in {'lavender', '5.5a', '5.5b'}:
         raise ProtocolError('midgame requires an original starter and explicit route packet')
     expected = 'optional' if config['starter'] == 'charmander' else 'critical'
     if config.get('content_scope') != expected or config.get('evolution_policy', 'accept') != 'accept':
@@ -55,9 +59,9 @@ def validate_scenario(scenario):
     starting = scenario['initial_save']
     if (not isinstance(starting, dict) or set(starting) not in (
             {'milestone', 'starter'}, {'milestone', 'starter', 'resume'})
-            or starting.get('milestone') != '5.4'
+            or starting.get('milestone') != ('5.5a' if groups[0]['journey']['packet'] == '5.5b' else '5.4')
             or starting.get('starter') != groups[0]['journey']['starter']):
-        raise ProtocolError('midgame must descend from accepted chain/5.4/<starter>')
+        raise ProtocolError('midgame starting milestone must match its explicit packet')
     if 'resume' in starting:
         reference = starting['resume']
         if (not isinstance(reference, dict) or set(reference) != {'path', 'sha256'}
@@ -67,6 +71,20 @@ def validate_scenario(scenario):
 
 
 def validate_chain_record(record, spec, project):
+    if spec['milestone'] == '5.5a':
+        proof = json.loads((Path(project) / 'docs/validation/midgame-a-acceptance-20261029.json').read_bytes())
+        rows = [row for row in proof.get('starters', []) if row.get('starter') == spec['starter']]
+        if (proof.get('milestone') != '5.5a' or proof.get('milestone_accepted') is not True
+                or record.get('from_milestone') != '5.5a' or record.get('origin_milestone') != '5.4'
+                or record.get('starter') != spec['starter'] or len(rows) != 1
+                or record.get('accepted_commit') != proof.get('accepted_main_code')
+                or record.get('accepted_source_sha256') != proof.get('production_source_sha256')
+                or record.get('acceptance') != 'docs/validation/midgame-a-acceptance-20261029.json'
+                or record.get('files') != rows[0].get('files')
+                or record.get('source') != rows[0].get('evidence')
+                or record.get('journey_source_sha256') != rows[0].get('source_sha256')):
+            raise ProtocolError('starting slots lack exact accepted 5.5a manifest binding')
+        return
     proof = json.loads((Path(project) / 'docs/validation/vermilion-acceptance-20261028.json').read_bytes())
     if (spec['milestone'] != '5.4' or record.get('from_milestone') != '5.4'
             or record.get('starter') != spec['starter'] or proof.get('milestone_accepted') is not True
@@ -87,6 +105,8 @@ def validate_partial_state(state):
                'rock-tunnel-flash-lavender', 'celadon-arrival', 'celadon_gym', 'hideout-scope',
                'celadon-vending-drinks', 'celadon-eevee', 'celadon-coins-prize-slot',
                'squirtle-ice-beam-preparation'}
+    if state['packet'] == '5.5b':
+        allowed = B_STEPS | B_AUXILIARY | (B_OPTIONAL if state['content_scope'] == 'optional' else set())
     if (not isinstance(steps, list) or any(not isinstance(step, str) for step in steps)
             or steps != sorted(set(steps)) or not set(steps) <= allowed):
         raise ProtocolError('invalid partial route steps')
@@ -100,11 +120,15 @@ def validate_receipt_state(state):
     steps = state['completed_steps']
     if not isinstance(steps, list) or any(not isinstance(s, str) for s in steps) or steps != sorted(set(steps)):
         raise ProtocolError('invalid completed input-step observations')
-    required = {'rock-tunnel-flash-lavender'}
+    required = B_STEPS.copy() if state['packet'] == '5.5b' else {'rock-tunnel-flash-lavender'}
+    if state['packet'] == '5.5b' and state['content_scope'] == 'optional':
+        required |= B_OPTIONAL
     if state['packet'] == '5.5a':
         required |= {'celadon_gym', 'hideout-scope'}
         if state['content_scope'] == 'optional':
             required |= {'celadon-vending-drinks', 'celadon-eevee', 'celadon-coins-prize-slot'}
+    if state['packet'] == '5.5b' and not set(steps) <= required | B_AUXILIARY:
+        raise ProtocolError('B receipt contains an unrelated or unobserved route step')
     if not required <= set(steps):
         raise ProtocolError('incomplete route cannot publish a final saved receipt')
 
@@ -119,7 +143,7 @@ class MidgameJourney(vj.VermilionJourney):
                        max_blackouts=config.get('max_blackouts', 1))
         super().__init__(client, evidence, adapted, build_evidence, capture_dir)
         self.config = copy.deepcopy(config)
-        self.summary.update(journey=copy.deepcopy(config), milestone='5.5a', acceptance='unrun candidate',
+        self.summary.update(journey=copy.deepcopy(config), milestone='5.5b' if config['packet'] == '5.5b' else '5.5a', acceptance='unrun candidate',
                             driver_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                             preparation_policy={'new_training_fights': 0, 'use_centers_and_shops': True})
         self.stage = 'cerulean'  # Existing shared source-trainer validation path.
@@ -128,13 +152,14 @@ class MidgameJourney(vj.VermilionJourney):
         self.midgame_ready = False
 
     def frame_label(self, label):
-        if label.startswith('m55a-'):
+        prefix = 'm55b-' if self.config['packet'] == '5.5b' else 'm55a-'
+        if label.startswith(prefix):
             return label
-        for prefix in ('brock-', 'parcel-', 'cerulean-', 'vermilion-'):
-            label = label.replace(prefix, '')
+        for old_prefix in ('brock-', 'parcel-', 'cerulean-', 'vermilion-'):
+            label = label.replace(old_prefix, '')
         if getattr(self, 'saving', False):
             label = 'save-' + str(self.save_number) + '-' + label
-        return 'm55a-' + self.state.get('zone_id', 'title').replace('pokered:', '').lower() + '-' + label
+        return prefix + self.state.get('zone_id', 'title').replace('pokered:', '').lower() + '-' + label
 
     def send(self, *commands):
         if commands and commands[0] == 'press b' and self.state.get('root') == 'overworld':
@@ -183,10 +208,20 @@ class MidgameJourney(vj.VermilionJourney):
 
     def start_earned(self):
         provenance = json.loads((self.build_evidence / 'starting-save.json').read_bytes())
-        if provenance.get('from_milestone') != '5.4' or provenance.get('starter') != self.starter:
-            raise ProtocolError('midgame requires imported accepted 5.4 save provenance')
+        origin = '5.5a' if self.config['packet'] == '5.5b' else '5.4'
+        if provenance.get('from_milestone') != origin or provenance.get('starter') != self.starter:
+            raise ProtocolError('midgame requires imported accepted starting-save provenance')
         self.dependencies()
         self.title_continue()
+        if self.config['packet'] == '5.5b':
+            accepted = provenance.get('accepted_boundary')
+            if not isinstance(accepted, dict):
+                raise ProtocolError('missing bound accepted A Save/Continue receipt')
+            expected = provenance.get('resume', {}).get('state', accepted['state'])
+            if self.codec_guard('loaded') != expected['codec']:
+                raise ProtocolError('accepted A Continue differs from its complete actual saved codec')
+            if self.quantity('silphScope') != 1 or not self.flag('BADGE_RAINBOW'):
+                raise ProtocolError('accepted A Scope/Erika reward unavailable')
         for flag in ('EVENT_GOT_HM01', 'EVENT_GOT_HM05', 'BADGE_THUNDER'):
             if not self.flag(flag):
                 raise ProtocolError('earned 5.4 progression missing: ' + flag)
@@ -500,10 +535,18 @@ class MidgameJourney(vj.VermilionJourney):
 
     def natural(self):
         self.start_earned()
-        phases = [self.route_lavender]
+        phases = [self.route_tower, self.route_fuchsia, self.route_bicycle] if self.config['packet'] == '5.5b' else [self.route_lavender]
+        if self.config['packet'] == '5.5b' and self.config['content_scope'] == 'optional':
+            phases.append(self.optional_b)
         if self.config['packet'] == '5.5a':
             phases.append(self.route_a)
-        for phase in phases:
+        observed_groups = {'route_tower': {'tower-fuji-flute'},
+                           'route_fuchsia': {'route12-snorlax', 'fuchsia-koga', 'safari-hm03-gold-teeth-hm04-strength-surf'},
+                           'route_bicycle': {'bicycle-cycling-road'}, 'optional_b': B_OPTIONAL}
+        for index, phase in enumerate(phases):
+            group = ('route_tower', 'route_fuchsia', 'route_bicycle', 'optional_b')[index]
+            if self.config['packet'] == '5.5b' and observed_groups[group] <= self.completed_steps:
+                continue
             for _ in range(self.config.get('max_blackouts', 1) + 1):
                 try:
                     phase()
@@ -1129,11 +1172,25 @@ class MidgameJourney(vj.VermilionJourney):
 
     def route_fuchsia(self):
         self.heal_here('LavenderPokecenter')
-        self.wake_snorlax('ROUTE_12', 1, (10, 61))
+        if 'route12-snorlax' not in self.completed_steps:
+            self.wake_snorlax('ROUTE_12', 1, (10, 61))
+            self.completed_steps.add('route12-snorlax')
         for name in ('Route13', 'Route14', 'Route15'):
             self.travel(self.zone(name))
         self.heal_here('FuchsiaPokecenter')
         self.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06', 'FuchsiaPokecenter', 'FuchsiaMart')
+        self.completed_steps.add('fuchsia-koga')
+        # No Safari menu/resources observation exists in the current production
+        # integration. Fail before admission rather than treating ordinary battles
+        # or a route walk as proof of Safari mode, steps and balls.
+        self.safari_journey()
+
+    def safari_journey(self):
+        raise ProtocolError('5.5b Safari requires owner integration and read-only battle/steps/balls observations; see integration-55b.md')
+
+    def prepared_safari_route(self):
+        # Geometry retained for owner integration. This is never called until
+        # real Safari battle/resource observation is available and reviewed.
         gate = cj.sid('SAFARI_ZONE_GATE', 1)
         self.require_event(gate)
         self.event_choices = {gate: 'YES'}
@@ -1191,6 +1248,32 @@ class MidgameJourney(vj.VermilionJourney):
             raise ProtocolError('actual Surf landing did not return to walking')
         self.completed_steps.add('safari-hm03-gold-teeth-hm04-strength-surf')
         self.save()
+
+    def route_bicycle(self):
+        # Both critical starters must earn the Bicycle and traverse Cycling Road.
+        if self.quantity('bicycle') == 0:
+            if self.quantity('bikeVoucher') == 0:
+                self.event_offer(cj.sid('POKEMON_FAN_CLUB', 5))
+            self.event_offer(cj.sid('BIKE_SHOP', 1))
+        if self.quantity('bicycle') != 1:
+            raise ProtocolError('actual Bike Voucher exchange did not give Bicycle')
+        self.wake_snorlax('ROUTE_16', 7, (27, 10))
+        self.use_item('bicycle')
+        if self.observe('midgame-state')['fieldTravel']['mode'] != 'bicycle':
+            raise ProtocolError('actual Bicycle field service unavailable')
+        for name in ('Route17', 'Route18', 'FuchsiaCity'):
+            self.travel(self.zone(name))
+        self.completed_steps.add('bicycle-cycling-road')
+        self.heal_here('FuchsiaPokecenter')
+        self.save()
+
+    def optional_b(self):
+        # Keep Dojo, Saffron and Fly out of the B packet.
+        for constant in ('FUCHSIA_GOOD_ROD_HOUSE', 'ROUTE_12_SUPER_ROD_HOUSE'):
+            self.event_offer(cj.sid(constant, 1))
+        if self.quantity('goodRod') < 1 or self.quantity('superRod') < 1:
+            raise ProtocolError('actual rod rewards unavailable')
+        raise ProtocolError('5.5b fishing requires read-only actual cast/result observation; see integration-55b.md')
 
     def advance_travel(self):
         observed = self.observe('midgame-state')

@@ -681,6 +681,106 @@ def load_helpers():
             MidgameJourney = module.MidgameJourney
 
 
+def checkpoint_b_preflight(plan):
+    """Audit every declared B waypoint and owner dependency against this checkout.
+
+    Prepared geometry is reported separately; it never grants live capabilities.
+    Missing maps/events do not stop later independent checks.
+    """
+    from tools.harness import restarting
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('current_midgame_preflight', ROOT / 'tools/harness/midgame_journey.py')
+    current_driver = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(current_driver)
+    section = plan['5.5b']
+    checks = []
+
+    def check(name, category, action):
+        try:
+            detail = action()
+            checks.append(dict(name=name, category=category, status='pass', detail=detail))
+        except (OSError, ValueError, KeyError, StopIteration, ProtocolError,
+                subprocess.CalledProcessError) as error:
+            checks.append(dict(name=name, category=category, status='blocked', error=str(error)))
+
+    # No copied saves or acquired runtime locks: verify accepted originals read-only.
+    manifest = json.loads((ROOT / 'docs/validation/chain-saves.json').read_bytes())
+    for starter in ('bulbasaur', 'squirtle', 'charmander'):
+        def accepted(starter=starter):
+            validate_chain_record = current_driver.validate_chain_record
+            rows = [r for r in manifest['saves'] if r['from_milestone'] == '5.5a' and r['starter'] == starter]
+            if len(rows) != 1:
+                raise ProtocolError('expected exactly one accepted A save')
+            row = rows[0]
+            validate_chain_record(row, dict(milestone='5.5a', starter=starter), ROOT)
+            boundary = restarting.accepted_midgame_boundary(row, ROOT)
+            for item in row['files']:
+                path = Path(row['directory']) / item['file']
+                if path.is_symlink() or sha(path.read_bytes()) != item['sha256']:
+                    raise ProtocolError('accepted A chain slot changed')
+            return dict(acceptance_sha256=boundary['acceptance_sha256'], files=row['files'],
+                        continue_codec='requires real input equality before first travel')
+        check('accepted A ' + starter, 'import', accepted)
+
+    with tempfile.TemporaryDirectory(prefix='midgame-b-current-') as directory:
+        audit = Audit('HEAD', 'current-5.5b', directory)
+        audit.load()
+        for name in section['maps']:
+            check('map ' + name, 'activation', lambda name=name: audit.model(name).name)
+        for route in section['chains']:
+            check(route['name'], 'chain', lambda route=route: audit.chain(route))
+        for leg in section['segments']:
+            def segment(leg=leg):
+                model = audit.model(leg['map'])
+                audit.path(leg['name'], model, audit.point(model, leg['start']), audit.point(model, leg['goal']),
+                           requires=leg.get('requires'))
+            check(leg['name'], 'waypoint', segment)
+        check('Safari fixed input steps', 'fixed-script',
+              lambda: audit.fixed('safari-fixed-routes.json'))
+        events = {'PokemonTower2F': [1], 'PokemonTower7F': [1, 2, 3, 4],
+                  'MrFujisHouse': [5], 'Route12': [1], 'Route16': [7],
+                  'FuchsiaGym': [1], 'SafariZoneGate': [1], 'SafariZoneWest': [4],
+                  'SafariZoneSecretHouse': [1], 'WardensHouse': [1, 2, 3],
+                  'FuchsiaGoodRodHouse': [1], 'Route12SuperRodHouse': [1],
+                  'BikeShop': [1], 'PokemonFanClub': [5]}
+        for name, indices in events.items():
+            for index in indices:
+                def event(name=name, index=index):
+                    model = audit.model(name)
+                    actor = next(e for e in model.events['objects'] if e['source_index'] == index)
+                    goals = list(model.approaches((actor['x'], actor['y'])))
+                    if not goals:
+                        raise ProtocolError('source interaction has no land approach')
+                    return dict(id=actor['id'], approaches=goals,
+                                condition='registration and live occupancy require real runtime')
+                check(name + '/object/' + str(index), 'event-approach', event)
+        for row in audit.rows:
+            if row['status'] in {'gap', 'unreachable'}:
+                checks.append(dict(name=row['name'], category='geometry', status='blocked', detail=row))
+        geometry = audit.rows
+
+    main_source = (ROOT / 'Source/main.lua').read_text()
+    # Known existing production contracts, never invented setter/observation APIs.
+    for module in ('game/towerStory', 'game/snorlaxStory', 'game/fieldTravelRuntime', 'game/fieldTravelState'):
+        def installed(module=module):
+            if not re.search(r'import\s+"' + re.escape(module) + '"', main_source):
+                raise ProtocolError('production import not installed: ' + module)
+            return 'import present; native lifecycle unverified'
+        check(module, 'owner-integration', installed)
+    # These are explicit unresolved observation seams, not imaginary API names.
+    for name, reason in (
+            ('Safari admission/resources', 'No detached Safari steps/balls/ending observation in midgame-state.'),
+            ('Safari battle input', 'No production Safari battle state/menu or capture-policy integration exposed to this driver.'),
+            ('Fishing outcome', 'No detached fieldGear cast/result observation in midgame-state; generic drain cannot certify a cast.'),
+            ('Surf/Strength execution', 'Prepared terrain and actor geometry do not prove installed field controller, two-attempt push, water move or landing.'),
+            ('Bicycle forced movement', 'Ordinary one-tile walking planner is unqualified for production Cycling Road forced movement.')):
+        checks.append(dict(name=name, category='observation-or-runtime-gap', status='blocked', error=reason))
+    return dict(kind='all declared B waypoints and owner gaps; host only',
+                driver_sha256=sha((ROOT / 'tools/harness/midgame_journey.py').read_bytes()),
+                source_commit=git('rev-parse', 'HEAD').decode().strip(), checks=checks,
+                geometry_checks=geometry, blockers=[r for r in checks if r['status'] == 'blocked'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True, help='one JSON report outside Git')
@@ -838,6 +938,8 @@ def main():
                                         inactive_5_5b=[r for r in report['findings'] if r['scope'] == 'inactive-prepared-5.5b'],
                                         inactive_driver_sites=[dict(method=r['method'], line=r['line'], call=r['call']) for r in report['driver_calls'] if r['status'] == 'inactive'],
                                         unsupported_modes=report['unsupported_modes'], evidence_errors=report['evidence_errors'])
+    report['checkpoint_5_5b'] = checkpoint_b_preflight(plan)
+    report['remaining_blockers']['current_5_5b'] = report['checkpoint_5_5b']['blockers']
     report['check_count'] = sum(len(a['checks']) for a in report['audits'])
     report['uncheckable_call_count'] = len(report['uncheckable_driver_calls'])
     report['current_5_5a_geometry_blockers'] = [r for r in report['findings'] if r['scope'] == 'current-5.5a'] + report['uncheckable_driver_calls']
@@ -854,10 +956,11 @@ def main():
                           driver_call_counts=report['driver_call_counts'],
                           current_5_5a_geometry_blockers=len(report['current_5_5a_geometry_blockers']),
                           remaining_findings=[dict(scope=r['scope'], name=r['name'], status=r['status']) for r in report['findings']],
+                          current_5_5b_blockers=len(report['checkpoint_5_5b']['blockers']),
                           inactive_geometry_calls=sum(r['status'] == 'inactive' for r in report['driver_calls']),
                           unsupported_modes=report['unsupported_modes'],
                           evidence_errors=report['evidence_errors'])))
-    return 1 if report['findings'] or report['uncheckable_driver_calls'] or report['evidence_errors'] else 0
+    return 1 if report['checkpoint_5_5b']['blockers'] or report['findings'] or report['uncheckable_driver_calls'] or report['evidence_errors'] else 0
 
 
 if __name__ == '__main__':
