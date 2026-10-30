@@ -1,12 +1,13 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "50eb867b3d2fcb4cc17fd347d37a61f16152eb1c",
-    "source_sha256": "24efa94f7cfe564057c8b491e96bc31f862d5646545f7d5204254f8918f860d9",
+    "commit": "490d3c4238dd4549d4568f6917e8fccb810052f6",
+    "source_sha256": "3dea758787ca1264e93296d6c8fe2abff9a5e949a01328b9da412e1873746c76",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Private 108-map checkpoint A merge candidate; main has 65 Simulator-route maps and no device-playable milestone. No acceptance promotion.",
-    "acceptance_context": "private-5.5a-preparation-hardware-pending"
+    "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
+    "acceptance_context": "private-5.5b-unaccepted",
+    "review": "Reviewed 41 added map records, unchanged old data/pins, dormant trade descriptors and scoped Chip Away proof. B map facets are partial/source-only; historical evidence and accepted_milestone_rows stay unchanged. No checkpoint completion promotion."
   },
   "accepted_milestone_rows": [],
   "schedule": {
@@ -241,6 +242,11 @@
       "sha256": "eef11d66075faf643a7df945b6905054add55f78e61140e695a413ada79225e7",
       "kind": "source",
       "scope": "Current private 5.4 declarations only. No full-mechanics or native acceptance."
+    },
+    "private-b-inventory": {
+      "path": "docs/validation/midgame-b-implementation-20261030.json",
+      "sha256": "84887200571152dba115f02208927d4f4b5f88724b9b6903c1923cb7f9a800c8",
+      "kind": "private_verified"
     }
   },
   "source_inventory_summary": {
@@ -715,20 +721,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1625,20 +1633,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1681,20 +1691,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1737,20 +1749,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1793,20 +1807,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1849,20 +1865,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1905,20 +1923,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -1961,20 +1981,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -5303,20 +5325,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8388,20 +8412,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8444,20 +8470,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8500,20 +8528,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8556,20 +8586,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8612,20 +8644,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8668,20 +8702,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8724,20 +8760,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -8948,20 +8986,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9004,20 +9044,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9060,20 +9102,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9116,20 +9160,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9172,20 +9218,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9228,20 +9276,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9284,20 +9334,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -9620,20 +9672,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -10740,20 +10794,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -10796,20 +10852,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -10852,20 +10910,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -10908,20 +10968,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -11020,20 +11082,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -11076,20 +11140,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -11132,20 +11198,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -11361,20 +11429,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12593,20 +12663,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12649,20 +12721,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12705,20 +12779,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12761,20 +12837,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12817,20 +12895,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12873,20 +12953,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12929,20 +13011,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -12985,20 +13069,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -13041,20 +13127,22 @@
         }
       },
       "campaign_path": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "regional_fidelity": {
-        "implementation": "indexed",
+        "implementation": "partial",
         "verification": "source_only",
         "evidence": [
-          "kanto-inventory"
+          "kanto-inventory",
+          "private-b-inventory"
         ],
-        "notes": "Source indexed; behavior/reachability unreviewed."
+        "notes": "Source-derived content installed privately. Natural B journeys and common-build restart/visual/device acceptance remain incomplete."
       },
       "full_mechanics": {
         "implementation": "indexed",
@@ -18061,13 +18149,13 @@
         "notes": "Move mechanics are separate from regional art/content fidelity."
       },
       "full_mechanics": {
-        "implementation": "partial",
-        "verification": "source_only",
+        "implementation": "integrated",
+        "verification": "sdk_scoped",
         "evidence": [
-          "exposure-current",
+          "private-b-inventory",
           "production-moves"
         ],
-        "notes": "Current70damage does not ignore target Defense/evasion stages. Requires pure declared stage-bypass queries, preserve source own accuracy/stats/crit/weather/abilities."
+        "notes": "Gen V ignores both signs of target defensive/evasion stages, retaining attacker stages and normal hit gates. Named Chip Away/source Snorlax native cases passed; scope is recorded in private implementation proof."
       },
       "notes": "",
       "capabilities": []

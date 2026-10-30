@@ -1,30 +1,20 @@
 # Current whole-game coverage
 
-Main has **65/222 maps verified by Simulator journeys**, through Vermilion,
-Surge, Cut and Flash. [Milestone 5.4](vermilion-acceptance-20261028.json) remains
-a Simulator acceptance. **0/222 maps have milestone hardware-playability acceptance.**
-The physical smoke boots, loads Continue, saves, traverses doors, uses Cut and
-starts a wild battle; cold map loading and user play remain open gates.
+This private B matrix identifies 149 installed source maps. Accepted main remains
+108/222 Simulator checkpoint maps through 5.5a, and 0/222 device-playable maps.
+The full campaign remains unfinished.
 
-This matrix identifies private **108-map checkpoint 5.5a preparation** at
-`2984348eaa31c348cf6d061f8081868a93f58a51` with Source SHA256
-`8b586a72d6415239efa68f6109579380bcad82cd93e1ab2c1b0a5dad8f45ca94`. It does not accept those maps or relabel old test results.
-The active 108-map manifest consists of the accepted 65 plus 43 East maps.
-Three earned-save journeys are being run; no completed 5.5a result is claimed.
+The 41 B map rows are partial/source-only. The named Chip Away and Snorlax SDK
+proofs qualify only their recorded behavior, not campaign completion. Existing
+row proofs and historical declarations retain their original scopes; no row
+is promoted to accepted_milestone.
 
-All **1,512 rows** remain: the original 1,501 plus 11 explicit partial/source rows.
-Campaign path, regional fidelity and full mechanics remain separate. Every
-row's evidence, old source hash, historical declaration and acceptance facet is
-unchanged by this inventory refresh. Narrow SDK proofs keep their original
-scope; changed shared code does not silently renew them.
+All 1,512 rows remain: 248 map slots (222 ordinary named maps plus aliases and
+unused slots), 430 moves including five runtime field moves, 131 items and
+375 audio source files. Inventory membership is not acceptance. Campaign path,
+regional fidelity and full mechanics stay separate.
 
-The matrix indexes 248 map slots (222 ordinary named slots plus aliases and
-unused entries), 430 moves including five runtime field moves, 131 items
-including six Pickup additions, and 375 audio source files. These are inventory
-counts, not implementation or acceptance counts.
-
-Actual saves stay outside Git. [Chain hashes](chain-saves.json) retain accepted
-starter provenance. The [ledger](progress.md) records current results and
-blockers. [The earlier Cerulean report](coverage-history-cerulean1659.md) remains
-historical. Hardware, audio, the rest of Kanto and the complete campaign remain
-unfinished.
+Three earned-save B journeys and actual two-process restarts, final common-build
+checks, native visual inspection and checkpoint hardware verification remain
+required. See the implementation proof, coverage JSON and progress ledger for
+their distinct scopes. Actual earned saves stay outside Git.

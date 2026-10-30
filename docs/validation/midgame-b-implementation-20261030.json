@@ -1,0 +1,75 @@
+{
+  "status": "private implementation; not checkpoint acceptance",
+  "milestone_accepted": false,
+  "active_map_count": 149,
+  "accepted_main_map_count": 108,
+  "added_map_ids": [
+    "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE",
+    "pokered:FUCHSIA_CITY",
+    "pokered:FUCHSIA_GOOD_ROD_HOUSE",
+    "pokered:FUCHSIA_GYM",
+    "pokered:FUCHSIA_MART",
+    "pokered:FUCHSIA_MEETING_ROOM",
+    "pokered:FUCHSIA_POKECENTER",
+    "pokered:POKEMON_TOWER_1F",
+    "pokered:POKEMON_TOWER_2F",
+    "pokered:POKEMON_TOWER_3F",
+    "pokered:POKEMON_TOWER_4F",
+    "pokered:POKEMON_TOWER_5F",
+    "pokered:POKEMON_TOWER_6F",
+    "pokered:POKEMON_TOWER_7F",
+    "pokered:ROUTE_12",
+    "pokered:ROUTE_12_GATE_1F",
+    "pokered:ROUTE_12_GATE_2F",
+    "pokered:ROUTE_12_SUPER_ROD_HOUSE",
+    "pokered:ROUTE_13",
+    "pokered:ROUTE_14",
+    "pokered:ROUTE_15",
+    "pokered:ROUTE_15_GATE_1F",
+    "pokered:ROUTE_15_GATE_2F",
+    "pokered:ROUTE_16",
+    "pokered:ROUTE_16_GATE_1F",
+    "pokered:ROUTE_16_GATE_2F",
+    "pokered:ROUTE_17",
+    "pokered:ROUTE_18",
+    "pokered:ROUTE_18_GATE_1F",
+    "pokered:ROUTE_18_GATE_2F",
+    "pokered:SAFARI_ZONE_CENTER",
+    "pokered:SAFARI_ZONE_CENTER_REST_HOUSE",
+    "pokered:SAFARI_ZONE_EAST",
+    "pokered:SAFARI_ZONE_EAST_REST_HOUSE",
+    "pokered:SAFARI_ZONE_GATE",
+    "pokered:SAFARI_ZONE_NORTH",
+    "pokered:SAFARI_ZONE_NORTH_REST_HOUSE",
+    "pokered:SAFARI_ZONE_SECRET_HOUSE",
+    "pokered:SAFARI_ZONE_WEST",
+    "pokered:SAFARI_ZONE_WEST_REST_HOUSE",
+    "pokered:WARDENS_HOUSE"
+  ],
+  "manifest_sha256": "c06d750e9050e79993da2ad991b226d576c83999c227a5cf39713de164debc42",
+  "rules": {
+    "chipAway": {
+      "native_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-chip-away-native-20261030-02/startup-probe.json",
+      "native_report_sha256": "2f6b9f5f3112e1f8c3f6dc5d1c63b0d771893a6d8600141288aee811d9b7beaf",
+      "scope": "Only the named existing Chip Away and source Snorlax SDK cases, not full engine/campaign acceptance",
+      "unchanged_production_files": {
+        "battle/battle.lua": "4e7029aa6f1d6d95f78bd50489f6b3eadb8309bf7cb71e39f287604b9e786756",
+        "battle/moves.lua": "25db3872f19b7315cab8b57ed2a48e73c9bf921eec490941d71b940b89412331"
+      },
+      "source_snorlax_report": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-13/startup-probe.json",
+        "sha256": "1dd95b8544dcf5047974d69960d249613bcaa479fd3dbcae87f16e49982a9e93",
+        "case": "source Snorlax: genuine capture, victory, escape, defeat, capacity and cancellation"
+      }
+    }
+  },
+  "host_verification": {
+    "tests": 1036,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-full-host-integrated-20261030-02.log",
+    "sha256": "041100ac7f6ede871cad65ff22485a820be44608b1c6fd62d15aa200b24811ec",
+    "scope": "Every host test discovered on this B branch. Worker1051 included additional main-only housekeeping tests; no game or device acceptance inferred."
+  }
+}
