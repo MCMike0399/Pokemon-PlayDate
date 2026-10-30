@@ -15,7 +15,7 @@ All passed actual process exit/Continue. These are Simulator results.
 **Hardware now boots and loads the earned save; playability is not accepted yet.**
 The full hardware smoke passed, but map loads still exceed the revised target.
 
-Current P0 game change on main: `152470a0`. Imported maps use two cache slots.
+Current P0 game change on main: `c2a3c036`. Imported maps use two cache slots.
 Startup work yields; map cells use validated packed rows. Field data/art prepares
 at map entry. Encounter policy reads retain every commit guard without repeated
 slot copying. Original source grids, world/story/rules and protected pixels remain.
@@ -106,7 +106,9 @@ Inactive 5.5b keeps two unreachable points and six explicit field/actor gaps.
 Save parsing reuse is on main (`7291113e`), with dynamic validators preserved.
 Review caught an optional-cache alias; the extended existing SDK case failed,
 then passed after the fix. All 17 persistence cases pass on main. Production
-inspect reuse remains disabled without a stable validation epoch; Save still exceeds 2 s.
+inspect reuse remains disabled without a stable epoch; Save still exceeds 2 s.
+[Removing temporary Inventory owners](device-save-inventory-candidate-20261029.json)
+passes review and 64 SDK cases. Its paired hardware builds are ready, unmeasured.
 
 Static loading is on main (`ad037673`): five native presentation cases pass
 privately and on main. Its device cycle reduced boot/title 18.447→15.681 s,

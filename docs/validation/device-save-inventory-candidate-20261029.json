@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "scope": "paired measurement prepared; not executed on hardware",
+  "baseline_build": "858c26798ab54a0eb40955b11948632b",
+  "candidate_build": "a6729a38cd8747cca29eca6b84c5b7d6",
+  "baseline_production_source_sha256": "6f802affd5725c2f4ce71d829891c5c558fd92c6b9cff4ce5454daee4e73b81f",
+  "candidate_production_source_sha256": "e53c0ae0d443c805ceb5ad243f59960942ca5454ad81379245129dfe0f509e9e",
+  "changed_production_files": [
+    "domain/gameSession.lua",
+    "domain/inventory.lua",
+    "domain/sessionCodec.lua"
+  ],
+  "all_other_source_files_identical": true,
+  "native_cases": 64,
+  "device_gains_measured": false,
+  "review": "No concrete findings in one static performance review",
+  "sdk_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-inventory-native-sdk-20261029-02/startup-probe.json",
+  "candidate_revision": "6f8f53ad"
+}
