@@ -1116,6 +1116,8 @@ class MidgameJourney(vj.VermilionJourney):
             if floor == 2:
                 self.require_event(cj.sid('POKEMON_TOWER_2F', 1))
                 self.fight(cj.sid('POKEMON_TOWER_2F', 1))
+        # The original Rare Candy occupies the only live route to the ghost.
+        self.pickup(cj.sid('POKEMON_TOWER_6F', 4), 'rareCandy')
         self.scripted_wild = dict(species=scenes['ghost']['species'], level=scenes['ghost']['level'])
         self.source_waypoint(10, 15)
         # The trigger is walkable; face() requires a blocked, stationary press.

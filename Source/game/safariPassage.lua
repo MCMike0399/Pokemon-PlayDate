@@ -274,10 +274,16 @@ function SafariPassage.cancel(token)
             WorldView.exchangePrepared(request.previous.view)
         end
         stage.zone:detachView(stage.view)
-        if stage.view then pcall(stage.view.dispose, stage.view) end
-        if stage.manager then pcall(stage.manager.clear, stage.manager) end
+        if stage.view then
+            pcall(stage.view.dispose, stage.view)
+        end
+        if stage.manager then
+            pcall(stage.manager.clear, stage.manager)
+        end
         for _, sprite in ipairs(gfx.sprite.getAllSprites()) do
-            if not request.sprites[sprite] then pcall(sprite.remove, sprite) end
+            if not request.sprites[sprite] then
+                pcall(sprite.remove, sprite)
+            end
         end
         game.player, game.npcManager, currentZone = request.originalPlayer, request.originalManager, request.originalZone
         local owner = game.machine:get("overworld")
@@ -285,8 +291,12 @@ function SafariPassage.cancel(token)
         owner.presentationVisit, owner.builtView = request.previous.visit, request.previous.builtView
         game.camera.x, game.camera.y = request.previous.cameraX, request.previous.cameraY
     end
-    if request.undoWorld then request.undoWorld() end
-    if request.undoRuntime then request.undoRuntime() end
+    if request.undoWorld then
+        request.undoWorld()
+    end
+    if request.undoRuntime then
+        request.undoRuntime()
+    end
     if request.previous and not request.previous.view.disposed then
         request.originalZone:attachView(request.previous.view)
     end

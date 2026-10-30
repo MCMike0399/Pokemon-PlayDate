@@ -482,7 +482,10 @@ function Player:updateFieldStep()
     local fraction = math.min(1, self.moveFrames / MOVE_FRAMES)
     local rendered, problem = pcall(function()
         local frames = self.walkToggle and playerWalk1Images or playerWalk2Images
-        self:setImage(self.moveFrames <= MOVE_FRAMES // 2 and frames[self.facing] or playerImages[self.facing])
+        local walking = self.moveFrames <= MOVE_FRAMES // 2
+        local pose = walking and (self.walkToggle and "walk" or "alternate") or "stand"
+        local image = walking and frames[self.facing] or playerImages[self.facing]
+        self:setImage(self:movementImage(image, pose))
         self:moveTo(self.startPixelX + (self.targetPixelX - self.startPixelX) * fraction,
             self.startPixelY + (self.targetPixelY - self.startPixelY) * fraction)
         self.grassOverlay:setVisible(false)

@@ -735,6 +735,27 @@ def checkpoint_b_preflight(plan):
                 audit.path(leg['name'], model, audit.point(model, leg['start']), audit.point(model, leg['goal']),
                            requires=leg.get('requires'))
             check(leg['name'], 'waypoint', segment)
+        def tower_item_route():
+            model = audit.model('PokemonTower6F')
+            origin = audit.point(model, (18, 9))
+            goal = audit.point(model, (10, 15))
+            candy = next(row for row in model.events['objects'] if row['source_index'] == 4)
+            if candy['kind'] != 'item' or candy.get('extra') != ['RARE_CANDY']:
+                raise ProtocolError('Tower corridor pickup differs from pinned Rare Candy')
+            occupied = {(row['x'], row['y']) for row in model.events['objects']}
+            try:
+                model.path(origin, {goal}, occupied)
+            except ProtocolError:
+                pass
+            else:
+                raise ProtocolError('Tower live-occupancy regression vector no longer blocks before pickup')
+            point = (candy['x'], candy['y'])
+            approach = model.path(origin, set(model.approaches(point)), occupied)
+            final = approach[-1].destination if approach else origin
+            after = model.path(final, {goal}, occupied-{point})
+            return dict(item=candy['id'], approach_steps=len(approach), after_pickup_steps=len(after),
+                        condition='Driver must earn the actual pickup/removal; this host projection grants nothing.')
+        check('Tower 6F actual corridor pickup', 'event-approach', tower_item_route)
         check('Safari fixed input steps', 'fixed-script',
               lambda: audit.fixed('safari-fixed-routes.json'))
         events = {'PokemonTower2F': [1], 'PokemonTower7F': [1, 2, 3, 4],
