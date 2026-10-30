@@ -63,6 +63,46 @@ function SnorlaxStory.arm(game)
     end
     return SourceEvents.dispatch(game, id)
 end
+local fluteTexts
+function SnorlaxStory.fluteText(label)
+    if not fluteTexts then
+        local data <const> = assert(json.decodeFile("data/towerStory/texts.json"))
+        assert(data.schema == 1 and data.source_revision == "af519899719f0754965776faac0e836a3b906e6d",
+            "unverified flute source text")
+        fluteTexts = data.texts
+    end
+    local record <const> = fluteTexts[label]
+    return record and copy(record) or nil
+end
+function SnorlaxStory.useFlute(bag)
+    local game <const> = bag.game
+    local machine <const> = game.machine
+    local world <const> = machine:get("overworld")
+    local player <const> = game.player
+    if not bag:fieldBag() or machine._transitioning or machine:depth() ~= 2
+        or machine.stack[1] ~= world or not world or not world.sub
+        or world.sub:getCurrent() ~= "explore" or not player or player.isMoving
+        or player.isJumping or player.stepJustFinished or player.pendingEdgeDoor or player.pendingConnection
+        or game.session:getIntro().stage ~= "done" then
+        return false, "field-only"
+    end
+    local id, reason = SnorlaxStory.fluteTarget(game.session, currentZone.stableID, player.gridX, player.gridY)
+    if not id and reason ~= "no-snorlax-in-source-range" then
+        return false, reason
+    end
+    local lines = {}
+    if not id then
+        for _, page in ipairs(EventText.pagesFrom({"_PlayedFluteNoEffectText"}, SnorlaxStory.fluteText)) do
+            lines[#lines + 1] = page.text
+        end
+    end
+    machine:pop()
+    if id then
+        return SnorlaxStory.arm(game)
+    end
+    machine:push("dialog", lines)
+    return true
+end
 function SnorlaxStory.request(session, id)
     local definition <const> = assert(SnorlaxStory.definition(id))
     if not session:questFlag(definition.fight_flag) or session:questFlag(definition.defeated_flag)

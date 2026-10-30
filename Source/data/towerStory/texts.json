@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_PlayedFluteNoEffectText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 95,
+          "text": "Played the #"
+        },
+        {
+          "op": "line",
+          "source_line": 96,
+          "text": "FLUTE."
+        },
+        {
+          "op": "para",
+          "source_line": 98,
+          "text": "Now, that's a"
+        },
+        {
+          "op": "line",
+          "source_line": 99,
+          "text": "catchy tune!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 100
+        }
+      ],
+      "source": "data/text/text_6.asm"
+    }
+  }
+}
