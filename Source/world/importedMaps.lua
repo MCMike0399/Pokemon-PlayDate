@@ -80,7 +80,8 @@ function ImportedMaps:init(data,factory)
     if not shared then
         definitions = copy(data)
     end
-    local qualified = shared and ShippedDataPolicy and ShippedDataPolicy.maps()
+    local qualified = shared and SourceMaps._isQualifiedCompact
+        and SourceMaps._isQualifiedCompact(data)
     local store={data=definitions,factory=factory,byID={},byKey={},base={},ledger={},cache={},order={},pins={},count=0}
     -- Explicit constructor fixtures may reserve identities. The shipping source
     -- provider reserves none: every imported map uses the two disposable slots.
