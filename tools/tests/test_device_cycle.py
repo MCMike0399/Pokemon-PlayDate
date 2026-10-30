@@ -15,6 +15,14 @@ from tools.harness.protocol import ProtocolError
 
 
 class HostCycle(device.Cycle):
+    def execute(self):
+        from tools.device.soak import lifecycle
+        # Filesystem-only cycles share their fixture's temporary ownership state,
+        # never the reservation of a real unattended hardware run.
+        reservation = self.output.parent / 'host-soak-reservation.json'
+        with patch.object(lifecycle, 'reservation_path', return_value=reservation):
+            return super().execute()
+
     def select_serial(self):
         self.serial = '/host-fixture-only'
         return True
