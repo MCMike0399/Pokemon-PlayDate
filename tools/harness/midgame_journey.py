@@ -1653,7 +1653,7 @@ class MidgameJourney(vj.VermilionJourney):
         if self.observe('midgame-state')['fieldTravel']['mode'] != 'bicycle':
             raise ProtocolError('actual Bicycle field service unavailable')
         self.cycling_brake = True
-        self.send('hold b', 'wait 12')
+        self.send('wait 1', 'hold b', 'wait 12')
         try:
             self.travel(self.zone('Route17'))
             before = dict(zone=self.state['zone_id'], position=self.position(),
