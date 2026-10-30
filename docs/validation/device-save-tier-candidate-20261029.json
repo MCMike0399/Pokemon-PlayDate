@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "status": "isolated candidate; hardware gain unmeasured",
+  "commit": "c122eec363ce2dd186c01d9cbd9246f9f3cfc94d",
+  "deep_sdk_cases": 95,
+  "failed": 0,
+  "production_profile_proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-tier-production-safety-20261029-01/simulator-smoke.json",
+  "proof_sha256": "5a57d8338b2870afbbf6bd1101b1b944851e2009fa012455aad8fe9d320b0012",
+  "sampled_peak_bytes": 6416955.392,
+  "maximum_slice_ms": 45.634,
+  "baseline_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-memory-timers-game-build-20261029-01",
+  "candidate_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-tier-production-build-20261029-01",
+  "scope": "65-map paired Save measurement; only codec/store/saves and explicit build policy differ",
+  "review_policy": "Measure hardware first; review only if Save gain >=10%"
+}

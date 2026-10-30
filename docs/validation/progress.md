@@ -101,7 +101,10 @@ Next checkpoints: 5.5b Tower/Fuji/Flute/Snorlax/Fuchsia/Safari/Koga/Surf/Strengt
 5.5c Saffron/Silph/Sabrina/Dojo/Fly. Each has three earned saves on main and one
 optional starter. Workers may prepare 5.5b host repairs: two unreachable points
 and six explicit field/actor gaps. Root owns Simulator/device time.
-Current preflight: 1,566 checks, no unexplained 5.5a geometry blocker.
+Prepared 5.5b host preflight now passes 1,569 checks with zero geometry findings.
+Its field/actor results remain conditional static projections, not runtime acceptance.
+[Save-tier candidate](device-save-tier-candidate-20261029.json): 95 native cases
+and the production-profile safety route pass; hardware measurement remains next.
 
 ## Storage and housekeeping
 
