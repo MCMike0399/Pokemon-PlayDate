@@ -1,0 +1,92 @@
+{
+  "scope": "Paired on-demand shipped-record implementations at 108 and 149 maps; isolated candidates, not acceptance.",
+  "rows": [
+    {
+      "maps": 108,
+      "build_id": "8e912161a8ce44bd85cd1005c4e143ad",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-region-declarations-108-hardware-20261030-01/device-smoke.json",
+      "sha256": "ab28dfc0892243c013faafed60c050d7e1876eeef44dcd359d4c1b49a7081a8e",
+      "phase_ms": {
+        "Continue": 3224.0,
+        "Save": 1526.0,
+        "battle": 18.0,
+        "boot_slice": 1207.0,
+        "boot_title": 12340.0,
+        "cave_walking_p95": 97.93000000000757,
+        "door": 2957.0,
+        "title_artwork": 2523.0
+      },
+      "startup_spans_ms": {
+        "CeruleanContent.registerPackage": 109.0,
+        "KantoWorld.install": 1142.0,
+        "PewterWorld.install": 5.0,
+        "KantoScenes.install": 1119.0,
+        "Daycare.install": 738.0,
+        "title.prepare": 4232.0
+      },
+      "live_mib": 4.1263828125,
+      "peak_mib": 5.3735068359375,
+      "last_phase": {
+        "clock_ms": 71104.0,
+        "heap_kib": 4462.258,
+        "peak_kib": 5502.471,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 510.0,
+        "since_yield_ms": 542.0
+      },
+      "new_error_or_crash_logs": false
+    },
+    {
+      "maps": 149,
+      "build_id": "09f16f95a81f4d6b813484717c4b93c4",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-region-declarations-149-hardware-20261030-01/device-smoke.json",
+      "sha256": "60c96903e6f0712addaa6c233f44e990ca5f411bcbc2717642f5a64e9639e505",
+      "phase_ms": {
+        "Continue": 3295.0,
+        "Save": 1600.0,
+        "battle": 19.0,
+        "boot_slice": 1448.43,
+        "boot_title": 13687.0,
+        "cave_walking_p95": 102.82800000000861,
+        "door": 2960.0,
+        "title_artwork": 2571.0
+      },
+      "startup_spans_ms": {
+        "CeruleanContent.registerPackage": 171.0,
+        "KantoWorld.install": 1555.0,
+        "PewterWorld.install": 4.0,
+        "KantoScenes.install": 1172.0,
+        "Daycare.install": 1293.0,
+        "title.prepare": 4201.0
+      },
+      "live_mib": 4.5735205078125,
+      "peak_mib": 5.8685537109375,
+      "last_phase": {
+        "clock_ms": 73593.0,
+        "heap_kib": 4919.052,
+        "peak_kib": 6009.399,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 555.0,
+        "since_yield_ms": 590.0
+      },
+      "new_error_or_crash_logs": false
+    }
+  ],
+  "port_commit": "d11e670e",
+  "host_checks": 8,
+  "export_events": 68,
+  "export_trainers": 60,
+  "safety": {
+    "slice_ms": 65.066,
+    "peak_mib": 7.053580078125,
+    "admission": "Safety-only preflight passed; historical estimated-time failures retained."
+  },
+  "limitations": [
+    "Separate snapshots retain checkpoint-specific owners and content; not a controlled count-only mutation.",
+    "Historical Daycare.install spans include subsequent Hideout/MidgameServices/Celadon/warp installs.",
+    "Measured active elapsed includes nested work, GC and instrumentation; not pure CPU.",
+    "These are three sampled doors, not the required worst-door census.",
+    "Complete first-entry region activation and physical long traversal remain open."
+  ],
+  "decision": "Boot improves across both counts but remains above 10 seconds. Main unchanged. Reviews remain pending; audio held."
+}
