@@ -333,6 +333,15 @@
     "gate_native_check": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-cycling-gate-supplementary-20261030-03/result.json",
     "gate_scope": "Supplementary fixture run proves real gate walking/release/rehold and downhill11,1to11,2; not campaignacceptance",
     "host": "77targeted+4coverage pass; newfullhost running",
-    "reviews": "Bothrodgiftgameplayreviews remain pending; no main gameplaymerge."
+    "reviews": "Bothrodgiftgameplayreviews remain pending; no main gameplaymerge.",
+    "full_host": {
+      "tests": 1036,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-brake-full-host-20261030-01.log",
+      "sha256": "ab012ed9273d88c33a747995f37ac41df46f68ed34f5560c7655302843777c96",
+      "scope": "All currently discovered B host tests and compile-only checks; not campaign/device acceptance"
+    }
   }
 }

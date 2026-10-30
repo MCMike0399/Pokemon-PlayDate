@@ -113,13 +113,14 @@ unchanged accepted A saves. Scope: Tower/Fuji/Flute, Snorlax/Cycling Road,
 Fuchsia/Safari/Koga, Surf/Strength. Ten owner SDK cases, Chip Away, both gameplay
 reviews and 59 focused host checks pass. Geometry is conditional on live actors.
 
-All three earned Koga Saves remain verified. Squirtle also earned and saved
-Safari rewards, HM04, Strength and Surf. Tooling failures in the eleventh set
-were batched: overlay-observation race, exhausted deposit list and B hold cleared
-between requests. Private `36085523` / `45610a0b` fix those; 42 native protocol
-checks pass. The twelfth set resumes real stopped Saves and remains unaccepted.
-Full host: 1,035/1,036 pass; the sole stale coverage fingerprint is repaired and
-all four coverage checks pass. Original failed evidence is retained.
+All three earned Koga Saves remain verified. Squirtle also saved Surf/Strength.
+The twelfth set exposed missing Good/Super Rod gift bindings and a consumed
+cycling gesture after map entry. Both rods now reuse the existing gift owner:
+40 native cases pass (four failures without repair). A supplementary real-input
+run verifies the brake release, gate walking and genuine downhill movement.
+All 1,036 B host tests pass. The thirteenth three-starter set is running from
+verified stopped Saves. Both rod reviews, final journeys and B acceptance remain
+pending; no B gameplay merge to main. [Evidence](midgame-b-candidate-20261030.json).
 The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
 unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
 longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep
