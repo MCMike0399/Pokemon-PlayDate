@@ -29,8 +29,6 @@ def validate(scenario, qualification=False):
     if not isinstance(groups, list) or not 2 <= len(groups) <= 8:
         raise ProtocolError('processes requires 2..8 process groups')
     first = groups[0].get('journey', {}) if isinstance(groups[0], dict) else {}
-    if expected == '5.5a' and first.get('name') != 'midgame-natural':
-        raise ProtocolError('accepted A starting save is only valid for midgame B')
     if first.get('name') == 'midgame-natural':
         from tools.harness.midgame_journey import validate_scenario
         validate_scenario(scenario)
@@ -202,6 +200,8 @@ def import_chain_save(scenario, project, data, output):
         raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
     expected = spec['milestone']
+    if expected == '5.5a' and first.get('name') != 'midgame-natural':
+        raise ProtocolError('accepted A starting save is only valid for midgame B')
     if first.get('name') == 'midgame-natural':
         from tools.harness.midgame_journey import validate_scenario
         validate_scenario(scenario)
