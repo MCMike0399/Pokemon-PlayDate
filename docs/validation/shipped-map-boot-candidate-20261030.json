@@ -112,10 +112,16 @@
     "next_fix": "Use verified bundle-only reads for qualified shipped assets; preserve untrusted Save reads and harness/deep paths. Requalify the refined candidate."
   },
   "source_only_followup": {
-    "branch": "wip/shipped-content-checks-20261030-01",
-    "commit": "ff41750b",
+    "branch": "wip/shipped-content-checks-149-20261030-01",
+    "commit": "f6d78b62",
     "host_checks": 19,
-    "status": "Nineteen targeted checks pass after bundle fencing. Immutable conflicts are checked at generation/staging; transforms and dynamic registration remain runtime. No profile or timing gain for this follow-up yet."
+    "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-immutable-content-149-prepare-20261030-02",
+    "build_id": "ad5000cc3bd44ce0a752e51f0123581f",
+    "status": "Compiled, unmeasured. One safety run waits for the full Charmander suite lock; no queued journey is displaced.",
+    "change": "Generation rejects cross-package immutable dialogue/sprite conflicts, including updated input-pin mutants. Production staging verifies the exact copied cache. Qualified content uses bundle-only reads. Story transforms and dynamic registration remain unchanged.",
+    "staging_correction": "B excludes raw preparation aggregates from PDX. Qualification now regenerates from pinned project inputs and compares the copied runtime cache; the failed first preparation is retained.",
+    "safety_report_pending": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-immutable-content-149-shadow-safety-20261030-01",
+    "scope": "No native safety, hardware gain or lazy-region implementation claimed for this follow-up."
   },
   "measurement": "docs/validation/shipped-map-boot-measurement-20261030.json"
 }
