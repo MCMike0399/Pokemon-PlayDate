@@ -103,7 +103,7 @@ class ProductionBuildTests(unittest.TestCase):
                 'game/safariScene', 'game/safariBattleState', 'game/safariPassage',
                 'game/safariPassageState', 'game/safariRuntime'],
         }
-        expected_imports = ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
+        expected_imports = ['dev/harness_build', 'game/bootTrace', 'game/bootstrap', 'game/shippedDataPolicy']
         for name in BASELINE['imports']:
             if name in {'dev/harness_build', 'game/bootstrap'}:
                 continue
@@ -137,6 +137,15 @@ class ProductionBuildTests(unittest.TestCase):
                 for entry in policy['exclude'])
             if excluded:
                 self.assertFalse((self.production / 'Source' / relative).exists(), name)
+            elif name == 'game/shippedDataPolicy.lua':
+                self.assertEqual((self.production / 'Source' / relative).read_bytes(),
+                                 original.read_bytes().replace(b'mapsQualified <const> = false',
+                                                               b'mapsQualified <const> = true')
+                                 .replace(b'immutableContentQualified <const> = false',
+                                          b'immutableContentQualified <const> = true')
+                                 .replace(b'regionDeclarationsQualified <const> = false',
+                                          b'regionDeclarationsQualified <const> = true'))
+                self.assertTrue((self.production / 'shipped-map-qualification.json').is_file())
             else:
                 self.assertEqual(original.read_bytes(), (self.production / 'Source' / relative).read_bytes())
             if str(relative) not in ('main.lua', 'pdxinfo', 'dev/harness_build.lua'):
