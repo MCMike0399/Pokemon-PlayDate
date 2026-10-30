@@ -117,11 +117,12 @@
     "host_checks": 19,
     "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-immutable-content-149-prepare-20261030-02",
     "build_id": "ad5000cc3bd44ce0a752e51f0123581f",
-    "status": "Compiled, unmeasured. One safety run waits for the full Charmander suite lock; no queued journey is displaced.",
+    "status": "Exact shadowed 16 MiB safety and hardware smoke complete without new logs. Registration 6.184\u21925.363 s (13.3%); whole boot 19.455\u219218.540 s (4.7%). Isolated for one review; lazy-region work remains.",
     "change": "Generation rejects cross-package immutable dialogue/sprite conflicts, including updated input-pin mutants. Production staging verifies the exact copied cache. Qualified content uses bundle-only reads. Story transforms and dynamic registration remain unchanged.",
     "staging_correction": "B excludes raw preparation aggregates from PDX. Qualification now regenerates from pinned project inputs and compares the copied runtime cache; the failed first preparation is retained.",
     "safety_report_pending": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-immutable-content-149-shadow-safety-20261030-01",
-    "scope": "No native safety, hardware gain or lazy-region implementation claimed for this follow-up."
+    "scope": "No native safety, hardware gain or lazy-region implementation claimed for this follow-up.",
+    "measurement": "docs/validation/shipped-content-boot-measurement-20261030.json"
   },
   "measurement": "docs/validation/shipped-map-boot-measurement-20261030.json"
 }

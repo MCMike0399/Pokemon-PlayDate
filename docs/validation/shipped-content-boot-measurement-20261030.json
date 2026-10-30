@@ -1,0 +1,35 @@
+{
+  "scope": "Private 149-map hardware follow-up; no checkpoint or latency acceptance.",
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-fenced-hardware-20261030-01/device-smoke.json",
+  "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-immutable-content-149-hardware-20261030-01/device-smoke.json",
+  "candidate_sha256": "ccb7458fe3183ef1f8699aca5d848983e322426bacd5113c1857fdaab3d19ec5",
+  "build_id": "ad5000cc3bd44ce0a752e51f0123581f",
+  "phase_ms": {
+    "Continue": 3382.0,
+    "Save": 1541.0,
+    "battle": 20.0,
+    "boot_slice": 1444.407,
+    "boot_title": 18540.0,
+    "cave_walking_p95": 101.61000000000058,
+    "door": 2949.0,
+    "title_artwork": 2566.0
+  },
+  "registration_baseline_ms": 6184,
+  "registration_candidate_ms": 5363,
+  "registration_gain_percent": 13.276196636481242,
+  "boot_gain_percent": 4.703161141094834,
+  "boot_diagnostic_gc_ms": 849,
+  "heap_live_mib": 4.5949501953125,
+  "heap_peak_mib": 5.8891064453125,
+  "last_phase": {
+    "clock_ms": 78500.0,
+    "heap_kib": 4932.016,
+    "peak_kib": 6030.445,
+    "phase": "battle.live.after_gc",
+    "phase_ms": 564.0,
+    "since_yield_ms": 599.0
+  },
+  "new_error_or_crash_logs": false,
+  "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle.",
+  "decision": "Registration phase gains 13.3%, meeting the per-phase review threshold. Candidate remains isolated for one review. Whole boot gains only 4.7%; lazy-region registration and remaining targets are unresolved."
+}

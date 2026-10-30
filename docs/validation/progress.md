@@ -87,6 +87,9 @@ profiles pass the exact 16 MiB safety route. Hardware boot improves **19.9%** at
 108 maps and **22.4%** at 149 maps (25.086→19.455 s); 10 s still fails. The
 bundle-read fence passes deliberate Data-shadow regressions and refined hardware.
 The candidate remains isolated. [Measured scope](shipped-map-boot-measurement-20261030.json).
+A separate immutable-conflict follow-up cuts registration **13.3%** to 5.363 s;
+boot is still 18.540 s. It stays isolated for review; lazy regions remain open.
+[Follow-up scope](shipped-content-boot-measurement-20261030.json).
 Save-tier export is accepted locally after its single review. The exact 108-map
 composition passes 96 native cases and hardware: **Save 1.510 s / Continue 3.335 s**,
 5.63 MiB peak, no new logs. [Acceptance](save-tier-accepted-20261030.json).
