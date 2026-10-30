@@ -94,6 +94,9 @@ No unmeasured candidate is on main. [Save candidate](device-save-tier-candidate-
 Activate the prepared lazy audio next: town/route/battle music and all 151 cries,
 moderate gain 0.22, followed by native loading, heap and listening checks.
 The old Simulator-volume question remains closed; do not repeat it.
+Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
+(7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
+silent and not accepted. No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
 
 5.5b starts from the three accepted 5.5a saves. Prepared host geometry passes
 1,569 checks with zero blockers, but Surf/actors/Safari remain runtime-unverified.
