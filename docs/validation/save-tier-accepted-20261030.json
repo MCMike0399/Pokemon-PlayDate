@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "status": "accepted locally; not pushed",
+  "accepted_main_code": "f86d62577f2288f5ae14f3102158da0f7fd90f82",
+  "candidate": "cf4406cf6aa7076b26c0690f53e42cc54c244f80",
+  "policy": "Tiered production validation; public/dev/harness paths remain deep; exact validated disk bytes may reuse parsing/validation; full target decode remains",
+  "hardware_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-tier-title-combined-hardware-01",
+  "hardware_build": "287d46ee3ac5466bbb6177c463bc4e3f",
+  "hardware_measurements": {
+    "battle_start_ms": 21.0,
+    "frame_ms": 121.555,
+    "heap_live_bytes": 4337735.68,
+    "heap_peak_bytes": 5907089.408,
+    "map_load_ms": 3032.0,
+    "slice_ms": 1240.621
+  },
+  "hardware_phases_ms": {
+    "Continue": 3335.0,
+    "Save": 1510.0,
+    "battle": 21.0,
+    "boot_slice": 1163.0,
+    "boot_title": 2441.0,
+    "cave_walking_p95": 95.75800000000163,
+    "door": 3032.0
+  },
+  "native_cases": 96,
+  "native_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-tier-title-combined-native-sdk-01",
+  "review": "fc07bd2f-0c49-47f5-b62d-29b200562c53: no actionable findings",
+  "merged_checks": {
+    "compile": "passed",
+    "protocol_cases": 54,
+    "artifact_cases": 5,
+    "host": "55 focused freshness/coverage cases pass after reviewing only changed input hashes; full suite rerun pending"
+  },
+  "remaining": "Main full host rerun after reviewed input identities; full idle soak; door/cave/boot-slice targets"
+}

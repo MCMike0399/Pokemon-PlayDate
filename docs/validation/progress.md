@@ -65,7 +65,7 @@ inclusive older profiles, not exclusive CPU. Expected savings are design aims.
 |---|---:|---|---|
 | First title artwork / 10 s | 2.501 s | inspect 3.326 s; registration 2.15 s; imports about 1.1 s | early title and generated registration; aim to hide/remove 3–5 s |
 | A → walking / 4 s | 3.307 s | store 2.29 s; decode 1.41 s; gate view 1.13 s | retain fully checked title preparation; aim to hide 2–4 s |
-| Save / 2 s | 6.049 s | deep validators; copies/encoding; slot I/O | sealed production owner export, checksum/readback; hardware comparison running |
+| Save / 2 s | 1.510 s | deep validators; copies/encoding; slot I/O | sealed production owner export, checksum/readback; hardware comparison running |
 | Longest door / 1.5 s | 3.002 s | Zone 0.799 s; bindings 0.443 s; view 0.419 s | spare-slot prefetch; decode/padding candidate hides only part of this |
 | Cave p95 / 50 ms | 96.96 ms | encounter prepare/resolve and allocation/GC | prepared policies and synchronous scratch; safety route passed, gain unmeasured |
 
@@ -82,9 +82,10 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 ## Work in flight
 
 Root owns Simulator/device and integration. Bounded workers use Sol/medium.
-Save-tier 65-map hardware Save improves **5.313 → 1.375 s** (74.12%); Continue
-improves **6.127 → 4.481 s**. The 108-map port is prepared but unmeasured.
-[Paired result](device-save-tier-measurement-20261029.json). Hardware comparisons continue for isolated
+Save-tier export is accepted locally after its single review. The exact 108-map
+composition passes 96 native cases and hardware: **Save 1.510 s / Continue 3.335 s**,
+5.63 MiB peak, no new logs. [Acceptance](save-tier-accepted-20261030.json).
+[Paired result](device-save-tier-measurement-20261029.json). Completed hardware comparisons covered isolated
 early-title. Nearby-door prefetch was rejected at only 6.63% door improvement;
 it stays off main. Generated registration was rejected after
 boot/door regressed to 26.886/5.978 s; it stays off main. All passed safety;
