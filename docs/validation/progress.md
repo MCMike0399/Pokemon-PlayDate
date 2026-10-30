@@ -90,7 +90,9 @@ Forced title GC is 0.858 s. **Shipped-equivalent timing is not yet measured**;
 no subtraction or implied 10-second pass. The longest slice includes the provider
 compact decode/profile preparation; it is not isolated decode timing.
 [Composed phases and installer attribution](boot-stack-composed-20261030.json).
-Full first-entry activation and current-map scaling remain open.
+Full first-entry activation and current-map scaling remain open. The reviewed
+Kanto first-use port has its own149-map SDK export and40 passing host/build
+checks; exact safety is running in exec68810.
 
 Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
 raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.
