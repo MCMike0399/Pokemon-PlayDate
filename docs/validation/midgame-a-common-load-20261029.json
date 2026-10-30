@@ -136,5 +136,21 @@
       "Capacity preparation and one Day Care connection case resource pressure"
     ],
     "game_production_source_changed_by_fixture_repairs": false
+  },
+  "main_fixture_verification": {
+    "production_game_source_unchanged": true,
+    "lazy_world_cases": 252,
+    "preparation_and_ability_cases": 152,
+    "capacity_and_service_cases": 52,
+    "all_passed": true,
+    "coverage_recheck": {
+      "passed": 4,
+      "rows_changed": 0
+    },
+    "evidence_directories": [
+      "main-fixture-sdk-batches-20261029-02",
+      "main-vermilion-fixture-native-sdk-20261029-01",
+      "main-capacity-services-native-sdk-20261029-01"
+    ]
   }
 }
