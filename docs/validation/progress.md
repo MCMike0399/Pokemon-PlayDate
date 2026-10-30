@@ -83,7 +83,8 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 
 Root owns Simulator/device and integration. Bounded workers use Sol/medium.
 Save-tier baseline/candidate hardware comparison is running, followed by isolated
-early-title, generated-registration and nearby-door candidates. All pass safety;
+early-title and nearby-door candidates. Generated registration was rejected after
+boot/door regressed to 26.886/5.978 s; it stays off main. All passed safety;
 39 title recovery/bridge and 64 source-event SDK cases also pass.
 No unmeasured candidate is on main. [Save candidate](device-save-tier-candidate-20261029.json).
 
