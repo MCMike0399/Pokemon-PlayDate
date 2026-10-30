@@ -102,3 +102,17 @@ Harnesses retain it. Runtime event/trainer registration checks and story transfo
 are unchanged. It does not restore the rejected per-file Lua checksum loops.
 This candidate is separate from the first map-only measurement; no timing gain
 or lazy-region implementation is claimed yet.
+## Shipped region declarations (isolated follow-up)
+
+The current SDK exports East and South's exact post-transform event/roster
+records. The declaration generator pins their owners, scene inputs, active map
+manifest, content pins and feature-owner imports. It emits lightweight immutable
+membership plus content-addressed transformed chunks. An explicit transform
+identity opts a shipped package into this path; untagged/custom transforms and
+all harness builds keep their original implementation. Descriptor/roster bodies
+load only when resolved, through the existing eight-record cache.
+
+Trainer lookup still captures immutable membership; later registrations cannot
+change it. Runtime duplicate-source checks remain. This removes boot-time story
+transforms for qualified declarations, but is not yet full region activation on
+first physical map entry. No device speed gain is claimed until measured.

@@ -3,6 +3,7 @@
 ShippedDataPolicy = {}
 local mapsQualified <const> = false
 local immutableContentQualified <const> = false
+local regionDeclarationsQualified <const> = false
 
 function ShippedDataPolicy.maps()
     return mapsQualified and HarnessBuild == nil and playdate.file.kFileRead == 3
@@ -25,4 +26,8 @@ end
 
 function ShippedDataPolicy.immutableContent()
     return immutableContentQualified and HarnessBuild == nil and playdate.file.kFileRead == 3
+end
+
+function ShippedDataPolicy.regionDeclarations()
+    return regionDeclarationsQualified and HarnessBuild == nil and playdate.file.kFileRead == 3
 end

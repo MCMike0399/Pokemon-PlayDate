@@ -73,9 +73,15 @@ end
 
 -- Generated indexes validate duplicate text/art by canonical record checksum.
 -- Only explicit registration activates a package; catalog presence does not.
-function CeruleanContent.registerPackage(name, root, transform)
+function CeruleanContent.registerPackage(name, root, transform, transformIdentity)
     assert(type(name) == "string" and name ~= contentName and not packages[name], "unique source package required")
     assert(type(root) == "string" and root:match("^data/[%w_/]+/$"), "source package data root required")
+    if (not transform or transformIdentity)
+        and SourceEvents._registerRegionDeclaration(name, root, transformIdentity) then
+        SourceEvents.registerTextSource(name, CeruleanContent.text)
+        packages[name] = root
+        return
+    end
     yieldIfDue()
     local index = SourceEvents._contentIndex(root)
     yieldIfDue()
