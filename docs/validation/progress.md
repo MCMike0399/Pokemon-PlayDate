@@ -20,6 +20,7 @@ slot spin and Abra; the other starters use the critical path.
 [Journey hashes](midgame-a-journey-candidates-20261029.json).
 All three also pass actual-input Continue/Save, exit, Continue/Save on one PDX.
 Original earned files remain unchanged. [Common-build evidence](midgame-a-common-load-20261029.json).
+The synchronized candidate passes all 1,018 host tests, with no skips.
 
 Candidate production PDX and three earned save pairs, outside Git:
 `evidence/player-packages/5.5a-synchronized-20261029-01` (not accepted/delivered).

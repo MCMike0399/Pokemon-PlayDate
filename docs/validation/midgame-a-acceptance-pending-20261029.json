@@ -21,5 +21,14 @@
     "Lazy audio activation after merge"
   ],
   "latency_targets_met": false,
-  "push_authorized": false
+  "push_authorized": false,
+  "full_host_suite": {
+    "tests": 1018,
+    "passed": 1018,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "candidate_revision": "efa33ee0",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-synchronized-host-20261029-02.log"
+  }
 }
