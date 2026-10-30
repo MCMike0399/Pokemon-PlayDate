@@ -210,7 +210,11 @@ def plan(project, root, refs, age_hours):
                 matches.update(paths)
             if '\n' not in text and len(text) < 4096 and '/' in text:
                 expanded = text.replace('${POKEMON_ENV}', str(root.parent)).replace('$POKEMON_ENV', str(root.parent))
-                candidate = Path(expanded).expanduser()
+                # Evidence prose can start with approximate timings (~1.5 s/load).
+                # Only the current user's explicit home prefix denotes a home path.
+                candidate = Path(expanded)
+                if expanded.startswith('~/'):
+                    candidate = candidate.expanduser()
                 for location in ([candidate] if candidate.is_absolute() else
                                  [base / candidate, project / candidate, root / candidate, root.parent / candidate]):
                     resolved = location.resolve()

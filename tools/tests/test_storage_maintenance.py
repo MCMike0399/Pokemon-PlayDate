@@ -118,6 +118,17 @@ class StorageMaintenanceTests(unittest.TestCase):
             self.assertEqual(result[name]['action'], 'keep', name)
         self.assertEqual(result['deletable']['action'], 'remove')
 
+    def test_approximate_measurement_text_is_not_a_user_home(self):
+        self.stage('referenced-stage')
+        self.stage('deletable')
+        self.write(self.validation / 'measurements.json', {
+            'note': '~1.5s/load; evidence/referenced-stage/result.json',
+        })
+        self.commit()
+        result = self.plan()
+        self.assertEqual(result['referenced-stage']['action'], 'keep')
+        self.assertEqual(result['deletable']['action'], 'remove')
+
     def test_packages_acceptance_unknown_and_latest_device_builds(self):
         for name in ('player-packages', 'acceptance-packet', 'Source', 'references', 'Data'):
             self.stage(name)
