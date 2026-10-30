@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "running; not accepted",
+  "status": "accepted; full 60+60-minute hardware soak",
   "build_id": "11f5e226f7e940e791dde18fd9e794d1",
   "attempt": "3e051e571b824ec29b9461badd3ed034",
   "maps": 108,
@@ -10,8 +10,28 @@
   "launch": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/soak-main-108-A-save-launch-20261030-01",
   "collection": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/soak-main-108-A-save-collection-20261030-01",
   "collect_after_unix": 1793349175.165356,
-  "collector_pid": 21797,
   "phase_minutes": 60,
-  "scope": "60 title + 60 overworld; no periodic diagnostic GC; production soft/hard guards retained",
-  "ownership": "Persistent reservation remains authoritative. Do not change pinned device/harness helpers or write to hardware until this exact attempt is collected."
+  "scope": "120 minute samples; no periodic diagnostic full GC; production guards retained. Idle safety accepted; latency targets remain unmet.",
+  "ownership": "Collected with post-assertion witness and exact installed PDX/save/log verification. Reservation released; Calibration keeper restored.",
+  "hardware_soak_accepted": true,
+  "samples": 120,
+  "maximum_slice_ms": 1294.56640625,
+  "observed_peak_mib": 5.766879081726074,
+  "heap_samples": {
+    "title": {
+      "samples": 60,
+      "first_kib": 4174.7197265625,
+      "last_kib": 4174.7197265625,
+      "minimum_kib": 4174.7197265625,
+      "maximum_kib": 4174.7197265625
+    },
+    "overworld": {
+      "samples": 60,
+      "first_kib": 4460.224609375,
+      "last_kib": 4459.80859375,
+      "minimum_kib": 4447.62109375,
+      "maximum_kib": 4460.224609375
+    }
+  },
+  "production_soft_collections": 0
 }

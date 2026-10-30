@@ -1,6 +1,6 @@
 # Full-game execution ledger
 
-Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-10-30. Follow [the goal](../plans/full-game-goal.md).
 Progress: **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 5.5a: **33.83 h / 30.51 maps/day**, including device P0 and waits.
 Main was pushed through `7bc7cc55` at the user’s request. Later work stays local
@@ -53,10 +53,12 @@ under a software guard after collectible garbage accumulated; it is not accepted
 
 Timer removal queues now reuse their existing tables. Production collects at a
 safe point near 8 MiB, rejects over 6 MiB after GC, and retains a hard 9 MiB guard.
-The full **60+60-minute** soak is running on the current 108-map title/Save build
-from the accepted A Bulbasaur save. [Owner/evidence](idle-soak-active-20261030.json).
-Automatic collection is scheduled; keep its pinned helpers unchanged. Incremental
-comparison remains pending. No hardware writes until this attempt is collected.
+The full **60+60-minute** soak passes on build `11f5e226`, using the accepted A
+Bulbasaur save: 120 minute samples, title **4.08 MiB**, overworld **4.35 MiB**,
+zero soft collections and **5.77 MiB** observed peak. Exact PDX, save bytes,
+logs and post-assertion witness pass collection; the keeper is restored.
+Maximum raw slice **1.295 s** still misses the latency target. Incremental
+comparison remains pending. [Evidence](idle-soak-active-20261030.json).
 
 ## Device latency budget
 
@@ -112,8 +114,9 @@ from the unchanged physical 6 MiB live guard; native B memory is unmeasured.
 Scope: Tower/Fuji/Flute, Snorlax/Cycling Road, Fuchsia/Safari/Koga, Surf/Strength.
 Private B now passes ten focused owner cases plus Chip Away’s native contract.
 Both move reviews are resolved. The first three journeys hit the same nullable
-Tower-receipt bug; fixed with regression assertions. A second frozen set is
-running from earned A saves. [Candidate/evidence](midgame-b-candidate-20261030.json).
+Tower-receipt bug; fixed with regression assertions. The second set exposed a Rare Candy actor blocking the Tower route. The driver
+now earns that pickup; a third frozen set is running from earned A saves.
+Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
 ## Storage, decisions and history
