@@ -59,6 +59,9 @@ function MidgameServices.plan(id, observation)
     if id == data().warden then
         return MidgameServices.warden(observation)
     end
+    if id == data().gate_worker and observation.mode ~= "sight" then
+        return {status = "ready", steps = {{op = "dialog", labels = {"_SafariZoneGateSafariZoneWorker1Text"}}}}
+    end
     local descriptor = assert(MidgameServices.descriptors()[id], "unsupported midgame service")
     return {status = "ready", scene = "midgame-service", service = descriptor.service, steps = {}}
 end
@@ -90,12 +93,9 @@ function MidgameServices.checkEntrance(game)
         return false
     end
     local state = game.session:safariData()
-    if state.active then
-        return false
-    end
     local entry = SourceMaps.entry("SafariZoneGate")
     local x, y = game.player.gridX - entry.padding, game.player.gridY
-    if y == 2 and (x == 3 or x == 4) then
+    if (not state.active and y == 2 or state.active and y == 0) and (x == 3 or x == 4) then
         return SourceEvents.dispatch(game, data().gate_worker, {mode = "sight"})
     end
     return false

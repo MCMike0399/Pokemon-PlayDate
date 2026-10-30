@@ -1,0 +1,97 @@
+--- a/Source/world/player.lua
++++ b/Source/world/player.lua
+@@ -258,11 +258,17 @@
+     -- Only the exact, live source escort intent may overlap ambient sprites.
+     -- All ordinary callers retain NPC collision, terrain and traversal checks.
+     local scripted, guide = false, nil
++    local safariScript = false
+     if scriptIntent ~= nil then
+         self.running = false
+-        if not TutorialEscortPlayer then return end
+-        scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
+-        if not scripted then return end
++        if SafariPassage and SafariPassage.permits(scriptIntent, self, dx, dy) then
++            scripted = true
++            safariScript = true
++        else
++            if not TutorialEscortPlayer then return end
++            scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
++            if not scripted then return end
++        end
+     end
+
+     if dy == -1 then self.facing = "up"
+@@ -305,7 +311,7 @@
+     -- Check for NPC at target position (skip during noclip)
+     if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
+         local occupant = self.npcManager:getNPCAt(targetGX, targetGY)
+-        if occupant and (not scripted or occupant == guide) then
++        if occupant and (not scripted or safariScript or occupant == guide) then
+             local motion = self.npcManager.motion
+             if not scripted and motion.isBoulder and motion:isBoulder(occupant)
+                 and game.session:fieldTravelData().strength then
+--- a/Source/battle/captureAnimation.lua
++++ b/Source/battle/captureAnimation.lua
+@@ -17,7 +17,7 @@
+ function CaptureAnimation:init(receipt)
+     assert(type(receipt)=="table" and type(receipt.caught)=="boolean" and type(receipt.critical)=="boolean","invalid capture presentation receipt")
+     local ball=receipt.ballId
+-    assert(ball=="pokeBall" or ball=="greatBall" or ball=="ultraBall" or ball=="masterBall","unsupported capture presentation ball")
++    assert(ball=="pokeBall" or ball=="greatBall" or ball=="ultraBall" or ball=="masterBall" or ball=="safariBall","unsupported capture presentation ball")
+     local shakes=receipt.displayShakes
+     assert(shakes==0 or shakes==1 or shakes==3,"invalid capture presentation shakes")
+     assert(not receipt.critical or shakes==1,"critical capture must show one shake")
+--- a/Source/game/overworldState.lua
++++ b/Source/game/overworldState.lua
+@@ -40,6 +40,8 @@
+     local game = self.owner.game
+     local player = game.player
+
++    if SafariRuntime and SafariRuntime.check(game) then return end
++
+     if self.owner.fieldArrival then
+         local arrival = self.owner.fieldArrival
+         self.owner.fieldArrival = nil
+@@ -79,6 +81,7 @@
+         self.owner:_presentedWorld()
+         if not player.fieldStep and player.stepJustFinished then
+             game.session:daycareStep()
++            if SafariRuntime then SafariRuntime.completedStep(game) end
+         end
+         return
+     end
+@@ -127,7 +130,11 @@
+                 local rootMachine=self.owner.machine
+                 self.machine:change("irisOut",px+ox,py+oy,function()
+                     if game.session~=session or currentZone~=zone or game.player~=player then return false,"stale-wild-transition"end
+-                    assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
++                    if SafariGame.isBattleMap(currentZone.stableID) and session:safariData().active then
++                        assert(SafariRuntime.startEncounter(game, enemy))
++                    else
++                        assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
++                    end
+                 end)
+                 return
+             end
+@@ -151,6 +158,7 @@
+     gfx.sprite.update()
+     if wasMoving and not player.isMoving and player.stepJustFinished then
+         game.session:daycareStep()
++            if SafariRuntime then SafariRuntime.completedStep(game) end
+     end
+     self.owner:_presentedWorld()
+ end
+@@ -337,6 +345,13 @@
+ end
+
+ function DoorWarpSubstate:enter(door)
++    if SafariRuntime and not SafariRuntime.allowDoor(self.owner.game, door) then
++        self.owner.game.player.stepJustFinished = false
++        self.owner.game.player.pendingEdgeDoor = nil
++        self.owner.game.player.pendingConnection = nil
++        self.machine:change("explore")
++        return
++    end
+     if BootTrace then
+         BootTrace.mark("door.begin")
+     end

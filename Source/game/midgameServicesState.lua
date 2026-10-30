@@ -7,7 +7,7 @@ function MidgameServicesState:enter(id, options)
     self.serviceContinuation = nil
     MidgameServicesState.super.enter(self, id, options)
 end
-function MidgameServicesState:serviceChoice(callback)
+function MidgameServicesState:midgameYesNo(callback)
     self.phase, self.waiting = "service-choice", self.plan.service
     local selected = self:guard(function(index)
         self.menu:hide()
@@ -37,14 +37,14 @@ function MidgameServicesState:advance()
     if service == "warden-question" then
         local prefix = "_WardensHouseWarden"
         self:source({prefix .. "Gibberish1Text"}, function()
-            self:serviceChoice(function(yes)
+            self:midgameYesNo(function(yes)
                 self:source({prefix .. (yes and "Gibberish2Text" or "Gibberish3Text")}, function() self:finish() end)
             end)
         end)
     elseif service == "safari-information" then
         local prefix = "_SafariZoneGateSafariZoneWorker2"
         self:source({prefix .. "FirstTimeHereText"}, function()
-            self:serviceChoice(function(yes)
+            self:midgameYesNo(function(yes)
                 self:source({prefix .. (yes and "SafariZoneExplanationText" or "YoureARegularHereText")},
                     function() self:finish() end)
             end)
@@ -57,13 +57,14 @@ function MidgameServicesState:advance()
 end
 function MidgameServicesState:safariAdmission()
     if type(self.session.safariData) ~= "function" or type(self.session.commitSafari) ~= "function"
-        or type(self.game.prepareSafariPassage) ~= "function" then
+        or type(self.session.commitSafariPassage) ~= "function"
+        or not self.game.machine:get("safariPassage") then
         self:fail("safari-owner-or-passage-not-installed")
         return
     end
     local state = self.session:safariData()
     if state.active then
-        self:fail("safari-return-controller-required")
+        self:safariLeaving(state)
         return
     end
     local entry = SourceMaps.entry("SafariZoneGate")
@@ -76,7 +77,7 @@ function MidgameServicesState:safariAdmission()
     local prefix = "_SafariZoneGateSafariZoneWorker1"
     local money, epoch = self.session:inventory():money(), self.session:fieldWorldEpoch()
     self:source({prefix .. "WouldYouLikeToJoinText"}, function()
-        self:serviceChoice(function(yes)
+        self:midgameYesNo(function(yes)
             if not yes then
                 self:source({prefix .. "PleaseComeAgainText"}, function() self:serviceMove("down", function() self:finish() end) end)
                 return
@@ -86,21 +87,40 @@ function MidgameServicesState:safariAdmission()
                 self:source({prefix .. "NotEnoughMoneyText"}, function() self:serviceMove("down", function() self:finish() end) end)
                 return
             end
-            -- Root preflights the source entrance walk/warp and returns a
-            -- guarded fee/counter commit closure and a prepared EventState warp.
-            -- No debit precedes the source passage preflight.
-            local commit, why = self.game:prepareSafariPassage(self, plan, epoch)
-            if not commit then
+            local token, why = SafariPassage.prepare(self.game, "admission", plan)
+            if not token then
                 self:fail(why)
                 return
             end
-            local accepted, problem = commit()
-            if not accepted then
-                self:fail(problem)
+            self:source({prefix .. "ThatllBe500PleaseText", prefix .. "CallYouOnThePAText"}, function()
+                local game = self.game
+                self:finish()
+                local accepted, problem = SafariPassageState.open(game, token)
+                assert(accepted, problem)
+            end)
+        end)
+    end)
+end
+function MidgameServicesState:safariLeaving(state)
+    if state.ending ~= "none" then
+        self:fail("Safari forced return must use the return controller")
+        return
+    end
+    local prefix = "_SafariZoneGateSafariZoneWorker1"
+    self:source({prefix .. "LeavingEarlyText"}, function()
+        self:midgameYesNo(function(yes)
+            local mutation = yes and assert(SafariGame.leave(state, true)) or SafariGame.check(state)
+            local token, reason = SafariPassage.prepare(self.game, yes and "early-exit" or "continue", mutation)
+            if not token then
+                self:fail(reason)
                 return
             end
-            self.committed = true
-            self:source({prefix .. "ThatllBe500PleaseText", prefix .. "CallYouOnThePAText"}, function() self:finish() end)
+            self:source({prefix .. (yes and "ReturnSafariBallsText" or "GoodLuckText")}, function()
+                local game = self.game
+                self:finish()
+                local accepted, problem = SafariPassageState.open(game, token)
+                assert(accepted, problem)
+            end)
         end)
     end)
 end
