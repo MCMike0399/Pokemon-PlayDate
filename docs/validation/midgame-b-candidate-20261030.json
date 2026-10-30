@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; seventh resumed journey set running; not accepted",
-  "candidate": "59e48463",
+  "status": "private; eighth journey set resumes verified Snorlax-cleared saves; not accepted",
+  "candidate": "d2a71315",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -50,7 +50,7 @@
     "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
     "fix": "3dcf5684 + 65ca3f5b: runtime destination key; real shop sales or conserved item-PC deposits reserve room. 34 host checks, production compilation and ten focused SDK cases pass. Full journey rerun pending."
   },
-  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-seventh-resumed-20261030-01",
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eighth-resumed-20261030-01",
   "fourth_journey_set": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01",
     "result": "All three earned the Flute and saved after Fuji, then attempted same-map navigation across Route12 gatehouse components.",
@@ -69,5 +69,13 @@
     "result": "All three cleared Route12 Snorlax. Driver alternated Route12/13 until the unchanged transition bound, because future-map occupancy made returning appear cheaper.",
     "fix": "Fixed source exits Route13 (0,10) -> Route14 (19,10); Route14 (0,44) -> Route15 (59,8); real Route15 gate warps 4/2; Fuchsia arrival (39,16). Existing local navigation, source projections and real inputs retained. Real Save added after Snorlax; local PC fallback avoids unnecessary return to Lavender.",
     "validation": "37 host checks; complete fixed leg proven against source geometry with every initial NPC cell occupied. No planner, budget, map, reward or Source changes."
+  },
+  "seventh_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-seventh-resumed-20261030-01",
+    "result": "All three reached Route15 and published Snorlax-cleared Saves. Bulbasaur exhausted bounded real blackout recovery; Charmander exhausted usable battle resources; Squirtle repeatedly selected protected Flash when learning Headbutt. Failures and losses remain recorded.",
+    "fix": "d2a71315: read-only owner-supplied HM protection filters learning choices; real return to Lavender Center after Route13, real purchases with existing money reserve. No PP/HP/XP edits, new preparation fights or raised budgets.",
+    "validation": "59 host checks; full source-geometry return path verified; fresh journey-profile SDK compilation.",
+    "resume_inputs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-02",
+    "resume_scope": "Exact stopped-process Save slots, including Bulbasaur actual Save after a real blackout. Accepted A ancestry and all slot hashes verified. Unsaved later outcomes are not promoted."
   }
 }

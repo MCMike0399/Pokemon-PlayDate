@@ -126,7 +126,11 @@ The source owner is now connected; ten SDK cases, 40 host checks and both review
 pass. All three sixth runs cleared Snorlax, then the driver looped across
 Route12/13. Fixed source exits and the Route15 gatehouse now pass 37 host checks
 and occupied-geometry preflight. A seventh set is running; actual Save follows
-Snorlax, and bag-room PC visits use the nearby Center.
+Snorlax, and bag-room PC visits use the nearby Center. All three reached Route15 in
+the seventh set. Real resource exhaustion and a protected-HM learning loop
+stopped it; the driver now uses owner-supplied HM protection and a genuine
+Center refill between roads. 59 host checks and a fresh SDK build pass.
+The eighth set resumes verified Snorlax-cleared saves; earlier losses stay recorded.
 Both B reviews are resolved, including Safari Surf-step counting and moving Surf art. [Candidate/evidence](midgame-b-candidate-20261030.json).
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
@@ -139,6 +143,11 @@ removing 25 clean merged/rejected worktrees (24 branches); audited free space is
 pass 16 host cases. No referenced evidence or earned saves were removed. Keep chains, packages, committed evidence
 references and latest passing journey/device runs. Retain journey frames only
 for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
+
+APFS independent copy-on-write sharing of 1,882 identical archived bundles
+across 40 checkouts recovered an observed **12.16 GiB**; hashes and tracked
+documentation are unchanged. Free space is now **159.0 GiB**. Audit:
+`storage-maintenance-logs/share-immutable-docs-20261030-01.json` outside Git.
 
 Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.
 Approved GB imported tones, four QoL controls and Pickup remain.
