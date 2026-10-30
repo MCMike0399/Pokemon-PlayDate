@@ -96,7 +96,15 @@
       "02": "Stopped before launch: prior private sandbox retained.",
       "03": "Running exact same PDX with exact accepted 5.4 Charmander Route2 baseline. Prior private sandbox archived byte-exact after confirming owned PID stopped.",
       "input_packet": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-inputs-route2-20261030-01"
-    }
+    },
+    "safety_result": {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-safety-20261030-03/simulator-smoke.json",
+      "raw_slice_ms": 45.299,
+      "sampled_peak_bytes": 8152687.616,
+      "scope": "Completed exact accepted 5.4 Charmander baseline route: Continue/Save/doors/Cut/wild battle. Strict legacy estimate report remains failed. --safety-only local admission passed; no playability claim."
+    },
+    "active_measurement": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-hardware-measurement-20261030-01",
+    "measurement_status": "Running; deploy/copy underway; no result claimed."
   },
   "eighth_result": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eighth-resumed-20261030-01",
@@ -105,5 +113,6 @@
     "charmander": "Reached Koga, saved, then moving Center NPC occupied next cell; finalized failed capture evidence.",
     "repair": "b122e349: early Rope purchase, fixed reverse roads, confirmed Koga continuation, and <=8 retries only for explicit NPC blocked walks. 61 host checks pass.",
     "resume_inputs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-03"
-  }
+  },
+  "ninth_build": "Fresh journey-profile SDK compilation passed at m55b-koga-resume-build-20261030-01; execution waits for exclusive runtime release."
 }

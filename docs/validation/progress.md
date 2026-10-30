@@ -118,8 +118,10 @@ Fuchsia. Bulbasaur/Squirtle timed out on the known late Rope return loop;
 Charmander met a moving Center NPC. Process exits are confirmed; the first two
 captures were not finalized. The repair now passes 61 host checks and includes
 bounded NPC-blocked-step retries. Ninth-set inputs verify all three actual Koga
-Saves and accepted-A ancestry. A 149-map safety run is in progress; its first
-attempt used an incompatible Save and remains rejected. No hardware deployment.
+Saves and accepted-A ancestry; the fresh journey build compiles. The corrected
+149-map route completes with **45.299 ms raw slice / 7.78 MiB peak** under the
+16 MiB pool. Measurement-only admission passes; a bounded hardware cycle is
+running. Legacy timing-estimate failures remain recorded; no playability claim.
 [Current evidence](midgame-b-candidate-20261030.json), [integration history](progress-history-midgame-b-20261030.md).
 
 Private B’s first Simulator checkpoint probe was **6.55 MiB post-GC**; the
