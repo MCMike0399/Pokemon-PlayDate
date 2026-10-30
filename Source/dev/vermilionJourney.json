@@ -447,6 +447,28 @@
         }
       ]
     },
+    "pokered:FUCHSIA_GOOD_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_FuchsiaGoodRodHouseFishingGuruHowAreTheFishText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_FuchsiaGoodRodHouseFishingGuruThatsSoDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_GOOD_ROD",
+      "full": [
+        "_FuchsiaGoodRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "goodRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_FuchsiaGoodRodHouseFishingGuruText"
+      ],
+      "success": [
+        "_FuchsiaGoodRodHouseFishingGuruReceivedGoodRodText"
+      ]
+    },
     "pokered:POKEMON_FAN_CLUB:background_events:1": {
       "content": "vermilion",
       "kind": "program",
@@ -846,6 +868,29 @@
         "_Route11Gate2FOaksAideItemfinderDescriptionText"
       ],
       "threshold": 30
+    },
+    "pokered:ROUTE_12_SUPER_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_Route12SuperRodHouseFishingGuruTryFishingText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_Route12SuperRodHouseFishingGuruThatsDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_SUPER_ROD",
+      "full": [
+        "_Route12SuperRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "superRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_Route12SuperRodHouseFishingGuruDoYouLikeToFishText"
+      ],
+      "success": [
+        "_Route12SuperRodHouseFishingGuruReceivedSuperRodText",
+        "_Route12SuperRodHouseFishingGuruFishingWayOfLifeText"
+      ]
     },
     "pokered:ROUTE_2_GATE:objects:1": {
       "before": [
@@ -3288,7 +3333,7 @@
     "data/sourceMaps.json": "c06d750e9050e79993da2ad991b226d576c83999c227a5cf39713de164debc42",
     "data/sourceSlice/Route24.json": "4e8b06cecfceea87a00823383776f1102318ce41ebdc764e8e8800cb8bbf07d4",
     "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
-    "data/vermilionGifts/events.json": "3d1b58fd58971c94754635c767a0f101402db9aa89ddaa04bbf7232f4dc002b1",
+    "data/vermilionGifts/events.json": "77753ebf6f97f32229bdc264e9a51fdbf423cb8a31ac324375ecd45413b49c5b",
     "data/vermilionPreparation/Daycare.json": "0a0d83afaa9d387af1d8831438155b32fa94087aedcfa1daccb191195f15e4cc",
     "data/vermilionPreparation/DiglettsCave.json": "f795f2e2ad4c38d7c9ccbcbc737c67234bc04cf5cbf2797d0f717a1fccfa1c37",
     "data/vermilionPreparation/DiglettsCaveRoute11.json": "15d5d2cb00bc604417d64ed17609a7985930c921d3d0f93509c25e33fd713017",
@@ -3354,7 +3399,7 @@
     "game/saves.lua": "472eaace74ce3e3e7b2f0b2e21b5ca160dd70bb09aa271be3dc27c4abd3003ee",
     "game/sourceEvents.lua": "f04c1ca6080518ffca62b5a0800862f4a5f052ee232a2e0ba001c6826b37cedd",
     "game/trainerEvents.lua": "3cca86644f8dc93fceb96d2924fae64454db27c2d527db274fe408a7cc5446a2",
-    "game/vermilionGifts.lua": "c1acedb198b1348dbdcbbaf44f464269aaf777c9b4a1e555a1ca242ca38a4765",
+    "game/vermilionGifts.lua": "8f375f3b5287641b600f480a2c1fdb195f0b2bdb085071b729a5476d8fa23a8b",
     "game/vermilionStory.lua": "e00b8c7ced96d6ad630c4515d722c422b865fc2c745d60d677741046cb7a2af6",
     "game/vermilionStoryHooks.lua": "0bdef828c9b38804baef3588a3c3485b3b8816d051acde6cd266bc758e1e221b",
     "game/vermilionStoryIntent.lua": "31bf40875b5d9940b81fdc3a463a6aca67c3a7e94878a69086c658138862c440",

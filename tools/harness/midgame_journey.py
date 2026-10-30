@@ -187,6 +187,27 @@ class MidgameJourney(vj.VermilionJourney):
             commands = ('wait 3', *commands)
         return super().send(*commands)
 
+    def rearm_cycling_brake(self):
+        if not getattr(self, 'cycling_brake', False):
+            return
+        before = dict(zone=self.state['zone_id'], position=self.position())
+        # A door resets the field gesture to consumed. Release it physically;
+        # any genuine first downhill cell is retained before braking again.
+        self.send('release b', 'wait 1', 'hold b', 'wait 12')
+        self.drain()
+        self.summary.setdefault('cycling_brake_releases', []).append(dict(
+            before=before, after=dict(zone=self.state['zone_id'], position=self.position())))
+
+    def cross(self, direction, zone, destination):
+        result = super().cross(direction, zone, destination)
+        self.rearm_cycling_brake()
+        return result
+
+    def warp(self, target_id, event_id=None):
+        result = super().warp(target_id, event_id)
+        self.rearm_cycling_brake()
+        return result
+
     def step(self, step):
         zone, origin = self.state['zone_id'], self.position()
         try:
@@ -1616,12 +1637,14 @@ class MidgameJourney(vj.VermilionJourney):
     def route_bicycle(self):
         # Approach the Bike Voucher/shop on the earned eastern route, avoiding
         # an unbraked Route 17 visit before Bicycle acquisition.
-        self.return_from_fuchsia_to_route12()
-        self.return_from_route12_to_lavender()
         if self.quantity('bicycle') == 0:
+            self.return_from_fuchsia_to_route12()
+            self.return_from_route12_to_lavender()
             if self.quantity('bikeVoucher') == 0:
                 self.event_offer(cj.sid('POKEMON_FAN_CLUB', 5))
             self.event_offer(cj.sid('BIKE_SHOP', 1))
+            self.heal_here('CeruleanPokecenter')
+            self.save()
         if self.quantity('bicycle') != 1:
             raise ProtocolError('actual Bike Voucher exchange did not give Bicycle')
         self.travel(self.zone('CeladonCity'))
@@ -1629,6 +1652,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.use_item('bicycle')
         if self.observe('midgame-state')['fieldTravel']['mode'] != 'bicycle':
             raise ProtocolError('actual Bicycle field service unavailable')
+        self.cycling_brake = True
         self.send('hold b', 'wait 12')
         try:
             self.travel(self.zone('Route17'))
@@ -1648,6 +1672,7 @@ class MidgameJourney(vj.VermilionJourney):
             for name in ('Route18', 'FuchsiaCity'):
                 self.travel(self.zone(name))
         finally:
+            self.cycling_brake = False
             self.send('release b', 'wait 2')
         self.completed_steps.add('bicycle-cycling-road')
         self.heal_here('FuchsiaPokecenter')
