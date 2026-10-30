@@ -314,11 +314,18 @@ function HarnessDiagnostics.observe(game, kind)
     if kind == "midgame-state" then
         local event = game.machine:get("event")
         local slotView = event and event.celadonSlotView
+        local gear = game.machine:get("fieldGear")
+        local gearView = {installed = gear ~= nil, active = gear and gear.active == true or false,
+            phase = gear and gear.phase or "unregistered", frame = gear and gear.frame or 0,
+            kind = gear and gear.plan and gear.plan.kind or "none",
+            response = gear and gear.response or 0,
+            result = game.lastFieldGear and GameSession._copy(game.lastFieldGear) or nil}
         return {kind=kind, zone_id=currentZone and currentZone.stableID,
             coins=game.session:coins(), celadonSlotView=slotView and GameSession._copy(slotView) or nil,
             fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData(),
             fieldRuntime=game.getFieldTravelSnapshot and game:getFieldTravelSnapshot() or {installed=false},
-            fieldUI=ui(game.machine:get("fieldTravel"))}
+            fieldUI=ui(game.machine:get("fieldTravel")), fieldGear=gearView,
+            safari=SafariRuntime and SafariRuntime.observe(game) or {sessionInstalled=false}}
     end
     if kind == "purity" then
         -- Prepared real-SDK witness: repeated requests must preserve the entire
