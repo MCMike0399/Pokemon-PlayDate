@@ -74,5 +74,10 @@
     "GameSaves called directly; this adds no natural-input journey claim",
     "Not hardware or pacing acceptance",
     "First observer attempt compared after one NPC update; rejected and preserved unchanged"
-  ]
+  ],
+  "candidate_package": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-candidate-20261029-01",
+    "status": "prepared; NOT accepted or device delivered",
+    "description": "production PDX, original earned save pairs, hashes and Simulator instructions"
+  }
 }
