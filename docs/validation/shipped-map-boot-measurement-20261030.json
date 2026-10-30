@@ -1,0 +1,207 @@
+{
+  "scope": "Measured private hardware profiles with diagnostic overhead retained. Not milestone or latency acceptance.",
+  "boot_boundary": "boot.begin -> initialize.ready, when title accepts A.",
+  "records": [
+    {
+      "maps": 108,
+      "variant": "baseline",
+      "build_id": "b388d240b2654822b74d1285196156a0",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-baseline-hardware-20261030-01/device-smoke.json",
+      "report_sha256": "0b26be7da427f009a7cd05a19fe6a41f08d5723106d56026a80018645f4c7215",
+      "phase_ms": {
+        "Continue": 3330.0,
+        "Save": 1511.0,
+        "battle": 20.0,
+        "boot_slice": 1245.508,
+        "boot_title": 18379.0,
+        "cave_walking_p95": 96.09400000001187,
+        "door": 2980.0,
+        "title_artwork": 2448.0
+      },
+      "boot_diagnostic_gc_ms": 836.0,
+      "component_wall_ms": {
+        "CeruleanContent.registerPackage": 2489.0,
+        "KantoWorld.install": 4865.0,
+        "KantoScenes.install": 1171.0,
+        "Daycare.install": 592.0,
+        "title.prepare": 4236.0
+      },
+      "heap_live_mib": 4.137142578125,
+      "heap_peak_mib": 5.63201171875,
+      "last_phase": {
+        "clock_ms": 77453.0,
+        "heap_kib": 4462.936,
+        "peak_kib": 5767.18,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 505.0,
+        "since_yield_ms": 540.0
+      },
+      "new_error_or_crash_logs": false,
+      "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle."
+    },
+    {
+      "maps": 108,
+      "variant": "candidate",
+      "build_id": "d776497a52484b85b592a19b39a87df6",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-candidate-hardware-20261030-01/device-smoke.json",
+      "report_sha256": "4d1f9f0219f10f97e5ae5ced1595ba6ad1a722ae39d4b2b076e6be6b09540dc2",
+      "phase_ms": {
+        "Continue": 3318.0,
+        "Save": 1534.0,
+        "battle": 19.0,
+        "boot_slice": 1188.0,
+        "boot_title": 14713.0,
+        "cave_walking_p95": 97.01900000000023,
+        "door": 2988.0,
+        "title_artwork": 2472.0
+      },
+      "boot_diagnostic_gc_ms": 784.0,
+      "component_wall_ms": {
+        "CeruleanContent.registerPackage": 2533.0,
+        "KantoWorld.install": 1142.0,
+        "KantoScenes.install": 1160.0,
+        "Daycare.install": 579.0,
+        "title.prepare": 4265.0
+      },
+      "heap_live_mib": 4.13723046875,
+      "heap_peak_mib": 5.3825478515625,
+      "last_phase": {
+        "clock_ms": 73900.0,
+        "heap_kib": 4462.921,
+        "peak_kib": 5511.729,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 500.0,
+        "since_yield_ms": 534.0
+      },
+      "new_error_or_crash_logs": false,
+      "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle."
+    },
+    {
+      "maps": 149,
+      "variant": "baseline",
+      "build_id": "ebcc09787fb04e1db64a542ea4d1b79f",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-baseline-hardware-20261030-01/device-smoke.json",
+      "report_sha256": "664c4963c593b1ceb5846b3d4bc5bfe7aeeec02b0d658c13e328201279c977ba",
+      "phase_ms": {
+        "Continue": 3572.0,
+        "Save": 1559.0,
+        "battle": 24.0,
+        "boot_slice": 1451.479,
+        "boot_title": 25086.0,
+        "cave_walking_p95": 99.76600000000326,
+        "door": 3028.0,
+        "title_artwork": 2586.0
+      },
+      "boot_diagnostic_gc_ms": 917.0,
+      "component_wall_ms": {
+        "CeruleanContent.registerPackage": 6149.0,
+        "KantoWorld.install": 6948.0,
+        "KantoScenes.install": 1061.0,
+        "Daycare.install": 988.0,
+        "title.prepare": 4299.0
+      },
+      "heap_live_mib": 4.59283984375,
+      "heap_peak_mib": 6.226111328125,
+      "last_phase": {
+        "clock_ms": 86105.0,
+        "heap_kib": 4930.34,
+        "peak_kib": 6375.538,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 559.0,
+        "since_yield_ms": 597.0
+      },
+      "new_error_or_crash_logs": false,
+      "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle."
+    },
+    {
+      "maps": 149,
+      "variant": "candidate",
+      "build_id": "7c4bb9a36e054c8397aa5c4359558082",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-candidate-hardware-20261030-01/device-smoke.json",
+      "report_sha256": "40a9c304c9943474167f9fc719bb0ec70379759dbd9f58f05ac18feb7358e7ee",
+      "phase_ms": {
+        "Continue": 3530.0,
+        "Save": 1586.0,
+        "battle": 21.0,
+        "boot_slice": 1459.137,
+        "boot_title": 19382.0,
+        "cave_walking_p95": 101.49199999999837,
+        "door": 3003.0,
+        "title_artwork": 2582.0
+      },
+      "boot_diagnostic_gc_ms": 860.0,
+      "component_wall_ms": {
+        "CeruleanContent.registerPackage": 6059.0,
+        "KantoWorld.install": 1558.0,
+        "KantoScenes.install": 1063.0,
+        "Daycare.install": 942.0,
+        "title.prepare": 4260.0
+      },
+      "heap_live_mib": 4.5933564453125,
+      "heap_peak_mib": 5.8862158203125,
+      "last_phase": {
+        "clock_ms": 79861.0,
+        "heap_kib": 4930.559,
+        "peak_kib": 6027.485,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 557.0,
+        "since_yield_ms": 593.0
+      },
+      "new_error_or_crash_logs": false,
+      "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle."
+    },
+    {
+      "maps": 149,
+      "variant": "fenced",
+      "build_id": "8a43684555184fe88a4ec29c8ca781f4",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-fenced-hardware-20261030-01/device-smoke.json",
+      "report_sha256": "deda8c50a8e8147ced81c9272b7e0427a4ca4ab4d9ab86e0dcb277bdbb4606f0",
+      "phase_ms": {
+        "Continue": 3569.0,
+        "Save": 1592.0,
+        "battle": 20.0,
+        "boot_slice": 1442.584,
+        "boot_title": 19455.0,
+        "cave_walking_p95": 100.41400000000431,
+        "door": 2994.0,
+        "title_artwork": 2555.0
+      },
+      "boot_diagnostic_gc_ms": 851.0,
+      "component_wall_ms": {
+        "CeruleanContent.registerPackage": 6184.0,
+        "KantoWorld.install": 1560.0,
+        "KantoScenes.install": 1032.0,
+        "Daycare.install": 974.0,
+        "title.prepare": 4290.0
+      },
+      "heap_live_mib": 4.594375,
+      "heap_peak_mib": 5.887662109375,
+      "last_phase": {
+        "clock_ms": 79991.0,
+        "heap_kib": 4931.473,
+        "peak_kib": 6028.966,
+        "phase": "battle.live.after_gc",
+        "phase_ms": 596.0,
+        "since_yield_ms": 631.0
+      },
+      "new_error_or_crash_logs": false,
+      "screen": "Not directly observed; serial state confirms title, Continue, Save, doors, Cut and battle."
+    }
+  ],
+  "gain_108_percent": 19.9466782741172,
+  "gain_149_fenced_percent": 22.44678306625209,
+  "review_boundary_fix": {
+    "commits_108_149": [
+      "81fc118a",
+      "1f5db1f9"
+    ],
+    "sdk_origin_probe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/shipped-file-origin-probe-prepare-20261030-01/startup-probe.json",
+    "sdk_map_reader_probe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/shipped-map-origin-fence-sdk-20261030-01/startup-probe.json",
+    "full_shadow_routes": [
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-fenced-shadow-safety-20261030-01/shadow-safety-admission.json",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-149-fenced-shadow-safety-20261030-01/shadow-safety-admission.json"
+    ],
+    "scope": "Both full SDK routes succeed with five deliberate malformed Data shadows. The refined 149 build runs on hardware using bundle-only reads. Untrusted saves and deep/harness paths retain validation."
+  },
+  "decision": "Measured gain exceeds 10%; candidate stays isolated pending remaining scoped SDK/review work. Boot, door and cave latency targets still fail. The 108 input-ready versus 149 fenced comparison is not a paired same-map gain claim."
+}

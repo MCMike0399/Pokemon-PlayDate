@@ -1,5 +1,5 @@
 {
-  "status": "Isolated candidate; device benefit and native safety unmeasured.",
+  "status": "Measured structural gain; refined bundle fence verified. Isolated, not accepted on main.",
   "implementation_108": "0fcde0178ab861a8f99a0b834035284e6cb25ebd",
   "implementation_149": "0833d048",
   "host": "Eight targeted production/qualification checks pass at each map count. Existing SDK compilation is real; no runtime validation claimed.",
@@ -105,7 +105,7 @@
     "status": "Gain exceeds 10%; review pending, 10 s target still fails."
   },
   "review_finding": {
-    "status": "Unresolved before production acceptance.",
+    "status": "Corrected in isolated 81fc118a/1f5db1f9: PDX-only JSON/binary reads and private canonical qualification. Both shadowed SDK routes pass; refined 149 hardware smoke completes without new logs.",
     "issue": "Lua default kFileRead is 3 and searches Data before the PDX. A build-qualified cache could be shadowed by writable Data bytes.",
     "verified_probe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/shipped-file-origin-probe-prepare-20261030-01/startup-probe.json",
     "probe_result": "Real SDK 3.1.2: default/json and mode 3 read the Data fixture; numeric mode 1 reads the bundle fixture.",
@@ -113,8 +113,9 @@
   },
   "source_only_followup": {
     "branch": "wip/shipped-content-checks-20261030-01",
-    "commit": "4d11c178",
+    "commit": "ff41750b",
     "host_checks": 19,
-    "status": "Unmeasured follow-up only; immutable text/art conflicts move to pinned generation and production staging. Dynamic event/trainer checks and story transforms remain unchanged. No new timing or lazy-region claim."
-  }
+    "status": "Nineteen targeted checks pass after bundle fencing. Immutable conflicts are checked at generation/staging; transforms and dynamic registration remain runtime. No profile or timing gain for this follow-up yet."
+  },
+  "measurement": "docs/validation/shipped-map-boot-measurement-20261030.json"
 }

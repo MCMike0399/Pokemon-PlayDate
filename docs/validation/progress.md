@@ -83,9 +83,10 @@ use checksum/readback; harness/dev/public paths retain deep validation.
 Root owns Simulator/device and integration. The input-ready boot metric now
 fails at 18.729/24.945 s for 108/149 maps. An isolated map-validation candidate
 moves checks to build time; eight targeted checks pass at each count. Paired
-profiles pass the exact 16 MiB safety route. At 108 maps, hardware boot improves
-18.379→14.713 s (19.9%); it still fails 10 s. Review found writable Data shadowing
-of bundle assets; bundle-only reads must be enforced before acceptance. [Candidate](shipped-map-boot-candidate-20261030.json).
+profiles pass the exact 16 MiB safety route. Hardware boot improves **19.9%** at
+108 maps and **22.4%** at 149 maps (25.086→19.455 s); 10 s still fails. The
+bundle-read fence passes deliberate Data-shadow regressions and refined hardware.
+The candidate remains isolated. [Measured scope](shipped-map-boot-measurement-20261030.json).
 Save-tier export is accepted locally after its single review. The exact 108-map
 composition passes 96 native cases and hardware: **Save 1.510 s / Continue 3.335 s**,
 5.63 MiB peak, no new logs. [Acceptance](save-tier-accepted-20261030.json).
@@ -128,8 +129,9 @@ device heap values. Plateau tests and native headroom remain open; the original
 OOM remains unresolved. [Measured scope](m55b-memory-diagnostics-20261030.json).
 The latest three Bicycle Saves pass the original ancestry/slot/producer checks.
 Bulbasaur and Squirtle pass both processes and export earned B chains.
-Charmander needs learning-input recovery; the private fix passes 68 host checks
-and has no unexplained preflight geometry gap. Both rod reviews remain open.
+Charmander is replaying from its verified Bicycle Save with the learning-input
+fix and a new real pre-road Save. The fix passes 68 host checks and its scheduler
+regression. Both rod reviews remain open.
 
 The earlier 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle
 with unchanged logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s; longest
