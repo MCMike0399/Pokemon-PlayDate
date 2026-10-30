@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "status": "Host/compile-only preparation; isolated, unapplied and unaccepted",
+  "commit": "e7249cf459a19296e6573040c23c8272a04934ff",
+  "branch": "t3/prepare-checkpoint-5-5c",
+  "base_b": "b122e34916e723c10c3db7199b22c0d5f504f9c3",
+  "maps": 171,
+  "new_maps": 22,
+  "handoff": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-587ddd36/tools/integration/checkpoint-c/README.md",
+  "root_patch_sha256": "ee538bff17dd0cd234390cbce82994bcabec2e5709171e1872f7c766e16d2b30",
+  "reported_checks": {
+    "focused_passed": 38,
+    "protocol_passed": 54,
+    "frozen_expectations_red": 4,
+    "production_compile": true,
+    "harness_compile": true,
+    "privately_patched_compile": true
+  },
+  "remaining_gaps": [
+    "Copycat Poke Doll/TM31 exchange",
+    "Copycat conditional PC",
+    "Center link receptionist",
+    "Gift naming",
+    "Native guard/Silph/Sabrina/Dojo/Fly acceptance",
+    "171-map heap, latency and hardware gates"
+  ],
+  "main_activation": false,
+  "runtime_executed": false,
+  "scope": "Do not integrate until B acceptance and root performance gates. Existing data/owner seams reused; no 5.6 work."
+}
