@@ -417,7 +417,13 @@ function VermilionAbilityContracts.run()
         script:advance() -- actual donor HP commit and damage narration
         local receipt = next(b.effects.receipts)
         assert(receipt)
-        script:advance() -- Liquid Ooze commits and yields narration
+        -- Advance to the actual drain commit, including presentation waits.
+        for _ = 1, 16 do
+            if receipt.drainResolved then
+                break
+            end
+            script:advance()
+        end
         eq(receipt.drainResolved, true)
         local hp = b.player.hp
         eq(b.effects:drainHit(receipt), false)

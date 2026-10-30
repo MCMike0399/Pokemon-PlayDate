@@ -73,9 +73,6 @@ function VermilionPreparationContracts.run()
         local d = SourceMaps.record(root .. "VermilionPokecenter.json")
         assert(d.tileset.constant == "POKECENTER" and d.dimensions.cells[1] == 14 and d.dimensions.cells[2] == 8)
         local overrides = {
-            ["data/sourceMaps.json"] = SourceMaps.record(root .. "proposed-source-maps.json"),
-            ["data/sourceMapCache/compact.json"] = SourceMaps.record(root .. "proposed-compact.json"),
-            ["data/sourceMapCache/tile-grids.json"] = SourceMaps.record(root .. "proposed-tile-grids.json"),
             [root .. "VermilionPokecenter.json"] = d,
         }
         SourceMaps._withRecords(overrides, function()
