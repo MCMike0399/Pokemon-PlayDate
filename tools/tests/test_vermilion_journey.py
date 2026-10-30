@@ -625,6 +625,37 @@ class MidgameSaveInputTests(unittest.TestCase):
 
 
 class MidgameBImportTests(unittest.TestCase):
+    def test_cycling_learning_releases_entry_guard_and_restores_only_after_commit(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        driver.cycling_brake = True
+        driver.state = {'root': 'learning', 'learning': {
+            'phase': 'ask', 'input_blocked': True, 'remaining': 1}}
+        packets = []
+
+        def forward(instance, *commands):
+            packets.append((instance.state['root'], tuple(commands)))
+            if commands == ('release b', 'wait 2'):
+                instance.state['learning']['input_blocked'] = False
+
+        def inherited_learning(instance):
+            self.assertFalse(instance.state['learning']['input_blocked'])
+            instance.state['learning'].update(phase='message', remaining=1)
+            instance.send('wait 3')
+            instance.state['learning']['remaining'] = 0
+            instance.send('wait 3')
+            instance.state['root'] = 'battle'
+
+        with patch.object(vj.VermilionJourney, 'send', autospec=True, side_effect=forward), \
+                patch.object(vj.VermilionJourney, 'learning', autospec=True, side_effect=inherited_learning):
+            driver.learning()
+        self.assertEqual(packets, [
+            ('learning', ('release b', 'wait 2')),
+            ('learning', ('wait 3',)),
+            ('learning', ('hold b', 'wait 3')),
+        ])
+        self.assertFalse(driver.restore_learning_brake)
+        self.assertTrue(driver.cycling_brake_needs_rearm)
+
     def test_overlay_input_waits_for_actual_owner_phase(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
         driver.state = {'root': 'fieldGear'}
