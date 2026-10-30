@@ -99,7 +99,9 @@ function CombatContracts.run()
                 equal(e.statStages.def,stage)
             end
         end
-        local criticalSeed = seedFor(1,16,function(x) return x==1 end)
+        local criticalSeed = seedFor(1,16,function(x)
+            return x == 1
+        end)
         p.statStages.atk = -2
         e.statStages.def = -6
         RulesRNG.seed(criticalSeed)
@@ -124,7 +126,9 @@ function CombatContracts.run()
             equal(accuracyThreshold(m,p,e),33)
             equal(accuracyThreshold(special,p,e),26,"base accuracy retained")
         end
-        RulesRNG.seed(seedFor(1,100,function(x) return x>33 end))
+        RulesRNG.seed(seedFor(1,100,function(x)
+            return x > 33
+        end))
         equal(checkAccuracy(m,p,e),false)
         equal(RulesRNG.snapshot().rolls,1)
         p.statStages.acc = 0

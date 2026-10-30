@@ -42,6 +42,7 @@ class PoisonFangProducerTests(unittest.TestCase):
   changed=dict(rows);changed['poisonFang']=rows['poisonFang'].replace(NEW,OLD)
   # The same bytes are valid genuine v11 history, never a v12 rollback.
   historical=dict(changed)
+  historical['chipAway']=c.drop_fields(historical['chipAway'],('ignoreDefensive','ignoreEvasion'))
   for key in ('whirlwind','roar'):
    prefix,_=c.split_payload(historical[key]);historical[key]=prefix+c.load_contract()['transitions'][key][0]['legacy_suffix']
   self.assertEqual(c.digest(json.dumps(c.legacy_rows(historical,11),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
