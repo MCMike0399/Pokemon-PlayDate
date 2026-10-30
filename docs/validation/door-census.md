@@ -126,8 +126,16 @@ completion observations, wall elapsed, total active SDK update time, longest
 uninterrupted segment, trace sequence boundaries and Lua heap after a full GC.
 The full GC happens at a safe case boundary outside the measured gameplay
 interval; its own duration is explicit. A pre-entry GC is also explicit and
-outside traversal timing. Production guard and soft collection policies remain
-unchanged; diagnostic forced device-test collections are not enabled.
+outside traversal timing. The census additionally collects at actual loading
+suspensions when its 64-bit Simulator Lua heap reaches 8 MiB. Per-row
+`observer_gc_count` and `observer_gc_ms` expose this diagnostic overhead for
+the whole row (fixture plus traversal). `traversal_observer_gc_count` and
+`traversal_observer_gc_ms` separately record collections inside the traversal. It is
+excluded from active spans but remains in wall/sub-phase intervals. Production
+Source, the 9 MiB hard guard and the native 16 MiB pool are unchanged. This
+private collection schedule differs from production and cannot supply hardware
+admission or production GC/pacing evidence. Diagnostic forced DEVICE_TEST
+collections are not enabled.
 
 `door-census-segments.tsv` cuts active spans at real SDK coroutine yields and
 update returns. It records absolute start time, duration, case/trial, trace

@@ -114,7 +114,11 @@ Kanto first-use data is merged in `db4e82e7`, after a clean combined review.
 two teams match the SDK export. Hardware installer is 58 ms and boot 11.263 s. [Scope](kanto-first-entry-candidate-20261030.json).
 Door census qualification: eight measured input trials and two deliberate solid
 boundary gaps; no runtime failure, earned bytes unchanged. Full census launched
-once in exec 6850 (149 maps, 2,445 cases × two trials); results pending.
+once in exec 6850: terminal, 26 measured trials before Game Corner hit the
+Simulator 9 MiB Lua guard. A fresh process reproduced it. Private observer
+collections at loading suspensions permit both Game Corner trials without
+changing production or its guard. [Memory scope](door-census-memory-20261030.json).
+The corrected full census is pending; no worst-door result is claimed.
 [Qualification](door-census-qualification-20261030.json).
 Then per-installer first-entry activation, all-door/worst-five measurements,
 cave steps, and the remaining B traversal/visual gates. Superseded queued

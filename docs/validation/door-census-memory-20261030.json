@@ -1,0 +1,72 @@
+{
+  "status": "First full run stopped safely; Game Corner isolated and diagnostic collector qualified. Corrected full census pending.",
+  "runs": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-full-20261030-01/result.json",
+      "sha256": "01400a0abdd7fd4bf539038db47635c5a395fcefeed01a74d853621c4b7743ce",
+      "build_id": "a0b72e33727c4aa29abb13318ad0a7ce",
+      "counts": {
+        "measured": 26,
+        "not_run": 4864
+      },
+      "failure": "production guard stopped the census; inspect BootTrace",
+      "all_cases_reported": false,
+      "row_collection_samples": [
+        {
+          "id": "pokered:CELADON_CITY:warps:7",
+          "trial": 1,
+          "observer_gc_count": null,
+          "observer_gc_ms": null,
+          "post_gc_lua_heap_kib": 7609.52734375
+        },
+        {
+          "id": "pokered:CELADON_CITY:warps:7",
+          "trial": 2,
+          "observer_gc_count": null,
+          "observer_gc_ms": null,
+          "post_gc_lua_heap_kib": 7740.4140625
+        }
+      ]
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-game-corner-isolation-20261030-01/result.json",
+      "sha256": "599273e866dc52e9d86e97b12874453cc94d54432e010e592d4e8e581ba95a87",
+      "build_id": "d8f062aebe264c9b8c07adbc5e5f830d",
+      "counts": {
+        "not_run": 2
+      },
+      "failure": "production guard stopped the census; inspect BootTrace",
+      "all_cases_reported": false,
+      "row_collection_samples": []
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-game-corner-collection-20261030-01/result.json",
+      "sha256": "f6501e6e4e4a3d1955851f0e0213472090467c60da3491627be252e4cfc14ba6",
+      "build_id": "95012060fc7f424c93e643b4f07ccaf6",
+      "counts": {
+        "measured": 2
+      },
+      "failure": null,
+      "all_cases_reported": true,
+      "row_collection_samples": [
+        {
+          "id": "pokered:CELADON_CITY:warps:8",
+          "trial": 1,
+          "observer_gc_count": 16,
+          "observer_gc_ms": 55.20947265625,
+          "post_gc_lua_heap_kib": 7513.705078125
+        },
+        {
+          "id": "pokered:CELADON_CITY:warps:8",
+          "trial": 2,
+          "observer_gc_count": 21,
+          "observer_gc_ms": 86.00830078125,
+          "post_gc_lua_heap_kib": 7637.642578125
+        }
+      ]
+    }
+  ],
+  "cause_scope": "9 MiB Lua guard in Simulator Game Corner WorldView loading. Fresh-process failure excludes prior-case accumulation as a necessary cause. Loading-suspension collections permit both trials; this supports collectible pressure but does not identify every retained owner or prove physical memory safety.",
+  "change_scope": "Only the private Simulator census observer collects at loading suspensions above 8 MiB. Production Source, original hard guard, native 16 MiB pool and physical admission stay unchanged. Private GC totals are explicit; active spans exclude it, wall phases include it. No hardware or production pacing acceptance.",
+  "host_tests": "12 existing census host checks pass. SDK compile/execution of isolated Game Corner: two measured trials, no runtime error, earned slot bytes unchanged."
+}

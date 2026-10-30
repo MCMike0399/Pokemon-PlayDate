@@ -4,7 +4,9 @@ DoorCensus = {}
 function DoorCensus.install()
     assert(playdate.isSimulator, "door census is Simulator-only")
     local cfg <const> = assert(json.decodeFile("census/config.json"))
-    local clock <const> = function() return playdate.getElapsedTime() * 1000 end
+    local clock <const> = function()
+        return playdate.getElapsedTime() * 1000
+    end
     local wallClock <const> = playdate.getCurrentTimeMilliseconds
     local clockOffset <const> = wallClock() - clock()
     local callback <const> = playdate.update
@@ -27,10 +29,18 @@ function DoorCensus.install()
 
     -- Same four SDK query seams used by the existing autopilot/device observer.
     -- One directional input, then release; Player and Explore perform all work.
-    function playdate.buttonIsPressed(button) return (held & button) ~= 0 end
-    function playdate.buttonJustPressed(button) return (pressed & button) ~= 0 end
-    function playdate.buttonJustReleased(button) return (released & button) ~= 0 end
-    function playdate.getButtonState() return held, pressed, released end
+    function playdate.buttonIsPressed(button)
+        return (held & button) ~= 0
+    end
+    function playdate.buttonJustPressed(button)
+        return (pressed & button) ~= 0
+    end
+    function playdate.buttonJustReleased(button)
+        return (released & button) ~= 0
+    end
+    function playdate.getButtonState()
+        return held, pressed, released
+    end
 
     local function settled()
         local world = game.machine:get("overworld")
@@ -64,7 +74,9 @@ function DoorCensus.install()
     end
 
     local function segment(kind)
-        if not measured or not started then return end
+        if not measured or not started then
+            return
+        end
         local duration = clock() - started
         segmentNumber = segmentNumber + 1
         row.active_ms = row.active_ms + duration
@@ -80,9 +92,28 @@ function DoorCensus.install()
     -- inter-frame waits and observer file writes never become active CPU time.
     coroutine.yield = function(...)
         local observing = measured and coroutine.running() == updateThread
-        if observing then segment("yield") end
+        if observing then
+            segment("yield")
+        end
+        -- The 64-bit census observer is larger than the shipped device game.
+        -- Collect only at an actual loading suspension, outside active spans;
+        -- retain the production 9 MiB guard and the native 16 MiB pool.
+        if coroutine.running() == updateThread and collectgarbage("count") >= 8 * 1024 then
+            local before = clock()
+            collectgarbage("collect")
+            if row then
+                row.observer_gc_count = (row.observer_gc_count or 0) + 1
+                row.observer_gc_ms = (row.observer_gc_ms or 0) + clock() - before
+                if observing then
+                    row.traversal_observer_gc_count = (row.traversal_observer_gc_count or 0) + 1
+                    row.traversal_observer_gc_ms = (row.traversal_observer_gc_ms or 0) + clock() - before
+                end
+            end
+        end
         local values = table.pack(oldYield(...))
-        if observing then started = clock() end
+        if observing then
+            started = clock()
+        end
         return table.unpack(values, 1, values.n)
     end
 
@@ -159,7 +190,10 @@ function DoorCensus.install()
             return
         end
         for _, candidate in ipairs(item.approaches) do
-            if not candidate.geometry_gap then approach = candidate break end
+            if not candidate.geometry_gap then
+                approach = candidate
+                break
+            end
         end
         if not approach then
             finish("gap", "no source-owned land approach; field or terrain requirement unsupported")
@@ -209,7 +243,9 @@ function DoorCensus.install()
         local target = expected and expected.to
         local cached = false
         for _, key in ipairs(snapshot.cached) do
-            if key == target then cached = true end
+            if key == target then
+                cached = true
+            end
         end
         row.cache_before = snapshot
         row.target_cache = target and (cached and "warm" or "cold") or "unresolved until real script"
@@ -227,7 +263,9 @@ function DoorCensus.install()
     end
 
     local function afterFrame()
-        if phase ~= "measure" then return end
+        if phase ~= "measure" then
+            return
+        end
         local p = game.player
         row.step_completion_observed = row.step_completion_observed or p.stepJustFinished == true
         row.pending_edge_observed = row.pending_edge_observed or p.pendingEdgeDoor ~= nil
@@ -288,12 +326,18 @@ function DoorCensus.install()
     end
 
     function playdate.update()
-        if phase == "done" then return end
+        if phase == "done" then
+            return
+        end
         updateThread = coroutine.running()
         local ok, problem = pcall(function()
-            if phase == "next" then nextCase()
-            elseif phase == "setup" then setup()
-            elseif phase == "arm" then arm() end
+            if phase == "next" then
+                nextCase()
+            elseif phase == "setup" then
+                setup()
+            elseif phase == "arm" then
+                arm()
+            end
         end)
         if not ok then
             if not row then
@@ -304,18 +348,26 @@ function DoorCensus.install()
             updateThread = nil
             return
         end
-        if phase == "done" then return end
-        if measured then started = clock() end
+        if phase == "done" then
+            return
+        end
+        if measured then
+            started = clock()
+        end
         local accepted, failure = pcall(callback)
         segment(accepted and "return" or "error")
         started, updateThread = nil, nil
         if not accepted then
-            if row then finish("failure", failure) end
+            if row then
+                finish("failure", failure)
+            end
             GameBootstrap.fail(failure)
             return
         end
         -- A production safe error replaces update; do not mask or recover it.
-        if BootTrace.phase and BootTrace.phase:match("^error%.") then return end
+        if BootTrace.phase and BootTrace.phase:match("^error%.") then
+            return
+        end
         afterFrame()
     end
 end

@@ -215,7 +215,8 @@ def prepare(project, sdk, output, earned=None, only=None):
         write_json(case_dir / f'{i}.json', row)
     identity = uuid.uuid4().hex
     config = dict(schema=1, build_id=identity, count=len(selected), earned=bool(earned),
-                  classification=CLASSIFICATION, trials=2, max_frames=240)
+                  classification=CLASSIFICATION, trials=2, max_frames=240,
+                  gc_policy='explicit boundary GC plus loading-suspension collection at 8 MiB; diagnostic only')
     write_json(case_dir / 'config.json', config)
     seed = None
     if earned:
@@ -378,7 +379,7 @@ def summarize(output, metadata, failure=None):
                               sorted(measured, key=lambda r:r['wall_ms'], reverse=True)[:20]],
                   worst_segments=[{k:r[k] for k in ('id', 'trial', 'wall_ms', 'max_segment_ms', 'target_cache')} for r in
                                   sorted(measured, key=lambda r:r['max_segment_ms'], reverse=True)[:20]],
-                  limits='Simulator Lua heap only; no native-memory inference or hardware scaling; fixture setup excluded; BootTrace phase gaps are wall intervals')
+                  limits='Simulator Lua heap only; no native-memory inference or hardware admission; private suspension GC at 8 MiB is excluded from active spans but included in wall phases; fixture setup excluded; BootTrace phase gaps are wall intervals')
     write_json(output / 'result.json', result)
     return result
 
