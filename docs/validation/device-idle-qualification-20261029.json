@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "status": "30+30 hardware idle qualification passed after explicit observer-clock revalidation",
+  "build_id": "eda0ce22af64451e8231a68a1dd14a9e",
+  "result": {
+    "attempt": "3ead08a27e024e289c15f97b2ee1c042",
+    "build_id": "eda0ce22af64451e8231a68a1dd14a9e",
+    "guard_total_ms": 40398.00390625,
+    "hardware_soak_accepted": true,
+    "installed_pdx_sha256": "b4737465323916b1e288d21758ab2923901e8e12e6c0e10a5ece6afcb9a15838",
+    "maximum_slice_measurement_boundary": "before publication receipt IO; complete IO and final application guard included",
+    "maximum_slice_ms": 1162.111328125,
+    "observed_heap_bytes": 4974453.0,
+    "profile": "hardware-30+30",
+    "sampler_max_ms": 64,
+    "sampler_total_ms": 1022,
+    "samples": 60,
+    "scalar_total_ms": 29762.013671875,
+    "terminal_combined_slice_asserted_upper_bound_ms": 5000,
+    "terminal_observed_heap_asserted_upper_bound_bytes": 9437184,
+    "terminal_observer_ms": 14.75,
+    "terminal_receipt_tail": "locally guarded/asserted <=5000 ms including receipt; DONE print unmeasured"
+  },
+  "phase_samples": {
+    "title": {
+      "samples": 30,
+      "first_kib": 3537.759765625,
+      "last_kib": 3537.759765625,
+      "minimum_kib": 3537.759765625,
+      "maximum_kib": 3537.759765625
+    },
+    "overworld": {
+      "samples": 30,
+      "first_kib": 4112.244140625,
+      "last_kib": 4112.244140625,
+      "minimum_kib": 4112.244140625,
+      "maximum_kib": 4112.34765625
+    }
+  },
+  "production_soft_collections": 0,
+  "raw_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-idle-qualification-gen-collection-20261029-01/after/Data/com.poc.pokemon.soak.eda0ce22af64451e8231a68a1dd14a9e/soak-minute.jsonl",
+  "raw_sha256": "f8f19ab277ae36f99558852bbd231710b7a125e8df4010e10d9d1ccc5b4ca940",
+  "original_collection_outcome": "failed active minute missing; unchanged",
+  "revalidation": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-idle-qualification-gen-revalidated-20261029-01",
+  "new_error_or_crash_logs": false,
+  "two_hour_soak": "pending",
+  "playability_accepted": false
+}
