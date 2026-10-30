@@ -1,0 +1,30 @@
+{
+  "classification": "Private B Simulator memory diagnostics; not campaign or hardware acceptance.",
+  "gift_text": {
+    "before": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-gift-memory-old-prepare-20261030-01",
+    "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-gift-memory-bounded-prepare-20261030-01",
+    "source_sha256": "8a2f10a2db0f1cacfb3c48cc3b620b5791bf5ea9c24f524b5d13274719c46c65",
+    "native_cases_each": 40,
+    "failed_each": 0,
+    "old_retained_delta_kib": 665.7314453125,
+    "candidate_retained_delta_kib": -10.1064453125,
+    "paired_retained_difference_kib": 675.837890625,
+    "interpretation": "The old resolver retained a complete 630-recipe table. The candidate uses the existing bounded immutable cache. It reduces cold retained heap; it does not prove that the original OOM is fixed.",
+    "review": "Root inspected the resolver namespace, defensive text return and existing content conflict checks. No state, RNG, asset or source recipe changes. No independent review claimed."
+  },
+  "map_isolation": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-map-memory-diagnostic-prepare-20261030-01",
+    "ok": true,
+    "samples": 72,
+    "direct_entries": 71,
+    "initial_post_gc_kib": 7063.8203125,
+    "max_post_gc_kib": 8155.3095703125,
+    "final_post_gc_kib": 7901.23828125,
+    "scope": "Direct entries through the production world owners, explicit full collection between entries and real fade allocation. Excludes the long journey observer, battle and interaction history. Hardware timings, native peaks and natural traversal are unmeasured.",
+    "conclusion": "Map-only traversal completes. It does not reproduce the original OOM; cumulative journey history and observation overhead remain unresolved."
+  },
+  "next_inputs": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-08",
+    "status": "All three stopped-producer Bicycle save markers pass the original importer. The next journey is not launched."
+  }
+}

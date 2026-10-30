@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "8b6d3dce64bd7fbf3c4779137d7e4fecc63e15c4",
-    "source_sha256": "95408e358f14e810247dbfff6c3c460a6b0fdeb02be2f0e72e53403568ec0cc9",
+    "commit": "ddaf38044e47959381d3443cca5180d0232cb591",
+    "source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Private B additionally installs two pinned rod gift descriptors through the existing gift controller. Four prior definitions unchanged. Native red4failures/green40passes; original proof scopes retained and B checkpoints remain unaccepted. Driver brake release is real input only."
+    "review": "Private B now uses the existing eight-record cache for gift text. Both native variants pass all 40 gift cases; the cold lookup comparison saves about 676 KiB of retained heap. This does not establish resolution of the long-route OOM, hardware memory, or checkpoint acceptance. Post-battle cycling recovery remains a driver change pending a natural rerun."
   },
   "accepted_milestone_rows": [],
   "schedule": {
