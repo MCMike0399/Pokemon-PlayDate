@@ -152,5 +152,17 @@
       "main-vermilion-fixture-native-sdk-20261029-01",
       "main-capacity-services-native-sdk-20261029-01"
     ]
+  },
+  "actual_input_restarts": {
+    "status": "all three passed; not a hardware safety or pacing route",
+    "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-input-restarts-20261029-02",
+    "summary_sha256": "624235a1a123c5938d9a5967bc451ce4c94bdc1c7bd106da155c5b3301aec50e",
+    "production_source_sha256": "6f802affd5725c2f4ce71d829891c5c558fd92c6b9cff4ce5454daee4e73b81f",
+    "pdx_sha256": "1a398871459c72689a3ed0ef9579d3390fc9e75fe84a3fc847e92619677fb1d4",
+    "processes_per_starter": 2,
+    "canonical_earned_files_unchanged": true,
+    "non_motion_persisted_state_equal": true,
+    "motion_scope": "NPC motion may legitimately advance during real UI frames",
+    "standard_smoke_classification": "Raw generic smoke reports correctly retain missing door/battle-window failures. Separate UI component checks validate completed input transcripts, load/save boundaries, process exits and persisted values."
   }
 }

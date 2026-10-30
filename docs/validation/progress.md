@@ -98,8 +98,9 @@ Squirtle cover the critical path; Charmander also completed drink rewards,
 Eevee, a genuine slot spin and the Abra prize. [Hashes and exact build scopes](midgame-a-journey-candidates-20261029.json).
 Earned slots are outside Git in `chain/5.5a/<starter>`. All three also pass
 [exact cold-load session equality on one build](midgame-a-common-load-20261029.json).
-This calls GameSaves directly, adding no natural-input or device claim. Final
-input Continue, latency, soak, delivery and user play remain; no acceptance claimed.
+Actual input restarts also pass for all three on one PDX: Continue/Save, exit,
+Continue/Save; non-motion session values match, original earned slots unchanged.
+Latency, soak, delivery/clip and user play remain; no hardware acceptance claimed.
 Current-checkout preflight: 1,566 checks, no unexplained 5.5a geometry blockers.
 Inactive 5.5b keeps two unreachable points and six explicit field/actor gaps.
 
