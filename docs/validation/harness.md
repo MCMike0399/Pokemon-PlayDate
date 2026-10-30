@@ -135,6 +135,8 @@ encounters, press/mash/dismiss, battle, intro, gamestate/state/pokemon, seed,
 debug, and atlas. `atlas` now uses the full visual catalog. Additional actions:
 
 - `hold <button>` and `release <button>` control continuous synthetic input.
+  Explicit holds persist across successful request replies until released. Errors,
+  cancellation, timeout and terminal quiescence clear them.
   `press` lasts one frame; physical button query functions are isolated for the
   entire harness session, including just-released and aggregate button state.
 - `snapshot` returns a structured observation in the command result.

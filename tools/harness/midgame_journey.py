@@ -617,6 +617,8 @@ class MidgameJourney(vj.VermilionJourney):
             self.safari_battle_before = None
         if self.state.get('root') == 'safariPassage':
             passage = self.safari_observation()['passage']
+            if self.state.get('root') != 'safariPassage':
+                return True
             phase = passage['phase']
             if phase == 'failed':
                 raise ProtocolError('actual Safari passage failed: ' + str(passage.get('lastFailure')))
@@ -631,6 +633,8 @@ class MidgameJourney(vj.VermilionJourney):
             return self.advance_safari_battle()
         if self.state.get('root') == 'fieldGear':
             gear = self.observe('midgame-state')['fieldGear']
+            if self.state.get('root') != 'fieldGear':
+                return True
             if not gear.get('installed') or not gear.get('active'):
                 raise ProtocolError('actual FieldGear controller unavailable')
             attempt = getattr(self, 'fishing_attempt', None)
@@ -695,6 +699,8 @@ class MidgameJourney(vj.VermilionJourney):
 
     def advance_safari_battle(self):
         safari = self.safari_observation()
+        if self.state.get('root') != 'safariBattle':
+            return True
         battle = safari['battle']
         if not battle.get('active') or battle.get('lastFailure'):
             raise ProtocolError('actual Safari battle unavailable/failed: ' + str(battle))
@@ -1693,6 +1699,8 @@ class MidgameJourney(vj.VermilionJourney):
 
     def advance_travel(self):
         observed = self.observe('midgame-state')
+        if self.state.get('root') != 'fieldTravel':
+            return True
         runtime = observed.get('fieldRuntime', {})
         if runtime.get('installed') is not True:
             raise ProtocolError('FieldTravel runtime observation unavailable')
@@ -1834,7 +1842,8 @@ class MidgameJourney(vj.VermilionJourney):
         self.send('press a')
         self.require(**{'item_pc.phase': 'list', 'item_pc.operation': 'deposit'})
         candidates = ('ssTicket', 'helixFossil', 'domeFossil', 'moonStone',
-                      'tm34', 'tm11', 'tm28', 'tm24', 'coinCase', 'tm48', 'tm49', 'tm18', 'tm13')
+                      'tm34', 'tm11', 'tm28', 'tm24', 'coinCase', 'tm48', 'tm49', 'tm18', 'tm13',
+                      'tm21', 'tm06', 'liftKey', 'silphScope', 'rareCandy')
         while len(self.inventory()['slots']) > 15:
             before = self.inventory()
             item = next((key for key in candidates if self.quantity(key) > 0), None)

@@ -639,12 +639,20 @@ class MidgameBImportTests(unittest.TestCase):
                     'passage': dict(phase=phase)}), patch.object(driver, 'send') as send:
                 self.assertTrue(driver.advance_event())
                 send.assert_called_once_with(command)
+        def completed_passage():
+            driver.state = {'root': 'overworld'}
+            return {'passage': {'phase': 'closed'}}
+        with patch.object(driver, 'safari_observation', side_effect=completed_passage), patch.object(driver, 'send') as send:
+            self.assertTrue(driver.advance_event())
+            send.assert_not_called()
+        driver.state = {'root': 'safariPassage'}
         with patch.object(driver, 'safari_observation', return_value={'passage': dict(phase='failed', lastFailure='stale')}):
             with self.assertRaisesRegex(ProtocolError, 'stale'):
                 driver.advance_event()
 
     def test_safari_run_uses_two_column_cursor_and_requires_commit(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        driver.state = {'root': 'safariBattle'}
         battle = dict(active=True, phase='command', selected=1, turns=0, encounter=1,
                       menu=dict(active=True, columns=2, options=['BALL', 'BAIT', 'ROCK', 'RUN']))
         with patch.object(driver, 'safari_observation', return_value={'battle': battle}), patch.object(driver, 'send') as send, \
