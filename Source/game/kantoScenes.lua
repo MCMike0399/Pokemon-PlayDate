@@ -29,6 +29,8 @@ KantoScenes.reconcileActors = CeruleanStory.reconcileActors
 
 function KantoScenes.install()
     assert(not installed, "Kanto scenes already installed")
+    -- Qualified owners declare membership here. World callbacks remain cheap
+    -- boot wiring; they do not imply that scene/text data has been prepared.
     CeruleanStory.install({reconcileActors=KantoScenes.reconcileActors})
     GameBootstrap.yieldIfDue()
     CeruleanRoutes.install({reconcileActors=KantoScenes.reconcileActors})
