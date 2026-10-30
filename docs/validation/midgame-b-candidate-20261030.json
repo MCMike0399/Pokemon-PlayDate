@@ -140,7 +140,31 @@
     "bulbasaur": "Actual Safari admission, HM03 and Gold Teeth acquired; Rope USE rejected in Safari West.",
     "cause": "Legacy fieldItems.json lists 17 tileset symbols and omits Safari West; canonical active map metadata declares FOREST, explicitly permitted by pinned Blue escape_rope_tilesets.asm.",
     "prepared_fix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rope-eligibility-preparation-20261030-01",
-    "fix_scope": "Unapplied while other starters execute. Reuse SourceMaps metadata, retain existing whitelist/Agatha exclusion and existing GameSession Safari cleanup. Extend existing contract; no new case.",
-    "other_starters": "Continue frozen ninth build; no outcome inferred."
+    "fix_scope": "Committed privately as 7fb7bf76; original failed evidence retained.",
+    "other_starters": "Terminal; see ninth_result"
+  },
+  "ninth_result": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-ninth-koga-resumed-20261030-01",
+    "status": "All three failed; processes stopped. No B acceptance.",
+    "bulbasaur_squirtle": "Earned HM03 and Gold Teeth, then Safari West Rope eligibility rejected.",
+    "charmander": "Reached Warden after Safari; receipt expansion failed on missing wStringBuffer before HM04 publication.",
+    "fix_commit": "7fb7bf76",
+    "validation": {
+      "host_passed": 28,
+      "owner_sdk_passed": 10,
+      "rope_red_green": "m55b-rope-eligibility-preparation-20261030-01/native-comparison.json"
+    },
+    "scope": "Installed immutable tileset metadata; missing receipt RAM. No save schema, reward, terrain, art or budget changes.",
+    "reviews": {
+      "standards": "No findings; read-only exact commit review",
+      "spec": "No findings; read-only exact commit review"
+    }
+  },
+  "tenth_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-tenth-koga-resumed-20261030-01",
+    "source_revision": "7fb7bf76",
+    "status": "Launched; no outcome claimed",
+    "preflight": "m55b-preflight-tenth-20261030-01/report.json: zero unexplained geometry failures; eight runtime/capability conditions remain",
+    "inputs": "m55b-resume-inputs-20261030-03: exact stopped-process earned Koga Saves with accepted A ancestry"
   }
 }

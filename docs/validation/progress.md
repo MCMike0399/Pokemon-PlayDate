@@ -114,11 +114,11 @@ Fuchsia/Safari/Koga, Surf/Strength. Ten owner SDK cases, Chip Away, both gamepla
 reviews and 59 focused host checks pass. Geometry is conditional on live actors.
 
 All three eighth-set journeys earned Koga’s badge/TM06 and saved at Fuchsia.
-The ninth set resumes those exact Saves after return-route and NPC-wait fixes;
-61 host checks and fresh journey compilation pass. Bulbasaur earned Safari
-HM03/Gold Teeth, then Rope eligibility rejected the omitted FOREST map. The
-shared-metadata fix is prepared; other starters continue on the frozen build.
-No B journey acceptance yet.
+The ninth set failed at Safari West Rope eligibility or the Warden’s missing
+receipt name. Private fix `7fb7bf76` uses installed tileset metadata and supplies
+HM04 text RAM. The Rope case fails before/passes after; ten owner SDK cases and
+28 host checks and both reviews pass. Three earned Koga resumes are running;
+preflight has zero unexplained geometry failures. No B acceptance yet.
 The 149-map hardware smoke completed title/Continue/Save/doors/Cut/battle with
 unchanged error/crash logs and **4.49/6.20 MiB live/peak**. Continue: 3.55 s;
 longest door: 3.01 s; cave p95: 101.85 ms. Save’s 6.64 s used the diagnostic deep
@@ -126,8 +126,7 @@ policy; production profiling remains pending. Keeper restored; latency unaccepte
 [Current evidence](midgame-b-candidate-20261030.json), [integration history](progress-history-midgame-b-20261030.md).
 
 Private B’s first Simulator checkpoint probe was **6.55 MiB post-GC**; the
-physical **6 MiB live / 9 MiB peak** guards remain unchanged. Native B memory,
-latency and hardware smoke are still unmeasured. No B acceptance or merge claimed.
+physical **6 MiB live / 9 MiB peak** guards remain unchanged. The measured reference route does not establish final B checkpoint acceptance.
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 
 ## Storage, decisions and history
