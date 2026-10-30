@@ -49,12 +49,14 @@ def verify(stage):
 def rows(data, build, short=False):
     """Recompute from raw rows. A short proof cannot satisfy hardware acceptance."""
     raw = (data/'soak-minute.jsonl').read_text().splitlines()
-    count = 1 if short else 60
+    minutes = build.get('phase_minutes', 60)
+    require(minutes in (30, 60), 'unknown hardware soak duration')
+    count = 1 if short else minutes
     require(len(raw) == 2*count+5, 'incomplete/extra soak rows')
     records = [json.loads(line) for line in raw]
     expected = ['title-start']+['minute']*count+['continue-input', 'overworld-start']+['minute']*count+['complete', 'safety']
     require([r['kind'] for r in records] == expected, 'marker order')
-    profile = 'simulator-short-v1' if short else 'hardware-60+60'
+    profile = 'simulator-short-v1' if short else f'hardware-{count}+{count}'
     last_clock, last_wall = -1, -1
     monotonic = {k: 0 for k in ('guard_checks', 'observed_heap_kib', 'maximum_slice_ms', 'segments', 'guard_total_ms', 'guard_max_ms', 'scalar_total_ms', 'scalar_max_ms')}
     for row in records:
@@ -79,7 +81,7 @@ def rows(data, build, short=False):
             previous = row
         require(int(samples[-1]['wall_seconds'])-int(start['wall_seconds']) >= count*60, 'wall duration missing')
     require(records[count+1]['command'] == 'DS1 1 press a 1', 'Continue input')
-    require(end['samples'] == 2*count and end['idle_full_gc'] == 0, 'completion totals')
+    require(end['samples'] == 2*count and end.get('periodic_full_gc', end.get('idle_full_gc')) == 0, 'completion totals')
     for key in ('sampler_total_ms', 'sampler_max_ms', 'sampler_last_ms'):
         require(type(end[key]) in (int, float) and math.isfinite(end[key]) and end[key] >= 0, 'invalid overhead')
     require(end['sampler_last_ms'] <= end['sampler_max_ms'] <= end['sampler_total_ms'], 'overhead summary')
@@ -118,7 +120,7 @@ def rows(data, build, short=False):
                 maximum_slice_measurement_boundary='before publication receipt IO; complete IO and final application guard included',
                 terminal_combined_slice_asserted_upper_bound_ms=terminal_limit,
                 terminal_observed_heap_asserted_upper_bound_bytes=9*1024*1024,
-                terminal_receipt_tail='locally guarded/asserted <=150 ms including receipt; DONE print unmeasured',
+                terminal_receipt_tail=f'locally guarded/asserted <={terminal_limit} ms including receipt; DONE print unmeasured',
                 sampler_total_ms=end['sampler_total_ms'], sampler_max_ms=end['sampler_max_ms'],
                 guard_total_ms=safety['guard_total_ms'], scalar_total_ms=safety['scalar_total_ms'],
                 hardware_soak_accepted=not short)

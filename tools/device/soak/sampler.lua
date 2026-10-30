@@ -27,6 +27,11 @@ local function counters(row)
     row.maximum_slice_ms, row.segments = maximumSlice, segments
     row.guard_total_ms, row.guard_max_ms = guardTotal, guardMax
     row.scalar_total_ms, row.scalar_max_ms = scalarTotal, scalarMax
+    if BootTrace.memoryCollectionStatus then
+        local collections, before, after = BootTrace.memoryCollectionStatus()
+        row.production_soft_collections = collections
+        row.last_soft_before_kib, row.last_soft_after_kib = before, after
+    end
     return row
 end
 local minute <const> = 60000
@@ -145,7 +150,7 @@ local function finish()
             sampler_max_ms=maxMS, sampler_last_ms=previousMS,
             suppressed_test_full_collections=suppressedCollections,
             setup_full_gc="unchanged production main.lua collection before GameContext",
-            idle_full_gc=0})
+            periodic_full_gc=0})
     end
 end
 

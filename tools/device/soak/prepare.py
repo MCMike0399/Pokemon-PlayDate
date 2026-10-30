@@ -36,7 +36,9 @@ end
 '''
 
 
-def prepare(project, sdk, output, earned_path):
+def prepare(project, sdk, output, earned_path, phase_minutes=60, gc_mode='generational'):
+    if phase_minutes not in (30, 60) or gc_mode not in ('generational', 'incremental'):
+        raise ValueError('soak requires 30/60 minute phases and a known collection mode')
     dependencies = {name: sha(PROJECT/name) for name in TOOL_PATHS}
     earned = json.loads(earned_path.read_text())
     slots = earned['files']
@@ -75,10 +77,16 @@ def prepare(project, sdk, output, earned_path):
         '    import "CoreLibs/graphics"\n    import "dev/deviceSmoke"\n    import "dev/soakSampler"\n')
     private = f'DEVICE_TEST_BUILD = true\nDEVICE_TEST_ID = "{identity}"\n' + private
     private += '\nDeviceSmoke.installSoak()\n'
+    if gc_mode == 'incremental':
+        private += '\nGameBootstrap.afterReady(function() collectgarbage("incremental", 110, 200, 13) end)\n'
     (source / 'main.lua').write_text(private)
     (source / 'dev').mkdir()
     (source / 'dev/deviceSmoke.lua').write_text(module)
-    shutil.copyfile(Path(__file__).with_name('sampler.lua'), source / 'dev/soakSampler.lua')
+    sampler = Path(__file__).with_name('sampler.lua').read_text()
+    sampler = replace_once(sampler, 'local phaseSamples = 60', f'local phaseSamples = {phase_minutes}')
+    sampler = replace_once(sampler, 'local profile = "hardware-60+60"',
+                           f'local profile = "hardware-{phase_minutes}+{phase_minutes}"')
+    (source / 'dev/soakSampler.lua').write_text(sampler)
     bundle_id = f'com.poc.pokemon.soak.{identity}'
     info = source / 'pdxinfo'
     info.write_text(replace_once(info.read_text(), 'bundleID=com.poc.pokemon\n', f'bundleID={bundle_id}\n'))
@@ -127,7 +135,8 @@ def prepare(project, sdk, output, earned_path):
         device_smoke_seam_sha256=sha(project/'Source/dev/deviceSmoke.lua'),
         sampler_sha256=sha(source/'dev/soakSampler.lua'),
         hardware_admission=False, runtime_executed=False,
-        schedule='60 complete active minutes at title; DS1 press a 1; settled earned overworld; 60 complete active minutes',
+        phase_minutes=phase_minutes, gc_mode=gc_mode,
+        schedule=f'{phase_minutes} complete active minutes at title; DS1 press a 1; settled earned overworld; {phase_minutes} complete active minutes',
         heap_sampling='recorded once/minute; original per-frame guard retained; no periodic full GC',
         overhead='unmeasured until runtime; minute rows report prior cost; terminal row reports total/max/last',
         blockers=['existing exact DeviceSmoke gate rejects two-module overlay and absent frame metrics',
@@ -143,6 +152,9 @@ if __name__ == '__main__':
     parser.add_argument('--sdk', type=Path, default=Path('~/Developer/PlaydateSDK'))
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--earned-save', type=Path, required=True)
+    parser.add_argument('--phase-minutes', type=int, choices=(30, 60), default=60)
+    parser.add_argument('--gc-mode', choices=('generational', 'incremental'), default='generational')
     args = parser.parse_args()
     print(json.dumps(prepare(args.project.expanduser().resolve(), args.sdk.expanduser().resolve(),
-        args.output.expanduser().resolve(), args.earned_save.expanduser().resolve()), indent=2))
+        args.output.expanduser().resolve(), args.earned_save.expanduser().resolve(),
+        args.phase_minutes, args.gc_mode), indent=2))
