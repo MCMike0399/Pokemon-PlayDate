@@ -411,7 +411,7 @@
   "fourteenth_journey_set": {
     "revision": "8888c740",
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01",
-    "state": "Started; continue on failure. No outcome inferred.",
+    "state": "Complete: Bulbasaur and Squirtle pass both processes; Charmander fails at the held-B learning entry guard.",
     "inputs": "m55b-resume-inputs-20261030-08: Charmander deliberately repeats the original long pre-Safari history to test the OOM after bounded text loading; Bulbasaur and Squirtle use their actual verified Bicycle Saves. Latest Charmander Bicycle marker remains retained separately.",
     "validation": "All 1,039 host tests and production compilation pass. Preflight: 1,572 checks, zero unexplained geometry blockers; eight runtime conditions remain open.",
     "scope": "Private 149-map candidate, no checkpoint acceptance or gameplay merge.",
@@ -442,6 +442,32 @@
         "adventure.b.json": "ee2d97a44e69c176937869e3d10097e688aa8b6aa36658a29fafc8d2050e9298"
       },
       "scope": "First earned B chain passes. No whole-checkpoint, common-build, hardware or latency acceptance is claimed."
+    },
+    "squirtle_result": {
+      "status": "PASS: two confirmed stopped processes and real Continue.",
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/03-midgame--restart-55b-squirtle",
+      "run_sha256": "d75c5ebfa9afcd92a43669e3adb4be0ffba28843d03a8ca6cf0dd5eba693d988",
+      "process_ids": [
+        58875,
+        75919
+      ],
+      "receipt_sha256": [
+        "6d7eb53dc5a2d14fed2542002a1a86cb8779106b19db32726a6cdb6cc0bab7da",
+        "6d7eb53dc5a2d14fed2542002a1a86cb8779106b19db32726a6cdb6cc0bab7da"
+      ],
+      "export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/squirtle",
+      "provenance_sha256": "6396a258234e81e1c972f3e4b63862852addeb7a2166f087ecf016ffeab8d2f5",
+      "scope": "Second earned B chain passes. Charmander optional route remains incomplete; no checkpoint acceptance."
     }
+  },
+  "learning_driver_repair": {
+    "commit": "c05cb3fb",
+    "host_regression": "ea3f80a6",
+    "targeted_host_checks": 68,
+    "scheduler_test": "m55b-learning-brake-scheduler-host-20261030-01.log",
+    "preflight": "m55b-learning-brake-preflight-20261030-01.json",
+    "geometry_gaps": 0,
+    "runtime_conditions": 8,
+    "status": "Private driver only. Releases B at guarded learning entry, restores it inside the final committed receipt, and creates a real pre-road Save. Natural replay pending."
   }
 }

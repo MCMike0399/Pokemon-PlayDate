@@ -32,5 +32,89 @@
       ]
     }
   ],
-  "safety_sequence": "Root process is waiting on the complete journey-suite lock, then runs all four exact 16 MiB safety profiles sequentially. It cannot displace a queued starter. Pending report: evidence/boot-shipped-map-safety-sequence-20261030-01.json."
+  "safety_sequence": "Root process is waiting on the complete journey-suite lock, then runs all four exact 16 MiB safety profiles sequentially. It cannot displace a queued starter. Pending report: evidence/boot-shipped-map-safety-sequence-20261030-01.json.",
+  "safety_results": [
+    {
+      "maps": 108,
+      "variant": "baseline",
+      "safety_admitted": true,
+      "measurements": {
+        "battle_device_estimate_ms": 34.6,
+        "battle_start_ms": 2.0,
+        "frame_ms": 5.145,
+        "heap_live_bytes": 6250820.608,
+        "heap_peak_bytes": 7412038.656,
+        "map_device_estimate_ms": 2346.2940999999996,
+        "map_load_ms": 250.0,
+        "slice_ms": 52.424
+      }
+    },
+    {
+      "maps": 108,
+      "variant": "candidate",
+      "safety_admitted": true,
+      "measurements": {
+        "battle_device_estimate_ms": 34.6,
+        "battle_start_ms": 2.0,
+        "frame_ms": 10.467,
+        "heap_live_bytes": 6250741.76,
+        "heap_peak_bytes": 7425257.472,
+        "map_device_estimate_ms": 2498.826900000061,
+        "map_load_ms": 281.0,
+        "slice_ms": 49.739
+      }
+    },
+    {
+      "maps": 149,
+      "variant": "baseline",
+      "safety_admitted": true,
+      "measurements": {
+        "battle_device_estimate_ms": 34.6,
+        "battle_start_ms": 2.0,
+        "frame_ms": 12.164,
+        "heap_live_bytes": 7071461.376,
+        "heap_peak_bytes": 8130764.8,
+        "map_device_estimate_ms": 2562.7764999999813,
+        "map_load_ms": 319.0,
+        "slice_ms": 76.0
+      }
+    },
+    {
+      "maps": 149,
+      "variant": "candidate",
+      "safety_admitted": true,
+      "measurements": {
+        "battle_device_estimate_ms": 17.3,
+        "battle_start_ms": 1.0,
+        "frame_ms": 13.553,
+        "heap_live_bytes": 7072742.4,
+        "heap_peak_bytes": 8132503.552,
+        "map_device_estimate_ms": 2586.2014000000277,
+        "map_load_ms": 285.0,
+        "slice_ms": 78.08
+      }
+    }
+  ],
+  "hardware_108": {
+    "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-baseline-hardware-20261030-01",
+    "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-shipped-maps-108-candidate-hardware-20261030-01",
+    "boot_baseline_ms": 18379,
+    "boot_candidate_ms": 14713,
+    "improvement_percent": 19.9466782741172,
+    "no_new_logs": true,
+    "status": "Gain exceeds 10%; review pending, 10 s target still fails."
+  },
+  "review_finding": {
+    "status": "Unresolved before production acceptance.",
+    "issue": "Lua default kFileRead is 3 and searches Data before the PDX. A build-qualified cache could be shadowed by writable Data bytes.",
+    "verified_probe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/shipped-file-origin-probe-prepare-20261030-01/startup-probe.json",
+    "probe_result": "Real SDK 3.1.2: default/json and mode 3 read the Data fixture; numeric mode 1 reads the bundle fixture.",
+    "next_fix": "Use verified bundle-only reads for qualified shipped assets; preserve untrusted Save reads and harness/deep paths. Requalify the refined candidate."
+  },
+  "source_only_followup": {
+    "branch": "wip/shipped-content-checks-20261030-01",
+    "commit": "4d11c178",
+    "host_checks": 19,
+    "status": "Unmeasured follow-up only; immutable text/art conflicts move to pinned generation and production staging. Dynamic event/trainer checks and story transforms remain unchanged. No new timing or lazy-region claim."
+  }
 }
