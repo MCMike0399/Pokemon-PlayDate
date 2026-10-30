@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "490d3c4238dd4549d4568f6917e8fccb810052f6",
-    "source_sha256": "3dea758787ca1264e93296d6c8fe2abff9a5e949a01328b9da412e1873746c76",
+    "commit": "360855238e6143254408bfff0472fde80fe952c7",
+    "source_sha256": "b12add7aeae6e657a72c6307511fc872a43c55c27e4df5c4506bcafdc5a31164",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Reviewed 41 added map records, unchanged old data/pins, dormant trade descriptors and scoped Chip Away proof. B map facets are partial/source-only; historical evidence and accepted_milestone_rows stay unchanged. No checkpoint completion promotion."
+    "review": "Production Source is byte-identical to e7270b8c. Only dev/autopilot.lua and dev/harness.lua changed: successful explicit holds persist until release; terminal error/cancel/timeout/quiesce reset remains.42native protocol checks and exact hold trace pass. Existing B map/rules facets retain original proof scopes; no checkpoint promotion."
   },
   "accepted_milestone_rows": [],
   "schedule": {
