@@ -342,6 +342,19 @@
       "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-brake-full-host-20261030-01.log",
       "sha256": "ab012ed9273d88c33a747995f37ac41df46f68ed34f5560c7655302843777c96",
       "scope": "All currently discovered B host tests and compile-only checks; not campaign/device acceptance"
+    },
+    "charmander_result": {
+      "status": "Failed; the owned process is confirmed terminated.",
+      "reported_error": "Command timeout; cancellation was unconfirmed.",
+      "primary_runtime_error": "game/overworldState.lua:343: image:drawFaded() failed: out of memory",
+      "primary_source": "m55b-earned-thirteenth-resumed-20261030-01/01-midgame--restart-55b-charmander/processes/0001/runtime-data/runtime-error.json",
+      "first_error_request": "04713: press left and wait 9 while entering the Route 16 gate. The following finally-block release request timed out after game updates stopped.",
+      "last_trace_heap_kib": 11925.49,
+      "trace_peak_kib": 13850.163,
+      "scope": "16 MiB Simulator journey failure, not a hardware measurement. The cause is unproven; the transport timeout is secondary.",
+      "earned_save": "The actual Cerulean Center save after Bicycle acquisition is retained. The producer stopped; later unsaved state is not promoted.",
+      "map_memory_diagnostic": "m55b-map-memory-diagnostic-prepare-20261030-01: 71 direct entries through production owners, explicit full collection and fade allocation. Compiled, not executed or accepted.",
+      "remaining_starters": "Continue on the frozen build; no outcome is inferred."
     }
   },
   "current_production_profile": {
