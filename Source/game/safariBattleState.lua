@@ -38,6 +38,7 @@ function SafariBattleState:enter(enemy, battle, scene)
     self.enemy, self.battle, self.scene = enemy, battle, scene
     self.animation, self.token, self.receipt, self.command = nil, nil, nil, nil
     self.lastFailure, self.frame = nil, 0
+    self.turnCount, self.lastTurn = 0, nil
     self.session:markSeen(enemy.species)
     self:message({"Wild " .. enemy.name .. " appeared!"}, function() self:choose() end)
 end
@@ -66,6 +67,7 @@ function SafariBattleState:select(command)
     if not self:valid() or self.phase ~= "command" then
         return false, "stale-safari-selection"
     end
+    local before = self.session:safariData()
     local token, reason = SafariBattle.prepare(self.session, self.enemy, self.battle, command)
     if not token then
         self.lastFailure = reason
@@ -94,6 +96,11 @@ function SafariBattleState:select(command)
         return false, result
     end
     self.token = nil
+    self.turnCount = self.turnCount + 1
+    self.lastTurn = {sequence = self.turnCount, command = command,
+        before = before, after = self.session:safariData(),
+        receipt = GameSession._copy(result.receipt), destination = result.destination and GameSession._copy(result.destination) or nil,
+        outcome = result.battle.outcome}
     self.command, self.battle, self.receipt = command, result.battle, result.receipt
     self.animation, self.frame, self.phase = animation, 0, "action"
     self.menu:hide()
@@ -139,7 +146,9 @@ function SafariBattleState:finish()
         self.lastFailure = reason
         return false, reason
     end
-    self.game.lastSafariBattle = {kind = self.battle.outcome, species = self.enemy.species}
+    self.game.lastSafariBattle = {kind = self.battle.outcome, species = self.enemy.species,
+        encounter = self.epoch, turns = self.turnCount, lastTurn = GameSession._copy(self.lastTurn),
+        resources = self.session:safariData()}
     self.game.lastSafariBattleSession = self.session
     self.machine:pop()
     return true
@@ -205,5 +214,12 @@ function SafariBattleState:getSnapshot()
     return {active = self.active == true, phase = self.active and self.phase or "closed",
         enemy = self.enemy and self.enemy.species or "none", command = self.command or "none",
         outcome = self.battle and self.battle.outcome or "none", balls = self.session and self.session:safariData().balls or 0,
-        selected = self.menu.selectedIndex, lastFailure = self.lastFailure}
+        selected = self.menu.selectedIndex, lastFailure = self.lastFailure,
+        encounter = self.epoch or 0, turns = self.turnCount or 0,
+        catchRate = self.battle and self.battle.catchRate or nil,
+        bait = self.battle and self.battle.bait or nil,
+        anger = self.battle and self.battle.anger or nil,
+        menu = {active = self.menu.isActive == true, columns = self.menu.columns,
+            options = GameSession._copy(self.menu.options or {})},
+        lastTurn = self.lastTurn and GameSession._copy(self.lastTurn) or nil}
 end

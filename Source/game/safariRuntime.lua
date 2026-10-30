@@ -1,6 +1,7 @@
 -- Read-only observations and narrow integration at existing settled boundaries.
 SafariRuntime = {}
 local completed = setmetatable({}, {__mode = "k"})
+local stepResults = setmetatable({}, {__mode = "k"})
 function SafariRuntime.completedStep(game, fieldOwner)
     local player = game.player
     local ordinary = game.machine:getCurrent() == "overworld" and game.machine:depth() == 1
@@ -21,6 +22,12 @@ function SafariRuntime.completedStep(game, fieldOwner)
     end
     local accepted, reason = game.session:commitSafari(plan, game.session:fieldWorldEpoch())
     assert(accepted, reason)
+    local previous = stepResults[game]
+    stepResults[game] = {session = game.session, value = {
+        sequence = previous and previous.session == game.session and previous.value.sequence + 1 or 1,
+        zone = currentZone.stableID, x = player.gridX, y = player.gridY,
+        before = plan.before, after = game.session:safariData(),
+    }}
     return true
 end
 function SafariRuntime.check(game)
@@ -60,6 +67,8 @@ function SafariRuntime.observe(game)
     value.battle = battle and battle:getSnapshot() or {active = false, phase = "unregistered"}
     value.passage = passage and passage:getSnapshot() or {active = false, phase = "unregistered"}
     value.lastPassage = game.lastSafariPassageSession == game.session and game.lastSafariPassage and GameSession._copy(game.lastSafariPassage) or nil
+    local step = stepResults[game]
+    value.lastStep = step and step.session == game.session and GameSession._copy(step.value) or nil
     value.lastBattle = game.lastSafariBattleSession == game.session and game.lastSafariBattle and GameSession._copy(game.lastSafariBattle) or nil
     return value
 end

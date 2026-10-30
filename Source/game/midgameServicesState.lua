@@ -75,7 +75,7 @@ function MidgameServicesState:safariAdmission()
     self.player.facing = "right"
     self.player:updateSprite()
     local prefix = "_SafariZoneGateSafariZoneWorker1"
-    local money, epoch = self.session:inventory():money(), self.session:fieldWorldEpoch()
+    local money = self.session:inventory():money()
     self:source({prefix .. "WouldYouLikeToJoinText"}, function()
         self:midgameYesNo(function(yes)
             if not yes then

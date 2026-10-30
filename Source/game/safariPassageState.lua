@@ -79,6 +79,8 @@ function SafariPassageState:walk(steps)
     self.moving = true
 end
 function SafariPassageState:commit()
+    local before = self.game.session:safariData()
+    local money = self.game.session:inventory():money()
     local accepted, reason = self.game.session:commitSafariPassage(self.token)
     if not accepted then
         self:fail(reason)
@@ -86,7 +88,11 @@ function SafariPassageState:commit()
     end
     self.done = true
     SafariPassage.finish(self.token)
-    self.game.lastSafariPassage = {kind = self.plan.kind, ok = true}
+    self.game.lastSafariPassage = {kind = self.plan.kind, ok = true,
+        countedSteps = #self.plan.before + #self.plan.after,
+        before = before, after = self.game.session:safariData(),
+        moneyBefore = money, moneyAfter = self.game.session:inventory():money(),
+        location = self.game.session:location()}
     self.game.lastSafariPassageSession = self.game.session
     self.machine:pop()
 end

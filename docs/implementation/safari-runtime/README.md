@@ -105,3 +105,27 @@ remains its existing source handoff case. These contracts compile but are not
 executed by this worker. Root still must run them and the earned-save journey;
 compilation is not a claim of native behavior, image acceptance or checkpoint
 acceptance. Shared fixture expectations remain root-owned.
+
+## Current port verification (2026-10-29)
+
+First useful port: `821bd4e0` on current main `2dd9f3cc`. Follow-up adds detached
+turn, step and committed passage observations with assertions inside the same
+three behavior cases. Exact driver fields and real input are in
+[driver-observations.md](driver-observations.md).
+
+All 33 scoped host checks pass: `test_safari_service_sources`, `test_capture_art`,
+`test_capture_generator`, `test_source_actor_placement_inputs`, `test_source_events`.
+SDK 3.1.2 compilation passes for both the unchanged production entry point and a
+private Source copy with the returned session/Player/animation/Overworld hooks,
+imports, overlay registrations and existing Safari contracts compiled together.
+The owner patch apply-checks current main. Map activation is deliberately not
+staged; installation/run still depends on the map worker/root package.
+
+Evidence and the exact private compile recipe are outside Git at
+`~/Developer/Pokemon-PlayDate-env/evidence/safari-runtime-55b-port-20261029-01/`.
+`compile.json`, `sdk-compile.log`, `host-tests.log` and
+`production-stage/build.json` record those checks. The private staging recipe
+never launches Simulator. No behavior case was executed, no native/device/USB
+was used, and no protected owner, ledger, accepted evidence, map/cache or art
+file was edited. No push or delegation occurred. Root owns the remaining SDK
+execution and earned-save acceptance after integration.
