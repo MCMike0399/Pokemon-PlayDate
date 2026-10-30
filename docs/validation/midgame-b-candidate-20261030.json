@@ -173,6 +173,20 @@
       "cause": "retrieve_hm_user moved from WardensHouse to FuchsiaPokecenter; driver omitted the return before activating Strength and approaching the boulder",
       "prepared_fix": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-warden-return-preparation-20261030-01/root.patch",
       "remaining_starters": "Continuing frozen build; outcomes not inferred"
+    },
+    "squirtle_progress": {
+      "status": "Producer remains live; not eligible for partial-save import",
+      "observed_save": "m55b-earned-tenth-koga-resumed-20261030-01/02-midgame--restart-55b-squirtle/processes/0001/partial-save.json",
+      "verified_groups": [
+        "safari-hm03-gold-teeth-hm04-strength-surf"
+      ],
+      "location": {
+        "zone_id": "pokered:FUCHSIA_CITY",
+        "x": 29,
+        "y": 22,
+        "facing": "down"
+      },
+      "current_leg": "Bicycle and Cycling Road; full result and actual restart pending"
     }
   },
   "host_validation": {

@@ -34,5 +34,27 @@
     "compile": "Production, harness and privately composed root hooks passed SDK 3.1.2",
     "handoff": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-587ddd36/tools/integration/copycat/README.md",
     "scope": "Original Doll/TM31 exchange and conditional PC text; no new dispatcher, owner, naming or link play. Native gameplay, sound, timing and Save/Continue pending."
+  },
+  "driver_packet": {
+    "commit": "a7196459e9c8246ab26bfbda86a921785d72ae57",
+    "scope": "C-only phases; actual B ancestry/import intentionally unbound until acceptance",
+    "host_checks": 75,
+    "initial_geometry_checks": 214,
+    "initial_conditions": 17
+  },
+  "silph_geometry_packet": {
+    "head": "e71bb2cb2af107a3c1d6a5f0af5ef8068b94b5f1",
+    "assembled_base": "729ca6be6cef36abc7a35f8e615ad123e47320cd",
+    "source_fix_commits": [
+      "1af97719",
+      "e56ca9ad",
+      "9b173968"
+    ],
+    "scope": "11F INTERIOR projection, two pinned callback atlas cells, correct Card Key sequence and inert source warp diagnosis; C remains inactive",
+    "preservation": "171 map descriptors/runtime records, binary cells and799old atlas cells unchanged",
+    "geometry_checks": 234,
+    "remaining_conditions": 6,
+    "root_patch": "tools/integration/checkpoint-c/geometry-root-hooks.patch; unapplied",
+    "validation": "Generator reproduction, focused host and SDK compile-only pass; inherited map extension fixture stale; no runtime acceptance"
   }
 }
