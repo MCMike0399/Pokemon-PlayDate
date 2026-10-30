@@ -54,7 +54,9 @@ def qualify_shipped_content(project, source, stage):
     marker = 'local immutableContentQualified <const> = false'
     if text.count(marker) != 1:
         raise ValueError('shipped immutable-content policy must start unqualified')
-    artifacts = generate_content(source, pins)
+    # B/C staging omits raw aggregate preparation files. Generate from pinned
+    # project inputs, then qualify the exact copied runtime cache below.
+    artifacts = generate_content(Path(project) / 'Source', pins)
     cache = source / 'data/contentCache'
     actual = {path.relative_to(cache).as_posix(): path.read_bytes()
               for path in cache.rglob('*.json')}
