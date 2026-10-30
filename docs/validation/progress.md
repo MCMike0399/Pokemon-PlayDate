@@ -52,9 +52,8 @@ Boot/title **18.447 s**, Continue **7.929 s**, Route2 door **3.082 s**, battle
 **19 ms**, cave walking p95 **97.26 ms**. App-start/walk-ready proxy **28.351 s**;
 physical power-on is unmeasured. Lua live/peak **4.01 / 5.65 MiB**; last battle
 phase **4.24 MiB**. [Exact phase results](device-save-latency-20261029.json).
-The original hook filter improved mean walking to 30.23/26.76 fps, but that does
-not meet the newer cave-p95 bar. Device is back on the USB keeper. Old reports
-remain exact; fresh phase reports separate diagnostic GC and timing remainder.
+The original hook filter improved mean walking to 30.23/26.76 fps; cave p95
+still fails. Old reports remain exact; fresh reports separate diagnostic GC.
 
 Flat atlases passed 16 SDK world cases, one review and all **497,664 native
 pixels across 486 keys**, compiled-path use, fresh copies and two-slot eviction.
@@ -83,8 +82,8 @@ These are Simulator results, not hardware validation of the 108-map build.
 
 ## 4. Work in flight
 
-Root owns main, Simulator and hardware; the user is away. No setup question or
-push. Main remains **65/222 Simulator route-verified; 0/222 hardware accepted**.
+Root owns Simulator and hardware; the user is away. No setup question or push.
+Main remains **65/222 Simulator route-verified; 0/222 hardware accepted**.
 The provisional full-latency targets are in the goal: boot/title 10 s, Continue
 4 s, Save 2 s, doors 1.5 s, battle start 1 s, cave p95 50 ms; boot slices 1 s.
 App-start-to-walking is also reported; physical power-on remains unmeasured.
