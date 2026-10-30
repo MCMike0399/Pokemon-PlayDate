@@ -124,5 +124,19 @@
     "scope": "No native safety, hardware gain or lazy-region implementation claimed for this follow-up.",
     "measurement": "docs/validation/shipped-content-boot-measurement-20261030.json"
   },
-  "measurement": "docs/validation/shipped-map-boot-measurement-20261030.json"
+  "measurement": "docs/validation/shipped-map-boot-measurement-20261030.json",
+  "region_declaration_trial": {
+    "branch": "wip/lazy-region-records-149-20261030-01",
+    "commit": "afb81fbb",
+    "status": "Real SDK equivalence and exact safety route pass; hardware measurement running.",
+    "source_exports": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-transforms-149-exact-sdk-20261030-01/export-proof.json",
+    "runtime_equivalence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/region-declaration-sdk-equivalence-20261030-01/startup-probe.json",
+    "events_compared": 563,
+    "trainers_compared": 175,
+    "targeted_checks": 13,
+    "safety_slice_ms": 80.332,
+    "safety_peak_mib": 7.722,
+    "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-region-declarations-149-hardware-20261030-01",
+    "scope": "Qualified lightweight membership and on-demand transformed record bodies. Trainer membership snapshots and runtime duplicate checks retained. Not yet full first-entry region activation, and no timing gain claimed."
+  }
 }
