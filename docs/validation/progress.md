@@ -85,6 +85,9 @@ Simulator slices. Performance targets do not block measurement.
 The isolated early-title candidate passes its 16 MiB smoke (41.3 ms raw slice,
 7.00 MiB peak) and 39 existing recovery/archive/session bridge SDK cases.
 Hardware timing remains unmeasured; it is not merged.
+Door prefetch and generated registration also pass isolated safety routes:
+54.2 ms / 6.99 MiB and 36.3 ms / 6.89 MiB peak, respectively. Both remain
+unmerged pending hardware comparisons; no speed gain is claimed.
 
 The old title-summary shortcut was rejected because it removed constructor and
 fresh dependency checks. Rework load/export structurally under the new tiered
