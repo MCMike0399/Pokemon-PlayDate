@@ -129,6 +129,14 @@ class StorageMaintenanceTests(unittest.TestCase):
         self.assertEqual(result['referenced-stage']['action'], 'keep')
         self.assertEqual(result['deletable']['action'], 'remove')
 
+    def test_schema_evidence_property_does_not_retain_the_entire_root(self):
+        self.stage('deletable')
+        self.write(self.validation / 'coverage.schema.json', {
+            'required': ['evidence'], 'properties': {'evidence': {'type': 'object'}},
+        })
+        self.commit()
+        self.assertEqual(self.plan()['deletable']['action'], 'remove')
+
     def test_packages_acceptance_unknown_and_latest_device_builds(self):
         for name in ('player-packages', 'acceptance-packet', 'Source', 'references', 'Data'):
             self.stage(name)

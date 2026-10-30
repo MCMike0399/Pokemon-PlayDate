@@ -206,7 +206,7 @@ def plan(project, root, refs, age_hours):
             for token in re.findall(r'evidence/([^\s`"\'\)]+)', text):
                 component = re.sub(r'<[^>]+>', '*', token.split('/')[0].rstrip('.,;:'))
                 matches.update(n for n in paths if fnmatch.fnmatchcase(n, component))
-            if text.rstrip('/') in ('evidence', str(root), '$POKEMON_ENV/evidence', '${POKEMON_ENV}/evidence'):
+            if text.rstrip('/') in (str(root), '$POKEMON_ENV/evidence', '${POKEMON_ENV}/evidence'):
                 matches.update(paths)
             if '\n' not in text and len(text) < 4096 and '/' in text:
                 expanded = text.replace('${POKEMON_ENV}', str(root.parent)).replace('$POKEMON_ENV', str(root.parent))
