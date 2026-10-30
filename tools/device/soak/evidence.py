@@ -73,7 +73,9 @@ def rows(data, build, short=False):
         previous = start
         for index, row in enumerate(samples, 1):
             require(row['phase'] == phase and row['minute'] == index and row['state'] == phase, 'minute phase/order')
-            require(row['clock_ms']-previous['clock_ms'] >= 60000 and row['elapsed_ms'] >= index*60000, 'active minute missing')
+            # phaseStart precedes start-row publication; its IO is not idle time.
+            # Later samples schedule the next minute after publication.
+            require((index == 1 or row['clock_ms']-previous['clock_ms'] >= 60000) and row['elapsed_ms'] >= index*60000, 'active minute missing')
             require(row['saved'] == 0 and row['loaded'] == (phase == 'overworld'), 'unexpected load/save')
             require(type(row['heap_kib']) in (int, float) and math.isfinite(row['heap_kib']) and 0 <= row['heap_kib'] <= 9*1024, 'minute heap')
             if phase == 'overworld':
@@ -152,17 +154,20 @@ def admission(stage, report_path):
 
 
 def console_rows(log, data):
+    expected = [json.loads(line) for line in (data/'soak-minute.jsonl').read_text().splitlines()]
+    build = expected[0]['build']
     observed = []
     for line in log.read_text().splitlines():
         if 'SOAK1 ' in line:
             row, _ = json.JSONDecoder().raw_decode(line.split('SOAK1 ', 1)[1])
-            observed.append(row)
-    expected = [json.loads(line) for line in (data/'soak-minute.jsonl').read_text().splitlines()]
+            if row.get('build') == build:
+                observed.append(row)
     require(observed == expected, 'console/file markers differ')
 
     publication = json.loads((data/'soak-publication.json').read_text())
     receipts = [json.loads(line.split('SOAK-PUBLISHED ', 1)[1])
                 for line in log.read_text().splitlines() if 'SOAK-PUBLISHED ' in line]
+    receipts = [row for row in receipts if row.get('build') == build]
     require(receipts == [publication], 'publication console/file markers differ')
-    require([line for line in log.read_text().splitlines() if line.startswith('SOAK-DONE ')]
+    require([line for line in log.read_text().splitlines() if line == 'SOAK-DONE '+build]
             == ['SOAK-DONE '+publication['build']], 'post-publication guard acknowledgement missing')

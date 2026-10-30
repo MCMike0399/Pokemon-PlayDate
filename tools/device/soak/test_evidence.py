@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
-from tools.device.soak.evidence import rows
+from tools.device.soak.evidence import rows, console_rows
 from tools.device.soak import lifecycle
 from tools.device_cycle import tree_hash
 
@@ -61,6 +61,30 @@ class EvidenceTests(unittest.TestCase):
     def test_missing_complete(self):
         with self.assertRaises(ValueError):
             self.check_rows(self.records[:-1])
+
+    def test_first_minute_uses_phase_elapsed_before_start_row_publication(self):
+        changed = copy.deepcopy(self.records)
+        changed[0]['clock_ms'] = 109
+        self.assertFalse(self.check_rows(changed)['hardware_soak_accepted'])
+        changed[1]['elapsed_ms'] = 59999
+        with self.assertRaises(ValueError):
+            self.check_rows(changed)
+
+    def test_console_filters_attached_hardware_without_hiding_current_duplicates(self):
+        self.check_rows()
+        publication = json.loads((self.data/'soak-publication.json').read_text())
+        lines = ['SOAK1 '+json.dumps(row) for row in self.records]
+        lines += ['SOAK-PUBLISHED '+json.dumps(publication), 'SOAK-DONE test',
+                  'SOAK1 '+json.dumps({'build': 'attached-device'}),
+                  'SOAK-PUBLISHED '+json.dumps({'build': 'attached-device'}),
+                  'SOAK-DONE attached-device']
+        log = self.data/'console.log'
+        log.write_text('\n'.join(lines))
+        console_rows(log, self.data)
+        for duplicate in (lines[0], lines[7], 'SOAK-DONE test'):
+            log.write_text('\n'.join(lines+[duplicate]))
+            with self.assertRaises(ValueError):
+                console_rows(log, self.data)
 
     def test_live_reservation_blocks_other_build_and_uncertain_collect(self):
         from types import SimpleNamespace
