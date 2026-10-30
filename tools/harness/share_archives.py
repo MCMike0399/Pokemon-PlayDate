@@ -8,6 +8,8 @@ import subprocess
 import sys
 import uuid
 
+UF_COMPRESSED = 32
+
 
 def digest(path):
     checksum = hashlib.sha256()
@@ -138,12 +140,19 @@ def closed_trace_groups(root, allowed_roots=None):
 
 def share_closed_traces(root, execute, enough_space, minimum_size=1024 ** 2, allowed_roots=None):
     """Caller holds the storage, suite, Simulator and device ownership locks."""
-    report = {'mode': 'execute' if execute else 'dry-run', 'files': [], 'skipped_metadata': []}
+    report = {'mode': 'execute' if execute else 'dry-run', 'files': [],
+              'skipped_metadata': [], 'skipped_compressed': []}
     for paths in closed_trace_groups(root, allowed_roots):
         by_size = defaultdict(list)
         for path in paths:
-            if path.stat().st_size >= minimum_size:
-                by_size[path.stat().st_size].append(path)
+            info = path.stat()
+            if sys.platform == 'darwin' and getattr(info, 'st_flags', 0) & UF_COMPRESSED:
+                # Already compressed archives have small physical footprints.
+                # Avoid expanding and hashing them again on every reserve pass.
+                report['skipped_compressed'].append(str(path))
+                continue
+            if info.st_size >= minimum_size:
+                by_size[info.st_size].append(path)
         for size, same_size in by_size.items():
             if len(same_size) < 2:
                 continue

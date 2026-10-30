@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from tools.harness import share_archives as sharing
@@ -136,3 +137,25 @@ class ArchiveSharingTests(unittest.TestCase):
         with redirect_stderr(io.StringIO()):
             report = sharing.share_closed_traces(self.root, True, lambda: True, minimum_size=1)
         self.assertEqual(report['files'], [])
+
+    def test_compressed_traces_are_not_rehashed_or_recloned(self):
+        # A logical gigabyte can occupy only a few compressed blocks. Sharing
+        # repeatedly expands and hashes it without useful reserve recovery.
+        original_stat = Path.stat
+        compressed = {self.source, self.target}
+
+        def flags(path, *args, **kwargs):
+            result = original_stat(path, *args, **kwargs)
+            if path in compressed:
+                return SimpleNamespace(st_size=result.st_size, st_flags=32)
+            return result
+
+        with patch.object(sharing.sys, 'platform', 'darwin'), \
+                patch.object(sharing, 'closed_trace_groups', return_value=[[self.source, self.target]]), \
+                patch.object(Path, 'stat', flags), \
+                patch.object(sharing, 'digest', side_effect=AssertionError('compressed bytes rehashed')), \
+                patch.object(sharing, 'share_pair') as clone:
+            report = sharing.share_closed_traces(self.root, True, lambda: False, minimum_size=1)
+        clone.assert_not_called()
+        self.assertEqual(report['files'], [])
+        self.assertEqual(set(report['skipped_compressed']), {str(self.source), str(self.target)})

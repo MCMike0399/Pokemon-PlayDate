@@ -256,3 +256,9 @@ reviewed manual algorithm and 49 merged checks. No fresh independent agent revie
 was available after the worker usage limit. No new real archive pass or scheduler
 configuration change was performed by this integration. The failed worker
 was not restarted or switched to another provider.
+
+Native-compressed traces are excluded from the sharing pass. Their logical size
+can be much larger than their physical allocation; repeatedly expanding and
+hashing them delays the compression fallback without useful reserve recovery.
+This changes eligibility only. Ordinary clone verification, metadata checks and
+all ownership locks remain in force.
