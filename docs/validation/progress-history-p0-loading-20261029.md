@@ -203,3 +203,16 @@ cases, frame inspection and independent review passed. Visible HUD pixels, rules
 and timing remain unchanged; this is separate from campaign acceptance.
 Evidence: `evidence/p0-checkpoint-a-current-p0-resources-20261029-01` and
 `evidence/p0-checkpoint-a-current-p0-smoke-20261029-01`.
+
+## Walking profile admission and rejected title shortcut
+
+The walking profiler now retains a complete atomic aggregate before its final
+DS1 acknowledgement. The exact 16 MB route passes at 44.411 ms maximum slice
+and 7.03 MiB sampled peak; one review found no defect. Current owner admission
+passes. [Packet and proof](device-step-profile-candidate-20261029.json). This is
+not hardware attribution or a cave-p95 result; measurement waits for the soak.
+
+Title inspection costs 3.326 s inclusive in the retained device trace. It builds
+an unused session, but its decode also checks constructor restoration and fresh
+actor/dependency policies. Replacing it with a validated record summary is not
+equivalent. The shortcut was rejected without implementation.

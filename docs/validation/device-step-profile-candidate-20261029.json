@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "status": "Simulator safety and retained aggregate verified; hardware pending review and soak completion",
+  "build_id": "f52e2078f5e94573ad2ad60d404873fd",
+  "build_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-step-profile-packet-20261029-03",
+  "proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-step-profile-root-safety-20261029-02/simulator-smoke.json",
+  "aggregate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-step-profile-root-safety-20261029-02/runtime-data/step-profile.json",
+  "aggregate_sha256": "1ea96329fbf52340d3cc80fcff981b74c2cd181a1af91b4aca9c963753f9790e",
+  "maximum_slice_ms": 44.411,
+  "sampled_peak_bytes": 7374309.376,
+  "scope": "inclusive elapsed method durations with nested overlap; no hardware or p95 attribution result",
+  "review": "No concrete findings in the static review of 9f2c7341",
+  "review_thread": "t3-thread://v1/thread:delegated-task:command%3Amcp%3Ac2466cd8-2d81-40e0-ab95-31211b037980%3Adelegate-task%3A3d169108-0ab8-40a7-a23f-c0d66768019a",
+  "local_owner_admission": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-step-profile-root-admission-20261029-01/outcome.json",
+  "hardware_queue": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-after-soak-measurement-queue-20261029-02.json"
+}
