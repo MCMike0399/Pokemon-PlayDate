@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "scope": "Checkpoint 5.5b data candidate: 149 maps, with Route16FlyHouse and checkpoint C parked.",
+  "exclude": [
+    "data/midgameSaffron/",
+    "data/silphStory/",
+    "game/silphStory.lua",
+    "game/silphStoryWorld.lua",
+    "game/silphStoryController.lua",
+    "game/midgameGymStoryController.lua",
+    "data/midgameSouth/Route16FlyHouse.json",
+    "data/midgameSouth/dialogue.json",
+    "data/midgameSouth/events.json",
+    "data/midgameSouth/trainers.json",
+    "data/midgameSouth/sprites.json",
+    "data/midgameSouth/manifest-entries.json",
+    "data/midgameSouth/provenance.json"
+  ],
+  "retain_shared_dependencies": [
+    "domain/fieldTravel.lua",
+    "data/fieldTravel.json",
+    "game/fieldTravelWorld.lua",
+    "domain/safariGame.lua",
+    "data/safariServices.json",
+    "domain/sourceEncounters.lua",
+    "domain/coinWallet.lua",
+    "domain/gameSession.lua",
+    "domain/sessionCodec.lua",
+    "data/midgameGymStory/events.json",
+    "game/midgameGymStory.lua"
+  ],
+  "reason": "B uses the existing lazy content cache. Full South source records remain pinned in Git; Fly records are omitted from generated B content. Silph/Saffron and the Dojo-only controller remain excluded. Shared field modules contain dormant Fly code; root must retain its checkpoint gate."
+}
