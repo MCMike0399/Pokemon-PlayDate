@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-transform-108-exact-sdk-20261030-02",
-  "producer_build_sha256": "0c5ba98fba38cea9890c56cae13ccf2d4b12367af352d951b487816ee24e5e3d",
-  "producer_proof_sha256": "03be18c3472b065ebe029d9527a5f3aed951de984dbfecf3b29113c81b10dbdb",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-sdk-20261030-02",
+  "producer_build_sha256": "e0b3f97d5f8faa364fd2bfa92e7be34d477da52131ec2d2de730531934f36978",
+  "producer_proof_sha256": "123b5b172f9e61e97751640a6971e47d3bce2b297528016f4b324c1055edf098",
   "dependencies": {
     "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
     "game/rocketHideoutStory.lua": "0d6e8ec3cd50acf584a622c460c15f7bdb4c4e3655e1c2cc7932ecf124c1ff0e",
@@ -16,11 +16,11 @@
     "data/sourceMaps.json": "29d97d4ee42a0f8d3f7365f4bfad806d360441424baef4c8d683eacd3ad522d7",
     "domain/gameSession.lua": "3becbe1e43fb62c4ff709dff31e6474e8096c50a20544879835a8a4989578e6b",
     "domain/party.lua": "a2ee6a9b9d44b2140fdbaa5e39e3b836798cc6ee668b81bfaa16efa1af529c97",
-    "world/sourceMaps.lua": "c5337e13f83fa6c736265675be0429308bd67c8de2938c517d75ee79264a61c3"
+    "world/sourceMaps.lua": "c0296bd0dd8cdba343028d52114656866707d73f678d4981983b5c56eefe588d"
   },
   "content_pins_sha256": "3b5511df171c1ee9e76bae18b25bd78c924c1bf97be6159465ce4185cceb05f1",
   "exports": {
-    "midgameEast": "3f0873884c97656d4db0cb2cb2bf1f60f2d260ad229f142ee4cbd78002168bf1"
+    "midgameEast": "7e0301b58235d60af7c36a62e84ff2c67181561f0aa25a06d48b134ea04bdfc6"
   },
   "scope": "Actual SDK post-transform outputs; not a Python translation or new gameplay owner.",
   "owner_imports": [
