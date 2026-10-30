@@ -335,7 +335,10 @@ function KantoServicesContracts.run(withScene)
             local invalid = KantoServices.policy().magikarp
             invalid.level = 101
             eq(g.session:purchaseGiftPokemon(invalid, 500), false)
-            for i = 1, 4096 do assert(g.session:setQuestFlag("CAPACITY:" .. i, false)) end
+            for i = 1, 4096 do
+                assert(g.session:setQuestFlag("CAPACITY:" .. i, false))
+                SessionFixture.collectPreparationGarbage(i)
+            end
             eq(KantoServices.magikarpPurchase(g.session, 500), false)
             eq(g.session:inventory():money(), 500)
             eq(g.session:party():count(), 1)

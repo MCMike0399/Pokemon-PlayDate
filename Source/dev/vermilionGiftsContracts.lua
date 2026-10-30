@@ -190,7 +190,10 @@ function VermilionGiftsContracts.run()
     end)
     test("flag capacity failure cannot publish item or receipt",function()
         local g=fresh();local s=g.session
-        for i=1,4096 do assert(s:setQuestFlag("GIFT_CAPACITY:"..i,false)) end
+        for i = 1, 4096 do
+            assert(s:setQuestFlag("GIFT_CAPACITY:" .. i, false))
+            SessionFixture.collectPreparationGarbage(i)
+        end
         local p=plan(s,"pokered:POKEMON_FAN_CLUB:objects:5",true)
         local before=assert(SessionCodec.encode(s,gate))
         eq(VermilionGifts.commit(s,p),false)

@@ -39,3 +39,11 @@ function SessionFixture.createZone(name, options)
     local profile = profiles[SourceMaps.entry(name).profile]
     return SourceMaps.createZone(name, profile, options.registry, options)
 end
+
+-- Synchronous capacity setup does not return to the ordinary frame GC step.
+-- Collect discarded preparation objects without advancing any game owners.
+function SessionFixture.collectPreparationGarbage(completed)
+    if completed % 32 == 0 then
+        collectgarbage("collect")
+    end
+end
