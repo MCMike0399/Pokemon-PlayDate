@@ -68,12 +68,18 @@ def qualify_shipped_content(project, source, stage):
     return record
 
 
-def qualify_region_declarations(project, source, stage):
+def qualify_region_declarations(project, source, stage, content_qualification):
     from tools.generate_region_registrations import build as generate_declarations
     reference = Path(project) / 'tools/references/content-transforms-108/provenance.json'
     if not reference.is_file():
         return None
-    files = generate_declarations(project)
+    copied_cache = {path.relative_to(source / 'data/contentCache').as_posix(): path.read_bytes()
+                    for path in (source / 'data/contentCache').rglob('*.json')}
+    copied_hashes = {name: hashlib.sha256(raw).hexdigest() for name, raw in copied_cache.items()}
+    if not content_qualification or copied_hashes != content_qualification['artifacts']:
+        raise ValueError('region declaration copied content cache drift')
+    files = generate_declarations(project, cache_files=copied_cache, source_root=source,
+                                  excluded_sources=production_exclusions(project))
     for name, raw in files.items():
         path = source / 'data/regionDeclarations' / name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -96,8 +102,8 @@ def stage_production(project, stage):
     shutil.copytree(original, source, ignore=lambda directory, names:
                     ignored_source_names(original, directory, names, excluded))
     qualify_shipped_maps(source, stage)
-    qualify_shipped_content(project, source, stage)
-    qualify_region_declarations(project, source, stage)
+    content_qualification = qualify_shipped_content(project, source, stage)
+    qualify_region_declarations(project, source, stage, content_qualification)
     return source
 
 

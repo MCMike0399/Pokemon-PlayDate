@@ -9,14 +9,22 @@ from tools.generate_content_cache import canonical, item_ids, require
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def build(project=ROOT, cache_files=None):
+def build(project=ROOT, cache_files=None, source_root=None, excluded_sources=()):
     project = Path(project)
-    source = project / 'Source'
+    source = Path(source_root) if source_root is not None else project / 'Source'
     reference = project / 'tools/references/content-transforms-108'
     provenance = json.loads((reference / 'provenance.json').read_bytes())
     for name, expected in provenance['dependencies'].items():
-        require(hashlib.sha256((source / name).read_bytes()).hexdigest() == expected,
+        require(hashlib.sha256((project / 'Source' / name).read_bytes()).hexdigest() == expected,
                 'transform dependency changed: ' + name)
+        copied = source / name
+        if not copied.is_file():
+            require(any(name == excluded or name.startswith(excluded.rstrip('/') + '/')
+                        for excluded in excluded_sources),
+                    'staged transform dependency missing: ' + name)
+        else:
+            require(hashlib.sha256(copied.read_bytes()).hexdigest() == expected,
+                    'staged transform dependency changed: ' + name)
     pins = project / 'tools/references/content-cache.json'
     require(hashlib.sha256(pins.read_bytes()).hexdigest() == provenance['content_pins_sha256'],
             'transform content inputs changed')
