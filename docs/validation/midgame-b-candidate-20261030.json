@@ -129,5 +129,11 @@
     "resume_inputs": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-03"
   },
   "ninth_build": "Fresh journey-profile SDK compilation passed at m55b-koga-resume-build-20261030-01; execution waits for exclusive runtime release.",
-  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-ninth-koga-resumed-20261030-01"
+  "active_journey_set": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-ninth-koga-resumed-20261030-01",
+  "production_profile_preparation": {
+    "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-production-profile-prepare-20261030-01",
+    "build_id": "b43fa3279d79492586b76680c3de6293",
+    "status": "SDK compiled; private production-profile Save policy verified; no runtime execution/admission yet",
+    "scope": "Measures the authorized production owner-export path with device guards. Contract/public paths and checkout policy remain unchanged."
+  }
 }
