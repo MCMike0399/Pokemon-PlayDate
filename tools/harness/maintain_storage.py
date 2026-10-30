@@ -199,11 +199,13 @@ def plan(project, root, refs, age_hours):
         if name not in eligible:
             keep[name].add('unclassified archive')
 
+    archive_names = set(paths)
+    non_token_names = [name for name in paths if not re.fullmatch(r'[\w.-]+', name)]
+
     def protect(value, reason, base=project):
         for text in strings(value):
-            matches = set(re.findall(r'[\w.-]+', text)) & paths.keys()
-            matches.update(name for name in paths
-                           if not re.fullmatch(r'[\w.-]+', name) and name in text)
+            matches = set(re.findall(r'[\w.-]+', text)) & archive_names
+            matches.update(name for name in non_token_names if name in text)
             for token in re.findall(r'evidence/([^\s`"\'\)]+)', text):
                 component = re.sub(r'<[^>]+>', '*', token.split('/')[0].rstrip('.,;:'))
                 matches.update(n for n in paths if fnmatch.fnmatchcase(n, component))
