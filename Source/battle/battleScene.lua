@@ -373,65 +373,74 @@ function BattleScene:drawBattleField()
     if self.captureAnimation then self.captureAnimation:draw() end
     self:drawPresentation()
 
-    -- Enemy info box (top-left): name/level row, then HP bar row.
-    -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
-    -- so nothing pokes through the frame.
-    local enemy = self.battle.enemy
-    local enemyLevel,enemyHP,enemyMaxHP=self:shownVitals(enemy)
-    gfx.setFont(battleFont)
-    local enemyLabel = self.battle:opponentDisplayName() .. "  Lv" .. enemyLevel
-    local enemyTextW, _ = gfx.getTextSize(enemyLabel)
-    local eBoxW = math.max(140, enemyTextW + 20)
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(4, 4, eBoxW, 40)
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(4, 4, eBoxW, 40)
-    gfx.drawText(enemyLabel, 12, 7)
-    gfx.setFont(gfx.getSystemFont())
-    gfx.drawText("HP", 12, 23)
-    local eBarX, eBarW = 32, eBoxW - 44
-    if enemy.status then
-        eBarW = eBarW - 36
-        gfx.drawText(statusLabels[enemy.status] or "???", eBarX + eBarW + 6, 23)
+    -- HUDs follow the same presented Pokemon as sprites, not the rules' active
+    -- battlers, which already exist during trainer/send-out narration.
+    if self.enemyShown == self.battle.enemy then
+        -- Enemy info box (top-left): name/level row, then HP bar row.
+        -- Heights are sized for the fonts (battleFont ~17px, system ~16px)
+        -- so nothing pokes through the frame.
+        local enemy = self.battle.enemy
+        local enemyLevel,enemyHP,enemyMaxHP=self:shownVitals(enemy)
+        gfx.setFont(battleFont)
+        local enemyLabel = self.battle:opponentDisplayName() .. "  Lv" .. enemyLevel
+        local enemyTextW, _ = gfx.getTextSize(enemyLabel)
+        local eBoxW = math.max(140, enemyTextW + 20)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(4, 4, eBoxW, 40)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawRect(4, 4, eBoxW, 40)
+        gfx.drawText(enemyLabel, 12, 7)
+        gfx.setFont(gfx.getSystemFont())
+        gfx.drawText("HP", 12, 23)
+        local eBarX, eBarW = 32, eBoxW - 44
+        if enemy.status then
+            eBarW = eBarW - 36
+            gfx.drawText(statusLabels[enemy.status] or "???", eBarX + eBarW + 6, 23)
+        end
+        self:drawHPBar(eBarX, 26, eBarW, 8, enemyHP, enemyMaxHP)
     end
-    self:drawHPBar(eBarX, 26, eBarW, 8, enemyHP, enemyMaxHP)
 
-    -- Player info box (bottom-right): name/level, HP bar, HP numbers,
-    -- and a thin XP gauge along the bottom edge
-    local player = self.battle.player
-    local playerLevel,playerHP,playerMaxHP=self:shownVitals(player)
-    gfx.setFont(battleFont)
-    local playerLabel = player.name .. "  Lv" .. playerLevel
-    local playerTextW, _ = gfx.getTextSize(playerLabel)
-    local pBoxW = math.max(150, playerTextW + 20)
-    local pBoxX = 396 - pBoxW
-    local pBoxY = 102
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillRect(pBoxX, pBoxY, pBoxW, 62)
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawRect(pBoxX, pBoxY, pBoxW, 62)
-    gfx.drawText(playerLabel, pBoxX + 8, pBoxY + 5)
+    if self.playerShown == self.battle.player then
+        -- Player info box (bottom-right): name/level, HP bar, HP numbers,
+        -- and a thin XP gauge along the bottom edge
+        local player = self.battle.player
+        local playerLevel,playerHP,playerMaxHP=self:shownVitals(player)
+        gfx.setFont(battleFont)
+        local playerLabel = player.name .. "  Lv" .. playerLevel
+        local playerTextW, _ = gfx.getTextSize(playerLabel)
+        local pBoxW = math.max(150, playerTextW + 20)
+        local pBoxX = 396 - pBoxW
+        local pBoxY = 102
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(pBoxX, pBoxY, pBoxW, 62)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawRect(pBoxX, pBoxY, pBoxW, 62)
+        gfx.drawText(playerLabel, pBoxX + 8, pBoxY + 5)
+        gfx.setFont(gfx.getSystemFont())
+        gfx.drawText("HP", pBoxX + 8, pBoxY + 22)
+        local pBarX, pBarW = pBoxX + 28, pBoxW - 40
+        if player.status then
+            pBarW = pBarW - 36
+            gfx.drawText(statusLabels[player.status] or "???", pBarX + pBarW + 6, pBoxY + 22)
+        end
+        self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, playerHP, playerMaxHP)
+        local hpText = playerHP .. "/" .. playerMaxHP
+        local hpTextW, _ = gfx.getTextSize(hpText)
+        gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
+        -- XP gauge
+        local view = self:vitals(player)
+        local xpCurrent = view.xp - player:xpForLevel(view.xpLevel)
+        local xpNeeded = player:xpForLevel(math.min(100, view.xpLevel + 1)) - player:xpForLevel(view.xpLevel)
+        local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
+        gfx.drawRect(pBoxX + 6, pBoxY + 52, pBoxW - 12, 6)
+        local xpFill = math.floor(math.max(0, math.min(1, xpRatio)) * (pBoxW - 14))
+        if xpFill > 0 then
+            gfx.fillRect(pBoxX + 7, pBoxY + 53, xpFill, 4)
+        end
+    end
+
+    -- Hidden HUDs must still leave narration in its usual system font.
     gfx.setFont(gfx.getSystemFont())
-    gfx.drawText("HP", pBoxX + 8, pBoxY + 22)
-    local pBarX, pBarW = pBoxX + 28, pBoxW - 40
-    if player.status then
-        pBarW = pBarW - 36
-        gfx.drawText(statusLabels[player.status] or "???", pBarX + pBarW + 6, pBoxY + 22)
-    end
-    self:drawHPBar(pBarX, pBoxY + 25, pBarW, 8, playerHP, playerMaxHP)
-    local hpText = playerHP .. "/" .. playerMaxHP
-    local hpTextW, _ = gfx.getTextSize(hpText)
-    gfx.drawText(hpText, pBoxX + pBoxW - hpTextW - 8, pBoxY + 36)
-    -- XP gauge
-    local view = self:vitals(player)
-    local xpCurrent = view.xp - player:xpForLevel(view.xpLevel)
-    local xpNeeded = player:xpForLevel(math.min(100, view.xpLevel + 1)) - player:xpForLevel(view.xpLevel)
-    local xpRatio = xpNeeded > 0 and (xpCurrent / xpNeeded) or 1
-    gfx.drawRect(pBoxX + 6, pBoxY + 52, pBoxW - 12, 6)
-    local xpFill = math.floor(math.max(0, math.min(1, xpRatio)) * (pBoxW - 14))
-    if xpFill > 0 then
-        gfx.fillRect(pBoxX + 7, pBoxY + 53, xpFill, 4)
-    end
 
     -- Draw message box or menus
     local boxY = 180

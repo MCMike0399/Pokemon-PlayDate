@@ -11,7 +11,71 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Current direction — 2026-10-29 evening
+
+This section supersedes earlier P0 freeze and validation rules below.
+
+Keep at least **150 GiB free** on DiveMac automatically. Retain chain saves,
+player packages, acceptance evidence, references from committed validation JSON,
+and the latest passing journey and device-build runs. Remove superseded retries,
+rejected build stages and clean merged/rejected worktrees and branches. Retain
+journey frames only for failures and checkpoints. Record measured space freed.
+
+At about **8 MiB Lua heap**, request a full collection at a safe frame/loading
+boundary. Fail if the collected heap remains above **6 MiB live**, or the hard
+limit is reached. Find and remove recurring allocations; compare generational
+and incremental collection on idle hardware. Qualify with 30 minutes at title
+and 30 in the overworld, then the full two-hour soak overnight. Attribute the
+observed 1.10-second slice. Never describe collectible backlog as a retained leak
+without after-GC evidence.
+
+Use structural latency work: show a minimal title early; finish immutable content
+registration and save inspection cooperatively; preload the saved map; generate
+conflict checks, transforms and membership tables at build time with checksums;
+prefetch nearby doors into the spare map slot; prepare encounter policy on map
+entry and remove allocation from step completion. Boot and Continue must scale
+with the current map rather than total installed maps. Report 65/108-map results.
+
+**Production device validation is tiered.** Fully validate untrusted bytes read
+from disk once. Serialization of already-validated game owners uses checksums
+and exact published-byte readback, rather than repeating deep validators. Keep
+full deep validation in harness/dev builds and the contract suites on every
+change. Keep the two-slot recovery layout and full validation at load. This
+explicitly supersedes the earlier requirement to deeply revalidate newly produced
+bytes and both owner contexts on the production device path. Preserve strict
+public/untrusted APIs; distinguish production profiling from contract builds.
+
+After a 16 MiB safety smoke, measure performance candidates on hardware first.
+Review only candidates saving at least 10% of their phase; reject the rest after
+one measurement. Do not build more proof machinery around ineffective changes.
+
+Once the soak passes, merge **5.5a** after the 108-map hardware smoke completes
+without new error/crash logs and inside the memory guards. Label it
+**Simulator-accepted and hardware-safe; device latency targets not yet met**.
+The targets remain the bar for playable-on-device status and must pass before
+5.5c acceptance. No checkpoint may regress a phase by more than 10%. Activate the
+prepared lazy audio after 5.5a merges. Workers may prepare 5.5b geometry/field
+repairs on the host while root owns Simulator/device time. End turns about every
+two hours with a short ledger update. Commit locally; do not push.
+
 ## P0 device boot gate — 2026-10-28 night
+
+**2026-10-29 full-latency correction:** prioritize measured user waits, in this
+order: Save, static loading cadence, production trace I/O, JSON versus generated
+Lua cache decoding, then the Route 2 outlier. Provisional device targets are
+app boot to title <=10 s with no boot slice >1 s; Continue <=4 s; Save <=2 s;
+door <=1.5 s; battle start <=1 s; cave walking p95 <=50 ms. Also report app start
+to walking, clearly distinguished from unmeasured physical power-on. Every device
+cycle reports one phase table, including diagnostic full-GC contribution and
+honestly labelled active/residual wall time. Exclude diagnostic-GC updates from
+ordinary frame statistics; retain raw timing and the unchanged measurement-safety
+gate. Never rewrite old reports to make them pass. Run an unattended title then
+overworld soak (60 minutes each), sampling heap once per minute, before calling
+the earlier idle guard resolved. Before another midgame journey set, preflight
+all planned 5.5a/5.5b waypoints and portals against source geometry and report all
+unreachable routes in one pass. Performance-only work uses one review, including
+Save parsing/checksum reuse; deep validation remains required for untrusted loads and harness/dev paths;
+production device export follows the tiered rule above.
 
 **2026-10-29 midday correction:** separate measurement safety from playability.
 Hardware measurement may proceed after the exact 16 MB Simulator route completes
@@ -23,8 +87,8 @@ typical walking >=25 fps without non-transition hitches >300 ms, and battle
 start <=1 s. Then ask the user to play it. Keep 0.5 s/30 fps as polish targets.
 Before unfreezing 5.5a, the 108-map build must fit the same current-map heap budget.
 For internal performance changes, use targeted SDK cases and one review; pixel
-checks are needed when rendering changes. Save/rules/gameplay changes keep both
-reviews. The older targets below are superseded where they conflict.
+checks are needed when rendering changes. Save/rules/gameplay changes keep both reviews except performance-only work,
+which follows the measurement-first rule above. The older targets below are superseded where they conflict.
 
 Hardware boot takes priority. Freeze new map/region integration on main and
 checkpoint A; pause root audio, cleanup and Safari work until the hardware gate
@@ -33,8 +97,9 @@ passes. Simulator acceptance alone does not establish playability.
 Collect errorlog.txt, crashlog.txt and the persistent boot trace for the exact
 installed build before each new fix. Instrument import groups, content installs,
 context/state setup, title, earned Continue, map load and battle start. Every
-trace line records phase, clock, time since yield and Lua heap, and flushes the
-file so a watchdog kill preserves it. Compare matching Simulator/device phases
+trace line records phase, clock, time since yield and Lua heap. Flush each line
+through first title and in default device-test builds; production afterward may
+buffer bounded records and flush at phase ends and errors. Compare matching Simulator/device phases
 to derive actual slice/frame budgets; keep a startup/memory check in the SDK suite.
 
 Move heavy work out of import time and into cooperative initialization or lazy

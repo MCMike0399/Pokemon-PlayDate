@@ -210,6 +210,7 @@ function GameBootstrap.start(initialize)
             BootTrace.mark("gc.generational.begin")
             collectgarbage("generational", 20, 100)
             BootTrace.mark("gc.generational.end")
+            BootTrace.collectMemoryIfNeeded()
         end)
         if generation ~= loadingGeneration then
             return

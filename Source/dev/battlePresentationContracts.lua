@@ -179,6 +179,95 @@ function BattlePresentationContracts.run()
         scene:exit()
     end)
 
+    test("Intro HUDs appear with each presented Pokemon, including Animation OFF", function()
+        for _, animations in ipairs({"ON", "OFF"}) do
+            assert(GameOptions.set("battleAnimations", animations))
+            local battle = Battle(Pokemon("charmander", 20), Pokemon("weepinbell", 20), "COOLTRAINER")
+            battle.trainerClass = "OPP_COOLTRAINER_F"
+            local scene = BattleScene(battle)
+            local enemyBars, playerBars = 0, 0
+            local drawHPBar = scene.drawHPBar
+            scene.drawHPBar = function(self, x, ...)
+                if x < 200 then
+                    enemyBars = enemyBars + 1
+                else
+                    playerBars = playerBars + 1
+                end
+                drawHPBar(self, x, ...)
+            end
+            local image = gfx.image.new(400, 240, gfx.kColorWhite)
+            local function hud(enemy, player)
+                enemyBars, playerBars = 0, 0
+                gfx.pushContext(image)
+                local ok, problem = pcall(scene.drawBattleField, scene)
+                gfx.popContext()
+                assert(ok, problem)
+                equal(enemyBars, enemy and 1 or 0)
+                equal(playerBars, player and 1 or 0)
+            end
+            local function advance()
+                assert(not battle.presentationRequest)
+                battle.machine:get("script"):advance()
+            end
+            local function finishVisual(kind)
+                equal(battle.presentationRequest.kind, kind)
+                local duration = animations == "ON" and 20 or 1
+                for _ = 1, duration do
+                    scene:updatePresentation()
+                end
+                equal(battle.presentationRequest, nil)
+            end
+            hud(false, false) -- Trainer portrait / wants to battle.
+            advance()
+            hud(false, false)
+            finishVisual("trainerExit")
+            equal(scene.trainerVisible, false)
+            hud(false, false) -- Enemy send-out narration, before the ball.
+            advance()
+            equal(battle.presentationRequest.kind, "sendout")
+            if animations == "ON" then
+                for _ = 1, 9 do
+                    scene:updatePresentation()
+                    hud(false, false) -- Ball flight has no Pokemon HUD yet.
+                end
+                scene:updatePresentation()
+                hud(true, false) -- Pokemon materializes on frame ten.
+                for _ = 11, 20 do
+                    scene:updatePresentation()
+                end
+            else
+                scene:updatePresentation()
+            end
+            equal(battle.presentationRequest, nil)
+            hud(true, false) -- Player's Go narration still hides player HUD.
+            advance()
+            equal(battle.presentationRequest.kind, "sendout")
+            if animations == "ON" then
+                for _ = 1, 9 do
+                    scene:updatePresentation()
+                    hud(true, false)
+                end
+                scene:updatePresentation()
+                hud(true, true)
+                for _ = 11, 20 do
+                    scene:updatePresentation()
+                end
+            else
+                scene:updatePresentation()
+            end
+            equal(battle.presentationRequest, nil)
+            equal(battle:phase(), "command")
+            hud(true, true)
+            scene:exit()
+        end
+        -- Wild opponents are already presented on entry; the player is not.
+        local wild = Battle(Pokemon("charmander", 20), Pokemon("weepinbell", 20))
+        local scene = BattleScene(wild)
+        equal(scene.enemyShown, wild.enemy)
+        equal(scene.playerShown, nil)
+        scene:exit()
+    end)
+
     test("Running halves step duration and keeps ordinary walking at eight frames", function()
         local oldZone = currentZone
         currentZone = nil

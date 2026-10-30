@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "2a015c8926305c437637325b041dc0fd4fc5daaf",
-    "source_sha256": "6e15ad88d0c28312f851ee473a505137da1c96b635e1e317ed5911829421ac2c",
+    "commit": "50eb867b3d2fcb4cc17fd347d37a61f16152eb1c",
+    "source_sha256": "24efa94f7cfe564057c8b491e96bc31f862d5646545f7d5204254f8918f860d9",
     "policy_date": "2026-10-29",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Private 108-map checkpoint 5.5a preparation. Main has 65 Simulator-route maps; no milestone is accepted for hardware playability. Inventory identity only. Every existing evidence record and acceptance facet retains its original scope.",
+    "scope": "Private 108-map checkpoint A merge candidate; main has 65 Simulator-route maps and no device-playable milestone. No acceptance promotion.",
     "acceptance_context": "private-5.5a-preparation-hardware-pending"
   },
   "accepted_milestone_rows": [],

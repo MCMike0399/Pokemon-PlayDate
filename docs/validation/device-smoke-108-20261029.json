@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "date": "2026-10-29",
+  "classification": "108-map guarded hardware measurement; not milestone playability acceptance",
+  "build_id": "df4a421a8ef94b64b54c4c30203b078d",
+  "source_revision": "e4d9bf1410e7cbc898fff1adf59c86b45ff9ca80",
+  "evidence": "evidence/p0-erika-ready-hardware-20261029-01",
+  "starting_save": "earned accepted 5.4 Charmander slots",
+  "functional_smoke": {
+    "title": true,
+    "continue": true,
+    "save": true,
+    "doors": true,
+    "cut": true,
+    "natural_wild_battle": "A wild DIGLETT appeared!",
+    "new_errorlog_or_crashlog": false
+  },
+  "measurements": {
+    "battle_start_ms": 19.0,
+    "frame_ms": 189.469,
+    "heap_live_bytes": 4198169.6,
+    "heap_peak_bytes": 5878012.928,
+    "map_load_ms": 3234.0,
+    "slice_ms": 2157.815
+  },
+  "last_phase": {
+    "clock_ms": 131991.0,
+    "heap_kib": 4338.786,
+    "peak_kib": 5740.247,
+    "phase": "battle.live.after_gc",
+    "since_yield_ms": 570.0
+  },
+  "playability": {
+    "accepted": false,
+    "map_target_ms": 1500,
+    "map_target_passed": false,
+    "battle_target_ms": 1000,
+    "battle_target_passed": true,
+    "ordinary_hitch_ceiling_ms": 300,
+    "ordinary_hitch_passed": true,
+    "typical_fps": {
+      "route2": {
+        "boundary_median_ms": 33.055,
+        "reciprocal_mean_boundary_fps": 15.79,
+        "p95_boundary_ms": 108.23
+      },
+      "digletts_cave": {
+        "boundary_median_ms": 33.039,
+        "reciprocal_mean_boundary_fps": 14.39,
+        "p95_boundary_ms": 179.812
+      },
+      "scope": "Scripted press/release/settlement windows in the instrumented build, including recorder/serial overhead; not continuous physical production pacing."
+    },
+    "user_play": "pending",
+    "walking_target_demonstrated": false
+  },
+  "legacy_gate_failures_preserved": [
+    "map_load_ms",
+    "frame_ms",
+    "slice_ms"
+  ],
+  "next": "Rank actual map-load phases; keep the device on its calibration keeper between measurements.",
+  "scoped_loading": {
+    "continue_install_wall_ms": 4036,
+    "max_door_map_wall_ms": 3234,
+    "note": "Inclusive measured brackets; Continue includes session installation before map definition."
+  },
+  "profile": "evidence/p0-device-profile-108-20261029-01/report.txt"
+}

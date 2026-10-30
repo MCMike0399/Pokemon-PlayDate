@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "status": "cold-load-component-passed-NOT-milestone-acceptance",
+  "revision": "2a015c8926305c437637325b041dc0fd4fc5daaf",
+  "production_source_sha256": "6e15ad88d0c28312f851ee473a505137da1c96b635e1e317ed5911829421ac2c",
+  "main_pdz_sha256": "b850e48cc96180fae78418dbf14cffaa2082ae8778a2e0221bd19ac8dacc2844",
+  "scope": "Exact same private PDX; read-only load-boundary comparison against actual capture; no natural journey or device acceptance",
+  "comparison_boundary": "after real GameSaves load, before first overworld update",
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-build-continue-20261029-02",
+  "summary_sha256": "cccdc3d0a84cbca8f85cb559c74be79d36fc4413498d84a448aa92904da453f7",
+  "starters": [
+    {
+      "starter": "bulbasaur",
+      "ok": true,
+      "location": {
+        "facing": "up",
+        "x": 3,
+        "y": 3,
+        "zone_id": "pokered:CELADON_POKECENTER"
+      },
+      "earned_slots": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "fbff61c6b166867562ee5728d1efd453e5dff3fb8329c18455a9d824e7faa10b"
+        }
+      ]
+    },
+    {
+      "starter": "squirtle",
+      "ok": true,
+      "location": {
+        "facing": "up",
+        "x": 3,
+        "y": 3,
+        "zone_id": "pokered:CELADON_POKECENTER"
+      },
+      "earned_slots": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "33cdbe0d8a1181b4ecdd428496754bf868e2d5c6159d12e9bff2e576f92fa249"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "bf65b9c60fde35d3a7596ba9f6dbf2cf4c4c0f81f7f8db6edac8e7dea2e9b613"
+        }
+      ]
+    },
+    {
+      "starter": "charmander",
+      "ok": true,
+      "location": {
+        "facing": "up",
+        "x": 3,
+        "y": 3,
+        "zone_id": "pokered:CELADON_POKECENTER"
+      },
+      "earned_slots": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "d7db2ec6b994bc463c5a0b1086f437d5b285d57a76a4144a64f887c0fc064559"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "725ae2e24674a9cdba61a97fc6f01d04d8d8e17cdbad728b81370d97b8971111"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "GameSaves called directly; this adds no natural-input journey claim",
+    "Not hardware or pacing acceptance",
+    "First observer attempt compared after one NPC update; rejected and preserved unchanged"
+  ],
+  "candidate_package": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5a-candidate-20261029-01",
+    "status": "prepared; NOT accepted or device delivered",
+    "description": "production PDX, original earned save pairs, hashes and Simulator instructions"
+  },
+  "host_verification": {
+    "full_run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-build-host-20261029-01.log",
+    "total": 1001,
+    "initial_passed": 1000,
+    "initial_failed": 1,
+    "initial_failure": "stale coverage snapshot fingerprint only",
+    "correction_revision": "32b00784",
+    "targeted_recheck": "4 coverage cases pass; all 1512 row bodies unchanged",
+    "source_unchanged_by_correction": true
+  },
+  "full_sdk_attempt": {
+    "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-build-sdk-contracts-20261029-01",
+    "status": "FAILED; no complete suite report",
+    "error": "dev/harness.lua:448: Too many open files; Simulator paused, then request timeout",
+    "last_suite": "generic-actors",
+    "classification": "runtime tooling failure; not counted as gameplay acceptance",
+    "owned_runtime_exited": true
+  },
+  "sdk_followup": {
+    "batch_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-sdk-batches-20261029-02/summary.json",
+    "registered_case_results": {
+      "passed": 2107,
+      "failed": 167
+    },
+    "scope": "Initial selected-suite batch run; includes tooling dependencies, artifact-memory failures and parked feature cases. NOT a release pass.",
+    "resolved": {
+      "lazy_map_and_art_setup": {
+        "revision": "2e1be415",
+        "rerun_cases": 253,
+        "failed": 0
+      },
+      "batch_dependency_setup": {
+        "batches": [
+          4,
+          5,
+          6
+        ],
+        "rerun_cases": 482,
+        "failed": 0
+      },
+      "preparation_and_drain_setup": {
+        "revision": "c013c68d",
+        "rerun_cases": 152,
+        "failed": 0
+      },
+      "celadon_services": {
+        "rerun_cases": 6,
+        "failed": 0
+      }
+    },
+    "parked_features": "NPC trades and Saffron guards remain uninstalled; their old cases are not evidence for current release scope.",
+    "still_open": [
+      "Full catalog memory in tooling",
+      "Capacity preparation and one Day Care connection case resource pressure"
+    ],
+    "game_production_source_changed_by_fixture_repairs": false
+  },
+  "main_fixture_verification": {
+    "production_game_source_unchanged": true,
+    "lazy_world_cases": 252,
+    "preparation_and_ability_cases": 152,
+    "capacity_and_service_cases": 52,
+    "all_passed": true,
+    "coverage_recheck": {
+      "passed": 4,
+      "rows_changed": 0
+    },
+    "evidence_directories": [
+      "main-fixture-sdk-batches-20261029-02",
+      "main-vermilion-fixture-native-sdk-20261029-01",
+      "main-capacity-services-native-sdk-20261029-01"
+    ]
+  },
+  "actual_input_restarts": {
+    "status": "all three passed; not a hardware safety or pacing route",
+    "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-common-input-restarts-20261029-02",
+    "summary_sha256": "624235a1a123c5938d9a5967bc451ce4c94bdc1c7bd106da155c5b3301aec50e",
+    "production_source_sha256": "6f802affd5725c2f4ce71d829891c5c558fd92c6b9cff4ce5454daee4e73b81f",
+    "pdx_sha256": "1a398871459c72689a3ed0ef9579d3390fc9e75fe84a3fc847e92619677fb1d4",
+    "processes_per_starter": 2,
+    "canonical_earned_files_unchanged": true,
+    "non_motion_persisted_state_equal": true,
+    "motion_scope": "NPC motion may legitimately advance during real UI frames",
+    "standard_smoke_classification": "Raw generic smoke reports correctly retain missing door/battle-window failures. Separate UI component checks validate completed input transcripts, load/save boundaries, process exits and persisted values."
+  }
+}

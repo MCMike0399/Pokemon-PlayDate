@@ -3,10 +3,18 @@ import csv
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import urllib.request
 
 HERE = Path(__file__).resolve().parent
+
+
+def default_cache(revision):
+    environment = os.environ.get('POKEMON_ENV')
+    if environment:
+        return Path(environment) / 'references' / 'pokeapi' / 'b2w2' / revision
+    return HERE / 'cache' / 'b2w2' / revision
 
 
 class SourceError(ValueError):
@@ -16,7 +24,7 @@ class SourceError(ValueError):
 class PinnedSources:
     def __init__(self, cache=None, fetch=False, manifest=None, opener=None):
         self.manifest = manifest or json.loads((HERE / 'sources.json').read_text())
-        self.cache = Path(cache) if cache else HERE / 'cache' / 'b2w2' / self.manifest['revision']
+        self.cache = Path(cache) if cache else default_cache(self.manifest['revision'])
         self.fetch = fetch
         self.opener = opener or urllib.request.urlopen
 

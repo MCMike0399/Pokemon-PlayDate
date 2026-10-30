@@ -9,6 +9,10 @@ local sequence = 0
 local peakHeap = 0
 local buildID = DEVICE_TEST_ID or "unbound"
 local pendingCollection
+local memoryCollectionRunning = false
+local memoryCollections = 0
+local lastMemoryBefore = 0
+local lastMemoryAfter = 0
 local traceFile
 local titleStarted = false
 local diagnosticProductionPolicy = false
@@ -148,21 +152,56 @@ function BootTrace.requestCollect(phase)
     pendingCollection = phase
 end
 
+local function memoryBudgetEnabled()
+    return DEVICE_TEST_BUILD or not (HarnessBuild and HarnessBuild.enabled)
+end
+
+function BootTrace.memoryCollectionStatus()
+    return memoryCollections, lastMemoryBefore, lastMemoryAfter
+end
+
+-- Call only after a game frame or completed loading operation has returned.
+-- This collection is part of production memory management, not a test probe.
+function BootTrace.collectMemoryIfNeeded()
+    if not memoryBudgetEnabled() or memoryCollectionRunning then
+        return
+    end
+    local before = collectgarbage("count")
+    if before < 8 * 1024 then
+        return
+    end
+    memoryCollectionRunning = true
+    local phase = BootTrace.phase
+    BootTrace.mark("memory.soft.before_gc")
+    collectgarbage("collect")
+    local after = collectgarbage("count")
+    memoryCollections = memoryCollections + 1
+    lastMemoryBefore, lastMemoryAfter = before, after
+    BootTrace.mark("memory.soft.after_gc")
+    BootTrace.phase = phase
+    memoryCollectionRunning = false
+    if after > 6 * 1024 then
+        BootTrace.flush()
+        error("live memory guard: " .. tostring(after) .. " KiB after collection at " .. tostring(phase))
+    end
+end
+
 function BootTrace.finishFrame()
     local phase = pendingCollection
     if phase then
         pendingCollection = nil
         BootTrace.collect(phase)
     end
+    BootTrace.collectMemoryIfNeeded()
 end
 
 -- These are crash-avoidance ceilings, not a calibrated performance pass.
 function BootTrace.checkGuard()
-    if not DEVICE_TEST_BUILD then
+    if not memoryBudgetEnabled() then
         return
     end
     local heap = collectgarbage("count")
-    if heap > 9 * 1024 then
+    if heap >= 9 * 1024 then
         BootTrace.flush()
         error("device-test memory guard: " .. tostring(heap) .. " KiB at " .. tostring(BootTrace.phase))
     end

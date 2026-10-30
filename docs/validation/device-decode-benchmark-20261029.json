@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "build_id": "98f33091ee9d4ea7887fe58def94b14b",
+  "scope": "standalone loader calls; four pairs per dataset; OS caches uncontrolled; no game acceptance",
+  "typed_pairs": 12,
+  "trials": 24,
+  "sampled_heap_kib": 1173.8134765625,
+  "maximum_observed_work_ms": 186.79046630859,
+  "datasets": [
+    {
+      "path": "data/sourceMapCache/runtime-Route2.json",
+      "json_median_ms": 79.628944396973,
+      "pdz_median_ms": 46.91064453125,
+      "json_trials_ms": [
+        86.193321228027,
+        79.563613891602,
+        79.694274902344,
+        78.805923461914
+      ],
+      "pdz_trials_ms": [
+        47.174217224121,
+        46.918632507324,
+        45.843124389648,
+        46.902656555176
+      ]
+    },
+    {
+      "path": "data/contentCache/package-3.json",
+      "json_median_ms": 86.36808395385751,
+      "pdz_median_ms": 94.8028564453125,
+      "json_trials_ms": [
+        95.602035522461,
+        85.474014282227,
+        84.616661071777,
+        87.262153625488
+      ],
+      "pdz_trials_ms": [
+        96.211433410645,
+        93.820571899414,
+        95.785140991211,
+        93.429565429688
+      ]
+    },
+    {
+      "path": "data/contentCache/package-1.json",
+      "json_median_ms": 112.97798156738,
+      "pdz_median_ms": 121.37508392334,
+      "json_trials_ms": [
+        118.60656738281,
+        109.69543457031,
+        114.02320861816,
+        111.9327545166
+      ],
+      "pdz_trials_ms": [
+        120.10192871094,
+        124.19509887695,
+        122.64823913574,
+        118.98231506348
+      ]
+    }
+  ],
+  "decision": "Keep JSON content indexes. Their generated Lua equivalents were slower in this probe; measure registration work separately.",
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-load-method-bench-hardware-20261029-07",
+  "evidence_files": {
+    "hardware-benchmark.json": "b439d7207bae00eb630a64923f9ce248b09c3490e0f836379e1b2d6944fb9ffd",
+    "comparison.json": "411221dccbe2dbdcd0a5e98e3a6fd948e000a01411516baaf5df1bd1df10a144"
+  },
+  "not_proven": [
+    "Cold-cache latency",
+    "Native allocation peak",
+    "Game or milestone acceptance"
+  ]
+}

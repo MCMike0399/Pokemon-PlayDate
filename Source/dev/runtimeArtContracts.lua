@@ -1,3 +1,4 @@
+import "dev/sessionFixture"
 RuntimeArtContracts={}
 function RuntimeArtContracts.run()
     local tests={};local function test(name,fn)local ok,error=pcall(fn);tests[#tests+1]={name=name,ok=ok,error=not ok and tostring(error)or nil}end

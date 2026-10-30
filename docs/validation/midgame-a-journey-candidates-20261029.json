@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "milestone": "5.5a",
+  "status": "private journey candidates passed; milestone NOT accepted",
+  "main_maps": 65,
+  "candidate_maps": 108,
+  "requirements_remaining": [
+    "device latency targets",
+    "idle soak",
+    "final same-build Continue verification",
+    "production packages and earned saves",
+    "real-speed clip",
+    "user device play"
+  ],
+  "starters": {
+    "bulbasaur": {
+      "build_id": "baaf6368c57e3c9db2863cfc3b7c530d1bae1d88:017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "fbff61c6b166867562ee5728d1efd453e5dff3fb8329c18455a9d824e7faa10b"
+        }
+      ],
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/01-midgame--restart-bulbasaur",
+      "status": "journey passed Save/Continue; milestone review pending",
+      "provenance_sha256": "61c6219ca8106b91f9b818302dd9b8ce03feb548bd3bbbbb1676679da030f3fe",
+      "content_scope": "critical"
+    },
+    "squirtle": {
+      "build_id": "baaf6368c57e3c9db2863cfc3b7c530d1bae1d88:017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "33cdbe0d8a1181b4ecdd428496754bf868e2d5c6159d12e9bff2e576f92fa249"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "bf65b9c60fde35d3a7596ba9f6dbf2cf4c4c0f81f7f8db6edac8e7dea2e9b613"
+        }
+      ],
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/02-midgame--restart-squirtle",
+      "status": "journey passed Save/Continue; milestone review pending",
+      "provenance_sha256": "079ad58aa27caaf98f603e956972e02cc19b0ec4847a5636681fe449b499d792",
+      "content_scope": "critical"
+    },
+    "charmander": {
+      "build_id": "babcc3b5a5418c731abada43d0cd18c2578abc55:a239b9a84213f0c4ea34786e754cc5834fc986d5ccce998ff8d6815cb6154b3e",
+      "source_sha256": "a239b9a84213f0c4ea34786e754cc5834fc986d5ccce998ff8d6815cb6154b3e",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "d7db2ec6b994bc463c5a0b1086f437d5b285d57a76a4144a64f887c0fc064559"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "725ae2e24674a9cdba61a97fc6f01d04d8d8e17cdbad728b81370d97b8971111"
+        }
+      ],
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-charmander-prize-resumed-20261029-01/01-midgame--restart-charmander",
+      "status": "journey passed Save/Continue; milestone review pending",
+      "provenance_sha256": "a7f67ca1997860dd3717c1308553c36fd730294bd0aa95b6cca8394139493fef",
+      "content_scope": "optional"
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import "dev/sessionFixture"
 TraversalContracts={}
 local function eq(a,b) assert(a==b,"expected "..tostring(b)..", got "..tostring(a)) end
 local function rejects(fn) local ok=pcall(fn);assert(not ok,"expected rejection") end

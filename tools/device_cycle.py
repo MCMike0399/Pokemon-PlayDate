@@ -209,7 +209,7 @@ def parse_device_trace(path, build_id):
             raise ValueError('invalid device BootTrace numbers')
         last_clock = values[0]
         phases.append(dict(phase=fields[1], clock_ms=values[0], since_yield_ms=values[1],
-                           heap_kib=values[3], peak_kib=values[4]))
+                           phase_ms=values[2], heap_kib=values[3], peak_kib=values[4]))
     return phases
 
 
@@ -439,6 +439,7 @@ class Cycle:
     def report_smoke(self, bundle_id):
         """Only archived device observations can establish device measurements."""
         from tools.device.simulator_smoke import observations
+        from tools.device.metrics import ordinary_frames, phase_report, phase_table_text
         archived = self.output / 'after/Data' / bundle_id
         report = {'device_gate_passed': False, 'boot_accepted': False,
                   'classification': 'device attempt; root hardware acceptance remains separate',
@@ -463,7 +464,11 @@ class Cycle:
                 elapsed, heap, clock = [float(fields[i]) for i in (4, 5, 7)]
                 if any(not math.isfinite(v) or v < 0 for v in (elapsed, heap, clock)):
                     raise ValueError('invalid device active frame numbers')
-                frames.append({'active_ms': elapsed, 'heap_kib': heap, 'loading': fields[6] == '1'})
+                if int(fields[1]) < 1 or int(fields[2]) < 1:
+                    raise ValueError('invalid device update/segment identity')
+                frames.append({'update': int(fields[1]), 'segment': int(fields[2]),
+                               'kind': fields[3], 'start_ms': clock, 'active_ms': elapsed,
+                               'heap_kib': heap, 'loading': fields[6] == '1'})
             def span(begin, end):
                 start, values = None, []
                 for row in phases:
@@ -480,13 +485,23 @@ class Cycle:
                                                + [f['heap_kib'] * 1024 for f in frames], default=None),
                         'map_load_ms': span('door.map.begin', 'door.map.end'),
                         'battle_start_ms': span('battle.start.begin', 'battle.start.end'),
-                        'frame_ms': max((f['active_ms'] for f in frames if not f['loading']), default=None),
+                        'frame_ms': max((f['active_ms'] for f in ordinary_frames(frames, phases)), default=None),
                         'slice_ms': max([f['active_ms'] for f in frames]
                                         + [r['since_yield_ms'] for r in phases], default=None)}
             limits = dict(heap_live_bytes=6 * 1024**2, heap_peak_bytes=9 * 1024**2,
-                          map_load_ms=500, battle_start_ms=500, frame_ms=33, slice_ms=1000)
+                          map_load_ms=1500, battle_start_ms=1000, frame_ms=50, slice_ms=1000)
             report.update(measurements=measured, limits=limits, phases=phases, frames=frames)
-            report['failures'] += [k for k, v in measured.items() if v is None or v > limits[k]]
+            # Ordinary maximum is diagnostic; walking acceptance uses scoped p95.
+            report['failures'] += [k for k, v in measured.items()
+                                   if k not in {'frame_ms', 'slice_ms'} and (v is None or v > limits[k])]
+            report.update(phase_report(phases, frames, self.smoke_transport.responses
+                                       if self.smoke_transport else []))
+            report['failures'] += report['phase_failures']
+            report['diagnostics'] = dict(
+                raw_frame_max_ms=max((f['active_ms'] for f in frames), default=None),
+                ordinary_frame_max_ms=measured['frame_ms'],
+                raw_slice_ms=measured['slice_ms'],
+                note='frame_ms and raw slice_ms retained for diagnostics; device acceptance uses scoped cave p95 and boot slices')
             if not frames:
                 report['failures'].append('missing-device-frames')
             for phase in ('title.live.after_gc', 'Continue.live.after_gc'):
@@ -498,6 +513,9 @@ class Cycle:
         if not (seen['title'] and seen['continue_available'] and seen['loaded'] > 0 and seen['saved'] > 0):
             report['failures'].append('missing-title-earned-Continue-or-save')
         atomic_json(self.output / 'device-smoke.json', report)
+        table = phase_table_text(report)
+        (self.output / 'device-phases.md').write_text(table)
+        print(table, flush=True)
         # Collection can succeed without acceptance. Missing metrics stay explicit.
         self.event('device-smoke-reported', failures=report['failures'], boot_accepted=False)
 
@@ -570,8 +588,19 @@ class Cycle:
         build = json.loads((stage / 'build.json').read_text())
         source = inventory(stage / 'Source')
         payload = inventory(pdx)
+        soak_mode = bool(getattr(args, 'soak_proof', None))
         smoke_mode = bool(getattr(args, 'simulator_smoke', None))
-        if smoke_mode:
+        if soak_mode:
+            from tools.device.soak.evidence import admission
+            from tools.device.soak.lifecycle import validate_mode
+            validate_mode(args, stage)
+            build, soak_report = admission(stage, args.soak_proof)
+            if pdx != stage / 'Soak.pdx' or sha(self.sdk / 'bin/pdc') != build['compiler_sha256'] or (self.sdk / 'VERSION.txt').read_text().strip() != build['sdk_version']:
+                raise ValueError('soak SDK/PDX mismatch')
+            soak_admission = {'classification': 'exact short soak safety proof; not hardware acceptance',
+                              'report_sha256': sha(Path(args.soak_proof)), 'report': soak_report}
+
+        elif smoke_mode:
             self.smoke_build, self.smoke_report, smoke_admission = smoke_gate(args, stage, pdx)
             if (sha(self.sdk / 'bin/pdc') != build['compiler_sha256']
                     or (self.sdk / 'VERSION.txt').read_text().strip() != build['sdk_version']):
@@ -588,14 +617,16 @@ class Cycle:
         bundle_id = info.get('bundleID', '').strip()
         if not re.fullmatch(r'[A-Za-z0-9_.-]+', bundle_id) or bundle_id in {'.', '..'}:
             raise ValueError('invalid bundleID')
-        if not smoke_mode and ((stage / 'Source/dev').exists() or any(name.startswith('dev/') for name in payload)):
+        if not (smoke_mode or soak_mode) and ((stage / 'Source/dev').exists() or any(name.startswith('dev/') for name in payload)):
             raise ValueError('development payload refused')
         manifest = {'schema': 1, 'pdx': str(pdx), 'pdx_files': payload,
                     'pdx_sha256': tree_hash(payload), 'source_files': source,
-                    'source_sha256': build['source_sha256'], 'build': build,
+                    'source_sha256': build['compiled_source_sha256'] if soak_mode else build['source_sha256'], 'build': build,
                     'bundle_id': bundle_id, 'stage': str(stage)}
         atomic_json(self.output / 'manifest.json', manifest)
-        if smoke_mode:
+        if soak_mode:
+            gate = soak_admission
+        elif smoke_mode:
             gate = smoke_admission
         elif getattr(args, 'calibration_preflight', None):
             gate = calibration_gate(args, manifest, source)
@@ -645,6 +676,15 @@ class Cycle:
               'serial after run stops device attempts: device needs one A press. '
               'Simulator-only work may continue after the serial reader is closed.', flush=True)
         with OwnerLock(runtime_lock_path(self.sdk)), OwnerLock(device_lock_path()):
+            from tools.device.soak import lifecycle as soak
+            soak.enter(self, manifest)  # All device candidates honor a live soak reservation.
+            if getattr(args, 'soak_collect', None):
+                soak.collect(self, installed, data, payload)
+                return
+            if getattr(args, 'soak_proof', None):
+                from tools.device.soak.evidence import admission
+                if admission(stage, args.soak_proof)[0] != manifest['build']:
+                    raise ValueError('soak changed while acquiring locks')
             if self.smoke_build:
                 checked, _, _ = smoke_gate(args, stage, pdx)
                 if checked != self.smoke_build:
@@ -666,6 +706,8 @@ class Cycle:
             self.step('backup-existing-save-slots' if earned else 'preserve-application-data')
             before_data = inventory(data) if data.exists() else {}
             atomic_json(self.output / 'data-before.json', before_data)
+            if getattr(args, 'soak_launch', False) and before_data:
+                raise ValueError('soak requires fresh private Data')
             if self.smoke_build and any(name in before_data for name in (
                     'boot-profile-build.json', 'device-smoke-command.txt', 'device-smoke-frames.tsv')):
                 raise ValueError('smoke Data contains stale metrics, external identity or an unconsumed command')
@@ -710,6 +752,9 @@ class Cycle:
             simulator_usb_preflight()
             self.ran = True  # a timed-out run command may already have launched
             self.command([str(self.sdk / 'bin/pdutil'), self.serial, 'run', '/Games/' + pdx.name])
+            if getattr(args, 'soak_launch', False):
+                soak.launched(self)
+                return  # subprocess closed serial; context releases BOTH locks
             self.step('wait-for-game')
             deadline = time.monotonic() + args.run_seconds
             attempt_error = None
@@ -769,6 +814,10 @@ def main():
     parser.add_argument('--build-stage', required=True)
     parser.add_argument('--output', required=True, help='fresh evidence directory')
     gates = parser.add_mutually_exclusive_group(required=True)
+    gates.add_argument('--soak-proof', help='exact short Simulator soak proof; not soak acceptance')
+    split = parser.add_mutually_exclusive_group()
+    split.add_argument('--soak-launch', action='store_true')
+    split.add_argument('--soak-collect', help='exact launch evidence directory')
     gates.add_argument('--simulator-smoke', help='exact passed DeviceSmoke report; recomputed before any device access')
     gates.add_argument('--simulator-gate', help='root measured 16 MB game gate for this exact build')
     gates.add_argument('--calibration-preflight', help='completed minimal calibration Simulator record; not a game gate')

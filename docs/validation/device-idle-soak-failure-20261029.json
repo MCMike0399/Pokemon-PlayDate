@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "status": "FAILED; no idle or milestone acceptance",
+  "build_id": "c87b9ee8b60444bdbfbf2cb6c9205ed2",
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/private-soak-hardware-collection-20261029-01",
+  "raw_samples_sha256": "ff8c199713ea5fd04fb58b17eaf0a67a8d965547339baa46e69b8680776c3934",
+  "minute_samples": 75,
+  "required_minute_samples": 120,
+  "title_minutes": 60,
+  "overworld_minutes": 15,
+  "last_named_phase": "Continue.end",
+  "screen": "Producer reported the software guard error path; physical display was not observed",
+  "heap_at_error_kib": 9217.205078125,
+  "maximum_observed_slice_ms": 1101.36328125,
+  "error": "game/bootTrace.lua:167: device-test memory guard: 9217.205 KiB at Continue.end",
+  "new_error_or_crash_logs": false,
+  "hardware_queue": "stopped before any queued deployment",
+  "diagnosis": "Simulator terminal GC reclaims the growth; frame-count test of automatic GC is running. Hardware cause not yet closed."
+}

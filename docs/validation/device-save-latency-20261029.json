@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "scope": "One paired private 108-map hardware measurement; no milestone acceptance",
+  "build_id": "d6e78c1253664f05b28e05f339a5f683",
+  "source_commit": "5ce731bd",
+  "main_component_commit": "7291113e",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-save-byte-reuse-hardware-20261029-01",
+  "baseline_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/p0-hideout-map-filter-hardware-20261029-01",
+  "baseline_save_ms": 9193,
+  "candidate_save_ms": 6528,
+  "save_target_ms": 2000,
+  "save_target_met": false,
+  "phase_measurements": {
+    "Continue": 7929.0,
+    "Save": 6528.0,
+    "battle": 19.0,
+    "boot_slice": 2195.909,
+    "boot_title": 18447.0,
+    "cave_walking_p95": 97.25800000000163,
+    "door": 3082.0
+  },
+  "phase_limits": {
+    "Continue": 4000,
+    "Save": 2000,
+    "battle": 1000,
+    "boot_slice": 1000,
+    "boot_title": 10000,
+    "cave_walking_p95": 50,
+    "door": 1500
+  },
+  "memory_measurements": {
+    "heap_live_bytes": 4203196.416,
+    "heap_peak_bytes": 5926938.624
+  },
+  "last_phase": {
+    "clock_ms": 88513.0,
+    "heap_kib": 4343.977,
+    "peak_kib": 5788.026,
+    "phase": "battle.live.after_gc",
+    "phase_ms": 511.0,
+    "since_yield_ms": 542.0
+  },
+  "logs_unchanged": true,
+  "keeper_restored": true,
+  "decision": "Retain parsing/checksum reuse; continue with static loading cadence. Production inspect reuse is disabled and all new-byte validators remain."
+}
