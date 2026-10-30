@@ -18,5 +18,11 @@
     "tools/tests/test_storage_maintenance.py": "0b7d5f706a6623db4cd3ffdc5f842ec824b8d35b46bf8596c06059531fb9967e",
     "docs/validation/storage-maintenance.md": "7e8806e34a412118f2560c1c43e4596fd686e3469a21151c27ca7e1372244f20"
   },
-  "scope": "No game/Simulator/device execution or real evidence cleanup performed by validation; native APFS test used disposable files. Earlier manual space recovery is separately recorded."
+  "scope": "No game/Simulator/device execution or real evidence cleanup performed by validation; native APFS test used disposable files. Earlier manual space recovery is separately recorded.",
+  "bounded_manual_recovery": {
+    "completed_prior_sets": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/share-completed-b-traces-20261030-01.json",
+    "exited_eighth_siblings": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/share-exited-eighth-traces-20261030-01.json",
+    "unused_compile_cleanup": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/unused-compile-cleanup-20261030-01.json",
+    "scope": "Manual recovery used explicitly terminal archived runs and per-archive locks; active Charmander run and all saves excluded. It did not invoke automatic whole-directory cleanup while the suite owned runtime locks."
+  }
 }

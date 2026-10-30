@@ -140,7 +140,9 @@ APFS independent copy-on-write sharing of 1,882 identical archived bundles
 across 40 checkouts recovered an observed **12.16 GiB**; hashes and tracked
 documentation are unchanged. Free space was **159.0 GiB** after sharing.
 Automatic closed-trace sharing now passes 29 host checks and a Python 3.9.6
-APFS integration check after four review fixes. [Validation](archive-sharing-20261030.json). Audit:
+APFS integration check after four review fixes. Further bounded recovery
+observed 3.51 + 1.92 GiB from closed traces and 0.48 GiB from unused compiles.
+Free space remains volatile and below 150 GiB; host swap usage is about 20 GiB. [Validation](archive-sharing-20261030.json). Audit:
 `storage-maintenance-logs/share-immutable-docs-20261030-01.json` outside Git.
 
 Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.
