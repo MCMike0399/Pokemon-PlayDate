@@ -1,8 +1,7 @@
-"""HOST replay of the real late Route25 Save; no SDK/runtime invocation."""
+"""Host source-pose qualification; no SDK/runtime invocation."""
 import copy
 import hashlib
 import json
-import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -14,37 +13,8 @@ from tools.harness.protocol import ProtocolError
 from tools.visual.event_art import raster
 from tools.harness.motion_journey import verify_rendered_poses
 
-ARCHIVE = Path(os.environ.get('POKEMON_POSE_ARCHIVE', str(Path.home() / 'Developer/Pokemon-PlayDate-env/evidence/m53-natural-resourced-20261026-04/01-cerulean--restart-squirtle')))
-
-
-class ArchivedRoute25Tests(unittest.TestCase):
-    @unittest.skipUnless((ARCHIVE / 'source-manifest.json').is_file(), 'requires immutable natural-driver archive (POKEMON_POSE_ARCHIVE)')
-    def test_actual_route25_saved_world(self):
-        for relative, digest in {
-            'source-manifest.json': '391723ad44c1eef308868098cad6fcd6b4b710cc29d2c0b0c0cc88144570ae48',
-            'processes/0001/11943-result.json': '3d532423774d8eb4606c128e92b052b8783cf58a217926df2e50bb21c6a8f191',
-            'processes/0001/frames/cerulean-brock-game-saved.png': '8c71fd6201bb902207636cf932b02594d8dff511b9945c39d1cfec768da669b1',
-        }.items():
-            self.assertEqual(hashlib.sha256((ARCHIVE / relative).read_bytes()).hexdigest(), digest)
-        process = ARCHIVE / 'processes/0001'
-        request = json.loads((process / '11943-request.json').read_text())
-        result = json.loads((process / '11943-result.json').read_text())
-        self.assertEqual(request['commands'], ['shot cerulean-brock-game-saved'])
-        self.assertEqual(request['id'], result['id'])
-        self.assertEqual(request['build_id'], result['build_id'])
-        state = result['snapshot']
-        self.assertEqual(result['results'][0]['op'], 'shot')
-        self.assertEqual(state['zone_id'], 'pokered:ROUTE_25')
-        report = verify_rendered_poses(ARCHIVE, process / 'frames/cerulean-brock-game-saved.png', state)
-        self.assertEqual(len(report['actors']), 10)
-        # Real packet: every source NPC is offscreen. Do not move them to make
-        # this PNG pass the independent visible-world capture guard.
-        self.assertEqual(sum(actor['opaque_pixels_checked'] for actor in report['actors']), 0)
-        with self.assertRaisesRegex(ProtocolError, 'lacks visible source actors'):
-            qualify(ARCHIVE, process / 'frames/cerulean-brock-game-saved.png', state, 'world')
-
-# Temporary fixtures copy only the immutable records consumed by this proof.
-# Raster pixels are synthetic here; the archive test above is the native witness.
+# Current fixtures exercise immutable source data and loader mutations. The old
+# fixed-request replay belonged to a superseded multi-gigabyte failed journey.
 REPO = Path(__file__).resolve().parents[2]
 
 

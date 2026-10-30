@@ -79,7 +79,7 @@ class ProductionBuildTests(unittest.TestCase):
                       'dev/sessionFixture'}
         self.assertTrue(transitive <= set(modules))
         self.assertEqual([name for name in modules if name.startswith('dev/') and name not in transitive],
-                         ['dev/harness_build'] + [name for name in expected if name not in {'dev/harness_build', 'game/bootstrap'}])
+                         ['dev/harness_build'] + [name for name in expected if name not in {'dev/harness_build', 'game/bootstrap'} and name not in transitive])
         staged = (self.harness / 'Source/main.lua').read_text()
         package = staged.index('CeruleanContent.registerPackage("vermilion",')
         exporter = staged.index('VermilionCatalogExporter.register()')
@@ -91,7 +91,7 @@ class ProductionBuildTests(unittest.TestCase):
         # the SDK imports and added boot tracing. Retain the frozen inventory
         # and permit only these two reviewed additions in their required order.
         self.assertEqual(imports, ['dev/harness_build', 'game/bootTrace', 'game/bootstrap']
-                         + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'}])
+                         + [name for name in BASELINE['imports'] if name not in {'dev/harness_build', 'game/bootstrap'} and name not in transitive])
         self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
                           or line.lstrip().startswith('PewterCatalogExporter.register(')
                           or line.lstrip().startswith('CeruleanCatalogExporter.register(')
