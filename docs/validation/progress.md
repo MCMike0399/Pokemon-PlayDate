@@ -3,7 +3,8 @@
 Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
 Progress: **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 5.5a: **33.83 h / 30.51 maps/day**, including device P0 and waits.
-Commit locally. Nothing pushed. The full game remains unfinished.
+Main was pushed through `7bc7cc55` at the user’s request. Later work stays local
+until requested. The full game remains unfinished.
 
 ## Accepted on main
 
