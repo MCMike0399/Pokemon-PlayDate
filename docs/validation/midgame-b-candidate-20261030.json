@@ -274,5 +274,14 @@
       "checks": "63targetedhost+54protocol and SDK compilation pass; native hold lifecycle andfull host pending",
       "resumes": "m55b-resume-inputs-20261030-05 verifies stopped11thmarkers andAancestry, preserving SquirtleSurf save"
     }
+  },
+  "twelfth_journey_set": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-twelfth-resumed-20261030-01",
+    "revision": "45610a0b",
+    "status": "Launched; all outcomes pending",
+    "tooling_fix": "36085523: recheck async overlay ownership after observations, permit actual stored unused rewards, retain explicit holds untilrelease across successfulrequests. Production Source unchanged frome7270b8c.",
+    "native_protocol": "42existing qualification checks pass inclcancel/timeout; native hold trace provesBheld acrossrequests andexplicitrelease",
+    "host": "63targeted+54protocol checks pass; coverage4passes after explicitly binding input-only devchanges. Fullrun remains live with original stalecoverage failure retained.",
+    "input_packet": "m55b-resume-inputs-20261030-05 verified alloriginal stopped archives andAancestry; SquirtleSurf/StrengthSave retained"
   }
 }
