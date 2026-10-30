@@ -30,7 +30,8 @@
     "compile": "passed",
     "protocol_cases": 54,
     "artifact_cases": 5,
-    "host": "55 focused freshness/coverage cases pass after reviewing only changed input hashes; full suite rerun pending"
+    "host": "All 1,018 tests pass with no skips after the reviewed source-identity refresh",
+    "host_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-tier-main-host-20261030-02.log"
   },
   "remaining": "Main full host rerun after reviewed input identities; full idle soak; door/cave/boot-slice targets"
 }

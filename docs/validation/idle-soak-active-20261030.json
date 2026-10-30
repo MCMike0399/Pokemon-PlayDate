@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "status": "running; not accepted",
+  "build_id": "11f5e226f7e940e791dde18fd9e794d1",
+  "attempt": "3e051e571b824ec29b9461badd3ed034",
+  "maps": 108,
+  "earned_save": "accepted 5.5a bulbasaur; unchanged canonical bytes",
+  "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/soak-main-108-A-save-prepare-20261030-01",
+  "short_proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/soak-main-108-A-save-proof-20261030-01",
+  "launch": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/soak-main-108-A-save-launch-20261030-01",
+  "collection": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/soak-main-108-A-save-collection-20261030-01",
+  "collect_after_unix": 1793349175.165356,
+  "collector_pid": 21797,
+  "phase_minutes": 60,
+  "scope": "60 title + 60 overworld; no periodic diagnostic GC; production soft/hard guards retained",
+  "ownership": "Persistent reservation remains authoritative. Do not change pinned device/harness helpers or write to hardware until this exact attempt is collected."
+}

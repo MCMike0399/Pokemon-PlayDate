@@ -53,8 +53,10 @@ under a software guard after collectible garbage accumulated; it is not accepted
 
 Timer removal queues now reuse their existing tables. Production collects at a
 safe point near 8 MiB, rejects over 6 MiB after GC, and retains a hard 9 MiB guard.
-Full two-hour soak and incremental/generational comparison remain required.
-Fresh packets are prepared; fresh Simulator proof is needed after final owner changes.
+The full **60+60-minute** soak is running on the current 108-map title/Save build
+from the accepted A Bulbasaur save. [Owner/evidence](idle-soak-active-20261030.json).
+Automatic collection is scheduled; keep its pinned helpers unchanged. Incremental
+comparison remains pending. No hardware writes until this attempt is collected.
 
 ## Device latency budget
 
@@ -102,8 +104,11 @@ Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
 (7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
 silent and not accepted. No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
 
-5.5b starts from the three accepted 5.5a saves. Prepared host geometry passes
-1,569 checks with zero blockers, but Surf/actors/Safari remain runtime-unverified.
+5.5b starts from the three accepted 5.5a saves. Private B now has 149 maps and compiled Tower/Snorlax/Safari/field hooks.
+Host geometry has no unexplained unreachable paths; eight capability/observation
+conditions remain. The first matched A-save probes report 6.02 MiB on 108 maps
+and 6.53 MiB at B title. Private B separates Simulator peak/slice measurement
+from the unchanged physical 6 MiB live guard; native B memory is unmeasured.
 Scope: Tower/Fuji/Flute, Snorlax/Cycling Road, Fuchsia/Safari/Koga, Surf/Strength.
 5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
 

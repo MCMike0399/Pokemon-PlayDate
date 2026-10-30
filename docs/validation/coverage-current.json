@@ -256,7 +256,7 @@
     "main-save-acceptance": {
       "kind": "sdk_scoped",
       "path": "docs/validation/save-tier-accepted-20261030.json",
-      "sha256": "22fe7c98f177128324271007b3779a7e67e6eaa584906f6ad29d0da334a4f0d0"
+      "sha256": "655a53f04e3227e9cfa545ced63ebe3fae7fd140bf7c275f9225860bd44b6b1c"
     }
   },
   "source_inventory_summary": {
