@@ -141,12 +141,13 @@
     "measurement": "docs/validation/region-declaration-boot-measurement-20261030.json"
   },
   "native_headroom_probe": {
-    "status": "Loaded-game 16MiB Simulator probe executed:8/8images, hardware measurement running.",
+    "status": "Both 16MiB Simulator and physical device allocate8/8images after battle start, release them, and complete smoke with no new logs. Point-in-time requested payload only.",
     "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-prepare-20261030-01",
     "safety": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-safety-20261030-01",
     "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-hardware-20261030-01",
     "requested_payload_per_image": 262144,
     "cap": 8,
-    "scope": "Test-only staged hook after real battle start. Requested bitmap payload excludes native allocator headers/masks. Not total native memory, not continuous headroom, not audio acceptance. Production entry point unchanged."
+    "scope": "Test-only staged hook after real battle start. Requested bitmap payload excludes native allocator headers/masks. Not total native memory, not continuous headroom, not audio acceptance. Production entry point unchanged.",
+    "measurement": "docs/validation/native-image-headroom-20261030.json"
   }
 }

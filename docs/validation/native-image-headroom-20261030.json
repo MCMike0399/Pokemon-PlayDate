@@ -1,0 +1,35 @@
+{
+  "status": "Bounded loaded-game image allocation succeeds at one sampled device phase.",
+  "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-hardware-20261030-01",
+  "probe_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-hardware-20261030-01/after/Data/com.poc.pokemon.device-test.06e0e9b22c524e928a47c1b9acce089b/native-headroom.json",
+  "probe_sha256": "4b7a543f5efc843edd4448b734a54a502f3fb7676d4fbc7516b6dff3a369ca5b",
+  "probe": {
+    "build": "06e0e9b22c524e928a47c1b9acce089b",
+    "requested_width": 2048,
+    "count": 8,
+    "elapsed_ms": 1244,
+    "requested_height": 1024,
+    "scope": "Bounded requested bitmap payload; allocator headers/masks and unsampled native peaks are not measured",
+    "requested_payload_bytes_each": 262144,
+    "cap": 8,
+    "lua_heap_after_release_kib": 4917.5771484375,
+    "simulator": false
+  },
+  "simulator": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-game-149-safety-20261030-01",
+  "new_error_or_crash_logs": false,
+  "last_phase": {
+    "clock_ms": 73661.0,
+    "heap_kib": 4921.427,
+    "peak_kib": 6010.008,
+    "phase": "battle.live.after_gc",
+    "phase_ms": 558.0,
+    "since_yield_ms": 592.0
+  },
+  "scope": "Private DEVICE_TEST-only staged hook after real battle start; up to2MiB requested image payload, not exact allocator footprint or continuous headroom. Images released before ordinary updates resume. Probe collection duration is diagnostic overhead, not gameplay frame pacing.",
+  "production_unchanged": true,
+  "remaining": [
+    "100+door transitions across30+maps and20battles on physical hardware",
+    "Audio loading/listening/native peaks",
+    "Boot, worst-door and cave latency targets"
+  ]
+}
