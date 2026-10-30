@@ -282,6 +282,17 @@
     "tooling_fix": "36085523: recheck async overlay ownership after observations, permit actual stored unused rewards, retain explicit holds untilrelease across successfulrequests. Production Source unchanged frome7270b8c.",
     "native_protocol": "42existing qualification checks pass inclcancel/timeout; native hold trace provesBheld acrossrequests andexplicitrelease",
     "host": "63targeted+54protocol checks pass; coverage4passes after explicitly binding input-only devchanges. Fullrun remains live with original stalecoverage failure retained.",
-    "input_packet": "m55b-resume-inputs-20261030-05 verified alloriginal stopped archives andAancestry; SquirtleSurf/StrengthSave retained"
+    "input_packet": "m55b-resume-inputs-20261030-05 verified alloriginal stopped archives andAancestry; SquirtleSurf/StrengthSave retained",
+    "host_followup": {
+      "full_run_tests": 1036,
+      "passed": 1035,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "sole_failure": "Coverage snapshot predated dev/autopilot and dev/harness changes",
+      "resolution_commit": "45610a0b",
+      "targeted_coverage_checks_passed": 4,
+      "scope": "Original failed full run retained; targeted rerun resolves its sole reported mismatch. No claim of a new full green run."
+    }
   }
 }
