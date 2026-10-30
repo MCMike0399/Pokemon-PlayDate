@@ -620,9 +620,22 @@ end
 -- Generated packages are validated against pinned inputs by the host generator.
 -- Registration checks membership using indexes; it never decodes descriptors.
 function SourceEvents._registerRegionDeclaration(name, root, identity)
+    local kanto = name == "ceruleanStory" or name == "ceruleanRoutes"
     if not (ShippedDataPolicy and ShippedDataPolicy.regionDeclarations())
-        or (name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
+        or (not kanto and name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
         return false
+    end
+    if kanto then
+        -- Fixture records cannot borrow the shipped map-padding qualification.
+        if not SourceMaps._usesQualifiedInputs() then
+            return false
+        end
+        -- Optional until Root supplies a fresh, pinned SDK transform export.
+        local file = ShippedDataPolicy.openBundle("data/regionDeclarations/" .. name .. ".json")
+        if not file then
+            return false
+        end
+        file:close()
     end
     yieldIfDue()
     local record = ShippedDataPolicy.readBundleJSON("data/regionDeclarations/" .. name .. ".json")
@@ -631,6 +644,25 @@ function SourceEvents._registerRegionDeclaration(name, root, identity)
     end
     assert(not eventSources[name] and not trainerSources[name], "region source already declared")
     local prepared = 0
+    -- Preflight callback namespace too, before publishing either data source.
+    for id in pairs(record.bespoke or {}) do
+        assert(record.records[id] and not SourceEventHandlers[id], "duplicate bespoke scene handler")
+        prepared = prepared + 1
+        if prepared % 32 == 0 then
+            yieldIfDue()
+        end
+    end
+    for _, id in ipairs(record.required_trainers or {}) do
+        local found = baseIndex().records.trainers.trainers[id] ~= nil
+        for _, source in pairs(trainerSources) do
+            found = found or source.records[id] ~= nil
+            prepared = prepared + 1
+            if prepared % 32 == 0 then
+                yieldIfDue()
+            end
+        end
+        assert(found, "install shared scene trainers first")
+    end
     for id in pairs(record.records) do
         assert(not eventExists(id), "duplicate source event")
         prepared = prepared + 1
@@ -655,7 +687,7 @@ function SourceEvents._registerRegionDeclaration(name, root, identity)
     yieldIfDue()
     eventSources[name] = {records=record.records, lazy=true, region=true, chunks=record.chunks, items=record.items}
     trainerSources[name] = {records=record.trainers, lazy=true, region=true, chunks=record.chunks, flags=record.trainer_flags}
-    return true
+    return true, record
 end
 
 function SourceEvents._registerContent(name, index, fields, trainers, contentOverride, overrides)

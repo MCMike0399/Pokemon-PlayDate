@@ -80,6 +80,10 @@ def qualify_region_declarations(project, source, stage, content_qualification):
         raise ValueError('region declaration copied content cache drift')
     files = generate_declarations(project, cache_files=copied_cache, source_root=source,
                                   excluded_sources=production_exclusions(project))
+    # No unqualified copied declaration may survive as an optional fast source.
+    declarations = source / 'data/regionDeclarations'
+    if declarations.exists():
+        shutil.rmtree(declarations)
     for name, raw in files.items():
         path = source / 'data/regionDeclarations' / name
         path.parent.mkdir(parents=True, exist_ok=True)

@@ -103,8 +103,9 @@ scope. Initial hardware split regressed immediate walking and Save, so it is
 rejected. Cache handoff and duplicate checkpoint work are corrected; 103 save/
 session and 42 title/recovery SDK cases pass. Corrected hardware Save is 1.597 s,
 but app → walking is 17.936 s versus baseline 17.321 s; the split stays off main. [Candidate](two-stage-title-candidate-20261030.json).
-Next title work must report immediate-press walking and 1.5 s dwell, preserve
-full validation, and separate real shipped-equivalent timing from forced GC.
+Kanto candidate `b56d8456` passes 40 host checks and qualified SDK equality for
+13 events/two teams; only two declaration files load during its installer.
+Exact safety passed; hardware attempt is active in exec41022. [Scope](kanto-first-entry-candidate-20261030.json).
 Then per-installer first-entry activation, all-door/worst-five measurements,
 cave steps, and the remaining B traversal/visual gates. Superseded queued
 journey failure notifications are already handled; do not rerun them.

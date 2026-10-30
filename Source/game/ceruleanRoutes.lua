@@ -9,10 +9,17 @@ local NUGGET <const> = "pokered:ROUTE_24:objects:1"
 local HIDDEN <const> = "TOGGLE_CERULEAN_ROCKET"
 local counter = {charmander="squirtle", squirtle="bulbasaur", bulbasaur="charmander"}
 local cached, integration
+local qualified = false
+local decodeFile <const> = json.decodeFile
 local function copy(value) return GameSession._copy(value) end
 local function data()
     if not cached then
-        cached = assert(json.decodeFile("data/ceruleanRoutes/scenes.json"))
+        local path = "data/ceruleanRoutes/scenes.json"
+        if qualified then
+            cached = ShippedDataPolicy.readBundleJSON(path)
+        else
+            cached = assert(decodeFile(path))
+        end
         assert(cached.schema == 1 and cached.source_revision == "af519899719f0754965776faac0e836a3b906e6d",
             "unverified Blue route scripts")
     end
@@ -154,18 +161,27 @@ function CeruleanRoutes.install(options)
     assert(not integration, "Blue route scripts already installed")
     assert(options and type(options.reconcileActors) == "function", "root source actor reconciliation required")
     integration = options
-    assert(SourceEvents.trainerDefinition(THIEF) and SourceEvents.trainerDefinition(NUGGET),
-        "install imported ordinary Rocket teams first")
-    SourceEvents.registerTrainerSource(CONTENT, CeruleanRoutes.trainers)
-    local events = CeruleanRoutes.descriptors()
+    local declared, declaration = SourceEvents._registerRegionDeclaration(
+        CONTENT, "data/ceruleanRoutes/", "kanto-first-entry-v1")
+    if not declared then
+        assert(SourceEvents.trainerDefinition(THIEF) and SourceEvents.trainerDefinition(NUGGET),
+            "install imported ordinary Rocket teams first")
+        SourceEvents.registerTrainerSource(CONTENT, CeruleanRoutes.trainers)
+    end
+    qualified = declared
+    local events = declared and declaration.bespoke or CeruleanRoutes.descriptors()
     for id, descriptor in pairs(events) do
-        if descriptor.kind == "bespoke" then
+        if declared or descriptor.kind == "bespoke" then
             assert(not SourceEventHandlers[id], "duplicate Blue route handler")
             local stableID = id
-            SourceEventHandlers[id] = function(state) return CeruleanRoutes.plan(stableID,state) end
+            SourceEventHandlers[id] = function(state)
+                return CeruleanRoutes.plan(stableID, state)
+            end
         end
     end
-    SourceEvents.registerEventSource(CONTENT,events)
+    if not declared then
+        SourceEvents.registerEventSource(CONTENT, events)
+    end
     SourceEvents.registerTextSource(CONTENT,CeruleanRoutes.text)
 end
 function CeruleanRoutes.check(game)

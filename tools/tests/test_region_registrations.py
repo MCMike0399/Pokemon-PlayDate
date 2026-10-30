@@ -14,6 +14,63 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class RegionRegistrationTests(unittest.TestCase):
+    def test_kanto_stays_disabled_without_exact_sdk_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(generator.kanto_declarations(Path(directory), ROOT / 'Source', {}), {})
+
+    def test_kanto_rejects_copied_dependencies_cache_and_imports_before_export(self):
+        # This is deliberately incomplete provenance, never an SDK snapshot.
+        # Every mutation must fail before any export file can be consumed.
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory) / 'project'
+            source = Path(directory) / 'copied'
+            shutil.copytree(ROOT / 'Source', project / 'Source')
+            shutil.copytree(ROOT / 'Source', source)
+            reference = project / 'tools/integration/kanto-first-entry/qualified'
+            reference.mkdir(parents=True)
+            (project / 'tools/references').mkdir(parents=True)
+            shutil.copyfile(ROOT / 'tools/references/content-cache.json',
+                            project / 'tools/references/content-cache.json')
+            cache = {path.relative_to(source / 'data/contentCache').as_posix(): path.read_bytes()
+                     for path in (source / 'data/contentCache').rglob('*.json')}
+            imports = [name for name in generator.re.findall(r'import "([^"]+)"',
+                       (source / 'main.lua').read_text()) if name in generator.KANTO_OWNERS]
+            provenance = dict(schema=1, dependencies={name: hashlib.sha256(
+                (source / name).read_bytes()).hexdigest() for name in generator.KANTO_DEPENDENCIES},
+                content_pins_sha256=hashlib.sha256((project / 'tools/references/content-cache.json').read_bytes()).hexdigest(),
+                content_cache={name: hashlib.sha256(raw).hexdigest() for name, raw in cache.items()},
+                owner_imports=imports)
+            (reference / 'provenance.json').write_text(json.dumps(provenance))
+            owner = source / 'game/ceruleanRoutes.lua'
+            original = owner.read_bytes()
+            owner.write_bytes(original + b'\n-- copied mutation\n')
+            with self.assertRaisesRegex(ValueError, 'Kanto transform dependency changed'):
+                generator.kanto_declarations(project, source, cache)
+            owner.write_bytes(original)
+            changed = dict(cache, **{'catalog.json': cache['catalog.json'] + b' '})
+            with self.assertRaisesRegex(ValueError, 'Kanto copied content cache differs'):
+                generator.kanto_declarations(project, source, changed)
+            main = source / 'main.lua'
+            main.write_text(main.read_text() + '\nimport "game/kantoScenes"\n')
+            with self.assertRaisesRegex(ValueError, 'Kanto copied owner imports changed'):
+                generator.kanto_declarations(project, source, cache)
+
+    def test_unqualified_copied_kanto_declaration_cannot_survive_staging(self):
+        from tools.build import qualify_region_declarations
+        with tempfile.TemporaryDirectory() as directory:
+            stage = Path(directory)
+            source = stage / 'Source'
+            shutil.copytree(ROOT / 'Source', source)
+            declarations = source / 'data/regionDeclarations'
+            declarations.mkdir()
+            (declarations / 'ceruleanStory.json').write_text('{}')
+            artifacts = {path.relative_to(source / 'data/contentCache').as_posix():
+                         hashlib.sha256(path.read_bytes()).hexdigest()
+                         for path in (source / 'data/contentCache').rglob('*.json')}
+            qualify_region_declarations(ROOT, source, stage, {'artifacts': artifacts})
+            if (declarations / 'ceruleanStory.json').exists():
+                self.assertNotEqual((declarations / 'ceruleanStory.json').read_text(), '{}')
+
     def test_transformed_records_and_rosters_equal_actual_sdk_export(self):
         files = generator.build(ROOT)
         for name in ('midgameEast',):

@@ -8,17 +8,23 @@ local NERD <const> = "pokered:MT_MOON_B2F:objects:1"
 local PC <const> = "pokered:BILLS_HOUSE:hidden_events:1"
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local data, integration
+local qualified = false
+local decodeFile <const> = json.decodeFile
 local function copy(value) return GameSession._copy(value) end
-local function load()
-    if not data then
-        data = {}
-        for _, name in ipairs({"events", "dialogue", "scenes", "trainers"}) do
-            local value = assert(json.decodeFile("data/ceruleanStory/" .. name .. ".json"))
-            assert(value.schema == 1 and value.source_revision == revision, "unverified Cerulean story data")
-            data[name] = value
+local function load(field)
+    data = data or {}
+    if not data[field] then
+        local path = "data/ceruleanStory/" .. field .. ".json"
+        local value
+        if qualified then
+            value = ShippedDataPolicy.readBundleJSON(path)
+        else
+            value = assert(decodeFile(path))
         end
+        assert(value.schema == 1 and value.source_revision == revision, "unverified Cerulean story data")
+        data[field] = value
     end
-    return data
+    return data[field]
 end
 local function dialog(label) return {op="dialog", labels={label}} end
 local function empty(status) return {status=status, steps={}} end
@@ -30,7 +36,7 @@ local function padding(zoneID)
     return name and SourceMaps.entry(name).padding or 0
 end
 function CeruleanStory.descriptors()
-    local events = copy(load().events.events)
+    local events = copy(load("events").events)
     for id, descriptor in pairs(events) do
         local zoneID = "pokered:" .. id:match("^pokered:([^:]+):")
         for _, field in ipairs({"script_positions","script_collision_positions"}) do
@@ -41,9 +47,11 @@ function CeruleanStory.descriptors()
     end
     return events
 end
-function CeruleanStory.trainers() return copy(load().trainers.trainers) end
+function CeruleanStory.trainers()
+    return copy(load("trainers").trainers)
+end
 function CeruleanStory.text(label)
-    local record = load().dialogue.texts[label]
+    local record = load("dialogue").texts[label]
     if record and record.source == "data/text/text_2.asm" then return copy(record) end
     if CeruleanContent then return CeruleanContent.text(label) end
     return copy(assert(record, "missing bespoke story text: " .. tostring(label)))
@@ -64,11 +72,13 @@ function CeruleanStory.registerTrainers()
     end
     if next(missing) then SourceEvents.registerTrainerSource(CONTENT,function() return missing end) end
 end
-function CeruleanStory.scenes() return copy(load().scenes) end
+function CeruleanStory.scenes()
+    return copy(load("scenes"))
+end
 
 -- Plans contain source labels and optimistic effects, never a second state owner.
 function CeruleanStory.plan(id, state)
-    local descriptor = assert(load().events.events[id], "unsupported Cerulean story identity")
+    local descriptor = assert(load("events").events[id], "unsupported Cerulean story identity")
     local script = descriptor.scene_script
     if script == "super-nerd" then
         if not state.trainers[NERD] then
@@ -103,7 +113,7 @@ function CeruleanStory.plan(id, state)
 end
 
 function CeruleanStory.fossilReward(id, state)
-    local descriptor = assert(load().events.events[id])
+    local descriptor = assert(load("events").events[id])
     assert(descriptor.scene_script == "fossil", "source fossil choice required")
     if not state.trainers[NERD] or fossilChosen(state) then return nil, "unavailable-fossil" end
     return {expected={flags={EVENT_GOT_DOME_FOSSIL=false,EVENT_GOT_HELIX_FOSSIL=false},
@@ -156,20 +166,31 @@ function CeruleanStory.actorMetadata(id)
     return {}
 end
 function CeruleanStory.suppressEncounters(session, zoneID, x, y)
-    local area = load().scenes.no_encounters_after_nerd
+    if zoneID ~= "pokered:MT_MOON_B2F" then
+        return false
+    end
+    local area = load("scenes").no_encounters_after_nerd
     return zoneID == "pokered:MT_MOON_B2F" and session:trainerDefeated(NERD)
         and x >= area.x_min + padding(zoneID) and x <= area.x_max + padding(zoneID) and y >= area.y_min and y <= area.y_max
 end
 function CeruleanStory.trigger(session, zoneID, x, y)
-    local trigger = load().scenes.fossil_trigger
+    if zoneID ~= "pokered:MT_MOON_B2F" then
+        return nil
+    end
+    local trigger = load("scenes").fossil_trigger
     if zoneID == "pokered:MT_MOON_B2F" and x == trigger.x + padding(zoneID) and y == trigger.y
         and not session:trainerDefeated(NERD) then return trigger.id end
 end
 -- Driver/export pose is in SOURCE coordinates; callers add map padding once.
 -- scenes.pc retains the actual hidden-event TARGET, never a standing cell.
-function CeruleanStory.pcPlayer() return copy(load().scenes.pc_player) end
+function CeruleanStory.pcPlayer()
+    return copy(load("scenes").pc_player)
+end
 function CeruleanStory.pcInteraction(zoneID, playerX, playerY, facing)
-    local pc = load().scenes.pc
+    if zoneID ~= "pokered:BILLS_HOUSE" then
+        return nil
+    end
+    local pc = load("scenes").pc
     if zoneID ~= "pokered:BILLS_HOUSE" or facing ~= pc.facing then return nil end
     local delta = ({up={0,-1},down={0,1},left={-1,0},right={1,0}})[facing]
     if delta and playerX + delta[1] == pc.x + padding(zoneID) and playerY + delta[2] == pc.y then return PC end
@@ -212,16 +233,24 @@ function CeruleanStory.install(options)
     assert(type(options.reconcileActors) == "function", "root source actor reconciliation required")
     assert(not integration, "Cerulean story already installed")
     integration = {reconcileActors=options.reconcileActors}
-    for id, descriptor in pairs(CeruleanStory.descriptors()) do
-        if descriptor.kind == "bespoke" then
+    local declared, declaration = SourceEvents._registerRegionDeclaration(
+        CONTENT, "data/ceruleanStory/", "kanto-first-entry-v1")
+    qualified = declared
+    local events = declared and declaration.bespoke or CeruleanStory.descriptors()
+    for id, descriptor in pairs(events) do
+        if declared or descriptor.kind == "bespoke" then
             assert(not SourceEventHandlers[id], "duplicate bespoke story handler")
             local stableID = id
-            SourceEventHandlers[id] = function(state) return CeruleanStory.plan(stableID,state) end
+            SourceEventHandlers[id] = function(state)
+                return CeruleanStory.plan(stableID, state)
+            end
         end
     end
-    SourceEvents.registerEventSource(CONTENT,CeruleanStory.descriptors())
-    SourceEvents.registerTextSource(CONTENT,CeruleanStory.text)
-    CeruleanStory.registerTrainers()
+    if not declared then
+        SourceEvents.registerEventSource(CONTENT, events)
+        CeruleanStory.registerTrainers()
+    end
+    SourceEvents.registerTextSource(CONTENT, CeruleanStory.text)
 end
 
 -- EventState subclass adds only scene control; ordinary plans retain its exact
@@ -302,7 +331,7 @@ end
 function CeruleanEventState:prepareStory()
     local script = self.plan.scene_script
     local state = EventState.observe(self.game,self.id)
-    local scenes = load().scenes
+    local scenes = load("scenes")
     if script == "bill-intro" then
         self:queueText("_BillsHouseBillImNotAPokemonText")
         self:queueChoice(function(yes)
@@ -351,7 +380,7 @@ function CeruleanEventState:prepareStory()
         self.plan.failure_labels = {"_SSTicketNoRoomText"}
         self:queueText("_BillsHouseBillWhyDontYouGoInsteadOfMeText")
     elseif script == "fossil" then
-        local d = load().events.events[self.id]
+        local d = load("events").events[self.id]
         self:queueText(d.prompt)
         self:queueChoice(function(yes)
             if not yes then self:finish(); return end

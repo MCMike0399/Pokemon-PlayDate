@@ -1,0 +1,40 @@
+{
+  "status": "Installer gain qualifies for one review; isolated and not accepted on main.",
+  "branch": "wip/kanto-first-entry-108-20261030-01",
+  "commit": "b56d8456",
+  "build_id": "025d4978a1e746abad619fa7accc2d4e",
+  "export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-sdk-20261030-02",
+  "equivalence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-equivalence-20261030-01/startup-probe.json",
+  "equivalence_sha256": "5a3dd396a7e8c158d0a36e6c62090471ada925ab9eaa2a2c598d6cf22e7c22b2",
+  "events": 13,
+  "new_trainers": 2,
+  "installer_reads": [
+    "data/regionDeclarations/ceruleanStory.json",
+    "data/regionDeclarations/ceruleanRoutes.json"
+  ],
+  "host_checks": 40,
+  "safety": {
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-safety-20261030-01/simulator-smoke.json",
+    "raw_slice_ms": 67.492,
+    "sampled_peak_mib": 6.978865234375
+  },
+  "hardware": {
+    "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-hardware-20261030-01",
+    "exec_session": 41022,
+    "status": "Completed; no new logs, keeper restored"
+  },
+  "scope": "Lightweight membership and callback wiring at boot, first-use descriptor/roster/scene data. Partial activation, not every service/import lazy. Constructor identity remains distinct from origin eligibility.",
+  "limits": [
+    "No measured performance or acceptance claim yet.",
+    "Main excludes the rejected two-stage title code.",
+    "Public getters, dynamic save validators and harness/custom deep paths remain; callbacks still register at boot.",
+    "Fixture eligibility and defensive-copy tests pass; long physical traversal and B release gates remain."
+  ],
+  "measurement": "kanto-first-entry-measurement-20261030.json",
+  "qualified_scene_sdk_cases": {
+    "passed": 44,
+    "failed": 0,
+    "evidence": "evidence/kanto-first-entry-qualified-scenes-sdk-20261030-01",
+    "classification": "Production qualified boot; existing story/scene/route contracts execute after enabling their harness fixture support."
+  }
+}
