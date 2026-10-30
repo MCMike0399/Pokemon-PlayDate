@@ -26,5 +26,20 @@
   "next_inputs": {
     "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-resume-inputs-20261030-08",
     "status": "All three stopped-producer Bicycle save markers pass the original importer. The next journey is not launched."
+  },
+  "integrated_validation": {
+    "host_tests": 1039,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "host_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-bounded-gift-full-host-20261030-01.log",
+    "host_log_sha256": "57e12c6e9ad4e23edda058d18d3fc77fdbdd4fd8f2e08db73359bbaa43c354a3",
+    "compile_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-bounded-gift-compile-20261030-01.log",
+    "preflight": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-postbattle-preflight-20261030-01.json",
+    "preflight_checks": 1572,
+    "unreachable_geometry": 0,
+    "unexplained_geometry_gaps": 0,
+    "remaining_runtime_conditions": 8,
+    "scope": "Existing full host suite, production compile and static geometry. Runtime conditions remain explicit; no campaign or hardware acceptance."
   }
 }
