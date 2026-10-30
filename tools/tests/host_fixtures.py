@@ -4,15 +4,16 @@ from functools import partial
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.activate_checkpoint_a import ACCEPTED, git_bytes, map_names
+from tools.activate_checkpoint_a import ACCEPTED, git_bytes
+from tools.activate_checkpoint_b import manifest
 from tools import generate_vermilion_preparation as preparation
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def installed_map_names():
-    # map_names validates the accepted 65 + pinned East 43 split and disjointness.
-    return map_names(ROOT)
+    # The explicit release inventory is accepted 108 plus South 41, with Fly parked.
+    return set(manifest(ROOT)["maps"])
 
 
 def accepted_source_json(relative):

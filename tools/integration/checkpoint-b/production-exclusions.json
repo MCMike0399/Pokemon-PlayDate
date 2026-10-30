@@ -14,7 +14,10 @@
     "data/midgameSouth/trainers.json",
     "data/midgameSouth/sprites.json",
     "data/midgameSouth/manifest-entries.json",
-    "data/midgameSouth/provenance.json"
+    "data/midgameSouth/provenance.json",
+    "data/midgameSouth/contexts.json",
+    "data/midgameSouth/reservations.json",
+    "data/midgameSouth/scripts.json"
   ],
   "retain_shared_dependencies": [
     "domain/fieldTravel.lua",

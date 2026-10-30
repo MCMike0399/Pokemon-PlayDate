@@ -18,7 +18,12 @@ def inventories(project=ROOT):
     project = Path(project)
     accepted = json.loads(subprocess.check_output([
         'git', '-C', str(ROOT), 'show', ACCEPTED + ':Source/data/sourceMaps.json']))
-    south = json.loads((project / 'Source/data/midgameSouth/manifest-entries.json').read_bytes())['maps']
+    raw = (project / 'Source/data/midgameSouth/manifest-entries.json').read_bytes()
+    pinned = subprocess.check_output(['git', '-C', str(ROOT), 'show',
+                                      ACCEPTED + ':Source/data/midgameSouth/manifest-entries.json'])
+    if raw != pinned:
+        raise ValueError('pinned South manifest entries changed')
+    south = json.loads(raw)['maps']
     if len(accepted['maps']) != 108 or len(south) != 42 or set(accepted['maps']) & set(south) or not PARKED <= south.keys():
         raise ValueError('accepted 108 / pinned South 42 inventory drift')
     return accepted, {name: entry for name, entry in south.items() if name not in PARKED}

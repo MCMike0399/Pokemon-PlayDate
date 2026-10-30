@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":16,"text":"I hiked a lot, but"},{"op":"line","source_line":17,"text":"I didn't see any"},{"op":"cont","source_line":18,"text":"#MON I wanted."},{"op":"control","source":"done","source_line":19}],"source":"text/SafariZoneWestRestHouse.asm"}

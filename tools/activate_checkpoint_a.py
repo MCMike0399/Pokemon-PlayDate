@@ -65,7 +65,7 @@ def ignored_source_names(source_root, directory, names, exclusions):
         if path == 'dev' or any(path == prefix.rstrip('/') or path.startswith(prefix)
                                  for prefix in exclusions if prefix.endswith('/')) or path in exclusions:
             result.append(name)
-        elif name in {'proposed-source-maps.json', 'proposed-compact.json', 'proposed-tile-grids.json'}:
+        elif name.startswith('proposed-'):
             result.append(name)
     return result
 

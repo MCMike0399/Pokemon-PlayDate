@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":102,"text":"Name: OMANYTE"},{"op":"para","source_line":104,"text":"A #MON that"},{"op":"line","source_line":105,"text":"was resurrected"},{"op":"cont","source_line":106,"text":"from a fossil."},{"op":"control","source":"prompt","source_line":107}],"source":"text/FuchsiaCity.asm"}
