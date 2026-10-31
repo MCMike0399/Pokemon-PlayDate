@@ -1,0 +1,15 @@
+{
+  "status": "Candidate production bundle compiled; not released, deployed or milestone-accepted.",
+  "revision": "e71e33019f89633efdf00bc31a4eaa8cca655170",
+  "sdk_version": "3.1.2",
+  "bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-02/Production.pdx",
+  "pdx_sha256": "86e70b142f8525d7ae40c8aab10cee6228f04860bea6ee89ce5c65e7d3aa54be",
+  "maps": 149,
+  "dev_sources": 0,
+  "runtime_executed": false,
+  "matches_long_traversal_production_source": true,
+  "manifest": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-02/candidate-build.json",
+  "manifest_sha256": "73ec1cb616eef1a8db6d6e1c7fd03eb4c8b953fbd454c469b7db5bc31785969f",
+  "failed_layout_attempt": "b149-candidate-production-20261030-01 used output equal to the stager temporary bundle; copy failed. Retained as tooling invocation error, no runtime/source effect.",
+  "pending": "Native safety/resource/traversal/showcase and release acceptance still open; no player-package delivery claimed."
+}

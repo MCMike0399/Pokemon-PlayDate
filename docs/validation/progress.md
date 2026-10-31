@@ -72,7 +72,11 @@ All 2,494 protected images match. All 41 South spawn viewports and selected
 real-input Bike/Surf/rod/Safari BALL frames reviewed. All 82 full-map actor/event
 overlays inspected; no obvious rendering defect found. Static output does not
 prove live visibility or triggers. [Overlay scope](midgame-b-full-overlays-20261030.json).
-Long physical traversal and checkpoint showcase remain. [Protected](midgame-b-protected-visuals-20261030.json),
+Long physical traversal and checkpoint showcase remain. The corrected-B normal
+production bundle and refreshed private long-route packet compile, with identical
+production Source and verified immutable earned slots; neither is runtime-admitted.
+[Production preparation](midgame-b-production-preparation-20261030.json),
+[long-route preparation](midgame-b-long-traversal-preparation-20261030.json). [Protected](midgame-b-protected-visuals-20261030.json),
 [static scope](midgame-b-new-visuals-20261030.json),
 [field motion](midgame-b-field-motion-20261030.json),
 [Safari presentation](midgame-b-safari-presentation-20261030.json).
