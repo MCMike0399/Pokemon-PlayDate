@@ -1,0 +1,20 @@
+{
+  "status": "Monolithic census stopped; partial rows retained. Bounded continuation of unreported pairs pending.",
+  "result": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-full-20261030-02/result.json",
+  "result_sha256": "c8e4a2517f56d2282da70f97898ffd6f90109e805e035d71dc4b08a9db22dac5",
+  "counts": {
+    "gap": 574,
+    "measured": 292,
+    "not_run": 4024
+  },
+  "sample": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-full-20261030-02/owned-process-sample.txt",
+  "sample_sha256": "a789aea069d2452f8dcd0d16dc2c289e3df7bb48ad7155e35371a65c783b70e8",
+  "observed_process_footprint": "61.3 GB in macOS sample; distinct from Lua heap/native game pool",
+  "observed_stack": "Main thread in luaB_collectgarbage -> lua_gc -> luaC_fullgc -> fullgen",
+  "stop": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-full-20261030-02/root-stop.json",
+  "child_confirmed_reaped": true,
+  "device_attempt": false,
+  "cause": "Underlying host/SDK growth or collection failure unisolated. Do not call this a proven retained game leak.",
+  "next": "Fresh groups of at most 64 unreported pairs, existing native 16 MiB pool/9 MiB Lua guard, 1 GiB host footprint ceiling and 60 seconds without a completed row ceiling. Compare actual production manifests before combining.",
+  "tests": "14 existing/extended census host checks pass on accepted108 and private149; real macOS own-process rusage API exercised. No new SDK continuation result yet."
+}

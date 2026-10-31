@@ -132,6 +132,16 @@ class ResultTests(unittest.TestCase):
         self.assertEqual(result['counts'], {'not_run': 2})
         self.assertEqual({r['trial'] for r in result['rows']}, {1, 2})
 
+    def test_host_limits_stop_memory_growth_and_nonprogress(self):
+        census.check_host_limits(census.MAX_PROCESS_BYTES, 60)
+        with self.assertRaisesRegex(RuntimeError, 'host footprint'):
+            census.check_host_limits(census.MAX_PROCESS_BYTES + 1, 0)
+        with self.assertRaisesRegex(RuntimeError, 'completed census row'):
+            census.check_host_limits(1, 60.001)
+
+    def test_real_host_footprint_is_available_for_owned_process(self):
+        self.assertGreater(census.process_footprint(os.getpid()), 0)
+
     def test_gaps_do_not_rank_as_measurements(self):
         self.write_rows([dict(build_id='identity', id='portal', case_index=1, trial=1, status='gap', gap='actor required')])
         result = census.summarize(self.root, self.metadata)

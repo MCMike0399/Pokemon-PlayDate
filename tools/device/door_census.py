@@ -6,6 +6,7 @@ No runtime locks, Simulator preferences, USB, GUI or Data are touched unless
 --project pointing at the immutable production input checkout.
 """
 import argparse
+import ctypes
 from bisect import bisect_right
 from collections import Counter
 from contextlib import ExitStack
@@ -21,10 +22,44 @@ import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED = '76559ac87b210a2e71c0520a1da3f8059a9e8d9c'
+EXPECTED = '0bc2e5fe8a79cda83602c7e754ad832e8c24ccff'
 DIRECTIONS = {'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
 CARDINAL = {'north': 'up', 'south': 'down', 'west': 'left', 'east': 'right'}
 CLASSIFICATION = 'isolated setup plus real portal input; not natural journey, earned traversal or device acceptance'
+MAX_PROCESS_BYTES = 1024**3
+MAX_ROW_WAIT_SECONDS = 60
+
+
+class _ProcessUsage(ctypes.Structure):
+    _fields_ = [('uuid', ctypes.c_uint8 * 16)] + [
+        (name, ctypes.c_uint64) for name in (
+            'user_time', 'system_time', 'pkg_idle_wkups', 'interrupt_wkups',
+            'pageins', 'wired_size', 'resident_size', 'phys_footprint',
+            'proc_start_abstime', 'proc_exit_abstime')]
+
+
+_rusage_function = None
+
+
+def process_footprint(pid):
+    """macOS rusage_info_v0; includes compressed/swapped footprint, unlike RSS."""
+    global _rusage_function
+    if _rusage_function is None:
+        library = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
+        _rusage_function = library.proc_pid_rusage
+        _rusage_function.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+        _rusage_function.restype = ctypes.c_int
+    usage = _ProcessUsage()
+    if _rusage_function(pid, 0, ctypes.byref(usage)) != 0:
+        raise OSError(ctypes.get_errno(), 'cannot inspect owned Simulator footprint')
+    return usage.phys_footprint
+
+
+def check_host_limits(footprint, elapsed_without_row):
+    if footprint > MAX_PROCESS_BYTES:
+        raise RuntimeError('owned Simulator exceeds 1 GiB host footprint; stop this diagnostic')
+    if elapsed_without_row > MAX_ROW_WAIT_SECONDS:
+        raise RuntimeError('no completed census row for 60 seconds; stop this diagnostic')
 
 
 def sha(path):
@@ -394,6 +429,7 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False):
         raise ValueError('compiler or inventory changed')
     process = None
     failure = None
+    peak_footprint, footprint_samples = 0, 0
     data = sdk / 'Disk/Data' / metadata['bundle_id']
     with ExitStack() as ownership:
         if not locks_held:
@@ -416,10 +452,20 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False):
                         atomic_json(output / 'run.json', dict(build_id=metadata['build_id'], pid=process.pid,
                                                              simulator=str(simulator), simulator_sha256=sha(simulator)))
                         deadline = time.monotonic() + timeout
+                        progress_at = time.monotonic()
+                        row_size = 0
                         trace_offset, trace_tail = 0, ''
                         while not (data / 'door-census-done.json').exists():
                             if process.poll() is not None or time.monotonic() > deadline:
                                 raise RuntimeError('owned Simulator exited or census deadline expired')
+                            footprint = process_footprint(process.pid)
+                            footprint_samples += 1
+                            peak_footprint = max(peak_footprint, footprint)
+                            row_file = data / 'door-census.jsonl'
+                            size = row_file.stat().st_size if row_file.exists() else 0
+                            if size != row_size:
+                                progress_at, row_size = time.monotonic(), size
+                            check_host_limits(footprint, time.monotonic() - progress_at)
                             trace = data / 'boot-trace.tsv'
                             if trace.exists():
                                 with trace.open() as source_trace:
@@ -436,6 +482,12 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False):
                     except Exception as error:
                         failure = str(error)
                     finally:
+                        atomic_json(output / 'host-resource-limits.json', {
+                            'max_process_bytes': MAX_PROCESS_BYTES,
+                            'max_row_wait_seconds': MAX_ROW_WAIT_SECONDS,
+                            'peak_process_bytes': peak_footprint,
+                            'footprint_samples': footprint_samples,
+                            'scope': 'Simulator host protection; not device RAM or Lua-heap acceptance'})
                         if process is not None and process.poll() is None:
                             process.terminate()
                             try:

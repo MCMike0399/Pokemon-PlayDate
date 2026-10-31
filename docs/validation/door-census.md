@@ -4,7 +4,7 @@ This is a compile-only preparation for root. It is not runtime evidence or an
 acceptance record. No Simulator, GUI, runtime lock, serial, USB, device command,
 canonical save, production module or existing ledger was touched during preparation.
 
-The input is exactly `76559ac87b210a2e71c0520a1da3f8059a9e8d9c`, whose existing
+The input is exactly `0bc2e5fe8a79cda83602c7e754ad832e8c24ccff`, whose existing
 checkout is `/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-2c976160`.
 Run the tool from the implementation checkout. Its `--project` is a read-only
 production input, not the location from which it obtains the new observer.
@@ -203,3 +203,22 @@ measurements remain unperformed. No accepted evidence or ledger is changed.
 The inventory helper and host tests also cover accepted main’s 108-map inputs
 with their own exact totals. Runtime census preparation still requires the
 explicit pinned 149-map revision; this does not activate B on main.
+
+## Bounded continuation after the long diagnostic stopped
+
+The second monolithic run retained 866 rows (292 measured, 574 explicit gaps)
+before its owned Simulator stopped progressing inside native Lua full GC.
+The OS sample reported 61.3 GB process footprint despite the 16 MiB game pool
+and roughly 8 MiB sampled Lua heap. Root stopped only that verified PID and
+retained all partial rows. This is not a device crash or a demonstrated game leak.
+
+Continue the unreported case pairs in fresh groups of at most 64, retaining
+actual cache labels and independent process identities. Do not repeat valid
+completed pairs or pretend the stopped run completed. Every execution now stops
+its own child at 1 GiB host process footprint or 60 seconds without a completed
+row; macOS `rusage_info_v0.ri_phys_footprint` includes compressed/swapped usage.
+The runner's existing owned-child cleanup and partial evidence publication remain.
+These are host-protection ceilings, not device memory or playability budgets.
+Current B differs from the earlier input only in dev projection fingerprints and
+reviewed coverage docs; compare the actual production manifests before combining
+results. The original stopped runs and all gaps remain visible.
