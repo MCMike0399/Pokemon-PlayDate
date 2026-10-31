@@ -71,6 +71,16 @@ class ProductionBuildTests(unittest.TestCase):
         for name in ('game/titleState', 'game/itemPCState', 'domain/fieldEncounters', 'main'):
             self.assertIn(name, modules)
 
+    def test_retained_bundle_can_be_the_published_output(self):
+        stage = self.root / 'in-place-production'
+        stage.mkdir()
+        output = stage / 'Production.pdx'
+        build.compile_production(PROJECT, self.sdk, output, stage)
+        self.assertIn('main', pdz_modules(output / 'main.pdz'))
+        self.assertFalse((output / 'dev').exists())
+        metadata = json.loads((stage / 'build.json').read_text())
+        self.assertEqual(metadata['bundle'], str(output))
+
     def test_harness_compiled_inventory_keeps_every_original_dev_import(self):
         modules = pdz_modules(self.harness / 'Harness.pdx/main.pdz')
         expected = [name for name in BASELINE['imports'] if name.startswith('dev/')]

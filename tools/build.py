@@ -122,10 +122,13 @@ def compile_production(project, sdk, output, stage):
     if (bundle / 'dev').exists():
         raise ValueError('production bundle contains dev modules')
     # Publish a fresh bundle: pdc does not remove files from previous builds.
-    output.parent.mkdir(parents=True, exist_ok=True)
-    if output.exists():
-        shutil.rmtree(output)
-    shutil.copytree(bundle, output)
+    # The retained compiled bundle may itself be the requested output. Do not
+    # delete that source before copying it onto the same path.
+    if output.resolve() != bundle.resolve():
+        output.parent.mkdir(parents=True, exist_ok=True)
+        if output.exists():
+            shutil.rmtree(output)
+        shutil.copytree(bundle, output)
     (stage / 'build.json').write_text(json.dumps({
         'mode': 'production', 'source_sha256': fingerprint(stage, exclude_generated=False),
         'sdk_version': (sdk / 'VERSION.txt').read_text().strip(),
