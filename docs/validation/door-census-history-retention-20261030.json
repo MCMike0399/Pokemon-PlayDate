@@ -44,5 +44,6 @@
   "interpretation": "Panic documents malloc-pool profiling retaining allocation history and freeing it via Clear. The observed millions of small host allocations and mode-independent growth are consistent with that mechanism; a current-SDK Clear/off control is still needed for causal confirmation. Not a proved game leak.",
   "constraints": "Keep 16 MiB/9 MiB Lua guards. macOS direct accessibility trust returned false; own blocked AppleScript probe terminated. User asked whether to enable Accessibility for Clear automation or permit profiler-off long diagnostics only. No preference/gate changed or OS permission bypass attempted.",
   "timing_scope": "Long stopped-run timings are contaminated by unbounded host history/paging; arrival/coverage receipts remain partial evidence. Do not publish them as a reliable worst-door ranking.",
-  "device_scope": "No device run, crash, update or USB change in these controls. Hardware smoke and milestone acceptance remain separate."
+  "device_scope": "No device run, crash, update or USB change in these controls. Hardware smoke and milestone acceptance remain separate.",
+  "user_decision": "Keep 16 MiB; user will enable Accessibility. Verify trust before executing history clearing. Profiler-off diagnostics are not authorized."
 }

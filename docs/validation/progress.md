@@ -94,7 +94,8 @@ Compare production manifests before combining; no full census claim.
 Guarded one-session and incremental-GC controls also hit the host ceiling; both
 changes rejected. Panic documents retained malloc history, consistent with the
 host growth. Clear/off confirmation is pending; no pool or gate changed.
-Accessibility is unavailable for Clear automation; user decision requested.
+User chose to retain 16 MiB and enable Accessibility for Clear automation.
+Trust is still unverified/false at last probe; no profiler-off path is authorized.
 [Controls and limits](door-census-history-retention-20261030.json). Old paged-run
 timings do not establish a worst-door ranking. No SDK process remains running.
 B coverage was reviewed against current owners, inventories and historical blobs,

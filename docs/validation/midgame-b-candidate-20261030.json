@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "status": "private; ninth set running from verified Koga saves; not accepted",
-  "candidate": "b122e349",
+  "status": "Private B: all three earned journeys/restarts and full host suite pass; physical traversal, reliable worst-door measurements, showcase and final review remain.",
+  "candidate": "0bc2e5fe8a79cda83602c7e754ad832e8c24ccff",
   "maps": 149,
   "new_maps": 41,
   "parked": [
@@ -40,11 +40,11 @@
     "source": "existing pinned SeelSprite selected by Blue loader",
     "native_pose_reference_matches": 12,
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-surf-avatar-native-20261030-01",
-    "motion": "pending earned journey"
+    "motion": "Selected earned B live boarding/water-step/landing frames inspected; see midgame-b-field-motion-20261030.json."
   },
-  "memory": "Private 149-map Simulator measurement profile completed at 6.55 MiB collected checkpoint; physical native 6 MiB guard unchanged; no B hardware result yet",
+  "memory": "Current 149-map matched hardware smoke sampled 4.53 MiB live / 5.82 MiB peak Lua using the earned 5.4 Route2Gate seed; this is not the final B-earned long traversal.",
   "main_scope": "108 maps; private B not merged",
-  "hardware": "Full accepted-A soak collected successfully; no B hardware measurement yet.",
+  "hardware": "Matched 149-map smoke build3d62a607 completes without new logs. Long B-earned physical traversal and release acceptance remain open.",
   "third_journey_set": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-third-20261030-01",
     "result": "Bulbasaur reaches Fuji but fails return warp: stable ID supplied instead of runtime key. Squirtle/Charmander legitimately reject Rare Candy with full 20-slot bags.",
@@ -492,5 +492,18 @@
     },
     "scope": "Third earned B chain passes. Source remains the same gameplay candidate as the two earlier passing chains; common-build, hardware, resource and review gates remain open."
   },
-  "journey_gate": "All three earned B routes and actual two-process restarts pass. No whole-checkpoint acceptance or main gameplay merge."
+  "journey_gate": "All three earned B routes and actual two-process restarts pass. No whole-checkpoint acceptance or main gameplay merge.",
+  "current_release_summary": {
+    "host": "midgame-b-host-audit-20261030.json",
+    "visuals": "midgame-b-full-overlays-20261030.json",
+    "common_build_restarts": "midgame-b-common-load-20261030.json",
+    "phase_scaling": "kanto-first-entry-scaling-20261030.json",
+    "remaining": [
+      "Long physical 30-map/100-door/20-battle resource qualification",
+      "Reliable complete door census and worst-five device measurements",
+      "Device latency targets, including boot slice and cave p95",
+      "Checkpoint showcase/package and final release review"
+    ],
+    "history": "Earlier nested running/failure descriptions are retained historical attempts, superseded by journey_gate and this summary."
+  }
 }
