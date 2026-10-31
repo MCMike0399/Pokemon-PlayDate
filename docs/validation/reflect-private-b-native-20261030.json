@@ -204,5 +204,14 @@
     "Coverage requalification before adoption",
     "B release resources, door/cave latency and showcase gates remain open"
   ],
-  "unchanged": "Actual B/main/C Source and canonical saves unchanged; nothing pushed."
+  "unchanged": "Actual B/main/C Source and canonical saves unchanged; nothing pushed.",
+  "reviews": {
+    "standards": {
+      "thread": "thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3Ab1c2e2af-a6f0-4389-8983-478f34987797",
+      "candidate": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+      "findings": 0,
+      "scope": "Static changed-hunk standards and optional heuristics review; no runtime reproduction."
+    },
+    "spec": "Pending independent review; no adoption."
+  }
 }
