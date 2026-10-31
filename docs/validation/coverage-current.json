@@ -1,67 +1,77 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "64512fa7423df9fc160bc55eeab01c67d862402c",
-    "source_sha256": "63285be81ad66d2b1d6b6629c96cf0ed29dd8773f1505c88deca42d73a6d585b",
+    "commit": "94ed17bac361f25d506fd816de191c72c3803cc5",
+    "source_sha256": "e470f3cab45821d11c197815e73e6ca2fb06b3796be4be1a269885510da91261",
     "policy_date": "2026-10-30",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Private 149-map B coverage review only. Accepted main remains 108 Simulator-route maps, hardware-safe with latency targets unmet; 0 device-playable maps. All three earned B journeys and two-process restarts passed on their recorded builds. B remains unaccepted.",
+    "scope": "Private149-map B with held-input Safari expiry correction. Main108 remains Simulator-accepted/hardware-safe; B and device playability remain unaccepted.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Reviewed all 1512 rows and three facets against the actual ddaf3804..64512fa7 Source diff, inventories, existing scoped proofs and committed Root summaries. Current Source membership is distinct from frozen native evidence. No current-B gameplay rerun, full-suite green, full mechanics, regional fidelity, main or device acceptance is asserted.",
+    "review": "Actual Source delta since B0bc2e5fe is three lines taking pending Safari expiry before field input, plus one SDK behavior contract/shared fixture. Native red/green boarding and ongoing-Surf variants and existing normal Surf pass. Both independent correction rechecks report no findings. Every row/facet remains unchanged; no acceptance promotion. Fresh full host rerun pending.",
     "previous_snapshot": {
-      "commit": "ddaf38044e47959381d3443cca5180d0232cb591",
-      "source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
-      "policy_date": "2026-10-29",
+      "commit": "64512fa7423df9fc160bc55eeab01c67d862402c",
+      "source_sha256": "63285be81ad66d2b1d6b6629c96cf0ed29dd8773f1505c88deca42d73a6d585b",
+      "policy_date": "2026-10-30",
       "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-      "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
+      "scope": "Private 149-map B coverage review only. Accepted main remains 108 Simulator-route maps, hardware-safe with latency targets unmet; 0 device-playable maps. All three earned B journeys and two-process restarts passed on their recorded builds. B remains unaccepted.",
       "acceptance_context": "private-5.5b-unaccepted",
-      "review": "Private B now uses the existing eight-record cache for gift text. Both native variants pass all 40 gift cases; the cold lookup comparison saves about 676 KiB of retained heap. This does not establish resolution of the long-route OOM, hardware memory, or checkpoint acceptance. Post-battle cycling recovery remains a driver change pending a natural rerun."
+      "review": "Reviewed all 1512 rows and three facets against the actual ddaf3804..64512fa7 Source diff, inventories, existing scoped proofs and committed Root summaries. Current Source membership is distinct from frozen native evidence. No current-B gameplay rerun, full-suite green, full mechanics, regional fidelity, main or device acceptance is asserted.",
+      "previous_snapshot": {
+        "commit": "ddaf38044e47959381d3443cca5180d0232cb591",
+        "source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+        "policy_date": "2026-10-29",
+        "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+        "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
+        "acceptance_context": "private-5.5b-unaccepted",
+        "review": "Private B now uses the existing eight-record cache for gift text. Both native variants pass all 40 gift cases; the cold lookup comparison saves about 676 KiB of retained heap. This does not establish resolution of the long-route OOM, hardware memory, or checkpoint acceptance. Post-battle cycling recovery remains a driver change pending a natural rerun."
+      },
+      "external_review_documents": [
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/midgame-b-candidate-20261030.json",
+          "sha256": "5fda14b2ded36c3cf55471f2f47c6fcd11b0f69222a4d50b78db53556f311da6",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        },
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/midgame-b-common-load-20261030.json",
+          "sha256": "19d6315d57a3ea752f63fe38d8fe88edfb85bbd95f24db651c738f76c2f9f09f",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        },
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/midgame-b-host-audit-20261030.json",
+          "sha256": "6d5ff8e575e763003ff0b2621fd71d21c8ab66f86dcdcc30bed74a4cdff93a44",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        },
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/kanto-first-entry-candidate-20261030.json",
+          "sha256": "3a14e87a9766ed8165f882b7bea3c9a5afc79282e8dac4e9f02e9895f98086ea",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        },
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/midgame-b-protected-visuals-20261030.json",
+          "sha256": "06a293b6b12e72f96cf89c5841fe3cf55115a4e94095a5cc97719a64f1ea3174",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        },
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/midgame-b-full-overlays-20261030.json",
+          "sha256": "9e511be02142c00ac7ff20688496b4819fa2e93423eca525a8fe3d3bfea6f376",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        },
+        {
+          "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+          "path": "docs/validation/kanto-first-entry-scaling-20261030.md",
+          "sha256": "3a3c2968fc10c7fe6247c89c01187a88489520cf7727321165b8342205e02a5e",
+          "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+        }
+      ],
+      "external_documents_policy": "Documents above are resolved and hashed from the recorded committed main tree, not from B. Existing checker validates B-local facet evidence only. Keep exact original build identities; do not reinterpret these summaries as current-B execution."
     },
-    "external_review_documents": [
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/midgame-b-candidate-20261030.json",
-        "sha256": "5fda14b2ded36c3cf55471f2f47c6fcd11b0f69222a4d50b78db53556f311da6",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      },
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/midgame-b-common-load-20261030.json",
-        "sha256": "19d6315d57a3ea752f63fe38d8fe88edfb85bbd95f24db651c738f76c2f9f09f",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      },
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/midgame-b-host-audit-20261030.json",
-        "sha256": "6d5ff8e575e763003ff0b2621fd71d21c8ab66f86dcdcc30bed74a4cdff93a44",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      },
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/kanto-first-entry-candidate-20261030.json",
-        "sha256": "3a14e87a9766ed8165f882b7bea3c9a5afc79282e8dac4e9f02e9895f98086ea",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      },
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/midgame-b-protected-visuals-20261030.json",
-        "sha256": "06a293b6b12e72f96cf89c5841fe3cf55115a4e94095a5cc97719a64f1ea3174",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      },
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/midgame-b-full-overlays-20261030.json",
-        "sha256": "9e511be02142c00ac7ff20688496b4819fa2e93423eca525a8fe3d3bfea6f376",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      },
-      {
-        "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-        "path": "docs/validation/kanto-first-entry-scaling-20261030.md",
-        "sha256": "3a3c2968fc10c7fe6247c89c01187a88489520cf7727321165b8342205e02a5e",
-        "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-      }
-    ],
-    "external_documents_policy": "Documents above are resolved and hashed from the recorded committed main tree, not from B. Existing checker validates B-local facet evidence only. Keep exact original build identities; do not reinterpret these summaries as current-B execution."
+    "current_delta_evidence": "b-safari-expiry-input"
   },
   "accepted_milestone_rows": [],
   "schedule": {
@@ -331,6 +341,12 @@
       "sha256": "d39c85b6f94f38ce7fdb96c0c3d66378dd4132403db6fec9de6d45644ba42427",
       "kind": "private_verified",
       "scope": "Isolated 108-map audio candidate; native safety passed but capture incomplete/silent and listening unaccepted. Does not establish active B playback."
+    },
+    "b-safari-expiry-input": {
+      "kind": "private_verified",
+      "path": "docs/validation/safari-expiry-input-20261030.json",
+      "sha256": "75917dc6019b53a6b4f37366efc010f4b64dba291737bffa53225560e9595522",
+      "scope": "Scoped corrected-B SDK input ownership regression and static rechecks; not whole campaign/device acceptance."
     }
   },
   "source_inventory_summary": {
