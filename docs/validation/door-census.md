@@ -103,14 +103,11 @@ owner lock encloses the run. There is one child process and no parallel runtime.
 Only its PID may be terminated; shutdown is confirmed before copying and removing
 private Data. Deadlines, production errors and incomplete tails remain failures.
 
-Each bounded process loads the copied earned slots once through
-`GameSaves:continueGame`, keeping the existing session/specimen authority.
-Source-map positioning is an isolated fixture through normal `switchZone`,
-Overworld, provider/cache, WorldView, Player and NPC owners, outside traversal
-timing. Later trials and cases retain actual side effects within that process;
-independent seed state per pair is no longer claimed. Each row records this
-policy. Old pair-reset rows retain their original identities/context. Cache
-residency is always measured, never inferred from trial number.
+Each pair loads the copied earned slots through `GameSaves:continueGame`,
+keeping the existing session/specimen authority. Source placement uses normal
+switchZone/Overworld/provider/Player/NPC owners outside traversal timing. Trial
+two retains actual first-entry effects; cache residency is observed. Each new
+pair restores the earned session normally.
 
 The actual traversal receives one frame of directional input at the same four
 SDK button-query seams used by existing diagnostics, followed by release. It
@@ -234,3 +231,12 @@ ranking old/new rows. A short continuation must verify the host bound before
 launching the rest. Root still needs to isolate any remaining native/SDK growth;
 no leak fix or device result is claimed. Guard failures retain a bounded
 `vmmap -summary` snapshot before owned-child cleanup.
+
+The one-session and incremental-GC controls both reached the host ceiling after
+12 measured rows; both changes were rejected. Pair restoration and normal GC
+are reinstated. Panic documents malloc-pool profiling retaining freed history:
+https://devforum.play.date/t/giant-memory-leak/7971 . This fits the observed host
+allocation growth, but Clear/off confirmation on this SDK remains pending.
+Accessibility is unavailable for automated Clear, and no pool preference or
+admission gate was changed. Do not continue long runs until that is resolved;
+retained timings under host paging are not a reliable worst-door ranking.

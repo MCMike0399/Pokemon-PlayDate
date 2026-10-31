@@ -1,0 +1,48 @@
+{
+  "status": "All guarded controls stopped safely; no current SDK job. Allocation-history handling needs a user decision before more long runs.",
+  "controls": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-bounded-20261030-01/chunk-001/result.json",
+      "sha256": "9d45af67df67646fad93c8e4fd6f2116b9fff7f4d04b292933ab25857739b3da",
+      "counts": {
+        "gap": 18,
+        "measured": 3,
+        "not_run": 107
+      },
+      "failure": "owned Simulator exceeds 1 GiB host footprint; stop this diagnostic",
+      "sampled_host_peak_bytes": 1078232720
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-B-bounded-20261030-01/chunk-002/result.json",
+      "sha256": "9d676c018ab72c9a076b5fe2bb1dbc4f638b228077321bb88c8525d98394b129",
+      "counts": {
+        "measured": 12,
+        "not_run": 12
+      },
+      "failure": "owned Simulator exceeds 1 GiB host footprint; stop this diagnostic",
+      "sampled_host_peak_bytes": 1080444560
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-GC-mode-isolation-20261030-01/result.json",
+      "sha256": "e3c4609593733777507b02a024ee3d0af9d17647852d60f41b183348adee5014",
+      "counts": {
+        "measured": 12,
+        "not_run": 12
+      },
+      "failure": "owned Simulator exceeds 1 GiB host footprint; stop this diagnostic",
+      "sampled_host_peak_bytes": 1074431656
+    }
+  ],
+  "rejected_changes": [
+    "Single restored session per process did not prevent host growth; pair restoration reinstated.",
+    "Incremental collection did not prevent host growth; normal GC mode reinstated."
+  ],
+  "primary_sources": [
+    "https://devforum.play.date/t/giant-memory-leak/7971",
+    "https://devforum.play.date/t/simulator-memory-leak-on-mac/16384"
+  ],
+  "interpretation": "Panic documents malloc-pool profiling retaining allocation history and freeing it via Clear. The observed millions of small host allocations and mode-independent growth are consistent with that mechanism; a current-SDK Clear/off control is still needed for causal confirmation. Not a proved game leak.",
+  "constraints": "Keep 16 MiB/9 MiB Lua guards. macOS direct accessibility trust returned false; own blocked AppleScript probe terminated. User asked whether to enable Accessibility for Clear automation or permit profiler-off long diagnostics only. No preference/gate changed or OS permission bypass attempted.",
+  "timing_scope": "Long stopped-run timings are contaminated by unbounded host history/paging; arrival/coverage receipts remain partial evidence. Do not publish them as a reliable worst-door ranking.",
+  "device_scope": "No device run, crash, update or USB change in these controls. Hardware smoke and milestone acceptance remain separate."
+}

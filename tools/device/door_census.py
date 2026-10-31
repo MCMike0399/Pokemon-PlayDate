@@ -253,7 +253,7 @@ def prepare(project, sdk, output, earned=None, only=None):
     identity = uuid.uuid4().hex
     config = dict(schema=1, build_id=identity, count=len(selected), earned=bool(earned),
                   classification=CLASSIFICATION, trials=2, max_frames=240,
-                  seed_restore_policy='once per bounded process; actual case effects retained',
+                  seed_restore_policy='once per case pair; trial-two effects retained',
                   gc_policy='explicit boundary GC plus loading-suspension collection at 8 MiB; diagnostic only')
     write_json(case_dir / 'config.json', config)
     seed = None

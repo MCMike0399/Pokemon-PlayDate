@@ -91,6 +91,12 @@ retained. This is not a device crash or proven game leak.
 [Host stop](door-census-host-stop-20261030.json). Continue unreported pairs in
 fresh groups ≤64, with 1 GiB host footprint / 60 s no-row-progress ceilings.
 Compare production manifests before combining; no full census claim.
+Guarded one-session and incremental-GC controls also hit the host ceiling; both
+changes rejected. Panic documents retained malloc history, consistent with the
+host growth. Clear/off confirmation is pending; no pool or gate changed.
+Accessibility is unavailable for Clear automation; user decision requested.
+[Controls and limits](door-census-history-retention-20261030.json). Old paged-run
+timings do not establish a worst-door ranking. No SDK process remains running.
 B coverage was reviewed against current owners, inventories and historical blobs,
 then published privately in B0bc2e5fe. Fresh compile-only build and all **1,058
 host tests pass**, no errors/skips (412.325 s). Three projection failures required

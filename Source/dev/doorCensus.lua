@@ -14,7 +14,6 @@ function DoorCensus.install()
         left=playdate.kButtonLeft, right=playdate.kButtonRight}
     local held, pressed, released = 0, 0, 0
     local caseIndex, trial, written = 1, 1, 0
-    local seedRestored = false
     local item, row, approach
     local phase, age = "next", 0
     local measured, started, updateThread = false, nil, nil
@@ -317,13 +316,11 @@ function DoorCensus.install()
             return
         end
         item = assert(json.decodeFile("census/" .. caseIndex .. ".json"))
-        -- Restore once through the existing save/session authority. The bounded
-        -- process retains actual case side effects and measured cache residency;
-        -- it does not construct another complete session for every portal pair.
-        if cfg.earned and not seedRestored then
+        -- Restore through the existing owner for each pair. The second trial
+        -- retains actual effects; its cache residency is observed, not assumed.
+        if cfg.earned then
             local ok, problem = game.saves:continueGame()
             assert(ok, type(problem) == "table" and problem.error or problem)
-            seedRestored = true
         end
         phase = "setup"
     end
