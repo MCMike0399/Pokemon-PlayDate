@@ -15,5 +15,6 @@
     "Live history handling for long Simulator work",
     "Physical session and postGC-per-entry/native-error review",
     "CurrentB acceptance and audio remain held"
-  ]
+  ],
+  "current_admission_status": "STALE: private B now565bfdfb includes reviewed Reflect. Retain original packet and hashes; prepare a fresh build before execution. This packet was never runtime-admitted."
 }

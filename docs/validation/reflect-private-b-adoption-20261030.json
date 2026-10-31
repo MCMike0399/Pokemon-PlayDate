@@ -1,0 +1,54 @@
+{
+  "status": "Reviewed Reflect composition adopted into private B only; B remains unaccepted. Main Source and canonical earned saves unchanged.",
+  "b_head": "565bfdfb4c0f2b37c921fa79e143067fe45b7637",
+  "logical_commits": [
+    "deae9142",
+    "565bfdfb"
+  ],
+  "tested_candidate": "d472fddc",
+  "source_and_harness_tree_equality": "Exact Git tree equality confirmed between tested candidate and integrated B.",
+  "host": {
+    "passed": 1059,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 284.633,
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-b-coverage-host-20261030-01/host.log",
+    "sha256": "e69e518e906f6a714928914cb04ec6b8002fbc03b302f4214d749caf80f73eba",
+    "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-b-coverage-host-20261030-01/bundle/build.json",
+    "build_sha256": "3be37c493bdeb5b76024c1b4f47d7a06bf9951495a49be878290d0dbbfb04187"
+  },
+  "coverage": {
+    "rows": 1512,
+    "map_slots": 248,
+    "moves": 430,
+    "items": 131,
+    "audio_sources": 375,
+    "changed_facets": [
+      "move:reflect",
+      "move:chipAway",
+      "move:lightScreen",
+      "move:safeguard",
+      "move:tailwind"
+    ],
+    "preservation": "All row identities/dependencies, all other facets and all previous evidence registry entries/hashes retained. Reflect remains partial/sdk_scoped with unsupported edges explicit.",
+    "path": "docs/validation/coverage-current.json",
+    "sha256": "a05ee762183a512c8199821f3b323a0e5e0784bb335b677c593ea289010b12f6"
+  },
+  "native_scope": "34 short SDK executions across33 named cases; both review axes0findings. See reflect-private-b-native-20261030.json. No campaign/device/full fidelity promotion.",
+  "unrun_packets_now_stale": [
+    "b149-long-traversal-root-prepare-20261030-03",
+    "b149-candidate-production-20261030-02",
+    "history-clear-census-qualification-prepare-20261030-01",
+    "checkpoint B showcase current-B source pin"
+  ],
+  "stale_policy": "Keep historical manifests/revisions unchanged. Prepare fresh packets before any execution against current B. Exact old pin rejection is intentional.",
+  "open_gates": [
+    "Accessibility/Clear actual behavior and host-history reclamation",
+    "Fresh exact16MiB safety admission",
+    "100+physicaldoors30+maps20battles and postGC resources",
+    "Door census/worstfive physical measurements and cave latency",
+    "Native showcase/release acceptance"
+  ],
+  "push": false
+}

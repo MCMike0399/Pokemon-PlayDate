@@ -11,5 +11,6 @@
   "manifest": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-02/candidate-build.json",
   "manifest_sha256": "73ec1cb616eef1a8db6d6e1c7fd03eb4c8b953fbd454c469b7db5bc31785969f",
   "failed_layout_attempt": "b149-candidate-production-20261030-01 used output equal to the stager temporary bundle; copy failed. Retained as tooling invocation error, no runtime/source effect.",
-  "pending": "Native safety/resource/traversal/showcase and release acceptance still open; no player-package delivery claimed."
+  "pending": "Native safety/resource/traversal/showcase and release acceptance still open; no player-package delivery claimed.",
+  "current_admission_status": "STALE: private B now565bfdfb includes reviewed Reflect. Retain original packet and hashes; prepare a fresh build before execution. This packet was never runtime-admitted."
 }

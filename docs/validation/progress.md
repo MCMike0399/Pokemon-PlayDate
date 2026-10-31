@@ -125,10 +125,12 @@ Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
 
-Isolated Reflect/Chip Away composition preserves producer14→15 history. All25 existing shared-side cases also pass:34
-short SDK executions across33 names, including both Surf expiry variants.
-Standards0/Spec0; no adoption. Coverage requalification remains.
-[Scope](reflect-private-b-native-20261030.json).
+Reviewed Reflect/Chip Away composition is adopted into private B565bfdfb only.
+Producer14→15 history is preserved;34 SDK executions across33 names and both
+review axes pass. Coverage retains all1512 rows; fresh compile/full host passes
+**1059 tests**, no errors/skips (284.633 s), on the identical Source/harness tree.
+Old unrun B production/traversal/census/showcase packets are stale and require
+fresh staging. B acceptance remains open. [Adoption](reflect-private-b-adoption-20261030.json).
 
 ## Memory, audio and storage
 
