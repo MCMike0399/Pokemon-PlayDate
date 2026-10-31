@@ -340,7 +340,7 @@
       "gap": "onHitField"
     },
     "reflect": {
-      "gap": "sideCondition"
+      "handler": "engine-dsl"
     },
     "focusEnergy": {
       "handler": "engine-dsl"

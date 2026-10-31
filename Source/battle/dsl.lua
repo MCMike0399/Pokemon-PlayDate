@@ -528,7 +528,8 @@ end
 
 Class("SideConditionEffect")
 function SideConditionEffect:init(kind)
-    assert(kind=="lightScreen" or kind=="safeguard" or kind=="tailwind","unsupported-side-condition")
+    assert(kind == "reflect" or kind == "lightScreen" or kind == "safeguard"
+        or kind == "tailwind", "unsupported-side-condition")
     self.kind=kind
 end
 function SideConditionEffect:apply(battle) return battle.conditions:setSideCondition(self.kind) end

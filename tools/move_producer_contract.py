@@ -7,7 +7,7 @@ import hashlib,json,re
 from pathlib import Path
 from tools.verify_moves.parse_lua import Reader,TOKEN
 ROOT=Path(__file__).resolve().parents[1]
-CONTRACT_SHA256='59355ca3322c47573912d9aea412ec0211df0933fda96945c2165a36a8c5497b'
+CONTRACT_SHA256='c74f0f0dca7e24e8a15d139a8ead4130c72cc3e8ba9162cb46fa49ca0bd5460f'
 META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
 PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
@@ -142,7 +142,7 @@ def producer_epoch(text):
     marker=re.search(r'^-- move-producer-contract: (\d+)$',text,re.M)
     if marker:
         version=int(marker[1])
-        if version not in (1,2,3,4,5,6,7,8,9,10,11,12,13,14):raise ValueError('unsupported move producer epoch')
+        if version not in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15):raise ValueError('unsupported move producer epoch')
         return version
     if re.search(r'self\.protectable\s*=',text) or any(any(field in fields(row)for field in PROTECTION_FIELDS)for row in read_rows(text).values()):return 9
     if re.search(r'self\.(?:powerRule|damageRule|attemptRule)\s*=',text):return 3

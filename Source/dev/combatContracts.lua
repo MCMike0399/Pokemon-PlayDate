@@ -526,6 +526,144 @@ function CombatContracts.run()
         equal(b.enemy.status, "poison"); equal(b.enemy.statusTurns, 0)
     end)
 
+    test("Reflect actual producer consumes PP and expires on its fifth use-turn residual", function()
+        local b = fresh(Pokemon("kadabra", 38), Pokemon("snorlax", 50))
+        own(b.player, {"reflect", "harden"})
+        own(b.enemy, {"harden"})
+        equal(moveData.reflect.pp, 20)
+        equal(moveData.reflect.targetId, 4)
+        equal(moveData.reflect.protectable, false)
+        assert(b:selectMove(1))
+        settle(b)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 4)
+        equal(b.player.pp.reflect, 19)
+        local record = b.conditions.sides.player.reflect
+        assert(b:selectMove(1))
+        local text = settle(b)
+        assert(text:find("But it failed!", 1, true))
+        equal(b.conditions.sides.player.reflect, record)
+        equal(record.turns, 3)
+        equal(b.player.pp.reflect, 18)
+        for expected = 2, 0, -1 do
+            assert(b:selectMove(2))
+            text = settle(b)
+            equal(b.conditions:sideTurns(b.player, "reflect"), expected)
+        end
+        assert(text:find("Reflect wore off!", 1, true))
+        equal(b.conditions.sides.player.reflect, nil)
+        assert(b:selectMove(1))
+        settle(b)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 4)
+        b:clearVolatiles()
+    end)
+    test("Reflect stays behind ordinary sleep flinch and empty PP gates", function()
+        for _, gate in ipairs({"sleep", "flinch", "empty"}) do
+            local b = fresh(Pokemon("kadabra", 38), Pokemon("snorlax", 50))
+            own(b.player, {"reflect"})
+            if gate == "sleep" then
+                b.player.status = "sleep"
+                b.player.statusTurns = 2
+                b.player.sleepDuration = 2
+            elseif gate == "flinch" then
+                b.player.flinched = true
+            else
+                b.player.pp.reflect = 0
+            end
+            local before = b.player.pp.reflect
+            one(b, "player", "reflect")
+            equal(b.conditions:sideTurns(b.player, "reflect"), 0)
+            equal(b.player.pp.reflect, before)
+            b:clearVolatiles()
+        end
+    end)
+    test("Reflect halves physical damage with GenV final half-down rounding only", function()
+        local b = fresh(Pokemon("squirtle", 50), Pokemon("snorlax", 50))
+        own(b.enemy, {"reflect"})
+        one(b, "enemy", "reflect")
+        local before = RulesRNG.snapshot()
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.tackle, 15, false), 7)
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.tackle, 1, false), 0)
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.waterGun, 15, false), 15)
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.dragonRage, 40, false), 40)
+        equal(b.conditions:screenDamage(b.enemy, b.enemy, moveData.tackle, 15, false), 15)
+        equal(b.conditions:screenDamage(b.enemy, b.player, moveData.tackle, 15, false), 15)
+        equal(RulesRNG.snapshot().rolls, before.rolls)
+        RulesRNG.seed(2)
+        local screened = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        b.conditions.sides.enemy.reflect = nil
+        RulesRNG.seed(2)
+        local ordinary = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        equal(screened.isCrit, false)
+        equal(screened.damage, ordinary.damage // 2)
+        b:clearVolatiles()
+    end)
+    test("Reflect critical hits bypass the real damage modifier without removing the screen", function()
+        local b = fresh(Pokemon("squirtle", 50), Pokemon("snorlax", 50))
+        own(b.enemy, {"reflect"})
+        one(b, "enemy", "reflect")
+        RulesRNG.seed(1407677000)
+        local screened = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        equal(screened.isCrit, true)
+        equal(b.conditions:sideTurns(b.enemy, "reflect"), 5)
+        b.conditions.sides.enemy.reflect = nil
+        RulesRNG.seed(1407677000)
+        local ordinary = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        equal(screened.damage, ordinary.damage)
+        b:clearVolatiles()
+    end)
+    test("Reflect and LightScreen honor declared infiltrates without an ability producer", function()
+        local b = fresh()
+        own(b.enemy, {"reflect", "lightScreen"})
+        one(b, "enemy", "reflect")
+        one(b, "enemy", "lightScreen")
+        for _, key in ipairs({"tackle", "waterGun"}) do
+            local move = {}
+            for field, value in pairs(moveData[key]) do
+                move[field] = value
+            end
+            move.infiltrates = true
+            equal(b.conditions:screenDamage(b.player, b.enemy, move, 15, false), 15)
+        end
+        equal(b.conditions:sideTurns(b.enemy, "reflect"), 5)
+        equal(b.conditions:sideTurns(b.enemy, "lightScreen"), 5)
+        equal(b.effects:supported(151), false)
+        equal(SpecimenData.holdable.lightClay, nil)
+        equal(MoveSupport.handlers.brickBreak, nil)
+        equal(MoveSupport.gaps.brickBreak, "onTryHit")
+        b:clearVolatiles()
+    end)
+    test("Reflect shares side timer ordering and survives member cleanup but never battle exit", function()
+        local b = fresh()
+        own(b.player, {"reflect", "lightScreen"})
+        one(b, "player", "reflect")
+        one(b, "player", "lightScreen")
+        local reflect, lightScreen
+        for _, event in ipairs(b.conditions:events()) do
+            if event.condition == "reflect" then
+                reflect = event
+            end
+            if event.condition == "lightScreen" then
+                lightScreen = event
+            end
+        end
+        equal(reflect.order, 26)
+        equal(reflect.suborder, 1)
+        equal(lightScreen.suborder, 2)
+        b.conditions:clear(b.player)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 5)
+        b:runScript(function()
+            b.conditions:residual(reflect)
+            b.conditions:residual(reflect)
+        end)
+        settle(b)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 4)
+        local encoded = assert(PokemonCodec.encode(b.player))
+        equal(encoded.reflect, nil)
+        b:clearVolatiles()
+        b.conditions:residual(reflect)
+        equal(next(b.conditions.sides.player), nil)
+    end)
+
     RulesRNG.restore(rng)
     playdate.display.setOffset(offsetX, offsetY)
     return report

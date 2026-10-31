@@ -65,7 +65,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
         keys = ('dig', 'razorWind', 'furyCutter', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
                 'selfDestruct', 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
-                'reflect', 'haze', 'rest', 'substitute', 'transform', 'metronome',
+                'haze', 'rest', 'substitute', 'transform', 'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
         for key in keys:
             with self.subTest(move=key):

@@ -166,9 +166,15 @@ function BattleConditions:roost()
     b:say(mon.name .. " regained health!")
     return true
 end
-local sideDurations <const> ={lightScreen=5,safeguard=5,tailwind=4}
-local sideSuborders <const> ={lightScreen=2,safeguard=3,tailwind=5}
-local sideNames <const> ={lightScreen="Light Screen",safeguard="Safeguard",tailwind="Tailwind"}
+local sideDurations <const> = {
+    reflect=5, lightScreen=5, safeguard=5, tailwind=4,
+}
+local sideSuborders <const> = {
+    reflect=1, lightScreen=2, safeguard=3, tailwind=5,
+}
+local sideNames <const> = {
+    reflect="Reflect", lightScreen="Light Screen", safeguard="Safeguard", tailwind="Tailwind",
+}
 function BattleConditions:activeSide(mon)
     if mon==self.battle.player then return "player" end
     if mon==self.battle.enemy then return "enemy" end
@@ -194,10 +200,23 @@ end
 function BattleConditions:speed(mon,speed)
     return self:sideTurns(mon,"tailwind")>0 and speed*2 or speed
 end
-function BattleConditions:screenDamage(source,target,move,damage,critical)
-    if move.power==0 and not move.powerRule then return damage end
-    if source~=target and not critical and move.category=="special" and self:sideTurns(target,"lightScreen")>0 then
-        return BattleEffects.fixedRound(damage,2048)
+-- Pinned Gen5 singles screens share one final modifier and side timer owner.
+-- Light Clay and Infiltrator have no supported item/ability producer here.
+function BattleConditions:screenDamage(source, target, move, damage, critical)
+    if move.power == 0 and not move.powerRule then
+        return damage
+    end
+    if source == target or critical or move.infiltrates then
+        return damage
+    end
+    local kind
+    if move.category == "physical" then
+        kind = "reflect"
+    elseif move.category == "special" then
+        kind = "lightScreen"
+    end
+    if kind and self:sideTurns(target, kind) > 0 then
+        return BattleEffects.fixedRound(damage, 2048)
     end
     return damage
 end
@@ -506,7 +525,7 @@ function BattleConditions:events()
         end
     end
     for _,side in ipairs({"player","enemy"}) do
-        for _,kind in ipairs({"lightScreen","safeguard","tailwind"}) do
+        for _,kind in ipairs({"reflect","lightScreen","safeguard","tailwind"}) do
             local state=self.sides[side][kind]
             if state then events[#events+1]={kind="sideTimer",side=side,condition=kind,record=state,order=26,suborder=sideSuborders[kind]} end
         end
