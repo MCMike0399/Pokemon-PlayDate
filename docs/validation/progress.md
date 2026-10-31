@@ -72,7 +72,9 @@ All 2,494 protected images match. All 41 South spawn viewports and selected
 real-input Bike/Surf/rod/Safari BALL frames reviewed. All 82 full-map actor/event
 overlays inspected; no obvious rendering defect found. Static output does not
 prove live visibility or triggers. [Overlay scope](midgame-b-full-overlays-20261030.json).
-Long physical traversal and checkpoint showcase remain. The corrected-B normal
+Long physical traversal and checkpoint showcase remain. The showcase recipe now
+uses a verified genuine pre-Koga Bulbasaur Save; host import/ancestry checks pass,
+but capture is unrun. [Showcase preparation](midgame-b-showcase-preparation-20261030.json). The corrected-B normal
 production bundle and refreshed private long-route packet compile, with identical
 production Source and verified immutable earned slots; neither is runtime-admitted.
 [Production preparation](midgame-b-production-preparation-20261030.json),

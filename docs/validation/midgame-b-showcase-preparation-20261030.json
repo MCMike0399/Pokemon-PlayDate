@@ -1,0 +1,18 @@
+{
+  "status": "Root independently verified the earned seed and integrated the recipe; no native capture or video delivery.",
+  "implementation_commit": "ffa2ee41",
+  "recipe": "tools/integration/checkpoint-b/showcase/README.md",
+  "provenance": "tools/integration/checkpoint-b/showcase/provenance.json",
+  "provenance_sha256": "e7039fcf8e0f8f2b6eb884866862b82be0d98581a4bbf8fd03e323c276352f48",
+  "root_check": "record.py --check passes: pinned Source/harness, actual archived slots, stopped producer and accepted A ancestry.",
+  "seed_scope": "Genuine post-Fuji/pre-Koga Bulbasaur Save, with actual saved-codec observation matching newest original slot. No unsaved state or flags manufactured.",
+  "planned_content": [
+    "Lavender walking",
+    "Complete undefeated Route12 Fisherman battle",
+    "Snorlax wake-up",
+    "Koga gym capture"
+  ],
+  "delivery": "Native400x240, original wall-clock speed,60\u201390seconds, silent/audioheld, explicit cuts and full companions retained. Actual duration/pacing and complete battle still unmeasured.",
+  "hold": "No runtime until actual Accessibility/Clear behavior and host-history reclamation are verified.16MiB and all hardware gates remain unchanged.",
+  "remaining": "Preflight capture, actual input execution, frame/motion review, export/delivery and checkpoint acceptance."
+}
