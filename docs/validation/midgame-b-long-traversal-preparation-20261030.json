@@ -1,12 +1,12 @@
 {
-  "status": "Current corrected-B private packet compiles; safety capture/replay and physical route unexecuted.",
-  "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-long-traversal-root-prepare-20261030-03/build.json",
-  "sha256": "6e27bd6a1869c1b1d7145a55cdbb6077a14170c53954dc30575ddaf3b2f3c54d",
-  "build_id": "d6e4fc03f31e43c0955f7832e672fb6a",
-  "revision": "e71e33019f89633efdf00bc31a4eaa8cca655170",
-  "pdx_sha256": "3f7ec40cd98efbe36cb42b797f17e83fe87ad11cbb570d58e2574e2ec09b121d",
-  "production_source_sha256": "03f3cab49e86a8bcf5d9a84c94ab5a63767d307704f6caa41742625fa0a50771",
-  "input_pins": "tools/device/long_traversal/inputs.json at isolated t3-81494ebe commit db42e516",
+  "status": "Current B Reflect composition private packet compiles; actual-input safety and physical route unexecuted.",
+  "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-long-traversal-root-prepare-20261030-05/build.json",
+  "sha256": "97e01bd641cc3357c94598c728397fd4ae369c78c1a212aa57b241d3d87d5be6",
+  "build_id": "68adcf5c974e4421b24dcbe50d17a1e8",
+  "revision": "565bfdfb4c0f2b37c921fa79e143067fe45b7637",
+  "pdx_sha256": "b99b7267f4bfb17a767ce2d4a87dbe062e3a7ecfcffdd357f7bea1520420c90a",
+  "production_source_sha256": "1aa2c69e6cad4c4ec44b8125715a4fb1af4e0c1ebda16270a52e4d6cc68da55b",
+  "input_pins": "tools/device/long_traversal/inputs.json at isolated t3-81494ebe commit4ec64943",
   "actual_scope": "Root-operated ordinary DS1 batches: target30distinctmaps/110completeddoors/20battle starts; current coverage0. No autonomous planner, fixture placement, resource grants or hardware Save.",
   "seed_integrity": "Both canonical and immutable copied earned B Charmander slots match their recorded hashes. Provenance retained unchanged.",
   "guards": "Hardware6MiB postGC/9MiB hard; Simulator exact16MiB raw safety still required. Root host history handling must be verified before long profiled execution.",
@@ -16,5 +16,6 @@
     "Physical session and postGC-per-entry/native-error review",
     "CurrentB acceptance and audio remain held"
   ],
-  "current_admission_status": "STALE: private B now565bfdfb includes reviewed Reflect. Retain original packet and hashes; prepare a fresh build before execution. This packet was never runtime-admitted."
+  "current_admission_status": "Compile-only, NOT admitted. Fresh exact safety capture/replay required; long profiled work held for actual Accessibility/Clear qualification.",
+  "superseded": "Older stages01\u201304 remain historical compile-only packets, never runtime-admitted. Stage04 tool hashes predate finalized recipe; do not execute it."
 }

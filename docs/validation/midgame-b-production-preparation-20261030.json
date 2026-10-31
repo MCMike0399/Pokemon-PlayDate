@@ -1,16 +1,15 @@
 {
-  "status": "Candidate production bundle compiled; not released, deployed or milestone-accepted.",
-  "revision": "e71e33019f89633efdf00bc31a4eaa8cca655170",
+  "revision": "565bfdfb4c0f2b37c921fa79e143067fe45b7637",
   "sdk_version": "3.1.2",
-  "bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-02/Production.pdx",
-  "pdx_sha256": "86e70b142f8525d7ae40c8aab10cee6228f04860bea6ee89ce5c65e7d3aa54be",
+  "bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-03/Candidate.pdx",
+  "pdx_sha256": "21dc6506e45b5f0bf8f61866cd0bd51757d57f5403126cc30110726159da4598",
+  "production_source_sha256": "1aa2c69e6cad4c4ec44b8125715a4fb1af4e0c1ebda16270a52e4d6cc68da55b",
   "maps": 149,
   "dev_sources": 0,
   "runtime_executed": false,
   "matches_long_traversal_production_source": true,
-  "manifest": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-02/candidate-build.json",
-  "manifest_sha256": "73ec1cb616eef1a8db6d6e1c7fd03eb4c8b953fbd454c469b7db5bc31785969f",
-  "failed_layout_attempt": "b149-candidate-production-20261030-01 used output equal to the stager temporary bundle; copy failed. Retained as tooling invocation error, no runtime/source effect.",
-  "pending": "Native safety/resource/traversal/showcase and release acceptance still open; no player-package delivery claimed.",
-  "current_admission_status": "STALE: private B now565bfdfb includes reviewed Reflect. Retain original packet and hashes; prepare a fresh build before execution. This packet was never runtime-admitted."
+  "status": "Current private B compile-only candidate; not released, deployed or accepted.",
+  "pending": "Exact16MiB runtime safety, physical traversal/resource, showcase and release acceptance remain open.",
+  "manifest": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-candidate-production-20261030-03/candidate-build.json",
+  "manifest_sha256": "29246bb11e816622810ff6d2a69e72508da6981287fc40600a0bba4ea2ebaa67"
 }
