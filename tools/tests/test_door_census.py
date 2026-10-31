@@ -19,9 +19,13 @@ class InventoryTests(unittest.TestCase):
         cls.inventory = census.build_inventory(PROJECT)
         cls.source = PROJECT / 'Source'
         cls.manifest = json.loads((cls.source / 'data/sourceMaps.json').read_text())['maps']
+        cls.expected = {
+            108: dict(warps=376, connections=43, boundary_cells=1274, last_map=128),
+            149: dict(warps=510, connections=61, boundary_cells=1922, last_map=169),
+        }[len(cls.manifest)]
 
     def test_every_pinned_map_and_warp_exactly_once(self):
-        self.assertEqual(len(self.manifest), 149)
+        self.assertIn(len(self.manifest), (108, 149))
         expected = {}
         for name, entry in self.manifest.items():
             raw = json.loads((self.source / entry['path']).read_text())
@@ -30,7 +34,7 @@ class InventoryTests(unittest.TestCase):
         actual = {r['id']: (r['source_name'], r['x'], r['y'], r['destination'])
                   for r in self.inventory['entries'] if r['kind'] == 'warp'}
         self.assertEqual(actual, expected)
-        self.assertEqual(len(actual), 510)
+        self.assertEqual(len(actual), self.expected['warps'])
         self.assertEqual({m['name'] for m in self.inventory['maps']}, set(self.manifest))
 
     def test_every_connection_covers_the_entire_declared_boundary(self):
@@ -49,14 +53,14 @@ class InventoryTests(unittest.TestCase):
             if row['kind'] == 'connection':
                 actual.setdefault((row['source_name'], row['connection_index']), set()).add((row['x'], row['y']))
         self.assertEqual(actual, expected)
-        self.assertEqual(len(expected), 61)
-        self.assertEqual(sum(map(len, actual.values())), 1922)
+        self.assertEqual(len(expected), self.expected['connections'])
+        self.assertEqual(sum(map(len, actual.values())), self.expected['boundary_cells'])
 
     def test_last_map_scripted_and_blocked_are_retained_without_fabricated_targets(self):
         warps = [r for r in self.inventory['entries'] if r['kind'] == 'warp']
         self.assertEqual(sum(r['scripted'] for r in warps), 15)
         self.assertEqual(sum(r['surface_blocked'] for r in warps), 12)
-        self.assertEqual(sum(r['destination']['kind']=='last_outdoor_map' for r in warps), 169)
+        self.assertEqual(sum(r['destination']['kind']=='last_outdoor_map' for r in warps), self.expected['last_map'])
         for row in warps:
             self.assertNotIn('to', row)
             self.assertNotIn('toX', row)

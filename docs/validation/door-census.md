@@ -199,3 +199,7 @@ slots; preparation does not interpret or rewrite their gameplay values.
 Runtime qualification, full census results, actual worst candidates, actor/field/
 script feasibility, timing overhead, heap plateaus and hardware worst-five
 measurements remain unperformed. No accepted evidence or ledger is changed.
+
+The inventory helper and host tests also cover accepted main’s 108-map inputs
+with their own exact totals. Runtime census preparation still requires the
+explicit pinned 149-map revision; this does not activate B on main.

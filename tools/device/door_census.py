@@ -128,8 +128,8 @@ def build_inventory(project):
     manifest = json.loads((source / 'data/sourceMaps.json').read_bytes())
     compact = json.loads((source / 'data/sourceMapCache/compact.json').read_bytes())
     maps = manifest['maps']
-    if len(maps) != 149 or set(compact['maps']) != set(maps):
-        raise ValueError('exact checkpoint B needs all 149 input maps')
+    if set(compact['maps']) != set(maps):
+        raise ValueError('compact map inventory differs from manifest')
     if compact['manifest_sha256'] != sha(source / 'data/sourceMaps.json'):
         raise ValueError('compact cache manifest identity differs')
     entries, map_rows = [], []
@@ -200,6 +200,8 @@ def prepare(project, sdk, output, earned=None, only=None):
         raise ValueError('SDK 3.1.2 required')
     original = manifest(project / 'Source')
     census = build_inventory(project)
+    if census['counts']['maps'] != 149:
+        raise ValueError('exact checkpoint B needs all 149 input maps')
     output.mkdir(parents=True, exist_ok=False)
     source = build.stage_production(project, output)
     production = manifest(source)
