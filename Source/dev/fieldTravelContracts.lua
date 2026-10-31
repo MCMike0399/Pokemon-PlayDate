@@ -315,6 +315,9 @@ function FieldTravelContracts.run()
                     end
                     assert(FieldMoves.same(FieldTravelRuntime.position(g), position))
                     assert(SafariRuntime.observe(g).lastStep.sequence == sequence)
+                    local passage = g.machine:get("safariPassage")
+                    assert(passage.phase == "announcement" and not passage.lastFailure)
+                    assert(SafariPassage.valid(passage.token))
                 end)
                 playdate.buttonIsPressed = previousPressed
                 assert(accepted, problem)
