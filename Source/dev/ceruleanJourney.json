@@ -386,7 +386,7 @@
   },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
-    "data/ceruleanContent.lua": "1a13e3bd265e6c0d682dd267f9b4427a4bddc52515ada1913757173cb96a8d99",
+    "data/ceruleanContent.lua": "2a6fdeabfce1d8788da12723bdb241d4b5860d4330a94564097696701168898b",
     "data/ceruleanRoutes/scenes.json": "2d3d96278725c52eaad9011599868abdfc892ebde5fbadc3a8dff9aac6dc65ce",
     "data/ceruleanStory/events.json": "9c7910d423cd592cf3ed1291d87903c6c75e3fed80605ca50584f6ec5b619c83",
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
@@ -400,14 +400,14 @@
     "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
     "data/sourceSlice/trainers.json": "d57e41eaa26bc725236407d19d4c32c914dd3ed8ed47eb236504738761e9460e",
     "domain/sessionCodec.lua": "ba4f6bc839a72603871213af102a71473c7af061abbbb2140c27036440ab2cfb",
-    "game/ceruleanRoutes.lua": "1d13a20d16bfde03ff9b8679b43d5731952ca2ec097b5a4b7880ee5991d7c78e",
-    "game/ceruleanStory.lua": "5e3b000db05169035f90635c1fb6743ed9b74597ead9a6cc5deadff138c04671",
+    "game/ceruleanRoutes.lua": "a6d5314e908f97eab70f1f078c5684ee6abd9a226fe85d1899a81ef852847ca7",
+    "game/ceruleanStory.lua": "108d63f6be18060cb5f58eb52205e4d7ee5e388d0f5d5d6452112cde84aac111",
     "game/eventState.lua": "de1b0438a7c60e71fa0e54b0a9a26c0d8e78cba0679230374e3039999b59f441",
     "game/shopState.lua": "e435a8608db5c29a9aaee2e54f41dc09d927bcc9e65aed831e0aa2b292a94220",
     "game/sourceEventHandlers.lua": "7a89e76c1c80d9ce7af9f23bbe853f042215c404a21089f292436354e41b2518",
-    "game/sourceEvents.lua": "f04c1ca6080518ffca62b5a0800862f4a5f052ee232a2e0ba001c6826b37cedd",
+    "game/sourceEvents.lua": "422e7fddb12a70a13d6d8c9d7ab58c1eff870a0fecc7a94138c362da6fb4e6a7",
     "game/trainerEvents.lua": "3cca86644f8dc93fceb96d2924fae64454db27c2d527db274fe408a7cc5446a2",
-    "main.lua": "9f24af23ee878648d982246c51e59d7a5708ce3bf8bd374caeb879ff8ebfa112"
+    "main.lua": "71da1bd70dfa750f258919b5532640f24943e630bc94e61d3e2ccd6774840925"
   },
   "trainers": {
     "pokered:CERULEAN_CITY:objects:2": {
