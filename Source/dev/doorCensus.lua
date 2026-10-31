@@ -16,6 +16,7 @@ function DoorCensus.install()
     local caseIndex, trial, written = 1, 1, 0
     local item, row, approach
     local phase, age = "next", 0
+    local historyResume
     local measured, started, updateThread = false, nil, nil
     local segmentNumber = 0
     local stream = assert(playdate.file.open("door-census.jsonl", playdate.file.kFileWrite))
@@ -26,6 +27,48 @@ function DoorCensus.install()
     local oldState <const> = playdate.getButtonState
     local oldYield <const> = coroutine.yield
     local oldDoorEnter <const> = DoorWarpSubstate.enter
+
+    local function pauseForHistory()
+        if not cfg.history_clear then
+            return
+        end
+        assert(not measured, "history clear cannot interrupt a measurement")
+        historyResume = phase
+        phase = "history_wait"
+        BootTrace.flush()
+        segments:flush()
+        local file = assert(playdate.file.open("census-history-pause.tmp", playdate.file.kFileWrite))
+        assert(file:write(json.encode({build=cfg.build_id, rows=written})))
+        file:close()
+        assert(playdate.file.rename("census-history-pause.tmp", "census-history-pause.json"))
+    end
+
+    local function historyWaiting()
+        if phase ~= "history_wait" then
+            return false
+        end
+        -- This update returns without gameplay. Keep the watchdog's yield clock
+        -- current while the host performs bounded, separately timed UI work.
+        BootTrace.yielded()
+        BootTrace.checkGuard()
+        if not playdate.file.exists("census-history-ack.json") then
+            return true
+        end
+        local ack = assert(json.decodeFile("census-history-ack.json"))
+        assert(ack.build == cfg.build_id and ack.rows == written, "foreign history acknowledgement")
+        assert(playdate.file.delete("census-history-ack.json"))
+        phase, historyResume = historyResume, nil
+        return true
+    end
+
+    local function safeHistoryWaiting()
+        local ok, waiting = pcall(historyWaiting)
+        if not ok then
+            GameBootstrap.fail(waiting)
+            return true
+        end
+        return waiting
+    end
 
     -- Same four SDK query seams used by the existing autopilot/device observer.
     -- One directional input, then release; Player and Explore perform all work.
@@ -145,6 +188,7 @@ function DoorCensus.install()
             caseIndex = caseIndex + 1
             item = nil
             phase = "next"
+            pauseForHistory()
         end
         age = 0
     end
@@ -329,6 +373,9 @@ function DoorCensus.install()
         if phase == "done" then
             return
         end
+        if safeHistoryWaiting() then
+            return
+        end
         updateThread = coroutine.running()
         local ok, problem = pcall(function()
             if phase == "next" then
@@ -351,6 +398,9 @@ function DoorCensus.install()
         if phase == "done" then
             return
         end
+        if safeHistoryWaiting() then
+            return
+        end
         if measured then
             started = clock()
         end
@@ -370,4 +420,5 @@ function DoorCensus.install()
         end
         afterFrame()
     end
+    pauseForHistory()
 end

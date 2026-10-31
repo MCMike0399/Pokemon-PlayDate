@@ -62,6 +62,20 @@ def check_host_limits(footprint, elapsed_without_row):
         raise RuntimeError('no completed census row for 60 seconds; stop this diagnostic')
 
 
+def accessibility_available():
+    library = ctypes.CDLL('/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices')
+    library.AXIsProcessTrusted.restype = ctypes.c_bool
+    return library.AXIsProcessTrusted()
+
+
+def validate_history_pause(value, build_id, previous_rows, maximum_rows):
+    if (not isinstance(value, dict) or set(value) != {'build', 'rows'}
+            or value['build'] != build_id or type(value['rows']) is not int
+            or value['rows'] != previous_rows + 2 or not 0 <= value['rows'] <= maximum_rows):
+        raise ValueError('foreign, stale or out-of-order history pause')
+    return value['rows']
+
+
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -222,7 +236,7 @@ def build_inventory(project):
                 resolution='declared destinations only; actual SourceMaps warpSpec/connection and live Zone owners resolve at runtime')
 
 
-def prepare(project, sdk, output, earned=None, only=None):
+def prepare(project, sdk, output, earned=None, only=None, history_clear=False):
     build, manifest, inventory, tree_hash, run, _, _ = tooling(project)
     revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip()
     if revision != EXPECTED:
@@ -252,6 +266,7 @@ def prepare(project, sdk, output, earned=None, only=None):
         write_json(case_dir / f'{i}.json', row)
     identity = uuid.uuid4().hex
     config = dict(schema=1, build_id=identity, count=len(selected), earned=bool(earned),
+                  history_clear=history_clear,
                   classification=CLASSIFICATION, trials=2, max_frames=240,
                   seed_restore_policy='once per case pair; trial-two effects retained',
                   gc_policy='explicit boundary GC plus loading-suspension collection at 8 MiB; diagnostic only')
@@ -298,6 +313,7 @@ def prepare(project, sdk, output, earned=None, only=None):
                     pdx_files=payload, pdx_sha256=tree_hash(payload), seed_saves=seed,
                     inventory_sha256=sha(output / 'inventory.json'), counts=census['counts'],
                     selected_cases=len(selected), selected_ids=[r['id'] for r in selected],
+                    history_clear=history_clear,
                     implementation_sha256=sha(Path(__file__)), observer_sha256=sha(ROOT / 'Source/dev/doorCensus.lua'))
     write_json(output / 'build.json', metadata)
     write_json(output / 'preparation.json', dict(runtime_executed=False,
@@ -422,12 +438,19 @@ def summarize(output, metadata, failure=None):
     return result
 
 
-def execute(project, sdk, output, metadata, timeout, locks_held=False):
+def execute(project, sdk, output, metadata, timeout, locks_held=False, history_helper=None, history_helper_sha256=None):
     _, manifest, inventory, tree_hash, run, OwnerLock, atomic_json = tooling(project)
     if manifest(output / 'Source') != metadata['compiled_source_manifest'] or inventory(Path(metadata['bundle'])) != metadata['pdx_files']:
         raise ValueError('staged Source or PDX changed')
     if sha(sdk / 'bin/pdc') != metadata['compiler_sha256'] or sha(output / 'inventory.json') != metadata['inventory_sha256']:
         raise ValueError('compiler or inventory changed')
+    if metadata.get('history_clear'):
+        if not history_helper or sha(history_helper) != history_helper_sha256:
+            raise ValueError('pinned history helper required')
+        if not accessibility_available():
+            raise ValueError('Accessibility unavailable; no permission prompt requested')
+    elif metadata['selected_cases'] > 2:
+        raise ValueError('long census requires history clearing; keep the 16 MiB pool')
     process = None
     failure = None
     peak_footprint, footprint_samples = 0, 0
@@ -451,10 +474,13 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False):
                     try:
                         process = subprocess.Popen([str(simulator), metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
                         atomic_json(output / 'run.json', dict(build_id=metadata['build_id'], pid=process.pid,
-                                                             simulator=str(simulator), simulator_sha256=sha(simulator)))
+                            simulator=str(simulator), simulator_sha256=sha(simulator),
+                            history_helper=str(history_helper) if history_helper else None,
+                            history_helper_sha256=history_helper_sha256))
                         deadline = time.monotonic() + timeout
                         progress_at = time.monotonic()
                         row_size = 0
+                        history_rows = -2
                         trace_offset, trace_tail = 0, ''
                         while not (data / 'door-census-done.json').exists():
                             if process.poll() is not None or time.monotonic() > deadline:
@@ -476,6 +502,48 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False):
                                     except (OSError, subprocess.TimeoutExpired) as error:
                                         summary.write(str(error))
                                 raise
+                            pause = data / 'census-history-pause.json'
+                            if metadata.get('history_clear') and pause.exists():
+                                request = json.loads(pause.read_text())
+                                completed_rows = validate_history_pause(request, metadata['build_id'],
+                                    history_rows, metadata['selected_cases'] * 2)
+                                if sha(history_helper) != history_helper_sha256:
+                                    raise ValueError('history helper changed during execution')
+                                pins = [str(output), sha(output / 'build.json'), sha(output / 'run.json')]
+                                operations = ['inspect', 'clear'] if completed_rows == 0 else ['clear']
+                                for operation in operations:
+                                    began = time.monotonic()
+                                    before = process_footprint(process.pid)
+                                    timed_out = False
+                                    try:
+                                        result = subprocess.run([str(history_helper), operation, *pins],
+                                            capture_output=True, text=True, timeout=9)
+                                        returncode, stdout, stderr = result.returncode, result.stdout, result.stderr
+                                    except subprocess.TimeoutExpired as error:
+                                        timed_out = True
+                                        returncode = None
+                                        stdout = (error.stdout or b'').decode('utf-8', errors='replace')
+                                        stderr = (error.stderr or b'').decode('utf-8', errors='replace')
+                                    after = process_footprint(process.pid)
+                                    record = dict(build_id=metadata['build_id'], rows=completed_rows,
+                                        operation=operation, helper_sha256=history_helper_sha256,
+                                        started_monotonic=began, elapsed_ms=(time.monotonic()-began)*1000,
+                                        host_before_bytes=before, host_after_bytes=after,
+                                        returncode=returncode, stdout=stdout, stderr=stderr, timed_out=timed_out)
+                                    with (output / 'malloc-clear.jsonl').open('a') as stream:
+                                        stream.write(json.dumps(record, sort_keys=True) + '\n')
+                                    if timed_out:
+                                        raise RuntimeError('history helper timed out; no Clear replay or acknowledgement')
+                                    if returncode != 0:
+                                        raise RuntimeError('history helper refused: ' + stderr[-1200:])
+                                    if operation == 'clear':
+                                        reply = json.loads(stdout)
+                                        if reply != {'ax_press_accepted': True, 'pid': process.pid}:
+                                            raise ValueError('history Clear acknowledgement differs')
+                                    check_host_limits(after, time.monotonic() - progress_at)
+                                pause.unlink()
+                                atomic_json(data / 'census-history-ack.json', request)
+                                history_rows = completed_rows
                             trace = data / 'boot-trace.tsv'
                             if trace.exists():
                                 with trace.open() as source_trace:
@@ -537,21 +605,31 @@ def main():
     parser.add_argument('--earned-save-dir', type=Path, help='optional actual earned slot directory; copied byte for byte')
     parser.add_argument('--case', action='append', help='exact inventory ID; inventory always retains all maps and portals')
     parser.add_argument('--execute', action='store_true', help='ROOT ONLY, after the physical sequence/title/installer work')
+    parser.add_argument('--history-helper', type=Path, help='privately compiled, owned-Simulator history helper')
+    parser.add_argument('--history-helper-sha256', help='exact retained helper binary SHA256')
     parser.add_argument('--timeout', type=float, default=14400, help='whole serial census wall deadline')
     args = parser.parse_args()
     project, sdk, output = [p.expanduser().resolve() for p in (args.project, args.sdk, args.output)]
     earned = args.earned_save_dir.expanduser().resolve() if args.earned_save_dir else None
+    helper = args.history_helper.expanduser().resolve() if args.history_helper else None
+    if bool(helper) != bool(args.history_helper_sha256):
+        parser.error('history helper and SHA256 must be supplied together')
+    if helper and (not helper.is_file() or sha(helper) != args.history_helper_sha256):
+        parser.error('history helper hash mismatch')
     if args.timeout <= 0 or not project.is_dir() or output.is_relative_to(project) or (earned and (output.is_relative_to(earned) or earned.is_relative_to(output))):
         parser.error('positive timeout and private output outside the input checkout required')
     with ExitStack() as ownership:
         if args.execute:
+            if helper and not accessibility_available():
+                parser.error('Accessibility unavailable; no permission prompt requested')
             *_, run, OwnerLock, _ = tooling(project)
             ownership.enter_context(OwnerLock(run.runtime_lock_path(sdk)))
             ownership.enter_context(OwnerLock(run.device_lock_path()))
             run.simulator_preflight()
-        metadata = prepare(project, sdk, output, earned, args.case)
+        metadata = prepare(project, sdk, output, earned, args.case, history_clear=bool(helper))
         print(json.dumps({'output': str(output), 'counts': metadata['counts'], 'runtime_executed': False}))
-        return execute(project, sdk, output, metadata, args.timeout, locks_held=True) if args.execute else 0
+        return execute(project, sdk, output, metadata, args.timeout, locks_held=True,
+            history_helper=helper, history_helper_sha256=args.history_helper_sha256) if args.execute else 0
 
 
 if __name__ == '__main__':

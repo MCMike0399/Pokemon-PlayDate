@@ -142,6 +142,19 @@ class ResultTests(unittest.TestCase):
     def test_real_host_footprint_is_available_for_owned_process(self):
         self.assertGreater(census.process_footprint(os.getpid()), 0)
 
+    def test_history_pause_requires_exact_identity_and_pair_order(self):
+        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 0}, 'id', -2, 4), 0)
+        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 2}, 'id', 0, 4), 2)
+        for value in ({'build': 'other', 'rows': 2}, {'build': 'id', 'rows': True},
+                      {'build': 'id', 'rows': 0}, {'build': 'id', 'rows': 4},
+                      {'build': 'id', 'rows': 2, 'extra': True}):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                census.validate_history_pause(value, 'id', 0, 4)
+
+    def test_history_pause_cannot_exceed_selected_case_count(self):
+        with self.assertRaises(ValueError):
+            census.validate_history_pause({'build': 'id', 'rows': 6}, 'id', 4, 4)
+
     def test_gaps_do_not_rank_as_measurements(self):
         self.write_rows([dict(build_id='identity', id='portal', case_index=1, trial=1, status='gap', gap='actor required')])
         result = census.summarize(self.root, self.metadata)

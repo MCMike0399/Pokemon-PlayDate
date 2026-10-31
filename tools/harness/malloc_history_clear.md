@@ -1,4 +1,4 @@
-# Prepared malloc-history helper (Root only; integration UNAPPLIED)
+# Malloc-history helper (Root only; live validation pending)
 
 `malloc_history_clear.swift` is a macOS host utility for the exact SDK 3.1.2
 Simulator SHA256 embedded in its source. It writes no preferences/TCC, activates
@@ -36,33 +36,32 @@ An accepted AXPress is not confirmation of history reclamation. Root must retain
 before/after host footprints separately; neither this helper nor its tests prove
 memory improvement, device admission or timing validity.
 
-## Minimal Root integration guidance (not applied)
+## Census integration
 
-Existing `finish()` in `Source/dev/doorCensus.lua` closes measurement before GC
-and row publication. After **trial two**, flush the row/segments, retain the
-existing trial/case advance, and enter a private `clear_wait` phase instead of
-starting the next pair. Publish a tiny atomic pause marker containing build ID
-and completed pair index. At the very top of the private update, return while
-waiting; do not invoke the gameplay callback or begin an active segment. Resume
-only on an exact matching ack, consume that ack once, then run normal `nextCase`.
-This pause/ack is necessary: host observation of a streamed row alone cannot
-prevent the next measured interval from starting before AXPress completes.
+The private census now pauses after startup and each completed case pair. Its
+update returns without gameplay until an exact build/row acknowledgement;
+watchdog/memory checks remain active. The host runs the pinned helper directly,
+records inspect/Clear output, elapsed time and before/after process footprints
+in `malloc-clear.jsonl`, and acknowledges only a successful exact Clear result.
+The pause stays outside transition intervals. Clear failures/timeouts stop the
+owned child without replay. The 1 GiB host, 60 s progress and overall deadlines
+remain active. More than two selected cases cannot execute without this support.
 
-In the existing host guard loop, handle only the fresh matching pause marker:
-check unchanged guards and child liveness, invoke the pinned helper directly,
-retain argv/pins/stdout/stderr/return code plus monotonic start/end/elapsed in a
-separate `malloc-clear.jsonl`, then ack only on success. Failure follows existing
-owned-child cleanup; never continue silently. Keep the 1 GiB footprint ceiling,
-60 s no-row deadline and overall timeout active during the bounded pause. Do not
-reset progress time for Clear. Do not subtract overhead from completed rows or
-attribute it to traversal/GC. Require a new pause index for every ack.
+After Accessibility is actually available, Root prepares a NEW identified stage:
 
-This is a small private observer/host change Root must apply and compile later;
-no gameplay input command, new acceptance protocol or production hook is needed.
-Preserve pair seed restoration, trial-two effects, copied/earned slot hashes,
-actual warm/cold/unresolved cache labels, all Lua guards, `MallocPoolSize=16645684`
-and existing hardware gates. This helper does not implement the pending
-profiler-off alternative. Qualify a bounded run before any long census.
+```sh
+python3 tools/device/door_census.py --project "$B" --sdk "$SDK" \
+  --earned-save-dir "$EARNED" --output "$FRESH" \
+  --history-helper "$HELPER" --history-helper-sha256 "$HELPER_SHA256" \
+  --case '<exact inventory ID>' --timeout 120 --execute
+```
+
+The first operation is a scoped inspect, retained before the Clear attempt. Actual
+labels are not yet verified; absent/nonunique labels must fail closed. Use a
+bounded qualification before a long run. An accepted AXPress is not a measured
+memory-reclamation result. No pool setting, gameplay command, source data,
+canonical save or device admission policy changes. This hook has only host
+checks and SDK compile-only validation so far.
 
 SDK local `Inside Playdate.html`, “Profiling malloc calls in the Simulator”,
 describes the pool/log. Panic explains retained history and Clear freeing it in

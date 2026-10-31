@@ -240,3 +240,17 @@ allocation growth, but Clear/off confirmation on this SDK remains pending.
 Accessibility is unavailable for automated Clear, and no pool preference or
 admission gate was changed. Do not continue long runs until that is resolved;
 retained timings under host paging are not a reliable worst-door ranking.
+
+## History clearing between measurements
+
+Root's helper integration is optional for compile-only/very short jobs and
+required for execution of more than two selected cases. Supply
+`--history-helper` and `--history-helper-sha256`. Actual Accessibility must be
+available before launch; no prompt or preference edit occurs. Startup and pair
+boundaries pause gameplay and measurements until the existing host owner
+inspects/clears history and returns an exact build/row ack. Inspect/Clear actions
+are separately timed in `malloc-clear.jsonl`; overhead is not subtracted from
+completed rows or attributed to transitions. Malformed/stale ack, helper/hash
+failure, timeout or unchanged safety guards stop the owned child. Reclamation
+and actual AX labels are still unverified. See
+`tools/harness/malloc_history_clear.md`. No profiler-off fallback is authorized.
