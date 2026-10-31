@@ -127,7 +127,7 @@ are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
 
 Isolated Reflect/Chip Away composition preserves producer14→15 history. All25 existing shared-side cases also pass:34
 short SDK executions across33 names, including both Surf expiry variants.
-No adoption; independent review and coverage requalification remain.
+Standards0/Spec0; no adoption. Coverage requalification remains.
 [Scope](reflect-private-b-native-20261030.json).
 
 ## Memory, audio and storage

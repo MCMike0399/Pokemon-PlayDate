@@ -200,7 +200,7 @@
   ],
   "scope": "Root-owned SDK3.1.2 short 16MiB production startup followed by enabled existing fixtures; 1GiB sampled host ceiling. Surf expiry variants run in separate processes. No hardware, pacing, visual or earned journey proof. Existing shared-side suite retains all25 cases and assertions, including LightScreen, Safeguard, Tailwind, side lifetime and RNG boundaries.",
   "remaining": [
-    "Independent Standards and Spec review",
+    "Coverage requalification before adoption; both independent review axes report no findings.",
     "Coverage requalification before adoption",
     "B release resources, door/cave latency and showcase gates remain open"
   ],
@@ -212,6 +212,11 @@
       "findings": 0,
       "scope": "Static changed-hunk standards and optional heuristics review; no runtime reproduction."
     },
-    "spec": "Pending independent review; no adoption."
+    "spec": {
+      "thread": "thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3A452706b6-aa55-4bab-a10c-0a9324406b7d",
+      "candidate": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+      "findings": 0,
+      "scope": "Static source/oracle and producer-history review; no runtime reproduction."
+    }
   }
 }
