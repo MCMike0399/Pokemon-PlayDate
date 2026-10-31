@@ -1,0 +1,51 @@
+{
+  "status": "Six focused SDK cases pass on isolated Reflect preparation; not merged or campaign/device accepted.",
+  "implementation": "adcab7cf72528a69015bad680fccb55858c4dd19",
+  "readability": "881e1b35",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-native-preparation-20261030-01/startup-probe.json",
+  "sha256": "db937f159fffc6ee93c64e2d1537390582499b95a4e305903bf03d166baa2164",
+  "passed": 6,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "Reflect actual producer consumes PP and expires on its fifth use-turn residual",
+      "ok": true
+    },
+    {
+      "name": "Reflect stays behind ordinary sleep flinch and empty PP gates",
+      "ok": true
+    },
+    {
+      "name": "Reflect halves physical damage with GenV final half-down rounding only",
+      "ok": true
+    },
+    {
+      "name": "Reflect critical hits bypass the real damage modifier without removing the screen",
+      "ok": true
+    },
+    {
+      "name": "Reflect and LightScreen honor declared infiltrates without an ability producer",
+      "ok": true
+    },
+    {
+      "name": "Reflect shares side timer ordering and survives member cleanup but never battle exit",
+      "ok": true
+    }
+  ],
+  "compiled_source_sha256": "caff7a6d6eddc7c5f0ffff6fcc1f0d8182ce30deea3a4c3e510c873581db112f",
+  "main_pdz_sha256": "dfb00d0ede653fbb5a48eeea53096a54b6b6cac7205a1c7e400636e571bf680c",
+  "sampled_host_peak_bytes": 156386288,
+  "scope": "Qualified production startup followed by existing harness fixture support; short16MiB run,1GiB sampled host ceiling. No device/campaign/performance proof.",
+  "metadata_composition": "Preparation advances main producer13\u219214, while privateB14 already carries ChipAway. Keep unmerged until ported with accurate combined history/epoch; no blind epoch14 reuse.",
+  "remaining": [
+    "Port/verify against currentB owners without dropping ChipAway",
+    "Independent behavior/standards review",
+    "Reachable edge coverage and later campaign validation"
+  ],
+  "bounded_edges": [
+    "LightClay absent from supported held-item catalog; no loot added",
+    "BrickBreak remains fail-closed unsupported onTryHit",
+    "No supported Infiltrator ability producer/natural hidden acquisition; declared infiltrates honored",
+    "Singles scope; no new Snatch/Substitute/called-move mechanics"
+  ]
+}
