@@ -1,0 +1,133 @@
+{
+  "classification": "Host-only; no live occupancy, motion, trigger or timing claim",
+  "source_sha256": "e470f3cab45821d11c197815e73e6ca2fb06b3796be4be1a269885510da91261",
+  "compile_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-recipe-compile-20261030-01",
+  "portal_owner": "existing MidgameJourney source portals and fixed B waypoint methods; no planner added",
+  "terrain_endpoints": [
+    {
+      "map": "LavenderPokecenter",
+      "source": [
+        3,
+        3
+      ],
+      "padded": [
+        3,
+        3
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "LavenderPokecenter",
+      "source": [
+        3,
+        4
+      ],
+      "padded": [
+        3,
+        4
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route12",
+      "source": [
+        10,
+        61
+      ],
+      "padded": [
+        10,
+        61
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route13",
+      "source": [
+        0,
+        10
+      ],
+      "padded": [
+        0,
+        10
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route13",
+      "source": [
+        51,
+        0
+      ],
+      "padded": [
+        51,
+        0
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route14",
+      "source": [
+        19,
+        10
+      ],
+      "padded": [
+        19,
+        10
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route14",
+      "source": [
+        0,
+        44
+      ],
+      "padded": [
+        0,
+        44
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route15",
+      "source": [
+        59,
+        8
+      ],
+      "padded": [
+        59,
+        8
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "Route15",
+      "source": [
+        0,
+        8
+      ],
+      "padded": [
+        0,
+        8
+      ],
+      "terrain_passable": true
+    },
+    {
+      "map": "FuchsiaCity",
+      "source": [
+        39,
+        16
+      ],
+      "padded": [
+        39,
+        16
+      ],
+      "terrain_passable": true
+    }
+  ],
+  "preflight_floor_step": "host static path passed",
+  "host_import": "passed; actual saved observation equals newest archived payload and marker; strict accepted-A importer passed",
+  "runtime": "not executed",
+  "export": "synthetic offline 65 seconds only",
+  "export_complete_battle_missing_marker": "rejected; synthetic offline only"
+}
