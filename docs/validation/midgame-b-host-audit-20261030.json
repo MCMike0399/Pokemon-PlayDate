@@ -1,0 +1,31 @@
+{
+  "status": "Full current-B host audit completed; three projection failures repaired with targeted verification. Coverage freshness still pending review.",
+  "input_revision": "76559ac87b210a2e71c0520a1da3f8059a9e8d9c",
+  "full_run": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-host-current-kanto-20261030-01.log",
+    "sha256": "018d25d9aaab6e10869f6e2b9b2769a70450a5c6f629862f11f71062a23c2fa1",
+    "tests": 1058,
+    "passed": 1054,
+    "failures": 4,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 300.604
+  },
+  "repaired": [
+    "Cerulean projection dependency hashes",
+    "Vermilion projection dependency hashes, regenerated after Cerulean because it consumes the generated Cerulean artifact"
+  ],
+  "private_B_commits": [
+    "d6228e06",
+    "64512fa7"
+  ],
+  "targeted_result": {
+    "tests": 65,
+    "passed": 65,
+    "failures": 0,
+    "seconds": 15.247
+  },
+  "generated_value_comparison": "Only sources hash entries changed; gameplay projections are recursively identical. Original generated comparison is evidence/m55b-host-projection-refresh-20261030-01/changed-paths.json. Both installed generators now pass --check.",
+  "remaining": "Coverage matrix must be reviewed against current Source and evidence, not relabelled by changing its fingerprint. No full-suite green claim until that is resolved and rerun.",
+  "runtime_scope": "No Simulator/device execution by this audit. Existing census stage stays pinned to its archived B76559ac8 input; new private B64512fa7 changes only generated dev dependencies. Canonical journey evidence and save slots untouched."
+}

@@ -88,7 +88,10 @@ Extra GC is explicit and excludes hardware admission/production pacing claims.
 exec **12747**, SDK PID **58418**, build `c5ac68e3`, evidence
 `door-census-B-full-20261030-02`: 2,445 cases × two trials, 14,400 s deadline.
 Attach that same handle; no parallel runtime or restart on observation timeout.
-Current B full host audit runs independently in exec **77627** (host-only).
+B host audit exec77627 is terminal: 1,058 tests, four failures, no errors/skips.
+Three stale projection failures are repaired in private B64512fa7; all 65 targeted
+checks pass. Coverage freshness still requires review, not a hash-only relabel.
+[Audit](midgame-b-host-audit-20261030.json).
 
 ## Memory, audio and storage
 
