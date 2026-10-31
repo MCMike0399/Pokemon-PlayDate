@@ -2,161 +2,110 @@
 
 Updated 2026-10-30. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
-The full campaign remains unfinished. Root alone owns Simulator/device execution.
-The last authorized push includes `cbd91c96`; subsequent commits are local.
+The full campaign remains unfinished. Root exclusively owns Simulator/device.
+Last authorized push includes `cbd91c96`; subsequent commits are local.
 
 ## Accepted on main
 
 5.5a merged in `c946efdf`: 43 East maps, Erika and Silph Scope, for 108 maps.
 **Simulator-accepted and hardware-safe; device latency targets not yet met.**
-Three earned 5.4 journeys and actual process Save/Continue restarts pass.
-Charmander also covers Celadon services, Eevee, slots and Abra.
-[Acceptance](midgame-a-acceptance-20261029.json), [chain hashes](chain-saves.json).
-Main passed all 1,018 host tests without skips at acceptance.
-
+All three earned 5.4 journeys and actual process Save/Continue restarts pass.
+Charmander covers Celadon services, Eevee, slots and Abra. Acceptance passed
+1,018 host tests without skips. [Acceptance](midgame-a-acceptance-20261029.json),
+[chain hashes](chain-saves.json). 5.4 is also Simulator-accepted, not device-playable.
 Player package: `evidence/player-packages/5.5a-accepted-20261029-01/`.
-Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/`, 89.854 seconds.
-5.4 remains Simulator-accepted; neither milestone is device-playable yet.
+Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/`, 89.854 s.
 GB tones, protected art, chained saves, schema 4 and approved QoL remain.
 
-## Hardware and memory
+## Measured device waits and scaling
 
-The accepted 108-map hardware smoke reaches title, earned Continue, Save, doors,
-Cut and battle with unchanged error/crash logs. Screen observation is separate.
-Save-tier export and early-title preparation are accepted locally after review:
-Save **1.510 s**, Continue **3.335 s**, sampled peak **5.63 MiB**.
-[Save acceptance](save-tier-accepted-20261030.json),
-[title acceptance](early-title-accepted-20261029.json).
-
-The full 60+60-minute idle soak passes: 120 minute samples, title **4.08 MiB**,
-overworld **4.35 MiB**, peak **5.77 MiB**, no soft collections or new logs.
-Its maximum raw slice **1.295 s** still misses latency. Keeper restored.
-[Idle qualification](idle-soak-active-20261030.json).
-Hardware guards remain 6 MiB live after GC / 9 MiB hard; soft GC near 8 MiB.
-Simulator diagnostic Lua heaps are not compared to the hardware 6 MiB threshold.
-
-Managed Simulator plateaus pass: 400 real door transitions in one pair, then
-30 maps × 5 direct-owner loops. Warm same-map ranges are bounded; these are
-supplementary owner tests, not physical or approach-walking journeys.
-[Pair](memory-door-plateau-20261030.json), [30-map loop](memory-30map-plateau-20261030.json).
-A test-only loaded-game hardware probe allocates and releases eight 256 KiB
-requested image payloads (2 MiB total), with no new logs. Native headers, masks,
-unsampled peaks and long-session headroom remain outside that point test.
-[Native probe](native-image-headroom-20261030.json).
-**Audio remains held for 100+ physical doors across 30+ maps and 20 battles.**
-
-## Device latency and boot scaling
-
-Boot is `boot.begin` → `initialize.ready`: the title must accept A.
-Early title artwork is descriptive and never scores the 10 s target.
-The latest isolated shipped-data candidates give this measured device table:
+Boot means `boot.begin` → `initialize.ready`, when title accepts A.
+Early artwork is descriptive. The reviewed Kanto first-use change is merged on
+main (`db4e82e7`) and ported privately to B. Combined review: no findings;
+40 host/build and 44 native scene cases pass. Descriptors and teams match SDK
+exports; heavy records use the existing bounded cache. Full region activation
+is incomplete. [Scope](kanto-first-entry-candidate-20261030.json).
 
 | Phase / target | 108 maps | 149 maps |
 | --- | ---: | ---: |
-| Input-ready title / 10 s | 12.340 s | 13.687 s |
-| Longest boot slice / 1 s | 1.207 s | 1.448 s |
-| Continue / 4 s | 3.224 s | 3.295 s |
-| Save / 2 s | 1.526 s | 1.600 s |
-| Sampled longest door / 1.5 s | 2.957 s | 2.960 s |
-| Cave walking p95 / 50 ms | 97.93 ms | 102.83 ms |
-| Battle start / 1 s | 18 ms | 19 ms |
+| Input-ready title / 10 s | 11.263 s | 12.580 s |
+| Longest boot slice / 1 s | 1.267 s | 1.446 s |
+| Continue / 4 s | 3.197 s | 3.384 s |
+| Save / 2 s | 1.613 s | 1.648 s |
+| Longest sampled door / 1.5 s | 3.014 s | 2.974 s |
+| Cave walking p95 / 50 ms | 96.97 ms | 101.51 ms |
+| Battle start / 1 s | 19 ms | 20 ms |
 
-Builds `8e912161` / `09f16f95` complete the same serial smoke without new logs.
-108-map Lua live/peak: **4.13/5.37 MiB**; 149-map: **4.57/5.87 MiB**.
-Last phase: `battle.live.after_gc`; screens not directly observed; keeper restored.
-Boot includes 0.781/0.898 s diagnostic GC. No physical power-on claim.
-[Full phase/scaling table](boot-region-scaling-20261030.md),
-[exact identities](boot-region-scaling-20261030.json).
+Builds `025d4978` / `3d62a607` complete the same real-input serial smoke with
+unchanged error/crash logs. Last phase: `battle.live.after_gc`; screen not directly
+observed; keeper restored. Lua live/peak: 4.02/5.26 and 4.53/5.82 MiB.
+Diagnostic title GC: 0.821/0.835 s, included. **Shipped-equivalent timing remains
+unmeasured**; no silent subtraction or physical power-on claim.
+[Exact reports and per-installer scaling](kanto-first-entry-scaling-20261030.md).
+Kanto installer falls 1,119→58 ms at 108 maps and 1,172→34 ms at 149.
+Registration is 112/193 ms; provider install 1,141/1,559 ms; title preparation
+4,184/4,296 ms. 108 Daycare includes later installers and is not separately
+comparable. At 149 maps Hideout aggregate is 768 ms and Celadon services 283 ms.
 
-Build-time map validation removes global provider rescans. Immutable conflict
-checks move to pinned staging. Fresh SDK transform exports produce lightweight
-memberships; descriptor bodies load on demand through the bounded cache.
-At 149 maps, registration falls **5.363 → 0.171 s** and boot **18.540 → 13.687 s**.
-108-map registration is 0.109 s; saved-map title preparation stays 4.232/4.201 s.
-Historical `Daycare.install` includes later installers; it is not an isolated cost.
-The combined review found staged-byte qualification and missing bounded guards;
-root corrected both, plus SDK aliases. The real staging-race regression fails
-both mutations before the fix and passes after. Main `8b581613` and private B
-`8e188083` now contain the reviewed stack. Rejected story-field deferral stays off.
-Main compile, 57 protocol checks, 25 focused checks, 182 native cases and the
-qualified guard/publication probe pass; B passes 16 focused/build checks.
-[Review and corrections](boot-stack-review-20261030.json).
+Remaining structural priorities: census and worst-five physical doors, then cave
+step costs; finish first-entry installers. Savings are unmeasured until paired
+hardware runs. The title split is rejected: immediate app→walking worsened from
+17.321 to 17.936 s despite earlier menu input. Do not resume it without removing
+actual work. [Rejected result](two-stage-title-corrected-measurement-20261030.json).
 
-Composed B hardware `1d983974`: boot **13.711 s**, raw boot slice **1.444 s**,
-Continue **3.339 s**, Save **1.559 s**, sampled longest door **2.978 s**, cave
-p95 **99.91 ms**, battle **19 ms**, Lua live/peak **4.57/5.87 MiB**. No new logs;
-last `battle.live.after_gc`, keeper restored, screen not directly observed.
-Forced title GC is 0.858 s. **Shipped-equivalent timing is not yet measured**;
-no subtraction or implied 10-second pass. The longest slice includes the provider
-compact decode/profile preparation; it is not isolated decode timing.
-[Composed phases and installer attribution](boot-stack-composed-20261030.json).
-Full first-entry activation and current-map scaling remain open. The reviewed
-Kanto first-use port has its own 149-map SDK export and 40 passing host/build
-checks. The 149-map hardware comparison completed without new logs; keeper restored.
-Kanto installer falls 1,172 → 34 ms; boot 13.711 → 12.580 s. Continue 3.384 s,
-Save 1.648 s, sampled longest door 2.974 s, cave p95 101.51 ms, raw boot
-slice 1.446 s; Lua live/peak 4.53/5.82 MiB. Diagnostic title GC is 0.835 s.
-[108/149 installer comparison](kanto-first-entry-scaling-20261030.md).
+Hardware measurement admission: exact error-free 16 MiB smoke, sampled peak
+≤9 MiB and raw Simulator slice ≤150 ms. Device playability additionally needs
+worst door ≤1.5 s, walking ≥25 fps without >300 ms non-transition hitches and
+battle ≤1 s, then user play-test. All latency targets gate 5.5c; no accepted
+checkpoint may regress a phase >10%. The full door census is not yet complete.
 
-Hardware admission is exact 16 MiB smoke, no error, sampled peak ≤9 MiB and
-raw Simulator slice ≤150 ms. The new 108-map proof reports 65.066 ms / 7.05 MiB.
-Historical guessed-factor failures remain retained; safety-only admission passes.
-Latency targets gate 5.5c. No accepted checkpoint may regress a phase over 10%.
-Two-stage title is isolated on `wip/two-stage-title-108-20261030-01`.
-Checksum/header preview opens the menu; the same full load continues in bounded
-slices. Early Continue finishes that record, and cancellation unwinds its loader
-scope. Initial hardware split regressed immediate walking and Save, so it is
-rejected. Cache handoff and duplicate checkpoint work are corrected; 103 save/
-session and 42 title/recovery SDK cases pass. Corrected hardware Save is 1.597 s,
-but app → walking is 17.936 s versus baseline 17.321 s; the split stays off main. [Candidate](two-stage-title-candidate-20261030.json).
-Kanto first-use data is merged in `db4e82e7`, after a clean combined review.
-40 merged host/build checks and 44 native scene cases pass; 13 descriptors and
-two teams match the SDK export. Hardware installer is 58 ms and boot 11.263 s. [Scope](kanto-first-entry-candidate-20261030.json).
-Door census qualification: eight measured input trials and two deliberate solid
-boundary gaps; no runtime failure, earned bytes unchanged. Full census launched
-once in exec 6850: terminal, 26 measured trials before Game Corner hit the
-Simulator 9 MiB Lua guard. A fresh process reproduced it. Private observer
-collections at loading suspensions permit both Game Corner trials without
-changing production or its guard. [Memory scope](door-census-memory-20261030.json).
-The corrected full census is pending; no worst-door result is claimed.
-[Qualification](door-census-qualification-20261030.json).
-Then per-installer first-entry activation, all-door/worst-five measurements,
-cave steps, and the remaining B traversal/visual gates. Superseded queued
-journey failure notifications are already handled; do not rerun them.
-Rejected terrain, sparse-view, pose, registration and decode-only prefetch trials
-stay off main. No more evidence compression tooling.
+## Runtime work and checkpoint B
 
-## Checkpoint 5.5b: private, journeys complete
+`t3/midgame-55b-driver` is private at 149 maps: Tower/Fuji/Flute, Snorlax/Cycling
+Road, Fuchsia/Safari/Koga, rods, Surf and Strength. All three earned A journeys
+and real two-process restarts pass and export `chain/5.5b/<starter>`.
+[Candidate and runs](midgame-b-candidate-20261030.json),
+[common-build cold loads and six input restarts](midgame-b-common-load-20261030.json).
+Canonical slots are unchanged. Charmander covers optional Safari/fishing.
 
-`t3/midgame-55b-driver` has 149 maps: Tower/Fuji/Flute, Snorlax/Cycling Road,
-Fuchsia/Safari/Koga, rods/fishing, Surf and Strength. All three earned A journeys
-and real two-process restarts now pass and export `chain/5.5b/<starter>`.
-Charmander includes optional Safari and fishing; earlier failures remain history.
-[Candidate and exact runs](midgame-b-candidate-20261030.json).
+All 2,494 protected images match. All 41 South spawn viewports and selected
+real-input Bike/Surf/rod/Safari BALL frames reviewed. All 82 full-map actor/event
+overlays inspected; no obvious rendering defect found. Static output does not
+prove live visibility or triggers. [Overlay scope](midgame-b-full-overlays-20261030.json).
+Long physical traversal and checkpoint showcase remain. [Protected](midgame-b-protected-visuals-20261030.json),
+[static scope](midgame-b-new-visuals-20261030.json),
+[field motion](midgame-b-field-motion-20261030.json),
+[Safari presentation](midgame-b-safari-presentation-20261030.json).
+C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-All three B saves also pass common-build cold load and six stopped real-input
-Continue/Save processes; canonical earned slots remain unchanged.
-[Common-build checks](midgame-b-common-load-20261030.json).
-Both gift-cache variants pass 40 native cases; bounded text saves 675.84 KiB.
-The original long-journey native `drawFaded` OOM is not universally closed by
-short tests. Physical long traversal and scoped reviews remain before acceptance.
+Census qualification: eight measured real-input trials, two deliberate geometry
+gaps; earned bytes unchanged. [Qualification](door-census-qualification-20261030.json).
+First full exec 6850 is terminal: 26 trials then Game Corner's 9 MiB Simulator
+Lua guard. Fresh process reproduces it. Private loading-suspension collection
+allows both isolated Game Corner trials; production and hard guard unchanged.
+Extra GC is explicit and excludes hardware admission/production pacing claims.
+[Memory scope](door-census-memory-20261030.json). Corrected full run is live in
+exec **12747**, SDK PID **58418**, build `c5ac68e3`, evidence
+`door-census-B-full-20261030-02`: 2,445 cases × two trials, 14,400 s deadline.
+Attach that same handle; no parallel runtime or restart on observation timeout.
+Current B full host audit runs independently in exec **77627** (host-only).
 
-All **2,494 protected images** match exactly. South exports 484 native images
-across 41 maps; all 41 native spawn viewports inspected. Bike, Surf and Safari BALL frames have supplemental input review; full-map
-actor/event overlays and long physical traversal remain.
-[Protected](midgame-b-protected-visuals-20261030.json),
-[new static scope](midgame-b-new-visuals-20261030.json).
-5.5b stays private. C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated preparation.
+## Memory, audio and storage
 
-## Storage and history
+60+60-minute hardware idle soak passes: 120 samples, title 4.08 MiB, overworld
+4.35 MiB, peak 5.77 MiB; no soft GC/new logs. Raw slice 1.295 s misses latency.
+[Idle qualification](idle-soak-active-20261030.json). Guards: 6 MiB live after GC,
+9 MiB hard, soft GC near 8 MiB. Simulator diagnostic heap is not hardware live heap.
+Managed Simulator 400-door pair and 30-map × five-loop plateaus are bounded:
+[pair](memory-door-plateau-20261030.json), [loop](memory-30map-plateau-20261030.json).
+Hardware allocates/releases eight 256 KiB requested image payloads (2 MiB), no new
+logs. This point test excludes native headers/masks and long-session headroom.
+[Native probe](native-image-headroom-20261030.json). **Audio held for 100+ physical
+doors across 30+ maps and 20 battles.** The long-journey native `drawFaded` OOM
+is not universally closed by short tests; bounded gift text saves 675.84 KiB.
 
-Automatic maintenance uses **50 GiB minimum / 70 GiB target** every 30 minutes,
-per the user. Ownership locks and retention rules remain. About 116 GiB is free
-at this update; no cleanup was needed or claimed in this turn.
-Prior audited recovery includes 110.48 GiB initial cleanup, 14.31 GiB native
-compression and a later 9.92 GiB pass; see retained audits rather than summing
-incomparable snapshots. [Storage audit](archive-sharing-20261030.json).
-
-[Previous ledger](progress-history-boot-scaling-20261030.md),
-[B history](progress-history-midgame-b-20261030.md),
-[A acceptance history](progress-history-5.5a-acceptance-20261029.md).
+Automatic cleanup uses **50 GiB minimum / 70 GiB target** every 30 minutes.
+About 116 GiB free at last check; no cleanup claimed this turn. Retain chain saves,
+packages, acceptance references and latest passes/failures. No more compression
+or production planner tooling. [Storage audit](archive-sharing-20261030.json).
+[Previous ledger and history](progress-history-door-census-20261030.md).

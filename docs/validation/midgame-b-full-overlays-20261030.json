@@ -1,0 +1,546 @@
+{
+  "status": "Root static actor/event-overlay inspection complete for all 41 South maps; no obvious missing textures, clipping or detached placement found.",
+  "catalog": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/catalog.json",
+  "catalog_sha256": "710984b1463416d15bfdf3ae8379cb4c32ecbbcba91dd0e0e261409746d5c593",
+  "maps": [
+    "FuchsiaBillsGrandpasHouse",
+    "FuchsiaCity",
+    "FuchsiaGoodRodHouse",
+    "FuchsiaGym",
+    "FuchsiaMart",
+    "FuchsiaMeetingRoom",
+    "FuchsiaPokecenter",
+    "PokemonTower1F",
+    "PokemonTower2F",
+    "PokemonTower3F",
+    "PokemonTower4F",
+    "PokemonTower5F",
+    "PokemonTower6F",
+    "PokemonTower7F",
+    "Route12",
+    "Route12Gate1F",
+    "Route12Gate2F",
+    "Route12SuperRodHouse",
+    "Route13",
+    "Route14",
+    "Route15",
+    "Route15Gate1F",
+    "Route15Gate2F",
+    "Route16",
+    "Route16Gate1F",
+    "Route16Gate2F",
+    "Route17",
+    "Route18",
+    "Route18Gate1F",
+    "Route18Gate2F",
+    "SafariZoneCenter",
+    "SafariZoneCenterRestHouse",
+    "SafariZoneEast",
+    "SafariZoneEastRestHouse",
+    "SafariZoneGate",
+    "SafariZoneNorth",
+    "SafariZoneNorthRestHouse",
+    "SafariZoneSecretHouse",
+    "SafariZoneWest",
+    "SafariZoneWestRestHouse",
+    "WardensHouse"
+  ],
+  "images": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaBillsGrandpasHouse-actors.png",
+      "sha256": "c9261fb11e58c6ccdd1ae095d4a3e0f7861d6a685538fe2412eea6d9a90a9ae6",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaBillsGrandpasHouse-events.png",
+      "sha256": "d092b9a43ff0801a4246fa4ebabf4f83d1262f80baa77b20415bfd37711792d7",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaCity-actors.png",
+      "sha256": "2ab77716d9bb80ff2e2f5ce1f6f0c64b235d4fa131819448c75762cdda054dff",
+      "width": 1280,
+      "height": 1152
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaCity-events.png",
+      "sha256": "4643bbc925c3e873b7a8bd9661d127502ed973d89989c3c8c96b3f5ec6cc3a5d",
+      "width": 1280,
+      "height": 1152
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaGoodRodHouse-actors.png",
+      "sha256": "c9950c18cf183e68775b4851354526c5e8c0708667e3cf7ed28e0aca11034f7f",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaGoodRodHouse-events.png",
+      "sha256": "27f118133f7f3cd64de54603ef07d6088ae61590a326109fed5c044612ce79c4",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaGym-actors.png",
+      "sha256": "a128be7ce1cb4c2ed4aa3ef2115fcc7e8aa83f0647a9e386e8d1859409713e60",
+      "width": 416,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaGym-events.png",
+      "sha256": "36e1686ba1e77d4c5fa4815b86abb5443cca8bcbbcb1dd4f65b0be6de05778d8",
+      "width": 416,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaMart-actors.png",
+      "sha256": "1dfae6956f5ee37357d02b1862dfc3713c13c2b955d9ca25fc8b75e72653692d",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaMart-events.png",
+      "sha256": "dff1e97eda6b83bf7f83ca0a3b78a527fe8bf4eb93353ebfd2b64d3c8c7b5e06",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaMeetingRoom-actors.png",
+      "sha256": "6869bbeb279f0e0c932721e488bb9289543f1665db9d9c515ce927c878becadc",
+      "width": 448,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaMeetingRoom-events.png",
+      "sha256": "7f804b37a76ac867fbe5958ab4a7d0e34043a0ce56d224edb2b3ca522cfe6c74",
+      "width": 448,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaPokecenter-actors.png",
+      "sha256": "a4c16f8489130386cfa91aa1ce7e2a50087a21da1c509cf51223a7db3b889726",
+      "width": 448,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-FuchsiaPokecenter-events.png",
+      "sha256": "45bdbd227da9fd4b97bead8c6dc688e335d20700a9153bd1162705e6c5931d74",
+      "width": 448,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower1F-actors.png",
+      "sha256": "9c24a30bda8eac88380603e81305b7ee97a0788278015306b822719f5b9ac2ed",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower1F-events.png",
+      "sha256": "38d42b597c0e941a9b94db5344e1772a9d50c7f5a66f75f832385ac4e3ef88ed",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower2F-actors.png",
+      "sha256": "78b4c17213958baacb93374dfdf3be80366f5bad870da8dc2b92dd7a855f4527",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower2F-events.png",
+      "sha256": "1d6c550486cbaefde2716f2e9d61aa4574c8ce56a37ee8d71814ff4d0862e3e0",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower3F-actors.png",
+      "sha256": "19c8cc7fdf33fe19c302b3f971447e7c791d485b4b7f97af40aaa72a807141d4",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower3F-events.png",
+      "sha256": "3b71cdbd0f230dcc19d0efa02d9cd22b003ae6d121f52391896749b6a384410f",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower4F-actors.png",
+      "sha256": "df44555b2a17c977d22dae528b00f8459608a787eb5949485d638e8ab4fce3b9",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower4F-events.png",
+      "sha256": "714c3a0c6d46a2ede07e9eb822e5f25bcd1b83aeb0c2168030113db82ad19e46",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower5F-actors.png",
+      "sha256": "000a281b932a69db6707bb12e0cef081f6bdd75043855714734b752527ae2f21",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower5F-events.png",
+      "sha256": "617111bf461147f51d8c5a9e20bebb46830d107cc360ab9e1900f3e40d9511ae",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower6F-actors.png",
+      "sha256": "0df78770e191caacc7acf9d81e9f220542e55c8c7daa1bd112157544ad627b41",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower6F-events.png",
+      "sha256": "3fe2d6eadf11c8547eecfe6a6d0116d71782ef5e832b965af0f2f2c4b5ae647a",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower7F-actors.png",
+      "sha256": "596e0dc4e31c89c240367e9f50bd622bbb3f5055f04552935ba0633b94c1f10a",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-PokemonTower7F-events.png",
+      "sha256": "1e01b20f59132816ab4a22ed41471a58252010a065d6c964111a8c81646a95c3",
+      "width": 640,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12-actors.png",
+      "sha256": "545879d8354227cd877e9c0887d9f6a2cf2362087629cbebe4106d2dccd3080b",
+      "width": 640,
+      "height": 3456
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12-events.png",
+      "sha256": "0cf3dc88158c58563e1d94491806593f7880628012a7eeb7025d0bfcf7563e3e",
+      "width": 640,
+      "height": 3456
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12Gate1F-actors.png",
+      "sha256": "191f6c7d00d97a6dada516a37b198b93c35ced2bd74bc22546770c5619030651",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12Gate1F-events.png",
+      "sha256": "6522358a3e23947091827e3d5af4099c9ca2d4fcee0790826005ce65adb098dc",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12Gate2F-actors.png",
+      "sha256": "9f131b6db30f37d70e3d1d36c564779d31c7fbf18db2b51949138b195645f9d7",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12Gate2F-events.png",
+      "sha256": "8926e58810350ea7c7523b8b1cfbb7424deeecb0e692ac56716e83ed2f81798d",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12SuperRodHouse-actors.png",
+      "sha256": "b62d90a35b12ed67cc563e6bb1b2b621762b7496359b122244a75fcd3c9c1d40",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route12SuperRodHouse-events.png",
+      "sha256": "2c788215626b0c0445e4745de1c0c280e1256cb6cca7be9c293367acf665d1d4",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route13-actors.png",
+      "sha256": "a3906aed69bf6424c52c2b48a3ecb93af3c7051f2fa758f463049143f8ea239c",
+      "width": 1920,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route13-events.png",
+      "sha256": "587eae93e2234c9defe0ada7c880ab543d78561a6df38145a80a5d192b8af17b",
+      "width": 1920,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route14-actors.png",
+      "sha256": "f04fbc57d8daae401f978dc34286fd7fbf317e814115b38280c1522dc64f2e17",
+      "width": 640,
+      "height": 1728
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route14-events.png",
+      "sha256": "d01a7095f1695d93585821604330890757610f6e1d5e726bb77b8087739bdb19",
+      "width": 640,
+      "height": 1728
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route15-actors.png",
+      "sha256": "4775fe55b502da5299f846a6094e588e5ecfb2a077d1b1895f4d16d4441a26d1",
+      "width": 1920,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route15-events.png",
+      "sha256": "1527f50d4d6fa0e4b7d66abbdea4e5be4e358a020a7e330957d55743a8d323ac",
+      "width": 1920,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route15Gate1F-actors.png",
+      "sha256": "aa7797e40d0a9552b5f027fb814f53902e8ccabe6f50fbec8e18de19160064e1",
+      "width": 416,
+      "height": 320
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route15Gate1F-events.png",
+      "sha256": "18768d1eb3093ea5f08135a248aaa5fa9ad73f50f650b5e0bc37e58ab59a4fe1",
+      "width": 416,
+      "height": 320
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route15Gate2F-actors.png",
+      "sha256": "d8258690cd6eabc65309c79ad604a83810dae3650edd670b22e9cce2b410eecd",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route15Gate2F-events.png",
+      "sha256": "5ffa46f3246202d724cd88d6ec5a83c5c0bdbef15383ee672cc400ffea0a0f23",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route16-actors.png",
+      "sha256": "05e7413fdf97ee5ff83c27e289c45f4843752ad870380b0a4870e1c056e7c64e",
+      "width": 1280,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route16-events.png",
+      "sha256": "7ba76a0007de2c65ffb5600b527e8129afa144c9eabaefc4dbdca19635e2b40a",
+      "width": 1280,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route16Gate1F-actors.png",
+      "sha256": "66c1dbeedc9a54fd644083247aef509c8af6b894dda3cc32d13577cff4f2f4c4",
+      "width": 416,
+      "height": 448
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route16Gate1F-events.png",
+      "sha256": "2355558eb8d859663bb49c1c2ebec8d7dff8c01c0550790c18bdb73e2a883d2b",
+      "width": 416,
+      "height": 448
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route16Gate2F-actors.png",
+      "sha256": "d567bde1835b262fb93930a717f5a17aab734f04b28f94d99179eaa400e5295e",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route16Gate2F-events.png",
+      "sha256": "22932930f83b011db3f3490083d5a4067562b40c2fef0279ac478b89d8fc3b1a",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route17-actors.png",
+      "sha256": "d0902f3d728cd041a8e9b12449b1856a7bb94cba482893604fe565dc94f4a5e3",
+      "width": 640,
+      "height": 4608
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route17-events.png",
+      "sha256": "e2869d7dd32aeef02e50eb9187a455c84b18dcd2dcd3971818bbe5b85991c741",
+      "width": 640,
+      "height": 4608
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route18-actors.png",
+      "sha256": "fa542bd46d01df7baa6f45a28210a8b52a4fbe46fdd2276dded8fdfd9e1cb400",
+      "width": 1600,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route18-events.png",
+      "sha256": "658425bd4802efd473c5e622dc346bcaa48e7367f0cf0c4f812a0ec10b82a25e",
+      "width": 1600,
+      "height": 576
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route18Gate1F-actors.png",
+      "sha256": "aa7797e40d0a9552b5f027fb814f53902e8ccabe6f50fbec8e18de19160064e1",
+      "width": 416,
+      "height": 320
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route18Gate1F-events.png",
+      "sha256": "18768d1eb3093ea5f08135a248aaa5fa9ad73f50f650b5e0bc37e58ab59a4fe1",
+      "width": 416,
+      "height": 320
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route18Gate2F-actors.png",
+      "sha256": "012ab0580c7bc28cf8f934aeba4705274b9e0fd9e3650e240dd863edb14ba830",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-Route18Gate2F-events.png",
+      "sha256": "84c7c3777f2459ae8c46c053512e2d1aebfeec768029655b735af991f9de4878",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneCenter-actors.png",
+      "sha256": "8ab3b4a36daffcb53705f75669371e7c80ae40dd109cc343218047b45f454461",
+      "width": 960,
+      "height": 832
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneCenter-events.png",
+      "sha256": "99e7ad6a464531dbdb5f481d045ef1a9ad651605eed7faebd34876e88ab9690c",
+      "width": 960,
+      "height": 832
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneCenterRestHouse-actors.png",
+      "sha256": "695e1a23c399f85733abff2874d17ba8a1a38dfdf22330596fbb83f6c6d6235f",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneCenterRestHouse-events.png",
+      "sha256": "2e79e44b61dc9af39a1bd65668fe7eabf0060861178b9a215365ffdba5950288",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneEast-actors.png",
+      "sha256": "00a598f1abfe135ce19537fec2fb59997834bc7b30bca477fa5de14c4b3932f4",
+      "width": 960,
+      "height": 832
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneEast-events.png",
+      "sha256": "f126a39bf6791d6472c944168f01c053e23f2b0daafefef44d269c275e6b92d7",
+      "width": 960,
+      "height": 832
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneEastRestHouse-actors.png",
+      "sha256": "b88d647e1ef1392987e39f382b4ccc181fdfee40d069140759e10cd7efbfdf87",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneEastRestHouse-events.png",
+      "sha256": "5a2be8d788150898b92c11838358a739696da7e7c3b0cbb67c075d694fb2bc28",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneGate-actors.png",
+      "sha256": "88738f080e1037537375e788776d2c03dda9de9842b005bd39aa486592faf41f",
+      "width": 416,
+      "height": 192
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneGate-events.png",
+      "sha256": "3cf27cc33b67d7b329774a44e687f67b7f3845412408b4aaab44a5c6aff4e31e",
+      "width": 416,
+      "height": 192
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneNorth-actors.png",
+      "sha256": "0bc2031be73c3db4b3136b170d290c6cc31aff010253ea64e92289f32b3fc447",
+      "width": 1280,
+      "height": 1152
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneNorth-events.png",
+      "sha256": "642f0d751861439e1e7ea7b87eea5ca2ef58fca3215a2af8885478c0e97db388",
+      "width": 1280,
+      "height": 1152
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneNorthRestHouse-actors.png",
+      "sha256": "4db0104c405e3c1d635f39b02cfd67d495622cce28db3703a0e1fa1477313a75",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneNorthRestHouse-events.png",
+      "sha256": "d1085656b489deb979bb581cdaa4720f29f499cc447c1cd3b9d1afe929324e00",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneSecretHouse-actors.png",
+      "sha256": "11e5080ea01e0dadbe407674dbcf9337f8640a9dc2c217bb4135837fb3c155e6",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneSecretHouse-events.png",
+      "sha256": "ae6bfe0a6c92cf79c563738a577eabdce42a3c523c94fdf4d43f9fe0c089cf48",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneWest-actors.png",
+      "sha256": "0593a476f24104fbcf312dd41091fd23a224cb46660fb010627101c558f599f6",
+      "width": 960,
+      "height": 832
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneWest-events.png",
+      "sha256": "194d35b7d144a08b228e15a9c985b819b803bb6fbae37f3f1dfb558bbd084966",
+      "width": 960,
+      "height": 832
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneWestRestHouse-actors.png",
+      "sha256": "f691bc9716eed7ded14adb9223487f27d7a8c550ba6ab1c69612ac6ef738439b",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-SafariZoneWestRestHouse-events.png",
+      "sha256": "4c524ed76f43c26e13e3ea310a09b033ecc3a116d3274eb4c636363b18071b12",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-WardensHouse-actors.png",
+      "sha256": "65ef9e2a8649aa5db01673fc759d9eb7ce70348e0b1b4ad92635a888b5e2a563",
+      "width": 416,
+      "height": 256
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02/frames/midgame-WardensHouse-events.png",
+      "sha256": "cfd64cca1d848f6f9478aa0d15e18c39d1d79de0416a46bba654b7e98b58cd03",
+      "width": 416,
+      "height": 256
+    }
+  ],
+  "native_detail_crops": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-full-overlay-review-20261030-01/crops.json",
+  "native_detail_crops_sha256": "ad4de213b0823b2329694fe34eb6fb832822c8064da776a136a9ae8368ae9cb3",
+  "crop_validation": "All 14 Route12/Route17 sections are exact unscaled RGBA pixel crops; original exports unchanged. Other full-map exports inspected directly.",
+  "limits": "Static exporter output, including declared actors and event labels. Does not prove live visibility conditions, movement/collision/trigger reachability, every animation frame, physical display pacing, the long traversal or B campaign acceptance. No art/baseline changes."
+}

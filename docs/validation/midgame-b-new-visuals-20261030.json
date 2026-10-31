@@ -1,5 +1,5 @@
 {
-  "status": "41 spawn viewports, 39 static field exports and supplemental live bike/Surf/Old Rod/Safari BALL frames inspected. Full-map actor/event overlays and physical long traversal remain.",
+  "status": "41 spawn viewports, 82 full-map actor/event overlays, 39 static field exports and supplemental live bike/Surf/rod/Safari BALL frames inspected. Physical long traversal and showcase remain.",
   "catalog": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-02",
   "catalog_sha256": "710984b1463416d15bfdf3ae8379cb4c32ecbbcba91dd0e0e261409746d5c593",
   "maps": 41,
@@ -18,10 +18,9 @@
   "private_staging_inputs": "Pinned South/East sprites/scripts copied only into the exporter stage; production exclusions remain unchanged.",
   "failed_attempt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-south-native-catalog-20261030-01",
   "remaining": [
-    "Remaining map/actor/event-overlay inspection",
-    "Live Surf, bicycle and fishing movement/presentation",
-    "Safari command/capture presentation",
-    "Checkpoint showcase and final release review"
+    "Long physical traversal and native memory qualification",
+    "Checkpoint showcase and final release review",
+    "Any additional live motion coverage required by final review"
   ],
   "viewport_review_update": {
     "count": 41,
@@ -73,5 +72,6 @@
     "limits": "Contact sheets use explicit nearest-neighbor 4x/2x enlargement. Actual Player movement, water-background legibility, fishing cadence and Safari UI are not established."
   },
   "live_field_review": "midgame-b-field-motion-20261030.json",
-  "safari_presentation_review": "midgame-b-safari-presentation-20261030.json"
+  "safari_presentation_review": "midgame-b-safari-presentation-20261030.json",
+  "full_map_overlay_review": "midgame-b-full-overlays-20261030.json"
 }
