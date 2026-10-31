@@ -1,0 +1,19 @@
+{
+  "status": "Current corrected-B private packet compiles; safety capture/replay and physical route unexecuted.",
+  "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-long-traversal-root-prepare-20261030-03/build.json",
+  "sha256": "6e27bd6a1869c1b1d7145a55cdbb6077a14170c53954dc30575ddaf3b2f3c54d",
+  "build_id": "d6e4fc03f31e43c0955f7832e672fb6a",
+  "revision": "e71e33019f89633efdf00bc31a4eaa8cca655170",
+  "pdx_sha256": "3f7ec40cd98efbe36cb42b797f17e83fe87ad11cbb570d58e2574e2ec09b121d",
+  "production_source_sha256": "03f3cab49e86a8bcf5d9a84c94ab5a63767d307704f6caa41742625fa0a50771",
+  "input_pins": "tools/device/long_traversal/inputs.json at isolated t3-81494ebe commit db42e516",
+  "actual_scope": "Root-operated ordinary DS1 batches: target30distinctmaps/110completeddoors/20battle starts; current coverage0. No autonomous planner, fixture placement, resource grants or hardware Save.",
+  "seed_integrity": "Both canonical and immutable copied earned B Charmander slots match their recorded hashes. Provenance retained unchanged.",
+  "guards": "Hardware6MiB postGC/9MiB hard; Simulator exact16MiB raw safety still required. Root host history handling must be verified before long profiled execution.",
+  "pending": [
+    "Fresh exact-build actual-input short safety capture/replay",
+    "Live history handling for long Simulator work",
+    "Physical session and postGC-per-entry/native-error review",
+    "CurrentB acceptance and audio remain held"
+  ]
+}
