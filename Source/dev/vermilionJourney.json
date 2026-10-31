@@ -3322,7 +3322,7 @@
   "sources": {
     "battle/battle.lua": "4e7029aa6f1d6d95f78bd50489f6b3eadb8309bf7cb71e39f287604b9e786756",
     "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
-    "data/ceruleanContent.lua": "1a13e3bd265e6c0d682dd267f9b4427a4bddc52515ada1913757173cb96a8d99",
+    "data/ceruleanContent.lua": "2a6fdeabfce1d8788da12723bdb241d4b5860d4330a94564097696701168898b",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
     "data/fieldMoves.json": "fbdede52c487a6c0668b99b79f186101a10db1069b71aba25e8f7ef58f2e5757",
     "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
@@ -3397,7 +3397,7 @@
     "game/fieldMoveState.lua": "3c8281f6d7eda0668a512906698b1a8d2ce9b2405f57d956f592e842c6ed0b06",
     "game/partyState.lua": "4fb4113f89eb6b1c89c5e61af75a6b1c4c7877fd3be46301dcba32aefa9b0630",
     "game/saves.lua": "472eaace74ce3e3e7b2f0b2e21b5ca160dd70bb09aa271be3dc27c4abd3003ee",
-    "game/sourceEvents.lua": "f04c1ca6080518ffca62b5a0800862f4a5f052ee232a2e0ba001c6826b37cedd",
+    "game/sourceEvents.lua": "422e7fddb12a70a13d6d8c9d7ab58c1eff870a0fecc7a94138c362da6fb4e6a7",
     "game/trainerEvents.lua": "3cca86644f8dc93fceb96d2924fae64454db27c2d527db274fe408a7cc5446a2",
     "game/vermilionGifts.lua": "8a2f10a2db0f1cacfb3c48cc3b620b5791bf5ea9c24f524b5d13274719c46c65",
     "game/vermilionStory.lua": "e00b8c7ced96d6ad630c4515d722c422b865fc2c745d60d677741046cb7a2af6",
@@ -3405,7 +3405,7 @@
     "game/vermilionStoryIntent.lua": "31bf40875b5d9940b81fdc3a463a6aca67c3a7e94878a69086c658138862c440",
     "game/vermilionStoryState.lua": "084cfdd3ae23d32f84c34bbde7ad8b7251a323d876819e724084b0c97658ec29",
     "game/vermilionStoryTerrain.lua": "ea64898cc812994f231b66f7220435a021c89a67b6d9bf17bfee1bbe108d065d",
-    "main.lua": "f106a25ab2f73ed96274217e07cc6d67e40c1a2e033242908a3cf694c26a5bed",
+    "main.lua": "2c660e29d61199ce476b3010b9973f7b31e8c87af940b4a8248d51a2e3b954e0",
     "world/sourceBindings.lua": "62c9de9ffe951ca69d5fb4d60ca833b0a05a08debadd7f599d856075d0277ddf",
     "world/zone.lua": "0381e73f2191d785a22b1ab0052a9a64a64f8c424101bea18cfad6bc449193d4"
   },
