@@ -109,6 +109,7 @@ func verify(_ directory: URL, _ buildHash: String, _ runHash: String) throws -> 
     try require(try executable(pid_t(pid)) == binary.path && argv(pid_t(pid)) == [binary.path, bundle.path],
                 "live executable/PDX mismatch")
     try ownedLock(path("/private/tmp/pokemon-playdate-simulator-\(getuid()).lock"), owner)
+    try ownedLock(path("/private/tmp/pokemon-playdate-device-\(getuid()).lock"), owner)
     try ownedLock(sdk.appendingPathComponent("Disk/Data/com.poc.pokemon.doorcensus.\(id)/owner.lock"), owner)
     let again = try bsd(pid_t(pid))
     try require(live.pbi_start_tvsec == again.pbi_start_tvsec && live.pbi_start_tvusec == again.pbi_start_tvusec,

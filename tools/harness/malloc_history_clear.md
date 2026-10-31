@@ -2,8 +2,8 @@
 
 `malloc_history_clear.swift` is a macOS host utility for the exact SDK 3.1.2
 Simulator SHA256 embedded in its source. It writes no preferences/TCC, activates
-no window, launches no Simulator and takes no locks. Root's user choice is still
-pending. Do not execute AX inspection/Clear until that choice permits it.
+no window, launches no Simulator and takes no locks. The user chose to retain 16 MiB and enable Accessibility. Do not execute
+AX inspection/Clear until trust is actually verified.
 `AXIsProcessTrusted()` never requests permission; false refuses. No System Events,
 AppleScript, input injection, generic UI action or permission workaround exists.
 
@@ -20,7 +20,7 @@ Use `subprocess.run(..., timeout=9, capture_output=True)` with no shell; verify
 Root's pinned helper hash first. Metadata pins must come from the actual new
 run, not an old example. The helper checks build/run identity, the entire PDX
 file inventory, SDK executable hash, live executable/argv/user/parent/start time,
-and both global Simulator/private Data locks. Lock JSON alone is insufficient:
+and the global Simulator, global device and private Data locks. Lock JSON alone is insufficient:
 read-only `lsof` must report that direct parent holding each full write lock.
 No lock is acquired or modified. Unsupported lock reporting refuses safely.
 It has an eight-second lifetime ceiling and 200 ms AX messaging timeout.
