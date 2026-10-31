@@ -1,5 +1,5 @@
 {
-  "status": "Reviewed private B coverage published after fresh compile-only and full host pass. Runtime and B acceptance remain open.",
+  "status": "Corrected private B passes fresh compile-only and full host suite; resource/showcase/acceptance gates remain open.",
   "input_revision": "76559ac87b210a2e71c0520a1da3f8059a9e8d9c",
   "full_run": {
     "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-host-current-kanto-20261030-01.log",
@@ -39,5 +39,16 @@
     "seconds": 412.325,
     "compile_only_bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-coverage-host-reviewed-20261030-01/bundle",
     "B_publication_commit": "0bc2e5fe8a79cda83602c7e754ad832e8c24ccff"
+  },
+  "after_expiry_full_run": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-after-expiry-host-20261030-01/host.log",
+    "sha256": "e6f7120e0c9a1ec6243cae7ca5692d6c999db12d6f1a44c138265af188be7f6a",
+    "tests": 1058,
+    "passed": 1058,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 287.809,
+    "revision": "e71e33019f89633efdf00bc31a4eaa8cca655170"
   }
 }

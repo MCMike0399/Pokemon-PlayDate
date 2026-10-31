@@ -81,8 +81,8 @@ after Surf completion. Native regressions reproduce it; the shared input-phase
 guard passes boarding and ordinary Surf variants, plus existing normal Surf.
 43 targeted host checks pass; independent Standards/Spec fix rechecks both
 report no findings. B e71e3301 binds coverage to the reviewed correction with
-all rows/facets unchanged. Fresh compile/full-host run is live in exec61981;
-prior B0bc full-host green is not relabelled as the new result. [Evidence](safari-expiry-input-20261030.json).
+all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
+tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
 Census qualification: eight measured real-input trials, two deliberate geometry
