@@ -125,8 +125,8 @@ Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
 
-Isolated Reflect/Chip Away composition preserves producer14→15 history. Nine
-short SDK executions pass across eight cases, including both Surf expiry variants.
+Isolated Reflect/Chip Away composition preserves producer14→15 history. All25 existing shared-side cases also pass:34
+short SDK executions across33 names, including both Surf expiry variants.
 No adoption; independent review and coverage requalification remain.
 [Scope](reflect-private-b-native-20261030.json).
 
