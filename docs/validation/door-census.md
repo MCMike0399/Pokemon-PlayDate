@@ -103,12 +103,14 @@ owner lock encloses the run. There is one child process and no parallel runtime.
 Only its PID may be terminated; shutdown is confirmed before copying and removing
 private Data. Deadlines, production errors and incomplete tails remain failures.
 
-Each pair loads the copied earned slots through `GameSaves:continueGame`, keeping
-the existing session/specimen authority. Source-map positioning is an isolated
-fixture through normal `switchZone`, Overworld, provider/cache, WorldView, Player
-and NPC owners, outside traversal timing. The second trial preserves actual
-first-entry side effects within the pair. It does not promise identical quest
-state between trials. The next pair restores the earned session normally.
+Each bounded process loads the copied earned slots once through
+`GameSaves:continueGame`, keeping the existing session/specimen authority.
+Source-map positioning is an isolated fixture through normal `switchZone`,
+Overworld, provider/cache, WorldView, Player and NPC owners, outside traversal
+timing. Later trials and cases retain actual side effects within that process;
+independent seed state per pair is no longer claimed. Each row records this
+policy. Old pair-reset rows retain their original identities/context. Cache
+residency is always measured, never inferred from trial number.
 
 The actual traversal receives one frame of directional input at the same four
 SDK button-query seams used by existing diagnostics, followed by release. It
@@ -222,3 +224,13 @@ These are host-protection ceilings, not device memory or playability budgets.
 Current B differs from the earlier input only in dev projection fingerprints and
 reviewed coverage docs; compare the actual production manifests before combining
 results. The original stopped runs and all gaps remain visible.
+
+The first 64-case continuation hit its 1 GiB host ceiling after 21 rows and
+cleanly reaped its own child. The observer is therefore simplified further:
+load the real earned session once per bounded process, rather than repeatedly
+constructing a full replacement session for each portal pair. This changes the
+fixture-context policy, not production code. Keep the difference explicit when
+ranking old/new rows. A short continuation must verify the host bound before
+launching the rest. Root still needs to isolate any remaining native/SDK growth;
+no leak fix or device result is claimed. Guard failures retain a bounded
+`vmmap -summary` snapshot before owned-child cleanup.

@@ -253,6 +253,7 @@ def prepare(project, sdk, output, earned=None, only=None):
     identity = uuid.uuid4().hex
     config = dict(schema=1, build_id=identity, count=len(selected), earned=bool(earned),
                   classification=CLASSIFICATION, trials=2, max_frames=240,
+                  seed_restore_policy='once per bounded process; actual case effects retained',
                   gc_policy='explicit boundary GC plus loading-suspension collection at 8 MiB; diagnostic only')
     write_json(case_dir / 'config.json', config)
     seed = None
@@ -465,7 +466,16 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False):
                             size = row_file.stat().st_size if row_file.exists() else 0
                             if size != row_size:
                                 progress_at, row_size = time.monotonic(), size
-                            check_host_limits(footprint, time.monotonic() - progress_at)
+                            try:
+                                check_host_limits(footprint, time.monotonic() - progress_at)
+                            except RuntimeError:
+                                with (output / 'host-memory-summary.txt').open('w') as summary:
+                                    try:
+                                        subprocess.run(['vmmap', '-summary', str(process.pid)],
+                                            stdout=summary, stderr=subprocess.STDOUT, timeout=3)
+                                    except (OSError, subprocess.TimeoutExpired) as error:
+                                        summary.write(str(error))
+                                raise
                             trace = data / 'boot-trace.tsv'
                             if trace.exists():
                                 with trace.open() as source_trace:

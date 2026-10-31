@@ -14,6 +14,7 @@ function DoorCensus.install()
         left=playdate.kButtonLeft, right=playdate.kButtonRight}
     local held, pressed, released = 0, 0, 0
     local caseIndex, trial, written = 1, 1, 0
+    local seedRestored = false
     local item, row, approach
     local phase, age = "next", 0
     local measured, started, updateThread = false, nil, nil
@@ -176,6 +177,7 @@ function DoorCensus.install()
         row = {schema=1, build_id=cfg.build_id, id=item.id, case_index=caseIndex, trial=trial,
             classification=cfg.classification, source={name=item.source_name, key=item.source_key,
                 zone_id=item.source_id, x=item.x, y=item.y}, door_entries=0,
+            seed_restore_policy=cfg.seed_restore_policy,
             active_ms=0, max_segment_ms=0, step_completion_observed=false,
             pending_edge_observed=false, input_frames=0, trace_setup_begin=BootTrace.sequence}
         -- A missing earned input is explicit. Never manufacture badges, actors,
@@ -315,12 +317,13 @@ function DoorCensus.install()
             return
         end
         item = assert(json.decodeFile("census/" .. caseIndex .. ".json"))
-        -- Restore only through the existing save/session authority, once per
-        -- cold/warm pair. The second traversal observes any real first-entry
-        -- side effects; its cache label is measured, never assumed warm.
-        if cfg.earned then
+        -- Restore once through the existing save/session authority. The bounded
+        -- process retains actual case side effects and measured cache residency;
+        -- it does not construct another complete session for every portal pair.
+        if cfg.earned and not seedRestored then
             local ok, problem = game.saves:continueGame()
             assert(ok, type(problem) == "table" and problem.error or problem)
+            seedRestored = true
         end
         phase = "setup"
     end

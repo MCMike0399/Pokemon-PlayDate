@@ -84,10 +84,13 @@ First full exec 6850 is terminal: 26 trials then Game Corner's 9 MiB Simulator
 Lua guard. Fresh process reproduces it. Private loading-suspension collection
 allows both isolated Game Corner trials; production and hard guard unchanged.
 Extra GC is explicit and excludes hardware admission/production pacing claims.
-[Memory scope](door-census-memory-20261030.json). Corrected full run is live in
-exec **12747**, SDK PID **58418**, build `c5ac68e3`, evidence
-`door-census-B-full-20261030-02`: 2,445 cases × two trials, 14,400 s deadline.
-Attach that same handle; no parallel runtime or restart on observation timeout.
+[Memory scope](door-census-memory-20261030.json). Corrected monolithic exec12747/PID58418 is terminal: 866 rows, 292 measured/
+574 gaps; 4,024 trials unrun. It stalled in native Lua full GC with a reported
+61.3 GB host footprint. Root reaped only that owned child; partial evidence is
+retained. This is not a device crash or proven game leak.
+[Host stop](door-census-host-stop-20261030.json). Continue unreported pairs in
+fresh groups ≤64, with 1 GiB host footprint / 60 s no-row-progress ceilings.
+Compare production manifests before combining; no full census claim.
 B coverage was reviewed against current owners, inventories and historical blobs,
 then published privately in B0bc2e5fe. Fresh compile-only build and all **1,058
 host tests pass**, no errors/skips (412.325 s). Three projection failures required
