@@ -76,6 +76,11 @@ Long physical traversal and checkpoint showcase remain. [Protected](midgame-b-pr
 [static scope](midgame-b-new-visuals-20261030.json),
 [field motion](midgame-b-field-motion-20261030.json),
 [Safari presentation](midgame-b-safari-presentation-20261030.json).
+Safari correction recheck: Standards 0; Spec found held input bypassing expiry
+after Surf completion. Native regressions reproduce it; the shared input-phase
+guard passes boarding and ordinary Surf variants, plus existing normal Surf.
+43 targeted host checks pass. Private fix94c9c2f7/testsa447138b await independent
+recheck and current freshness/full-host validation. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
 Census qualification: eight measured real-input trials, two deliberate geometry
@@ -96,7 +101,8 @@ changes rejected. Panic documents retained malloc history, consistent with the
 host growth. Clear/off confirmation is pending; no pool or gate changed.
 User chose to retain 16 MiB and enable Accessibility for Clear automation.
 Trust is still false at last probe; no profiler-off path is authorized. Host
-helper compiles and seven rejection checks pass; actual AX labels/reclamation
+helper compiles and seven rejection checks pass. The private case-boundary pause/
+ack hook compiles with SDK3.1.2 and 16 host checks pass; actual AX labels/reclamation
 remain unverified. [Helper scope](malloc-history-helper-20261030.json).
 [Controls and limits](door-census-history-retention-20261030.json). Old paged-run
 timings do not establish a worst-door ranking. No SDK process remains running.

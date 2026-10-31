@@ -1,0 +1,145 @@
+{
+  "status": "Source correction and focused SDK regressions pass; independent fix rechecks pending.",
+  "base_commit": "0bc2e5fe8a79cda83602c7e754ad832e8c24ccff",
+  "implementation_commit": "94c9c2f70f25f6611207a784fd1b6b837db18523",
+  "test_commit": "a447138bffd411dea0c8f4432ff554f591e35b4a",
+  "problem": "Held direction could start another cell after expired Surf completion, before the next update processed Safari return.",
+  "change": "Explore handles pending Safari expiry before accepting any new field input, reusing SafariRuntime.check. Applies to boarding and ordinary field-step completion. No new counter/state owner or art change.",
+  "runs": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-surf-expiry-red-20261030-02/startup-probe.json",
+      "sha256": "5e642fe4a09b921929ed161c0e74d7ece5ad76a703d3bccc2e13d7e65e7917bf",
+      "expected_ok": false,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "error": "dev/fieldTravelContracts.lua:89: dev/fieldTravelContracts.lua:288: dev/fieldTravelContracts.lua:273: expired Surf accepted field input: root=overworld,moving=true,field=true",
+          "name": "field-travel: expired Surf takes input before held traversal",
+          "ok": false
+        }
+      ],
+      "compiled_source_sha256": "015eb77e4d2689373f83b33a31e6a3544218083d36ff4858e808bd05aea23508",
+      "main_pdz_sha256": "7fcd96d8df87d7773520b15504e939657dd6249f274a972cb468d43a924a8f54",
+      "scope": {
+        "expected_count": 1,
+        "production_file_sha256": "35bdd289b81c19f56b6b5639c58f82a0b0085dc7233e2282ce12c2c5bb3a8afb",
+        "selected": "field-travel: expired Surf takes input before held traversal",
+        "test_file_sha256": "1806a93173dd09be8d45763a4f6ba79e95784c0445d78aa5208d4990df9b0e0b"
+      },
+      "sampled_host_peak_bytes": 934250032
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-expiry-input-red-step-20261030-01/startup-probe.json",
+      "sha256": "30257b02c432ce955b4493b878c3682e3d64fc04311e800817600b401895416d",
+      "expected_ok": false,
+      "passed": 0,
+      "failed": 1,
+      "details": [
+        {
+          "error": "dev/fieldTravelContracts.lua:89: dev/fieldTravelContracts.lua:323: dev/fieldTravelContracts.lua:308: expired surf-step accepted field input: root=overworld,moving=true,field=false",
+          "name": "field-travel: expired Surf takes input before held traversal",
+          "ok": false
+        }
+      ],
+      "compiled_source_sha256": "deb1265a751275b8f03cc33fb78ece25f9d253f17a81749b19d45573135a526a",
+      "main_pdz_sha256": "ebae9fa4f0d437a360ed200c3694a043f814a0382b7475247f3025818a210c11",
+      "scope": {
+        "expected_count": 1,
+        "original_input_override": true,
+        "production_file_sha256": "35bdd289b81c19f56b6b5639c58f82a0b0085dc7233e2282ce12c2c5bb3a8afb",
+        "selected": "field-travel: expired Surf takes input before held traversal",
+        "selected_variant": "surf-step",
+        "staged_overworld_sha256": "3e252c13954012aaca93f99a86cd4693fd3947c6799c7d0883d75c1cbf6866e8",
+        "test_file_sha256": "dbe77b82dcc05b6496019b0ed7305b8a7e5072d06c326476ac3e0db8438655d0"
+      },
+      "sampled_host_peak_bytes": 939722264
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-expiry-input-green-boarding-20261030-02/startup-probe.json",
+      "sha256": "d37a4418900d884fb243b6b663208b053ffe24d860121f8ba6b40186cf706db8",
+      "expected_ok": true,
+      "passed": 1,
+      "failed": 0,
+      "details": [
+        {
+          "name": "field-travel: expired Surf takes input before held traversal",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "775bdb6082926cfd49bbb497c6b8431cda2e11432707911c1ac37221d8392599",
+      "main_pdz_sha256": "6a26910e498584d5ab7c4806fedf53a5a3a9c0d86f5c8c8322e9d8bf37ce8d57",
+      "scope": {
+        "expected_count": 1,
+        "original_input_override": false,
+        "production_file_sha256": "35bdd289b81c19f56b6b5639c58f82a0b0085dc7233e2282ce12c2c5bb3a8afb",
+        "selected": "field-travel: expired Surf takes input before held traversal",
+        "selected_variant": "boarding",
+        "staged_overworld_sha256": "cdff3686eef06d6314a67eaaa155d258fa15ea862f19d552760ebe40b93a1e69",
+        "test_file_sha256": "2de74e41de72f054644e16df7d252554eb6fca330410de5a383233b9d8596410"
+      },
+      "sampled_host_peak_bytes": 935331352
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-expiry-input-green-step-20261030-02/startup-probe.json",
+      "sha256": "7560ecf8baf3f42f6973b1404f367aa4dd66a98735c73faac4b551771a1b8803",
+      "expected_ok": true,
+      "passed": 1,
+      "failed": 0,
+      "details": [
+        {
+          "name": "field-travel: expired Surf takes input before held traversal",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "4a3a48787cd60695312655f7f23648c6a91dc9d1dccb4420f6aad5fa2af780f6",
+      "main_pdz_sha256": "78b349607567047480ab8140f592b898af6d1bc842a1eda5fbe151615e405008",
+      "scope": {
+        "expected_count": 1,
+        "original_input_override": false,
+        "production_file_sha256": "35bdd289b81c19f56b6b5639c58f82a0b0085dc7233e2282ce12c2c5bb3a8afb",
+        "selected": "field-travel: expired Surf takes input before held traversal",
+        "selected_variant": "surf-step",
+        "staged_overworld_sha256": "cdff3686eef06d6314a67eaaa155d258fa15ea862f19d552760ebe40b93a1e69",
+        "test_file_sha256": "2de74e41de72f054644e16df7d252554eb6fca330410de5a383233b9d8596410"
+      },
+      "sampled_host_peak_bytes": 944850456
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-expiry-original-surf-green-20261030-01/startup-probe.json",
+      "sha256": "830d93deac0ba30c089df6ba5989bac6cde2ce0d56f81f9562f0c81a56029630",
+      "expected_ok": true,
+      "passed": 1,
+      "failed": 0,
+      "details": [
+        {
+          "name": "field-travel: Surf enters water, lands, and respects source pair barriers",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "d3ce220125b52b6ed5d0162ab132fa833afa996f85cde02bcef32fae9014c7bc",
+      "main_pdz_sha256": "7a1aabe6d48719b470d05efc7ed79bd61fbfe858d3f516f5681e783c51e9a725",
+      "scope": {
+        "expected_count": 1,
+        "original_input_override": false,
+        "production_file_sha256": "35bdd289b81c19f56b6b5639c58f82a0b0085dc7233e2282ce12c2c5bb3a8afb",
+        "selected": "field-travel: Surf enters water, lands, and respects source pair barriers",
+        "selected_variant": "boarding",
+        "staged_overworld_sha256": "cdff3686eef06d6314a67eaaa155d258fa15ea862f19d552760ebe40b93a1e69",
+        "test_file_sha256": "dbe77b82dcc05b6496019b0ed7305b8a7e5072d06c326476ac3e0db8438655d0"
+      },
+      "sampled_host_peak_bytes": 451642568
+    }
+  ],
+  "host_checks": {
+    "tests": 43,
+    "passed": 43,
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-expiry-targeted-host-20261030-01.log"
+  },
+  "test_scope": "One added SDK behavior contract, with boarding/surf-step variants run in separate short guarded processes to bound profiler history. Existing normal Surf/landing/source barriers contract also passes. Harness fixture support enabled only after qualified production boot; no campaign/hardware or latency acceptance.",
+  "excluded_attempts": [
+    "safari-surf-expiry-red-20261030-01 was an unsettled-fixture rejection, not the behavior repro.",
+    "safari-surf-expiry-green-20261030-01 proved a provisional boarding-only call; final implementation uses the shared input phase instead."
+  ],
+  "limits": "All short runs use existing 16 MiB setting and a 1 GiB sampled host guard. Actual expiry-warp presentation and B long traversal remain separate existing-owner/release gates. Full host green at B0bc2e5fe predates this correction; rerun/check freshness before acceptance."
+}

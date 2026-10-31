@@ -1,5 +1,5 @@
 {
-  "status": "Host helper integrated; runtime wiring and AX behavior remain unexecuted.",
+  "status": "Host/helper and private pause/ack integration complete; actual AX behavior and memory reclamation remain unexecuted.",
   "implementation_commits": [
     "59a248ef",
     "5ff00138"
@@ -14,9 +14,14 @@
   "pending": [
     "Verify Accessibility in executing helper",
     "Inspect actual SDK AX labels under owned runtime",
-    "Integrate safe boundary pause/ack and retain clear overhead",
     "Confirm actual host-memory reclamation while pool remains 16 MiB",
     "Complete reliable census, physical resource traversal and release gates"
   ],
-  "limits": "Compile/rejection checks do not establish live lock-reporting compatibility, successful Clear, memory improvement, Simulator safety or hardware acceptance."
+  "limits": "Compile/rejection checks do not establish live lock-reporting compatibility, successful Clear, memory improvement, Simulator safety or hardware acceptance.",
+  "integration_commit": "4b9ed610",
+  "integration_checks": {
+    "host_checks": 16,
+    "compile_receipt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-hook-compile-20261030-01/receipt.json",
+    "scope": "Compile-only private observer overlay on retained B production tree; not current B runtime/admission."
+  }
 }
