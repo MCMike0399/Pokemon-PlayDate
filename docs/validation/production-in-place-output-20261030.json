@@ -1,0 +1,13 @@
+{
+  "status": "Production publication correction passes real SDK compile-boundary checks.",
+  "problem": "output equal to stage/Production.pdx was deleted before copytree read it, producing FileNotFoundError.",
+  "correction": "Keep the freshly compiled retained bundle in place when resolved source/output paths match; preserve ordinary fresh external publication.",
+  "original_failure": "evidence/b149-candidate-production-20261030-01/build.log and command failure retained; corrected layout succeeded separately in attempt02.",
+  "host_tests": 6,
+  "passed": 6,
+  "seconds": 24.639,
+  "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-in-place-output-host-20261030-01.log",
+  "sha256": "90a2ac33b4ed96f8a3386c4b9837074168d21cdfd90519b188682d9485ea2663",
+  "new_test": "test_retained_bundle_can_be_the_published_output uses real SDK3.1.2 pdc and validates main PDZ/production exclusion/build metadata.",
+  "scope": "Host/staging only. No game Source, gates, OS preferences, Simulator/device execution, saved state or protected art changed."
+}
