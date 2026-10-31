@@ -3,6 +3,9 @@
 Updated 2026-10-30. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
+Main host audit:1,091 tests/four freshness failures. Three projection failures
+repaired in d9cbc001;51 targeted checks pass. Coverage review remains before
+full-main green. [Audit](main-host-after-tools-20261030.json).
 Last authorized push includes `cbd91c96`; subsequent commits are local.
 
 ## Accepted on main
