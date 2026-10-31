@@ -125,6 +125,11 @@ Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
 
+Isolated Reflect/Chip Away composition preserves producer14→15 history. Nine
+short SDK executions pass across eight cases, including both Surf expiry variants.
+No adoption; independent review and coverage requalification remain.
+[Scope](reflect-private-b-native-20261030.json).
+
 ## Memory, audio and storage
 
 60+60-minute hardware idle soak passes: 120 samples, title 4.08 MiB, overworld
