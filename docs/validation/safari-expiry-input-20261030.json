@@ -1,5 +1,5 @@
 {
-  "status": "Source correction and focused SDK regressions pass; independent fix rechecks pending.",
+  "status": "Independent Standards/Spec rechecks report no findings; focused SDK regressions pass. Full corrected-B host validation pending.",
   "base_commit": "0bc2e5fe8a79cda83602c7e754ad832e8c24ccff",
   "implementation_commit": "94c9c2f70f25f6611207a784fd1b6b837db18523",
   "test_commit": "a447138bffd411dea0c8f4432ff554f591e35b4a",
@@ -141,5 +141,16 @@
     "safari-surf-expiry-red-20261030-01 was an unsettled-fixture rejection, not the behavior repro.",
     "safari-surf-expiry-green-20261030-01 proved a provisional boarding-only call; final implementation uses the shared input phase instead."
   ],
-  "limits": "All short runs use existing 16 MiB setting and a 1 GiB sampled host guard. Actual expiry-warp presentation and B long traversal remain separate existing-owner/release gates. Full host green at B0bc2e5fe predates this correction; rerun/check freshness before acceptance."
+  "limits": "All short runs use existing 16 MiB setting and a 1 GiB sampled host guard. Actual expiry-warp presentation and B long traversal remain separate existing-owner/release gates. Full host green at B0bc2e5fe predates this correction; rerun/check freshness before acceptance.",
+  "fix_reviews": {
+    "standards": {
+      "findings": 0,
+      "thread": "thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3A7452f90d-0dff-400f-88c2-1a94679ac3de"
+    },
+    "spec": {
+      "findings": 0,
+      "thread": "thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3Accf4828a-aa8c-4256-99e4-00bf2272fc48"
+    },
+    "scope": "Read-only Source correction rechecks, not independent runtime reproduction or full B acceptance."
+  }
 }

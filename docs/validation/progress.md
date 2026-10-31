@@ -79,8 +79,10 @@ Long physical traversal and checkpoint showcase remain. [Protected](midgame-b-pr
 Safari correction recheck: Standards 0; Spec found held input bypassing expiry
 after Surf completion. Native regressions reproduce it; the shared input-phase
 guard passes boarding and ordinary Surf variants, plus existing normal Surf.
-43 targeted host checks pass. Private fix94c9c2f7/testsa447138b await independent
-recheck and current freshness/full-host validation. [Evidence](safari-expiry-input-20261030.json).
+43 targeted host checks pass; independent Standards/Spec fix rechecks both
+report no findings. B e71e3301 binds coverage to the reviewed correction with
+all rows/facets unchanged. Fresh compile/full-host run is live in exec61981;
+prior B0bc full-host green is not relabelled as the new result. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
 Census qualification: eight measured real-input trials, two deliberate geometry
