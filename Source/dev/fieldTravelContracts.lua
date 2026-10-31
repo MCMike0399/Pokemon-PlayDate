@@ -46,6 +46,7 @@ local function runtimeScene(fn)
                 g.machine:register("overworld", OverworldState(g))
                 g.machine:register("party", PartyState(g))
                 g.machine:register("fieldTravel", FieldTravelState(g))
+                g.machine:register("safariPassage", SafariPassageState(g))
                 fn(g, mon, provider)
             end)
         end)
@@ -109,6 +110,20 @@ local function bank(zone)
         end
     end
     error("source Fuchsia bank witness missing")
+end
+
+local function safariBank(fn)
+    runtimeScene(function(g, mon, provider)
+        local gate = SourceMaps.entry("SafariZoneGate")
+        currentZone = provider:ensure(gate.key)
+        g.machine:change("overworld", {entry={x=4+gate.padding, y=2, facing="up"}})
+        local admission = assert(SafariGame.admit(g.session:safariData(), g.session:inventory():money()))
+        assert(g.session:commitSafari(admission, g.session:fieldWorldEpoch()))
+        currentZone = provider:ensure(SourceMaps.entry("SafariZoneCenter").key)
+        local entry = bank(currentZone)
+        g.machine:change("overworld", {entry=entry})
+        fn(g, mon, entry)
+    end)
 end
 
 function FieldTravelContracts.run()
@@ -202,15 +217,7 @@ function FieldTravelContracts.run()
             assert(g.player.gridX == origin.x and g.player.gridY == origin.y)
             assert(FieldMoves.same(g.session:fieldTravelData(), before))
         end)
-        runtimeScene(function(g, mon, provider)
-            local gate = SourceMaps.entry("SafariZoneGate")
-            currentZone = provider:ensure(gate.key)
-            g.machine:change("overworld", {entry={x=4+gate.padding, y=2, facing="up"}})
-            local admission = assert(SafariGame.admit(g.session:safariData(), g.session:inventory():money()))
-            assert(g.session:commitSafari(admission, g.session:fieldWorldEpoch()))
-            currentZone = provider:ensure(SourceMaps.entry("SafariZoneCenter").key)
-            local entry = bank(currentZone)
-            g.machine:change("overworld", {entry=entry})
+        safariBank(function(g, mon)
             local before = g.session:safariData().steps
             g.machine:push("party")
             local party = g.machine:get("party")
@@ -229,6 +236,90 @@ function FieldTravelContracts.run()
             assert(not SafariRuntime.completedStep(g), "Safari Surf boarding was counted twice")
             assert(g.session:safariData().steps == before-1)
         end)
+    end)
+
+    local expiryKinds <const> = {"boarding", "surf-step"}
+    test("field-travel: expired Surf takes input before held traversal", function()
+        for _, kind in ipairs(expiryKinds) do
+            safariBank(function(g, mon, entry)
+                local function beginBoarding()
+                    g.machine:push("party")
+                    local party = g.machine:get("party")
+                    party:actions()
+                    assert(FieldTravelState.open(g, party, mon, "surf"))
+                    local state = g.machine:get("fieldTravel")
+                    state.menu.onSelect(2)
+                    state:complete()
+                    return state
+                end
+                if kind == "surf-step" then
+                    local boarding = beginBoarding()
+                    for _ = 1, 8 do
+                        boarding:update()
+                    end
+                end
+                while g.session:safariData().steps > 0 do
+                    local step = assert(SafariGame.step(g.session:safariData()))
+                    assert(g.session:commitSafari(step, g.session:fieldWorldEpoch()))
+                end
+                assert(g.session:safariData().ending == "none")
+                local state
+                local buttons <const> = {
+                    up={0, -1, playdate.kButtonUp}, down={0, 1, playdate.kButtonDown},
+                    left={-1, 0, playdate.kButtonLeft}, right={1, 0, playdate.kButtonRight}
+                }
+                local opposite <const> = {up="down", down="up", left="right", right="left"}
+                local held
+                if kind == "boarding" then
+                    state = beginBoarding()
+                    held = buttons[opposite[entry.facing]][3]
+                else
+                    local back = buttons[opposite[entry.facing]]
+                    g.player:tryMove(back[1], back[2])
+                    assert(g.player.fieldStep, "ordinary Surf landing witness missing")
+                    for _, direction in ipairs({"up", "down", "left", "right"}) do
+                        local delta = buttons[direction]
+                        local x, y = entry.x + delta[1], entry.y + delta[2]
+                        if g.player:canMoveTo(x, y) and currentZone:terrainAt(x, y).land_passable
+                            and not g.npcManager:getNPCAt(x, y) then
+                            held = delta[3]
+                            break
+                        end
+                    end
+                    assert(held, "passable shore continuation witness missing")
+                end
+                local previousPressed <const> = playdate.buttonIsPressed
+                playdate.buttonIsPressed = function(button)
+                    return button == held
+                end
+                local accepted, problem = pcall(function()
+                    for _ = 1, 8 do
+                        if state then
+                            state:update()
+                        else
+                            g.machine:update()
+                        end
+                    end
+                    assert(g.session:safariData().ending == "steps")
+                    g.machine:handleInput()
+                    assert(g.machine:getCurrent() == "safariPassage"
+                        and not g.player.isMoving and not g.player.fieldStep,
+                        "expired " .. kind .. " accepted field input: root=" .. tostring(g.machine:getCurrent())
+                            .. ",moving=" .. tostring(g.player.isMoving)
+                            .. ",field=" .. tostring(g.player.fieldStep ~= nil))
+                    local position = FieldTravelRuntime.position(g)
+                    local sequence = SafariRuntime.observe(g).lastStep.sequence
+                    for _ = 1, 10 do
+                        g.machine:update()
+                        g.machine:handleInput()
+                    end
+                    assert(FieldMoves.same(FieldTravelRuntime.position(g), position))
+                    assert(SafariRuntime.observe(g).lastStep.sequence == sequence)
+                end)
+                playdate.buttonIsPressed = previousPressed
+                assert(accepted, problem)
+            end)
+        end
     end)
 
     test("field-travel: Fly uses durable visited cities without granting route destinations", function()

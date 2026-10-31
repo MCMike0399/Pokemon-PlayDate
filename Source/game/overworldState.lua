@@ -204,6 +204,9 @@ end
 
 function ExploreSubstate:handleInput()
     local game = self.owner.game
+    if SafariRuntime and SafariRuntime.check(game) then
+        return
+    end
     local player = game.player
     local direction = playdate.buttonIsPressed(playdate.kButtonUp)
         or playdate.buttonIsPressed(playdate.kButtonDown)
