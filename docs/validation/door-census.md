@@ -4,7 +4,7 @@ This is a compile-only preparation for root. It is not runtime evidence or an
 acceptance record. No Simulator, GUI, runtime lock, serial, USB, device command,
 canonical save, production module or existing ledger was touched during preparation.
 
-The input is exactly `0bc2e5fe8a79cda83602c7e754ad832e8c24ccff`, whose existing
+The input is exactly `e71e33019f89633efdf00bc31a4eaa8cca655170`, whose existing
 checkout is `/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-2c976160`.
 Run the tool from the implementation checkout. Its `--project` is a read-only
 production input, not the location from which it obtains the new observer.
@@ -254,3 +254,10 @@ completed rows or attributed to transitions. Malformed/stale ack, helper/hash
 failure, timeout or unchanged safety guards stop the owned child. Reclamation
 and actual AX labels are still unverified. See
 `tools/harness/malloc_history_clear.md`. No profiler-off fallback is authorized.
+
+Current Root qualification preparation (no execution):
+`evidence/history-clear-census-qualification-prepare-20261030-01`, build
+`731762e570bb408cb66cc17e9788585f`, six selected cases including Game Corner.
+This uses reviewed Safari-corrected B e71e3301. Old paged-run timings cannot be
+merged as equivalent performance evidence. Actual Accessibility, UI labels,
+history reclamation and full census remain pending.

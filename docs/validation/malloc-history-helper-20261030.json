@@ -23,5 +23,15 @@
     "host_checks": 16,
     "compile_receipt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-hook-compile-20261030-01/receipt.json",
     "scope": "Compile-only private observer overlay on retained B production tree; not current B runtime/admission."
+  },
+  "current_B_compile_packet": {
+    "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-census-qualification-prepare-20261030-01/build.json",
+    "build_sha256": "751c210bed16ee08f7d225e90f3efbd5413882571003a87d170dcb68b5cbf332",
+    "build_id": "731762e570bb408cb66cc17e9788585f",
+    "revision": "e71e33019f89633efdf00bc31a4eaa8cca655170",
+    "selected_cases": 6,
+    "history_clear": true,
+    "production_source_sha256": "03f3cab49e86a8bcf5d9a84c94ab5a63767d307704f6caa41742625fa0a50771",
+    "runtime_executed": false
   }
 }

@@ -22,7 +22,7 @@ import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED = '0bc2e5fe8a79cda83602c7e754ad832e8c24ccff'
+EXPECTED = 'e71e33019f89633efdf00bc31a4eaa8cca655170'
 DIRECTIONS = {'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
 CARDINAL = {'north': 'up', 'south': 'down', 'west': 'left', 'east': 'right'}
 CLASSIFICATION = 'isolated setup plus real portal input; not natural journey, earned traversal or device acceptance'
