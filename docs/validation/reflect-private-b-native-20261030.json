@@ -1,0 +1,222 @@
+{
+  "status": "Isolated B composition: 34 SDK executions pass across 33 named cases, including all25 existing shared side-condition cases; no adoption or campaign/device acceptance.",
+  "base": "e71e33019f89633efdf00bc31a4eaa8cca655170",
+  "implementation": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+  "checkout_head": "047d7750dd865e1b717af813804d3f679b9aa272",
+  "producer_history": "Chip Away remains epoch14; Reflect adds epoch15. Original legacy inverse and 424 non-Reflect rows preserved by worker host proof.",
+  "runs": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-b-native-20261030-01/startup-probe.json",
+      "report_sha256": "6c4b3383e5830062ad859d846ecb468d744d9f2716aadef196218beea8e3a6d7",
+      "passed": 7,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "GenV Chip Away ignores target stages while retaining attacker stages and ordinary hit gates",
+          "ok": true
+        },
+        {
+          "name": "Reflect actual producer consumes PP and expires on its fifth use-turn residual",
+          "ok": true
+        },
+        {
+          "name": "Reflect stays behind ordinary sleep flinch and empty PP gates",
+          "ok": true
+        },
+        {
+          "name": "Reflect halves physical damage with GenV final half-down rounding only",
+          "ok": true
+        },
+        {
+          "name": "Reflect critical hits bypass the real damage modifier without removing the screen",
+          "ok": true
+        },
+        {
+          "name": "Reflect and LightScreen honor declared infiltrates without an ability producer",
+          "ok": true
+        },
+        {
+          "name": "Reflect shares side timer ordering and survives member cleanup but never battle exit",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "80ff57c510a8fef271125f3dfc417e0bf8f5b71c4968fa07735ab12d8af96adc",
+      "main_pdz_sha256": "1f526798a69fb7e883c3a9f71a4157434d6e2b9037959e52a859a5b4658f6b45",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 170607624
+      }
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-b-surf-boarding-20261030-01/startup-probe.json",
+      "report_sha256": "7939b38a2e17bdcfa5b052eea4482d6644735aa431432954f1a6bde5d6748f83",
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "field-travel: expired Surf takes input before held traversal",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "5c5cba56dfc607d5b4d33bfbd9443b7dbfd6e071a91b9f52c7dd1447b707fbe3",
+      "main_pdz_sha256": "080f634af788e263b089447b9e06a2fe2b27dd1b55ab37d47d8353b98d3501f5",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 936560176
+      }
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-b-surf-step-20261030-01/startup-probe.json",
+      "report_sha256": "22fbe8c0e40d6e9ede2a363ad7b6011fe3395124211ebe6f3fbd365f41b3d6c9",
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "field-travel: expired Surf takes input before held traversal",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "735e9a13941d98b72dd75a3d24996cb5a08cddec81f16fd8ee391358bc153300",
+      "main_pdz_sha256": "ae4e47f9ce0bc4a607cf402fc64d536828bd6b2d22df8a2f8c6a9d807e122143",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 943605296
+      }
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/reflect-b-shared-sides-20261030-01/startup-probe.json",
+      "report_sha256": "4c919b8ddcdb89bfe75d16eec36c734230888f97dc6e8d5bab8436cc8baecbf6",
+      "passed": 25,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "Exact three side producers preserve target4 GenVPP30 25 30 and priorities",
+          "ok": true
+        },
+        {
+          "name": "Actual side producers tick5 5 4 once perround and refuse timer refresh",
+          "ok": true
+        },
+        {
+          "name": "Unsupported family names and unowned source reject without side allocation or RNG",
+          "ok": true
+        },
+        {
+          "name": "Side snapshots foreignmon and pure speed/damage queries are inert",
+          "ok": true
+        },
+        {
+          "name": "Actual shared effectiveSpeed doubles BEFORE GenVparalysisfloor with minimum1",
+          "ok": true
+        },
+        {
+          "name": "GenV turn queue remains frozen and only next command uses new Tailwind speed",
+          "ok": true
+        },
+        {
+          "name": "ElectroBall pure power immediately shares active side speed without mutation",
+          "ok": true
+        },
+        {
+          "name": "Side timers use own suborders and exactly one pairedside tie perkind not activeSpeed",
+          "ok": true
+        },
+        {
+          "name": "Side expiry follows weather and status, and stale duplicate timer events cannot tick",
+          "ok": true
+        },
+        {
+          "name": "LightScreen exact final modifier halves15 to7; physical fixed crit self bypass",
+          "ok": true
+        },
+        {
+          "name": "Natural Pikachu100 screen vs Sandshrew11 Swift is actual successful0HP hit",
+          "ok": true
+        },
+        {
+          "name": "ZeroHP contact hit starts real rampage and samples Static with no HP ledger",
+          "ok": true
+        },
+        {
+          "name": "Successful zeroHP Swift builds living Rage receiver while HP ledgers stay unchanged",
+          "ok": true
+        },
+        {
+          "name": "Protect miss immunity and forged/dead receipts remain nonhits not0HP successes",
+          "ok": true
+        },
+        {
+          "name": "Safeguard blocks opponent primary majors/confusion before duration but not flinch",
+          "ok": true
+        },
+        {
+          "name": "Ability immunity including WorrySeed Insomnia precedes Safeguard without duration RNG",
+          "ok": true
+        },
+        {
+          "name": "Source-self sleep and late residual fatigue pass Safeguard with explicit provenance",
+          "ok": true
+        },
+        {
+          "name": "New Safeguard never cures existing major/confusion or stops existing status damage",
+          "ok": true
+        },
+        {
+          "name": "Contact dealer is concrete opponent evenKO; Safeguard stops ability status not chance",
+          "ok": true
+        },
+        {
+          "name": "Origin schema rejects malformed source cause before effect mutation",
+          "ok": true
+        },
+        {
+          "name": "RapidSpin removes only hazards and bindings while preserving all side timers",
+          "ok": true
+        },
+        {
+          "name": "Actual switch and forced faint preserve side owner lifetime until exit",
+          "ok": true
+        },
+        {
+          "name": "Actual ToxicSpikes setter origin persists after KO inactive replacement and guards entry",
+          "ok": true
+        },
+        {
+          "name": "Poison absorber removes ToxicSpikes origin even while Safeguard remains active",
+          "ok": true
+        },
+        {
+          "name": "Native scene draws and codecpersistence never tick side or copy volatile records",
+          "ok": true
+        }
+      ],
+      "compiled_source_sha256": "ccc31d95bbd23b321b8f4148b5897f73e7899c7459db2059c1bbbde8a2412f4f",
+      "main_pdz_sha256": "e225d550d6e61eb9e52a381504c0830778e78184ddb1fcc0c49fe430ebe24d9e",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 183616496
+      }
+    }
+  ],
+  "scope": "Root-owned SDK3.1.2 short 16MiB production startup followed by enabled existing fixtures; 1GiB sampled host ceiling. Surf expiry variants run in separate processes. No hardware, pacing, visual or earned journey proof. Existing shared-side suite retains all25 cases and assertions, including LightScreen, Safeguard, Tailwind, side lifetime and RNG boundaries.",
+  "remaining": [
+    "Coverage requalification before adoption; both independent review axes report no findings.",
+    "Coverage requalification before adoption",
+    "B release resources, door/cave latency and showcase gates remain open"
+  ],
+  "unchanged": "Actual B/main/C Source and canonical saves unchanged; nothing pushed.",
+  "reviews": {
+    "standards": {
+      "thread": "thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3Ab1c2e2af-a6f0-4389-8983-478f34987797",
+      "candidate": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+      "findings": 0,
+      "scope": "Static changed-hunk standards and optional heuristics review; no runtime reproduction."
+    },
+    "spec": {
+      "thread": "thread:delegated-task:command%3Amcp%3Ac96ee915-6324-478f-9014-24840ebc2b1a%3Adelegate-task%3A452706b6-aa55-4bab-a10c-0a9324406b7d",
+      "candidate": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+      "findings": 0,
+      "scope": "Static source/oracle and producer-history review; no runtime reproduction."
+    }
+  }
+}
