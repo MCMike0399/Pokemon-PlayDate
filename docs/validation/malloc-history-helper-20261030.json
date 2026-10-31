@@ -1,0 +1,22 @@
+{
+  "status": "Host helper integrated; runtime wiring and AX behavior remain unexecuted.",
+  "implementation_commits": [
+    "59a248ef",
+    "5ff00138"
+  ],
+  "receipt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/malloc-history-helper-root-20261030-01/receipt.json",
+  "receipt_sha256": "bbb1e87edce93f3fb73501a3a21a767365c97d07da2657eac565270356094db4",
+  "host_checks": 7,
+  "compile": "swiftc -O -warnings-as-errors passed",
+  "actual_trust": "AXIsProcessTrusted still false at last direct probe; no prompt requested.",
+  "user_policy": "Keep 16 MiB; user will enable Accessibility. No profiler-off authorization.",
+  "identity_scope": "Exact SDK binary, PDX inventory, live executable/argv/PID/start/parent and global runtime/device plus private Data locks required.",
+  "pending": [
+    "Verify Accessibility in executing helper",
+    "Inspect actual SDK AX labels under owned runtime",
+    "Integrate safe boundary pause/ack and retain clear overhead",
+    "Confirm actual host-memory reclamation while pool remains 16 MiB",
+    "Complete reliable census, physical resource traversal and release gates"
+  ],
+  "limits": "Compile/rejection checks do not establish live lock-reporting compatibility, successful Clear, memory improvement, Simulator safety or hardware acceptance."
+}
