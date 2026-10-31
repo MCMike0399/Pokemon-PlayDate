@@ -1,5 +1,5 @@
 {
-  "status": "Main full audit completed; projection freshness repaired, coverage review pending.",
+  "status": "Reviewed main coverage and current host suite pass after projection/publication corrections. No new gameplay/device acceptance.",
   "input_commit": "8b1ca24a",
   "full_audit": {
     "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-host-after-b-tools-20261030-01.log",
@@ -20,6 +20,20 @@
     "passed": 51,
     "seconds": 13.251
   },
-  "remaining": "Review main coverage Source delta/evidence before current fingerprint publication; no hash-only relabel, no borrowing private B acceptance. Then full host rerun.",
-  "runtime": "Host/compile checks only; no Simulator/device runtime or OS permission changes."
+  "remaining": "History-clear qualification, reliable census/worst-five hardware, B long resources/showcase/acceptance, remaining campaign/rules/audio/release.",
+  "runtime": "Host/compile checks only; no Simulator/device runtime or OS permission changes.",
+  "reviewed_full_run": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-host-reviewed-coverage-20261030-01/host.log",
+    "sha256": "b8c8d84bfb43576db98cf677beac14b5f852433c1c3dd33523537c440c929b59",
+    "tests": 1092,
+    "passed": 1092,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 261.205,
+    "compile_only_bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-host-reviewed-coverage-20261030-01/bundle",
+    "source_pin": "d9cbc0018f8f2004f54e8d88b9d6e95e6e2208b8",
+    "coverage_publication": "9c63a5c5",
+    "tool_publication_fix": "ed0dfb02"
+  }
 }
