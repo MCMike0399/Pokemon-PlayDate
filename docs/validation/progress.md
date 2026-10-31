@@ -88,10 +88,14 @@ Extra GC is explicit and excludes hardware admission/production pacing claims.
 exec **12747**, SDK PID **58418**, build `c5ac68e3`, evidence
 `door-census-B-full-20261030-02`: 2,445 cases × two trials, 14,400 s deadline.
 Attach that same handle; no parallel runtime or restart on observation timeout.
-B host audit exec77627 is terminal: 1,058 tests, four failures, no errors/skips.
-Three stale projection failures are repaired in private B64512fa7; all 65 targeted
-checks pass. Coverage freshness still requires review, not a hash-only relabel.
-[Audit](midgame-b-host-audit-20261030.json).
+B coverage was reviewed against current owners, inventories and historical blobs,
+then published privately in B0bc2e5fe. Fresh compile-only build and all **1,058
+host tests pass**, no errors/skips (412.325 s). Three projection failures required
+only dependency hashes, with Cerulean regenerated before Vermilion. No accepted
+journey evidence was relabelled. [Audit](midgame-b-host-audit-20261030.json).
+Provisional per-phase active ratios are fitted from the same exact build's three
+Simulator/device doors, for census ranking only. Residual waits and private GC
+are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
 
 ## Memory, audio and storage
 

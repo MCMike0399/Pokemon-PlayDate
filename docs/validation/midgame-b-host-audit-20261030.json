@@ -1,5 +1,5 @@
 {
-  "status": "Full current-B host audit completed; three projection failures repaired with targeted verification. Coverage freshness still pending review.",
+  "status": "Reviewed private B coverage published after fresh compile-only and full host pass. Runtime and B acceptance remain open.",
   "input_revision": "76559ac87b210a2e71c0520a1da3f8059a9e8d9c",
   "full_run": {
     "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-host-current-kanto-20261030-01.log",
@@ -26,6 +26,18 @@
     "seconds": 15.247
   },
   "generated_value_comparison": "Only sources hash entries changed; gameplay projections are recursively identical. Original generated comparison is evidence/m55b-host-projection-refresh-20261030-01/changed-paths.json. Both installed generators now pass --check.",
-  "remaining": "Coverage matrix must be reviewed against current Source and evidence, not relabelled by changing its fingerprint. No full-suite green claim until that is resolved and rerun.",
-  "runtime_scope": "No Simulator/device execution by this audit. Existing census stage stays pinned to its archived B76559ac8 input; new private B64512fa7 changes only generated dev dependencies. Canonical journey evidence and save slots untouched."
+  "remaining": "Current-B physical traversal/resources, worst-door and cave latency, showcase and release review. Full host green is not campaign/device acceptance.",
+  "runtime_scope": "No Simulator/device execution by this audit. Existing census stage stays pinned to its archived B76559ac8 input; new private B64512fa7 changes only generated dev dependencies. Canonical journey evidence and save slots untouched.",
+  "reviewed_full_run": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-coverage-host-reviewed-20261030-01/host.log",
+    "sha256": "314251196e94c104a11da726d6e5e6488cfd849200da49170d961b33c4ab135c",
+    "tests": 1058,
+    "passed": 1058,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 412.325,
+    "compile_only_bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-coverage-host-reviewed-20261030-01/bundle",
+    "B_publication_commit": "0bc2e5fe8a79cda83602c7e754ad832e8c24ccff"
+  }
 }

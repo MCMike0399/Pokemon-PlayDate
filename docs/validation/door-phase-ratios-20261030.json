@@ -1,0 +1,9 @@
+{
+  "status": "Provisional sub-phase calibration prepared for census ranking; physical worst-five tests pending.",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-phase-ratios-149-20261030-01/ratios.json",
+  "sha256": "e3ae80757cb11bf827bf2a961732513426b4c8a6814bdf247a3b1d283337ca9e",
+  "build_id": "3d62a607d2d543b4904876c9323662f2",
+  "matching": "Exact same PDX, earned seed and three frozen door inputs on Simulator and device.",
+  "method": "Active elapsed intersected with nonoverlapping BootTrace sub-phases; weighted device/Simulator ratio over matched samples. Residual/fade/waits and private census GC are not multiplied.",
+  "scope": "Three doors only; preserve observed ratio ranges. The census uses a different B-earned session and diagnostic collection cadence. Do not treat rankings as device timing, multiply full wall time by a CPU factor, or score playability from these estimates."
+}
