@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "private_b_head": "00ce443a32f183599ab073d5944905fdd8c19c0e",
+  "base": "10cb9572f8db3979fd7d3b1ddf517277008b4eeb",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-hm-stage-reset-native-20261101-03/startup-probe.json",
+  "report_sha256": "b398cd480b8de51793d1910631361296798b22aedc147cd4e8377379e55a6e5c",
+  "passed": 34,
+  "failed": 0,
+  "suites": [
+    {
+      "failed": 0,
+      "id": "hm-battle",
+      "passed": 25
+    },
+    {
+      "failed": 0,
+      "id": "stage-reset",
+      "passed": 9
+    }
+  ],
+  "red_scope": "First owner call used invalid contracts arguments; no cases ran. Next run33/34: enemyParty fixture lacked trainerName and constructor rejected it before move execution. Fixed helper supplies trainerName; all assertions retained.",
+  "runtime": "Actual SDK3.1.2,16MB, qualified production boot then isolated contract fixtures,1GiB sampled host guard. No fake SDK/rules engine.",
+  "acceptance": "Rules reviews and existing regressions pending; not B/campaign/device acceptance. Epoch16 fixture reconciliation remains."
+}
