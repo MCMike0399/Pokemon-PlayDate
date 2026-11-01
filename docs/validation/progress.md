@@ -113,7 +113,9 @@ the5s guard; error/crash logs unchanged and keeper restored. Fuchsia entry also
 takes15.034s. B hardware safety remains open; no globalworst claim. Narrow
 boundary reproduction localizes7.109s insideSourceBindings.prepare; explicitGC
 <1ms and draw103ms. Keeper restored, no newlogs. Actor/key/content lookups are
-next; no production fix selected. [Failure](ranked-doors-route17-stop-20261101.json).
+next. Follow-up localizes7.045s to24bundleJSONreads; keylookup36ms. Buffering
+the samePDX-only handle is the next measured candidate; notyetadopted.
+[Failure and attribution](ranked-doors-route17-stop-20261101.json).
 Shipped-GC device cycle completes without new logs; keeper restored: boot12.477s,
 Continue3.373s, Save1.607s, doors2.961/1.917/1.398s, battle18ms, cavep9588.32ms.
 Bootslice1.458s stillfails. DiagnosticGC follows door.map.end; historical2.974s
