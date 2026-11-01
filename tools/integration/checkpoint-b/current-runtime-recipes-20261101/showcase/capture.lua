@@ -1,5 +1,7 @@
 -- Private capture overlay only. No game, input, RNG, flags, audio or clock changes.
-local preflightStart = nil
+local starts = {}
+local limits <const> = {preflight = 3000, cutscene = 18000, gym = 20000}
+local presentation = nil
 local previousRecent = HarnessCapture.recent
 function HarnessCapture.recent()
     previousRecent()
@@ -9,17 +11,20 @@ function HarnessCapture.recent()
     local label = f:read(64)
     f:close()
     if not label or not label:match("^[a-z]+$") then return end
-    if label == "preflight" then
+    local limit = limits[label]
+    if limit then
         local now = playdate.getCurrentTimeMilliseconds()
-        preflightStart = preflightStart or now
-        if now - preflightStart > 3000 then return end
+        starts[label] = starts[label] or now
+        if now - starts[label] > limit then return end
     end
     local gfx = playdate.graphics
     local d = HarnessCapture.display()
     assert(d.scale == 1 and not d.inverted and d.mosaicX == 0 and d.mosaicY == 0)
     local raw = gfx.getWorkingImage()
-    local image = gfx.image.new(400, 240, d.backgroundColor)
+    presentation = presentation or gfx.image.new(400, 240, d.backgroundColor)
+    local image = presentation
     gfx.pushContext(image)
+    gfx.clear(d.backgroundColor)
     gfx.setDrawOffset(0, 0)
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
     raw:draw(d.offsetX, d.offsetY)

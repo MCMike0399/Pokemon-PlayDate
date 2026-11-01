@@ -153,6 +153,15 @@ def main():
                 selected.append(command)
             return super().send(*selected)
 
+        def battle(self, name, strategy='attack', expected=None):
+            stable = self.state.get('event', {}).get('id')
+            label = getattr(self, 'capture_targets', {}).get(stable)
+            if label:
+                self.summary.setdefault('captured_battle_ids', []).append(stable)
+                with self.capture_chapter(label):
+                    return super().battle(name, strategy, expected)
+            return super().battle(name, strategy, expected)
+
     from tools.harness.protocol import Client, OwnerLock, atomic_json
     scenario = PROOF['scenario']
     config = scenario['processes'][0]['journey']
@@ -273,6 +282,12 @@ def main():
                         finally:
                             control.unlink(missing_ok=True)
                             atomic_json(output / 'chapters.json', chapters)
+                    d.capture_chapter = capture
+                    d.capture_targets = {}
+                    if args.segment == 'trainer':
+                        d.capture_targets[TRAINER] = 'trainer'
+                    elif args.segment == 'gym':
+                        d.capture_targets[KOGA] = 'gym'
                     if args.preflight_only:
                         # The recorder caps this label at 3 SDK wall seconds.
                         with capture('preflight'):
@@ -294,12 +309,15 @@ def main():
                             if not restored:
                                 d.heal_here('LavenderPokecenter')
                             assert not d.defeated(TRAINER), 'Target already defeated; never rematch/reset'
-                            with capture('trainer') if 'trainer' in selected else contextlib.nullcontext():
-                                d.fight(TRAINER)
+                            d.fight(TRAINER)
+                            if args.segment == 'trainer':
+                                assert d.summary.get('captured_battle_ids') == [TRAINER]
                             assert d.defeated(TRAINER)
                         if selected.intersection({'cutscene', 'gym'}):
                             d.heal_here('LavenderPokecenter')
                             assert not d.flag('EVENT_BEAT_ROUTE12_SNORLAX')
+                            d.travel(d.zone('Route12'), goal=(10, 61))
+                            d.source_waypoint(10, 61)
                             with capture('cutscene') if 'cutscene' in selected else contextlib.nullcontext():
                                 d.wake_snorlax('ROUTE_12', 1, (10, 61))
                             assert d.flag('EVENT_BEAT_ROUTE12_SNORLAX')
@@ -313,9 +331,10 @@ def main():
                             d.finish_eastern_road_to_fuchsia()
                             d.heal_here('FuchsiaPokecenter')
                             assert not d.defeated(KOGA)
-                            with capture('gym'):
-                                d.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06',
-                                         'FuchsiaPokecenter', 'FuchsiaMart')
+                            d.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06',
+                                     'FuchsiaPokecenter', 'FuchsiaMart')
+                            if args.segment == 'gym':
+                                assert d.summary.get('captured_battle_ids') == [KOGA]
                             assert d.defeated(KOGA) and d.flag('BADGE_SOUL')
                             assert d.flag('EVENT_GOT_TM06') and d.quantity('tm06') >= 1
                     atomic_json(output / 'journey-summary.json', dict(d.summary, ok=True,
