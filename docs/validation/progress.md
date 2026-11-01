@@ -31,9 +31,11 @@ pass: 33 new move cases, 145 existing regressions and 54 original coverage
 assertions. Both gameplay reviews and the measured cache performance review
 have no remaining actionable findings. [Move scope](b-earned-moves-composition-20261101.json).
 
-Full current host suite: **1,067 passed**, no errors/failures/skips, 191.410 s.
+Latest executed B host suite: **1,067 passed**, no errors/failures/skips, 191.410 s.
 `evidence/b149-v2-composed-full-host-20261101-02.log` retains the result.
-Later edits affect operator preparation/reporting only, not production Source.
+Later operator/reporting changes leave production Source unchanged. Main’s
+reviewed in-place build publisher fix and existing regression case are ported
+as `15715215`; the updated full host/compile suite has not been rerun.
 Coverage retains 1,512 rows, verification levels and original historical hashes.
 All 2,494 protected images, 41 South spawn views and 82 overlays retain their
 previous inspected proof. Static views do not establish current motion acceptance.
