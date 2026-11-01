@@ -340,5 +340,125 @@
       "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-clean-device-hardware-20261101-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
     },
     "next": "Matched production-profile literal, fresh identity and exact16MiB safety, same six inputs on the preserved clean layout. No Source adoption yet."
+  },
+  "matched_save_policy_clean_trial": {
+    "outcome": {
+      "boot_accepted": false,
+      "ok": true
+    },
+    "save_policy": "production-profile, exact byte equality with baseline be319 policy; production guards unchanged",
+    "route17_stats_ms": {
+      "palette": {
+        "calls": 1,
+        "total": 291,
+        "max": 291
+      },
+      "packed": {
+        "calls": 1,
+        "total": 19,
+        "max": 19
+      },
+      "open": {
+        "calls": 44,
+        "total": 223,
+        "max": 15
+      },
+      "key": {
+        "calls": 10,
+        "total": 199,
+        "max": 34
+      },
+      "draw": {
+        "calls": 11,
+        "total": 154,
+        "max": 49
+      },
+      "gc": {
+        "calls": 11,
+        "total": 0,
+        "max": 0
+      },
+      "trainer": {
+        "calls": 10,
+        "total": 136,
+        "max": 19
+      },
+      "publish": {
+        "calls": 1,
+        "total": 2,
+        "max": 2
+      },
+      "bindings": {
+        "calls": 1,
+        "total": 572,
+        "max": 572
+      },
+      "descriptor": {
+        "calls": 10,
+        "total": 92,
+        "max": 17
+      },
+      "fieldIndex": {
+        "calls": 40,
+        "total": 194,
+        "max": 10
+      },
+      "betweenChecks": {
+        "calls": 178,
+        "total": 768,
+        "max": 77
+      },
+      "bundleRead": {
+        "calls": 44,
+        "total": 371,
+        "slowestPath": "data/contentCache/chunks/ef/efbb68d2456fb615ef2e012f84b9d6259bd715e01d87f8c524f5faee2c04141f.json",
+        "max": 18
+      },
+      "object": {
+        "calls": 10,
+        "total": 456,
+        "max": 72
+      }
+    },
+    "phases_wall_ms": {
+      "input_ready_boot": 14493,
+      "Continue": 4368,
+      "Save": 2189,
+      "doors": [
+        6348,
+        2880,
+        2047,
+        2497,
+        6042,
+        2370
+      ]
+    },
+    "clean_fat_directory_bytes": 28672,
+    "prior_fat_directory_bytes": 1167360,
+    "fuchsia_baseline_ms": 14858,
+    "fuchsia_gain_percent": 57.27554179566563,
+    "qualification": "Clean-directory finite route only. In-place unversioned upgrade remains failed; no performance adoption until versioned-root normal-upgrade test and one review. Battle/cave/long traversal missing.",
+    "keeper_handoff": {
+      "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+      "keeper": "/Games/Calibration.pdx",
+      "no_new_logs": true,
+      "ok": true,
+      "screen": "Not directly observed; pdutil run acknowledged"
+    },
+    "raw_sha256": "6da4cfb5143ba34971604794846ce339d79f8a51adc5c39d61c903b30bbd40cb"
+  },
+  "versioned_root_candidate": {
+    "source_commit": "70e015a618bb2ccd54de75aebe66b7904c12cf20",
+    "change": "chunks-v2 digest-prefix directory avoids old flat-directory allocation on normal upgrades",
+    "host_focused": {
+      "passed": 41,
+      "failed": 0
+    },
+    "per_digest_manifest_sha256": "28854a2e8b56aebfcf355341e80589591b888c10ff69eee5d3c881b3f5f8cd51",
+    "sdk_export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-v2-kanto-sdk-20261101-01",
+    "sdk_values_identical_except_build_id": true,
+    "qualified": true,
+    "device_build_id": "4644271fc80e4eaf97e3e05471731d51",
+    "normal_upgrade_hardware": "pending"
   }
 }
