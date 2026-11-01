@@ -3,8 +3,8 @@
 Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
-Current observer coverage and the full host audit pass **1116 tests**, no
-errors/skips (152.481s). [Audit](main-pi-queue-full-host-20261101.json).
+Most recent main full host audit: **1116 tests**, no errors/skips (152.481s).
+Later history-helper corrections separately pass19 focused tests. [Audit](main-pi-queue-full-host-20261101.json).
 Historical proof hashes/build identities remain unchanged.
 User-authorized push reaches `b694417b`; subsequent commits are local.
 
@@ -74,6 +74,8 @@ Road, Fuchsia/Safari/Koga, rods, Surf and Strength. All three earned A journeys
 and real two-process restarts pass and export `chain/5.5b/<starter>`.
 [Candidate and runs](midgame-b-candidate-20261030.json),
 [common-build cold loads and six input restarts](midgame-b-common-load-20261030.json).
+Retained logs include explicit Surf/Rest/Snore/Yawn/Foresight/Revenge failures;
+route success is not full move acceptance. [Actual gaps](b-earned-move-gaps-20261101.json).
 Canonical slots are unchanged. Charmander covers optional Safari/fishing.
 
 All 2,494 protected images match. All 41 South spawn viewports and selected
