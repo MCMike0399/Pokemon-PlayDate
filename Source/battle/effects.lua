@@ -565,3 +565,26 @@ function BattleEffects:close()
     self.receipts = setmetatable({}, { __mode = "k" })
 end
 function BattleEffects:snapshot() return {weather=self:weatherId(),turns=self.weather and self.weather.turns or 0} end
+
+-- Pinned Gen V clearBoosts changes stages only; no stat-drop ability events.
+function BattleEffects:resetStatStages(scope)
+    local b = self.battle
+    if scope == "active" then
+        for _, mon in ipairs({ b.player, b.enemy }) do
+            if mon:isAlive() then
+                mon:clearStatStages()
+            end
+        end
+        b:say("All stat changes were eliminated!")
+    else
+        assert(scope == "defender", "unsupported-stage-reset-scope")
+        -- Substitute has no producer. Fail closed if it is enabled before the
+        -- primary-hit owner can distinguish body hits from absorbed/broken dolls.
+        -- Haze bypasses Substitute; Clear Smog must not reset through it.
+        assert(MoveSupport.gaps.substitute ~= nil,
+            "Substitute support requires stage-reset primary-hit routing")
+        b.defender:clearStatStages()
+        b:say(b.defender.name .. "'s stat changes were eliminated!")
+    end
+    return true
+end

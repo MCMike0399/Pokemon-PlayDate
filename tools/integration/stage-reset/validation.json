@@ -1,0 +1,81 @@
+{
+  "dependency": "10cb9572f8db3979fd7d3b1ddf517277008b4eeb",
+  "original_base": "6dab82f7a33fa8eae4eb3759699ab1032abc5fe2",
+  "sync_commit": "35802a50e58e76a6fdfcfea4274bd809a44962a5",
+  "sync_tree_equals_dependency": true,
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/stage-reset-20261101-01",
+  "targeted_host": {
+    "tests": 94,
+    "failures": [
+      [
+        "test_source_epoch_preservation_rejects_current_missing_rule (test_captivate_move_generation.CaptivateProducerTests.test_source_epoch_preservation_rejects_current_missing_rule)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_captivate_move_generation.py\", line 30, in test_source_epoch_preservation_rejects_current_missing_rule\n    text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,15)\n                                                                                                          ~~~~~~~~~~~~~~~~^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ],
+      [
+        "test_complete_source_epoch_requires_all_three_rules_and_preserves_original_hashes (test_charge_move_generation.ChargeProducerTests.test_complete_source_epoch_requires_all_three_rules_and_preserves_original_hashes)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_charge_move_generation.py\", line 39, in test_complete_source_epoch_requires_all_three_rules_and_preserves_original_hashes\n    text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,15)\n                                                                                                          ~~~~~~~~~~~~~~~~^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ],
+      [
+        "test_current_exact_inverse_keeps_original424_oracle_and_validates_bide_flags_first (test_protection_move_generation.ProtectionProducerTests.test_current_exact_inverse_keeps_original424_oracle_and_validates_bide_flags_first)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_protection_move_generation.py\", line 61, in test_current_exact_inverse_keeps_original424_oracle_and_validates_bide_flags_first\n    text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);self.assertEqual(c.producer_epoch(text),15)\n                                                                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ],
+      [
+        "test_original424_hash_and_current_exact_metadata_and_payload_inverse (test_rain_move_generation.RainProducerTests.test_original424_hash_and_current_exact_metadata_and_payload_inverse)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_rain_move_generation.py\", line 48, in test_original424_hash_and_current_exact_metadata_and_payload_inverse\n    self.assertEqual(epoch,15)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ],
+      [
+        "test_exact_current_inverse_retains_original424_hash_and_rejects_unowned_effects (test_roost_move_generation.RoostProducerTests.test_exact_current_inverse_retains_original424_hash_and_rejects_unowned_effects)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_roost_move_generation.py\", line 37, in test_exact_current_inverse_retains_original424_hash_and_rejects_unowned_effects\n    text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,15)\n                                                                                                          ~~~~~~~~~~~~~~~~^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ],
+      [
+        "test_one_exact_payload_migrates_without_scalar_or_metadata_changes_and_repeats (test_roost_move_generation.RoostProducerTests.test_one_exact_payload_migrates_without_scalar_or_metadata_changes_and_repeats)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_roost_move_generation.py\", line 20, in test_one_exact_payload_migrates_without_scalar_or_metadata_changes_and_repeats\n    p=Path(tmp);old=c.read_rows(prior())['roost'];text=generate(prior(),p);row=c.read_rows(text)['roost'];self.assertEqual(c.producer_epoch(text),15)\n                                                                                                          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ],
+      [
+        "test_explicit_current_epoch_keeps_original424_inverse_hash (test_side_move_generation.SideProducerTests.test_explicit_current_epoch_keeps_original424_inverse_hash)",
+        "Traceback (most recent call last):\n  File \"/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-521a4cd9/tools/tests/test_side_move_generation.py\", line 74, in test_explicit_current_epoch_keeps_original424_inverse_hash\n    text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,15)\n                                                                                                          ~~~~~~~~~~~~~~~~^^^^^^^^^^\nAssertionError: 16 != 15\n"
+      ]
+    ],
+    "errors": [],
+    "skipped": [],
+    "seconds": 18.712750249542296,
+    "ok": false
+  },
+  "dispatch_host": {
+    "tests": 7,
+    "passed": 6,
+    "failures": 0,
+    "errors": 1,
+    "skipped": 0,
+    "stale_fixture": "test_damage_and_partial_status_special_cases_cannot_pass_as_plain_attacks (haze still asserted gap)",
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/stage-reset-20261101-01/dispatch-host.log"
+  },
+  "full_host_run": false,
+  "native_execution": false,
+  "compiles": [
+    {
+      "mode": "production",
+      "sdk_version": "3.1.2",
+      "source_sha256": "955a0eff812ce4d63614e68ab886e06d39f66cee23dfbf9a7c9a2409a686027d",
+      "compiled_source_sha256": null,
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/stage-reset-20261101-01/production/build.json",
+      "ok": true
+    },
+    {
+      "mode": "harness",
+      "sdk_version": "3.1.2",
+      "source_sha256": "f43e8e4e2c87bc2ba55a0f69b4c7887428ffd328198e4dd5ffc9d2da05ae1d15",
+      "compiled_source_sha256": "31eae32929abf736e9aa29ed8a9661501380e390bc5674c794a4977a9860acf4",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/stage-reset-20261101-01/harness/build.json",
+      "ok": true
+    },
+    {
+      "mode": "harness-registered",
+      "sdk_version": "3.1.2",
+      "source_sha256": "c560af2b34810b4f516b013438fa20e65fbc219a832c5a2f9e02b3ae3dacb98f",
+      "compiled_source_sha256": "172396188e123d639004a324fe877f6422478dcb532bda7d984ef6ef1c6012c2",
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/stage-reset-20261101-01/harness-registered/registered-build.json",
+      "ok": true
+    }
+  ]
+}

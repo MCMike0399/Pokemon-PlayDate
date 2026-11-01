@@ -539,3 +539,13 @@ function ProtectEffect:apply(battle) return battle.conditions:protect() end
 
 Class("FocusEnergyEffect")
 function FocusEnergyEffect:apply(battle) battle.conditions:focusEnergy() end
+
+-- Primary onHit/onHitField effects, never a chance-based secondary.
+Class("ResetStatStagesEffect")
+function ResetStatStagesEffect:init(scope)
+    assert(scope == "active" or scope == "defender", "unsupported-stage-reset-scope")
+    self.scope = scope
+end
+function ResetStatStagesEffect:apply(battle)
+    return battle.effects:resetStatStages(self.scope)
+end

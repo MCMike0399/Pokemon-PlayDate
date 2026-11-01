@@ -337,7 +337,7 @@
       "handler": "engine-dsl"
     },
     "haze": {
-      "gap": "onHitField"
+      "handler": "engine-dsl"
     },
     "reflect": {
       "handler": "engine-dsl"
@@ -1192,7 +1192,7 @@
       "handler": "standard-damage"
     },
     "clearSmog": {
-      "gap": "onHit"
+      "handler": "engine-dsl"
     },
     "storedPower": {
       "gap": "basePowerCallback"
@@ -1291,6 +1291,8 @@
   "limitations": {
     "growth": "Sun has no current producer; sunny Growth doubling remains pending with Sun.",
     "blizzard": "Hail has no current producer; Hail accuracy remains pending with Hail.",
-    "flameBurst": "Singles damage only; adjacent ally splash is doubles-only."
+    "flameBurst": "Singles damage only; adjacent ally splash is doubles-only.",
+    "haze": "Gen V all-active stage reset only. Substitute remains unsupported; Haze bypasses it in the pinned oracle.",
+    "clearSmog": "Primary defender reset after a body hit, including lethal hits. Substitute remains unsupported; enabling it requires primary-hit routing (absorbed or broken Substitute blocks reset). A fail-closed activation interlock prevents silent adoption."
   }
 }
