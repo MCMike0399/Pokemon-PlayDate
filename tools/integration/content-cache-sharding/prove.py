@@ -17,15 +17,15 @@ with tarfile.open(fileobj=io.BytesIO(archive)) as snapshot:
 after = {p.relative_to(ROOT / PREFIX).as_posix(): p.read_bytes()
          for p in (ROOT / PREFIX).rglob('*') if p.is_file()}
 old_records = {Path(name).stem: raw for name, raw in before.items() if name.startswith('chunks/')}
-new_paths = {name: raw for name, raw in after.items() if name.startswith('chunks/')}
+new_paths = {name: raw for name, raw in after.items() if name.startswith('chunks-v2/')}
 new_records = {Path(name).stem: raw for name, raw in new_paths.items()}
 assert len(old_records) == len(new_records) == len(new_paths) == 2546
 assert old_records == new_records
 assert {k: v for k, v in before.items() if not k.startswith('chunks/')} == {
-    k: v for k, v in after.items() if not k.startswith('chunks/')}
+    k: v for k, v in after.items() if not k.startswith('chunks-v2/')}
 for digest, raw in new_records.items():
     assert hashlib.sha256(raw).hexdigest() == digest
-    assert new_paths[f'chunks/{digest[:2]}/{digest}.json'] == raw
+    assert new_paths[f'chunks-v2/{digest[:2]}/{digest}.json'] == raw
 assert len(after) == len(before) == 2578
 hashes = {digest: hashlib.sha256(raw).hexdigest() for digest, raw in sorted(new_records.items())}
 manifest = (json.dumps(hashes, sort_keys=True, separators=(',', ':')) + '\n').encode()

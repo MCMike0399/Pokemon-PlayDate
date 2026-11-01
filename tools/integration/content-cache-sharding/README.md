@@ -107,3 +107,21 @@ heap result, checkpoint/campaign/B acceptance or budget relaxation is claimed.
 Root retains only a measured >=10% phase gain, then performs one combined
 performance review. Roll back both implementation commits together to restore
 the original paths/loader and checkpoint cadence.
+
+## Root upgrade correction — 2026-11-01
+
+The first unversioned shard installation retained the old FAT directory's
+1,167,360-byte allocation and did not achieve the required phase gain. A separate
+clean-directory experiment reduced that directory to 28,672 bytes and Root
+measured 223 ms in file opens, versus 7,158 ms before. With the matched
+production-profile Save policy, Fuchsia entry was 6,348 ms versus 14,858 ms.
+These experiments do not establish normal-upgrade acceptance.
+
+The current generated root is therefore `chunks-v2/<prefix>/<digest>.json`.
+This creates a fresh directory during an ordinary in-place update. All 2,546
+record bytes and 32 index files remain identical to the exact original base.
+The host proof above now checks that versioned path and the same original
+per-digest manifest. Fresh SDK Kanto export/qualification has been collected;
+its decoded values are unchanged except build identity. Normal in-place
+hardware measurement from the retained failed installation is still pending.
+Do not claim release or performance acceptance before that run and review.
