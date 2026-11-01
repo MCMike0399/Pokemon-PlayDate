@@ -24,7 +24,7 @@ import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
-EXPECTED = '565bfdfb4c0f2b37c921fa79e143067fe45b7637'
+EXPECTED = '10cb9572f8db3979fd7d3b1ddf517277008b4eeb'
 
 
 @contextmanager
