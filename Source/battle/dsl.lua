@@ -342,7 +342,8 @@ function ApplyStatus:secondaryKind(recipient)
     assert(STATUS_NAMES[self.status] or self.status=="confuse" or self.status=="flinch","unsupported-secondary-status")
     return self.status=="flinch" and "flinch" or "condition"
 end
-function ApplyStatus:apply(battle, rest)
+-- Keep the generic secondary-effect argument separate from Rest semantics.
+local function applyStatus(self, battle, rest)
     local pokemon = self.target:resolve(battle)
 
     if not pokemon:isAlive() then return end
@@ -415,9 +416,17 @@ function ApplyStatus:apply(battle, rest)
     end
 end
 
+function ApplyStatus:apply(battle)
+    return applyStatus(self, battle, false)
+end
+
+function ApplyStatus:applyRest(battle)
+    return applyStatus(self, battle, true)
+end
+
 Class("RestEffect")
 function RestEffect:apply(battle)
-    return ApplyStatus(ATTACKER, "sleep"):apply(battle, true)
+    return ApplyStatus(ATTACKER, "sleep"):applyRest(battle)
 end
 
 Class("YawnEffect")
