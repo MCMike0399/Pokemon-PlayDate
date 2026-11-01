@@ -111,7 +111,9 @@ isnegative, so proxy is NOT device timing. [Ranking](door-static-ranking-2026110
 Ranked physical route stopped safely at Route17: one7.235s raw segment trips
 the5s guard; error/crash logs unchanged and keeper restored. Fuchsia entry also
 takes15.034s. B hardware safety remains open; no globalworst claim. Narrow
-boundary timing is next. [Failure](ranked-doors-route17-stop-20261101.json).
+boundary reproduction localizes7.109s insideSourceBindings.prepare; explicitGC
+<1ms and draw103ms. Keeper restored, no newlogs. Actor/key/content lookups are
+next; no production fix selected. [Failure](ranked-doors-route17-stop-20261101.json).
 Shipped-GC device cycle completes without new logs; keeper restored: boot12.477s,
 Continue3.373s, Save1.607s, doors2.961/1.917/1.398s, battle18ms, cavep9588.32ms.
 Bootslice1.458s stillfails. DiagnosticGC follows door.map.end; historical2.974s

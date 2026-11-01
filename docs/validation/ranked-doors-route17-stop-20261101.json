@@ -72,5 +72,70 @@
     "keeper": "/Games/Calibration.pdx",
     "screen": "Notdirectlyobserved; verifiedunchangedinstalledpayload and pdutilrunack",
     "reason": "Caughtslice guard; no changederror/crashlogs; no hardcrash/Apress needed"
+  },
+  "narrow_reproduction": {
+    "build_id": "0d6edd59a48940518a6068448a959250",
+    "safety_raw_slice_ms": 71.984,
+    "safety_peak_lua_bytes": 9185544.192,
+    "outcome": {
+      "boot_accepted": false,
+      "device_needs_one_A_press": false,
+      "error": "ValueError('device BootTrace guard failed')",
+      "ok": false,
+      "phase": "collect-result-logs"
+    },
+    "inclusive_elapsed_boundaries_ms": {
+      "draw": {
+        "max": 49,
+        "total": 103,
+        "calls": 4
+      },
+      "gc": {
+        "max": 0,
+        "total": 0,
+        "calls": 4
+      },
+      "publish": {
+        "max": 2,
+        "total": 2,
+        "calls": 1
+      },
+      "palette": {
+        "max": 255,
+        "total": 255,
+        "calls": 1
+      },
+      "bindings": {
+        "max": 7109,
+        "total": 7109,
+        "calls": 1
+      },
+      "packed": {
+        "max": 17,
+        "total": 17,
+        "calls": 1
+      },
+      "betweenChecks": {
+        "max": 7140,
+        "total": 7226,
+        "calls": 25
+      }
+    },
+    "no_new_logs": true,
+    "keeper_handoff": {
+      "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+      "keeper": "/Games/Calibration.pdx",
+      "no_new_logs": true,
+      "ok": true,
+      "screen": "Not directly observed; pdutil run acknowledged"
+    },
+    "interpretation": "Bindings.prepare reproduces the >7s stall. Explicit manual GC and loading draw do not account for it. Automatic GC/native/IO within bindings remain included. No production fix selected.",
+    "next": "Time objectDefinition, sprite-key membership lookup, trainer/descriptor retrieval and bundle JSON reads inside binding preparation. Weak field-index reloads are a source-backed hypothesis, not established cause.",
+    "artifacts": {
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-boundaries-hardware-20261101-01/serial.raw": "ba9284e5d2a79407d19d3398d12cae104f1c4cb6b33b749a7a58e70fe6160449",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-boundaries-hardware-20261101-01/outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-boundaries-hardware-20261101-01/keeper-inventory.json": "5a2a6c442b137596be7b150e3144117d129c0b80876e8897e0e3c3317c08f29f",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-boundaries-hardware-20261101-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+    }
   }
 }
