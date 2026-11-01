@@ -133,3 +133,10 @@ restored. Fuchsia6545ms:133 Lua-visible opens757ms,136 decodes744ms; Route18
 3038ms:49 opens231ms/49 decodes254ms. Opens are11.6%/7.6% of those map spans,
 so packing is not justified as the main fix. Next attribute field reload, actors
 and post-actor traversal capture. [Exact scope](door-io-counts-20261101.json).
+
+Reviewed loading-scope field-index retention is integrated privately: Route18
+3038→2610ms(14.1%); Fuchsia6545→5920ms(9.5%). No new logs, keeper restored.
+Literal owner-body equality, fresh SDK descriptor/roster exports,31 host and7
+native checks pass; exact composed safety52.386ms/8.76MiBpeak is admitted.
+Strict live target remains failed; final owner hardware timing and B visual
+acceptance remain open. [Integration](loading-field-cache-integration-20261101.json).
