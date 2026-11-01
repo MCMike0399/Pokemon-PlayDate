@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "source_commit": "1cdb367dd654885aa9567937d21acfc0fb2f6a38",
+  "compile_only_bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-census-observer-host-20261101-01/bundle",
+  "full_host": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-census-observer-host-20261101-01/host.log",
+    "sha256": "9eac8f337e7fec3d3e6f5b4575c34cb0f780bc1876d4fff8d969c688b8501cab",
+    "tests": 1120,
+    "passed": 1119,
+    "failures": 1,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 168.481,
+    "sole_failure": "Current coverage Source fingerprint predates the dev-only census observer correction."
+  },
+  "reviewed_correction": {
+    "changed_source": [
+      "Source/dev/doorCensus.lua"
+    ],
+    "production_source_unchanged": true,
+    "only_matrix_field_changed": "snapshot",
+    "rows_facets_evidence_inventories_unchanged": true,
+    "matrix_sha256": "1895a9beaa7d0c5d7989943fa5f7b0b7d933ce7e6e40e8bcf54deec64569919b",
+    "source_review": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-census-observer-host-20261101-01/source-delta-review.json",
+    "source_review_sha256": "5ecf2b367215f161e1691b100fee14e56751357e38a49b6ecf70e95b8d05bfc2"
+  },
+  "post_correction": {
+    "coverage_tests": 4,
+    "passed": 4,
+    "seconds": 3.046,
+    "checker_passed": true,
+    "rows": 1512,
+    "full_suite_repeated": false
+  },
+  "observer_host_tests": 21,
+  "scope": "Compile-only and host metadata verification. No new gameplay, visual, device, campaign or continuous-memory acceptance. Existing exhaustive census remains separate and active."
+}

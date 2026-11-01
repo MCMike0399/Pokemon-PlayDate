@@ -3,8 +3,9 @@
 Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
-Most recent main full host audit: **1116 tests**, no errors/skips (152.481s).
-Later history-helper corrections separately pass19 focused tests. [Audit](main-pi-queue-full-host-20261101.json).
+Current main host audit: **1120 tests**,1119 pass, one stale coverage snapshot failure;
+no errors/skips (168.481s). Reviewed dev-only snapshot correction then passes all
+four matrix checks;21 observer checks pass. No full-suite rerun claimed. [Audit](census-observer-host-20261101.json).
 Historical proof hashes/build identities remain unchanged.
 User-authorized push reaches `b694417b`; subsequent commits are local.
 
