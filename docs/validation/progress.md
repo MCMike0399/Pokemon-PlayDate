@@ -3,9 +3,9 @@
 Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
-Main's last full audit passed **1092 tests**, no errors/skips (261.205 s).
-The new private census observer needs coverage refresh/full-host rerun;17 targeted
-host checks and seven helper rejection checks pass. [Audit](main-host-after-tools-20261030.json).
+Observer coverage is current; its baseline full audit passes **1093 tests**
+(148.006s). The new private Pi wrapper has29 targeted host passes; full audit
+will be refreshed after integration. Historical proof bytes remain immutable.
 User-authorized push reaches `b694417b`; subsequent commits are local.
 
 ## Accepted on main
@@ -135,11 +135,13 @@ logs. This point test excludes native headers/masks and long-session headroom.
 doors across 30+ maps and 20 battles.** The long-journey native `drawFaded` OOM
 is not universally closed by short tests; bounded gift text saves 675.84 KiB.
 
-Automatic cleanup uses **50 GiB minimum / 70 GiB target** every 30 minutes.
-Root removed10 clean fully merged worktrees/branches, recovering3.04GiB;
-free space remains about38GiB, below reserve. Inventory invocation was stopped
-gracefully for qualification; recurring schedule remains enabled. [Audit](storage-reserve-20261101.json).
-Retain chain saves,
-packages, acceptance references and latest passes/failures. No more compression
-or production planner tooling. [Storage audit](archive-sharing-20261030.json).
+Shared archival now uses an explicit owner-reviewed queue: trigger below70GiB,
+stop normal work at100GiB; hard reserve50GiB. Blast owns the first slot. The
+wrapper pins the qualified shared digest, passes all inherited lock fds, and
+keeps transfers/queues disabled pending review and a real canary. The existing
+30minute entry reports that disabled queue; no broad age deletion runs.
+[Integration and remaining work](pi-archive-integration-20261101.json).
+Ten clean merged worktrees recovered3.04GiB; space remains below reserve.
+The coordinator owns further offload; no independent moves/config changes.
+[Prior storage audit](storage-reserve-20261101.json).
 [Previous ledger and history](progress-history-door-census-20261030.md).

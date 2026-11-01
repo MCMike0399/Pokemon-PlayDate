@@ -11,6 +11,20 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Shared archive policy — 2026-11-01
+
+Use the user-authorized shared Pi archive/restore tool through the explicit
+Playdate wrapper, retaining exact original-path restoration and immutable hashes.
+Retain active/current/pinned inputs, chain saves, player packages, Git, SDK and
+T3 state locally. Owner-reviewed closed artifacts only; no automatic broad
+recursive age deletion. Normal approved archive work triggers below70GiB and
+stops at100GiB; deliberate initial backlog is separate. Keep the50GiB hard reserve.
+Use only the existing30-minute maintenance entry point, all four ordered producer
+locks and inherited lock descriptors. Busy/offline/pressure leaves bytes and jobs
+pending. Pending queues stay disabled until a real canary passes and the shared
+coordinator grants transport ownership. No independent host/network/service
+changes or shared-helper edits. [Operator workflow](../validation/pi-artifact-storage.md).
+
 ## Device scaling correction — 2026-10-30
 
 Boot is `boot.begin` to `initialize.ready`: the title accepts A. Its target is
