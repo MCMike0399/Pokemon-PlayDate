@@ -1,11 +1,11 @@
 # Full-game execution ledger
 
-Updated 2026-10-30. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
 Main's reviewed coverage and fresh compile/full-host audit pass all **1092 tests**,
 no errors/skips (261.205 s). [Audit](main-host-after-tools-20261030.json).
-Last authorized push includes `cbd91c96`; subsequent commits are local.
+User-authorized push reaches `b694417b`; subsequent commits are local.
 
 ## Accepted on main
 
@@ -116,11 +116,6 @@ ack hook compiles with SDK3.1.2 and 16 host checks pass; actual AX labels/reclam
 remain unverified. [Helper scope](malloc-history-helper-20261030.json).
 [Controls and limits](door-census-history-retention-20261030.json). Old paged-run
 timings do not establish a worst-door ranking. No SDK process remains running.
-B coverage was reviewed against current owners, inventories and historical blobs,
-then published privately in B0bc2e5fe. Fresh compile-only build and all **1,058
-host tests pass**, no errors/skips (412.325 s). Three projection failures required
-only dependency hashes, with Cerulean regenerated before Vermilion. No accepted
-journey evidence was relabelled. [Audit](midgame-b-host-audit-20261030.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
@@ -132,11 +127,12 @@ review axes pass. Coverage retains all1512 rows; fresh compile/full host passes
 Old unrun B production/traversal/census/showcase packets are stale and require
 fresh staging. B acceptance remains open. [Adoption](reflect-private-b-adoption-20261030.json).
 
-Current B diagnostic9b98e611 completes hardware smoke without new logs; keeper
-restored. Boot12.594s, Continue3.369s, doors2.983/1.912/1.403s, battle20ms;
-Lua live/peak4.43/5.80MiB. Save6.263s uses deep diagnostic validation, unlike
-the earlier production-profile1.648s; do not score that as a matched regression.
-[Exact scope and pending profile](midgame-b-current-hardware-20261031.json).
+Current B production-profile8bb9284b completes hardware smoke without new logs;
+keeper restored. Boot12.658s/slice1.472s, Continue3.367s, Save1.616s,
+doors3.022/1.894/1.431s, battle21ms, cavep95103.24ms. Lua live/peak4.53/5.82MiB.
+Title diagnosticGC846ms is included; shipped-equivalent timing remains unmeasured.
+The preceding deep diagnostic Save6.263s is a policy difference, not a matched
+production regression. [Current profile](midgame-b-production-profile-hardware-20261101.json).
 
 ## Memory, audio and storage
 
