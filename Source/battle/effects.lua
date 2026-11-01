@@ -97,6 +97,33 @@ function BattleEffects:accuracyBypassesCheck(move,attacker,defender)
         or (move.weatherAccuracy==true and self:weatherId()=="raindance")
         or self:livingAbility(attacker,99) or self:livingAbility(defender,99)
 end
+-- Gen5 Fly's Invulnerability hook is separate from accuracy. Always-hit
+-- moves still miss airborne targets; No Guard on either living actor bypasses
+-- both hooks. Weather accuracy alone never bypasses semi-invulnerability.
+local airborneHits <const> = {
+    gust = true, twister = true, skyUppercut = true,
+    thunder = true, hurricane = true, smackDown = true,
+}
+function BattleEffects:airborneBlocks(move, source, target)
+    if not self.battle.conditions:airborne(target) then
+        return false
+    end
+    if self:livingAbility(source, 99) or self:livingAbility(target, 99) then
+        return false
+    end
+    local key = MoveRegistry.keyOf(moveData, move)
+    return not airborneHits[key]
+end
+-- The oracle doubles final damage, not base power. Apply the exact integer
+-- multiplier before screen rounding so Gust/Twister and Light Screen cancel
+-- without an intermediate half-damage rounding loss.
+function BattleEffects:airborneDamage(move, target, damage)
+    if self.battle.conditions:airborne(target)
+        and (move == moveData.gust or move == moveData.twister) then
+        return damage * 2
+    end
+    return damage
+end
 -- CriticalHit runs AFTER the critical trial, including guaranteed criticals.
 -- Shell Armor changes the result, never the number of critical RNG trials.
 function BattleEffects:criticalAllowed(target)

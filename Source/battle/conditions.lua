@@ -260,19 +260,35 @@ end
 -- Two-turn moves are anchored to the opposing slot in singles, not to a
 -- stale Pokemon identity. Replacement/learning cannot forge a learned slot.
 function BattleConditions:charge(move)
-    local b=self.battle;local user=b.attacker;local state=self:of(user)
+    local b = self.battle
+    local user = b.attacker
+    local state = self:of(user)
     if state.charge then
-        assert(state.charge.key==b.currentMoveKey,"wrong-charge-continuation")
-        state.charge=nil;return false
+        assert(state.charge.key == b.currentMoveKey, "wrong-charge-continuation")
+        state.charge = nil
+        return false
     end
-    assert(move.chargeRule=="solarBeam" or move.chargeRule=="skullBash","unsupported-charge-rule")
-    local skip=move.chargeRule=="solarBeam" and BattleEffects.solarPolicy(b.effects:weatherId())
-    if not skip then state.charge={key=assert(b.currentMoveKey,"missing charge identity")} end
-    if move.chargeRule=="skullBash" then
+    assert(move.chargeRule == "solarBeam" or move.chargeRule == "skullBash"
+        or move.chargeRule == "fly", "unsupported-charge-rule")
+    local skip = move.chargeRule == "solarBeam" and BattleEffects.solarPolicy(b.effects:weatherId())
+    if not skip then
+        state.charge = {key = assert(b.currentMoveKey, "missing charge identity")}
+    end
+    if move.chargeRule == "skullBash" then
         b:say(user.name .. " lowered its head!")
-        ModifyStat(ATTACKER,"def",1):apply(b)
-    else b:say(user.name .. " took in sunlight!") end
+        ModifyStat(ATTACKER, "def", 1):apply(b)
+    elseif move.chargeRule == "fly" then
+        b:say(user.name .. " flew up high!")
+    else
+        b:say(user.name .. " took in sunlight!")
+    end
     return not skip
+end
+-- Fly uses the charge receipt itself: interruption, withdrawal, faint and
+-- terminal cleanup all remove semi-invulnerability through the existing owner.
+function BattleConditions:airborne(mon)
+    local state = self.members[mon]
+    return state ~= nil and state.charge ~= nil and state.charge.key == "fly"
 end
 -- Successful self-effect precedes contact reactions, as the pinned dispatcher
 -- does. First miss/immune/absent target never creates a lock or duration draw.

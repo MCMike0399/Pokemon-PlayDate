@@ -116,6 +116,7 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
     damage = math.max(1, damage)
     -- GenV final screen modifier follows minimum1, so a real hit may do0.
     if effects then
+        damage=effects:airborneDamage(move,defender,damage)
         damage=effects.battle.conditions:screenDamage(attacker,defender,move,damage,isCrit)
         damage=effects:finalDamage(attacker,damage,isCrit)
     end
@@ -1225,6 +1226,14 @@ function Battle:performMove(move)
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say("But there was no target!")
         self.conditions:moveFinished(move,false)
+        return nil
+    end
+
+    -- Invulnerability is independent of ordinary accuracy, including Swift,
+    -- OHKO and rain-accurate moves. No HP/effects/contact or RNG on rejection.
+    if opponentTargets[move.targetId or 10] and self.effects:airborneBlocks(move, attacker, defender) then
+        self:say(attacker.name .. "'s attack missed!")
+        self.conditions:moveFinished(move, false)
         return nil
     end
 

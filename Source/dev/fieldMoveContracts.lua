@@ -325,25 +325,11 @@ function FieldMoveContracts.run()
             eq(token,nil);eq(why,"badge-required")
         end)
     end)
-    test("Battle HM data fails loudly under actual MoveSupport, never silent success",function()
-        for _, key in ipairs({"cut","flash"}) do
-            local a,b=Pokemon("bulbasaur",5),Pokemon("rattata",5)
-            local battle=Battle(a,b)
-            for _=1,30 do
-                if battle:phase()~="script" then break end
-                battle.machine:get("script"):advance()
-            end
-            battle:setDirection("player")
-            local hp,acc=b.hp,b.statStages.acc
-            local lines={}
-            battle:runScript(function() battle:performMove(moveData[key]) end)
-            for _=1,30 do
-                if battle:phase()~="script" then break end
-                lines[#lines+1]=battle.message;battle.machine:get("script"):advance()
-            end
-            assert(table.concat(lines,"|"):find("But it failed!",1,true))
-            eq(b.hp,hp);eq(b.statStages.acc,acc)
-        end
+    test("Battle Cut and Flash runtime registration has concrete dispatch", function()
+        eq(MoveSupport.handlers.cut, "standard-damage")
+        eq(MoveSupport.handlers.flash, "dsl")
+        eq(MoveSupport.gaps.cut, nil)
+        eq(MoveSupport.gaps.flash, nil)
     end)
     return report
 end
