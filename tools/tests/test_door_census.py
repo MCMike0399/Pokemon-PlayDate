@@ -4,6 +4,8 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -142,9 +144,10 @@ class ResultTests(unittest.TestCase):
     def test_real_host_footprint_is_available_for_owned_process(self):
         self.assertGreater(census.process_footprint(os.getpid()), 0)
 
-    def test_history_pause_requires_exact_identity_and_pair_order(self):
-        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 0}, 'id', -2, 4), 0)
-        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 2}, 'id', 0, 4), 2)
+    def test_history_pause_requires_exact_identity_and_trial_order(self):
+        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 0}, 'id', -1, 4), 0)
+        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 1}, 'id', 0, 4), 1)
+        self.assertEqual(census.validate_history_pause({'build': 'id', 'rows': 2}, 'id', 1, 4), 2)
         for value in ({'build': 'other', 'rows': 2}, {'build': 'id', 'rows': True},
                       {'build': 'id', 'rows': 0}, {'build': 'id', 'rows': 4},
                       {'build': 'id', 'rows': 2, 'extra': True}):
@@ -154,6 +157,30 @@ class ResultTests(unittest.TestCase):
     def test_history_pause_cannot_exceed_selected_case_count(self):
         with self.assertRaises(ValueError):
             census.validate_history_pause({'build': 'id', 'rows': 6}, 'id', 4, 4)
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'Darwin kernel ownership proof')
+    def test_history_lock_reports_parent_pid_and_excludes_existing_bsd_owners(self):
+        from tools.harness.protocol import OwnerLock
+        path = self.root / 'kernel-owner.lock'
+        query = '''import fcntl,os,struct,sys,json
+fd=os.open(sys.argv[1],os.O_RDONLY)
+value=fcntl.fcntl(fd,fcntl.F_GETLK,struct.pack('qqihh',0,0,0,fcntl.F_WRLCK,os.SEEK_SET))
+print(json.dumps(struct.unpack('qqihh',value)))
+'''
+        bsd = "import fcntl,sys; f=open(sys.argv[1],'a+'); fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)"
+        posix = "import fcntl,sys; f=open(sys.argv[1],'a+'); fcntl.lockf(f,fcntl.LOCK_EX|fcntl.LOCK_NB)"
+        with census.census_lock(OwnerLock, path, True):
+            value = json.loads(subprocess.check_output([sys.executable, '-c', query, str(path)], text=True))
+            self.assertEqual(value[:3], [0, 0, os.getpid()])
+            blocked = subprocess.run([sys.executable, '-c', bsd, str(path)], capture_output=True, text=True)
+            self.assertNotEqual(blocked.returncode, 0)
+            self.assertIn('BlockingIOError', blocked.stderr)
+        with OwnerLock(path):
+            blocked = subprocess.run([sys.executable, '-c', posix, str(path)], capture_output=True, text=True)
+            self.assertNotEqual(blocked.returncode, 0)
+            self.assertIn('BlockingIOError', blocked.stderr)
+        value = json.loads(subprocess.check_output([sys.executable, '-c', query, str(path)], text=True))
+        self.assertEqual(value[3], census.fcntl.F_UNLCK)
 
     def test_gaps_do_not_rank_as_measurements(self):
         self.write_rows([dict(build_id='identity', id='portal', case_index=1, trial=1, status='gap', gap='actor required')])

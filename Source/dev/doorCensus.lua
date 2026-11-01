@@ -188,8 +188,8 @@ function DoorCensus.install()
             caseIndex = caseIndex + 1
             item = nil
             phase = "next"
-            pauseForHistory()
         end
+        pauseForHistory()
         age = 0
     end
 

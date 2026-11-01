@@ -1,0 +1,12 @@
+{
+  "status": "10cleanfullymergedworktrees/branches removed after status, ancestry and live/openpath checks; no force.",
+  "audit": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/root-merged-worktrees-20261101-01.json",
+  "audit_sha256": "6cd969ce505d9fdfb978ecf3d89287f9b95bedf5723f69bd121a10e2376c1b69",
+  "removed": 10,
+  "observed_free_delta_bytes": 3268014080,
+  "observed_free_delta_gib": 3.0435752868652344,
+  "minimum_reserve_gib": 50,
+  "target_gib": 70,
+  "reserve_met": false,
+  "maintenance": "ScheduledPID20486 was interrupted gracefully during inventory (KeyboardInterrupt atentry.lstat); no removals reported by that invocation. Schedule remains enabled; reserve recovery remains open."
+}

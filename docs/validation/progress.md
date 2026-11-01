@@ -3,8 +3,9 @@
 Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
-Main's reviewed coverage and fresh compile/full-host audit pass all **1092 tests**,
-no errors/skips (261.205 s). [Audit](main-host-after-tools-20261030.json).
+Main's last full audit passed **1092 tests**, no errors/skips (261.205 s).
+The new private census observer needs coverage refresh/full-host rerun;17 targeted
+host checks and seven helper rejection checks pass. [Audit](main-host-after-tools-20261030.json).
 User-authorized push reaches `b694417b`; subsequent commits are local.
 
 ## Accepted on main
@@ -96,8 +97,9 @@ C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 Door census remains incomplete. Historical trials and paging controls are in
 [history](progress-history-door-census-20261030.md); old paged timings cannot rank
 worst doors. User enabled the responsible0.1.0supervisor; fresh AX trust is true.
-Actual labels/Clear/reclamation still require short owned qualification. Keep
-16MiB pool,1GiB host/60s progress limits. [Helper](malloc-history-helper-20261030.json).
+Short qualification reports12trials (10measured/two gaps), Clear resets records
+and sampled host peak811MiB; one safety review remains before long use. Keep
+16MiB pool,1GiB host/60s progress limits. [Live qualification](malloc-history-live-qualification-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
@@ -135,7 +137,8 @@ is not universally closed by short tests; bounded gift text saves 675.84 KiB.
 
 Automatic cleanup uses **50 GiB minimum / 70 GiB target** every 30 minutes.
 Root removed10 clean fully merged worktrees/branches, recovering3.04GiB;
-free space remains about38GiB, below reserve. Scheduled maintenance owns locks.
+free space remains about38GiB, below reserve. Inventory invocation was stopped
+gracefully for qualification; recurring schedule remains enabled. [Audit](storage-reserve-20261101.json).
 Retain chain saves,
 packages, acceptance references and latest passes/failures. No more compression
 or production planner tooling. [Storage audit](archive-sharing-20261030.json).

@@ -9,10 +9,12 @@ import argparse
 import ctypes
 from bisect import bisect_right
 from collections import Counter
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
+import fcntl
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 import shutil
@@ -23,6 +25,30 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED = '565bfdfb4c0f2b37c921fa79e143067fe45b7637'
+
+
+@contextmanager
+def census_lock(lock_type, path, kernel_proof=False):
+    if not kernel_proof:
+        with lock_type(path) as owner:
+            yield owner
+        return
+    # Darwin makes POSIX write locks and BSD flocks mutually exclusive, but
+    # F_GETLK exposes only the POSIX owner. Use that verifiable lock on the same
+    # path for history sessions; ordinary owners still cannot enter.
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor = os.open(path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, 'a+') as stream:
+        fcntl.lockf(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        try:
+            stream.seek(0)
+            stream.truncate()
+            json.dump({'pid': os.getpid()}, stream)
+            stream.flush()
+            yield stream
+        finally:
+            fcntl.lockf(stream, fcntl.LOCK_UN)
 DIRECTIONS = {'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0)}
 CARDINAL = {'north': 'up', 'south': 'down', 'west': 'left', 'east': 'right'}
 CLASSIFICATION = 'isolated setup plus real portal input; not natural journey, earned traversal or device acceptance'
@@ -71,7 +97,7 @@ def accessibility_available():
 def validate_history_pause(value, build_id, previous_rows, maximum_rows):
     if (not isinstance(value, dict) or set(value) != {'build', 'rows'}
             or value['build'] != build_id or type(value['rows']) is not int
-            or value['rows'] != previous_rows + 2 or not 0 <= value['rows'] <= maximum_rows):
+            or value['rows'] != previous_rows + 1 or not 0 <= value['rows'] <= maximum_rows):
         raise ValueError('foreign, stale or out-of-order history pause')
     return value['rows']
 
@@ -457,12 +483,12 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
     data = sdk / 'Disk/Data' / metadata['bundle_id']
     with ExitStack() as ownership:
         if not locks_held:
-            ownership.enter_context(OwnerLock(run.runtime_lock_path(sdk)))
-            ownership.enter_context(OwnerLock(run.device_lock_path()))
+            ownership.enter_context(census_lock(OwnerLock, run.runtime_lock_path(sdk), metadata.get('history_clear')))
+            ownership.enter_context(census_lock(OwnerLock, run.device_lock_path(), metadata.get('history_clear')))
         run.simulator_preflight()  # Existing USB ownership and actual 16 MiB pool checks.
         data.mkdir(parents=True, exist_ok=False)
         try:
-            with OwnerLock(data / 'owner.lock'):
+            with census_lock(OwnerLock, data / 'owner.lock', metadata.get('history_clear')):
                 for row in (metadata.get('seed_saves') or {}).get('files', []):
                     path = output / 'seed-saves' / row['file']
                     if sha(path) != row['sha256']:
@@ -480,7 +506,7 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
                         deadline = time.monotonic() + timeout
                         progress_at = time.monotonic()
                         row_size = 0
-                        history_rows = -2
+                        history_rows = -1
                         trace_offset, trace_tail = 0, ''
                         while not (data / 'door-census-done.json').exists():
                             if process.poll() is not None or time.monotonic() > deadline:
@@ -510,8 +536,8 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
                                 if sha(history_helper) != history_helper_sha256:
                                     raise ValueError('history helper changed during execution')
                                 pins = [str(output), sha(output / 'build.json'), sha(output / 'run.json')]
-                                operations = ['inspect', 'clear'] if completed_rows == 0 else ['clear']
-                                for operation in operations:
+                                operations = ['inspect', 'show-log', 'inspect', 'clear', 'inspect'] if completed_rows == 0 else ['clear', 'inspect']
+                                for operation_index, operation in enumerate(operations):
                                     began = time.monotonic()
                                     before = process_footprint(process.pid)
                                     timed_out = False
@@ -530,15 +556,26 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
                                         started_monotonic=began, elapsed_ms=(time.monotonic()-began)*1000,
                                         host_before_bytes=before, host_after_bytes=after,
                                         returncode=returncode, stdout=stdout, stderr=stderr, timed_out=timed_out)
+                                    capture = output / 'malloc-log-inspection.png'
+                                    if operation == 'inspect' and capture.is_file():
+                                        retained = output / f'malloc-log-{completed_rows}-{operation_index}.png'
+                                        shutil.copyfile(capture, retained)
+                                        record['inspection_capture'] = {'path': str(retained), 'sha256': sha(retained)}
                                     with (output / 'malloc-clear.jsonl').open('a') as stream:
                                         stream.write(json.dumps(record, sort_keys=True) + '\n')
                                     if timed_out:
                                         raise RuntimeError('history helper timed out; no Clear replay or acknowledgement')
                                     if returncode != 0:
                                         raise RuntimeError('history helper refused: ' + stderr[-1200:])
+                                    if operation == 'show-log':
+                                        # The native window opens asynchronously. This bounded
+                                        # settling wait stays outside portal measurements.
+                                        time.sleep(0.5)
                                     if operation == 'clear':
                                         reply = json.loads(stdout)
-                                        if reply != {'ax_press_accepted': True, 'pid': process.pid}:
+                                        if reply not in (
+                                                {'ax_press_accepted': True, 'pid': process.pid},
+                                                {'clear_requested': True, 'mechanism': 'verified-window-broom', 'pid': process.pid}):
                                             raise ValueError('history Clear acknowledgement differs')
                                     check_host_limits(after, time.monotonic() - progress_at)
                                 pause.unlink()
@@ -623,8 +660,8 @@ def main():
             if helper and not accessibility_available():
                 parser.error('Accessibility unavailable; no permission prompt requested')
             *_, run, OwnerLock, _ = tooling(project)
-            ownership.enter_context(OwnerLock(run.runtime_lock_path(sdk)))
-            ownership.enter_context(OwnerLock(run.device_lock_path()))
+            ownership.enter_context(census_lock(OwnerLock, run.runtime_lock_path(sdk), bool(helper)))
+            ownership.enter_context(census_lock(OwnerLock, run.device_lock_path(), bool(helper)))
             run.simulator_preflight()
         metadata = prepare(project, sdk, output, earned, args.case, history_clear=bool(helper))
         print(json.dumps({'output': str(output), 'counts': metadata['counts'], 'runtime_executed': False}))

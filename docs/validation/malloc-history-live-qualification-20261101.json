@@ -1,0 +1,45 @@
+{
+  "status": "Short native history-clear qualification passed operationally; independent safety review pending before long census. Not device/gameplay acceptance.",
+  "input_b": "565bfdfb4c0f2b37c921fa79e143067fe45b7637",
+  "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-qualification-20261101-20",
+  "build_id": "60da11bb635242d6b807cb4f2ee09339",
+  "result_sha256": "0a4df20db74b4a4f57d45611dac17ad458c022c2601d9b99ec4cc1617d50e148",
+  "all_trials_reported": true,
+  "measured": 10,
+  "explicit_geometry_gaps": 2,
+  "runtime_failure": null,
+  "complete_field_explanation": "complete=false because two inventory geometry gaps remain. No missing trial, guard failure or unconfirmed child exit is hidden.",
+  "sampled_host_peak_bytes": 850363904,
+  "host_ceiling_bytes": 1073741824,
+  "clear_boundaries": 13,
+  "positive_reclaimed_samples_bytes": [
+    55328792,
+    149635096,
+    42729496,
+    55869440,
+    15679488,
+    58933248
+  ],
+  "malloc_records_after_clear": "Native fixed-control inspection shows0items after Clear. This is profiler record count, not actual live Lua/native heap.",
+  "helper": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/malloc-history-helper-root-20261101-18/malloc-history-clear",
+  "helper_sha256": "0d1ab852542cb835e72488f20aa2d42bddac7ca3b6e2bfa95036ffdfd8e29204",
+  "helper_source_sha256": "8f306f1359e28039c5fe36b04ec47183246bec3041221fbdccafd7bcdbcf7beb",
+  "audit": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-qualification-20261101-20/malloc-clear.jsonl",
+  "audit_sha256": "3e4fb0e402c09edd00b91f713eea868c91121ca1065efeec7d93132700be8c8a",
+  "ui_reference": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-qualification-20261101-08/malloc-log-inspection.png",
+  "ui_reference_sha256": "5c0b6d36c9cf48229141f30ef4ed8d1db33531ac831d18a00490b1867723cb42",
+  "ownership": "History sessions hold POSIX whole-file write locks on the existing three paths. Read-only F_GETLK requires exact direct-parent PID. Actual Darwin tests prove exclusion against existing BSD flock owners in both directions. Ordinary non-history sessions unchanged.",
+  "ui_scope": "Exact SDK3.1.2 hash and740x480 MallocLog layout. Unique nativewindow, fresh AXhit-test confirmsSimulatorPID/MallocLog at inspectedbroompoint. Cursor restored if user did not move it. No arbitrarycoordinates, otherappclick, pool/checkbox/gameinput action.",
+  "retained_failures": "Earlier helpers refused kernel/AX/layout checks; process-targeted events did not clear. Paired clearing run19 hit1GiB before nextpause and remainsfailed. No failed report rewritten. Stage02 helperbinary path was reused during development; its original binary is unavailable for revalidation, so it cannot qualify any future execution. Current18 source/binary are retained separately and unchanged.",
+  "checks": {
+    "host": 17,
+    "pure_rejection": 7,
+    "swift_compile": "SDK-native swiftc -O -warnings-as-errors passed"
+  },
+  "unchanged": "16MiB pool/1GiB host/60sprogress/wholedeadline/Lua9MiB guards; production Source, Bcheckout and canonical earned slots unchanged.",
+  "remaining": [
+    "Independent review",
+    "Long census still unrun under this corrected helper",
+    "Long physical traversal/showcase/device latency gates"
+  ]
+}

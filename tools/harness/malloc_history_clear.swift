@@ -1,8 +1,9 @@
-// Host-only, deliberately not wired into any runner. See malloc_history_clear.md.
+// Root-only bounded native helper; enabled explicitly by the census owner.
 import Foundation
 import ApplicationServices
 import CryptoKit
 import Darwin
+import CoreGraphics
 
 struct Refusal: Error { let reason: String }
 func require(_ ok: Bool, _ why: String) throws {
@@ -53,18 +54,16 @@ func argv(_ pid: pid_t) throws -> [String] {
 }
 func ownedLock(_ url: URL, _ owner: pid_t) throws {
     try require((try record(url))["pid"] as? Int == Int(owner), "lock metadata owner mismatch")
-    // Read kernel lock reporting; never open for write, acquire or release a lock.
-    let task = Process(), pipe = Pipe()
-    task.executableURL = URL(fileURLWithPath: "/usr/sbin/lsof")
-    task.arguments = ["-nP", "-b", "-S2", "-a", "-p", String(owner), "-Fpln", "--", url.path]
-    task.standardOutput = pipe
-    task.standardError = FileHandle.nullDevice
-    try task.run()
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    task.waitUntilExit()
-    let lines = String(decoding: data, as: UTF8.self).split(separator: "\n").map(String.init)
-    try require(task.terminationStatus == 0 && lines.contains("p\(owner)") &&
-                lines.contains("lW") && lines.contains("n" + url.path), "exclusive owner lock unconfirmed")
+    // F_GETLK only queries the kernel; this descriptor never acquires a lock.
+    // Census history sessions use a POSIX lock whose owner PID Darwin exposes.
+    let descriptor = open(url.path, O_RDONLY | O_NOFOLLOW)
+    try require(descriptor >= 0, "owner lock cannot be opened read-only")
+    defer { close(descriptor) }
+    var lock = flock(l_start: 0, l_len: 0, l_pid: 0,
+                     l_type: Int16(F_WRLCK), l_whence: Int16(SEEK_SET))
+    try require(fcntl(descriptor, F_GETLK, &lock) == 0 &&
+                lock.l_type == Int16(F_WRLCK) && lock.l_pid == owner &&
+                lock.l_start == 0 && lock.l_len == 0, "exclusive owner lock unconfirmed")
 }
 let sdk = path("/Users/burbujamc/Developer/PlaydateSDK")
 let simulatorHash = "ebaeca5c65f3d613f06c8a3d701e90c01f292f13fc66f24a680e4357c5b447cf"
@@ -129,11 +128,90 @@ func label(_ element: AXUIElement, _ name: String) throws -> String {
 func elements(_ element: AXUIElement, _ name: String) throws -> [AXUIElement] {
     (try attribute(element, name)) as? [AXUIElement] ?? []
 }
-func operate(_ pid: pid_t, _ clear: Bool, _ reverify: () throws -> Void) throws {
+func rectangle(_ element: AXUIElement) throws -> CGRect? {
+    guard let position = try attribute(element, kAXPositionAttribute),
+          let size = try attribute(element, kAXSizeAttribute),
+          CFGetTypeID(position) == AXValueGetTypeID(), CFGetTypeID(size) == AXValueGetTypeID()
+    else { return nil }
+    var point = CGPoint.zero, dimensions = CGSize.zero
+    guard AXValueGetValue(unsafeBitCast(position, to: AXValue.self), .cgPoint, &point),
+          AXValueGetValue(unsafeBitCast(size, to: AXValue.self), .cgSize, &dimensions)
+    else { return nil }
+    return CGRect(origin: point, size: dimensions)
+}
+func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
+                                 _ reverify: () throws -> Void) throws {
+    // SDK 3.1.2 exposes no AX element for its bottom-row broom. Root inspected
+    // the native capture: this exact 740x480 layout puts Clear at (48,462).
+    // No caller can supply coordinates, a window title or a different target.
+    let logs = try elements(app, kAXWindowsAttribute).filter {
+        try label($0, kAXTitleAttribute) == "Malloc Log"
+    }
+    try require(logs.count == 1, "one Malloc Log window required")
+    guard let bounds = try rectangle(logs[0]) else {
+        throw Refusal(reason: "Malloc Log bounds unavailable")
+    }
+    try require(bounds.width == 740 && bounds.height == 480, "unqualified Malloc Log layout")
+    let allWindows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []
+    let logWindows = allWindows.filter {
+        ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
+        ($0[kCGWindowName as String] as? String) == "Malloc Log"
+    }
+    try require(logWindows.count == 1, "Malloc Log native window identity is ambiguous")
+    guard let windowID = logWindows[0][kCGWindowNumber as String] as? Int else {
+        throw Refusal(reason: "Malloc Log native window ID unavailable")
+    }
+    try require(AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString, kCFBooleanTrue) == .success,
+                "Simulator cannot become frontmost")
+    try require(AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString) == .success,
+                "Malloc Log cannot be raised")
+    let point = CGPoint(x: bounds.minX + 48, y: bounds.minY + 462)
+    try reverify()
+    var hit: AXUIElement?
+    try require(AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(),
+                Float(point.x), Float(point.y), &hit) == .success, "Clear hit-test unavailable")
+    guard let element = hit else { throw Refusal(reason: "Clear hit-test has no element") }
+    var hitPID: pid_t = 0
+    try require(AXUIElementGetPid(element, &hitPID) == .success && hitPID == pid,
+                "Clear point belongs to another application")
+    let hitWindow = try attribute(element, kAXWindowAttribute)
+    let window = hitWindow.map { unsafeBitCast($0, to: AXUIElement.self) } ?? element
+    try require(try label(window, kAXTitleAttribute) == "Malloc Log",
+                "Clear point belongs to another Simulator window")
+    guard let down = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown,
+                             mouseCursorPosition: point, mouseButton: .left),
+          let up = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp,
+                           mouseCursorPosition: point, mouseButton: .left)
+    else { throw Refusal(reason: "targeted Clear events unavailable") }
+    let previousCursor = CGEvent(source: nil)?.location
+    try require(CGWarpMouseCursorPosition(point) == .success, "Clear cursor position unavailable")
+    defer {
+        if let previous = previousCursor, let current = CGEvent(source: nil)?.location,
+           abs(current.x - point.x) < 2 && abs(current.y - point.y) < 2 {
+            CGWarpMouseCursorPosition(previous)
+        }
+    }
+    if let moved = CGEvent(mouseEventSource: nil, mouseType: .mouseMoved,
+                           mouseCursorPosition: point, mouseButton: .left) {
+        moved.setIntegerValueField(.mouseEventWindowUnderMousePointer, value: Int64(windowID))
+        moved.setIntegerValueField(.mouseEventWindowUnderMousePointerThatCanHandleThisEvent, value: Int64(windowID))
+        moved.post(tap: .cghidEventTap)
+    }
+    for event in [down, up] {
+        event.setIntegerValueField(.mouseEventWindowUnderMousePointer, value: Int64(windowID))
+        event.setIntegerValueField(.mouseEventWindowUnderMousePointerThatCanHandleThisEvent, value: Int64(windowID))
+    }
+    down.post(tap: .cghidEventTap)
+    up.post(tap: .cghidEventTap)
+    usleep(200_000)
+    print("{\"clear_requested\":true,\"mechanism\":\"verified-window-broom\",\"pid\":\(pid)}")
+}
+func operate(_ pid: pid_t, _ operation: String, _ directory: URL, _ reverify: () throws -> Void) throws {
     try require(AXIsProcessTrusted(), "Accessibility unavailable; no prompt requested")
     let app = AXUIElementCreateApplication(pid)
     try require(AXUIElementSetMessagingTimeout(app, 0.2) == .success, "AX timeout unavailable")
-    var candidates: [AXUIElement] = [], seen: [AXUIElement] = [], listing: [[String: String]] = []
+    var candidates: [AXUIElement] = [], logControls: [AXUIElement] = []
+    var seen: [AXUIElement] = [], listing: [[String: String]] = []
     func walk(_ element: AXUIElement, _ scope: String, _ depth: Int) throws {
         if seen.contains(where: { CFEqual($0, element) }) { return }
         try require(seen.count < 400 && depth < 16, "AX tree exceeds bounded inspection")
@@ -141,10 +219,30 @@ func operate(_ pid: pid_t, _ clear: Bool, _ reverify: () throws -> Void) throws 
         var elementPID: pid_t = 0
         try require(AXUIElementGetPid(element, &elementPID) == .success && elementPID == pid, "foreign AX element")
         let role = try label(element, kAXRoleAttribute), title = try label(element, kAXTitleAttribute)
-        listing.append(["scope": scope, "role": role, "title": title,
-                        "description": try label(element, kAXDescriptionAttribute)])
+        var entry = ["scope": scope, "role": role, "title": title,
+                     "description": try label(element, kAXDescriptionAttribute)]
+        if scope == "Malloc Log" && role == kAXButtonRole {
+            entry["help"] = try label(element, kAXHelpAttribute)
+            entry["identifier"] = try label(element, kAXIdentifierAttribute)
+            entry["value"] = try label(element, kAXValueAttribute)
+            if let bounds = try rectangle(element) {
+                entry["frame"] = NSStringFromRect(bounds)
+            }
+        }
+        if scope == "Malloc Log" && role == kAXStaticTextRole {
+            entry["value"] = try label(element, kAXValueAttribute)
+        }
+        listing.append(entry)
         if title == "Clear Malloc History" && (role == kAXMenuItemRole || (scope == "Malloc Log" && role == kAXButtonRole)) {
             candidates.append(element)
+        }
+        if scope == "Simulator menu" && title == "Show Malloc Log" && role == kAXMenuItemRole {
+            logControls.append(element)
+        }
+        // Allocation rows are data, never controls. Do not enumerate thousands
+        // of rows just to locate the log window's fixed buttons.
+        if scope == "Malloc Log" && [kAXTableRole, kAXOutlineRole, kAXRowRole, kAXCellRole].contains(role) {
+            return
         }
         for child in try elements(element, kAXChildrenAttribute) { try walk(child, scope, depth + 1) }
     }
@@ -154,12 +252,44 @@ func operate(_ pid: pid_t, _ clear: Bool, _ reverify: () throws -> Void) throws 
     }
     for window in try elements(app, kAXWindowsAttribute) {
         let title = try label(window, kAXTitleAttribute)
-        listing.append(["scope": "Simulator window", "title": title])
+        var entry = ["scope": "Simulator window", "title": title]
+        if let bounds = try rectangle(window) { entry["frame"] = NSStringFromRect(bounds) }
+        listing.append(entry)
         if title == "Malloc Log" { try walk(window, "Malloc Log", 0) }
     }
-    if !clear {
+    if operation == "inspect" {
+        let windows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []
+        let logs = windows.filter {
+            ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
+            ($0[kCGWindowName as String] as? String) == "Malloc Log"
+        }
+        if logs.count == 1, let identifier = logs[0][kCGWindowNumber as String] as? Int {
+            try reverify()
+            let capture = Process()
+            let target = directory.appendingPathComponent("malloc-log-inspection.png")
+            capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+            capture.arguments = ["-x", "-l", String(identifier), target.path]
+            capture.standardOutput = FileHandle.nullDevice
+            capture.standardError = FileHandle.nullDevice
+            try capture.run()
+            capture.waitUntilExit()
+            listing.append(["scope": "inspection capture", "path": target.path,
+                            "returncode": String(capture.terminationStatus)])
+        }
         let data = try JSONSerialization.data(withJSONObject: listing, options: [.sortedKeys])
         print(String(decoding: data, as: UTF8.self))
+        return
+    }
+    if operation == "show-log" {
+        try require(logControls.count == 1, "expected one verified Show Malloc Log menu item")
+        try require((try attribute(logControls[0], kAXEnabledAttribute)) as? Bool == true, "Malloc Log is not enabled")
+        try reverify()
+        try require(AXUIElementPerformAction(logControls[0], kAXPressAction as CFString) == .success, "Show Malloc Log AXPress failed")
+        print("{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
+        return
+    }
+    if candidates.isEmpty {
+        try clearUnlabelledMallocControl(app, pid, reverify)
         return
     }
     try require(candidates.count == 1, "expected exactly one Clear Malloc History control; inspect first")
@@ -169,16 +299,16 @@ func operate(_ pid: pid_t, _ clear: Bool, _ reverify: () throws -> Void) throws 
     print("{\"ax_press_accepted\":true,\"pid\":\(pid)}")
 }
 let started = DispatchTime.now().uptimeNanoseconds
-alarm(8) // Bounds this helper, including lsof and unresponsive AX. Never signals the Simulator.
+alarm(8) // Bounds native inspection/capture; never signals the Simulator.
 do {
     let args = CommandLine.arguments
-    try require(args.count == 5 && ["inspect", "clear"].contains(args[1]),
-                "usage: helper inspect|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256")
+    try require(args.count == 5 && ["inspect", "show-log", "clear"].contains(args[1]),
+                "usage: helper inspect|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256")
     try require(args[3].count == 64 && args[4].count == 64 && (args[3] + args[4]).allSatisfy({ $0.isHexDigit }),
                 "expected SHA256 pins")
     let directory = path(args[2])
     let pid = try verify(directory, args[3], args[4])
-    try operate(pid, args[1] == "clear") {
+    try operate(pid, args[1], directory) {
         try require(try verify(directory, args[3], args[4]) == pid, "runtime identity changed")
     }
     fputs("helper_elapsed_ms=\(Double(DispatchTime.now().uptimeNanoseconds - started) / 1e6)\n", stderr)

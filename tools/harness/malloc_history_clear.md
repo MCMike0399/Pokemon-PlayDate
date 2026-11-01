@@ -1,11 +1,16 @@
-# Malloc-history helper (Root only; live validation pending)
+# Malloc-history helper (Root only; short live qualification)
 
 `malloc_history_clear.swift` is a macOS host utility for the exact SDK 3.1.2
 Simulator SHA256 embedded in its source. It writes no preferences/TCC, activates
 no window, launches no Simulator and takes no locks. The user chose to retain 16 MiB and enable Accessibility. Do not execute
 AX inspection/Clear until trust is actually verified.
 `AXIsProcessTrusted()` never requests permission; false refuses. No System Events,
-AppleScript, input injection, generic UI action or permission workaround exists.
+AppleScript, arbitrary coordinates or permission workaround exists. The exact
+SDK3.1.2 Malloc Log broom is not exposed as an AX control. Its bounded fallback
+uses normal mouse events only after a fresh AX hit-test confirms the verified
+Simulator PID and Malloc Log window, at the visually inspected740×480 layout
+point(48,462). Other window dimensions or targets refuse. The cursor is restored
+only if the user has not moved it. No pool, checkbox or game input is changed.
 
 Build privately (never add the binary to Git), and retain both identities:
 
@@ -15,30 +20,46 @@ shasum -a 256 tools/harness/malloc_history_clear.swift "$PRIVATE_DIR/malloc-hist
 ```
 
 Only the existing runtime owner may launch the helper, directly as its child:
-`[helper, "inspect" or "clear", output, sha(build.json), sha(run.json)]`.
+`[helper, "inspect", "show-log" or "clear", output, sha(build.json), sha(run.json)]`.
 Use `subprocess.run(..., timeout=9, capture_output=True)` with no shell; verify
 Root's pinned helper hash first. Metadata pins must come from the actual new
-run, not an old example. The helper checks build/run identity, the entire PDX
-file inventory, SDK executable hash, live executable/argv/user/parent/start time,
-and the global Simulator, global device and private Data locks. Lock JSON alone is insufficient:
-read-only `lsof` must report that direct parent holding each full write lock.
-No lock is acquired or modified. Unsupported lock reporting refuses safely.
+run, not an old example. The helper checks build/run identity, the entire PDX inventory, SDK executable
+hash, live executable/argv/user/parent/start time and all three owner locks.
+Darwin's lsof does not expose BSD flock owner PIDs. History-enabled census runs
+therefore use POSIX write locks on the same existing lock paths; Darwin makes
+these mutually exclusive with the ordinary BSD flock owners in both directions.
+The helper opens those paths read-only and uses F_GETLK to require an exclusive
+whole-file write lock belonging to its direct parent PID. It never acquires or
+changes a lock. Metadata alone is never sufficient. Ordinary sessions retain
+the original OwnerLock; only history-enabled census ownership uses this mode.
 It has an eight-second lifetime ceiling and 200 ms AX messaging timeout.
 
-`inspect` prints menu roles/titles/descriptions and window titles for only that
-verified PID; it descends into only the menu bar and exact `Malloc Log` windows.
-It never opens the log. `clear` presses only one enabled exact-title
-`Clear Malloc History` menu item, or button within exact `Malloc Log`. Multiple
-matches, another label, absent/hidden control, inaccessible tree or AX error
-refuses. There is no fallback to a generic `Clear` button or menu navigation.
-Root must inspect the real tree first; binary strings do not verify AX labels.
-An accepted AXPress is not confirmation of history reclamation. Root must retain
-before/after host footprints separately; neither this helper nor its tests prove
-memory improvement, device admission or timing validity.
+`inspect` lists only the verified Simulator menus and Malloc Log controls,
+excluding allocation-table rows. It can retain a native capture of that exact
+Malloc Log window. `show-log` opens only the unique observed `Show Malloc Log`
+menu item, after identity verification. A bounded500ms settling wait follows.
+`clear` prefers the unique exact `Clear Malloc History` AX control. SDK3.1.2's
+observed unlabeled broom uses the guarded window-specific fallback above.
+A requested click is **not** proof of reclamation: the host retains the control
+inspection before/after and actual process footprints. Inspection PNGs are
+retained separately with hashes, not overwritten as evidence. No command
+acknowledgement by itself qualifies a long run or establishes device memory.
+
+The original helper's compile-only assumptions were corrected in live runs:
+`lsof -b` could not resolve the lock path, BSD lock owners were unreported, the
+log window was closed, and its broom has no AX element. Process-targeted mouse
+events did not clear the log and remain rejected. The successful short run is
+`history-clear-qualification-20261101-18`: two actual portal trials complete;
+records reset to zero and sampled host footprint falls by about120/143MiB at
+its two Clear boundaries. These profiler counts are not live-game heap counts.
+Six-case qualification20 reports all12 trials (10measured/two geometry gaps),
+no runtime failure,13Clear boundaries and811MiB sampled host peak. Paired
+clearing19 hit1GiB; pause now follows EVERY trial. Independent review remains
+required before long use. Long-run boundedness is not established by this pilot.
 
 ## Census integration
 
-The private census now pauses after startup and each completed case pair. Its
+The private census now pauses after startup and every completed trial. Its
 update returns without gameplay until an exact build/row acknowledgement;
 watchdog/memory checks remain active. The host runs the pinned helper directly,
 records inspect/Clear output, elapsed time and before/after process footprints
@@ -56,8 +77,10 @@ python3 tools/device/door_census.py --project "$B" --sdk "$SDK" \
   --case '<exact inventory ID>' --timeout 120 --execute
 ```
 
-The first operation is a scoped inspect, retained before the Clear attempt. Actual
-labels are not yet verified; absent/nonunique labels must fail closed. Use a
+The startup sequence is inspect → exactShowMallocLog → inspect → Clear → inspect.
+Later trial pauses use Clear → inspect. Native captures and controller overhead
+are retained separately from transition intervals. The actual native broom and surrounding controls have been inspected.
+Missing/ambiguous controls, a changed layout or foreign hit-test must fail closed. Use a
 bounded qualification before a long run. An accepted AXPress is not a measured
 memory-reclamation result. No pool setting, gameplay command, source data,
 canonical save or device admission policy changes. This hook has only host
