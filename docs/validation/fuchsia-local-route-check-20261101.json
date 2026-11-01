@@ -1,0 +1,116 @@
+{
+  "status": "Static local detour only; actual traversal and source ledge/actor behavior unverified. No runtime replay authorized by this file.",
+  "source": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-2c976160/Source/data/midgameSouth/FuchsiaCity.json",
+  "sha256": "95bef1e9bb43460bdbc8579bc7c119c71ac5f8edc1ed9c8d53b1457494ca8475",
+  "retained_stop": "Fuchsia capture ended at(30,17), facingup, after requested rightward batch. No per-command collision reason was recorded, so the cause is unproven.",
+  "local_waypoints": [
+    [
+      30,
+      17
+    ],
+    [
+      30,
+      18
+    ],
+    [
+      37,
+      18
+    ],
+    [
+      37,
+      17
+    ],
+    [
+      39,
+      17
+    ],
+    [
+      39,
+      16
+    ]
+  ],
+  "passable_cells_checked": [
+    [
+      30,
+      18
+    ],
+    [
+      31,
+      18
+    ],
+    [
+      32,
+      18
+    ],
+    [
+      33,
+      18
+    ],
+    [
+      34,
+      18
+    ],
+    [
+      35,
+      18
+    ],
+    [
+      36,
+      18
+    ],
+    [
+      37,
+      18
+    ],
+    [
+      37,
+      17
+    ],
+    [
+      38,
+      17
+    ],
+    [
+      39,
+      17
+    ],
+    [
+      39,
+      16
+    ]
+  ],
+  "source_actor_context": [
+    {
+      "extra": [],
+      "id": "pokered:FUCHSIA_CITY:objects:2",
+      "kind": "npc",
+      "movement": "WALK",
+      "range_or_facing": "LEFT_RIGHT",
+      "runtime_sprite": null,
+      "runtime_status": "requires explicit existing or pinned sprite mapping",
+      "source_index": 2,
+      "source_line": 45,
+      "sprite": "SPRITE_GAMBLER",
+      "text_id": "TEXT_FUCHSIACITY_GAMBLER",
+      "x": 28,
+      "y": 17
+    },
+    {
+      "extra": [],
+      "id": "pokered:FUCHSIA_CITY:objects:3",
+      "kind": "npc",
+      "movement": "STAY",
+      "range_or_facing": "DOWN",
+      "runtime_sprite": null,
+      "runtime_status": "requires explicit existing or pinned sprite mapping",
+      "source_index": 3,
+      "source_line": 46,
+      "sprite": "SPRITE_FISHER",
+      "text_id": "TEXT_FUCHSIACITY_ERIK",
+      "x": 30,
+      "y": 14
+    }
+  ],
+  "scope": "Every detour cell is passable in pinned base collision. This is not a path planner or complete route proof; ignores live actor occupancy, source ledges and saved terrain mutations.",
+  "next": "When recording is available, test DOWN to(30,18), then inspect settled position at each waypoint. Reject unexpected motion/overlay. Do not infer the earlier block was a game defect or relax input assertions."
+}
