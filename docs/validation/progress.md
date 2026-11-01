@@ -101,13 +101,13 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Census segments stopped, preserving failed states: first1070 trials after AX
-read failure; then292 trials after9MiB Lua guard. No live census now. Hard guard
-errors must not become ordinary gaps.50 repeatedContinue loads stabilize after
-warm-up;30 diverse placements complete with existing suspensionGC. This does
-not establish a leak or device RAM. [Isolation](census-memory-isolation-20261101.json).
-Correct observer failure handling/field prerequisites and qualify before more
-census. Keep16MiB/9MiB raw/1GiB host/60s progress limits; no report relabel.
+Census long-process attempts stopped safely; all failed data remain unchanged.
+Observer fixes: fatal guards stop, validRockTunnel1F prelude, precise segments,
+bounded checkpoint collection.21host tests/fatalSDK red-green pass. FreshHideout
+batch reports20trials (18measured/two eventgaps), no runtimefailure. Exhaustive
+census now runs all2445cases/4890trials in8-case fresh SDK batches, session75681;
+frozen observer, same B10cb and16MiB/9MiB/1GiB/60s guards. [Decision/scope](census-bounded-processes-20261101.json).
+Batch/cache boundaries remain explicit; continuous physical traversal stillrequired.
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.
