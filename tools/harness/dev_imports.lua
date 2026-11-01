@@ -144,6 +144,8 @@ import "dev/stageResetContracts"
 Contracts.register("stage-reset", StageResetContracts.run)
 import "dev/earnedBMoveContracts"
 Contracts.register("earned-b-moves", EarnedBMoveContracts.run)
+import "dev/selfKOMoveContracts"
+Contracts.register("self-ko-moves", SelfKOMoveContracts.run)
 import "dev/roostContracts"
 Contracts.register("roost",RoostContracts.run)
 import "dev/roostPredicateContracts"

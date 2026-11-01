@@ -121,3 +121,9 @@ Reviewer5 recoverypassclosedafterexternalauthorizedTartcleanup: fresh84.62GiB,
 0Playdatearchive/rehearse/releases and0pendingpassjobs. No additionalroots;
 ordinarypolicies/guards unchanged, temporaryslotreleased. Runtimeadmission
 restored; olderlow-capacity measurements above remain historical.
+
+Reviewed Self-Destruct/Explosion plus King's Rock correction are composed into
+private B4470a0c2:74 native battle cases and34 focused host checks pass; existing
+harness registration added. One minimal-runner charge-lock dependency refusal
+is retained separately. No B/C acceptance or fresh full-suite claim.
+[Scope](self-ko-private-b-adoption-20261101.json).
