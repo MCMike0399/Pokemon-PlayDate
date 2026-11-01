@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "source_sha256": "9b87d9ee180f24a42879323792abf2fbef278dac8754bf1703cde7698b120660",
+  "sdk": {
+    "passed": 54,
+    "failed": 0
+  },
+  "scope": "The same 54 original assertions cited by 50 existing move records. Only exact names were selected. The run used private production-qualified startup and actual SDK suites. There were no AX or history pauses. This is not a performance, device or campaign claim. No new move entries were promoted.",
+  "acceptance_context": "private-root-scoped-sdk-not-checkpoint-acceptance",
+  "build_id": "99f2e69b55c143a3b0080e07b49913ec:9b87d9ee180f24a42879323792abf2fbef278dac8754bf1703cde7698b120660",
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-runtime54-native-20261101-01/startup-probe.json",
+    "sha256": "5f9235bf702dad812b827f2ba0892f8fbc9973ef1e5367b11c51b83849160f19",
+    "size_bytes": 7588
+  },
+  "build_metadata": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-runtime54-native-20261101-01/build.json",
+  "compiled_source_sha256": "92da8c12cabbbacdb48990fb233294b5f6fe6502e8ac528e4d17553d6d2c5ab9",
+  "host_resources": {
+    "limit_bytes": 1073741824,
+    "sampled_peak_bytes": 187237384
+  },
+  "changed_owners": [
+    {
+      "move": "assurance",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:movePower(",
+      "before": "0b092236164fbb1594c86d01b3eb3000f065ceadbe80402661574e0f579e0dd2",
+      "after": "96a3d16d22133019e38438f2e8e5b4c66f43f7087227e5ca120ecf44342de9dd"
+    },
+    {
+      "move": "captivate",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:canAttempt(",
+      "before": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "after": "14234726ffad94c40d4de3a7b36f9da9632411fec3260a2f1479ce1f3adb8035"
+    },
+    {
+      "move": "electroBall",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:movePower(",
+      "before": "0b092236164fbb1594c86d01b3eb3000f065ceadbe80402661574e0f579e0dd2",
+      "after": "96a3d16d22133019e38438f2e8e5b4c66f43f7087227e5ca120ecf44342de9dd"
+    },
+    {
+      "move": "endeavor",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:canAttempt(",
+      "before": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "after": "14234726ffad94c40d4de3a7b36f9da9632411fec3260a2f1479ce1f3adb8035"
+    },
+    {
+      "move": "hurricane",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:accuracyBypassesCheck(",
+      "before": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8",
+      "after": "e87e303cbca22b6592ea674dc5bc43ce620703c51cb87803e66591c623accc43"
+    },
+    {
+      "move": "lightScreen",
+      "path": "Source/battle/conditions.lua",
+      "start": "function BattleConditions:screenDamage(",
+      "before": "67f4773ab22ff36a30400010a2652c69d566759dc76d06499360747387dffeb7",
+      "after": "1c6a044d20f406fc5f1efb0079e4e2b0284244e86f64dea339a125a34e09ffa7"
+    },
+    {
+      "move": "ragePowder",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:canAttempt(",
+      "before": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "after": "14234726ffad94c40d4de3a7b36f9da9632411fec3260a2f1479ce1f3adb8035"
+    },
+    {
+      "move": "rainDance",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:accuracyBypassesCheck(",
+      "before": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8",
+      "after": "e87e303cbca22b6592ea674dc5bc43ce620703c51cb87803e66591c623accc43"
+    },
+    {
+      "move": "safeguard",
+      "path": "Source/battle/conditions.lua",
+      "start": "function BattleConditions:screenDamage(",
+      "before": "67f4773ab22ff36a30400010a2652c69d566759dc76d06499360747387dffeb7",
+      "after": "1c6a044d20f406fc5f1efb0079e4e2b0284244e86f64dea339a125a34e09ffa7"
+    },
+    {
+      "move": "skullBash",
+      "path": "Source/battle/conditions.lua",
+      "start": "function BattleConditions:charge(",
+      "before": "6e56c73c84d8e645f0bfd8021936dc65615a520581a998d7338cc6de3ced8fd3",
+      "after": "bfa161803133b090f1e6e2d4d1b8b7e071efec1119d0fbbcb846c33423c7aced"
+    },
+    {
+      "move": "solarBeam",
+      "path": "Source/battle/conditions.lua",
+      "start": "function BattleConditions:charge(",
+      "before": "6e56c73c84d8e645f0bfd8021936dc65615a520581a998d7338cc6de3ced8fd3",
+      "after": "bfa161803133b090f1e6e2d4d1b8b7e071efec1119d0fbbcb846c33423c7aced"
+    },
+    {
+      "move": "suckerPunch",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:canAttempt(",
+      "before": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "after": "14234726ffad94c40d4de3a7b36f9da9632411fec3260a2f1479ce1f3adb8035"
+    },
+    {
+      "move": "tailwind",
+      "path": "Source/battle/conditions.lua",
+      "start": "function BattleConditions:screenDamage(",
+      "before": "67f4773ab22ff36a30400010a2652c69d566759dc76d06499360747387dffeb7",
+      "after": "1c6a044d20f406fc5f1efb0079e4e2b0284244e86f64dea339a125a34e09ffa7"
+    },
+    {
+      "move": "thunder",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:accuracyBypassesCheck(",
+      "before": "de078b1ae9bc2aed1bc42b3724b651fd615c79a7b3ee6a68b19ec3512b9877f8",
+      "after": "e87e303cbca22b6592ea674dc5bc43ce620703c51cb87803e66591c623accc43"
+    },
+    {
+      "move": "bide",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:hit(",
+      "before": "4242964749f471fe320661d71e1c5b3aaf6ac1e9f0c884ab847d9cc8fe60edbf",
+      "after": "2e2018d8a8ebccf882f66f352b9d07e08aae04077f887f8e704a3a4c6ffeb1f3"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:forceSwitch(",
+      "before": "e89109bbabd334f0e241459e67b4e1200dc068c99a07d7aaf9ba9d30797bf5fb",
+      "after": "677da88c958ed1af1fbcc115f03ea37fca75fd92fa15a952cf31b10dc88fbf77"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:resolveTurn(",
+      "before": "a70c43aa1fbb2cfae10cfab6dc7f33b2bf446b4572700f0ff37056c917175f17",
+      "after": "25e9e95e2b4c27c06ad32103828637bf4ea1614990c7f15061ff3936684198fb"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:performMove(",
+      "before": "57afa8a9444cc2f9cf5b22dee22378fb78023bd4b49ce44d9f7075092df18bc9",
+      "after": "d1e6055971ee0c94d8d099f5a5b07c76c86c40d76b62d920a58b0c3b8b79e8ee"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:canAttempt(",
+      "before": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "after": "14234726ffad94c40d4de3a7b36f9da9632411fec3260a2f1479ce1f3adb8035"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/moveSupport.lua",
+      "start": null,
+      "before": "32964a5a35d40d6790138a87df2211695ee57d0eb09fda52f783c9c9e39a4fa6",
+      "after": "5ac259aefa53ea4ebf85d9cb7676da86531e698671d4079a4d5ebce3969a7077"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:forceSwitch(",
+      "before": "e89109bbabd334f0e241459e67b4e1200dc068c99a07d7aaf9ba9d30797bf5fb",
+      "after": "677da88c958ed1af1fbcc115f03ea37fca75fd92fa15a952cf31b10dc88fbf77"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:resolveTurn(",
+      "before": "a70c43aa1fbb2cfae10cfab6dc7f33b2bf446b4572700f0ff37056c917175f17",
+      "after": "25e9e95e2b4c27c06ad32103828637bf4ea1614990c7f15061ff3936684198fb"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:performMove(",
+      "before": "57afa8a9444cc2f9cf5b22dee22378fb78023bd4b49ce44d9f7075092df18bc9",
+      "after": "d1e6055971ee0c94d8d099f5a5b07c76c86c40d76b62d920a58b0c3b8b79e8ee"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:canAttempt(",
+      "before": "455407d068b178af173f08c21d481440304b6182a29f7478d7c4f0baab155bd5",
+      "after": "14234726ffad94c40d4de3a7b36f9da9632411fec3260a2f1479ce1f3adb8035"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/moveSupport.lua",
+      "start": null,
+      "before": "32964a5a35d40d6790138a87df2211695ee57d0eb09fda52f783c9c9e39a4fa6",
+      "after": "5ac259aefa53ea4ebf85d9cb7676da86531e698671d4079a4d5ebce3969a7077"
+    },
+    {
+      "move": "roar",
+      "path": "Source/dev/moveFailureContracts.lua",
+      "start": null,
+      "before": "d93d74743691885d9d1c28646cd7cedc80502c98849485e5f389f755160b3a37",
+      "after": "90271ae2f21bee9135666166de095de580b6f842529b9a9470323de297938acb"
+    }
+  ],
+  "selector_correction": "Roar last-case end moves from final cleanup to immediately following Teleport case. The original573-byte assertion hash remains exactly equal; no assertions changed.",
+  "historical_registry": {
+    "path": "tools/references/runtime-move-coverage-before-earned-b-20261101.json",
+    "sha256": "79502616f5cc08c5493ed390f5289eb76ef4c19a4832ba99d7f2ebaa221e78d5"
+  },
+  "qualification": "Only verified-subset owner hashes updated after unchanged exact cited assertions executed on current code. Definitions/test hashes/states/scopes retained. Source-only and source-gap records remain untouched, including deliberate stale HelpingHand and Dig."
+}

@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "reviewed-source-and-executed-SDK-subsets",
   "accepted_summary": {
-    "path": "docs/validation/coverage-evidence/earned-b-rng54-summary-20261101.json",
-    "sha256": "33c9316c11e9a4d8b49c96b78d0119735ee53f9a7da47f4f546bd57c8e50fb9f",
+    "path": "docs/validation/coverage-evidence/earned-b-rng54-summary-clarified-20261101.json",
+    "sha256": "2b79d10b1f5a1974eb7e6655b8d6215727b39a6d74081e162e60c164911e275b",
     "source_sha256": "9b87d9ee180f24a42879323792abf2fbef278dac8754bf1703cde7698b120660",
     "sdk_passed": 54
   },

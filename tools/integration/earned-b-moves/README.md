@@ -69,16 +69,16 @@ condition/sleep/switch/action/attack-history inputs and the immutable PokeAPI
 chain. The qualifier checks actual callback clauses and all inherited overrides.
 There was no network fetch or oracle repinning.
 
-Producer epoch17 introduces only the five requested rows: three concrete
-payloads and Snore/Revenge rule fields. There are exactly425 core rows;
+Producer epoch 17 introduces only the five requested rows: three concrete
+payloads and Snore/Revenge rule fields. There are exactly 425 core rows;
 420 unrelated rows remain byte identical to exact B. Original scalar values,
-Haze/Clear Smog16, Reflect15, Chip Away14 and every earlier transition remain
-exact. The original424 inverse SHA256 stays
+Haze/Clear Smog 16, Reflect 15, Chip Away 14 and every earlier transition remain
+exact. The original 424 inverse SHA256 stays
 `ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea`.
-All five HM battle declarations and the schema4 codec owner remain byte
-identical. The field generators still reproduce all35 artifacts/88 pinned files.
+All five HM battle declarations and the schema 4 codec owner remain byte
+identical. The field generators still reproduce all 35 artifacts/88 pinned files.
 
-Stale current-epoch assertions now expect17. Genuine historical11/13/14/15/16
+Stale current-epoch assertions now expect 17. Genuine historical 11/13/14/15/16
 fixtures explicitly remove later payloads/metadata before exercising the old
 inverse; they are not current rows with an old label. Existing rejection tests
 remain, plus new deletion, rollback, wrong-rule/type, scalar and extra-effect
@@ -86,10 +86,10 @@ mutants. No current coverage or historical acceptance record was rewritten.
 
 ## Validation and Root selections
 
-[validation.json](validation.json) lists the exact24 implementation files,
-SHA256 values, all33 native case names, Root regression selections and retained
-build/log paths. The74 focused host checks pass with no skips. Production and
-privately registered harness compile with real SDK3.1.2, and their owned staged
+[validation.json](validation.json) lists the exact 24 implementation files,
+SHA256 values, all 33 native case names, Root regression selections and retained
+build/log paths. The 74 focused host checks pass with no skips. Production and
+privately registered harness compile with real SDK 3.1.2, and their owned staged
 Source hashes match the logical packet. Compilation is the only SDK activity;
 no Lua/stock-Lua substitute, runtime, Simulator, global lock, device/USB/AX,
 OpenClaw, Pi/service/network configuration, push or delegation was used.
@@ -97,7 +97,7 @@ OpenClaw, Pi/service/network configuration, push or delegation was used.
 [root-registration.patch](root-registration.patch) applies to exact B's existing
 `tools/harness/dev_imports.lua`. It remains unapplied in this checkout. It imports
 `dev/earnedBMoveContracts` and registers `earned-b-moves`; production imports need
-no change. Root should run that33-case group first, then the selected existing
+no change. Root should run that 33-case group first, then the selected existing
 combat, switch, condition, ability, secondary, power, protection, HM and stage
 regressions recorded in validation.json. Root's runtime helper owns selection;
 this packet adds no selection infrastructure.
@@ -114,7 +114,7 @@ git apply --check tools/integration/earned-b-moves/root-registration.patch
 ```
 
 The older `qualify_stage_reset.py` remains a frozen two-row epoch16 comparison.
-Use the new qualifier for the composed epoch17 tree; it independently preserves
+Use the new qualifier for the composed epoch 17 tree; it independently preserves
 all of that earlier transition history and the original inverse.
 
 ## Explicit limits
@@ -128,6 +128,6 @@ ability state was introduced to simulate them. Doubles, allied hits and spread
 routing are outside this packet. Existing ability and held-item owners retain
 only their existing supported interactions.
 
-All33 new SDK cases are compiled and unexecuted. Root must inspect any native
+All 33 new SDK cases are compiled and unexecuted. Root must inspect any native
 failures, including fixture expectations, before treating this packet as ready
 for campaign or acceptance work. The full Blue game remains unfinished.
