@@ -34,12 +34,15 @@ def main():
     durations = {}; gaps = {}
     for label, frames in groups.items():
         assert len(frames) > 1
-        assert all(b['tick'] == a['tick'] + 1 and b['time_ms'] > a['time_ms'] for a,b in zip(frames,frames[1:])), label
+        assert all(b.get('sample_ticks', 1) == a.get('sample_ticks', 1)
+                   and b['tick'] == a['tick'] + a.get('sample_ticks', 1)
+                   and b['time_ms'] > a['time_ms'] for a,b in zip(frames,frames[1:])), label
         # Last frame has no measured successor. End at its timestamp; invent no tail.
         durations[label] = (frames[-1]['time_ms'] - frames[0]['time_ms']) / 1000
         gaps[label] = max(b['time_ms'] - a['time_ms'] for a,b in zip(frames,frames[1:])) / 1000
     write_json(out / 'capture-report.json', dict(durations=durations, max_frame_gap_seconds=gaps,
-        dimensions=[400,240], speed=1, audio='none', timing='SDK wall timestamps; final unbounded frame omitted',
+        dimensions=[400,240], speed=1, audio='none',
+        sample_ticks={label: frames[0].get('sample_ticks', 1) for label,frames in groups.items()}, timing='SDK wall timestamps; final unbounded frame omitted',
         motion_review='pending root; long frame gaps remain visible, not compressed away'))
     def render(name, segments):
         lines = ['ffconcat version 1.0']; used = []; subtitles = []; position = 0

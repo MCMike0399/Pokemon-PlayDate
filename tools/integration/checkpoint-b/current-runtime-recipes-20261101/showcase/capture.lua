@@ -17,6 +17,8 @@ function HarnessCapture.recent()
         starts[label] = starts[label] or now
         if now - starts[label] > limit then return end
     end
+    local sampleTicks = (label == "preflight" or label == "walk") and 1 or 2
+    if HarnessCapture.tick % sampleTicks ~= 0 then return end
     local gfx = playdate.graphics
     local d = HarnessCapture.display()
     assert(d.scale == 1 and not d.inverted and d.mosaicX == 0 and d.mosaicY == 0)
@@ -34,6 +36,6 @@ function HarnessCapture.recent()
     playdate.simulator.writeToFile(image, HarnessBuild.output_dir .. name)
     local log = assert(playdate.file.open("showcase-frames.jsonl", playdate.file.kFileAppend))
     log:write(json.encode({label=label, file=name, tick=HarnessCapture.tick,
-        time_ms=now, phase=HarnessCapture.phase, display=d}) .. "\n")
+        time_ms=now, phase=HarnessCapture.phase, display=d, sample_ticks=sampleTicks}) .. "\n")
     log:close()
 end
