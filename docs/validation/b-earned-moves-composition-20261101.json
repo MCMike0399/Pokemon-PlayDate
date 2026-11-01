@@ -98,5 +98,116 @@
     "spec": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3Abc818d43-74b2-4c11-ac1b-7f3da8d062ff",
     "fixed_candidate": "12ecefec86d401b9d50daa1686ab39e4d35ba197",
     "status": "await actual completion, no polling"
+  },
+  "shard_upgrade_trial": {
+    "status": "NOT ACCEPTED: gain below10%, later actor guard still fails",
+    "build_id": "414033b56d324214a6b99d4863f54f6a",
+    "outcome": {
+      "boot_accepted": false,
+      "device_needs_one_A_press": false,
+      "error": "ValueError('device BootTrace guard failed')",
+      "ok": false,
+      "phase": "collect-result-logs"
+    },
+    "route17_stats_ms": {
+      "trainer": {
+        "total": 3433,
+        "calls": 10,
+        "max": 350
+      },
+      "open": {
+        "total": 6877,
+        "calls": 60,
+        "max": 345
+      },
+      "object": {
+        "total": 7176,
+        "calls": 10,
+        "max": 729
+      },
+      "bundleRead": {
+        "total": 7083,
+        "calls": 60,
+        "slowestPath": "data/contentCache/chunks/ff/ff917b54e78d73bbd816f65705512116df48167e7d0b0dfe9646eff1b6ff4cc2.json",
+        "max": 347
+      },
+      "fieldIndex": {
+        "total": 308,
+        "calls": 40,
+        "max": 10
+      },
+      "gc": {
+        "total": 0,
+        "calls": 15,
+        "max": 0
+      },
+      "palette": {
+        "total": 289,
+        "calls": 1,
+        "max": 289
+      },
+      "draw": {
+        "total": 149,
+        "calls": 15,
+        "max": 48
+      },
+      "publish": {
+        "total": 2,
+        "calls": 1,
+        "max": 2
+      },
+      "descriptor": {
+        "total": 3400,
+        "calls": 10,
+        "max": 346
+      },
+      "key": {
+        "total": 314,
+        "calls": 10,
+        "max": 33
+      },
+      "packed": {
+        "total": 19,
+        "calls": 1,
+        "max": 19
+      },
+      "bindings": {
+        "total": 7383,
+        "calls": 1,
+        "max": 7383
+      },
+      "betweenChecks": {
+        "total": 7477,
+        "calls": 178,
+        "max": 742
+      }
+    },
+    "guard_span_ms": 6929,
+    "fat_directory": {
+      "bytes": 1167360,
+      "blocks512": 2280,
+      "directories": 256,
+      "direct_primary_json": 0,
+      "appledouble_entries": 256,
+      "primary_sharded_records": 2546
+    },
+    "retained_install": {
+      "fat_chunk_directory": {
+        "direct_primary_json": 0,
+        "directories": 256,
+        "st_blocks": 2280,
+        "st_size": 1167360
+      },
+      "payload_sha256": "aad1183421f206c2be91ce30761a780d30647350124da2b31527f75af0141058",
+      "renamed_intact_to": "/Volumes/PLAYDATE/Games/DeviceSmoke-shard-upgrade-retained-414033b5.pdx",
+      "scope": "Reversible diagnostic bundle rename; no canonical data/save modification and no Source/guard change.",
+      "source": "/Volumes/PLAYDATE/Games/DeviceSmoke.pdx"
+    },
+    "next": "One identity-only clean-directory trial to isolate retained FAT allocation; no Source behavior or guard changes. No clean-trial result yet.",
+    "artifacts": {
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-device-hardware-20261101-01/serial.raw": "fceb917195b09b6acc687c51649deb7e6f31a1962a476fdc326d7b2b045ab9eb",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-device-hardware-20261101-01/outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-device-hardware-20261101-01/retained-install-for-clean-trial.json": "3259258c34700bb3bb3551d949f1fb44ea752369d1b2ac19e057a68fb5edf094"
+    }
   }
 }
