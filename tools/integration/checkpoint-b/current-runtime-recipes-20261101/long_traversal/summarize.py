@@ -42,9 +42,13 @@ def main():
         assert [r['entry'] for r in samples] == [r['entry'] for r in entries]
         assert [r['battle'] for r in battles] == list(range(1, len(battles) + 1))
         for entry, sample in zip(entries, samples):
-            assert all(sample[k] == entry[k] for k in ('entry', 'zone', 'door', 'x', 'y', 'doors', 'maps'))
+            assert all(sample[k] == entry[k] for k in ('entry', 'zone', 'x', 'y', 'doors', 'maps'))
+            # SDK JSON omits Lua nil for Continue/battle-return entries.
+            # Only explicit true is a door; preserve agreement on both records.
+            assert entry.get('door', False) is sample.get('door', False)
+            assert type(entry.get('door', False)) is bool
             assert 0 <= sample['after_kib'] <= 6144 and 0 <= sample['before_kib'] < 9216
-        doors = sum(r['door'] is True for r in entries)
+        doors = sum(r.get('door', False) is True for r in entries)
         maps = {r['zone'] for r in entries}
         itinerary = json.loads((PACKET / 'route.json').read_text())
         assert {row['id'] for row in itinerary['maps'].values()} <= maps, 'fixed itinerary incomplete'
@@ -75,7 +79,7 @@ def main():
     result = {'classification': 'physical long traversal evidence; root review still required',
               'hardware_accepted': False, 'complete': not failures,
               'build_id': build['build_id'], 'pdx_sha256': build['pdx_sha256'],
-              'actual_doors': sum(r['door'] is True for r in entries),
+              'actual_doors': sum(r.get('door', False) is True for r in entries),
               'distinct_maps': sorted({r['zone'] for r in entries}),
               'actual_battle_starts': len(battles), 'entry_samples': samples,
               'failures': failures,
