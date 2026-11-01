@@ -24,7 +24,7 @@ PROOF = json.loads((HERE / 'provenance.json').read_text())
 PROJECT = Path(PROOF['project'])
 BOUNDARY = Path(PROOF['scenario']['initial_save']['resume']['path'])
 KOGA = 'pokered:FUCHSIA_GYM:objects:1'
-TRAINER = 'pokered:ROUTE_12:objects:6'
+TRAINER = 'pokered:ROUTE_12:objects:2'
 
 def sha(p):
     return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -152,6 +152,22 @@ def main():
                     command = 'wait ' + frames
                 selected.append(command)
             return super().send(*selected)
+
+        def start_earned(self):
+            self.startup_boundary = None
+            self.reusing_startup_boundary = True
+            try:
+                return super().start_earned()
+            finally:
+                self.reusing_startup_boundary = False
+                self.startup_boundary = None
+
+        def codec_guard(self, boundary=None):
+            if boundary == 'loaded' and getattr(self, 'reusing_startup_boundary', False):
+                if self.startup_boundary is None:
+                    self.startup_boundary = super().codec_guard(boundary)
+                return self.startup_boundary
+            return super().codec_guard(boundary)
 
         def battle(self, name, strategy='attack', expected=None):
             stable = self.state.get('event', {}).get('id')
@@ -288,6 +304,8 @@ def main():
                         d.capture_targets[TRAINER] = 'trainer'
                     elif args.segment == 'gym':
                         d.capture_targets[KOGA] = 'gym'
+                    elif not args.preflight_only and not args.segment:
+                        d.capture_targets = {TRAINER: 'trainer', KOGA: 'gym'}
                     if args.preflight_only:
                         # The recorder caps this label at 3 SDK wall seconds.
                         with capture('preflight'):
