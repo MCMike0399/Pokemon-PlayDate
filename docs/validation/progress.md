@@ -107,7 +107,7 @@ progress limits; short qualification reports10measurements/two gaps,13clears,
 812MiB peak. [Corrections](malloc-history-review-corrections-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
-are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
+are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.
 
 Reviewed Reflect/Chip Away composition is adopted into private B565bfdfb only.
 Producer14→15 history is preserved;34 SDK executions across33 names and both
