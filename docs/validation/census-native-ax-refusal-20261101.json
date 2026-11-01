@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "failure_output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-02/batch-0085",
+  "failure_result_sha256": "52c5e810d686a86aca0d61bbde960c416525e028da6c6acfaef87cd394263fd5",
+  "closed_trials_retained": 1344,
+  "completed_batches": 84,
+  "failed_attempt_counts": {
+    "not_run": 16
+  },
+  "owned_child_reaped": true,
+  "operation": "inspect after show-log, before any Clear or measured row",
+  "native_error": "AXMenuBar CannotComplete -25204 on both bounded read attempts",
+  "helper_unchanged": true,
+  "limits_unchanged": true,
+  "new_output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-03",
+  "new_plan_sha256": "a9fb5c6b3fdc347ddc5cb2eed22cfa28e8be01214f7e9882889d7ac398721c5c",
+  "new_session_id": 42456,
+  "remaining_cases": 1773,
+  "scope": "New identified processes for unreported cases after explicit operator decision. Old data and refusal remain failed; no in-process UI action replay or auto-retry loop. Not game/native memory failure or device acceptance."
+}
