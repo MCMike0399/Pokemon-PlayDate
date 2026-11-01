@@ -112,8 +112,10 @@ refused before Clear/measurement. Both children reaped, failed data retained.
 A private800ms allowance passes16trials/37helperops within unchanged8s/9s bounds;
 7read-policy checks pass. Rare-failure closure unproven; combined review requested.
 [Private qualification](census-private-ax-allowance-20261101.json). After verified
-cold-archive releases, session65744 resumes untouched cases with this isolated
-helper explicitly pinned; main helper remains unchanged. [Scope](census-private-helper-continuation-20261101.json).
+cold-archive releases, the private continuation reached2800closed trials. A read-only
+helper operation then hit its8s alarm before Clear; child reaped. Session25151
+resumes1045unreported cases with identical guards/helper. [Alarm/scope](census-helper-alarm-20261101.json).
+Main helper remains unchanged. [Private epoch](census-private-helper-continuation-20261101.json).
 No duplicate coverage or in-process UI action replay.
 Full2445-case/4890-trial census remains incomplete; guards unchanged.
 [Bounded scheduling scope](census-bounded-processes-20261101.json).
