@@ -1,0 +1,45 @@
+{
+  "status": "Partial showcase deliverable; no B acceptance",
+  "runs": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-preflight-20261101-02",
+      "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "build_id": "61a63215adbd4283fe22411faeb95c5ab08426de:ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "peak_host_bytes": 457376968,
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-walk-20261101-01",
+      "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "build_id": "0c12973ad8b6da2da733b6b79b507fe475c16bd6:ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "peak_host_bytes": 500385040,
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-trainer-20261101-06",
+      "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "build_id": "1bd1208f881a1202966340e0d954003f4e8ea260:ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "peak_host_bytes": 955074120,
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563"
+    }
+  ],
+  "preflight_seconds": 2.99,
+  "preflight_decoded_pixels_exact": true,
+  "live_owner_projection_exact_prior_SDK_values": true,
+  "trainer_seconds": 24.046,
+  "trainer_id": "pokered:ROUTE_12:objects:2",
+  "trainer_source_party": "Goldeen22/Poliwag22/Goldeen22",
+  "trainer_result": "actual victory, complete uncut component",
+  "trainer_sampling": "every2SDKticks (~15fps), original wall time, no interpolation",
+  "missing": [
+    "Snorlax wake segment",
+    "Koga segment",
+    "60\u201390s final reviewed montage"
+  ],
+  "package": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5b-release-candidate-20261101-01",
+  "package_contents": "Normal production PDX plus three original earned starter-save pairs, hash-verified; release candidate only",
+  "gui_helper": "OpenClaw reported nodes:[]/unknownnodeDiveMac. No permission denial established, no GUI work-around or configuration change.",
+  "guards": "16MiBpool,1GiBhost,51/50GiBdisk unchanged. Several setup+Save continuations still hit hosthistoryguard; failed runs retained, no canonical data changed.",
+  "capacity_gib": 83.8011474609375,
+  "storage": "Recovery pass closed:0archive/rehearse/release transactions,0pendingpassjobs, policies restored; external authorizedTartcleanup provided capacity."
+}

@@ -94,9 +94,15 @@ Continue real worst-door decomposition/structural latency work; never resume the
 exhaustive census. Its 2,832 closed trials remain frozen.
 [Census stop](census-stopped-20261101.json), [static ranking](door-static-ranking-20261101.json).
 
-Current normal-production preview and optional earned save are prepared at
-`evidence/player-packages/5.5b-reviewed-development-20261101-02/`.
-User cannot play-test now; do not wait for feedback. Package limitations are explicit.
+Current native capture preflight passes2.99s,436MiBhost; decoded pixels exact.
+Walking and a complete24.05s Fisherman victory are captured independently.
+Battle sampling15fps preserves original walltime; no gamepacing claim.
+Snorlax/Koga and final60–90s composition remain open; some setup+Save processes
+still hit1GiB. OpenClaw has no active computer node; no GUI workaround/settings
+change. [Components and exact scope](b149-showcase-components-20261101.json).
+Release candidate `evidence/player-packages/5.5b-release-candidate-20261101-01/`
+contains normalproductionPDX and ALLTHREE verified originalearnedSave pairs.
+User cannotplaynow; nofeedbackwait. Bstillunaccepted; no push.
 
 ## Operational boundaries
 
@@ -110,3 +116,8 @@ and evidence remain. Two live process paths were preserved. Measured free
 Storage stays background/exception-only through the existing reviewed queue.
 No new storage tooling, broad scans or proof release. No push without a request.
 [Earlier detailed ledger](progress-history-before-b-traversal-20261101.md).
+
+Reviewer5 recoverypassclosedafterexternalauthorizedTartcleanup: fresh84.62GiB,
+0Playdatearchive/rehearse/releases and0pendingpassjobs. No additionalroots;
+ordinarypolicies/guards unchanged, temporaryslotreleased. Runtimeadmission
+restored; olderlow-capacity measurements above remain historical.
