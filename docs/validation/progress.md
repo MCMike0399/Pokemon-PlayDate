@@ -106,7 +106,8 @@ Census part1 stopped safely on a host AX read failure after1070 trials
 remains. A bounded read-only recovery policy passes7 host checks and a14-trial
 native qualification (12measured/two gaps), with no native retry observed yet.
 [Stop and scope](census-ax-read-stop-20261101.json). Keep16MiB/1GiB/60s guards;
-continue only unrun cases on the same frozen B10cb9572 input.
+Continuation `door-census-b149-cave-remaining-20261101-02` is now live under
+Root session96322/PID44678, only1910 unrun cases/3820trials, same B10cb9572.
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.
