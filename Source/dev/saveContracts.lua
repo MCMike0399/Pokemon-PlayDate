@@ -137,6 +137,30 @@ function SaveContracts.run()
     test("checksum known vectors exact bytes and published two-slot ordering",function()
         eq(SaveStore._checksum(""),"811c9dc5"); eq(SaveStore._checksum("a"),"e40c292c")
         eq(SaveStore._checksum("foobar"),"bf9cf968"); eq(SaveStore._checksum("hello"),"4f9f2cab")
+        -- Independent unsigned FNV-1a constants for byte-block/tail boundaries.
+        local char <const> = string.char
+        local concat <const> = table.concat
+        local rep <const> = string.rep
+        local byteValues = {}
+        for value = 0, 255 do
+            byteValues[#byteValues + 1] = char(value)
+        end
+        local binary = rep(concat(byteValues), 3)
+        local boundaries = {
+            {31, "4b84d038"},
+            {32, "0913ad65"},
+            {33, "8ef9c39f"},
+            {63, "1494ca38"},
+            {64, "6d3a0905"},
+            {65, "375c979f"},
+            {511, "30804cb8"},
+            {512, "a0f813c5"},
+            {513, "2b871f1f"},
+        }
+        for _, vector in ipairs(boundaries) do
+            eq(SaveStore._checksum(binary:sub(1, vector[1])), vector[2])
+        end
+        eq(SaveStore._checksum(rep("Pokémon Blue" .. char(0), 4)), "1afbd585")
         local store,paths=fixture("ordering")
         local data,metadata=store:load(); eq(data,nil); eq(metadata.reason,"empty")
         assert(store:save(payload(1))); assert(store:save(payload(2)))

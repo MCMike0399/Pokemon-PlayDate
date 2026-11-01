@@ -147,3 +147,9 @@ Actor descriptors are built three times (2039/2570ms inclusive); capture totals
 overlap those times. Empty actor normalization discards one eagerly built
 descriptor: next targeted candidate, no gain claimed. Worst-eight and B visual
 gates remain. [Attribution](door-activation-attribution-20261101.json).
+
+Chunked checksum is reviewed and adopted privately: title store-read3286→2847ms
+(13.36%); whole Save2189→1986ms(9.27%), not a10% whole-wait claim. Existing
+persistence18/18 and23 recovery/build host checks pass. Two exact import lists
+and the registration list now include Self-KO without weakening original order.
+No new device logs; keeper restored. [Adoption](chunked-checksum-adoption-20261101.json).
