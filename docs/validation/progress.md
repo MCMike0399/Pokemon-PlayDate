@@ -3,9 +3,9 @@
 Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
 **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
 The full campaign remains unfinished. Root exclusively owns Simulator/device.
-Observer coverage is current; its baseline full audit passes **1093 tests**
-(148.006s). The new private Pi wrapper has29 targeted host passes; full audit
-will be refreshed after integration. Historical proof bytes remain immutable.
+Current observer coverage and the full host audit pass **1116 tests**, no
+errors/skips (152.481s). [Audit](main-pi-queue-full-host-20261101.json).
+Historical proof hashes/build identities remain unchanged.
 User-authorized push reaches `b694417b`; subsequent commits are local.
 
 ## Accepted on main
@@ -50,6 +50,8 @@ Registration is 112/193 ms; provider install 1,141/1,559 ms; title preparation
 4,184/4,296 ms. 108 Daycare includes later installers and is not separately
 comparable. At 149 maps Hideout aggregate is 768 ms and Celadon services 283 ms.
 
+Eight unchanged current-B cave encounter SDK cases pass as optimizationbaseline;
+[scope](cave-current-b-baseline-20261101.json). Candidate performance remainsunmeasured.
 Remaining structural priorities: census and worst-five physical doors, then cave
 step costs; finish first-entry installers. Savings are unmeasured until paired
 hardware runs. The title split is rejected: immediate app→walking worsened from

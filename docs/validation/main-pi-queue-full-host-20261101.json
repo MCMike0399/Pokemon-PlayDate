@@ -1,0 +1,16 @@
+{
+  "status": "All1116 host checks pass, no errors/skips; no new gameplay/device acceptance.",
+  "input_commit": "7c238ed3",
+  "tests": 1116,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "seconds": 152.481,
+  "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-pi-queue-final-host-20261101-01/host.log",
+  "sha256": "81ef8075279f5bfdc7c970a8b2430290e1bc3bc3ffdcf78c8165f593fdcbf9a7",
+  "scope": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-pi-queue-final-host-20261101-01/scope.json",
+  "scope_sha256": "3a42fe3acbd5859c47e43884cbed544a90b2ffadd0665e16b05f1a1834fcda4d",
+  "compile_reuse": "Exact Source tree unchanged from retained SDK3.1.2 compile47ef0688; Python/operator changes do not alter compiled Source.",
+  "transport": "Execution gatefalse; queueenabled/empty. Fake-helper cases use tempfixtures, not Pi/SDK.",
+  "remaining": "CurrentB caveoptimization measurement, helperreview/census/worstdoors, longphysicalresources/showcase and remainingBluecampaign."
+}
