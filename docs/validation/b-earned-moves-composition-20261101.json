@@ -612,5 +612,21 @@
     "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-v2-native-20261101-03/startup-probe.json",
     "sha256": "fea79a6f60c46f1a7b67b10ad55325664df60163f47462ff19f5554e5edf0971",
     "scope": "Five scalar SourceEvents cases plus two immutable-content/trainer cases. Full parity/actor/activation fixture batches stopped at1GiB and remain unverified; do not claim them green."
+  },
+  "performance_review": {
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A06db6c8a-b844-4bee-8bcc-e11a2c012a37",
+    "base": "12ecefec86d401b9d50daa1686ab39e4d35ba197",
+    "candidate": "5f9efde0b3e031305f82e4ba5af676b055d70422",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "scope": "Read-only combined performance review; neither full B nor device playability accepted."
+  },
+  "coverage_current": {
+    "private_B_commit": "63549857c19ec1edc191ed02fecb8b20f8b2617a",
+    "worker_packet": "dfbbdc8c900b6fa2bcdc4bcf0312cbb81a02c6c4",
+    "root_additional_review": "Version-root source literal, byte-identical record paths and fresh qualification explicitly reviewed beyond fixedc1 candidate. Changed documentary references frozen with identical historical hashes. All facet levels/1512rows retained.",
+    "checker_passed": true,
+    "matrix_tests_passed": 4,
+    "full_host_status": "running session22960, no green claim"
   }
 }
