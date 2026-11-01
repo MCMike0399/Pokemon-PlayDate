@@ -41,8 +41,27 @@ class ShippedMapQualificationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'drift'):
             build.qualify_shipped_maps(self.source, self.stage)
 
+    def test_sharded_content_qualifies_without_legacy_duplicates(self):
+        cache = self.source / 'data/contentCache'
+        record = build.qualify_shipped_content(PROJECT, self.source, self.stage)
+        self.assertEqual(set(record['artifacts']), {
+            p.relative_to(cache).as_posix() for p in cache.rglob('*.json')})
+        self.assertIn('local immutableContentQualified <const> = true',
+                      (self.source / 'game/shippedDataPolicy.lua').read_text())
+        self.assertIn('local immutableContentQualified <const> = false',
+                      (PROJECT / 'Source/game/shippedDataPolicy.lua').read_text())
+
+    def test_legacy_flat_duplicate_is_rejected_before_content_flag_publication(self):
+        chunks = self.source / 'data/contentCache/chunks'
+        path = next(chunks.glob('*/*.json'))
+        (chunks / path.name).write_bytes(path.read_bytes())
+        with self.assertRaisesRegex(ValueError, 'content cache drift'):
+            build.qualify_shipped_content(PROJECT, self.source, self.stage)
+        self.assertIn('local immutableContentQualified <const> = false',
+                      (self.source / 'game/shippedDataPolicy.lua').read_text())
+
     def test_changed_content_chunk_is_rejected_before_content_flag_publication(self):
-        path = next((self.source / 'data/contentCache/chunks').glob('*.json'))
+        path = next((self.source / 'data/contentCache/chunks').glob('*/*.json'))
         path.write_bytes(path.read_bytes() + b' ')
         with self.assertRaisesRegex(ValueError, 'content cache drift'):
             build.qualify_shipped_content(PROJECT, self.source, self.stage)

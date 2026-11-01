@@ -22,15 +22,46 @@ class ContentCacheTests(unittest.TestCase):
         cls.pins = json.loads(generator.PINS.read_bytes())
 
     def decode(self, index, record, field):
-        return {key: json.loads(self.files['chunks/' + digest + '.json'])
+        return {key: json.loads(self.files['chunks/' + digest[:2] + '/' + digest + '.json'])
                 for key, digest in index['records'][record][field].items()}
 
     def test_exact_generated_file_set_and_chunk_checksums(self):
         actual = {str(p.relative_to(CACHE)): p.read_bytes() for p in CACHE.rglob('*.json')}
         self.assertEqual(actual, self.files)
+        digests = set()
         for name, raw in self.files.items():
             if name.startswith('chunks/'):
-                self.assertEqual(Path(name).stem, hashlib.sha256(raw).hexdigest())
+                digest = hashlib.sha256(raw).hexdigest()
+                self.assertEqual(name, f'chunks/{digest[:2]}/{digest}.json')
+                self.assertNotIn(digest, digests)
+                digests.add(digest)
+        referenced = set()
+        for name, raw in self.files.items():
+            if name == 'base.json' or (name.startswith('package-') and name.count('-') == 1):
+                for fields in json.loads(raw).get('records', {}).values():
+                    for values in fields.values():
+                        referenced.update(values.values())
+        self.assertEqual(digests, referenced)
+
+    def test_check_rejects_flat_duplicates_without_repairing_them(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / 'cache'
+            shutil.copytree(CACHE, destination)
+            chunk = next((destination / 'chunks').glob('*/*.json'))
+            legacy = destination / 'chunks' / chunk.name
+            legacy.write_bytes(chunk.read_bytes())
+            result = subprocess.run([
+                'python3', str(ROOT / 'tools/generate_content_cache.py'),
+                '--check', '--output-dir', str(destination)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('generated content cache differs', result.stderr)
+            self.assertEqual(legacy.read_bytes(), chunk.read_bytes())
+            result = subprocess.run([
+                'python3', str(ROOT / 'tools/generate_content_cache.py'),
+                '--output-dir', str(destination)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('generation requires a fresh output directory', result.stderr)
+            self.assertTrue(legacy.is_file())
 
     def test_every_package_field_round_trips_without_metadata_or_art_loss(self):
         catalog = json.loads(self.files['catalog.json'])

@@ -99,7 +99,7 @@ function SourceEvents._contentRecord(digest, region)
         if region then
             value = ShippedDataPolicy.readBundleJSON("data/regionDeclarations/chunks/" .. digest .. ".json")
         else
-            value = readContent("data/contentCache/chunks/" .. digest .. ".json")
+            value = readContent("data/contentCache/chunks/" .. digest:sub(1, 2) .. "/" .. digest .. ".json")
         end
     end
     recent[cacheKey] = value
