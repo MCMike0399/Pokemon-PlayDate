@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "old_replay": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/census-observer-memory-replay-20261101-01",
+    "result_sha256": "d61f3e0dedc8f3db9b60537b3159bf1d8f4958bc7088a962af46452a6cc18064",
+    "raw_reported_rows": 99,
+    "validation_failure": "segment totals disagree with runtime row",
+    "producer_failure_record": "Not independently retained by old driver. Host-memory-summary exists while sampled peak658425224bytes was below1GiB; source control flow supports a60s progress-limit stop, but original exception text was overwritten.",
+    "raw_rows_not_relabelled": true
+  },
+  "accounting_fix": "TSV precision3->6 decimals. Hundreds of0.0625ms-like binary durations previously lost more than0.05ms in aggregate. Validator tolerances unchanged.",
+  "gc_fix": "Keep8MiB soft collection and9MiB hard guard. When live heap remains above8MiB after collection, wait for64KiB of new allocation before another full collection; hard guard always checked first.",
+  "first_error_fix": "Record run-termination.json before summarization and preserve producer_failure alongside validation_failure.",
+  "host_tests": 21,
+  "native_short_qualification": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/census-precision-gc-qualification-20261101-01",
+    "result_sha256": "9cf922cbeb89f8e17f16a62103108c353d172aa61c988cd353cbec5a80c2bda8",
+    "counts": {
+      "measured": 4
+    },
+    "all_cases_reported": true,
+    "segment_counts": [
+      15,
+      15,
+      15,
+      15
+    ],
+    "wall_ms": [
+      461,
+      464,
+      459,
+      461
+    ]
+  },
+  "live_regression": {
+    "session_id": 97850,
+    "simulator_pid": 12854,
+    "parent_pid": 12772,
+    "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/census-observer-memory-replay-20261101-02",
+    "trials": 294,
+    "scope": "Explicit147-case stopping-sequence replay, not a full new census or a green rename of old data."
+  },
+  "broader_census_held": true,
+  "gameplay_or_hardware_acceptance": false
+}
