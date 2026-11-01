@@ -132,6 +132,12 @@ review axes pass. Coverage retains all1512 rows; fresh compile/full host passes
 Old unrun B production/traversal/census/showcase packets are stale and require
 fresh staging. B acceptance remains open. [Adoption](reflect-private-b-adoption-20261030.json).
 
+Current B diagnostic9b98e611 completes hardware smoke without new logs; keeper
+restored. Boot12.594s, Continue3.369s, doors2.983/1.912/1.403s, battle20ms;
+Lua live/peak4.43/5.80MiB. Save6.263s uses deep diagnostic validation, unlike
+the earlier production-profile1.648s; do not score that as a matched regression.
+[Exact scope and pending profile](midgame-b-current-hardware-20261031.json).
+
 ## Memory, audio and storage
 
 60+60-minute hardware idle soak passes: 120 samples, title 4.08 MiB, overworld
