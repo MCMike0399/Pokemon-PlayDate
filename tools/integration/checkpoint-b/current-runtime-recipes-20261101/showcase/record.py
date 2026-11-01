@@ -129,10 +129,13 @@ def main():
     ap.add_argument('--compile-only', action='store_true', help='Stage and compile only; no runtime or locks')
     selection = ap.add_mutually_exclusive_group()
     selection.add_argument('--preflight-only', action='store_true', help='Capture only the first native walk for root inspection')
-    selection.add_argument('--segment', choices=('prepare-trainer', 'walk', 'trainer', 'cutscene', 'gym'),
+    selection.add_argument('--segment', choices=('prepare-trainer', 'prepare-cutscene', 'prepare-waypoint', 'walk', 'trainer', 'cutscene', 'gym'),
                            help='One independent earned-save replay in a fresh guarded process')
     ap.add_argument('--execute-root-owned', action='store_true')
     ap.add_argument('--root-gates-verified', action='store_true', help='Root asserts Accessibility/Clear/reclamation and long-run hold release are already verified, with 16 MiB retained')
+    ap.add_argument('--checkpoint-zone', help='Explicit reachable source map for a genuine Save')
+    ap.add_argument('--checkpoint-x', type=int)
+    ap.add_argument('--checkpoint-y', type=int)
     ap.add_argument('--resume-boundary', type=Path, help='Existing genuine stopped partial Save marker')
     ap.add_argument('--resume-sha256', help='Exact immutable partial marker SHA256')
     args = ap.parse_args()
@@ -322,6 +325,15 @@ def main():
                             deadline = time.monotonic() + 3
                             while time.monotonic() < deadline:
                                 d.send('wait 1')
+                    elif args.segment == 'prepare-waypoint':
+                        assert args.checkpoint_zone and args.checkpoint_x is not None and args.checkpoint_y is not None
+                        d.travel(d.zone(args.checkpoint_zone), goal=(args.checkpoint_x, args.checkpoint_y))
+                        d.save()
+                    elif args.segment == 'prepare-cutscene':
+                        assert not d.defeated(TRAINER)
+                        d.fight(TRAINER)
+                        assert d.defeated(TRAINER)
+                        d.save()
                     elif args.segment == 'prepare-trainer':
                         d.travel(d.zone('Route12Gate1F'))
                         d.save()
