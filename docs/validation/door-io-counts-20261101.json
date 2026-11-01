@@ -111,5 +111,25 @@
   },
   "sampled_peak_bytes": 6648127.488,
   "limitations": "This Fuchsia/Route18 route does not measure Route2 or the actual worst door. Cave p95 unmeasured on this route. Retained diagnostic marker spans contain no forced collections. Current 6.34MiB sampled heap is not post-full-GC live heap.",
-  "decision": "Do not build packed-record storage from this evidence: observed open time is 757/6545ms (11.6%) for Fuchsia and231/3038ms (7.6%) for Route18. Next attribute field reload, actor activation and post-actor traversal/session capture. Definition/art/Zone and fade overlap are retained in BootTrace; never add overlapping spans."
+  "decision": "Do not build packed-record storage from this evidence: observed open time is 757/6545ms (11.6%) for Fuchsia and231/3038ms (7.6%) for Route18. Next attribute field reload, actor activation and post-actor traversal/session capture. Definition/art/Zone and fade overlap are retained in BootTrace; never add overlapping spans.",
+  "fuchsia_decomposition_ms": {
+    "whole_door_begin_to_transition_end": 6671,
+    "door_map_begin_to_end": 6545,
+    "definition": 317,
+    "art": 670,
+    "zone_including_bindings": 1076,
+    "field_reload": 1218,
+    "field_prepare": 208,
+    "view": 445,
+    "actors": 1165,
+    "post_actor_to_map_end": 1201,
+    "other_within_map_residual": 245,
+    "before_map": 115,
+    "after_map_to_transition_end": 11,
+    "fade_first_to_complete_overlapping_load": 1729,
+    "black_begin_to_fade_complete_overlapping_load": 147,
+    "after_fade_complete_to_map_end_black_hold": 4893,
+    "fade_in": "none; existing transition restores the completed world",
+    "accounting": "Definition/art/Zone/field/view/actor/post-actor windows are sequential; fade/black-hold windows overlap them and must not be added. Open/decode timings also sit inside these windows."
+  }
 }
