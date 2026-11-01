@@ -107,11 +107,12 @@ stopped at MtMoon1F warp3: the fixture chose a stationary NPC's home. A fresh
 single-case replay reproduces it; the corrected source-visibility approach passes
 two trials and the original16-trial batch.21host checks pass; guards unchanged.
 [Correction and original failure](census-occupied-approach-20261101.json).
-Corrected continuation30144 retained1344 trials, then stopped on a read-only
-AXMenuBar refusal before Clear/measurement. Its child is reaped; session42456
-resumes unreported cases with unchanged helper/guards. No UI action replay.
-[Refusal and new attempt](census-native-ax-refusal-20261101.json). Earlier observer
-epochs and failed partial rows remain separate; no duplicate coverage.
+Corrected continuation retained1344 trials; two200ms app-root AX attempts then
+refused before Clear/measurement. Both children reaped, failed data retained.
+A private800ms allowance passes16trials/37helperops within unchanged8s/9s bounds;
+7read-policy checks pass. Rare-failure closure unproven; combined review requested.
+[Private qualification](census-private-ax-allowance-20261101.json). SDK is idle
+while approved cold-archive phases finish; no duplicate coverage or UI action replay.
 Full2445-case/4890-trial census remains incomplete; guards unchanged.
 [Bounded scheduling scope](census-bounded-processes-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
