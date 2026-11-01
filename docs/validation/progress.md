@@ -102,13 +102,14 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Census long-process attempts stopped safely; all failed data remain unchanged.
-Observer fixes: fatal guards stop, validRockTunnel1F prelude, precise segments,
-bounded checkpoint collection.21host tests/fatalSDK red-green pass. FreshHideout
-batch reports20trials (18measured/two eventgaps), no runtimefailure. Exhaustive
-census now runs all2445cases/4890trials in8-case fresh SDK batches, session75681;
-frozen observer, same B10cb and16MiB/9MiB/1GiB/60s guards. [Decision/scope](census-bounded-processes-20261101.json).
-Batch/cache boundaries remain explicit; continuous physical traversal stillrequired.
+Census keeps all failed data. Bounded run completed66 batches/1056 trials, then
+stopped at MtMoon1F warp3: the fixture chose a stationary NPC's home. A fresh
+single-case replay reproduces it; the corrected source-visibility approach passes
+two trials and the original16-trial batch.21host checks pass; guards unchanged.
+[Correction and original failure](census-occupied-approach-20261101.json).
+Untouched coverage must resume under a new frozen observer epoch; no green rename
+or silent duplicate stitching. Full2445-case/4890-trial census remains incomplete.
+[Bounded scheduling scope](census-bounded-processes-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.
