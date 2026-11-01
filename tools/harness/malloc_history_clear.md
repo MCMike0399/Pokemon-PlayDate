@@ -1,8 +1,8 @@
 # Malloc-history helper (Root only; short live qualification)
 
 `malloc_history_clear.swift` is a macOS host utility for the exact SDK 3.1.2
-Simulator SHA256 embedded in its source. It writes no preferences/TCC, activates
-no window, launches no Simulator and takes no locks. The user chose to retain 16 MiB and enable Accessibility. Do not execute
+Simulator SHA256 embedded in its source. It writes no preferences/TCC, launches no Simulator and takes no locks.
+Explicit show/clear operations activate only the verified Simulator Malloc Log. The user chose to retain 16 MiB and enable Accessibility. Do not execute
 AX inspection/Clear until trust is actually verified.
 `AXIsProcessTrusted()` never requests permission; false refuses. No System Events,
 AppleScript, arbitrary coordinates or permission workaround exists. The exact
