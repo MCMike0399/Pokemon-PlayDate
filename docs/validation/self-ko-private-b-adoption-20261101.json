@@ -12,7 +12,12 @@
   "host_validation": {
     "focused_producer_migration_tests": 34,
     "failures": 0,
-    "move_support_generator_check": "pass"
+    "move_support_generator_check": "pass",
+    "exact_regeneration": {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/self-ko-b-integrated-host-20261101.json",
+      "sha256": "247cdb655b55220452f7867909c458e0f54b37d7fc262103e5a232cf3880e920",
+      "scope": "425 rows reproduce from pinned inputs; 423 non-self-KO rows and original inverse match. Harness bytes allow only exact two-line self-KO registration."
+    }
   },
   "native_runs": [
     {

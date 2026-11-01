@@ -90,7 +90,14 @@ def qualify(preparation):
     for name in ('tools/references/move-producer-migrations.json', 'Source/domain/sessionCodec.lua',
                  'Source/data/fieldMoveBattleData.lua', 'Source/dev/contracts.lua', 'tools/harness/dev_imports.lua'):
         raw = (ROOT / name).read_bytes()
-        assert raw == subprocess.check_output(['git', 'show', BASE + ':' + name], cwd=ROOT), name
+        original = subprocess.check_output(['git', 'show', BASE + ':' + name], cwd=ROOT)
+        if name == 'tools/harness/dev_imports.lua':
+            anchor = b'Contracts.register("earned-b-moves", EarnedBMoveContracts.run)\n'
+            registration = b'import "dev/selfKOMoveContracts"\nContracts.register("self-ko-moves", SelfKOMoveContracts.run)\n'
+            assert original.count(anchor) == 1
+            assert raw in (original, original.replace(anchor, anchor + registration, 1)), name
+        else:
+            assert raw == original, name
         preserved[name] = c.digest(raw)
     old_support = json.loads(subprocess.check_output(['git', 'show', BASE + ':tools/references/move-support.json'], cwd=ROOT))
     support = json.loads((ROOT / 'tools/references/move-support.json').read_text())

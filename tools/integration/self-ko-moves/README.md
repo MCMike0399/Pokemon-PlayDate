@@ -95,3 +95,12 @@ and RNG boundary**, covers both moves and successful/failed flinch rolls at the
 actual self-faint narration boundary. The group now has 15 prepared cases.
 This correction and all cases remain uncompiled/unexecuted; no acceptance or
 runtime gain is claimed. All generated move/producer bytes remain unchanged.
+
+## Private B integration
+
+Root applied the exact existing harness registration after native validation.
+The qualifier accepts either the unregistered preparation or that exact two-line
+registration at its original anchor; every other harness byte remains checked.
+Private B passes 74 targeted native cases and 34 focused host checks.
+See `docs/validation/self-ko-private-b-adoption-20261101.json`; campaign and
+visual acceptance remain separate.
