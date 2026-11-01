@@ -102,26 +102,25 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Census keeps all failed data. Bounded run completed66 batches/1056 trials, then
-stopped at MtMoon1F warp3: the fixture chose a stationary NPC's home. A fresh
-single-case replay reproduces it; the corrected source-visibility approach passes
-two trials and the original16-trial batch.21host checks pass; guards unchanged.
-[Correction and original failure](census-occupied-approach-20261101.json).
-Corrected continuation retained1344 trials; two200ms app-root AX attempts then
-refused before Clear/measurement. Both children reaped, failed data retained.
-A private800ms allowance passes16trials/37helperops within unchanged8s/9s bounds;
-7read-policy checks pass. Rare-failure closure unproven; combined review requested.
-[Private qualification](census-private-ax-allowance-20261101.json). After verified
-cold-archive releases, the private continuation reached2800closed trials. A read-only
-helper operation then hit its8s alarm before Clear; child reaped. Session25151
-resumes1045unreported cases with identical guards/helper. [Alarm/scope](census-helper-alarm-20261101.json).
-Main helper remains unchanged. [Private epoch](census-private-helper-continuation-20261101.json).
-No duplicate coverage or in-process UI action replay.
-Full2445-case/4890-trial census remains incomplete; guards unchanged.
-[Bounded scheduling scope](census-bounded-processes-20261101.json).
-Provisional per-phase active ratios are fitted from the same exact build's three
-Simulator/device doors, for census ranking only. Residual waits and private GC
-are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.
+Exhaustive census STOPPED by reviewer steer.2832closed trials (864measured,
+1968gaps) and all failed/cancelled data remain unchanged; no more continuations,
+AX allowances or helper epochs. [Stop](census-stopped-20261101.json).
+Static shipped-data ranking completes in<1s, collapses connection boundaries,
+selects eight unique destinations. Cold-active Spearman0.649; cold-wall correlation
+isnegative, so proxy is NOT device timing. [Ranking](door-static-ranking-20261101.json).
+Next: one real serial route through these eight plus known three, then actualworst5.
+Shipped-GC device cycle completes without new logs; keeper restored: boot12.477s,
+Continue3.373s, Save1.607s, doors2.961/1.917/1.398s, battle18ms, cavep9588.32ms.
+Bootslice1.458s stillfails. DiagnosticGC follows door.map.end; historical2.974s
+map span alreadyexcludes it. Loadalreadyoverlaps12fade draws; first8shading and
+blackhold are checkpoint-paced, no separatefade-in. [Measured comparison](device-shipped-equivalent-20261101.json).
+
+Private B composes fiveHM battle actions and Haze/ClearSmog at00ce443a. ActualSDK
+34/34 pass after fixing one trainer-fixture setup; assertions unchanged. Rules
+reviews pending, legacyepoch fixtures stillneed reconciliation. Rest/Snore/Yawn/
+Foresight/Revenge B-route failures remain foreground fixes. B is NOTaccepted;
+latency gates C acceptance, not B'shardware-safe merge. Physical traversal and
+showcase remain open; no more longSimulator recording machinery.
 
 Reviewed Reflect/Chip Away composition is adopted into private B565bfdfb only.
 Producer14→15 history is preserved;34 SDK executions across33 names and both

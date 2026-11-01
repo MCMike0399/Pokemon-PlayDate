@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-static-door-ranking-20261101-01.json",
+  "sha256": "84787f95ebc42d56e64e23a7e9532e3ca5ab35fa3216c2b98a362e49d5435126",
+  "scoring": "cells+16tiles+64actors+8events+16bindings+32connections+128cross_package+2048scene_reconcile. Fixed source-informed units, not fitted time/ratios.",
+  "top8": [
+    {
+      "source": "Route16",
+      "target": "Route17",
+      "id": "pokered:ROUTE_16:connection:1:down:1",
+      "score": 4432
+    },
+    {
+      "source": "Route16",
+      "target": "CeladonCity",
+      "id": "pokered:ROUTE_16:connection:2:right:10",
+      "score": 4208
+    },
+    {
+      "source": "Route5",
+      "target": "CeruleanCity",
+      "id": "pokered:ROUTE_5:connection:1:up:1",
+      "score": 4200
+    },
+    {
+      "source": "LavenderTown",
+      "target": "Route12",
+      "id": "pokered:LAVENDER_TOWN:connection:2:down:8",
+      "score": 4160
+    },
+    {
+      "source": "FuchsiaBillsGrandpasHouse",
+      "target": "FuchsiaCity",
+      "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE:warps:1",
+      "score": 4136
+    },
+    {
+      "source": "RocketHideoutB3F",
+      "target": "RocketHideoutB4F",
+      "id": "pokered:ROCKET_HIDEOUT_B3F:warps:2",
+      "score": 4016
+    },
+    {
+      "source": "GameCorner",
+      "target": "RocketHideoutB1F",
+      "id": "pokered:GAME_CORNER:warps:3",
+      "score": 3976
+    },
+    {
+      "source": "CeladonCity",
+      "target": "GameCorner",
+      "id": "pokered:CELADON_CITY:warps:8",
+      "score": 3792
+    }
+  ],
+  "correlation_check": {
+    "measured_rows": 864,
+    "cold_targets": 95,
+    "spearman_cold_active": 0.6492922951843096,
+    "spearman_cold_wall": -0.2973755804883193
+  },
+  "limits": "Proxy prioritizes actual hardware measurements, not acceptance or a proven global worst. Package cross-region is path-group proxy, not actual reload timing. Static actor homes/earned prerequisites need route checks. All old measured data unchanged; no new timing ratios fitted.",
+  "no_timing_ratios_fitted": true
+}

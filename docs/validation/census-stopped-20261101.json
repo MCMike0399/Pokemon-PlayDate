@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "reason": "Explicit reviewer/user stop: exhaustive process superseded by static ranking and actual hardware route. No further census/AX continuations.",
+  "master_session": 25151,
+  "master_exit": 130,
+  "owned_pids_absent": [
+    21253,
+    33813,
+    33951
+  ],
+  "closed_trials": 2832,
+  "counts": {
+    "measured": 864,
+    "gap": 1968
+  },
+  "progress_sha256": "db8b06145d0d6e5f102bbc4ec7617b8c6d205fab95b05bc466b622dc078bd2db",
+  "partial_batch": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-05/batch-0178",
+  "partial_finalization": "Controller cleanup interrupted when parent was stopped; no final result fabricated. Closed UUIDData retained in SDK Disk/Data/com.poc.pokemon.doorcensus.ba140bc521ac466fb34feced0d6c48a0, all known processes absent.",
+  "raw_data_unchanged": true
+}

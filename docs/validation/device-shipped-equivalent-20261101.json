@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "build_id": "13f39dd6978f451383684525c7d9890a",
+  "comparison": [
+    {
+      "phase": "Input-ready boot",
+      "diagnostic_ms": 12687.0,
+      "production_gc_ms": 12477.0,
+      "target_ms": 10000
+    },
+    {
+      "phase": "Continue",
+      "diagnostic_ms": 3379.0,
+      "production_gc_ms": 3373.0,
+      "target_ms": 4000
+    },
+    {
+      "phase": "Save",
+      "diagnostic_ms": 1659.0,
+      "production_gc_ms": 1607.0,
+      "target_ms": 2000
+    },
+    {
+      "phase": "Door1 map window",
+      "diagnostic_ms": 2974.0,
+      "production_gc_ms": 2961.0,
+      "target_ms": 1500
+    },
+    {
+      "phase": "Door2 map window",
+      "diagnostic_ms": 1919.0,
+      "production_gc_ms": 1917.0,
+      "target_ms": 1500
+    },
+    {
+      "phase": "Door3 map window",
+      "diagnostic_ms": 1448.0,
+      "production_gc_ms": 1398.0,
+      "target_ms": 1500
+    },
+    {
+      "phase": "Longest boot slice",
+      "diagnostic_ms": 1452.989,
+      "production_gc_ms": 1458.172,
+      "target_ms": 1000
+    },
+    {
+      "phase": "Cave walking p95",
+      "diagnostic_ms": 89.78900000000431,
+      "production_gc_ms": 88.32100000000355,
+      "target_ms": 50
+    },
+    {
+      "phase": "Battle start",
+      "diagnostic_ms": 21.0,
+      "production_gc_ms": 18.0,
+      "target_ms": 1000
+    }
+  ],
+  "hardware_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-shipped-gc-timing-hardware-20261101-01/device-smoke.json",
+  "hardware_report_sha256": "e7c606116c938c01557de291dc45385fb0baa765bf8c689cc5796aa02ebf3297",
+  "comparison_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-shipped-gc-timing-hardware-20261101-01/timing-comparison.json",
+  "comparison_sha256": "1837dea97b766493bf39ae975389b84d70938e2a04739755ee3b4df49cda2fc8",
+  "production_gc": "Diagnostic BootTrace.collect overridden to marks only in private main; production startupGC,soft8MiB->collect->6MiB and hard9MiB guards unchanged. Legacy GC labels3\u20136ms are trace overhead, NOT collection.",
+  "finding": "door.map.end precedes diagnostic door.live collection, so the historical2.974s map window excludes it. New2.961s map span does not establish a significant speed gain. Complete transition includes additional presentation/collection time.",
+  "keeper_restored": true,
+  "new_error_or_crash_logs": false,
+  "device_playable": false,
+  "limits": "App-clock boundaries, not physical power-on. Trace/serial instrumentation remains. One paired measurement, no statistical or full playability claim. Inferred fade windows overlap work."
+}
