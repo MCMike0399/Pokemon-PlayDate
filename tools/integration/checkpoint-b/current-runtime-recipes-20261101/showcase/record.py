@@ -92,6 +92,8 @@ def main():
     if not args.compile_only and not args.preflight_only and not args.root_gates_verified:
         ap.error('Root must verify Accessibility, exact Clear/reclamation and release the long-run hold first')
     output = args.output.resolve()
+    if not args.compile_only:
+        assert shutil.disk_usage(ENV / 'evidence').free >= 51 * 1024**3, '51 GiB runtime batch admission required'
     output.mkdir(parents=True, exist_ok=False)
     sdk = runner.sdk_path()
     assert (sdk / 'VERSION.txt').read_text().strip() == '3.1.2', 'exact SDK 3.1.2 required'
@@ -154,8 +156,9 @@ def main():
                                 amount = footprint.process_footprint(process.pid)
                                 with (output / 'host-footprint.jsonl').open('a') as log:
                                     log.write(json.dumps(dict(seconds=time.monotonic()-started, bytes=amount)) + '\n')
-                                if amount > 1024**3 or time.monotonic()-started > runtime_seconds:
-                                    raise RuntimeError('1 GiB footprint or bounded showcase deadline exceeded')
+                                if (amount > 1024**3 or time.monotonic()-started > runtime_seconds
+                                        or shutil.disk_usage(ENV / 'evidence').free < 50 * 1024**3):
+                                    raise RuntimeError('1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded')
                         except BaseException as error:
                             guard_errors.append(str(error))
                             os.kill(os.getpid(), signal.SIGINT)  # Main finally stops only its owned child.

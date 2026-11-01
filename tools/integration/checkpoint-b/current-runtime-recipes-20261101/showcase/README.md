@@ -92,8 +92,9 @@ already passed, not a permission or verification mechanism.
 
 The three-second `--preflight-only` mode has a separate bounded admission:
 Root execution, the exact 16 MiB preflight, all source/save/owner checks, a
-90-second process residence cap and the unchanged 1 GiB physical-footprint
-ceiling. Missing footprint reads fail closed. It does not clear history, use AX,
+90-second sampled runtime threshold and the unchanged 1 GiB physical-footprint
+ceiling. Runtime admission requires 51 GiB free; the live guard stops below the
+50 GiB reserve. Bounded cleanup follows a guard interruption. Missing footprint reads fail closed. It does not clear history, use AX,
 qualify a long run or release the full-capture hold. No game/story/battle effects
 are selected. Full capture still requires `--root-gates-verified` with the
 original meaning. Startup/Continue/cleanup remain part of preflight runtime;
