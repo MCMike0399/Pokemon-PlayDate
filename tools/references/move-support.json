@@ -352,7 +352,7 @@
       "gap": "onTryHit"
     },
     "selfDestruct": {
-      "gap": "selfdestruct"
+      "handler": "engine-dsl"
     },
     "eggBomb": {
       "handler": "standard-damage"
@@ -445,7 +445,7 @@
       "handler": "standard-damage"
     },
     "explosion": {
-      "gap": "selfdestruct"
+      "handler": "engine-dsl"
     },
     "furySwipes": {
       "handler": "standard-damage"

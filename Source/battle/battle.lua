@@ -1229,6 +1229,29 @@ function Battle:performMove(move)
     -- Charging is a TryMove stage before target/type/accuracy. Skull Bash can
     -- prepare against Ghost, then fail its Normal release without an accuracy roll.
     if move.chargeRule and self.conditions:charge(move) then return nil end
+    if move.selfDestruct then
+        -- Gen V TryMove (Damp) precedes the user's faint, which precedes all
+        -- target hit checks. Keep the checkpoint after those checks so the
+        -- target's later KO determines final-mon priority through the owner.
+        local blocker = self.effects:selfDestructBlocker(attacker)
+        if blocker then
+            self:say(blocker.name .. " is protected by Damp!")
+            self.conditions:moveFinished(move, false)
+            return nil
+        end
+        self.effects:damage(attacker, attacker.hp, "cost")
+        self:performMoveTarget(move, handler)
+        local targetSide = self.attackerSide == "player" and "enemy" or "player"
+        local last = self.lastDamage > 0 and not defender:isAlive()
+            and targetSide or self.attackerSide
+        return self:handleFaint(last)
+    end
+    return self:performMoveTarget(move, handler)
+end
+
+-- Shared target resolution; the self-KO caller alone defers its checkpoint.
+function Battle:performMoveTarget(move, handler)
+    local attacker, defender = self.attacker, self.defender
     -- BeforeMove gates and PP already ran. A queued move can reach this point
     -- after the opponent self-KOs; do not damage or debuff a fainted target.
     if not self:moveHasTarget(move) then
@@ -1391,6 +1414,9 @@ function Battle:performMove(move)
         if effectOutcome=="run" then return effectOutcome end
         self.conditions:moveFinished(move,true)
 
+        if move.selfDestruct then
+            return nil
+        end
         if not defender:isAlive() then
             return self:handleFaint(not attacker:isAlive() and self.attackerSide or nil)
         end

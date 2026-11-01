@@ -73,7 +73,7 @@ local commonHooks = {
     [99]="accuracyBypassesCheck", [75]="criticalAllowed", [92]="multiHitMaximum",
     [97]="finalDamage", [43]="canAttempt",
     [101]="basePower", [18]="absorbsMove", [29]="canDropStat",
-    [64]="drainHit", [11]="absorbsMove", [33]="speed", [26]="grounded",
+    [6]="selfDestructBlocker", [64]="drainHit", [11]="absorbsMove", [33]="speed", [26]="grounded",
 }
 function BattleEffects:supported(id) return handlers[id]~=nil or commonHooks[id]~=nil end
 function BattleEffects:livingAbility(mon,id)
@@ -89,13 +89,38 @@ function BattleEffects:criticalStage(mon,move)
     return math.max(0,math.min(4,(move.critStage or 0)+(state and state.focusEnergy and 2 or 0)))
 end
 
+-- Damp's TryMove dependency only. Aftermath/Mind Blown/Misty Explosion have
+-- no enabled producers here. This is not general Mold Breaker support: only
+-- Damp suppression at this seam is implemented, including Gen V self/Any events.
+function BattleEffects:selfDestructBlocker(source)
+    local ability = self:effectiveAbility(source)
+    if ability == 104 or ability == 163 or ability == 164 then
+        return nil
+    end
+    for _, mon in ipairs({self.battle.player, self.battle.enemy}) do
+        if self:livingAbility(mon, 6) then
+            return mon
+        end
+    end
+    return nil
+end
+
+-- Showdown queues the user's faint (HP zero) before hit checks but keeps its
+-- active ability until the faint checkpoint. Only these self-KO uses need this
+-- distinction for No Guard; no parallel faint state or broad revival is added.
+function BattleEffects:moveUserAbility(source, id, move)
+    return self:active(source) and self:effectiveAbility(source) == id
+        and (alive(source) or (move.selfDestruct and self.battle.attacker == source
+            and self.battle.currentMove == move))
+end
+
 -- Rain makes declared weather-sensitive attacks always hit, independently of
 -- accuracy/evasion/CompoundEyes/SandVeil; immunity still precedes this query.
 function BattleEffects:accuracyBypassesCheck(move,attacker,defender)
     attacker,defender=attacker or self.battle.attacker,defender or self.battle.defender
     return (move==moveData.pursuit and self.round and self.round.withdrawing==defender)
         or (move.weatherAccuracy==true and self:weatherId()=="raindance")
-        or self:livingAbility(attacker,99) or self:livingAbility(defender,99)
+        or self:moveUserAbility(attacker, 99, move) or self:livingAbility(defender,99)
 end
 -- Gen5 Fly's Invulnerability hook is separate from accuracy. Always-hit
 -- moves still miss airborne targets; No Guard on either living actor bypasses
@@ -108,7 +133,7 @@ function BattleEffects:airborneBlocks(move, source, target)
     if not self.battle.conditions:airborne(target) then
         return false
     end
-    if self:livingAbility(source, 99) or self:livingAbility(target, 99) then
+    if self:moveUserAbility(source, 99, move) or self:livingAbility(target, 99) then
         return false
     end
     local key = MoveRegistry.keyOf(moveData, move)

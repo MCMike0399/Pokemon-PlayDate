@@ -12,11 +12,11 @@ META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
 PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
 ABILITY_FIELDS=('contact','hasSecondary','ohko','typeImmunity','sandWeakened')
-RULE_FIELDS=('powerRule','damageRule','attemptRule','chargeRule','lockRule','weatherAccuracy','ignoreDefensive','ignoreEvasion')
+RULE_FIELDS=('powerRule','damageRule','attemptRule','chargeRule','lockRule','weatherAccuracy','ignoreDefensive','ignoreEvasion','selfDestruct')
 # Chip Away flags inherit unchanged through Gen5 at pinned Showdown
 # 9b136a8c8cdb860a8ab96fa063f906604e352547 (data/moves.ts).
-RULES={'electroBall':{'powerRule':'electroBall'},'assurance':{'powerRule':'assurance'},'endeavor':{'damageRule':'endeavor'},'suckerPunch':{'attemptRule':'suckerPunch'},'ragePowder':{'attemptRule':'singlesRedirect'},'bide':{'damageRule':'bide'},'captivate':{'attemptRule':'oppositeSex'},'solarBeam':{'chargeRule':'solarBeam'},'skullBash':{'chargeRule':'skullBash'},'petalDance':{'lockRule':'rampage'},'thunder':{'weatherAccuracy':True},'hurricane':{'weatherAccuracy':True},'worrySeed':{'attemptRule':'worrySeed'},'chipAway':{'ignoreDefensive':True,'ignoreEvasion':True},'snore':{'attemptRule':'snore'},'revenge':{'powerRule':'revenge'}}
-RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thunder':7,'hurricane':7,'worrySeed':8,'chipAway':14,'snore':17,'revenge':17}
+RULES={'electroBall':{'powerRule':'electroBall'},'assurance':{'powerRule':'assurance'},'endeavor':{'damageRule':'endeavor'},'suckerPunch':{'attemptRule':'suckerPunch'},'ragePowder':{'attemptRule':'singlesRedirect'},'bide':{'damageRule':'bide'},'captivate':{'attemptRule':'oppositeSex'},'solarBeam':{'chargeRule':'solarBeam'},'skullBash':{'chargeRule':'skullBash'},'petalDance':{'lockRule':'rampage'},'thunder':{'weatherAccuracy':True},'hurricane':{'weatherAccuracy':True},'worrySeed':{'attemptRule':'worrySeed'},'chipAway':{'ignoreDefensive':True,'ignoreEvasion':True},'snore':{'attemptRule':'snore'},'revenge':{'powerRule':'revenge'},'selfDestruct':{'selfDestruct':True},'explosion':{'selfDestruct':True}}
+RULE_EPOCHS={**dict.fromkeys(('electroBall','assurance','endeavor','suckerPunch','ragePowder'),3),'bide':4,'captivate':5,'solarBeam':6,'skullBash':6,'petalDance':6,'thunder':7,'hurricane':7,'worrySeed':8,'chipAway':14,'snore':17,'revenge':17,'selfDestruct':18,'explosion':18}
 PROTECTION_FIELDS=('protectable','breaksProtect')
 PRODUCER_FIELDS=ABILITY_FIELDS+('critStage',)+RULE_FIELDS+PROTECTION_FIELDS
 def digest(raw):return hashlib.sha256(raw).hexdigest()
@@ -142,7 +142,7 @@ def producer_epoch(text):
     marker=re.search(r'^-- move-producer-contract: (\d+)$',text,re.M)
     if marker:
         version=int(marker[1])
-        if version not in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):raise ValueError('unsupported move producer epoch')
+        if version not in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18):raise ValueError('unsupported move producer epoch')
         return version
     if re.search(r'self\.protectable\s*=',text) or any(any(field in fields(row)for field in PROTECTION_FIELDS)for row in read_rows(text).values()):return 9
     if re.search(r'self\.(?:powerRule|damageRule|attemptRule)\s*=',text):return 3

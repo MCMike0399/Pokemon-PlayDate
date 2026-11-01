@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "base": "f6e10a97239068937f06eebde6b30429d69cabf9",
+  "oracle_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "oracle_sha256": {
+    "data/moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+    "data/mods/gen8/moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+    "data/mods/gen7/moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+    "data/mods/gen6/moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+    "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010",
+    "ps_data_abilities.ts": "e942ef6a75cdd50095f6b68c27e772ea91f2202714a30b04539ff17b7b93c065",
+    "ps_data_mods_gen8_abilities.ts": "da491e974abbc07c10267cd7ddd6713fea035be415c3d1e69c916d44b9f2ad51",
+    "ps_data_mods_gen7_abilities.ts": "9f9928a6477e78f95dcc6c0bdca686f812cbe4571c034080d4c9ab2136b9e776",
+    "ps_data_mods_gen6_abilities.ts": "01dd91f133cf9ee0215b3a8b04a3418d26c0f9a380781fb4966e5d7f2808e5f9",
+    "ps_data_mods_gen5_abilities.ts": "b0fa8dac88cbbde30d38eb7b8128af37baded1063f4dbec742061c0aee9059bb",
+    "ps_sim_battle.ts": "966fe2263d943343bebc7bbf44ba5ec93454448276a6d45b497885d304dfda58",
+    "ps_sim_battle-actions.ts": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4",
+    "ps_sim_pokemon.ts": "42ebab9dcfc823b032d40dabb8aafc9e76276030f89bd9a0e98b5e7fb54cb607"
+  },
+  "changed_rows": [
+    "explosion",
+    "selfDestruct"
+  ],
+  "unchanged_rows": 423,
+  "epoch": 18,
+  "original424_inverse_sha256": "ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea",
+  "preserved_sha256": {
+    "tools/references/move-producer-migrations.json": "12dcb580d0c4752a91a2143017288f322ef9fa94610938e14378d3ecef7f7e65",
+    "Source/domain/sessionCodec.lua": "ba4f6bc839a72603871213af102a71473c7af061abbbb2140c27036440ab2cfb",
+    "Source/data/fieldMoveBattleData.lua": "3a74e339434964cbf04882f421092bf74aeef2517bea4b4fddfc0e7b1dbdd6a2",
+    "Source/dev/contracts.lua": "4a6432769281bb652b86b7e8a9a99df6dacc3ec045cb215cb518fab2c963329b",
+    "tools/harness/dev_imports.lua": "5d42963f76ce8b2e8f9733169209f95ca4984950f702d79d7a97398337f611c5"
+  },
+  "exact_regeneration": true,
+  "native_execution": false
+}
