@@ -127,6 +127,9 @@ review axes pass. Coverage retains all1512 rows; fresh compile/full host passes
 Old unrun B production/traversal/census/showcase packets are stale and require
 fresh staging. B acceptance remains open. [Adoption](reflect-private-b-adoption-20261030.json).
 
+Interactive Fuchsia safety recording hits1GiB host ceiling after1door/2maps,
+no battle; owned child reaped, canonical seed unchanged. Not hardware-admitted.
+[Retained failure](long-capture-host-stop-20261101.json).
 Current B production-profile8bb9284b completes hardware smoke without new logs;
 keeper restored. Boot12.658s/slice1.472s, Continue3.367s, Save1.616s,
 doors3.022/1.894/1.431s, battle21ms, cavep95103.24ms. Lua live/peak4.53/5.82MiB.
