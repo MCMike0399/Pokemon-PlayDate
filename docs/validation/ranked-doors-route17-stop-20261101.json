@@ -233,5 +233,222 @@
       "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-bindings-hardware-20261101-01/outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
       "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-bindings-hardware-20261101-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
     }
+  },
+  "buffered_candidate_native": {
+    "status": "narrow real SDK checks pass; performance unmeasured",
+    "report": {
+      "heap_kib": 6425.236328125,
+      "missing_file_rejected": true,
+      "mode": "production",
+      "ok": true,
+      "session_id": "dc2e8f8e95514dbd984ff94bdc4f476d",
+      "shadow_fence": true,
+      "simulator": true,
+      "typed_pairs": 22
+    },
+    "sdk_version": "3.1.2",
+    "candidate_overlay": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/buffered-bundle-read-20261101.lua",
+    "candidate_sha256": "2c46170b7ad4f96d544f00bbef6fcacc90f986b2679265094735f13966ec1738",
+    "report_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/buffered-reader-native-20261101-02/startup-probe.json",
+    "report_sha256": "3be45642376594a3fef03ffddb5e3d54f52d88e3a0f8442ad69d0248301f570d",
+    "scope": "22 Route17 definition, event/trainer chunks and sprite-index typed pairs; Data-shadow origin check; missing-file rejection. Compact map catalogue excluded from paired full-table retention; fresh whole-route heap safety remains required.",
+    "discarded_preparation": "native01 failed before launch because main108 build helpers were used against B149; corrected to the existing B build helpers without changing Source or pins."
+  },
+  "buffered_candidate_hardware": {
+    "decision": "REJECTED; no phase gain, guard still fails",
+    "worker_commit_not_adopted": "78c1207505ed69fbd7fdcddc7d7e81dbeffb59ad",
+    "baseline_binding_ms": 7144,
+    "candidate_binding_ms": 7158,
+    "baseline_bundle_read_ms": 7045,
+    "candidate_bundle_read_ms": 7054,
+    "outcome": {
+      "boot_accepted": false,
+      "device_needs_one_A_press": false,
+      "error": "ValueError('device BootTrace guard failed')",
+      "ok": false,
+      "phase": "collect-result-logs"
+    },
+    "stats": {
+      "packed": {
+        "max": 18,
+        "calls": 1,
+        "total": 18
+      },
+      "descriptor": {
+        "max": 409,
+        "calls": 10,
+        "total": 3334
+      },
+      "draw": {
+        "max": 48,
+        "calls": 4,
+        "total": 158
+      },
+      "fieldIndex": {
+        "max": 9,
+        "calls": 40,
+        "total": 36
+      },
+      "bindings": {
+        "max": 7158,
+        "calls": 1,
+        "total": 7158
+      },
+      "bundleRead": {
+        "max": 419,
+        "calls": 24,
+        "total": 7054,
+        "slowestPath": "data/contentCache/chunks/ff917b54e78d73bbd816f65705512116df48167e7d0b0dfe9646eff1b6ff4cc2.json"
+      },
+      "publish": {
+        "max": 2,
+        "calls": 1,
+        "total": 2
+      },
+      "palette": {
+        "max": 315,
+        "calls": 1,
+        "total": 315
+      },
+      "trainer": {
+        "max": 423,
+        "calls": 10,
+        "total": 3730
+      },
+      "object": {
+        "max": 829,
+        "calls": 10,
+        "total": 7124
+      },
+      "gc": {
+        "max": 0,
+        "calls": 4,
+        "total": 0
+      },
+      "key": {
+        "max": 32,
+        "calls": 10,
+        "total": 43
+      },
+      "betweenChecks": {
+        "max": 7192,
+        "calls": 25,
+        "total": 7282
+      }
+    },
+    "keeper_handoff": {
+      "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+      "keeper": "/Games/Calibration.pdx",
+      "no_new_logs": true,
+      "ok": true,
+      "screen": "Not directly observed; pdutil run acknowledged"
+    },
+    "artifacts": {
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-buffered-hardware-20261101-01/serial.raw": "aae88c9410954a788f15939467b4e6c580391be5577b9b5569711a3d71015915",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-buffered-hardware-20261101-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+    }
+  },
+  "file_open_attribution": {
+    "build_id": "433f8f3a467c4ec8a035097234ad073a",
+    "private_change": "Original reader; checkpoint after each staged object. Not a production adoption.",
+    "stats": {
+      "packed": {
+        "max": 18,
+        "total": 18,
+        "calls": 1
+      },
+      "object": {
+        "max": 863,
+        "total": 7461,
+        "calls": 10
+      },
+      "palette": {
+        "max": 317,
+        "total": 317,
+        "calls": 1
+      },
+      "draw": {
+        "max": 50,
+        "total": 162,
+        "calls": 15
+      },
+      "bindings": {
+        "max": 7645,
+        "total": 7645,
+        "calls": 1
+      },
+      "open": {
+        "max": 425,
+        "total": 7158,
+        "calls": 60
+      },
+      "publish": {
+        "max": 3,
+        "total": 3,
+        "calls": 1
+      },
+      "bundleRead": {
+        "max": 427,
+        "total": 7367,
+        "slowestPath": "data/contentCache/chunks/ff917b54e78d73bbd816f65705512116df48167e7d0b0dfe9646eff1b6ff4cc2.json",
+        "calls": 60
+      },
+      "key": {
+        "max": 34,
+        "total": 318,
+        "calls": 10
+      },
+      "trainer": {
+        "max": 431,
+        "total": 3766,
+        "calls": 10
+      },
+      "descriptor": {
+        "max": 412,
+        "total": 3346,
+        "calls": 10
+      },
+      "betweenChecks": {
+        "max": 864,
+        "total": 7771,
+        "calls": 178
+      },
+      "gc": {
+        "max": 1,
+        "total": 1,
+        "calls": 15
+      },
+      "fieldIndex": {
+        "max": 9,
+        "total": 308,
+        "calls": 40
+      }
+    },
+    "open_share_of_bundle_read": 0.971630242975431,
+    "flat_chunk_files": 2546,
+    "logical_chunk_bytes": 796612,
+    "prefix_shard_groups": 256,
+    "maximum_files_per_prefix": 22,
+    "later_guard": "After binding completes, view.end102749ms to actors.begin109935ms includes another7179ms uninterrupted span. This run still fails the guard; checkpoints alone are not a fix.",
+    "outcome": {
+      "boot_accepted": false,
+      "device_needs_one_A_press": false,
+      "error": "ValueError('device BootTrace guard failed')",
+      "ok": false,
+      "phase": "collect-result-logs"
+    },
+    "keeper_handoff": {
+      "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+      "keeper": "/Games/Calibration.pdx",
+      "no_new_logs": true,
+      "ok": true,
+      "screen": "Not directly observed; pdutil run acknowledged"
+    },
+    "next_candidate": "Deterministic hash-prefix chunk directories plus minimal staged-object checkpoints; byte-identical decoded records/digests/indices, current runtime ownership and validation preserved. Hardware gain is unmeasured.",
+    "artifacts": {
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-open-hardware-20261101-01/serial.raw": "2ef22655c9b1ad241f0f297c3f4591d981d4731cc081c798c1aaeed601d99be1",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-open-hardware-20261101-01/serial-boot-trace.tsv": "8c6f884bbd380582bbb14a18dffdc572fb3f2c3ef2241e7b9febb88f7ad6d9f5",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-open-hardware-20261101-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+    }
   }
 }

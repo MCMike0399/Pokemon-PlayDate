@@ -114,7 +114,10 @@ takes15.034s. B hardware safety remains open; no globalworst claim. Narrow
 boundary reproduction localizes7.109s insideSourceBindings.prepare; explicitGC
 <1ms and draw103ms. Keeper restored, no newlogs. Actor/key/content lookups are
 next. Follow-up localizes7.045s to24bundleJSONreads; keylookup36ms. Buffering
-the samePDX-only handle is the next measured candidate; notyetadopted.
+the samePDX-only handle is REJECTED (7.158vs7.144s bindings). Separate probing
+puts7.158of7.367s in fileopen;2546flat chunks. Prefix-directory candidate is
+beingprepared, bytes unchanged required. Objectcheckpoints alone expose another
+7.179s actor-validation stall; no fix or B acceptance claimed.
 [Failure and attribution](ranked-doors-route17-stop-20261101.json).
 Shipped-GC device cycle completes without new logs; keeper restored: boot12.477s,
 Continue3.373s, Save1.607s, doors2.961/1.917/1.398s, battle18ms, cavep9588.32ms.
