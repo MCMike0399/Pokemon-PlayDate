@@ -5,8 +5,8 @@ credential, service change or T3 database relocation is required. The shared
 owner qualified `burbuja-cluster/storage/pi_artifacts.py` at SHA256
 `29e0e8015e91cfbbbc4fd6bac5a820f00b1278ce66caa8f1a53a279f420046d2`.
 Its `qualification.json` records15 real-Pi/failure tests. Playdate does not edit
-that helper. Transport slots belong to the shared coordinator. Only the explicitly granted
-Playdate canary may run; other Playdate bulk stays held until Blast completes.
+that helper. Transport slots belong to the shared coordinator. The real canary and initial shared handoff chain are complete. Normal transport
+is enabled for the tested owner-reviewed queue, which remains empty.
 
 `tools/harness/pi_archive.py` delegates only explicit allowlisted directories.
 `pi_archive_allowlist.json` pins the nine reviewed closed failed runs and their
@@ -75,7 +75,7 @@ Restore never overwrites an existing path. Check the live receipt's status after
 original-path restore before any later second release. Interrupted copies use
 `resume <candidate> --id <id> --execute`; do not create competing duplicate jobs.
 
-## Sustained operation: implemented, gated pending canary
+## Sustained operation
 
 Archive approved cold artifacts below70GiB free; stop normal archive work at
 100GiB. The initial approved backlog may still be moved deliberately. Chain
@@ -86,8 +86,8 @@ age deletion or automatic eligibility scan is permitted.
 The existing30-minute `maintain-storage.sh` still calls `maintain_storage.py`.
 Its `--execute` entry now reports the explicit disabled Pi queue instead of
 running legacy age deletion/compression. No LaunchAgent or shared helper was
-changed. The bounded processor is implemented. Its automatic queue gate stays off until
-the real canary passes; the transport gate opens only for a granted slot. The scheduler calls `maintenance_tick`
+changed. The bounded processor is enabled after the real canary and actual Showdown slot
+release. New work still requires individual owner review and enqueue. The scheduler calls `maintenance_tick`
 **outside** any pre-held producer/maintenance fences. That function acquires the
 four fences plus artifact lock once and invokes the owned phase directly; never
 call manual `execute` while already holding them.
@@ -164,8 +164,9 @@ and nine compressed-trace logical hashes matched at the original path. The
 loaded `local.pokemon-playdate.storage-maintenance`1800s agent points to exactly
 `/bin/sh .../Pokemon-PlayDate-env/maintain-storage.sh`; those exact arguments
 reached the empty queue outside fences. No restart or new service was required.
-Queue is enabled/empty, **transport execution remains false** during initial
-Blast/Showdown batches. After actual completion/slot release from Showdown thread
-`d1e77c2d-8344-46bd-b271-e36db44637ac`, the project agent is authorized to enable
-transport without repeated user permission; verify the real handoff first. Keep
-queue empty until individually owner-reviewed closed paths are enqueued.
+Queue and normal transport are enabled after the actual Showdown completion/slot
+release and independent coordinator verification. The exact loaded entry was
+exercised again at103.61GiB free and remained idle with zero queued jobs. No new
+scheduler, service restart, transfer or bulk job was introduced. Keep the queue
+empty until individually owner-reviewed closed paths are enqueued.
+[Activation proof](pi-normal-activation-20261101.json).
