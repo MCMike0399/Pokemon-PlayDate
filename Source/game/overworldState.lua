@@ -110,9 +110,9 @@ function ExploreSubstate:update()
        and game.session:party():firstUsable()
        and not SourceEvents.worldHook("suppressEncounters", game) then
         local session,zone=game.session,currentZone
-        local plan,reason=FieldEncounters.prepare({session=session,party=session:party(),zone=zone,x=player.gridX,y=player.gridY})
-        if plan then
-            local ok, result, gap = FieldEncounters.resolve(plan)
+        local ok, result, gap = FieldEncounters.attemptStep(
+            session, session:party(), zone, player.gridX, player.gridY)
+        if ok ~= nil then
             if gap then
                 game.lastEncounterAttempt = {kind="none", reason="unimplemented-acquisition", gap=gap}
                 game.lastEncounterSession = session
@@ -143,7 +143,7 @@ function ExploreSubstate:update()
                 return
             end
         else
-            assert(reason=="ineligible-terrain"or reason=="disabled-rate",reason)
+            assert(result == "ineligible-terrain" or result == "disabled-rate", result)
         end
     end
 
@@ -549,6 +549,8 @@ function OverworldState:enter(opts)
     local mw, mh = getMapPixelSize()
     game.camera:snapTo(px, py, mw, mh)
 
+    local encounterReady, encounterReason = FieldEncounters.prepareZone(currentZone)
+    assert(encounterReady, encounterReason)
     self.sub:change("explore")
     -- StateMachine queues this overlay until enter/change completes, so the
     -- first Mart event is top before ordinary input, doors or encounters run.
