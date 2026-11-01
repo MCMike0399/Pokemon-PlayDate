@@ -64,5 +64,33 @@
       "remaining": "Current coverage snapshot; full suite has not been rerun after targeted fixes and sharding."
     }
   },
-  "reviews": "Fresh Standards/Spec review required against pinned move candidate; sharding excluded from gameplay review and awaits device gain before performance review."
+  "reviews": "Fresh Standards/Spec review required against pinned move candidate; sharding excluded from gameplay review and awaits device gain before performance review.",
+  "shard_integration": {
+    "private_B_commit": "c1ef3b7a",
+    "packet_commits": [
+      "de67a656",
+      "7dadd1cd",
+      "3603da2f"
+    ],
+    "kanto_export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-kanto-sdk-20261101-03",
+    "kanto_export_outcome": {
+      "ok": true,
+      "session_id": "a9f4986dbf5c43d1af7840ee4d36ace3"
+    },
+    "kanto_export_host_resources": {
+      "limit_bytes": 1073741824,
+      "owned_child_reaped": true,
+      "sampled_peak_bytes": 189285360
+    },
+    "values_match_previous_export_except_build_id": true,
+    "old_qualification_retained": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-kanto-prior-qualified-20261101-01",
+    "qualification_collected": true,
+    "hardware_gain": "unmeasured; no performance adoption or B acceptance"
+  },
+  "fresh_review_threads": {
+    "standards": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A4c644221-4b62-47ca-874c-0edef607a17b",
+    "spec": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3Abc818d43-74b2-4c11-ac1b-7f3da8d062ff",
+    "fixed_candidate": "12ecefec86d401b9d50daa1686ab39e4d35ba197",
+    "status": "await actual completion, no polling"
+  }
 }
