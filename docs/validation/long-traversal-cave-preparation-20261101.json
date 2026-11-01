@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "status": "Fresh currentB compile-only preparation; no runtime or hardware admission.",
+  "private_b_revision": "10cb9572f8db3979fd7d3b1ddf517277008b4eeb",
+  "build_id": "ce79c03cb2714aada2e502fddba7e63c",
+  "pdx_sha256": "4082c6ccdac04883930dc03285a613c04c4ee2438331253b3409d13552cfe3fa",
+  "production_source_sha256": "a6ebd94b7d29d4ef72b232519ef7dd85323e173d8e3e76a5df28ccfbe5f40e65",
+  "build_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-long-traversal-cave-prepare-20261101-01/build.json",
+  "build_sha256": "95c36a3925c69e35c0f9e37859c1fd304a46a28a21fdc83de8537d0986ae2cda",
+  "packet": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/long-traversal-cave-packet-20261101-01",
+  "packet_input_sha256": "28e1552debbef6025e8731f5b4687c1ac20f7a462b32f8a158a8996596baa024",
+  "unchanged_route_sha256": "6cb5d029b6d21630f51a00f4b8ccffdbcc37b99ce5a3cbd1fed567b3b5d597fd",
+  "geometry": {
+    "maps": 30,
+    "source_warps_bounds_checked": 76,
+    "all_map_bytes_unchanged": true
+  },
+  "seed_files": [
+    {
+      "file": "adventure.a.json",
+      "sha256": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0"
+    },
+    {
+      "file": "adventure.b.json",
+      "sha256": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801"
+    },
+    {
+      "file": "provenance.json",
+      "sha256": "fdc4fc146885d09a0944a18efc854cafaf09c99172837c4431d632a7ca6b9046"
+    }
+  ],
+  "canonical_and_copied_seed_unchanged": true,
+  "target": {
+    "actual_doors": 110,
+    "distinct_maps": 30,
+    "actual_battle_starts": 20
+  },
+  "hardware_save_prohibited": true,
+  "b_source_and_tools_unchanged": true,
+  "supersedes": "b149-long-traversal-root-prepare-20261030-05 compile-only packet, no historical runtime relabel",
+  "pending": [
+    "exact16MiB current-build safety capture and frozen replay using earned B seed",
+    "history-aware safety owner before long profiled Simulator capture",
+    "root ordinary-input device traversal with per-entry heap and native/error/crash inspection"
+  ],
+  "runtime_held_by": "Full door census session75437; do not launch a competing runtime",
+  "checkpoint_or_audio_acceptance": false
+}
