@@ -19,6 +19,9 @@ restarts pass. B remains unaccepted pending the current showcase/motion gate.
 [Candidate](midgame-b-candidate-20261030.json),
 [common loads/restarts](midgame-b-common-load-20261030.json).
 C171 remains isolated; no C activation or acceptance. No 5.6 work starts yet.
+Current static C audit leaves 22 declared move gaps across 44 ordinary trainers;
+Self-Destruct occurs on 13 members and is the next preparation priority.
+[Scope](checkpoint-c-current-move-exposure-20261101.json).
 
 ## Current B validation
 

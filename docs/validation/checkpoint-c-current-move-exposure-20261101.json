@@ -1,0 +1,39 @@
+{
+  "status": "Read-only static preparation; C inactive. Not SDK constructor, AI or campaign proof.",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-host-move-exposure-current-20261101-02/report.json",
+  "sha256": "3f2fb5beb4ca417249e5c5b01a2918d12e0593a0a39f4153840c5c90731b0351",
+  "b_revision": "6f2f995e",
+  "trainer_records": 44,
+  "remaining_declared_gap_moves": 22,
+  "current_gap_counts": {
+    "allySwitch": 4,
+    "dreamEater": 3,
+    "falseSwipe": 6,
+    "fling": 2,
+    "gyroBall": 1,
+    "highJumpKick": 1,
+    "mindReader": 1,
+    "minimize": 4,
+    "miracleEye": 3,
+    "payback": 6,
+    "psychUp": 1,
+    "quickGuard": 1,
+    "recycle": 2,
+    "selfDestruct": 13,
+    "spitUp": 3,
+    "stockpile": 3,
+    "substitute": 4,
+    "swagger": 1,
+    "swallow": 3,
+    "telekinesis": 3,
+    "thrash": 1,
+    "trick": 1
+  },
+  "removed_gap_declarations": {
+    "clearSmog": 11,
+    "foresight": 9,
+    "haze": 11,
+    "revenge": 8
+  },
+  "next_priority": "Self-Destruct is declared unsupported on13 ordinary C trainer members; prepare shared GenV self-KO execution including failed-hit and Damp boundaries. No trainer/move replacement."
+}
