@@ -153,3 +153,9 @@ Chunked checksum is reviewed and adopted privately: title store-read3286→2847m
 persistence18/18 and23 recovery/build host checks pass. Two exact import lists
 and the registration list now include Self-KO without weakening original order.
 No new device logs; keeper restored. [Adoption](chunked-checksum-adoption-20261101.json).
+
+Empty-marker actor shortcut is REJECTED despite12.9% Route17 gain: review found
+a permitted custom metadata callback can be skipped. Both candidate Source
+files restored; all evidence retained. Checksum and scoped-field changes stay.
+B visual gates remain pending retained desktop observation/input verification.
+[Rejection](empty-actor-rejection-20261101.json).

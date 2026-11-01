@@ -1,0 +1,44 @@
+{
+  "classification": "Measured empty-marker descriptor candidate; review pending, not adopted",
+  "base_commit": "7eafb24c",
+  "source_sha256": {
+    "Source/world/sourceActors.lua": "2757b0db2e43bf2260d774b407702f1f0b3229a0988fdcef144c5d90adde3da8",
+    "Source/world/importedMaps.lua": "3044adefe95984e0385881fece354025a0fa65809b77dee5e3893a4116c2ecfe"
+  },
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-chunked-checksum-hardware-20261101-02",
+  "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-empty-actor-hardware-20261101-01",
+  "candidate_metrics_sha256": "cc0cff45b3fbe0edf4988bb450a08b17388047fde67e8262ff5262ca759b2267",
+  "candidate_serial_sha256": "b32acae0ac2dbfae0e405d2bf6f33157fafc17abf301f32486ea2f7aaa392a5c",
+  "performance": {
+    "Route17": {
+      "baseline_ms": 5421,
+      "candidate_ms": 4723,
+      "gain_percent": 12.875853163622947
+    },
+    "FuchsiaCity": {
+      "baseline_ms": 5648,
+      "candidate_ms": 5090,
+      "gain_percent": 9.879603399433428
+    }
+  },
+  "matched_policy": "Same canonical slots, six frozen physical input batches, compiled production-profile, disabled forced diagnostic GC,15 fixed inclusive method timers and I/O counters. Observed positions matched all six boundaries.",
+  "native": {
+    "red_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/empty-actor-native-red-20261101-02",
+    "red_passed": 4,
+    "red_failed_expected": 4,
+    "green_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/empty-actor-native-green-20261101-02",
+    "green_result_sha256": "1bc25ec85633394a75d99d3c1b1dbc6d42703e41d6ebf9e2fba7db93104bae5a",
+    "green_passed": 8,
+    "green_failed": 0,
+    "cases": "Actual qualified empty markers, bad version/hidden actor/bad source delta, real nonempty Fuchsia actor data, harness/record-scope/extra-provider fallbacks. No fake SDK or manufactured qualification."
+  },
+  "host": {
+    "selected_source_actor_and_motion_checks_passed": 10,
+    "full_suite": "not rerun"
+  },
+  "validation_boundary": "Always normalize actor DTO; keep dynamic source-world surface validation. Only qualified SourceMaps data through the canonical ImportedMaps implementation, source profile, and unchanged sole built-in actor provider may skip unused actor-spec construction.",
+  "review_attention": "Check custom content resolver and CeruleanContent.install metadata callback semantics as well as actor-provider/data-origin fences; canonical data origin alone does not establish arbitrary callback identity.",
+  "no_new_logs": true,
+  "keeper_restored": true,
+  "remaining": "One instrumented paired run. No normal-production pacing, whole worst-eight route, B visual or C acceptance. Candidate remains uncommitted until review."
+}
