@@ -51,9 +51,9 @@ Registration is 112/193 ms; provider install 1,141/1,559 ms; title preparation
 comparable. At 149 maps Hideout aggregate is 768 ms and Celadon services 283 ms.
 
 Eight unchanged current-B cave encounter SDK cases pass as optimizationbaseline;
-[scope](cave-current-b-baseline-20261101.json). Candidate9e8 nowmeasures13.03%cavep95gain (103.24→89.79ms),41targetedSDK
+[scope](cave-current-b-baseline-20261101.json). Candidate9e8 nowmeasures13.03%cavep95gain (103.24→89.79ms),111targetedSDK
 passes, no newdevicelogs/keeperrestored; combined review0Standards/0Spec; remaining native/composition gates, noadoption.
-[Matched measurement](cave-candidate-device-20261101.json).
+[Matched measurement](cave-candidate-device-20261101.json), [native follow-up](cave-candidate-native-followup-20261101.json).
 Remaining structural priorities: census and worst-five physical doors, then cave
 step costs; finish first-entry installers. Savings are unmeasured until paired
 hardware runs. The title split is rejected: immediate app→walking worsened from
