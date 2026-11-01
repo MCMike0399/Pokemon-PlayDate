@@ -315,7 +315,7 @@ def prepare(project, sdk, output, earned=None, only=None, history_clear=False):
                   history_clear=history_clear,
                   classification=CLASSIFICATION, trials=2, max_frames=240,
                   seed_restore_policy='once per case pair; trial-two effects retained',
-                  gc_policy='explicit boundary GC plus loading-suspension collection at 8 MiB; diagnostic only')
+                  gc_policy='boundary GC plus cooperative checkpoint/suspension collection at 8 MiB; hard guard first; 64 KiB allocation hysteresis above the last collected live baseline; diagnostic only')
     write_json(case_dir / 'config.json', config)
     seed = None
     if earned:
@@ -403,7 +403,7 @@ def read_observations(output, metadata):
                 group = segments.setdefault(key, [])
                 if (build != metadata['build_id'] or not 1 <= key[0] <= metadata['selected_cases']
                         or key[1] not in (1, 2) or int(ordinal) != len(group)+1
-                        or kind not in ('yield', 'return', 'error') or loading not in ('0', '1')
+                        or kind not in ('yield', 'return', 'error', 'observer-boundary') or loading not in ('0', '1')
                         or not all(math.isfinite(v) and v >= 0 for v in (active, start))):
                     raise ValueError('invalid SDK segment row')
                 group.append(dict(ordinal=int(ordinal), kind=kind, active_ms=active,
@@ -633,12 +633,18 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
         finally:
             if process is not None and process.poll() is None:
                 raise RuntimeError('owned child exit unconfirmed; private Data retained')
+            atomic_json(output / 'run-termination.json', {
+                'producer_failure': failure,
+                'owned_child_reaped': process is None or process.poll() is not None,
+                'returncode': process.returncode if process is not None else None,
+                'scope': 'Original producer/host outcome before evidence validation'})
             shutil.copytree(data, output / 'runtime-data')
             shutil.rmtree(data)
     try:
         result = summarize(output, metadata, failure)
     except (ValueError, KeyError, TypeError) as error:
         result = dict(schema=1, build_id=metadata['build_id'], runtime_executed=True, complete=False,
+                      producer_failure=failure, validation_failure=str(error),
                       failure='Runtime evidence validation failed: '+str(error),
                       counts={'not_run': metadata['selected_cases']*2}, worst_wall=[], worst_segments=[],
                       rows=[dict(id=identity, trial=trial, status='not_run', gap='runtime evidence is unvalidated')

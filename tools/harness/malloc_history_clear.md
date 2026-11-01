@@ -80,6 +80,23 @@ The pause stays outside transition intervals. Clear failures/timeouts stop the
 owned child without replay. The 1 GiB host, 60 s progress and overall deadlines
 remain active. More than two selected cases cannot execute without this support.
 
+The private census observer collects at its existing cooperative loading
+checkpoints as well as suspensions once Lua heap reaches8MiB. It checks the
+unchanged hard guard before collection; an observed9MiB violation is never
+collected away. Explicit `observer-boundary` segments exclude that diagnostic
+collection from active elapsed time while wall time and GC counters retain it.
+If the collected live baseline remains above8MiB, another full collection waits
+for64KiB of new allocation; the9MiB hard check still runs at every checkpoint.
+This avoids repeatedly collecting an unchanged live working set. Segment TSV
+uses six decimal places so hundreds of short boundaries do not lose totals;
+the host's existing validation tolerance is unchanged. Original producer failure
+is retained independently if later evidence parsing also fails.
+Unexpected setup exceptions and production safe errors terminate the census;
+they cannot become ordinary gaps followed by more work in damaged state.
+RockTunnelB1F setup first enters1F through the normal field owner. No field
+offset, story flag, collision or resource is fabricated. Cache residency remains
+the actual pre-input state; first trials are not automatically called cold.
+
 After Accessibility is actually available, Root prepares a NEW identified stage:
 
 ```sh

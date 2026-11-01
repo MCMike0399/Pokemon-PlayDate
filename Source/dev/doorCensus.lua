@@ -124,26 +124,43 @@ function DoorCensus.install()
         segmentNumber = segmentNumber + 1
         row.active_ms = row.active_ms + duration
         row.max_segment_ms = math.max(row.max_segment_ms, duration)
-        assert(segments:write(string.format("%s\t%d\t%d\t%d\t%s\t%.3f\t%d\t%.3f\t%d\n",
+        assert(segments:write(string.format("%s\t%d\t%d\t%d\t%s\t%.6f\t%d\t%.6f\t%d\n",
             cfg.build_id, caseIndex, trial, segmentNumber, kind, duration, BootTrace.sequence,
             started + clockOffset, GameBootstrap.isLoading() and 1 or 0)))
         segments:flush()
         started = nil
     end
 
-    -- SDK update coroutine spans are cut at the actual yield. Suspension,
-    -- inter-frame waits and observer file writes never become active CPU time.
-    coroutine.yield = function(...)
-        local observing = measured and coroutine.running() == updateThread
-        if observing then
-            segment("yield")
-        end
-        -- The 64-bit census observer is larger than the shipped device game.
-        -- Collect only at an actual loading suspension, outside active spans;
-        -- retain the production 9 MiB guard and the native 16 MiB pool.
-        if coroutine.running() == updateThread and collectgarbage("count") >= 8 * 1024 then
+    local collecting = false
+    local lastCollectionHeap
+    local function collectAtCheckpoint()
+        if not collecting and coroutine.running() == updateThread then
+            local heap = collectgarbage("count")
+            if heap < 8 * 1024 then
+                lastCollectionHeap = nil
+                return
+            end
+            -- Never collect away an already observed hard violation. The
+            -- private observer only advances collection at existing safe points.
+            BootTrace.checkGuard()
+            if lastCollectionHeap and heap < lastCollectionHeap then
+                lastCollectionHeap = heap
+            end
+            -- A live working set above the soft threshold cannot be freed by
+            -- another full collection at every record. Wait for bounded new
+            -- allocation, checking the unchanged hard guard on every call.
+            if lastCollectionHeap and heap < lastCollectionHeap + 64 then
+                return
+            end
+            local observing = measured and started ~= nil
+            if observing then
+                segment("observer-boundary")
+            end
             local before = clock()
+            collecting = true
             collectgarbage("collect")
+            collecting = false
+            lastCollectionHeap = collectgarbage("count")
             if row then
                 row.observer_gc_count = (row.observer_gc_count or 0) + 1
                 row.observer_gc_ms = (row.observer_gc_ms or 0) + clock() - before
@@ -152,7 +169,27 @@ function DoorCensus.install()
                     row.traversal_observer_gc_ms = (row.traversal_observer_gc_ms or 0) + clock() - before
                 end
             end
+            if observing then
+                started = clock()
+            end
         end
+    end
+    local oldYieldIfDue = GameBootstrap.yieldIfDue
+    GameBootstrap.yieldIfDue = function()
+        if GameBootstrap.isLoading() then
+            collectAtCheckpoint()
+        end
+        return oldYieldIfDue()
+    end
+
+    -- Conditional checkpoint collection cannot enter the active segment;
+    -- actual suspension and inter-frame waits remain excluded as before.
+    coroutine.yield = function(...)
+        local observing = measured and coroutine.running() == updateThread
+        if observing then
+            segment("yield")
+        end
+        collectAtCheckpoint()
         local values = table.pack(oldYield(...))
         if observing then
             started = clock()
@@ -180,6 +217,12 @@ function DoorCensus.install()
         stream:flush()
         written = written + 1
         row, approach = nil, nil
+        if status == "failure" then
+            phase = "failed"
+            stream:close()
+            segments:close()
+            return
+        end
         if trial == 1 then
             trial = 2
             phase = "setup"
@@ -248,6 +291,13 @@ function DoorCensus.install()
         -- switchZone/Overworld/WorldView/Player/provider ownership and real actors.
         -- No movement or collision flag is changed; overlays are never dismissed.
         GameBootstrap.withLoading("census.fixture", function()
+            if item.source_id == "pokered:ROCK_TUNNEL_B1F"
+                and not FieldWorld.eligibleDarkMap(currentZone.stableID) then
+                local firstFloor = SourceMaps.entry("RockTunnel1F")
+                row.fixture_prelude = "normal field-owner outside entry to RockTunnel1F"
+                switchZone(firstFloor.key)
+                game.machine:change("overworld", {entry=firstFloor.spawn})
+            end
             switchZone(item.source_key)
             game.machine:change("overworld", {entry={x=approach.x, y=approach.y,
                 facing=approach.direction}})
@@ -391,7 +441,8 @@ function DoorCensus.install()
                 row = {schema=1, build_id=cfg.build_id, id=item and item.id,
                     case_index=caseIndex, trial=trial, classification=cfg.classification}
             end
-            finish("gap", "fixture or resolution failure: " .. tostring(problem))
+            finish("failure", "unexpected fixture failure: " .. tostring(problem))
+            GameBootstrap.fail(problem)
             updateThread = nil
             return
         end
@@ -405,7 +456,8 @@ function DoorCensus.install()
             started = clock()
         end
         local accepted, failure = pcall(callback)
-        segment(accepted and "return" or "error")
+        local safeError = BootTrace.phase and BootTrace.phase:match("^error%.")
+        segment(accepted and not safeError and "return" or "error")
         started, updateThread = nil, nil
         if not accepted then
             if row then
@@ -415,7 +467,10 @@ function DoorCensus.install()
             return
         end
         -- A production safe error replaces update; do not mask or recover it.
-        if BootTrace.phase and BootTrace.phase:match("^error%.") then
+        if safeError then
+            if row then
+                finish("failure", BootTrace.phase)
+            end
             return
         end
         afterFrame()

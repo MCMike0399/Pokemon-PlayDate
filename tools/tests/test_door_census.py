@@ -134,6 +134,41 @@ class ResultTests(unittest.TestCase):
         self.assertEqual(result['counts'], {'not_run': 2})
         self.assertEqual({r['trial'] for r in result['rows']}, {1, 2})
 
+    def test_observer_collection_boundary_preserves_active_segment_inventory(self):
+        path = self.root / 'runtime-data/door-census-segments.tsv'
+        path.write_text('identity\t1\t1\t1\tobserver-boundary\t2.5\t3\t10.0\t1\n'
+                        'identity\t1\t1\t2\tyield\t1.0\t4\t20.0\t1\n')
+        _, segments = census.read_observations(self.root, self.metadata)
+        self.assertEqual([r['kind'] for r in segments[(1, 1)]], ['observer-boundary', 'yield'])
+        self.assertEqual(sum(r['active_ms'] for r in segments[(1, 1)]), 3.5)
+
+    def test_short_binary_segments_keep_precision_without_relaxing_validation(self):
+        data = self.root / 'runtime-data'
+        (data / 'boot-trace.tsv').write_text(
+            'schema\t1\tbuild\tidentity\tplatform\tsimulator\n'
+            'sequence\tphase\tclock\tsince_yield\tphase_ms\theap\tpeak\n'
+            '1\tdoor.map.begin\t0\t0\t0\t1\t1\n'
+            '2\tdoor.map.end\t100\t0\t100\t1\t1\n')
+        row = dict(build_id='identity', id='portal', case_index=1, trial=1,
+                   status='measured', target_cache='cold', trace_begin=0, trace_end=2,
+                   trigger={'source_event_id': 'portal'},
+                   resolved={'to': 'target', 'x': 3, 'y': 4},
+                   arrived={'zone_id': 'target', 'x': 3, 'y': 4},
+                   input_completion_verified=True, door_entries=1, input_frames=1,
+                   wall_ms=100, active_ms=62.5, max_segment_ms=.0625,
+                   post_gc_lua_heap_kib=1)
+        self.write_rows([row])
+        def segments(precision):
+            (data / 'door-census-segments.tsv').write_text(''.join(
+                f'identity\t1\t1\t{i+1}\tobserver-boundary\t{.0625:.{precision}f}\t1\t{i/10:.6f}\t1\n'
+                for i in range(1000)))
+        segments(3)
+        with self.assertRaisesRegex(ValueError, 'segment totals disagree'):
+            census.summarize(self.root, self.metadata)
+        segments(6)
+        result = census.summarize(self.root, self.metadata)
+        self.assertEqual(result['counts'], {'measured': 1, 'not_run': 1})
+
     def test_host_limits_stop_memory_growth_and_nonprogress(self):
         census.check_host_limits(census.MAX_PROCESS_BYTES, 60)
         with self.assertRaisesRegex(RuntimeError, 'host footprint'):
