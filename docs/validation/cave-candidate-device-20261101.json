@@ -1,0 +1,80 @@
+{
+  "status": "Frozen cave candidate improves device cavep95 by13.03%; qualifies for one review, not adopted.",
+  "candidate": "9e8fd8e3f850a4cd8fd881302f4c03639dc2cc04",
+  "base": "565bfdfb4c0f2b37c921fa79e143067fe45b7637",
+  "candidate_build": "e184da4cab214b779c2db0063ac0e15f",
+  "baseline_build": "8bb9284bddcd40d2a1383880178b7070",
+  "production_files_changed": [
+    "domain/fieldEncounters.lua",
+    "world/zone.lua",
+    "lib/rng.lua",
+    "game/overworldState.lua"
+  ],
+  "inputs": "Exact same254DS1commands, earned5.4Charmander slots, productionSavepolicy and recorder; every other productionSource byte-identical.",
+  "baseline_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-production-profile-hardware-20261101-01/device-smoke.json",
+  "baseline_sha256": "a93b76691a2b659d2023592c2f74e87feeffa9c4ecfe6f321905dea2916a135a",
+  "candidate_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b565-production-profile-hardware-20261101-01/device-smoke.json",
+  "candidate_sha256": "7a48922c309a9b75d5e27de7dad96b822aea72327aeb3b38939d9e1845c99f88",
+  "cave_p95_before_ms": 103.24199999999837,
+  "cave_p95_after_ms": 89.78900000000431,
+  "gain_percent": 13.030549582528694,
+  "phase_measurements": {
+    "Continue": 3379.0,
+    "Save": 1659.0,
+    "battle": 21.0,
+    "boot_slice": 1452.989,
+    "boot_title": 12687.0,
+    "cave_walking_p95": 89.78900000000431,
+    "door": 2974.0,
+    "title_artwork": 2643.0
+  },
+  "heap_live_mib": 4.5350048828125,
+  "heap_peak_mib": 5.829634765625,
+  "last_phase": {
+    "clock_ms": 72505.0,
+    "heap_kib": 4880.476,
+    "peak_kib": 5969.546,
+    "phase": "battle.live.after_gc",
+    "phase_ms": 556.0,
+    "since_yield_ms": 590.0
+  },
+  "new_error_or_crash_logs": false,
+  "keeper_restored": true,
+  "screen": "Not directly observed; serialstate/exacttrace only.",
+  "diagnostic_gc": "ForcedfullGC retained/included, title848ms; shipped-equivalent timings unmeasured.",
+  "native_checks": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b565-candidate-native-20261101-01/startup-probe.json",
+      "sha256": "711cd738d59dd4dfafa0aedffca089030de4b477721b85a6e5d9a8c6aef08c5a",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/field-b565-candidate-native-20261101-01/startup-probe.json",
+      "sha256": "989134237f44029d16f6f7aec1fc876a0bdb4d788bf281b4efb285e24f7f848c",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/acquisition-b565-candidate-native-20261101-01/startup-probe.json",
+      "sha256": "e86715adb524abae45e1d4c5b58a31bb05f644196db6ca0eb42db77c3fee885d",
+      "passed": 15,
+      "failed": 0
+    }
+  ],
+  "native_total_passed": 41,
+  "safety": {
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b565-production-profile-safety-20261101-01/simulator-smoke.json",
+    "sha256": "b99ae3211552175ba73a3c4e03d0ce60064b83c4c7b84b9e518c30f4751fb797",
+    "raw_slice_ms": 61.698,
+    "sampled_peak_bytes": 8062087.168,
+    "scope": "Passed existing safety-only admission; original6MiBSimulatorlive budget remainsfailed/unmodified."
+  },
+  "remaining": [
+    "One combined review after measured>=10%gain",
+    "Remaining targetedSurf/source/RNG/specimen/held cases and composition qualification beforeadoption",
+    "Cave50ms,boot10s/slice1s,worstdoor1.5s goals stillunmet",
+    "B longphysicalresources/showcase/acceptance andrestoftheBluecampaign"
+  ],
+  "storage": "Originalgamegoal continuesautomatically; no Pitransfer, transporthold unchanged."
+}
