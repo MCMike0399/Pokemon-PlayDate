@@ -52,7 +52,7 @@ class ShippedMapQualificationTests(unittest.TestCase):
                       (PROJECT / 'Source/game/shippedDataPolicy.lua').read_text())
 
     def test_legacy_flat_duplicate_is_rejected_before_content_flag_publication(self):
-        chunks = self.source / 'data/contentCache/chunks'
+        chunks = self.source / 'data/contentCache/chunks-v2'
         path = next(chunks.glob('*/*.json'))
         (chunks / path.name).write_bytes(path.read_bytes())
         with self.assertRaisesRegex(ValueError, 'content cache drift'):
@@ -61,7 +61,7 @@ class ShippedMapQualificationTests(unittest.TestCase):
                       (self.source / 'game/shippedDataPolicy.lua').read_text())
 
     def test_changed_content_chunk_is_rejected_before_content_flag_publication(self):
-        path = next((self.source / 'data/contentCache/chunks').glob('*/*.json'))
+        path = next((self.source / 'data/contentCache/chunks-v2').glob('*/*.json'))
         path.write_bytes(path.read_bytes() + b' ')
         with self.assertRaisesRegex(ValueError, 'content cache drift'):
             build.qualify_shipped_content(PROJECT, self.source, self.stage)

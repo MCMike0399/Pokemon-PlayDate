@@ -22,7 +22,7 @@ class ContentCacheTests(unittest.TestCase):
         cls.pins = json.loads(generator.PINS.read_bytes())
 
     def decode(self, index, record, field):
-        return {key: json.loads(self.files['chunks/' + digest[:2] + '/' + digest + '.json'])
+        return {key: json.loads(self.files['chunks-v2/' + digest[:2] + '/' + digest + '.json'])
                 for key, digest in index['records'][record][field].items()}
 
     def test_exact_generated_file_set_and_chunk_checksums(self):
@@ -30,9 +30,9 @@ class ContentCacheTests(unittest.TestCase):
         self.assertEqual(actual, self.files)
         digests = set()
         for name, raw in self.files.items():
-            if name.startswith('chunks/'):
+            if name.startswith('chunks-v2/'):
                 digest = hashlib.sha256(raw).hexdigest()
-                self.assertEqual(name, f'chunks/{digest[:2]}/{digest}.json')
+                self.assertEqual(name, f'chunks-v2/{digest[:2]}/{digest}.json')
                 self.assertNotIn(digest, digests)
                 digests.add(digest)
         referenced = set()
@@ -47,8 +47,8 @@ class ContentCacheTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             destination = Path(temporary) / 'cache'
             shutil.copytree(CACHE, destination)
-            chunk = next((destination / 'chunks').glob('*/*.json'))
-            legacy = destination / 'chunks' / chunk.name
+            chunk = next((destination / 'chunks-v2').glob('*/*.json'))
+            legacy = destination / 'chunks-v2' / chunk.name
             legacy.write_bytes(chunk.read_bytes())
             result = subprocess.run([
                 'python3', str(ROOT / 'tools/generate_content_cache.py'),
@@ -180,7 +180,7 @@ class ContentCacheTests(unittest.TestCase):
             self.assertIn(new_root, catalog['packages'])
             self.assertNotIn(new_root, self.pins['packages'])
             for name, raw in self.files.items():
-                if name.startswith('chunks/'):
+                if name.startswith('chunks-v2/'):
                     self.assertEqual(files[name], raw)
 
     def test_conflicting_immutable_package_records_fail_even_with_updated_input_pin(self):

@@ -63,7 +63,7 @@ def build(project=ROOT, cache_files=None, source_root=None, excluded_sources=())
             trainers = {}
             for stable, definition in exported['trainers'].items():
                 if isinstance(definition, str):
-                    require('chunks/' + definition[:2] + '/' + definition + '.json' in files, 'unresolved original roster')
+                    require('chunks-v2/' + definition[:2] + '/' + definition + '.json' in files, 'unresolved original roster')
                     trainers[stable] = definition
                 else:
                     require(definition['id'] == stable, 'transformed trainer identity differs')

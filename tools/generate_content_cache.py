@@ -78,7 +78,7 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
         for key, value in sorted(records.items()):
             raw = canonical(value)
             digest = hashlib.sha256(raw).hexdigest()
-            files['chunks/' + digest[:2] + '/' + digest + '.json'] = raw
+            files['chunks-v2/' + digest[:2] + '/' + digest + '.json'] = raw
             result[key] = digest
         return result
 
