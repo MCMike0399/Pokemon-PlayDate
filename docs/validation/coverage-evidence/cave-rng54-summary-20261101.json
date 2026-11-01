@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+  "sdk": {
+    "passed": 54,
+    "failed": 0
+  },
+  "scope": "Exact54 assertions cited by50 move-coverage records, selected from11 original SDK suites. All bodies unchanged, only exact-name selection and host-history pauses in private overlay. No1659-case rerun, campaign/device or full-move certification.",
+  "acceptance_context": "private-root-scoped-sdk-not-checkpoint-acceptance",
+  "build_id": "bd3bc811e0e040cab72a76552635fdb3:ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+  "build_metadata": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/runtime-move-b565-rng-requalification-20261101-02/build.json",
+  "compiled_source_sha256": "0534b145057f8c3eb64bccefffb89f6e1a615f8433a7cbbbb8f0085af530b4e8",
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/runtime-move-b565-rng-requalification-20261101-02/native-contract-result.json",
+    "sha256": "338f1c7af26b362a8d06fc023689ecb225ff9dc0cb367a6065b7d1672613dbc2",
+    "size_bytes": 7615
+  },
+  "terminal": {
+    "acknowledged_sequence": 54,
+    "failure": null,
+    "host_limit_bytes": 1073741824,
+    "owned_child_reaped": true,
+    "peak_process_bytes": 275448912
+  },
+  "prior_rng_native_cases": 14,
+  "historical_registry": {
+    "path": "tools/references/runtime-move-coverage-before-cave-20261101.json",
+    "sha256": "1190c945fb01fa7fbb51759ecfeb886ceb9e22f7e4ce75ab8ba4bf3a9c2ea0e7"
+  },
+  "qualification": "Only previously recorded RNG whole-file owner hashes change; fresh54 SDK executions cover every canonical case referenced by this registry. Preserve definitions, other owners/assertion hashes, states, scope limits and deliberate stale claims."
+}

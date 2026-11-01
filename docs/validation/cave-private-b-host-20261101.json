@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "source_commit": "e1824e69",
+  "logical_cave_commit": "921f02bb",
+  "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+  "host_passed": 1059,
+  "errors": 0,
+  "failures": 0,
+  "skips": 0,
+  "seconds": 159.786,
+  "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b149-integrated-host-20261101-01/host-after-rng-requalification.log",
+  "log_sha256": "bee8d188814b8f01f675813cf8547f911c967d31cb2d33b2eac335abcd371fea",
+  "compile_only_bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/cave-b149-integrated-host-20261101-01/bundle",
+  "direct_cave_targeted_sdk_passes": 119,
+  "additional_runtime_move_requalification_passes": 54,
+  "review_findings": {
+    "standards": 0,
+    "spec": 0
+  },
+  "coverage_rows": 1512,
+  "facet_promotions": 0,
+  "status": "Reviewed measured cave performance change integrated into private B; checkpoint and hardware playability remain unaccepted.",
+  "remaining": [
+    "long physical traversal100+doors/30+maps/20battles",
+    "complete door census and worst-five hardware measurements",
+    "checkpoint showcase and remaining latency targets"
+  ]
+}

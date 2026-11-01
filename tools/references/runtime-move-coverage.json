@@ -2,12 +2,12 @@
   "schema": 1,
   "scope": "reviewed-source-and-executed-SDK-subsets",
   "accepted_summary": {
-    "path": "docs/validation/coverage-evidence/cerulean1659-summary.json",
-    "sha256": "5920db288c2c38f2c3a229ba663fd9eeeea410dada9bad827bdeb9ea5154a875",
-    "source_sha256": "3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
-    "sdk_passed": 1659
+    "path": "docs/validation/coverage-evidence/cave-rng54-summary-20261101.json",
+    "sha256": "65900e9a9596e0aff8e13c2bbbd41f5b50bc1799811982a6874695669ba23e68",
+    "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+    "sdk_passed": 54
   },
-  "sdk_result_sha256": "a99e8dcc172145c149da01d1479a970353b737ee297e268e813c4938e5385d2f",
+  "sdk_result_sha256": "97464a32b80ff65e0d785e9c875da27227f9e4be3713e89946a527ba76309f55",
   "qualification": "Current sourcebody hashes +exact executed assertions, never generated metadata alone; metadata hash is drift guard only. Fullruntime semantics remains false.",
   "moves": {
     "assurance": {
@@ -53,7 +53,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -108,7 +108,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -163,7 +163,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -180,7 +180,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -197,7 +197,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -214,7 +214,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -231,7 +231,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -248,7 +248,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -265,7 +265,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -282,7 +282,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -299,7 +299,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -341,7 +341,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -358,7 +358,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -375,7 +375,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -392,7 +392,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -409,7 +409,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -426,7 +426,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -443,7 +443,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -460,7 +460,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -477,7 +477,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -526,7 +526,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -581,7 +581,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -636,7 +636,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -653,7 +653,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -670,7 +670,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -687,7 +687,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -704,7 +704,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -721,7 +721,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -738,7 +738,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -755,7 +755,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -772,7 +772,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -820,7 +820,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -875,7 +875,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -930,7 +930,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -947,7 +947,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -964,7 +964,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -981,7 +981,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -998,7 +998,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1015,7 +1015,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1032,7 +1032,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1049,7 +1049,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1066,7 +1066,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -1108,7 +1108,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1125,7 +1125,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1142,7 +1142,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1159,7 +1159,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1176,7 +1176,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1193,7 +1193,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1210,7 +1210,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1227,7 +1227,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1244,7 +1244,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -1286,7 +1286,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1303,7 +1303,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1320,7 +1320,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1337,7 +1337,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1354,7 +1354,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1371,7 +1371,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1388,7 +1388,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1405,7 +1405,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1422,7 +1422,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -1471,7 +1471,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -1540,7 +1540,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -1607,7 +1607,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1624,7 +1624,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1641,7 +1641,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1658,7 +1658,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1675,7 +1675,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1692,7 +1692,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1709,7 +1709,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1726,7 +1726,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1743,7 +1743,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -1815,7 +1815,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1832,7 +1832,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1849,7 +1849,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1866,7 +1866,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1883,7 +1883,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1900,7 +1900,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1917,7 +1917,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1934,7 +1934,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1951,7 +1951,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1968,7 +1968,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -1985,7 +1985,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2002,7 +2002,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2019,7 +2019,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2036,7 +2036,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2053,7 +2053,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2070,7 +2070,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2087,7 +2087,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2191,7 +2191,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2286,7 +2286,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2341,7 +2341,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2403,7 +2403,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2488,7 +2488,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2505,7 +2505,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2522,7 +2522,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2539,7 +2539,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2556,7 +2556,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2573,7 +2573,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2590,7 +2590,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2607,7 +2607,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2624,7 +2624,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2641,7 +2641,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2658,7 +2658,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2675,7 +2675,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2692,7 +2692,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2709,7 +2709,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2726,7 +2726,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2743,7 +2743,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2760,7 +2760,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2865,7 +2865,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -2932,7 +2932,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2949,7 +2949,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2966,7 +2966,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -2983,7 +2983,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3000,7 +3000,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3017,7 +3017,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3034,7 +3034,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3051,7 +3051,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3068,7 +3068,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -3140,7 +3140,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3157,7 +3157,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3174,7 +3174,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3191,7 +3191,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3208,7 +3208,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3225,7 +3225,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3242,7 +3242,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3259,7 +3259,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3276,7 +3276,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3293,7 +3293,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3310,7 +3310,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3327,7 +3327,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3344,7 +3344,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3361,7 +3361,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3378,7 +3378,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3395,7 +3395,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3412,7 +3412,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -3515,7 +3515,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -3600,7 +3600,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3617,7 +3617,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3634,7 +3634,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3651,7 +3651,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3668,7 +3668,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3685,7 +3685,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3702,7 +3702,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3719,7 +3719,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3736,7 +3736,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3753,7 +3753,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3770,7 +3770,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3787,7 +3787,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3804,7 +3804,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3821,7 +3821,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3838,7 +3838,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3855,7 +3855,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3872,7 +3872,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -3963,7 +3963,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3980,7 +3980,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -3997,7 +3997,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4014,7 +4014,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4031,7 +4031,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4048,7 +4048,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4065,7 +4065,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4082,7 +4082,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4099,7 +4099,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -4153,7 +4153,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4238,7 +4238,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4255,7 +4255,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4272,7 +4272,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4289,7 +4289,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4306,7 +4306,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4323,7 +4323,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4340,7 +4340,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4357,7 +4357,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4374,7 +4374,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4391,7 +4391,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4408,7 +4408,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4425,7 +4425,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4442,7 +4442,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4459,7 +4459,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4476,7 +4476,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4493,7 +4493,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4510,7 +4510,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4601,7 +4601,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4649,7 +4649,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4718,7 +4718,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4792,7 +4792,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4854,7 +4854,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -4939,7 +4939,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4956,7 +4956,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4973,7 +4973,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -4990,7 +4990,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5007,7 +5007,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5024,7 +5024,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5041,7 +5041,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5058,7 +5058,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5075,7 +5075,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5092,7 +5092,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5109,7 +5109,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5126,7 +5126,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5143,7 +5143,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5160,7 +5160,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5177,7 +5177,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5194,7 +5194,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5211,7 +5211,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -5308,7 +5308,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5325,7 +5325,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5342,7 +5342,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5359,7 +5359,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5376,7 +5376,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5393,7 +5393,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5410,7 +5410,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5427,7 +5427,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5444,7 +5444,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5461,7 +5461,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5478,7 +5478,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5495,7 +5495,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5512,7 +5512,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5529,7 +5529,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5546,7 +5546,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5563,7 +5563,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5580,7 +5580,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -5677,7 +5677,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5694,7 +5694,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5711,7 +5711,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5728,7 +5728,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5745,7 +5745,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5762,7 +5762,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5779,7 +5779,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5796,7 +5796,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5813,7 +5813,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5830,7 +5830,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5847,7 +5847,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5864,7 +5864,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5881,7 +5881,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5898,7 +5898,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5915,7 +5915,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5932,7 +5932,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -5949,7 +5949,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -6046,7 +6046,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6063,7 +6063,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6080,7 +6080,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6097,7 +6097,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6114,7 +6114,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6131,7 +6131,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6148,7 +6148,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6165,7 +6165,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6182,7 +6182,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6199,7 +6199,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6216,7 +6216,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6233,7 +6233,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6250,7 +6250,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6267,7 +6267,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6284,7 +6284,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6301,7 +6301,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6318,7 +6318,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -6415,7 +6415,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6432,7 +6432,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6449,7 +6449,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6466,7 +6466,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6483,7 +6483,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6500,7 +6500,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6517,7 +6517,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6534,7 +6534,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6551,7 +6551,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6568,7 +6568,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6585,7 +6585,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6602,7 +6602,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6619,7 +6619,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6636,7 +6636,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6653,7 +6653,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6670,7 +6670,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6687,7 +6687,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -6784,7 +6784,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6801,7 +6801,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6818,7 +6818,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6835,7 +6835,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6852,7 +6852,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6869,7 +6869,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6886,7 +6886,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6903,7 +6903,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6920,7 +6920,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6937,7 +6937,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6954,7 +6954,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6971,7 +6971,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -6988,7 +6988,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7005,7 +7005,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7022,7 +7022,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7039,7 +7039,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7056,7 +7056,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -7153,7 +7153,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7170,7 +7170,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7187,7 +7187,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7204,7 +7204,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7221,7 +7221,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7238,7 +7238,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7255,7 +7255,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7272,7 +7272,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7289,7 +7289,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7306,7 +7306,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7323,7 +7323,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7340,7 +7340,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7357,7 +7357,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7374,7 +7374,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7391,7 +7391,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7408,7 +7408,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7425,7 +7425,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -7522,7 +7522,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7539,7 +7539,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7556,7 +7556,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7573,7 +7573,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7590,7 +7590,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7607,7 +7607,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7624,7 +7624,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7641,7 +7641,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7658,7 +7658,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7675,7 +7675,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7692,7 +7692,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7709,7 +7709,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7726,7 +7726,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7743,7 +7743,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7760,7 +7760,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7777,7 +7777,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7794,7 +7794,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -7891,7 +7891,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7908,7 +7908,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7925,7 +7925,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7942,7 +7942,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7959,7 +7959,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7976,7 +7976,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -7993,7 +7993,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8010,7 +8010,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8027,7 +8027,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8044,7 +8044,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8061,7 +8061,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8078,7 +8078,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8095,7 +8095,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8112,7 +8112,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8129,7 +8129,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8146,7 +8146,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8163,7 +8163,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -8260,7 +8260,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8277,7 +8277,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8294,7 +8294,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8311,7 +8311,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8328,7 +8328,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8345,7 +8345,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8362,7 +8362,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8379,7 +8379,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8396,7 +8396,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8413,7 +8413,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8430,7 +8430,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8447,7 +8447,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8464,7 +8464,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8481,7 +8481,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8498,7 +8498,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8515,7 +8515,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8532,7 +8532,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -8629,7 +8629,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8646,7 +8646,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8663,7 +8663,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8680,7 +8680,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8697,7 +8697,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8714,7 +8714,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8731,7 +8731,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8748,7 +8748,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8765,7 +8765,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8782,7 +8782,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8799,7 +8799,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8816,7 +8816,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8833,7 +8833,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8850,7 +8850,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8867,7 +8867,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8884,7 +8884,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -8901,7 +8901,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -8998,7 +8998,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9015,7 +9015,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9032,7 +9032,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9049,7 +9049,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9066,7 +9066,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9083,7 +9083,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9100,7 +9100,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9117,7 +9117,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9134,7 +9134,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9151,7 +9151,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9168,7 +9168,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9185,7 +9185,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9202,7 +9202,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9219,7 +9219,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9236,7 +9236,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9253,7 +9253,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         },
         {
           "path": "Source/battle/moves.lua",
@@ -9270,7 +9270,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -9375,7 +9375,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [
@@ -9428,7 +9428,7 @@
         {
           "path": "Source/lib/rng.lua",
           "whole_file": true,
-          "sha256": "167f653c0ad76d0837057cc378912c6584a60cd0a96f034b0a488aa8a948e164"
+          "sha256": "14bed4707901048f9477bce352446309aed5dc14b7ae9b16aa64f42e9bf39f27"
         }
       ],
       "tests": [],
@@ -9926,19 +9926,23 @@
     }
   },
   "sdk_result": {
-    "path": "docs/validation/coverage-evidence/cerulean1659-contracts-projection.json",
-    "sha256": "a99e8dcc172145c149da01d1479a970353b737ee297e268e813c4938e5385d2f",
+    "path": "docs/validation/coverage-evidence/cave-rng54-contracts-projection-20261101.json",
+    "sha256": "97464a32b80ff65e0d785e9c875da27227f9e4be3713e89946a527ba76309f55",
     "raw_provenance": {
-      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m53-cave-and-abilities-sdk-20261026-01/00001-result.json",
-      "sha256": "814d4737855b85625a9055be7e06709e5e3e9dff2cd6fc385bdcd16d79f6234a",
-      "size_bytes": 2597103
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/runtime-move-b565-rng-requalification-20261101-02/native-contract-result.json",
+      "sha256": "338f1c7af26b362a8d06fc023689ecb225ff9dc0cb367a6065b7d1672613dbc2",
+      "size_bytes": 7615
     },
-    "source_sha256": "3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
-    "build_id": "b1f0bd8d19c857dc78c10648acd495a3cfdcd3be:3fab65f913a2963e136e6f9c51123da9dd9a78822d859a376eca9a67a0cd9320",
-    "passed": 1659,
+    "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+    "build_id": "bd3bc811e0e040cab72a76552635fdb3:ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+    "passed": 54,
     "failed": 0,
-    "suite_count": 103,
-    "suite_passed": 1639
+    "suite_count": 11,
+    "suite_passed": 54
   },
-  "acceptance_context": "private-cerulean-candidate-not-main-or-milestone"
+  "acceptance_context": "private-root-scoped-sdk-not-checkpoint-acceptance",
+  "previous_registry": {
+    "path": "tools/references/runtime-move-coverage-before-cave-20261101.json",
+    "sha256": "1190c945fb01fa7fbb51759ecfeb886ceb9e22f7e4ce75ab8ba4bf3a9c2ea0e7"
+  }
 }

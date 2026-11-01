@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "candidate": "9e8fd8e3f850a4cd8fd881302f4c03639dc2cc04",
+  "logical_composition": "921f02bb",
+  "source_commit": "e1824e6917b21e55c73a739d72973389ee7f680c",
+  "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+  "exact_base": "565bfdfb4c0f2b37c921fa79e143067fe45b7637",
+  "review_findings": {
+    "standards": 0,
+    "spec": 0
+  },
+  "review_scope": "Fixed four-file performance delta; static review. Root measured matched device cave p95 gain13.03%,103.242 to89.789ms, no new logs; target50ms unmet.",
+  "native_targeted_executions": 119,
+  "previous_executions": 111,
+  "additional_executions": 8,
+  "runs": [
+    {
+      "suite": "travel",
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/travel-b565-candidate-history-native-20261101-01",
+      "passed": 2,
+      "failed": 0,
+      "result_sha256": "00aaa29a1d6ac24a9b74d63be5683d7db8e9d85709a4d8d5d7203f77e8eaea1f",
+      "terminal": {
+        "acknowledged_sequence": 45,
+        "failure": null,
+        "host_limit_bytes": 1073741824,
+        "owned_child_reaped": true,
+        "peak_process_bytes": 901498416
+      },
+      "build_id": "4a08d31e17d849aaa8081e1345f9d3d8",
+      "compiled_source_sha256": "c185409ac42991500071e86b5e99356d7c34dae978a05f3a0f460fb5fdde302a",
+      "helper_sha256": "fc99bc3c82fd6b599eca0423d95d878c3574b4acb67f043ef5eaa40334475400",
+      "helper_source_sha256": "90a693c3640e7b9bf705137fb835240ccbab448a8dabdc2555dc1691dde827d5",
+      "history_pauses": 46
+    },
+    {
+      "suite": "source",
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/source-b565-candidate-history-native-20261101-01",
+      "passed": 3,
+      "failed": 0,
+      "result_sha256": "fbe9583a9c999a1cd653bff35dff4c5e96f26efdd4d373579880207c4171d097",
+      "terminal": {
+        "acknowledged_sequence": 6,
+        "failure": null,
+        "host_limit_bytes": 1073741824,
+        "owned_child_reaped": true,
+        "peak_process_bytes": 459556064
+      },
+      "build_id": "5436861c4be94ec2a78d273da7314198",
+      "compiled_source_sha256": "c8d5b9d0b47ceae7c299fcb495398aca7290b851be2536a4ee353a135472025a",
+      "helper_sha256": "fc99bc3c82fd6b599eca0423d95d878c3574b4acb67f043ef5eaa40334475400",
+      "helper_source_sha256": "90a693c3640e7b9bf705137fb835240ccbab448a8dabdc2555dc1691dde827d5",
+      "history_pauses": 7
+    },
+    {
+      "suite": "safari",
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-b565-candidate-history-native-20261101-01",
+      "passed": 3,
+      "failed": 0,
+      "result_sha256": "7a832805ae524c2f1d63f2c40c8d35463ec8205c3bee39af5263dca037a99611",
+      "terminal": {
+        "acknowledged_sequence": 15,
+        "failure": null,
+        "host_limit_bytes": 1073741824,
+        "owned_child_reaped": true,
+        "peak_process_bytes": 829572584
+      },
+      "build_id": "b39df85bff5f457abbf1afaeec404490",
+      "compiled_source_sha256": "f18d4cb37688e174bc41a17956cd321ff7933328581bb863c1f2fc829d5652cd",
+      "helper_sha256": "fc99bc3c82fd6b599eca0423d95d878c3574b4acb67f043ef5eaa40334475400",
+      "helper_source_sha256": "90a693c3640e7b9bf705137fb835240ccbab448a8dabdc2555dc1691dde827d5",
+      "history_pauses": 16
+    }
+  ],
+  "observer_scope": "Private exact qualified production stage plus unchanged original contract modules and existing parked C filters. Host Clear pause on completed BootTrace phases. No native timing or hardware/campaign claim. Fixed native-contract helper identity literals are the only changes from reviewed corrected helper; full payload/kernel/process checks remain.",
+  "projection_change": "Only two dependency hashes in Vermilion projection; recursively identical projected gameplay values.",
+  "full_host": "pending fresh compilation/discovery",
+  "checkpoint_b_accepted": false,
+  "audio_held": true,
+  "historical_runtime_evidence_unchanged": true
+}
