@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "70e015a618bb2ccd54de75aebe66b7904c12cf20",
-    "source_sha256": "76035d8f10f49b058a5ae8733a71059a14419be872aea9a18c5b3fa2119faecc",
+    "commit": "4750bd71bc899f810513e71a4ce58fb85a821ccf",
+    "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
     "policy_date": "2026-11-01",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Private149-map B with epoch17 move integration and versioned digest-prefix content layout. No checkpoint/device-playability acceptance.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Independent c1 data review retained. Root additionally checked the version-root source literal, byte-identical2546records/32indexes and fresh SDK qualification, froze changed documentary paths without changing historical hashes, and retained every facet level. Normal-upgrade finite hardware gain is scoped and performance review remains pending.",
+    "review": "Independent c1 data review retained. Root additionally checked the version-root source literal, byte-identical2546records/32indexes and fresh SDK qualification, froze changed documentary paths without changing historical hashes, and retained every facet level. Normal-upgrade finite hardware gain is scoped and performance review remains pending. Root then refreshed only stale Cerulean/Vermilion dev dependency hashes, with complete projection values unchanged; recorded separately without changing historical evidence.",
     "previous_snapshot": {
       "commit": "e1824e6917b21e55c73a739d72973389ee7f680c",
       "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
@@ -240,8 +240,8 @@
       "external_documents_policy": "Resolve exact committed blobs above. They describe original builds, not execution on fixed c1ef. Local snapshot history is retained verbatim; see review.md and smallproof.json in tools/integration/checkpoint-b/coverage-refresh-20261101 for read-only audit and integration gates."
     },
     "review_document": {
-      "path": "tools/integration/checkpoint-b/coverage-refresh-20261101/root-versioned-review.json",
-      "sha256": "7976f8d2b6055f3de60b7b9a57179b12ba071ffcff564c2d70c8c577b5193cde"
+      "path": "tools/integration/checkpoint-b/coverage-refresh-20261101/root-projection-review.json",
+      "sha256": "54b53123db7b3b4eb21f9b63aee9c54f7a2791e4bb67b6016b6e1ea58c6e17e2"
     }
   },
   "accepted_milestone_rows": [],
