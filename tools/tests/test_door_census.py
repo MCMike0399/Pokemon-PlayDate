@@ -158,6 +158,26 @@ class ResultTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             census.validate_history_pause({'build': 'id', 'rows': 6}, 'id', 4, 4)
 
+    def test_inspection_never_borrows_previous_capture(self):
+        (self.root / 'malloc-log-inspection.png').write_bytes(b'old image')
+        self.assertIsNone(census.inspection_capture('[]', self.root))
+        path = self.root / 'malloc-log-inspection-12345678-1234-1234-1234-123456789abc.png'
+        row = {'scope': 'inspection capture', 'path': str(path), 'returncode': '1'}
+        with self.assertRaises(ValueError):
+            census.inspection_capture(json.dumps([row]), self.root)
+        row['returncode'] = '0'
+        with self.assertRaises(ValueError):
+            census.inspection_capture(json.dumps([row]), self.root)
+        path.write_bytes(b'\x89PNG\r\n\x1a\nnew image')
+        self.assertEqual(census.inspection_capture(json.dumps([row]), self.root), path)
+
+    def test_inspection_rejects_foreign_or_legacy_capture_path(self):
+        path = self.root / 'malloc-log-inspection.png'
+        path.write_bytes(b'\x89PNG\r\n\x1a\nold image')
+        row = {'scope': 'inspection capture', 'path': str(path), 'returncode': '0'}
+        with self.assertRaises(ValueError):
+            census.inspection_capture(json.dumps([row]), self.root)
+
     @unittest.skipUnless(sys.platform == 'darwin', 'Darwin kernel ownership proof')
     def test_history_lock_reports_parent_pid_and_excludes_existing_bsd_owners(self):
         from tools.harness.protocol import OwnerLock

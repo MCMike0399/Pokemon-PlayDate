@@ -11,6 +11,8 @@ uses normal mouse events only after a fresh AX hit-test confirms the verified
 Simulator PID and Malloc Log window, at the visually inspected740×480 layout
 point(48,462). Other window dimensions or targets refuse. The cursor is restored
 only if the user has not moved it. No pool, checkbox or game input is changed.
+The exact window bounds are rechecked after payload verification and immediately
+before cursor placement; a move or resize refuses the operation.
 
 Build privately (never add the binary to Git), and retain both identities:
 
@@ -42,7 +44,10 @@ menu item, after identity verification. A bounded500ms settling wait follows.
 observed unlabeled broom uses the guarded window-specific fallback above.
 A requested click is **not** proof of reclamation: the host retains the control
 inspection before/after and actual process footprints. Inspection PNGs are
-retained separately with hashes, not overwritten as evidence. No command
+retained separately with hashes, not overwritten as evidence. Every inspection
+uses a unique UUID capture path and capture failure refuses helper success. The
+host attaches only the successful path returned by that inspection, never an
+existing shared PNG. No command
 acknowledgement by itself qualifies a long run or establishes device memory.
 
 The original helper's compile-only assumptions were corrected in live runs:

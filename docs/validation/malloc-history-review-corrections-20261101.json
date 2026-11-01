@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "base_review": "f5c468c7...8ad99730",
+  "review_findings": {
+    "standards": 0,
+    "spec": 2
+  },
+  "corrections": [
+    "exact rectangle checked after payload hashing and immediately before cursor placement",
+    "UUID capture path; failed capture refuses; host only attaches returned successful capture"
+  ],
+  "focused_host_tests": 19,
+  "swift_compile": "-O -warnings-as-errors",
+  "runtime_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/history-clear-review-fixed-qualification-20261101-01",
+  "result_sha256": "a990bc324451052cc7fa1d737d000f5d2c58f2abe061d204a054c860a6108531",
+  "resource_sha256": "d338abbf9083afec756b05396c4ba4ef9e340b58a5c716b162d2699ff9fc28dc",
+  "runtime_counts": {
+    "gap": 2,
+    "measured": 10
+  },
+  "all_cases_reported": true,
+  "runtime_failure": null,
+  "full_census_complete": false,
+  "sampled_peak_host_bytes": 851805648,
+  "owned_pid_absent": true,
+  "native_final_malloc_log_inspected": "0 items after Clear; profiler records, not live game heap",
+  "helper": {
+    "source_sha256": "0d23d6f14b6202e7f0d4433b74a37e850ed54bf0de2ccfb6e2cd3e3496f79134",
+    "helper_sha256": "ab2fa2e484642ba27d2f0ba950dc28a3aed401808dc6d2c4b7c76df49c657561",
+    "host_tests": 19,
+    "compile": "swiftc -O -warnings-as-errors",
+    "runtime": "pending",
+    "review_findings_addressed": [
+      "recheck identical bounds after payload verification and before click",
+      "unique successful capture receipt only; no shared-path fallback"
+    ]
+  },
+  "scope": "Short exact 16 MiB qualification only. No hardware/gameplay/full-census acceptance."
+}

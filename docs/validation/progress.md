@@ -52,7 +52,7 @@ comparable. At 149 maps Hideout aggregate is 768 ms and Celadon services 283 ms.
 
 Eight unchanged current-B cave encounter SDK cases pass as optimizationbaseline;
 [scope](cave-current-b-baseline-20261101.json). Candidate9e8 nowmeasures13.03%cavep95gain (103.24→89.79ms),41targetedSDK
-passes, no newdevicelogs/keeperrestored; one reviewpending, noadoption.
+passes, no newdevicelogs/keeperrestored; combined review0Standards/0Spec; remaining native/composition gates, noadoption.
 [Matched measurement](cave-candidate-device-20261101.json).
 Remaining structural priorities: census and worst-five physical doors, then cave
 step costs; finish first-entry installers. Savings are unmeasured until paired
@@ -102,7 +102,7 @@ Door census remains incomplete. Historical trials and paging controls are in
 [history](progress-history-door-census-20261030.md); old paged timings cannot rank
 worst doors. User enabled the responsible0.1.0supervisor; fresh AX trust is true.
 Short qualification reports12trials (10measured/two gaps), Clear resets records
-and sampled host peak811MiB; one safety review remains before long use. Keep
+and sampled host peak811MiB; review found two concrete safety defects; both corrected. Fresh short qualification again reports10measurements/two gaps,13clears and812MiB peak. [Corrections](malloc-history-review-corrections-20261101.json). Keep
 16MiB pool,1GiB host/60s progress limits. [Live qualification](malloc-history-live-qualification-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC

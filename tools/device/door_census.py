@@ -56,6 +56,26 @@ MAX_PROCESS_BYTES = 1024**3
 MAX_ROW_WAIT_SECONDS = 60
 
 
+def inspection_capture(stdout, output):
+    """Accept only this helper call's successful, uniquely named capture."""
+    rows = json.loads(stdout)
+    if not isinstance(rows, list):
+        raise ValueError('history inspection is not a control listing')
+    captures = [row for row in rows if row.get('scope') == 'inspection capture']
+    if not captures:
+        return None  # The initial inspection may precede opening Malloc Log.
+    if len(captures) != 1 or captures[0].get('returncode') != '0':
+        raise ValueError('history inspection capture failed or is ambiguous')
+    path = Path(captures[0]['path'])
+    if (path.parent != output or
+            not re.fullmatch(r'malloc-log-inspection-[0-9A-Fa-f-]{36}\.png', path.name) or
+            path.is_symlink() or not path.is_file()):
+        raise ValueError('history inspection capture identity differs')
+    if not path.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'):
+        raise ValueError('history inspection capture is not a PNG')
+    return path
+
+
 class _ProcessUsage(ctypes.Structure):
     _fields_ = [('uuid', ctypes.c_uint8 * 16)] + [
         (name, ctypes.c_uint64) for name in (
@@ -556,8 +576,8 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
                                         started_monotonic=began, elapsed_ms=(time.monotonic()-began)*1000,
                                         host_before_bytes=before, host_after_bytes=after,
                                         returncode=returncode, stdout=stdout, stderr=stderr, timed_out=timed_out)
-                                    capture = output / 'malloc-log-inspection.png'
-                                    if operation == 'inspect' and capture.is_file():
+                                    capture = inspection_capture(stdout, output) if operation == 'inspect' and returncode == 0 else None
+                                    if capture is not None:
                                         retained = output / f'malloc-log-{completed_rows}-{operation_index}.png'
                                         shutil.copyfile(capture, retained)
                                         record['inspection_capture'] = {'path': str(retained), 'sha256': sha(retained)}

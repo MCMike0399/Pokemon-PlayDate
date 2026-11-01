@@ -167,6 +167,7 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
                 "Malloc Log cannot be raised")
     let point = CGPoint(x: bounds.minX + 48, y: bounds.minY + 462)
     try reverify()
+    try require(try rectangle(logs[0]) == bounds, "Malloc Log moved or resized during verification")
     var hit: AXUIElement?
     try require(AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(),
                 Float(point.x), Float(point.y), &hit) == .success, "Clear hit-test unavailable")
@@ -184,6 +185,7 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
                            mouseCursorPosition: point, mouseButton: .left)
     else { throw Refusal(reason: "targeted Clear events unavailable") }
     let previousCursor = CGEvent(source: nil)?.location
+    try require(try rectangle(logs[0]) == bounds, "Malloc Log moved or resized before Clear")
     try require(CGWarpMouseCursorPosition(point) == .success, "Clear cursor position unavailable")
     defer {
         if let previous = previousCursor, let current = CGEvent(source: nil)?.location,
@@ -266,13 +268,15 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, _ reverify: ()
         if logs.count == 1, let identifier = logs[0][kCGWindowNumber as String] as? Int {
             try reverify()
             let capture = Process()
-            let target = directory.appendingPathComponent("malloc-log-inspection.png")
+            let target = directory.appendingPathComponent("malloc-log-inspection-\(UUID().uuidString).png")
             capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
             capture.arguments = ["-x", "-l", String(identifier), target.path]
             capture.standardOutput = FileHandle.nullDevice
             capture.standardError = FileHandle.nullDevice
             try capture.run()
             capture.waitUntilExit()
+            try require(capture.terminationStatus == 0 &&
+                        FileManager.default.fileExists(atPath: target.path), "Malloc Log capture failed")
             listing.append(["scope": "inspection capture", "path": target.path,
                             "returncode": String(capture.terminationStatus)])
         }
