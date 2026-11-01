@@ -126,7 +126,10 @@ def main():
     ap.add_argument('--output', type=Path)
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--compile-only', action='store_true', help='Stage and compile only; no runtime or locks')
-    ap.add_argument('--preflight-only', action='store_true', help='Capture only the first native walk for root inspection')
+    selection = ap.add_mutually_exclusive_group()
+    selection.add_argument('--preflight-only', action='store_true', help='Capture only the first native walk for root inspection')
+    selection.add_argument('--segment', choices=('walk', 'trainer', 'cutscene', 'gym'),
+                           help='One independent earned-save replay in a fresh guarded process')
     ap.add_argument('--execute-root-owned', action='store_true')
     ap.add_argument('--root-gates-verified', action='store_true', help='Root asserts Accessibility/Clear/reclamation and long-run hold release are already verified, with 16 MiB retained')
     args = ap.parse_args()
@@ -151,7 +154,7 @@ def main():
         return
     if (not args.execute_root_owned and not args.compile_only) or args.output is None:
         ap.error('Recording requires --execute-root-owned and a new --output; root alone executes it.')
-    if not args.compile_only and not args.preflight_only and not args.root_gates_verified:
+    if not args.compile_only and not args.preflight_only and not args.segment and not args.root_gates_verified:
         ap.error('Root must verify Accessibility, exact Clear/reclamation and release the long-run hold first')
     output = args.output.resolve()
     if not args.compile_only:
@@ -188,7 +191,8 @@ def main():
             audio='silent; audio activation not claimed', timing='captured SDK wall timestamps; no speedup',
             host_guard=dict(maximum_bytes=1024**3, maximum_seconds=runtime_seconds,
                 admission='bounded three-second capture preflight; no long-run or Clear qualification'
-                    if args.preflight_only else 'Root verified long-run prerequisites'))
+                    if args.preflight_only else ('fresh process segment: ' + args.segment + '; no long-run/Clear qualification'
+                          if args.segment else 'Root verified long-run prerequisites')))
         with (output / 'capture-build.log').open('w') as log:
             subprocess.run([str(sdk / 'bin/pdc'), str(output / 'Source'), metadata['bundle']],
                            stdout=log, stderr=subprocess.STDOUT, check=True)
@@ -263,34 +267,38 @@ def main():
                             while time.monotonic() < deadline:
                                 d.send('wait 1')
                     else:
-                        with capture('walk'):
-                            d.travel(d.zone('LavenderTown'))
-                        d.heal_here('LavenderPokecenter')
-                        # Do this first: its north-side sight line may be crossed on the way to Snorlax.
-                        assert not d.defeated(TRAINER), 'Target already defeated; never rematch/reset'
-                        with capture('trainer'):
-                            d.fight(TRAINER)
-                        assert d.defeated(TRAINER)
-                        d.heal_here('LavenderPokecenter')
-                        assert not d.flag('EVENT_BEAT_ROUTE12_SNORLAX')
-                        with capture('cutscene'):
-                            d.wake_snorlax('ROUTE_12', 1, (10, 61))
-                        assert d.flag('EVENT_BEAT_ROUTE12_SNORLAX')
-                        d.completed_steps.add('route12-snorlax')
-                        d.save()
-                        # Reuse the passed B road and source geometry; stop before Safari.
-                        d.restock('LavenderMart')
-                        d.enter_route14_from_east()
-                        d.refill_after_route13()
-                        d.enter_route14_from_east()
-                        d.finish_eastern_road_to_fuchsia()
-                        d.heal_here('FuchsiaPokecenter')
-                        assert not d.defeated(KOGA)
-                        with capture('gym'):
-                            d.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06',
-                                     'FuchsiaPokecenter', 'FuchsiaMart')
-                        assert d.defeated(KOGA) and d.flag('BADGE_SOUL')
-                        assert d.flag('EVENT_GOT_TM06') and d.quantity('tm06') >= 1
+                        selected = {args.segment} if args.segment else {'walk', 'trainer', 'cutscene', 'gym'}
+                        if 'walk' in selected:
+                            with capture('walk'):
+                                d.travel(d.zone('LavenderTown'))
+                                d.source_waypoint(9, 17)
+                        if selected != {'walk'}:
+                            d.heal_here('LavenderPokecenter')
+                            assert not d.defeated(TRAINER), 'Target already defeated; never rematch/reset'
+                            with capture('trainer') if 'trainer' in selected else contextlib.nullcontext():
+                                d.fight(TRAINER)
+                            assert d.defeated(TRAINER)
+                        if selected.intersection({'cutscene', 'gym'}):
+                            d.heal_here('LavenderPokecenter')
+                            assert not d.flag('EVENT_BEAT_ROUTE12_SNORLAX')
+                            with capture('cutscene') if 'cutscene' in selected else contextlib.nullcontext():
+                                d.wake_snorlax('ROUTE_12', 1, (10, 61))
+                            assert d.flag('EVENT_BEAT_ROUTE12_SNORLAX')
+                            d.completed_steps.add('route12-snorlax')
+                            d.save()
+                        if 'gym' in selected:
+                            d.restock('LavenderMart')
+                            d.enter_route14_from_east()
+                            d.refill_after_route13()
+                            d.enter_route14_from_east()
+                            d.finish_eastern_road_to_fuchsia()
+                            d.heal_here('FuchsiaPokecenter')
+                            assert not d.defeated(KOGA)
+                            with capture('gym'):
+                                d.leader('FUCHSIA_GYM', 'BADGE_SOUL', 'tm06',
+                                         'FuchsiaPokecenter', 'FuchsiaMart')
+                            assert d.defeated(KOGA) and d.flag('BADGE_SOUL')
+                            assert d.flag('EVENT_GOT_TM06') and d.quantity('tm06') >= 1
                     atomic_json(output / 'journey-summary.json', dict(d.summary, ok=True,
                         acceptance='showcase component replay only; no final chain export'))
                     runner.finalize_captures(client, data, output)
