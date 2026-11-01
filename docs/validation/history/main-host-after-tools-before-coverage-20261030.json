@@ -1,0 +1,25 @@
+{
+  "status": "Main full audit completed; projection freshness repaired, coverage review pending.",
+  "input_commit": "8b1ca24a",
+  "full_audit": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-host-after-b-tools-20261030-01.log",
+    "sha256": "dad4c6e239496542445a671001e5b71fecfba4197a4c33477da9890e2f602a65",
+    "tests": 1091,
+    "passed": 1087,
+    "failures": 4,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 299.157
+  },
+  "repair_commit": "d9cbc0018f8f2004f54e8d88b9d6e95e6e2208b8",
+  "repair_scope": "Only generated dependency hashes changed; recursively compared gameplay projection values identical. Cerulean generated before dependent Vermilion. Canonical journey receipts/saves untouched.",
+  "targeted": {
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-projection-targeted-host-20261030-01.log",
+    "sha256": "371cedff6dd8464fd1b48b3fd60dd9f6ef8ffc4d72fe2207745b0fa8b3760f12",
+    "tests": 51,
+    "passed": 51,
+    "seconds": 13.251
+  },
+  "remaining": "Review main coverage Source delta/evidence before current fingerprint publication; no hash-only relabel, no borrowing private B acceptance. Then full host rerun.",
+  "runtime": "Host/compile checks only; no Simulator/device runtime or OS permission changes."
+}
