@@ -34,7 +34,14 @@ The helper opens those paths read-only and uses F_GETLK to require an exclusive
 whole-file write lock belonging to its direct parent PID. It never acquires or
 changes a lock. Metadata alone is never sufficient. Ordinary sessions retain
 the original OwnerLock; only history-enabled census ownership uses this mode.
-It has an eight-second lifetime ceiling and 200 ms AX messaging timeout.
+It has an eight-second lifetime ceiling. Its application-root AX object has a
+200 ms messaging timeout; Apple's API applies that setting only to that object,
+not every child reference. The whole-helper alarm remains the outer bound.
+Attribute copies alone may retry `CannotComplete` once, with fresh value storage
+and an audit message. Other errors refuse immediately. AX actions and mouse
+events are never retried, and a returned helper refusal still stops the owner.
+Errors include the attribute and traversal scope. Host transport-error checks
+do not establish native recovery or explain an intermittent application failure.
 
 `inspect` lists only the verified Simulator menus and Malloc Log controls,
 excluding allocation-table rows. It can retain a native capture of that exact

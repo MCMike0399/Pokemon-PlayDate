@@ -101,12 +101,12 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Full door census is now running on clean B10cb9572:2445cases/4890trials,
-output `door-census-b149-cave-full-20261101-01`. Root owns session75437;
-PID74535/exact PDX verified live, first six trials acknowledged. Do not duplicate
-or edit pinned B. Corrected history helper retains16MiB pool/1GiB host/60s
-progress limits; short qualification reports10measurements/two gaps,13clears,
-812MiB peak. [Corrections](malloc-history-review-corrections-20261101.json).
+Census part1 stopped safely on a host AX read failure after1070 trials
+(373measured/697gaps);3820 were unrun. Owned child exited; original failed proof
+remains. A bounded read-only recovery policy passes7 host checks and a14-trial
+native qualification (12measured/two gaps), with no native retry observed yet.
+[Stop and scope](census-ax-read-stop-20261101.json). Keep16MiB/1GiB/60s guards;
+continue only unrun cases on the same frozen B10cb9572 input.
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.
@@ -146,8 +146,9 @@ Shared archival uses an explicit owner-reviewed queue (70→100GiB). Real canary
 passed copy/verify/rehearse/release/originalrestore/fullmanifest+9tracehashes/
 verify/finalrelease; active chains/builds/Source unchanged. Exact loaded1800s
 LaunchAgent entry reached emptyqueue, no restart. Current helper29e pin/23focused
-checks pass; immutable4e data proof retained. Queue enabled/empty; transport held
-until actual Showdown completion+slot release. No other bulk before handoff.
+checks pass; immutable4e data proof retained. Actual Showdown slot release verified: normal execution enabled, queue empty.
+Exact loaded entry stayed idle at103.61GiB;23 archive tests pass. No new bulk.
+[Activation](pi-normal-activation-20261101.json).
 [Canary and timer proof](pi-archive-canary-20261101.json), [runbook](pi-artifact-storage.md).
 Observed free49.43GiB aftercanary; other initialbatches continue. Ten cleanmerged
 worktrees earlier recovered3.04GiB. No newservice/networkconfig changes or push.

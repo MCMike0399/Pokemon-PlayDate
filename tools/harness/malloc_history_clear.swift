@@ -115,12 +115,30 @@ func verify(_ directory: URL, _ buildHash: String, _ runHash: String) throws -> 
                 "PID changed during verification")
     return pid_t(pid)
 }
+var axReadScope = "application"
+func copiedAttribute(_ name: String, _ scope: String,
+                     _ copy: (inout CFTypeRef?) -> AXError) throws -> CFTypeRef? {
+    for attempt in 0..<2 {
+        var value: CFTypeRef?
+        let error = copy(&value)
+        if error == .cannotComplete && attempt == 0 {
+            // Attribute copies are read-only. Never replay AX actions or clicks.
+            fputs("ax_read_retry attribute=\(name), scope=\(scope)\n", stderr)
+            continue
+        }
+        if error == .noValue || error == .attributeUnsupported { return nil }
+        try require(error == .success, "AX read failed: \(error.rawValue), attribute=\(name), scope=\(scope)")
+        if attempt == 1 {
+            fputs("ax_read_recovered attribute=\(name), scope=\(scope)\n", stderr)
+        }
+        return value
+    }
+    throw Refusal(reason: "AX read exhausted")
+}
 func attribute(_ element: AXUIElement, _ name: String) throws -> CFTypeRef? {
-    var value: CFTypeRef?
-    let error = AXUIElementCopyAttributeValue(element, name as CFString, &value)
-    if error == .noValue || error == .attributeUnsupported { return nil }
-    try require(error == .success, "AX read failed: \(error.rawValue)")
-    return value
+    try copiedAttribute(name, axReadScope) { value in
+        AXUIElementCopyAttributeValue(element, name as CFString, &value)
+    }
 }
 func label(_ element: AXUIElement, _ name: String) throws -> String {
     (try attribute(element, name)) as? String ?? ""
@@ -215,6 +233,9 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, _ reverify: ()
     var candidates: [AXUIElement] = [], logControls: [AXUIElement] = []
     var seen: [AXUIElement] = [], listing: [[String: String]] = []
     func walk(_ element: AXUIElement, _ scope: String, _ depth: Int) throws {
+        let previousScope = axReadScope
+        axReadScope = "\(scope), depth=\(depth)"
+        defer { axReadScope = previousScope }
         if seen.contains(where: { CFEqual($0, element) }) { return }
         try require(seen.count < 400 && depth < 16, "AX tree exceeds bounded inspection")
         seen.append(element)

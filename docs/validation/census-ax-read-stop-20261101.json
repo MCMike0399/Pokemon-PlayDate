@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "stopped_census": {
+    "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-cave-full-20261101-01",
+    "result_sha256": "eadc84d7526dad96edbd283f5fbcc6da26433b37d6fd2e06b890c4bed423af2e",
+    "failure": "history helper refused: refused: Refusal(reason: \"AX read failed: -25204\")\n",
+    "counts": {
+      "gap": 697,
+      "measured": 373,
+      "not_run": 3820
+    },
+    "reported_trials": 1070,
+    "unrun_trials": 3820,
+    "owned_pid74535_absent": true,
+    "resource_limits": {
+      "footprint_samples": 18484,
+      "max_process_bytes": 1073741824,
+      "max_row_wait_seconds": 60,
+      "peak_process_bytes": 984581776,
+      "scope": "Simulator host protection; not device RAM or Lua-heap acceptance"
+    }
+  },
+  "diagnosis": "Rare native AX CannotComplete on inspect after an acknowledged Clear. Exact attribute was not retained; application responsiveness versus dynamic-tree change remains unseparated. Tiny native timeout probe did not reproduce it; its success is retained, not a red proof.",
+  "policy_correction": "One retry only for idempotent attribute copies returning CannotComplete, never for actions/clicks or a returned helper refusal. Fresh values per read; repeated failure still stops. Attribute/scope diagnostics added. Existing8s alarm/9s caller and16MiB/1GiB/progress guards unchanged.",
+  "host_read_policy_regression": {
+    "red_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/malloc-ax-read-policy-tests-20261101-01/red.log",
+    "red": "Before fix exact helper read policy throws captured-25204 class; no native AX or SDK requests.",
+    "green": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/malloc-ax-read-policy-green-20261101-01/result.json",
+    "passed": 7,
+    "scope": "Host transport-error policy, not native application responsiveness."
+  },
+  "existing_host_checks": {
+    "census": 19,
+    "helper_rejections": 7
+  },
+  "native_qualification": {
+    "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/malloc-ax-read-native-qualification-20261101-01",
+    "result_sha256": "53ef48568698c14a3de69a7d0aece69f5b08f353f79a0de7f131628bd3731d14",
+    "counts": {
+      "gap": 2,
+      "measured": 12
+    },
+    "failure": null,
+    "all_cases_reported": true,
+    "clear_count": 15,
+    "native_retry_messages": 0,
+    "resource_limits": {
+      "footprint_samples": 409,
+      "max_process_bytes": 1073741824,
+      "max_row_wait_seconds": 60,
+      "peak_process_bytes": 849692160,
+      "scope": "Simulator host protection; not device RAM or Lua-heap acceptance"
+    },
+    "scope": "Short qualification only; does not prove the rare original failure closed."
+  },
+  "new_helper": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/malloc-ax-read-helper-20261101-01/malloc-history-clear",
+    "sha256": "897e4ca1fd41de9c984bb582590e86fd9808d0905e8c609a7442810254d96752",
+    "source_sha256": "3dcc5e72bab5a18d6f601563dc8757bb5eaf669f72c7147d448f236e91b198e2"
+  },
+  "next": "Continue only original3820 unrun trials with a fresh identified stage; preserve prior failed status and data. No hardware acceptance."
+}
