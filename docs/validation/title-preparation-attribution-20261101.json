@@ -1,0 +1,38 @@
+{
+  "scope": "Existing frozen shipped-GC B149 build13f39dd6 / B10cb, not a new measurement or exact new B00ce result",
+  "rows": [
+    {
+      "phase": "store load/checksum/validation",
+      "from": "title.prepare.begin",
+      "to": "title.save.store.loaded",
+      "wall_ms": 2386
+    },
+    {
+      "phase": "session decode and owner construction",
+      "from": "title.save.store.loaded",
+      "to": "title.save.decoded",
+      "wall_ms": 1213
+    },
+    {
+      "phase": "field reload/validation",
+      "from": "title.save.decoded",
+      "to": "title.save.fieldReload.end",
+      "wall_ms": 325
+    },
+    {
+      "phase": "map preparation plus residual",
+      "from": "title.save.fieldReload.end",
+      "to": "title.prepare.end",
+      "wall_ms": 333
+    }
+  ],
+  "total_ms": 4257,
+  "timing": "Nonoverlapping wall windows include yields/GC/trace. They do not isolate checksum from domain validation or CPU.",
+  "source_trace": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-shipped-gc-timing-hardware-20261101-01/serial-boot-trace.tsv",
+  "source_sha256": "5af887161a67d199286552327459f7533cf27fcd802da1dabcf81b74248f1013",
+  "source_findings": [
+    "SaveStore._inspect reads and fully decodes a,b,candidate before selecting latest. Header/schema/IO/archive/sequence-conflict behavior must remain deliberate when changing selection.",
+    "Checksum invokes byte(i) per byte and yields/checks every512 bytes. Chunking may reduce call overhead but no speedup is measured."
+  ],
+  "next": "Use existing method-profile wrapper to separate store read/checksum/domain validation before selecting a change. Keep known-vector and fault/recovery seams."
+}
