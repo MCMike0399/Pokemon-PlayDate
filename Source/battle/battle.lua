@@ -1239,8 +1239,11 @@ function Battle:performMove(move)
             self.conditions:moveFinished(move, false)
             return nil
         end
+        -- King's Rock modifies this use while its holder is still alive. Keep
+        -- the typed secondary local until a successful hit; capture draws no RNG.
+        local secondary = ContactAbilities.secondaryForMove(self.effects, attacker, defender, move)
         self.effects:damage(attacker, attacker.hp, "cost")
-        self:performMoveTarget(move, handler)
+        self:performMoveTarget(move, handler, secondary)
         local targetSide = self.attackerSide == "player" and "enemy" or "player"
         local last = self.lastDamage > 0 and not defender:isAlive()
             and targetSide or self.attackerSide
@@ -1250,7 +1253,7 @@ function Battle:performMove(move)
 end
 
 -- Shared target resolution; the self-KO caller alone defers its checkpoint.
-function Battle:performMoveTarget(move, handler)
+function Battle:performMoveTarget(move, handler, preparedSecondary)
     local attacker, defender = self.attacker, self.defender
     -- BeforeMove gates and PP already ran. A queued move can reach this point
     -- after the opponent self-KOs; do not damage or debuff a fainted target.
@@ -1376,7 +1379,7 @@ function Battle:performMoveTarget(move, handler)
                 self.effects:drainHit(receipt)
                 self:say(defender.name .. " had its energy drained!")
             end
-            self:applyMoveSecondaries(move)
+            self:applyMoveSecondaries(move, preparedSecondary)
             self.effects:afterHit(receipt)
             if not defender:isAlive() or not attacker:isAlive() then break end
         end
@@ -1454,9 +1457,13 @@ function Battle:hitCount(move)
     return RulesRNG.random(move.minHits,move.maxHits)
 end
 
-function Battle:applyMoveSecondaries(move)
+function Battle:applyMoveSecondaries(move, preparedSecondary)
     for _,effect in ipairs(move.secondaries or {}) do effect:apply(self) end
-    ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
+    if preparedSecondary then
+        preparedSecondary:apply(self)
+    else
+        ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
+    end
 end
 
 function Battle:applyMoveEffects(move)

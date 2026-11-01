@@ -55,7 +55,7 @@ end
 
 -- Append a typed flinch secondary without modifying shared move definitions.
 -- Shield Dust and Inner Focus stay at their real secondary/payload gates.
-function ContactAbilities.secondaries(effects, source, target, move)
+function ContactAbilities.secondaryForMove(effects, source, target, move)
     if not effects:active(source) or not effects:active(target)
         or not move or move.category == "status" then return end
     if effects:effectiveAbility(source) ~= 1
@@ -64,7 +64,14 @@ function ContactAbilities.secondaries(effects, source, target, move)
         if secondary.kind == "flinch" then return end
     end
     local recipient = selector(target)
-    SecondaryEffect(recipient, When(Chance(10), ApplyStatus(recipient, "flinch"))):apply(effects.battle)
+    return SecondaryEffect(recipient, When(Chance(10), ApplyStatus(recipient, "flinch")))
+end
+
+function ContactAbilities.secondaries(effects, source, target, move)
+    local secondary = ContactAbilities.secondaryForMove(effects, source, target, move)
+    if secondary then
+        secondary:apply(effects.battle)
+    end
 end
 
 -- Only the successful major-status commit calls this, with captured provenance.

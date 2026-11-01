@@ -63,7 +63,7 @@ python3 -m tools.generate_move_support --check
 
 Root registration: apply [root-registration.patch](root-registration.patch), then
 run native group `self-ko-moves` (`SelfKOMoveContracts.run`), plus existing rules
-regressions. The 14 exact native case names are:
+regressions. The original 14 exact native case names are:
 
 - Self-KO zero PP rejects before round mutation and RNG
 - Self-KO sleep flinch paralysis and confusion retain BeforeMove gates
@@ -79,3 +79,19 @@ regressions. The 14 exact native case names are:
 - Self-KO double faint retains party replacement and reward identity owners
 - Self-KO without a living target still faints after PP without hit RNG
 - Substitute remains a reported unsupported move without self-KO activation
+
+## Root correction after source review
+
+Standards review found no issues. Spec review found that King's Rock lost its
+flinch payload and RNG draw after the user paid the self-KO cost, because the
+ordinary held-item query requires a living holder. Root now captures the typed
+contact/item secondary through its existing owner before that cost. Construction
+consumes no RNG; application remains at the existing successful-hit secondary
+gate. The capture is a local call argument, shared move definitions stay exact,
+and normal moves retain their original live-item query.
+
+One additional native case, **Self-KO King's Rock retains its pre-faint secondary
+and RNG boundary**, covers both moves and successful/failed flinch rolls at the
+actual self-faint narration boundary. The group now has 15 prepared cases.
+This correction and all cases remain uncompiled/unexecuted; no acceptance or
+runtime gain is claimed. All generated move/producer bytes remain unchanged.

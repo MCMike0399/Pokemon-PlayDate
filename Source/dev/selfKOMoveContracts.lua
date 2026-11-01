@@ -146,6 +146,46 @@ function SelfKOMoveContracts.run()
             rng(73, {{1,1}, {1,100}, {1,16}, {85,100}})
         end
     end)
+    test("Self-KO King's Rock retains its pre-faint secondary and RNG boundary", function()
+        for _, key in ipairs({"selfDestruct", "explosion"}) do
+            for _, flinch in ipairs({true, false}) do
+                local party = Party()
+                assert(party:add(Pokemon("snorlax", 100)))
+                assert(party:add(Pokemon("venusaur", 100)))
+                local b = fresh(key, "splash", nil, {party=party})
+                b.player.heldItem = "kingsRock"
+                b.player.atk = 1
+                b.enemy.def = 1000
+                local original = moveData[key].secondaries
+                local seed
+                for candidate = 1, 1000 do
+                    local trial = RulesRNG.new(candidate)
+                    trial:random(1, 1)
+                    trial:random(1, 100)
+                    trial:random(1, 16)
+                    trial:random(85, 100)
+                    if (trial:random(1, 100) <= 10) == flinch then
+                        seed = candidate
+                        break
+                    end
+                end
+                assert(seed)
+                local checked = false
+                use(b, seed, function(current)
+                    if not checked and current.message == current.player.name .. " fainted!" then
+                        checked = true
+                        eq(current.player.hp, 0)
+                        assert(current.enemy.hp > 0)
+                        eq(current.enemy.flinched == true, flinch)
+                        rng(seed, {{1,1}, {1,100}, {1,16}, {85,100}, {1,100}})
+                    end
+                end)
+                assert(checked, "missing actual self-faint boundary")
+                eq(b.player.heldItem, "kingsRock")
+                eq(moveData[key].secondaries, original)
+            end
+        end
+    end)
     test("Self-KO Normal immunity still faints the user without hit RNG", function()
         local b = fresh("selfDestruct", "splash", "gengar")
         local text = use(b)
