@@ -1,0 +1,56 @@
+{
+  "classification": "Root-reviewed physical resource/traversal gate; not B acceptance or device playability",
+  "resource_gate_passed": true,
+  "build_id": "8ecd184c4495408486dac93c4f146f60",
+  "pdx_sha256": "8b4eedc8693d27e40506f3c8868f9a007cf7d13cfa35cab0c085b5c6392c36fd",
+  "production_source_basis": "70e015a618bb2ccd54de75aebe66b7904c12cf20, with dev-only projection refresh 4750bd71",
+  "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-long-traversal-current-prepare-20261101-01",
+  "attempt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-long-traversal-current-hardware-20261101-01",
+  "doors": 110,
+  "maps": 30,
+  "actual_wild_battle_starts": 20,
+  "post_gc_samples": 136,
+  "maximum_post_gc_kib": 5274.48828125,
+  "maximum_pre_entry_gc_kib": 5290.0419921875,
+  "sampled_raw_peak_bytes": 6648999.936,
+  "cycle_seconds": 5246.626122,
+  "hardware_saves": 0,
+  "earned_slot_hashes_verified_unchanged": true,
+  "resources_unchanged": true,
+  "error_crash_logs_unchanged": {
+    "System/Logs/crashlog.txt": {
+      "missing": true
+    },
+    "System/Logs/errorlog.txt": {
+      "missing": true
+    },
+    "crashlog.txt": {
+      "sha256": "f3e71f81d3001b084f6879f03dcadc8f5b077fb9280c18799eae21d79d8083ce"
+    },
+    "errorlog.txt": {
+      "sha256": "83baa80db49d3f3cc9f289dd5ff0a39c69574fed5226c9f1dc14aa56fd02f442"
+    }
+  },
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged"
+  },
+  "proof_sha256": {
+    "long-traversal-summary.json": "f0d3b11635243880f12cd16bd7b8e8daa3bd5c6ccea12afab45c64d3c601ef9b",
+    "long-traversal-finish.json": "7d7d29d23519ea3472a526026ea028f22c48bbc9fd808a00909a2820ac5ed236",
+    "outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "device-smoke.json": "ec3f6e9d32168322ae32f01df7fa87dd4bf140d1fb495b6564bd1d225a3520b5",
+    "keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  },
+  "timing_scope": "Diagnostic per-entry and battle collections retained; resource stress, not shipped-equivalent pacing. Save deliberately prohibited. Cave walking not measured.",
+  "limits": [
+    "Lua samples do not measure native allocations or unsampled peaks.",
+    "20 real wild encounters ended through ordinary RUN; not 20 trainer victories.",
+    "Current normal-production package is prepared; user cannot play-test now.",
+    "Showcase/motion gate still open; B149 remains unaccepted, C171 isolated."
+  ],
+  "summarizer_correction": "5f085586 handles omitted nil door markers for Continue and battle returns; staged/compiled observer and original raw records unchanged."
+}

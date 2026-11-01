@@ -1,120 +1,88 @@
 # Full-game execution ledger
 
-Updated 2026-10-29. Follow [the goal](../plans/full-game-goal.md).
-Progress: **108/222 Simulator-route maps; 0/222 device-playable maps. Current: 5.5b.**
-5.5a: **33.83 h / 30.51 maps/day**, including device P0 and waits.
-Main was pushed through `7bc7cc55` at the user’s request. Later work stays local
-until requested. The full game remains unfinished.
+Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
+**108/222 Simulator-route maps on main; 0/222 device-playable maps. Current: 5.5b.**
+The complete Blue campaign, credits and postgame remain unfinished.
+Root exclusively owns SDK/device sessions. No push authorized for current work.
 
-## Accepted on main
+## Accepted main and private content
 
-Checkpoint **5.5a** merged in `c946efdf`: Routes 9/10, Rock Tunnel, Lavender,
-Celadon, Erika, Game Corner, Rocket Hideout and Silph Scope. It adds 43 maps.
-Status: **Simulator-accepted and hardware-safe; device latency targets not yet met**.
-[Acceptance](midgame-a-acceptance-20261029.json), [chain hashes](chain-saves.json),
-[elapsed-time basis](milestone-times.json).
+5.5a is merged/pushed: 43 East maps, Erika and Silph Scope, for 108 maps.
+**Simulator-accepted and hardware-safe; device latency targets not yet met.**
+All three earned 5.4 journeys and actual process restarts passed.
+[Acceptance](midgame-a-acceptance-20261029.json), [chain hashes](chain-saves.json).
+GB tones, protected art, schema 4, earned saves and approved QoL stay intact.
 
-Three natural journeys pass from earned 5.4 saves, including process restart and
-Continue. Charmander covers optional Celadon services, Eevee, a real slot spin
-and Abra. All three also pass actual-input Continue/Save, exit, Continue/Save
-on one PDX. Original earned files are unchanged.
-[Journey identities](midgame-a-journey-candidates-20261029.json),
-[common-build checks](midgame-a-common-load-20261029.json).
-Merged main compiles and passes all **1,018 host tests without skips**.
+Private B149 includes Tower/Fuji/Flute, Snorlax, Cycling Road, rods,
+Fuchsia/Koga/Safari and Surf/Strength. Three earned A→B journeys and actual
+restarts pass. B remains unaccepted pending the current showcase/motion gate.
+[Candidate](midgame-b-candidate-20261030.json),
+[common loads/restarts](midgame-b-common-load-20261030.json).
+C171 remains isolated; no C activation or acceptance. No 5.6 work starts yet.
 
-Player package outside Git: `evidence/player-packages/5.5a-accepted-20261029-01/`.
-It contains the production PDX, three earned save pairs and one-line Simulator
-loading instructions. Its production Source exactly matches the qualified build.
-Native silent showcase: `evidence/showcase-5.5a-final-20261029-02/`.
-The 89.854-second original-speed clip includes walking, complete Erika and Rocket
-battles, evolution and guard departure; captions disclose the walking excerpt.
-Decoded chapter frames and wall timestamps were checked. It is not device pacing proof.
+## Current B validation
 
-5.4 remains accepted for Simulator gameplay. The 108-map hardware smoke now
-exercises its earned Continue/Route 2/Cut/battle/save surface too. Device latency
-still prevents playable-on-device status. Earlier packages and clips remain retained.
+Surf expiry, Reflect/Chip Away, HM battle actions, Haze/Clear Smog and
+Rest/Snore/Yawn/Foresight/Revenge are composed privately. Targeted native suites
+pass: 33 new move cases, 145 existing regressions and 54 original coverage
+assertions. Both gameplay reviews and the measured cache performance review
+have no remaining actionable findings. [Move scope](b-earned-moves-composition-20261101.json).
 
-## Hardware result and idle safety
+Full current host suite: **1,067 passed**, no errors/failures/skips, 191.410 s.
+`evidence/b149-v2-composed-full-host-20261101-02.log` retains the result.
+Later edits affect operator preparation/reporting only, not production Source.
+Coverage retains 1,512 rows, verification levels and original historical hashes.
+All 2,494 protected images, 41 South spawn views and 82 overlays retain their
+previous inspected proof. Static views do not establish current motion acceptance.
+[Protected art](midgame-b-protected-visuals-20261030.json),
+[overlays](midgame-b-full-overlays-20261030.json).
 
-Build `3793be9f` (108 maps) reaches title, loads earned Continue, saves, traverses
-doors, uses Cut and starts a wild battle through serial-driven real input.
-Error/crash logs are unchanged. Live/peak sampled Lua heap: **4.02/5.52 MiB**.
-The handheld screen was not directly observed; serial/state evidence is retained.
-Simulator 16 MiB route: **5.80 MiB post-GC live / 6.96 MiB peak**,
-maximum raw slice 124.576 ms. Native allocations and unsampled peaks remain outside scope.
+## Physical traversal — passed resource gate
 
-Repaired build `eda0ce22` passes **30 minutes title + 30 minutes overworld**:
-heap stays at **3.45/4.02 MiB**, with zero soft collections and no new logs.
-A first-minute publication-clock validator failed; its original result is intact.
-[Separate revalidation](device-idle-qualification-20261029.json) checks all 60
-samples, exact installed bytes and post-check witness. The maximum slice is
-1.162 s; that latency target is still open. The older two-hour attempt failed
-under a software guard after collectible garbage accumulated; it is not accepted.
+Build `8ecd184c4495408486dac93c4f146f60` completes **110 actual doors, 30 maps,
+20 wild battle starts and 136 post-GC entry samples** over 87.44 minutes.
+Maximum post-GC Lua heap **5.151 MiB**; sampled raw peak **6.341 MiB**.
+No new error/crash logs; exact compiled inventory, console/file receipts,
+canonical/private seed bytes and final settled state pass verification.
+No hardware Save occurred. Ordinary RUN ended the wild battles; party, items
+and money are unchanged. Calibration keeper restored; all runtime owners closed.
+[Root review and exact proof](b149-physical-long-traversal-20261101.json).
 
-Timer removal queues now reuse their existing tables. Production collects at a
-safe point near 8 MiB, rejects over 6 MiB after GC, and retains a hard 9 MiB guard.
-Full two-hour soak and incremental/generational comparison remain required.
-Fresh packets are prepared; fresh Simulator proof is needed after final owner changes.
+This closes the long physical resource gate, not B acceptance or playability.
+Per-entry diagnostic collections remain explicit; Lua samples exclude native
+allocations/unsampled peaks. Existing 2 MiB image point probe is separate evidence.
+The earlier 60+60-minute idle soak and Simulator plateaus remain valid.
+[Idle](idle-soak-active-20261030.json), [native point probe](native-image-headroom-20261030.json).
+Audio stays held until its separate integration/playback verification.
 
-## Device latency budget
+## Device latency and next actions
 
-Totals are measured on the latest 108-map hardware smoke. Contributor spans are
-inclusive older profiles, not exclusive CPU. Expected savings are design aims.
+The shipped-equivalent common route is measured: boot 12.477 s, Continue 3.373 s,
+Save 1.607 s, doors 2.961/1.917/1.398 s, battle 18 ms, cave p95 88.32 ms.
+Boot slice 1.458 s fails; diagnostic GC was not silently subtracted.
+[Comparison](device-shipped-equivalent-20261101.json).
 
-| Phase / target | Measured | Main contributors | Structural candidate |
-|---|---:|---|---|
-| First title artwork / 10 s | 2.501 s | inspect 3.326 s; registration 2.15 s; imports about 1.1 s | early title and generated registration; aim to hide/remove 3–5 s |
-| A → walking / 4 s | 3.307 s | store 2.29 s; decode 1.41 s; gate view 1.13 s | retain fully checked title preparation; aim to hide 2–4 s |
-| Save / 2 s | 6.049 s | deep validators; copies/encoding; slot I/O | sealed production owner export, checksum/readback; hardware comparison running |
-| Longest door / 1.5 s | 3.002 s | Zone 0.799 s; bindings 0.443 s; view 0.419 s | spare-slot prefetch; decode/padding candidate hides only part of this |
-| Cave p95 / 50 ms | 96.96 ms | encounter prepare/resolve and allocation/GC | prepared policies and synchronous scratch; safety route passed, gain unmeasured |
+The reviewed versioned cache layout removes flat-directory FAT overhead:
+matched Fuchsia entry 14.858→6.576 s (55.7%); all 2,546 record bytes and indexes
+are unchanged. Private B keeps this measured improvement. Worst sampled door in
+current diagnostic stress is 7.067 s; it is not a shipped-equivalent pacing run.
+Boot, worst-door and cave targets remain unmet; latency gates C acceptance.
 
-Other doors: 1.885/1.419 s. Battle start: **20 ms**. App start → walking:
-**22.566 s** after early-title preparation; physical power-on is unmeasured. Boot/Continue/Save/door regressions
-against the previous 108-map trace run are **3.38/9.04/5.04/1.87%**, all below 10%.
-These results do not meet playability targets. Targets must pass before 5.5c.
+Next: execute the existing current-source showcase recipe, inspect native motion,
+then finish B acceptance/merge. Preserve current hardware proof and earned slots.
+Continue real worst-door decomposition/structural latency work; never resume the
+exhaustive census. Its 2,832 closed trials remain frozen.
+[Census stop](census-stopped-20261101.json), [static ranking](door-static-ranking-20261101.json).
 
-After a 16 MiB safety smoke, measure performance candidates on hardware first;
-review only gains of at least 10%. Do not use the guessed 35.11 factor.
-Untrusted disk bytes keep full load validation. Production validated-owner exports
-use checksum/readback; harness/dev/public paths retain deep validation.
+Current normal-production preview and optional earned save are prepared at
+`evidence/player-packages/5.5b-reviewed-development-20261101-02/`.
+User cannot play-test now; do not wait for feedback. Package limitations are explicit.
 
-## Work in flight
+## Operational boundaries
 
-Root owns Simulator/device and integration. Bounded workers use Sol/medium.
-Save-tier 65-map hardware Save improves **5.313 → 1.375 s** (74.12%); Continue
-improves **6.127 → 4.481 s**. The 108-map port is prepared but unmeasured.
-[Paired result](device-save-tier-measurement-20261029.json). Hardware comparisons continue for isolated
-early-title. Nearby-door prefetch was rejected at only 6.63% door improvement;
-it stays off main. Generated registration was rejected after
-boot/door regressed to 26.886/5.978 s; it stays off main. All passed safety;
-39 title recovery/bridge and 64 source-event SDK cases also pass.
-Early-title preparation is accepted locally after its single review: 39 merged
-native cases, five artifact cases and compilation pass. Artwork appears in 2.5 s;
-full initialization is 18.546 s (+6.8%). [Evidence](early-title-accepted-20261029.json).
-No unmeasured candidate is on main. [Save candidate](device-save-tier-candidate-20261029.json).
-
-Activate the prepared lazy audio next: town/route/battle music and all 151 cries,
-moderate gain 0.22, followed by native loading, heap and listening checks.
-The old Simulator-volume question remains closed; do not repeat it.
-Audio candidate `d4dfcc39` passes 76 host checks and the 108-map native route
-(7.24 MiB sampled peak). SDK system volume reads 0; the incomplete capture is
-silent and not accepted. No settings changed. [Evidence](audio-108-runtime-candidate-20261029.json).
-
-5.5b starts from the three accepted 5.5a saves. Prepared host geometry passes
-1,569 checks with zero blockers, but Surf/actors/Safari remain runtime-unverified.
-Scope: Tower/Fuji/Flute, Snorlax/Cycling Road, Fuchsia/Safari/Koga, Surf/Strength.
-5.5c follows with Saffron/Silph/Sabrina/Dojo/Fly. Trades/guards remain parked.
-
-## Storage, decisions and history
-
-Freed **110.48 GiB (118.63 GB)** in the audited cleanup. Automatic 150 GiB
-maintenance runs every 30 minutes. Keep chains, packages, committed evidence
-references and latest passing journey/device runs. Retain journey frames only
-for failures and checkpoints. [Audit](storage-cleanup-20261029.json).
-
-Blue world/story/dialogue, Gen V rules, 151 species; protected art stays exact.
-Approved GB imported tones, four QoL controls and Pickup remain.
-[Prior ledger](progress-history-5.5a-acceptance-20261029.md),
-[device history](progress-history-device-p0-20261029.md),
-[loading history](progress-history-p0-loading-20261029.md).
+Exact 16 MiB safety admission: no error, raw slice ≤150 ms and sampled peak ≤9 MiB.
+Device live guard: collect near 8 MiB; fail above 6 MiB after GC or 9 MiB hard.
+Keep 51 GiB batch admission /50 GiB reserve, ordered locks and one runtime owner.
+Storage stays background/exception-only through the existing reviewed queue.
+No new storage tooling, broad scans or proof release. No push without a request.
+[Earlier detailed ledger](progress-history-before-b-traversal-20261101.md).
