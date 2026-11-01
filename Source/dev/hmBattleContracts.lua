@@ -25,8 +25,9 @@ local function settle(battle)
     return table.concat(lines, "|")
 end
 local function fresh(key, enemyKey, player, enemy, options)
+    local trainerName = options and options.enemyParty and "HM CONTRACT" or nil
     local battle = Battle(player or Pokemon("venusaur", 100),
-        enemy or Pokemon("snorlax", 100), nil, options)
+        enemy or Pokemon("snorlax", 100), trainerName, options)
     settle(battle)
     own(battle.player, {key})
     own(battle.enemy, {enemyKey or "harden"})
