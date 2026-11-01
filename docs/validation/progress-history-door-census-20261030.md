@@ -164,3 +164,30 @@ incomparable snapshots. [Storage audit](archive-sharing-20261030.json).
 [Previous ledger](progress-history-boot-scaling-20261030.md),
 [B history](progress-history-midgame-b-20261030.md),
 [A acceptance history](progress-history-5.5a-acceptance-20261029.md).
+
+
+## Superseded census detail archived 2026-11-01
+
+Census qualification: eight measured real-input trials, two deliberate geometry
+gaps; earned bytes unchanged. [Qualification](door-census-qualification-20261030.json).
+First full exec 6850 is terminal: 26 trials then Game Corner's 9 MiB Simulator
+Lua guard. Fresh process reproduces it. Private loading-suspension collection
+allows both isolated Game Corner trials; production and hard guard unchanged.
+Extra GC is explicit and excludes hardware admission/production pacing claims.
+[Memory scope](door-census-memory-20261030.json). Corrected monolithic exec12747/PID58418 is terminal: 866 rows, 292 measured/
+574 gaps; 4,024 trials unrun. It stalled in native Lua full GC with a reported
+61.3 GB host footprint. Root reaped only that owned child; partial evidence is
+retained. This is not a device crash or proven game leak.
+[Host stop](door-census-host-stop-20261030.json). Continue unreported pairs in
+fresh groups ≤64, with 1 GiB host footprint / 60 s no-row-progress ceilings.
+Compare production manifests before combining; no full census claim.
+Guarded one-session and incremental-GC controls also hit the host ceiling; both
+changes rejected. Panic documents retained malloc history, consistent with the
+host growth. Clear/off confirmation is pending; no pool or gate changed.
+User chose to retain 16 MiB and enable Accessibility for Clear automation.
+Trust is still false at last probe; no profiler-off path is authorized. Host
+helper compiles and seven rejection checks pass. The private case-boundary pause/
+ack hook compiles with SDK3.1.2 and 16 host checks pass; actual AX labels/reclamation
+remain unverified. [Helper scope](malloc-history-helper-20261030.json).
+[Controls and limits](door-census-history-retention-20261030.json). Old paged-run
+timings do not establish a worst-door ranking. No SDK process remains running.

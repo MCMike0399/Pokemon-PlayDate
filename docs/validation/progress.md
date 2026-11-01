@@ -93,29 +93,11 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Census qualification: eight measured real-input trials, two deliberate geometry
-gaps; earned bytes unchanged. [Qualification](door-census-qualification-20261030.json).
-First full exec 6850 is terminal: 26 trials then Game Corner's 9 MiB Simulator
-Lua guard. Fresh process reproduces it. Private loading-suspension collection
-allows both isolated Game Corner trials; production and hard guard unchanged.
-Extra GC is explicit and excludes hardware admission/production pacing claims.
-[Memory scope](door-census-memory-20261030.json). Corrected monolithic exec12747/PID58418 is terminal: 866 rows, 292 measured/
-574 gaps; 4,024 trials unrun. It stalled in native Lua full GC with a reported
-61.3 GB host footprint. Root reaped only that owned child; partial evidence is
-retained. This is not a device crash or proven game leak.
-[Host stop](door-census-host-stop-20261030.json). Continue unreported pairs in
-fresh groups ≤64, with 1 GiB host footprint / 60 s no-row-progress ceilings.
-Compare production manifests before combining; no full census claim.
-Guarded one-session and incremental-GC controls also hit the host ceiling; both
-changes rejected. Panic documents retained malloc history, consistent with the
-host growth. Clear/off confirmation is pending; no pool or gate changed.
-User chose to retain 16 MiB and enable Accessibility for Clear automation.
-Trust is still false at last probe; no profiler-off path is authorized. Host
-helper compiles and seven rejection checks pass. The private case-boundary pause/
-ack hook compiles with SDK3.1.2 and 16 host checks pass; actual AX labels/reclamation
-remain unverified. [Helper scope](malloc-history-helper-20261030.json).
-[Controls and limits](door-census-history-retention-20261030.json). Old paged-run
-timings do not establish a worst-door ranking. No SDK process remains running.
+Door census remains incomplete. Historical trials and paging controls are in
+[history](progress-history-door-census-20261030.md); old paged timings cannot rank
+worst doors. User enabled the responsible0.1.0supervisor; fresh AX trust is true.
+Actual labels/Clear/reclamation still require short owned qualification. Keep
+16MiB pool,1GiB host/60s progress limits. [Helper](malloc-history-helper-20261030.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
@@ -152,7 +134,9 @@ doors across 30+ maps and 20 battles.** The long-journey native `drawFaded` OOM
 is not universally closed by short tests; bounded gift text saves 675.84 KiB.
 
 Automatic cleanup uses **50 GiB minimum / 70 GiB target** every 30 minutes.
-About 116 GiB free at last check; no cleanup claimed this turn. Retain chain saves,
+Root removed10 clean fully merged worktrees/branches, recovering3.04GiB;
+free space remains about38GiB, below reserve. Scheduled maintenance owns locks.
+Retain chain saves,
 packages, acceptance references and latest passes/failures. No more compression
 or production planner tooling. [Storage audit](archive-sharing-20261030.json).
 [Previous ledger and history](progress-history-door-census-20261030.md).
