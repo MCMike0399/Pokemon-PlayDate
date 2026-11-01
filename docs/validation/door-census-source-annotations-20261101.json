@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "inventory_sha256": "01b62ccb39f63e1ed53f227516b9a5d41565da8bf7481de57407beb617f6a089",
+  "verified_warp_coordinates_and_source_lines": 510,
+  "pinned_source_files": 142,
+  "annotations": [
+    {
+      "case_id": "pokered:CELADON_CITY:warps:9",
+      "source_path": "data/maps/objects/CeladonCity.asm",
+      "source_line_number": 24,
+      "source_sha256": "1fae0f7b93794b311adb640c1d0d45d6984065899beb73c857ea9322674fc070",
+      "source_line": "warp_event 39, 19, CELADON_MART_5F, 1 ; inaccessible",
+      "annotation_only": true,
+      "automatically_excluded": false,
+      "timing_pass_claim": false
+    }
+  ],
+  "scope": "Read-only source-comment audit for eventual raw gap triage. An unused/inaccessible comment is context, not an automatic runtime exclusion or measured/pass result. Active census, map data and collisions unchanged."
+}
