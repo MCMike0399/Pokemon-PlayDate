@@ -460,5 +460,157 @@
     "qualified": true,
     "device_build_id": "4644271fc80e4eaf97e3e05471731d51",
     "normal_upgrade_hardware": "pending"
+  },
+  "versioned_normal_upgrade_result": {
+    "outcome": {
+      "boot_accepted": false,
+      "ok": true
+    },
+    "finish": {
+      "final_settled": true,
+      "route17_zone_completed": true,
+      "scope": "Finite button-route probe only; no long-traversal or playability acceptance",
+      "state": {
+        "last_save": {
+          "ok": true,
+          "reason": "published"
+        },
+        "loaded": 1,
+        "overworld": "explore",
+        "physical_controls": false,
+        "player": {
+          "facing": "down",
+          "moving": false,
+          "x": 10,
+          "y": 0
+        },
+        "ready": true,
+        "saved": 1,
+        "state": "overworld",
+        "zone": "pokered:ROUTE_18"
+      }
+    },
+    "build_id": "4644271fc80e4eaf97e3e05471731d51",
+    "starting_layout": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-v2-upgrade-start-20261101.json",
+    "route17_stats_ms": {
+      "object": {
+        "calls": 10,
+        "max": 76,
+        "total": 512
+      },
+      "fieldIndex": {
+        "calls": 40,
+        "max": 10,
+        "total": 197
+      },
+      "trainer": {
+        "calls": 10,
+        "max": 22,
+        "total": 162
+      },
+      "bindings": {
+        "calls": 1,
+        "max": 631,
+        "total": 631
+      },
+      "bundleRead": {
+        "max": 19,
+        "calls": 44,
+        "slowestPath": "data/contentCache/chunks-v2/ff/ff917b54e78d73bbd816f65705512116df48167e7d0b0dfe9646eff1b6ff4cc2.json",
+        "total": 426
+      },
+      "publish": {
+        "calls": 1,
+        "max": 2,
+        "total": 2
+      },
+      "betweenChecks": {
+        "calls": 178,
+        "max": 82,
+        "total": 820
+      },
+      "key": {
+        "calls": 10,
+        "max": 35,
+        "total": 204
+      },
+      "palette": {
+        "calls": 1,
+        "max": 293,
+        "total": 293
+      },
+      "open": {
+        "calls": 44,
+        "max": 16,
+        "total": 276
+      },
+      "descriptor": {
+        "calls": 10,
+        "max": 17,
+        "total": 116
+      },
+      "draw": {
+        "calls": 11,
+        "max": 48,
+        "total": 153
+      },
+      "gc": {
+        "calls": 11,
+        "max": 1,
+        "total": 1
+      },
+      "packed": {
+        "calls": 1,
+        "max": 18,
+        "total": 18
+      }
+    },
+    "phases_wall_ms": {
+      "input_ready_boot": 14656,
+      "Continue": 4444,
+      "Save": 2226,
+      "doors": [
+        6576,
+        2996,
+        2056,
+        2547,
+        6423,
+        2363
+      ]
+    },
+    "fuchsia_baseline_ms": 14858,
+    "fuchsia_gain_percent": 55.74101494144569,
+    "fat_parent_bytes": {
+      "old_chunks": 1167360,
+      "chunks_v2": 28672
+    },
+    "keeper_handoff": {
+      "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+      "keeper": "/Games/Calibration.pdx",
+      "no_new_logs": true,
+      "ok": true,
+      "screen": "Not directly observed; pdutil run acknowledged"
+    },
+    "claim": "Finite six-input-batch route completed, no newerror/crashlogs. Meets >=10% performance-review threshold; not playability, long traversal or B acceptance. Battle/cave unmeasured in this trial.",
+    "raw_sha256": "b5a8f914dc887505c80a74a3277504e82675326e72c9bed6367419916893369f"
+  },
+  "shard_targeted_native": {
+    "passed": 7,
+    "failed": 0,
+    "suites": [
+      {
+        "failed": 0,
+        "id": "source-events",
+        "passed": 5
+      },
+      {
+        "failed": 0,
+        "id": "cerulean-content",
+        "passed": 2
+      }
+    ],
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-v2-native-20261101-03/startup-probe.json",
+    "sha256": "fea79a6f60c46f1a7b67b10ad55325664df60163f47462ff19f5554e5edf0971",
+    "scope": "Five scalar SourceEvents cases plus two immutable-content/trainer cases. Full parity/actor/activation fixture batches stopped at1GiB and remain unverified; do not claim them green."
   }
 }
