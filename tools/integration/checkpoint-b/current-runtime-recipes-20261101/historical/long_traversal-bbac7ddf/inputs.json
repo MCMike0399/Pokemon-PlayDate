@@ -1,0 +1,71 @@
+{
+  "b_revision": "76559ac87b210a2e71c0520a1da3f8059a9e8d9c",
+  "seed_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/charmander",
+  "seed_files": [
+    {
+      "file": "adventure.a.json",
+      "sha256": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0"
+    },
+    {
+      "file": "adventure.b.json",
+      "sha256": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801"
+    },
+    {
+      "file": "provenance.json",
+      "sha256": "fdc4fc146885d09a0944a18efc854cafaf09c99172837c4431d632a7ca6b9046"
+    }
+  ],
+  "b_files": {
+    "Source/main.lua": "2c660e29d61199ce476b3010b9973f7b31e8c87af940b4a8248d51a2e3b954e0",
+    "Source/dev/deviceSmoke.lua": "e4a244cb9d65a01e4ec7a7c795ea152eabc8485de264f5124fc94538c2f28b96",
+    "Source/game/overworldState.lua": "3e252c13954012aaca93f99a86cd4693fd3947c6799c7d0883d75c1cbf6866e8",
+    "Source/game/battleState.lua": "028a2fba51b623e6406c88a289fda1f0e3055365792632f46d768cd6c86797ec",
+    "Source/game/bootstrap.lua": "6d76a49236885bd120ad64cba9f9cec22f2addd12b6c57ed3bb0f49fd1983509",
+    "Source/game/bootTrace.lua": "eeb6e7bfb59570388839741bf3419b1873df90874a1415809ce4c3e550c5fa31",
+    "Source/game/saves.lua": "472eaace74ce3e3e7b2f0b2e21b5ca160dd70bb09aa271be3dc27c4abd3003ee",
+    "Source/data/sourceMaps.json": "c06d750e9050e79993da2ad991b226d576c83999c227a5cf39713de164debc42",
+    "tools/device/build_smoke.py": "8e588664d2564d5b00839214695d7b9c7fbfe7f2075b9d033e51df030896fc11",
+    "tools/device/simulator_smoke.py": "ad19efa2dde856fe4ea2a942390b8f26f418d8a28f85af97939d321d83cf603a",
+    "tools/device_cycle.py": "129b63b6b6c430573beb47cd2d34cc22ac7f23a1fe12cf196d0f4ac5ead313a0",
+    "tools/build.py": "c92d5099fee77eb6bc4404b30bb981aff7099fe1fec850cea5137ba3a3b3c056",
+    "tools/activate_checkpoint_a.py": "54efb9573b592d95f615f32bb052a51dc982a0c3133ee89506168b0bb97a643a",
+    "tools/harness/run.py": "e5e16eaab2a98191b51597471d1dee623542c5b5aa97eeb5609dde9e69497b07",
+    "tools/harness/protocol.py": "e9b10b8af8f3de1464680c9b02709b9b71e5f39161e7971faaaa689b1f05edf7",
+    "tools/harness/build.py": "9220e62ca88630edc8d7eed1e18280c2b331f04492dca0f1e80625eb5bafd5c6",
+    "tools/harness/midgame_journey.py": "d3c104cff1fb873945bc6911c048664dde3e63b143beea3a4f551cc06a397477",
+    "docs/validation/midgame-a-acceptance-20261029.json": "4b2c46c94faf4fdd6d9a1aaefb328f92d16a0a186d918aed0c38b925b9317627",
+    "docs/validation/chain-saves.json": "ef584bb2a1cedf79e73d00362cee33902911e4a5986d0a4d49c899da9611fc3e",
+    "Source/data/midgameSouth/FuchsiaPokecenter.json": "27777045f1265b39dad9b8fc57cbd8c79a8f1e33481491bd238a167cc9d5b5a4",
+    "Source/data/midgameSouth/FuchsiaCity.json": "95bef1e9bb43460bdbc8579bc7c119c71ac5f8edc1ed9c8d53b1457494ca8475",
+    "Source/data/midgameSouth/FuchsiaMart.json": "ea28e6d808daa6c609fbca5b9e54a73f4d7a682a3be0511a9ab0013a1bd0f4f4",
+    "Source/data/midgameSouth/FuchsiaBillsGrandpasHouse.json": "6dcbe6653d06292c4d126b9c6178a2b0fa6c96de5031d7ddb9a978cbb98cc1fc",
+    "Source/data/midgameSouth/WardensHouse.json": "0d4a32116a078e14cc72a1d9832e6fe61226f7d23320213ce87f84d0680e9b52",
+    "Source/data/midgameSouth/FuchsiaGym.json": "0687e6a1960b8660c5b395a6af1a21d08947fec285f146990eb7997055b495d4",
+    "Source/data/midgameSouth/FuchsiaMeetingRoom.json": "121f7114ca813a498c3f21e3b55124c63f6391a200b1e8fd4464b326dce9221c",
+    "Source/data/midgameSouth/FuchsiaGoodRodHouse.json": "4e21e2618f31703fe87082bcbc7f287e36064f7ede94de05c2ec6ee63e4157cc",
+    "Source/data/midgameSouth/Route15.json": "afb4a6d2b5ff452eb362435f5859205cd8fa92d75d76b0386e6a971f307002a4",
+    "Source/data/midgameSouth/Route15Gate1F.json": "bed16b9479882e045a3ef9a959093a7f1ed1f9cf3b5d6bf5b0b6560756a2990d",
+    "Source/data/midgameSouth/Route15Gate2F.json": "aea6d099ce2d2996f501b72d1ec5b04177be741c75052edcdf4cf44660003cd1",
+    "Source/data/midgameSouth/Route14.json": "070a025183a5ae97090e1e1fef80efb2cdd7910efcb27f550e505ad7b00342ad",
+    "Source/data/midgameSouth/Route13.json": "5951f300fed4bfd2480a1a3244ce2fd586c9f4a2317888fa8a2c5baa704ad2a7",
+    "Source/data/midgameSouth/Route12.json": "fd8afc0e2937f02497b7656d64fa9ed757d2aae81b2927e537a4f914851d924d",
+    "Source/data/midgameSouth/Route12SuperRodHouse.json": "21b9721a73c6e4ef665d66ec0db09a9da1a6d93f51a52254fcb86a6696c036d5",
+    "Source/data/midgameSouth/Route12Gate1F.json": "4d7f803d17b0f832ae3192881bdbb4c64360b1f28891a950f12850ff3ffe99be",
+    "Source/data/midgameSouth/Route12Gate2F.json": "bb1e518e2a8f8c9f83412eebdaf491e849a4dfa2c6ad2857f685446287f8a916",
+    "Source/data/midgameEast/LavenderTown.json": "f4de18d9c73e4923f6eb68f967d73c2e4df4f3ff4d4c4af5bff53bcf0dea6510",
+    "Source/data/midgameEast/LavenderPokecenter.json": "0f605456623278396f3dccf70f51cc0343f0619394f8eb2c844644fc1bbb545b",
+    "Source/data/midgameEast/LavenderMart.json": "8ef7556a37e8823c32fbdd5f646d08bce04f09989ed2ab01ce05c087b684cb25",
+    "Source/data/midgameEast/LavenderCuboneHouse.json": "a70e44f917081e367d2e24822b749efa8f3240f370287af57d8b330e2b317e27",
+    "Source/data/midgameEast/MrFujisHouse.json": "8a18b9a2d617b06221ca9b1bdb0dfd652c97710405ebdfb51462fbe76abad3cd",
+    "Source/data/midgameEast/NameRatersHouse.json": "86586f6133523946bc877871247b99bfa8f9928562120853633cf9a803586a43",
+    "Source/data/midgameSouth/PokemonTower1F.json": "08d0d6cd4c0988d430d214d6cc60c7259ddf9e08887f59fe738cf030409a2846",
+    "Source/data/midgameSouth/PokemonTower2F.json": "4da472a8f751bd8978b97d79eb2f528b94187650bce2ba3b843f530da84a89f2",
+    "Source/data/midgameSouth/PokemonTower3F.json": "7f40ff7bf5bdbfacba9ad8e257e01786b0afe046e8ba5dffda3a3b7d5d49dda7",
+    "Source/data/midgameSouth/PokemonTower4F.json": "3ebd73824f05fe392b07eb8c9d737b64ff9654e60df5690bdc5fc8fef06bf19d",
+    "Source/data/midgameSouth/PokemonTower5F.json": "32a2295f0b1795119a0cffe7dfe092396150756540bce7500421c2bef7ac106f",
+    "Source/data/midgameSouth/PokemonTower6F.json": "70f1fe7fd2697584e7ed62b10435cc99b74e9492ac78e37c5604135c6defdb67",
+    "Source/data/midgameSouth/PokemonTower7F.json": "65c6dbe12c5de3ac8a716654929cfac90ab032157273c44df2fc70b142664ac5"
+  },
+  "earned_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+  "status": "earned journey passed Save/Continue; B milestone review pending"
+}

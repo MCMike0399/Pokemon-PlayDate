@@ -1,0 +1,140 @@
+{
+  "classification": "host-only preparation; no runtime, acceptance, pacing or native performance claim",
+  "project": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-2c976160",
+  "revision": "e71e3301",
+  "source_sha256": "e470f3cab45821d11c197815e73e6ca2fb06b3796be4be1a269885510da91261",
+  "reuse": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5a-recipe-20261029-01/record.py": "bb02ec29c2acbe17cc39af8c9b740f27101b26334503ff46805aa95351dbd794",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5a-recipe-20261029-01/capture.lua": "e822086cd38bb40318d7e4494cb6508155c097ddb1b43d04efc7cdb109730cae",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5a-recipe-20261029-01/export.py": "bc57cdab4c71cd95afe855c10891682c29658b78ee5495ef2350b00ad27db853"
+  },
+  "scenario": {
+    "initial_save": {
+      "milestone": "5.5a",
+      "starter": "bulbasaur",
+      "resume": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01/01-midgame--restart-55b-bulbasaur/processes/0001/partial-save.json",
+        "sha256": "948ff168e4d4e558bdda65d124112aa86c1fa9656457d961d5ecd66b83f854e4"
+      }
+    },
+    "processes": [
+      {
+        "journey": {
+          "name": "midgame-natural",
+          "starter": "bulbasaur",
+          "packet": "5.5b",
+          "content_scope": "critical",
+          "evolution_policy": "accept",
+          "max_actions": 120000,
+          "max_blackouts": 1,
+          "max_encounters": 256,
+          "max_steps": 20000,
+          "max_transitions": 512
+        }
+      },
+      {
+        "restart": true,
+        "journey": {
+          "name": "midgame-continue",
+          "starter": "bulbasaur",
+          "packet": "5.5b",
+          "content_scope": "critical",
+          "evolution_policy": "accept",
+          "max_actions": 120000,
+          "max_blackouts": 1,
+          "max_encounters": 256,
+          "max_steps": 20000,
+          "max_transitions": 512
+        }
+      }
+    ]
+  },
+  "boundary_sha256": "948ff168e4d4e558bdda65d124112aa86c1fa9656457d961d5ecd66b83f854e4",
+  "boundary_files": [
+    {
+      "file": "adventure.a.json",
+      "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+    },
+    {
+      "file": "adventure.b.json",
+      "sha256": "e682f66f77dc84d87d7b20345b15e0e5afb23d7514246a6f000212a36b1d4431"
+    }
+  ],
+  "producer": {
+    "pid": 92977,
+    "status": "failed-exited",
+    "returncode": -9,
+    "evidence": "processes/0001"
+  },
+  "producer_run_sha256": "d065df5d0e016469842f9c71bc0c2191f1d46b080f411d30bef7fb947bc6a52f",
+  "host_import_verified": true,
+  "footprint_reader": {
+    "path": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-8a117d36/tools/device/door_census.py",
+    "sha256": "4f6e5a6892c89c5bb8f3e406838537346f4e3533b41195462fda280eb3efa67a"
+  },
+  "harness_inventory_sha256": "bb7c025ea00a171de08adb48fe9af38788a1182b081fefd25869bdd2a95afd53",
+  "source_inventory_sha256": "ae895afe28b9952db700b037b096a0857961d3bd8d369d0391ea8626c0a2b167",
+  "boundary_observation": {
+    "completed_steps": [
+      "tower-fuji-flute"
+    ],
+    "content_scope": "critical",
+    "packet": "5.5b",
+    "starter": "bulbasaur",
+    "location": {
+      "facing": "up",
+      "x": 3,
+      "y": 3,
+      "zone_id": "pokered:LAVENDER_POKECENTER"
+    },
+    "poke_flute": 1,
+    "soul_badge": false,
+    "koga_defeated": false,
+    "route12_snorlax_cleared": false,
+    "route12_trainer6_defeated": false
+  },
+  "accepted_A": {
+    "accepted_commit": "c946efdfbf20952844dbca78d97a5a3439212fab",
+    "accepted_source_sha256": "f7075f0a4b0f0505e3cc60ac425c8ce972d731ea9e052216d2dfd00546d5699d",
+    "journey_source_sha256": "017462b305f9e2daddd031dc6744bbf8f9d613efbd2c8b3adcfa0a159f9fb985",
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5a/bulbasaur",
+    "files": [
+      {
+        "file": "adventure.a.json",
+        "sha256": "eea7659948da1b34c2b5e035a8665660bdbd780acdfc2fecbba85fefea7c44f7"
+      },
+      {
+        "file": "adventure.b.json",
+        "sha256": "fbff61c6b166867562ee5728d1efd453e5dff3fb8329c18455a9d824e7faa10b"
+      }
+    ],
+    "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55a-arrival-restart-resumed-20261029-01/01-midgame--restart-bulbasaur",
+    "acceptance": "docs/validation/midgame-a-acceptance-20261029.json",
+    "accepted_boundary": {
+      "receipt": {
+        "path": "processes/0002/journey-receipt.json",
+        "sha256": "0a15eeac465bddba0653bcc75c3ed7bb9718b75d3f1959ab6a8d1994718101ef"
+      },
+      "acceptance_sha256": "4b2c46c94faf4fdd6d9a1aaefb328f92d16a0a186d918aed0c38b925b9317627",
+      "chain_manifest_sha256": "ef584bb2a1cedf79e73d00362cee33902911e4a5986d0a4d49c899da9611fc3e",
+      "producer_run_sha256": "9546d1f1057366c4656e685d387da5f6957041ee3ce599a20cd497e05e08a752"
+    }
+  },
+  "ancestry_markers": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01/01-midgame--restart-55b-bulbasaur/processes/0001/partial-save.json",
+      "sha256": "948ff168e4d4e558bdda65d124112aa86c1fa9656457d961d5ecd66b83f854e4"
+    }
+  ],
+  "boundary_saved_observation": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourth-20261030-01/01-midgame--restart-55b-bulbasaur/processes/0001/02131-result.json",
+    "sha256": "c3fe5049bb22c76b75e73e110aacdccb41ca9879023cd1b4a28957017a1ad273",
+    "request_id": "02131-ca10ef4ed6094194b7eba204e7989ec6",
+    "kind": "saved",
+    "valid": true,
+    "roundtrip_equal": true,
+    "complete_codec_equal": true,
+    "newest_slot": "adventure.b.json",
+    "newest_sequence": "48"
+  }
+}
