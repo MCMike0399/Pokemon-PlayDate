@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "policy": "Supplemental source-backed classification only. Raw census rows/timings remain unchanged. No excluded case becomes a measured or passing transition; unknown gaps remain unresolved.",
+  "entries": [
+    {
+      "case_id": "pokered:CELADON_CITY:warps:9",
+      "source_path": "data/maps/objects/CeladonCity.asm",
+      "source_sha256": "1fae0f7b93794b311adb640c1d0d45d6984065899beb73c857ea9322674fc070",
+      "source_line": "warp_event 39, 19, CELADON_MART_5F, 1 ; inaccessible",
+      "classification": "intentional-source-inaccessible",
+      "observed": "Both trials stay in CeladonCity; original source collision blocks entry. No door entry observed.",
+      "timing_eligible": false,
+      "code_change_supported": false
+    }
+  ],
+  "census": "door-census-b149-cave-full-20261101-01",
+  "census_status": "still running; not final coverage or worst-door ranking"
+}
