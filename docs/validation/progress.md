@@ -127,3 +127,9 @@ private B4470a0c2:74 native battle cases and34 focused host checks pass; existin
 harness registration added. One minimal-runner charge-lock dependency refusal
 is retained separately. No B/C acceptance or fresh full-suite claim.
 [Scope](self-ko-private-b-adoption-20261101.json).
+
+Current private B file-open device profile completes without new logs; keeper
+restored. Fuchsia6545ms:133 Lua-visible opens757ms,136 decodes744ms; Route18
+3038ms:49 opens231ms/49 decodes254ms. Opens are11.6%/7.6% of those map spans,
+so packing is not justified as the main fix. Next attribute field reload, actors
+and post-actor traversal capture. [Exact scope](door-io-counts-20261101.json).

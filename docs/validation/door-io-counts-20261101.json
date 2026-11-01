@@ -1,0 +1,115 @@
+{
+  "classification": "Shipped-GC private device instrumentation; diagnostic overhead unmeasured; no playability acceptance",
+  "build_id": "d2029ce2c74043568bd1e201eef64fc8",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-io-counts-hardware-20261101-01",
+  "metrics_sha256": "3a85e3f4408ee7f1587029c3c55ab33d718b08b339004073c2f9dc74be7b70a0",
+  "serial_sha256": "253730d02397b8fa333819eb2e2504d13bae263975aae9bedd3110eb37ccf633",
+  "overlay_sha256": "8b34408399b6271a2e3723566ae5b643fbcb8bdc36d8a0e060c6ca448083b476",
+  "no_new_error_or_crash_logs": true,
+  "keeper_restored": true,
+  "api_scope": "Lua-visible open/decodeFile wrappers installed before captured SDK aliases. Native internal opens not intercepted. Inclusive timings may overlap. Exact call counts only for these instrumented windows. No forced full GC, added yields or guard changes.",
+  "door_io": [
+    {
+      "begin_ms": 33078,
+      "wall_ms": 6658,
+      "destination": "pokered:FUCHSIA_CITY",
+      "decode": {
+        "wall_ms": 744,
+        "overflow": 0,
+        "handle_calls": 132,
+        "max_ms": 109,
+        "paths": {
+          "data/fieldMoveEffects.json": 1,
+          "terrainAtlases/overworld.json": 1,
+          "data/fieldMoveMaps/FuchsiaCity.json": 1,
+          "data/fieldMoveTiles.json": 1
+        },
+        "calls": 136,
+        "path_count": 4
+      },
+      "end_phase": "door.map.end",
+      "open": {
+        "wall_ms": 757,
+        "overflow": 0,
+        "handle_calls": 0,
+        "max_ms": 16,
+        "paths": {
+          "data/contentCache/package-2-sprites-sprites.json": 21,
+          "data/contentCache/chunks-v2/09/09a331cc296cd0f2eb96b7fa7d7330245c3b3d3dc088c1e76a24e234f0e488a6.json": 3,
+          "data/contentCache/chunks-v2/76/7626de8e7920cc3a66af955a67875f732b759ce991a9190672628c968320de2a.json": 3,
+          "data/contentCache/chunks-v2/88/88361b10fd22c5fcbc1fee0cad03f503176f698307aee4c9080a1252f2ce5cb3.json": 4,
+          "data/contentCache/package-4-sprites-sprites.json": 21,
+          "data/sourceMapCache/runtime-FuchsiaCity.json": 1,
+          "data/contentCache/chunks-v2/a3/a346e57baaf70245c39c08971bf41358a10c627dc1e287e8667ad08f4f7cfea9.json": 3,
+          "data/sourceMapCells/FuchsiaCity.bin": 1,
+          "data/contentCache/chunks-v2/f4/f41e17b41aa5d1446ab27c8cc683f6267ea65cb8b338cf85ead19a8661ee2558.json": 4,
+          "data/contentCache/chunks-v2/3c/3cb848c925ce125442e09bd6f00f847d5fe0708e6cb24cc593947b23e2e399c5.json": 3,
+          "data/contentCache/chunks-v2/6b/6b9529398d5ffba198635805bf28152a0f8ae42dc0d4dd1faa7e31d61b5f51a1.json": 4,
+          "data/contentCache/package-1-sprites-sprites.json": 21,
+          "data/contentCache/chunks-v2/05/0511f367912d71a9c02fc6bffa803b80d2ef0ef6ba69789552bc5b459abcd35a.json": 4,
+          "data/contentCache/chunks-v2/4b/4b1a0b2ea27fa25e3b963900b8dae05c1065bece43260031263e29c7bd9d9da9.json": 4,
+          "data/contentCache/chunks-v2/0e/0eaab987d4e4e8306a8ece2345ff1f671d0ad9ca578c5532116640ed45cf7961.json": 4,
+          "data/contentCache/package-3-sprites-sprites.json": 21,
+          "data/contentCache/chunks-v2/f5/f5b4167015103144a709ea080beb561939d0a2604584938d098f425917341e96.json": 4,
+          "data/contentCache/chunks-v2/46/46b209d094b8a1a9d51bafa0a192fc9bfe445c47d736633db0fb95f93e9dd500.json": 3,
+          "data/contentCache/chunks-v2/a4/a4e2be3c132e35f6de99acc79badc11387339bf2cc46186d3d7fcb78a1842e2a.json": 4
+        },
+        "calls": 133,
+        "path_count": 19
+      }
+    },
+    {
+      "begin_ms": 52076,
+      "wall_ms": 3136,
+      "destination": "pokered:ROUTE_18",
+      "decode": {
+        "wall_ms": 254,
+        "overflow": 0,
+        "handle_calls": 48,
+        "max_ms": 48,
+        "paths": {
+          "data/fieldMoveMaps/Route18.json": 1
+        },
+        "calls": 49,
+        "path_count": 1
+      },
+      "end_phase": "door.map.end",
+      "open": {
+        "wall_ms": 231,
+        "overflow": 0,
+        "handle_calls": 0,
+        "max_ms": 15,
+        "paths": {
+          "data/contentCache/package-2-sprites-sprites.json": 10,
+          "data/contentCache/chunks-v2/79/79a8220655e05a0a7dc77ecc92b1b72be953f2a73deec461bc9de1f0b6e943ab.json": 1,
+          "data/contentCache/package-1-sprites-sprites.json": 10,
+          "data/contentCache/chunks-v2/f2/f207f42b7b928db7abf249ae72ab830d3f14f1acf3aedb251983dd99ece36f66.json": 1,
+          "data/sourceMapCells/Route18.bin": 1,
+          "data/contentCache/chunks-v2/b1/b1e7f33160f698c04b894a1a2f463da2751f946d33bf95de3f59f2fb5031937a.json": 1,
+          "data/contentCache/chunks-v2/3e/3e738e699869fe0e85ad41ad618aef686b0a395923b727a879c0c2227e21f10c.json": 1,
+          "data/contentCache/chunks-v2/71/71b2c9f83acc9a2317644c520dc45016b04d7358140c83c7d81ba0bf030dbf92.json": 1,
+          "data/sourceMapCache/runtime-Route18.json": 1,
+          "data/contentCache/chunks-v2/75/759d7fe6385b15046f055d401a4ed4076b49923db8bf1334a6cde461e32796ad.json": 1,
+          "data/contentCache/package-4-sprites-sprites.json": 10,
+          "data/contentCache/chunks-v2/bd/bd2ddce0e4987d2b8211baf3ade0ad6831b0603fd6855de682d4db156b3535a5.json": 1,
+          "data/contentCache/package-3-sprites-sprites.json": 10
+        },
+        "calls": 49,
+        "path_count": 13
+      }
+    }
+  ],
+  "phase_measurements": {
+    "Continue": 4435.0,
+    "Save": 2242.0,
+    "battle": 21.0,
+    "boot_slice": 1453.101,
+    "boot_title": 14421.0,
+    "cave_walking_p95": null,
+    "door": 6545.0,
+    "title_artwork": 2697.0
+  },
+  "sampled_peak_bytes": 6648127.488,
+  "limitations": "This Fuchsia/Route18 route does not measure Route2 or the actual worst door. Cave p95 unmeasured on this route. Retained diagnostic marker spans contain no forced collections. Current 6.34MiB sampled heap is not post-full-GC live heap.",
+  "decision": "Do not build packed-record storage from this evidence: observed open time is 757/6545ms (11.6%) for Fuchsia and231/3038ms (7.6%) for Route18. Next attribute field reload, actor activation and post-actor traversal/session capture. Definition/art/Zone and fade overlap are retained in BootTrace; never add overlapping spans."
+}
