@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Root-only native replay. --check is host-only and never acquires runtime locks."""
 import argparse
+import copy
 import contextlib
 import hashlib
 import json
@@ -128,11 +129,15 @@ def main():
     ap.add_argument('--compile-only', action='store_true', help='Stage and compile only; no runtime or locks')
     selection = ap.add_mutually_exclusive_group()
     selection.add_argument('--preflight-only', action='store_true', help='Capture only the first native walk for root inspection')
-    selection.add_argument('--segment', choices=('walk', 'trainer', 'cutscene', 'gym'),
+    selection.add_argument('--segment', choices=('prepare-trainer', 'walk', 'trainer', 'cutscene', 'gym'),
                            help='One independent earned-save replay in a fresh guarded process')
     ap.add_argument('--execute-root-owned', action='store_true')
     ap.add_argument('--root-gates-verified', action='store_true', help='Root asserts Accessibility/Clear/reclamation and long-run hold release are already verified, with 16 MiB retained')
+    ap.add_argument('--resume-boundary', type=Path, help='Existing genuine stopped partial Save marker')
+    ap.add_argument('--resume-sha256', help='Exact immutable partial marker SHA256')
     args = ap.parse_args()
+    if bool(args.resume_boundary) != bool(args.resume_sha256):
+        ap.error('Resume requires both marker and exact SHA256')
     project = args.project.resolve()
     verify(project)
     sys.path.insert(0, str(project))
@@ -179,14 +184,17 @@ def main():
             return super().battle(name, strategy, expected)
 
     from tools.harness.protocol import Client, OwnerLock, atomic_json
-    scenario = PROOF['scenario']
+    scenario = copy.deepcopy(PROOF['scenario'])
+    if args.resume_boundary:
+        scenario['initial_save']['resume'] = dict(path=str(args.resume_boundary.resolve()),
+                                                sha256=args.resume_sha256)
     config = scenario['processes'][0]['journey']
     # Reuse the strict importer in a disposable host directory. No SDK Data or locks.
     with tempfile.TemporaryDirectory(prefix='showcase-host-') as temp:
         temp = Path(temp)
         (temp / 'data').mkdir(); (temp / 'out').mkdir()
         accepted = restarting.import_chain_save(scenario, project, temp / 'data', temp / 'out')
-        assert all(accepted[k] == v for k, v in PROOF['accepted_A'].items() if k != 'accepted_boundary')
+        assert all(accepted[k] == v for k, v in PROOF['accepted_A'].items() if k not in {'accepted_boundary', 'resume'})
         assert all(accepted['accepted_boundary'][k] == v for k, v in PROOF['accepted_A']['accepted_boundary'].items())
     verify(project)
     print('Pinned Source/harness, archived slots, stopped producer and accepted A ancestry verified.')
@@ -314,6 +322,9 @@ def main():
                             deadline = time.monotonic() + 3
                             while time.monotonic() < deadline:
                                 d.send('wait 1')
+                    elif args.segment == 'prepare-trainer':
+                        d.travel(d.zone('Route12Gate1F'))
+                        d.save()
                     else:
                         selected = {args.segment} if args.segment else {'walk', 'trainer', 'cutscene', 'gym'}
                         if 'walk' in selected:
@@ -382,6 +393,15 @@ def main():
                         raise
                 if confirmed_exit:
                     shutil.copytree(data, output / 'runtime-data')
+                    if (output / 'partial-save.json').exists():
+                        generation = output / 'processes/0001'
+                        generation.mkdir(parents=True)
+                        shutil.copy2(output / 'partial-save.json', generation / 'partial-save.json')
+                        shutil.copytree(output / 'runtime-data', generation / 'runtime-data')
+                        metadata['processes'] = [dict(generation=1, evidence='processes/0001',
+                            status='exited' if not guard_errors else 'failed-exited',
+                            returncode=process.returncode, pid=process.pid)]
+                        atomic_json(output / 'run.json', metadata)
                     shutil.rmtree(data)
     print(output)
 
