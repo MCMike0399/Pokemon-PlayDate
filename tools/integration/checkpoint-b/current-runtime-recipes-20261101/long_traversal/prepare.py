@@ -63,17 +63,27 @@ def main():
     sdk = args.sdk.expanduser().resolve()
     if (sdk / 'VERSION.txt').read_text().strip() != '3.1.2':
         raise ValueError('exact SDK 3.1.2 required')
-    build = build_smoke.prepare(B, sdk, output)
+    original_stage = build_smoke.stage_production
+    def production_profile_stage(project, stage):
+        source = original_stage(project, stage)
+        policy = source / "game/saveBuildPolicy.lua"
+        original = policy.read_text()
+        profiled = build_smoke.replace_once(original,
+            'local mode <const> = "production"',
+            'local mode <const> = "production-profile"')
+        policy.write_text(profiled)
+        (stage / "private-save-policy.patch").write_text(''.join(difflib.unified_diff(
+            original.splitlines(True), profiled.splitlines(True),
+            fromfile='a/Source/game/saveBuildPolicy.lua',
+            tofile='b/Source/game/saveBuildPolicy.lua')))
+        return source
+    build_smoke.stage_production = production_profile_stage
+    try:
+        build = build_smoke.prepare(B, sdk, output)
+    finally:
+        build_smoke.stage_production = original_stage
     (output / 'base-build.json').write_text(json.dumps(build, indent=2) + '\n')
     source = output / 'Source'
-    policy = source / 'game/saveBuildPolicy.lua'
-    original_policy = policy.read_text()
-    profiled_policy = build_smoke.replace_once(original_policy,
-        'local mode <const> = "production"', 'local mode <const> = "production-profile"')
-    policy.write_text(profiled_policy)
-    (output / 'private-save-policy.patch').write_text(''.join(difflib.unified_diff(
-        original_policy.splitlines(True), profiled_policy.splitlines(True),
-        fromfile='a/Source/game/saveBuildPolicy.lua', tofile='b/Source/game/saveBuildPolicy.lua')))
     path = source / 'dev/deviceSmoke.lua'
     original = path.read_text()
     # Only extend the read snapshot. Preserve parser, timing, error, transport.
