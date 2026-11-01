@@ -58,6 +58,68 @@ def verify(project):
         assert sha(Path(name)) == digest, name
     return PROOF
 
+def map_event_ids(source, manifest):
+    """Project only IDs from the exact copied records; query live owners later."""
+    def checked(relative):
+        path = source / relative
+        assert path.resolve().is_relative_to(source.resolve())
+        assert sha(path) == manifest[relative], 'copied map bytes differ: ' + relative
+        return load(path)
+
+    catalogue = checked('data/sourceMaps.json')
+    result = {}
+    seen = set()
+    for name, entry in sorted(catalogue['maps'].items()):
+        definition = checked(entry['path'])
+        assert definition['schema'] == 1
+        assert definition['source_revision'] == catalogue['source_revision']
+        assert definition['name'] == name and definition['id'] == entry['id']
+        groups = {}
+        for group in ('objects', 'background_events'):
+            groups[group] = []
+            for event in definition['events'][group]:
+                identity = event['id']
+                assert isinstance(identity, str) and identity not in seen
+                seen.add(identity)
+                groups[group].append({'id': identity})
+        result[name] = groups
+    return result
+
+
+def patch_owner_projection(text):
+    old = ('        for _, name in ipairs(SourceMaps.names()) do\n'
+           '            local definition = SourceMaps.definition(name)\n')
+    new = ('        local decodeFile <const> = json.decodeFile\n'
+           '        local mapEvents <const> = assert(decodeFile("dev/showcase-event-ids.json"))\n'
+           '        for _, name in ipairs(SourceMaps.names()) do\n'
+           '            local definition = {events = assert(mapEvents[name])}\n')
+    assert text.count(old) == 1, 'owner enumeration changed; review before staging'
+    return text.replace(old, new, 1)
+
+
+def stage_owner_projection(output, metadata):
+    source = output / 'Source'
+    manifest = load(output / 'source-manifest.json')
+    projection = map_event_ids(source, manifest)
+    path = source / 'dev/showcase-event-ids.json'
+    path.write_text(json.dumps(projection, sort_keys=True, separators=(',', ':')) + '\n')
+    diagnostics = source / 'dev/diagnostics.lua'
+    assert sha(diagnostics) == manifest['dev/diagnostics.lua'], 'copied diagnostics differ'
+    original = diagnostics.read_bytes()
+    (output / 'original-diagnostics.lua').write_bytes(original)
+    diagnostics.write_text(patch_owner_projection(original.decode()))
+    metadata['generated_overlays'].extend(['Source/dev/showcase-event-ids.json',
+                                            'Source/dev/diagnostics.lua'])
+    metadata['showcase_owner_enumeration'] = {
+        'maps': len(projection),
+        'events': sum(len(group) for groups in projection.values() for group in groups.values()),
+        'projection_sha256': sha(path),
+        'original_diagnostics_sha256': hashlib.sha256(original).hexdigest(),
+        'staged_diagnostics_sha256': sha(diagnostics),
+        'scope': 'Exact copied map event IDs only; live has/descriptor/shop/trainer/codec checks unchanged.',
+    }
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--project', type=Path, default=PROJECT)
@@ -112,6 +174,7 @@ def main():
         metadata = runner.prepare(project, sdk, output, uuid.uuid4().hex,
                                   recent_interval=60, journey=True)
         assert metadata['source_sha256'] == PROOF['source_sha256']
+        stage_owner_projection(output, metadata)
         overlay = output / 'Source/dev/showcase_capture.lua'
         shutil.copyfile(HERE / 'capture.lua', overlay)
         with (output / 'Source/main.lua').open('a') as f:

@@ -148,6 +148,29 @@ transition/blackout limits remain active. The guard does not clear history or
 make long runs safe. A ceiling/deadline failure is a failed capture, not permission
 to raise limits, change settings or continue with a second owner.
 
+## Private owner enumeration
+
+The retained first preflight trips the host-history guard after 8.59 seconds.
+Its third request is `observe midgame-owners`, which copies every complete map
+only to enumerate event IDs. That is a source-backed allocation lead; its
+exclusive cost and the improvement remain unmeasured.
+
+Preparation now projects only object/background-event IDs from each exact copied
+map record. Every source path/hash, schema, revision and map identity is checked
+against the staged manifest. A narrowly matched private edit replaces only the
+complete-map getter in that diagnostic enumeration. The original diagnostics
+file is retained outside Source; projection and modified-file hashes, counts
+and compiled Source fingerprint are recorded. Production Source and the shared
+harness remain unchanged.
+
+The original diagnostic still calls live `SourceEvents.has` and `descriptor`
+for every ID and builds shops, prices, HM compatibility and trainer definitions
+through its existing owners. Boundary arming and complete Continue codec checks
+remain. A host comparison proves the 149-map/752-ID set equals the retained
+actual SDK observation exactly. This is not a fresh SDK value-equivalence,
+performance, recorder or campaign acceptance result. Do not launch until the
+51 GiB admission and existing guards pass.
+
 ## Actual-input stages
 
 1. `walk`: leave Lavender Center through ordinary D-pad/door inputs.
