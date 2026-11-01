@@ -107,8 +107,10 @@ stopped at MtMoon1F warp3: the fixture chose a stationary NPC's home. A fresh
 single-case replay reproduces it; the corrected source-visibility approach passes
 two trials and the original16-trial batch.21host checks pass; guards unchanged.
 [Correction and original failure](census-occupied-approach-20261101.json).
-Untouched coverage must resume under a new frozen observer epoch; no green rename
-or silent duplicate stitching. Full2445-case/4890-trial census remains incomplete.
+Untouched coverage resumes in session30144 under a new frozen observer epoch.
+Combined prefix1072 trials includes the corrected batch once; failed partial
+rows stay separate. [Continuation](census-actor-corrected-continuation-20261101.json).
+Full2445-case/4890-trial census remains incomplete; guards unchanged.
 [Bounded scheduling scope](census-bounded-processes-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
