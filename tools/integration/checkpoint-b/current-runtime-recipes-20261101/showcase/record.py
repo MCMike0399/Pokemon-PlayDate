@@ -138,6 +138,21 @@ def main():
     sys.path.insert(0, str(project))
     from tools.harness import run as runner, restarting
     from tools.harness.midgame_journey import MidgameJourney
+
+    class ShowcaseJourney(MidgameJourney):
+        # The private framebuffer overlay already records selected chapters.
+        # Retain ordinary no-input frames without a second diagnostic PNG stream.
+        def send(self, *commands):
+            selected = []
+            for command in commands:
+                if isinstance(command, str) and command.startswith('record '):
+                    _, label, frames = command.split()
+                    self.summary.setdefault('unretained_diagnostic_recordings', []).append(
+                        {'label': label, 'frames': int(frames), 'replacement': 'ordinary wait'})
+                    command = 'wait ' + frames
+                selected.append(command)
+            return super().send(*selected)
+
     from tools.harness.protocol import Client, OwnerLock, atomic_json
     scenario = PROOF['scenario']
     config = scenario['processes'][0]['journey']
@@ -235,7 +250,7 @@ def main():
                     atomic_json(output / 'run.json', metadata)
                     client = Client(data, metadata['build_id'], metadata['session_id'], output, owner=owner)
                     client.ready(60)
-                    d = MidgameJourney(client, output, config, output, output / 'frames')
+                    d = ShowcaseJourney(client, output, config, output, output / 'frames')
                     d.send('snapshot')
                     d.start_earned()  # Actual CONTINUE and complete saved codec equality.
                     chapters = []
@@ -273,7 +288,11 @@ def main():
                                 d.travel(d.zone('LavenderTown'))
                                 d.source_waypoint(9, 17)
                         if selected != {'walk'}:
-                            d.heal_here('LavenderPokecenter')
+                            restored = all(mon['hp'] == mon['maxHP']
+                                and mon.get('status') in (None, 'none') and mon['pp'] == mon['maxPP']
+                                for mon in d.party())
+                            if not restored:
+                                d.heal_here('LavenderPokecenter')
                             assert not d.defeated(TRAINER), 'Target already defeated; never rematch/reset'
                             with capture('trainer') if 'trainer' in selected else contextlib.nullcontext():
                                 d.fight(TRAINER)
