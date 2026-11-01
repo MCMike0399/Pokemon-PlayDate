@@ -19,7 +19,9 @@ local function settle(b, observe)
         assert(count < 300, "earned B script stuck: " .. tostring(b.message))
         assert(not b.pendingLearning, "unexpected learning")
         lines[#lines + 1] = b.message
-        if observe then observe(b) end
+        if observe then
+            observe(b)
+        end
         b.machine:get("script"):advance()
     end
     return table.concat(lines, "|")
@@ -41,7 +43,9 @@ local function use(b, slot, seed, observe)
 end
 local function rng(seed, draws)
     local expected = RulesRNG.new(seed)
-    for _, bounds in ipairs(draws) do expected:random(bounds[1], bounds[2]) end
+    for _, bounds in ipairs(draws) do
+        expected:random(bounds[1], bounds[2])
+    end
     local actual = RulesRNG.snapshot()
     local wanted = expected:snapshot()
     eq(actual.state, wanted.state)
@@ -117,7 +121,9 @@ function EarnedBMoveContracts.run()
     test("Rest Insomnia and Vital Spirit refuse healing and preserve prior status without sleep RNG", function()
         for _, id in ipairs({15, 72}) do
             local b = fresh({"rest"})
-            b.player.ability = function() return id end
+            b.player.ability = function()
+                return id
+            end
             b.player.hp = b.player.maxHP - 40
             b.player.status = "burn"
             local hp = b.player.hp
@@ -269,8 +275,16 @@ function EarnedBMoveContracts.run()
         for _, gate in ipairs({"ghost", "soundproof", "protect", "innerFocus"}) do
             local enemy = Pokemon(gate == "ghost" and "gastly" or "snorlax", 100)
             local b = fresh({"snore"}, gate == "protect" and "protect" or "harden", nil, enemy)
-            if gate == "soundproof" then enemy.ability = function() return 43 end end
-            if gate == "innerFocus" then enemy.ability = function() return 39 end end
+            if gate == "soundproof" then
+                enemy.ability = function()
+                    return 43
+                end
+            end
+            if gate == "innerFocus" then
+                enemy.ability = function()
+                    return 39
+                end
+            end
             asleep(b.player, 2)
             local hp = enemy.hp
             use(b)
@@ -334,9 +348,19 @@ function EarnedBMoveContracts.run()
     test("Yawn rejects current status sleep immunity Safeguard and Protect without duration RNG", function()
         for _, gate in ipairs({"status", "insomnia", "vitalSpirit", "safeguard", "protect"}) do
             local b = fresh({"yawn"}, gate == "protect" and "protect" or "splash")
-            if gate == "status" then b.enemy.status = "paralyze" end
-            if gate == "insomnia" then b.enemy.ability = function() return 15 end end
-            if gate == "vitalSpirit" then b.enemy.ability = function() return 72 end end
+            if gate == "status" then
+                b.enemy.status = "paralyze"
+            end
+            if gate == "insomnia" then
+                b.enemy.ability = function()
+                    return 15
+                end
+            end
+            if gate == "vitalSpirit" then
+                b.enemy.ability = function()
+                    return 72
+                end
+            end
             if gate == "safeguard" then
                 own(b.enemy, {"safeguard"})
                 b.enemy.spe = 300
@@ -542,7 +566,9 @@ function EarnedBMoveContracts.run()
                 end
             end)
             eq(observed, true)
-            if mode == "miss" then assert(text:find("attack missed", 1, true)) end
+            if mode == "miss" then
+                assert(text:find("attack missed", 1, true))
+            end
             values[mode] = hp - b.enemy.hp
         end
         -- Miss consumes one accuracy trial, so compare damage with that exact

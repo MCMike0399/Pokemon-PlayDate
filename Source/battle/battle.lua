@@ -1025,7 +1025,9 @@ function Battle:resolveTurn(turn)
         if attacker.statusTurns > 0 then
             attacker.statusTurns = attacker.statusTurns - 1
             self:say(attacker.name .. " is fast asleep!")
-            if turn.move.attemptRule ~= "snore" then return interrupted() end
+            if turn.move.attemptRule ~= "snore" then
+                return interrupted()
+            end
         else
             attacker.status, attacker.statusTurns, attacker.sleepDuration = nil, 0, 0
             self:say(attacker.name .. " woke up!")

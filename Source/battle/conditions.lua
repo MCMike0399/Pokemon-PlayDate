@@ -594,14 +594,24 @@ function BattleConditions:residual(event)
     local mon=event.pokemon;local state=self:of(mon)
     if not alive(mon) then return end
     if event.kind == "yawn" then
-        if state.yawn ~= event.record or event.consumed then return end
+        if state.yawn ~= event.record or event.consumed then
+            return
+        end
         event.consumed = true
         local record = state.yawn
         record.turns = record.turns - 1
         if record.turns == 0 then
             state.yawn = nil
-            local recipient = {resolve=function() return mon end}
-            local source = {resolve=function() return record.source end}
+            local recipient = {
+                resolve = function()
+                    return mon
+                end,
+            }
+            local source = {
+                resolve = function()
+                    return record.source
+                end,
+            }
             ApplyStatus(recipient, "sleep", {source=source, cause="yawn"}):apply(b)
         end
     elseif event.kind == "encore" and state.encore then

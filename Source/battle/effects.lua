@@ -258,7 +258,9 @@ function BattleEffects:movePower(move,power,attacker,defender)
     if move.powerRule=="assurance" and self:damagedThisRound(defender) then return power*2 end
     if move.powerRule == "revenge" then
         local attacks = self.round and self.round.attackedBy[attacker]
-        if attacks and attacks[defender] then return power * 2 end
+        if attacks and attacks[defender] then
+            return power * 2
+        end
     end
     return power
 end
@@ -568,7 +570,9 @@ function BattleEffects:clear(mon)
     if self.round then self.round.pending[mon]=nil;self.round.damaged[mon]=nil end
     if self.round then
         self.round.attackedBy[mon] = nil
-        for _, attacks in pairs(self.round.attackedBy) do attacks[mon] = nil end
+        for _, attacks in pairs(self.round.attackedBy) do
+            attacks[mon] = nil
+        end
     end
     for receipt in pairs(self.receipts) do if receipt.source==mon or receipt.target==mon then self.receipts[receipt]=nil end end
 end

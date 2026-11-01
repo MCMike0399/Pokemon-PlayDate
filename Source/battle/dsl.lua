@@ -324,7 +324,9 @@ function ApplyStatus:init(target, status, origin)
 end
 function ApplyStatus:preventedBySide(battle,pokemon)
     -- Safeguard blocks Yawn placement, never an already placed Yawn's sleep.
-    if self.statusCause == "yawn" then return false end
+    if self.statusCause == "yawn" then
+        return false
+    end
     if not battle.conditions then return false end
     local source=self.statusSource:resolve(battle)
     assert(self.statusCause~="fatigue" or source==pokemon,"fatigue-must-be-self-origin")
@@ -395,12 +397,16 @@ function ApplyStatus:apply(battle, rest)
     -- The existing counters store blocked actions, rather than PS's counter
     -- decremented before testing. Rest time/startTime3 therefore maps to2.
     -- Still consume the ordinary sleep Start draw before overriding it.
-    if rest then duration = 2 end
+    if rest then
+        duration = 2
+    end
     if battle.conditions then battle.conditions:of(pokemon).toxic=nil end
     pokemon.status = self.status
     pokemon.statusTurns = duration
     pokemon.sleepDuration = duration
-    if rest then pokemon:heal(pokemon.maxHP) end
+    if rest then
+        pokemon:heal(pokemon.maxHP)
+    end
     if battle.effects then ContactAbilities.afterStatus(battle.effects,pokemon,self.statusSource:resolve(battle),self.status,self.statusCause) end
     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
     if rest then
