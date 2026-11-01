@@ -20,5 +20,49 @@
   ],
   "red_scope": "First owner call used invalid contracts arguments; no cases ran. Next run33/34: enemyParty fixture lacked trainerName and constructor rejected it before move execution. Fixed helper supplies trainerName; all assertions retained.",
   "runtime": "Actual SDK3.1.2,16MB, qualified production boot then isolated contract fixtures,1GiB sampled host guard. No fake SDK/rules engine.",
-  "acceptance": "Rules reviews and existing regressions pending; not B/campaign/device acceptance. Epoch16 fixture reconciliation remains."
+  "acceptance": "Rules reviews and existing regressions pending; not B/campaign/device acceptance. Epoch16 fixture reconciliation remains.",
+  "additional_existing_regressions": {
+    "status": "111 actual SDK cases passed; not campaign/device acceptance",
+    "source_revision": "00ce443a32f183599ab073d5944905fdd8c19c0e",
+    "suites": [
+      {
+        "failed": 0,
+        "id": "combat",
+        "passed": 34
+      },
+      {
+        "failed": 0,
+        "id": "charge-lock",
+        "passed": 31
+      },
+      {
+        "failed": 0,
+        "id": "ability",
+        "passed": 46
+      }
+    ],
+    "passed": 111,
+    "failed": 0,
+    "sdk_version": "3.1.2",
+    "host_resources": {
+      "limit_bytes": 1073741824,
+      "sampled_peak_bytes": 307299384
+    },
+    "cleanup": "Existing startup owner confirmed child termination and removed only its UUID Data; runtime-data retained.",
+    "private_scope": "Production qualified boot; actual Autopilot and contract modules imported at PDZ load time, restored HarnessBuild=nil for initialization, existing suites invoked afterReady with fixture scope. No fake SDK.",
+    "artifacts": {
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-battle-regressions-20261101-03/startup-probe.json": "a9a4ea182415a153b9ca0ea6ab7df201f3d1222956ca5e3b31a3c7d8477a0902",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-battle-regressions-20261101-03/build.json": "b64b3c8c74e6f48b084824a344540dcd7d2f1238211d4857c7c1c3ac9f03cf30",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-battle-regressions-20261101-03/host-resources.json": "f6e283275bce380ba13e76219856e0f3bbdb3bb27269b60ba6b0f0502c6985ba"
+    },
+    "failed_preparations_retained": [
+      "native-regressions01 imports were incorrectly deferred; zero cases ran.",
+      "native-regressions02 used non-atomic report publication and host saw empty file; no result accepted. Native03 publishes temp-close-rename."
+    ]
+  },
+  "independent_reviews": {
+    "standards_thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A51944035-71be-4831-bd12-b29f99bf5215",
+    "spec_thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A087e5701-5d64-43fb-9c9f-00e0485f17ea",
+    "findings": "Both flag only stale host expectations: seven epoch15 assertions and Haze unsupported fixture. Preserve historical migrations/inverse hashes/fail-closed assertions. No additional functional/rules findings. Fix remains assigned to remaining-five-move composition; no green full-host or acceptance claim."
+  }
 }

@@ -127,7 +127,9 @@ blackhold are checkpoint-paced, no separatefade-in. [Measured comparison](device
 
 Private B composes fiveHM battle actions and Haze/ClearSmog at00ce443a. ActualSDK
 34/34 pass after fixing one trainer-fixture setup; assertions unchanged. Rules
-reviews pending, legacyepoch fixtures stillneed reconciliation. Rest/Snore/Yawn/
+reviews flag only legacyepoch/Haze host fixtures. Additional111 SDK regressions
+pass (combat34/charge-lock31/ability46), no failures. Fixtures stillneed
+reconciliation with the remaining moves. Rest/Snore/Yawn/
 Foresight/Revenge B-route failures remain foreground fixes. B is NOTaccepted;
 latency gates C acceptance, not B'shardware-safe merge. Physical traversal and
 showcase remain open; no more longSimulator recording machinery.
