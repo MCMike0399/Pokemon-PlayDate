@@ -77,6 +77,9 @@ Disk is 46.65 GiB, below 51/50 GiB admission/reserve. An external shell check
 failed to stop launch; admission now lives inside the recorder and its refusal
 before output/SDK is verified. No retry or guard relaxation.
 [Retained failure](b149-showcase-preflight-stop-20261101.json).
+Private recorder preparation now enumerates exact staged map IDs instead of
+copying full maps. All 149 maps/752 IDs match the prior actual SDK projection;
+combined review finds no issues. Native memory benefit remains unmeasured.
 
 Next: resolve bounded capture at restored runtime headroom, inspect native motion,
 then finish B acceptance/merge. Preserve current hardware proof and earned slots.
