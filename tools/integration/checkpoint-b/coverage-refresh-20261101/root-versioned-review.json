@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "source_commit": "70e015a618bb2ccd54de75aebe66b7904c12cf20",
+  "source_sha256": "76035d8f10f49b058a5ae8733a71059a14419be872aea9a18c5b3fa2119faecc",
+  "independent_candidate_commit": "dfbbdc8c900b6fa2bcdc4bcf0312cbb81a02c6c4",
+  "additional_source_review": "c1ef->70e changes the content loader root literal and2546record locations to chunks-v2; record bytes and32indexes identical. No gameplay/owner/roster/art/map/schema changes. SDK Kanto values remain equal except build identity.",
+  "original_record_manifest_sha256": "28854a2e8b56aebfcf355341e80589591b888c10ff69eee5d3c881b3f5f8cd51",
+  "scope": "Private149 B, unaccepted. Levels unchanged. Finite normal-upgrade hardware trial completed without guard/newlogs, Fuchsia6576vs14858ms. Not worstdoor census, playability, longphysicaltraversal, showcase or fullgame acceptance.",
+  "evidence_paths_frozen_without_hash_changes": {
+    "runtime-scopes-earned-b54": {
+      "old_path": "tools/references/runtime-move-coverage.json",
+      "frozen_path": "docs/validation/coverage-evidence/b-c1-frozen-runtime-scopes-earned-b54.json",
+      "same_sha256": "e59fb7f3118474ef69988a86da728295f643a706b3be6462410949dbd3b0b068"
+    },
+    "kanto-shards-export": {
+      "old_path": "tools/integration/kanto-first-entry/qualified/export.json",
+      "frozen_path": "docs/validation/coverage-evidence/b-c1-frozen-kanto-shards-export.json",
+      "same_sha256": "c6e8e1320e6a9744a933c285e4c688164b71fa8a68b81b6fd81fa09f0bab5b87"
+    },
+    "kanto-shards-provenance": {
+      "old_path": "tools/integration/kanto-first-entry/qualified/provenance.json",
+      "frozen_path": "docs/validation/coverage-evidence/b-c1-frozen-kanto-shards-provenance.json",
+      "same_sha256": "4ad46d58bbae75c11ae755d9163e4734e620d10687ddf23f4f5fffe441420b84"
+    }
+  },
+  "facet_levels_changed": 0,
+  "rows": 1512,
+  "historical_evidence_hashes_changed": 0,
+  "gameplay_review": "Spec0; Standards proseP3 fixed by clarified separately named summary, original bytes preserved.",
+  "performance_review": "Single combined review pending."
+}
