@@ -68,7 +68,14 @@ are unchanged. Private B keeps this measured improvement. Worst sampled door in
 current diagnostic stress is 7.067 s; it is not a shipped-equivalent pacing run.
 Boot, worst-door and cave targets remain unmet; latency gates C acceptance.
 
-Next: execute the existing current-source showcase recipe, inspect native motion,
+The first current-source capture preflight stops at the 1 GiB host-memory guard
+after 8.59 s; no usable movie. Owned child is gone and UUID Data byte-archived.
+Disk is 46.65 GiB, below 51/50 GiB admission/reserve. An external shell check
+failed to stop launch; admission now lives inside the recorder and its refusal
+before output/SDK is verified. No retry or guard relaxation.
+[Retained failure](b149-showcase-preflight-stop-20261101.json).
+
+Next: resolve bounded capture at restored runtime headroom, inspect native motion,
 then finish B acceptance/merge. Preserve current hardware proof and earned slots.
 Continue real worst-door decomposition/structural latency work; never resume the
 exhaustive census. Its 2,832 closed trials remain frozen.
