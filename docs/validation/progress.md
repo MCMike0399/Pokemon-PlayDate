@@ -98,6 +98,10 @@ User cannot play-test now; do not wait for feedback. Package limitations are exp
 Exact 16 MiB safety admission: no error, raw slice ≤150 ms and sampled peak ≤9 MiB.
 Device live guard: collect near 8 MiB; fail above 6 MiB after GC or 9 MiB hard.
 Keep 51 GiB batch admission /50 GiB reserve, ordered locks and one runtime owner.
+The concrete capacity block permitted one bounded duplicate-checkout cleanup:
+8 completed, clean, main-merged review worktrees reclaimed 3.02 GiB; branches
+and evidence remain. Two live process paths were preserved. Measured free
+47.13 GiB still fails admission. [Record](closed-review-worktrees-20261101.json).
 Storage stays background/exception-only through the existing reviewed queue.
 No new storage tooling, broad scans or proof release. No push without a request.
 [Earlier detailed ledger](progress-history-before-b-traversal-20261101.md).
