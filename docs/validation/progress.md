@@ -129,8 +129,11 @@ Private B composes fiveHM battle actions and Haze/ClearSmog at00ce443a. ActualSD
 34/34 pass after fixing one trainer-fixture setup; assertions unchanged. Rules
 reviews flag only legacyepoch/Haze host fixtures. Additional111 SDK regressions
 pass (combat34/charge-lock31/ability46), no failures. Fixtures stillneed
-reconciliation with the remaining moves. Rest/Snore/Yawn/
-Foresight/Revenge B-route failures remain foreground fixes. B is NOTaccepted;
+reconciliation. Rest/Snore/Yawn/Foresight/Revenge are composed privately:33new
+SDK cases pass after fixing a real Rest/secondary argument collision;145existing
+regressions and54original coverage assertions pass. Current import/projection
+checks65 andruntime-coverage checks8 pass; full1064-test rerun had7stalechecks,
+with finalcoverage snapshot/reviews stillopen. [Current scope](b-earned-moves-composition-20261101.json). B is NOTaccepted;
 latency gates C acceptance, not B'shardware-safe merge. Physical traversal and
 showcase remain open; no more longSimulator recording machinery.
 

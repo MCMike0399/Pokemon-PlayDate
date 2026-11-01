@@ -1,0 +1,68 @@
+{
+  "status": "private B candidate; not accepted or pushed",
+  "base": "00ce443a32f183599ab073d5944905fdd8c19c0e",
+  "moves_candidate": "12ecefec86d401b9d50daa1686ab39e4d35ba197",
+  "current_composed_B": "3603da2f3abd1059a65cacdac60a421e1d99da29",
+  "move_rows": 425,
+  "unchanged_rows": 420,
+  "producer_epoch": 17,
+  "fix": "Native33 initially28pass/5fail: ApplyStatus second argument already meant secondary. Rest now has explicit applyRest entry delegating to private shared status code; original generic apply ignores secondary argument as before. Same33 cases thenpass.",
+  "native": [
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-01",
+      "sha256": "294dd849fc8980ccb3cd013e77ecfd9a483f078fdec7fb9d104e5ab292508916",
+      "passed": 28,
+      "failed": 5,
+      "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-01/build.json",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 187991024
+      }
+    },
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-02",
+      "sha256": "387c56699e7e5e613efd26b4fe4d6469416d6222b546102848c8c587506d0eda",
+      "passed": 33,
+      "failed": 0,
+      "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-02/build.json",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 188367880
+      }
+    },
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-regressions-20261101-01",
+      "sha256": "6e34391661d2a6a89a200c43a5c67077d4b44fedec58a4e2f935ad692225f9a6",
+      "passed": 145,
+      "failed": 0,
+      "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-regressions-20261101-01/build.json",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 325665920
+      }
+    },
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-runtime54-native-20261101-01",
+      "sha256": "5f9235bf702dad812b827f2ba0892f8fbc9973ef1e5367b11c51b83849160f19",
+      "passed": 54,
+      "failed": 0,
+      "build": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-runtime54-native-20261101-01/build.json",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 187237384
+      }
+    }
+  ],
+  "host": {
+    "targeted_producer": 74,
+    "ordered_import_and_projection": 65,
+    "runtime_coverage_mutation_checks": 8,
+    "full_before_requalification": {
+      "tests": 1064,
+      "failures": 7,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-full-host-20261101-01.log",
+      "remaining": "Current coverage snapshot; full suite has not been rerun after targeted fixes and sharding."
+    }
+  },
+  "reviews": "Fresh Standards/Spec review required against pinned move candidate; sharding excluded from gameplay review and awaits device gain before performance review."
+}
