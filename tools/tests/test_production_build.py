@@ -73,7 +73,15 @@ class ProductionBuildTests(unittest.TestCase):
 
     def test_harness_compiled_inventory_keeps_every_original_dev_import(self):
         modules = pdz_modules(self.harness / 'Harness.pdx/main.pdz')
-        expected = [name for name in BASELINE['imports'] if name.startswith('dev/')]
+        additions = {
+            'dev/chargeLockContracts': ['dev/hmBattleContracts'],
+            'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts'],
+        }
+        expected = []
+        for name in BASELINE['imports']:
+            if name.startswith('dev/'):
+                expected.append(name)
+                expected.extend(additions.get(name, []))
         # Explicitly reviewed helpers imported by the catalog and event suites.
         transitive = {'dev/catalogRuntime', 'dev/sourceEventBaseline', 'dev/importedToneReference',
                       'dev/sessionFixture'}
@@ -95,6 +103,8 @@ class ProductionBuildTests(unittest.TestCase):
                 'game/towerStory', 'game/snorlaxStory', 'game/towerStoryController'],
         }
         additions_after = {
+            'dev/chargeLockContracts': ['dev/hmBattleContracts'],
+            'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts'],
             'game/rocketHideoutStoryController': [
                 'game/fieldTravelRequests', 'game/fieldTravelRuntime', 'game/fieldTravelState',
                 'game/fieldGearRequests', 'game/fieldGearState', 'world/fieldGearArt'],
@@ -111,10 +121,21 @@ class ProductionBuildTests(unittest.TestCase):
             expected_imports.append(name)
             expected_imports.extend(additions_after.get(name, []))
         self.assertEqual(imports, expected_imports)
+        registration_additions = {
+            'Contracts.register("charge-lock",ChargeLockContracts.run)': [
+                'Contracts.register("hm-battle", HMBattleContracts.run)'],
+            'Contracts.register("sides",SideContracts.run)': [
+                'Contracts.register("stage-reset", StageResetContracts.run)',
+                'Contracts.register("earned-b-moves", EarnedBMoveContracts.run)'],
+        }
+        expected_registrations = []
+        for line in BASELINE['registrations']:
+            expected_registrations.append(line)
+            expected_registrations.extend(registration_additions.get(line, []))
         self.assertEqual([line.strip() for line in staged.splitlines() if line.lstrip().startswith('Contracts.register(')
                           or line.lstrip().startswith('PewterCatalogExporter.register(')
                           or line.lstrip().startswith('CeruleanCatalogExporter.register(')
-                          or line.lstrip().startswith('VermilionCatalogExporter.register(')], BASELINE['registrations'])
+                          or line.lstrip().startswith('VermilionCatalogExporter.register(')], expected_registrations)
 
     def test_staging_preserves_every_non_entry_source_asset(self):
         policy = json.loads((PROJECT / 'tools/integration/checkpoint-b/production-exclusions.json').read_bytes())
