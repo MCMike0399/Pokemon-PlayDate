@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-04",
+  "session_id": 65744,
+  "plan_sha256": "efe172682b97ffc6495cfa29366bde78acb335e29b65f6b447eacb3de6fd8ca9",
+  "retained_prefix_trials": 1360,
+  "remaining_cases": 1765,
+  "remaining_trials": 3530,
+  "helper_binary_sha256": "a1516a249f6b52e822f49e7b4ffcffdff36995275dd5484dc7a3a66f89b24ae6",
+  "helper_source_sha256": "30fdbb8bae145814c1268d5f372d0792494a3e12c11fd11a6e604d29ff751952",
+  "private_not_merged": true,
+  "review_pending": true,
+  "scope": "Private800ms app-root helper diagnostic continuation after explicit qualification; helper SHA per batch, review pending, no main adoption or in-process UI action retry. Exhaustive diagnostic coverage with explicit observer epochs and fresh-process batches. Not continuous traversal/device acceptance. Cold/warm is target Zone residency only; additional descriptor work occurs outside measured input, and may warm other caches.",
+  "resource_admission": "Before each new SDK batch, require51GiB; never interrupt a current child for this check."
+}
