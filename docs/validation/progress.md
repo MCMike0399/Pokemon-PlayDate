@@ -99,12 +99,12 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Door census remains incomplete. Historical trials and paging controls are in
-[history](progress-history-door-census-20261030.md); old paged timings cannot rank
-worst doors. User enabled the responsible0.1.0supervisor; fresh AX trust is true.
-Short qualification reports12trials (10measured/two gaps), Clear resets records
-and sampled host peak811MiB; review found two concrete safety defects; both corrected. Fresh short qualification again reports10measurements/two gaps,13clears and812MiB peak. [Corrections](malloc-history-review-corrections-20261101.json). Keep
-16MiB pool,1GiB host/60s progress limits. [Live qualification](malloc-history-live-qualification-20261101.json).
+Full door census is now running on clean B10cb9572:2445cases/4890trials,
+output `door-census-b149-cave-full-20261101-01`. Root owns session75437;
+PID74535/exact PDX verified live, first six trials acknowledged. Do not duplicate
+or edit pinned B. Corrected history helper retains16MiB pool/1GiB host/60s
+progress limits; short qualification reports10measurements/two gaps,13clears,
+812MiB peak. [Corrections](malloc-history-review-corrections-20261101.json).
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Calibration scope](door-phase-ratios-20261030.json).
