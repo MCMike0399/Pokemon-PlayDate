@@ -101,13 +101,13 @@ all rows/facets unchanged. Fresh compile/full-host run now passes all 1058
 tests, no errors/skips (287.809 s). Prior B0bc results remain historical. [Evidence](safari-expiry-input-20261030.json).
 C/Saffron/Silph/Sabrina/Dojo/Fly remain isolated; B is not accepted yet.
 
-Census part1 stopped safely on a host AX read failure after1070 trials
-(373measured/697gaps);3820 were unrun. Owned child exited; original failed proof
-remains. A bounded read-only recovery policy passes7 host checks and a14-trial
-native qualification (12measured/two gaps), with no native retry observed yet.
-[Stop and scope](census-ax-read-stop-20261101.json). Keep16MiB/1GiB/60s guards;
-Continuation `door-census-b149-cave-remaining-20261101-02` is now live under
-Root session96322/PID44678, only1910 unrun cases/3820trials, same B10cb9572.
+Census segments stopped, preserving failed states: first1070 trials after AX
+read failure; then292 trials after9MiB Lua guard. No live census now. Hard guard
+errors must not become ordinary gaps.50 repeatedContinue loads stabilize after
+warm-up;30 diverse placements complete with existing suspensionGC. This does
+not establish a leak or device RAM. [Isolation](census-memory-isolation-20261101.json).
+Correct observer failure handling/field prerequisites and qualify before more
+census. Keep16MiB/9MiB raw/1GiB host/60s progress limits; no report relabel.
 Provisional per-phase active ratios are fitted from the same exact build's three
 Simulator/device doors, for census ranking only. Residual waits and private GC
 are not multiplied. [Original calibration](door-phase-ratios-20261030.json); [current cave-build fit](door-phase-ratios-cave-20261101.json) reproduces the old method and retains short/sparse-sample warnings.

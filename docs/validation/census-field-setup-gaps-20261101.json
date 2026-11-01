@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "classification": "Retained partial census fixture triage; no game defect or accepted transition inferred.",
+  "stopped_stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-cave-remaining-20261101-02",
+  "result_sha256": "bde396f7c4ca07c43043d250289d5f59a6a3e60091548cfd9ff0b4bf7ddeb152",
+  "reported_trials": 292,
+  "rock_tunnel_cases": [
+    {
+      "id": "pokered:ROCK_TUNNEL_B1F:warps:1",
+      "gap": "fixture or resolution failure: game/overworldState.lua:514: domain/fieldWorld.lua:177: unsupported Rock Tunnel outside entry",
+      "source_resolution": {
+        "arrival_advance": 0,
+        "preserveFacing": true,
+        "status": "bound",
+        "target_name": "RockTunnel1F",
+        "target_warp": 5,
+        "to": "kanto_rock_tunnel_1f",
+        "toX": 37,
+        "toY": 3
+      }
+    },
+    {
+      "id": "pokered:ROCK_TUNNEL_B1F:warps:2",
+      "gap": "fixture or resolution failure: game/overworldState.lua:514: domain/fieldWorld.lua:177: unsupported Rock Tunnel outside entry",
+      "source_resolution": {
+        "arrival_advance": 0,
+        "preserveFacing": true,
+        "status": "bound",
+        "target_name": "RockTunnel1F",
+        "target_warp": 6,
+        "to": "kanto_rock_tunnel_1f",
+        "toX": 5,
+        "toY": 3
+      }
+    },
+    {
+      "id": "pokered:ROCK_TUNNEL_B1F:warps:3",
+      "gap": "fixture or resolution failure: game/overworldState.lua:514: domain/fieldWorld.lua:177: unsupported Rock Tunnel outside entry",
+      "source_resolution": {
+        "arrival_advance": 0,
+        "preserveFacing": true,
+        "status": "bound",
+        "target_name": "RockTunnel1F",
+        "target_warp": 7,
+        "to": "kanto_rock_tunnel_1f",
+        "toX": 17,
+        "toY": 11
+      }
+    },
+    {
+      "id": "pokered:ROCK_TUNNEL_B1F:warps:4",
+      "gap": "fixture or resolution failure: game/overworldState.lua:514: domain/fieldWorld.lua:177: unsupported Rock Tunnel outside entry",
+      "source_resolution": {
+        "arrival_advance": 0,
+        "preserveFacing": true,
+        "status": "bound",
+        "target_name": "RockTunnel1F",
+        "target_warp": 8,
+        "to": "kanto_rock_tunnel_1f",
+        "toX": 37,
+        "toY": 17
+      }
+    }
+  ],
+  "source_checks": [
+    {
+      "path": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-2c976160/Source/domain/fieldWorld.lua",
+      "sha256": "96dffc5bd217d793d7f100d857058b9c141e856c66a03a593cc0a9fb6b61489b"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate/Source/dev/doorCensus.lua",
+      "sha256": "2925c11013a1455dc8906307ea17e502cb143cac7bf9196b2e5ec9af42b6971c"
+    }
+  ],
+  "source_supported_setup_problem": "Census directly places B1F after restoring an outside earned save; FieldWorld.transitionOffset correctly rejects outside entry to B1F. Enter1F first through normal field ownership, then preserve its valid floor transition. Do not write offset/flags or remove checks.",
+  "other_open_gaps": [
+    "MtMoonB2F event preemption needs actual actor/script prerequisites or valid alternate approach.",
+    "Pewter blocked targets/connection arrival require source/policy triage.",
+    "Audit target Zone cache coverage before ranking cold cost from warm-only rows."
+  ],
+  "new_terminal_failure": "production guard stopped the census; inspect BootTrace",
+  "terminal_counts": {
+    "gap": 166,
+    "measured": 126,
+    "not_run": 3528
+  },
+  "runtime_correction_executed": false
+}
