@@ -628,5 +628,24 @@
     "checker_passed": true,
     "matrix_tests_passed": 4,
     "full_host_status": "running session22960, no green claim"
+  },
+  "current_full_host": {
+    "passed": 1067,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 191.41,
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-v2-composed-full-host-20261101-02.log",
+    "sha256": "977306bd7a4d995d9b78554150b1a5edd120a451730a43aa6b28b3aec8c609fd",
+    "note": "Expected negative-path child failures in host-test stdout are test fixtures; final unittest result is OK. This is not a campaign/Simulator journey pass."
+  },
+  "current_private_B": "9542d84da42cc64a8c1025d6f120ad8222baba32",
+  "production_player_package": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5b-reviewed-development-20261101-02",
+    "pdx_sha256": "001ae7dd070563080322c997897f1c092fe939d59a7231aed50841a8773ba1b4",
+    "dev_modules": 0,
+    "bundle_id": "com.poc.pokemon",
+    "seed": "unchanged optional Charmander B chain",
+    "status": "private development preview, no exact-package hardware acceptance; no install or user feedback requested"
   }
 }

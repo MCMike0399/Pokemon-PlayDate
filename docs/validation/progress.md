@@ -132,8 +132,11 @@ pass (combat34/charge-lock31/ability46), no failures. Fixtures stillneed
 reconciliation. Rest/Snore/Yawn/Foresight/Revenge are composed privately:33new
 SDK cases pass after fixing a real Rest/secondary argument collision;145existing
 regressions and54original coverage assertions pass. Current import/projection
-checks65 andruntime-coverage checks8 pass; full1064-test rerun had7stalechecks,
-with finalcoverage snapshot/reviews stillopen. [Current scope](b-earned-moves-composition-20261101.json). B is NOTaccepted;
+checks65 andruntime-coverage checks8 pass. Current coverage retains1512rows/levels
+andhistoricalhashes. After refreshing onlydevdependencyhashes and exercising the
+projectionmutant onactualfrozenprojection data, fullhostpasses1067tests withno
+failures/errors/skips (191.410s). Bothgameplayreviews andthecombinedperformance
+review have no remainingactionablefindings; B resource/showcase gates remain. [Current scope](b-earned-moves-composition-20261101.json). B is NOTaccepted;
 latency gates C acceptance, not B'shardware-safe merge. Physical traversal and
 showcase remain open; no more longSimulator recording machinery.
 
