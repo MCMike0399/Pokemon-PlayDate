@@ -340,8 +340,8 @@ def main(argv=None):
         if args.execute:
             # The existing 30-minute entry point now reports the explicit Pi
             # queue. Broad age-based deletion is not automatic under this policy.
-            from tools.harness.pi_archive import maintenance_status
-            print(json.dumps(maintenance_status(), indent=2))
+            from tools.harness.pi_archive import maintenance_tick
+            print(json.dumps(maintenance_tick(), indent=2))
             return 0
         report = maintain(args.project, args.env, ('main', args.checkpoint_ref),
                           int(args.minimum_free_gib * GIB), int(args.target_free_gib * GIB),

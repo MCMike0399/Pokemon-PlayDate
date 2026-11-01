@@ -135,13 +135,13 @@ logs. This point test excludes native headers/masks and long-session headroom.
 doors across 30+ maps and 20 battles.** The long-journey native `drawFaded` OOM
 is not universally closed by short tests; bounded gift text saves 675.84 KiB.
 
-Shared archival now uses an explicit owner-reviewed queue: trigger below70GiB,
-stop normal work at100GiB; hard reserve50GiB. Blast owns the first slot. The
-wrapper pins the qualified shared digest, passes all inherited lock fds, and
-keeps transfers/queues disabled pending review and a real canary. The existing
-30minute entry reports that disabled queue; no broad age deletion runs.
-[Integration and remaining work](pi-archive-integration-20261101.json).
-Ten clean merged worktrees recovered3.04GiB; space remains below reserve.
-The coordinator owns further offload; no independent moves/config changes.
-[Prior storage audit](storage-reserve-20261101.json).
-[Previous ledger and history](progress-history-door-census-20261030.md).
+Shared archival uses an explicit owner-reviewed queue (70→100GiB). Real canary
+passed copy/verify/rehearse/release/originalrestore/fullmanifest+9tracehashes/
+verify/finalrelease; active chains/builds/Source unchanged. Exact loaded1800s
+LaunchAgent entry reached emptyqueue, no restart. Current helper29e pin/23focused
+checks pass; immutable4e data proof retained. Queue enabled/empty; transport held
+until actual Showdown completion+slot release. No other bulk before handoff.
+[Canary and timer proof](pi-archive-canary-20261101.json), [runbook](pi-artifact-storage.md).
+Observed free49.43GiB aftercanary; other initialbatches continue. Ten cleanmerged
+worktrees earlier recovered3.04GiB. No newservice/networkconfig changes or push.
+[Previous ledger/history](progress-history-door-census-20261030.md).

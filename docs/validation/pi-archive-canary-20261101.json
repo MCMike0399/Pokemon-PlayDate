@@ -1,0 +1,32 @@
+{
+  "status": "Real Playdate canary passed; slot released. Queue ready and empty; transport held for initial other-project batches. No gameplay/milestone acceptance inferred.",
+  "archive_id": "playdate-0363a44b82e94ebd8587158976b765cb",
+  "manifest_sha256": "0ee2669558980c4f14b9c853ef9f5eeab922522542fd9e6ba40f23638ec16f41",
+  "historical_canary_helper_sha256": "4e32546b7d22ad209520cb1b5ac3a8534a083cc789574dde3a7ca5af114ce469",
+  "current_qualified_helper_sha256": "29e0e8015e91cfbbbc4fd6bac5a820f00b1278ce66caa8f1a53a279f420046d2",
+  "qualified_update": "15-check metadata-only local_present correction; original manifests/data unchanged; no data canary repeat.",
+  "completion": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/playdate-pi-canary-20261101-01/completion.json",
+  "completion_sha256": "1d26c642efafefee356b39bb53f1dbda4b5f6d9a2edb490a93c3f7e16301d9cc",
+  "initial_deferred_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/playdate-pi-canary-20261101-01/result.json",
+  "defer_scope": "First final release refused transientopenPIDs78205/78206. Both naturallyexited before checkedretry; no owner interrupted. Originalfailedattempt report keptunchanged.",
+  "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eleventh-resumed-20261030-01",
+  "same_path_restoration_verified": true,
+  "compressed_traces_verified": 9,
+  "restored_compression_flags": [
+    0
+  ],
+  "protected_state_unchanged": true,
+  "global_archive_lock_free_at_handoff": true,
+  "final_receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-0363a44b82e94ebd8587158976b765cb.json",
+  "final_receipt_sha256_after_metadata_fix": "f8bb0e0d69852c8c29f358f361f0b54ae8fe37767b534ff53dd48b6bfaa57307",
+  "current_local_present": false,
+  "timer_wiring": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/playdate-pi-canary-20261101-01/timer-wiring.json",
+  "timer_wiring_sha256": "6fe6625ef489a89891f120c5610638bfaef757ce9b2fc4c46c6fc287222af7a6",
+  "free_bytes_after_canary": 53070344192,
+  "observed_free_delta_bytes": 1166807040,
+  "queue_enabled": true,
+  "queue_jobs": 0,
+  "transport_execution_enabled": false,
+  "activation_authorization": "After actual completion+transport slot release from Showdown threadd1e77c2d-8344-46bd-b271-e36db44637ac, projectagent may enable execution without repeated user permission. Keep queue empty until explicit owner review/enqueue. Confirm the actual handoff, not a plan.",
+  "local_tests": "23focused wrapper/phase/pin cases pass; earlier42wrapper+legacyStorage checks and46includingmatrixchecks passed. No Pi calls from fake tests."
+}

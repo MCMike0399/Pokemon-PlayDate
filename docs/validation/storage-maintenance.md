@@ -6,8 +6,9 @@ The existing30-minute `--execute` entry now reports the explicit disabled Pi
 queue; it no longer performs automatic broad age deletion or compression.
 See [the private operator runbook](pi-artifact-storage.md). Approved archival
 triggers below70GiB and stops normal work at100GiB; the initial approved backlog
-may be moved deliberately. Blast owns the first slot. Playdate transfers and
-queue processing remain disabled until its real canary/slot integration closes.
+may be moved deliberately. Blast owns the first slot. Playdate queue processing remains gated until its real canary passes; every
+transport operation additionally needs coordinator slot admission. The bounded
+phase/resume/defer processor is implemented and locally tested, not a broad scan.
 The old CLI threshold flags in the unchanged external shell wrapper do not
 activate the historical deletion library. No LaunchAgent/shared-helper edit was
 made. The historical local-planning/deletion implementation below remains for

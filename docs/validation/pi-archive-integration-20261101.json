@@ -4,7 +4,7 @@
   "wrapper_sha256": "47597416e8c490ec03c82464ff6b2f7b477adbef56667965fc99af39d1868bfc",
   "policy": "tools/harness/pi_archive_allowlist.json",
   "shared_helper": "/Users/burbujamc/Developer/burbuja-cluster/storage/pi_artifacts.py",
-  "qualified_helper_sha256": "4e32546b7d22ad209520cb1b5ac3a8534a083cc789574dde3a7ca5af114ce469",
+  "qualified_helper_sha256": "29e0e8015e91cfbbbc4fd6bac5a820f00b1278ce66caa8f1a53a279f420046d2",
   "shared_qualification": "/Users/burbujamc/Developer/burbuja-cluster/storage/qualification.json",
   "allowlisted_closed_roots": 9,
   "execution_enabled": false,
@@ -34,5 +34,7 @@
     "Queue resume/retry phase processor and slot admission after canary; no automatic transfers yet",
     "Fresh full host audit after operator integration"
   ],
-  "push": false
+  "push": false,
+  "pre_canary_qualified_helper_sha256": "4e32546b7d22ad209520cb1b5ac3a8534a083cc789574dde3a7ca5af114ce469",
+  "current_pin_scope": "Current operator pin updated by explicit coordinator instruction; preparation snapshot/test results otherwise remain historical. Actual4e canary tool identity is retained in raw canary evidence."
 }
