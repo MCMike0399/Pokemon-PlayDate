@@ -85,7 +85,13 @@
     "values_match_previous_export_except_build_id": true,
     "old_qualification_retained": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-kanto-prior-qualified-20261101-01",
     "qualification_collected": true,
-    "hardware_gain": "unmeasured; no performance adoption or B acceptance"
+    "hardware_gain": "unmeasured; no performance adoption or B acceptance",
+    "production_publication": {
+      "status": "failed, no deliverable",
+      "stage": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-production-20261101-01",
+      "reason": "B builder deletes stage/Production.pdx when output is the same path; known main fix not yet ported. Qualification/pdc succeeded before publication failed.",
+      "next": "Fresh stage and external output, using existing supported CLI; no Source change."
+    }
   },
   "fresh_review_threads": {
     "standards": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A4c644221-4b62-47ca-874c-0edef607a17b",
