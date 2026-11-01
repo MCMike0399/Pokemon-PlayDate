@@ -85,7 +85,8 @@ class ProductionBuildTests(unittest.TestCase):
         modules = pdz_modules(self.harness / 'Harness.pdx/main.pdz')
         additions = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],
-            'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts'],
+            'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts',
+                                  'dev/selfKOMoveContracts'],
         }
         expected = []
         for name in BASELINE['imports']:
@@ -114,7 +115,8 @@ class ProductionBuildTests(unittest.TestCase):
         }
         additions_after = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],
-            'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts'],
+            'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts',
+                                  'dev/selfKOMoveContracts'],
             'game/rocketHideoutStoryController': [
                 'game/fieldTravelRequests', 'game/fieldTravelRuntime', 'game/fieldTravelState',
                 'game/fieldGearRequests', 'game/fieldGearState', 'world/fieldGearArt'],
@@ -136,7 +138,8 @@ class ProductionBuildTests(unittest.TestCase):
                 'Contracts.register("hm-battle", HMBattleContracts.run)'],
             'Contracts.register("sides",SideContracts.run)': [
                 'Contracts.register("stage-reset", StageResetContracts.run)',
-                'Contracts.register("earned-b-moves", EarnedBMoveContracts.run)'],
+                'Contracts.register("earned-b-moves", EarnedBMoveContracts.run)',
+                'Contracts.register("self-ko-moves", SelfKOMoveContracts.run)'],
         }
         expected_registrations = []
         for line in BASELINE['registrations']:
