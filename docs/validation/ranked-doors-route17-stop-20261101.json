@@ -1,0 +1,76 @@
+{
+  "status": "failed guarded physical route; no acceptance",
+  "source_revision": "00ce443a32f183599ab073d5944905fdd8c19c0e",
+  "build_id": "be319b09427d463bba24e52d5495bfef",
+  "outcome": {
+    "boot_accepted": false,
+    "device_needs_one_A_press": false,
+    "error": "ValueError('device BootTrace guard failed')",
+    "ok": false,
+    "phase": "collect-result-logs"
+  },
+  "raw_segment": {
+    "update": 9396,
+    "segment": 9,
+    "kind": "return",
+    "elapsed_ms": 7234.781,
+    "sampled_heap_kib": 6634.052,
+    "loading": true,
+    "start_ms": 386931.969
+  },
+  "attribution": "Route17 zone.begin precedes failure. The raw segment is elapsed wall time, not CPU. Manual or automatic GC, native operations and blocking IO remain unseparated. No production fix selected.",
+  "simulator_constructor_probe": {
+    "elapsed_ms": 104.50897216797,
+    "hook_available": false,
+    "methods": {
+      "_packedCells": {
+        "calls": 1,
+        "elapsed_ms": 0.22503662109375,
+        "max_ms": 0.22503662109375
+      },
+      "init": {
+        "calls": 1,
+        "elapsed_ms": 0.8409423828125,
+        "max_ms": 0.8409423828125
+      },
+      "objectDefinition": {
+        "calls": 10,
+        "elapsed_ms": 7.0352783203125,
+        "max_ms": 1.7350463867188
+      },
+      "prepare": {
+        "calls": 1,
+        "elapsed_ms": 8.1759643554688,
+        "max_ms": 8.1759643554688
+      },
+      "prepareBatch": {
+        "calls": 1,
+        "elapsed_ms": 25.364990234375,
+        "max_ms": 25.364990234375
+      },
+      "registerPreparedBatch": {
+        "calls": 1,
+        "elapsed_ms": 0.0909423828125,
+        "max_ms": 0.0909423828125
+      }
+    },
+    "mode": "production",
+    "ok": true,
+    "samples": [],
+    "session_id": "1d3751a72981445da9dd1f8414e60cba",
+    "simulator": true
+  },
+  "next": "Fresh exact-build short safety, then narrow physical boundary timing using unchanged guards and the same earned route. Do not restart exhaustive census.",
+  "artifacts": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/ranked-doors-hardware-20261101-01/outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/ranked-doors-hardware-20261101-01/after/Data/com.poc.pokemon.device-test.be319b09427d463bba24e52d5495bfef/device-smoke-frames.tsv": "94062f91b55af48d142e801fadc46566835d70006b67eaebe0b9b03faa3f6307",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/route17-zone-profile-20261101-01/startup-probe.json": "0c85266cf43ecbf805234b0c4234b972d2ad94181246cd95eb75c0e9e323f822",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/ranked-doors-hardware-20261101-01/keeper-handoff.json": "73eb83d70a97f39643a82f620690dea67ed21e226951b1a2e6d720d562b5d627"
+  },
+  "keeper_handoff": {
+    "ok": true,
+    "keeper": "/Games/Calibration.pdx",
+    "screen": "Notdirectlyobserved; verifiedunchangedinstalledpayload and pdutilrunack",
+    "reason": "Caughtslice guard; no changederror/crashlogs; no hardcrash/Apress needed"
+  }
+}
