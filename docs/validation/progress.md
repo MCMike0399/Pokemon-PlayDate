@@ -83,6 +83,11 @@ Private recorder preparation now enumerates exact staged map IDs instead of
 copying full maps. All 149 maps/752 IDs match the prior actual SDK projection;
 combined review finds no issues. Native memory benefit remains unmeasured.
 
+Prepared source work is recorded separately: Self-KO review caught and Root
+fixed King’s Rock secondary/RNG loss; spec recheck is clear. Generic INTERIOR
+warp reviews are clear. All remain unadopted and require native validation.
+[Prepared frontier](prepared-source-frontier-20261101.json).
+
 Next: resolve bounded capture at restored runtime headroom, inspect native motion,
 then finish B acceptance/merge. Preserve current hardware proof and earned slots.
 Continue real worst-door decomposition/structural latency work; never resume the
