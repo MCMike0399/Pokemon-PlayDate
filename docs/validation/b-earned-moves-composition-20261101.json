@@ -209,5 +209,136 @@
       "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-device-hardware-20261101-01/outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
       "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-device-hardware-20261101-01/retained-install-for-clean-trial.json": "3259258c34700bb3bb3551d949f1fb44ea752369d1b2ac19e057a68fb5edf094"
     }
+  },
+  "shard_clean_exploratory_trial": {
+    "status": "Completed finite route with no guard/crash; not accepted, Save policy mismatch found",
+    "outcome": {
+      "boot_accepted": false,
+      "ok": true
+    },
+    "finish": {
+      "final_settled": true,
+      "route17_zone_completed": true,
+      "scope": "Finite button-route probe only; no long-traversal or playability acceptance",
+      "state": {
+        "last_save": {
+          "ok": true,
+          "reason": "published"
+        },
+        "loaded": 1,
+        "overworld": "explore",
+        "physical_controls": false,
+        "player": {
+          "facing": "down",
+          "moving": false,
+          "x": 10,
+          "y": 0
+        },
+        "ready": true,
+        "saved": 1,
+        "state": "overworld",
+        "zone": "pokered:ROUTE_18"
+      }
+    },
+    "route17_stats_ms": {
+      "palette": {
+        "calls": 1,
+        "total": 295,
+        "max": 295
+      },
+      "bindings": {
+        "calls": 1,
+        "total": 583,
+        "max": 583
+      },
+      "fieldIndex": {
+        "calls": 40,
+        "total": 195,
+        "max": 10
+      },
+      "open": {
+        "calls": 44,
+        "total": 221,
+        "max": 14
+      },
+      "gc": {
+        "calls": 11,
+        "total": 2,
+        "max": 1
+      },
+      "bundleRead": {
+        "calls": 44,
+        "total": 371,
+        "slowestPath": "data/contentCache/chunks/ff/ff917b54e78d73bbd816f65705512116df48167e7d0b0dfe9646eff1b6ff4cc2.json",
+        "max": 16
+      },
+      "descriptor": {
+        "calls": 10,
+        "total": 91,
+        "max": 15
+      },
+      "trainer": {
+        "calls": 10,
+        "total": 142,
+        "max": 20
+      },
+      "key": {
+        "calls": 10,
+        "total": 203,
+        "max": 34
+      },
+      "publish": {
+        "calls": 1,
+        "total": 2,
+        "max": 2
+      },
+      "draw": {
+        "calls": 11,
+        "total": 156,
+        "max": 48
+      },
+      "object": {
+        "calls": 10,
+        "total": 459,
+        "max": 70
+      },
+      "packed": {
+        "calls": 1,
+        "total": 18,
+        "max": 18
+      },
+      "betweenChecks": {
+        "calls": 178,
+        "total": 773,
+        "max": 76
+      }
+    },
+    "save_policy": "production literal inside DEVICE_TEST -> deep diagnostic export, unlike prior baseline production-profile literal. Whole-phase comparisons are exploratory until matched-policy repeat.",
+    "keeper_handoff": {
+      "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+      "keeper": "/Games/Calibration.pdx",
+      "no_new_logs": true,
+      "ok": true,
+      "screen": "Not directly observed; pdutil run acknowledged"
+    },
+    "phases_wall_ms": {
+      "input_ready_boot": 14551,
+      "Continue": 4397,
+      "Save_deep_diagnostic": 8624,
+      "doors": [
+        6343,
+        2941,
+        2026,
+        2531,
+        6088,
+        2295
+      ]
+    },
+    "files": {
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-clean-device-hardware-20261101-01/serial.raw": "8c741adc4fede52abf4f9dbccff3b9423f3cd3490774e52dc47aec25ab0dd18f",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-clean-device-hardware-20261101-01/outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-clean-device-hardware-20261101-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+    },
+    "next": "Matched production-profile literal, fresh identity and exact16MiB safety, same six inputs on the preserved clean layout. No Source adoption yet."
   }
 }
