@@ -291,6 +291,38 @@ function DoorCensus.install()
         -- switchZone/Overworld/WorldView/Player/provider ownership and real actors.
         -- No movement or collision flag is changed; overlays are never dismissed.
         GameBootstrap.withLoading("census.fixture", function()
+            -- Fresh entry constructs actors at their source homes. Select an
+            -- unoccupied approach before creating the player, using the same
+            -- descriptor visibility policy as ordinary actor validation.
+            local descriptor = SourceActors.describe(item.source_id, WorldDeltas.export(), game)
+            if descriptor then
+                local flags = game.session:flags()
+                row.excluded_approaches = {}
+                approach = nil
+                for _, candidate in ipairs(item.approaches) do
+                    if not candidate.geometry_gap then
+                        local occupied
+                        for _, actor in ipairs(descriptor.actors) do
+                            if actor.x == candidate.x and actor.y == candidate.y
+                                and WorldMotionData.visible(actor, flags) then
+                                occupied = actor.id
+                                break
+                            end
+                        end
+                        if occupied then
+                            row.excluded_approaches[#row.excluded_approaches + 1] = {
+                                x = candidate.x, y = candidate.y, actor = occupied,
+                            }
+                        else
+                            approach = candidate
+                            break
+                        end
+                    end
+                end
+                if not approach then
+                    return
+                end
+            end
             if item.source_id == "pokered:ROCK_TUNNEL_B1F"
                 and not FieldWorld.eligibleDarkMap(currentZone.stableID) then
                 local firstFloor = SourceMaps.entry("RockTunnel1F")
@@ -302,6 +334,10 @@ function DoorCensus.install()
             game.machine:change("overworld", {entry={x=approach.x, y=approach.y,
                 facing=approach.direction}})
         end)
+        if not approach then
+            finish("gap", "no unoccupied source approach under current actor visibility")
+            return
+        end
         phase, age = "arm", 0
     end
 

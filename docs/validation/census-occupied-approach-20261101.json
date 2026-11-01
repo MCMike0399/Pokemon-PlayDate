@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "kind": "Private diagnostic fixture correction, not a production gameplay fix",
+  "stopped_master": {
+    "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-full-20261101-01",
+    "session_id": 75681,
+    "terminal_exit": 1,
+    "completed_batches": 66,
+    "closed_reported_trials": 1056,
+    "first_failed_batch": 67,
+    "first_error": "domain/worldMotion.lua:63: actor overlaps candidate player",
+    "note": "Old generic host message says production guard; retained error is actor overlap, not9MiB memory. All old reports untouched."
+  },
+  "feedback_loop": [
+    {
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/census-mtmoon-approach-red-20261101-01",
+      "result_sha256": "a02899dc6d2111ec77fc2a4ff998f6aafbfc19719389c5969b68012d6a99b91b",
+      "build_id": "bbc3c6bff59c4f8a9b5edd858e6c482e",
+      "counts": {
+        "failure": 1,
+        "not_run": 1
+      },
+      "failure": "production guard stopped the census; inspect BootTrace",
+      "owned_child_reaped": true
+    },
+    {
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/census-mtmoon-approach-green-20261101-01",
+      "result_sha256": "86a93fa97ec0c7eedd1eb860dc53de2a66df1f46b2a86fe1b238ad92fd735285",
+      "build_id": "d851a920850541d88cc7fa89b0876504",
+      "counts": {
+        "measured": 2
+      },
+      "failure": null,
+      "owned_child_reaped": true
+    },
+    {
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/census-mtmoon-original-batch-green-20261101-01",
+      "result_sha256": "ac7d432fe76f4c04162071f110d62aebe41df2e1aea8306c23cfc24ace3f9175",
+      "build_id": "13dbd61298134b2d86591325237225d5",
+      "counts": {
+        "measured": 16
+      },
+      "failure": null,
+      "owned_child_reaped": true
+    }
+  ],
+  "cause": "First geometry-valid MtMoon1F warp3 approach5,6 overlaps stationary source actor1 at5,6. Fresh one-case replay reproduces it, excluding long-session retention as a necessary cause.",
+  "correction": "Inside unmeasured loading setup, use existing SourceActors descriptor and WorldMotionData visibility to choose an unoccupied source-home approach. NPC/flags/collision/production validators unchanged. Both actual trials choose5,4 and traverse. Unexpected later setup errors still stop, never become gaps.",
+  "production_source_equal_across_red_and_green": true,
+  "source_revision": "10cb9572f8db3979fd7d3b1ddf517277008b4eeb",
+  "host_checks": 21,
+  "runtime_guard_changes": false,
+  "scope": "Real SDK3.1.2,16MiB pool, same9MiB Lua/1GiB host guards. Two isolated corrected traversals plus16 original-batch traversals pass; no full-census, continuous traversal, hardware or device playability acceptance.",
+  "remaining": "After resource headroom recovery, resume untouched cases with a new frozen observer epoch and preserve previous batch evidence; do not rewrite failed data or silently combine duplicates."
+}

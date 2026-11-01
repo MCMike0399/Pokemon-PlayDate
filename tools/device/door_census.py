@@ -608,7 +608,7 @@ def execute(project, sdk, output, metadata, timeout, locks_held=False, history_h
                                     chunk = source_trace.read(65536)
                                     trace_offset = source_trace.tell()
                                 if '\terror.' in trace_tail + chunk:
-                                    raise RuntimeError('production guard stopped the census; inspect BootTrace')
+                                    raise RuntimeError('production safe error stopped the census; inspect first failure and BootTrace')
                                 trace_tail = chunk[-32:]
                             time.sleep(.05)
                         done = json.loads((data / 'door-census-done.json').read_text())

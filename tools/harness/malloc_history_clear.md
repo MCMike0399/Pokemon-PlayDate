@@ -93,6 +93,10 @@ the host's existing validation tolerance is unchanged. Original producer failure
 is retained independently if later evidence parsing also fails.
 Unexpected setup exceptions and production safe errors terminate the census;
 they cannot become ordinary gaps followed by more work in damaged state.
+Fresh source entry chooses an approach outside visible actor source homes using
+the existing SourceActors descriptor and WorldMotionData visibility policy.
+It does not hide/move actors or alter flags/collision. Unexpected setup failures
+still stop; a lack of unoccupied approaches remains an explicit coverage gap.
 RockTunnelB1F setup first enters1F through the normal field owner. No field
 offset, story flag, collision or resource is fabricated. Cache residency remains
 the actual pre-input state; first trials are not automatically called cold.
