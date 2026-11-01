@@ -90,21 +90,20 @@ AX automation nor substitutes a flag for qualification. Keep the existing
 `--root-gates-verified` is Root's explicit assertion that these prerequisites
 already passed, not a permission or verification mechanism.
 
-The current code gates even `--preflight-only` on the same broad assertion.
-A three-second recorder label is not three seconds of total process residence:
-startup, strict Continue and cleanup occur outside it, under the unchanged
-1 GiB/30 minute host guard and 16 MiB pool. Root may assess a genuine bounded
-preflight separately from the full-capture hold, but cannot truthfully pass
-`--root-gates-verified` merely to bypass this gate. If the historical gate is
-inapplicable, Root needs a narrowly reviewed admission change before executing;
-no preflight-specific bypass is introduced here. The old flag continues to mean
-actual AX/Clear/reclamation verification and hold release. None is claimed.
+The three-second `--preflight-only` mode has a separate bounded admission:
+Root execution, the exact 16 MiB preflight, all source/save/owner checks, a
+90-second process residence cap and the unchanged 1 GiB physical-footprint
+ceiling. Missing footprint reads fail closed. It does not clear history, use AX,
+qualify a long run or release the full-capture hold. No game/story/battle effects
+are selected. Full capture still requires `--root-gates-verified` with the
+original meaning. Startup/Continue/cleanup remain part of preflight runtime;
+only the captured label is three seconds.
 
-After Root resolves that admission condition, capture a 2–3 second preflight
+Under that bounded admission, capture a 2–3 second preflight
 before battle/story effects:
 
 ```sh
-python "$SHOWCASE_PACKET/record.py" --execute-root-owned --root-gates-verified \
+python "$SHOWCASE_PACKET/record.py" --execute-root-owned \
   --preflight-only --output "$POKEMON_ENV/evidence/showcase-5.5b-preflight-ROOT-01"
 python "$SHOWCASE_PACKET/export.py" \
   "$POKEMON_ENV/evidence/showcase-5.5b-preflight-ROOT-01" \

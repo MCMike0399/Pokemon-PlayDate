@@ -89,7 +89,7 @@ def main():
         return
     if (not args.execute_root_owned and not args.compile_only) or args.output is None:
         ap.error('Recording requires --execute-root-owned and a new --output; root alone executes it.')
-    if not args.compile_only and not args.root_gates_verified:
+    if not args.compile_only and not args.preflight_only and not args.root_gates_verified:
         ap.error('Root must verify Accessibility, exact Clear/reclamation and release the long-run hold first')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
@@ -101,6 +101,7 @@ def main():
     guard_stop = threading.Event()
     guard_errors = []
     guard_thread = None
+    runtime_seconds = 90 if args.preflight_only else 1800
     runtime_lock = contextlib.nullcontext() if args.compile_only else OwnerLock(runner.runtime_lock_path(sdk))
     device_lock = contextlib.nullcontext() if args.compile_only else OwnerLock(runner.device_lock_path())
     with runtime_lock, device_lock:
@@ -119,7 +120,10 @@ def main():
         metadata['showcase'] = dict(recipe=str(HERE), capture_overlay_sha256=sha(overlay),
             source_revision=metadata['revision'], recipe_provenance_sha256=sha(HERE / 'provenance.json'),
             classification='earned-state input replay; not a new campaign or performance acceptance',
-            audio='silent; audio activation not claimed', timing='captured SDK wall timestamps; no speedup')
+            audio='silent; audio activation not claimed', timing='captured SDK wall timestamps; no speedup',
+            host_guard=dict(maximum_bytes=1024**3, maximum_seconds=runtime_seconds,
+                admission='bounded three-second capture preflight; no long-run or Clear qualification'
+                    if args.preflight_only else 'Root verified long-run prerequisites'))
         with (output / 'capture-build.log').open('w') as log:
             subprocess.run([str(sdk / 'bin/pdc'), str(output / 'Source'), metadata['bundle']],
                            stdout=log, stderr=subprocess.STDOUT, check=True)
@@ -150,8 +154,8 @@ def main():
                                 amount = footprint.process_footprint(process.pid)
                                 with (output / 'host-footprint.jsonl').open('a') as log:
                                     log.write(json.dumps(dict(seconds=time.monotonic()-started, bytes=amount)) + '\n')
-                                if amount > 1024**3 or time.monotonic()-started > 1800:
-                                    raise RuntimeError('1 GiB footprint or 30 minute showcase deadline exceeded')
+                                if amount > 1024**3 or time.monotonic()-started > runtime_seconds:
+                                    raise RuntimeError('1 GiB footprint or bounded showcase deadline exceeded')
                         except BaseException as error:
                             guard_errors.append(str(error))
                             os.kill(os.getpid(), signal.SIGINT)  # Main finally stops only its owned child.
