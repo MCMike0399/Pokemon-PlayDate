@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "status": "host-checked-sdk-compiled-not-executed",
+  "base": "10cb9572f8db3979fd7d3b1ddf517277008b4eeb",
+  "synchronization_commit": "04f38874f27e1a7f4b0a49fd3459317366503526",
+  "implementation_commit": "36073a1bba0c5c9e6c3ec4b81cad130909018220",
+  "synchronization_tree_equals_base": true,
+  "host_tests": 41,
+  "native_cases_compiled_not_executed": [
+    "HM ordinary Cut Strength Surf resolve real damage PP and RNG",
+    "HM Flash changes actual accuracy with one attempt roll and PP",
+    "HM ordinary accuracy misses consume PP without damage or effect RNG",
+    "HM Normal immunity and Flash Keen Eye keep ordinary gates",
+    "HM Surf Water Absorb heals and consumes no accuracy or damage RNG",
+    "HM Protect blocks each ordinary HM before accuracy damage and contact",
+    "HM Fly charges then automatic release consumes PP once",
+    "HM contact Cut Strength Fly reach existing Effect Spore; Surf does not",
+    "HM Fly zero PP and forgotten slot still release stored identity",
+    "HM Fly Protect on release clears charge without accuracy or second PP",
+    "HM Fly remains airborne before its slower release action",
+    "HM Fly public locked command rejections preserve RNG and PP",
+    "HM Fly blocks ordinary Swift Flash Surf and Whirlwind while airborne",
+    "HM Fly permits existing Gust Twister Thunder Hurricane Sky Uppercut",
+    "HM Fly doubles final Gust Twister damage with actual attack resolution",
+    "HM Fly Gust and Light Screen cancel without intermediate rounding loss",
+    "HM Fly No Guard on either battler allows an ordinary attack",
+    "HM Fly first-turn sleep prevents PP charge and airborne state",
+    "HM Fly release sleep freeze flinch confusion and paralysis clear airborne lock",
+    "HM Fly release miss clears charge and spends only accuracy RNG",
+    "HM Fly enemy continuation has no second AI choice or PP spend",
+    "HM Fly release targets opposing replacement slot after real self KO",
+    "HM Fly actual No Guard Roar withdrawal clears outgoing receipt",
+    "HM Fly actual Gust KO clears charge before forced replacement",
+    "HM Fly faint forced replacement and battle cleanup discard transient state"
+  ],
+  "evidence_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hm-battle-preparation-20261101-01",
+  "core_rows": 425,
+  "producer_epoch": 15,
+  "core_moves_sha256": "c50a7eec61720145ae211d6d6263990c3effd760a271fbd8e01db0f193568b29",
+  "original424_inverse_sha256": "ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea",
+  "owned_sha256": {
+    "Source/battle/battle.lua": "672c30ad2007795664c26ad304083d440fd99485947c0f70ed02505814f06d81",
+    "Source/battle/conditions.lua": "17bdf013881c1c063c60922b31ae1f5b25059f4286357bc779d9468951f859f7",
+    "Source/battle/effects.lua": "eec73758f80b7b9a0d4f3050570dc9e66e075f66c701e365d616aa5483e09c9c",
+    "Source/data/fieldMoveBattleData.lua": "3a74e339434964cbf04882f421092bf74aeef2517bea4b4fddfc0e7b1dbdd6a2",
+    "Source/dev/fieldMoveContracts.lua": "2718e4859449011b385fdad20feb03cb6520ec36832ca33e87c7eacf619e588a",
+    "Source/dev/hmBattleContracts.lua": "91e51a836fdb60405cba0fc76fceda450698c94a853018fc25071290a5c52e4a",
+    "tools/generate_field_moves.py": "35067d15c8000b95eada4d3382865aae20f4bbfb7938264c438b7d583e8bd0f4",
+    "tools/integration/hm-battle/root-hooks.patch": "00923a3cdd8d320827116f264bd81185753968869ecbf90984ba6874a12a7fa5",
+    "tools/tests/test_field_move_data.py": "8d4e799ddf3de8cdb61614f84a8d09d7d713c90afb074010d541665399b46c15"
+  },
+  "oracle": {
+    "revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+    "source_sha256": {
+      "data/moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+      "data/mods/gen8/moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+      "data/mods/gen7/moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+      "data/mods/gen6/moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+      "data/mods/gen5/moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010"
+    }
+  },
+  "production": {
+    "mode": "production",
+    "source_sha256": "e587e36f2d14f7ac28c25c08a09406ff563208bf62ca1cf1c7ce80c21047a036",
+    "sdk_version": "3.1.2",
+    "bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hm-battle-preparation-20261101-01/Production.pdx",
+    "excluded": [
+      "Source/dev"
+    ]
+  },
+  "harness": {
+    "bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hm-battle-preparation-20261101-01/harness-stage/Harness.pdx",
+    "compiled_source_sha256": "bb01ed307ff1689943abad1e4894252beb8555d017daa3c17b40910240a6eca7",
+    "revision": "36073a1bba0c5c9e6c3ec4b81cad130909018220",
+    "sdk_version": "3.1.2",
+    "session_id": "7268a6e3-acba-43d2-b8c1-8bf01d815671",
+    "source_sha256": "8da59fc5a65fde32d8721ae506c63014328fac64c5796467c6692b06e05871a4"
+  },
+  "limitations": [
+    "Singles only; no doubles spread or ally targets.",
+    "Dive producer remains unsupported: no underwater state or Surf-versus-Dive bonus is claimed.",
+    "Smack Down, Gravity, Lock-On, Mind Reader and Substitute remain declared gaps.",
+    "No new ability or held-item producer; Storm Drain and Power Herb are not certified.",
+    "No Simulator, device, acceptance, performance, campaign or full-suite execution claim."
+  ]
+}
