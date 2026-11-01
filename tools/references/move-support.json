@@ -454,7 +454,7 @@
       "handler": "standard-damage"
     },
     "rest": {
-      "gap": "onTry, onHit"
+      "handler": "engine-dsl"
     },
     "rockSlide": {
       "handler": "standard-damage"
@@ -490,7 +490,7 @@
       "handler": "standard-damage"
     },
     "snore": {
-      "gap": "onTry"
+      "handler": "engine-dsl"
     },
     "curse": {
       "handler": "engine-dsl"
@@ -538,7 +538,7 @@
       "handler": "standard-damage"
     },
     "foresight": {
-      "gap": "volatileStatus, onTryHit"
+      "handler": "engine-dsl"
     },
     "destinyBond": {
       "gap": "volatileStatus, onPrepareHit"
@@ -736,13 +736,13 @@
       "gap": "onHit"
     },
     "revenge": {
-      "gap": "basePowerCallback"
+      "handler": "standard-damage"
     },
     "brickBreak": {
       "gap": "onTryHit"
     },
     "yawn": {
-      "gap": "volatileStatus, onTryHit"
+      "handler": "engine-dsl"
     },
     "knockOff": {
       "gap": "onAfterHit"
@@ -1293,6 +1293,7 @@
     "blizzard": "Hail has no current producer; Hail accuracy remains pending with Hail.",
     "flameBurst": "Singles damage only; adjacent ally splash is doubles-only.",
     "haze": "Gen V all-active stage reset only. Substitute remains unsupported; Haze bypasses it in the pinned oracle.",
-    "clearSmog": "Primary defender reset after a body hit, including lethal hits. Substitute remains unsupported; enabling it requires primary-hit routing (absorbed or broken Substitute blocks reset). A fail-closed activation interlock prevents silent adoption."
+    "clearSmog": "Primary defender reset after a body hit, including lethal hits. Substitute remains unsupported; enabling it requires primary-hit routing (absorbed or broken Substitute blocks reset). A fail-closed activation interlock prevents silent adoption.",
+    "earned-b-v17": "Ordinary singles only. Existing absent Substitute/Uproar/Miracle Eye/Baton Pass, terrain, item and ability producers are not supplied or certified. Rest uses the existing sleep counter representation (two blocked actions); Early Bird remains absent. Snore retains the existing sound/secondary owners. No native acceptance."
   }
 }

@@ -42,6 +42,28 @@ function BattleConditions:odorSleuth()
     b:say(target.name .. " was identified!")
     return true
 end
+function BattleConditions:yawn()
+    local b = self.battle
+    local target = b.defender
+    local state = self:of(target)
+    if target.status or state.yawn then
+        b:say("But it failed!")
+        return false
+    end
+    local immunity = b.effects:statusImmunity(target, "sleep")
+    if immunity then
+        b:say(target.name .. " is protected by " .. immunity .. "!")
+        return false
+    end
+    local origin = self:statusOrigin(b.attacker, "move")
+    if self:preventsStatus(target, "sleep", origin) then
+        b:say(target.name .. " is protected by Safeguard!")
+        return false
+    end
+    state.yawn = {turns=2, source=b.attacker}
+    b:say(target.name .. " grew drowsy!")
+    return true
+end
 -- Showdown 9b136a8 gen5 overrides onHit: cure the whole living team,
 -- including reserves, and succeed even when there is no status to cure.
 -- Its Sap Sipper/Soundproof ally-side hooks are explicitly removed in gen5.
@@ -530,6 +552,9 @@ function BattleConditions:events()
         local function add(kind,order) events[#events+1]={side=side,pokemon=mon,kind=kind,order=order} end
         if alive(mon) then
             if state.roost then events[#events+1]={side=side,pokemon=mon,kind="roostEnd",order=25,record=state.roost} end
+            if state.yawn then
+                events[#events+1] = {side=side, pokemon=mon, kind="yawn", order=23, record=state.yawn}
+            end
             if state.disable then add("disable",17) end
             if state.encore then add("encore",16) end
             if state.seed then add("seed",8) end
@@ -568,7 +593,18 @@ function BattleConditions:residual(event)
     end
     local mon=event.pokemon;local state=self:of(mon)
     if not alive(mon) then return end
-    if event.kind == "encore" and state.encore then
+    if event.kind == "yawn" then
+        if state.yawn ~= event.record or event.consumed then return end
+        event.consumed = true
+        local record = state.yawn
+        record.turns = record.turns - 1
+        if record.turns == 0 then
+            state.yawn = nil
+            local recipient = {resolve=function() return mon end}
+            local source = {resolve=function() return record.source end}
+            ApplyStatus(recipient, "sleep", {source=source, cause="yawn"}):apply(b)
+        end
+    elseif event.kind == "encore" and state.encore then
         state.encore.turns = state.encore.turns - 1
         local key = self:encoreKey(mon)
         if state.encore.turns == 0 or not key or not mon:hasPP(key) then

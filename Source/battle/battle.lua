@@ -1025,10 +1025,11 @@ function Battle:resolveTurn(turn)
         if attacker.statusTurns > 0 then
             attacker.statusTurns = attacker.statusTurns - 1
             self:say(attacker.name .. " is fast asleep!")
-            return interrupted()
+            if turn.move.attemptRule ~= "snore" then return interrupted() end
+        else
+            attacker.status, attacker.statusTurns, attacker.sleepDuration = nil, 0, 0
+            self:say(attacker.name .. " woke up!")
         end
-        attacker.status, attacker.statusTurns, attacker.sleepDuration = nil, 0, 0
-        self:say(attacker.name .. " woke up!")
     elseif attacker.status == "freeze" then
         if RulesRNG.random(1, 5) == 1 then
             attacker.status = nil
@@ -1204,6 +1205,12 @@ function Battle:performMove(move)
     self:say(attacker.name .. " used " .. move.name .. "!")
     self:present("move", {moveType = move.type, side = self.attackerSide})
     if magnitude then self:say("Magnitude " .. magnitude .. "!") end
+    -- Snore's TryMove runs after waking/PP, before target and hit gates.
+    if move.attemptRule == "snore" and attacker.status ~= "sleep" then
+        self:say("But it failed!")
+        self.conditions:moveFinished(move, false)
+        return nil
+    end
     if handler == "wild-escape" then
         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
         -- zero, no selfSwitch, trainer failure even with a usable reserve.

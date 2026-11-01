@@ -1,0 +1,11 @@
+--- a/tools/harness/dev_imports.lua
++++ b/tools/harness/dev_imports.lua
+@@ -142,6 +142,8 @@
+ Contracts.register("sides",SideContracts.run)
+ import "dev/stageResetContracts"
+ Contracts.register("stage-reset", StageResetContracts.run)
++import "dev/earnedBMoveContracts"
++Contracts.register("earned-b-moves", EarnedBMoveContracts.run)
+ import "dev/roostContracts"
+ Contracts.register("roost",RoostContracts.run)
+ import "dev/roostPredicateContracts"

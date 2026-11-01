@@ -64,14 +64,21 @@ class SideProducerTests(unittest.TestCase):
             mutant = reflect.replace('SideConditionEffect("reflect")', 'NoEffect()')
             self.assertFalse(c.compatible('reflect', mutant, reflect, semantics['reflect'], epoch=epoch))
         # Genuine epoch13 and14 projections: no silently relabelled Reflect14 export.
+        # Construct the genuine old export: remove later payloads/rules first.
         historical = dict(rows, reflect=before)
+        for key in ('snore', 'revenge'):
+            historical[key] = c.drop_fields(historical[key], c.RULE_FIELDS)
+        for key in ('haze', 'clearSmog', 'rest', 'yawn', 'foresight'):
+            historical[key] = c.split_payload(historical[key])[0] + ' },'
+        epoch15 = dict(historical, reflect=reflect)
         legacy14 = c.legacy_rows(historical, 14)
         historical['chipAway'] = old
         self.assertEqual(c.legacy_rows(historical, 13), legacy14)
-        self.assertEqual(c.legacy_rows(rows, 15), legacy14)
+        self.assertEqual(c.legacy_rows(epoch15, 15), legacy14)
+        self.assertEqual(c.legacy_rows(rows, 17), legacy14)
 
     def test_explicit_current_epoch_keeps_original424_inverse_hash(self):
-        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,15)
+        text=(ROOT/'Source/battle/moves.lua').read_text();rows=c.read_rows(text);epoch=c.producer_epoch(text);self.assertEqual(epoch,17)
         self.assertEqual(c.digest(json.dumps(c.legacy_rows(rows,epoch),sort_keys=True,separators=(',',':')).encode()),'ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea')
         for key in KEYS:
             changed=dict(rows);changed[key]=rows[key].replace('SideConditionEffect("'+key+'")','NoEffect()')

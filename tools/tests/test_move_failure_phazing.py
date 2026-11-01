@@ -65,11 +65,18 @@ class MoveFailurePhazingTests(unittest.TestCase):
         keys = ('dig', 'razorWind', 'furyCutter', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
                 'selfDestruct', 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
-                'haze', 'rest', 'substitute', 'transform', 'metronome',
+                'substitute', 'transform', 'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
         for key in keys:
             with self.subTest(move=key):
                 self.assertTrue(self.inventory['moves'][key]['gap'])
+
+    def test_new_concrete_status_handlers_require_their_owned_payloads(self):
+        for key, effect in [('haze', 'ResetStatStagesEffect'), ('rest', 'RestEffect'),
+                            ('yawn', 'YawnEffect'), ('foresight', 'ForesightEffect')]:
+            with self.subTest(move=key):
+                self.assertEqual(self.inventory['moves'][key], {'handler': 'engine-dsl'})
+                self.assertIn(effect, self.rows[key])
 
     def test_explicit_existing_handlers_are_not_mistaken_for_empty_effects(self):
         # These rules intentionally have no generic effects array or zero power.

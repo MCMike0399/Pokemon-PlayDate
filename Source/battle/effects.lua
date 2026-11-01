@@ -148,7 +148,7 @@ end
 -- One logical round, retained while the production script yields for learning.
 -- Identity keys prevent a replacement from inheriting the outgoing action/damage.
 function BattleEffects:beginRound(turns)
-    local round={pending={},damaged={}}
+    local round={pending={},damaged={},attackedBy={}}
     for _,turn in ipairs(turns or {}) do
         local mon=turn.actor
         assert(mon and mon==self.battle[turn.side],"actual pending actor required")
@@ -256,6 +256,10 @@ function BattleEffects:movePower(move,power,attacker,defender)
         return ({[0]=40,60,80,120,150})[math.min(4,ratio)]
     end
     if move.powerRule=="assurance" and self:damagedThisRound(defender) then return power*2 end
+    if move.powerRule == "revenge" then
+        local attacks = self.round and self.round.attackedBy[attacker]
+        if attacks and attacks[defender] then return power * 2 end
+    end
     return power
 end
 -- Canonical GenV query seam. Only Sand has a current producer; other IDs
@@ -453,6 +457,14 @@ function BattleEffects:hit(source,target,move,amount,hitNumber)
     local receipt={source=source,target=target,move=move,before=before,removed=before-target.hp,endured=endured,
         cause=cause,contact=move~=nil and move.contact==true,hit=hitNumber or 1}
     if move and move.category~="status" then self.battle.conditions:bideHit(target,source,receipt.removed) end
+    -- Revenge observes only opposing move HP loss, not residuals, recoil or
+    -- confusion. Receipts share the existing logical-round and identity owner.
+    if self.round and move and move.category ~= "status" and receipt.removed > 0
+        and source ~= target and self:active(source) and self:active(target) then
+        local attacks = self.round.attackedBy[target] or {}
+        attacks[source] = true
+        self.round.attackedBy[target] = attacks
+    end
     self.receipts[receipt]=true
     return receipt
 end
@@ -554,6 +566,10 @@ function BattleEffects:clear(mon)
     self.ordinaryAbilities:clear(mon)
     self.abilityOverrides[mon]=nil
     if self.round then self.round.pending[mon]=nil;self.round.damaged[mon]=nil end
+    if self.round then
+        self.round.attackedBy[mon] = nil
+        for _, attacks in pairs(self.round.attackedBy) do attacks[mon] = nil end
+    end
     for receipt in pairs(self.receipts) do if receipt.source==mon or receipt.target==mon then self.receipts[receipt]=nil end end
 end
 function BattleEffects:close()
