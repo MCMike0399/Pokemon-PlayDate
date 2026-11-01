@@ -140,3 +140,10 @@ Literal owner-body equality, fresh SDK descriptor/roster exports,31 host and7
 native checks pass; exact composed safety52.386ms/8.76MiBpeak is admitted.
 Strict live target remains failed; final owner hardware timing and B visual
 acceptance remain open. [Integration](loading-field-cache-integration-20261101.json).
+
+Physical activation profile completes six recorded door entries, matching all
+route boundaries; no new logs, keeper restored. Fuchsia5879ms, Route175542ms.
+Actor descriptors are built three times (2039/2570ms inclusive); capture totals
+overlap those times. Empty actor normalization discards one eagerly built
+descriptor: next targeted candidate, no gain claimed. Worst-eight and B visual
+gates remain. [Attribution](door-activation-attribution-20261101.json).
