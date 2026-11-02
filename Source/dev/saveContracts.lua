@@ -443,6 +443,232 @@ function SaveContracts.run()
         eq(store:load(), nil)
         eq(calls, 5) -- Rejected disk bytes never enter the cache.
     end)
+    test("custom owner publisher keeps mutable callback inspection without SAVE opt-in", function()
+        local _, paths, prefix = fixture("owner-save-dynamic-default")
+        local accept, calls = true, 0
+        local _, publish = SaveStore.ownerExportStore(prefix, function(data)
+            calls = calls + 1
+            return accept and validate(data)
+        end, fs)
+        assert(publish(payload(1)))
+        local committed = assert(fs.read(paths.a))
+        accept = false -- Same closure, no epoch setter needed for default publisher.
+        local ok, metadata = publish(payload(2))
+        eq(ok, false)
+        eq(metadata.reason, "recovery-required")
+        eq(calls, 1)
+        eq(fs.read(paths.a), committed)
+    end)
+    test("owner SAVE reuse rotates detached publications without granting LOAD proof", function()
+        local _, paths, prefix = fixture("owner-save-reuse")
+        local calls = 0
+        local store, publish = SaveStore.ownerExportStore(prefix, function(data)
+            calls = calls + 1
+            return validate(data)
+        end, fs, "session-owner-dependencies-v1")
+        for revision = 1, 4 do
+            local exported = payload(revision)
+            local ok, metadata, boundary = publish(exported)
+            assert(ok)
+            eq(metadata.sequence, revision)
+            eq(boundary.revision, revision)
+            exported.revision = 999
+            boundary.revision = 777 -- Observer/caller cannot poison private proof.
+            eq(calls, 0)
+        end
+        eq(json.decode(assert(fs.read(paths.a))).sequence, "3")
+        eq(json.decode(assert(fs.read(paths.b))).sequence, "4")
+        eq(assert(store:load()).revision, 4)
+        eq(calls, 2) -- Each slot still needs its first full disk validation.
+        eq(assert(store:load()).revision, 4)
+        eq(calls, 2)
+    end)
+    test("owner SAVE requires exact bytes and never trusts another instance", function()
+        local _, paths, prefix = fixture("owner-save-identity")
+        local calls = 0
+        local function counted(data)
+            calls = calls + 1
+            return validate(data)
+        end
+        local store, publish = SaveStore.ownerExportStore(prefix, counted, fs, "session-owner-dependencies-v1")
+        assert(publish(payload(1)))
+        local envelope = json.decode(assert(fs.read(paths.a)))
+        local changed = json.decode(envelope.payload)
+        changed.revision = 9 -- Same sequence, independently valid checksum.
+        envelope.payload = json.encode(changed)
+        envelope.checksum = SaveStore._boundChecksum(envelope.schema, envelope.sequence, envelope.payload)
+        assert(fs.write(paths.a, json.encode(envelope)))
+        assert(publish(payload(2)))
+        eq(calls, 1)
+        local _, foreignPublish = SaveStore.ownerExportStore(prefix, counted, fs, "session-owner-dependencies-v1")
+        assert(foreignPublish(payload(3)))
+        eq(calls, 3) -- No cross-instance publication authority.
+        eq(assert(store:load()).revision, 3)
+        eq(calls, 5) -- a changed; b has never had disk validation here.
+    end)
+    test("owner SAVE epoch reset and dynamic callbacks remain strict", function()
+        local _, paths, prefix = fixture("owner-save-epoch")
+        local calls, accept, retained = 0, true, nil
+        local store, publish = SaveStore.ownerExportStore(prefix, function(data)
+            calls = calls + 1
+            if retained then retained.revision = 999 end
+            retained = data
+            return accept and validate(data)
+        end, fs, "session-owner-dependencies-v1")
+        assert(publish(payload(1)))
+        -- Even resetting the same label revokes every prior proof.
+        store:setValidationEpoch("session-owner-dependencies-v1")
+        assert(publish(payload(2)))
+        eq(calls, 1)
+        local before = {a=assert(fs.read(paths.a)), b=assert(fs.read(paths.b))}
+        -- A closure's identity is unchanged while its acceptance changes.
+        store:setValidationEpoch(nil)
+        accept = false
+        local ok = publish(payload(3))
+        eq(ok, false)
+        eq(calls, 3)
+        unchanged(paths, before)
+        accept = true
+        assert(publish(payload(3)))
+        eq(calls, 5)
+        eq(assert(store:load()).revision, 3)
+        eq(calls, 7)
+    end)
+    test("public SAVE and replaced validator revoke owner publication reuse", function()
+        local _, _, prefix = fixture("owner-save-public")
+        local calls = 0
+        local function counted(data)
+            calls = calls + 1
+            return validate(data)
+        end
+        local store, publish = SaveStore.ownerExportStore(prefix, counted, fs, "session-owner-dependencies-v1")
+        assert(publish(payload(1)))
+        assert(store:save(payload(2)))
+        eq(calls, 4) -- Inspection, envelope and both public readbacks.
+        assert(publish(payload(3)))
+        eq(calls, 5) -- Public b publication was not SAVE proof.
+        store._validate = function(data)
+            calls = calls + 1
+            return validate(data)
+        end
+        assert(publish(payload(4)))
+        eq(calls, 7) -- Replaced callback invalidates both cache kinds.
+    end)
+    test("owner SAVE faults revoke reuse and preserve pending candidate recovery", function()
+        for _, fault in ipairs({"write", "rename", "read"}) do
+            local _, paths, prefix = fixture("owner-save-fault-" .. fault)
+            local armed, calls = false, 0
+            local adapter = wrapped({
+                write = function(path, bytes)
+                    if armed and fault == "write" then return false, "injected write" end
+                    return fs.write(path, bytes)
+                end,
+                rename = function(from, to)
+                    if armed and fault == "rename" then return false, "injected rename" end
+                    return fs.rename(from, to)
+                end,
+                read = function(path)
+                    if armed and fault == "read" and path == paths.a then return nil, "injected read" end
+                    return fs.read(path)
+                end,
+            })
+            adapter.remove = fs.remove
+            local store, publish = SaveStore.ownerExportStore(prefix, function(data)
+                calls = calls + 1
+                return validate(data)
+            end, adapter, "session-owner-dependencies-v1")
+            assert(publish(payload(1)))
+            local committed = assert(fs.read(paths.a))
+            armed = true
+            local ok = publish(payload(2))
+            eq(ok, false)
+            eq(fs.read(paths.a), committed)
+            armed = false
+            local data, metadata = store:load()
+            eq(data.revision, 1)
+            eq(calls, fault == "rename" and 2 or 1)
+            if fault == "rename" then
+                eq(metadata.pendingCandidate, true)
+                ok, metadata = publish(payload(3))
+                eq(ok, false)
+                eq(metadata.reason, "pending-candidate-recovery-required")
+                assert(store:recover("candidate"))
+                eq(assert(store:load()).revision, 2)
+            else
+                assert(publish(payload(2)))
+                eq(assert(store:load()).revision, 2)
+            end
+        end
+    end)
+    test("failed owner readbacks grant no next SAVE publication proof", function()
+        for _, boundary in ipairs({"candidate", "published"}) do
+            local _, paths, prefix = fixture("owner-readback-" .. boundary)
+            local armed, wrote, promoted, calls = false, false, false, 0
+            local adapter = wrapped({
+                write = function(path, bytes)
+                    if armed then wrote = true end
+                    return fs.write(path, bytes)
+                end,
+                rename = function(from, to)
+                    local ok, problem = fs.rename(from, to)
+                    if armed and ok then promoted = true end
+                    return ok, problem
+                end,
+                read = function(path)
+                    if armed and (boundary == "candidate" and wrote and path == paths.candidate
+                        or boundary == "published" and promoted and path == paths.b) then
+                        return nil, "injected readback failure"
+                    end
+                    return fs.read(path)
+                end,
+            })
+            adapter.remove = fs.remove
+            local store, publish = SaveStore.ownerExportStore(prefix, function(data)
+                calls = calls + 1
+                return validate(data)
+            end, adapter, "session-owner-dependencies-v1")
+            assert(publish(payload(1)))
+            armed = true
+            local ok, metadata = publish(payload(2))
+            eq(ok, false)
+            eq(metadata.reason, boundary == "candidate" and "candidate-verification-failed"
+                or "published-verification-failed")
+            armed = false
+            -- Use the private publisher again: the failed operation revoked a's
+            -- proof too; a published b must validate, a pending candidate blocks.
+            ok, metadata = publish(payload(3))
+            eq(calls, 2)
+            if boundary == "candidate" then
+                eq(ok, false)
+                eq(metadata.reason, "pending-candidate-recovery-required")
+                assert(store:recover("candidate"))
+                eq(assert(store:load()).revision, 2)
+            else
+                assert(ok)
+                eq(metadata.sequence, 3)
+                eq(assert(store:load()).revision, 3)
+            end
+        end
+    end)
+    test("owner SAVE corrupted publication requires archive recovery", function()
+        local _, paths, prefix = fixture("owner-save-corrupt")
+        local store, publish = SaveStore.ownerExportStore(prefix, validate, fs, "session-owner-dependencies-v1")
+        assert(publish(payload(1)))
+        assert(publish(payload(2)))
+        assert(fs.write(paths.b, "{"))
+        local ok, metadata = publish(payload(3))
+        eq(ok, false)
+        eq(metadata.reason, "recovery-required")
+        eq(fs.read(paths.b), "{")
+        assert(store:recover("published"))
+        eq(assert(store:load()).revision, 1)
+        assert(publish(payload(4)))
+        local data
+        data, metadata = store:load()
+        eq(data.revision, 4)
+        eq(metadata.sequence, 3)
+        eq(metadata.backupAvailable, true)
+    end)
     test("sequence cap payload validation callbacks and input isolation",function()
         local base,paths=fixture("sequence")
         local live=payload(1); assert(base:save(live))

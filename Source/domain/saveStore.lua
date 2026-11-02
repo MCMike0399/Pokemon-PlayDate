@@ -46,6 +46,10 @@ local function copy(value)
 end
 local envelopes = setmetatable({}, {__mode="k"})
 local diskRecords = setmetatable({}, {__mode="k"})
+-- SAVE inspection only: exact prior owner publications, detached from every
+-- caller/validator/readback result. Never insert these into diskRecords.
+local ownerPublications = setmetatable({}, {__mode="k"})
+local ownerInspectionEpochs = setmetatable({}, {__mode="k"})
 -- Authority exists only during the synchronous owner-export publication call.
 -- Public save/replace calls never receive this capability.
 local ownerExports = setmetatable({}, {__mode="k"})
@@ -198,6 +202,8 @@ function SaveStore:init(prefix,validate,filesystem)
     assert(type(validate)=="function","payload validator required")
     envelopes[self] = nil
     diskRecords[self] = nil
+    ownerPublications[self] = nil
+    ownerInspectionEpochs[self] = nil
     self._validationEpoch = nil
     self._validationToken = {}
     self._prefix=prefix
@@ -214,6 +220,7 @@ function SaveStore:setValidationEpoch(epoch)
     self._validationToken = {}
     envelopes[self] = nil
     diskRecords[self] = nil
+    ownerPublications[self] = nil
 end
 -- Recheck domain acceptance without decoding/checksumming bytes already proven
 -- in this publication. Dynamic validators still run at each original boundary.
@@ -285,7 +292,7 @@ function SaveStore:_read(path)
     record.bytes=bytes
     return record
 end
-function SaveStore:_inspect()
+function SaveStore:_inspect(ownerSave)
     local raw = {}
     for _, role in ipairs({"a", "b", "candidate"}) do
         local bytes, problem = call(self._fs, "read", self._paths[role])
@@ -294,7 +301,23 @@ function SaveStore:_inspect()
     local artifacts = {}
     for _, role in ipairs({"a", "b", "candidate"}) do
         local observed = raw[role]
-        local record = self:_decode(self._paths[role], observed.bytes, observed.error)
+        local path = self._paths[role]
+        local publications = ownerPublications[self]
+        local proof = publications and publications[path]
+        local matches = proof and observed.error == nil and type(observed.bytes) == "string"
+            and proof.bytes == observed.bytes and self._validationEpoch ~= nil
+            and ownerInspectionEpochs[self] == self._validationEpoch
+            and proof.epoch == self._validationEpoch and proof.token == self._validationToken
+            and proof.validate == self._validate
+        if proof and not matches then
+            publications[path] = nil
+        end
+        local record
+        if ownerSave and ownerExports[self] ~= nil and matches then
+            record = copy(proof.record)
+        else
+            record = self:_decode(path, observed.bytes, observed.error)
+        end
         if record.state == "valid" then
             -- A validator may retain its argument. Never expose or reuse it.
             record = copy(record)
@@ -465,6 +488,18 @@ function SaveStore:_publish(bytes,target,sequence)
         return false,{reason="published-verification-failed",error=published.error}
     end
     if exact~=bytes then return false,{reason="published-bytes-differ"} end
+    if validated and validated.ownerExport and validated.bytes == bytes
+        and validated.sequence == sequence and problem == nil
+        and validated.epoch ~= nil and validated.epoch == self._validationEpoch
+        and ownerInspectionEpochs[self] == validated.epoch
+        and validated.token == self._validationToken and validated.validate == self._validate then
+        local publications = ownerPublications[self] or {}
+        ownerPublications[self] = publications
+        -- Keep only the two published roles. Candidate/recovery/archive bytes
+        -- never acquire SAVE authority, and published.data remains unshared.
+        publications[self._paths[target]] = {bytes=bytes, epoch=validated.epoch,
+            token=validated.token, validate=validated.validate, record=copy(published)}
+    end
     -- Optional third result is a detached snapshot of this verified boundary.
     -- It grants no future load/validation authority and retains no live owners.
     return true,{reason="published",slot=target,sequence=sequence},published.data
@@ -477,7 +512,9 @@ local function targetFor(artifacts,latest)
     return artifacts.a.state=="missing" and "a" or artifacts.b.state=="missing" and "b" or "a"
 end
 function SaveStore:save(data)
-    local artifacts,latest,metadata=self:_inspect()
+    local ownerSave = data ~= nil and ownerExports[self] == data
+    if not ownerSave then ownerPublications[self] = nil end
+    local artifacts,latest,metadata=self:_inspect(ownerSave)
     if metadata.reason=="unsupported-schema" or metadata.reason=="io-error" or metadata.reason=="sequence-conflict" or metadata.reason=="archive-verification-failed" then return false,metadata end
     if metadata.hasCorruption or not latest and metadata.reason~="empty" then metadata.reason="recovery-required"; return false,metadata end
     if metadata.pendingCandidate then metadata.reason="pending-candidate-recovery-required"; return false,metadata end
@@ -488,6 +525,7 @@ function SaveStore:save(data)
     return self:_publish(bytes,targetFor(artifacts,latest),sequence)
 end
 function SaveStore:recover(source)
+    ownerPublications[self] = nil
     if source=="proposal" or source=="backup-published" or source=="backup-candidate" then return self:_restoreArchive(source) end
     if source~="candidate" and source~="published" then return false,{reason="invalid-recovery-source"} end
     local artifacts,latest,metadata=self:_inspect()
@@ -781,6 +819,7 @@ function SaveStore:_replaceSnapshot(data,snapshot,mode)
     return ok,result,published
 end
 function SaveStore:replace(data,ticket)
+    ownerPublications[self] = nil
     local request=tickets[ticket]
     if not request or request.owner~=self then return false,{reason="replacement-not-authorized"} end
     local matches,problem=self:_matches(request.snapshot)
@@ -806,9 +845,14 @@ end
 -- Explicit capability for SessionCodec/GameSaves only. Possessing a store is
 -- insufficient: ordinary store:save(data) still takes every deep boundary.
 -- The caller must export validated owners and keep this closure private.
-function SaveStore.ownerExportStore(prefix, validate, filesystem)
+-- SAVE reuse additionally requires an explicit stable-environment declaration.
+-- Custom/dynamic publishers omit it; callback identity never opts them in.
+function SaveStore.ownerExportStore(prefix, validate, filesystem, saveInspectionEpoch)
     local store = SaveStore(prefix, validate, filesystem)
     store:setValidationEpoch("session-owner-dependencies-v1")
+    assert(saveInspectionEpoch == nil or type(saveInspectionEpoch) == "string",
+        "SAVE inspection epoch must be a string or nil")
+    ownerInspectionEpochs[store] = saveInspectionEpoch
     local function publish(data, ticket)
         assert(ownerExports[store] == nil, "nested-owner-export")
         ownerExports[store] = data
@@ -819,6 +863,9 @@ function SaveStore.ownerExportStore(prefix, validate, filesystem)
             return store:save(data)
         end)
         ownerExports[store] = nil
+        if not ok or accepted ~= true then
+            ownerPublications[store] = nil
+        end
         if not ok then
             error(accepted)
         end

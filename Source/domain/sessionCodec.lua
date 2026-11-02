@@ -229,7 +229,7 @@ function SessionCodec.gameSaveStore(game, prefix)
     end
     local store, publish = SaveStore.ownerExportStore(prefix, function(record)
         return SessionCodec.validate(record, deps)
-    end)
+    end, nil, "session-owner-dependencies-v1")
     local exports = setmetatable({}, {__mode="k"})
     local function capture(callback)
         assert(exportingSession == nil, "nested-session-export")
