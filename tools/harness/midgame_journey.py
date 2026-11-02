@@ -6,6 +6,7 @@ fixture, state setter, artificial reward or free preparation battle is provided.
 import copy
 import hashlib
 import json
+import time
 from pathlib import Path
 
 from tools.harness import cerulean_journey as cj
@@ -671,6 +672,13 @@ class MidgameJourney(vj.VermilionJourney):
         # A final dialogue press can expose the overworld with its field
         # gesture still consumed. Release it before the inherited Save B tap.
         self.send('wait 1')
+        history = getattr(self.client, 'history', None)
+        if self.config['packet'] == '5.5c' and history:
+            from tools.harness.restarting import validate_journey_pause
+            # This is the existing, unacknowledged settled-overworld barrier.
+            # Clear before deep Save work, without allowing a Clear inside UI/IO.
+            validate_journey_pause(history.pause, self.client.read('result.json'))
+            history.clear(time.monotonic() + 18)
         super().save()
         files = []
         for name in ('adventure.a.json', 'adventure.b.json'):
@@ -1406,6 +1414,18 @@ class MidgameJourney(vj.VermilionJourney):
         # B ends at Fuchsia. Reuse walking return legs without replaying B phases.
         if self.state['zone_id'] in {self.zone('FuchsiaPokecenter'), self.zone('FuchsiaCity')}:
             self.return_from_fuchsia_to_route12()
+        # A genuine transit Continue may start partway through the eastern leg.
+        # Reuse its declared cells instead of planning back through Fuchsia.
+        if self.state['zone_id'] == self.zone('Route15'):
+            self.source_waypoint(59, 8)
+            self.cross('right', self.zone('Route14'), (0, 44))
+        if self.state['zone_id'] == self.zone('Route14'):
+            self.source_waypoint(19, 10)
+            self.cross('right', self.zone('Route13'), (0, 10))
+        if self.state['zone_id'] == self.zone('Route13'):
+            self.source_waypoint(51, 0)
+            self.cross('up', self.zone('Route12'), (11, 107))
+        if self.state['zone_id'] == self.zone('Route12'):
             self.return_from_route12_to_lavender()
             # A genuine transit Save can resume this long return leg under the
             # unchanged per-process history budget. It completes no C quest.
