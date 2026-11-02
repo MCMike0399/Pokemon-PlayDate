@@ -1,0 +1,25 @@
+{
+  "classification": "Qualified C production boot followed by enabled private geometry fixtures; not campaign or visual acceptance",
+  "native_case": "source elevators resolve only their recorded floor through the shared map pipeline",
+  "passed": 1,
+  "failed": 0,
+  "variants": {
+    "inert_original_floor_cells": 2,
+    "silph_selected_floors": 11,
+    "silph_selected_exit_resolutions": 22,
+    "scripted_floor_bindings_checked": [
+      "SilphCo3F",
+      "SilphCo5F",
+      "SilphCoElevator"
+    ],
+    "rng_unchanged": true
+  },
+  "actual_module_sha256": "0632548002788ce44997a29e31a9b85ee535b808847b00c16bfe4a88c5a445d0",
+  "fixture_limit": "Existing provider/context scope uses declared NPC placeholders and privately supplied records. Does not prove actual C NPC/visual/campaign behavior.",
+  "files": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-warps-native-20261102-02/build.json": "6538371d8c4cf67faf66362287b509673536a2f27f1b13674b612d2d169bec6b",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-warps-native-20261102-02/run.json": "7dfa6c0880b87fe94b7f11af4ba9da93d7ee4a11e181a0fbe80a67c347a8e1b4",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-warps-native-20261102-02/startup-probe.json": "61f029bbfa7b85b97c7aacf30a39dae635ac6625a444442a5a3b2a24981dd5ee",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-warps-native-20261102-02/host-resources.json": "2febe1272266de25b5ab31968761257251249a97de6f38e70871e3a2985d4a15"
+  }
+}

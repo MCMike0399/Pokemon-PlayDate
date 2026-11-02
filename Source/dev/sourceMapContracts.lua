@@ -728,6 +728,22 @@ function SourceMapContracts.run()
                 equal(SourceMaps.cell(cabin, event.x, event.y).collision, 0)
                 equal(entry.id, ingress.to)
                 same(context.session:rngData(), before)
+                if owner == SilphStoryWorld then
+                    local floors = SilphStory.scenes().elevator
+                    equal(#floors, 11)
+                    for _, floor in ipairs(floors) do
+                        assert(owner.selectFloor(context.session, floor.floor))
+                        for _, exit in ipairs(SourceMaps.descriptor(cabin).warps) do
+                            local target = assert(SourceMaps.resolveScriptedWarp(context,
+                                {source_event_id=exit.id, scripted=true}))
+                            local name = assert(SourceMaps.nameForID(floor.map_id))
+                            equal(target.to, SourceMaps.entry(name).key)
+                            equal(target.toX, floor.destination.x + SilphStory.padding(floor.map_id))
+                            equal(target.toY, floor.destination.y)
+                            same(context.session:rngData(), before)
+                        end
+                    end
+                end
             end)
         end
     end)
