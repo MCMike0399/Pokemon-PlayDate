@@ -225,3 +225,10 @@ logs; keeper restored. [Comparison/limits](gamecorner-metadata-hardware-20261102
 Source diagnosis identifies four whole-world catalogue copies in the four-cell
 Hideout terrain projection. A boolean query can preserve validation without
 those copies; implementation/native equivalence/resource proof remain pending.
+
+Minimal actualSDK3.1.2 reproduction confirms the catalogue-copy failure:
+one held149-map copy retains~956KiB. Existing four-cell entrance-open projection
+inside ordinary withLoading hits9MiB on copy3 in330ms, from6,425 to9,226KiB.
+No world/session application or limit change. [Expected-red proof](hideout-catalogue-minimal-red-20261102.json).
+The boolean owner-query candidate must turn this exact case green before its
+physical replay; B remains unaccepted.

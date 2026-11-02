@@ -1,0 +1,77 @@
+{
+  "classification": "Minimal native reproduction of the four-cell whole-catalogue allocation failure; expected red",
+  "base": "952db34f",
+  "sdk": "3.1.2",
+  "single_copy": {
+    "elapsed_ms": 20,
+    "failed": 0,
+    "heap_after_call_kib": 7378.66015625,
+    "heap_after_release_gc_kib": 6424.29296875,
+    "heap_before_kib": 6422.94921875,
+    "heap_holding_copy_after_gc_kib": 7378.66015625,
+    "map_count": 149,
+    "mode": "production",
+    "ok": true,
+    "passed": 1,
+    "scope": "Single SDK catalogue-copy diagnostic with explicit before/held/released collections; no physical timing or game-resource acceptance",
+    "session_id": "1f7a26bd848840bcb6b1983a4903a789",
+    "simulator": true,
+    "suites": [
+      {
+        "failed": 0,
+        "id": "catalogue-copy-diagnostic",
+        "passed": 1
+      }
+    ],
+    "tests": [
+      {
+        "name": "Single defensive whole-catalogue copy allocation",
+        "ok": true
+      }
+    ],
+    "tile_count": 730
+  },
+  "minimal_projection": {
+    "elapsed_ms": 330,
+    "error": "game/bootTrace.lua:210: device-test memory guard: 9224.425 KiB at initialize.yield",
+    "failed": 1,
+    "heap_after_kib": 9225.8369140625,
+    "heap_before_kib": 6424.765625,
+    "mode": "production",
+    "ok": false,
+    "passed": 0,
+    "scope": "Minimal existing pure Hideout projection under ordinary loading/guards; not a journey or physical latency acceptance",
+    "session_id": "2b12b160e6e1480090bb492ab528f114",
+    "simulator": true,
+    "suites": [
+      {
+        "failed": 1,
+        "id": "hideout-projection-diagnostic",
+        "passed": 0
+      }
+    ],
+    "tests": [
+      {
+        "error": "game/bootTrace.lua:210: device-test memory guard: 9224.425 KiB at initialize.yield",
+        "name": "Four-cell Hideout projection under ordinary cooperative loading",
+        "ok": false
+      }
+    ],
+    "whole_catalogue_calls": 3
+  },
+  "evidence": [
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/catalogue-copy-b149-native-20261102-01",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hideout-projection-red-native-20261102-02"
+  ],
+  "sha256": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/catalogue-copy-b149-native-20261102-01/build.json": "604e8f39d296d950bc98984e9e88ca8481483e418665813d1e5e526e328b53ec",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/catalogue-copy-b149-native-20261102-01/startup-probe.json": "a51c743fc14060a20912e5f3b6fd27a9a1d6589fa626a996f78206077293e393",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/catalogue-copy-b149-native-20261102-01/host-resources.json": "949b5838416adaf4b1ca7fb4415ec93b7a5302310c0610d7f29dbf054585dae9",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hideout-projection-red-native-20261102-02/build.json": "e4b71301b3554c8b0aa2b12d77f783c5d6f4130c9ff4460588e82a8e087ea572",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hideout-projection-red-native-20261102-02/startup-probe.json": "230f1948dccdee93f49fdf6ba706443e4bac1c267e08cae065cc68833a6c0129",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hideout-projection-red-native-20261102-02/host-resources.json": "f883e584b1a330e777e4450496bdc163ef1782e66d2efbe40edde3d87ad633c9"
+  },
+  "causal_scope": "Pure existing entrance-open world projection inside existing GameBootstrap.withLoading. No world application, session change, teleport, gameplay input, altered limit or GC mode. Diagnostic full collection before measurement provides a stable starting heap; ordinary loading then makes three copies before the9MiB guard. One held copy retains955.71KiB ofLua tables; four-copy projection is O(totalworld).",
+  "setup_failure_retained": "hideout-projection-red-native-20261102-01 used nonexistent runLoading helper; no projection was invoked. Corrected02useswithLoading.",
+  "next": "Run identical minimal test against the boolean-membership candidate, native projection equivalence, fresh qualification/safety and the physical route. This reproduction is not itself a fix, performance acceptance or B acceptance."
+}
