@@ -1,0 +1,34 @@
+{
+  "classification": "Current private B149 compile-only player package; checkpoint acceptance still open",
+  "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5b-release-candidate-20261102-03",
+  "manifest_sha256": "c51898b139c7cf8ff0028cc016c8c04f1dfb2d47d16d84aa9fd40d9f2e73e22d",
+  "archive": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5b-release-candidate-20261102-03/PokemonBlue-B149-candidate.zip",
+  "archive_sha256": "b1fb90f7a6aabc61df8fc3e6abf9d9cebe8c030d4d87c87aa9bde62ed2ddf1ad",
+  "archive_bytes": 5163912,
+  "pdx_tree_sha256": "69cca3304c81b55d17d3ecc55cd34ea0f0fb793b426a3b378eb1825469b81933",
+  "source_commit": "623ddf9f73270dbccb712e6f4d07d9cff0a43081",
+  "source_tree": "b7da89fcb10f95ca64e6c3ca03d7ffbbf75255e8",
+  "compiled_modules": 202,
+  "dev_modules": 0,
+  "earned_saves": {
+    "bulbasaur": {
+      "adventure.a.json": "daa9a81c7b1ca2dc6273acc0f409cd119d8235999796299d11c4b54cf3286c07",
+      "adventure.b.json": "ee2d97a44e69c176937869e3d10097e688aa8b6aa36658a29fafc8d2050e9298"
+    },
+    "charmander": {
+      "adventure.a.json": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0",
+      "adventure.b.json": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801"
+    },
+    "squirtle": {
+      "adventure.a.json": "a823d67ab2beaa4b6622c48cb46566d142c2409978e0cc48d4eb35ad820cf465",
+      "adventure.b.json": "5e44ced5258012f2a76039e234674a4636d75cb9956dc9a9809834ad7c11abd3"
+    }
+  },
+  "save_verification": "All six files exactly match prior package pinned hashes and protected canonical chain5.5b. Zip contents compared byte-for-byte after compression. Existing decoded-PDZ parser verifies every compiled Lua record.",
+  "timing": "Exact package is unmeasured; related instrumented limits clearly labelled in KNOWN-LIMITS.md.",
+  "installed": false,
+  "accepted": false,
+  "save_size_host_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-save-size-host-20261102-01.json",
+  "save_size_host_sha256": "06276d7137b10e1a4fef8fded2b4f7672af831b30a8d2ba95d040d1083a49308",
+  "remaining": "Finish same archive transaction then resume actual Route15 earned Save; Koga/final showcase/motion/release acceptance remain open."
+}

@@ -160,3 +160,9 @@ the existing Fisherman component remains the complete trainer battle.
 Three isolated door/memory candidates are ready for Root qualification and
 measurement; none is adopted or claimed faster.
 [Prepared scope and candidate boundaries](b149-koga-excerpt-preparation-20261102.json).
+
+Current B player package03 now compiles with SDK3.1.2 and contains202 native
+modules/zero dev modules. All three earned pairs are byte-identical to protected
+chain5.5b; portable5.16MB archive contents checked against originals. Known limits
+label related instrumented timings separately; exact-package runtime unmeasured.
+No install/acceptance/merge/push. [Package identity](b149-player-package-current-20261102.json).
