@@ -125,3 +125,11 @@ no new tooling, broad scans or proof release. Capacity recovery is historical,
 not an active blocker. Never push without a new user request.
 
 [Complete prior ledger, including failed history](progress-history-before-allocation-adoption-20261102.md).
+
+Current B Snorlax component completes from a genuine adjacent earnedSave:
+16.56s/native400x240/originalwalltime, silent15fps; firstdecodedRGBAexact and
+first/quarter/mid/finalsourceframesinspected. No MallocLog/Clear/AX operation.
+Source-fixed waypoints avoid an optionaltrainer through ordinarymovement;
+earnedflags/resources remain. [Component/ancestry/limits](b149-snorlax-component-20261102.json).
+Koga andfinal60–90s composition remain. Capture-onlywindowclosed requirement
+retains16MiBpool/allguards; failed1GiBapproachesretained, noslot reconstruction.
