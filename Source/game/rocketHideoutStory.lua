@@ -15,16 +15,33 @@ local integration
 local function copy(value)
     return GameSession._copy(value)
 end
-function RocketHideoutStory.scenes()
+local function scenesData()
     if not cached then
         local data <const> = assert(json.decodeFile("data/rocketHideoutStory/scenes.json"))
         assert(data.schema == 1 and data.source_revision == REVISION, "unverified Hideout scenes")
         cached = data.scenes
     end
-    return copy(cached)
+    return cached
+end
+function RocketHideoutStory.scenes()
+    return copy(scenesData())
 end
 function RocketHideoutStory.padding(zoneID)
     return SourceMaps.entry(assert(SourceMaps.nameForID(zoneID))).padding
+end
+-- Borrow routes only within this owner; dispatch receives an immutable ID.
+local function spinnerIDAt(zoneID, x, y)
+    local routes <const> = scenesData().spinners[zoneID]
+    if not routes or #routes == 0 then
+        return nil
+    end
+    local padding <const> = RocketHideoutStory.padding(zoneID)
+    for _, route in ipairs(routes) do
+        if x == route.x + padding and y == route.y then
+            return route.id
+        end
+    end
+    return nil
 end
 local function text(...)
     return {op = "dialog", labels = {...}}
@@ -126,11 +143,11 @@ function RocketHideoutStory.plan(id, observation)
         end
         return plan
     end
-    for _, routes in pairs(RocketHideoutStory.scenes().spinners) do
+    for _, routes in pairs(scenesData().spinners) do
         for _, route in ipairs(routes) do
             if route.id == id then
                 local plan <const> = scene("spinner")
-                plan.path = route.path
+                plan.path = copy(route.path)
                 plan.origin = {x = route.x, y = route.y}
                 return plan
             end
@@ -238,12 +255,9 @@ function RocketHideoutStory.install(content, options)
                 and currentZone.stableID ~= "pokered:ROCKET_HIDEOUT_B3F" then
                 return false
             end
-            local routes <const> = RocketHideoutStory.scenes().spinners[currentZone.stableID]
-            for _, route in ipairs(routes or {}) do
-                if game.player.gridX == route.x + RocketHideoutStory.padding(currentZone.stableID)
-                    and game.player.gridY == route.y then
-                    return SourceEvents.dispatch(game, route.id)
-                end
+            local id <const> = spinnerIDAt(currentZone.stableID, game.player.gridX, game.player.gridY)
+            if id then
+                return SourceEvents.dispatch(game, id)
             end
             return false
         end,

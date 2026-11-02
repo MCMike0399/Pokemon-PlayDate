@@ -2581,10 +2581,10 @@
     "package-4-trainers-trainers.json": "b4a09f4144c5bdf00fbb3f7077f5897a675649a0e19a6c32fecdf5b1f9469bb2",
     "package-4.json": "a6d4e8edcc5d19f029974a6fa88c1f881c815cff9588c30250c2c3974d2a187a"
   },
-  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-query-b149-exports-20261102-01",
-  "build_id": "2c0299a27a342a348d2890fdca8aadbc29559f4f:90b34263beca66630eaba407f879fcac246b27dce9bcae3c7a374fb503b41b51",
-  "producer_build_sha256": "41b4b6df017db19345e1d2faaa41e3b00cdf8b78826e8604251722b239483b9a",
-  "producer_result_sha256": "46c19e3e8f5e7f0b25f78259d66e1f81d766c2247c5af79907b9ab8ae1f0a333",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-sdk-exports-20261102-01",
+  "build_id": "7556db21d9b80311d3a2330df984a1ae262d771f:4512203f64bd7383c0a270f6aedce79977e495c6ac56c25edaf81c6cc2d9db65",
+  "producer_build_sha256": "f9744cd29080ccc8741a28a17b431a9658d71eeb5e3e518093de43056f80e5fd",
+  "producer_result_sha256": "6f63c6ff28987ddbb5e01aaf59a0bbb72838dea6dc45325cf7f216c128ca4b38",
   "dependencies": {
     "game/kantoScenes.lua": "2aee4422cf22249bd9de9e1d9b2ca6d48df72ef9c9b120beba4e522a2012f9e3",
     "game/ceruleanStory.lua": "108d63f6be18060cb5f58eb52205e4d7ee5e388d0f5d5d6452112cde84aac111",
@@ -2603,7 +2603,7 @@
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
     "data/ceruleanRoutes/scenes.json": "2d3d96278725c52eaad9011599868abdfc892ebde5fbadc3a8dff9aac6dc65ce"
   },
-  "export_sha256": "27b5fd89dcd7810ef50fd9b474b560f7892cf5aeeb20db74d63d4bcf68fae392",
+  "export_sha256": "a37b18cb2ad4b3b8c32fa2258ab91eed8d0bf83b437923689a54475b66eb838c",
   "content_pins_sha256": "c6fbf55a263ce2747f354903cf54130a11092bc39b683a6b2e9bc953dd399fa1",
   "owner_imports": [
     "game/ceruleanStory",
