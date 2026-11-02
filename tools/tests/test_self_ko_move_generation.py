@@ -38,7 +38,7 @@ class SelfKOProducerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             directory = Path(directory)
             after = generate(before, directory)
-            self.assertEqual(c.producer_epoch(after), 18)
+            self.assertEqual(c.producer_epoch(after), 19)
             self.assertEqual(c.read_rows(after), c.read_rows(current()))
             self.assertEqual(generate(after, directory), after)
             for key in KEYS:
@@ -57,7 +57,7 @@ class SelfKOProducerTests(unittest.TestCase):
 
     def test_current_inverse_and_missing_current_flags_fail_closed(self):
         rows = c.read_rows((ROOT / 'Source/battle/moves.lua').read_text())
-        lowered = c.legacy_rows(rows, 18)
+        lowered = c.legacy_rows(rows, 19)
         self.assertEqual(len(lowered), 424)
         self.assertEqual(c.digest(json.dumps(lowered, sort_keys=True, separators=(',', ':')).encode()),
                          c.load_contract()['legacy_rows_sha256'])
@@ -65,7 +65,7 @@ class SelfKOProducerTests(unittest.TestCase):
             mutant = dict(rows)
             mutant[key] = c.drop_fields(rows[key], ('selfDestruct',))
             with self.subTest(key=key), self.assertRaises(ValueError):
-                c.legacy_rows(mutant, 18)
+                c.legacy_rows(mutant, 19)
             self.assertEqual(c.RULE_EPOCHS[key], 18)
 
 

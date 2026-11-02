@@ -1,6 +1,7 @@
 --- a/Source/main.lua
 +++ b/Source/main.lua
-@@ -179,10 +179,16 @@
+@@ -178,12 +178,18 @@
+     import "game/fieldTravelState"
      import "game/fieldGearRequests"
      import "game/fieldGearState"
      import "world/fieldGearArt"
@@ -17,7 +18,9 @@
      import "game/hideoutTowerContent"
      import "game/hideoutTowerController"
      import "domain/safariBattle"
-@@ -233,6 +239,9 @@
+     import "game/midgameServices"
+@@ -232,8 +238,11 @@
+             end, "hideout-tower-midgameEast-v1")
              CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
                  return HideoutTowerContent.package("midgameSouth", events, trainers)
              end, "hideout-tower-midgameSouth-v1")
@@ -27,7 +30,9 @@
              BootTrace.mark("CeruleanContent.registerPackage.end")
              GameBootstrap.yieldIfDue()
              BootTrace.mark("CeruleanContent.install.begin")
-@@ -264,9 +273,11 @@
+             CeruleanContent.install(campaignActorMetadata)
+@@ -263,11 +272,13 @@
+             GameBootstrap.yieldIfDue()
              BootTrace.mark("Daycare.install.begin")
              Daycare.install()
              BootTrace.mark("Daycare.install.end")
@@ -40,9 +45,11 @@
              BootTrace.mark("HideoutTowerContent.install.end")
              BootTrace.mark("MidgameServices.install.begin")
              MidgameServices.install()
+             SourceEvents.registerWorldHooks("pokered:SAFARI_ZONE_GATE:script:admission", {
 --- a/Source/game/hideoutTowerController.lua
 +++ b/Source/game/hideoutTowerController.lua
-@@ -8,6 +8,9 @@
+@@ -7,8 +7,11 @@
+     if SilphStoryController then SilphStoryController.enter(state) end
      CeladonServicesController.enter(state)
  end
  function HideoutTowerController.advance(state)
@@ -52,9 +59,11 @@
      return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
          or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
          or CeladonServicesController.advance(state)
+ end
 --- a/Source/game/sourceEvents.lua
 +++ b/Source/game/sourceEvents.lua
-@@ -646,7 +646,7 @@
+@@ -645,9 +645,9 @@
+ -- Registration checks membership using indexes; it never decodes descriptors.
  function SourceEvents._registerRegionDeclaration(name, root, identity)
      local kanto = name == "ceruleanStory" or name == "ceruleanRoutes"
      if not (ShippedDataPolicy and ShippedDataPolicy.regionDeclarations())
@@ -63,9 +72,11 @@
          return false
      end
      if kanto then
+         -- Fixture records cannot borrow the shipped map-padding qualification.
 --- a/tools/generate_region_registrations.py
 +++ b/tools/generate_region_registrations.py
-@@ -38,10 +38,12 @@
+@@ -37,12 +37,14 @@
+     if not cache_files:
          files = {p.relative_to(source / 'data/contentCache').as_posix(): p.read_bytes()
                   for p in (source / 'data/contentCache').rglob('*.json')}
      catalog = json.loads(files['catalog.json'])['packages']
@@ -79,3 +90,4 @@
          index = json.loads(files[catalog[root] + '.json'])
          events = dict(index['records']['events']['events'])
          events.update(index['records']['events']['signs'])
+         trainers = dict(index['ordinary_trainers'])

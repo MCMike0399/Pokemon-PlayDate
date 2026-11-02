@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.generate_source_map_cache import build, canonical
 
-BASE = '7726ea49'
+BASE = '24ea539cd68142af6b50ca57841cdb8ae350f519'
 
 
 def pinned(path, project=ROOT):

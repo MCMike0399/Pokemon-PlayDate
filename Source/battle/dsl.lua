@@ -457,14 +457,19 @@ function DirectDamage:apply(battle)
     end
     local damage = math.max(1, math.floor(self.amount:evaluate(battle)))
     local before = pokemon.hp
-    local receipt=battle.effects and battle.effects:hit(battle.attacker,pokemon,move,damage)
+    local receipt=battle.effects and battle.effects:primaryHit(battle.attacker,pokemon,move,damage)
     if not receipt then pokemon:takeDamage(damage) end
-    battle.lastDamage = before - pokemon.hp
-    if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 then battle.conditions:rageHit(pokemon) end
-    battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
+    battle.lastDamage = receipt and receipt.removed or (before - pokemon.hp)
+    if battle.conditions and pokemon==battle.defender and battle.lastDamage>0 and not (receipt and receipt.substitute) then battle.conditions:rageHit(pokemon) end
+    if receipt and receipt.substitute then
+        battle.effects:announceSubstituteHit(receipt)
+        battle.effects:resolveSubstituteHit(receipt)
+    else
+        battle:say(pokemon.name .. " took " .. battle.lastDamage .. " damage!")
+    end
     if receipt then
         battle.effects:announceEndure(receipt)
-        ContactAbilities.secondaries(battle.effects,battle.attacker,pokemon,battle.currentMove)
+        ContactAbilities.secondaries(battle.effects,battle.attacker,pokemon,battle.currentMove,receipt)
         battle.effects:afterHit(receipt)
     end
 end
@@ -498,15 +503,22 @@ function PsywaveDamage:apply(battle)
     end
     local amount = math.max(1, math.floor(RulesRNG.random(50, 150) * attacker.level / 100))
     local before = defender.hp
-    local receipt=battle.effects and battle.effects:hit(attacker,defender,battle.currentMove,amount)
+    local receipt=battle.effects and battle.effects:primaryHit(attacker,defender,battle.currentMove,amount)
     if not receipt then defender:takeDamage(amount) end
-    battle.lastDamage = before - defender.hp
-    if battle.conditions and battle.lastDamage>0 then battle.conditions:rageHit(defender) end
-    battle.isFlashing, battle.flashTimer = true, 6
-    battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
+    battle.lastDamage = receipt and receipt.removed or (before - defender.hp)
+    if battle.conditions and battle.lastDamage>0 and not (receipt and receipt.substitute) then battle.conditions:rageHit(defender) end
+    if not (receipt and receipt.substitute) then
+        battle.isFlashing, battle.flashTimer = true, 6
+    end
+    if receipt and receipt.substitute then
+        battle.effects:announceSubstituteHit(receipt)
+        battle.effects:resolveSubstituteHit(receipt)
+    else
+        battle:say(defender.name .. " took " .. battle.lastDamage .. " damage!")
+    end
     if receipt then
         battle.effects:announceEndure(receipt)
-        ContactAbilities.secondaries(battle.effects,battle.attacker,defender,battle.currentMove)
+        ContactAbilities.secondaries(battle.effects,battle.attacker,defender,battle.currentMove,receipt)
         battle.effects:afterHit(receipt)
     end
 end
@@ -521,11 +533,17 @@ function RageEffect:apply(battle) if battle.attacker:isAlive() then battle.condi
 Class("DefenseCurlEffect")
 function DefenseCurlEffect:apply(battle) battle.conditions:of(battle.attacker).defenseCurl=true end
 Class("RapidSpinEffect")
-function RapidSpinEffect:apply(battle) battle.conditions:rapidSpin() end
+function RapidSpinEffect:apply(battle, _secondary, receipt)
+    if receipt and receipt.substitute then return end
+    battle.conditions:rapidSpin()
+end
 Class("LeechSeedEffect")
 function LeechSeedEffect:apply(battle) battle.conditions:leechSeed() end
 Class("PartialTrapEffect")
-function PartialTrapEffect:apply(battle) battle.conditions:trap() end
+function PartialTrapEffect:apply(battle, _secondary, receipt)
+    if receipt and receipt.substitute then return end
+    battle.conditions:trap()
+end
 Class("EntryHazardEffect")
 function EntryHazardEffect:init(kind) self.kind=kind end
 function EntryHazardEffect:apply(battle) battle.conditions:hazard(self.kind) end
@@ -539,9 +557,9 @@ function SecondaryEffect:init(target,effect)
     assert(kind=="condition" or kind=="flinch" or kind=="stat","unsupported-secondary-kind")
     self.target=resolved;self.effect=effect;self.kind=kind
 end
-function SecondaryEffect:apply(battle)
+function SecondaryEffect:apply(battle, receipt)
     local target=self.target:resolve(battle)
-    if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target,self.kind) then return end
+    if battle.effects and not battle.effects:allowsSecondary(battle.attacker,target,self.kind,receipt) then return end
     self.effect:apply(battle, true)
 end
 Class("WeatherEffect")
@@ -595,6 +613,13 @@ function ResetStatStagesEffect:init(scope)
     assert(scope == "active" or scope == "defender", "unsupported-stage-reset-scope")
     self.scope = scope
 end
-function ResetStatStagesEffect:apply(battle)
-    return battle.effects:resetStatStages(self.scope)
+function ResetStatStagesEffect:apply(battle, _secondary, receipt)
+    return battle.effects:resetStatStages(self.scope, receipt)
+end
+
+Class("SubstituteEffect")
+function SubstituteEffect:apply(battle)
+    local ok = battle.conditions:createSubstitute(battle.attacker)
+    if not ok then battle:say("But it failed!") end
+    return ok
 end

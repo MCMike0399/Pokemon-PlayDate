@@ -1,0 +1,112 @@
+{
+  "classification": "Reviewed Substitute component adoption gate; not C/campaign/deviceplayability acceptance",
+  "source_code": "8d613179/e9fe43e6 plus evidence-only refresh",
+  "native": "docs/validation/substitute-component-native-20261102.json",
+  "native_executions": 299,
+  "failures": 0,
+  "motion": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-native-motion-20261102-02/export-receipt.json",
+  "sdk_safety": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-safety-20261102-01/simulator-smoke.json",
+  "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-hardware-20261102-01",
+  "build_id": "e91fed8d5f9f4327bb0f80dd57d62735",
+  "measurements": {
+    "battle_start_ms": 21.0,
+    "frame_ms": 724.227,
+    "heap_live_bytes": 4881983.488,
+    "heap_peak_bytes": 6428338.176,
+    "map_load_ms": 4455.0,
+    "slice_ms": 1434.484
+  },
+  "phase_measurements": {
+    "Continue": 3206.0,
+    "Save": 3310.0,
+    "battle": 21.0,
+    "boot_slice": 1434.484,
+    "boot_title": 13214.0,
+    "cave_walking_p95": null,
+    "door": 4455.0,
+    "title_artwork": 2756.0
+  },
+  "comparisons_same_diagnostic_route": {
+    "boot_title": {
+      "before": 13191.0,
+      "after": 13214.0
+    },
+    "boot_slice": {
+      "before": 1451.132,
+      "after": 1434.484
+    },
+    "Continue": {
+      "before": 3279.0,
+      "after": 3206.0
+    },
+    "Save": {
+      "before": 3317.0,
+      "after": 3310.0
+    },
+    "door": {
+      "before": 4478.0,
+      "after": 4455.0
+    },
+    "battle": {
+      "before": 22.0,
+      "after": 21.0
+    }
+  },
+  "post_gc_samples": [
+    {
+      "phase": "title.live.after_gc",
+      "heap_kib": 4763.505
+    },
+    {
+      "phase": "Continue.live.after_gc",
+      "heap_kib": 4767.562
+    },
+    {
+      "phase": "Save.live.after_gc",
+      "heap_kib": 4769.689
+    },
+    {
+      "phase": "door.live.after_gc",
+      "heap_kib": 5123.583
+    },
+    {
+      "phase": "door.live.after_gc",
+      "heap_kib": 5094.103
+    },
+    {
+      "phase": "door.live.after_gc",
+      "heap_kib": 5169.12
+    },
+    {
+      "phase": "Save.live.after_gc",
+      "heap_kib": 5146.263
+    },
+    {
+      "phase": "battle.live.after_gc",
+      "heap_kib": 5182.973
+    }
+  ],
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged"
+  },
+  "hashes": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-hardware-20261102-01/device-smoke.json": "ffedec06bfce23911fb7d6d6e441cbf2fe9a03819351cb7d975f03827e7c3dcf",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-hardware-20261102-01/outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-safety-20261102-01/simulator-smoke.json": "51fee7409492f12f344e8cf09f26445f5e3e0541a1845b180143a8579f766e4f"
+  },
+  "limits": "Game smoke uses genuine existing Bbytes, normalmenus/SurfSave/OldRod battle, not an activeSubstitute ondevice. SourcecodeproducerEpoch19 and legacyinverse/unitchecks are separate: no persistedepoch18-to19 wiremigration is inferred from slots withoutsuchfield. DiagnosticfullGC retained; shippedtiming unmeasured, cavep95 unmeasured, native/transientmemory unmeasured. 299includesrepeatedcuratedassertions, notunique299. Nativeclip is privatecomponentfixture sampled15fps, notcampaign/devicepacing. B149 remainsaccepted; C inactive. Manylatencytargets fail; SurfSave3310ms exceeds2s. No broadfidelity claim.",
+  "adopted_main_code": "056fe922ec94db22b4c0b02c1742f899e0eb6291",
+  "source_sha256": "503a70adc69c70cc22778a04ec72c7bfcbc7f49f25f91623ef328e22a9495b48",
+  "main_integration": {
+    "full_branch_host": "1169ran:1165pass/3metadatafreshnessfailures/1overbroadnew-artpreservationerror; no mechanics failure",
+    "corrected_checks": "110targetedpassed onbranch;120passed aftermerge",
+    "protocol": "57passed aftermerge",
+    "production_compile": "SDK3.1.2 literalmakecompile passed",
+    "scope": "No secondfull1169run aftermetadata/art-reference fixes; all observed failures rerun andresolved."
+  }
+}

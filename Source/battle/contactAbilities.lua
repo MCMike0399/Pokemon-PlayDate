@@ -44,6 +44,7 @@ end
 function ContactAbilities.onHit(effects, hit, critical)
     if not effects.receipts[hit] or hit.abilityHitResolved then return false end
     hit.abilityHitResolved = true
+    if hit.substitute then return false end
     local target = hit.target
     if not critical or not effects:active(hit.source) or not active(effects, target)
         or effects:effectiveAbility(target) ~= 83 then return false end
@@ -67,10 +68,10 @@ function ContactAbilities.secondaryForMove(effects, source, target, move)
     return SecondaryEffect(recipient, When(Chance(10), ApplyStatus(recipient, "flinch")))
 end
 
-function ContactAbilities.secondaries(effects, source, target, move)
+function ContactAbilities.secondaries(effects, source, target, move, receipt)
     local secondary = ContactAbilities.secondaryForMove(effects, source, target, move)
     if secondary then
-        secondary:apply(effects.battle)
+        secondary:apply(effects.battle, receipt)
     end
 end
 

@@ -1,0 +1,151 @@
+{
+  "decision": "Rejected whole candidate; unadopted, no additional measurement or review requested",
+  "candidate": "77df3f7e",
+  "build_id": "34bdbf3f5f644967a15cc8de0b3c8dc4",
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-hardware-20261102-01",
+  "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-door-hardware-20261102-01",
+  "native_production": "production-door-main7726-qualified-20261102-02/native-execution-02:14/0",
+  "native_deep": "production-door-main7726-qualified-deep-20261102-02/native-execution-02:14/0",
+  "safety": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-door-device-safety-20261102-02/simulator-smoke.json",
+  "safety_measurements": {
+    "battle_device_estimate_ms": 1.0,
+    "battle_start_ms": 1.0,
+    "frame_ms": 4.076,
+    "heap_live_bytes": 7967709.184,
+    "heap_peak_bytes": 8635482.112,
+    "map_device_estimate_ms": 281.0,
+    "map_load_ms": 281.0,
+    "slice_ms": 54.148
+  },
+  "baseline_phase_measurements": {
+    "Continue": 3474.0,
+    "Save": 1946.0,
+    "battle": null,
+    "boot_slice": 1458.479,
+    "boot_title": 13564.0,
+    "cave_walking_p95": null,
+    "door": 4477.0,
+    "title_artwork": 2754.0
+  },
+  "candidate_phase_measurements": {
+    "Continue": 3819.0,
+    "Save": 2165.0,
+    "battle": null,
+    "boot_slice": 1474.546,
+    "boot_title": 13708.0,
+    "cave_walking_p95": null,
+    "door": 4337.0,
+    "title_artwork": 2756.0
+  },
+  "doors": [
+    {
+      "index": 1,
+      "destination": "pokered:FUCHSIA_CITY",
+      "baseline_ms": 4477.0,
+      "candidate_ms": 4337.0,
+      "saving_percent": 3.1270940361849453
+    },
+    {
+      "index": 2,
+      "destination": "pokered:ROUTE_18",
+      "baseline_ms": 2128.0,
+      "candidate_ms": 2397.0,
+      "saving_percent": -12.640977443609023
+    },
+    {
+      "index": 3,
+      "destination": "pokered:ROUTE_18_GATE_1F",
+      "baseline_ms": 1703.0,
+      "candidate_ms": 1962.0,
+      "saving_percent": -15.208455666470934
+    },
+    {
+      "index": 4,
+      "destination": "pokered:ROUTE_18",
+      "baseline_ms": 1742.0,
+      "candidate_ms": 1961.0,
+      "saving_percent": -12.571756601607348
+    },
+    {
+      "index": 5,
+      "destination": "pokered:ROUTE_17",
+      "baseline_ms": 4079.0,
+      "candidate_ms": 3738.0,
+      "saving_percent": 8.359892130424123
+    },
+    {
+      "index": 6,
+      "destination": "pokered:ROUTE_18",
+      "baseline_ms": 1533.0,
+      "candidate_ms": 1718.0,
+      "saving_percent": -12.067840834964123
+    },
+    {
+      "index": 7,
+      "destination": "pokered:ROUTE_17",
+      "baseline_ms": 3043.0,
+      "candidate_ms": 2674.0,
+      "saving_percent": 12.126191258626356
+    },
+    {
+      "index": 8,
+      "destination": "pokered:ROUTE_16",
+      "baseline_ms": 3563.0,
+      "candidate_ms": 3295.0,
+      "saving_percent": 7.521751333146225
+    },
+    {
+      "index": 9,
+      "destination": "pokered:ROUTE_16_GATE_1F",
+      "baseline_ms": 1704.0,
+      "candidate_ms": 1940.0,
+      "saving_percent": -13.849765258215962
+    },
+    {
+      "index": 10,
+      "destination": "pokered:ROUTE_16",
+      "baseline_ms": 2741.0,
+      "candidate_ms": 2485.0,
+      "saving_percent": 9.339657059467347
+    },
+    {
+      "index": 11,
+      "destination": "pokered:CELADON_CITY",
+      "baseline_ms": 4008.0,
+      "candidate_ms": 3762.0,
+      "saving_percent": 6.137724550898204
+    },
+    {
+      "index": 12,
+      "destination": "pokered:GAME_CORNER",
+      "baseline_ms": 3960.0,
+      "candidate_ms": 3650.0,
+      "saving_percent": 7.828282828282828
+    }
+  ],
+  "hardware_measurements": {
+    "battle_start_ms": null,
+    "frame_ms": 214.469,
+    "heap_live_bytes": 6537066.496,
+    "heap_peak_bytes": 8345074.688,
+    "map_load_ms": 4337.0,
+    "slice_ms": 1474.546
+  },
+  "hashes": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-hardware-20261102-01/device-smoke.json": "4267433fc0abc66fc1e10128140c77fd89cafd0162d5ba852b27541c218cfd01",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-door-hardware-20261102-01/device-smoke.json": "eaaca074291105f4c0c28afedd9235e665abc8581cad895418888eabbf768972",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-door-device-safety-20261102-02/simulator-smoke.json": "0519dd6dd3c8d3c12a59b00c0ee2e31e6d3f55112d11a284ef3247e952c1f81b",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-door-hardware-20261102-01/outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/production-door-hardware-20261102-01/keeper-handoff.json": "8511d6d95d038522a7ae22e41b84270c624d6f9637d6d15a4c020798be84c9d0"
+  },
+  "limits": "One paired instrumented observation; same exact12inputbatches/seed, differing ordinary idle duration. New separate completion wrapper overhead unmeasured. Method times inclusive/nested; zero public describe calls do not mean zero private builds. Native proves structural reuse. Post-GC heavy-map/native headroom not measured here. End heap is uncollected.",
+  "reason": "Primary cold-entry gains3.1/8.4/7.8% are below10%; Save is11.3% slower. Large actor-validation subphase reductions do not justify whole-candidate adoption with mixed/regressed behavior.",
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged",
+    "stdout": ""
+  }
+}

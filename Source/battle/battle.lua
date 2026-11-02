@@ -708,7 +708,7 @@ commitActiveMember = function(self, side, index)
 end
 
 -- Pure stable-order bench query. Voluntary lock/trap rules intentionally do
--- not apply to forced displacement. No fake Substitute/Ingrain producer state.
+-- not apply to forced displacement. Ingrain remains an unsupported producer.
 function Battle:eligibleForcedReplacements(target)
     if type(target) ~= "table" or type(target.is) ~= "function" or not target:is("Pokemon") then
         return nil, "invalid-target"
@@ -1318,10 +1318,14 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
             self:say(reason=="sturdy" and (defender.name .. " is protected by Sturdy!") or "But it failed!")
             return nil
         end
-        local receipt=self.effects:hit(attacker,defender,move,defender.hp)
+        local receipt=self.effects:primaryHit(attacker,defender,move,defender.maxHP)
         self.lastDamage=receipt.removed
+        if receipt.substitute then
+            self.effects:announceSubstituteHit(receipt)
+            self.effects:resolveSubstituteHit(receipt)
+        end
         self:say("It's a one-hit KO!")
-        ContactAbilities.secondaries(self.effects,attacker,defender,move)
+        ContactAbilities.secondaries(self.effects,attacker,defender,move,receipt)
         self.effects:afterHit(receipt)
         return self:handleFaint()
     end
@@ -1329,6 +1333,13 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say(attacker.name .. "'s attack missed!")
         self.conditions:moveFinished(move,false)
+        return nil
+    end
+
+    if move.category == "status" and opponentTargets[move.targetId or 10]
+        and self.effects:interceptsSubstitute(attacker, defender, move) then
+        self:say(defender.name .. "'s substitute blocked the move!")
+        self.conditions:moveFinished(move, false)
         return nil
     end
 
@@ -1359,27 +1370,37 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
 
         if move.rollout and not self.conditions:locked(attacker) then self.conditions:of(attacker).rollout={hits=0} end
         local power=self:effectiveMovePower(move,attacker,defender)
-        local total, landed, anyCrit = 0, 0, false
+        local total, bodyTotal, landed, bodyHits, anyCrit = 0, 0, 0, 0, false
+        local lastReceipt
         for hitNumber = 1, hits do
             local result = calcDamage(attacker, defender, move, power,self.effects)
-            local receipt=self.effects:hit(attacker,defender,move,result.damage,hitNumber)
+            local receipt=self.effects:primaryHit(attacker,defender,move,result.damage,hitNumber)
+            lastReceipt = receipt
             self.conditions:landedMove(move)
             ContactAbilities.onHit(self.effects,receipt,result.isCrit)
-            local before=receipt.before
             total=total+receipt.removed
+            if not receipt.substitute then
+                bodyTotal = bodyTotal + receipt.removed
+                bodyHits = bodyHits + 1
+            end
             landed = landed + 1
-            anyCrit = anyCrit or result.isCrit
-            self:say(defender.name .. " took " .. receipt.removed .. " damage!")
+            anyCrit = anyCrit or (result.isCrit and not receipt.substitute)
+            if receipt.substitute then
+                self.effects:announceSubstituteHit(receipt)
+                self.effects:resolveSubstituteHit(receipt)
+            else
+                self:say(defender.name .. " took " .. receipt.removed .. " damage!")
+            end
             if result.isCrit then self:say("A critical hit!") end
-            self.conditions:rageHit(defender)
+            if not receipt.substitute then self.conditions:rageHit(defender) end
             self.effects:announceEndure(receipt)
             -- C DamageListCore: drain, secondary effects, contact reactions;
             -- whole-move recoil follows DamageMultiHit, before terminal verdict.
-            if receipt.removed>0 and move.drain and move.drain>0 then
+            if not receipt.substitute and receipt.removed>0 and move.drain and move.drain>0 then
                 self.effects:drainHit(receipt)
                 self:say(defender.name .. " had its energy drained!")
             end
-            self:applyMoveSecondaries(move, preparedSecondary)
+            self:applyMoveSecondaries(move, preparedSecondary, receipt)
             self.effects:afterHit(receipt)
             if not defender:isAlive() or not attacker:isAlive() then break end
         end
@@ -1388,8 +1409,8 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
             if state.rollout.hits>=5 then state.rollout=nil end
         end
         self.lastDamage = total
-        self.isFlashing = true
-        self.flashTimer = 6
+        self.isFlashing = bodyHits > 0
+        self.flashTimer = bodyHits > 0 and 6 or 0
         if anyCrit then
             self.shakeTimer = 8
             self.shakeIntensity = 3
@@ -1405,15 +1426,15 @@ function Battle:performMoveTarget(move, handler, preparedSecondary)
         end
 
         -- Drain / recoil: % of damage dealt (negative = recoil)
-        if attacker:isAlive() and move.struggleRecoil then
+        if attacker:isAlive() and move.struggleRecoil and bodyHits > 0 then
             self.effects:damage(attacker,math.max(1, math.floor(attacker.maxHP / 4 + 0.5)),"struggle-recoil")
             self:say(attacker.name .. " is damaged by recoil!")
-        elseif attacker:isAlive() and total>0 and move.drain and move.drain < 0 and not self.effects:recoilBlocked(attacker,move) then
-            self.effects:damage(attacker,math.max(1, math.floor(total * -move.drain / 100 + 0.5)),"recoil")
+        elseif attacker:isAlive() and bodyTotal>0 and move.drain and move.drain < 0 and not self.effects:recoilBlocked(attacker,move) then
+            self.effects:damage(attacker,math.max(1, math.floor(bodyTotal * -move.drain / 100 + 0.5)),"recoil")
             self:say(attacker.name .. " is damaged by recoil!")
         end
 
-        local effectOutcome=self:applyMoveEffects(move)
+        local effectOutcome=self:applyMoveEffects(move, lastReceipt)
         if effectOutcome=="run" then return effectOutcome end
         self.conditions:moveFinished(move,true)
 
@@ -1457,19 +1478,19 @@ function Battle:hitCount(move)
     return RulesRNG.random(move.minHits,move.maxHits)
 end
 
-function Battle:applyMoveSecondaries(move, preparedSecondary)
-    for _,effect in ipairs(move.secondaries or {}) do effect:apply(self) end
+function Battle:applyMoveSecondaries(move, preparedSecondary, receipt)
+    for _,effect in ipairs(move.secondaries or {}) do effect:apply(self, receipt) end
     if preparedSecondary then
-        preparedSecondary:apply(self)
+        preparedSecondary:apply(self, receipt)
     else
-        ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
+        ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move,receipt)
     end
 end
 
-function Battle:applyMoveEffects(move)
+function Battle:applyMoveEffects(move, receipt)
     if not move.effects then return end
     for _, effect in ipairs(move.effects) do
-        local outcome=effect:apply(self) -- DSL effects narrate via battle:say.
+        local outcome=effect:apply(self, nil, receipt) -- DSL effects narrate via battle:say.
         if outcome=="run" then return outcome end
     end
 end

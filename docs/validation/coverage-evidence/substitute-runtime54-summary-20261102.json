@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "source_sha256": "1a45badbc41034a7f951e41a65a2cd341e5b83b13b4f920fd93863122d57e843",
+  "sdk": {
+    "passed": 54,
+    "failed": 0
+  },
+  "scope": "Same54 original assertions cited by existing50 move records, exact-name selection only, private production-qualified startup and actual SDK suites. NoAX/history pauses, noperformance/device/campaign claim. No new move entries promoted.",
+  "acceptance_context": "private-root-scoped-sdk-not-checkpoint-acceptance",
+  "build_id": "25e1933c88e24251855473e8af80b76a:1a45badbc41034a7f951e41a65a2cd341e5b83b13b4f920fd93863122d57e843",
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-post-main-runtime54-native-20261102-01/startup-probe.json",
+    "sha256": "9468ba59633f34649662a229d392211d671fcc116f4b768a7489e65b8496941a",
+    "size_bytes": 7588
+  },
+  "build_metadata": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-post-main-runtime54-native-20261102-01/build.json",
+  "compiled_source_sha256": "f62a8b9dfb76fccf365f2dccc1dbe8ca7e4e0f537beece3931d3c54a5273fd9c",
+  "host_resources": {
+    "limit_bytes": 1073741824,
+    "sampled_peak_bytes": 164135944
+  },
+  "changed_owners": [
+    {
+      "move": "bide",
+      "path": "Source/battle/dsl.lua",
+      "start": "function DirectDamage:apply(",
+      "before": "e792ae3371878bd84d24418fed2b687191ff1a3885696c9b39f5618cf488ae67",
+      "after": "be025481cf64610b04d59e6c7f2ea347a5c7096f55112016912df5717f931133"
+    },
+    {
+      "move": "bide",
+      "path": "Source/battle/effects.lua",
+      "start": "function BattleEffects:hit(",
+      "before": "2e2018d8a8ebccf882f66f352b9d07e08aae04077f887f8e704a3a4c6ffeb1f3",
+      "after": "cfed52a5b34dcfa7664cab9646ebe4ae88831b3f7269727db69197f121dae15d"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:applyMoveEffects(",
+      "before": "94fa0f075b3cb800b78b7b9bf688187c4a2b82d592211d46550618899657de92",
+      "after": "94e738891cc92dc860549693ffc3c80c0c666692a3bfd1c7a55cf5d4023f94a8"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/moveSupport.lua",
+      "start": null,
+      "before": "b0397c30e9ac734a50cbbfbafcd2f800d177499eec73dee6bf43352cb92eec88",
+      "after": "ca8c2cb430933eb49b945368550d7af08b614e401bc8c4d7fa18da09bef2a925"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/battle.lua",
+      "start": "function Battle:applyMoveEffects(",
+      "before": "94fa0f075b3cb800b78b7b9bf688187c4a2b82d592211d46550618899657de92",
+      "after": "94e738891cc92dc860549693ffc3c80c0c666692a3bfd1c7a55cf5d4023f94a8"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/moveSupport.lua",
+      "start": null,
+      "before": "b0397c30e9ac734a50cbbfbafcd2f800d177499eec73dee6bf43352cb92eec88",
+      "after": "ca8c2cb430933eb49b945368550d7af08b614e401bc8c4d7fa18da09bef2a925"
+    }
+  ],
+  "selector_correction": "Roar last-case end moves from final cleanup to immediately following Teleport case. The original573-byte assertion hash remains exactly equal; no assertions changed.",
+  "historical_registry": {
+    "path": "tools/references/runtime-move-coverage-before-substitute-20261102.json",
+    "sha256": "fcd3a78147f9f906a348a76591f7c4c7b9139896235995be8879b42c2ea52716"
+  },
+  "qualification": "Only verified-subset owner hashes updated after unchanged exact cited assertions executed on current code. Definitions/test hashes/states/scopes retained. Source-only and source-gap records remain untouched, including deliberate stale HelpingHand and Dig."
+}

@@ -7,7 +7,7 @@ import hashlib,json,re
 from pathlib import Path
 from tools.verify_moves.parse_lua import Reader,TOKEN
 ROOT=Path(__file__).resolve().parents[1]
-CONTRACT_SHA256='12dcb580d0c4752a91a2143017288f322ef9fa94610938e14378d3ecef7f7e65'
+CONTRACT_SHA256='4b99105b55d98bc717cd297afd419f64643c0ea9a943588c9d9f4c0ff1580bfd'
 META_SHA256='c277e8d18b6c8523281b84dbc43db136e576c03395d9b5ef3e6763d62cb424dd'
 PROTECTION_SHA256='66c23d6bd5e78ecfae62a656e0c0612c793dc902be41d48fc351cf1bd900d462'
 PAYLOAD=('effects','secondaries')
@@ -142,7 +142,7 @@ def producer_epoch(text):
     marker=re.search(r'^-- move-producer-contract: (\d+)$',text,re.M)
     if marker:
         version=int(marker[1])
-        if version not in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18):raise ValueError('unsupported move producer epoch')
+        if version not in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19):raise ValueError('unsupported move producer epoch')
         return version
     if re.search(r'self\.protectable\s*=',text) or any(any(field in fields(row)for field in PROTECTION_FIELDS)for row in read_rows(text).values()):return 9
     if re.search(r'self\.(?:powerRule|damageRule|attemptRule)\s*=',text):return 3
@@ -173,6 +173,9 @@ def compatible(key,old,new,semantics,contract=None,epoch=0):
             if epoch>=introduced:return False
             left[field]=expected[field]
     if not same({k:v for k,v in left.items()if k not in PAYLOAD},{k:v for k,v in after.items()if k not in PAYLOAD}):return False
+    if key == 'substitute' and epoch < 19:
+        future = (contract or load_contract())['transitions']['substitute'][0]['after']
+        if payload(left) == future:return False
     if payload(left)==payload(after):return True
     transitions=(contract or load_contract())['transitions'].get(key,[])
     # Exact forward-only declared edges; never normalize arbitrary payloads.
@@ -188,6 +191,8 @@ def legacy_rows(rows,epoch=None):
     """Reverse exact declared v1 payloads, then retain ORIGINAL legacy hashes."""
     contract=load_contract();semantics=metadata();result={}
     inferred=max([1]+[RULE_EPOCHS[key]for key,row in rows.items()if key in RULES and any(field in fields(row)for field in RULE_FIELDS)]+[9 for row in rows.values()if any(field in fields(row)for field in PROTECTION_FIELDS)])
+    if epoch is None and 'substitute' in rows and payload(rows['substitute']) == contract['transitions']['substitute'][0]['after']:
+        inferred = max(inferred, 19)
     rows=historical_rows(rows,epoch or inferred)
     migrated=any(any(k in fields(row)for k in ABILITY_FIELDS)for row in rows.values())
     if not migrated:return dict(rows)
@@ -200,6 +205,8 @@ def legacy_rows(rows,epoch=None):
         if critical and key in contract['critical']['nonzero']:expected['critStage']=contract['critical']['nonzero'][key]
         if any(field not in value or type(value[field])is not type(flag)or value[field]!=flag for field,flag in expected.items()):raise ValueError('an existing move scalar changed: producer metadata '+key)
         if any(field in value and field not in expected for field in PRODUCER_FIELDS):raise ValueError('an existing move scalar changed: unexpected producer metadata '+key)
+        if key == 'substitute' and version < 19 and payload(value) == contract['transitions']['substitute'][0]['after']:
+            raise ValueError('future move effect at producer epoch: substitute')
         lowered=drop_fields(row,PRODUCER_FIELDS)
         entries=[entry for entry in contract['transitions'].get(key,[])if entry['version']<=version]
         if entries:

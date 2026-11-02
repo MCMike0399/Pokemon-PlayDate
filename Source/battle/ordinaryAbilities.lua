@@ -106,6 +106,11 @@ function OrdinaryAbilities:drainHit(receipt)
         return false
     end
     receipt.drainResolved = true
-    local amount = max(1, floor(receipt.removed * percent / 100 + 0.5))
+    local amount
+    if receipt.substitute then
+        amount = math.ceil(receipt.removed * percent / 100)
+    else
+        amount = max(1, floor(receipt.removed * percent / 100 + 0.5))
+    end
     return self:drain(receipt.target, receipt.source, amount, "drain")
 end

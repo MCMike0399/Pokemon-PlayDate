@@ -18,6 +18,56 @@ function BattleConditions:of(mon)
     return self.members[mon]
 end
 function BattleConditions:side(mon) return mon==self.battle.player and "player" or "enemy" end
+
+-- Substitute shares the existing active-member lifetime.
+-- Keep its lifetime in the existing active-member owner, never PokemonCodec.
+function BattleConditions:substituteHP(mon)
+    local state = self.members[mon]
+    return state and state.substituteHP or 0
+end
+
+function BattleConditions:canCreateSubstitute(mon)
+    if not self.battle.effects:active(mon) or not alive(mon) then
+        return false, "inactive-substitute-user"
+    end
+    if self:substituteHP(mon) > 0 then
+        return false, "existing-substitute"
+    end
+    if mon.maxHP == 1 or mon.hp <= mon.maxHP / 4 then
+        return false, "insufficient-substitute-hp"
+    end
+    return true
+end
+
+function BattleConditions:createSubstitute(mon)
+    local allowed, reason = self:canCreateSubstitute(mon)
+    if not allowed then
+        return false, reason
+    end
+    local cost = mon.maxHP // 4
+    local state = self:of(mon)
+    self.battle.effects:damage(mon, cost, "cost")
+    state.substituteHP = cost
+    -- The inherited Start callback removes partial trapping, but not seed,
+    -- major status, attraction, stages, or any other active-member condition.
+    state.trap = nil
+    self.battle:say(mon.name .. " made a substitute!")
+    return true
+end
+
+-- No accuracy, immunity, bypass, status or payload decisions here. The caller
+-- must already have selected an intercepted primary hit, with integer damage.
+function BattleConditions:damageSubstitute(mon, amount)
+    assert(self.battle.effects:active(mon) and alive(mon), "inactive-substitute-target")
+    assert(type(amount) == "number" and math.tointeger(amount) and amount >= 0,
+        "invalid-substitute-damage")
+    local before = self:substituteHP(mon)
+    assert(before > 0, "missing-substitute")
+    local removed = math.min(before, amount)
+    local remaining = before - removed
+    self:of(mon).substituteHP = remaining > 0 and remaining or nil
+    return before, removed, remaining == 0
+end
 -- Odor Sleuth inherits Foresight's condition in Showdown 9b136a8 gen5.
 -- Identification belongs to the target, independent of its original user.
 function BattleConditions:identified(mon)
@@ -36,8 +86,7 @@ function BattleConditions:odorSleuth()
         b:say("But it failed!")
         return false
     end
-    -- Miracle Eye/reflection/Substitute/Baton Pass have no supported producer;
-    -- this implements the ordinary singles target condition only.
+    -- Pinned Foresight/Odor Sleuth explicitly bypass Substitute in Gen V.
     self:of(target).foresight = true
     b:say(target.name .. " was identified!")
     return true

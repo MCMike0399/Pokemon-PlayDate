@@ -1,0 +1,20 @@
+{
+  "classification": "Closed superseded failed census remotely retained; NOT game acceptance",
+  "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-04",
+  "id": "playdate-1ccfa408b0964581a2d278cf79406095",
+  "manifest_sha256": "91353266ea5a60b949575bd1c4dcda77cbae49ccd80dd5fe6b7b79755425a27f",
+  "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-1ccfa408b0964581a2d278cf79406095.json",
+  "receipt_sha256": "e6d2886e011ed6006e0940616230fe2d3cd084bbd17b02d9294118cafa8ac57f",
+  "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-04.ARCHIVED.json",
+  "logical_bytes": 4481431971,
+  "closure": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/closures/door-census-b149-bounded-continuation-20261101-04-20261102.json",
+  "archive_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/census04-archive-20261102.log",
+  "rehearsal_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/census04-rehearse-20261102.log",
+  "release_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/census04-release-20261102.log",
+  "free_checkpoint_after_release_gib": 52.404457092285156,
+  "free_checkpoint_before_archive_gib": 48.25347900390625,
+  "attribution_limit": "Measured checkpoints include concurrent system activity, not exclusive reclaimed bytes. No70GiB target claim.",
+  "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-04 --id playdate-1ccfa408b0964581a2d278cf79406095 --execute",
+  "protected_inputs": "Current builds, packages, canonical chain saves and original outcomes unchanged. Restore original path before frozen ancestry reuse.",
+  "next": "Door SDK qualification resumed with unchanged51/50GiB guards; no further archive admission."
+}

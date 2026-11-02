@@ -1,6 +1,7 @@
 --- a/Source/main.lua
 +++ b/Source/main.lua
-@@ -179,6 +179,11 @@
+@@ -178,8 +178,13 @@
+     import "game/fieldTravelState"
      import "game/fieldGearRequests"
      import "game/fieldGearState"
      import "world/fieldGearArt"
@@ -12,7 +13,9 @@
      import "game/midgameGymStory"
      import "game/midgameStoryWarps"
      import "game/celadonServices"
-@@ -233,6 +238,9 @@
+     import "game/celadonServicesController"
+@@ -232,8 +237,11 @@
+             end, "hideout-tower-midgameEast-v1")
              CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
                  return HideoutTowerContent.package("midgameSouth", events, trainers)
              end, "hideout-tower-midgameSouth-v1")
@@ -22,7 +25,9 @@
              BootTrace.mark("CeruleanContent.registerPackage.end")
              GameBootstrap.yieldIfDue()
              BootTrace.mark("CeruleanContent.install.begin")
-@@ -264,7 +272,8 @@
+             CeruleanContent.install(campaignActorMetadata)
+@@ -263,9 +271,10 @@
+             GameBootstrap.yieldIfDue()
              BootTrace.mark("Daycare.install.begin")
              Daycare.install()
              BootTrace.mark("Daycare.install.end")
@@ -32,3 +37,4 @@
              BootTrace.mark("HideoutTowerContent.install.begin")
              HideoutTowerContent.install()
              BootTrace.mark("HideoutTowerContent.install.end")
+             BootTrace.mark("MidgameServices.install.begin")

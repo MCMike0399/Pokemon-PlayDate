@@ -2,6 +2,7 @@
 import "battle/contactAbilities"
 import "battle/ordinaryAbilities"
 import "battle/pickupHeld"
+import "battle/substitutePolicy"
 Class("BattleEffects")
 local function has(owner,mon,t) return owner.battle:hasType(mon,t) end
 local function nativeAbility(mon) return mon and mon.ability and mon:ability() or 0 end
@@ -379,6 +380,11 @@ function BattleEffects:entry(mon)
     local other=mon==self.battle.player and self.battle.enemy or self.battle.player
     if self:active(other) and alive(other) then
         if self:effectiveAbility(mon)==22 then
+            if self.battle.conditions:substituteHP(other) > 0 then
+                self.battle:say(mon.name .. "'s Intimidate!")
+                self.battle:say(other.name .. "'s substitute prevents Intimidate!")
+                return true
+            end
             -- Gen5 Inner Focus does NOT block Intimidate. Commit before yielding.
             local old=other.statStages.atk
             local allowed, prevention = self:canDropStat(mon, other, "atk", -1)
@@ -449,7 +455,8 @@ function BattleEffects:canDropStat(source, target, stat, delta)
     end
     return true
 end
-function BattleEffects:allowsSecondary(source,target,kind)
+function BattleEffects:allowsSecondary(source,target,kind,receipt)
+    if receipt and receipt.substitute and target ~= source then return false end
     assert(kind==nil or kind=="condition" or kind=="flinch" or kind=="stat","unsupported-secondary-kind")
     if source~=target and self:effectiveAbility(target)==19 then return false end
     -- Native condition/flinch chance precedes the dead-recipient payload gate;
@@ -474,8 +481,44 @@ function BattleEffects:limitDirectHit(source,target,move,amount)
     local endure=self:effectiveAbility(target)==5 and target.hp==target.maxHP and amount>=target.hp and source~=target
     return endure and math.max(0,target.hp-1) or amount,endure
 end
+-- Registry identity survives the one active-use Magnitude copy. No sound or
+-- effective-ability query is allowed to add a later-generation bypass.
+function BattleEffects:moveKey(move)
+    local key = MoveRegistry.keyOf(moveData, move)
+    if not key and self.battle.currentMove == move then
+        key = self.battle.currentMoveKey
+    end
+    return key
+end
+function BattleEffects:substituteBypass(move)
+    local key = self:moveKey(move)
+    assert(key and SubstitutePolicy[key] ~= nil, "missing-substitute-move-policy")
+    return SubstitutePolicy[key]
+end
+function BattleEffects:interceptsSubstitute(source, target, move)
+    return source ~= target and self.battle.conditions:substituteHP(target) > 0
+        and not self:substituteBypass(move)
+end
+function BattleEffects:primaryHit(source, target, move, amount, hitNumber)
+    if self:interceptsSubstitute(source, target, move) then
+        return self:hitSubstitute(source, target, move, amount, hitNumber)
+    end
+    return self:hit(source, target, move, amount, hitNumber)
+end
+function BattleEffects:announceSubstituteHit(receipt)
+    self.battle:say(receipt.target.name .. "'s substitute took " .. receipt.removed .. " damage!")
+    if receipt.substituteBroken then
+        self.battle:say(receipt.target.name .. "'s substitute faded!")
+    end
+end
+
 -- Each receipt is made immediately around the direct HP commit and resolved once.
 function BattleEffects:hit(source,target,move,amount,hitNumber)
+    -- The explicit primary route owns interception. A low-level body call
+    -- cannot accidentally credit a doll hit as body damage.
+    assert(self.battle.conditions:substituteHP(target) == 0 or source == target
+        or self:substituteBypass(move),
+        "unreviewed-substitute-primary-route")
     local before=target.hp
     local limited,endured=self:limitDirectHit(source,target,move,amount)
     self:damage(target,limited,"hit")
@@ -495,9 +538,68 @@ function BattleEffects:hit(source,target,move,amount,hitNumber)
     self.receipts[receipt]=true
     return receipt
 end
+
+-- Receives already-calculated damage AFTER primary-hit/bypass selection.
+-- Reuse the actual hit-token owner; absorbed loss never enters body ledgers.
+function BattleEffects:hitSubstitute(source, target, move, amount, hitNumber)
+    assert(self:active(source) and self:active(target) and source ~= target,
+        "invalid-substitute-hit-actors")
+    local key = self:moveKey(move)
+    assert(key and MoveSupport.handlers[key] and not MoveSupport.gaps[key],
+        "unsupported-substitute-hit-producer")
+    assert(move.category ~= "status",
+        "unsupported-substitute-hit-interaction")
+    assert(source:isAlive() or (move.selfDestruct and self.battle.attacker == source
+        and self.battle.currentMove == move), "fainted-substitute-source")
+    assert(move.drain == nil or move.drain == 50 or move.drain == -25 or move.drain == -33,
+        "unsupported-substitute-drain-ratio")
+    local before, removed, broken = self.battle.conditions:damageSubstitute(target, amount)
+    local receipt = {
+        source=source, target=target, move=move, before=target.hp,
+        removed=removed, endured=false, cause="substitute", contact=false,
+        hit=hitNumber or 1, substitute=true, substituteBefore=before,
+        substituteBroken=broken,
+    }
+    self.receipts[receipt] = true
+    return receipt
+end
+
+-- Gen5 TryPrimaryHit applies recoil then ceil drain on each intercepted hit.
+-- These receipts are excluded from the ordinary body recoil accumulator.
+function BattleEffects:resolveSubstituteHit(receipt)
+    if not self.receipts[receipt] or not receipt.substitute or receipt.substituteResolved
+        or not self:active(receipt.source) or not self:active(receipt.target) then
+        return false, "stale-substitute-hit"
+    end
+    receipt.substituteResolved = true
+    local move = receipt.move
+    local source = receipt.source
+    if receipt.removed > 0 and move.struggleRecoil and source:isAlive() then
+        self:damage(source, math.max(1, math.floor(source.maxHP / 4 + 0.5)), "struggle-recoil")
+        self.battle:say(source.name .. " is damaged by recoil!")
+    elseif receipt.removed > 0 and move.drain and move.drain < 0
+        and source:isAlive() and not self:recoilBlocked(source, move) then
+        -- Gen5 explicitly overrides modern 1/3 recoil to [33,100].
+        local amount = math.max(1, math.floor(receipt.removed * -move.drain / 100 + 0.5))
+        self:damage(source, amount, "recoil")
+        self.battle:say(source.name .. " is damaged by recoil!")
+    end
+    if move.drain and move.drain > 0 then
+        self:drainHit(receipt)
+        self.battle:say(receipt.target.name .. " had its substitute energy drained!")
+    end
+    if self:moveKey(move) == "rapidSpin" and source:isAlive() then
+        self.battle.conditions:rapidSpin()
+    end
+    -- Flame Burst has no adjacent ally in the supported singles format. No
+    -- other enabled producer has an AfterSubDamage payload at the pinned oracle.
+    return true
+end
+
 function BattleEffects:afterHit(receipt)
     if not self.receipts[receipt] or not self:active(receipt.source) or not self:active(receipt.target) then return false,"stale-hit" end
     self.receipts[receipt]=nil
+    if receipt.substitute then return true end
     if receipt.before<=0 then return false,"target-was-fainted" end
     local b,source,target,move=self.battle,receipt.source,receipt.target,receipt.move
     local id=self:effectiveAbility(target)
@@ -612,7 +714,7 @@ end
 function BattleEffects:snapshot() return {weather=self:weatherId(),turns=self.weather and self.weather.turns or 0} end
 
 -- Pinned Gen V clearBoosts changes stages only; no stat-drop ability events.
-function BattleEffects:resetStatStages(scope)
+function BattleEffects:resetStatStages(scope, receipt)
     local b = self.battle
     if scope == "active" then
         for _, mon in ipairs({ b.player, b.enemy }) do
@@ -623,11 +725,7 @@ function BattleEffects:resetStatStages(scope)
         b:say("All stat changes were eliminated!")
     else
         assert(scope == "defender", "unsupported-stage-reset-scope")
-        -- Substitute has no producer. Fail closed if it is enabled before the
-        -- primary-hit owner can distinguish body hits from absorbed/broken dolls.
-        -- Haze bypasses Substitute; Clear Smog must not reset through it.
-        assert(MoveSupport.gaps.substitute ~= nil,
-            "Substitute support requires stage-reset primary-hit routing")
+        if receipt and receipt.substitute then return false end
         b.defender:clearStatStages()
         b:say(b.defender.name .. "'s stat changes were eliminated!")
     end
