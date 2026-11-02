@@ -3404,7 +3404,7 @@
     "game/vermilionStoryHooks.lua": "0bdef828c9b38804baef3588a3c3485b3b8816d051acde6cd266bc758e1e221b",
     "game/vermilionStoryIntent.lua": "31bf40875b5d9940b81fdc3a463a6aca67c3a7e94878a69086c658138862c440",
     "game/vermilionStoryState.lua": "084cfdd3ae23d32f84c34bbde7ad8b7251a323d876819e724084b0c97658ec29",
-    "game/vermilionStoryTerrain.lua": "ea64898cc812994f231b66f7220435a021c89a67b6d9bf17bfee1bbe108d065d",
+    "game/vermilionStoryTerrain.lua": "7d216e3e86bf6b250f805f9b97986221df91a238fe43fb031a7036ae7cd47de2",
     "main.lua": "2c660e29d61199ce476b3010b9973f7b31e8c87af940b4a8248d51a2e3b954e0",
     "world/sourceBindings.lua": "42d0b3a22a13cffb21fd77d6a70fd9e60ae4d67cd6c5466d7155ede3ded3892a",
     "world/zone.lua": "dc84d0d45b818f29fdc840f95e9a7f580e05ca1ce8cdc3d22bd44cf50d170202"
