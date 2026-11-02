@@ -132,6 +132,11 @@ local function compactData()
     return compact
 end
 
+-- Boolean membership keeps the validated catalogue private without copying it.
+function SourceMaps.hasTile(key)
+    return not not compactData().tiles[key]
+end
+
 function SourceMaps.compact()
     return copy(compactData())
 end
