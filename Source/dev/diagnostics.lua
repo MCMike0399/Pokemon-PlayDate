@@ -285,8 +285,14 @@ end
 function HarnessDiagnostics.observe(game, kind)
     if kind == "midgame-owners" then
         local registered, shops, compatibility = {}, {}, {}
+        local manifestHash = SourceMaps._sharedCompact().manifest_sha256
         for _, name in ipairs(SourceMaps.names()) do
-            local definition = SourceMaps.definition(name)
+            local entry = SourceMaps.entry(name)
+            local record = SourceMaps.record("data/sourceMapCache/runtime-" .. name .. ".json")
+            local definition = record.definition
+            assert(record.manifest_sha256 == manifestHash and record.source_sha256 == entry.source_sha256
+                and definition.name == name and definition.id == entry.id,
+                "owner observation runtime metadata differs")
             local events = {}
             for _, group in ipairs({"objects", "background_events"}) do
                 for _, event in ipairs(definition.events[group]) do events[#events + 1] = event end
