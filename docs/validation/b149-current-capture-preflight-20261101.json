@@ -1,0 +1,25 @@
+{
+  "classification": "Current-source bounded capture preflight, not B visual acceptance",
+  "recipe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-recipe-20261101-03",
+  "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-preflight-20261101-03",
+  "source_sha256": "48af90b933dbe55b18db1841e153f4b82a48a071bb539426084dad78b438938f",
+  "compiled_source_sha256": "74277e1269fafb266b30a2ba651611717335bf71fdaf50f29026b12a11568a67",
+  "video": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-preflight-export-20261101-03/preflight-complete.mp4",
+  "video_sha256": "100af270302a615ba50ce3a982ac5e5f0db31fed881aca661b5724972feaf194",
+  "frames": 91,
+  "duration_seconds": 2.975,
+  "maximum_gap_seconds": 0.039,
+  "native_dimensions": [
+    400,
+    240
+  ],
+  "speed": 1,
+  "audio": "none",
+  "sampled_host_peak_bytes": 422986928,
+  "host_limit_bytes": 1073741824,
+  "decoded_first_frame_pixels_exact": true,
+  "root_inspection": "Native first/middle/last frames inspected: actual one-cell downward movement in Lavender Center; GB tones, sprites and viewport retained. No whole-showcase claim.",
+  "cleanup": "Owned process stopped, private UUID Data archived then removed, normal locks released.",
+  "desktop": "Paired Mac node previously returned an inline observation. Current command failed before computer invocation with Gateway ECONNREFUSED. No GUI input/config changes or duplicated request.",
+  "remaining": "Snorlax/Koga and60-90s final montage still outstanding. Later dev-projection dependency-hash refresh preserves all semantic projection values; source identity for this run remains historical."
+}
