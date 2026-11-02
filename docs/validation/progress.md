@@ -136,9 +136,20 @@ point probes retain their separate scope.
    are nearly flat. Whole-phase marks are private, not a production change.
    Cross-map still combines map, travel and mode; no isolated Surf effect claimed.
    [Actual attribution](save-four-point-attribution-20261102.json).
+   A SAVE-only inspection-proof candidate now measures repeated Center Save
+   2.867→2.020 s and repeated Surf Save 3.529→2.426 s, 29.5/31.3% faster.
+   First Saves are 2.5/3.5% slower. Public loads retain deep validation; 23
+   selected native persistence cases pass. Both exact safety routes admit device
+   measurement; hardware peak is about 6.14 MiB with unchanged system logs.
+   Review is pending; candidate remains unadopted and Surf still misses 2 s.
+   [Measured candidate and scope](save-inspection-reuse-measured-20261102.json).
 5. Fix structural door/boot/cave costs and measure boot/Continue against all three
    B save sizes. Payload sizes alone establish no timing conclusion. Do not
-   restart the census or AX/Clear History work.
+   restart the census. The user explicitly allows the existing guarded history
+   helper for ordinary C journeys. Its archive-fence correction passes host
+   checks, but native qualification remains open: opening the profiler window
+   itself can cross the unchanged 1 GiB host guard before Clear. No complete C
+   journey is inferred from host checks or earlier failed attempts.
 
 Compact SMC1 terrain-row consumption is also rejected after native correctness
 passes but no whole-phase hardware gain: Fuchsia 4.451→4.507 s, memory unchanged.
