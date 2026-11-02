@@ -668,6 +668,29 @@ class MidgameJourney(vj.VermilionJourney):
         self.completed_steps.add(step)
         self.save()
 
+    def heal_here(self, name):
+        if self.config['packet'] != '5.5c':
+            return super().heal_here(name)
+        self.travel(self.zone(name))
+        if name == 'CeladonPokecenter':
+            descriptor = cj.StagedSource(self.build_evidence).read(
+                'data/midgameEast/events.json')['events'][self.zone(name) + ':objects:1']
+            checkpoints = [step['checkpoint'] for step in descriptor['steps'] if step['op'] == 'heal']
+            if (len(checkpoints) == 1
+                    and lookup(self.state, 'session.checkpoint') == checkpoints[0]
+                    and self.party()
+                    and all(mon['hp'] == mon['maxHP'] and mon['status'] in {None, 'none'}
+                            and mon['pp'] == mon['maxPP'] for mon in self.party())):
+                self.summary.setdefault('already_restored_centers', []).append(name)
+                return
+        self.send('wait 1')
+        history = getattr(self.client, 'history', None)
+        if history:
+            from tools.harness.restarting import validate_journey_pause
+            validate_journey_pause(history.pause, self.client.read('result.json'))
+            history.clear(time.monotonic() + 18)
+        return super().heal_here(name)
+
     def save(self):
         # A final dialogue press can expose the overworld with its field
         # gesture still consumed. Release it before the inherited Save B tap.
