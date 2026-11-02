@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "base": "7726ea49f7468c142717b29344a247958edf1c3b",
+  "preparation_only": true,
+  "maps_main": 149,
+  "maps_isolated": 171,
+  "source_ref": "8ab9b4fb0eca651c2e70455bc5c108e68687065a",
+  "driver_commit": "96f162c872acb5d7677402b3479659454a944370",
+  "sdk_executed": false,
+  "build_executed": false,
+  "hooks_applied": false,
+  "focused_tests": [
+    {
+      "scope": "Silph/gym/guards/manifest/events",
+      "passed": 28
+    },
+    {
+      "scope": "imports/restarts/Save/map-content-cache",
+      "passed": 26
+    },
+    {
+      "scope": "C boundary",
+      "passed": 7
+    }
+  ],
+  "preflight": {
+    "checks": 239,
+    "blockers": 6,
+    "expected_exit": 1
+  },
+  "evidence": {
+    "preservation.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-host-integration-20261102-01/preservation.json",
+      "sha256": "b1270f4788613cecdb611c43ec1b553af8566cba785351c37546cbff5fa50a7e"
+    },
+    "preflight.json": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-host-integration-20261102-01/preflight.json",
+      "sha256": "76e75769d19e757d6e80b6cc34cf0178dc48366b347b8f2184360c9f780e03ef"
+    }
+  },
+  "accepted_boundary": {
+    "authority": "docs/validation/midgame-b-acceptance-20261102.json",
+    "canonical_slots_exact": 6,
+    "squirtle": "complete read-only pass",
+    "bulbasaur": "missing historical partial-save archive; import blocked",
+    "charmander": "missing historical partial-save archive; import blocked"
+  },
+  "remaining_gates": [
+    "President shared inert-floor binding review/qualification",
+    "Live scripted elevator arrivals floor3/floor5",
+    "Restore/verify unavailable historical B partial ancestry through Root",
+    "Actual C SDK transform export and existing shipped-data qualification, no forged pins",
+    "Private171-map journey/source extension projections",
+    "Root working memory margin before activation",
+    "Root current rules/actors/rewards/field/Save-Continue/native visual and hardware qualification",
+    "All latency gates before C acceptance"
+  ]
+}

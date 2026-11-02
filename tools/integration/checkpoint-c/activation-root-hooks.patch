@@ -1,0 +1,81 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -179,10 +179,16 @@
+     import "game/fieldGearRequests"
+     import "game/fieldGearState"
+     import "world/fieldGearArt"
++    import "game/silphStory"
++    import "game/silphStoryWorld"
++    import "game/silphStoryController"
++    import "game/saffronGuards"
++    import "game/midgameGymStoryController"
+     import "game/midgameGymStory"
+     import "game/midgameStoryWarps"
+     import "game/celadonServices"
+     import "game/celadonServicesController"
++    import "game/copycatService"
+     import "game/hideoutTowerContent"
+     import "game/hideoutTowerController"
+     import "domain/safariBattle"
+@@ -233,6 +239,9 @@
+             CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+                 return HideoutTowerContent.package("midgameSouth", events, trainers)
+             end, "hideout-tower-midgameSouth-v1")
++            CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
++                return HideoutTowerContent.package("midgameSaffron", events, trainers)
++            end, "hideout-tower-midgameSaffron-v1")
+             BootTrace.mark("CeruleanContent.registerPackage.end")
+             GameBootstrap.yieldIfDue()
+             BootTrace.mark("CeruleanContent.install.begin")
+@@ -264,9 +273,11 @@
+             BootTrace.mark("Daycare.install.begin")
+             Daycare.install()
+             BootTrace.mark("Daycare.install.end")
+-            -- NPC trades and Saffron guards remain parked.
++            -- NPC trades remain parked.
++            SaffronGuards.install()
+             BootTrace.mark("HideoutTowerContent.install.begin")
+             HideoutTowerContent.install()
++            CopycatService.install()
+             BootTrace.mark("HideoutTowerContent.install.end")
+             BootTrace.mark("MidgameServices.install.begin")
+             MidgameServices.install()
+--- a/Source/game/hideoutTowerController.lua
++++ b/Source/game/hideoutTowerController.lua
+@@ -8,6 +8,9 @@
+     CeladonServicesController.enter(state)
+ end
+ function HideoutTowerController.advance(state)
++    if CopycatService and CopycatService.advance(state) then
++        return true
++    end
+     return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
+         or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
+         or CeladonServicesController.advance(state)
+--- a/Source/game/sourceEvents.lua
++++ b/Source/game/sourceEvents.lua
+@@ -646,7 +646,7 @@
+ function SourceEvents._registerRegionDeclaration(name, root, identity)
+     local kanto = name == "ceruleanStory" or name == "ceruleanRoutes"
+     if not (ShippedDataPolicy and ShippedDataPolicy.regionDeclarations())
+-        or (not kanto and name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
++        or (not kanto and name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth" and name ~= "midgameSaffron") then
+         return false
+     end
+     if kanto then
+--- a/tools/generate_region_registrations.py
++++ b/tools/generate_region_registrations.py
+@@ -38,10 +38,12 @@
+         files = {p.relative_to(source / 'data/contentCache').as_posix(): p.read_bytes()
+                  for p in (source / 'data/contentCache').rglob('*.json')}
+     catalog = json.loads(files['catalog.json'])['packages']
++    require('midgameSaffron' in provenance['exports'], 'C requires a real pinned SDK Saffron transform export')
+     result = {}
+     for name, root in (('vermilion', 'data/vermilionPreparation/'),
+                        ('midgameEast', 'data/midgameEast/'),
+-                       ('midgameSouth', 'data/midgameSouth/')):
++                       ('midgameSouth', 'data/midgameSouth/'),
++                       ('midgameSaffron', 'data/midgameSaffron/')):
+         index = json.loads(files[catalog[root] + '.json'])
+         events = dict(index['records']['events']['events'])
+         events.update(index['records']['events']['signs'])

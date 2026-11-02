@@ -1,0 +1,34 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -179,6 +179,11 @@
+     import "game/fieldGearRequests"
+     import "game/fieldGearState"
+     import "world/fieldGearArt"
++    import "game/silphStory"
++    import "game/silphStoryWorld"
++    import "game/silphStoryController"
++    import "game/saffronGuards"
++    import "game/midgameGymStoryController"
+     import "game/midgameGymStory"
+     import "game/midgameStoryWarps"
+     import "game/celadonServices"
+@@ -233,6 +238,9 @@
+             CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+                 return HideoutTowerContent.package("midgameSouth", events, trainers)
+             end, "hideout-tower-midgameSouth-v1")
++            CeruleanContent.registerPackage("midgameSaffron", "data/midgameSaffron/", function(events, trainers)
++                return HideoutTowerContent.package("midgameSaffron", events, trainers)
++            end, "hideout-tower-midgameSaffron-v1")
+             BootTrace.mark("CeruleanContent.registerPackage.end")
+             GameBootstrap.yieldIfDue()
+             BootTrace.mark("CeruleanContent.install.begin")
+@@ -264,7 +272,8 @@
+             BootTrace.mark("Daycare.install.begin")
+             Daycare.install()
+             BootTrace.mark("Daycare.install.end")
+-            -- NPC trades and Saffron guards remain parked.
++            -- NPC trades remain parked.
++            SaffronGuards.install()
+             BootTrace.mark("HideoutTowerContent.install.begin")
+             HideoutTowerContent.install()
+             BootTrace.mark("HideoutTowerContent.install.end")

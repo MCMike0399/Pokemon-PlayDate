@@ -1,0 +1,58 @@
+{
+  "scope": "C preparation only; host and SDK compile only",
+  "private_b": "b122e34916e723c10c3db7199b22c0d5f504f9c3",
+  "merge_base": "e211d473",
+  "maps": 171,
+  "focused_host": {
+    "passed": 38,
+    "skipped": 0
+  },
+  "protocol_host": {
+    "passed": 54
+  },
+  "release_rejection_host": {
+    "passed": 1
+  },
+  "cache_production_host": {
+    "passed": 9,
+    "failures": 3,
+    "errors": 1,
+    "limits": "Frozen A imports / B scope expectations remain unchanged."
+  },
+  "compiled": [
+    "production",
+    "harness",
+    "privately patched production"
+  ],
+  "patch_imports_verified_in_compiled_main": [
+    "game/silphStory",
+    "game/silphStoryWorld",
+    "game/silphStoryController",
+    "game/midgameGymStoryController",
+    "game/saffronGuards"
+  ],
+  "root_patch_sha256": "ee538bff17dd0cd234390cbce82994bcabec2e5709171e1872f7c766e16d2b30",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-prep-20261030-01",
+  "runtime_executed": false,
+  "accepted": false,
+  "compile_artifacts": {
+    "C-data.pdx": {
+      "main_pdz_sha256": "e81efd417558fb36e6895dce29788472308be33ec6e2097eba237299eeaa99bd",
+      "build": {
+        "mode": "production",
+        "source_sha256": "20e9603cc66f1672f8055e4a20b333a277dcc2b3cd46d29d0f6d4429b1597f23",
+        "sdk_version": "3.1.2",
+        "bundle": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-prep-20261030-01/C-data.pdx",
+        "excluded": [
+          "Source/dev"
+        ]
+      }
+    },
+    "C-root-patch.pdx": {
+      "main_pdz_sha256": "880a8605696b15c7a99878f8af23821110fb783a520668f5d4166f85d8783725"
+    },
+    "harness/Harness.pdx": {
+      "main_pdz_sha256": "19b7185992a496e8e063a6fbf5504f2f19a40f8d74e2255fe9ac9abd80defeb9"
+    }
+  }
+}
