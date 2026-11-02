@@ -119,14 +119,16 @@ point probes retain their separate scope.
    pass after correction.57protocol checks and productioncompile pass. Current
    shared-owner evidence is rebound only where unchanged assertions reran;
    HelpingHand/Dig stay stale, and no full-mechanics completion is inferred.
-3. Advance C's isolated host composition `5b0a6a2a`. All three accepted-B imports
-   now pass after verified original-path ancestry restoration. Four conditions
-   remain: President binding, two elevator arrivals and real C qualification.
-   The listed B memory samples and native bitmap point probe are complete in
-   their diagnostic scopes. Proceed to isolated C qualification under unchanged
-   guards; C still needs its own memory, latency, journey and visual acceptance.
-   Shared inert-warp/scripted-elevator metadata is in host preparation; the old
-   map-specific geometry patch stays unapplied.
+3. C's isolated candidate is now wired and SDK-qualified at `5ae77a61` in
+   `t3/checkpoint-c-host-preparation`. Main stays 149 maps; candidate has 171.
+   Source-derived metadata handles two inert Silph declarations and 13 scripted
+   elevator IDs without changing B's 510 classifications. Actual thin SDK export
+   preserves Kanto/East/South values and produces Saffron's 30 transformed events
+   and 45 trainers; sampled host peak is 194 MiB. Qualified production compile
+   passes. Native floor/elevator checks, earned journeys and C's own hardware,
+   memory, latency and visual gates remain open. The guarded full-harness export
+   stopped at 1 GiB and was replaced, not continued. B memory no longer blocks C
+   activation, per reviewer steer 7. Existing earned boundaries remain strict.
    [C ancestry proof](checkpoint-c-restored-ancestry-20261102.json).
 4. Fix structural door/boot/cave costs and measure boot/Continue against all three
    B save sizes. Payload sizes alone establish no timing conclusion. Do not
