@@ -570,10 +570,15 @@ def validate_journey_pause(value, result):
         raise ProtocolError('foreign or incomplete journey history pause')
     snapshot = result.get('snapshot', {})
     player = snapshot.get('player', {})
-    if (snapshot.get('root') != 'overworld' or snapshot.get('overworld') != 'explore'
-            or player.get('settled') is not True or player.get('moving') is not False
-            or player.get('isJumping') or player.get('pendingEdgeDoor')):
-        raise ProtocolError('journey history boundary is not settled exploration')
+    title = snapshot.get('title', {})
+    ready_title = (snapshot.get('root') == 'title' and snapshot.get('stack') == 'title'
+                   and title.get('phase') == 'menu' and title.get('menu', {}).get('active') is True
+                   and player.get('present') is False)
+    exploring = (snapshot.get('root') == 'overworld' and snapshot.get('overworld') == 'explore'
+                 and player.get('settled') is True and player.get('moving') is False
+                 and not player.get('isJumping') and not player.get('pendingEdgeDoor'))
+    if not (exploring or ready_title):
+        raise ProtocolError('journey history boundary is not settled exploration or ready title')
 
 
 class JourneyHistory:

@@ -225,3 +225,18 @@ hit-test remain mandatory immediately before input. Inspection/capture follows
 Clear. Census behavior is unchanged and remains stopped. This is a candidate
 until actual native reclamation and a short journey segment pass; no host guard,
 pool, timing or game-state check is relaxed.
+
+### Ready-title boundary candidate
+
+Three ordinary C pilots remain failed, with their true outcomes retained. The
+latest removed the fixed 500 ms Show wait, but Clear still met a busy AX window
+while the native log grew from about 395 MB to 1.056 GB. None qualifies a Clear.
+The next candidate makes the first pause at the already-prepared title menu,
+before Continue constructs the saved map. Lua, host and helper independently
+require root/stack exactly `title`, phase `menu`, an active menu and no player.
+Preparing, confirmation, options and in-world titles with a player refuse. The
+same no-held-input/no-recording request barrier applies; the later settled
+exploration rule is unchanged. No save inspection or Continue validator is
+skipped, and no gameplay input is injected by the helper. Native identity,
+three kernel fences, window/layout/hit-test, deadlines and memory guards stay
+mandatory. Actual native Clear and a short segment remain pending fresh review.

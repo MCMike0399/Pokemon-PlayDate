@@ -331,9 +331,14 @@ local function finish(game, status, message)
     if config.history_clear then
         local input = Autopilot.inputSnapshot()
         local player = finalSnapshot.player or {}
-        safeHistory = status == "ok" and not Harness.isQuiescent
-            and finalSnapshot.root == "overworld" and finalSnapshot.overworld == "explore"
+        local title = finalSnapshot.title or {}
+        local readyTitle = finalSnapshot.root == "title" and finalSnapshot.stack == "title"
+            and title.phase == "menu" and title.menu and title.menu.active == true
+            and player.present == false
+        local exploring = finalSnapshot.root == "overworld" and finalSnapshot.overworld == "explore"
             and player.settled == true and not player.moving and not player.isJumping and not player.pendingEdgeDoor
+        safeHistory = status == "ok" and not Harness.isQuiescent
+            and (exploring or readyTitle)
             and #input.held == 0 and not Autopilot.isRecording()
         if safeHistory then
             historyPause = { id = request.id, tick = tick }

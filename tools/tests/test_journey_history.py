@@ -47,6 +47,27 @@ class JourneyHistoryTests(unittest.TestCase):
             result['snapshot']['player'][key] = value
             with self.subTest(key=key), self.assertRaises(ProtocolError):
                 restarting.validate_journey_pause(self.pause, result)
+
+    def test_ready_title_can_clear_before_continue_but_not_during_preparation(self):
+        result = copy.deepcopy(self.result)
+        result['snapshot'].update(root='title', stack='title',
+                                  title={'phase': 'menu', 'menu': {'active': True}},
+                                  player={'present': False})
+        restarting.validate_journey_pause(self.pause, result)
+        invalid = copy.deepcopy(result)
+        invalid['snapshot']['player'] = {'present': True}
+        with self.assertRaises(ProtocolError):
+            restarting.validate_journey_pause(self.pause, invalid)
+        for change in ({'phase': 'preparing', 'menu': {'active': True}},
+                       {'phase': 'menu', 'menu': {'active': False}},
+                       {'phase': 'confirm', 'menu': {'active': True}}):
+            invalid = copy.deepcopy(result)
+            invalid['snapshot']['title'] = change
+            with self.subTest(title=change), self.assertRaises(ProtocolError):
+                restarting.validate_journey_pause(self.pause, invalid)
+        result['snapshot']['stack'] = 'title/options'
+        with self.assertRaises(ProtocolError):
+            restarting.validate_journey_pause(self.pause, result)
         for key, value in [('root', 'pause'), ('overworld', 'doorWarp')]:
             result = copy.deepcopy(self.result)
             result['snapshot'][key] = value

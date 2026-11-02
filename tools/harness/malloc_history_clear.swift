@@ -112,15 +112,21 @@ func verify(_ directory: URL, _ buildHash: String, _ runHash: String,
         let result = try record(data.appendingPathComponent("result.json"))
         let snapshot = result["snapshot"] as? [String: Any] ?? [:]
         let player = snapshot["player"] as? [String: Any] ?? [:]
+        let title = snapshot["title"] as? [String: Any] ?? [:]
+        let menu = title["menu"] as? [String: Any] ?? [:]
+        let readyTitle = snapshot["root"] as? String == "title" &&
+            snapshot["stack"] as? String == "title" && title["phase"] as? String == "menu" &&
+            menu["active"] as? Bool == true && player["present"] as? Bool == false
+        let exploring = snapshot["root"] as? String == "overworld" && snapshot["overworld"] as? String == "explore" &&
+            player["settled"] as? Bool == true && player["moving"] as? Bool == false &&
+            player["isJumping"] as? Bool != true && player["pendingEdgeDoor"] as? Bool == false
         try require(pause["build_id"] as? String == id && pause["session_id"] as? String == session &&
             result["build_id"] as? String == id && result["session_id"] as? String == session &&
             pause["protocol"] as? Int == 1 && result["protocol"] as? Int == 1 &&
             pause["id"] as? String != nil && pause["id"] as? String == result["id"] as? String &&
             pause["tick"] as? Int != nil && pause["tick"] as? Int == result["tick"] as? Int &&
             result["history_paused"] as? Bool == true && result["status"] as? String == "ok" &&
-            snapshot["root"] as? String == "overworld" && snapshot["overworld"] as? String == "explore" &&
-            player["settled"] as? Bool == true && player["moving"] as? Bool == false &&
-            player["isJumping"] as? Bool != true && player["pendingEdgeDoor"] as? Bool == false &&
+            (exploring || readyTitle) &&
             !FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
             "journey is not at an unacknowledged safe pause")
         let current = try record(directory.appendingPathComponent("run.json"))
