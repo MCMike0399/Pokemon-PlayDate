@@ -1,0 +1,333 @@
+{
+  "audio_gap": "sound_get_item_1",
+  "copycat": "pokered:COPYCATS_HOUSE_2F:objects:1",
+  "flag": "EVENT_GOT_TM31",
+  "labels": {
+    "before": "_CopycatsHouse2FCopycatDoYouLikePokemonText",
+    "completed": "_CopycatsHouse2FCopycatTM31Explanation2Text",
+    "explanation": "_CopycatsHouse2FCopycatTM31Explanation1Text",
+    "full": "_CopycatsHouse2FCopycatTM31NoRoomText",
+    "offer": "_CopycatsHouse2FCopycatTM31PreReceiveText",
+    "pc_other": "_CopycatsHouse2FPCCantSeeText",
+    "pc_up": "_CopycatsHouse2FPCMySecretsText",
+    "received": "_CopycatsHouse2FCopycatReceivedTM31Text"
+  },
+  "payment": "pokeDoll",
+  "pc": "pokered:COPYCATS_HOUSE_2F:background_events:2",
+  "reward": "tm31",
+  "schema": 1,
+  "source_files": {
+    "constants/event_constants.asm": "691a373649740af5ea340d09e816b0966e9164d5f78ded57b1759e76ada57455",
+    "constants/item_constants.asm": "b5a1db015fbf0de637381eb39350f21f35a436a8088e2f6657f65c79f118f97f",
+    "data/maps/headers/CopycatsHouse2F.asm": "4c2f9cf8d80d934b0c54d5f2f561e1ce6e5444d8fae7885cc582cdad260623ad",
+    "data/maps/objects/CopycatsHouse2F.asm": "d26253fd35178356bada728d58cad4b4502d5435864b37529de4a2ea721427d9",
+    "home/give.asm": "8cfb75843694f5f32294534b766ce3c0dec1272c8cc00755050348ad38604b07",
+    "maps.asm": "692ff4f5a4d88178e336c7465dd3d1bc443dc42ede07938d09b0b7db26406b57",
+    "maps/RedsHouse2F.blk": "44e7fcf3e110f52272e63194d7d5561202d8eeb357d0263ce052d5158277cbe0",
+    "scripts/CopycatsHouse2F.asm": "13e7aae9c6b49c701585365dff2e2f3baf651525a47a724d3a3c5c891db86b4b",
+    "text/CopycatsHouse2F.asm": "fcfbb493691b429b255f8d7f227619a4d9e07994639bc8a32e160fdb2add8732"
+  },
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "texts": {
+    "_CopycatsHouse2FCopycatDoYouLikePokemonText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 2,
+          "text": "<PLAYER>: Hi! Do"
+        },
+        {
+          "op": "line",
+          "source_line": 3,
+          "text": "you like #MON?"
+        },
+        {
+          "op": "para",
+          "source_line": 5,
+          "text": "<PLAYER>: Uh no, I"
+        },
+        {
+          "op": "line",
+          "source_line": 6,
+          "text": "just asked you."
+        },
+        {
+          "op": "para",
+          "source_line": 8,
+          "text": "<PLAYER>: Huh?"
+        },
+        {
+          "op": "line",
+          "source_line": 9,
+          "text": "You're strange!"
+        },
+        {
+          "op": "para",
+          "source_line": 11,
+          "text": "COPYCAT: Hmm?"
+        },
+        {
+          "op": "line",
+          "source_line": 12,
+          "text": "Quit mimicking?"
+        },
+        {
+          "op": "para",
+          "source_line": 14,
+          "text": "But, that's my"
+        },
+        {
+          "op": "line",
+          "source_line": 15,
+          "text": "favorite hobby!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 16
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FCopycatReceivedTM31Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 30,
+          "text": "<PLAYER> received"
+        },
+        {
+          "op": "line",
+          "source_line": 31,
+          "text": "@"
+        },
+        {
+          "op": "text_ram",
+          "source_line": 32,
+          "symbol": "wStringBuffer"
+        },
+        {
+          "op": "text",
+          "source_line": 33,
+          "text": "!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 34
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FCopycatTM31Explanation1Text": {
+      "recipe": [
+        {
+          "op": "control",
+          "source": "text_start",
+          "source_line": 37
+        },
+        {
+          "op": "para",
+          "source_line": 39,
+          "text": "TM31 contains my"
+        },
+        {
+          "op": "line",
+          "source_line": 40,
+          "text": "favorite, MIMIC!"
+        },
+        {
+          "op": "para",
+          "source_line": 42,
+          "text": "Use it on a good"
+        },
+        {
+          "op": "line",
+          "source_line": 43,
+          "text": "#MON!@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 44
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FCopycatTM31Explanation2Text": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 47,
+          "text": "<PLAYER>: Hi!"
+        },
+        {
+          "op": "line",
+          "source_line": 48,
+          "text": "Thanks for TM31!"
+        },
+        {
+          "op": "para",
+          "source_line": 50,
+          "text": "<PLAYER>: Pardon?"
+        },
+        {
+          "op": "para",
+          "source_line": 52,
+          "text": "<PLAYER>: Is it"
+        },
+        {
+          "op": "line",
+          "source_line": 53,
+          "text": "that fun to mimic"
+        },
+        {
+          "op": "cont",
+          "source_line": 54,
+          "text": "my every move?"
+        },
+        {
+          "op": "para",
+          "source_line": 56,
+          "text": "COPYCAT: You bet!"
+        },
+        {
+          "op": "line",
+          "source_line": 57,
+          "text": "It's a scream!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 58
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FCopycatTM31NoRoomText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 61,
+          "text": "Don't you want"
+        },
+        {
+          "op": "line",
+          "source_line": 62,
+          "text": "this?@"
+        },
+        {
+          "op": "control",
+          "source": "text_end",
+          "source_line": 63
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FCopycatTM31PreReceiveText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 19,
+          "text": "Oh wow!"
+        },
+        {
+          "op": "line",
+          "source_line": 20,
+          "text": "A # DOLL!"
+        },
+        {
+          "op": "para",
+          "source_line": 22,
+          "text": "For me?"
+        },
+        {
+          "op": "line",
+          "source_line": 23,
+          "text": "Thank you!"
+        },
+        {
+          "op": "para",
+          "source_line": 25,
+          "text": "You can have"
+        },
+        {
+          "op": "line",
+          "source_line": 26,
+          "text": "this, then!"
+        },
+        {
+          "op": "control",
+          "source": "prompt",
+          "source_line": 27
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FPCCantSeeText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 99,
+          "text": "Huh? Can't see!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 100
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    },
+    "_CopycatsHouse2FPCMySecretsText": {
+      "recipe": [
+        {
+          "op": "text",
+          "source_line": 87,
+          "text": "..."
+        },
+        {
+          "op": "para",
+          "source_line": 89,
+          "text": "My Secrets!"
+        },
+        {
+          "op": "para",
+          "source_line": 91,
+          "text": "Skill: Mimicry!"
+        },
+        {
+          "op": "line",
+          "source_line": 92,
+          "text": "Hobby: Collecting"
+        },
+        {
+          "op": "cont",
+          "source_line": 93,
+          "text": "dolls!"
+        },
+        {
+          "op": "cont",
+          "source_line": 94,
+          "text": "Favorite #MON:"
+        },
+        {
+          "op": "cont",
+          "source_line": 95,
+          "text": "CLEFAIRY!"
+        },
+        {
+          "op": "control",
+          "source": "done",
+          "source_line": 96
+        }
+      ],
+      "source": "text/CopycatsHouse2F.asm"
+    }
+  },
+  "transaction_order": [
+    "add-reward",
+    "take-payment",
+    "set-flag"
+  ]
+}

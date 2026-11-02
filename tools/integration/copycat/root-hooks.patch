@@ -1,0 +1,30 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -188,6 +188,7 @@
+     import "game/midgameStoryWarps"
+     import "game/celadonServices"
+     import "game/celadonServicesController"
++    import "game/copycatService"
+     import "game/hideoutTowerContent"
+     import "game/hideoutTowerController"
+     import "domain/safariBattle"
+@@ -276,6 +277,7 @@
+             SaffronGuards.install()
+             BootTrace.mark("HideoutTowerContent.install.begin")
+             HideoutTowerContent.install()
++            CopycatService.install()
+             BootTrace.mark("HideoutTowerContent.install.end")
+             BootTrace.mark("MidgameServices.install.begin")
+             MidgameServices.install()
+--- a/Source/game/hideoutTowerController.lua
++++ b/Source/game/hideoutTowerController.lua
+@@ -8,6 +8,9 @@
+     CeladonServicesController.enter(state)
+ end
+ function HideoutTowerController.advance(state)
++    if CopycatService and CopycatService.advance(state) then
++        return true
++    end
+     return RocketHideoutStoryController.advance(state) or (TowerStoryController and TowerStoryController.advance(state))
+         or (MidgameGymStoryController and MidgameGymStoryController.advance(state)) or (SilphStoryController and SilphStoryController.advance(state))
+         or CeladonServicesController.advance(state)
