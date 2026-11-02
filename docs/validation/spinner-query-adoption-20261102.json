@@ -1,0 +1,25 @@
+{
+  "status": "adopted scoped performance change",
+  "merge": "1860b3c01dedd500a9dc59b02ab88daf0dc7c6e7",
+  "reviewed_candidate": "714af4afae186c41c3f12223b95c211dd8614bdc",
+  "source_sha256": "7a35ba107cc52a6188f5e1d779f3027fd2f4d4e15c26030aed52b55869d27581",
+  "source_matches_measured_candidate": true,
+  "review": {
+    "task": "098759d4-6b6c-4cab-a214-03ede1f6f62f",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "scope": "combined read-only performance review; native/hardware artifacts inspected, no independent runtime rerun"
+  },
+  "evidence": "spinner-query-candidate-20261102.json",
+  "merged_host_checks": {
+    "passed": 24,
+    "failed": 0,
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-main-host-20261102-01.log",
+    "sha256": "7db0d629555a0e29f963a65b9a95cda2e4ae2b9b7d2016710a458fbc1950926e"
+  },
+  "adoption_basis": "One hardware observation: ordinary B3 active p95 147.562 to38.844ms,73.68% lower. All59 plans preserve detached output in61 native checks. Public API and event/movement ownership unchanged.",
+  "limits": "Three over-one-second frames remain; max2134.25ms. Default diagnostic GC; unequal dwell/Celadon correction. No hitch-resolution, repeatability, broad playability, C acceptance or native-memory claim.",
+  "maps_on_main": 149,
+  "c_active": false,
+  "pushed": false
+}

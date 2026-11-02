@@ -101,8 +101,10 @@ point probes retain their separate scope.
 1. Current physical memory samples now cover Game Corner and Hideout B1F–B4F,
    about 5 MiB collected live with 6.13 MiB sampled peak. Safari, Tower and native
    headroom remain open. This diagnostic-GC route is not the full C margin.
-   B3 has a 2.26 s raw slice outside marked GC; source scene-copy replacement is
-   being prepared, unadopted pending measurement. Audio remains held.
+   Spinner query merge `1860b3c0` reduces ordinary B3 active p95 from 148 to
+   39 ms in one hardware comparison; 61 native checks and 24 merged host checks
+   pass, with no review findings. Three roughly two-second hitches remain.
+   [Scoped adoption](spinner-query-adoption-20261102.json). Audio remains held.
    [Heavy-map samples and hitch scope](heavy-b-memory-20261102.json).
 2. Substitute is adopted. The composed host suite ran1,169tests with four
    metadata/art-reference failures;110targeted branch checks and120merged checks
