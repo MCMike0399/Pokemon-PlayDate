@@ -28,7 +28,7 @@ function VermilionStory.sourceWorld(world,effect)
             local key=spec.keys[q+1]
             -- An absent state tile is an integration error; no guessed art,
             -- global tile registration or mutable definition fallback here.
-            assert(SourceMaps.compact().tiles[key],"content atlas lacks pinned scene tile: "..key)
+            assert(SourceMaps.hasTile(key),"content atlas lacks pinned scene tile: "..key)
             local index=y*entry.width+x+1
             cells[index]=SourceMaps.cell(spec.map,x,y).key~=key and {x=x,y=y,key=key} or nil
         end
