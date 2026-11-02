@@ -11,6 +11,15 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
+## Disk headroom override — user decision, 2026-11-02
+
+Keep **30 GiB** free during runtime work; admit a new runtime batch at
+**31 GiB**, retaining the existing 1 GiB staging buffer. Local 30-minute storage
+maintenance starts below30 GiB and stops at50 GiB, preserving its20 GiB band.
+This supersedes older150/50 GiB disk-reserve and51 GiB admission values below.
+Memory, native-image, watchdog, ownership and evidence-retention guards are
+unchanged. Shared Pi helper qualification/pressure guards remain unchanged.
+
 ## Current direction — 2026-10-29 evening
 
 This section supersedes earlier P0 freeze and validation rules below.

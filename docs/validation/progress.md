@@ -109,8 +109,8 @@ heap is not compared with the device's 6 MiB live guard.
    C activation needs the memory margin; its acceptance still requires latency
    targets. Later regions, credits and postgame remain ahead.
 
-Keep SDK 3.1.2, the 16 MiB pool, 1 GiB host guard, 51 GiB runtime admission,
-50 GiB reserve and ordered ownership locks. Storage remains background and
+Keep SDK 3.1.2, the 16 MiB pool, 1 GiB host guard, 31 GiB runtime admission,
+30 GiB reserve and ordered ownership locks. Storage remains background and
 exception-only. The bounded recovery retained stopped census data remotely,
 verified full restore rehearsals and restored runtime admission. Measured free
 space rose from 49.06 to 54.65 GiB during that pass; concurrent activity limits
@@ -134,3 +134,7 @@ Root completed the door native/safety/hardware cycle and rejected the candidate
 as recorded above. Terrain-query composition passes18 hosts but remains unadopted.
 Two clean fully merged worker checkouts were removed without force after status,
 ancestry and open-handle checks; their branches and proof remain. No guards changed.
+
+User disk-headroom override (2026-11-02): reserve30 GiB, new runtime admission31 GiB;
+local maintenance30→50 GiB. Historical measurements/guards above retain their
+original values. No Simulator/device memory or shared Pi helper guard changed.
