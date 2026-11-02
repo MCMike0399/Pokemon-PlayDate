@@ -1,250 +1,127 @@
 # Full-game execution ledger
 
-Updated 2026-11-01. Follow [the goal](../plans/full-game-goal.md).
-**108/222 Simulator-route maps on main; 0/222 device-playable maps. Current: 5.5b.**
-The complete Blue campaign, credits and postgame remain unfinished.
-Root exclusively owns SDK/device sessions. No push authorized for current work.
+Updated 2026-11-02 UTC. Follow [the goal](../plans/full-game-goal.md).
+**Main:108/222 Simulator-route maps. Private B:149. C:171 isolated. Device-playable acceptance:0/222.**
+The complete Blue campaign, credits and postgame remain unfinished. Root owns
+SDK/device sessions; no push is authorized for this work.
 
-## Accepted main and private content
+## Accepted main and private frontier
 
-5.5a is merged/pushed: 43 East maps, Erika and Silph Scope, for 108 maps.
-**Simulator-accepted and hardware-safe; device latency targets not yet met.**
-All three earned 5.4 journeys and actual process restarts passed.
-[Acceptance](midgame-a-acceptance-20261029.json), [chain hashes](chain-saves.json).
-GB tones, protected art, schema 4, earned saves and approved QoL stay intact.
+5.5a is merged/pushed:43 East maps, Erika and Silph Scope, for108 maps.
+Label: **Simulator-accepted and hardware-safe; device latency targets not yet met.**
+Three earned routes and actual process restarts passed.
+[Acceptance](midgame-a-acceptance-20261029.json), [chain identities](chain-saves.json).
 
-Private B149 includes Tower/Fuji/Flute, Snorlax, Cycling Road, rods,
-Fuchsia/Koga/Safari and Surf/Strength. Three earned A→B journeys and actual
-restarts pass. B remains unaccepted pending the current showcase/motion gate.
-[Candidate](midgame-b-candidate-20261030.json),
-[common loads/restarts](midgame-b-common-load-20261030.json).
-C171 remains isolated; no C activation or acceptance. No 5.6 work starts yet.
-Current static C audit leaves 22 declared move gaps across 44 ordinary trainers;
-Self-Destruct occurs on 13 members and is the next preparation priority.
-[Scope](checkpoint-c-current-move-exposure-20261101.json).
+Private B149 covers Tower/Fuji/Flute, Snorlax, Cycling Road, rods,
+Fuchsia/Koga/Safari and Surf/Strength. Its retained three-starter earned A→B
+journeys/restarts pass; later rule/performance changes have scoped native and
+hardware evidence, not a claimed new campaign rerun. B remains **unaccepted**
+pending Snorlax/Koga captures, final60–90s motion showcase and release review.
+[Candidate](midgame-b-candidate-20261030.json), [restarts](midgame-b-common-load-20261030.json).
+C171 stays isolated/inactive; no C acceptance or5.6 work. Latency gates C acceptance.
 
-## Current B validation
+## Current private-B implementation and validation
 
-Surf expiry, Reflect/Chip Away, HM battle actions, Haze/Clear Smog and
-Rest/Snore/Yawn/Foresight/Revenge are composed privately. Targeted native suites
-pass: 33 new move cases, 145 existing regressions and 54 original coverage
-assertions. Both gameplay reviews and the measured cache performance review
-have no remaining actionable findings. [Move scope](b-earned-moves-composition-20261101.json).
+Adopted allocation composition:`f0edc15c`. It avoids unrelated gym descriptor
+projections and uses a SourceMaps boolean query instead of copying the entire
+world catalogue four times for four Hideout cells. All callbacks, validation,
+cell/world outputs, transactions, RNG, rollback and defensive getters remain.
+Combined review: **Standards0 / Spec0**. Merged Source is byte-exact to the
+native/hardware candidate. **Full host:1072/1072, zero errors/skips,177.676s.**
+The initial stale-snapshot failure is retained; the snapshot-only refresh keeps
+all1512 coverage rows, levels, inventories and original evidence hashes.
+[Host/review](gamecorner-membership-full-host-20261102.json),
+[native cases](gamecorner-membership-root-native-20261102.json),
+[physical proof](gamecorner-membership-hardware-20261102.json).
 
-Latest executed B host suite: **1,067 passed**, no errors/failures/skips, 191.410 s.
-`evidence/b149-v2-composed-full-host-20261101-02.log` retains the result.
-Later operator/reporting changes leave production Source unchanged. Main’s
-reviewed in-place build publisher fix and existing regression case are ported
-as `15715215`; the updated full host/compile suite has not been rerun.
-Coverage retains 1,512 rows, verification levels and original historical hashes.
-All 2,494 protected images, 41 South spawn views and 82 overlays retain their
-previous inspected proof. Static views do not establish current motion acceptance.
-[Protected art](midgame-b-protected-visuals-20261030.json),
-[overlays](midgame-b-full-overlays-20261030.json).
+Metadata:6native cases across1262IDs. Membership:6original cases across11short
+processes, covering all18effect/world combinations with original assertions.
+The minimal guarded projection failed on catalogue copy3; it now completes
+with0catalogue copies. No guard/GC policy or art/data/map change.
+[Expected-red diagnosis](hideout-catalogue-minimal-red-20261102.json).
 
-## Physical traversal — passed resource gate
+GenV HM battle actions, Haze/ClearSmog, Rest/Snore/Yawn/Foresight/Revenge,
+Reflect/ChipAway and Self-Destruct/Explosion are composed privately, with their
+retained native/review scopes. Source gaps remain explicit; green routes never
+meant full mechanics fidelity. [Move scope](b-earned-moves-composition-20261101.json),
+[Self-KO](self-ko-private-b-adoption-20261101.json).
+Protected art/static views retain their earlier proof; allocation changes do
+not alter rendering. Static images do not establish current motion acceptance.
+[Art](midgame-b-protected-visuals-20261030.json), [overlays](midgame-b-full-overlays-20261030.json).
 
-Build `8ecd184c4495408486dac93c4f146f60` completes **110 actual doors, 30 maps,
-20 wild battle starts and 136 post-GC entry samples** over 87.44 minutes.
-Maximum post-GC Lua heap **5.151 MiB**; sampled raw peak **6.341 MiB**.
-No new error/crash logs; exact compiled inventory, console/file receipts,
-canonical/private seed bytes and final settled state pass verification.
-No hardware Save occurred. Ordinary RUN ended the wild battles; party, items
-and money are unchanged. Calibration keeper restored; all runtime owners closed.
-[Root review and exact proof](b149-physical-long-traversal-20261101.json).
+## Current physical results and limits
 
-This closes the long physical resource gate, not B acceptance or playability.
-Per-entry diagnostic collections remain explicit; Lua samples exclude native
-allocations/unsampled peaks. Existing 2 MiB image point probe is separate evidence.
-The earlier 60+60-minute idle soak and Simulator plateaus remain valid.
-[Idle](idle-soak-active-20261030.json), [native point probe](native-image-headroom-20261030.json).
-Audio stays held until its separate integration/playback verification.
+Latest finite route, build`e64af0a6f9da4b8081420c87f486967a`, uses an earned
+Charmander B save and12ordinary input batches. It reaches GameCorner(15,17)
+settled; the prior9MiB guard failure is resolved on this matched replay.
+No new error/crash logs. Keeper restored; all runtime owners closed.
 
-## Device latency and next actions
+| Phase | Latest device wall | Target | Result |
+| --- | ---: | ---: | --- |
+| App start→title accepts A |13.564s|≤10s|Fail|
+| Boot maximum slice |1.458s|≤1s|Fail|
+| Continue |3.474s|≤4s|Pass this run|
+| Save |1.946s|≤2s|Pass this run|
+| Worst sampled door on this route |4.477s Fuchsia|≤1.5s|Fail; worst-eight incomplete|
+| GameCorner entry |3.960s|≤1.5s|Fail latency; former hard guard absent|
+| Battle/cave p95 |Unmeasured here|≤1s /≤50ms|Open|
 
-The shipped-equivalent common route is measured: boot 12.477 s, Continue 3.373 s,
-Save 1.607 s, doors 2.961/1.917/1.398 s, battle 18 ms, cave p95 88.32 ms.
-Boot slice 1.458 s fails; diagnostic GC was not silently subtracted.
-[Comparison](device-shipped-equivalent-20261101.json).
+Sampled Lua peak7.83MiB stays below9MiB. Endheap6.28MiB is **uncollected**, not
+post-GC live proof. Marks remain but forced diagnostic collections are absent;
+production soft collection is unchanged. Native/transient peaks are unmeasured.
+The different historical common route measured battle18ms and cave p9588.32ms;
+that cave result fails and is not a current-source rerun.
+[Phase report](gamecorner-membership-hardware-20261102.json),
+[common shipped-equivalent route](device-shipped-equivalent-20261101.json).
 
-The reviewed versioned cache layout removes flat-directory FAT overhead:
-matched Fuchsia entry 14.858→6.576 s (55.7%); all 2,546 record bytes and indexes
-are unchanged. Private B keeps this measured improvement. Worst sampled door in
-current diagnostic stress is 7.067 s; it is not a shipped-equivalent pacing run.
-Boot, worst-door and cave targets remain unmet; latency gates C acceptance.
+## Long-session resource evidence
 
-The first current-source capture preflight stops at the 1 GiB host-memory guard
-after 8.59 s; no usable movie. Owned child is gone and UUID Data byte-archived.
-Disk is 46.65 GiB, below 51/50 GiB admission/reserve. An external shell check
-failed to stop launch; admission now lives inside the recorder and its refusal
-before output/SDK is verified. No retry or guard relaxation.
-[Retained failure](b149-showcase-preflight-stop-20261101.json).
-Private recorder preparation now enumerates exact staged map IDs instead of
-copying full maps. All 149 maps/752 IDs match the prior actual SDK projection;
-combined review finds no issues. Native memory benefit remains unmeasured.
+Earlier exact build`8ecd184c` passed110actual doors/30maps/20wild battles over
+87.44min,136post-GC samples,max5.151MiB,raw6.341MiB,no newlogs. This closes its
+stated physical resource scope, not current latency, every map or B acceptance.
+[Traversal](b149-physical-long-traversal-20261101.json).
+60+60min idle and Simulator plateaus remain retained; the separate2MiB native
+image point probe excludes long-session/unsampled native peaks.
+[Idle](idle-soak-active-20261030.json), [headroom](native-image-headroom-20261030.json).
+Audio remains held for its separate integration/listening checks.
 
-Prepared source work is recorded separately: Self-KO review caught and Root
-fixed King’s Rock secondary/RNG loss; spec recheck is clear. Generic INTERIOR
-warp reviews are clear. All remain unadopted and require native validation.
-[Prepared frontier](prepared-source-frontier-20261101.json).
+## Capture, package and isolated mechanics
 
-Next: resolve bounded capture at restored runtime headroom, inspect native motion,
-then finish B acceptance/merge. Preserve current hardware proof and earned slots.
-Continue real worst-door decomposition/structural latency work; never resume the
-exhaustive census. Its 2,832 closed trials remain frozen.
-[Census stop](census-stopped-20261101.json), [static ranking](door-static-ranking-20261101.json).
+Walking and a complete24.05s Fisherman victory are captured; native short
+preflights pass with exact decoded pixels. Snorlax/Koga and final composition
+remain open. The unchanged1GiB host guard stops longer setup/Save paths.
+DiveMac desktop observation and native foreground/menu actions are verified;
+Clear History/reclamation remains unqualified. A tiny GUI-only check returned
+a truncated1000-element AX tree, not proof that the control is absent.
+[Components](b149-showcase-components-20261101.json),
+[capture limits](b149-desktop-capture-limits-20261102.json).
+Outside-Git player package02 retains all three earned pairs and known limits;
+its production build predates allocation changes. Repackage on acceptance.
+User cannot play now; do not wait for feedback.
 
-Current native capture preflight passes2.99s,436MiBhost; decoded pixels exact.
-Walking and a complete24.05s Fisherman victory are captured independently.
-Battle sampling15fps preserves original walltime; no gamepacing claim.
-Snorlax/Koga and final60–90s composition remain open; some setup+Save processes
-still hit1GiB. OpenClaw has no active computer node; no GUI workaround/settings
-change. [Components and exact scope](b149-showcase-components-20261101.json).
-Release candidate `evidence/player-packages/5.5b-release-candidate-20261101-01/`
-contains normalproductionPDX and ALLTHREE verified originalearnedSave pairs.
-User cannotplaynow; nofeedbackwait. Bstillunaccepted; no push.
+Substitute epoch19 and source-derived doll art are isolated on
+`t3/gen-v-substitute` at716a062f. New24rule+8seam cases and6presentation cases
+are compiled, not executed on that candidate. Old67passes apply only to its
+prior owner-seam version. No Substitute adoption or C activation. Trick/Recycle
+and other unsupported producers remain gaps. The historical C exposure audit
+predates Self-KO; refresh it before C activation instead of presenting its old
+count as current. [Historical audit](checkpoint-c-current-move-exposure-20261101.json).
 
-## Operational boundaries
+## Next actions and operating boundaries
 
-Exact 16 MiB safety admission: no error, raw slice ≤150 ms and sampled peak ≤9 MiB.
-Device live guard: collect near 8 MiB; fail above 6 MiB after GC or 9 MiB hard.
-Keep 51 GiB batch admission /50 GiB reserve, ordered locks and one runtime owner.
-The concrete capacity block permitted one bounded duplicate-checkout cleanup:
-8 completed, clean, main-merged review worktrees reclaimed 3.02 GiB; branches
-and evidence remain. Two live process paths were preserved. Measured free
-47.13 GiB still fails admission. [Record](closed-review-worktrees-20261101.json).
-Storage stays background/exception-only through the existing reviewed queue.
-No new storage tooling, broad scans or proof release. No push without a request.
-[Earlier detailed ledger](progress-history-before-b-traversal-20261101.md).
+1. Port the reviewed shared allocation fix to main108 without B content,
+   qualifying its own copied Source and real SDK outputs.
+2. Complete remaining ranked physical destinations and structural door/cave work;
+   preserve paired evidence and≥10%performance review rule. Never resume the census.
+3. Finish genuine Snorlax/Koga segments and real-speed showcase; update the player
+   package, accept/merge B only after its remaining gates, then ask once about push.
+4. Execute/review isolated Substitute and later C integration; C acceptance still
+   requires latency targets. Do not change source trainers/moves/AI to hide gaps.
 
-Reviewer5 recoverypassclosedafterexternalauthorizedTartcleanup: fresh84.62GiB,
-0Playdatearchive/rehearse/releases and0pendingpassjobs. No additionalroots;
-ordinarypolicies/guards unchanged, temporaryslotreleased. Runtimeadmission
-restored; olderlow-capacity measurements above remain historical.
+Keep exact16MiB safety: no error,observed slice≤150ms,sampled peak≤9MiB.
+Keep6MiB post-GC live/8MiB soft/9MiB hard policy,51GiB runtime admission/50GiB
+reserve,ordered locks and one runtime owner. Storage is background/exception-only;
+no new tooling, broad scans or proof release. Capacity recovery is historical,
+not an active blocker. Never push without a new user request.
 
-Reviewed Self-Destruct/Explosion plus King's Rock correction are composed into
-private B4470a0c2:74 native battle cases and34 focused host checks pass; existing
-harness registration added. One minimal-runner charge-lock dependency refusal
-is retained separately. No B/C acceptance or fresh full-suite claim.
-[Scope](self-ko-private-b-adoption-20261101.json).
-
-Current private B file-open device profile completes without new logs; keeper
-restored. Fuchsia6545ms:133 Lua-visible opens757ms,136 decodes744ms; Route18
-3038ms:49 opens231ms/49 decodes254ms. Opens are11.6%/7.6% of those map spans,
-so packing is not justified as the main fix. Next attribute field reload, actors
-and post-actor traversal capture. [Exact scope](door-io-counts-20261101.json).
-
-Reviewed loading-scope field-index retention is integrated privately: Route18
-3038→2610ms(14.1%); Fuchsia6545→5920ms(9.5%). No new logs, keeper restored.
-Literal owner-body equality, fresh SDK descriptor/roster exports,31 host and7
-native checks pass; exact composed safety52.386ms/8.76MiBpeak is admitted.
-Strict live target remains failed; final owner hardware timing and B visual
-acceptance remain open. [Integration](loading-field-cache-integration-20261101.json).
-
-Physical activation profile completes six recorded door entries, matching all
-route boundaries; no new logs, keeper restored. Fuchsia5879ms, Route175542ms.
-Actor descriptors are built three times (2039/2570ms inclusive); capture totals
-overlap those times. Empty actor normalization discards one eagerly built
-descriptor: next targeted candidate, no gain claimed. Worst-eight and B visual
-gates remain. [Attribution](door-activation-attribution-20261101.json).
-
-Chunked checksum is reviewed and adopted privately: title store-read3286→2847ms
-(13.36%); whole Save2189→1986ms(9.27%), not a10% whole-wait claim. Existing
-persistence18/18 and23 recovery/build host checks pass. Two exact import lists
-and the registration list now include Self-KO without weakening original order.
-No new device logs; keeper restored. [Adoption](chunked-checksum-adoption-20261101.json).
-
-Empty-marker actor shortcut is REJECTED despite12.9% Route17 gain: review found
-a permitted custom metadata callback can be skipped. Both candidate Source
-files restored; all evidence retained. Checksum and scoped-field changes stay.
-B visual gates remain pending retained desktop observation/input verification.
-[Rejection](empty-actor-rejection-20261101.json).
-
-Current B host reconciliation passes1071/1071 tests, zero errors/skips
-(182.416s), plus the same54 native assertions. Dev journey values and all1512
-coverage rows/levels remain unchanged. Independent data review leaves only a
-clarified count category(24 runtime-only;28 including coverage). Current-source
-capture preflight passes2.975s/91frames/403MiB; Snorlax/Koga and montage remain
-open. [Finalization](b149-host-finalization-20261101.json).
-
-Current normal-production player package02 is ready:202 modules, no dev code,
-all three unchanged earned B save pairs and known limits; not installed/accepted.
-A genuine short checkpoint reaches Route12(10,23),615MiB hostpeak. Follow-up
-trainer wins but Save hits hostguard; no marker produced, partial slots unused.
-[Package/checkpoint](b149-package-checkpoint-20261101.json).
-
-Callback-preserving pose metadata is adopted privately after0/0 review:
-Route17 actor construction2470→1744ms(29.4%), while wholeload gain is9.85%.
-All3descriptor builds/story callbacks remain; custom fallback/errors verified.
-Host12/native5 and exactsafety pass; no new device logs, keeper restored.
-Prior1071fullhost predates this Source; no freshfullsuite claim.
-[Adoption](pose-metadata-adoption-20261101.json).
-
-Post-pose current fullhost passes1071/1071, zero errors/skips(161.680s).
-Affected host57checks and focusednative5remain scoped. B visual preparation
-stopped at unchangedhostguard; no newmarker or partialslot import.
-[Audit](b149-pose-host-20261101.json).
-
-Current private B physical north approach closes with no new logs and keeper
-restored. Input-ready boot13.979s, Continue3.908s, Save1.976s; Fuchsia5.348s,
-Route17 first entry5.008s. Continue/Save pass this run; boot/door/slice fail.
-Ten ordinary input batches reach Route17 but not Celadon: terrain-only planning
-omitted a stationary actor and downhill resumes between requests. Partial
-coverage only, no worst-eight claim. Current post-pose host audit is1071/1071.
-[Retained partial route](b149-ranked-north-partial-20261101.json). B visual
-Snorlax/Koga/montage remains open; no C activation or push.
-
-Real DiveMac desktop observation is retained/inspected. Three short native
-preflights pass, but Clear Malloc History remains uninvoked: shell menu fallback
-hit t3 assistive-access denial; computer-only input did not foreground Simulator.
-A real trainer victory followed by a bounded GUI hold hit the unchanged1GiB
-host guard before Save, producing no usable checkpoint. All children closed;
-no partial-slot import, pool/guard change or B acceptance.
-[Capture limits](b149-desktop-capture-limits-20261102.json). Actor-excluding
-static Route17 planning now has a non-grass path, still physically unverified.
-
-Actor-aware physical route reaches Route16 and Celadon, then GameCorner loading
-hits the unchanged9MiB hard guard (~9.01MiB) after view preparation. No complete
-valid timing report; B acceptance remains open. Raw checkpoints grow from7,634
-to9,190KiB during actor preparation, with no soft-GC marker. No leak/cause proved.
-No new error/crash logs; collection completes and keeper is restored.
-[Failure and ranked hypotheses](b149-gamecorner-memory-stop-20261102.json).
-Do not repeat this unchanged build or lower guards. Isolated Substitute owner
-seamcc6109ef is compiled/host31 only, unsupported and unadopted; C stays inactive.
-
-Isolated Substitute interfacescc6109ef pass67 real SDK3.1.2 checks:8new
-owner cases,34ordinary combat and25contact regressions. No move activation,
-B/main Source change or C acceptance. Full primary/status/bypass integration
-remains. [Native scope](substitute-seams-native-20261102.json).
-
-Metadata candidate952db34f passes6 native differential cases/1262IDs and actual
-SDK export equality, qualified compile and fresh safety. Physical replay still
-hits9MiB atGameCorner; no valid complete timing/gate result. Raw descriptor spans
-fall across completed legs, but candidate is unadopted. All owners close; no new
-logs; keeper restored. [Comparison/limits](gamecorner-metadata-hardware-20261102.json).
-Source diagnosis identifies four whole-world catalogue copies in the four-cell
-Hideout terrain projection. A boolean query can preserve validation without
-those copies; implementation/native equivalence/resource proof remain pending.
-
-Minimal actualSDK3.1.2 reproduction confirms the catalogue-copy failure:
-one held149-map copy retains~956KiB. Existing four-cell entrance-open projection
-inside ordinary withLoading hits9MiB on copy3 in330ms, from6,425 to9,226KiB.
-No world/session application or limit change. [Expected-red proof](hideout-catalogue-minimal-red-20261102.json).
-The boolean owner-query candidate must turn this exact case green before its
-physical replay; B remains unaccepted.
-
-Four-cell membership candidate6576cef1 resolves the same physical GameCorner
-hard-guard failure: all12button batches complete and the player settles inside.
-GameCorner3.960s; boot13.564s, Continue3.474s, Save1.946s. No newlogs, keeper
-restored. SampledLua peak7.83MiB; uncollected endheap6.28MiB is NOT post-GClive.
-Boot/door/slice targets stillfail; battle/caves unmeasured here. Six native cases
-(all18effect/world combinations) and51affected hosts pass.
-[Physical scope and remaining gates](gamecorner-membership-hardware-20261102.json).
-Combined review/adoption pending; B visualacceptance remains open. Nothingpushed.
-
-Combined allocation review has0Standards/0Spec findings. Exact Source passes
-all1072host tests, zeroerrors/skips; the only initial failure was the now-reviewed
-source snapshot metadata. All1512coverage rows/levels/oldhashes remain.
-[Full host/review scope](gamecorner-membership-full-host-20261102.json).
-This adopts the allocation fix only; B checkpoint/visual/playability acceptance
-and C activation remain open. No push.
+[Complete prior ledger, including failed history](progress-history-before-allocation-adoption-20261102.md).
