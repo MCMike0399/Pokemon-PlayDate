@@ -225,6 +225,9 @@ def source_models(source):
         # house's wall hole). The source collision decides passability.
         model.signs = {point for point in model.signs if model.collision[point[1]][point[0]]}
         model.source_data, model.descriptor = raw, desc
+        inert = set(desc.get("non_triggering_warps", {}))
+        model.warps.difference_update((event["x"], event["y"]) for event in events["warps"]
+                                      if event["id"] in inert)
         model.padding, model.counter_feet = entry["padding"], tuple(raw["tileset"]["counter_tiles"])
         models[entry["id"]] = model
     return models, manifest, compact["door_tiles"]
@@ -430,7 +433,8 @@ class CeruleanJourney(BrockJourney):
     def portals(self, model):
         for event in model.events["warps"]:
             point = (event["x"], event["y"])
-            if not model.collision[point[1]][point[0]]:
+            inert = getattr(model, "descriptor", {}).get("non_triggering_warps", {})
+            if event["id"] not in inert and not model.collision[point[1]][point[0]]:
                 yield point, "warp", event
         if hasattr(model, "descriptor"):
             for direction, (dx, dy) in DIRECTIONS.items():

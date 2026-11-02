@@ -18,7 +18,7 @@ from tools.harness import preflight_midgame as host
 from tools.harness.midgame_journey import MidgameJourney, validate_scenario
 from tools.harness.protocol import ProtocolError
 
-C = 'a62974fa84cf48a97bcd83ceb4910aae0633196e'  # immutable Silph geometry preparation; C remains inactive
+C = '548ba47d'  # immutable wired/qualified C candidate; no campaign acceptance
 COPYCAT = '8a4a8e4acc17b52f5adcc5ea01a89212dbd99c42'
 DATA = Path(__file__).parent
 
