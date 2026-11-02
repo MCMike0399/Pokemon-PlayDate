@@ -54,5 +54,51 @@
     "Root working memory margin before activation",
     "Root current rules/actors/rewards/field/Save-Continue/native visual and hardware qualification",
     "All latency gates before C acceptance"
-  ]
+  ],
+  "current_main_composition": {
+    "current_main": "24ea539cd68142af6b50ca57841cdb8ae350f519",
+    "merge_commit": "a62974fa84cf48a97bcd83ceb4910aae0633196e",
+    "backup_ref": "prep/checkpoint-c-before-main-24ea539c-69658243",
+    "normal_merge": true,
+    "main_changed_files_exact": 75,
+    "unrelated_main_deletions": 0,
+    "epoch": 19,
+    "substitute": "adopted on current main; preserved exactly",
+    "terrain_queries": "reviewed9ba63d68 and actual qualification/provenance exact current main",
+    "source_main_exact": true,
+    "root_hooks_applied": false,
+    "focused_tests_passed": 61,
+    "preflight": {
+      "checks": 239,
+      "conditions": 4,
+      "all_three_B_boundaries": "read-only pass; historical frozen proofs and canonical slots unchanged"
+    },
+    "generator_checks": [
+      "source map/cell cache",
+      "content cache",
+      "Silph",
+      "Copycat"
+    ],
+    "evidence": {
+      "preflight.json": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-current-main-host-20261102-01/preflight.json",
+        "sha256": "c01e7f7fd6c116d4386cc7b1db882e9cf64058a8bd2190cdca44cd4321ca637a"
+      },
+      "preservation.json": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-current-main-host-20261102-01/preservation.json",
+        "sha256": "cf8f9df459ba46c4323e092d239f7c294eab83221886cbd65b6c3d6fafdddefa"
+      },
+      "main-preservation.json": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-current-main-host-20261102-01/main-preservation.json",
+        "sha256": "626b2a1aa2d412cae534670c40a26ce338ae7f88becc2148acba2f66cbd53d5b"
+      },
+      "focused.log": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-current-main-host-20261102-01/focused.log",
+        "sha256": "ad5d2b93bb315b7a3dbf2039022bc32ca922671cfa9edb2e70b2c5c0bfa3d9a1"
+      }
+    },
+    "runtime_or_build_executed": false,
+    "storage_work_or_push": false,
+    "memory_and_latency_gates": "unchanged; Root owns heavy-map memory table"
+  }
 }

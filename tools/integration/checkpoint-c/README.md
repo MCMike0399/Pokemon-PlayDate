@@ -1,4 +1,77 @@
-# Checkpoint C isolated host composition — 2026-11-02
+# Checkpoint C current-main host composition — 2026-11-02
+
+Current merge: `a62974fa84cf48a97bcd83ceb4910aae0633196e`, parents exact original
+C preparation `69658243ca052b100f3d1d6ecbe4efd90d464884` and exact current main
+`24ea539cd68142af6b50ca57841cdb8ae350f519`. Original preparation is preserved at
+`prep/checkpoint-c-before-main-24ea539c-69658243`. This is a normal merge with
+no conflicts; no old divergent/synchronization history was added.
+
+**Main remains149; isolated171 remains inactive and unaccepted.** Root activation
+and geometry hooks remain UNAPPLIED. No SDK/build/compile, Simulator, device,
+USB, GUI, runtime locks, full suite, storage work, push or delegation occurred.
+
+## Current preservation and host result
+
+All75 files changed by current main since the original accepted base are exactly
+current-main bytes. There are zero unrelated main deletions or differing main
+updates. This includes reviewed terrain queries `9ba63d68`, actual SourceMaps
+qualification and provenance, adopted Substitute `056fe922` / epoch19, inverse
+policies, migrations, source doll assets, native299/motion/protocol proof files,
+coverage, progress and operator tools. `Source/main.lua` and all existing shared
+runtime owners are exactly current main. No qualification pin/export was invented
+or widened. Current main wins unrelated documentation, proofs and tools.
+
+The original149 map entries/decoded records/grids/cell payloads/content digests
+and all22 prepared C maps, Copycat and selected Silph geometry survive. The same
+existing preservation audit now uses exact current main as its comparison base.
+The original Route16 compact barrier exception and two callback-only atlas cells
+remain exactly as documented in the historical composition below.
+
+Focused host checks: **54+7 pass**, no skips. Existing map/cell cache, content
+cache, Silph and Copycat generator checks all pass. No native/build result follows.
+The one existing C preflight runs against immutable Source commit `a62974fa...`:
+**239 checks / four conditions**, expected exit1. All three actual B ancestry
+boundaries now pass, including restored B11 at its original path. Six canonical
+B slot hashes, historical A chain-manifest authority and original producer
+Source remain unchanged; no slots/provenance were rewritten.
+
+Current evidence is outside Git:
+`/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-current-main-host-20261102-01/`:
+`preflight.json`, `preservation.json`, `main-preservation.json`, `focused.log`.
+The earlier Root report remains historical and unchanged:
+`/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-ancestry-restored-preflight-20261102-01.json`.
+
+## Current unapplied hooks and remaining gates
+
+Hooks were regenerated against current Source without applying them. Both
+`activation-root-hooks.patch` + `geometry-root-hooks.patch`, and the separate
+C-only `root-hooks.patch` + Copycat `../copycat/root-hooks.patch`, compose in
+disposable file copies. Do not apply both alternatives. The existing optional
+Copycat SDK registration patch also apply-checks against current harness imports.
+No new journey SDK contracts/framework were added.
+
+The exact four remaining host conditions are:
+
+1. President access requires the unapplied source-qualified inert-floor binding.
+2. Silph floor3 elevator arrival requires the existing live scripted binding.
+3. Silph floor5 elevator arrival requires the same owner before map construction.
+4. C declaration qualification: current transform dependency pins reject the
+   C171 manifest. Root needs a real C/Saffron SDK export and qualification through
+   the existing pipeline; none was fabricated or relabelled here.
+
+Root still refreshes private171-map journey/source extension projections and
+owns current native actor/door/pad/elevator/reward/Copycat/Fly/Save-Continue,
+current exposed rules, visuals and hardware qualification. Root owns the physical
+heavy-map memory table. Reserve30GiB/admission31GiB and16MiB pool/1GiB host/6-8-9
+Lua policy are preserved unchanged. C activation still waits for working memory
+margin; all latency gates remain mandatory for C acceptance.
+
+## Historical first composition below (superseded where noted above)
+
+This records the original pre-merge preparation only. Its epoch18, unadopted
+Substitute and unavailable B11 statements describe that earlier boundary;
+current main's epoch19/adopted Substitute and restored ancestry take precedence.
+
 
 This branch starts exactly at accepted-main `7726ea49`. Main stays **149/222**;
 this isolated **171-map preparation is inactive and unaccepted**. No push,
