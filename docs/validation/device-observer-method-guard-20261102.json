@@ -9,7 +9,12 @@
   },
   "host_passed": 25,
   "original_hardware_attempt": "Failed, not accepted: Safari gate reached but no Safari map memory proof. Before/after system log hashes unchanged; keeper restored.",
-  "real_admission_replay": "Pending fresh build/safety/device retry",
+  "real_admission_replay": {
+    "status": "passed actual original failure boundary and full ordinary admission on physical03",
+    "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-memory-hardware-20261102-03",
+    "gate_event_observation": "operator06 reaches real EventState service-choice YES/NO with no method-index error",
+    "scope": "No new game mechanic or campaign acceptance"
+  },
   "proofs": {
     "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/device-observer-red-native-20261102-01/startup-probe.json": "818fc287d138c95a7d60c5d80f69533cd6f627a371bc7919d673407a51ccdd3b",
     "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/device-observer-green02-native-20261102-01/startup-probe.json": "a96deec427d4ff5d83bcb0650a5fcd4ee8dc5e2e336142708a0c103a6dd8514e",

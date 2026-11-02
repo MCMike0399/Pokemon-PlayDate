@@ -99,8 +99,10 @@ point probes retain their separate scope.
 ## Next work and open gates
 
 1. Current physical memory samples now cover Game Corner and Hideout B1F–B4F,
-   about 5 MiB collected live with 6.13 MiB sampled peak. Safari and Tower remain
-   open. The current fishing-battle point probe holds eight requested 256 KiB
+   about 5 MiB collected live with 6.13 MiB sampled peak. Safari Center, East,
+   North and West now measure 5.03–5.08 MiB post-GC with the same 6.13 MiB peak;
+   seven natural encounters use ordinary RUN. Tower remains open.
+   [Safari samples and retained failures](safari-memory-20261102.json). The current fishing-battle point probe holds eight requested 256 KiB
    native images on hardware, then releases them; allocation plus two collections
    takes 1.243 s. This diagnostic-GC route is not the full C margin.
    [Native point probe](native-headroom-current149-20261102.json).
