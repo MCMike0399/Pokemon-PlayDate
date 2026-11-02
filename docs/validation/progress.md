@@ -2,117 +2,136 @@
 
 Updated 2026-11-02 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
-Checkpoint B is merged and accepted. The full Blue campaign, credits and postgame
-remain unfinished. C's 171-map preparation remains isolated and inactive.
+The full Blue campaign, credits and postgame remain unfinished. C's 171-map
+preparation is isolated and inactive. Nothing is pushed without a user request.
 
-## Checkpoint 5.5b — accepted
+## What a player can do
 
+Checkpoint B is accepted and merged: Tower/Fuji/Flute, both Snorlax routes,
+Bicycle/Cycling Road, rods/fishing, Fuchsia/Koga, Safari, Surf and Strength.
 **Simulator-accepted and hardware-safe; device latency targets not yet met.**
-Added 41 maps: Tower/Fuji/Flute, both Snorlax routes, Bicycle/Cycling Road,
-rods/fishing, Fuchsia/Koga, Safari, Surf and Strength. All three genuine earned
-A→B routes and actual two-process restarts pass in their retained source scope.
-Later rule and performance fixes have targeted native/review/hardware proofs;
-this is not a claimed new full-route replay. The 86.161-second native showcase
-and current production package complete the remaining visual/package gate.
-[Acceptance and exact hashes](midgame-b-acceptance-20261102.json).
+All three genuine A→B routes and two-process restarts passed in their retained
+source scope. Later fixes have targeted proofs, not a new whole-route replay.
+[Acceptance and original hashes](midgame-b-acceptance-20261102.json).
 
-Merged game code: `af9a8938`. Current production Source matches the reviewed B
-candidate and packaged build. Main's working maintenance tools, tests and old
-proof files were retained when resolving B's unrelated synchronization deletions.
-**1,152 host tests pass, no failures/errors/skips; 57 protocol tests pass.**
-Literal `make compile` succeeds with SDK 3.1.2; the PDX has 202 game modules and
-zero dev modules. All six canonical B save byte strings remain unchanged.
-[Chain identities](chain-saves.json). No push is authorized.
+B game code merged as `af9a8938`. Current main adds the reviewed catalogue-query
+memory fix `9ba63d68`; historical B acceptance and package retain their original
+build identities. The production code matches the measured memory candidate;
+only a generated development-fixture dependency hash changed afterward.
+The six canonical B slot byte strings are unchanged. [Chain identities](chain-saves.json).
 
-Elapsed: 73.075 hours since the first 149-map packet commit (`ce615acf`), about
-13.466 added maps/day. This wall time includes staging, tooling, latency work
-and waits; it is not pure implementation time.
+The B merge passed 1,152 host tests and 57 protocol tests. After the memory merge,
+1,152 host tests ran: 1,149 passed and three stale metadata checks failed. The
+projection changed only its reviewed terrain-owner hash; all 64 targeted
+metadata checks then passed. Protocol checks pass 57/57 and literal production
+`make compile` passes with SDK 3.1.2. No second full-suite run is claimed.
 
-## Visual and gameplay evidence
+B acceptance took 73.075 elapsed hours from the first 149-map packet: about
+13.466 added maps/day, including tooling, latency work and waits.
+
+## Visual and package evidence
 
 The native 400×240 silent showcase is 86.161 seconds at original speed, with
-explicit cuts between four genuine earned-save sessions. It includes walking,
-a complete three-Pokémon Fisherman victory, Snorlax's wake/encounter/removal,
-and Koga's dialogue/intro/first turn. The gym portion is an excerpt and makes
-no new Koga-victory claim. Root inspected native and decoded samples, readable
-dialogue pages and source sequences. All 1,420 decoded RGBA frames and original
-timestamps are preserved; sampled capture gaps remain visible.
+four explicit cuts: walking, a complete three-Pokémon Fisherman victory,
+Snorlax's wake/encounter/removal, and Koga's dialogue/intro/first turn. Koga is
+an excerpt, not a new full-victory claim. Root inspected native/decoded samples
+and source sequences; all 1,420 decoded frames and timestamps are preserved.
 [Showcase](b149-showcase-final-20261102.json).
 
-The package contains a main production PDX, three earned save pairs, the clip,
-one-line loading instructions and known limits. It has not been installed or
-physically timed as an exact normal-production package. User play feedback is
-unavailable now and does not block continued work.
-[Package and limitations](midgame-b-acceptance-20261102.json).
+The historical accepted package contains a production PDX, three earned save
+pairs, clip, one-line instructions and known limits. It predates the memory fix
+and was not physically timed as an exact normal-production package. User play
+feedback is unavailable now and does not block work. The current production PDX
+is at `evidence/main-terrain-query-production-20261102-01/PokemonBlue.pdx` outside Git.
 
-The prior 2,494 protected images retain exact pixels/alpha/masks. Reviewed
-41-map spawn views and 82 overlays remain historical visual proof; current
-motion evidence is the showcase. Gen V move fixes, Surf presentation/expiry,
-rod gifts and the measured allocation changes retain their individual review
-and runtime scopes. Full mechanics fidelity is not inferred from green routes.
-Coverage facet levels and every old raw proof hash remain intact.
+The 2,494 protected images retain their accepted pixels/alpha/masks. Existing
+41-map spawn views and 82 overlays remain historical visual proof. No full
+mechanics fidelity is inferred from green routes or unchanged art.
 
-## Physical observations — targets still open
+## Current memory fix and physical observation
 
-Current matched Game Corner route: build `e64af0a6f9da4b8081420c87f486967a`,
-12 ordinary input batches, no new error/crash logs, keeper restored.
+`SourceMaps.terrain` returns detached metadata. Field travel stops retaining a
+whole catalogue; Vermilion membership uses `hasTile`. Primitive validation and
+rollback remain. The fixture lookup follows active record scopes deliberately.
+Actual SDK exports preserve transformed values and prior provenance. Nine
+selected native cases pass: query isolation, Surf, Fly, rollback, Save/Continue
+and Vermilion scene transactions. Combined review has no actionable findings.
+[Adoption, exact reports and limitations](terrain-query-memory-adoption-20261102.json).
 
-| Phase | Device wall | Target | Result |
+The accepted baseline reaches the 9 MiB Simulator guard at `Save.publish.end`
+on the earned Surf/save route. It was not admitted to hardware. The candidate
+completes the same route, including the actual surfing save at Fuchsia `(31,21)`
+with 15 Surf PP and a natural Old Rod battle. Safety: 50.176 ms maximum slice,
+8.53 MiB sampled Lua peak, 16 MiB pool, no runtime error. The strict Simulator
+live-heap budget still fails; this is measurement admission only.
+
+Physical build `ef35f457052b46dcbf9fffa8be447e6c`: no new logs, sampled Lua peak
+**6.12 MiB**, post-GC samples **4.64–5.04 MiB**. Keeper inventory was verified and
+run acknowledged; its screen was not directly observed. No paired device saving
+is claimed because the baseline cannot safely run this route.
+
+| Phase | Device wall | Target | Scope/result |
 | --- | ---: | ---: | --- |
-| App start → title accepts A | 13.564 s | ≤10 s | Fails |
-| Maximum boot slice | 1.458 s | ≤1 s | Fails |
-| Continue | 3.474 s | ≤4 s | Passes this run |
-| Save | 1.946 s | ≤2 s | Passes this run |
-| Worst sampled entry on this route | 4.477 s, Fuchsia | ≤1.5 s | Fails; worst-eight route incomplete |
-| Game Corner entry | 3.960 s | ≤1.5 s | Fails latency; former hard guard absent |
-| Battle / cave p95 | Unmeasured on this finite route | ≤1 s / ≤50 ms | Open |
+| App start → title accepts A | 13.191 s | ≤10 s | Fails; includes 0.876 s diagnostic GC |
+| Maximum boot slice | 1.451 s | ≤1 s | Fails |
+| Continue | 3.279 s | ≤4 s | Passes this run |
+| Save in Center | 1.820 s | ≤2 s | Passes this run |
+| Save while Surfing | 3.317 s | ≤2 s | Fails; no paired regression established |
+| Fuchsia entry | 4.478 s | ≤1.5 s | Fails |
+| Good Rod house / Fuchsia return | 1.664 / 2.435 s | ≤1.5 s | Fail |
+| Fishing battle start | 22 ms | ≤1 s | Passes this run |
+| Cave walking p95 | Unmeasured | ≤50 ms | Open |
 
-The different historical common route measured battle start at 18 ms and cave
-p95 at 88.32 ms; the cave result fails. It is not a current-source rerun.
-Sampled Lua peak is 7.83 MiB, below the unchanged 9 MiB guard. End heap of
-6.28 MiB is uncollected, not post-GC live proof. Forced diagnostic collections
-were absent; ordinary production soft collection remained.
-[Current physical report](gamecorner-membership-hardware-20261102.json).
+This profile retains default diagnostic full collections and normal soft GC.
+Shipped-equivalent timing is unmeasured; do not silently subtract GC. Lua counts
+exclude native/transient allocations. The route covers Fuchsia and its rod house,
+not all heavy B maps or C's working margin.
 
-The earlier physical long traversal passed 110 doors across 30 maps and
-20 actual wild battles over 87.44 minutes: 136 post-GC samples, maximum
-5.151 MiB, raw peak 6.341 MiB and no new logs. It is resource evidence, not a
-current latency or every-map claim. The 60+60-minute idle soak and separate
-native image point probe remain scoped evidence; native/transient peaks are
-not measured by Lua counts.
-[Traversal](b149-physical-long-traversal-20261101.json).
+The earlier physical long traversal passed 110 doors, 30 maps and 20 wild battles
+over 87.44 minutes: 136 post-GC samples, maximum 5.151 MiB, raw peak 6.341 MiB,
+no new logs. It is scoped historical resource proof, not current latency.
+[Traversal](b149-physical-long-traversal-20261101.json). Idle soak and native image
+point probes retain their separate scope.
 
-The exact retained Simulator safety route measured a 77.436 ms maximum slice,
-8.68 MiB sampled peak, 292 ms map window and 1 ms battle-start marker. Its
-finite no-forced-GC profile has no post-GC live value. Diagnostic Simulator
-heap is not compared with the device's 6 MiB live guard.
+## Next work and open gates
 
-## Next work
+1. Measure current post-GC live heap/native headroom on Game Corner, Hideout,
+   Safari and Tower. Keep about 7.5 MiB working peak before C activation.
+   Audio remains held for its memory/listening checks.
+2. Finish Substitute regressions, six presentation cases and curated54 checks.
+   Its static standards finding is fixed (`4160ce96`); spec review has no
+   findings. Candidate `c76bdce7` remains unadopted.
+3. Advance C's isolated host composition `69658243`. All three accepted-B imports
+   now pass after verified original-path ancestry restoration. Four conditions
+   remain: President binding, two elevator arrivals and real C qualification.
+   Hooks stay unapplied. Memory gates activation; latency gates acceptance.
+   [C ancestry proof](checkpoint-c-restored-ancestry-20261102.json).
+4. Fix structural door/boot/cave costs and measure boot/Continue against all three
+   B save sizes. Payload sizes alone establish no timing conclusion. Do not
+   restart the census or AX/Clear History work.
 
-1. Freshly qualify the isolated door tier candidate `6949bc94`; execute its
-   existing native selections and exact 16 MiB safety route. Measure Fuchsia,
-   Route 17 and Game Corner on hardware, retaining only a ≥10% phase gain and
-   one combined performance review. Do not restart the census.
-2. Measure heavy-map post-GC live heap and native headroom. Qualify the small
-   Vermilion membership and detached field-terrain candidates; both remain
-   unadopted. Keep about 7.5 MiB working peak before C activation, with the
-   existing guards unchanged. Audio stays held for its own listening checks.
-3. Measure title preparation/Continue on all three earned B saves. Host counts
-   are 19–21.5 KB payloads with only 3–6 stored Pokémon; no CPU/timing conclusion
-   or validation shortcut follows from those sizes.
-4. Finish isolated Substitute checks and prepare one C integration branch.
-   C activation needs the memory margin; its acceptance still requires latency
-   targets. Later regions, credits and postgame remain ahead.
+The door-tier candidate remains rejected: primary cold-entry gains were only
+3.1% Fuchsia, 8.4% Route17 and 7.8% GameCorner, with Save 11.3% slower. Its
+qualified native modes passed 14/14 each, but no further cycle/review is requested.
+[Rejected measurement](door-tier-rejected-20261102.json).
 
-Keep SDK 3.1.2, the 16 MiB pool, 1 GiB host guard, 51 GiB runtime admission,
-50 GiB reserve and ordered ownership locks. Storage remains background and
-exception-only. The bounded recovery retained stopped census data remotely,
-verified full restore rehearsals and restored runtime admission. Measured free
-space rose from 49.06 to 54.65 GiB during that pass; concurrent activity limits
-exclusive attribution. The 70 GiB target was not reached or used as a gate for
-resuming the game. One separately approved closed B5 retry was also retained
-remotely for capture headroom; no current save/package/proof input was released.
-[Recovery](capacity-census-retention-complete-20261102.json),
-[closed retry](capacity-b5-retention-20261102.json).
+The 499-step Safari expiry fixture currently exceeds the 1 GiB host allocation
+history limit; no fresh pass is claimed. Its original accepted proof remains.
+Other targeted tests ran in fresh processes with their assertions intact. User
+resolved desktop dialogs and opened Screen Sharing; native startup works again.
+Paired DiveMac-node desktop observation is verified; gateway status alone is not
+node availability. No unrelated applications were killed.
 
-[Previous ledger and failed history](progress-history-before-b-acceptance-20261102.md).
+## Operating decisions
+
+User disk policy: **30 GiB reserve / 31 GiB new-runtime admission**. Local
+maintenance runs at 30→50 GiB. Keep the SDK 3.1.2 pool at 16 MiB, host limit at
+1 GiB, Lua guards at 6/8/9 MiB, and ordered ownership locks. All runtime/USB
+readers are closed after the measured route; verified keeper is restored.
+Storage is background, exception-only. No current/earned input is discarded.
+[Verified census retention](capacity-census04-retention-20261102.json),
+[earlier recovery](capacity-census-retention-complete-20261102.json).
+
+Coverage retains all 1,512 rows, facets and historical proof hashes. The current
+snapshot was reviewed separately; no fidelity or acceptance level was promoted.
+[Previous ledger/history](progress-history-before-b-acceptance-20261102.md).

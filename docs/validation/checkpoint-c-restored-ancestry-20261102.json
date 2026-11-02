@@ -1,0 +1,24 @@
+{
+  "classification": "Host preparation only; C inactive",
+  "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-0363a44b82e94ebd8587158976b765cb.json",
+  "id": "playdate-0363a44b82e94ebd8587158976b765cb",
+  "manifest_sha256": "0ee2669558980c4f14b9c853ef9f5eeab922522542fd9e6ba40f23638ec16f41",
+  "same_original_path_restored": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-eleventh-resumed-20261030-01",
+  "preflight": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-ancestry-restored-preflight-20261102-01.json",
+  "preflight_sha256": "010e79236a665057b7ed3bb527be6aed944b207cef2d23cb0dce2c2fe1ee29dd",
+  "checks": 239,
+  "remaining_conditions": 4,
+  "accepted_B_imports": [
+    "accepted B binding bulbasaur",
+    "accepted B binding charmander",
+    "accepted B binding squirtle"
+  ],
+  "original_slots_or_proofs_modified": false,
+  "remaining": [
+    "President inert-floor binding",
+    "Silph elevator3 arrival binding",
+    "Silph elevator5 arrival binding",
+    "Real C transform qualification"
+  ],
+  "scope": "Source provenance and saved-codec imports only; no runtime, GUI, map activation or acceptance."
+}

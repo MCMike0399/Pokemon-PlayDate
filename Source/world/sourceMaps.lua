@@ -137,6 +137,16 @@ function SourceMaps.hasTile(key)
     return not not compactData().tiles[key]
 end
 
+-- Detached metadata only; callers never retain the catalogue or load art grids.
+-- Use the active record scope on every query, including fixture overrides.
+function SourceMaps.terrain(key)
+    local tile = compactData().tiles[key]
+    if not tile then
+        return nil
+    end
+    return copy(assert(tile.terrain, "source tile terrain missing"))
+end
+
 function SourceMaps.compact()
     return copy(compactData())
 end

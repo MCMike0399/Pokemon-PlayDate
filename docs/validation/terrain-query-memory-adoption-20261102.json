@@ -1,0 +1,354 @@
+{
+  "classification": "Adopted narrow catalogue-query memory fix; not broad playability or C activation",
+  "candidate": "93547610",
+  "build_id": "ef35f457052b46dcbf9fffa8be447e6c",
+  "native_selection": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-query-native-selection-20261102-01.json",
+  "baseline_sdk": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-baseline-safety-20261102-01",
+  "baseline_sdk_error": "DS1 failed: game/bootTrace.lua:210: device-test memory guard: 9231.298 KiB at Save.publish.end",
+  "candidate_sdk": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-safety-20261102-03",
+  "candidate_sdk_measurements": {
+    "battle_device_estimate_ms": 1.0,
+    "battle_start_ms": 1.0,
+    "frame_ms": 25.969,
+    "heap_live_bytes": 7120267.264,
+    "heap_peak_bytes": 8939561.984,
+    "map_device_estimate_ms": 248.0,
+    "map_load_ms": 248.0,
+    "slice_ms": 50.176
+  },
+  "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-hardware-20261102-01",
+  "hardware_measurements": {
+    "battle_start_ms": 22.0,
+    "frame_ms": 735.391,
+    "heap_live_bytes": 4864361.472,
+    "heap_peak_bytes": 6413828.096,
+    "map_load_ms": 4478.0,
+    "slice_ms": 1451.132
+  },
+  "phase_measurements": {
+    "Continue": 3279.0,
+    "Save": 3317.0,
+    "battle": 22.0,
+    "boot_slice": 1451.132,
+    "boot_title": 13191.0,
+    "cave_walking_p95": null,
+    "door": 4478.0,
+    "title_artwork": 2725.0
+  },
+  "phase_table": [
+    {
+      "boundary": "boot.begin -> initialize.ready",
+      "diagnostic_gc_raw_phase_ms": 872.0,
+      "diagnostic_gc_wall_ms": 876.0,
+      "end_ms": 15843.0,
+      "measured_active_ms": 11469.139000000003,
+      "phase": "boot_title",
+      "residual_wall_ms": 1721.8609999999971,
+      "start_ms": 2652.0,
+      "wall_ms": 13191.0
+    },
+    {
+      "boundary": "boot.begin -> title.visible",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 5377.0,
+      "measured_active_ms": 1302.966,
+      "phase": "title_artwork",
+      "residual_wall_ms": 1422.034,
+      "start_ms": 2652.0,
+      "wall_ms": 2725.0
+    },
+    {
+      "boundary": "Continue.begin -> Continue.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 19449.0,
+      "measured_active_ms": 2989.9990000000107,
+      "phase": "Continue",
+      "residual_wall_ms": 289.0009999999893,
+      "start_ms": 16170.0,
+      "wall_ms": 3279.0
+    },
+    {
+      "boundary": "Save.begin -> Save.publish.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 27203.0,
+      "measured_active_ms": 1713.6090000000004,
+      "phase": "Save",
+      "residual_wall_ms": 106.39099999999962,
+      "start_ms": 25383.0,
+      "wall_ms": 1820.0
+    },
+    {
+      "boundary": "Save.begin -> Save.publish.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 74584.0,
+      "measured_active_ms": 3032.3899999999994,
+      "phase": "Save",
+      "residual_wall_ms": 284.6100000000006,
+      "start_ms": 71267.0,
+      "wall_ms": 3317.0
+    },
+    {
+      "boundary": "door.map.begin -> door.map.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 38200.0,
+      "measured_active_ms": 4095.110999999997,
+      "phase": "door",
+      "residual_wall_ms": 382.88900000000285,
+      "start_ms": 33722.0,
+      "wall_ms": 4478.0
+    },
+    {
+      "boundary": "door.map.begin -> door.map.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 48431.0,
+      "measured_active_ms": 1528.0479999999952,
+      "phase": "door",
+      "residual_wall_ms": 135.95200000000477,
+      "start_ms": 46767.0,
+      "wall_ms": 1664.0
+    },
+    {
+      "boundary": "door.map.begin -> door.map.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 58035.0,
+      "measured_active_ms": 2239.729999999996,
+      "phase": "door",
+      "residual_wall_ms": 195.27000000000407,
+      "start_ms": 55600.0,
+      "wall_ms": 2435.0
+    },
+    {
+      "boundary": "battle.start.begin -> battle.start.end",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 87104.0,
+      "measured_active_ms": 22.0,
+      "phase": "battle",
+      "residual_wall_ms": 0.0,
+      "start_ms": 87082.0,
+      "wall_ms": 22.0
+    },
+    {
+      "boundary": "boot.begin -> title.live.before_gc (historical observer endpoint; not input readiness)",
+      "diagnostic_gc_raw_phase_ms": 0,
+      "diagnostic_gc_wall_ms": 0,
+      "end_ms": 14518.0,
+      "measured_active_ms": 10144.139000000003,
+      "phase": "boot_before_diagnostic_gc",
+      "residual_wall_ms": 1721.8609999999971,
+      "start_ms": 2652.0,
+      "wall_ms": 11866.0
+    },
+    {
+      "boundary": "title.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 872.0,
+      "diagnostic_gc_wall_ms": 876.0,
+      "end_ms": 15394.0,
+      "measured_active_ms": 876.0,
+      "phase": "diagnostic_gc.title.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 14518.0,
+      "wall_ms": 876.0
+    },
+    {
+      "boundary": "Continue.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 640.0,
+      "diagnostic_gc_wall_ms": 644.0,
+      "end_ms": 20101.0,
+      "measured_active_ms": 644.0,
+      "phase": "diagnostic_gc.Continue.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 19457.0,
+      "wall_ms": 644.0
+    },
+    {
+      "boundary": "Save.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 575.0,
+      "diagnostic_gc_wall_ms": 578.0,
+      "end_ms": 27801.0,
+      "measured_active_ms": 578.0,
+      "phase": "diagnostic_gc.Save.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 27223.0,
+      "wall_ms": 578.0
+    },
+    {
+      "boundary": "door.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 629.0,
+      "diagnostic_gc_wall_ms": 632.0,
+      "end_ms": 38836.0,
+      "measured_active_ms": 632.0,
+      "phase": "diagnostic_gc.door.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 38204.0,
+      "wall_ms": 632.0
+    },
+    {
+      "boundary": "door.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 633.0,
+      "diagnostic_gc_wall_ms": 636.0,
+      "end_ms": 49070.0,
+      "measured_active_ms": 636.0,
+      "phase": "diagnostic_gc.door.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 48434.0,
+      "wall_ms": 636.0
+    },
+    {
+      "boundary": "door.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 662.0,
+      "diagnostic_gc_wall_ms": 680.0,
+      "end_ms": 58718.0,
+      "measured_active_ms": 680.0,
+      "phase": "diagnostic_gc.door.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 58038.0,
+      "wall_ms": 680.0
+    },
+    {
+      "boundary": "Save.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 676.0,
+      "diagnostic_gc_wall_ms": 679.0,
+      "end_ms": 75284.0,
+      "measured_active_ms": 679.0,
+      "phase": "diagnostic_gc.Save.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 74605.0,
+      "wall_ms": 679.0
+    },
+    {
+      "boundary": "battle.live.before_gc -> .after_gc",
+      "diagnostic_gc_raw_phase_ms": 628.0,
+      "diagnostic_gc_wall_ms": 631.0,
+      "end_ms": 87739.0,
+      "measured_active_ms": 631.0,
+      "phase": "diagnostic_gc.battle.live",
+      "residual_wall_ms": 0.0,
+      "start_ms": 87108.0,
+      "wall_ms": 631.0
+    },
+    {
+      "boundary": "boot.begin -> Continue.end; app-clock readiness proxy, includes title input wait; physical power-on unmeasured",
+      "diagnostic_gc_raw_phase_ms": 872.0,
+      "diagnostic_gc_wall_ms": 876.0,
+      "end_ms": 19449.0,
+      "measured_active_ms": 14528.378000000015,
+      "phase": "boot_to_walk_ready",
+      "residual_wall_ms": 2268.621999999985,
+      "start_ms": 2652.0,
+      "wall_ms": 16797.0
+    }
+  ],
+  "post_gc_samples": [
+    {
+      "phase": "title.live.after_gc",
+      "heap_kib": 4746.296,
+      "clock_ms": 15394.0
+    },
+    {
+      "phase": "Continue.live.after_gc",
+      "heap_kib": 4750.353,
+      "clock_ms": 20101.0
+    },
+    {
+      "phase": "Save.live.after_gc",
+      "heap_kib": 4752.48,
+      "clock_ms": 27801.0
+    },
+    {
+      "phase": "door.live.after_gc",
+      "heap_kib": 5106.394,
+      "clock_ms": 38836.0
+    },
+    {
+      "phase": "door.live.after_gc",
+      "heap_kib": 5076.894,
+      "clock_ms": 49070.0
+    },
+    {
+      "phase": "door.live.after_gc",
+      "heap_kib": 5151.911,
+      "clock_ms": 58718.0
+    },
+    {
+      "phase": "Save.live.after_gc",
+      "heap_kib": 5129.054,
+      "clock_ms": 75284.0
+    },
+    {
+      "phase": "battle.live.after_gc",
+      "heap_kib": 5165.764,
+      "clock_ms": 87739.0
+    }
+  ],
+  "latest_actual_saved_state": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-hardware-20261102-01/after/Data/com.poc.pokemon.device-test.ef35f457052b46dcbf9fffa8be447e6c/adventure.a.json",
+    "sequence": "55",
+    "mode": "surfing",
+    "location": {
+      "facing": "up",
+      "x": 31,
+      "zone_id": "pokered:FUCHSIA_CITY",
+      "y": 21
+    },
+    "surf_pp": 15,
+    "sha256": "98524aef499cac774d80f091a4c6bf0518db370e1d134cd3fc296c7926997301"
+  },
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged"
+  },
+  "hashes": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-hardware-20261102-01/device-smoke.json": "183ca4f69cca0b8bedea1ac88620ce587685c716bd78980782d6fba23f93a049",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-hardware-20261102-01/outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-candidate-safety-20261102-03/simulator-smoke.json": "283e447780d121452320a687bfe0512fdef95583dcc70a30f08c5e71f64b7ab4",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-memory-baseline-safety-20261102-01/simulator-smoke.json": "55b4c77f9b5c1c866ad67297cae21d39b36cd1db19f00940babcd88493ce664e"
+  },
+  "limits": "Baseline unsafe in Simulator, so no baseline hardware attempt or paired device saving claim. Default diagnostic fullGC retained; production softGC/guards unchanged. Lua counts exclude native/transient memory. Fuchsia/GoodRodHouse only; Safari/Tower/Hideout/GameCorner live table remains. SurfSave3317ms exceeds2s; different location/mode from ordinary walking Save1820ms, no candidate-specific latency regression established. Strict Simulator live-heap budget still fails; only exact safety admission used. Nine selected SDKcases pass; current499-stepSafari expiry rerun unavailable duehost1GiB. The measured candidate was later reviewed without findings and its narrow memory fix was merged; broad gates remain open.",
+  "accepted_code": "9ba63d68cd8a337a6e90e8e9daef3450aa63b0e6",
+  "main_source_sha256": "754dd205c58e987ed6d9e9d3221fdb4b1b2f7db16ac7c44d7298c2926f650b95",
+  "exact_device_source_match": true,
+  "review": {
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "fixed_range": "7726ea49...93547610",
+    "thread": "thread:delegated-task:command%3Amcp%3Ae4f57bdb-c3c2-4c48-913a-c53c880f627d%3Adelegate-task%3A2df408e2-8c49-41ce-b252-560d4e80db5a"
+  },
+  "integration_checks": {
+    "full_host": {
+      "tests": 1152,
+      "passed_before_metadata_refresh": 1149,
+      "metadata_freshness_failures": 3,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-terrain-query-host-20261102-01.log"
+    },
+    "metadata_rerun": {
+      "passed": 64,
+      "failed": 0,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-terrain-query-metadata-rerun-20261102-01.log"
+    },
+    "protocol": {
+      "passed": 57,
+      "failed": 0,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-terrain-query-protocol-20261102-01.log"
+    },
+    "production_compile": "SDK3.1.2 literal make compile passed; production only, no runtime inferred",
+    "no_claim": "No second full1152 rerun after metadata-only changes; all prior failures rerun and resolved."
+  },
+  "post_merge_projection": {
+    "commit": "39147474",
+    "only_change": "Source/dev/vermilionJourney.json:sources/game/vermilionStoryTerrain.lua hash",
+    "production_files_still_exact_candidate": true
+  },
+  "production_files_still_exact_reviewed_candidate": true
+}

@@ -328,5 +328,78 @@
     ],
     "runtime_evidence": "Static stale-state inspection only. No Bide/runtime evidence, assertion hashes or old raw receipts refreshed.",
     "restrictions_observed": "Host checks only; no builds, SDK/Simulator/device/USB/GUI/global runtime locks/delegation/push/adoption/main-B-C checkout edits. C remains independent and inactive."
+  },
+  "accepted_main_c250_composition": {
+    "main": "c250549dc5ac4056a21413d7c4fa9a1efbdca029",
+    "candidate_before_merge": "c76bdce741a5f6d67b259ab2112039426d81a69a",
+    "backup_ref": "prep/substitute-before-main-c250549d-c76bdce7",
+    "method": "Normal git merge; no conflicts. All23 main-updated paths retained exactly, including reviewed memory fix, current SourceMapContracts, SDK qualification, coverage/progress and30GiBreserve/31admission. No unrelated main differences or deletions.",
+    "production_substitute_files": [
+      "Source/battle/battle.lua",
+      "Source/battle/battleScene.lua",
+      "Source/battle/conditions.lua",
+      "Source/battle/contactAbilities.lua",
+      "Source/battle/dsl.lua",
+      "Source/battle/effects.lua",
+      "Source/battle/moveSupport.lua",
+      "Source/battle/moves.lua",
+      "Source/battle/ordinaryAbilities.lua",
+      "Source/battle/substitutePolicy.lua",
+      "Source/images/battle-effects/substitute-back.png",
+      "Source/images/battle-effects/substitute-front.png"
+    ],
+    "production_substitute_files_byte_identical": true,
+    "production_file_aggregate_sha256": "932f71c5a2e8c2776159c597d9e2ec892029a373566a4eac3b09c968759bbee8",
+    "corrected_self_ko_assertion": "Byte-identical to c76bdce7. No new native contract or assertion edits.",
+    "curated54": "Definitions, names/assertions and original runtime registries/proofs left unchanged. No evidence refresh.",
+    "host_once": {
+      "tests_run": 44,
+      "passed": 43,
+      "failed": 1,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-c250-composition-host-20261102.log",
+      "sha256": "ff93d820fbc7497fa5f33804bb9d6bf3800a623baf7d5d6058505e448def65b1",
+      "generator_checks_passed": [
+        "tools.generate_substitute_policy --check",
+        "tools.generate_move_support --check",
+        "tools.generate_substitute_art --check"
+      ]
+    },
+    "unmet_host_preservation_dependency": {
+      "test": "tools.tests.test_substitute_art.SubstituteArtTests.test_mechanics_producer_schema_rng_and_existing_case_names_are_unchanged",
+      "path": "Source/dev/substituteContracts.lua",
+      "declared_mechanics_reference": "66ff1861acd6cbcdb4f624d0908833ec1ff9a2ab",
+      "expected_sha256": "2068a774dc491819e8492218a8fb67d33a71c09559ee5aea75441bc13143d50e",
+      "current_sha256": "2e09c265be0ae6e9eccc28b8a9d8f2f3eb53e4131c86c4bbcda669afe32b8166",
+      "cause": "Approved4160ce96 readability expansion retained in c76. Existing byte-preservation test still expects pre-style66ff contract text. This dependency predates the merge; no mechanics or source-art discrepancy. Test and reference remain unchanged in this composition task."
+    },
+    "main_map_qualification": [
+      {
+        "path": "tools/integration/kanto-first-entry/qualified/provenance.json",
+        "declared_dependency_count": 16,
+        "dependency_mismatches": [],
+        "scope": "Existing main qualification bytes retained; static dependency comparison only, no fresh export or verification promotion."
+      },
+      {
+        "path": "tools/references/content-transforms-149/provenance.json",
+        "declared_dependency_count": 12,
+        "dependency_mismatches": [],
+        "scope": "Existing main qualification bytes retained; static dependency comparison only, no fresh export or verification promotion."
+      }
+    ],
+    "runtime_scope": "No SDK/compile/build/runtime/GUI/device/USB/global locks/full suite/storage/delegation/push/adoption. Existing native results keep their original66ff scope; no fresh composed-source native claim.",
+    "root_pending_native_suite_ids": [
+      "substitute",
+      "substitute-seams",
+      "self-ko-moves",
+      "bide",
+      "protect",
+      "charge-lock",
+      "earned-b-moves",
+      "battle-presentation",
+      "whirlwind",
+      "move-failure"
+    ],
+    "root_pending_qualification": "Execute corrected SelfKO and remaining regression chain, six original doll presentation cases/captures and curated54 qualification as needed. Bide/shared-owner runtime evidence stays stale until real native execution. Standard contracts command takes no positional suite arguments.",
+    "reviews": "Existing c76 standards/spec review record retained; no new review or optional recoil/timing refactor."
   }
 }

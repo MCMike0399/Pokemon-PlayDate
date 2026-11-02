@@ -376,6 +376,38 @@ function SourceMapContracts.run()
         rejects(function() SourceMaps.definition("UninstalledMap") end)
     end)
 
+    test("source terrain queries detach metadata and follow restored fixture scopes", function()
+        local catalogue = SourceMaps.compact()
+        for key, tile in pairs(catalogue.tiles) do
+            same(SourceMaps.terrain(key), tile.terrain)
+        end
+        equal(SourceMaps.terrain("unregistered-terrain-query"), nil)
+        local descriptor = SourceMaps.descriptor("Route2")
+        local palette = tonumber(descriptor.tile_rows[1]:sub(1, 2), 16)
+        local key = descriptor.palette[palette]
+        local original = SourceMaps.terrain(key)
+        local detached = SourceMaps.terrain(key)
+        detached.land_passable = not detached.land_passable
+        same(SourceMaps.terrain(key), original)
+        local position = {zone_id=descriptor.id, x=0, y=0, facing="down"}
+        local policy = {sliceZones={[descriptor.id]=true}}
+        local world = WorldDeltas.export()
+        local before = assert(FieldTravelWorld.cell(position, world, policy))
+        catalogue.tiles[key].terrain.land_passable = not original.land_passable
+        SourceMaps._withRecords({["data/sourceMapCache/compact.json"]=catalogue}, function()
+            same(SourceMaps.terrain(key), catalogue.tiles[key].terrain)
+            local changed = assert(FieldTravelWorld.cell(position, world, policy))
+            equal(changed.land_passable, not before.land_passable)
+            SourceMaps._withRecords({}, function()
+                same(SourceMaps.terrain(key), original)
+                same(assert(FieldTravelWorld.cell(position, world, policy)), before)
+            end)
+            same(SourceMaps.terrain(key), catalogue.tiles[key].terrain)
+        end)
+        same(SourceMaps.terrain(key), original)
+        same(assert(FieldTravelWorld.cell(position, world, policy)), before)
+    end)
+
     test("compatibility dispatch return values remain distinct without replacing event owners", function()
         local received
         local profiles = SourceMaps.legacyProfiles({

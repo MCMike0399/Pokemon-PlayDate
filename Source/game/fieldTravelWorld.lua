@@ -2,14 +2,6 @@
 -- No Zone allocation, rendering, collision mutation, or second world ledger.
 FieldTravelWorld = {}
 local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
-local compact
-
-local function data()
-    if not compact then
-        compact = SourceMaps.compact()
-    end
-    return compact
-end
 
 function FieldTravelWorld.cell(position, world, options)
     local provider = WorldDeltas.definitionProvider()
@@ -37,11 +29,11 @@ function FieldTravelWorld.cell(position, world, options)
         end
     end
     -- Authored replacement keys need their own terrain contract; no fallback.
-    local tile = data().tiles[key]
-    if not tile then
+    local terrain = SourceMaps.terrain(key)
+    if not terrain then
         return nil, "source-travel-tile-unavailable"
     end
-    local cell = Party._primitive(tile.terrain)
+    local cell = Party._primitive(terrain)
     cell.binding_blocked = descriptor.blocked[tostring(index)] ~= nil
     return cell, descriptor
 end
