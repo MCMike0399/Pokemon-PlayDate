@@ -7,7 +7,7 @@
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
     "scope": "Private149-map B with reviewed callback-preserving pose metadata; no B/device-playability acceptance.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Independent pose-metadata review0/0; public getters, callbacks, validation and custom fallback preserved. Actor-construction phase improved29.4% in one paired instrumented run. All rows/facets/old evidence retained; previous1071host pass predates this Source, new full audit pending.",
+    "review": "Pose metadata independent Standards0/Spec0 and measured actor-phase gain retained. Current fullhost1071/1071 passes, zero errors/skips,161.680s. All1512rows/facets/old evidence unchanged. No B visual/device-playability acceptance.",
     "previous_snapshot": {
       "commit": "c994de0a5d79e2a9034ac5aa6c3a59567bb0d9b7",
       "source_sha256": "7f5df057b05c3dd8e4fffb231c8558b29ff8b3423e483c0fbe35fa1286e70c1f",
@@ -72483,6 +72483,7 @@
     "2026-11-01 fixed c1ef refresh: census permanently STOPPED/incomplete; static ranking/real worst-door route, B long physical110doors/30maps/20battles and showcase remain open. Audio held. Sharding performance UNMEASURED; no inferred writer24912 outcome. Gameplay review pending and full host green not yet claimed. Historical row evidence is not refreshed by current-source membership.",
     "Current snapshot correction: census remains STOPPED; physical110doors/30maps/20battles passed its resource scope. Scoped index/checksum changes have measured phase gains and reviews. Current native3-second capture preflight passes; Snorlax/Koga/montage and B acceptance remain open. Previous unmeasured/open statements above describe their retained historical snapshots. No historical proof identity is relabeled.",
     "Current full host audit1071/1071 passes with no skips/errors. This does not promote any historical verification level or complete B visual/device-playability gates.",
-    "Current pose metadata Source has native5/host12 targeted checks and measured actor-phase gain. No full current host pass, B visual acceptance, or global worst-door claim is inferred. The subsequent guarded capture preparation produced no new marker."
+    "Current pose metadata Source has native5/host12 targeted checks and measured actor-phase gain. No full current host pass, B visual acceptance, or global worst-door claim is inferred. The subsequent guarded capture preparation produced no new marker.",
+    "Post-pose current fullhost1071/1071 passes with zero skips/errors; prior pending-current-host notes are historical. No facet promotion or showcase/latency acceptance follows."
   ]
 }

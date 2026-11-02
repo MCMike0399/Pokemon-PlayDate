@@ -179,3 +179,8 @@ All3descriptor builds/story callbacks remain; custom fallback/errors verified.
 Host12/native5 and exactsafety pass; no new device logs, keeper restored.
 Prior1071fullhost predates this Source; no freshfullsuite claim.
 [Adoption](pose-metadata-adoption-20261101.json).
+
+Post-pose current fullhost passes1071/1071, zero errors/skips(161.680s).
+Affected host57checks and focusednative5remain scoped. B visual preparation
+stopped at unchangedhostguard; no newmarker or partialslot import.
+[Audit](b149-pose-host-20261101.json).
