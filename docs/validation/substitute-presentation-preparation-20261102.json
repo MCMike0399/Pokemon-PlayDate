@@ -1,0 +1,219 @@
+{
+  "status": "presentation preparation only; compile/host checked, native and visual acceptance pending",
+  "base": "fd4561b4a9cc2c3e4734d368ac5b3dbcc69e462e",
+  "branch": "t3/gen-v-substitute",
+  "source_repository": "https://github.com/pret/pokered",
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "source_input_sha256": {
+    "gfx/sprites/monster.png": "4728cec22692d7509523239deaa91717878022ec3abf99ccd342f73685ad3701",
+    "gfx/sprites.asm": "1e0e5e953d078f578f5a8a64a934d1b26c411b6e8355857089ec87f83508892c",
+    "engine/battle/animations.asm": "188abd046daf4f1c8482ed5cc541ffa85edf0681b5205f08dea0e1344b017e4b",
+    "constants/gfx_constants.asm": "e4bf466978be1cc8b7800dd90e54a6ac806a2621648de99add00cbe274cebd54",
+    "data/tilemaps.asm": "45b47766831b32e202117a2d733b8f23da60e52b5b1f404a5892562848597805",
+    "gfx/pokemon/front.tilemap": "5809d624806c43bd1790e07abe371602ff7b6d1e347fd8268120c78e7c71c6e1",
+    "Makefile": "ae29c23b88a65bc5a734296ebb45cee2e1fb6cba2663e3d29c81e3e1461cfec7"
+  },
+  "source_git_objects_verified": true,
+  "source_proof": {
+    "definition": "gfx/sprites.asm MonsterSprite includes gfx/sprites/monster.2bpp",
+    "strip": "gfx/sprites/monster.png, 16x96 L, exactly 255/170/85/0",
+    "tile_build": "Makefile default row-major 8x8 RGBGFX --colors dmg, no MonsterSprite override",
+    "front_crop": [
+      0,
+      0,
+      16,
+      16
+    ],
+    "back_crop": [
+      0,
+      16,
+      16,
+      32
+    ],
+    "front_tiles": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "back_tiles": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "placement": "AnimationSubstitute writes column-major picture slots; MonTiles/front.tilemap maps those slots to source display coordinates",
+    "front_origin": [
+      16,
+      32
+    ],
+    "back_origin": [
+      24,
+      32
+    ],
+    "canvas": [
+      56,
+      56
+    ],
+    "conversion": "Existing battle art >=128 threshold. No spatial redraw, content crop, mirroring, resampling or AI. Opaque white padding matches cleared 2bpp picture memory."
+  },
+  "artifacts": {
+    "Source/images/battle-effects/substitute-front.png": {
+      "sha256": "68fc4b65454751f307003cf39798d60c995215cd5fc89e652002dddca3adef62",
+      "bytes": 162
+    },
+    "Source/images/battle-effects/substitute-back.png": {
+      "sha256": "ea773a8f5a517e84ffad44d42dd3ccaf084bc9ccabab18988b4f302cf0cdda3e",
+      "bytes": 143
+    }
+  },
+  "reproduction": {
+    "revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "inputs": {
+      "gfx/sprites/monster.png": "4728cec22692d7509523239deaa91717878022ec3abf99ccd342f73685ad3701",
+      "gfx/sprites.asm": "1e0e5e953d078f578f5a8a64a934d1b26c411b6e8355857089ec87f83508892c",
+      "engine/battle/animations.asm": "188abd046daf4f1c8482ed5cc541ffa85edf0681b5205f08dea0e1344b017e4b",
+      "constants/gfx_constants.asm": "e4bf466978be1cc8b7800dd90e54a6ac806a2621648de99add00cbe274cebd54",
+      "data/tilemaps.asm": "45b47766831b32e202117a2d733b8f23da60e52b5b1f404a5892562848597805",
+      "gfx/pokemon/front.tilemap": "5809d624806c43bd1790e07abe371602ff7b6d1e347fd8268120c78e7c71c6e1",
+      "Makefile": "ae29c23b88a65bc5a734296ebb45cee2e1fb6cba2663e3d29c81e3e1461cfec7"
+    },
+    "derived_dmg_2bpp_sha256": "7820cdf930af8c8118a97ae27b818b0888d099c4f13cbbc845cb3a2827c6d366",
+    "views": {
+      "front": {
+        "tiles": [
+          [
+            0,
+            2,
+            4
+          ],
+          [
+            1,
+            3,
+            4
+          ],
+          [
+            2,
+            2,
+            5
+          ],
+          [
+            3,
+            3,
+            5
+          ]
+        ],
+        "size": [
+          56,
+          56
+        ],
+        "source_canvas_l8_sha256": "d554b9871f0021a3221a38930a56773b0ba679d4a978ce107c45da01402890a4",
+        "pixels_1bpp_sha256": "7325d237dcca42dea0dc678083af9ee8e860f6096f22587cd7efaa1be9b04529",
+        "png_sha256": "68fc4b65454751f307003cf39798d60c995215cd5fc89e652002dddca3adef62"
+      },
+      "back": {
+        "tiles": [
+          [
+            4,
+            3,
+            4
+          ],
+          [
+            5,
+            4,
+            4
+          ],
+          [
+            6,
+            3,
+            5
+          ],
+          [
+            7,
+            4,
+            5
+          ]
+        ],
+        "size": [
+          56,
+          56
+        ],
+        "source_canvas_l8_sha256": "137f772273205705cb72203028ad8e4538012fdc9ae5f9c973def67dcb5fa4ad",
+        "pixels_1bpp_sha256": "8c97bc08506e7ccfe2004093bb2197183991595c4654e1aa1724d8539f53a388",
+        "png_sha256": "ea773a8f5a517e84ffad44d42dd3ccaf084bc9ccabab18988b4f302cf0cdda3e"
+      }
+    }
+  },
+  "preservation": {
+    "existing_image_and_sprite_grid_files": 366,
+    "existing_pngs": 361,
+    "existing_sprite_grids": 5,
+    "baseline_aggregate_sha256": "af59ef6803acb36dfd2928ba3f1b2ed8783a0bb53cfded5aefa16c006f9e494b",
+    "candidate_aggregate_sha256": "af59ef6803acb36dfd2928ba3f1b2ed8783a0bb53cfded5aefa16c006f9e494b",
+    "protected_source_pin_entries_unchanged_since_base": 313,
+    "protected_pin_manifest_changed": false,
+    "existing_native_case_names_retained": true,
+    "substitute_rules_24_and_seams8_files_byte_identical": true,
+    "draw_presented_pose_prefix_byte_identical": true,
+    "draw_pokemon_sprite_fit_function_byte_identical": true,
+    "mechanics_rng_epoch19_schema4_move_support_unchanged": true
+  },
+  "integration": "Lazy-load both source-substitute poses. Select by existing current battler/condition state, then reuse drawPokemonSprite scaling/centering and existing clipping/drop/pose path. Keep shown-battler intro gates and body sendout art. Owner-cleared dolls and withdrawn identities render body art; no separate substitute lifecycle/timer or numeric doll HUD.",
+  "checks": {
+    "source_asset_host_passed": 14,
+    "source_asset_host_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-doll-art-host-20261102.log",
+    "existing_build_checks_passed": 6,
+    "existing_build_check_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-doll-art-build-checks-20261102.log",
+    "sdk": "3.1.2",
+    "production_compile": "passed",
+    "harness_compile": "passed",
+    "production": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-doll-art-20261102-production",
+    "harness": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-doll-art-20261102-harness",
+    "generator_check": "python -m tools.generate_substitute_art --check",
+    "reproduction_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-doll-art-reproduction-20261102.json",
+    "native_cases_executed": 0,
+    "simulator_device_gui_usb_runtime_locks": "not used"
+  },
+  "native_selection": "battle-presentation",
+  "new_native_visual_case_names": [
+    "Substitute front and back render exact pinned source canvases without a numeric doll HUD",
+    "Substitute uses the existing recall scale and centering without advancing its pose",
+    "Substitute shares faint drop and slot clipping without moving the presentation clock",
+    "Broken or cleared Substitute restores ordinary body art and keeps body HP HUD values",
+    "Substitute cannot mask trainer intro visibility or the existing sendout pose",
+    "Substitute art cannot follow a withdrawn identity into the replacement slot"
+  ],
+  "previous_presentation_case_names": [
+    "HP display drains while authoritative damage remains committed",
+    "Earned EXP visibly fills before learning and ends at committed XP",
+    "Learning replaces the battlefield behind every learning phase",
+    "Application options validate independently of Pokemon and adventure",
+    "Text speed changes UTF-8 reveal without splitting a character",
+    "Animation OFF skips cosmetic waits and preserves RulesRNG",
+    "Intro HUDs appear with each presented Pokemon, including Animation OFF",
+    "Running halves step duration and keeps ordinary walking at eight frames",
+    "Trainer policy avoids immune damage and redundant status",
+    "SHIFT offers a free change before replacement while SET does not"
+  ],
+  "root_capture_cases": [
+    "Player back doll and enemy front doll at full battle size, both animation settings",
+    "Doll hit and actual subbreak restoring Pokemon body while body HP HUD stays authoritative",
+    "Voluntary recall/switch and faint/cleanup owner boundaries, no art carried to incoming identity",
+    "Trainer intro and normal sendout remain visible; doll fit/clipping at existing recall/faint pose sizes"
+  ],
+  "limits": [
+    "No native execution or capture inspection. SDK pixel contracts are compile-only fixtures; actual pose sequencing still needs Root motion review.",
+    "No adoption or new rules proof. fd456 24+8 remains unexecuted by Root; prior 67 passes apply only to cc6109ef.",
+    "The source doll occupies a 16x16 region of its exact 56x56 source picture canvas; native sizing should be inspected at the existing 80-pixel battle slot scale.",
+    "The derived DMG 2bpp hash is a deterministic provenance encoding of the pinned PNG, not a separately fetched upstream binary or an rgbgfx execution claim."
+  ],
+  "candidate_file_sha256": {
+    "Source/battle/battleScene.lua": "4f45e8b232b5c247c42871c241a3e0ddd1aa7d562c9a53543a8191275dc0d867",
+    "Source/dev/battlePresentationContracts.lua": "8c8e20041000136d000d5bb35440d1c7f796e99dd7afcf4ca2262d7a239a3ac2",
+    "Source/images/battle-effects/substitute-front.png": "68fc4b65454751f307003cf39798d60c995215cd5fc89e652002dddca3adef62",
+    "Source/images/battle-effects/substitute-back.png": "ea773a8f5a517e84ffad44d42dd3ccaf084bc9ccabab18988b4f302cf0cdda3e",
+    "tools/generate_substitute_art.py": "7243c560dee75cab28781541de78ca14cd4a1bdf97e7f7436aa3fdf9bc27a5f2",
+    "tools/references/substitute-art.json": "7d33ced5ac476adcde34ed059d11c93597df81c3407d9051d725b97ef79355e2",
+    "tools/tests/test_substitute_art.py": "ff9319f6bc13710548917f96382b3875c76dd31ed778a11e8f7e2a4af2ef34fb"
+  }
+}

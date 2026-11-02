@@ -11,6 +11,13 @@ local pokemonSprites = {}
 
 local function getPokemonSprites(species)
     if pokemonSprites[species] then return pokemonSprites[species] end
+    if species == "source-substitute" then
+        pokemonSprites[species] = {
+            front=assert(gfx.image.new("images/battle-effects/substitute-front")),
+            back=assert(gfx.image.new("images/battle-effects/substitute-back")),
+        }
+        return pokemonSprites[species]
+    end
     if species == "source-unidentified-ghost" then
         pokemonSprites[species] = {front=assert(gfx.image.new("images/title/ghost"))}
         return pokemonSprites[species]
@@ -663,7 +670,12 @@ function BattleScene:drawPresentedPokemon(mon, side, x, y, isBack)
     end
     gfx.setClipRect(x, y, 80, 80)
     local species = mon.species
-    if side == "enemy" and self.battle.sourceEncounter and self.battle.sourceEncounter.unidentified then
+    local sendingOut = request and request.details.side == side and request.kind == "sendout"
+    if not sendingOut and self.battle[side] == mon and self.battle.conditions:substituteHP(mon) > 0 then
+        -- The source 7x7 canvas carries the doll's exact tile placement. Use
+        -- the same fit, centering, pose offset and clipping as Pokemon art.
+        species = "source-substitute"
+    elseif side == "enemy" and self.battle.sourceEncounter and self.battle.sourceEncounter.unidentified then
         species = "source-unidentified-ghost"
     end
     self:drawPokemonSprite(species, x + (80 - size) // 2, y + (80 - size) // 2 + drop, isBack, size)

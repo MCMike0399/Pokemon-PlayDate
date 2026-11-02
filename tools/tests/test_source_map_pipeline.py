@@ -32,11 +32,20 @@ class SourceMapManifestTests(unittest.TestCase):
         self.assertEqual(len({entry["key"] for entry in self.maps.values()}), len(expected))
 
     def test_original_map_inputs_authored_pallet_and_renderers_are_unchanged(self):
+        # These source-pinned doll assets are additions, never replacements for
+        # the baseline's protected art; dedicated pixel/native tests cover them.
+        self.assertEqual(subprocess.check_output([
+            "git", "ls-tree", "--name-only", BASE, "--",
+            "Source/images/battle-effects/substitute-front.png",
+            "Source/images/battle-effects/substitute-back.png"],
+            cwd=ROOT, text=True).strip(), "")
         subprocess.run(["git", "diff", "--exit-code", BASE, "--",
                         "Source/data/viridianSlice", "Source/data/pewterSlice",
                         "Source/world/sprites", "Source/images",
                         "Source/lib/shade.lua",
-                        ":(exclude)Source/images/title"],
+                        ":(exclude)Source/images/title",
+                    ":(exclude)Source/images/battle-effects/substitute-front.png",
+                    ":(exclude)Source/images/battle-effects/substitute-back.png"],
                        cwd=ROOT, check=True, capture_output=True)
         from tools.source_preservation import assert_startup_preserved
         path = "Source/data/maps.lua"

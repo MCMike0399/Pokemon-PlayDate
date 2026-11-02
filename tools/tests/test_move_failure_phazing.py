@@ -65,7 +65,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
         keys = ('dig', 'razorWind', 'furyCutter', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
                 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
-                'substitute', 'transform', 'metronome',
+                'transform', 'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
         for key in keys:
             with self.subTest(move=key):
@@ -75,7 +75,7 @@ class MoveFailurePhazingTests(unittest.TestCase):
 
     def test_new_concrete_status_handlers_require_their_owned_payloads(self):
         for key, effect in [('haze', 'ResetStatStagesEffect'), ('rest', 'RestEffect'),
-                            ('yawn', 'YawnEffect'), ('foresight', 'ForesightEffect')]:
+                            ('yawn', 'YawnEffect'), ('foresight', 'ForesightEffect'), ('substitute', 'SubstituteEffect')]:
             with self.subTest(move=key):
                 self.assertEqual(self.inventory['moves'][key], {'handler': 'engine-dsl'})
                 self.assertIn(effect, self.rows[key])

@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/pret/pokered",
+  "revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "archive_sha256": "e571972fc926dcb65d94fc989299d38109590aa945ed657bf215eac8561afd05",
+  "inputs": {
+    "gfx/sprites/monster.png": "4728cec22692d7509523239deaa91717878022ec3abf99ccd342f73685ad3701",
+    "gfx/sprites.asm": "1e0e5e953d078f578f5a8a64a934d1b26c411b6e8355857089ec87f83508892c",
+    "engine/battle/animations.asm": "188abd046daf4f1c8482ed5cc541ffa85edf0681b5205f08dea0e1344b017e4b",
+    "constants/gfx_constants.asm": "e4bf466978be1cc8b7800dd90e54a6ac806a2621648de99add00cbe274cebd54",
+    "data/tilemaps.asm": "45b47766831b32e202117a2d733b8f23da60e52b5b1f404a5892562848597805",
+    "gfx/pokemon/front.tilemap": "5809d624806c43bd1790e07abe371602ff7b6d1e347fd8268120c78e7c71c6e1",
+    "Makefile": "ae29c23b88a65bc5a734296ebb45cee2e1fb6cba2663e3d29c81e3e1461cfec7"
+  },
+  "recipe": {
+    "input_size": [
+      16,
+      96
+    ],
+    "source_front_crop": [
+      0,
+      0,
+      16,
+      16
+    ],
+    "source_back_crop": [
+      0,
+      16,
+      16,
+      32
+    ],
+    "source_tile_order": "row-major 8x8; Makefile RGBGFX default --colors dmg; no monster override",
+    "picture_canvas": [
+      56,
+      56
+    ],
+    "picture_memory": "column-major 7x7; front.tilemap maps screen row-major positions to x*7+y memory offsets",
+    "source_front_origin": [
+      16,
+      32
+    ],
+    "source_back_origin": [
+      24,
+      32
+    ],
+    "palette": {
+      "0": 0,
+      "85": 0,
+      "170": 255,
+      "255": 255
+    },
+    "transform": "existing generate_battle_art.threshold >=128; no dithering, resampling, opaque white canvas, crop-to-content, flip or redraw"
+  },
+  "output_paths": [
+    "Source/images/battle-effects/substitute-front.png",
+    "Source/images/battle-effects/substitute-back.png"
+  ],
+  "reproduction": {
+    "revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "inputs": {
+      "gfx/sprites/monster.png": "4728cec22692d7509523239deaa91717878022ec3abf99ccd342f73685ad3701",
+      "gfx/sprites.asm": "1e0e5e953d078f578f5a8a64a934d1b26c411b6e8355857089ec87f83508892c",
+      "engine/battle/animations.asm": "188abd046daf4f1c8482ed5cc541ffa85edf0681b5205f08dea0e1344b017e4b",
+      "constants/gfx_constants.asm": "e4bf466978be1cc8b7800dd90e54a6ac806a2621648de99add00cbe274cebd54",
+      "data/tilemaps.asm": "45b47766831b32e202117a2d733b8f23da60e52b5b1f404a5892562848597805",
+      "gfx/pokemon/front.tilemap": "5809d624806c43bd1790e07abe371602ff7b6d1e347fd8268120c78e7c71c6e1",
+      "Makefile": "ae29c23b88a65bc5a734296ebb45cee2e1fb6cba2663e3d29c81e3e1461cfec7"
+    },
+    "derived_dmg_2bpp_sha256": "7820cdf930af8c8118a97ae27b818b0888d099c4f13cbbc845cb3a2827c6d366",
+    "views": {
+      "front": {
+        "tiles": [
+          [
+            0,
+            2,
+            4
+          ],
+          [
+            1,
+            3,
+            4
+          ],
+          [
+            2,
+            2,
+            5
+          ],
+          [
+            3,
+            3,
+            5
+          ]
+        ],
+        "size": [
+          56,
+          56
+        ],
+        "source_canvas_l8_sha256": "d554b9871f0021a3221a38930a56773b0ba679d4a978ce107c45da01402890a4",
+        "pixels_1bpp_sha256": "7325d237dcca42dea0dc678083af9ee8e860f6096f22587cd7efaa1be9b04529",
+        "png_sha256": "68fc4b65454751f307003cf39798d60c995215cd5fc89e652002dddca3adef62"
+      },
+      "back": {
+        "tiles": [
+          [
+            4,
+            3,
+            4
+          ],
+          [
+            5,
+            4,
+            4
+          ],
+          [
+            6,
+            3,
+            5
+          ],
+          [
+            7,
+            4,
+            5
+          ]
+        ],
+        "size": [
+          56,
+          56
+        ],
+        "source_canvas_l8_sha256": "137f772273205705cb72203028ad8e4538012fdc9ae5f9c973def67dcb5fa4ad",
+        "pixels_1bpp_sha256": "8c97bc08506e7ccfe2004093bb2197183991595c4654e1aa1724d8539f53a388",
+        "png_sha256": "ea773a8f5a517e84ffad44d42dd3ccaf084bc9ccabab18988b4f302cf0cdda3e"
+      }
+    }
+  }
+}
