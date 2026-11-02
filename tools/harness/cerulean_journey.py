@@ -407,6 +407,8 @@ class CeruleanJourney(BrockJourney):
         return self.project_warp(self.model(), event)
 
     def project_warp(self, model, event):
+        if event.get("id") in getattr(model, "descriptor", {}).get("non_triggering_warps", {}):
+            raise ProtocolError("non-triggering source declaration is not a transition")
         if not hasattr(model, "descriptor"):
             return super().warp_projection(event)
         destination = event["destination"]

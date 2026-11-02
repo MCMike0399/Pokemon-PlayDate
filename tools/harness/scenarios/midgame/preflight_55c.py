@@ -18,7 +18,7 @@ from tools.harness import preflight_midgame as host
 from tools.harness.midgame_journey import MidgameJourney, validate_scenario
 from tools.harness.protocol import ProtocolError
 
-C = '548ba47d'  # immutable wired/qualified C candidate; no campaign acceptance
+C = '548ba47d515b188972d0f60924d220c37fe2f5a4'  # immutable wired/qualified C candidate; no campaign acceptance
 COPYCAT = '8a4a8e4acc17b52f5adcc5ea01a89212dbd99c42'
 DATA = Path(__file__).parent
 
