@@ -130,7 +130,13 @@ point probes retain their separate scope.
    stopped at 1 GiB and was replaced, not continued. B memory no longer blocks C
    activation, per reviewer steer 7. Existing earned boundaries remain strict.
    [C ancestry proof](checkpoint-c-restored-ancestry-20261102.json).
-4. Fix structural door/boot/cave costs and measure boot/Continue against all three
+4. Controlled four-Save measurement separates ordinal from the earlier mixed
+   comparison: Center #1/#2 take 1.947/2.867 s; Fuchsia Surf #1/#2 take
+   2.288/3.529 s. Inspection rises 361→1,334 ms and 375→1,600 ms; writes/readbacks
+   are nearly flat. Whole-phase marks are private, not a production change.
+   Cross-map still combines map, travel and mode; no isolated Surf effect claimed.
+   [Actual attribution](save-four-point-attribution-20261102.json).
+5. Fix structural door/boot/cave costs and measure boot/Continue against all three
    B save sizes. Payload sizes alone establish no timing conclusion. Do not
    restart the census or AX/Clear History work.
 
