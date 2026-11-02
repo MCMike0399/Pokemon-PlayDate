@@ -1,3 +1,30 @@
+# Root C candidate wiring and qualification — 2026-11-02
+
+This current section supersedes the historical unapplied-hook claims below.
+Root synchronized main through afededc8, applied the combined activation hooks
+as409da7e7, selected generic source-warp packet2f5e6469 as a standalone commit,
+and expanded its one inline conditional for readability as5d77ebd4. The retired
+map-specific geometry patch was deleted; do not apply old alternatives again.
+The isolated branch now wires171 maps; main still has149 accepted maps. Nothing
+is pushed, and no C campaign, native-map or hardware acceptance is claimed.
+
+Actual SDK3.1.2 deep installers produced all four export files in the thin probe
+`checkpoint-c-sdk-exports-thin-20261102-03`, under the16MiB pool and31/30GiB,
+1GiB host guards. Sampled host peak203572256 bytes. Kanto and prior East/South
+values match; Saffron contributes30 transformed events/45 trainers. Previous
+producer/export bytes remain archived. The qualified171-map production build
+compiles. The full-harness attempt that hit1GiB remains failed; no continuation.
+[Exact receipt and limits](root-wiring-qualification-20261102.json).
+
+Next Root: execute the extended native inert-floor/elevator case and actual
+C access/rewards/Save-Continue checks, then three earned journeys and hardware.
+Atlas enablement runs as a separate measured candidate; C acceptance still needs
+all latency, memory, visual and native gates. B's listed heavy-map memory margin
+is met per reviewer steer7; no additional B memory block remains. Main policy
+is reserve30/admission31GiB, all other guards unchanged.
+
+## Historical preparation below
+
 # Current source warp host preparation — 2026-11-02
 
 See [source-warp-host.md](source-warp-host.md) for the current implementation,

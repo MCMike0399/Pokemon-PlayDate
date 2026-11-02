@@ -1,0 +1,40 @@
+{
+  "classification": "Isolated C171 candidate wiring and real SDK transform qualification; no campaign or hardware acceptance",
+  "source_commit": "5d77ebd41037f8aab106f120088d01404828ba34",
+  "shared_warp_packet": "2f5e6469d9d1e395a12c94fcaf90b962c7dc4332",
+  "maps": 171,
+  "main_maps": 149,
+  "actual_sdk_export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-thin-20261102-03",
+  "sdk": "3.1.2",
+  "producer_mode": "thin deep actual installers; no unrelated contracts or frame captures",
+  "guarded_host_peak_bytes": 203572256,
+  "new_saffron_transform": {
+    "events": 30,
+    "trainers": 45
+  },
+  "existing_kanto_and_b_region_values_preserved": true,
+  "qualified_production_compile": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-qualified-production-20261102-01/PokemonBlue.pdx",
+  "native_case_status": "extended source elevator/inert-warp case compiled in earlier harness, not yet executed on qualified composition",
+  "failures_retained": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-20261102-01",
+      "scope": "Exploratory full harness export completed; resource observer attached too late, no complete host-guard proof; not qualification producer"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-20261102-02",
+      "scope": "Guarded full harness stopped at1GiB; no continuation or guard bypass"
+    }
+  ],
+  "pending": [
+    "native two inert surfaces and all elevator contexts",
+    "fresh three-starter earned C journeys/Save-Continue",
+    "native visuals/atlas capacity",
+    "171-map hardware smoke/memory/latency gates"
+  ],
+  "proofs": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-thin-20261102-03/build.json": "f66784b2a8b590dfee4030dcd61e3b5a81860f5dde10bbcb1c85ce7ac55440a1",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-thin-20261102-03/startup-probe.json": "70eccb2e0da043b83c66c8778aa8dafc8dcbfb129e09741a6a8158378f402401",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-thin-20261102-03/host-resources.json": "42ad0d0830510a3b9b96f76fd5fd58620f3e27c3fda96dfb02b4c06f81c6c0d0",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-export-collection-20261102-03.json": "534ac24cd400e0cb362a15764eaa1c420fac123615eaeea23a92fdf4dcb0c508"
+  }
+}
