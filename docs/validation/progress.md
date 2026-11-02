@@ -29,6 +29,13 @@ projection changed only its reviewed terrain-owner hash; all 64 targeted
 metadata checks then passed. Protocol checks pass 57/57 and literal production
 `make compile` passes with SDK 3.1.2. No second full-suite run is claimed.
 
+Current main after Save inspection reuse and metadata reconciliation passes the
+full **1,169/1,169 host suite**. The earlier six failures were projection digests,
+accepted-code preservation pins and the current Source coverage snapshot; their
+failed run is retained. Semantic projections, protected assets and all original
+coverage proof hashes remain unchanged. No new campaign or hardware acceptance
+is inferred. [Exact host result](main-host-after-save-20261102.json).
+
 B acceptance took 73.075 elapsed hours from the first 149-map packet: about
 13.466 added maps/day, including tooling, latency work and waits.
 
