@@ -134,6 +134,13 @@ point probes retain their separate scope.
    B save sizes. Payload sizes alone establish no timing conclusion. Do not
    restart the census or AX/Clear History work.
 
+The six-set atlas enablement candidate is rejected after matched hardware.
+Game Corner load was 3.889→3.933 s; B3 load 1.886→1.907 s, with three >1 s
+frames still present. Tower's best floor improvement was 3.0%. Native pixels
+passed all 727 keys/20 tables, but no target met the 10% performance rule.
+No review, adoption or additional proof work is requested for this candidate.
+[Measured rejection](atlas-enable-rejected-20261102.json).
+
 The door-tier candidate remains rejected: primary cold-entry gains were only
 3.1% Fuchsia, 8.4% Route17 and 7.8% GameCorner, with Save 11.3% slower. Its
 qualified native modes passed 14/14 each, but no further cycle/review is requested.

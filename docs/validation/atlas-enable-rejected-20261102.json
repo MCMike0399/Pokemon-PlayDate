@@ -1,0 +1,57 @@
+{
+  "status": "rejected measured performance candidate; no adoption/review",
+  "candidate_commits": [
+    "a9cc51290036ab103db8a5c8a759bb30739ef274",
+    "b1fb7e46"
+  ],
+  "main_maps": 149,
+  "c_candidate_maps": 171,
+  "native_pixels": {
+    "tables": 20,
+    "keys": 727,
+    "passed": true,
+    "scope": "Component compiled-vs-runtime pixels, copy/fallback/revisit, not whole catalogue or timing"
+  },
+  "hardware": {
+    "gamecorner_ms": [
+      3889,
+      3933
+    ],
+    "b3_load_ms": [
+      1886,
+      1907
+    ],
+    "b3_p95_ms": [
+      39.438,
+      39.25
+    ],
+    "b3_max_ms": [
+      2122.531,
+      2153.5
+    ],
+    "b3_over_one_second": [
+      3,
+      3
+    ],
+    "tower_reduction_percent": {
+      "PokemonTower1F": -0.5548949663099378,
+      "PokemonTower2F": 3.007518796992481,
+      "PokemonTower3F": -0.5260389268805898,
+      "PokemonTower4F": 1.3900589721988155,
+      "PokemonTower5F": 1.6447368421052655,
+      "PokemonTower6F": -0.18239854081167906,
+      "PokemonTower7F": 0.9111617312072884
+    },
+    "best_tower_percent": 3.007518796992481,
+    "no_new_logs": true,
+    "keeper": "Verified inventory and run acknowledgement after each cycle; no direct screen observation"
+  },
+  "decision": "No measured target whole-phase gain reaches10%; no review, no further measurement/proof work on this candidate. Existing runtime remains. Native pixel correctness is not performance acceptance.",
+  "scope": "One matched diagnostic-GC observation; fixed source inputs/same earned seeds, unequal dwell possible. Cold-load windows exclude outside fades; Lua counts exclude native/transient peaks.",
+  "summary_hashes": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/atlas-paired-hardware-comparison-20261102-01.json": "748467a9c92dc82c7bf73c6608a1669349233a3f4d4d302f14ed06aaff2fd879",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/atlas-tower-comparison-20261102-01.json": "6c3fd8478ad18b2d9986e61aed81bf5543100c5a232451a15c9c276352f83e25",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/atlas-native-qualification-20261102-01.json": "4e9435f5a67051a321f13a8e108bc12b0818bc6bfc456e54918e7c5d44953341"
+  },
+  "next": "Existing earned C three-starter journeys, then separately controlled Save ordinal/map attribution; no rejected candidate activation."
+}
