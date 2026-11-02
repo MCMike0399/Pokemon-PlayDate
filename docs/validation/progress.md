@@ -145,3 +145,11 @@ Ordinary southern route now has verified genuine Saves through Route12(10,91),
 including the actual Rocker victory. The next JR encounter reached Save but
 failed final codec observation at unchanged1GiB host guard; no checkpoint was
 reconstructed. All owned processes closed. Koga/final showcase remain open.
+
+Koga approach now has genuine Bulbasaur Saves through Route15(40,9),
+Soul absent. Earned Razor Leaf avoided recoil/rampage revival overhead; fixed
+ordinary corridor steps bypass optional sightlines without gameplay edits.
+The next run stopped during startup on the50GiB disk reserve; live free50.08GiB
+was below51GiB admission. All owned runtimes closed, no failed-slot reconstruction.
+Koga/composition/package/acceptance remain open.
+[Save chain and limits](b149-koga-approach-progress-20261102.json).
