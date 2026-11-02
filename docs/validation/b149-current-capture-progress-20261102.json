@@ -1,0 +1,65 @@
+{
+  "classification": "Partial B showcase progress; acceptance remains open",
+  "components": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-walk-current-export-20261102-01/capture-report.json",
+      "sha256": "83ebb4bf1932c15ca2d1b10816b4ed28c9b24da19d20dd036dc883760ce91000",
+      "capture": {
+        "durations": {
+          "walk": 9.715
+        },
+        "max_frame_gap_seconds": {
+          "walk": 0.433
+        },
+        "dimensions": [
+          400,
+          240
+        ],
+        "speed": 1,
+        "audio": "none",
+        "sample_ticks": {
+          "walk": 1
+        },
+        "timing": "SDK wall timestamps; final unbounded frame omitted",
+        "motion_review": "pending root; long frame gaps remain visible, not compressed away"
+      }
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-full-trainer-current-export-20261102-01/capture-report.json",
+      "sha256": "88d2d8db379ccaae81b70713ff90122a736d86ef0aa5ebdef456d2bd4431c1b5",
+      "capture": {
+        "durations": {
+          "trainer": 24.045
+        },
+        "max_frame_gap_seconds": {
+          "trainer": 0.208
+        },
+        "dimensions": [
+          400,
+          240
+        ],
+        "speed": 1,
+        "audio": "none",
+        "sample_ticks": {
+          "trainer": 2
+        },
+        "timing": "SDK wall timestamps; final unbounded frame omitted",
+        "motion_review": "pending root; long frame gaps remain visible, not compressed away"
+      }
+    }
+  ],
+  "post_snorlax_save": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-post-snorlax-bulbasaur-save-20261102-01/processes/0001/partial-save.json",
+    "sha256": "9d74a63432eb975a386a50016e1a4b0ff3efd874ac2ecd5577bc5065a025e143",
+    "location": {
+      "facing": "down",
+      "x": 10,
+      "y": 61,
+      "zone_id": "pokered:ROUTE_12"
+    },
+    "snorlax": true,
+    "soul": false
+  },
+  "inspection": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-composition-current-review-20261102-01/component-review.json",
+  "remaining": "Koga capture, full composition and motion review, current player package and acceptance. No push."
+}

@@ -133,3 +133,10 @@ Source-fixed waypoints avoid an optionaltrainer through ordinarymovement;
 earnedflags/resources remain. [Component/ancestry/limits](b149-snorlax-component-20261102.json).
 Koga andfinal60–90s composition remain. Capture-onlywindowclosed requirement
 retains16MiBpool/allguards; failed1GiBapproachesretained, noslot reconstruction.
+
+Current-build walking9.715s and complete Fisherman24.045s companions exported;
+Root inspected source sheets and decoded-first equality. Genuine post-Snorlax
+Bulbasaur Save now retained at Route12(10,61), Soul absent. A longer next
+approach hit unchanged1GiB host guard during Save and produced no marker;
+shorter ordinary travel is in progress. Koga/composition/acceptance stay open.
+[Current components and Save identity](b149-current-capture-progress-20261102.json).
