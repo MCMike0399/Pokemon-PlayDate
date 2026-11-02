@@ -330,6 +330,18 @@ class MidgameJourney(vj.VermilionJourney):
             self.send('wait 8')
             return
         self.npc_step_retry = None, 0
+        if (getattr(self, 'config', {}).get('packet') == '5.5c'
+                and step.kind == 'walk' and self.position() != origin
+                and self.state.get('root') == 'overworld'
+                and self.state.get('overworld') == 'explore'
+                and lookup(self.state, 'player.settled') is True
+                and not lookup(self.state, 'player.pendingEdgeDoor')):
+            self.c_transit_cells = getattr(self, 'c_transit_cells', 0) + 1
+            if self.c_transit_cells >= 16:
+                # Ordinary Save/codec observation only; this grants no quest
+                # completion and uses the existing verified partial ancestry.
+                self.save()
+                self.c_transit_cells = 0
         return result
 
     def reset(self, **options):
