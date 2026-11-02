@@ -1910,10 +1910,10 @@
     "package-3-trainers-trainers.json": "b4a09f4144c5bdf00fbb3f7077f5897a675649a0e19a6c32fecdf5b1f9469bb2",
     "package-3.json": "a6d4e8edcc5d19f029974a6fa88c1f881c815cff9588c30250c2c3974d2a187a"
   },
-  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-108-sdk-20261030-02",
-  "build_id": "109a1764d43796c19a5333893829549e15c911e8:086db057032982f8cc0270f1447d8d6a069afd31800ef78670a89d743b03f8c1",
-  "producer_build_sha256": "e0b3f97d5f8faa364fd2bfa92e7be34d477da52131ec2d2de730531934f36978",
-  "producer_result_sha256": "123b5b172f9e61e97751640a6971e47d3bce2b297528016f4b324c1055edf098",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/allocation-main108-transform-sdk-20261102-02",
+  "build_id": "b3cf9752850549cfb92c47a24c6d255d",
+  "producer_build_sha256": "abab415eff320a02fb186d530552dc32b0ab95e97e421e79e149ae294ae9c7a3",
+  "producer_result_sha256": "54b032cfc6a27b47d0d9bdfc9bbcd210c891811407ce5cb22b17b3782cfdb497",
   "dependencies": {
     "game/kantoScenes.lua": "2aee4422cf22249bd9de9e1d9b2ca6d48df72ef9c9b120beba4e522a2012f9e3",
     "game/ceruleanStory.lua": "108d63f6be18060cb5f58eb52205e4d7ee5e388d0f5d5d6452112cde84aac111",
@@ -1922,7 +1922,7 @@
     "game/sourceEvents.lua": "422e7fddb12a70a13d6d8c9d7ab58c1eff870a0fecc7a94138c362da6fb4e6a7",
     "game/sourceEventHandlers.lua": "7a89e76c1c80d9ce7af9f23bbe853f042215c404a21089f292436354e41b2518",
     "data/ceruleanContent.lua": "2a6fdeabfce1d8788da12723bdb241d4b5860d4330a94564097696701168898b",
-    "world/sourceMaps.lua": "c0296bd0dd8cdba343028d52114656866707d73f678d4981983b5c56eefe588d",
+    "world/sourceMaps.lua": "5c1639a0caaf1badb4c396388f379cdc6255fceacaeae1a2c5659678ce5846c7",
     "domain/gameSession.lua": "3becbe1e43fb62c4ff709dff31e6474e8096c50a20544879835a8a4989578e6b",
     "domain/party.lua": "a2ee6a9b9d44b2140fdbaa5e39e3b836798cc6ee668b81bfaa16efa1af529c97",
     "data/sourceMaps.json": "29d97d4ee42a0f8d3f7365f4bfad806d360441424baef4c8d683eacd3ad522d7",
@@ -1932,7 +1932,7 @@
     "data/ceruleanStory/scenes.json": "927d44b480ac4c790134390fe2a2fc46d2a0e5c2888966a1c0467a54187439cc",
     "data/ceruleanRoutes/scenes.json": "2d3d96278725c52eaad9011599868abdfc892ebde5fbadc3a8dff9aac6dc65ce"
   },
-  "export_sha256": "e13835420d4096ed9ee219f24450e874018a4a49706855821ac7a80cc7bc3e2c",
+  "export_sha256": "c87d44b5a2e7acac8fb94e711afc61311b20a566d0214c062742b8ad4f03072c",
   "content_pins_sha256": "3b5511df171c1ee9e76bae18b25bd78c924c1bf97be6159465ce4185cceb05f1",
   "owner_imports": [
     "game/ceruleanStory",

@@ -1,0 +1,170 @@
+{
+  "classification": "Reviewed shared allocation fix ported to main108; no B/C content activation",
+  "base": "5a32fbe133f336cec36a13b2e21f6ac365e9e239",
+  "reviewed_B_source": "295a6763cb6107a84fa6c95c3be60b500879f6eb",
+  "production_files_byte_exact": [
+    "Source/game/midgameGymStory.lua",
+    "Source/game/rocketHideoutStoryWorld.lua",
+    "Source/world/sourceMaps.lua"
+  ],
+  "review": {
+    "standards": 0,
+    "spec": 0,
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A210bc27a-7bba-4c04-9746-103f7fa7c997"
+  },
+  "main_specific_validation": {
+    "allocation-main108-transform-sdk-20261102-02": {
+      "report": {
+        "failed": 0,
+        "mode": "production",
+        "ok": true,
+        "passed": 1,
+        "scope": "Controlled unqualified deep SDK export, only existing exporter imported; no production gameplay acceptance",
+        "session_id": "b3cf9752850549cfb92c47a24c6d255d",
+        "simulator": true,
+        "suites": [],
+        "tests": []
+      },
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/allocation-main108-transform-sdk-20261102-02",
+      "sha256": {
+        "build.json": "abab415eff320a02fb186d530552dc32b0ab95e97e421e79e149ae294ae9c7a3",
+        "startup-probe.json": "3f24d39b8e46f86c32d6fcd77cabbf4e9aff2e64ca1c8144be9a2f4bc9df1d92",
+        "host-resources.json": "28b5b087c8003248d3e3a3213b8561ca98eb1564bed9c726104b70e0f145ba2f"
+      }
+    },
+    "allocation-main108-green-native-20261102-01": {
+      "report": {
+        "elapsed_ms": 32,
+        "failed": 0,
+        "heap_after_kib": 5645.447265625,
+        "heap_before_kib": 5600.9765625,
+        "mode": "production",
+        "ok": true,
+        "passed": 1,
+        "projected_zone_count": 0,
+        "scope": "Minimal existing pure Hideout projection under ordinary loading/guards; not a journey or physical latency acceptance",
+        "session_id": "f065bdff482c48b7aadab398bd94e60b",
+        "simulator": true,
+        "suites": [
+          {
+            "failed": 0,
+            "id": "hideout-projection-diagnostic",
+            "passed": 1
+          }
+        ],
+        "tests": [
+          {
+            "name": "Four-cell Hideout projection under ordinary cooperative loading",
+            "ok": true
+          }
+        ],
+        "whole_catalogue_calls": 0
+      },
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/allocation-main108-green-native-20261102-01",
+      "sha256": {
+        "build.json": "686eb0b32938a150f7bb3eb151390e2e33d002671b10629a72af2324c30aab60",
+        "startup-probe.json": "b2a0d916623d94b9fe946c3d6e9feac60c200ac243629f12343ebf6a19712fd3",
+        "host-resources.json": "c62869afe6e9c6b19a41db0d4bd8752acf91cd1e1a9fb35333519467a8ca30f9"
+      }
+    },
+    "allocation-main108-metadata-native-20261102-03": {
+      "report": {
+        "failed": 0,
+        "mode": "production",
+        "ok": true,
+        "passed": 6,
+        "session_id": "90736e9fb4414fc5a6e4fb1e32e142b3",
+        "simulator": true,
+        "source_ids": 910,
+        "suites": [
+          {
+            "failed": 0,
+            "id": "gamecorner-metadata",
+            "passed": 6
+          }
+        ],
+        "tests": [
+          {
+            "name": "all shipped source event IDs at current activation",
+            "ok": true
+          },
+          {
+            "name": "empty, unrelated and non-string keys",
+            "ok": true
+          },
+          {
+            "name": "both Dojo gifts with activation false",
+            "ok": true
+          },
+          {
+            "name": "both Dojo gifts with activation true",
+            "ok": true
+          },
+          {
+            "name": "unrelated actor performs zero descriptor copies",
+            "ok": true
+          },
+          {
+            "name": "public projection remains detached",
+            "ok": true
+          }
+        ]
+      },
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/allocation-main108-metadata-native-20261102-03",
+      "sha256": {
+        "build.json": "eac2891ba6bc25295523aa03b1aade1bdd408b95d695f04810874c69ffa3ea2a",
+        "startup-probe.json": "2e2120115370de5ba8a749677896ed4393ece34c4a955a0c9fc2cff375091bb6",
+        "host-resources.json": "faa65407a788e8c10c321904879d439e409a045a7ede115602316fc26ab64e82"
+      }
+    },
+    "allocation-main108-membership-native-20261102-01": {
+      "report": {
+        "catalogue_keys": 632,
+        "failed": 0,
+        "mode": "production",
+        "ok": true,
+        "passed": 1,
+        "root_comparisons": 0,
+        "root_selected_case": "boolean parity for every catalogue key and unknown/nonstring values",
+        "session_id": "56ff2f98c6c547cba3fdd6067334bb15",
+        "simulator": true,
+        "suites": [
+          {
+            "failed": 0,
+            "id": "gamecorner-membership",
+            "passed": 1
+          }
+        ],
+        "tests": [
+          {
+            "name": "boolean parity for every catalogue key and unknown/nonstring values",
+            "ok": true
+          }
+        ]
+      },
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/allocation-main108-membership-native-20261102-01",
+      "sha256": {
+        "build.json": "6856a641c06b9ff70fad6e4828ec5b4287dba949753044c65318f0161582ffbf",
+        "startup-probe.json": "a0db101cce26a838802de4d020366100e9d8c1bfbe01246c3a4d96b00bc2f3d0",
+        "host-resources.json": "5cd976c40856fe5ff8b717fe14d50d10f7b13dc72aba73c3ace2307b95196a65"
+      }
+    }
+  },
+  "full_host": {
+    "passed": 1120,
+    "failed": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 177.49,
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/allocation-main108-full-host-20261102-02/tests.log",
+    "sha256": "a9f213ee953ca37e85d37ed5ff1bb6343f851c0e13a8dc9faac313f95d940158"
+  },
+  "qualifications": "Own real SDK3.1.2 exports; East exact and Kanto equivalent after required-trainer order normalization only. All pinned dependencies copied into private exporter, even production-excluded/unimported unchanged inputs; no import/activation of excluded modules. Original Source and controlled private main/bundleID transformations checked. Normal main108 qualified production compile and9qualification tests pass. Prior proofs retained.",
+  "setup_failures_retained": [
+    "export01 omitted production-excluded pinned inputs; no pins updated from it",
+    "metadata01 had exact-B two-gym count while main has Erika only; all value equality cases alreadypassed.03adapts count2->1, no equality assertion changes",
+    "metadata02prelaunch typo usedwrongcountername, no execution",
+    "fullhost01had1119/1120passes withone historical-source-binding failure; oldhashbound to exactnamed d9cbc001 blob, no proof/facet promotion"
+  ],
+  "unchanged": "108mapmanifest/art/data/schema/epoch/mechanics. Private B content, Substitute/C and audio remain outside main. No new main108 physical remeasurement; B149physical proof remains its own build/context. No checkpoint or device-playability promotion. No push."
+}

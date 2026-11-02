@@ -7,14 +7,18 @@ local cached
 local function copy(value)
     return GameSession._copy(value)
 end
-function MidgameGymStory.descriptors()
+local function descriptorsData()
     if not cached then
         local data <const> = assert(json.decodeFile("data/midgameGymStory/events.json"))
         assert(data.schema == 1 and data.source_revision == REVISION, "unverified gym story data")
         cached = data.events
     end
+    return cached
+end
+function MidgameGymStory.descriptors()
+    local data <const> = descriptorsData()
     local installed = {}
-    for id, descriptor in pairs(cached) do
+    for id, descriptor in pairs(data) do
         local mapID = id:match("^(pokered:[^:]+):")
         if SourceMaps.nameForID(mapID) then
             installed[id] = copy(descriptor)
@@ -55,6 +59,12 @@ function MidgameGymStory.giftOffer(id)
         extra_flags = {[descriptor.flag] = true}}
 end
 function MidgameGymStory.actorMetadata(id)
+    -- Eligibility comes from the same validated data as the public projection.
+    -- Unrelated actors need no copies of any activated gym descriptors.
+    local eligible <const> = descriptorsData()[id]
+    if not eligible or not eligible.species then
+        return {}
+    end
     local descriptor <const> = MidgameGymStory.descriptors()[id]
     if descriptor and descriptor.species then
         -- Only the chosen ball vanishes. The other remains and says greedy.

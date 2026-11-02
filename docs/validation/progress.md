@@ -182,3 +182,10 @@ Exact loaded entry stayed idle at103.61GiB;23 archive tests pass. No new bulk.
 Observed free49.43GiB aftercanary; other initialbatches continue. Ten cleanmerged
 worktrees earlier recovered3.04GiB. No newservice/networkconfig changes or push.
 [Previous ledger/history](progress-history-door-census-20261030.md).
+
+Reviewed shared allocation fix is ported to main108 with only three production
+files byte-identical to reviewed B295a6763. Own SDK exports/qualification,
+projection/metadata/query native checks and fullhost1120/1120 pass. Main keeps
+108maps; B149 remains private/unaccepted, C isolated. No main108 physical
+remeasurement is claimed. [Exact port and limits](allocation-main108-adoption-20261102.json).
+No push.
