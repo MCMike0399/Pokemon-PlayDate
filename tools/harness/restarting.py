@@ -670,10 +670,8 @@ class JourneyHistory:
             if operation == 'show-log':
                 if reply != {'malloc_log_open_requested': True, 'pid': self.process.pid}:
                     raise ProtocolError('history Show Malloc Log acknowledgement differs')
-                until = time.monotonic() + .5
-                while time.monotonic() < until:
-                    self.check(deadline)
-                    time.sleep(.025)
+                # Do not wait for the populated profiler view to materialize.
+                # Clear independently verifies window readiness and fails closed.
             return reply
         except BaseException:
             self.failed = True

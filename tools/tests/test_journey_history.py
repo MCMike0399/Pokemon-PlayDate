@@ -128,6 +128,20 @@ class JourneyHistoryTests(unittest.TestCase):
         launch.assert_called_once()
         self.assertFalse((self.root / 'journey-history-ack.json').exists())
 
+    def test_show_log_does_not_wait_while_profiler_materializes_history(self):
+        history = self.history()
+        history.check = Mock(return_value=123)
+        child = Mock()
+        child.poll.return_value = 0
+        child.returncode = 0
+        child.communicate.return_value = ('{"malloc_log_open_requested":true,"pid":42}', '')
+        history.process.pid = 42
+        (self.root / 'build.json').write_text('{}')
+        (self.root / 'process.json').write_text('{}')
+        with patch.object(restarting.subprocess, 'Popen', return_value=child), patch.object(restarting, 'host_footprint', return_value=123), patch.object(restarting.time, 'sleep') as sleep:
+            history.invoke('show-log', 100)
+        self.assertEqual(sleep.call_count, 0)
+
     def test_lock_mode_changes_only_for_opt_in(self):
         for enabled in (False, True):
             with patch('tools.harness.protocol.fcntl.flock') as bsd, patch('tools.harness.protocol.fcntl.lockf') as posix:
