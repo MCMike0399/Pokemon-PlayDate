@@ -140,3 +140,8 @@ Bulbasaur Save now retained at Route12(10,61), Soul absent. A longer next
 approach hit unchanged1GiB host guard during Save and produced no marker;
 shorter ordinary travel is in progress. Koga/composition/acceptance stay open.
 [Current components and Save identity](b149-current-capture-progress-20261102.json).
+
+Ordinary southern route now has verified genuine Saves through Route12(10,91),
+including the actual Rocker victory. The next JR encounter reached Save but
+failed final codec observation at unchanged1GiB host guard; no checkpoint was
+reconstructed. All owned processes closed. Koga/final showcase remain open.
