@@ -202,3 +202,12 @@ host guard before Save, producing no usable checkpoint. All children closed;
 no partial-slot import, pool/guard change or B acceptance.
 [Capture limits](b149-desktop-capture-limits-20261102.json). Actor-excluding
 static Route17 planning now has a non-grass path, still physically unverified.
+
+Actor-aware physical route reaches Route16 and Celadon, then GameCorner loading
+hits the unchanged9MiB hard guard (~9.01MiB) after view preparation. No complete
+valid timing report; B acceptance remains open. Raw checkpoints grow from7,634
+to9,190KiB during actor preparation, with no soft-GC marker. No leak/cause proved.
+No new error/crash logs; collection completes and keeper is restored.
+[Failure and ranked hypotheses](b149-gamecorner-memory-stop-20261102.json).
+Do not repeat this unchanged build or lower guards. Isolated Substitute owner
+seamcc6109ef is compiled/host31 only, unsupported and unadopted; C stays inactive.
