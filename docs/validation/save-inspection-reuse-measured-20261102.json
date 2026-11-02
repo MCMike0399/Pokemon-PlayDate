@@ -1,0 +1,548 @@
+{
+  "status": "adopted on main after qualifying hardware gain and one combined review",
+  "candidate": "7fcee048e0d9b57247a3fc860ce2817cd3eb9eba",
+  "base": "2f8e30626123442f4349451d2d3f2863d136120e",
+  "comparison": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-four-point-comparison-20261102-01.json",
+    "sha256": "4106e38c916bbb3a93ae2d1df380cbce3ecac6caafaeaac219a8413a81a98a89"
+  },
+  "native_summary": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-inspection-native-summary-20261102-03.json",
+    "sha256": "d9d878a8b12d90a8bc6beb11635c444fe915e1edeb2039066b7e186611bb4382"
+  },
+  "rows": [
+    {
+      "baseline": {
+        "point": "center",
+        "ordinal": 1,
+        "total_ms": 1947.0,
+        "capture_ms": 719.0,
+        "export_ms": 278.0,
+        "inspect_ms": 361.0,
+        "encode_ms": 208.0,
+        "checksum_ms": 111.0,
+        "write_ms": 51.0,
+        "readback.candidate_ms": 107.0,
+        "readback.published_ms": 110.0
+      },
+      "candidate": {
+        "point": "center",
+        "ordinal": 1,
+        "total_ms": 1996.0,
+        "capture_ms": 703.0,
+        "export_ms": 267.0,
+        "inspect_ms": 369.0,
+        "encode_ms": 205.0,
+        "checksum_ms": 109.0,
+        "write_ms": 50.0,
+        "readback.candidate_ms": 107.0,
+        "readback.published_ms": 106.0
+      },
+      "whole_save_gain_percent": -2.516692347200822
+    },
+    {
+      "baseline": {
+        "point": "center",
+        "ordinal": 2,
+        "total_ms": 2867.0,
+        "capture_ms": 694.0,
+        "export_ms": 262.0,
+        "inspect_ms": 1334.0,
+        "encode_ms": 185.0,
+        "checksum_ms": 95.0,
+        "write_ms": 53.0,
+        "readback.candidate_ms": 109.0,
+        "readback.published_ms": 106.0
+      },
+      "candidate": {
+        "point": "center",
+        "ordinal": 2,
+        "total_ms": 2020.0,
+        "capture_ms": 708.0,
+        "export_ms": 263.0,
+        "inspect_ms": 364.0,
+        "encode_ms": 215.0,
+        "checksum_ms": 113.0,
+        "write_ms": 49.0,
+        "readback.candidate_ms": 113.0,
+        "readback.published_ms": 117.0
+      },
+      "whole_save_gain_percent": 29.54307638646669
+    },
+    {
+      "baseline": {
+        "point": "surf",
+        "ordinal": 1,
+        "total_ms": 2288.0,
+        "capture_ms": 998.0,
+        "export_ms": 268.0,
+        "inspect_ms": 375.0,
+        "encode_ms": 234.0,
+        "checksum_ms": 129.0,
+        "write_ms": 47.0,
+        "readback.candidate_ms": 110.0,
+        "readback.published_ms": 110.0
+      },
+      "candidate": {
+        "point": "surf",
+        "ordinal": 1,
+        "total_ms": 2368.0,
+        "capture_ms": 1017.0,
+        "export_ms": 282.0,
+        "inspect_ms": 369.0,
+        "encode_ms": 222.0,
+        "checksum_ms": 120.0,
+        "write_ms": 48.0,
+        "readback.candidate_ms": 114.0,
+        "readback.published_ms": 117.0
+      },
+      "whole_save_gain_percent": -3.4965034965034967
+    },
+    {
+      "baseline": {
+        "point": "surf",
+        "ordinal": 2,
+        "total_ms": 3529.0,
+        "capture_ms": 1051.0,
+        "export_ms": 286.0,
+        "inspect_ms": 1600.0,
+        "encode_ms": 197.0,
+        "checksum_ms": 100.0,
+        "write_ms": 46.0,
+        "readback.candidate_ms": 109.0,
+        "readback.published_ms": 110.0
+      },
+      "candidate": {
+        "point": "surf",
+        "ordinal": 2,
+        "total_ms": 2426.0,
+        "capture_ms": 1060.0,
+        "export_ms": 282.0,
+        "inspect_ms": 386.0,
+        "encode_ms": 227.0,
+        "checksum_ms": 125.0,
+        "write_ms": 49.0,
+        "readback.candidate_ms": 117.0,
+        "readback.published_ms": 112.0
+      },
+      "whole_save_gain_percent": 31.255313119863985
+    }
+  ],
+  "validation_scope": "23 unique selected native persistence cases; not full campaign or all species codec loops",
+  "performance_scope": "One paired private whole-phase-instrumented device observation. Fresh same initial earned pair per map; cross-map also differs by traversal and mode. Export nested capture; checksum nested encode.",
+  "cycles": [
+    {
+      "point": "center",
+      "metrics": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-center-hardware-20261102-01/device-smoke.json",
+        "sha256": "af15649c75ccdfb6b7cd39c61229d84ffb2f4f4c05b2bab0a79b331099fe1d8d"
+      },
+      "keeper": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-center-hardware-20261102-01/keeper-restored.json",
+        "sha256": "527f10fdd777041d13fdebe1bff70bda72d689bd324211e6c949344d1be79125"
+      },
+      "phase_table": [
+        {
+          "boundary": "boot.begin -> initialize.ready",
+          "diagnostic_gc_raw_phase_ms": 872.0,
+          "diagnostic_gc_wall_ms": 876.0,
+          "end_ms": 16012.0,
+          "measured_active_ms": 11521.567000000003,
+          "phase": "boot_title",
+          "residual_wall_ms": 1803.4329999999973,
+          "start_ms": 2687.0,
+          "wall_ms": 13325.0
+        },
+        {
+          "boundary": "boot.begin -> title.visible",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 5522.0,
+          "measured_active_ms": 1333.7300000000018,
+          "phase": "title_artwork",
+          "residual_wall_ms": 1501.2699999999982,
+          "start_ms": 2687.0,
+          "wall_ms": 2835.0
+        },
+        {
+          "boundary": "Continue.begin -> Continue.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 19536.0,
+          "measured_active_ms": 3013.482,
+          "phase": "Continue",
+          "residual_wall_ms": 279.51800000000003,
+          "start_ms": 16243.0,
+          "wall_ms": 3293.0
+        },
+        {
+          "boundary": "Save.begin -> Save.publish.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 23693.0,
+          "measured_active_ms": 1890.9249999999993,
+          "phase": "Save",
+          "residual_wall_ms": 105.07500000000073,
+          "start_ms": 21697.0,
+          "wall_ms": 1996.0
+        },
+        {
+          "boundary": "Save.begin -> Save.publish.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 32800.0,
+          "measured_active_ms": 1912.1969999999965,
+          "phase": "Save",
+          "residual_wall_ms": 107.80300000000352,
+          "start_ms": 30780.0,
+          "wall_ms": 2020.0
+        },
+        {
+          "boundary": "boot.begin -> title.live.before_gc (historical observer endpoint; not input readiness)",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 14688.0,
+          "measured_active_ms": 10197.567000000003,
+          "phase": "boot_before_diagnostic_gc",
+          "residual_wall_ms": 1803.4329999999973,
+          "start_ms": 2687.0,
+          "wall_ms": 12001.0
+        },
+        {
+          "boundary": "title.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 872.0,
+          "diagnostic_gc_wall_ms": 876.0,
+          "end_ms": 15564.0,
+          "measured_active_ms": 876.0,
+          "phase": "diagnostic_gc.title.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 14688.0,
+          "wall_ms": 876.0
+        },
+        {
+          "boundary": "Continue.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 640.0,
+          "diagnostic_gc_wall_ms": 643.0,
+          "end_ms": 20187.0,
+          "measured_active_ms": 643.0,
+          "phase": "diagnostic_gc.Continue.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 19544.0,
+          "wall_ms": 643.0
+        },
+        {
+          "boundary": "Save.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 594.0,
+          "diagnostic_gc_wall_ms": 597.0,
+          "end_ms": 24310.0,
+          "measured_active_ms": 597.0,
+          "phase": "diagnostic_gc.Save.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 23713.0,
+          "wall_ms": 597.0
+        },
+        {
+          "boundary": "Save.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 593.0,
+          "diagnostic_gc_wall_ms": 597.0,
+          "end_ms": 33415.0,
+          "measured_active_ms": 597.0,
+          "phase": "diagnostic_gc.Save.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 32818.0,
+          "wall_ms": 597.0
+        },
+        {
+          "boundary": "boot.begin -> Continue.end; app-clock readiness proxy, includes title input wait; physical power-on unmeasured",
+          "diagnostic_gc_raw_phase_ms": 872.0,
+          "diagnostic_gc_wall_ms": 876.0,
+          "end_ms": 19536.0,
+          "measured_active_ms": 14583.593000000003,
+          "phase": "boot_to_walk_ready",
+          "residual_wall_ms": 2265.4069999999974,
+          "start_ms": 2687.0,
+          "wall_ms": 16849.0
+        }
+      ],
+      "measurements": {
+        "battle_start_ms": null,
+        "frame_ms": 124.781,
+        "heap_live_bytes": 4885823.488,
+        "heap_peak_bytes": 6433560.576,
+        "map_load_ms": null,
+        "slice_ms": 1441.367
+      },
+      "failures": [
+        "map_load_ms",
+        "battle_start_ms",
+        "boot_title",
+        "boot_slice",
+        "Save",
+        "door",
+        "battle",
+        "cave_walking_p95",
+        "missing-power-on-to-walking-app-clock-proxy"
+      ],
+      "system_logs_unchanged": true,
+      "keeper_screen": "not directly observed; inventory verified and run acknowledged"
+    },
+    {
+      "point": "surf",
+      "metrics": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-surf-hardware-20261102-01/device-smoke.json",
+        "sha256": "b486b36a4b4b9c8d59da6878115b5ab3e1125aae79a5ba869fd833a01d6e6318"
+      },
+      "keeper": {
+        "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-surf-hardware-20261102-01/keeper-restored.json",
+        "sha256": "527f10fdd777041d13fdebe1bff70bda72d689bd324211e6c949344d1be79125"
+      },
+      "phase_table": [
+        {
+          "boundary": "boot.begin -> initialize.ready",
+          "diagnostic_gc_raw_phase_ms": 928.0,
+          "diagnostic_gc_wall_ms": 931.0,
+          "end_ms": 16060.0,
+          "measured_active_ms": 11602.983999999999,
+          "phase": "boot_title",
+          "residual_wall_ms": 1767.0160000000014,
+          "start_ms": 2690.0,
+          "wall_ms": 13370.0
+        },
+        {
+          "boundary": "boot.begin -> title.visible",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 5485.0,
+          "measured_active_ms": 1313.5149999999994,
+          "phase": "title_artwork",
+          "residual_wall_ms": 1481.4850000000006,
+          "start_ms": 2690.0,
+          "wall_ms": 2795.0
+        },
+        {
+          "boundary": "Continue.begin -> Continue.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 19579.0,
+          "measured_active_ms": 2990.623000000007,
+          "phase": "Continue",
+          "residual_wall_ms": 288.37699999999313,
+          "start_ms": 16300.0,
+          "wall_ms": 3279.0
+        },
+        {
+          "boundary": "Save.begin -> Save.publish.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 64728.0,
+          "measured_active_ms": 2236.9769999999917,
+          "phase": "Save",
+          "residual_wall_ms": 131.02300000000832,
+          "start_ms": 62360.0,
+          "wall_ms": 2368.0
+        },
+        {
+          "boundary": "Save.begin -> Save.publish.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 73998.0,
+          "measured_active_ms": 2288.2899999999936,
+          "phase": "Save",
+          "residual_wall_ms": 137.7100000000064,
+          "start_ms": 71572.0,
+          "wall_ms": 2426.0
+        },
+        {
+          "boundary": "door.map.begin -> door.map.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 27315.0,
+          "measured_active_ms": 4171.984000000008,
+          "phase": "door",
+          "residual_wall_ms": 376.01599999999235,
+          "start_ms": 22767.0,
+          "wall_ms": 4548.0
+        },
+        {
+          "boundary": "door.map.begin -> door.map.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 37544.0,
+          "measured_active_ms": 1531.313000000002,
+          "phase": "door",
+          "residual_wall_ms": 139.68699999999808,
+          "start_ms": 35873.0,
+          "wall_ms": 1671.0
+        },
+        {
+          "boundary": "door.map.begin -> door.map.end",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 47173.0,
+          "measured_active_ms": 2244.832999999984,
+          "phase": "door",
+          "residual_wall_ms": 175.16700000001583,
+          "start_ms": 44753.0,
+          "wall_ms": 2420.0
+        },
+        {
+          "boundary": "boot.begin -> title.live.before_gc (historical observer endpoint; not input readiness)",
+          "diagnostic_gc_raw_phase_ms": 0,
+          "diagnostic_gc_wall_ms": 0,
+          "end_ms": 14681.0,
+          "measured_active_ms": 10223.983999999999,
+          "phase": "boot_before_diagnostic_gc",
+          "residual_wall_ms": 1767.0160000000014,
+          "start_ms": 2690.0,
+          "wall_ms": 11991.0
+        },
+        {
+          "boundary": "title.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 928.0,
+          "diagnostic_gc_wall_ms": 931.0,
+          "end_ms": 15612.0,
+          "measured_active_ms": 931.0,
+          "phase": "diagnostic_gc.title.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 14681.0,
+          "wall_ms": 931.0
+        },
+        {
+          "boundary": "Continue.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 632.0,
+          "diagnostic_gc_wall_ms": 635.0,
+          "end_ms": 20223.0,
+          "measured_active_ms": 635.0,
+          "phase": "diagnostic_gc.Continue.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 19588.0,
+          "wall_ms": 635.0
+        },
+        {
+          "boundary": "door.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 626.0,
+          "diagnostic_gc_wall_ms": 628.0,
+          "end_ms": 27948.0,
+          "measured_active_ms": 628.0,
+          "phase": "diagnostic_gc.door.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 27320.0,
+          "wall_ms": 628.0
+        },
+        {
+          "boundary": "door.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 658.0,
+          "diagnostic_gc_wall_ms": 662.0,
+          "end_ms": 38210.0,
+          "measured_active_ms": 662.0,
+          "phase": "diagnostic_gc.door.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 37548.0,
+          "wall_ms": 662.0
+        },
+        {
+          "boundary": "door.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 638.0,
+          "diagnostic_gc_wall_ms": 641.0,
+          "end_ms": 47818.0,
+          "measured_active_ms": 641.0,
+          "phase": "diagnostic_gc.door.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 47177.0,
+          "wall_ms": 641.0
+        },
+        {
+          "boundary": "Save.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 664.0,
+          "diagnostic_gc_wall_ms": 668.0,
+          "end_ms": 65418.0,
+          "measured_active_ms": 668.0,
+          "phase": "diagnostic_gc.Save.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 64750.0,
+          "wall_ms": 668.0
+        },
+        {
+          "boundary": "Save.live.before_gc -> .after_gc",
+          "diagnostic_gc_raw_phase_ms": 635.0,
+          "diagnostic_gc_wall_ms": 638.0,
+          "end_ms": 74658.0,
+          "measured_active_ms": 638.0,
+          "phase": "diagnostic_gc.Save.live",
+          "residual_wall_ms": 0.0,
+          "start_ms": 74020.0,
+          "wall_ms": 638.0
+        },
+        {
+          "boundary": "boot.begin -> Continue.end; app-clock readiness proxy, includes title input wait; physical power-on unmeasured",
+          "diagnostic_gc_raw_phase_ms": 928.0,
+          "diagnostic_gc_wall_ms": 931.0,
+          "end_ms": 19579.0,
+          "measured_active_ms": 14656.327000000007,
+          "phase": "boot_to_walk_ready",
+          "residual_wall_ms": 2232.6729999999934,
+          "start_ms": 2690.0,
+          "wall_ms": 16889.0
+        }
+      ],
+      "measurements": {
+        "battle_start_ms": null,
+        "frame_ms": 698.875,
+        "heap_live_bytes": 4885823.488,
+        "heap_peak_bytes": 6435295.232,
+        "map_load_ms": 4548.0,
+        "slice_ms": 1443.46
+      },
+      "failures": [
+        "map_load_ms",
+        "battle_start_ms",
+        "boot_title",
+        "boot_slice",
+        "Save",
+        "door",
+        "battle",
+        "cave_walking_p95",
+        "missing-power-on-to-walking-app-clock-proxy"
+      ],
+      "system_logs_unchanged": true,
+      "keeper_screen": "not directly observed; inventory verified and run acknowledged"
+    }
+  ],
+  "remaining_gates": [
+    "C journeys and acceptance remain separate",
+    "Save <=2 s remains unmet for repeated Surf and narrowly for Center",
+    "Broader latency, boot, doors and caves remain open"
+  ],
+  "policy_unchanged": [
+    "full public LOAD validation",
+    "exact readback and checksum",
+    "two-slot recovery",
+    "16 MiB Simulator pool",
+    "1 GiB host limit",
+    "31/30 GiB disk",
+    "6/8/9 MiB Lua guards"
+  ],
+  "adoption_commit": "1ffd6fa7",
+  "review": {
+    "base": "2f8e30626123442f4349451d2d3f2863d136120e",
+    "candidate": "7fcee048e0d9b57247a3fc860ce2817cd3eb9eba",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "scope": "Read-only exact source/artifact hash review; no independent runtime rerun",
+    "task": "3875a17f-3ade-426b-9243-429dc48aa240"
+  },
+  "merged_validation": {
+    "host": {
+      "selected": 47,
+      "passed": 47,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-inspection-merged-host-20261102-01.log",
+      "sha256": "331159f40c7e3cae965266f74d5ee4d0ed33a1f4ffec76485de4392df793d70c"
+    },
+    "production_compile": {
+      "sdk": "3.1.2",
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-inspection-merged-production-20261102-01/PokemonBlue.pdx",
+      "passed": true
+    },
+    "source_equals_measured_candidate": true
+  }
+}

@@ -119,18 +119,51 @@ point probes retain their separate scope.
    pass after correction.57protocol checks and productioncompile pass. Current
    shared-owner evidence is rebound only where unchanged assertions reran;
    HelpingHand/Dig stay stale, and no full-mechanics completion is inferred.
-3. Advance C's isolated host composition `5b0a6a2a`. All three accepted-B imports
-   now pass after verified original-path ancestry restoration. Four conditions
-   remain: President binding, two elevator arrivals and real C qualification.
-   The listed B memory samples and native bitmap point probe are complete in
-   their diagnostic scopes. Proceed to isolated C qualification under unchanged
-   guards; C still needs its own memory, latency, journey and visual acceptance.
-   Shared inert-warp/scripted-elevator metadata is in host preparation; the old
-   map-specific geometry patch stays unapplied.
+3. C's isolated candidate is now wired and SDK-qualified at `5ae77a61` in
+   `t3/checkpoint-c-host-preparation`. Main stays 149 maps; candidate has 171.
+   Source-derived metadata handles two inert Silph declarations and 13 scripted
+   elevator IDs without changing B's 510 classifications. Actual thin SDK export
+   preserves Kanto/East/South values and produces Saffron's 30 transformed events
+   and 45 trainers; sampled host peak is 194 MiB. Qualified production compile
+   passes. Native floor/elevator checks, earned journeys and C's own hardware,
+   memory, latency and visual gates remain open. The guarded full-harness export
+   stopped at 1 GiB and was replaced, not continued. B memory no longer blocks C
+   activation, per reviewer steer 7. Existing earned boundaries remain strict.
    [C ancestry proof](checkpoint-c-restored-ancestry-20261102.json).
-4. Fix structural door/boot/cave costs and measure boot/Continue against all three
+4. Controlled four-Save measurement separates ordinal from the earlier mixed
+   comparison: Center #1/#2 take 1.947/2.867 s; Fuchsia Surf #1/#2 take
+   2.288/3.529 s. Inspection rises 361→1,334 ms and 375→1,600 ms; writes/readbacks
+   are nearly flat. Whole-phase marks are private, not a production change.
+   Cross-map still combines map, travel and mode; no isolated Surf effect claimed.
+   [Actual attribution](save-four-point-attribution-20261102.json).
+   A SAVE-only inspection-proof candidate now measures repeated Center Save
+   2.867→2.020 s and repeated Surf Save 3.529→2.426 s, 29.5/31.3% faster.
+   First Saves are 2.5/3.5% slower. Public loads retain deep validation; 23
+   selected native persistence cases pass. Both exact safety routes admit device
+   measurement; hardware peak is about 6.14 MiB with unchanged system logs.
+   Adopted as `1ffd6fa7` after one combined review with zero findings. All 47
+   selected merged host/build checks and production compilation pass; the three
+   changed Source files equal the measured candidate. Surf still misses 2 s.
+   [Measured candidate and scope](save-inspection-reuse-measured-20261102.json).
+5. Fix structural door/boot/cave costs and measure boot/Continue against all three
    B save sizes. Payload sizes alone establish no timing conclusion. Do not
-   restart the census or AX/Clear History work.
+   restart the census. The user explicitly allows the existing guarded history
+   helper for ordinary C journeys. Its archive-fence correction passes host
+   checks, but native qualification remains open: opening the profiler window
+   itself can cross the unchanged 1 GiB host guard before Clear. No complete C
+   journey is inferred from host checks or earlier failed attempts.
+
+Compact SMC1 terrain-row consumption is also rejected after native correctness
+passes but no whole-phase hardware gain: Fuchsia 4.451→4.507 s, memory unchanged.
+Four map cases, one WorldView rollback and nine activation cases pass; no review
+or adoption follows. [Measured rejection](packed-terrain-rejected-20261102.json).
+
+The six-set atlas enablement candidate is rejected after matched hardware.
+Game Corner load was 3.889→3.933 s; B3 load 1.886→1.907 s, with three >1 s
+frames still present. Tower's best floor improvement was 3.0%. Native pixels
+passed all 727 keys/20 tables, but no target met the 10% performance rule.
+No review, adoption or additional proof work is requested for this candidate.
+[Measured rejection](atlas-enable-rejected-20261102.json).
 
 The door-tier candidate remains rejected: primary cold-entry gains were only
 3.1% Fuchsia, 8.4% Route17 and 7.8% GameCorner, with Save 11.3% slower. Its

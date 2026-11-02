@@ -1,0 +1,76 @@
+{
+  "classification": "Four stationary Saves, two fresh actual processes; same initial earned pair. Controls ordinal within each map; cross-map still combines map/travel/mode.",
+  "rows": [
+    {
+      "point": "center",
+      "ordinal": 1,
+      "total_ms": 1947.0,
+      "capture_ms": 719.0,
+      "export_ms": 278.0,
+      "inspect_ms": 361.0,
+      "encode_ms": 208.0,
+      "checksum_ms": 111.0,
+      "write_ms": 51.0,
+      "readback.candidate_ms": 107.0,
+      "readback.published_ms": 110.0
+    },
+    {
+      "point": "center",
+      "ordinal": 2,
+      "total_ms": 2867.0,
+      "capture_ms": 694.0,
+      "export_ms": 262.0,
+      "inspect_ms": 1334.0,
+      "encode_ms": 185.0,
+      "checksum_ms": 95.0,
+      "write_ms": 53.0,
+      "readback.candidate_ms": 109.0,
+      "readback.published_ms": 106.0
+    },
+    {
+      "point": "surf",
+      "ordinal": 1,
+      "total_ms": 2288.0,
+      "capture_ms": 998.0,
+      "export_ms": 268.0,
+      "inspect_ms": 375.0,
+      "encode_ms": 234.0,
+      "checksum_ms": 129.0,
+      "write_ms": 47.0,
+      "readback.candidate_ms": 110.0,
+      "readback.published_ms": 110.0
+    },
+    {
+      "point": "surf",
+      "ordinal": 2,
+      "total_ms": 3529.0,
+      "capture_ms": 1051.0,
+      "export_ms": 286.0,
+      "inspect_ms": 1600.0,
+      "encode_ms": 197.0,
+      "checksum_ms": 100.0,
+      "write_ms": 46.0,
+      "readback.candidate_ms": 109.0,
+      "readback.published_ms": 110.0
+    }
+  ],
+  "overlap": "export nestedcapture; checksum nestedencode. Never sum all columns. Marks add observer overhead; not shipped timing or optimization acceptance.",
+  "status": "attribution only; no optimization/adoption",
+  "source_main": "2f8e30626123442f4349451d2d3f2863d136120e",
+  "private_marks_patch_sha256": "c898c8741327f7c93edc3750dd38b3a8733776f93cc5cd4052ca25aaa70849b5",
+  "new_logs": false,
+  "keeper": "Verified installed inventory and run acknowledged after both cycles; screen not directly observed",
+  "finding": "Stationary second Save increases1.0s primarily in inspect in both maps. Cross-map remains mode/map/travel mixed; not isolatedSurf tax. Write/readback nearly flat. encode includeschecksum; export nestedcapture.",
+  "raw_marks_reference": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-four-point-attribution-20261102-01.json",
+    "sha256": "3b13f539e3e31f31ab520538c5dd89a0fa71c5ba3aa0e33df916bf34a63a8689"
+  },
+  "files": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-center-attribution-hardware-20261102-01/device-smoke.json": "8ba51c48582fa32a3ca108ee0cd806516f3ee044191cefe4a59781ccf76c6bad",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-center-attribution-hardware-20261102-01/save-attribution-finish.json": "0fad5cc27c2fd5bd5990eec4180d7d1adce030d5ffdfdcc8c18910fac04178ab",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-center-attribution-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-surf-attribution-hardware-20261102-01/device-smoke.json": "bbcc9bf1e59c537c93a01ce011a2888e088e315513bc2e4b4d8e6b2d4a2b78fd",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-surf-attribution-hardware-20261102-01/save-attribution-finish.json": "edab938062ed79f2dfbfb531a32b408a411f874a4f2a1704fb27e210892d7d0b",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-surf-attribution-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  }
+}
