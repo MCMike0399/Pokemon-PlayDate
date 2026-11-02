@@ -166,3 +166,9 @@ coverage rows/levels remain unchanged. Independent data review leaves only a
 clarified count category(24 runtime-only;28 including coverage). Current-source
 capture preflight passes2.975s/91frames/403MiB; Snorlax/Koga and montage remain
 open. [Finalization](b149-host-finalization-20261101.json).
+
+Current normal-production player package02 is ready:202 modules, no dev code,
+all three unchanged earned B save pairs and known limits; not installed/accepted.
+A genuine short checkpoint reaches Route12(10,23),615MiB hostpeak. Follow-up
+trainer wins but Save hits hostguard; no marker produced, partial slots unused.
+[Package/checkpoint](b149-package-checkpoint-20261101.json).

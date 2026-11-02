@@ -1,0 +1,54 @@
+{
+  "classification": "Private B package and genuine short checkpoint; not acceptance",
+  "package": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5b-release-candidate-20261101-02",
+    "manifest_sha256": "4a058f245862ff6b755ca8e7a18d843444ed68d8acc8c36ef6388b70f521d548",
+    "pdx_tree_sha256": "5025218db2df151a7bc91443ca2691b9b76cdad668e76e0539deabaf1a4addb3",
+    "source_commit": "d05753155162c1800178b8d15abf4fca8186f1a7",
+    "compiled_modules": 202,
+    "dev_modules": 0,
+    "earned_starters": [
+      "bulbasaur",
+      "charmander",
+      "squirtle"
+    ],
+    "save_pairs": "All six bytestrings compared against unchanged canonical chain5.5b and prior package hashes",
+    "installed": false,
+    "exact_normal_production_timing": "unmeasured"
+  },
+  "short_checkpoint": {
+    "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-route12-short-checkpoint-20261101-01/processes/0001/partial-save.json",
+    "sha256": "59371ee462a79331e7f6dd7e55ed02744e359d9fff65def0b4080b19a1916572",
+    "location": {
+      "facing": "down",
+      "x": 10,
+      "y": 23,
+      "zone_id": "pokered:ROUTE_12"
+    },
+    "producer": [
+      {
+        "evidence": "processes/0001",
+        "generation": 1,
+        "pid": 15554,
+        "returncode": -9,
+        "status": "exited"
+      }
+    ],
+    "host_peak_bytes": 644695384,
+    "strict_import": "Existing record.py --check accepted this marker and original A ancestry before next attempt."
+  },
+  "failed_followup": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-after-trainer-short-checkpoint-20261101-02",
+    "outcome": {
+      "error": "",
+      "host_guard_errors": [
+        "1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded"
+      ],
+      "ok": false
+    },
+    "host_peak_bytes": 1118521024,
+    "complete_marker_produced": false,
+    "action": "Do not reconstruct boundary from partial slots. Owned child stopped, UUID Data archived/removed. No repeated run or guard change."
+  },
+  "remaining": "Snorlax/Koga/montage pending. OpenClaw node request04 failed before invocation at Gateway connection; no duplicated request or config changes. Metadata worker prepares only unapplied packet. No B/C acceptance or push."
+}
