@@ -122,13 +122,12 @@ remotely for capture headroom; no current save/package/proof input was released.
 
 ## Runtime admission follow-up — 2026-11-02
 
-Free space was 48.25 GiB, below the unchanged 51 GiB runtime admission. Root
-started the existing qualified archive workflow for only stopped superseded
-`door-census-b149-bounded-continuation-20261101-04`. Its original progress still
-reports 864 measured/1,936 gaps and 2,090 missing trials; closure is not a pass.
-The exact native metadata audit covers 691,119 entries and 4,481,431,971 logical
-bytes, with no required nonportable metadata. Archive is in progress; no release
-or reclaimed-space success is claimed. Current earned saves/builds are retained.
-No SDK/device run starts until this transaction closes and admission passes.
-Door hook integration passes 13 focused host checks in its isolated branch;
-terrain-query composition passes 18. Both remain unadopted.
+One stopped superseded census root was remotely verified, fully restore-rehearsed
+and released through the existing qualified helper and five fences. Original
+864 measured / 1,936 gaps / 2,090 missing outcomes remain unchanged remotely;
+closure is not a passing result. Measured free after release was **52.40 GiB**,
+restoring the unchanged 51 GiB admission gate. No further root is admitted.
+[Receipt, exact paths and restoration command](capacity-census04-retention-20261102.json).
+Root resumed the isolated door candidate's real SDK export. Door hook integration
+passes 13 focused host checks; terrain-query composition passes18. Both remain
+unadopted until their native, physical and review gates pass.
