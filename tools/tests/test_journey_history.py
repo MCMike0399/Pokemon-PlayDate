@@ -1,6 +1,8 @@
 """Pure owner/protocol rejection checks; no SDK, native AX or global locks."""
 import copy
 import hashlib
+import subprocess
+import sys
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -124,6 +126,31 @@ class JourneyHistoryTests(unittest.TestCase):
                     self.assertIsNotNone(owner.stream)
                 self.assertEqual(posix.call_count, 2 if enabled else 0)
                 self.assertEqual(bsd.call_count, 0 if enabled else 2)
+
+    def test_generation_archive_preserves_posix_fence_across_restarts(self):
+        data, output = self.root / 'data', self.root / 'output'
+        data.mkdir()
+        output.mkdir()
+        (data / 'save.json').write_text('durable save')
+        probe = ('import fcntl, sys\n'
+                 'with open(sys.argv[1], "a+") as stream:\n'
+                 ' try: fcntl.lockf(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)\n'
+                 ' except BlockingIOError: sys.exit(0)\n'
+                 ' sys.exit(1)\n')
+        with OwnerLock(data / 'owner.lock', history=True) as owner:
+            for generation in (1, 2):
+                evidence = output / str(generation)
+                evidence.mkdir()
+                restarting.archive_generation(data, output, evidence, 0)
+                self.assertFalse((evidence / 'runtime-data/owner.lock').exists())
+                self.assertEqual((evidence / 'runtime-data/save.json').read_text(), 'durable save')
+                self.assertFalse(owner.stream.closed)
+                result = subprocess.run([sys.executable, '-c', probe, str(owner.path)],
+                                        capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+        result = subprocess.run([sys.executable, '-c', probe, str(data / 'owner.lock')],
+                                capture_output=True, timeout=5)
+        self.assertEqual(result.returncode, 1, result.stderr.decode())
 
     def test_staging_freeze_survives_capture_overlay_and_inventory_is_actual(self):
         project, sdk, output = (self.root / name for name in ('project', 'sdk', 'output'))

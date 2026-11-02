@@ -202,3 +202,13 @@ Swift compile and host checks do not establish native pause behavior, correct
 current broom layout, reclamation, complete journeys or acceptance. No census
 was resumed. Root must record actual before/after footprint and native control
 captures in the new evidence, rather than reuse census qualification.
+
+### Generation fence correction
+
+Generation archival excludes the live root `owner.lock` file. POSIX record locks
+are released when the owning process closes any descriptor for that inode, so
+copying that file would silently release the private fence. Owner metadata stays
+in the live descriptor and existing process evidence; archival never reopens the
+fence. A two-generation subprocess test verifies a competing POSIX writer is
+refused after each archive and succeeds only after the owner exits. This fixes
+the review finding; actual native Clear qualification remains pending.

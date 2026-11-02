@@ -175,7 +175,10 @@ def durable_hashes(data):
 
 def archive_generation(data, output, evidence, trace_start):
     # Called only after confirmed process exit; producers cannot overwrite copies.
-    shutil.copytree(data, evidence / 'runtime-data')
+    # Opening and closing another descriptor for a POSIX-locked inode releases
+    # this process's record lock. Never read the live fence during archival.
+    shutil.copytree(data, evidence / 'runtime-data',
+                    ignore=lambda directory, names: {'owner.lock'} if Path(directory) == data else set())
     trace = data / 'trace.jsonl'
     content = trace.read_bytes() if trace.exists() else b''
     if trace_start > len(content):
