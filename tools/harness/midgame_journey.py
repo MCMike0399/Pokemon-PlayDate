@@ -1395,6 +1395,9 @@ class MidgameJourney(vj.VermilionJourney):
         if self.state['zone_id'] in {self.zone('FuchsiaPokecenter'), self.zone('FuchsiaCity')}:
             self.return_from_fuchsia_to_route12()
             self.return_from_route12_to_lavender()
+            # A genuine transit Save can resume this long return leg under the
+            # unchanged per-process history budget. It completes no C quest.
+            self.save()
         self.ensure_room('CeladonMart2F')
         self.heal_here('CeladonPokecenter')
         self.travel(self.zone('CeladonMart1F'))
