@@ -153,3 +153,10 @@ The next run stopped during startup on the50GiB disk reserve; live free50.08GiB
 was below51GiB admission. All owned runtimes closed, no failed-slot reconstruction.
 Koga/composition/package/acceptance remain open.
 [Save chain and limits](b149-koga-approach-progress-20261102.json).
+
+Host-only Koga excerpt and copied-source gym route are prepared; no new native
+capture or B acceptance. Explicitly scoped excerpt makes no victory/badge claim;
+the existing Fisherman component remains the complete trainer battle.
+Three isolated door/memory candidates are ready for Root qualification and
+measurement; none is adopted or claimed faster.
+[Prepared scope and candidate boundaries](b149-koga-excerpt-preparation-20261102.json).

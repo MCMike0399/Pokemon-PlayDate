@@ -1,0 +1,49 @@
+{
+  "classification": "Host preparation only; NO new Koga capture/runtime/acceptance",
+  "recipe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-koga-excerpt-recipe-20261102-01",
+  "recipe_sha256": "e6c8c545c44866cf5082444c5cbf933594554234eb7969002cb14c933321c188",
+  "source_route": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-koga-source-route-preparation-20261102-01.json",
+  "source_route_sha256": "ccdd14c17e81c361bd73a15890a3255a70442536badce40ffb5668a3733d846e",
+  "checks": [
+    "Python compile succeeded without writing cache",
+    "Existing strict importer --check verifies Source/harness inventories, stopped original producer, actual slot codec and accepted A ancestry",
+    "Static SourceGeometry route uses copied B149 definitions; conservative declared sight model admits trainer groups3 and7, not a verified game minimum"
+  ],
+  "runtime_preconditions": [
+    "Current earned approach is still Route15(40,9), not yet the gym",
+    "Travel through Gate to Fuchsia, actual Center heal/Save and gym preparation remain",
+    "Require actual FuchsiaGym runtime(4,10), Koga undefeated and Soul absent",
+    "Keep exact16MiB pool, 1GiB host, 51GiB admission/50reserve and original game guards"
+  ],
+  "scope": "Record actual Koga dialogue/intro and one ordinary first turn. Explicit full_battle=false and victory_claimed=false. Do not claim a new Koga victory from this excerpt. Existing full Fisherman recording supplies the one complete trainer battle. Final60-90s motion/export review remains mandatory.",
+  "memory_candidates": [
+    {
+      "commit": "c5639f940e2d26255078cddbf7a0f613d749459b",
+      "base": "c4f96f886155c983dc0e66168937f64f4d7e0978",
+      "scope": "Vermilion membership only",
+      "reported_host_passes": 12,
+      "catalogue_copies_removed": {
+        "gym-close": 4,
+        "gym-open": 4,
+        "ship-departed": 16
+      }
+    },
+    {
+      "commit": "56c398aab83447205ed1bc88f83fe52a52b67950",
+      "base": "c4f96f886155c983dc0e66168937f64f4d7e0978",
+      "scope": "Detached field-travel terrain lookup",
+      "reported_host_passes": 9,
+      "fixture_behavior_change": "Follows active _withRecords scope instead of permanent first snapshot; must be exercised before adoption"
+    },
+    {
+      "commit": "6949bc94b8a6c9177aaff881916f356869c928f9",
+      "base": "d1d5bae2e126dbc6e77d329074f4773b285cc5aa",
+      "scope": "Production per-load actor validation tier; hook unapplied",
+      "reported_focused_host_passes": 27,
+      "native_cases_compiled_unexecuted": 14,
+      "full_host": "1073 tests: six freshness/projection failures and five qualification errors"
+    }
+  ],
+  "candidate_status": "All three remain isolated and unadopted; Root qualification/native/hardware/review outstanding. No measured gains claimed.",
+  "push": false
+}
