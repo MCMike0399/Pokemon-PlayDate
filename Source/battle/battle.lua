@@ -69,6 +69,11 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
         atkStage, defStage = attacker.statStages.atk, defender.statStages.def
     end
 
+    -- Move flags ignore both positive and negative defensive stages, while
+    -- leaving base stats and subsequent ability/weather modifiers intact.
+    if move.ignoreDefensive then
+        defStage = 0
+    end
     -- Crits ignore stages unfavorable to the attacker
     if isCrit then
         if atkStage < 0 then atkStage = 0 end
@@ -111,6 +116,7 @@ function calcDamage(attacker, defender, move, effectivePower, effects)
     damage = math.max(1, damage)
     -- GenV final screen modifier follows minimum1, so a real hit may do0.
     if effects then
+        damage=effects:airborneDamage(move,defender,damage)
         damage=effects.battle.conditions:screenDamage(attacker,defender,move,damage,isCrit)
         damage=effects:finalDamage(attacker,damage,isCrit)
     end
@@ -145,6 +151,9 @@ function accuracyThreshold(move, attacker, defender, effects)
     if move.accuracy == 0 or (effects and effects.accuracyBypassesCheck and effects:accuracyBypassesCheck(move,attacker,defender)) then return 100 end
     local evasion = defender.statStages.eva
     if effects then evasion = effects.battle.conditions:evasionStage(defender) end
+    if move.ignoreEvasion then
+        evasion = 0
+    end
     local stage = attacker.statStages.acc - evasion
     local base=effects and effects:accuracy(attacker,defender,move) or move.accuracy
     return math.max(0,math.min(100,math.floor(base * accStageMult(stage))))
@@ -378,7 +387,7 @@ end
 function Battle:opponentEntered(cause)
     assert(cause==nil or cause=="phaze","invalid opponent-entry cause")
     if self.enemyParty then assert(self.enemyParty:active()==self.enemy,"opponent entry active mismatch") end
-    if self.sourceEncounter and not cause then
+    if self.sourceEncounter and self.sourceEncounter.intro_labels and not cause then
         self:sourceSay(self.sourceEncounter.intro_labels)
         if self.sourceEncounter.unidentified then
             return
@@ -1016,10 +1025,13 @@ function Battle:resolveTurn(turn)
         if attacker.statusTurns > 0 then
             attacker.statusTurns = attacker.statusTurns - 1
             self:say(attacker.name .. " is fast asleep!")
-            return interrupted()
+            if turn.move.attemptRule ~= "snore" then
+                return interrupted()
+            end
+        else
+            attacker.status, attacker.statusTurns, attacker.sleepDuration = nil, 0, 0
+            self:say(attacker.name .. " woke up!")
         end
-        attacker.status, attacker.statusTurns, attacker.sleepDuration = nil, 0, 0
-        self:say(attacker.name .. " woke up!")
     elseif attacker.status == "freeze" then
         if RulesRNG.random(1, 5) == 1 then
             attacker.status = nil
@@ -1195,6 +1207,12 @@ function Battle:performMove(move)
     self:say(attacker.name .. " used " .. move.name .. "!")
     self:present("move", {moveType = move.type, side = self.attackerSide})
     if magnitude then self:say("Magnitude " .. magnitude .. "!") end
+    -- Snore's TryMove runs after waking/PP, before target and hit gates.
+    if move.attemptRule == "snore" and attacker.status ~= "sleep" then
+        self:say("But it failed!")
+        self.conditions:moveFinished(move, false)
+        return nil
+    end
     if handler == "wild-escape" then
         -- Showdown 9b136a8's gen7 override is inherited by gen5: priority
         -- zero, no selfSwitch, trainer failure even with a usable reserve.
@@ -1211,12 +1229,46 @@ function Battle:performMove(move)
     -- Charging is a TryMove stage before target/type/accuracy. Skull Bash can
     -- prepare against Ghost, then fail its Normal release without an accuracy roll.
     if move.chargeRule and self.conditions:charge(move) then return nil end
+    if move.selfDestruct then
+        -- Gen V TryMove (Damp) precedes the user's faint, which precedes all
+        -- target hit checks. Keep the checkpoint after those checks so the
+        -- target's later KO determines final-mon priority through the owner.
+        local blocker = self.effects:selfDestructBlocker(attacker)
+        if blocker then
+            self:say(blocker.name .. " is protected by Damp!")
+            self.conditions:moveFinished(move, false)
+            return nil
+        end
+        -- King's Rock modifies this use while its holder is still alive. Keep
+        -- the typed secondary local until a successful hit; capture draws no RNG.
+        local secondary = ContactAbilities.secondaryForMove(self.effects, attacker, defender, move)
+        self.effects:damage(attacker, attacker.hp, "cost")
+        self:performMoveTarget(move, handler, secondary)
+        local targetSide = self.attackerSide == "player" and "enemy" or "player"
+        local last = self.lastDamage > 0 and not defender:isAlive()
+            and targetSide or self.attackerSide
+        return self:handleFaint(last)
+    end
+    return self:performMoveTarget(move, handler)
+end
+
+-- Shared target resolution; the self-KO caller alone defers its checkpoint.
+function Battle:performMoveTarget(move, handler, preparedSecondary)
+    local attacker, defender = self.attacker, self.defender
     -- BeforeMove gates and PP already ran. A queued move can reach this point
     -- after the opponent self-KOs; do not damage or debuff a fainted target.
     if not self:moveHasTarget(move) then
         if move.rollout then self.conditions:of(attacker).rollout=nil end
         self:say("But there was no target!")
         self.conditions:moveFinished(move,false)
+        return nil
+    end
+
+    -- Invulnerability is independent of ordinary accuracy, including Swift,
+    -- OHKO and rain-accurate moves. No HP/effects/contact or RNG on rejection.
+    if opponentTargets[move.targetId or 10] and self.effects:airborneBlocks(move, attacker, defender) then
+        self:say(attacker.name .. "'s attack missed!")
+        self.conditions:moveFinished(move, false)
         return nil
     end
 
@@ -1327,7 +1379,7 @@ function Battle:performMove(move)
                 self.effects:drainHit(receipt)
                 self:say(defender.name .. " had its energy drained!")
             end
-            self:applyMoveSecondaries(move)
+            self:applyMoveSecondaries(move, preparedSecondary)
             self.effects:afterHit(receipt)
             if not defender:isAlive() or not attacker:isAlive() then break end
         end
@@ -1365,6 +1417,9 @@ function Battle:performMove(move)
         if effectOutcome=="run" then return effectOutcome end
         self.conditions:moveFinished(move,true)
 
+        if move.selfDestruct then
+            return nil
+        end
         if not defender:isAlive() then
             return self:handleFaint(not attacker:isAlive() and self.attackerSide or nil)
         end
@@ -1402,9 +1457,13 @@ function Battle:hitCount(move)
     return RulesRNG.random(move.minHits,move.maxHits)
 end
 
-function Battle:applyMoveSecondaries(move)
+function Battle:applyMoveSecondaries(move, preparedSecondary)
     for _,effect in ipairs(move.secondaries or {}) do effect:apply(self) end
-    ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
+    if preparedSecondary then
+        preparedSecondary:apply(self)
+    else
+        ContactAbilities.secondaries(self.effects,self.attacker,self.defender,move)
+    end
 end
 
 function Battle:applyMoveEffects(move)

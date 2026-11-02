@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":57,"text":"#MON are only"},{"op":"line","source_line":58,"text":"good for making"},{"op":"cont","source_line":59,"text":"money!"},{"op":"para","source_line":61,"text":"Stay out of our"},{"op":"line","source_line":62,"text":"business!"},{"op":"control","source":"done","source_line":63}],"source":"text/PokemonTower7F.asm"}

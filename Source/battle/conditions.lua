@@ -42,6 +42,28 @@ function BattleConditions:odorSleuth()
     b:say(target.name .. " was identified!")
     return true
 end
+function BattleConditions:yawn()
+    local b = self.battle
+    local target = b.defender
+    local state = self:of(target)
+    if target.status or state.yawn then
+        b:say("But it failed!")
+        return false
+    end
+    local immunity = b.effects:statusImmunity(target, "sleep")
+    if immunity then
+        b:say(target.name .. " is protected by " .. immunity .. "!")
+        return false
+    end
+    local origin = self:statusOrigin(b.attacker, "move")
+    if self:preventsStatus(target, "sleep", origin) then
+        b:say(target.name .. " is protected by Safeguard!")
+        return false
+    end
+    state.yawn = {turns=2, source=b.attacker}
+    b:say(target.name .. " grew drowsy!")
+    return true
+end
 -- Showdown 9b136a8 gen5 overrides onHit: cure the whole living team,
 -- including reserves, and succeed even when there is no status to cure.
 -- Its Sap Sipper/Soundproof ally-side hooks are explicitly removed in gen5.
@@ -166,9 +188,15 @@ function BattleConditions:roost()
     b:say(mon.name .. " regained health!")
     return true
 end
-local sideDurations <const> ={lightScreen=5,safeguard=5,tailwind=4}
-local sideSuborders <const> ={lightScreen=2,safeguard=3,tailwind=5}
-local sideNames <const> ={lightScreen="Light Screen",safeguard="Safeguard",tailwind="Tailwind"}
+local sideDurations <const> = {
+    reflect=5, lightScreen=5, safeguard=5, tailwind=4,
+}
+local sideSuborders <const> = {
+    reflect=1, lightScreen=2, safeguard=3, tailwind=5,
+}
+local sideNames <const> = {
+    reflect="Reflect", lightScreen="Light Screen", safeguard="Safeguard", tailwind="Tailwind",
+}
 function BattleConditions:activeSide(mon)
     if mon==self.battle.player then return "player" end
     if mon==self.battle.enemy then return "enemy" end
@@ -194,10 +222,23 @@ end
 function BattleConditions:speed(mon,speed)
     return self:sideTurns(mon,"tailwind")>0 and speed*2 or speed
 end
-function BattleConditions:screenDamage(source,target,move,damage,critical)
-    if move.power==0 and not move.powerRule then return damage end
-    if source~=target and not critical and move.category=="special" and self:sideTurns(target,"lightScreen")>0 then
-        return BattleEffects.fixedRound(damage,2048)
+-- Pinned Gen5 singles screens share one final modifier and side timer owner.
+-- Light Clay and Infiltrator have no supported item/ability producer here.
+function BattleConditions:screenDamage(source, target, move, damage, critical)
+    if move.power == 0 and not move.powerRule then
+        return damage
+    end
+    if source == target or critical or move.infiltrates then
+        return damage
+    end
+    local kind
+    if move.category == "physical" then
+        kind = "reflect"
+    elseif move.category == "special" then
+        kind = "lightScreen"
+    end
+    if kind and self:sideTurns(target, kind) > 0 then
+        return BattleEffects.fixedRound(damage, 2048)
     end
     return damage
 end
@@ -241,19 +282,35 @@ end
 -- Two-turn moves are anchored to the opposing slot in singles, not to a
 -- stale Pokemon identity. Replacement/learning cannot forge a learned slot.
 function BattleConditions:charge(move)
-    local b=self.battle;local user=b.attacker;local state=self:of(user)
+    local b = self.battle
+    local user = b.attacker
+    local state = self:of(user)
     if state.charge then
-        assert(state.charge.key==b.currentMoveKey,"wrong-charge-continuation")
-        state.charge=nil;return false
+        assert(state.charge.key == b.currentMoveKey, "wrong-charge-continuation")
+        state.charge = nil
+        return false
     end
-    assert(move.chargeRule=="solarBeam" or move.chargeRule=="skullBash","unsupported-charge-rule")
-    local skip=move.chargeRule=="solarBeam" and BattleEffects.solarPolicy(b.effects:weatherId())
-    if not skip then state.charge={key=assert(b.currentMoveKey,"missing charge identity")} end
-    if move.chargeRule=="skullBash" then
+    assert(move.chargeRule == "solarBeam" or move.chargeRule == "skullBash"
+        or move.chargeRule == "fly", "unsupported-charge-rule")
+    local skip = move.chargeRule == "solarBeam" and BattleEffects.solarPolicy(b.effects:weatherId())
+    if not skip then
+        state.charge = {key = assert(b.currentMoveKey, "missing charge identity")}
+    end
+    if move.chargeRule == "skullBash" then
         b:say(user.name .. " lowered its head!")
-        ModifyStat(ATTACKER,"def",1):apply(b)
-    else b:say(user.name .. " took in sunlight!") end
+        ModifyStat(ATTACKER, "def", 1):apply(b)
+    elseif move.chargeRule == "fly" then
+        b:say(user.name .. " flew up high!")
+    else
+        b:say(user.name .. " took in sunlight!")
+    end
     return not skip
+end
+-- Fly uses the charge receipt itself: interruption, withdrawal, faint and
+-- terminal cleanup all remove semi-invulnerability through the existing owner.
+function BattleConditions:airborne(mon)
+    local state = self.members[mon]
+    return state ~= nil and state.charge ~= nil and state.charge.key == "fly"
 end
 -- Successful self-effect precedes contact reactions, as the pinned dispatcher
 -- does. First miss/immune/absent target never creates a lock or duration draw.
@@ -495,6 +552,9 @@ function BattleConditions:events()
         local function add(kind,order) events[#events+1]={side=side,pokemon=mon,kind=kind,order=order} end
         if alive(mon) then
             if state.roost then events[#events+1]={side=side,pokemon=mon,kind="roostEnd",order=25,record=state.roost} end
+            if state.yawn then
+                events[#events+1] = {side=side, pokemon=mon, kind="yawn", order=23, record=state.yawn}
+            end
             if state.disable then add("disable",17) end
             if state.encore then add("encore",16) end
             if state.seed then add("seed",8) end
@@ -506,7 +566,7 @@ function BattleConditions:events()
         end
     end
     for _,side in ipairs({"player","enemy"}) do
-        for _,kind in ipairs({"lightScreen","safeguard","tailwind"}) do
+        for _,kind in ipairs({"reflect","lightScreen","safeguard","tailwind"}) do
             local state=self.sides[side][kind]
             if state then events[#events+1]={kind="sideTimer",side=side,condition=kind,record=state,order=26,suborder=sideSuborders[kind]} end
         end
@@ -533,7 +593,28 @@ function BattleConditions:residual(event)
     end
     local mon=event.pokemon;local state=self:of(mon)
     if not alive(mon) then return end
-    if event.kind == "encore" and state.encore then
+    if event.kind == "yawn" then
+        if state.yawn ~= event.record or event.consumed then
+            return
+        end
+        event.consumed = true
+        local record = state.yawn
+        record.turns = record.turns - 1
+        if record.turns == 0 then
+            state.yawn = nil
+            local recipient = {
+                resolve = function()
+                    return mon
+                end,
+            }
+            local source = {
+                resolve = function()
+                    return record.source
+                end,
+            }
+            ApplyStatus(recipient, "sleep", {source=source, cause="yawn"}):apply(b)
+        end
+    elseif event.kind == "encore" and state.encore then
         state.encore.turns = state.encore.turns - 1
         local key = self:encoreKey(mon)
         if state.encore.turns == 0 or not key or not mon:hasPP(key) then

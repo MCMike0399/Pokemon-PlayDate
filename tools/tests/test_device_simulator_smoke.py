@@ -11,6 +11,7 @@ from unittest.mock import patch
 from tools.device import build_smoke, simulator_smoke as smoke
 from tools.harness.run import sdk_path
 from tools.tests.test_production_build import pdz_modules
+from tools.tests.host_fixtures import mock_git_revision
 
 PROJECT = Path(__file__).resolve().parents[2]
 BUILD = 'a' * 32
@@ -30,11 +31,12 @@ class SmokeBuildTests(unittest.TestCase):
             with (PROJECT / 'tools/device/device-smoke-simulator.patch').open() as stream:
                 subprocess.run(['patch', '-p1'], cwd=candidate, stdin=stream, check=True, capture_output=True)
         cls.stage = cls.root / 'build'
-        with patch.object(build_smoke.subprocess, 'check_output', return_value='33f778389ffbd8baac19fefd965da74748577cff\n'):
+        with mock_git_revision(candidate, '33f778389ffbd8baac19fefd965da74748577cff'):
             cls.metadata = build_smoke.prepare(candidate, sdk_path(), cls.stage)
 
     def test_compiled_private_bundle_retains_only_one_dev_module(self):
         self.assertEqual(smoke.verify(self.stage), self.metadata)
+        self.assertEqual(self.metadata['revision'], '33f778389ffbd8baac19fefd965da74748577cff')
         modules = pdz_modules(self.stage / 'DeviceSmoke.pdx/main.pdz')
         self.assertEqual([name for name in modules if name.startswith('dev/')], ['dev/deviceSmoke'])
         self.assertEqual(self.metadata['simulator_transport_version'], 1)

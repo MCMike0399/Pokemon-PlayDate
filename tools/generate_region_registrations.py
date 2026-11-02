@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def build(project=ROOT, cache_files=None, source_root=None, excluded_sources=()):
     project = Path(project)
     source = Path(source_root) if source_root is not None else project / 'Source'
-    reference = project / 'tools/references/content-transforms-108'
+    reference = project / 'tools/references/content-transforms-149'
     provenance = json.loads((reference / 'provenance.json').read_bytes())
     for name, expected in provenance['dependencies'].items():
         require(hashlib.sha256((project / 'Source' / name).read_bytes()).hexdigest() == expected,
@@ -42,8 +42,6 @@ def build(project=ROOT, cache_files=None, source_root=None, excluded_sources=())
     for name, root in (('vermilion', 'data/vermilionPreparation/'),
                        ('midgameEast', 'data/midgameEast/'),
                        ('midgameSouth', 'data/midgameSouth/')):
-        if root not in catalog:
-            continue
         index = json.loads(files[catalog[root] + '.json'])
         events = dict(index['records']['events']['events'])
         events.update(index['records']['events']['signs'])
@@ -65,7 +63,7 @@ def build(project=ROOT, cache_files=None, source_root=None, excluded_sources=())
             trainers = {}
             for stable, definition in exported['trainers'].items():
                 if isinstance(definition, str):
-                    require('chunks/' + definition + '.json' in files, 'unresolved original roster')
+                    require('chunks-v2/' + definition[:2] + '/' + definition + '.json' in files, 'unresolved original roster')
                     trainers[stable] = definition
                 else:
                     require(definition['id'] == stable, 'transformed trainer identity differs')

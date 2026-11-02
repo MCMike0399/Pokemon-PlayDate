@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"You need to use"},{"op":"line","source_line":3,"text":"TMs to teach good"},{"op":"cont","source_line":4,"text":"moves to #MON!"},{"op":"control","source":"done","source_line":5}],"source":"text/Route14.asm"}

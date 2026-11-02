@@ -132,8 +132,11 @@ def learn_decision(pending,known):
         return FIXED_DAMAGE.get(move['key'],power)*(1 if accuracy==0 else min(100,accuracy)/100)
     incoming=strength(pending);known=sequence(known,'learning.known_moves')
     if not known or len(known)>4:raise ProtocolError('invalid current learning moves')
-    slot=min(range(len(known)),key=lambda i:(strength(known[i]),i))
-    return slot+1 if incoming>strength(known[slot])else None
+    eligible = [i for i, move in enumerate(known) if not move.get('protected_hm', False)]
+    if not eligible:
+        return None
+    slot = min(eligible, key=lambda i: (strength(known[i]), i))
+    return slot + 1 if incoming > strength(known[slot]) else None
 
 
 class SourceGeometry(Geometry):

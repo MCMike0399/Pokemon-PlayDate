@@ -1,0 +1,59 @@
+--- a/Source/main.lua
++++ b/Source/main.lua
+@@ -169,6 +169,15 @@
+     import "game/rocketHideoutStory"
+     import "game/rocketHideoutStoryWorld"
+     import "game/rocketHideoutStoryController"
++    import "game/towerStory"
++    import "game/snorlaxStory"
++    import "game/towerStoryController"
++    import "game/fieldTravelRequests"
++    import "game/fieldTravelRuntime"
++    import "game/fieldTravelState"
++    import "game/fieldGearRequests"
++    import "game/fieldGearState"
++    import "world/fieldGearArt"
+     import "game/midgameGymStory"
+     import "game/midgameStoryWarps"
+     import "game/celadonServices"
+@@ -211,6 +220,9 @@
+             CeruleanContent.registerPackage("vermilion", "data/vermilionPreparation/")
+             CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
+                 return HideoutTowerContent.package("midgameEast", events, trainers)
++            end)
++            CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
++                return HideoutTowerContent.package("midgameSouth", events, trainers)
+             end)
+             BootTrace.mark("CeruleanContent.registerPackage.end")
+             GameBootstrap.yieldIfDue()
+@@ -319,6 +331,8 @@
+         GameBootstrap.yieldIfDue()
+         BootTrace.mark("state.fieldMove.begin")
+         machine:register("fieldMove", FieldMoveState(game))
++        machine:register("fieldTravel", FieldTravelState(game))
++        machine:register("fieldGear", FieldGearState(game))
+         BootTrace.mark("state.fieldMove.end")
+         GameBootstrap.yieldIfDue()
+         BootTrace.mark("state.bag.begin")
+--- a/Source/game/fieldTravelRequests.lua
++++ b/Source/game/fieldTravelRequests.lua
+@@ -65,6 +65,9 @@
+ end
+ 
+ function FieldTravelRequests.prepare(game, party, mon, key, destinationID, overlay)
++    if key == "fly" and not SourceMaps.nameForID("pokered:ROUTE_16_FLY_HOUSE") then
++        return nil, "fly-checkpoint-not-installed"
++    end
+     local observed, reason = snapshot(game, party, overlay)
+     if not observed then
+         return nil, reason
+@@ -164,6 +167,9 @@
+ end
+ 
+ function FieldTravelRequests.destinations(game, party, mon)
++    if not SourceMaps.nameForID("pokered:ROUTE_16_FLY_HOUSE") then
++        return nil, "fly-checkpoint-not-installed"
++    end
+     local observed, reason = snapshot(game, party)
+     if not observed then
+         return nil, reason

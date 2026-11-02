@@ -73,7 +73,7 @@ local commonHooks = {
     [99]="accuracyBypassesCheck", [75]="criticalAllowed", [92]="multiHitMaximum",
     [97]="finalDamage", [43]="canAttempt",
     [101]="basePower", [18]="absorbsMove", [29]="canDropStat",
-    [64]="drainHit", [11]="absorbsMove", [33]="speed", [26]="grounded",
+    [6]="selfDestructBlocker", [64]="drainHit", [11]="absorbsMove", [33]="speed", [26]="grounded",
 }
 function BattleEffects:supported(id) return handlers[id]~=nil or commonHooks[id]~=nil end
 function BattleEffects:livingAbility(mon,id)
@@ -89,13 +89,65 @@ function BattleEffects:criticalStage(mon,move)
     return math.max(0,math.min(4,(move.critStage or 0)+(state and state.focusEnergy and 2 or 0)))
 end
 
+-- Damp's TryMove dependency only. Aftermath/Mind Blown/Misty Explosion have
+-- no enabled producers here. This is not general Mold Breaker support: only
+-- Damp suppression at this seam is implemented, including Gen V self/Any events.
+function BattleEffects:selfDestructBlocker(source)
+    local ability = self:effectiveAbility(source)
+    if ability == 104 or ability == 163 or ability == 164 then
+        return nil
+    end
+    for _, mon in ipairs({self.battle.player, self.battle.enemy}) do
+        if self:livingAbility(mon, 6) then
+            return mon
+        end
+    end
+    return nil
+end
+
+-- Showdown queues the user's faint (HP zero) before hit checks but keeps its
+-- active ability until the faint checkpoint. Only these self-KO uses need this
+-- distinction for No Guard; no parallel faint state or broad revival is added.
+function BattleEffects:moveUserAbility(source, id, move)
+    return self:active(source) and self:effectiveAbility(source) == id
+        and (alive(source) or (move.selfDestruct and self.battle.attacker == source
+            and self.battle.currentMove == move))
+end
+
 -- Rain makes declared weather-sensitive attacks always hit, independently of
 -- accuracy/evasion/CompoundEyes/SandVeil; immunity still precedes this query.
 function BattleEffects:accuracyBypassesCheck(move,attacker,defender)
     attacker,defender=attacker or self.battle.attacker,defender or self.battle.defender
     return (move==moveData.pursuit and self.round and self.round.withdrawing==defender)
         or (move.weatherAccuracy==true and self:weatherId()=="raindance")
-        or self:livingAbility(attacker,99) or self:livingAbility(defender,99)
+        or self:moveUserAbility(attacker, 99, move) or self:livingAbility(defender,99)
+end
+-- Gen5 Fly's Invulnerability hook is separate from accuracy. Always-hit
+-- moves still miss airborne targets; No Guard on either living actor bypasses
+-- both hooks. Weather accuracy alone never bypasses semi-invulnerability.
+local airborneHits <const> = {
+    gust = true, twister = true, skyUppercut = true,
+    thunder = true, hurricane = true, smackDown = true,
+}
+function BattleEffects:airborneBlocks(move, source, target)
+    if not self.battle.conditions:airborne(target) then
+        return false
+    end
+    if self:moveUserAbility(source, 99, move) or self:livingAbility(target, 99) then
+        return false
+    end
+    local key = MoveRegistry.keyOf(moveData, move)
+    return not airborneHits[key]
+end
+-- The oracle doubles final damage, not base power. Apply the exact integer
+-- multiplier before screen rounding so Gust/Twister and Light Screen cancel
+-- without an intermediate half-damage rounding loss.
+function BattleEffects:airborneDamage(move, target, damage)
+    if self.battle.conditions:airborne(target)
+        and (move == moveData.gust or move == moveData.twister) then
+        return damage * 2
+    end
+    return damage
 end
 -- CriticalHit runs AFTER the critical trial, including guaranteed criticals.
 -- Shell Armor changes the result, never the number of critical RNG trials.
@@ -121,7 +173,7 @@ end
 -- One logical round, retained while the production script yields for learning.
 -- Identity keys prevent a replacement from inheriting the outgoing action/damage.
 function BattleEffects:beginRound(turns)
-    local round={pending={},damaged={}}
+    local round={pending={},damaged={},attackedBy={}}
     for _,turn in ipairs(turns or {}) do
         local mon=turn.actor
         assert(mon and mon==self.battle[turn.side],"actual pending actor required")
@@ -229,6 +281,12 @@ function BattleEffects:movePower(move,power,attacker,defender)
         return ({[0]=40,60,80,120,150})[math.min(4,ratio)]
     end
     if move.powerRule=="assurance" and self:damagedThisRound(defender) then return power*2 end
+    if move.powerRule == "revenge" then
+        local attacks = self.round and self.round.attackedBy[attacker]
+        if attacks and attacks[defender] then
+            return power * 2
+        end
+    end
     return power
 end
 -- Canonical GenV query seam. Only Sand has a current producer; other IDs
@@ -426,6 +484,14 @@ function BattleEffects:hit(source,target,move,amount,hitNumber)
     local receipt={source=source,target=target,move=move,before=before,removed=before-target.hp,endured=endured,
         cause=cause,contact=move~=nil and move.contact==true,hit=hitNumber or 1}
     if move and move.category~="status" then self.battle.conditions:bideHit(target,source,receipt.removed) end
+    -- Revenge observes only opposing move HP loss, not residuals, recoil or
+    -- confusion. Receipts share the existing logical-round and identity owner.
+    if self.round and move and move.category ~= "status" and receipt.removed > 0
+        and source ~= target and self:active(source) and self:active(target) then
+        local attacks = self.round.attackedBy[target] or {}
+        attacks[source] = true
+        self.round.attackedBy[target] = attacks
+    end
     self.receipts[receipt]=true
     return receipt
 end
@@ -527,6 +593,12 @@ function BattleEffects:clear(mon)
     self.ordinaryAbilities:clear(mon)
     self.abilityOverrides[mon]=nil
     if self.round then self.round.pending[mon]=nil;self.round.damaged[mon]=nil end
+    if self.round then
+        self.round.attackedBy[mon] = nil
+        for _, attacks in pairs(self.round.attackedBy) do
+            attacks[mon] = nil
+        end
+    end
     for receipt in pairs(self.receipts) do if receipt.source==mon or receipt.target==mon then self.receipts[receipt]=nil end end
 end
 function BattleEffects:close()
@@ -538,3 +610,26 @@ function BattleEffects:close()
     self.receipts = setmetatable({}, { __mode = "k" })
 end
 function BattleEffects:snapshot() return {weather=self:weatherId(),turns=self.weather and self.weather.turns or 0} end
+
+-- Pinned Gen V clearBoosts changes stages only; no stat-drop ability events.
+function BattleEffects:resetStatStages(scope)
+    local b = self.battle
+    if scope == "active" then
+        for _, mon in ipairs({ b.player, b.enemy }) do
+            if mon:isAlive() then
+                mon:clearStatStages()
+            end
+        end
+        b:say("All stat changes were eliminated!")
+    else
+        assert(scope == "defender", "unsupported-stage-reset-scope")
+        -- Substitute has no producer. Fail closed if it is enabled before the
+        -- primary-hit owner can distinguish body hits from absorbed/broken dolls.
+        -- Haze bypasses Substitute; Clear Smog must not reset through it.
+        assert(MoveSupport.gaps.substitute ~= nil,
+            "Substitute support requires stage-reset primary-hit routing")
+        b.defender:clearStatStages()
+        b:say(b.defender.name .. "'s stat changes were eliminated!")
+    end
+    return true
+end

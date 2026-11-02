@@ -1,0 +1,139 @@
+{
+  "classification": "Measured private performance candidate; review pending; no adoption or B acceptance",
+  "production_source_commit": "1366d6cb",
+  "candidate_overlay": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-field-cache-prepare-20261101-01/loading-field-cache.lua",
+  "overlay_sha256": "c2d8822e9fb7f0be5fa32dd4cc53a332dc4d0a653b66844a2b224c94f0c08c41",
+  "baseline": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-io-counts-hardware-20261101-01",
+    "metrics_sha256": "3a85e3f4408ee7f1587029c3c55ab33d718b08b339004073c2f9dc74be7b70a0"
+  },
+  "candidate": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-field-cache-hardware-20261101-01",
+    "metrics_sha256": "2a79dceda6ff4acdbeee2e857bf48da621831fa3dcc2fe6af5e9fa23cc09215a",
+    "build_id": "9a96b8b0ed1043e4930c262fb5c7e084"
+  },
+  "matched_inputs": "Same earned Charmander slots, frozen DS1 command route, Save production-profile, no forced diagnostic GC, same I/O wrappers and timing marks; extra candidate is loading-field-cache.lua only.",
+  "door_map_ms": {
+    "FuchsiaCity": {
+      "baseline": 6545,
+      "candidate": 5920,
+      "gain_percent": 9.549274255156607
+    },
+    "Route18": {
+      "baseline": 3038,
+      "candidate": 2610,
+      "gain_percent": 14.088215931533904
+    }
+  },
+  "candidate_door_io": [
+    {
+      "end_phase": "door.map.end",
+      "open": {
+        "overflow": 0,
+        "max_ms": 17,
+        "calls": 47,
+        "paths": {
+          "data/contentCache/chunks-v2/09/09a331cc296cd0f2eb96b7fa7d7330245c3b3d3dc088c1e76a24e234f0e488a6.json": 2,
+          "data/sourceMapCells/FuchsiaCity.bin": 1,
+          "data/contentCache/chunks-v2/0e/0eaab987d4e4e8306a8ece2345ff1f671d0ad9ca578c5532116640ed45cf7961.json": 4,
+          "data/contentCache/chunks-v2/a3/a346e57baaf70245c39c08971bf41358a10c627dc1e287e8667ad08f4f7cfea9.json": 3,
+          "data/contentCache/chunks-v2/a4/a4e2be3c132e35f6de99acc79badc11387339bf2cc46186d3d7fcb78a1842e2a.json": 4,
+          "data/contentCache/chunks-v2/88/88361b10fd22c5fcbc1fee0cad03f503176f698307aee4c9080a1252f2ce5cb3.json": 4,
+          "data/contentCache/chunks-v2/05/0511f367912d71a9c02fc6bffa803b80d2ef0ef6ba69789552bc5b459abcd35a.json": 4,
+          "data/contentCache/chunks-v2/3c/3cb848c925ce125442e09bd6f00f847d5fe0708e6cb24cc593947b23e2e399c5.json": 3,
+          "data/contentCache/chunks-v2/76/7626de8e7920cc3a66af955a67875f732b759ce991a9190672628c968320de2a.json": 3,
+          "data/contentCache/chunks-v2/46/46b209d094b8a1a9d51bafa0a192fc9bfe445c47d736633db0fb95f93e9dd500.json": 3,
+          "data/contentCache/chunks-v2/4b/4b1a0b2ea27fa25e3b963900b8dae05c1065bece43260031263e29c7bd9d9da9.json": 4,
+          "data/contentCache/chunks-v2/6b/6b9529398d5ffba198635805bf28152a0f8ae42dc0d4dd1faa7e31d61b5f51a1.json": 3,
+          "data/sourceMapCache/runtime-FuchsiaCity.json": 1,
+          "data/contentCache/chunks-v2/f5/f5b4167015103144a709ea080beb561939d0a2604584938d098f425917341e96.json": 4,
+          "data/contentCache/chunks-v2/f4/f41e17b41aa5d1446ab27c8cc683f6267ea65cb8b338cf85ead19a8661ee2558.json": 4
+        },
+        "path_count": 15,
+        "handle_calls": 0,
+        "wall_ms": 497
+      },
+      "wall_ms": 6035,
+      "begin_ms": 32388,
+      "decode": {
+        "overflow": 0,
+        "max_ms": 108,
+        "calls": 50,
+        "paths": {
+          "data/fieldMoveEffects.json": 1,
+          "data/fieldMoveMaps/FuchsiaCity.json": 1,
+          "terrainAtlases/overworld.json": 1,
+          "data/fieldMoveTiles.json": 1
+        },
+        "path_count": 4,
+        "handle_calls": 46,
+        "wall_ms": 388
+      },
+      "destination": "pokered:FUCHSIA_CITY"
+    },
+    {
+      "end_phase": "door.map.end",
+      "open": {
+        "overflow": 0,
+        "max_ms": 15,
+        "calls": 9,
+        "paths": {
+          "data/contentCache/chunks-v2/71/71b2c9f83acc9a2317644c520dc45016b04d7358140c83c7d81ba0bf030dbf92.json": 1,
+          "data/contentCache/chunks-v2/3e/3e738e699869fe0e85ad41ad618aef686b0a395923b727a879c0c2227e21f10c.json": 1,
+          "data/sourceMapCache/runtime-Route18.json": 1,
+          "data/contentCache/chunks-v2/f2/f207f42b7b928db7abf249ae72ab830d3f14f1acf3aedb251983dd99ece36f66.json": 1,
+          "data/contentCache/chunks-v2/bd/bd2ddce0e4987d2b8211baf3ade0ad6831b0603fd6855de682d4db156b3535a5.json": 1,
+          "data/sourceMapCells/Route18.bin": 1,
+          "data/contentCache/chunks-v2/b1/b1e7f33160f698c04b894a1a2f463da2751f946d33bf95de3f59f2fb5031937a.json": 1,
+          "data/contentCache/chunks-v2/79/79a8220655e05a0a7dc77ecc92b1b72be953f2a73deec461bc9de1f0b6e943ab.json": 1,
+          "data/contentCache/chunks-v2/75/759d7fe6385b15046f055d401a4ed4076b49923db8bf1334a6cde461e32796ad.json": 1
+        },
+        "path_count": 9,
+        "handle_calls": 0,
+        "wall_ms": 108
+      },
+      "wall_ms": 2706,
+      "begin_ms": 50758,
+      "decode": {
+        "overflow": 0,
+        "max_ms": 46,
+        "calls": 9,
+        "paths": {
+          "data/fieldMoveMaps/Route18.json": 1
+        },
+        "path_count": 1,
+        "handle_calls": 8,
+        "wall_ms": 89
+      },
+      "destination": "pokered:ROUTE_18"
+    }
+  ],
+  "candidate_phase_measurements": {
+    "Continue": 4231.0,
+    "Save": 2198.0,
+    "battle": 22.0,
+    "boot_slice": 1435.43,
+    "boot_title": 14686.0,
+    "cave_walking_p95": null,
+    "door": 5920.0,
+    "title_artwork": 2717.0
+  },
+  "candidate_measurements": {
+    "battle_start_ms": 22.0,
+    "frame_ms": 131.469,
+    "heap_live_bytes": 6656346.112,
+    "heap_peak_bytes": 6656813.056,
+    "map_load_ms": 5920.0,
+    "slice_ms": 1435.43
+  },
+  "no_new_logs": true,
+  "keeper_restored": true,
+  "simulator_safety": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-field-cache-safety-20261101-01",
+    "raw_slice_ms": 51.24,
+    "sampled_peak_bytes": 9256023.04,
+    "strict_live_target": "failed and retained; safety-only admission separately revalidated"
+  },
+  "state_equivalence": "Simulator saved payloads decode to deep-equal values; envelopes differ in JSON object ordering, so no byte-identity claim.",
+  "scope": "One paired device run. >=10% Route18 phase gain qualifies review; Fuchsia gain below10%. Native internal opens, transient/native memory and exact normal production timing remain unmeasured. No skipped dynamic validators or conflict comparisons; existing loading scope only. C remains inactive."
+}

@@ -58,6 +58,11 @@ function FieldItemContracts.run()
     end
     test("pinned Forest escape allowance rejects outdoors, shops, gyms, authored rooms, Agatha and unknowns",function()
         eq(FieldItems.canEscape("pokered:VIRIDIAN_FOREST"),true)
+        for _, id in ipairs({"pokered:SAFARI_ZONE_WEST", "pokered:POKEMON_TOWER_6F", "pokered:ROCK_TUNNEL_1F"}) do
+            assert(SourceMaps.nameForID(id), "active imported Rope fixture required")
+            eq(FieldItems.canEscape(id), true)
+        end
+        eq(FieldItems.canEscape("pokered:FUCHSIA_CITY"), false)
         for _,id in ipairs({"pokered:ROUTE_2","pokered:PEWTER_MART","pokered:PEWTER_GYM","blues_house","pokered:AGATHAS_ROOM","unknown"})do eq(FieldItems.canEscape(id),false)end
         eq(FieldItems.canEscape(false),false)
     end)

@@ -1,0 +1,12 @@
+{
+  "base": "00ce443a32f183599ab073d5944905fdd8c19c0e",
+  "records": 2546,
+  "record_bytes": 796612,
+  "indexes_unchanged": 32,
+  "shard_directories": 256,
+  "maximum_files_per_shard": 22,
+  "flat_records_remaining": 0,
+  "exactly_one_file_per_digest": true,
+  "all_record_bytes_identical": true,
+  "old_and_new_per_digest_sha256_manifest": "28854a2e8b56aebfcf355341e80589591b888c10ff69eee5d3c881b3f5f8cd51"
+}

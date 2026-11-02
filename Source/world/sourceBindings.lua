@@ -95,6 +95,9 @@ function SourceBindings.prepare(d, specs, options)
         local spec = source(event.id, event)
         assert(options.objectDefinition, "source object requires an immutable content resolver")
         npcs[#npcs + 1] = options.objectDefinition(d, event, spec, options)
+        if GameBootstrap then
+            GameBootstrap.yieldIfDue()
+        end
     end
     for _, event in ipairs(d.events.warps) do
         local spec = source(event.id, event)

@@ -371,9 +371,13 @@ function Autopilot.beginFrame()
     clearInjected()
 end
 
-function Autopilot.resetControls()
+function Autopilot.resetControls(preserveHeld)
     clearInjected()
-    for key in pairs(held) do held[key] = nil end
+    if not preserveHeld then
+        for key in pairs(held) do
+            held[key] = nil
+        end
+    end
     for key in pairs(released) do released[key] = nil end
     results = {}
     recording = nil

@@ -49,7 +49,7 @@ function MidgameServices.warden(observation)
     steps[#steps + 1] = {op = "dialog", labels = {prefix .. "ThanksText"}}
     steps[#steps + 1] = {op = "receipt", labels = {prefix .. "ReceivedHM04Text"}}
     items[#items + 1] = {op = "add", id = "hm04", quantity = 1}
-    return {status = "ready", steps = steps,
+    return {status = "ready", steps = steps, ram = {wStringBuffer = ItemData.definitions.hm04.name},
         expected = {flags = {EVENT_GOT_HM04 = false, EVENT_GAVE_GOLD_TEETH = observation.flags.EVENT_GAVE_GOLD_TEETH == true},
             items = {goldTeeth = teeth, hm04 = hm}},
         changes = {flags = {EVENT_GOT_HM04 = true, EVENT_GAVE_GOLD_TEETH = true}, items = items},
@@ -58,6 +58,9 @@ end
 function MidgameServices.plan(id, observation)
     if id == data().warden then
         return MidgameServices.warden(observation)
+    end
+    if id == data().gate_worker and observation.mode ~= "sight" then
+        return {status = "ready", steps = {{op = "dialog", labels = {"_SafariZoneGateSafariZoneWorker1Text"}}}}
     end
     local descriptor = assert(MidgameServices.descriptors()[id], "unsupported midgame service")
     return {status = "ready", scene = "midgame-service", service = descriptor.service, steps = {}}
@@ -90,12 +93,9 @@ function MidgameServices.checkEntrance(game)
         return false
     end
     local state = game.session:safariData()
-    if state.active then
-        return false
-    end
     local entry = SourceMaps.entry("SafariZoneGate")
     local x, y = game.player.gridX - entry.padding, game.player.gridY
-    if y == 2 and (x == 3 or x == 4) then
+    if (not state.active and y == 2 or state.active and y == 0) and (x == 3 or x == 4) then
         return SourceEvents.dispatch(game, data().gate_worker, {mode = "sight"})
     end
     return false

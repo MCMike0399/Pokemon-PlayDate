@@ -96,9 +96,8 @@ end
 -- rng is an actual RulesRNG stream (or RulesRNG's active global stream facade).
 -- Trial on a local stream first, so counter exhaustion cannot partially advance
 -- the caller. Invalid context/arguments never even inspect the RNG.
-function Capture.attempt(enemyContext,ballId,caughtCount,rng)
-    local result,problem=Capture.parameters(enemyContext,ballId,caughtCount)
-    if not result then return nil,problem end
+local function attemptParameters(result, ballId, rng)
+    local problem
     if type(rng)~="table" or type(rng.snapshot)~="function" or type(rng.restore)~="function" or type(rng.random)~="function" then return nil,"invalid-rng" end
     local global=rng==RulesRNG
     local ok,before=pcall(function() return global and rng.snapshot() or rng:snapshot() end)
@@ -133,4 +132,44 @@ function Capture.attempt(enemyContext,ballId,caughtCount,rng)
     elseif not result.caught then result.displayShakes=({[1]=0,[2]=1,[3]=3})[result.checks] end
     if global then rng.restore(after) else rng:restore(after) end
     return result
+end
+
+
+-- Ordinary entry points keep their original context/ball validation and draws.
+function Capture.attempt(enemyContext, ballId, caughtCount, rng)
+    local result, problem = Capture.parameters(enemyContext, ballId, caughtCount)
+    if not result then
+        return nil, problem
+    end
+    return attemptParameters(result, ballId, rng)
+end
+
+-- Explicit approved hybrid: Blue supplies the adjusted catch BYTE; Gen V
+-- supplies HP/status/Q12/critical/shake math and Safari Ball's 1.5 multiplier.
+-- Safari Ball is not added to ordinary bag-ball validation or item accounting.
+function Capture.safariParameters(enemy, adjustedCatchRate, caughtCount)
+    if not integer(adjustedCatchRate, 0, 255) then
+        return nil, "invalid-safari-catch-byte"
+    end
+    local input, problem = checked({pokemon = enemy, wild = true}, "pokeBall", caughtCount)
+    if not input then
+        return nil, problem
+    end
+    input.catchRate = adjustedCatchRate
+    input.ball = 3 -- exact half units, B = 1.5
+    if adjustedCatchRate == 0 then
+        return {catchRate = 0, modifiedRate4096 = 0, shakeThreshold = 0,
+            criticalThreshold = 0, guaranteed = false, safari = true}
+    end
+    local rate, threshold, critical = values(input)
+    return {catchRate = adjustedCatchRate, modifiedRate4096 = rate, shakeThreshold = threshold,
+        criticalThreshold = critical, guaranteed = rate >= MAX_RATE, safari = true,
+        guarantee = rate >= MAX_RATE and "modified-rate" or nil}
+end
+function Capture.safariAttempt(enemy, adjustedCatchRate, caughtCount, rng)
+    local result, problem = Capture.safariParameters(enemy, adjustedCatchRate, caughtCount)
+    if not result then
+        return nil, problem
+    end
+    return attemptParameters(result, "safariBall", rng)
 end

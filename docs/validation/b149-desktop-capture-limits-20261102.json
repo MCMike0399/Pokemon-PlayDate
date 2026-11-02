@@ -1,0 +1,99 @@
+{
+  "classification": "Desktop access and bounded capture attempts; no long-run Clear qualification or B acceptance",
+  "actual_observation": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-local-gui-check-20261102-01/desktop.jpeg",
+  "observation_sha256": "736835bf6c31a8c4ed56da54ca00ef28a1b1615d05e01124c51421c5eb30b2f6",
+  "desktop_host": "DiveMac 0574c3bf68577d1ce7e9ddc31c7794a21359aa1070cc04d9b73375dd94534e1e",
+  "node_provider": "Peekaboo advertised; do not label CUA",
+  "observed": "Real desktop retained and inspected. Exact OpenClaw System Events Automation dialog was allowed through authorized normal GUI click; no database/defaults edits.",
+  "limits": "Claw menu attempts used bash/osascript and hit t3 assistive-access denial. Computer-only retry could not foreground Simulator; cmd+tab returned ok but screenshot still Chrome. No Clear action or host reclamation established.",
+  "attempts": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-gui-clear-preflight-20261102-01",
+      "outcome": {
+        "motion_inspection": "root pending",
+        "ok": true
+      },
+      "sampled_host_peak_bytes": 695387528,
+      "proof_sha256": {
+        "gui-result.json": "994f0f491250f10bace3438a1048666243661aabb97a898c61c090c415f5ec81",
+        "outcome.json": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+        "permission-result.json": "95e92620a366948feab595cac150031febe9db717bf2d46b79e2473efc64010e",
+        "desktop-current.jpeg": "c09076cbd89dcfc548e10e50bccce2d4af86fb5e7355f15376edf00c142b4fa3",
+        "host-footprint.jsonl": "d8236d2d57353bbb220612f64dd800f60e8520109be5aad4b26f9c44b5770d2f",
+        "run.json": "9a873974083506500b666e5bf4d276912c6b5e34df24628d3777b2d4059f9330"
+      }
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-gui-clear-preflight-20261102-02",
+      "outcome": {
+        "motion_inspection": "root pending",
+        "ok": true
+      },
+      "sampled_host_peak_bytes": 474711288,
+      "proof_sha256": {
+        "outcome.json": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+        "host-footprint.jsonl": "a77833d9644915a09201aff105fbc8e72ba94dc898399258ec4411b277afbd45",
+        "clear-result.json": "e97b2eff75154e7918ea3c0d2079d232d38ea6363f2264769e6db61a63c53808",
+        "run.json": "f209a67e3185dae196038a8fa1d2aed6a404b0bcfdd36bc900207dcece932a76"
+      }
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-gui-clear-preflight-20261102-03",
+      "outcome": {
+        "motion_inspection": "root pending",
+        "ok": true
+      },
+      "sampled_host_peak_bytes": 494126352,
+      "proof_sha256": {
+        "outcome.json": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+        "host-footprint.jsonl": "94de63082810fa8a89f1dfe0e0dfcb995595909fd118ec72a19f72705b589a65",
+        "clear-result.json": "3a3afa381c8b75311d27a3afbf7ad7d0c9bd2d256fa8e9341f9c7a5bbeaab30f",
+        "run.json": "62954e111da2365af9fbcc2d413ae1c9dcb363ee69d2be47876426b3f032f23d"
+      }
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-after-trainer-gui-checkpoint-20261102-01",
+      "outcome": {
+        "error": "",
+        "host_guard_errors": [
+          "1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded"
+        ],
+        "ok": false
+      },
+      "sampled_host_peak_bytes": 1077364368,
+      "proof_sha256": {
+        "outcome.json": "7341a6aa6dfa6b7de0a226d72b6dc8bbb77b67f876f47f7295e9f6af29e45155",
+        "host-footprint.jsonl": "6341a892db2c52fb6fd8c839214319676d3069cb25e5ac6086683778d2c219f2",
+        "clear-result.json": "720a93576eca930734c4fd9456905f01ff3807611dec25e9573865c115ebc97d",
+        "run.json": "7147ffcf041fc27587886338cef21c3a08d51873990ee7c34e5de1ed49adbfa4"
+      }
+    }
+  ],
+  "guards": "16MiB Simulator pool and1GiB host footprint/51admission/50reserve unchanged. All owned children terminal and Data cleanup performed by existing runner.",
+  "checkpoint": "Actual trainer victory occurred, but guard stopped pre-Save hold; no new partial-save marker. Never reconstruct/import unmarked slots. Existing genuine Route12(10,23) marker remains authoritative.",
+  "planning_only": {
+    "Route17_actor_excluding_non_grass_path_from_prior_endpoint_18_101": [
+      {
+        "direction": "up",
+        "steps": 96
+      },
+      {
+        "direction": "left",
+        "steps": 7
+      },
+      {
+        "direction": "up",
+        "steps": 5
+      }
+    ],
+    "limit": "Shipped static terrain and all object cells excluded. No live actor motion/sight/traversal proof; do not substitute this for hardware coverage."
+  },
+  "next": "Foreground the already-owned Simulator using actual computer input before any further Clear-dependent capture; no more post-victory holds/retries without early reclamation. Remaining hardware work can proceed independently.",
+  "native_provider_followup": {
+    "04": "Native list_windows/bring_to_front effect confirmed, actual menu tree obtained. Short preflight completed.",
+    "05": "Opening actual View menu exposes Show Malloc Log. Native request opened window, but SDK host guard stopped at1063.75MiB before Clear. Overdue Claw run96b19512-334a-46fb-8ba6-b042691c245f explicitly aborted; native execution18a1b5cb-e34a-4fbf-904b-0d3f8f7a9520 closed byRoot.",
+    "06": "Finite early native batch confirmed View -> Show Malloc Log. Opening diagnostic window sampled1176.3MiB host, guardstopped before exact Clear could be reached. Native execution finally closed; Claw terminal. No game checkpoint/capture accepted.",
+    "implication": "Native API, not simplified model tool or shell AX, can foreground and inspect menus. Opening history window itself is too expensive under unchanged1GiB host guard at this boundary. Do not repeat these attempts or treat permission as sole blocker.",
+    "policy": "No guard/pool changes; B visual acceptance remains open. Current Source unchanged."
+  }
+}

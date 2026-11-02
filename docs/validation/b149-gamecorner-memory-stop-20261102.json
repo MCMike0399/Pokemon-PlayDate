@@ -1,0 +1,47 @@
+{
+  "classification": "Physical Game Corner load hard-memory guard failure; no valid cycle timing or B acceptance",
+  "base_revision": "83337bc09a6c4d84bfdffaef2da6ae5651a06dfd",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-ranked-doors-actor-aware-hardware-20261102-01",
+  "build_id": "7532af0560e64cd187477626cf944ce1",
+  "sha256": {
+    "manifest.json": "ce96e5350f5715982791d95233620c6fb9705e1bfe1884e51874eebd13855b56",
+    "simulator-gate.json": "fcacf7591f89637a9541d276963abd9cc374963208639bedc64da60b735d2daa",
+    "outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
+    "serial-boot-trace.tsv": "71c307f14ba6a702a24d1d8613fe1619d799e6347abe98e82c85cdf32b3a9236",
+    "device-responses.json": "92f732d06e096d49f146e694980638d53b74e574717fbb453e94c17a7e71a903",
+    "keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  },
+  "outcome": {
+    "boot_accepted": false,
+    "device_needs_one_A_press": false,
+    "error": "ValueError('device BootTrace guard failed')",
+    "ok": false,
+    "phase": "collect-result-logs"
+  },
+  "error_marker": {
+    "seq": 661,
+    "phase": "error.game/bootTrace.lua:210: device-test memory guard: 9224.764 KiB at initialize.yield",
+    "ms": 401899.0,
+    "heap_kib": 9229.396
+  },
+  "route": "12 finite ordinary DS1 batches: actual earned Continue/Save; Fuchsia -> Route18/Gate -> Route17 east lane -> Route16/Gate -> Celadon -> attempted GameCorner. No state injection or planner execution.",
+  "new_coverage": "Route16 and Celadon reached; GameCorner failed during preparation. Remaining ranked destinations not reached.",
+  "diagnostic_attribution": {
+    "GameCorner_definition_wall_ms": 159,
+    "GameCorner_art_wall_ms": 680,
+    "GameCorner_Zone_wall_ms": 746,
+    "field_reload_wall_ms": 850,
+    "view_wall_ms": 307,
+    "after_view_heap_kib": 7634.255,
+    "last_yield_heap_kib": 9189.672,
+    "soft_gc_markers_in_entire_trace": 0,
+    "scope": "Raw individual marker differences from failed run, not an accepted complete latency report. After view, heap grows through actor preparation checkpoints until hard guard. No retained-owner leak or single cause proven."
+  },
+  "ranked_hypotheses": [
+    "Repeated full MidgameGymStory.descriptors projections for each unrelated actor create avoidable allocations; exact non-Dojo metadata eligibility can reduce them without skipping callbacks.",
+    "Scoped immutable-field retention plus old/new map preparation holds a large live baseline until the load scope exits.",
+    "Soft collection occurs only at returned frames/loading completion; this cooperative loading operation crosses8MiB but reaches9MiB before that boundary. Hard/soft guard values must not change."
+  ],
+  "next": "Prepare bounded actor metadata allocation reduction; reproduce and measure through same physical path after fresh safety admission. Keep all callbacks/validators, guards and frozen failed bytes. No repeated device attempt on unchanged source.",
+  "device_cleanup": "Collected through existing owner. No new error/crash logs; outcome does not need A press; installed keeper verified and restored. All SDK/device owners closed."
+}

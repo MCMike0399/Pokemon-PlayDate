@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":22,"text":"<RIVAL>: Well,"},{"op":"line","source_line":23,"text":"look at all your"},{"op":"cont","source_line":24,"text":"wimpy #MON!"},{"op":"para","source_line":26,"text":"Toughen them up a"},{"op":"line","source_line":27,"text":"bit more!"},{"op":"control","source":"prompt","source_line":28}],"source":"text/PokemonTower2F.asm"}

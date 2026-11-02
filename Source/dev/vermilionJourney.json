@@ -447,6 +447,28 @@
         }
       ]
     },
+    "pokered:FUCHSIA_GOOD_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_FuchsiaGoodRodHouseFishingGuruHowAreTheFishText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_FuchsiaGoodRodHouseFishingGuruThatsSoDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_GOOD_ROD",
+      "full": [
+        "_FuchsiaGoodRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "goodRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_FuchsiaGoodRodHouseFishingGuruText"
+      ],
+      "success": [
+        "_FuchsiaGoodRodHouseFishingGuruReceivedGoodRodText"
+      ]
+    },
     "pokered:POKEMON_FAN_CLUB:background_events:1": {
       "content": "vermilion",
       "kind": "program",
@@ -846,6 +868,29 @@
         "_Route11Gate2FOaksAideItemfinderDescriptionText"
       ],
       "threshold": 30
+    },
+    "pokered:ROUTE_12_SUPER_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_Route12SuperRodHouseFishingGuruTryFishingText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_Route12SuperRodHouseFishingGuruThatsDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_SUPER_ROD",
+      "full": [
+        "_Route12SuperRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "superRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_Route12SuperRodHouseFishingGuruDoYouLikeToFishText"
+      ],
+      "success": [
+        "_Route12SuperRodHouseFishingGuruReceivedSuperRodText",
+        "_Route12SuperRodHouseFishingGuruFishingWayOfLifeText"
+      ]
     },
     "pokered:ROUTE_2_GATE:objects:1": {
       "before": [
@@ -3275,20 +3320,20 @@
   },
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
   "sources": {
-    "battle/battle.lua": "010190d7fe579d03030ef636752a6fea35753840ab53d3d39f67964d2ef301cd",
+    "battle/battle.lua": "7107be330b38234d3797ac0cc93e308295acb913fcb8e5912e8a90fd42c53b16",
     "data/captureData.lua": "b7e4cb7ae9f833129cfa9a18ad6b51929723c685ebd61b68c6e3900e2ac2cdb1",
-    "data/ceruleanContent.lua": "2a6fdeabfce1d8788da12723bdb241d4b5860d4330a94564097696701168898b",
+    "data/ceruleanContent.lua": "581e4154302da9e4b98033221d46622081e79ab1fd33b761a2dadc57106e8c45",
     "data/daycare/policy.json": "d96c06dfab2479308e28832ce007bed8de85f58263758c77f3609d64f98090d3",
-    "data/fieldMoves.json": "c58b466b2c9bdbe1f97f1b7fb5e800d658623689c27ee398f1818aac9d36d35b",
+    "data/fieldMoves.json": "fbdede52c487a6c0668b99b79f186101a10db1069b71aba25e8f7ef58f2e5757",
     "data/items.lua": "ca921ff5833d450fb315728b9de8c781c3406f451adfeb05eddc2e4c14d52779",
     "data/machineData.lua": "ff06e8f40282d52004f5493d5d70a60fdedc6e18f4efa74a931c47c66c0cafb1",
-    "data/pokemon.lua": "e1902f70bba5f4f0cf7d3deacdeede6866cfb482dae80ba8ea12d5bb1515c415",
-    "data/sourceMapCache/compact.json": "6e50e4c4905cdfd1cf69f7e5c549767476f14f6e0293c82802a7eb4e9926043f",
-    "data/sourceMapCache/tile-grids.json": "0663f25b85ae5f8b6662b452af08d5a9eda77935d1a4d716df15e5e8b138999e",
-    "data/sourceMaps.json": "29d97d4ee42a0f8d3f7365f4bfad806d360441424baef4c8d683eacd3ad522d7",
+    "data/pokemon.lua": "984cc65534cff1fbdc1b9cb57770ef92808e693b3aceed3a3f87b1975e3b933f",
+    "data/sourceMapCache/compact.json": "139f97a39a22e222cd7dcbbb4680d6181e54fdc28d6c34b8eb6375ea0f19696b",
+    "data/sourceMapCache/tile-grids.json": "19b464bd021aecced191b3c78e61c372cfa6a3f06a306c2631aea1626b7ec2c2",
+    "data/sourceMaps.json": "c06d750e9050e79993da2ad991b226d576c83999c227a5cf39713de164debc42",
     "data/sourceSlice/Route24.json": "4e8b06cecfceea87a00823383776f1102318ce41ebdc764e8e8800cb8bbf07d4",
     "data/sourceSlice/events.json": "4b0bf3adf20edbcf51ce24baaa8db4bc2549d8949581968b6f77fc9d0841e6ea",
-    "data/vermilionGifts/events.json": "3d1b58fd58971c94754635c767a0f101402db9aa89ddaa04bbf7232f4dc002b1",
+    "data/vermilionGifts/events.json": "77753ebf6f97f32229bdc264e9a51fdbf423cb8a31ac324375ecd45413b49c5b",
     "data/vermilionPreparation/Daycare.json": "0a0d83afaa9d387af1d8831438155b32fa94087aedcfa1daccb191195f15e4cc",
     "data/vermilionPreparation/DiglettsCave.json": "f795f2e2ad4c38d7c9ccbcbc737c67234bc04cf5cbf2797d0f717a1fccfa1c37",
     "data/vermilionPreparation/DiglettsCaveRoute11.json": "15d5d2cb00bc604417d64ed17609a7985930c921d3d0f93509c25e33fd713017",
@@ -3333,36 +3378,36 @@
     "data/vermilionStory/scenes.json": "64e90554a1ac99c1ec30c33354face09d4d0f7f32a3e9e759a505ab52a4ae4ab",
     "data/vermilionStory/terrain.json": "bbad4197932ecf8ffd5de28c1c63d8074bb581cef1f1da082d2adf953b5d85ff",
     "data/vermilionStory/trainers.json": "f4926f36d2fce40839a805ec33f9e965b4d13d96222e43205d0d1c1cc9c82bc0",
-    "dev/ceruleanJourney.json": "f4c7bd9f940519fd878c3bb771c6b79839ca76e05b14fae85a19dbed1bf6cfc5",
+    "dev/ceruleanJourney.json": "649933aaaec3a374b4231d8bc8ffc9873922909019cdb1dc6c53903c3ffd0853",
     "dev/daycareContracts.lua": "c3507079193c523b1bd21a6ddefb70164f37e3a31ec0529ed0886174756ee1ec",
-    "dev/diagnostics.lua": "8411762e352408e710800fd7c44957f458c913fb4be7b15ff7e59250867f0b26",
+    "dev/diagnostics.lua": "9139282c3a3321b1ba51e6a7e84f55a538cc19587d3e0d85fc4d790d8b01da95",
     "dev/fixtures.lua": "b58335badeaf91cd93ac077519559ba0df9eb38490cfb48dec3a799b20e4b6f4",
-    "domain/capture.lua": "ca5f58ce8c8e752d95ee5a033588703a75a3b1cdadc7001f550bed37f6f4ccd1",
-    "domain/fieldEncounters.lua": "8c91894d9be3feb11a3eff9b119e1fe6bd2560d251c9e32cdae4bca3ac6fd59f",
+    "domain/capture.lua": "829c8be6244dde95fba233107139a3ab95950d61a9918b32e6a3eeeb1cf9b56b",
+    "domain/fieldEncounters.lua": "29f5dd362047e9c3be5e186dc6cea210d7141e779159a879be336e363f4be437",
     "domain/fieldMoves.lua": "ef60646c5fba6f3276cee361b948114034d139925ffcd11caa05166b9a176dfd",
     "domain/fieldWorld.lua": "96dffc5bd217d793d7f100d857058b9c141e856c66a03a593cc0a9fb6b61489b",
-    "domain/gameSession.lua": "3becbe1e43fb62c4ff709dff31e6474e8096c50a20544879835a8a4989578e6b",
+    "domain/gameSession.lua": "50675bbb95352a8d5ede916724456f4caf46811044ae9b36e60a226287d78095",
     "domain/sessionCodec.lua": "ba4f6bc839a72603871213af102a71473c7af061abbbb2140c27036440ab2cfb",
     "domain/specimen.lua": "2058b5c9c6581f7fd377bf143dca9bacc6e63f8648587ca2a4f3cf4b6f05de05",
     "domain/storage.lua": "970a31c0fc7b4bf3257ec630f372f16b2d69b950f5f87064175322e3a7c0ed81",
     "domain/teaching.lua": "365ac63a657629131b0b0797acf00793aaa10d2918d1afd6cdaafb4d6246245c",
-    "game/bagState.lua": "73f461bb788062e708a23f96b2b41a0bcd1e62513176675a3a39fcae47aa8e89",
+    "game/bagState.lua": "d79a3e9015149a07944ef3a2e07bb981ca534023b1d11b3f9c9fe0fefb045c81",
     "game/daycare.lua": "c5216bd89b6eac1fc2d580271c452fa4a85de005114ec2b520a1c3bba90f0844",
     "game/daycareState.lua": "b6870bcb8a69ea54de4e6552186a9d68e0326b8b18f83fec4460dba6417b6ef9",
     "game/fieldMoveState.lua": "3c8281f6d7eda0668a512906698b1a8d2ce9b2405f57d956f592e842c6ed0b06",
     "game/partyState.lua": "4fb4113f89eb6b1c89c5e61af75a6b1c4c7877fd3be46301dcba32aefa9b0630",
     "game/saves.lua": "472eaace74ce3e3e7b2f0b2e21b5ca160dd70bb09aa271be3dc27c4abd3003ee",
-    "game/sourceEvents.lua": "422e7fddb12a70a13d6d8c9d7ab58c1eff870a0fecc7a94138c362da6fb4e6a7",
+    "game/sourceEvents.lua": "9428e4e85a769263a33bdc6a6f54d040ed4fba30e3fd1ee0ece95e011809b25c",
     "game/trainerEvents.lua": "3cca86644f8dc93fceb96d2924fae64454db27c2d527db274fe408a7cc5446a2",
-    "game/vermilionGifts.lua": "c1acedb198b1348dbdcbbaf44f464269aaf777c9b4a1e555a1ca242ca38a4765",
+    "game/vermilionGifts.lua": "8a2f10a2db0f1cacfb3c48cc3b620b5791bf5ea9c24f524b5d13274719c46c65",
     "game/vermilionStory.lua": "e00b8c7ced96d6ad630c4515d722c422b865fc2c745d60d677741046cb7a2af6",
     "game/vermilionStoryHooks.lua": "0bdef828c9b38804baef3588a3c3485b3b8816d051acde6cd266bc758e1e221b",
     "game/vermilionStoryIntent.lua": "31bf40875b5d9940b81fdc3a463a6aca67c3a7e94878a69086c658138862c440",
     "game/vermilionStoryState.lua": "084cfdd3ae23d32f84c34bbde7ad8b7251a323d876819e724084b0c97658ec29",
     "game/vermilionStoryTerrain.lua": "ea64898cc812994f231b66f7220435a021c89a67b6d9bf17bfee1bbe108d065d",
-    "main.lua": "71da1bd70dfa750f258919b5532640f24943e630bc94e61d3e2ccd6774840925",
-    "world/sourceBindings.lua": "62c9de9ffe951ca69d5fb4d60ca833b0a05a08debadd7f599d856075d0277ddf",
-    "world/zone.lua": "0381e73f2191d785a22b1ab0052a9a64a64f8c424101bea18cfad6bc449193d4"
+    "main.lua": "2c660e29d61199ce476b3010b9973f7b31e8c87af940b4a8248d51a2e3b954e0",
+    "world/sourceBindings.lua": "42d0b3a22a13cffb21fd77d6a70fd9e60ae4d67cd6c5466d7155ede3ded3892a",
+    "world/zone.lua": "dc84d0d45b818f29fdc840f95e9a7f580e05ca1ce8cdc3d22bd44cf50d170202"
   },
   "trainers": {
     "pokered:ROUTE_11:objects:1": {

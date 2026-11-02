@@ -41,6 +41,21 @@ def item_ids(value):
     return found
 
 
+def scoped_records(records, exclusions):
+    """Omit parked map records without editing checksum-pinned source inputs."""
+    excluded = set(exclusions.get('maps', []))
+    sources = set(exclusions.get('text_sources', []))
+    for record, fields in records.items():
+        for field, values in fields.items():
+            if record in {'events', 'trainers'} and field != 'rival_classes':
+                fields[field] = {key: value for key, value in values.items()
+                                 if ':'.join(key.split(':')[:2]) not in excluded}
+            elif record == 'dialogue':
+                fields[field] = {key: value for key, value in values.items()
+                                 if value.get('source') not in sources}
+    return records
+
+
 def build(source_root=ROOT / 'Source', pins_path=PINS):
     source_root = Path(source_root).resolve()
     pins_bytes = Path(pins_path).read_bytes()
@@ -63,7 +78,7 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
         for key, value in sorted(records.items()):
             raw = canonical(value)
             digest = hashlib.sha256(raw).hexdigest()
-            files['chunks/' + digest + '.json'] = raw
+            files['chunks-v2/' + digest[:2] + '/' + digest + '.json'] = raw
             result[key] = digest
         return result
 
@@ -123,6 +138,7 @@ def build(source_root=ROOT / 'Source', pins_path=PINS):
                                'events': ['events', 'signs'], 'trainers': ['trainers', 'rival_classes']}.items():
             data = read(root + record + '.json')
             records[record] = {field: data[field] for field in fields}
+        records = scoped_records(records, pins.get('package_exclusions', {}).get(root, {}))
         require(not (records['events']['events'].keys() & records['events']['signs'].keys()), 'duplicate package event')
         for key, event in records['events']['events'].items():
             if event['kind'] == 'trainer':

@@ -34,18 +34,26 @@ def map_names(project=ROOT):
 
 
 def production_exclusions(project):
-    """Only installed checkpoint A opts into the exclusion policy; B/C stays intact."""
+    """Select an explicit release scope; unknown inventories must never ship all Source."""
+    from tools.activate_checkpoint_b import inventories
     project = Path(project)
-    manifest = json.loads((project / 'Source/data/sourceMaps.json').read_bytes())
-    names = set(manifest['maps'])
-    roots = ('data/viridianSlice/', 'data/pewterSlice/', 'data/sourceSlice/',
-             'data/vermilionPreparation/', 'data/midgameEast/')
-    east_count = sum(entry['path'].startswith('data/midgameEast/') for entry in manifest['maps'].values())
-    if len(names) != 108 or east_count != 43 or not {'CeladonCity', 'RocketHideoutB4F'} <= names \
-            or not all(entry['path'].startswith(roots) for entry in manifest['maps'].values()):
-        return []
-    policy = json.loads(POLICY.read_bytes())
-    return policy['exclude']
+    active = json.loads((project / 'Source/data/sourceMaps.json').read_bytes())['maps']
+    accepted, south = inventories(project)
+    expected = dict(accepted['maps'])
+    names = set(active)
+    if names == set(expected):
+        policy = POLICY
+    elif names == set(expected) | set(south):
+        expected.update(south)
+        policy = ROOT / 'tools/integration/checkpoint-b/production-exclusions.json'
+    else:
+        raise ValueError('unsupported production map inventory; explicit release policy required')
+    for name, entry in expected.items():
+        for field in ('id', 'key', 'path', 'profile', 'source_sha256', 'width', 'height', 'padding'):
+            if active[name].get(field) != entry[field]:
+                raise ValueError('production map identity drift: ' + name + ':' + field)
+    return json.loads(policy.read_bytes())['exclude']
+
 
 
 def ignored_source_names(source_root, directory, names, exclusions):
@@ -57,7 +65,7 @@ def ignored_source_names(source_root, directory, names, exclusions):
         if path == 'dev' or any(path == prefix.rstrip('/') or path.startswith(prefix)
                                  for prefix in exclusions if prefix.endswith('/')) or path in exclusions:
             result.append(name)
-        elif name in {'proposed-source-maps.json', 'proposed-compact.json', 'proposed-tile-grids.json'}:
+        elif name.startswith('proposed-'):
             result.append(name)
     return result
 

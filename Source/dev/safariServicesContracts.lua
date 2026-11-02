@@ -49,6 +49,86 @@ function SafariServicesContracts.run()
             assert(not SafariGame.admit(SafariGame.empty(), 499))
             assert(not pcall(SafariGame.normalize, {version = 1, active = true, steps = 503, balls = 30, ending = "none"}))
         end)
+        VermilionStoryFixture.withScene("SafariZoneGate", {x = 4, y = 2}, function(game)
+            local session = game.session
+            assert(session:captureTraversal({world = WorldDeltas.export(), actors = game.npcManager.motion:snapshot(),
+                location = {zone_id = currentZone.stableID, x = game.player.gridX, y = game.player.gridY, facing = game.player.facing}}))
+            local oldView = getOverworldView()
+            if oldView and oldView.zone == currentZone then currentZone:detachView(oldView) end
+            WorldView.withIsolation(function()
+                setupOverworld()
+                local world = game.machine:get("overworld")
+                world.game, world.builtZone, world.builtSession = game, currentZone, session
+                world._beginPresentationVisit = OverworldState._beginPresentationVisit
+                world._ownsPresentation = OverworldState._ownsPresentation
+                world:_beginPresentationVisit(getOverworldView())
+                game.machine:register("safariPassage", SafariPassageState(game))
+                local money = session:inventory():money()
+                local admission = assert(SafariGame.admit(session:safariData(), money))
+                local player, zone, view = game.player, currentZone, getOverworldView()
+                local token = assert(SafariPassage.prepare(game, "admission", admission))
+                assert(SafariPassageState.open(game, token))
+                game.machine:current():update()
+                game.machine:pop()
+                assert(game.player == player and currentZone == zone and getOverworldView() == view)
+                assert(session:inventory():money() == money and not session:safariData().active)
+                token = assert(SafariPassage.prepare(game, "admission", admission))
+                assert(SafariPassageState.open(game, token))
+                local stagedTicks = 0
+                while game.machine:current().phase ~= "after" do
+                    stagedTicks = stagedTicks + 1
+                    assert(stagedTicks < 80, "Safari destination did not stage")
+                    game.machine:current():update()
+                end
+                game.machine:pop()
+                assert(game.player == player and currentZone == zone and getOverworldView() == view)
+                assert(view.sprite:isVisible() and session:inventory():money() == money)
+                assert(not session:safariData().active)
+                token = assert(SafariPassage.prepare(game, "admission", admission))
+                assert(SafariPassageState.open(game, token))
+                local elapsed = 0
+                while game.machine:getCurrent() == "safariPassage" do
+                    elapsed = elapsed + 1
+                    assert(elapsed < 100, "Safari admission did not settle")
+                    game.machine:current():update()
+                end
+                assert(currentZone.stableID == "pokered:SAFARI_ZONE_CENTER")
+                assert(game.player.gridX == 15 and game.player.gridY == 24)
+                assert(session:safariData().steps == 499 and session:inventory():money() == money - 500)
+                local observed = SafariRuntime.observe(game)
+                assert(observed.active and observed.steps == 499 and observed.balls == 30)
+                assert(observed.lastPassage.kind == "admission" and observed.lastPassage.countedSteps == 3)
+                assert(observed.lastPassage.moneyBefore - observed.lastPassage.moneyAfter == 500)
+                observed.lastPassage.after.steps = 1
+                assert(SafariRuntime.observe(game).lastPassage.after.steps == 499)
+                local wire = assert(SessionCodec.encode(session,
+                    {root = "overworld", overworld = "explore", settled = true}))
+                assert(wire.version == 4)
+                local loaded = assert(SessionCodec.decode(wire, game:getSessionDependencies()))
+                assert(FieldMoves.same(loaded:safariData(), session:safariData()))
+                for _ = 1, 500 do
+                    assert(session:commitSafari(assert(SafariGame.step(session:safariData())), session:fieldWorldEpoch()))
+                end
+                assert(SafariRuntime.check(game))
+                local passage = game.machine:current()
+                while passage.dialog.isActive do passage.dialog:advance() end
+                elapsed = 0
+                while game.machine:getCurrent() == "safariPassage" do
+                    elapsed = elapsed + 1
+                    assert(elapsed < 100, "Safari forced return did not settle")
+                    game.machine:current():update()
+                end
+                local gate = SourceMaps.entry("SafariZoneGate")
+                assert(currentZone.stableID == gate.id and game.player.gridX == 3 + gate.padding and game.player.gridY == 3)
+                assert(not session:safariData().active and session:safariData().balls == 0)
+                observed = SafariRuntime.observe(game)
+                assert(observed.lastPassage.kind == "forced-return")
+                assert(observed.lastPassage.before.ending == "steps")
+                assert(observed.lastPassage.location.x == 3 + gate.padding and observed.lastPassage.location.y == 3)
+                assert(observed.lastPassage.moneyBefore == observed.lastPassage.moneyAfter)
+            end)
+            if oldView and not oldView.disposed and oldView.zone == currentZone then currentZone:attachView(oldView) end
+        end)
     end)
     test("Safari commands use separate ball supply and exact bait/rock/flee order, without ordinary battle fallback", function()
         local safari = assert(SafariGame.admit(SafariGame.empty(), 1000)).after
@@ -56,9 +136,15 @@ function SafariServicesContracts.run()
         local battle = assert(SafariBattle.begin(safari, enemy))
         local stream = RulesRNG.new(119)
         local globalBefore, before = RulesRNG.snapshot(), stream:snapshot()
-        local result, reason = SafariBattle.plan(safari, battle, enemy, "ball", 0, stream)
-        assert(not result and reason == "safari-capture-policy-not-installed")
-        assert(FieldMoves.same(before, stream:snapshot()) and FieldMoves.same(globalBefore, RulesRNG.snapshot()))
+        local parameters = assert(Capture.safariParameters(enemy, 45, 0))
+        assert(parameters.safari and parameters.modifiedRate4096 == 92160)
+        assert(Capture.safariParameters(enemy, 0, 0).shakeThreshold == 0)
+        assert(not Capture.safariParameters(enemy, 256, 0))
+        assert(not Capture.parameters({pokemon = enemy, wild = true}, "safariBall", 0))
+        local result = assert(SafariBattle.plan(safari, battle, enemy, "ball", 0, stream))
+        assert(result.after.balls == 29 and result.receipt.capture.ballId == "safariBall")
+        assert(FieldMoves.same(globalBefore, RulesRNG.snapshot()))
+        stream:restore(before)
         local run = assert(SafariBattle.plan(safari, battle, enemy, "run", 0, stream))
         assert(run.battle.outcome == "run" and run.after.balls == 30)
         assert(FieldMoves.same(before, stream:snapshot()))
@@ -69,6 +155,17 @@ function SafariServicesContracts.run()
         assert(bait.battle.catchRate == fastBattle.baseRate // 2)
         assert(bait.battle.outcome == "fled" and bait.receipt.forcedFlee and bait.receipt.fleeRoll == nil)
         assert(bait.after.balls == 30 and FieldMoves.same(globalBefore, RulesRNG.snapshot()))
+        local rock = assert(SafariBattle.plan(safari, battle, enemy, "rock", 0, stream))
+        assert(rock.battle.catchRate == math.min(255, battle.baseRate * 2)
+            or rock.battle.anger == 0 and rock.battle.catchRate == battle.baseRate)
+        assert(rock.battle.bait == 0 and rock.after.balls == 30)
+        local lastSupply = SafariGame.normalize({version = 1, active = true, steps = 10, balls = 1, ending = "none"})
+        local zeroByte = assert(SafariBattle.begin(lastSupply, enemy))
+        zeroByte.catchRate = 0
+        local exhausted = assert(SafariBattle.plan(lastSupply, zeroByte, enemy, "ball", 0, stream))
+        assert(exhausted.battle.outcome == "out-of-balls" and exhausted.after.balls == 0)
+        assert(not exhausted.receipt.capture.caught and exhausted.receipt.capture.ballId == "safariBall")
+        assert(FieldMoves.same(globalBefore, RulesRNG.snapshot()))
         assert(not SafariBattle.plan(safari, battle, enemy, "fight", 0, stream))
         local ball = assert(SafariGame.ball(safari))
         assert(ball.after.balls == 29 and safari.balls == 30)
@@ -100,6 +197,10 @@ function SafariServicesContracts.run()
                 items = {goldTeeth = 1, hm04 = 0}, can_add = {hm04 = false}})
             assert(FieldMoves.same(before, session:inventory():toData()))
             assert(plan.changes.items[1].op == "handoff" and plan.changes.items[2].id == "hm04")
+            assert(plan.ram.wStringBuffer == ItemData.definitions.hm04.name)
+            local pages = SourceEvents.pages("pokered:WARDENS_HOUSE:objects:1",
+                {"_WardensHouseWardenReceivedHM04Text"}, plan.ram)
+            assert(#pages > 0 and pages[1].text:find(ItemData.definitions.hm04.name, 1, true))
             assert(session:transact(plan.expected, plan.changes))
             assert(session:inventory():quantity("goldTeeth") == 0 and session:inventory():quantity("hm04") == 1)
             assert(session:questFlag("EVENT_GAVE_GOLD_TEETH") and session:questFlag("EVENT_GOT_HM04"))

@@ -37,6 +37,21 @@ def campaign_receipt():
                 inventory={}, party={}, checkpoint={}, codec=payload)
 
 
+def b_codec():
+    codec = campaign_receipt()['codec']
+    codec.update(version=4, fieldWorld=dict(version=1, mapPalOffset=0),
+                 daycare=dict(version=1, earned='0'),
+                 fieldTravel=dict(version=1, mode='walking', strength=False, visited=[]), coins=0)
+    codec['questFlags'] = {flag: True for flag in (
+        'BADGE_SOUL', 'EVENT_GOT_TM06', 'EVENT_RESCUED_MR_FUJI', 'EVENT_GOT_POKE_FLUTE',
+        'EVENT_BEAT_ROUTE12_SNORLAX', 'EVENT_BEAT_ROUTE16_SNORLAX', 'EVENT_GOT_HM03',
+        'EVENT_GOT_HM04', 'EVENT_GAVE_GOLD_TEETH')}
+    codec['inventory'] = dict(money=1000, slots=[dict(id=item, quantity=1)
+        for item in ('pokeFlute', 'bicycle', 'hm03', 'hm04')])
+    codec['safari'] = dict(version=1, active=False, steps=0, balls=0, ending='none')
+    return codec
+
+
 def receipt():
     return dict(campaign=campaign_receipt(), classification='natural', case=None, cut_cells=[])
 
@@ -483,6 +498,100 @@ class ReceiptAndPatchTests(unittest.TestCase):
 
 
 class MidgameSaveInputTests(unittest.TestCase):
+    def test_moving_npc_rejection_replans_with_the_existing_bound(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
+        driver.state = {'zone_id': 'center', 'player': {'x': 5, 'y': 4,
+            'lastTraversalBlock': {'kind': 'npc', 'id': 'occupied-next-cell'}}}
+        step = type('Step', (), {'kind': 'walk', 'destination': (5, 5)})()
+        failure = ProtocolError('source-valid walk failed: (5, 4) -> (5, 5), actual (5, 4)')
+        with patch.object(vj.VermilionJourney, 'step', side_effect=failure), \
+                patch.object(driver, 'send') as send:
+            for _ in range(8):
+                driver.step(step)
+            with self.assertRaises(ProtocolError):
+                driver.step(step)
+        self.assertEqual(send.call_count, 8)
+        self.assertEqual(driver.position(), (5, 4))
+        driver.state['player']['lastTraversalBlock'] = {'kind': 'terrain', 'id': 'source-collision'}
+        with patch.object(vj.VermilionJourney, 'step', side_effect=failure):
+            with self.assertRaises(ProtocolError):
+                driver.step(step)
+
+    def test_koga_save_skips_roads_only_with_actual_badge_and_tm(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
+        driver.completed_steps = {'fuchsia_gym'}
+        with patch.object(driver, 'flag', return_value=True), patch.object(driver, 'quantity', return_value=1), \
+                patch.object(driver, 'heal_here', side_effect=AssertionError('unnecessary replay')), \
+                patch.object(driver, 'safari_journey') as safari:
+            driver.route_fuchsia()
+        safari.assert_called_once_with()
+        self.assertIn('fuchsia-koga', driver.completed_steps)
+        with patch.object(driver, 'flag', return_value=False):
+            with self.assertRaisesRegex(ProtocolError, 'actual badge'):
+                driver.route_fuchsia()
+
+    def test_fuchsia_bag_room_uses_the_local_item_pc(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='charmander', packet='5.5b', content_scope='optional'))
+        with patch.object(driver, 'inventory', side_effect=[{'slots': [None] * 16}, {'slots': [None] * 15}]), \
+                patch.object(driver, 'quantity', return_value=0), \
+                patch.object(driver, 'store_unused_items') as store:
+            driver.ensure_room('FuchsiaMart')
+        store.assert_called_once_with('FuchsiaPokecenter')
+
+    def test_fuchsia_route_crosses_fixed_exits_without_reentering_route12(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
+        driver.completed_steps = {'route12-snorlax', 'route13-rested'}
+        class ReachedFuchsia(Exception):
+            pass
+        def heal(name):
+            if name == 'FuchsiaPokecenter':
+                raise ReachedFuchsia
+        with patch.object(driver, 'heal_here', side_effect=heal), \
+                patch.object(driver, 'restock'), \
+                patch.object(driver, 'zone', side_effect=lambda name: name), \
+                patch.object(driver, 'travel') as travel, \
+                patch.object(driver, 'source_waypoint'), \
+                patch.object(driver, 'cross') as cross, patch.object(driver, 'warp'):
+            with self.assertRaises(ReachedFuchsia):
+                driver.route_fuchsia()
+        travel.assert_called_once_with('Route13')
+        self.assertEqual([call.args for call in cross.call_args_list], [
+            ('left', 'Route14', (19, 10)), ('left', 'Route15', (59, 8)),
+            ('left', 'FuchsiaCity', (39, 16))])
+
+    def test_snorlax_travel_includes_the_final_component_goal(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
+        driver.models = {'route12': type('Model', (), {'padding': 0})()}
+        class ReachedApproach(Exception):
+            pass
+        with patch.object(driver, 'zone', return_value='route12'), \
+                patch.object(driver, 'travel') as travel, \
+                patch.object(driver, 'source_waypoint'), \
+                patch.object(driver, 'require_event', side_effect=ReachedApproach):
+            with self.assertRaises(ReachedApproach):
+                driver.wake_snorlax('ROUTE_12', 1, (10, 61))
+        travel.assert_called_once_with('route12', goal=(10, 61))
+
+    def test_tower_reserves_bag_room_before_entering(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
+            name='midgame-natural', starter='squirtle', packet='5.5b', content_scope='critical'))
+        calls = []
+        class EnteredTower(Exception):
+            pass
+        with patch.object(driver, 'scene_data', return_value={}), \
+                patch.object(driver, 'heal_here'), patch.object(driver, 'restock'), \
+                patch.object(driver, 'ensure_room', side_effect=lambda mart: calls.append(mart)), \
+                patch.object(driver, 'zone', side_effect=lambda name: name), \
+                patch.object(driver, 'travel', side_effect=EnteredTower):
+            with self.assertRaises(EnteredTower):
+                driver.route_tower()
+        self.assertEqual(calls, ['LavenderMart'])
+
     def test_save_releases_dialog_input_before_pressing_b(self):
         driver = mj.MidgameJourney(NoRuntime(), '/unused', dict(
             name='midgame-natural', starter='squirtle', packet='5.5a', content_scope='critical'))
@@ -513,6 +622,258 @@ class MidgameSaveInputTests(unittest.TestCase):
         menu.assert_called_once_with('SAVE')
         self.assertEqual(list(expected), [])
         self.assertFalse(driver.saving)
+
+
+class MidgameBImportTests(unittest.TestCase):
+    def test_cycling_learning_releases_entry_guard_and_restores_only_after_commit(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        driver.cycling_brake = True
+        driver.state = {'root': 'learning', 'learning': {
+            'phase': 'ask', 'input_blocked': True, 'remaining': 1}}
+        packets = []
+
+        def forward(instance, *commands):
+            packets.append((instance.state['root'], tuple(commands)))
+            if commands == ('release b', 'wait 2'):
+                instance.state['learning']['input_blocked'] = False
+
+        def inherited_learning(instance):
+            self.assertFalse(instance.state['learning']['input_blocked'])
+            instance.state['learning'].update(phase='message', remaining=1)
+            instance.send('wait 3')
+            instance.state['learning']['remaining'] = 0
+            instance.send('wait 3')
+            instance.state['root'] = 'battle'
+
+        with patch.object(vj.VermilionJourney, 'send', autospec=True, side_effect=forward), \
+                patch.object(vj.VermilionJourney, 'learning', autospec=True, side_effect=inherited_learning):
+            driver.learning()
+        self.assertEqual(packets, [
+            ('learning', ('release b', 'wait 2')),
+            ('learning', ('wait 3',)),
+            ('learning', ('hold b', 'wait 3')),
+        ])
+        self.assertFalse(driver.restore_learning_brake)
+        self.assertTrue(driver.cycling_brake_needs_rearm)
+
+    def test_overlay_input_waits_for_actual_owner_phase(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        driver.state = {'root': 'fieldGear'}
+        for phase, command in [('cast', 'wait 3'), ('bite', 'wait 3'), ('result', 'press a')]:
+            with self.subTest(phase=phase), patch.object(driver, 'observe', return_value={
+                    'fieldGear': dict(installed=True, active=True, phase=phase)}), patch.object(driver, 'send') as send:
+                self.assertTrue(driver.advance_event())
+                send.assert_called_once_with(command)
+        driver.state = {'root': 'safariPassage'}
+        for phase, command in [('announcement', 'press a'), ('before', 'wait 3'), ('fade', 'wait 3'), ('after', 'wait 3')]:
+            with self.subTest(phase=phase), patch.object(driver, 'safari_observation', return_value={
+                    'passage': dict(phase=phase)}), patch.object(driver, 'send') as send:
+                self.assertTrue(driver.advance_event())
+                send.assert_called_once_with(command)
+        def completed_passage():
+            driver.state = {'root': 'overworld'}
+            return {'passage': {'phase': 'closed'}}
+        with patch.object(driver, 'safari_observation', side_effect=completed_passage), patch.object(driver, 'send') as send:
+            self.assertTrue(driver.advance_event())
+            send.assert_not_called()
+        driver.state = {'root': 'safariPassage'}
+        with patch.object(driver, 'safari_observation', return_value={'passage': dict(phase='failed', lastFailure='stale')}):
+            with self.assertRaisesRegex(ProtocolError, 'stale'):
+                driver.advance_event()
+
+    def test_safari_run_uses_two_column_cursor_and_requires_commit(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        driver.state = {'root': 'safariBattle'}
+        battle = dict(active=True, phase='command', selected=1, turns=0, encounter=1,
+                      menu=dict(active=True, columns=2, options=['BALL', 'BAIT', 'ROCK', 'RUN']))
+        with patch.object(driver, 'safari_observation', return_value={'battle': battle}), patch.object(driver, 'send') as send, \
+                patch.object(driver, 'inventory', return_value={}), patch.object(driver, 'party', return_value=[]):
+            driver.advance_safari_battle()
+            send.assert_called_once_with('press right')
+            send.reset_mock()
+            battle['selected'] = 2
+            driver.advance_safari_battle()
+            send.assert_called_once_with('press down')
+            battle['selected'] = 4
+            with patch.object(driver, 'inventory', return_value={}), patch.object(driver, 'party', return_value=[]):
+                with self.assertRaisesRegex(ProtocolError, 'did not actually commit'):
+                    driver.advance_safari_battle()
+
+    def scenario(self, starter='squirtle'):
+        return json.loads((mj.SCENARIOS / ('restart-55b-' + starter + '.json')).read_bytes())
+
+    def fixture(self, root):
+        # Host publication double only. Slot bytes are never interpreted as game data.
+        docs, slots, run_root = root / 'docs/validation', root / 'slots', root / 'producer'
+        docs.mkdir(parents=True)
+        slots.mkdir()
+        run_root.mkdir()
+        files = []
+        for name in ('adventure.a.json', 'adventure.b.json'):
+            raw = name.encode()
+            (slots / name).write_bytes(raw)
+            files.append(dict(file=name, sha256=hashlib.sha256(raw).hexdigest()))
+        proof = json.loads((ROOT / 'docs/validation/midgame-a-acceptance-20261029.json').read_bytes())
+        accepted = next(r for r in proof['starters'] if r['starter'] == 'squirtle')
+        accepted.update(files=files, evidence=str(run_root))
+        origin = copy.deepcopy(next(r for r in json.loads((ROOT / 'docs/validation/chain-saves.json').read_bytes())['saves']
+                                    if r['from_milestone'] == '5.4' and r['starter'] == 'squirtle'))
+        shutil.copyfile(ROOT / 'docs/validation/vermilion-acceptance-20261028.json',
+                        docs / 'vermilion-acceptance-20261028.json')
+        record = dict(starter='squirtle', from_milestone='5.5a', origin_milestone='5.4',
+                      directory=str(slots), source=str(run_root), files=files,
+                      accepted_commit=proof['accepted_main_code'],
+                      accepted_source_sha256=proof['production_source_sha256'],
+                      journey_source_sha256=accepted['source_sha256'],
+                      acceptance='docs/validation/midgame-a-acceptance-20261029.json')
+        (docs / 'midgame-a-acceptance-20261029.json').write_text(json.dumps(proof))
+        (docs / 'chain-saves.json').write_text(json.dumps(dict(saves=[origin, record])))
+        state = dict(starter='squirtle', packet='5.5a', content_scope='critical',
+                     codec=campaign_receipt()['codec'],
+                     completed_steps=['celadon_gym', 'hideout-scope', 'rock-tunnel-flash-lavender'])
+        packet = dict(schema=1, kind='midgame-saved', state=state, **NoRuntime.identity)
+        groups = []
+        for index in (1, 2):
+            generation = run_root / 'processes' / f'{index:04d}'
+            (generation / 'runtime-data').mkdir(parents=True)
+            raw = json.dumps(packet).encode()
+            (generation / 'journey-receipt.json').write_bytes(raw)
+            for item in files:
+                shutil.copyfile(slots / item['file'], generation / 'runtime-data' / item['file'])
+            groups.append(dict(evidence=f'processes/{index:04d}', status='exited', returncode=0,
+                               pid=index, previous_pid=1 if index == 2 else None,
+                               previous_exit_confirmed=True, fresh_ready=True,
+                               durable_after={r['file']: r['sha256'] for r in files},
+                               journey_receipt=dict(path=f'processes/{index:04d}/journey-receipt.json',
+                                                    sha256=hashlib.sha256(raw).hexdigest())))
+        (run_root / 'run.json').write_text(json.dumps(dict(processes=groups, **NoRuntime.identity)))
+        (run_root / 'outcome.json').write_text(json.dumps(dict(ok=True, session_id=NoRuntime.identity['session_id'])))
+        (slots / 'provenance.json').write_text(json.dumps(dict(milestone='5.5a', starter='squirtle',
+            evidence=str(run_root), files=files, source_sha256=record['journey_source_sha256'],
+            build_id=NoRuntime.identity['build_id'], starting_save=origin)))
+        return record, run_root, slots
+
+    def test_b_scenarios_preserve_a_and_require_exact_origin_and_restart(self):
+        for starter in cj.FAMILIES:
+            scenario = self.scenario(starter)
+            restarting.validate(scenario)
+            old = json.loads((mj.SCENARIOS / ('restart-' + starter + '.json')).read_bytes())
+            restarting.validate(old)
+            for mutate in ('origin', 'restart', 'scope', 'future'):
+                changed = copy.deepcopy(scenario)
+                if mutate == 'origin': changed['initial_save']['milestone'] = '5.4'
+                if mutate == 'restart': changed['processes'][1]['restart'] = False
+                if mutate == 'scope': changed['processes'][1]['journey']['content_scope'] = 'optional' if starter != 'charmander' else 'critical'
+                if mutate == 'future': changed['processes'][0]['journey']['packet'] = '5.5c'
+                with self.subTest(starter=starter, mutate=mutate), self.assertRaises(ProtocolError):
+                    restarting.validate(changed)
+
+    def test_import_binds_manifest_hashes_ancestry_and_stopped_continue_before_copy(self):
+        for mutation in ('none', 'acceptance', 'slot', 'ancestry', 'live', 'same-pid', 'archive', 'receipt'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                record, producer, slots = self.fixture(root)
+                data, output = root / 'data', root / 'output'
+                data.mkdir(); output.mkdir()
+                if mutation == 'acceptance':
+                    path = root / record['acceptance']
+                    proof = json.loads(path.read_bytes()); proof['starters'][1]['files'][0]['sha256'] = 'bad'
+                    path.write_text(json.dumps(proof))
+                if mutation == 'slot': (slots / 'adventure.b.json').write_bytes(b'changed')
+                if mutation == 'ancestry':
+                    path = slots / 'provenance.json'
+                    value = json.loads(path.read_bytes()); value['starting_save']['accepted_commit'] = 'bad'
+                    path.write_text(json.dumps(value))
+                if mutation in {'live', 'same-pid'}:
+                    path = producer / 'run.json'; value = json.loads(path.read_bytes())
+                    value['processes'][1]['status' if mutation == 'live' else 'pid'] = 'ready' if mutation == 'live' else 1
+                    path.write_text(json.dumps(value))
+                if mutation == 'archive': (producer / 'processes/0002/runtime-data/adventure.a.json').write_bytes(b'changed')
+                if mutation == 'receipt': (producer / 'processes/0002/journey-receipt.json').write_text('{}')
+                if mutation == 'none':
+                    result = restarting.import_chain_save(self.scenario(), root, data, output)
+                    self.assertEqual(result['accepted_boundary']['state']['packet'], '5.5a')
+                    self.assertEqual((data / 'adventure.a.json').read_bytes(), b'adventure.a.json')
+                else:
+                    with self.assertRaises(ProtocolError):
+                        restarting.import_chain_save(self.scenario(), root, data, output)
+                    self.assertEqual(list(data.iterdir()), [])
+
+    def test_b_does_not_replay_a_and_final_receipt_requires_b_rewards(self):
+        driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'])
+        calls = []
+        with patch.object(driver, 'start_earned'), patch.object(driver, 'save'), patch.object(driver, 'write_receipt'):
+            for method in ('route_tower', 'route_fuchsia', 'route_bicycle', 'route_lavender', 'route_a', 'route_saffron'):
+                setattr(driver, method, lambda method=method: calls.append(method))
+            driver.natural()
+        self.assertEqual(calls, ['route_tower', 'route_fuchsia', 'route_bicycle'])
+        state = dict(starter='squirtle', packet='5.5b', content_scope='critical',
+                     codec=b_codec(), completed_steps=sorted(mj.B_STEPS))
+        mj.validate_receipt_state(state)
+        for step in mj.B_STEPS:
+            with self.subTest(step=step), self.assertRaises(ProtocolError):
+                mj.validate_receipt_state(dict(state, completed_steps=sorted(mj.B_STEPS - {step})))
+        with patch.object(driver, 'observe', return_value={'safari': {'sessionInstalled': False}}):
+            with self.assertRaisesRegex(ProtocolError, 'Safari requires'):
+                driver.safari_journey()
+        for key, value in [('active', True), ('balls', 1), ('ending', 'steps')]:
+            changed = copy.deepcopy(state)
+            changed['codec']['safari'][key] = value
+            with self.subTest(resource=key), self.assertRaisesRegex(ProtocolError, 'resources'):
+                mj.validate_receipt_state(changed)
+        changed = copy.deepcopy(state)
+        changed['codec']['inventory']['slots'].pop()
+        with self.assertRaisesRegex(ProtocolError, 'rewards'):
+            mj.validate_receipt_state(changed)
+
+    def test_b_continue_compares_accepted_codec_before_travel(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            record, producer, slots = self.fixture(root)
+            boundary = restarting.accepted_midgame_boundary(record, root)
+            (root / 'starting-save.json').write_text(json.dumps(dict(record, accepted_boundary=boundary)))
+            driver = mj.MidgameJourney(NoRuntime(), '/unused', self.scenario()['processes'][0]['journey'], root)
+            changed = copy.deepcopy(boundary['state']['codec'])
+            changed['inventory'] = {'money': 999}
+            with patch.object(driver, 'dependencies'), patch.object(driver, 'title_continue'), \
+                    patch.object(driver, 'codec_guard', return_value=changed) as guard, \
+                    patch.object(driver, 'quantity', side_effect=AssertionError('rewards inspected before codec equality')):
+                with self.assertRaisesRegex(ProtocolError, 'Continue differs'):
+                    driver.start_earned()
+                guard.assert_called_once_with('loaded')
+            self.assertEqual(driver.completed_steps, set())
+
+    def test_final_b_export_requires_restart_equal_receipts_and_stopped_bytes(self):
+        for mutation in ('none', 'same-pid', 'codec', 'slot'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                record, producer, slots = self.fixture(root)
+                (producer / 'starting-save.json').write_text(json.dumps(record))
+                run = json.loads((producer / 'run.json').read_bytes())
+                state = dict(starter='squirtle', packet='5.5b', content_scope='critical',
+                             codec=b_codec(), completed_steps=sorted(mj.B_STEPS))
+                for index, group in enumerate(run['processes']):
+                    packet = dict(schema=1, kind='midgame-saved', state=copy.deepcopy(state), **NoRuntime.identity)
+                    if mutation == 'codec' and index == 1:
+                        packet['state']['codec']['inventory'] = {'money': 1}
+                    path = producer / group['journey_receipt']['path']
+                    path.write_text(json.dumps(packet))
+                    group['journey_receipt']['sha256'] = hashlib.sha256(path.read_bytes()).hexdigest()
+                if mutation == 'same-pid': run['processes'][1]['pid'] = 1
+                if mutation == 'slot': (slots / 'adventure.b.json').write_bytes(b'changed')
+                (producer / 'run.json').write_text(json.dumps(run))
+                with patch.object(Path, 'home', return_value=root):
+                    if mutation == 'none':
+                        restarting.export_chain_save(self.scenario(), slots, producer, NoRuntime.identity)
+                    else:
+                        with self.assertRaises(ProtocolError):
+                            restarting.export_chain_save(self.scenario(), slots, producer, NoRuntime.identity)
+                chain = root / 'Developer/Pokemon-PlayDate-env/evidence/chain'
+                if mutation == 'none':
+                    self.assertTrue((chain / '5.5b/squirtle/provenance.json').is_file())
+                    self.assertFalse((chain / '5.5a').exists())
+                else:
+                    self.assertFalse(chain.exists())
 
 
 if __name__ == '__main__':

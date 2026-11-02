@@ -95,3 +95,20 @@ Evidence is outside Git at environment `evidence/m55-field-gear-art-data/`,
 no asset acceptance is claimed and no new tests/contracts/baselines were added.
 Root alone runs Simulator, reviews native pixels/motion and hooks FieldGearState.
 No push or delegation.
+
+## Surf avatar integration
+
+Blue `home/overworld.asm:1977` loads `SeelSprite` through the common player
+loader, copying its three standing and three walking frames. The existing
+pinned South `SPRITE_SEEL` record already supplies that exact six-frame strip
+(SHA256 `1ea12350d9e0a66247234446c1f1c320246ec1cefa61a4b7549303e86d2ef3b0`).
+`FieldGearArt.surf(facing, pose)` caches the existing source renderer's images.
+Player selects them for the current or pending Surf mode; movement, session
+publication and the eight-frame step/stride cadence stay with existing owners.
+No source grid, protected image or palette was changed.
+
+Root exported all twelve native pose/facing combinations. Each is pixel-exact
+against the existing Seel source renderer, repeated lookups reuse their image,
+and rules RNG is unchanged. Evidence and comparison sheet:
+`evidence/m55b-surf-avatar-native-20261030-01`. Native movement/landing inspection
+remains part of the earned B run; this export does not claim it.

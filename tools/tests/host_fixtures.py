@@ -1,18 +1,20 @@
 """Shared host inventories; historical preparation is separate from release scope."""
 import json
+import subprocess
 from functools import partial
 from pathlib import Path
 from unittest.mock import patch
 
-from tools.activate_checkpoint_a import ACCEPTED, git_bytes, map_names
+from tools.activate_checkpoint_a import ACCEPTED, git_bytes
+from tools.activate_checkpoint_b import manifest
 from tools import generate_vermilion_preparation as preparation
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def installed_map_names():
-    # map_names validates the accepted 65 + pinned East 43 split and disjointness.
-    return map_names(ROOT)
+    # The explicit release inventory is accepted 108 plus South 41, with Fly parked.
+    return set(manifest(ROOT)["maps"])
 
 
 def accepted_source_json(relative):
@@ -29,3 +31,20 @@ def build_vermilion_preparation(reference):
     pipeline = preparation.proposed_pipeline
     with patch.object(preparation, 'proposed_pipeline', partial(pipeline, manifest=manifest)):
         return preparation.build(reference)
+
+
+def mock_git_revision(project, revision):
+    """Fake only the revision of a disposable Source-only candidate.
+
+    Activation inventories still read pinned JSON through real git, and SDK
+    compilation still uses the real subprocess.run implementation.
+    """
+    check_output = subprocess.check_output
+
+    def output(command, *args, **kwargs):
+        if (command == ['git', 'rev-parse', 'HEAD'] and not args
+                and kwargs == {'cwd': project, 'text': True}):
+            return revision + '\n'
+        return check_output(command, *args, **kwargs)
+
+    return patch.object(subprocess, 'check_output', side_effect=output)

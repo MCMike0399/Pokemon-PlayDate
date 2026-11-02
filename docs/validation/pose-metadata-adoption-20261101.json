@@ -1,0 +1,28 @@
+{
+  "classification": "Reviewed measured pose metadata adopted privately; no B acceptance",
+  "candidate_report": "pose-metadata-candidate-20261101.json",
+  "review": {
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A43328bfc-a098-4979-aa88-515cc0556542",
+    "standards_findings": 0,
+    "spec_findings": 0
+  },
+  "implementation": "Three owned source files only; optional detached standing/fixed projection reads same private record. Public full sprite getters/Pewter second return stay. Descriptor and story callbacks remain; custom resolvers without optional API keep full getter. No empty-marker bypass or new owner/cache.",
+  "source_sha256": {
+    "Source/world/sourceActors.lua": "c4c117fc76dd9c965423fa3b875953ad882379c26153e4a2be0a051cd8c72e79",
+    "Source/data/ceruleanContent.lua": "581e4154302da9e4b98033221d46622081e79ab1fd33b761a2dadc57106e8c45",
+    "Source/data/pewterSlice.lua": "4e99dbe760e3abb23fced0f93a39f4c2bdaa43bd8c2843013773fb0c9e908396"
+  },
+  "measurement": "Route17 actor construction2470->1744ms29.4% qualifies. Whole Route17load9.85% and Fuchsia4.94% do not independently meet10. One paired instrumented run, not repeatability/normal-production proof.",
+  "validation": {
+    "host_input_art_checks_passed": 12,
+    "native_checks_passed": 5,
+    "native_scope": "2existingcontent,1namespace restoration, detachedpose equality/isolation and actualcustommetadata error propagation",
+    "native_failures_retained": "01hostguard;02missingBLUEartpreparation;03ordinaryartprep passes without assertion changes.",
+    "safety_only": "Exact16MiB54.018ms/9165661.184Bpeak admitted; strictlive failure retained",
+    "fresh_sdk_qualification": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/pose-metadata-b149-kanto-sdk-20261101-01",
+    "full_host": "Previous1071pass predates this candidate; freshfullsuite not yet claimed"
+  },
+  "no_new_device_logs": true,
+  "keeper_restored": true,
+  "remaining": "B visualSnorlax/Koga/montage, current metadata freshness and latency gates remain open. No C activation/push."
+}

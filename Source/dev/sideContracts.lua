@@ -24,7 +24,7 @@ function SideContracts.run()
   end
  end)
  test("Unsupported family names and unowned source reject without side allocation or RNG",function()
-  local b=fresh();local before=RulesRNG.snapshot();for _,kind in ipairs({"reflect","mist","auroraVeil",{},false})do eq(pcall(SideConditionEffect,kind),false);eq(b.conditions:setSideCondition(kind),false)end
+  local b=fresh();local before=RulesRNG.snapshot();for _,kind in ipairs({"mist","auroraVeil",{},false})do eq(pcall(SideConditionEffect,kind),false);eq(b.conditions:setSideCondition(kind),false)end
   eq(b.conditions:setSideCondition("tailwind"),false);eq(next(b.conditions.sides.player),nil);same(before)
  end)
  test("Side snapshots foreignmon and pure speed/damage queries are inert",function()

@@ -91,12 +91,15 @@ class FieldMoveDataTests(unittest.TestCase):
         self.assertEqual(self.data['flash_white_frames'],3)
         self.assertTrue(all(len(row)==16 and set(row)<=set('.12#') for row in self.data['tree_grid']))
 
-    def test_battle_extension_does_not_override_core_dispatch(self):
+    def test_battle_extension_registers_only_unique_runtime_hm_dispatch(self):
         lua = self.artifacts['fieldMoveBattleData.lua'].decode()
         self.assertIn('accuracy=95, pp=30',lua)
         self.assertIn('accuracy=100, pp=20',lua)
         self.assertIn('ModifyStat(DEFENDER, "acc", -1)',lua)
-        self.assertNotIn('MoveSupport.handlers.',lua)
+        self.assertEqual(lua.count('MoveSupport.handlers.'), 5)
+        self.assertIn('chargeRule="fly"', lua)
+        for key in ('cut', 'flash', 'fly', 'surf', 'strength'):
+            self.assertIn('MoveSupport.handlers.' + key + ' = ', lua)
         self.assertIn('moveData.cut == nil and moveData.flash == nil',lua)
 
 

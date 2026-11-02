@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from tools.generate_npc_trades import build, OUTPUT, REFERENCE, ROOT
+from tools.check_npc_trade_policy import EXPECTED
 
 
 class NPCTradeDataTests(unittest.TestCase):
@@ -17,7 +18,12 @@ class NPCTradeDataTests(unittest.TestCase):
         self.assertEqual({t['nickname'] for t in trades.values()},
                          {'TERRY', 'MARCEL', 'SAILOR', 'DUX', 'MARC', 'LOLA', 'DORIS', 'CRINKLES', 'SPOT'})
         self.assertEqual(len({t['flag'] for t in trades.values()}), 9)
-        self.assertEqual(len(build()['events']), 4)
+        installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())['maps']
+        expected_events = {
+            f"{installed[map_name]['id']}:objects:{actor}"
+            for _, _, _, _, map_name, actor, _ in EXPECTED if map_name in installed
+        }
+        self.assertEqual(set(build()['events']), expected_events)
         self.assertNotIn('pokered:CERULEAN_TRADE_HOUSE:objects:2', build()['events'])
 
     def test_all_source_dialogue_branches_and_literal_species(self):

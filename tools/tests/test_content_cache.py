@@ -22,15 +22,46 @@ class ContentCacheTests(unittest.TestCase):
         cls.pins = json.loads(generator.PINS.read_bytes())
 
     def decode(self, index, record, field):
-        return {key: json.loads(self.files['chunks/' + digest + '.json'])
+        return {key: json.loads(self.files['chunks-v2/' + digest[:2] + '/' + digest + '.json'])
                 for key, digest in index['records'][record][field].items()}
 
     def test_exact_generated_file_set_and_chunk_checksums(self):
         actual = {str(p.relative_to(CACHE)): p.read_bytes() for p in CACHE.rglob('*.json')}
         self.assertEqual(actual, self.files)
+        digests = set()
         for name, raw in self.files.items():
-            if name.startswith('chunks/'):
-                self.assertEqual(Path(name).stem, hashlib.sha256(raw).hexdigest())
+            if name.startswith('chunks-v2/'):
+                digest = hashlib.sha256(raw).hexdigest()
+                self.assertEqual(name, f'chunks-v2/{digest[:2]}/{digest}.json')
+                self.assertNotIn(digest, digests)
+                digests.add(digest)
+        referenced = set()
+        for name, raw in self.files.items():
+            if name == 'base.json' or (name.startswith('package-') and name.count('-') == 1):
+                for fields in json.loads(raw).get('records', {}).values():
+                    for values in fields.values():
+                        referenced.update(values.values())
+        self.assertEqual(digests, referenced)
+
+    def test_check_rejects_flat_duplicates_without_repairing_them(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            destination = Path(temporary) / 'cache'
+            shutil.copytree(CACHE, destination)
+            chunk = next((destination / 'chunks-v2').glob('*/*.json'))
+            legacy = destination / 'chunks-v2' / chunk.name
+            legacy.write_bytes(chunk.read_bytes())
+            result = subprocess.run([
+                'python3', str(ROOT / 'tools/generate_content_cache.py'),
+                '--check', '--output-dir', str(destination)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('generated content cache differs', result.stderr)
+            self.assertEqual(legacy.read_bytes(), chunk.read_bytes())
+            result = subprocess.run([
+                'python3', str(ROOT / 'tools/generate_content_cache.py'),
+                '--output-dir', str(destination)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('generation requires a fresh output directory', result.stderr)
+            self.assertTrue(legacy.is_file())
 
     def test_every_package_field_round_trips_without_metadata_or_art_loss(self):
         catalog = json.loads(self.files['catalog.json'])
@@ -40,9 +71,17 @@ class ContentCacheTests(unittest.TestCase):
             for record, fields in index['records'].items():
                 original = json.loads((SOURCE / root / (record + '.json')).read_bytes())
                 for field in fields:
-                    self.assertEqual(self.decode(index, record, field), original[field], (root, record, field))
+                    expected = original[field]
+                    if root == 'data/midgameSouth/':
+                        if record in {'events', 'trainers'} and field != 'rival_classes':
+                            expected = {k: v for k, v in expected.items() if not k.startswith('pokered:ROUTE_16_FLY_HOUSE:')}
+                        elif record == 'dialogue':
+                            expected = {k: v for k, v in expected.items() if v.get('source') != 'text/Route16FlyHouse.asm'}
+                    self.assertEqual(self.decode(index, record, field), expected, (root, record, field))
             events = json.loads((SOURCE / root / 'events.json').read_bytes())
             trainers = json.loads((SOURCE / root / 'trainers.json').read_bytes())['trainers']
+            if root == 'data/midgameSouth/':
+                events['events'] = {k: v for k, v in events['events'].items() if not k.startswith('pokered:ROUTE_16_FLY_HOUSE:')}
             expected = {key for key, event in events['events'].items() if event['kind'] == 'trainer'}
             self.assertEqual(set(index['ordinary_trainers']), expected)
             self.assertLessEqual(expected, trainers.keys())
@@ -62,14 +101,15 @@ class ContentCacheTests(unittest.TestCase):
                     for d in original}
         self.assertEqual(self.decode(index, 'trainers', 'trainers'), expected)
 
-    def test_pins_are_exact_starting_revision_inputs_and_map_activation_is_unchanged(self):
+    def test_pins_preserve_accepted_inputs_and_install_only_checkpoint_b(self):
         for path, digest in self.pins['inputs'].items():
-            revision = '93d480b77f3d231c7c806cf57f71c5e064fba3f0' if path.startswith('data/midgameEast/') else 'd858032'
+            revision = '2dd9f3cc' if path.startswith(('data/midgameEast/', 'data/midgameSouth/')) else 'd858032'
             baseline = subprocess.check_output(['git', 'show', revision + ':Source/' + path])
             self.assertEqual(hashlib.sha256(baseline).hexdigest(), digest, path)
         manifest = SOURCE / 'data/sourceMaps.json'
-        self.assertEqual(manifest.read_bytes(), subprocess.check_output(['git', 'show', '93d480b77f3d231c7c806cf57f71c5e064fba3f0:Source/data/sourceMaps.json']))
-        self.assertEqual(len(json.loads(manifest.read_bytes())['maps']), 108)
+        from tools.activate_checkpoint_b import manifest as expected
+        self.assertEqual(json.loads(manifest.read_bytes()), expected())
+        self.assertEqual(len(expected()['maps']), 149)
 
     def test_registered_package_event_and_trainer_membership_stays_disjoint(self):
         base = json.loads(self.files['base.json'])
@@ -140,7 +180,7 @@ class ContentCacheTests(unittest.TestCase):
             self.assertIn(new_root, catalog['packages'])
             self.assertNotIn(new_root, self.pins['packages'])
             for name, raw in self.files.items():
-                if name.startswith('chunks/'):
+                if name.startswith('chunks-v2/'):
                     self.assertEqual(files[name], raw)
 
     def test_conflicting_immutable_package_records_fail_even_with_updated_input_pin(self):

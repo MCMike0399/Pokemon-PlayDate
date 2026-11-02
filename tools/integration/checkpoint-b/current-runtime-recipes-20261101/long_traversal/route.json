@@ -1,0 +1,2147 @@
+{
+  "schema": 1,
+  "mode": "root-operated ordinary DS1 only",
+  "target": {
+    "actual_doors": 110,
+    "distinct_maps": 30,
+    "actual_battle_starts": 20
+  },
+  "visit_order": [
+    "FuchsiaPokecenter",
+    "FuchsiaCity",
+    "FuchsiaMart",
+    "FuchsiaBillsGrandpasHouse",
+    "WardensHouse",
+    "FuchsiaGym",
+    "FuchsiaMeetingRoom",
+    "FuchsiaGoodRodHouse",
+    "Route15",
+    "Route15Gate1F",
+    "Route15Gate2F",
+    "Route14",
+    "Route13",
+    "Route12",
+    "Route12SuperRodHouse",
+    "Route12Gate1F",
+    "Route12Gate2F",
+    "LavenderTown",
+    "LavenderPokecenter",
+    "LavenderMart",
+    "LavenderCuboneHouse",
+    "MrFujisHouse",
+    "NameRatersHouse",
+    "PokemonTower1F",
+    "PokemonTower2F",
+    "PokemonTower3F",
+    "PokemonTower4F",
+    "PokemonTower5F",
+    "PokemonTower6F",
+    "PokemonTower7F"
+  ],
+  "maps": {
+    "FuchsiaPokecenter": {
+      "id": "pokered:FUCHSIA_POKECENTER",
+      "path": "data/midgameSouth/FuchsiaPokecenter.json",
+      "sha256": "27777045f1265b39dad9b8fc57cbd8c79a8f1e33481491bd238a167cc9d5b5a4",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:FUCHSIA_POKECENTER:warps:1",
+          "source_index": 1,
+          "source_line": 11,
+          "x": 3,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:FUCHSIA_POKECENTER:warps:2",
+          "source_index": 2,
+          "source_line": 12,
+          "x": 4,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_POKECENTER:objects:1",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "pokered:FUCHSIA_POKECENTER:objects:2",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "pokered:FUCHSIA_POKECENTER:objects:3",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "id": "pokered:FUCHSIA_POKECENTER:objects:4",
+          "x": 11,
+          "y": 2
+        }
+      ]
+    },
+    "FuchsiaCity": {
+      "id": "pokered:FUCHSIA_CITY",
+      "path": "data/midgameSouth/FuchsiaCity.json",
+      "sha256": "95bef1e9bb43460bdbc8579bc7c119c71ac5f8edc1ed9c8d53b1457494ca8475",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_MART",
+            "map_id": 152,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:1",
+          "source_index": 1,
+          "source_line": 17,
+          "x": 5,
+          "y": 13
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_BILLS_GRANDPAS_HOUSE",
+            "map_id": 153,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:2",
+          "source_index": 2,
+          "source_line": 18,
+          "x": 11,
+          "y": 27
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_POKECENTER",
+            "map_id": 154,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:3",
+          "source_index": 3,
+          "source_line": 19,
+          "x": 19,
+          "y": 27
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "WARDENS_HOUSE",
+            "map_id": 155,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:4",
+          "source_index": 4,
+          "source_line": 20,
+          "x": 27,
+          "y": 27
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "SAFARI_ZONE_GATE",
+            "map_id": 156,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:5",
+          "source_index": 5,
+          "source_line": 21,
+          "x": 18,
+          "y": 3
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_GYM",
+            "map_id": 157,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:6",
+          "source_index": 6,
+          "source_line": 22,
+          "x": 5,
+          "y": 27
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_MEETING_ROOM",
+            "map_id": 158,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:7",
+          "source_index": 7,
+          "source_line": 23,
+          "x": 22,
+          "y": 13
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_GOOD_ROD_HOUSE",
+            "map_id": 164,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:8",
+          "source_index": 8,
+          "source_line": 24,
+          "x": 31,
+          "y": 27
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "FUCHSIA_GOOD_ROD_HOUSE",
+            "map_id": 164,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_CITY:warps:9",
+          "source_index": 9,
+          "source_line": 25,
+          "x": 31,
+          "y": 24
+        }
+      ],
+      "connections": [
+        {
+          "direction": "south",
+          "entry_lateral_adjustment_cells": -10,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 5,
+          "target_header": "Route19",
+          "target_map": "ROUTE_19"
+        },
+        {
+          "direction": "west",
+          "entry_lateral_adjustment_cells": -8,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 4,
+          "target_header": "Route18",
+          "target_map": "ROUTE_18"
+        },
+        {
+          "direction": "east",
+          "entry_lateral_adjustment_cells": -8,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 4,
+          "target_header": "Route15",
+          "target_map": "ROUTE_15"
+        }
+      ],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:1",
+          "x": 10,
+          "y": 12
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:2",
+          "x": 28,
+          "y": 17
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:3",
+          "x": 30,
+          "y": 14
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:4",
+          "x": 24,
+          "y": 8
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:5",
+          "x": 31,
+          "y": 5
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:6",
+          "x": 25,
+          "y": 6
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:7",
+          "x": 12,
+          "y": 6
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:8",
+          "x": 30,
+          "y": 12
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:9",
+          "x": 8,
+          "y": 17
+        },
+        {
+          "id": "pokered:FUCHSIA_CITY:objects:10",
+          "x": 6,
+          "y": 5
+        }
+      ]
+    },
+    "FuchsiaMart": {
+      "id": "pokered:FUCHSIA_MART",
+      "path": "data/midgameSouth/FuchsiaMart.json",
+      "sha256": "ea28e6d808daa6c609fbca5b9e54a73f4d7a682a3be0511a9ab0013a1bd0f4f4",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_MART:warps:1",
+          "source_index": 1,
+          "source_line": 10,
+          "x": 3,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:FUCHSIA_MART:warps:2",
+          "source_index": 2,
+          "source_line": 11,
+          "x": 4,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_MART:objects:1",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "pokered:FUCHSIA_MART:objects:2",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "pokered:FUCHSIA_MART:objects:3",
+          "x": 6,
+          "y": 5
+        }
+      ]
+    },
+    "FuchsiaBillsGrandpasHouse": {
+      "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE",
+      "path": "data/midgameSouth/FuchsiaBillsGrandpasHouse.json",
+      "sha256": "6dcbe6653d06292c4d126b9c6178a2b0fa6c96de5031d7ddb9a978cbb98cc1fc",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 10,
+          "x": 2,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 11,
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE:objects:1",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE:objects:2",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "pokered:FUCHSIA_BILLS_GRANDPAS_HOUSE:objects:3",
+          "x": 5,
+          "y": 5
+        }
+      ]
+    },
+    "WardensHouse": {
+      "id": "pokered:WARDENS_HOUSE",
+      "path": "data/midgameSouth/WardensHouse.json",
+      "sha256": "0d4a32116a078e14cc72a1d9832e6fe61226f7d23320213ce87f84d0680e9b52",
+      "padding": 1,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:WARDENS_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 10,
+          "x": 4,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:WARDENS_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 11,
+          "x": 5,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:WARDENS_HOUSE:objects:1",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "pokered:WARDENS_HOUSE:objects:2",
+          "x": 8,
+          "y": 3
+        },
+        {
+          "id": "pokered:WARDENS_HOUSE:objects:3",
+          "x": 8,
+          "y": 4
+        }
+      ]
+    },
+    "FuchsiaGym": {
+      "id": "pokered:FUCHSIA_GYM",
+      "path": "data/midgameSouth/FuchsiaGym.json",
+      "sha256": "0687e6a1960b8660c5b395a6af1a21d08947fec285f146990eb7997055b495d4",
+      "padding": 1,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 6
+          },
+          "id": "pokered:FUCHSIA_GYM:warps:1",
+          "source_index": 1,
+          "source_line": 15,
+          "x": 4,
+          "y": 17
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 6
+          },
+          "id": "pokered:FUCHSIA_GYM:warps:2",
+          "source_index": 2,
+          "source_line": 16,
+          "x": 5,
+          "y": 17
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:1",
+          "x": 4,
+          "y": 10
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:2",
+          "x": 8,
+          "y": 13
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:3",
+          "x": 7,
+          "y": 8
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:4",
+          "x": 1,
+          "y": 12
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:5",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:6",
+          "x": 8,
+          "y": 2
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:7",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "pokered:FUCHSIA_GYM:objects:8",
+          "x": 7,
+          "y": 15
+        }
+      ]
+    },
+    "FuchsiaMeetingRoom": {
+      "id": "pokered:FUCHSIA_MEETING_ROOM",
+      "path": "data/midgameSouth/FuchsiaMeetingRoom.json",
+      "sha256": "121f7114ca813a498c3f21e3b55124c63f6391a200b1e8fd4464b326dce9221c",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 7
+          },
+          "id": "pokered:FUCHSIA_MEETING_ROOM:warps:1",
+          "source_index": 1,
+          "source_line": 10,
+          "x": 4,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 7
+          },
+          "id": "pokered:FUCHSIA_MEETING_ROOM:warps:2",
+          "source_index": 2,
+          "source_line": 11,
+          "x": 5,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_MEETING_ROOM:objects:1",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "pokered:FUCHSIA_MEETING_ROOM:objects:2",
+          "x": 0,
+          "y": 2
+        },
+        {
+          "id": "pokered:FUCHSIA_MEETING_ROOM:objects:3",
+          "x": 10,
+          "y": 1
+        }
+      ]
+    },
+    "FuchsiaGoodRodHouse": {
+      "id": "pokered:FUCHSIA_GOOD_ROD_HOUSE",
+      "path": "data/midgameSouth/FuchsiaGoodRodHouse.json",
+      "sha256": "4e21e2618f31703fe87082bcbc7f287e36064f7ede94de05c2ec6ee63e4157cc",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 9
+          },
+          "id": "pokered:FUCHSIA_GOOD_ROD_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 2,
+          "y": 0
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 8
+          },
+          "id": "pokered:FUCHSIA_GOOD_ROD_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 9,
+          "x": 2,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 8
+          },
+          "id": "pokered:FUCHSIA_GOOD_ROD_HOUSE:warps:3",
+          "source_index": 3,
+          "source_line": 10,
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:FUCHSIA_GOOD_ROD_HOUSE:objects:1",
+          "x": 5,
+          "y": 3
+        }
+      ]
+    },
+    "Route15": {
+      "id": "pokered:ROUTE_15",
+      "path": "data/midgameSouth/Route15.json",
+      "sha256": "afb4a6d2b5ff452eb362435f5859205cd8fa92d75d76b0386e6a971f307002a4",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_15_GATE_1F",
+            "map_id": 184,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_15:warps:1",
+          "source_index": 1,
+          "source_line": 18,
+          "x": 7,
+          "y": 8
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_15_GATE_1F",
+            "map_id": 184,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:ROUTE_15:warps:2",
+          "source_index": 2,
+          "source_line": 19,
+          "x": 7,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_15_GATE_1F",
+            "map_id": 184,
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:ROUTE_15:warps:3",
+          "source_index": 3,
+          "source_line": 20,
+          "x": 14,
+          "y": 8
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_15_GATE_1F",
+            "map_id": 184,
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:ROUTE_15:warps:4",
+          "source_index": 4,
+          "source_line": 21,
+          "x": 14,
+          "y": 9
+        }
+      ],
+      "connections": [
+        {
+          "direction": "west",
+          "entry_lateral_adjustment_cells": 8,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": -4,
+          "target_header": "FuchsiaCity",
+          "target_map": "FUCHSIA_CITY"
+        },
+        {
+          "direction": "east",
+          "entry_lateral_adjustment_cells": 36,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": -18,
+          "target_header": "Route14",
+          "target_map": "ROUTE_14"
+        }
+      ],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_15:objects:1",
+          "x": 41,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:2",
+          "x": 53,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:3",
+          "x": 31,
+          "y": 13
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:4",
+          "x": 35,
+          "y": 13
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:5",
+          "x": 53,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:6",
+          "x": 41,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:7",
+          "x": 48,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:8",
+          "x": 46,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:9",
+          "x": 37,
+          "y": 5
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:10",
+          "x": 18,
+          "y": 13
+        },
+        {
+          "id": "pokered:ROUTE_15:objects:11",
+          "x": 18,
+          "y": 5
+        }
+      ]
+    },
+    "Route15Gate1F": {
+      "id": "pokered:ROUTE_15_GATE_1F",
+      "path": "data/midgameSouth/Route15Gate1F.json",
+      "sha256": "bed16b9479882e045a3ef9a959093a7f1ed1f9cf3b5d6bf5b0b6560756a2990d",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_15_GATE_1F:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 0,
+          "y": 4
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:ROUTE_15_GATE_1F:warps:2",
+          "source_index": 2,
+          "source_line": 9,
+          "x": 0,
+          "y": 5
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:ROUTE_15_GATE_1F:warps:3",
+          "source_index": 3,
+          "source_line": 10,
+          "x": 7,
+          "y": 4
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:ROUTE_15_GATE_1F:warps:4",
+          "source_index": 4,
+          "source_line": 11,
+          "x": 7,
+          "y": 5
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_15_GATE_2F",
+            "map_id": 185,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_15_GATE_1F:warps:5",
+          "source_index": 5,
+          "source_line": 12,
+          "x": 6,
+          "y": 8
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_15_GATE_1F:objects:1",
+          "x": 4,
+          "y": 1
+        }
+      ]
+    },
+    "Route15Gate2F": {
+      "id": "pokered:ROUTE_15_GATE_2F",
+      "path": "data/midgameSouth/Route15Gate2F.json",
+      "sha256": "aea6d099ce2d2996f501b72d1ec5b04177be741c75052edcdf4cf44660003cd1",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_15_GATE_1F",
+            "map_id": 184,
+            "resolved": false,
+            "warp_index": 5
+          },
+          "id": "pokered:ROUTE_15_GATE_2F:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_15_GATE_2F:objects:1",
+          "x": 4,
+          "y": 2
+        }
+      ]
+    },
+    "Route14": {
+      "id": "pokered:ROUTE_14",
+      "path": "data/midgameSouth/Route14.json",
+      "sha256": "070a025183a5ae97090e1e1fef80efb2cdd7910efcb27f550e505ad7b00342ad",
+      "padding": 0,
+      "warps": [],
+      "connections": [
+        {
+          "direction": "west",
+          "entry_lateral_adjustment_cells": -36,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 18,
+          "target_header": "Route15",
+          "target_map": "ROUTE_15"
+        },
+        {
+          "direction": "east",
+          "entry_lateral_adjustment_cells": 0,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 0,
+          "target_header": "Route13",
+          "target_map": "ROUTE_13"
+        }
+      ],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_14:objects:1",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:2",
+          "x": 15,
+          "y": 6
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:3",
+          "x": 12,
+          "y": 11
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:4",
+          "x": 14,
+          "y": 15
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:5",
+          "x": 15,
+          "y": 31
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:6",
+          "x": 6,
+          "y": 49
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:7",
+          "x": 5,
+          "y": 39
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:8",
+          "x": 4,
+          "y": 30
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:9",
+          "x": 15,
+          "y": 30
+        },
+        {
+          "id": "pokered:ROUTE_14:objects:10",
+          "x": 4,
+          "y": 31
+        }
+      ]
+    },
+    "Route13": {
+      "id": "pokered:ROUTE_13",
+      "path": "data/midgameSouth/Route13.json",
+      "sha256": "5951f300fed4bfd2480a1a3244ce2fd586c9f4a2317888fa8a2c5baa704ad2a7",
+      "padding": 0,
+      "warps": [],
+      "connections": [
+        {
+          "direction": "north",
+          "entry_lateral_adjustment_cells": -40,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 20,
+          "target_header": "Route12",
+          "target_map": "ROUTE_12"
+        },
+        {
+          "direction": "west",
+          "entry_lateral_adjustment_cells": 0,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 0,
+          "target_header": "Route14",
+          "target_map": "ROUTE_14"
+        }
+      ],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_13:objects:1",
+          "x": 49,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:2",
+          "x": 48,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:3",
+          "x": 27,
+          "y": 9
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:4",
+          "x": 23,
+          "y": 10
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:5",
+          "x": 50,
+          "y": 5
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:6",
+          "x": 12,
+          "y": 4
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:7",
+          "x": 33,
+          "y": 6
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:8",
+          "x": 32,
+          "y": 6
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:9",
+          "x": 10,
+          "y": 7
+        },
+        {
+          "id": "pokered:ROUTE_13:objects:10",
+          "x": 7,
+          "y": 13
+        }
+      ]
+    },
+    "Route12": {
+      "id": "pokered:ROUTE_12",
+      "path": "data/midgameSouth/Route12.json",
+      "sha256": "fd8afc0e2937f02497b7656d64fa9ed757d2aae81b2927e537a4f914851d924d",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_12_GATE_1F",
+            "map_id": 87,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_12:warps:1",
+          "source_index": 1,
+          "source_line": 17,
+          "x": 10,
+          "y": 15
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_12_GATE_1F",
+            "map_id": 87,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:ROUTE_12:warps:2",
+          "source_index": 2,
+          "source_line": 18,
+          "x": 11,
+          "y": 15
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_12_GATE_1F",
+            "map_id": 87,
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:ROUTE_12:warps:3",
+          "source_index": 3,
+          "source_line": 19,
+          "x": 10,
+          "y": 21
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_12_SUPER_ROD_HOUSE",
+            "map_id": 189,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_12:warps:4",
+          "source_index": 4,
+          "source_line": 20,
+          "x": 11,
+          "y": 77
+        }
+      ],
+      "connections": [
+        {
+          "direction": "north",
+          "entry_lateral_adjustment_cells": 0,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 0,
+          "target_header": "LavenderTown",
+          "target_map": "LAVENDER_TOWN"
+        },
+        {
+          "direction": "south",
+          "entry_lateral_adjustment_cells": 40,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": -20,
+          "target_header": "Route13",
+          "target_map": "ROUTE_13"
+        },
+        {
+          "direction": "west",
+          "entry_lateral_adjustment_cells": -54,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 27,
+          "target_header": "Route11",
+          "target_map": "ROUTE_11"
+        }
+      ],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_12:objects:1",
+          "x": 10,
+          "y": 62
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:2",
+          "x": 14,
+          "y": 31
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:3",
+          "x": 5,
+          "y": 39
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:4",
+          "x": 11,
+          "y": 92
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:5",
+          "x": 14,
+          "y": 76
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:6",
+          "x": 12,
+          "y": 40
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:7",
+          "x": 9,
+          "y": 52
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:8",
+          "x": 6,
+          "y": 87
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:9",
+          "x": 14,
+          "y": 35
+        },
+        {
+          "id": "pokered:ROUTE_12:objects:10",
+          "x": 5,
+          "y": 89
+        }
+      ]
+    },
+    "Route12SuperRodHouse": {
+      "id": "pokered:ROUTE_12_SUPER_ROD_HOUSE",
+      "path": "data/midgameSouth/Route12SuperRodHouse.json",
+      "sha256": "21b9721a73c6e4ef665d66ec0db09a9da1a6d93f51a52254fcb86a6696c036d5",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:ROUTE_12_SUPER_ROD_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 2,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:ROUTE_12_SUPER_ROD_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 9,
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_12_SUPER_ROD_HOUSE:objects:1",
+          "x": 2,
+          "y": 4
+        }
+      ]
+    },
+    "Route12Gate1F": {
+      "id": "pokered:ROUTE_12_GATE_1F",
+      "path": "data/midgameSouth/Route12Gate1F.json",
+      "sha256": "4d7f803d17b0f832ae3192881bdbb4c64360b1f28891a950f12850ff3ffe99be",
+      "padding": 1,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_12_GATE_1F:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 4,
+          "y": 0
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:ROUTE_12_GATE_1F:warps:2",
+          "source_index": 2,
+          "source_line": 9,
+          "x": 5,
+          "y": 0
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:ROUTE_12_GATE_1F:warps:3",
+          "source_index": 3,
+          "source_line": 10,
+          "x": 4,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:ROUTE_12_GATE_1F:warps:4",
+          "source_index": 4,
+          "source_line": 11,
+          "x": 5,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_12_GATE_2F",
+            "map_id": 195,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:ROUTE_12_GATE_1F:warps:5",
+          "source_index": 5,
+          "source_line": 12,
+          "x": 8,
+          "y": 6
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_12_GATE_1F:objects:1",
+          "x": 1,
+          "y": 3
+        }
+      ]
+    },
+    "Route12Gate2F": {
+      "id": "pokered:ROUTE_12_GATE_2F",
+      "path": "data/midgameSouth/Route12Gate2F.json",
+      "sha256": "bb1e518e2a8f8c9f83412eebdaf491e849a4dfa2c6ad2857f685446287f8a916",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "ROUTE_12_GATE_1F",
+            "map_id": 87,
+            "resolved": false,
+            "warp_index": 5
+          },
+          "id": "pokered:ROUTE_12_GATE_2F:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:ROUTE_12_GATE_2F:objects:1",
+          "x": 3,
+          "y": 4
+        }
+      ]
+    },
+    "LavenderTown": {
+      "id": "pokered:LAVENDER_TOWN",
+      "path": "data/midgameEast/LavenderTown.json",
+      "sha256": "f4de18d9c73e4923f6eb68f967d73c2e4df4f3ff4d4c4af5bff53bcf0dea6510",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "LAVENDER_POKECENTER",
+            "map_id": 141,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_TOWN:warps:1",
+          "source_index": 1,
+          "source_line": 10,
+          "x": 3,
+          "y": 5
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_1F",
+            "map_id": 142,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_TOWN:warps:2",
+          "source_index": 2,
+          "source_line": 11,
+          "x": 14,
+          "y": 5
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "MR_FUJIS_HOUSE",
+            "map_id": 149,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_TOWN:warps:3",
+          "source_index": 3,
+          "source_line": 12,
+          "x": 7,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "LAVENDER_MART",
+            "map_id": 150,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_TOWN:warps:4",
+          "source_index": 4,
+          "source_line": 13,
+          "x": 15,
+          "y": 13
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "LAVENDER_CUBONE_HOUSE",
+            "map_id": 151,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_TOWN:warps:5",
+          "source_index": 5,
+          "source_line": 14,
+          "x": 3,
+          "y": 13
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "NAME_RATERS_HOUSE",
+            "map_id": 229,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_TOWN:warps:6",
+          "source_index": 6,
+          "source_line": 15,
+          "x": 7,
+          "y": 13
+        }
+      ],
+      "connections": [
+        {
+          "direction": "north",
+          "entry_lateral_adjustment_cells": 0,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 0,
+          "target_header": "Route10",
+          "target_map": "ROUTE_10"
+        },
+        {
+          "direction": "south",
+          "entry_lateral_adjustment_cells": 0,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 0,
+          "target_header": "Route12",
+          "target_map": "ROUTE_12"
+        },
+        {
+          "direction": "west",
+          "entry_lateral_adjustment_cells": 0,
+          "interpretation": "source macro entry adjustment; runtime traversal unresolved",
+          "offset_blocks": 0,
+          "target_header": "Route8",
+          "target_map": "ROUTE_8"
+        }
+      ],
+      "objects": [
+        {
+          "id": "pokered:LAVENDER_TOWN:objects:1",
+          "x": 15,
+          "y": 9
+        },
+        {
+          "id": "pokered:LAVENDER_TOWN:objects:2",
+          "x": 9,
+          "y": 10
+        },
+        {
+          "id": "pokered:LAVENDER_TOWN:objects:3",
+          "x": 8,
+          "y": 7
+        }
+      ]
+    },
+    "LavenderPokecenter": {
+      "id": "pokered:LAVENDER_POKECENTER",
+      "path": "data/midgameEast/LavenderPokecenter.json",
+      "sha256": "0f605456623278396f3dccf70f51cc0343f0619394f8eb2c844644fc1bbb545b",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_POKECENTER:warps:1",
+          "source_index": 1,
+          "source_line": 11,
+          "x": 3,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:LAVENDER_POKECENTER:warps:2",
+          "source_index": 2,
+          "source_line": 12,
+          "x": 4,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:LAVENDER_POKECENTER:objects:1",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "pokered:LAVENDER_POKECENTER:objects:2",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "pokered:LAVENDER_POKECENTER:objects:3",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "pokered:LAVENDER_POKECENTER:objects:4",
+          "x": 11,
+          "y": 2
+        }
+      ]
+    },
+    "LavenderMart": {
+      "id": "pokered:LAVENDER_MART",
+      "path": "data/midgameEast/LavenderMart.json",
+      "sha256": "8ef7556a37e8823c32fbdd5f646d08bce04f09989ed2ab01ce05c087b684cb25",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:LAVENDER_MART:warps:1",
+          "source_index": 1,
+          "source_line": 10,
+          "x": 3,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 4
+          },
+          "id": "pokered:LAVENDER_MART:warps:2",
+          "source_index": 2,
+          "source_line": 11,
+          "x": 4,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:LAVENDER_MART:objects:1",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "pokered:LAVENDER_MART:objects:2",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "pokered:LAVENDER_MART:objects:3",
+          "x": 7,
+          "y": 2
+        }
+      ]
+    },
+    "LavenderCuboneHouse": {
+      "id": "pokered:LAVENDER_CUBONE_HOUSE",
+      "path": "data/midgameEast/LavenderCuboneHouse.json",
+      "sha256": "a70e44f917081e367d2e24822b749efa8f3240f370287af57d8b330e2b317e27",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 5
+          },
+          "id": "pokered:LAVENDER_CUBONE_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 9,
+          "x": 2,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 5
+          },
+          "id": "pokered:LAVENDER_CUBONE_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 10,
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:LAVENDER_CUBONE_HOUSE:objects:1",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "pokered:LAVENDER_CUBONE_HOUSE:objects:2",
+          "x": 2,
+          "y": 4
+        }
+      ]
+    },
+    "MrFujisHouse": {
+      "id": "pokered:MR_FUJIS_HOUSE",
+      "path": "data/midgameEast/MrFujisHouse.json",
+      "sha256": "8a18b9a2d617b06221ca9b1bdb0dfd652c97710405ebdfb51462fbe76abad3cd",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:MR_FUJIS_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 13,
+          "x": 2,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:MR_FUJIS_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 14,
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:MR_FUJIS_HOUSE:objects:1",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "pokered:MR_FUJIS_HOUSE:objects:2",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "pokered:MR_FUJIS_HOUSE:objects:3",
+          "x": 6,
+          "y": 4
+        },
+        {
+          "id": "pokered:MR_FUJIS_HOUSE:objects:4",
+          "x": 1,
+          "y": 3
+        },
+        {
+          "id": "pokered:MR_FUJIS_HOUSE:objects:5",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "pokered:MR_FUJIS_HOUSE:objects:6",
+          "x": 3,
+          "y": 3
+        }
+      ]
+    },
+    "NameRatersHouse": {
+      "id": "pokered:NAME_RATERS_HOUSE",
+      "path": "data/midgameEast/NameRatersHouse.json",
+      "sha256": "86586f6133523946bc877871247b99bfa8f9928562120853633cf9a803586a43",
+      "padding": 2,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 6
+          },
+          "id": "pokered:NAME_RATERS_HOUSE:warps:1",
+          "source_index": 1,
+          "source_line": 8,
+          "x": 2,
+          "y": 7
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 6
+          },
+          "id": "pokered:NAME_RATERS_HOUSE:warps:2",
+          "source_index": 2,
+          "source_line": 9,
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:NAME_RATERS_HOUSE:objects:1",
+          "x": 5,
+          "y": 3
+        }
+      ]
+    },
+    "PokemonTower1F": {
+      "id": "pokered:POKEMON_TOWER_1F",
+      "path": "data/midgameSouth/PokemonTower1F.json",
+      "sha256": "08d0d6cd4c0988d430d214d6cc60c7259ddf9e08887f59fe738cf030409a2846",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_1F:warps:1",
+          "source_index": 1,
+          "source_line": 12,
+          "x": 10,
+          "y": 17
+        },
+        {
+          "destination": {
+            "kind": "last_outdoor_map",
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_1F:warps:2",
+          "source_index": 2,
+          "source_line": 13,
+          "x": 11,
+          "y": 17
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_2F",
+            "map_id": 143,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_1F:warps:3",
+          "source_index": 3,
+          "source_line": 14,
+          "x": 18,
+          "y": 9
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_1F:objects:1",
+          "x": 15,
+          "y": 13
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_1F:objects:2",
+          "x": 6,
+          "y": 8
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_1F:objects:3",
+          "x": 8,
+          "y": 12
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_1F:objects:4",
+          "x": 13,
+          "y": 7
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_1F:objects:5",
+          "x": 17,
+          "y": 7
+        }
+      ]
+    },
+    "PokemonTower2F": {
+      "id": "pokered:POKEMON_TOWER_2F",
+      "path": "data/midgameSouth/PokemonTower2F.json",
+      "sha256": "4da472a8f751bd8978b97d79eb2f528b94187650bce2ba3b843f530da84a89f2",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_3F",
+            "map_id": 144,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:POKEMON_TOWER_2F:warps:1",
+          "source_index": 1,
+          "source_line": 9,
+          "x": 3,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_1F",
+            "map_id": 142,
+            "resolved": false,
+            "warp_index": 3
+          },
+          "id": "pokered:POKEMON_TOWER_2F:warps:2",
+          "source_index": 2,
+          "source_line": 10,
+          "x": 18,
+          "y": 9
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_2F:objects:1",
+          "x": 14,
+          "y": 5
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_2F:objects:2",
+          "x": 3,
+          "y": 7
+        }
+      ]
+    },
+    "PokemonTower3F": {
+      "id": "pokered:POKEMON_TOWER_3F",
+      "path": "data/midgameSouth/PokemonTower3F.json",
+      "sha256": "7f40ff7bf5bdbfacba9ad8e257e01786b0afe046e8ba5dffda3a3b7d5d49dda7",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_2F",
+            "map_id": 143,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:POKEMON_TOWER_3F:warps:1",
+          "source_index": 1,
+          "source_line": 11,
+          "x": 3,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_4F",
+            "map_id": 145,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_3F:warps:2",
+          "source_index": 2,
+          "source_line": 12,
+          "x": 18,
+          "y": 9
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_3F:objects:1",
+          "x": 12,
+          "y": 3
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_3F:objects:2",
+          "x": 9,
+          "y": 8
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_3F:objects:3",
+          "x": 10,
+          "y": 13
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_3F:objects:4",
+          "x": 12,
+          "y": 1
+        }
+      ]
+    },
+    "PokemonTower4F": {
+      "id": "pokered:POKEMON_TOWER_4F",
+      "path": "data/midgameSouth/PokemonTower4F.json",
+      "sha256": "3ebd73824f05fe392b07eb8c9d737b64ff9654e60df5690bdc5fc8fef06bf19d",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_5F",
+            "map_id": 146,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:POKEMON_TOWER_4F:warps:1",
+          "source_index": 1,
+          "source_line": 13,
+          "x": 3,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_3F",
+            "map_id": 144,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_4F:warps:2",
+          "source_index": 2,
+          "source_line": 14,
+          "x": 18,
+          "y": 9
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_4F:objects:1",
+          "x": 5,
+          "y": 10
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_4F:objects:2",
+          "x": 15,
+          "y": 7
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_4F:objects:3",
+          "x": 14,
+          "y": 12
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_4F:objects:4",
+          "x": 12,
+          "y": 10
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_4F:objects:5",
+          "x": 9,
+          "y": 10
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_4F:objects:6",
+          "x": 12,
+          "y": 16
+        }
+      ]
+    },
+    "PokemonTower5F": {
+      "id": "pokered:POKEMON_TOWER_5F",
+      "path": "data/midgameSouth/PokemonTower5F.json",
+      "sha256": "32a2295f0b1795119a0cffe7dfe092396150756540bce7500421c2bef7ac106f",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_4F",
+            "map_id": 145,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:POKEMON_TOWER_5F:warps:1",
+          "source_index": 1,
+          "source_line": 13,
+          "x": 3,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_6F",
+            "map_id": 147,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:POKEMON_TOWER_5F:warps:2",
+          "source_index": 2,
+          "source_line": 14,
+          "x": 18,
+          "y": 9
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_5F:objects:1",
+          "x": 12,
+          "y": 8
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_5F:objects:2",
+          "x": 17,
+          "y": 7
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_5F:objects:3",
+          "x": 14,
+          "y": 3
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_5F:objects:4",
+          "x": 6,
+          "y": 10
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_5F:objects:5",
+          "x": 9,
+          "y": 16
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_5F:objects:6",
+          "x": 6,
+          "y": 14
+        }
+      ]
+    },
+    "PokemonTower6F": {
+      "id": "pokered:POKEMON_TOWER_6F",
+      "path": "data/midgameSouth/PokemonTower6F.json",
+      "sha256": "70f1fe7fd2697584e7ed62b10435cc99b74e9492ac78e37c5604135c6defdb67",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_5F",
+            "map_id": 146,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_6F:warps:1",
+          "source_index": 1,
+          "source_line": 12,
+          "x": 18,
+          "y": 9
+        },
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_7F",
+            "map_id": 148,
+            "resolved": false,
+            "warp_index": 1
+          },
+          "id": "pokered:POKEMON_TOWER_6F:warps:2",
+          "source_index": 2,
+          "source_line": 13,
+          "x": 9,
+          "y": 16
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_6F:objects:1",
+          "x": 12,
+          "y": 10
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_6F:objects:2",
+          "x": 9,
+          "y": 5
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_6F:objects:3",
+          "x": 16,
+          "y": 5
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_6F:objects:4",
+          "x": 6,
+          "y": 8
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_6F:objects:5",
+          "x": 14,
+          "y": 14
+        }
+      ]
+    },
+    "PokemonTower7F": {
+      "id": "pokered:POKEMON_TOWER_7F",
+      "path": "data/midgameSouth/PokemonTower7F.json",
+      "sha256": "65c6dbe12c5de3ac8a716654929cfac90ab032157273c44df2fc70b142664ac5",
+      "padding": 0,
+      "warps": [
+        {
+          "destination": {
+            "kind": "map",
+            "map": "POKEMON_TOWER_6F",
+            "map_id": 147,
+            "resolved": false,
+            "warp_index": 2
+          },
+          "id": "pokered:POKEMON_TOWER_7F:warps:1",
+          "source_index": 1,
+          "source_line": 11,
+          "x": 9,
+          "y": 16
+        }
+      ],
+      "connections": [],
+      "objects": [
+        {
+          "id": "pokered:POKEMON_TOWER_7F:objects:1",
+          "x": 9,
+          "y": 11
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_7F:objects:2",
+          "x": 12,
+          "y": 9
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_7F:objects:3",
+          "x": 9,
+          "y": 7
+        },
+        {
+          "id": "pokered:POKEMON_TOWER_7F:objects:4",
+          "x": 10,
+          "y": 3
+        }
+      ]
+    }
+  }
+}

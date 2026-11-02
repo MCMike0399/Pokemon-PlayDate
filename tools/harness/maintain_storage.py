@@ -19,8 +19,6 @@ import time
 if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.harness.cleanup_evidence import inventory, metadata_files, read_json
-from tools.harness.share_archives import share_closed_traces
-from tools.harness.compress_archives import compress_closed_traces
 
 PROJECT = Path(__file__).resolve().parents[2]
 GIB = 1024 ** 3
@@ -200,25 +198,19 @@ def plan(project, root, refs, age_hours):
         if name not in eligible:
             keep[name].add('unclassified archive')
 
-    archive_names = set(paths)
-    non_token_names = [name for name in paths if not re.fullmatch(r'[\w.-]+', name)]
-
     def protect(value, reason, base=project):
         for text in strings(value):
-            matches = set(re.findall(r'[\w.-]+', text)) & archive_names
-            matches.update(name for name in non_token_names if name in text)
+            matches = set(re.findall(r'[\w.-]+', text)) & paths.keys()
+            matches.update(name for name in paths
+                           if not re.fullmatch(r'[\w.-]+', name) and name in text)
             for token in re.findall(r'evidence/([^\s`"\'\)]+)', text):
                 component = re.sub(r'<[^>]+>', '*', token.split('/')[0].rstrip('.,;:'))
                 matches.update(n for n in paths if fnmatch.fnmatchcase(n, component))
-            if text.rstrip('/') in (str(root), '$POKEMON_ENV/evidence', '${POKEMON_ENV}/evidence'):
+            if text.rstrip('/') in ('evidence', str(root), '$POKEMON_ENV/evidence', '${POKEMON_ENV}/evidence'):
                 matches.update(paths)
             if '\n' not in text and len(text) < 4096 and '/' in text:
                 expanded = text.replace('${POKEMON_ENV}', str(root.parent)).replace('$POKEMON_ENV', str(root.parent))
-                # Evidence prose can start with approximate timings (~1.5 s/load).
-                # Only the current user's explicit home prefix denotes a home path.
-                candidate = Path(expanded)
-                if expanded.startswith('~/'):
-                    candidate = candidate.expanduser()
+                candidate = Path(expanded).expanduser()
                 for location in ([candidate] if candidate.is_absolute() else
                                  [base / candidate, project / candidate, root / candidate, root.parent / candidate]):
                     resolved = location.resolve()
@@ -272,7 +264,7 @@ def maintain(project, env, refs, minimum, target, age_hours, execute=False,
     before = free_bytes(root)
     report = {'mode': 'execute' if execute else 'dry-run', 'evidence': str(root),
               'minimum_free_bytes': minimum, 'target_free_bytes': target,
-              'free_bytes_before': before, 'entries': [], 'removed': [], 'sharing': None, 'compression': None}
+              'free_bytes_before': before, 'entries': [], 'removed': []}
     with ExitStack() as stack:
         if execute and before < minimum:
             for owner in ('storage-maintenance', 'suite', 'simulator', 'device'):
@@ -300,18 +292,6 @@ def maintain(project, env, refs, minimum, target, age_hours, execute=False,
                 report['removed'].append(str(path))
                 # Print a durable audit line even if a later revalidation refuses.
                 print(json.dumps({'removed': str(path), 'free_bytes': free_bytes(root)}), file=sys.stderr)
-            if execute and free_bytes(root) < target:
-                # Delete eligible archives first. Share only old retained trees;
-                # refreshed ctimes then enforce a quiet grace period, rather
-                # than recloning on each invocation and postponing deletion.
-                old_retained = {Path(e['path']) for e in report['entries']
-                                if e['action'] == 'keep' and 'age grace' not in e['reasons']}
-                report['sharing'] = share_closed_traces(
-                    root, True, lambda: free_bytes(root) >= target, allowed_roots=old_retained)
-                if free_bytes(root) < target:
-                    report['compression'] = compress_closed_traces(
-                        root, True, lambda: free_bytes(root) >= target, live_paths,
-                        allowed_roots=old_retained)
     report['free_bytes_after'] = free_bytes(root)
     report['observed_free_bytes_delta'] = report['free_bytes_after'] - before
     report['minimum_met'] = report['free_bytes_after'] >= minimum
@@ -326,8 +306,8 @@ def main(argv=None):
     parser.add_argument('--project', type=Path, default=PROJECT)
     parser.add_argument('--env', type=Path, default=os.environ.get('POKEMON_ENV'))
     parser.add_argument('--checkpoint-ref', default='wip/checkpoint-a-erika')
-    parser.add_argument('--minimum-free-gib', type=float, default=50)
-    parser.add_argument('--target-free-gib', type=float, default=70)
+    parser.add_argument('--minimum-free-gib', type=float, default=150)
+    parser.add_argument('--target-free-gib', type=float, default=170)
     parser.add_argument('--min-age-hours', type=float, default=24)
     parser.add_argument('--execute', action='store_true')
     args = parser.parse_args(argv)
@@ -337,12 +317,6 @@ def main(argv=None):
             0 < args.minimum_free_gib <= args.target_free_gib and args.min_age_hours >= 1):
         parser.error('require finite 0 < minimum <= target and age >= 1 hour')
     try:
-        if args.execute:
-            # The existing 30-minute entry point now reports the explicit Pi
-            # queue. Broad age-based deletion is not automatic under this policy.
-            from tools.harness.pi_archive import maintenance_tick
-            print(json.dumps(maintenance_tick(), indent=2))
-            return 0
         report = maintain(args.project, args.env, ('main', args.checkpoint_ref),
                           int(args.minimum_free_gib * GIB), int(args.target_free_gib * GIB),
                           args.min_age_hours, args.execute)

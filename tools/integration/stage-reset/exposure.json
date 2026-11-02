@@ -1,0 +1,41 @@
+{
+  "kind": "Static source projection; not actual SDK/runtime exposure proof",
+  "source_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-host-move-exposure-20261101-01/report.json",
+  "source_report_sha256": "dbe4f66dcf058fa48bd90ae6404f3f62caa6924c2285f2c5cb78545fcb614aa2",
+  "trainer_records": 44,
+  "party_occurrences": {
+    "haze": 11,
+    "clearSmog": 11
+  },
+  "source_report_declared_gap_count": 26,
+  "remaining_projected_gap_count": 24,
+  "count_discrepancy": "Task brief says 26 other gaps; supplied report has 26 total, including the two selected moves, leaving 24 projected gaps. All unrelated support entries are byte-equivalent and remain explicit. No extra move was implemented.",
+  "other_projected_gaps": {
+    "allySwitch": "onHit",
+    "dreamEater": "onTryImmunity",
+    "falseSwipe": "onDamagePriority, onDamage",
+    "fling": "onPrepareHit",
+    "foresight": "volatileStatus, onTryHit",
+    "gyroBall": "basePowerCallback",
+    "highJumpKick": "onMoveFail",
+    "mindReader": "onTryHit, onHit",
+    "minimize": "volatileStatus",
+    "miracleEye": "volatileStatus, onTryHit",
+    "payback": "basePowerCallback",
+    "psychUp": "onHit",
+    "quickGuard": "sideCondition, onTry, onHitSide, stallingMove",
+    "recycle": "onHit",
+    "revenge": "basePowerCallback",
+    "selfDestruct": "selfdestruct",
+    "spitUp": "basePowerCallback, onTry, onAfterMove",
+    "stockpile": "onTry, volatileStatus",
+    "substitute": "volatileStatus, onTryHit, onHit",
+    "swagger": "compound effect order or target behavior not implemented",
+    "swallow": "onTry, onHit",
+    "telekinesis": "volatileStatus, onTry",
+    "thrash": "rampage lock and fatigue not implemented",
+    "trick": "onTryImmunity, onHit"
+  },
+  "constructor_proof": false,
+  "c_active": false
+}

@@ -5,14 +5,18 @@ import hashlib
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.generate_cerulean_content import blue_source
+from tools.generate_vermilion_preparation import text_recipes
 REVISION = 'af519899719f0754965776faac0e836a3b906e6d'
 OUTPUT = ROOT / 'Source/data/towerStory'
 FILES = [f'scripts/{name}.asm' for name in ('PokemonTower2F', 'PokemonTower6F', 'PokemonTower7F', 'MrFujisHouse', 'Route12', 'Route16')]
 FILES += [f'data/maps/objects/{name}.asm' for name in ('PokemonTower2F', 'PokemonTower6F', 'PokemonTower7F', 'MrFujisHouse', 'Route12', 'Route16')]
-FILES += ['engine/items/item_effects.asm', 'engine/battle/common_text.asm', 'engine/battle/core.asm']
+FILES += ['engine/items/item_effects.asm', 'engine/battle/common_text.asm', 'engine/battle/core.asm', 'data/text/text_6.asm']
 
 
 def encoded(value):
@@ -105,7 +109,11 @@ def build(reference):
                   fuji=dict(id='pokered:POKEMON_TOWER_7F:objects:4',
                             house_id='pokered:MR_FUJIS_HOUSE:objects:5',
                             destination=dict(map_id='pokered:MR_FUJIS_HOUSE', x=3, y=7, facing='up')))
-    return {'scenes.json': encoded(dict(schema=1, source_revision=REVISION, scenes=scenes)),
+    label = '_PlayedFluteNoEffectText'
+    recipe = text_recipes(blue_source(sources['data/text/text_6.asm']))[label]
+    return {'texts.json': encoded(dict(schema=1, source_revision=REVISION, texts={
+                label: dict(source='data/text/text_6.asm', recipe=recipe)})),
+            'scenes.json': encoded(dict(schema=1, source_revision=REVISION, scenes=scenes)),
             'provenance.json': encoded(dict(schema=1, source_revision=REVISION, files=pins))}
 
 

@@ -1,0 +1,23 @@
+{
+  "classification": "Current B host failure reconciliation, not full-suite green",
+  "original_host": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-host-20261101-01",
+    "log_sha256": "836ad2b0785feef3f8b0d11d9a2ec9ce3ab5e194e507227f8842191aebdda9fa",
+    "tests": 1071,
+    "failures": 7,
+    "errors": 1
+  },
+  "repairs": [
+    "Self-Destruct is no longer asserted to be unsupported; its actual DSL flag/support entry is explicitly checked. All remaining gap assertions retained.",
+    "Regenerated Cerulean/Vermilion CURRENT dev projections; only source dependency hashes changed. Original frozen journey evidence and waypoints unchanged.",
+    "Same54 original SDK assertions rerun on current B; verified-subset owner hashes requalified with new actual native report. All50 runtime states/capabilities and unverified source gaps retained."
+  ],
+  "validation": {
+    "targeted_projection_and_move_tests": 73,
+    "targeted_runtime_evidence_tests": 24,
+    "sdk_original_assertions": 54,
+    "full_host": "rerun pending after coverage snapshot review"
+  },
+  "source_changes": "Only two generated dev JSON dependency fields; no production Lua or art changed in this reconciliation.",
+  "remaining": "Current coverage snapshot, full host rerun, B visual acceptance and device latency gates."
+}

@@ -50,17 +50,94 @@ local diskRecords = setmetatable({}, {__mode="k"})
 -- Public save/replace calls never receive this capability.
 local ownerExports = setmetatable({}, {__mode="k"})
 local function checksum(bytes)
-    local hash=-2128831035 -- FNV offset 0x811c9dc5 as a signed SDK int32
-    for i=1,#bytes do
-        local product=(hash ~ bytes:byte(i))*16777619
-        -- Explicit signed low32 normalization also works in a 64-bit Lua;
-        -- int32 SDK multiplication wraps by definition before this mask.
-        hash=(product&0x7fffffff)+(((product>>31)&1)==1 and (-2147483647-1) or 0)
-        if i % 512 == 0 and GameBootstrap then
+    local byte <const> = string.byte
+    local format <const> = string.format
+    local length <const> = #bytes
+    local fullLength <const> = length - length % 32
+    local hash = -2128831035 -- FNV offset 0x811c9dc5 as a signed SDK int32
+    -- Extract 32 scalar bytes per call; no chunk table or substring allocation.
+    -- 32 divides 512, so each checkpoint still follows exactly 512 bytes.
+    for i = 1, fullLength, 32 do
+        local b01, b02, b03, b04, b05, b06, b07, b08,
+            b09, b10, b11, b12, b13, b14, b15, b16,
+            b17, b18, b19, b20, b21, b22, b23, b24,
+            b25, b26, b27, b28, b29, b30, b31, b32 = byte(bytes, i, i + 31)
+        -- Preserve signed low32 normalization after every FNV multiply.
+        -- SDK int32 multiplication wraps before the mask, as before.
+        local product = (hash ~ b01) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b02) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b03) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b04) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b05) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b06) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b07) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b08) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b09) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b10) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b11) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b12) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b13) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b14) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b15) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b16) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b17) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b18) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b19) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b20) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b21) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b22) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b23) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b24) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b25) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b26) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b27) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b28) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b29) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b30) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b31) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        product = (hash ~ b32) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+        if (i + 31) % 512 == 0 and GameBootstrap then
             GameBootstrap.yieldIfDue()
         end
     end
-    return string.format("%02x%02x%02x%02x",(hash>>24)&255,(hash>>16)&255,(hash>>8)&255,hash&255)
+    -- At most 31 trailing bytes; no 512-byte checkpoint can fall here.
+    for i = fullLength + 1, length do
+        local product = (hash ~ byte(bytes, i)) * 16777619
+        hash = (product & 0x7fffffff) + (((product >> 31) & 1) == 1 and (-2147483647 - 1) or 0)
+    end
+    return format("%02x%02x%02x%02x", (hash >> 24) & 255, (hash >> 16) & 255, (hash >> 8) & 255, hash & 255)
 end
 local function sequenceValue(value)
     if type(value)=="string" then return DecimalInteger.decode(value,1,SaveStore.MAX_SEQUENCE) end

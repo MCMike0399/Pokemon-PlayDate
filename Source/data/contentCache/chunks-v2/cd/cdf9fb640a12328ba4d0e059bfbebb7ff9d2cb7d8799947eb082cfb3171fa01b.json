@@ -1,0 +1,1 @@
+{"recipe":[{"op":"control","source":"text_start","source_line":29},{"op":"para","source_line":31,"text":"We'll call you on"},{"op":"line","source_line":32,"text":"the PA when you"},{"op":"cont","source_line":33,"text":"run out of time"},{"op":"cont","source_line":34,"text":"or SAFARI BALLs!"},{"op":"control","source":"done","source_line":35}],"source":"text/SafariZoneGate.asm"}

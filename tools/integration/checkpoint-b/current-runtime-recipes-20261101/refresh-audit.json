@@ -1,0 +1,69 @@
+{
+  "classification": "host/compile preparation only; no runtime compatibility or acceptance proof",
+  "equivalent_source_commit": "70e015a618bb2ccd54de75aebe66b7904c12cf20",
+  "source_git_tree": "811d3b3e0c5cf99629c1ae592040e54d48ab7948",
+  "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+  "source_inventory_sha256": "9b870aca0a86244882d632670d2b7fe9d1f575f695d55a3622d42ef3b05f2a00",
+  "harness_inventory_sha256": "aafaaa09f498b663d33412261c787de1666cde33411d7b4dfba7bf2b8e23783c",
+  "changed_long_explicit_pins": [
+    {
+      "file": "Source/game/overworldState.lua",
+      "old_sha256": "cdff3686eef06d6314a67eaaa155d258fa15ea862f19d552760ebe40b93a1e69",
+      "new_sha256": "40c0af9d98868d9c582bf6f253d1626507d00a0f5e4f60e807b4dd09b92f59c4"
+    },
+    {
+      "file": "Source/battle/conditions.lua",
+      "old_sha256": "0e46d6a82ed99698c278d16d446f7ff7a8dae49d2ac17da7ffb9f5e9e2cf9ec3",
+      "new_sha256": "2c19c63e37bf448573861cfb572b4cad3d3954f4c67e3dbd309dee45df293e18"
+    },
+    {
+      "file": "Source/battle/dsl.lua",
+      "old_sha256": "cda5e224ea1aa5d85fdfe6366aa2a623ba3556279936c0b28be574aa49cdb2cd",
+      "new_sha256": "ba58959ec55d3ecaeb5da8bdf7f9dc8aeee7fcb55941f2e88cad633bd2cdb8bc"
+    },
+    {
+      "file": "Source/battle/moves.lua",
+      "old_sha256": "c50a7eec61720145ae211d6d6263990c3effd760a271fbd8e01db0f193568b29",
+      "new_sha256": "01b9533f5b656d385e1d16ee573ca7f0d55a361a422297c7c01d50159363dfe0"
+    },
+    {
+      "file": "tools/move_producer_contract.py",
+      "old_sha256": "8493b191942e66063d79bc628249890f92a0ef1d45017c0ec1dfb5cc5f9a525b",
+      "new_sha256": "ad24c66f093731532c2197e3fde70ed85c4f3077b5bfcd31b1f5eef6a6d7319c"
+    },
+    {
+      "file": "tools/references/move-producer-migrations.json",
+      "old_sha256": "c74f0f0dca7e24e8a15d139a8ead4130c72cc3e8ba9162cb46fa49ca0bd5460f",
+      "new_sha256": "12dcb580d0c4752a91a2143017288f322ef9fa94610938e14378d3ecef7f7e65"
+    }
+  ],
+  "historical_long_commit": "bbac7ddf54a53087de653c91247ed8ebdd70e817",
+  "historical_showcase_commit": "052c10ab64a3774300023ac79b97912f2df6eb55",
+  "source_files": 3963,
+  "harness_files": 220,
+  "runtime_executed": false,
+  "initial_fixed_revision": "63549857c19ec1edc191ed02fecb8b20f8b2617a",
+  "final_pin_revision": "4750bd71bc899f810513e71a4ce58fb85a821ccf",
+  "observed_head": "9542d84da42cc64a8c1025d6f120ad8222baba32",
+  "dev_metadata_pin_correction": [
+    {
+      "file": "Source/dev/ceruleanJourney.json",
+      "changed_field": "sources",
+      "old_sha256": "ff1b7b32566274728248fac0c3bdc15995b54ebc10da9a1d6e4214ecedfb22f6",
+      "new_sha256": "07baab11ddf589905b9d031aec805a5bd214c693e080e7dd697929009d18ebed",
+      "projected_values_identical": true
+    },
+    {
+      "file": "Source/dev/vermilionJourney.json",
+      "changed_field": "sources",
+      "old_sha256": "1bb29f97973c9de8e14efae2b0f6b3d9cfa58457201a6fd2592d915bccdd2ccc",
+      "new_sha256": "245d4c86b1a023f17c2a3923ad7c0355393f500845ef2c4e835daa7c85a92878",
+      "projected_values_identical": true
+    }
+  ],
+  "production_source_unchanged_from_70e": true,
+  "source_byte_identical_to_70e": false,
+  "full_source_sha256": "ef5612297ce89cde759f477c17eb4b6849b20da98d9e67dca454644c8c2a21b5",
+  "existing_long_checkout_revision": "4ec649433cbf0e00e3ac274c58d52783bb38bb27",
+  "existing_long_packet_note": "Named origin bbac7ddf is retained separately; supplied checkout already contains committed root refreshes through 4ec64943. Active copy preserves those diagnostic fixes and 565-era pins before explicit refresh."
+}

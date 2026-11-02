@@ -6,6 +6,7 @@ local revision <const> = "af519899719f0754965776faac0e836a3b906e6d"
 local directions <const> = {"down", "up", "left", "right"}
 local cached
 local images
+local surfImages
 
 local function copy(value)
     if type(value) ~= "table" then
@@ -102,6 +103,26 @@ function FieldGearArt.prepare()
     images = prepared
 end
 
+-- Blue LoadSurfingPlayerSpriteGraphics uses SeelSprite through the same
+-- three standing / three walking frame layout as walking and bicycle art.
+-- The pinned South sprite already owns those exact grids; cache images only.
+function FieldGearArt.surf(facing, pose)
+    assert(pose == "stand" or pose == "walk" or pose == "alternate", "unknown Surf pose")
+    assert(facing == "down" or facing == "up" or facing == "left" or facing == "right",
+        "unknown Surf facing")
+    if not surfImages then
+        local prepared = {}
+        for _, kind in ipairs({"stand", "walk", "alternate"}) do
+            prepared[kind] = {}
+            for _, direction in ipairs(directions) do
+                prepared[kind][direction] = CeruleanContent.poseImage("SPRITE_SEEL", kind, direction)
+            end
+        end
+        surfImages = prepared
+    end
+    return surfImages[pose][facing]
+end
+
 function FieldGearArt.bicycle(facing, pose)
     direction(facing)
     pose = pose or "stand"
@@ -181,6 +202,13 @@ function FieldGearArt.catalogInventory()
             end
         end
     end
+    for _, pose in ipairs({"stand", "walk", "alternate"}) do
+        for _, facing in ipairs(directions) do
+            if pose ~= "alternate" or facing == "up" or facing == "down" then
+                add("field-gear-surf-" .. pose .. "-" .. facing, 32, 32, "field-gear-character")
+            end
+        end
+    end
     for _, facing in ipairs(directions) do
         add("field-gear-fishing-" .. facing, 32, 32, "field-gear-character")
     end
@@ -228,6 +256,14 @@ function FieldGearArt.catalogAssets()
             if pose ~= "alternate" or facing == "up" or facing == "down" then
                 add("field-gear-bike-" .. pose .. "-" .. facing,
                     FieldGearArt.bicycle(facing, pose), "field-gear-character")
+            end
+        end
+    end
+    for _, pose in ipairs({"stand", "walk", "alternate"}) do
+        for _, facing in ipairs(directions) do
+            if pose ~= "alternate" or facing == "up" or facing == "down" then
+                add("field-gear-surf-" .. pose .. "-" .. facing,
+                    FieldGearArt.surf(facing, pose), "field-gear-character")
             end
         end
     end

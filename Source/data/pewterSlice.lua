@@ -44,10 +44,19 @@ end
 function PewterSlice.trainer(id)
     return copy(trainers()[id])
 end
-function PewterSlice.sprite(source)
+local function spriteRecord(source)
     if not sprites then sprites=record("sprites") end
     local binding=assert(sprites.mapping[source],"unresolved original Pewter sprite constant")
-    return copy(assert(sprites.sprites[binding.name])),binding.name
+    return assert(sprites.sprites[binding.name]),binding.name
+end
+function PewterSlice.sprite(source)
+    local strip, name = spriteRecord(source)
+    return copy(strip), name
+end
+-- No retained projection: each result is detached from the current art record.
+function PewterSlice._spritePoseMetadata(source)
+    local strip = spriteRecord(source)
+    return {standing = copy(strip.standing), fixed = copy(strip.fixed)}
 end
 function PewterSlice.text(label)
     if not texts then texts=record("dialogue").texts end

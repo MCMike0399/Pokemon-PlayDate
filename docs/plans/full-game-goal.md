@@ -11,46 +11,11 @@ at `87e90e8`. Work now happens on **DiveMac**. See "Machine and environment" bel
 
 ---
 
-## Shared archive policy — 2026-11-01
-
-Use the user-authorized shared Pi archive/restore tool through the explicit
-Playdate wrapper, retaining exact original-path restoration and immutable hashes.
-Retain active/current/pinned inputs, chain saves, player packages, Git, SDK and
-T3 state locally. Owner-reviewed closed artifacts only; no automatic broad
-recursive age deletion. Normal approved archive work triggers below70GiB and
-stops at100GiB; deliberate initial backlog is separate. Keep the50GiB hard reserve.
-Use only the existing30-minute maintenance entry point, all four ordered producer
-locks and inherited lock descriptors. Busy/offline/pressure leaves bytes and jobs
-pending. Pending queues stay disabled until a real canary passes and the shared
-coordinator grants transport ownership. No independent host/network/service
-changes or shared-helper edits. [Operator workflow](../validation/pi-artifact-storage.md).
-
-## Device scaling correction — 2026-10-30
-
-Boot is `boot.begin` to `initialize.ready`: the title accepts A. Its target is
-10 seconds; early artwork does not pass it. Keep old reports intact and derive
-new comparisons from their retained traces. Report 108/149-map phase scaling.
-Shipped data is immutable and checked at build time: move conflict checks,
-transforms and provider validation to checksum-pinned generation. Keep those
-checks in harness/dev contracts, and keep full validation of untrusted saves.
-Register regions lazily at first entry; batch cooperative guard checks.
-
-Before audio, prove memory plateaus with repeated doors and a repeated map loop,
-and qualify a test-only native image-headroom probe. Lua heap is not native
-memory, and Simulator diagnostic heap is not the device live-heap measurement.
-Then census every door/connection, device-measure the worst five, and decide
-whether idle prefetch can build Zones/bindings within the memory guard.
-Try uncapped journey refresh only in a private replay and adopt it only after
-byte-identical saved state and equal receipts. Production pacing stays unchanged.
-Do not interrupt running journeys. Keep their captures to failures/checkpoints;
-do not build more compression tooling. The 50 GiB reserve remains current.
-
 ## Current direction — 2026-10-29 evening
 
 This section supersedes earlier P0 freeze and validation rules below.
 
-Keep at least **50 GiB free** on DiveMac automatically (user update, 2026-10-30).
-Automatic cleanup targets 70 GiB once it starts. Retain chain saves,
+Keep at least **150 GiB free** on DiveMac automatically. Retain chain saves,
 player packages, acceptance evidence, references from committed validation JSON,
 and the latest passing journey and device-build runs. Remove superseded retries,
 rejected build stages and clean merged/rejected worktrees and branches. Retain

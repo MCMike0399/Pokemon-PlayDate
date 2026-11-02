@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":56,"text":"FUCHSIA CITY"},{"op":"line","source_line":57,"text":"#MON GYM"},{"op":"cont","source_line":58,"text":"LEADER: KOGA"},{"op":"para","source_line":60,"text":"The Poisonous"},{"op":"line","source_line":61,"text":"Ninja Master"},{"op":"control","source":"done","source_line":62}],"source":"text/FuchsiaCity.asm"}

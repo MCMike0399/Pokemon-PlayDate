@@ -42,7 +42,6 @@ class StorageMaintenanceTests(unittest.TestCase):
         patch.object(storage.time, 'time_ns', return_value=int(self.now * 1e9)).start()
         patch.object(storage, 'live_paths', return_value='').start()
         patch.object(storage, 'free_bytes', return_value=0).start()
-        patch.object(storage, 'compress_closed_traces', return_value={'files': []}).start()
 
     def git(self, *args):
         return subprocess.check_output(['git', *args], cwd=self.project, text=True,
@@ -119,25 +118,6 @@ class StorageMaintenanceTests(unittest.TestCase):
             self.assertEqual(result[name]['action'], 'keep', name)
         self.assertEqual(result['deletable']['action'], 'remove')
 
-    def test_approximate_measurement_text_is_not_a_user_home(self):
-        self.stage('referenced-stage')
-        self.stage('deletable')
-        self.write(self.validation / 'measurements.json', {
-            'note': '~1.5s/load; evidence/referenced-stage/result.json',
-        })
-        self.commit()
-        result = self.plan()
-        self.assertEqual(result['referenced-stage']['action'], 'keep')
-        self.assertEqual(result['deletable']['action'], 'remove')
-
-    def test_schema_evidence_property_does_not_retain_the_entire_root(self):
-        self.stage('deletable')
-        self.write(self.validation / 'coverage.schema.json', {
-            'required': ['evidence'], 'properties': {'evidence': {'type': 'object'}},
-        })
-        self.commit()
-        self.assertEqual(self.plan()['deletable']['action'], 'remove')
-
     def test_packages_acceptance_unknown_and_latest_device_builds(self):
         for name in ('player-packages', 'acceptance-packet', 'Source', 'references', 'Data'):
             self.stage(name)
@@ -187,75 +167,7 @@ class StorageMaintenanceTests(unittest.TestCase):
             with patch('sys.stdout', io.StringIO()):
                 self.assertEqual(storage.main(['--env', str(self.env)]), 0)
             self.assertFalse(maintain.call_args.args[-1])
-            self.assertEqual(maintain.call_args.args[3:5], (50 * storage.GIB, 70 * storage.GIB))
-
-    def test_sharing_runs_after_deletion_and_excludes_age_grace(self):
-        removable = self.stage('deletable')
-        old = self.stage('old-reference')
-        recent = self.stage('recent-reference', age=1)
-        self.write(self.validation / 'references.json', {
-            'old': 'evidence/old-reference', 'recent': 'evidence/recent-reference'})
-        self.commit()
-        def share(root, execute, enough, allowed_roots):
-            self.assertFalse(removable.exists(), 'Eligible deletion must precede sharing')
-            self.assertIn(old, allowed_roots)
-            self.assertNotIn(recent, allowed_roots, 'Sharing must not renew the age grace')
-            return {'files': []}
-        with patch.object(storage, 'share_closed_traces', side_effect=share) as sharing:
-            self.maintain(True)
-        sharing.assert_called_once()
-
-    def test_compression_follows_sharing_under_all_four_locks(self):
-        removed = self.stage('deletable')
-        retained = self.stage('old-reference')
-        self.write(self.validation / 'references.json', {'path': 'evidence/old-reference'})
-        self.commit()
-        events = []
-        result = {'files': [{'path': 'terminal trace'}], 'refusals': [{'reason': 'open archive'}]}
-        def share(*args, **kwargs):
-            self.assertFalse(removed.exists())
-            events.append('sharing')
-            return {'files': []}
-        def compress(root, execute, enough, live, allowed_roots):
-            self.assertEqual(events, ['sharing'])
-            self.assertEqual(allowed_roots, {retained})
-            self.assertTrue(execute)
-            self.assertFalse(enough())
-            self.assertIs(live, storage.live_paths)
-            for owner in ('storage-maintenance', 'suite', 'simulator', 'device'):
-                lock = self.locks / f'pokemon-playdate-{owner}-{os.getuid()}.lock'
-                with lock.open('a+') as stream:
-                    with self.assertRaises(BlockingIOError):
-                        fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            events.append('compression')
-            return result
-        with patch.object(storage, 'share_closed_traces', side_effect=share), \
-                patch.object(storage, 'compress_closed_traces', side_effect=compress):
-            report = self.maintain(True)
-        self.assertEqual(events, ['sharing', 'compression'])
-        self.assertEqual(report['compression'], result)
-
-    def test_compression_is_not_called_when_sharing_reaches_target(self):
-        self.stage('deletable')
-        space = [0]
-        def share(*args, **kwargs):
-            space[0] = 170
-            return {'files': []}
-        with patch.object(storage, 'share_closed_traces', side_effect=share), \
-                patch.object(storage, 'free_bytes', side_effect=lambda _: space[0]), \
-                patch.object(storage, 'compress_closed_traces') as compress:
-            report = self.maintain(True)
-        compress.assert_not_called()
-        self.assertIsNone(report['compression'])
-        self.assertEqual(report['status'], 'target met')
-
-    def test_dry_and_healthy_invocations_never_compress(self):
-        self.stage('deletable')
-        with patch.object(storage, 'compress_closed_traces') as compress:
-            self.maintain()
-            with patch.object(storage, 'free_bytes', return_value=160):
-                self.maintain(True)
-        compress.assert_not_called()
+            self.assertEqual(maintain.call_args.args[3:5], (150 * storage.GIB, 170 * storage.GIB))
 
     def test_execution_stops_at_target_and_repeated_call_does_nothing(self):
         first = self.stage('a-stage')

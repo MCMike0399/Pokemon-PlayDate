@@ -1,0 +1,36 @@
+{
+  "classification": "Reviewed chunked checksum adopted into private B; no B acceptance",
+  "candidate_report": "chunked-checksum-candidate-20261101.json",
+  "qualification_basis": "Pre-existing title store-read subphase3286->2847ms(13.36%). Whole Save9.27%, title.prepare7.22%, Continue4.18%, boot3.59% remain below10%; no contrary claim.",
+  "review": {
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A8046ac83-6248-4770-b134-04876c5ed8cf",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "reviewed_base": "09e762110b31e37b85b98489e84c65228dea416b"
+  },
+  "source_sha256": {
+    "Source/domain/saveStore.lua": "e5ac41630333e6403daa50bb553c08df2ed9413e131303a265cc7ee08ada6d24",
+    "Source/dev/saveContracts.lua": "35126c438d4d040eadcd81385c2fddbacdb6a5f1f82c825c330b802845fc3faf"
+  },
+  "validation": {
+    "native_persistence_cases_passed": 18,
+    "new_vector_assertions_in_existing_case": 10,
+    "added_case_count": 0,
+    "host_recovery_build_tests_passed": 23,
+    "full_host_suite": "not rerun",
+    "safety_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-chunked-checksum-safety-20261101-02/simulator-smoke.json",
+    "safety_sha256": "cd01e0acd55f1bf506639528c3872a9f65a1142ec23d77d9e928dc162f7977d1",
+    "raw_slice_ms": 47.621,
+    "sampled_peak_bytes": 8678611.968,
+    "strict_live_target": "remains failed; unchanged safety-only admission passed"
+  },
+  "scope": "Only checksum local function changes production. Same FNV result/order/signed normalization and512-byte checkpoints. No validation/cache/schema/owner/readback policy change. Native18 include corruption, mutation and filesystem recovery faults; not exhaustive production-fast-path fault acceptance.",
+  "hardware": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-chunked-checksum-hardware-20261101-02",
+    "no_new_logs": true,
+    "keeper_restored": true,
+    "six_recorded_boundaries_matched": true,
+    "normal_production_timing": "unmeasured; this is instrumented production-profile with forced diagnostic GC disabled"
+  },
+  "remaining": "B visual captures, current full host/coverage freshness, worst-eight route and device latency remain open. C isolated. No push."
+}
