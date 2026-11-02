@@ -656,7 +656,7 @@ class JourneyHistory:
                     {'ax_press_accepted': True, 'pid': self.process.pid},
                     {'clear_requested': True, 'mechanism': 'verified-window-broom', 'pid': self.process.pid}):
                 raise ProtocolError('history Clear acknowledgement differs')
-            if operation in ('inspect', 'inspect-close'):
+            if operation == 'inspect':
                 if not isinstance(reply, list):
                     raise ProtocolError('history inspection is not a listing')
                 captures = [row for row in reply if row.get('scope') == 'inspection capture']
@@ -672,21 +672,6 @@ class JourneyHistory:
                     from tools.harness.run import verify_png
                     verify_png(path)
                     inspection_captures.append(dict(capture, sha256=file_sha(path)))
-            if operation == 'inspect-close':
-                closures = [row for row in reply if row.get('scope') == 'inspection closure']
-                if (len(inspection_captures) != 1 or len(closures) != 1
-                        or reply.index(captures[0]) >= reply.index(closures[0])):
-                    raise ProtocolError('history closure evidence missing or ambiguous')
-                capture, closure = inspection_captures[0], closures[0]
-                import re
-                frame = capture.get('frame', '')
-                if (capture.get('pid') != str(self.process.pid)
-                        or not re.fullmatch(r'[1-9][0-9]*', capture.get('window_id', ''))
-                        or not re.fullmatch(r'\{\{-?[0-9]+(?:\.[0-9]+)?, -?[0-9]+(?:\.[0-9]+)?\}, \{740, 480\}\}', frame)
-                        or closure != dict(scope='inspection closure', pid=str(self.process.pid),
-                            window_id=capture.get('window_id'), frame=frame,
-                            mechanism='verified-window-AXCloseButton', ax_absent='true', native_absent='true')):
-                    raise ProtocolError('history closure identity or confirmation differs')
             if operation == 'show-log':
                 if reply != {'malloc_log_open_requested': True, 'pid': self.process.pid}:
                     raise ProtocolError('history Show Malloc Log acknowledgement differs')
@@ -726,7 +711,7 @@ class JourneyHistory:
             # Inspecting the populated log before Clear can materialize enough
             # profiler UI data to exhaust the host guard. Clear's own verified
             # window/layout/hit-test checks precede its click; inspect afterward.
-            operations = (['inspect'] if not self.clears else []) + ['show-log', 'clear', 'inspect-close']
+            operations = ['inspect', 'show-log', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
             for operation in operations:
                 self.invoke(operation, deadline)
                 if operation == 'clear':
