@@ -45,5 +45,10 @@
     }
   ],
   "candidate_status": "All three remain isolated and unadopted; Root qualification/native/hardware/review outstanding. No measured gains claimed.",
-  "push": false
+  "push": false,
+  "current_recipe": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-koga-excerpt-recipe-20261102-02",
+    "sha256": "ac614e5a76c196d8d9c449c2ed0fad5a05d477dadec082e826e563ff3214145c",
+    "correction": "Exclude rampage/charge lock metadata so the excerpt can finish one ordinary turn; assert actual FIGHT action identity. Prior unexecuted recipe and its historical hash retained."
+  }
 }
