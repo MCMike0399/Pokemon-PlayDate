@@ -1,0 +1,52 @@
+{
+  "status": "rejected performance candidate; no adoption/review",
+  "implementation": "d2c9ad2cb43730ac9d6fb249ada0bb45d2e6581b",
+  "root_refinement": "512148a7",
+  "native_checks": {
+    "packed_map_equivalence_mutation_callback_rollback": 4,
+    "WorldViewRollback": 1,
+    "SourceMapActivation": 9,
+    "total_passed": 14
+  },
+  "safety": {
+    "slice_ms": 45.876,
+    "peak_bytes": 8945303.552,
+    "strict_live_failed": true,
+    "scope": "measurement admission only"
+  },
+  "hardware": {
+    "baseline": {
+      "load_ms": 4451.0,
+      "peak_bytes": 6429976.576,
+      "phase_measurements": {
+        "Continue": 3223.0,
+        "Save": 1889.0,
+        "battle": null,
+        "boot_slice": 1443.234,
+        "boot_title": 13214.0,
+        "cave_walking_p95": null,
+        "door": 4451.0,
+        "title_artwork": 2798.0
+      }
+    },
+    "candidate": {
+      "load_ms": 4507.0,
+      "peak_bytes": 6435815.424,
+      "phase_measurements": {
+        "Continue": 3270.0,
+        "Save": 1877.0,
+        "battle": null,
+        "boot_slice": 1912.0,
+        "boot_title": 13214.0,
+        "cave_walking_p95": null,
+        "door": 4507.0,
+        "title_artwork": 2809.0
+      }
+    },
+    "reduction_percent": -1.2581442372500584
+  },
+  "criterion": "No>=10%wholeFuchsia gain;4.451\u21924.507s(-1.26%). No further measurements/proof/review requested.",
+  "scope": "One matched diagnosticGC observation; samebaselineSource/earnedseed/operator01. Lua counts exclude native/transient peaks; no shippedtiming or Cacceptance.",
+  "keeper": "Verifiedinventory/runack, no directscreenobservation; no newlogs",
+  "comparison_sha256": "d8bf4bcc6b484dc9c139516849234cb134df81f1484d44324eb113fd96d89d62"
+}

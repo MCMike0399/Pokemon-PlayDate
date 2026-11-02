@@ -140,6 +140,11 @@ point probes retain their separate scope.
    B save sizes. Payload sizes alone establish no timing conclusion. Do not
    restart the census or AX/Clear History work.
 
+Compact SMC1 terrain-row consumption is also rejected after native correctness
+passes but no whole-phase hardware gain: Fuchsia 4.451→4.507 s, memory unchanged.
+Four map cases, one WorldView rollback and nine activation cases pass; no review
+or adoption follows. [Measured rejection](packed-terrain-rejected-20261102.json).
+
 The six-set atlas enablement candidate is rejected after matched hardware.
 Game Corner load was 3.889→3.933 s; B3 load 1.886→1.907 s, with three >1 s
 frames still present. Tower's best floor improvement was 3.0%. Native pixels
