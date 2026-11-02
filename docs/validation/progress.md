@@ -104,8 +104,9 @@ heap is not compared with the device's 6 MiB live guard.
    or validation shortcut follows from those sizes.
 4. Finish isolated Substitute checks. C host composition is ready on
    `t3/checkpoint-c-host-preparation` at `69658243`: 61 focused checks pass;
-   preflight has six explicit conditions, including two archived ancestry
-   inputs. Activation hooks remain unapplied and main stays149.
+   preflight now has four explicit conditions after verified original-path
+   ancestry restoration. All three accepted-B imports pass. Activation hooks
+   remain unapplied and main stays149.
    C activation needs the memory margin; its acceptance still requires latency
    targets. Later regions, credits and postgame remain ahead.
 
@@ -138,3 +139,13 @@ ancestry and open-handle checks; their branches and proof remain. No guards chan
 User disk-headroom override (2026-11-02): reserve30 GiB, new runtime admission31 GiB;
 local maintenance30→50 GiB. Historical measurements/guards above retain their
 original values. No Simulator/device memory or shared Pi helper guard changed.
+
+Native follow-up: the isolated Surf case passes1/0, including Safari boarding
+and Save/Continue. Combined batches hit the1GiB host limit; the expiry case
+timed out before boot. All children are stopped. The terrain-query contract
+compiles and27 focused hosts pass; no memory-gain/adoption claim. Actual local
+desktop observation now works through the paired DiveMac node. It shows a macOS
+application-memory alert with paused apps and a foreground bun network prompt.
+Root requested user action and will not kill unrelated apps. Static Substitute
+standards/spec reviews are running; pending native checks remain required.
+[C ancestry restoration and four conditions](checkpoint-c-restored-ancestry-20261102.json).
