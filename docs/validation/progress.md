@@ -100,7 +100,10 @@ heap is not compared with the device's 6 MiB live guard.
 3. Measure title preparation/Continue on all three earned B saves. Host counts
    are 19–21.5 KB payloads with only 3–6 stored Pokémon; no CPU/timing conclusion
    or validation shortcut follows from those sizes.
-4. Finish isolated Substitute checks and prepare one C integration branch.
+4. Finish isolated Substitute checks. C host composition is ready on
+   `t3/checkpoint-c-host-preparation` at `69658243`: 61 focused checks pass;
+   preflight has six explicit conditions, including two archived ancestry
+   inputs. Activation hooks remain unapplied and main stays149.
    C activation needs the memory margin; its acceptance still requires latency
    targets. Later regions, credits and postgame remain ahead.
 
