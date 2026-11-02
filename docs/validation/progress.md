@@ -172,3 +172,10 @@ all three unchanged earned B save pairs and known limits; not installed/accepted
 A genuine short checkpoint reaches Route12(10,23),615MiB hostpeak. Follow-up
 trainer wins but Save hits hostguard; no marker produced, partial slots unused.
 [Package/checkpoint](b149-package-checkpoint-20261101.json).
+
+Callback-preserving pose metadata is adopted privately after0/0 review:
+Route17 actor construction2470→1744ms(29.4%), while wholeload gain is9.85%.
+All3descriptor builds/story callbacks remain; custom fallback/errors verified.
+Host12/native5 and exactsafety pass; no new device logs, keeper restored.
+Prior1071fullhost predates this Source; no freshfullsuite claim.
+[Adoption](pose-metadata-adoption-20261101.json).
