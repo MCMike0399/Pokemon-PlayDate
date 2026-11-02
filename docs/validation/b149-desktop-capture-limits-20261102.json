@@ -88,5 +88,12 @@
     ],
     "limit": "Shipped static terrain and all object cells excluded. No live actor motion/sight/traversal proof; do not substitute this for hardware coverage."
   },
-  "next": "Foreground the already-owned Simulator using actual computer input before any further Clear-dependent capture; no more post-victory holds/retries without early reclamation. Remaining hardware work can proceed independently."
+  "next": "Foreground the already-owned Simulator using actual computer input before any further Clear-dependent capture; no more post-victory holds/retries without early reclamation. Remaining hardware work can proceed independently.",
+  "native_provider_followup": {
+    "04": "Native list_windows/bring_to_front effect confirmed, actual menu tree obtained. Short preflight completed.",
+    "05": "Opening actual View menu exposes Show Malloc Log. Native request opened window, but SDK host guard stopped at1063.75MiB before Clear. Overdue Claw run96b19512-334a-46fb-8ba6-b042691c245f explicitly aborted; native execution18a1b5cb-e34a-4fbf-904b-0d3f8f7a9520 closed byRoot.",
+    "06": "Finite early native batch confirmed View -> Show Malloc Log. Opening diagnostic window sampled1176.3MiB host, guardstopped before exact Clear could be reached. Native execution finally closed; Claw terminal. No game checkpoint/capture accepted.",
+    "implication": "Native API, not simplified model tool or shell AX, can foreground and inspect menus. Opening history window itself is too expensive under unchanged1GiB host guard at this boundary. Do not repeat these attempts or treat permission as sole blocker.",
+    "policy": "No guard/pool changes; B visual acceptance remains open. Current Source unchanged."
+  }
 }
