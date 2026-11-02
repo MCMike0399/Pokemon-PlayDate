@@ -1,0 +1,8 @@
+{
+  "classification": "refresh preparation only",
+  "current_validation": "../validation.json",
+  "historical_validation": "../historical/showcase/validation.json",
+  "native_preflight_executed": false,
+  "full_capture_executed": false,
+  "export_executed": false
+}

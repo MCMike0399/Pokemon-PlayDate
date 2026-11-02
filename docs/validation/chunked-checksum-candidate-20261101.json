@@ -1,0 +1,57 @@
+{
+  "classification": "Measured checksum candidate; review pending, no adoption or B acceptance",
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-activation-profile-hardware-20261101-01",
+  "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-chunked-checksum-hardware-20261101-02",
+  "candidate_metrics_sha256": "eedb745f92c0097b9a4e98d8eead92de0520dc176f11c1f9d43d48428c10538a",
+  "candidate_serial_sha256": "934fa1407c929344330606d08ae8514a95783264d7ebc7fb9fd96fa4ccbcd985",
+  "difference": "Actual B Source has only local checksum body from d891/f3da changed. Same guards, metadata/cache implementation, private measurement policy, earned slots and six recorded physical button batches. Extended existing vector case was added after physical measurement; dev excluded from device PDX.",
+  "phase_comparison": {
+    "title_store_read": {
+      "begin": "title.inspect.task.begin",
+      "end": "title.save.store.loaded",
+      "baseline_ms": 3286,
+      "candidate_ms": 2847,
+      "gain_percent": 13.359707851491176
+    },
+    "title_prepare": {
+      "begin": "title.prepare.begin",
+      "end": "title.prepare.end",
+      "baseline_ms": 6007,
+      "candidate_ms": 5573,
+      "gain_percent": 7.224904278341934
+    },
+    "boot": {
+      "begin": "boot.begin",
+      "end": "initialize.ready",
+      "baseline_ms": 14563,
+      "candidate_ms": 14040,
+      "gain_percent": 3.5912930028153536
+    },
+    "Continue": {
+      "begin": "Continue.begin",
+      "end": "Continue.end",
+      "baseline_ms": 4209,
+      "candidate_ms": 4033,
+      "gain_percent": 4.18151579947731
+    },
+    "Save": {
+      "begin": "Save.begin",
+      "end": "Save.publish.end",
+      "baseline_ms": 2189,
+      "candidate_ms": 1986,
+      "gain_percent": 9.27364093193239
+    }
+  },
+  "threshold_basis": "The pre-existing title store-read subphase improves13.36%; total Save9.27%, title.prepare7.22%, Continue4.18%, boot3.59% do not individually meet10%. No whole-wait >=10% claim.",
+  "native": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-chunked-checksum-integrated-native-20261101-01",
+    "result_sha256": "bc770a6f77976bbbf6585822b85c237316d78fb962d2fe19b9f79d17640a2825",
+    "passed": 18,
+    "failed": 0,
+    "scope": "Current B complete existing persistence suite; extended same known-vector case checks binary31/32/33,63/64/65,511/512/513 plus UTF8/NUL; fault, mutation and slot-recovery cases retained."
+  },
+  "no_new_logs": true,
+  "keeper_restored": true,
+  "rejected_packet01": "Local one-module overlay guard refused before USB. Fresh02 built from actual candidate Source and admitted without changing guards.",
+  "remaining": "One paired instrumented device measurement; no normal-production timing or B acceptance. Checksum source still uncommitted pending one performance review."
+}

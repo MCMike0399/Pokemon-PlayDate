@@ -1,0 +1,19 @@
+{
+  "classification": "Guarded checkpoint preparation stopped; no new save boundary",
+  "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-after-trainer-pose-checkpoint-20261101-01",
+  "outcome": {
+    "error": "",
+    "host_guard_errors": [
+      "1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded"
+    ],
+    "ok": false
+  },
+  "sampled_peak_bytes": 1094747816,
+  "complete_marker_produced": false,
+  "private_data_removed": true,
+  "action": "Stop repeats. Do not reconstruct or import partial slots. The genuine Route12(10,23) marker remains the last usable boundary.",
+  "source": "Reviewed pose getters adopted at f9f78c41; dependency-only projection refresh at bb78c093.",
+  "targeted_host_checks_passed": 57,
+  "desktop": "Node discovery cannot connect to Gateway18789; no service/config/guard changes by Root.",
+  "remaining": "B Snorlax/Koga/montage and hardware latency targets; no B/C acceptance or push."
+}

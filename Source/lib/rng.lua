@@ -115,6 +115,14 @@ local rules = RulesRNG.new(1)
 function RulesRNG.seed(seed) return rules:seed(seed) end
 function RulesRNG.random(low, high) return rules:random(low, high) end
 function RulesRNG.snapshot() return rules:snapshot() end
+-- Internal encounter workspace capture. Public snapshot() remains detached.
+function RulesRNG._snapshotInto(destination)
+    destination.algorithm = ALGORITHM
+    destination.seed = rules.initialSeed
+    destination.state = rules.state
+    destination.rolls = rules.rolls
+    return destination
+end
 function RulesRNG.restore(snapshot) return rules:restore(snapshot) end
 
 function RulesRNG.toData() return rules:toData() end

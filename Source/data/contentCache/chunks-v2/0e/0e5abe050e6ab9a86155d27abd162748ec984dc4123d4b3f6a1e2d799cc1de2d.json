@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"#MON TOWER was"},{"op":"line","source_line":3,"text":"erected in the"},{"op":"cont","source_line":4,"text":"memory of #MON"},{"op":"cont","source_line":5,"text":"that had died."},{"op":"control","source":"done","source_line":6}],"source":"text/PokemonTower1F.asm"}

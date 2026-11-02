@@ -1,0 +1,50 @@
+{
+  "classification": "Reviewed measured scoped-retention implementation integrated into private B; not B acceptance",
+  "candidate_report": "loading-field-cache-candidate-20261101.json",
+  "review": {
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3Aa6f364e2-1377-4f04-bc59-49ca88b16acf",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "scope": "One static combined performance review of exact candidate wrapper and loading/qualification lifetime."
+  },
+  "implementation": {
+    "source_sha256": "9428e4e85a769263a33bdc6a6f54d040ed4fba30e3fd1ee0ece95e011809b25c",
+    "literal_reviewed_body_equal_except_comments": true,
+    "retention": "Existing loading scope only; public/untrusted validation and all conflict comparisons unchanged; harness/custom fixture paths retain original behavior."
+  },
+  "native": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/loading-field-cache-integrated-native-20261101-01",
+    "result_sha256": "8bbf33d8b2ace02808ef94d81f16c8650dffce379a956ae7b9acc9e3603fa51c",
+    "passed": 7,
+    "failed": 0,
+    "scope": "5 existing source-event plus2 existing content contracts; other cases not claimed.",
+    "private_data_removed": true
+  },
+  "host": {
+    "selected_tests_passed": 31,
+    "failures": 0,
+    "full_suite": "not rerun"
+  },
+  "sdk_provenance": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/loading-field-cache-kanto-sdk-20261101-01",
+    "fresh_sdk_version": "3.1.2",
+    "prior_proof_retained": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/loading-field-cache-kanto-sdk-20261101-01/prior-qualification",
+    "comparison": "All descriptors/rosters and prerequisite IDs match; two existing required_trainers list entries emitted in different pairs order. Raw old/new SDK bytes preserved.",
+    "host_resources": {
+      "limit_bytes": 1073741824,
+      "owned_child_reaped": true,
+      "sampled_peak_bytes": 184648712
+    }
+  },
+  "exact_composed_safety": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-loading-field-cache-integrated-safety-20261101-01",
+    "report_sha256": "ec720476463e5330324b6c5c57f5b7815e965af0df4a591381f6c78fb54522fd",
+    "raw_slice_ms": 52.386,
+    "sampled_peak_bytes": 9185107.968,
+    "safety_only_admission": "validated through unchanged device_cycle --validate-only",
+    "strict_live_target": "failed; historical report remains failed",
+    "saved_payloads_deep_equal_baseline": true
+  },
+  "hardware_scope": "The identical wrapper was measured as a private stage: Route18 14.1%, Fuchsia9.5%. Final owner placement has exact-body equality and fresh SDK/safety checks; exact final compiled hardware timing remains for next composed cycle. Keeper restored after candidate cycle; no current runtime owner.",
+  "open_gates": "B visual Snorlax/Koga/montage pending; full current host/coverage freshness and worst-door/cave targets remain. No C activation or push."
+}

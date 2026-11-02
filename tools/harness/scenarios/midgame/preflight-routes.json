@@ -10,7 +10,7 @@
     "5.5b data is inactive preparation only. Its gaps never become current 5.5a blockers.",
     "Safari admission, step/ball budgets, encounters and Escape Rope checkpoint are runtime dependencies. Surf, Strength and Cycling require earned capabilities; terrain checks do not establish them.",
     "Every original unresolved call is classified with explicit scope and evidence links. Geometry checks certify only declared source origins, targets and mutations; UI semantics and live occupancy remain runtime dependencies.",
-    "Tower 6F source (10,17) and Fuchsia source (28,20) are literal driver walking waypoints, not mutable obstacle targets. Their blocked land collision is a prepared 5.5b defect, not excused by future story flags."
+    "The inactive Tower and pond waypoints are corrected in route_tower and route_fuchsia only. Historical blocked cells remain in inactive_corrections; no current 5.5a script changes."
   ],
   "5.5a": {
     "maps": [
@@ -882,7 +882,7 @@
         ],
         "goal": [
           10,
-          17
+          15
         ]
       },
       {
@@ -975,12 +975,12 @@
         "name": "Fuchsia pond walking approach",
         "map": "FuchsiaCity",
         "start": [
-          19,
-          28
+          31,
+          24
         ],
         "goal": [
-          28,
-          20
+          29,
+          22
         ]
       },
       {
@@ -1007,6 +1007,42 @@
           4
         ],
         "requires": "Actual Strength push must move Warden boulder actor to runtime (10,4). Raw terrain-only pass cannot prove actor occupancy."
+      },
+      {
+        "name": "Safari admission trigger",
+        "map": "SafariZoneGate",
+        "start": [
+          4,
+          3
+        ],
+        "goal": [
+          4,
+          2
+        ]
+      },
+      {
+        "name": "Safari optional grass BALL approach",
+        "map": "SafariZoneWest",
+        "start": [
+          19,
+          6
+        ],
+        "goal": [
+          19,
+          5
+        ]
+      },
+      {
+        "name": "Safari Secret House exhaustion cells",
+        "map": "SafariZoneSecretHouse",
+        "start": [
+          2,
+          4
+        ],
+        "goal": [
+          3,
+          4
+        ]
       }
     ],
     "fixed": [

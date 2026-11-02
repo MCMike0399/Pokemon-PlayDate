@@ -40,6 +40,10 @@ function ExploreSubstate:update()
     local game = self.owner.game
     local player = game.player
 
+    if SafariRuntime and SafariRuntime.check(game) then
+        return
+    end
+
     if self.owner.fieldArrival then
         local arrival = self.owner.fieldArrival
         self.owner.fieldArrival = nil
@@ -79,6 +83,9 @@ function ExploreSubstate:update()
         self.owner:_presentedWorld()
         if not player.fieldStep and player.stepJustFinished then
             game.session:daycareStep()
+        if SafariRuntime then
+            SafariRuntime.completedStep(game)
+        end
         end
         return
     end
@@ -103,9 +110,9 @@ function ExploreSubstate:update()
        and game.session:party():firstUsable()
        and not SourceEvents.worldHook("suppressEncounters", game) then
         local session,zone=game.session,currentZone
-        local plan,reason=FieldEncounters.prepare({session=session,party=session:party(),zone=zone,x=player.gridX,y=player.gridY})
-        if plan then
-            local ok, result, gap = FieldEncounters.resolve(plan)
+        local ok, result, gap = FieldEncounters.attemptStep(
+            session, session:party(), zone, player.gridX, player.gridY)
+        if ok ~= nil then
             if gap then
                 game.lastEncounterAttempt = {kind="none", reason="unimplemented-acquisition", gap=gap}
                 game.lastEncounterSession = session
@@ -127,12 +134,16 @@ function ExploreSubstate:update()
                 local rootMachine=self.owner.machine
                 self.machine:change("irisOut",px+ox,py+oy,function()
                     if game.session~=session or currentZone~=zone or game.player~=player then return false,"stale-wild-transition"end
-                    assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
+                    if SafariGame.isBattleMap(currentZone.stableID) and session:safariData().active then
+                        assert(SafariRuntime.startEncounter(game, enemy))
+                    else
+                        assert(FieldBattle.start(game,game:getPlayerPokemon(),enemy,nil))
+                    end
                 end)
                 return
             end
         else
-            assert(reason=="ineligible-terrain"or reason=="disabled-rate",reason)
+            assert(result == "ineligible-terrain" or result == "disabled-rate", result)
         end
     end
 
@@ -151,6 +162,9 @@ function ExploreSubstate:update()
     gfx.sprite.update()
     if wasMoving and not player.isMoving and player.stepJustFinished then
         game.session:daycareStep()
+        if SafariRuntime then
+            SafariRuntime.completedStep(game)
+        end
     end
     self.owner:_presentedWorld()
 end
@@ -190,6 +204,9 @@ end
 
 function ExploreSubstate:handleInput()
     local game = self.owner.game
+    if SafariRuntime and SafariRuntime.check(game) then
+        return
+    end
     local player = game.player
     local direction = playdate.buttonIsPressed(playdate.kButtonUp)
         or playdate.buttonIsPressed(playdate.kButtonDown)
@@ -337,6 +354,13 @@ function DoorWarpSubstate:init(owner)
 end
 
 function DoorWarpSubstate:enter(door)
+    if SafariRuntime and not SafariRuntime.allowDoor(self.owner.game, door) then
+        self.owner.game.player.stepJustFinished = false
+        self.owner.game.player.pendingEdgeDoor = nil
+        self.owner.game.player.pendingConnection = nil
+        self.machine:change("explore")
+        return
+    end
     if BootTrace then
         BootTrace.mark("door.begin")
     end
@@ -525,6 +549,8 @@ function OverworldState:enter(opts)
     local mw, mh = getMapPixelSize()
     game.camera:snapTo(px, py, mw, mh)
 
+    local encounterReady, encounterReason = FieldEncounters.prepareZone(currentZone)
+    assert(encounterReady, encounterReason)
     self.sub:change("explore")
     -- StateMachine queues this overlay until enter/change completes, so the
     -- first Mart event is top before ordinary input, doors or encounters run.

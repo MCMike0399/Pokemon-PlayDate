@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":17,"text":"Kurukkoo!"},{"op":"line","source_line":18,"text":"How do you like"},{"op":"cont","source_line":19,"text":"my bird call?"},{"op":"control","source":"done","source_line":20}],"source":"text/Route18.asm"}

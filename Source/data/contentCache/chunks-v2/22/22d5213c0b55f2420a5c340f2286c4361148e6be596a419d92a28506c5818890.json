@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":10,"text":"Did you try X"},{"op":"line","source_line":11,"text":"SPEED? It speeds"},{"op":"cont","source_line":12,"text":"up a #MON in"},{"op":"cont","source_line":13,"text":"battle!"},{"op":"control","source":"done","source_line":14}],"source":"text/FuchsiaMart.asm"}

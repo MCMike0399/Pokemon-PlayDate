@@ -14,6 +14,9 @@ local function owned(weak)
         lead.moves, lead.pp = {"karateChop"}, {karateChop = moveData.karateChop.maxPP}
     end
     assert(game:recruit(lead))
+    -- Keep a genuinely owned starter while testing a nonstarter battle lead.
+    assert(game:recruit(pokemon("squirtle", 5)))
+    assert(game.session:storage():deposit(game.session:party(), 2))
     assert(game.session:setIntro({stage="done", starter="squirtle", rivalStarter="bulbasaur"}))
     assert(game.session:activateRNG())
     return game
@@ -76,6 +79,17 @@ function SourceEncounterContracts.run()
         else report.failed, report.ok = report.failed + 1, false end
     end
     test("source ghosts: identification, fear, uncapturable Marowak and confirmed completion", function()
+        local rescue = TowerStory.plan(TowerStory.FUJI,
+            {intro="done", flags={}, items={}, can_add={}, trainers={}, mode="talk"})
+        local destination = rescue.steps[#rescue.steps]
+        local house = SourceMaps.entry(assert(SourceMaps.nameForID("pokered:MR_FUJIS_HOUSE")))
+        assert(destination.op == "warp" and destination.to == house.key,
+            "Fuji return must use the runtime map key")
+        local first = TowerStory.plan(TowerStory.RIVAL, {flags={}, trainers={}})
+        assert(first.scene_script == "tower-rival" and first.confirmed_receipt == nil)
+        local rocket = TowerStory.scenes().rockets[1]
+        local resumed = TowerStory.plan(rocket.id, {flags={}, trainers={[rocket.id]=true}})
+        assert(resumed.scene_script == "rocket-exit" and resumed.confirmed_receipt == nil)
         local game = owned()
         local request = TowerStory.ghostRequest(game.session)
         local forged = GameSession._copy(request)
@@ -153,6 +167,50 @@ function SourceEncounterContracts.run()
         assert(not game.session:pokedex().owned.marowak)
     end)
     test("source Snorlax: genuine capture, victory, escape, defeat, capacity and cancellation", function()
+        VermilionStoryFixture.withScene("Route12", {x=10, y=61, facing="down"}, function(game)
+            game.machine:register("event", MidgameServicesState(game))
+            game.machine:register("bag", BagState(game))
+            assert(game.session:inventory():add("pokeFlute", 1))
+            game.machine:push("bag")
+            local before = RulesRNG.snapshot()
+            local bag = game.machine:get("bag")
+            local accepted, reason = bag:chooseTarget("pokeFlute")
+            assert(accepted, tostring(reason) .. ": " .. tostring(bag.message)
+                .. " moving=" .. tostring(game.player.isMoving) .. " step=" .. tostring(game.player.stepJustFinished))
+            assert(game.machine:stackNames() == "overworld>event>dialog",
+                "Bag USE must dispatch the source Snorlax event and its narration")
+            assert(game.machine:get("event").id == "pokered:ROUTE_12:objects:1")
+            assert(game.session:inventory():quantity("pokeFlute") == 1)
+            assert(game.session:questFlag("EVENT_FIGHT_ROUTE12_SNORLAX"))
+            same(RulesRNG.snapshot(), before)
+            while game.machine:depth() > 1 do
+                game.machine:pop()
+            end
+            game.machine:push("bag")
+            bag:chooseTarget("pokeFlute")
+            assert(game.machine:stackNames() == "overworld>event>dialog",
+                "Cancelled flute presentation must remain retryable")
+            same(RulesRNG.snapshot(), before)
+        end)
+        VermilionStoryFixture.withScene("Route12", {x=10, y=60, facing="down"}, function(game)
+            game.machine:register("bag", BagState(game))
+            assert(game.session:inventory():add("pokeFlute", 1))
+            game.machine:push("bag")
+            local before = RulesRNG.snapshot()
+            local flags = game.session:flags()
+            local bag = game.machine:get("bag")
+            game.player.isMoving = true
+            assert(not SnorlaxStory.useFlute(bag))
+            assert(game.machine:getCurrent() == "bag")
+            game.player.isMoving = false
+            bag:chooseTarget("pokeFlute")
+            assert(game.machine:getCurrent() == "dialog", "Out-of-range flute must show source no-effect text")
+            assert(game.session:inventory():quantity("pokeFlute") == 1)
+            same(game.session:flags(), flags)
+            same(RulesRNG.snapshot(), before)
+            local pages = EventText.pagesFrom({"_PlayedFluteNoEffectText"}, SnorlaxStory.fluteText)
+            assert(#pages > 0 and pages[1].text:find("Played the", 1, true))
+        end)
         local ids = {"pokered:ROUTE_12:objects:1", "pokered:ROUTE_16:objects:7"}
         for index, id in ipairs(ids) do
             local game = owned()

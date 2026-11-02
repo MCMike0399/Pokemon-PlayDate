@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":55,"text":"CYCLING ROAD"},{"op":"line","source_line":56,"text":"No pedestrians"},{"op":"cont","source_line":57,"text":"permitted!"},{"op":"control","source":"done","source_line":58}],"source":"text/Route18.asm"}

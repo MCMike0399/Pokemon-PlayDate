@@ -1,4 +1,11 @@
-# Earned checkpoint 5.5a journeys
+# Earned midgame journeys
+
+Checkpoint B preparation uses `restart-55b-<starter>.json` from accepted A saves.
+Read [the B integration packet](integration-55b.md) before execution. It lists
+explicit production/observation blockers; B is not runtime-qualified. Preflight
+now also collects current B blockers and exits 1 while they remain.
+
+The following describes the retained accepted A scenarios.
 
 The current set is `restart-charmander.json`, `restart-bulbasaur.json` and
 `restart-squirtle.json`, based on exact root

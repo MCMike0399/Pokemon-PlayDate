@@ -1,0 +1,112 @@
+{
+  "classification": "Measured metadata candidate; GameCorner failure unresolved, not adopted",
+  "candidate": "952db34f",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-metadata-hardware-20261102-01",
+  "build_id": "ebb2bc084ed24e59a77f8f08db1509b4",
+  "outcome": {
+    "boot_accepted": false,
+    "device_needs_one_A_press": false,
+    "error": "ValueError('device BootTrace guard failed')",
+    "ok": false,
+    "phase": "collect-result-logs"
+  },
+  "sha256": {
+    "manifest.json": "5982f700aacd14712a4a4dc17dfcb045835db3a81c5f24e031daf14d0ac547f6",
+    "outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
+    "serial-boot-trace.tsv": "b1e9ce3789cc1da4397b3686c4d28fac72514cab8b98d4e1adb4047bb03ff9c9",
+    "device-responses.json": "9aab8cd1ead93f19d457167da31239dff4c5fee27638b61bf7c65d857b1d91e6",
+    "keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  },
+  "native_differential": "6/0 across1262IDs; exact exported values unchanged and qualified production compile passes",
+  "fresh_safety": "65.803ms observed max/9090812.928B sampled peak; stricter heap_live_bytes/frame_ms failures retained",
+  "actor_descriptor_diagnostics": [
+    {
+      "destination": "pokered:FUCHSIA_CITY",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 1306,
+      "candidate_inclusive_ms": 690
+    },
+    {
+      "destination": "pokered:ROUTE_18",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 347,
+      "candidate_inclusive_ms": 161
+    },
+    {
+      "destination": "pokered:ROUTE_18_GATE_1F",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 161,
+      "candidate_inclusive_ms": 102
+    },
+    {
+      "destination": "pokered:ROUTE_18",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 632,
+      "candidate_inclusive_ms": 444
+    },
+    {
+      "destination": "pokered:ROUTE_17",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 1726,
+      "candidate_inclusive_ms": 1087
+    },
+    {
+      "destination": "pokered:ROUTE_18",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 741,
+      "candidate_inclusive_ms": 551
+    },
+    {
+      "destination": "pokered:ROUTE_17",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 2127,
+      "candidate_inclusive_ms": 1548
+    },
+    {
+      "destination": "pokered:ROUTE_16",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 1479,
+      "candidate_inclusive_ms": 1027
+    },
+    {
+      "destination": "pokered:ROUTE_16_GATE_1F",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 286,
+      "candidate_inclusive_ms": 158
+    },
+    {
+      "destination": "pokered:ROUTE_16",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 1763,
+      "candidate_inclusive_ms": 1244
+    },
+    {
+      "destination": "pokered:CELADON_CITY",
+      "completed_door": true,
+      "calls": 3,
+      "baseline_inclusive_ms": 1477,
+      "candidate_inclusive_ms": 916
+    },
+    {
+      "destination": "pokered:GAME_CORNER",
+      "completed_door": false,
+      "calls": 1,
+      "baseline_inclusive_ms": 552,
+      "candidate_inclusive_ms": 308
+    }
+  ],
+  "limits": "Both full cycles fail atGameCorner; no valid complete timing/gate result. 12button batches byte-identical and first11endpoints match, but interbatch idle frames differ. Single instrumented observations, nested overlap/wrapper overhead unmeasured; no repeatability claim. Raw method reduction is useful scope evidence, not a memory-fix or B acceptance claim.",
+  "new_source_finding": "RocketHideoutStoryWorld.projectBlock calls SourceMaps.compact().tiles[key] inside its four-cell loop. SourceMaps.compact returns a deep copy of the entire world catalogue. Replace presence read through an owner boolean API while preserving validation and projection semantics. This is a distinct structural candidate, not yet implemented.",
+  "cleanup": "No new error/crash logs, outcome needs no Apress. Existing keeper restored. All runtime owners closed.",
+  "adoption": "Metadata remains isolated awaiting composed resource fix and one combined review; B/main Source unchanged."
+}

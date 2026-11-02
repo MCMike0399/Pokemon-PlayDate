@@ -1,0 +1,59 @@
+{
+  "classification": "Root physical six-door activation attribution; not global worst-door census or B acceptance",
+  "source_commit": "5d782382",
+  "build_id": "1b8dc14054374d969d85b2e9d07be50b",
+  "hardware_directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-activation-profile-hardware-20261101-01",
+  "raw_serial_sha256": "f61b82cd564b65e7ef1ca323b61499e3a0dce3863ebd714dc0567e40eac10a3a",
+  "all_method_rows": {
+    "file": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-door-activation-profile-hardware-20261101-01/door-methods.json",
+    "sha256": "d35959ca58d980310fac52cd61de74b75039ff0f839d4463cac608df82ecb5ea"
+  },
+  "metrics_sha256": "0cf17bc76aad5b5ad69f1bb725f2dcb146bd32beec995c8a6006c7323ce7e6f5",
+  "route": "Replayed the six previously recorded real button batches; observed zone/coordinates matched at all six boundaries. No teleport, planner, reset or battle-state injection.",
+  "observations": {
+    "door_maps": [
+      "FuchsiaCity",
+      "Route18",
+      "Route18Gate1F",
+      "Route18",
+      "Route17",
+      "Route18"
+    ],
+    "map_load_ms": [
+      5879,
+      2566,
+      1859,
+      2301,
+      5542,
+      2078
+    ],
+    "no_new_logs": true,
+    "keeper_restored": true,
+    "sampled_peak_bytes": 7270689.792
+  },
+  "dominant_inclusive_ms": {
+    "FuchsiaCity": {
+      "actor_descriptor_constructions": 3,
+      "describe_actors": 2039,
+      "capture_traversal_calls": 2,
+      "capture_traversal": 1766,
+      "validate_actors": 1479,
+      "motion_attach": 722
+    },
+    "Route17": {
+      "actor_descriptor_constructions": 3,
+      "describe_actors": 2570,
+      "capture_traversal_calls": 2,
+      "capture_traversal": 2093,
+      "validate_actors": 1796,
+      "motion_attach": 944
+    }
+  },
+  "accounting": "These timings are nested and must not be added. There are no forced full collections or extra yields. Fixed method wrappers add unmeasured overhead; final normal-production timings are not established. No battle or cave pacing sample on this route.",
+  "source_finding": {
+    "actor_validator": "SourceActors.validate eagerly evaluates SourceActors.describe before calling WorldMotionData.normalize.",
+    "normalizer": "WorldMotionData.normalize fully validates the actor DTO shape/version/array, then returns for the legacy zone_id=none marker without using its descriptor argument.",
+    "next_candidate": "Test avoiding the unused shipped-source descriptor only for that empty marker, retaining normalization and custom/harness validation behavior. No implementation or gain claimed yet."
+  },
+  "remaining": "Worst-eight route incomplete; this covers ranked Route17 plus Fuchsia and gate/connection approaches. B visual Snorlax/Koga/montage remains pending. C isolated. No push."
+}

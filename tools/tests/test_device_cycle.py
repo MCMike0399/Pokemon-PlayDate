@@ -466,8 +466,10 @@ class DeviceMetricsCompileTests(unittest.TestCase):
             self.assertIn('local function poll()\n        if not playdate.isSimulator then', module)
             observer = module.split('function DeviceSmoke.installSimulatorObserver()', 1)[1]
             self.assertFalse(observer.lstrip().startswith('if not playdate.isSimulator'))
-            with patch.object(build_smoke.subprocess, 'check_output', return_value='309194ee0b35f329426d21f8c19b9c0442780d11\n'):
+            from tools.tests.host_fixtures import mock_git_revision
+            with mock_git_revision(candidate, '309194ee0b35f329426d21f8c19b9c0442780d11'):
                 metadata = build_smoke.prepare(candidate, run.sdk_path(), root / 'build')
+            self.assertEqual(metadata['revision'], '309194ee0b35f329426d21f8c19b9c0442780d11')
             self.assertEqual(simulator_smoke.verify(root / 'build'), metadata)
         self.assertEqual((project / 'Source/dev/deviceSmoke.lua').read_bytes(), original)
 

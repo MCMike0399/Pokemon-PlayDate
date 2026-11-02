@@ -34,6 +34,12 @@ function FieldItems.canEscape(id)
     local d=data();local symbol=d.aliases[id]or id:match("^pokered:(.+)$")
     if symbol=="AGATHAS_ROOM"then return false end
     local tileset=symbol and d.tilesets[symbol]
+    -- Installed source maps already carry checksum-qualified tileset metadata.
+    -- The original item table remains the authored/legacy fallback.
+    local name = SourceMaps and SourceMaps.nameForID(id)
+    if name then
+        tileset = SourceMaps.descriptor(name).tileset.constant
+    end
     return tileset=="FOREST"or tileset=="CEMETERY"or tileset=="CAVERN"or tileset=="FACILITY"or tileset=="INTERIOR"
 end
 function FieldItems.prepareEscape(game,bag)

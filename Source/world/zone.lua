@@ -718,6 +718,11 @@ function Zone.fromMapDefinition(definition, registry, options)
         ownedConfigs[config] = {terrainPalette = terrainPalette}
         local zone <const> = Zone(config)
         zoneData[zone].slicePlan = slicePlan
+        -- Current-map source metadata only; water never falls back to the
+        -- land table. All exact checkpoint-B source water tables are disabled.
+        zoneData[zone].sourceWaterEncounters = deepCopy(definition.encounters and definition.encounters.water)
+        zoneData[zone].sourceTileset = type(definition.tileset) == "table"
+            and definition.tileset.constant or nil
         -- pokered TryDoWildEncounter permits non-grass indoor land except FOREST.
         -- FIRST_INDOOR_MAP is $25 at the pinned source revision. A missing grass
         -- tile alone says nothing about encounters (Centers also use -1).
@@ -973,29 +978,60 @@ end
 
 -- Pure descriptor for the normal owned encounter-attempt boundary. Existing
 -- explicit checkEncounter/rollEncounter helpers below retain their old contracts.
-local function encounterPolicyAt(self, x, y)
+local function encounterPolicyAt(self, x, y, destination, mode)
+    mode = mode or "land"
+    assert(mode == "land" or mode == "water", "invalid encounter terrain mode")
     if not Party._integer(x, 0, self.width - 1) or not Party._integer(y, 0, self.height - 1) then
         return nil, "invalid-encounter-coordinate"
     end
     local data <const> = zoneData[self]
     local terrain <const> = data.terrain[y + 1][x + 1]
+    if mode == "water" then
+        if not self.imported or not FieldTravel.surfSurface(terrain, data.sourceTileset) then
+            return nil, "ineligible-terrain"
+        end
+        return Zone._readEncounterMapPolicy(self, destination, mode)
+    end
     local indoorLand <const> = self.imported and data.sourceIndoorLand
         and terrain.land_passable and not terrain.water_candidate
     if self.collision[y + 1][x + 1] ~= 0 or not (terrain.grass == true or indoorLand) then
         return nil, "ineligible-terrain"
     end
-    local rate
-    if self.imported then
-        if not self:isSliceReady() then return nil, "unbound-encounter-policy" end
-        rate = { kind = "byte", value = data.slicePlan.encounterRateByte }
-    else
-        rate = { kind = "unit", value = self.encounterRate }
-    end
-    return { rate = rate, slots = self.encounters }
+    return Zone._readEncounterMapPolicy(self, destination)
 end
 
-function Zone:encounterPolicyAt(x, y)
-    local policy, reason = encounterPolicyAt(self, x, y)
+-- Internal projection into caller-owned scratch. Terrain is still checked at
+-- every attempt; only the map-wide rate and slots may be prepared at entry.
+function Zone._readEncounterMapPolicy(zone, destination, mode)
+    mode = mode or "land"
+    assert(mode == "land" or mode == "water", "invalid encounter terrain mode")
+    local data <const> = zoneData[zone]
+    if zone.imported and not zone:isSliceReady() then
+        return nil, "unbound-encounter-policy"
+    end
+    local policy = destination or {rate={}}
+    if mode == "water" then
+        local water = data.sourceWaterEncounters
+        if not zone.imported or not water then
+            return nil, "unbound-encounter-policy"
+        end
+        assert(Party._integer(water.rate_byte, 0, 255), "invalid Blue water encounter byte")
+        -- Nonzero water bindings are outside this exact-B port. Fail rather
+        -- than substitute a land rate, species distribution or RNG protocol.
+        assert(water.rate_byte == 0, "unbound-water-encounter-policy")
+        assert(Party._array(water.slots, 64) and #water.slots == 0, "invalid disabled water slots")
+        policy.rate.kind, policy.rate.value = "byte", water.rate_byte
+        policy.slots = water.slots
+        return policy
+    end
+    policy.rate.kind = zone.imported and "byte" or "unit"
+    policy.rate.value = zone.imported and data.slicePlan.encounterRateByte or zone.encounterRate
+    policy.slots = zone.encounters
+    return policy
+end
+
+function Zone:encounterPolicyAt(x, y, mode)
+    local policy, reason = encounterPolicyAt(self, x, y, nil, mode)
     if not policy then
         return nil, reason
     end
@@ -1004,13 +1040,16 @@ function Zone:encounterPolicyAt(x, y)
 end
 
 local publicEncounterPolicyAt <const> = Zone.encounterPolicyAt
+function Zone._usesDefaultEncounterPolicy(zone)
+    return zone.encounterPolicyAt == publicEncounterPolicyAt
+end
 -- Internal read-only borrow for FieldEncounters. The request must copy before
 -- retaining it and revalidate live data at commit; this grants no cached trust.
-function Zone._readEncounterPolicyAt(zone, x, y)
+function Zone._readEncounterPolicyAt(zone, x, y, destination, mode)
     if zone.encounterPolicyAt ~= publicEncounterPolicyAt then
-        return zone:encounterPolicyAt(x, y)
+        return zone:encounterPolicyAt(x, y, mode)
     end
-    local policy, reason = encounterPolicyAt(zone, x, y)
+    local policy, reason = encounterPolicyAt(zone, x, y, destination, mode)
     if not policy then
         return nil, reason
     end

@@ -21,6 +21,13 @@ class GymSourceTests(unittest.TestCase):
         for name, raw in self.generated.items():
             self.assertEqual((GEN.OUTPUT / name).read_bytes(), raw)
 
+    def test_metadata_eligibility_is_exactly_the_two_source_gifts(self):
+        eligible = {key: value['flag'] for key, value in self.events.items() if value.get('species')}
+        self.assertEqual(eligible, {
+            'pokered:FIGHTING_DOJO:objects:6': 'EVENT_GOT_HITMONLEE',
+            'pokered:FIGHTING_DOJO:objects:7': 'EVENT_GOT_HITMONCHAN',
+        })
+
     def test_badges_are_confirmed_victory_effects_separate_from_bag_retry(self):
         for zone, badge, item, count in [('CELADON_GYM', 'RAINBOW', 'tm21', 7),
                                          ('FUCHSIA_GYM', 'SOUL', 'tm06', 6),

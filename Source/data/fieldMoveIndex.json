@@ -16,6 +16,10 @@
       "name": "CeruleanCity",
       "path": "data/fieldMoveMaps/CeruleanCity.json"
     },
+    "pokered:FUCHSIA_CITY": {
+      "name": "FuchsiaCity",
+      "path": "data/fieldMoveMaps/FuchsiaCity.json"
+    },
     "pokered:LAVENDER_TOWN": {
       "name": "LavenderTown",
       "path": "data/fieldMoveMaps/LavenderTown.json"
@@ -35,6 +39,34 @@
     "pokered:ROUTE_11": {
       "name": "Route11",
       "path": "data/fieldMoveMaps/Route11.json"
+    },
+    "pokered:ROUTE_12": {
+      "name": "Route12",
+      "path": "data/fieldMoveMaps/Route12.json"
+    },
+    "pokered:ROUTE_13": {
+      "name": "Route13",
+      "path": "data/fieldMoveMaps/Route13.json"
+    },
+    "pokered:ROUTE_14": {
+      "name": "Route14",
+      "path": "data/fieldMoveMaps/Route14.json"
+    },
+    "pokered:ROUTE_15": {
+      "name": "Route15",
+      "path": "data/fieldMoveMaps/Route15.json"
+    },
+    "pokered:ROUTE_16": {
+      "name": "Route16",
+      "path": "data/fieldMoveMaps/Route16.json"
+    },
+    "pokered:ROUTE_17": {
+      "name": "Route17",
+      "path": "data/fieldMoveMaps/Route17.json"
+    },
+    "pokered:ROUTE_18": {
+      "name": "Route18",
+      "path": "data/fieldMoveMaps/Route18.json"
     },
     "pokered:ROUTE_2": {
       "name": "Route2",

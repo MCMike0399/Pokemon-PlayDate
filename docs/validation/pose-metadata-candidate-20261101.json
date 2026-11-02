@@ -1,0 +1,93 @@
+{
+  "classification": "Measured callback-preserving pose metadata candidate; review pending, no adoption",
+  "base_commit": "40af1c53",
+  "source_sha256": {
+    "Source/world/sourceActors.lua": "c4c117fc76dd9c965423fa3b875953ad882379c26153e4a2be0a051cd8c72e79",
+    "Source/data/ceruleanContent.lua": "581e4154302da9e4b98033221d46622081e79ab1fd33b761a2dadc57106e8c45",
+    "Source/data/pewterSlice.lua": "4e99dbe760e3abb23fced0f93a39f4c2bdaa43bd8c2843013773fb0c9e908396"
+  },
+  "packet_commit": "f3713a21",
+  "baseline": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-chunked-checksum-hardware-20261101-02",
+  "candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-pose-metadata-hardware-20261101-01",
+  "candidate_metrics_sha256": "6667ec2bc507c6112d679b811ece5537b4c94390cda45d300a2adc0e0f9c9d7d",
+  "candidate_serial_sha256": "c6f5cb7dfd764ce55f7352eda138fcf243d94d99e3ffb21dda67e6750409e127",
+  "actor_constructor_comparisons": [
+    {
+      "destination": "pokered:FUCHSIA_CITY",
+      "calls": 3,
+      "baseline_ms": 1890,
+      "candidate_ms": 1363,
+      "gain_percent": 27.883597883597883
+    },
+    {
+      "destination": "pokered:ROUTE_18",
+      "calls": 3,
+      "baseline_ms": 601,
+      "candidate_ms": 360,
+      "gain_percent": 40.099833610648915
+    },
+    {
+      "destination": "pokered:ROUTE_18_GATE_1F",
+      "calls": 3,
+      "baseline_ms": 369,
+      "candidate_ms": 160,
+      "gain_percent": 56.639566395663955
+    },
+    {
+      "destination": "pokered:ROUTE_18",
+      "calls": 3,
+      "baseline_ms": 1047,
+      "candidate_ms": 642,
+      "gain_percent": 38.68194842406877
+    },
+    {
+      "destination": "pokered:ROUTE_17",
+      "calls": 3,
+      "baseline_ms": 2470,
+      "candidate_ms": 1744,
+      "gain_percent": 29.392712550607285
+    },
+    {
+      "destination": "pokered:ROUTE_18",
+      "calls": 3,
+      "baseline_ms": 1147,
+      "candidate_ms": 749,
+      "gain_percent": 34.69921534437663
+    }
+  ],
+  "whole_loads": {
+    "Route17": {
+      "baseline_ms": 5421,
+      "candidate_ms": 4887,
+      "gain_percent": 9.850581073602656
+    },
+    "FuchsiaCity": {
+      "baseline_ms": 5648,
+      "candidate_ms": 5369,
+      "gain_percent": 4.939801699716714
+    }
+  },
+  "threshold_basis": "Actor-construction subphase is the measured target; Route17 improves29.4%. Whole Route17load9.85% and Fuchsia4.94% do not independently meet10. Descriptor/callback count3 remains unchanged.",
+  "native": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/pose-metadata-b149-native-20261101-03",
+    "result_sha256": "64840b939e1a03ceca64bdf436913bd62ff21e9c1c4182ade4b404c7e4d920ef",
+    "passed": 5,
+    "failed": 0,
+    "scope": "Existing2content+1namespace-restoration cases, detached pose/full-value isolation comparison, actualcustomsprite/metadataerror propagation for empty actor marker.",
+    "prior_attempts": "Native01 generic batch hit hostguard without completed report. Native02 lacked required BLUE art prep; native03 uses ordinary actual Cerulean art preparation, same test body."
+  },
+  "host_tests_passed": 12,
+  "sdk_qualification": {
+    "export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/pose-metadata-b149-kanto-sdk-20261101-01",
+    "comparison": "Fresh actualSDK descriptors/rosters/prerequisite IDs match priorvalues; rawpriorqualification retained. No source callback trust bypass."
+  },
+  "safety": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-pose-metadata-safety-20261101-01",
+    "raw_slice_ms": 54.018,
+    "sampled_peak_bytes": 9165661.184,
+    "admission": "unchanged safety-only gate; stricter live failure retained"
+  },
+  "no_new_logs": true,
+  "keeper_restored": true,
+  "scope": "One paired instrumented run. No normal-production timing, sourceGap or B acceptance. Custom resolvers lacking optionalgetter still call fullsprite; storymetadata callbacks unchanged. All Source changes remain uncommitted pending review."
+}

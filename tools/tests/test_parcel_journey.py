@@ -76,6 +76,9 @@ class ParcelPlannerTests(unittest.TestCase):
             with self.assertRaises(ProtocolError):
                 journey.reset(inventory={"money": 999, "slots": []})
             self.assertEqual(client.commands, [])
+            journey.initializing = False
+            journey.send("hold b", "wait 12", "release b")
+            self.assertEqual(client.commands, ["hold b", "wait 12", "release b"])
 
     def test_wild_ready_intro_waits_for_inactive_command_menu_before_run(self):
         with tempfile.TemporaryDirectory() as directory:

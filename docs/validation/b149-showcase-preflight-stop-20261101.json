@@ -1,0 +1,47 @@
+{
+  "status": "failed; no showcase or motion acceptance",
+  "attempt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-preflight-20261101-01",
+  "source_revision": "4201bcb460947800ca9f56351c9ae82bfb4eb542",
+  "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+  "compiled_source_sha256": "6473e1d553f6450669819eac2478303e832672d554d6740ed22c91f1b53d7cf0",
+  "outcome": {
+    "error": "",
+    "host_guard_errors": [
+      "1 GiB footprint or bounded showcase deadline exceeded"
+    ],
+    "ok": false
+  },
+  "last_sampled_host_bytes": 1111475904,
+  "seconds_at_last_sample": 8.590252375230193,
+  "owned_processes_confirmed_absent": [
+    61305,
+    61678
+  ],
+  "root_cleanup": {
+    "archived": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-preflight-20261101-01/runtime-data",
+    "byte_hashes_equal": true,
+    "files": 12,
+    "owned_pids_confirmed_absent": [
+      61305,
+      61678
+    ],
+    "private_data": "/Users/burbujamc/Developer/PlaydateSDK/Disk/Data/com.poc.pokemon.harness.3cc173cbd6c94db9bf6d6eeabbb8cc8d",
+    "scope": "Interrupted preflight only; failed run, no acceptance. Canonical chain untouched."
+  },
+  "capacity_gib_at_recheck": 46.652103424072266,
+  "operator_error": "Shell lacked fail-fast behavior; recorder started after the external 51 GiB precheck failed. Root interrupted only identified owner. Host 1 GiB guard independently fired. No retry admitted.",
+  "correction": "5b42623c puts 51 GiB admission inside recorder before output/SDK and 50 GiB reserve in live guard. Actual CLI rejection verified before output directory or SDK launch.",
+  "preflight_admission_review": "4201bcb4: one combined read-only review, no actionable findings; 90-second sampled threshold followed by cleanup, not exact-exit guarantee. Full-capture hold unchanged.",
+  "protected_state": "Canonical saves, production Source, memory pool and guard ceilings unchanged. Failed-run UUIDData copied with complete byte equality then removed under ordered locks after confirmed exits.",
+  "open": [
+    "Capture has no usable preflight yet.",
+    "Full showcase remains held; long-run AX/Clear qualification is not established.",
+    "Runtime cannot restart below51GiB.",
+    "B remains unaccepted; C isolated."
+  ],
+  "proof_sha256": {
+    "outcome.json": "12ef4b59697753aa4489ce30eecf07fd42df668b55c796c26cbe2c447050722e",
+    "root-cleanup.json": "dbae2c0c34ab498b1fb43789d19b98bc8239c93c42c4cdbf2ecc876ebab81479",
+    "host-footprint.jsonl": "0ad6f38a809f3c60bbcc36fb695f04185d36f95dd7e446f4fe1d8ebe3594a26a"
+  }
+}

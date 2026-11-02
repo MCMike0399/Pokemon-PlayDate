@@ -1425,6 +1425,13 @@ function Pokemon:heal(amount)
     end
 end
 
+-- Stage-only mutation: Haze/Clear Smog must preserve all other battle state.
+function Pokemon:clearStatStages()
+    for _, stat in ipairs({ "atk", "def", "spa", "spd", "spe", "acc", "eva" }) do
+        self.statStages[stat] = 0
+    end
+end
+
 function Pokemon:resetStages()
     self.statStages = { atk = 0, def = 0, spa = 0, spd = 0, spe = 0, acc = 0, eva = 0 }
     self.confusion = nil

@@ -193,8 +193,13 @@ end
 
 function Player:movementImage(original, pose)
     local game = self.npcManager.game
-    if FieldGearArt and game and game.session and game.session:fieldTravelData().mode == "bicycle" then
-        return FieldGearArt.bicycle(self.facing, pose)
+    if FieldGearArt and game and game.session then
+        local travel = self.fieldStep and self.fieldStep.plan.travel or game.session:fieldTravelData()
+        if travel.mode == "bicycle" then
+            return FieldGearArt.bicycle(self.facing, pose)
+        elseif travel.mode == "surfing" then
+            return FieldGearArt.surf(self.facing, pose)
+        end
     end
     return original
 end
@@ -258,11 +263,17 @@ function Player:tryMove(dx, dy, scriptIntent)
     -- Only the exact, live source escort intent may overlap ambient sprites.
     -- All ordinary callers retain NPC collision, terrain and traversal checks.
     local scripted, guide = false, nil
+    local safariScript = false
     if scriptIntent ~= nil then
         self.running = false
-        if not TutorialEscortPlayer then return end
-        scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
-        if not scripted then return end
+        if SafariPassage and SafariPassage.permits(scriptIntent, self, dx, dy) then
+            scripted = true
+            safariScript = true
+        else
+            if not TutorialEscortPlayer then return end
+            scripted, guide = TutorialEscortPlayer.permits(scriptIntent,self,dx,dy)
+            if not scripted then return end
+        end
     end
 
     if dy == -1 then self.facing = "up"
@@ -305,7 +316,7 @@ function Player:tryMove(dx, dy, scriptIntent)
     -- Check for NPC at target position (skip during noclip)
     if not (DEBUG_FLAGS and DEBUG_FLAGS.noclip) then
         local occupant = self.npcManager:getNPCAt(targetGX, targetGY)
-        if occupant and (not scripted or occupant == guide) then
+        if occupant and (not scripted or safariScript or occupant == guide) then
             local motion = self.npcManager.motion
             if not scripted and motion.isBoulder and motion:isBoulder(occupant)
                 and game.session:fieldTravelData().strength then
@@ -471,7 +482,10 @@ function Player:updateFieldStep()
     local fraction = math.min(1, self.moveFrames / MOVE_FRAMES)
     local rendered, problem = pcall(function()
         local frames = self.walkToggle and playerWalk1Images or playerWalk2Images
-        self:setImage(self.moveFrames <= MOVE_FRAMES // 2 and frames[self.facing] or playerImages[self.facing])
+        local walking = self.moveFrames <= MOVE_FRAMES // 2
+        local pose = walking and (self.walkToggle and "walk" or "alternate") or "stand"
+        local image = walking and frames[self.facing] or playerImages[self.facing]
+        self:setImage(self:movementImage(image, pose))
         self:moveTo(self.startPixelX + (self.targetPixelX - self.startPixelX) * fraction,
             self.startPixelY + (self.targetPixelY - self.startPixelY) * fraction)
         self.grassOverlay:setVisible(false)

@@ -1,0 +1,114 @@
+{
+  "classification": "Current B actual earned Snorlax component; final B showcase/acceptance open",
+  "source_revision": "f771a168950fc9c90e66b6b5d14ff614179610ec",
+  "source_sha256": "de3a21f9b3e9cf1218a51b63d971949886e3a26e609f9b9da35edf2a66b33991",
+  "recording": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-no-profiler-20261102-01",
+  "export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-export-20261102-01/cutscene-complete.mp4",
+  "duration_seconds": 16.56,
+  "dimensions": [
+    400,
+    240
+  ],
+  "speed": 1,
+  "sample_ticks": 2,
+  "max_frame_gap_seconds": 0.251,
+  "audio": "silent; audioheld",
+  "review": "Root inspected original first/quarter/mid/threequarter/final frames; native art/text/states visible. Decoded firstRGBA exactly source. Full motion composition/review stillopen, no game/device pacing claim.",
+  "markers": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-after-trainer-no-profiler-20261102-01/processes/0001/partial-save.json",
+      "sha256": "4f95b3ba3a5bc960e4fc7f4dc30b821b1932df05fb4cf2698085c4eb61c1839b",
+      "location": {
+        "facing": "down",
+        "x": 14,
+        "y": 30,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "run_sha256": "958463fb08fae8e7baee5b0ddcbcd7dcb2d4c619c49384f61b2e98ae881d21f4"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-mid-no-profiler-20261102-01/processes/0001/partial-save.json",
+      "sha256": "97d1df8def30caa107e86f18e69c98c977c8b81431a85721c81f813e240ba891",
+      "location": {
+        "facing": "right",
+        "x": 10,
+        "y": 45,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "run_sha256": "bf9cf52378ba83a7e8813324d3f02acdc0c29cfc3505f81a1e16cd55cc42c499"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-south-trainer-near-20261102-01/processes/0001/partial-save.json",
+      "sha256": "0280134e064e01ee72405f28c550d52c6e3f8f05dce3724301a6612d54f27c81",
+      "location": {
+        "facing": "down",
+        "x": 12,
+        "y": 51,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "run_sha256": "a4734a2100e9299ff20dd87b597adaecffb5374c3a2a4b725f06d1c9014d5c65"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-pier-west-no-profiler-20261102-01/processes/0001/partial-save.json",
+      "sha256": "1c4bcc5e49943cb3a85cbc83ce6e96bf5a45a2de093ecedc547aa9da85d6c900",
+      "location": {
+        "facing": "left",
+        "x": 4,
+        "y": 49,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "run_sha256": "a56bb0f20d3941c6c0e249e7677d6478a99b489d849d17ae2c3dd0c1d6b968d6"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-adjacent-no-profiler-20261102-01/processes/0001/partial-save.json",
+      "sha256": "9a3bc36dba63dfa13f36299ea0e959c3902ab5a9e71587a98196f080bfaf3b6e",
+      "location": {
+        "facing": "down",
+        "x": 10,
+        "y": 61,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "run_sha256": "e4d95bb6f0404069e4b5e8f9293d35f1edc82363e4a228467f6810b3d63745d6"
+    }
+  ],
+  "capture_controls": "No Clear/AX/OpenClaw operations, no Malloc Log opening/enabling.16MiBpool/1GiBhost/51admission/50reserve retained. Live read-only CoreGraphics inventory on the failed approach showed main/Console/Sampler/LuaMemory, noMallocLog. That approach stillhit1GiB, so closedwindowalone doesnot prove hostgrowthresolved.",
+  "genuine_route": "Trainer2 actualvictory+Save; realSave at10,45 and12,51; Source-fixed20-cellwalk outside optionalFisherman7right-facing4-cell sight, Save4,49; ordinarywalk/Save10,61; realPokeFlute/Snorlax encounter/outcome. No resets/resource injection/state reconstruction or rematch.",
+  "source_bends": [
+    [
+      15,
+      51
+    ],
+    [
+      15,
+      53
+    ],
+    [
+      8,
+      53
+    ],
+    [
+      8,
+      49
+    ],
+    [
+      4,
+      49
+    ]
+  ],
+  "source_bend_proof": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-fixed-pier-recipe-20261102-01/pier-host-check.json",
+  "skipped_private_overhead": "Cutscene-only replay asserts earnedTrainer2victory and nearestposition, usescurrentusableparty without unnecessaryCenter backtrack; no irrelevantpostcaptureSave. Originalgame/load/encounter/ending checks retained.",
+  "failed_evidence_retained": [
+    "showcase-snorlax-near-no-profiler-20261102-01",
+    "showcase-snorlax-near-no-profiler-20261102-02",
+    "showcase-snorlax-near-no-profiler-20261102-03",
+    "showcase-after-fisherman7-no-profiler-20261102-01"
+  ],
+  "sha256": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-no-profiler-20261102-01/build.json": "b9c20d768fa9c1ecd003c2cd4c92abdcc81359093f1679f964da859e7f3dad66",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-no-profiler-20261102-01/run.json": "56b4b714cd5c98daff20c10245614d56ea83e3936572de5ec416c2fde1fa31a7",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-no-profiler-20261102-01/outcome.json": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-export-20261102-01/cutscene-complete.mp4": "8469ec7ce2a4add6f2e92f9d0f5c2ca4732282d3235daf6af6d158399d8dc534",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-cutscene-export-20261102-01/capture-report.json": "0ee4275db2facc3c9f93a83406aafc04995b6bb5f0df005724e5580795b248ea"
+  },
+  "remaining": "Koga genuine component,60\u201390s composition, currentplayerpackage andBacceptance. No push."
+}

@@ -1,1 +1,1 @@
-{"packages":{"data/midgameEast/":"package-1","data/sourceSlice/":"package-2","data/vermilionPreparation/":"package-3"},"pins_sha256":"3b5511df171c1ee9e76bae18b25bd78c924c1bf97be6159465ce4185cceb05f1","schema":1,"source_revision":"af519899719f0754965776faac0e836a3b906e6d"}
+{"packages":{"data/midgameEast/":"package-1","data/midgameSouth/":"package-2","data/sourceSlice/":"package-3","data/vermilionPreparation/":"package-4"},"pins_sha256":"c6fbf55a263ce2747f354903cf54130a11092bc39b683a6b2e9bc953dd399fa1","schema":1,"source_revision":"af519899719f0754965776faac0e836a3b906e6d"}

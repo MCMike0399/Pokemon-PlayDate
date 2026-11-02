@@ -4,6 +4,10 @@
     "data/midgameEast/events.json": "0f91c50ff92b0627a5e3d7b7521efaf88cd75017d6e76c2091031fe59c35d778",
     "data/midgameEast/sprites.json": "600ba881e4ab02f233effb078a13155f0d62182250eae7e5b22b9588e8064045",
     "data/midgameEast/trainers.json": "9850c31966a48c85453373a27bc8cf0d2e71ed0d3c123a03cc76c92f6354910a",
+    "data/midgameSouth/dialogue.json": "83363fc2ad5161dc2f571b258f2bd5a4eaa5af7b85a2421055b4958b69c231f1",
+    "data/midgameSouth/events.json": "bc53dcf2d4227c3efae7f7bf11ea3ec1d128beed8999fb8bc63a8842885bbfed",
+    "data/midgameSouth/sprites.json": "a3b8ed37e6e177206ea3660c25b63b3b483b29c42a9c0a79fb0015844fdd6864",
+    "data/midgameSouth/trainers.json": "11d3627f15d901dce059bcbdc7955b352c0a330a6e72581d213185b385921912",
     "data/pewterSlice/trainerNames.json": "1e3733784c526d07460c2880bf1ed2f2dad1df348c3f93c3d7ba3c66c87f2e7f",
     "data/pewterSlice/trainers.json": "65db8aba87ef485ff49af10b3ee7af3dfc8def867a792788bf3033d5253d6e41",
     "data/sourceEvents.json": "3a2595132641b1b89149211e96ee2d241dc2e9030792499c56237b8a94aa1008",
@@ -16,10 +20,21 @@
     "data/vermilionPreparation/sprites.json": "9c985fbd5b6fc73ef7bff457572702fa608d64531702bed1f001fdfa3737feb7",
     "data/vermilionPreparation/trainers.json": "6ac1c6a49a3cf913f795660d95b2be9c8bce943e55984e36d38b107bc3fd6da3"
   },
+  "package_exclusions": {
+    "data/midgameSouth/": {
+      "maps": [
+        "pokered:ROUTE_16_FLY_HOUSE"
+      ],
+      "text_sources": [
+        "text/Route16FlyHouse.asm"
+      ]
+    }
+  },
   "packages": [
     "data/sourceSlice/",
     "data/vermilionPreparation/",
-    "data/midgameEast/"
+    "data/midgameEast/",
+    "data/midgameSouth/"
   ],
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d"

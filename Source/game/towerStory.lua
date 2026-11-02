@@ -11,13 +11,16 @@ local integration
 local function copy(value)
     return GameSession._copy(value)
 end
-function TowerStory.scenes()
+local function sourceScenes()
     if not cached then
         local data <const> = assert(json.decodeFile("data/towerStory/scenes.json"))
         assert(data.schema == 1 and data.source_revision == REVISION, "unverified Tower scenes")
         cached = data.scenes
     end
-    return copy(cached)
+    return cached
+end
+function TowerStory.scenes()
+    return copy(sourceScenes())
 end
 function TowerStory.padding(zoneID)
     return SourceMaps.entry(assert(SourceMaps.nameForID(zoneID))).padding
@@ -72,6 +75,10 @@ function TowerStory.descriptors(content, houseContent)
     return events
 end
 function TowerStory.actorMetadata(id, game)
+    if id ~= TowerStory.RIVAL and id ~= TowerStory.FUJI and id ~= TowerStory.HOUSE_FUJI
+        and not id:match("^pokered:POKEMON_TOWER_7F:objects:[123]$") then
+        return {}
+    end
     if id == TowerStory.RIVAL then
         return {visibility = {{group = "quest", id = TowerStory.RIVAL_LEFT, equals = false}}}
     elseif TowerStory.rocket(id) then
@@ -101,7 +108,7 @@ function TowerStory.plan(id, observation)
         end
         return {status = "ready", scene = "tower-story", steps = {},
             scene_script = observation.trainers[id] and "tower-rival-exit" or "tower-rival",
-            confirmed_receipt = copy(observation.receipt),
+            confirmed_receipt = observation.receipt and copy(observation.receipt) or nil,
             ram = observation.receipt and {wAmountMoneyWon = observation.receipt.payout} or nil}
     end
     if id == TowerStory.FUJI then
@@ -109,11 +116,13 @@ function TowerStory.plan(id, observation)
             return {status = "already-complete", steps = {}}
         end
         local target <const> = TowerStory.scenes().fuji.destination
+        local name <const> = assert(SourceMaps.nameForID(target.map_id))
+        local destination <const> = SourceMaps.entry(name)
         return SourceEvents.compile({kind = "program", steps = {
             {op = "dialog", labels = {"_PokemonTower7FMrFujiRescueText"}},
             {op = "set-flag", id = "EVENT_RESCUED_MR_FUJI", value = true},
             {op = "set-flag", id = "EVENT_RESCUED_MR_FUJI_2", value = true},
-            {op = "warp", to = target.map_id, toX = target.x + TowerStory.padding(target.map_id),
+            {op = "warp", to = destination.key, toX = target.x + destination.padding,
                 toY = target.y, facing = target.facing},
         }}, observation, id)
     end
@@ -137,7 +146,7 @@ function TowerStory.plan(id, observation)
         return {status = "already-complete", steps = {}}
     end
     return {status = "ready", scene = "tower-story", scene_script = "rocket-exit", steps = {},
-        confirmed_receipt = copy(observation.receipt),
+        confirmed_receipt = observation.receipt and copy(observation.receipt) or nil,
         ram = observation.receipt and {wAmountMoneyWon = observation.receipt.payout} or nil}
 end
 function TowerStory.ghostRequest(session)
@@ -182,12 +191,18 @@ function TowerStory.install(content, options)
             end
         end,
         explore = function(game)
-            if currentZone.stableID == "pokered:POKEMON_TOWER_2F" then
+            local zoneID <const> = currentZone.stableID
+            if zoneID ~= "pokered:POKEMON_TOWER_2F"
+                and zoneID ~= "pokered:POKEMON_TOWER_6F"
+                and zoneID ~= "pokered:POKEMON_TOWER_7F" then
+                return false
+            end
+            if zoneID == "pokered:POKEMON_TOWER_2F" then
                 if game.session:trainerDefeated(TowerStory.RIVAL) and not game.session:questFlag(TowerStory.RIVAL_LEFT) then
                     return SourceEvents.dispatch(game, TowerStory.RIVAL)
                 end
                 if not game.session:trainerDefeated(TowerStory.RIVAL) then
-                    for _, trigger in ipairs(TowerStory.scenes().rival.triggers) do
+                    for _, trigger in ipairs(sourceScenes().rival.triggers) do
                         if game.player.gridX == trigger.x + TowerStory.padding(currentZone.stableID)
                             and game.player.gridY == trigger.y then
                             return SourceEvents.dispatch(game, TowerStory.RIVAL)
@@ -195,14 +210,14 @@ function TowerStory.install(content, options)
                     end
                 end
             end
-            local ghost <const> = TowerStory.scenes().ghost
+            local ghost <const> = sourceScenes().ghost
             if currentZone.stableID == "pokered:POKEMON_TOWER_6F" and not game.session:questFlag(ghost.flag)
                 and game.player.gridX == ghost.x + TowerStory.padding(currentZone.stableID)
                 and game.player.gridY == ghost.y then
                 return SourceEvents.dispatch(game, ghost.id)
             end
             if currentZone.stableID == "pokered:POKEMON_TOWER_7F" then
-                for _, rocket in ipairs(TowerStory.scenes().rockets) do
+                for _, rocket in ipairs(sourceScenes().rockets) do
                     if game.session:trainerDefeated(rocket.id)
                         and not game.session:questFlag(TowerStory.departureFlag(rocket.id)) then
                         return SourceEvents.dispatch(game, rocket.id)

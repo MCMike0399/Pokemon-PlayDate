@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":62,"text":"Did you get a"},{"op":"line","source_line":63,"text":"good haul?"},{"op":"cont","source_line":64,"text":"Come again!"},{"op":"control","source":"done","source_line":65}],"source":"text/SafariZoneGate.asm"}

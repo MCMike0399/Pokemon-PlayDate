@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":40,"text":"Oh no!"},{"op":"para","source_line":42,"text":"You have no room"},{"op":"line","source_line":43,"text":"for my gift!"},{"op":"control","source":"done","source_line":44}],"source":"text/FuchsiaGoodRodHouse.asm"}

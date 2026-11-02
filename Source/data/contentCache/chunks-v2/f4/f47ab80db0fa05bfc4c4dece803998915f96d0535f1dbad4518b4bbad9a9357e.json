@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":110,"text":"Name: KABUTO"},{"op":"para","source_line":112,"text":"A #MON that"},{"op":"line","source_line":113,"text":"was resurrected"},{"op":"cont","source_line":114,"text":"from a fossil."},{"op":"control","source":"prompt","source_line":115}],"source":"text/FuchsiaCity.asm"}

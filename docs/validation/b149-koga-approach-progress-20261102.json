@@ -1,0 +1,280 @@
+{
+  "classification": "Actual preparation Saves toward Koga capture, not B acceptance",
+  "source_revision": "2c34d1da",
+  "source_unchanged": true,
+  "bulbasaur_chain": [
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-after-jr-options-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "ebc414361d54463339ead5cea9715c82b7a895231f6a46a30543cc4d51b9e5ea",
+      "run_sha256": "54b190e8a159e3836acd13beb533f0e59cd90cb2d9dc9bd940818fdba9401286",
+      "location": {
+        "facing": "down",
+        "x": 10,
+        "y": 92,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-entry-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "a891cebd1477d77e33388e7daa8eef747cb7ecbfb486a7ee0dd830d42d58eafd",
+      "run_sha256": "4c9c48810ed9e535ba6a14b1ed9a72676a63bce43fb88497f9de017d6d9813d8",
+      "location": {
+        "facing": "down",
+        "x": 51,
+        "y": 0,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-before-bird-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "3138d819a0a2addcdc69d83a3107a5ac019793d8b173cd85a6e651a1877132a0",
+      "run_sha256": "9251ed7cadcb0f4f9a6cbc59def55bf03267204a188b097dd5fe0579aa8c868e",
+      "location": {
+        "facing": "down",
+        "x": 51,
+        "y": 9,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-after-bird-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "3925eec9574f22945345c0d1902518c5264aecdfc081f1bcf6943eafe31ab896",
+      "run_sha256": "e1abd2e51b4c74ef2cb65f35a1ea79c7e34a46ea6ee61bbce13d389a322adc7c",
+      "location": {
+        "facing": "down",
+        "x": 51,
+        "y": 10,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-before-jr2-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "6a859b13b34230fa712fa78bfca6d3f33953694e8e883077401dcf0b00171950",
+      "run_sha256": "b9fbfaa5545a826008c3e4dd0e0824badf17206a8d9494dd83144024a1492bc9",
+      "location": {
+        "facing": "left",
+        "x": 49,
+        "y": 11,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-after-jr2-stable-move-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "2216aaf9ff3855397d979a06043c83c12accf51f740451b0196901f799400255",
+      "run_sha256": "a78a84189a5f646ccdf89b7c0a02b82540e2750a2caca2655ff96ffeb8dbf84f",
+      "location": {
+        "facing": "left",
+        "x": 48,
+        "y": 11,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-before-beauty-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "4241d99b8c323c872ac8b8b10ec6e981c12c583c6ac6ff641589cb6faa18ce71",
+      "run_sha256": "3d63651e86ef1a52116307b7e81c56dac550655f9e9996df13097a23ded216cf",
+      "location": {
+        "facing": "up",
+        "x": 35,
+        "y": 10,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-south-corridor-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "488b4d52d364a6d94458f3826c1c937aa1cf27c5905b1d6929c0936bd5a38414",
+      "run_sha256": "e321d61a031b578f7c2b84e879d4ceb4f92b4e3c07176dab002657a3a11de45a",
+      "location": {
+        "facing": "left",
+        "x": 25,
+        "y": 12,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-middle-corridor-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "f33fb3cfaa2540343b477ea0af27e7b9de43677983bd3a520c55bdd6685a7ddf",
+      "run_sha256": "d259995561361df54c8d658bde66e2ea4f0af3fbc5816450eb4bd85c74aac8f5",
+      "location": {
+        "facing": "left",
+        "x": 17,
+        "y": 8,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-west-corridor-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "3bfa94f4ef3683a1f825ca1b341536f98bacaf4791aca1e7c4153e396e6ec415",
+      "run_sha256": "4f939122387cd37e9dd795138afb7424146224c2f8ba28e531196cd3e513c403",
+      "location": {
+        "facing": "left",
+        "x": 15,
+        "y": 4,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route13-west-exit-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "a1de64b3c1fc02067cf4abda9a89c2174c9b679c4acb86b878b79b2eb3f731ea",
+      "run_sha256": "e6af9298c2277d41fada730831b8b5a179e296d3f62742b2fc7e4872903f9208",
+      "location": {
+        "facing": "left",
+        "x": 0,
+        "y": 10,
+        "zone_id": "pokered:ROUTE_13"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route14-entry-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "37f9b3134ce650a745662beae902dfa94f0b9f2fe0322194335112b806c3a60e",
+      "run_sha256": "c8996bf8dd394091bd075f7e67c21b460546131d2223672a10b53b6fca739b4d",
+      "location": {
+        "facing": "left",
+        "x": 13,
+        "y": 10,
+        "zone_id": "pokered:ROUTE_14"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route14-middle-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "d516da424c0c414a203ddd72683d0cd8a7d5c2f3ec059917477c20f65886b4fa",
+      "run_sha256": "3ddf322bdf6a24afdabf19239172151253ef9cd6f5d6cd77cc6a3c00a847858e",
+      "location": {
+        "facing": "down",
+        "x": 13,
+        "y": 25,
+        "zone_id": "pokered:ROUTE_14"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route14-east-corridor-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "9393f5ef6eca97f932eb786989e6ff27c61f4411d37418a621991b1daebe1f6e",
+      "run_sha256": "a45d588f51e8d8ab28041618531959836fef6efd7928dbd6967c687237e6099f",
+      "location": {
+        "facing": "right",
+        "x": 16,
+        "y": 29,
+        "zone_id": "pokered:ROUTE_14"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route14-south-corridor-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "1db7ccce110b55692b6a283ac599e1ae6ddbac77f3546c2603c45cefece4e545",
+      "run_sha256": "0b98acb29b1fceafcf32b53ab97765a768e225a671f21e93d65ca94466805a4d",
+      "location": {
+        "facing": "down",
+        "x": 16,
+        "y": 44,
+        "zone_id": "pokered:ROUTE_14"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route14-west-exit-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "6352319a6d4911a0fe6f979fa7866cc083ce76dd80f2a01859f8f005d7d7ddb4",
+      "run_sha256": "60979332b6981bfcd1a42c2b8310bf928d963bc597af2a0d7439f03c0191ee80",
+      "location": {
+        "facing": "left",
+        "x": 0,
+        "y": 44,
+        "zone_id": "pokered:ROUTE_14"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route15-fixed-entry-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "83966378d8e129540ac88cc1102ed6d370f21770832b539bde655329ac4f5aad",
+      "run_sha256": "9ca109a84b56c7b7bf6763b59d43ca102e532a8516fa6dfecfdba0d907b5dce8",
+      "location": {
+        "facing": "left",
+        "x": 59,
+        "y": 8,
+        "zone_id": "pokered:ROUTE_15"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route15-east-road-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "0f7753fca6498bee7f69cd5ae1994ccaeefa80d69dad82a96a705676db9318f8",
+      "run_sha256": "6e4b482338a1ee0891afcc728cbae83b90a9b06d3c2f7a7e16e25407f6a03fed",
+      "location": {
+        "facing": "up",
+        "x": 54,
+        "y": 9,
+        "zone_id": "pokered:ROUTE_15"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    },
+    {
+      "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route15-exact-middle-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "67a148502721a777af7abd98076cff1db4bf2b3409c13176de2133656b2026f3",
+      "run_sha256": "9ebc5f54047b73784d2ec189d2677a7deba3f7ff0bdc9f3dabdaeabcf55baab7",
+      "location": {
+        "facing": "left",
+        "x": 40,
+        "y": 9,
+        "zone_id": "pokered:ROUTE_15"
+      },
+      "starter": "bulbasaur",
+      "soul": false
+    }
+  ],
+  "latest": {
+    "marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route15-exact-middle-save-20261102-01/processes/0001/partial-save.json",
+    "sha256": "67a148502721a777af7abd98076cff1db4bf2b3409c13176de2133656b2026f3",
+    "run_sha256": "9ebc5f54047b73784d2ec189d2677a7deba3f7ff0bdc9f3dabdaeabcf55baab7",
+    "location": {
+      "facing": "left",
+      "x": 40,
+      "y": 9,
+      "zone_id": "pokered:ROUTE_15"
+    },
+    "starter": "bulbasaur",
+    "soul": false
+  },
+  "preparation_changes": [
+    "Actual Options UI disables animations for selected preparation battles only; preferences are not imported into capture runs. Screenshot and archived game-options.json confirm OFF.",
+    "Earned Razor Leaf chosen through FIGHT for Route13 objects2 to avoid recoil and rampage confusion; actual trainer victory, payout and full saved codec checks retained.",
+    "Fixed ordinary route waypoints avoid optional sightlines. Route15 uses exact terrain-validated individual steps because grass-cost routing chose a trainer road detour. No actor/flag/resource/collision changes."
+  ],
+  "failed_outputs": "Retained; never reconstruct slots or a marker after incomplete Save observation.",
+  "alternate_charmander": "Separate B7 genuine chain was strictly host-imported and SDK-imported, with actual short Saves through Route13 approach. It did not replace the Bulbasaur chain; its later longer battle hit host guard.",
+  "runtime_stop": {
+    "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route15-exact-central-save-20261102-01",
+    "reason": "50 GiB disk reserve during startup; sampled process footprint only164037664B",
+    "free_gib": 50.10406494140625
+  },
+  "remaining": "Koga segment, complete composition/motion review, current player package, B acceptance and merge. No push."
+}

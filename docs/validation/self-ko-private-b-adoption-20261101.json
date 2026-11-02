@@ -1,0 +1,64 @@
+{
+  "classification": "Private B mechanics adoption; not B campaign/visual/device acceptance",
+  "implementation_commits": [
+    "0a9b562a",
+    "4470a0c2"
+  ],
+  "original_reviewed_commits": [
+    "0cc27ef488744e7c40dab4090621832854b32d4a",
+    "5d83e868caf75385de67e277ecd667f905049539"
+  ],
+  "review_scope": "Original independent standards/spec and fresh Kings Rock correction recheck retained in candidate handoff; source implementation cherry-picked without conflicts. This integration adds existing harness registration only.",
+  "host_validation": {
+    "focused_producer_migration_tests": 34,
+    "failures": 0,
+    "move_support_generator_check": "pass",
+    "exact_regeneration": {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/self-ko-b-integrated-host-20261101.json",
+      "sha256": "247cdb655b55220452f7867909c458e0f54b37d7fc262103e5a232cf3880e920",
+      "scope": "425 rows reproduce from pinned inputs; 423 non-self-KO rows and original inverse match. Harness bytes allow only exact two-line self-KO registration."
+    }
+  },
+  "native_runs": [
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-selfko-integrated-native-20261101-01",
+      "build_sha256": "39899fe9676cd6d3547e0a2655030a67778fcd9018548e7f07a0e42bab94be89",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 257328160
+      },
+      "private_data_removed": true,
+      "setup_failure": "ChargeLockContracts requires actual Autopilot, absent from this minimal runner. Guarded error transport stopped the process; no charge-lock result claimed."
+    },
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-selfko-integrated-native-20261101-02",
+      "build_sha256": "4efe7019d8562c83ce13345117e079574e2bca54511784b3cb563c9dd24378c1",
+      "host_resources": {
+        "limit_bytes": 1073741824,
+        "sampled_peak_bytes": 259032120
+      },
+      "private_data_removed": true,
+      "result_sha256": "7a8cafd8275ac567e0b64fc455833920e0d8338f22d8db116d1998f293e26788",
+      "passed": 74,
+      "failed": 0,
+      "suites": [
+        {
+          "failed": 0,
+          "id": "self-ko-moves",
+          "passed": 15
+        },
+        {
+          "failed": 0,
+          "id": "combat",
+          "passed": 34
+        },
+        {
+          "failed": 0,
+          "id": "contact-abilities",
+          "passed": 25
+        }
+      ]
+    }
+  ],
+  "remaining": "No fresh all-campaign run, full host suite, player-facing visual review or device measurement claimed. C remains inactive. Chunked checksum remains unadopted pending hardware >=10% phase gain."
+}

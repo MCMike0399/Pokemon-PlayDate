@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":20,"text":"Humph!"},{"op":"line","source_line":21,"text":"You have proven"},{"op":"cont","source_line":22,"text":"your worth!"},{"op":"para","source_line":24,"text":"Here! Take the"},{"op":"line","source_line":25,"text":"SOULBADGE!"},{"op":"control","source":"prompt","source_line":26}],"source":"text/FuchsiaGym.asm"}

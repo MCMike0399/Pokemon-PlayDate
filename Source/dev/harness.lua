@@ -297,7 +297,9 @@ local function finish(game, status, message)
     if status ~= "ok" then
         HarnessCapture.write("failure")
     end
-    Autopilot.resetControls()
+    -- Explicit holds survive successful request boundaries until release.
+    -- Errors, cancellation, timeout and quiescence always clear all input.
+    Autopilot.resetControls(status == "ok" and not Harness.isQuiescent)
     -- Cancellation/timeout are whole-session barriers: old movement, door
     -- transitions, battle coroutines and timers cannot leak into a new request.
     if status == "cancelled" or status == "timeout" then

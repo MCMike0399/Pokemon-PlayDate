@@ -1,5 +1,27 @@
 {
   "events": {
+    "pokered:FUCHSIA_GOOD_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_FuchsiaGoodRodHouseFishingGuruHowAreTheFishText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_FuchsiaGoodRodHouseFishingGuruThatsSoDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_GOOD_ROD",
+      "full": [
+        "_FuchsiaGoodRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "goodRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_FuchsiaGoodRodHouseFishingGuruText"
+      ],
+      "success": [
+        "_FuchsiaGoodRodHouseFishingGuruReceivedGoodRodText"
+      ]
+    },
     "pokered:POKEMON_FAN_CLUB:objects:5": {
       "before": [
         "_PokemonFanClubChairmanStoryText"
@@ -57,6 +79,29 @@
         "_Route11Gate2FOaksAideItemfinderDescriptionText"
       ],
       "threshold": 30
+    },
+    "pokered:ROUTE_12_SUPER_ROD_HOUSE:objects:1": {
+      "before": [],
+      "completed": [
+        "_Route12SuperRodHouseFishingGuruTryFishingText"
+      ],
+      "content": "vermilionGifts",
+      "declined": [
+        "_Route12SuperRodHouseFishingGuruThatsDisappointingText"
+      ],
+      "flag": "pokered:wStatusFlags1:BIT_GOT_SUPER_ROD",
+      "full": [
+        "_Route12SuperRodHouseFishingGuruNoRoomText"
+      ],
+      "item": "superRod",
+      "kind": "bespoke",
+      "prompt": [
+        "_Route12SuperRodHouseFishingGuruDoYouLikeToFishText"
+      ],
+      "success": [
+        "_Route12SuperRodHouseFishingGuruReceivedSuperRodText",
+        "_Route12SuperRodHouseFishingGuruFishingWayOfLifeText"
+      ]
     },
     "pokered:ROUTE_2_GATE:objects:1": {
       "before": [

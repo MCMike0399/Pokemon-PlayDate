@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-6c15f257/tools/integration/checkpoint-b/current-runtime-recipes-20261101/historical/showcase/record.py", line 250, in <module>
+    main()
+    ~~~~^^
+  File "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-6c15f257/tools/integration/checkpoint-b/current-runtime-recipes-20261101/historical/showcase/record.py", line 71, in main
+    verify(project)
+    ~~~~~~^^^^^^^^^
+  File "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-6c15f257/tools/integration/checkpoint-b/current-runtime-recipes-20261101/historical/showcase/record.py", line 43, in verify
+    assert hashlib.sha256(json.dumps(source, sort_keys=True, separators=(',', ':')).encode()).hexdigest() == PROOF['source_inventory_sha256'], 'Source changed; do not silently substitute runtime'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Source changed; do not silently substitute runtime
