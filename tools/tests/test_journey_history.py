@@ -1,6 +1,8 @@
 """Pure owner/protocol rejection checks; no SDK, native AX or global locks."""
 import copy
 import hashlib
+import json
+import base64
 import subprocess
 import sys
 from pathlib import Path
@@ -98,8 +100,97 @@ class JourneyHistoryTests(unittest.TestCase):
         history.invoke = Mock()
         history.completed(self.result, 100)
         self.assertEqual([call.args[0] for call in history.invoke.call_args_list],
-                         ['inspect', 'show-log', 'clear', 'inspect'])
+                         ['inspect', 'show-log', 'clear', 'inspect-close'])
         self.assertEqual(history.clears, 1)
+        self.assertFalse((self.root / 'journey-history-ack.json').exists())
+
+    def test_reopen_only_for_actual_clear_and_keep_call_bounds(self):
+        history = self.history()
+        history.invoke = Mock()
+        for footprint, expected in ((restarting.HISTORY_TRIGGER, ['inspect', 'show-log', 'clear', 'inspect-close']),
+                                    (restarting.HISTORY_TRIGGER - 1, []),
+                                    (restarting.HISTORY_TRIGGER, ['show-log', 'clear', 'inspect-close'])):
+            history.check.return_value = footprint
+            history.invoke.reset_mock()
+            history.completed(self.result, 100)
+            self.assertEqual([call.args[0] for call in history.invoke.call_args_list], expected)
+            history.before_send()
+        self.assertEqual(history.clears, 2)
+        self.assertEqual((restarting.HISTORY_TRIGGER, restarting.HISTORY_MAX_CLEARS,
+                          restarting.HISTORY_MAX_CALLS), (512 * 1024**2, 64, 131))
+        history.calls = 131
+        with self.assertRaisesRegex(ProtocolError, 'helper bound'):
+            restarting.JourneyHistory.invoke(history, 'inspect-close', 100)
+
+    def close_reply(self):
+        capture = self.root / 'malloc-log-inspection-12345678-1234-1234-1234-123456789abc.png'
+        capture.write_bytes(base64.b64decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aE1sAAAAASUVORK5CYII='))
+        identity = dict(pid='42', window_id='81', frame='{{100, 200}, {740, 480}}')
+        return [dict(identity, scope='inspection capture', path=str(capture), returncode='0'),
+                dict(identity, scope='inspection closure', mechanism='verified-window-AXCloseButton',
+                     ax_absent='true', native_absent='true')]
+
+    def test_capture_closure_validation_and_failure_never_acknowledges(self):
+        valid = self.close_reply()
+        cases = [('valid', valid, 0)]
+        for field, value in [('pid', '43'), ('window_id', '82'), ('frame', '{{100, 200}, {741, 480}}'),
+                             ('ax_absent', 'false'), ('native_absent', 'false'),
+                             ('mechanism', 'unverified')]:
+            reply = copy.deepcopy(valid)
+            reply[1][field] = value
+            cases.append((field, reply, 0))
+        cases.extend([('missing closure', valid[:1], 0), ('duplicate', valid + valid[1:], 0),
+                      ('native refusal', valid, 1), ('missing capture', valid[1:], 0), ('reversed', valid[::-1], 0)])
+        for name, reply, code in cases:
+            with self.subTest(name=name):
+                history = self.history()
+                history.process.pid = 42
+                child = Mock(returncode=code)
+                child.poll.return_value = code
+                child.communicate.return_value = (json.dumps(reply), 'refused')
+                (self.root / 'build.json').write_text('{}')
+                (self.root / 'process.json').write_text('{}')
+                operations = []
+                original = history.invoke
+                def invoke(operation, deadline):
+                    operations.append(operation)
+                    if operation == 'inspect-close':
+                        return original(operation, deadline)
+                history.invoke = invoke
+                with patch.object(restarting.subprocess, 'Popen', return_value=child), patch.object(restarting, 'host_footprint', return_value=123):
+                    if name == 'valid':
+                        history.completed(self.result, 100)
+                        self.assertFalse(history.failed)
+                        audit = json.loads((self.root / 'malloc-clear.jsonl').read_text().splitlines()[-1])
+                        self.assertEqual(audit['inspection_captures'][0]['sha256'],
+                                         restarting.file_sha(Path(valid[0]['path'])))
+                    else:
+                        with self.assertRaises(ProtocolError):
+                            history.completed(self.result, 100)
+                        self.assertTrue(history.failed)
+                        with self.assertRaisesRegex(ProtocolError, 'without replay'):
+                            history.before_send()
+                self.assertEqual(operations, ['inspect', 'show-log', 'clear', 'inspect-close'])
+                self.assertFalse((self.root / 'journey-history-ack.json').exists())
+
+    def test_invalid_capture_stops_before_acknowledgement(self):
+        reply = self.close_reply()
+        Path(reply[0]['path']).write_bytes(b'incomplete PNG')
+        history = self.history()
+        history.process.pid = 42
+        history.clears = 1
+        history.pause = self.pause
+        child = Mock(returncode=0)
+        child.poll.return_value = 0
+        child.communicate.return_value = (json.dumps(reply), '')
+        (self.root / 'build.json').write_text('{}')
+        (self.root / 'process.json').write_text('{}')
+        with patch.object(restarting.subprocess, 'Popen', return_value=child), patch.object(restarting, 'host_footprint', return_value=123):
+            with self.assertRaisesRegex(ProtocolError, 'invalid PNG'):
+                history.invoke('inspect-close', 100)
+        with self.assertRaisesRegex(ProtocolError, 'without replay'):
+            history.before_send()
         self.assertFalse((self.root / 'journey-history-ack.json').exists())
 
     def test_bounds_and_safe_pause_below_trigger(self):

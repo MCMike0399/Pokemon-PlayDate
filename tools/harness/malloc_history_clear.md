@@ -46,7 +46,8 @@ do not establish native recovery or explain an intermittent application failure.
 `inspect` lists only the verified Simulator menus and Malloc Log controls,
 excluding allocation-table rows. It can retain a native capture of that exact
 Malloc Log window. `show-log` opens only the unique observed `Show Malloc Log`
-menu item, after identity verification. A bounded500ms settling wait follows.
+menu item, after identity verification. There is no fixed settling wait; Clear
+independently verifies the actual window before input.
 `clear` prefers the unique exact `Clear Malloc History` AX control. SDK3.1.2's
 observed unlabeled broom uses the guarded window-specific fallback above.
 A requested click is **not** proof of reclamation: the host retains the control
@@ -240,3 +241,46 @@ exploration rule is unchanged. No save inspection or Continue validator is
 skipped, and no gameplay input is injected by the helper. Native identity,
 three kernel fences, window/layout/hit-test, deadlines and memory guards stay
 mandatory. Actual native Clear and a short segment remain pending fresh review.
+
+### Cleared log closure candidate (host preparation, 2026-11-02)
+
+Base `df38d73f1e3eb3c613939d1c17f334922a15a7c9` now has Root's actual initial
+Clear and short ordinary-walking qualification (pilot05: 67 requests, through
+Route15(14,9), native post-Clear capture with zero items). It stopped at the
+unchanged 64-Clear bound / 130 calls: retained log UI footprint stayed above
+the 512 MiB trigger. See Root's
+`E/journey-history-clear-short-qualification-20261102-05.json`. This is not a
+complete C journey and does not qualify this closure candidate.
+
+JOURNEY alone now uses `inspect-close` for each post-Clear inspection. In the
+same bounded helper invocation it retains the unique native PNG first, checks
+capture success and complete PNG framing, then resolves that captured window's
+AXCloseButton. It requires the same unique AX object and native window ID,
+matching native/AX bounds at exactly 740×480, button role/subrole/enabled state,
+button window/owner, and fresh full runtime/parent/payload/three-fence identity
+before its single AXPress. No close coordinates or generic window action exist.
+Absent/ambiguous/changed controls refuse. It polls actual AX and native window
+absence for at most 600 ms within the existing 8-second helper lifetime; it
+never retries the action. Unconfirmed closure refuses and poisons the owner.
+Capture files survive even a later close failure.
+
+Successful output is the inspection listing followed by `inspection capture`
+and `inspection closure` records binding PID/window ID/frame. Closure explicitly
+reports `verified-window-AXCloseButton`, `ax_absent=true`, `native_absent=true`.
+The host verifies the retained PNG and hash and exact matching, ordered closure
+evidence before permitting the next request acknowledgement. Audit stdout and
+before/after host footprints remain in the existing `malloc-clear.jsonl`.
+Initial ready-title order is inspect → show-log → Clear → inspect-close; later
+actual Clears use show-log → Clear → inspect-close. Below-trigger pauses never
+reopen the log. Reopening adds a helper call to each later Clear; the existing
+131-call ceiling can therefore stop a generation before 64 Clears. Both caps
+remain unchanged, as do defaults, 512 MiB trigger, 1 GiB hard host limit, pool,
+disk/Lua/progress/watchdog limits and honest elapsed wall deadlines. Census
+behavior is unchanged and stopped. No Source changes are part of this candidate.
+
+Root must use a freshly compiled and SHA256-pinned helper with its existing
+admission/guard wrapper and the existing `run.py --history-helper ...
+--history-helper-sha256 ...` command above. First measure actual post-close host
+footprint and inspect the retained native capture and closure evidence. Neither
+host tests nor Swift compilation establish that closing releases any memory;
+all runtime/SDK/AX/GUI/device qualification belongs exclusively to Root.

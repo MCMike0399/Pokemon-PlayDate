@@ -285,6 +285,71 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
     usleep(200_000)
     print("{\"clear_requested\":true,\"mechanism\":\"verified-window-broom\",\"pid\":\(pid)}")
 }
+// JOURNEY post-Clear only: capture precedes this function; never close by title alone.
+func closeCapturedMallocLog(_ app: AXUIElement, _ pid: pid_t, _ window: AXUIElement,
+                            _ identifier: Int, _ bounds: CGRect,
+                            _ reverify: () throws -> Void) throws -> [String: String] {
+    func nativeLogs() -> [[String: Any]] {
+        (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []).filter {
+            ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
+            ($0[kCGWindowName as String] as? String) == "Malloc Log"
+        }
+    }
+    func validatedButton() throws -> AXUIElement {
+        let logs = try elements(app, kAXWindowsAttribute).filter {
+            try label($0, kAXTitleAttribute) == "Malloc Log"
+        }
+        try require(logs.count == 1 && CFEqual(logs[0], window), "captured AX window changed")
+        var owner: pid_t = 0
+        try require(AXUIElementGetPid(window, &owner) == .success && owner == pid &&
+                    (try rectangle(window)) == bounds && bounds.width == 740 && bounds.height == 480,
+                    "captured window owner or layout changed")
+        let native = nativeLogs()
+        try require(native.count == 1 && native[0][kCGWindowNumber as String] as? Int == identifier,
+                    "captured native window changed")
+        guard let nativeFrame = native[0][kCGWindowBounds as String] as? [String: Any],
+              let nativeBounds = CGRect(dictionaryRepresentation: nativeFrame as CFDictionary) else {
+            throw Refusal(reason: "captured native window bounds unavailable")
+        }
+        try require(nativeBounds == bounds, "captured AX/native window bounds differ")
+        guard let value = try attribute(window, kAXCloseButtonAttribute),
+              CFGetTypeID(value) == AXUIElementGetTypeID() else {
+            throw Refusal(reason: "captured window has no AX close button")
+        }
+        let button = unsafeBitCast(value, to: AXUIElement.self)
+        try require(AXUIElementGetPid(button, &owner) == .success && owner == pid &&
+                    (try label(button, kAXRoleAttribute)) == kAXButtonRole &&
+                    (try label(button, kAXSubroleAttribute)) == kAXCloseButtonSubrole &&
+                    (try attribute(button, kAXEnabledAttribute)) as? Bool == true,
+                    "captured close button identity or availability differs")
+        guard let parent = try attribute(button, kAXWindowAttribute) else {
+            throw Refusal(reason: "close button window unavailable")
+        }
+        try require(CFEqual(parent, window), "close button belongs to another window")
+        return button
+    }
+    let button = try validatedButton()
+    try reverify()
+    try require(CFEqual(button, try validatedButton()), "close button changed before press")
+    try require(AXUIElementPerformAction(button, kAXPressAction as CFString) == .success,
+                "captured window close AXPress failed")
+    let deadline = DispatchTime.now().uptimeNanoseconds + 600_000_000
+    while true {
+        try reverify()
+        let logs = try elements(app, kAXWindowsAttribute).filter {
+            try label($0, kAXTitleAttribute) == "Malloc Log"
+        }
+        let native = nativeLogs()
+        try require(DispatchTime.now().uptimeNanoseconds < deadline, "captured window closure unconfirmed")
+        if logs.isEmpty && native.isEmpty {
+            return ["scope": "inspection closure", "pid": String(pid),
+                    "window_id": String(identifier), "frame": NSStringFromRect(bounds),
+                    "mechanism": "verified-window-AXCloseButton", "ax_absent": "true",
+                    "native_absent": "true"]
+        }
+        usleep(20_000) // Poll actual disappearance; never replay the close action.
+    }
+}
 func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
              _ reverify: () throws -> Void) throws {
     try require(AXIsProcessTrusted(), "Accessibility unavailable; no prompt requested")
@@ -297,6 +362,7 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
         try clearUnlabelledMallocControl(app, pid, reverify)
         return
     }
+    try require(operation != "inspect-close" || journey, "close is JOURNEY-only")
     var candidates: [AXUIElement] = [], logControls: [AXUIElement] = []
     var seen: [AXUIElement] = [], listing: [[String: String]] = []
     func walk(_ element: AXUIElement, _ scope: String, _ depth: Int) throws {
@@ -347,13 +413,25 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
         listing.append(entry)
         if title == "Malloc Log" { try walk(window, "Malloc Log", 0) }
     }
-    if operation == "inspect" {
+    if operation == "inspect" || operation == "inspect-close" {
         let windows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []
         let logs = windows.filter {
             ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
             ($0[kCGWindowName as String] as? String) == "Malloc Log"
         }
         if logs.count == 1, let identifier = logs[0][kCGWindowNumber as String] as? Int {
+            var capturedWindow: AXUIElement?
+            var capturedBounds: CGRect?
+            if operation == "inspect-close" {
+                let axLogs = try elements(app, kAXWindowsAttribute).filter {
+                    try label($0, kAXTitleAttribute) == "Malloc Log"
+                }
+                try require(axLogs.count == 1, "capture AX window ambiguous")
+                capturedWindow = axLogs[0]
+                capturedBounds = try rectangle(axLogs[0])
+                try require(capturedBounds?.width == 740 && capturedBounds?.height == 480,
+                            "unqualified capture layout")
+            }
             try reverify()
             let capture = Process()
             let target = directory.appendingPathComponent("malloc-log-inspection-\(UUID().uuidString).png")
@@ -365,9 +443,30 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
             capture.waitUntilExit()
             try require(capture.terminationStatus == 0 &&
                         FileManager.default.fileExists(atPath: target.path), "Malloc Log capture failed")
-            listing.append(["scope": "inspection capture", "path": target.path,
-                            "returncode": String(capture.terminationStatus)])
+            if operation == "inspect-close" {
+                let png = try Data(contentsOf: target)
+                try require(png.count >= 45 && Array(png.prefix(8)) == [137, 80, 78, 71, 13, 10, 26, 10] &&
+                            Array(png.suffix(8)) == [73, 69, 78, 68, 174, 66, 96, 130],
+                            "post-Clear native capture is not a complete PNG")
+            }
+            var proof = ["scope": "inspection capture", "path": target.path,
+                         "returncode": String(capture.terminationStatus)]
+            if operation == "inspect-close" {
+                guard let window = capturedWindow, let bounds = capturedBounds else {
+                    throw Refusal(reason: "captured window identity unavailable")
+                }
+                proof.merge(["pid": String(pid), "window_id": String(identifier),
+                             "frame": NSStringFromRect(bounds)]) { _, new in new }
+                listing.append(proof)
+                let retained = try JSONSerialization.data(withJSONObject: proof, options: [.sortedKeys])
+                fputs("retained_capture=" + String(decoding: retained, as: UTF8.self) + "\n", stderr)
+                listing.append(try closeCapturedMallocLog(app, pid, window, identifier, bounds, reverify))
+            } else {
+                listing.append(proof)
+            }
         }
+        try require(operation != "inspect-close" || listing.contains { $0["scope"] == "inspection closure" },
+                    "post-Clear capture and closure required")
         let data = try JSONSerialization.data(withJSONObject: listing, options: [.sortedKeys])
         print(String(decoding: data, as: UTF8.self))
         return
@@ -394,8 +493,8 @@ let started = DispatchTime.now().uptimeNanoseconds
 alarm(8) // Bounds native inspection/capture; never signals the Simulator.
 do {
     let args = CommandLine.arguments
-    try require((args.count == 5 || args.count == 7) && ["inspect", "show-log", "clear"].contains(args[1]),
-                "usage: helper inspect|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256 [JOURNEY processes/NNNN/process.json]")
+    try require((args.count == 5 || args.count == 7) && ["inspect", "inspect-close", "show-log", "clear"].contains(args[1]),
+                "usage: helper inspect|inspect-close|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256 [JOURNEY processes/NNNN/process.json]")
     try require(args[3].count == 64 && args[4].count == 64 && (args[3] + args[4]).allSatisfy({ $0.isHexDigit }),
                 "expected SHA256 pins")
     let identity = args.count == 7 ? args[5] : "CENSUS"
