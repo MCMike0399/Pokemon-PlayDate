@@ -163,7 +163,7 @@ separate `processes/NNNN/malloc-clear.jsonl`, with wall time retained. Journey
 results are not production latency measurements.
 
 The first safe pause performs inspect/show/Clear/inspect. Later safe
-pauses Clear/inspect when host footprint is at least512MiB. Limits are64 Clears
+pauses Clear/inspect when host footprint is at least736MiB. Limits are64 Clears
 and131 helper calls per generation; existing scenario validation bounds process
 generations. Each helper still has its original8s alarm and9s host ceiling.
 During helpers, the owner checks footprint, disk, progress and the original
@@ -240,3 +240,10 @@ exploration rule is unchanged. No save inspection or Continue validator is
 skipped, and no gameplay input is injected by the helper. Native identity,
 three kernel fences, window/layout/hit-test, deadlines and memory guards stay
 mandatory. Actual native Clear and a short segment remain pending fresh review.
+
+
+User decision, 2026-11-02: raise only the ordinary journey Clear trigger from
+512 to 736 MiB. The 1 GiB hard stop, 16 MiB pool, 64-Clear/131-call caps and all
+other memory, disk, ownership and deadline guards remain unchanged. The failed
+window-close experiment is reverted. Native effectiveness of the new trigger
+must be measured; permission alone establishes no complete journey.

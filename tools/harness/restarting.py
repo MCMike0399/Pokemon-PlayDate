@@ -504,7 +504,7 @@ def export_chain_save(scenario, data, output, metadata):
 
 # Fixed limits for the explicitly opted-in existing journey owner. These do not
 # relax any outer owner guard. No census producer or controller is imported.
-HISTORY_TRIGGER = 512 * 1024**2
+HISTORY_TRIGGER = 736 * 1024**2
 HISTORY_MAX_CLEARS = 64
 HISTORY_MAX_CALLS = 131
 SIMULATOR_SHA256 = 'ebaeca5c65f3d613f06c8a3d701e90c01f292f13fc66f24a680e4357c5b447cf'
