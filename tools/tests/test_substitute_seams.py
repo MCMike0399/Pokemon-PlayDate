@@ -72,7 +72,10 @@ class SubstituteSeamTests(unittest.TestCase):
         names = ['Source/data/pokemon.lua', 'Source/domain/sessionCodec.lua',
                  'Source/domain/pokemonCodec.lua', 'Source/data/sourceMaps.json']
         for name in names:
-            self.assertEqual((ROOT / name).read_bytes(), base_bytes(name), name)
+            # Preserve the independently adopted Save factory opt-in exactly.
+            expected = (subprocess.check_output(['git', 'show', '1ffd6fa7:' + name], cwd=ROOT)
+                        if name == 'Source/domain/sessionCodec.lua' else base_bytes(name))
+            self.assertEqual((ROOT / name).read_bytes(), expected, name)
         text = (ROOT / 'Source/battle/moves.lua').read_text()
         self.assertEqual(c.producer_epoch(text), 19)
         legacy = c.legacy_rows(c.read_rows(text), 19)
