@@ -220,3 +220,10 @@ Boot/door/slice targets stillfail; battle/caves unmeasured here. Six native case
 (all18effect/world combinations) and51affected hosts pass.
 [Physical scope and remaining gates](gamecorner-membership-hardware-20261102.json).
 Combined review/adoption pending; B visualacceptance remains open. Nothingpushed.
+
+Combined allocation review has0Standards/0Spec findings. Exact Source passes
+all1072host tests, zeroerrors/skips; the only initial failure was the now-reviewed
+source snapshot metadata. All1512coverage rows/levels/oldhashes remain.
+[Full host/review scope](gamecorner-membership-full-host-20261102.json).
+This adopts the allocation fix only; B checkpoint/visual/playability acceptance
+and C activation remain open. No push.
