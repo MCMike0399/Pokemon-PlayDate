@@ -1,0 +1,55 @@
+{
+  "classification": "Completed bounded capacity recovery; primary SDK work resumed",
+  "completed": [
+    {
+      "id": "playdate-aff587c1cbde446797e7b28617b5287f",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-03",
+      "manifest_sha256": "dfe2183dbba04996232773a1424add6397813688f143f67a9ecdc30513000ea3",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-aff587c1cbde446797e7b28617b5287f.json",
+      "receipt_sha256": "ae9745c00de761b3691625111a31fe1d7b1157a212f4d50ea3bbd347b788dad5",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-03.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-03 --id playdate-aff587c1cbde446797e7b28617b5287f --execute"
+    },
+    {
+      "id": "playdate-fdf2b7b0b6fb44fa9c217d0554687722",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-05",
+      "manifest_sha256": "4d0fa0e949864084bdab237b499866127185874229cda29102f986ece147a92b",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-fdf2b7b0b6fb44fa9c217d0554687722.json",
+      "receipt_sha256": "103db59587a0140c85e4a4923338fad7299d918571ca8278f07f2c8511d81687",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-05.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-05 --id playdate-fdf2b7b0b6fb44fa9c217d0554687722 --execute"
+    },
+    {
+      "id": "playdate-42c27d1d2a3446b8ba7a7e433d6bb7f9",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-02",
+      "manifest_sha256": "d94a853ece921498823b750656a1da163a666f001912205023d16971c1f10ff7",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-42c27d1d2a3446b8ba7a7e433d6bb7f9.json",
+      "receipt_sha256": "0002021b7a34c9b1d1f4d632dc6d2117b6a820eceab66f486be2c46074d86dfd",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-02.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-02 --id playdate-42c27d1d2a3446b8ba7a7e433d6bb7f9 --execute"
+    },
+    {
+      "id": "playdate-be781749d8174a9e96a835ba4d057a2e",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-full-20261101-01",
+      "manifest_sha256": "7d6dd884458911655a2f8560b97f915fd57ce81f1ced60de99a6730465cfda12",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-be781749d8174a9e96a835ba4d057a2e.json",
+      "receipt_sha256": "d6cbb1c666dda3e069a161071fd4ae036e961ee10f9d239847524de7d2546705",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-full-20261101-01.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-full-20261101-01 --id playdate-be781749d8174a9e96a835ba4d057a2e --execute"
+    }
+  ],
+  "logical_bytes_retained": 4359138673,
+  "free_checkpoint_before_gib": 49.06268310546875,
+  "free_checkpoint_after_gib": 54.650917053222656,
+  "observed_free_increase_gib": 5.588233947753906,
+  "attribution_limit": "Concurrent system activity makes this measured free-space change different from exclusive reclaimed bytes. Four original du sizes were approximately59MiB/209MiB/1.3GiB/4.7GiB.70GiB target was not reached;51GiB runtime admission was restored and game work resumed.",
+  "temporary_b11_audit": {
+    "id": "playdate-0363a44b82e94ebd8587158976b765cb",
+    "audit": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/pre-koga-archived-set11-audit-20261102.json",
+    "result": "No eligible pre-Koga slot; unchanged restored source returned to archived status",
+    "runtime_admission_after_release_gib": 54.599571228027344
+  },
+  "active_transaction": null,
+  "guards": "All existing guards, qualified helper29 and five ordered fences unchanged.",
+  "queue": "No jobs enqueued; no further census-root admissions for this pass."
+}
