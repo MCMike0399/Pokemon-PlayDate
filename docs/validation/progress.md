@@ -95,10 +95,13 @@ heap is not compared with the device's 6 MiB live guard.
    are only3.1% Fuchsia,8.4% Route17,7.8% GameCorner; Save regresses11.3%.
    No extra cycle or review is requested for this candidate. Main is unchanged.
    [Exact comparison and retained failures](door-tier-rejected-20261102.json).
-2. Measure heavy-map post-GC live heap and native headroom. Qualify the small
-   Vermilion membership and detached field-terrain candidates; both remain
-   unadopted. Keep about 7.5 MiB working peak before C activation, with the
-   existing guards unchanged. Audio stays held for its own listening checks.
+2. Narrow terrain queries are merged as`9ba63d68`: current main exactly matches
+   the measured Source. Baseline reaches9MiB guard on a real Surf/save route;
+   the fix completes9 targetedSDK cases and that physical route at6.12MiB peak,
+   4.64–5.04MiB postGC, no newlogs. Combined review has no findings. Fullhost ran1152:1149pass/3stale metadata failures; all resolved in64 targeted
+   reruns. Protocol57passes and literal productioncompile pass. Safari/Tower/Hideout/GameCorner live coverage
+   and native headroom remain; this route does not establish the full Cmargin.
+   [Proof and limitations](terrain-query-memory-adoption-20261102.json). Audio held.
 3. Measure title preparation/Continue on all three earned B saves. Host counts
    are 19–21.5 KB payloads with only 3–6 stored Pokémon; no CPU/timing conclusion
    or validation shortcut follows from those sizes.
@@ -129,23 +132,22 @@ One stopped superseded census root was remotely verified, fully restore-rehearse
 and released through the existing qualified helper and five fences. Original
 864 measured / 1,936 gaps / 2,090 missing outcomes remain unchanged remotely;
 closure is not a passing result. Measured free after release was **52.40 GiB**,
-restoring the unchanged 51 GiB admission gate. No further root is admitted.
+restoring the unchanged 51 GiB admission gate. No further archive root is admitted.
 [Receipt, exact paths and restoration command](capacity-census04-retention-20261102.json).
-Root completed the door native/safety/hardware cycle and rejected the candidate
-as recorded above. Terrain-query composition passes18 hosts but remains unadopted.
-Two clean fully merged worker checkouts were removed without force after status,
-ancestry and open-handle checks; their branches and proof remain. No guards changed.
+Root completed the door cycle and rejected it; the narrow memory fix is adopted
+with the separate scope above.
+Clean merged worker checkouts were removed without force after status/ancestry/
+open-handle checks; branches and proof remain. No memory guard changed.
 
 User disk-headroom override (2026-11-02): reserve30 GiB, new runtime admission31 GiB;
 local maintenance30→50 GiB. Historical measurements/guards above retain their
 original values. No Simulator/device memory or shared Pi helper guard changed.
 
-Native follow-up: the isolated Surf case passes1/0, including Safari boarding
-and Save/Continue. Combined batches hit the1GiB host limit; the expiry case
-timed out before boot. All children are stopped. The terrain-query contract
-compiles and27 focused hosts pass; no memory-gain/adoption claim. Actual local
-desktop observation now works through the paired DiveMac node. It shows a macOS
-application-memory alert with paused apps and a foreground bun network prompt.
-Root requested user action and will not kill unrelated apps. Static Substitute
-standards/spec reviews are running; pending native checks remain required.
+Native follow-up: user resolved ScreenSharing/desktop dialogs; startup works.
+Nine targeted memory/transaction cases pass in fresh guarded processes. The
+499-stepSafari expiry fixture still exceeds1GiB host allocation history; no
+current pass is claimed. Its original accepted proof remains. Substitute's
+standards finding is fixed (`4160ce96`), spec review has no findings; its remaining
+native regressions/presentation/curated54 still gate adoption. No active SDK/USB
+owner remains after the measured memory route; verified keeper is restored.
 [C ancestry restoration and four conditions](checkpoint-c-restored-ancestry-20261102.json).
