@@ -141,7 +141,9 @@ point probes retain their separate scope.
    First Saves are 2.5/3.5% slower. Public loads retain deep validation; 23
    selected native persistence cases pass. Both exact safety routes admit device
    measurement; hardware peak is about 6.14 MiB with unchanged system logs.
-   Review is pending; candidate remains unadopted and Surf still misses 2 s.
+   Adopted as `1ffd6fa7` after one combined review with zero findings. All 47
+   selected merged host/build checks and production compilation pass; the three
+   changed Source files equal the measured candidate. Surf still misses 2 s.
    [Measured candidate and scope](save-inspection-reuse-measured-20261102.json).
 5. Fix structural door/boot/cave costs and measure boot/Continue against all three
    B save sizes. Payload sizes alone establish no timing conclusion. Do not

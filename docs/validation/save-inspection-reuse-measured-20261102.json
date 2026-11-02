@@ -1,5 +1,5 @@
 {
-  "status": "measured; performance review pending; unadopted",
+  "status": "adopted on main after qualifying hardware gain and one combined review",
   "candidate": "7fcee048e0d9b57247a3fc860ce2817cd3eb9eba",
   "base": "2f8e30626123442f4349451d2d3f2863d136120e",
   "comparison": {
@@ -509,9 +509,9 @@
     }
   ],
   "remaining_gates": [
-    "one combined review",
-    "adoption and composed host/build verification",
-    "C journeys and acceptance remain separate"
+    "C journeys and acceptance remain separate",
+    "Save <=2 s remains unmet for repeated Surf and narrowly for Center",
+    "Broader latency, boot, doors and caves remain open"
   ],
   "policy_unchanged": [
     "full public LOAD validation",
@@ -521,5 +521,28 @@
     "1 GiB host limit",
     "31/30 GiB disk",
     "6/8/9 MiB Lua guards"
-  ]
+  ],
+  "adoption_commit": "1ffd6fa7",
+  "review": {
+    "base": "2f8e30626123442f4349451d2d3f2863d136120e",
+    "candidate": "7fcee048e0d9b57247a3fc860ce2817cd3eb9eba",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "scope": "Read-only exact source/artifact hash review; no independent runtime rerun",
+    "task": "3875a17f-3ade-426b-9243-429dc48aa240"
+  },
+  "merged_validation": {
+    "host": {
+      "selected": 47,
+      "passed": 47,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-inspection-merged-host-20261102-01.log",
+      "sha256": "331159f40c7e3cae965266f74d5ee4d0ed33a1f4ffec76485de4392df793d70c"
+    },
+    "production_compile": {
+      "sdk": "3.1.2",
+      "output": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-inspection-merged-production-20261102-01/PokemonBlue.pdx",
+      "passed": true
+    },
+    "source_equals_measured_candidate": true
+  }
 }
