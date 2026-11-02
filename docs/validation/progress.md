@@ -211,3 +211,8 @@ No new error/crash logs; collection completes and keeper is restored.
 [Failure and ranked hypotheses](b149-gamecorner-memory-stop-20261102.json).
 Do not repeat this unchanged build or lower guards. Isolated Substitute owner
 seamcc6109ef is compiled/host31 only, unsupported and unadopted; C stays inactive.
+
+Isolated Substitute interfacescc6109ef pass67 real SDK3.1.2 checks:8new
+owner cases,34ordinary combat and25contact regressions. No move activation,
+B/main Source change or C acceptance. Full primary/status/bypass integration
+remains. [Native scope](substitute-seams-native-20261102.json).
