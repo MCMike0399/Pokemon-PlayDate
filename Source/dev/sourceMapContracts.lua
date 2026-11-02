@@ -658,6 +658,54 @@ function SourceMapContracts.run()
     end)
 
     test("source elevators resolve only their recorded floor through the shared map pipeline", function()
+        -- C preparation: exercise the two actual inert source surfaces and
+        -- scripted elevator declarations through the existing private fixture.
+        extensionScope(function(provider, _, context)
+            for _, case in ipairs({{"SilphCo11F", 3}, {"SilphCo1F", 5}}) do
+                local name, index = case[1], case[2]
+                local event = SourceMaps.descriptor(name).warps[index]
+                local spec = SourceMaps.warpSpec(name, event)
+                equal(spec.status, "inert")
+                equal(spec.source_event_id, event.id)
+                equal(SourceMaps.cell(name, event.x, event.y).collision, 0)
+                local zone = provider:ensure(SourceMaps.entry(name).key)
+                equal(zone:getDoorAt(event.x, event.y), nil)
+                equal(zone.collision[event.y + 1][event.x + 1], 0)
+                local location = {zone_id=SourceMaps.entry(name).id, x=event.x, y=event.y, facing="up"}
+                same(WorldDeltas.resolvePlayerLocation(location, WorldDeltas.export(), context.sessionLocationPolicy), location)
+                local changed = GameSession._copy(event)
+                changed.x = changed.x + 1
+                rejects(function() SourceMaps.warpSpec(name, changed) end)
+                local definition = SourceMaps._runtimePadded(name)
+                local specs = SourceBindings.specs(name, definition, function() return false end)
+                local options = {
+                    dispatch = function() error("private binding cannot dispatch") end,
+                    questFlag = function() return false end,
+                    objectDefinition = function() return {} end,
+                    hasEvent = function() return false end,
+                }
+                local plan = SourceBindings.prepare(definition, specs, options)
+                equal(plan.bound[event.id], true)
+                specs[definition.events.objects[1].id] = {status="inert"}
+                rejects(function() SourceBindings.prepare(definition, specs, options) end)
+                specs = SourceBindings.specs(name, definition, function() return false end)
+                specs[event.id] = {status="bound"}
+                rejects(function() SourceBindings.prepare(definition, specs, options) end)
+            end
+            for _, name in ipairs({"SilphCo3F", "SilphCo5F", "SilphCoElevator"}) do
+                local descriptor = SourceMaps.descriptor(name)
+                local zone = provider:ensure(SourceMaps.entry(name).key)
+                for _, event in ipairs(descriptor.warps) do
+                    local spec = SourceMaps.warpSpec(name, event)
+                    if spec.status == "scripted" then
+                        equal(SourceMaps.cell(name, event.x, event.y).collision, 0)
+                        local door = assert(zone:getDoorAt(event.x, event.y))
+                        equal(door.scripted, true)
+                        equal(door.source_event_id, event.id)
+                    end
+                end
+            end
+        end)
         for _, owner in ipairs({RocketHideoutStory, SilphStoryWorld}) do
             local bindings = owner.elevatorBindings(nil)
             local sourceID, ingress = next(bindings)

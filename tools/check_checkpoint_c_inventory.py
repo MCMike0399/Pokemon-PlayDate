@@ -81,7 +81,8 @@ def check(stage=None, bundle=None):
             assert before['blocked'] == {'208': 'pokered:ROUTE_16:warps:9'}
             assert after['blocked'] == {}
             before = dict(before, blocked={})
-        assert before == after, (name, 'prior compact descriptor drift')
+        assert after['non_triggering_warps'] == {}, name
+        assert before == {key: value for key, value in after.items() if key != 'non_triggering_warps'}, (name, 'prior compact descriptor drift')
     for key, tile in old_compact['tiles'].items():
         assert new_compact['tiles'][key] == tile, key
     callback_keys = set(json.loads((ROOT / 'Source/data/silphStory/tiles.json').read_bytes())['grids'][i]['stable_id']
@@ -108,17 +109,22 @@ def check(stage=None, bundle=None):
     for entry in expected['maps'].values():
         definition = json.loads((ROOT / 'Source' / entry['path']).read_bytes())
         assert definition.get('encounters', {}).get('water', {}).get('rate_byte', 0) == 0
-    # Shared runtime owners and protected art are untouched by the packet.
-    baseline = BASE
+    # Compare owned changes after current-main synchronization. Main's newer
+    # spinner/device observer changes are inherited, not C packet mutations.
+    baseline = 'bbb42aaadc41a0db3904eb83d27d83270cd704d4'
     changed = subprocess.check_output(['git', '-C', str(ROOT), 'diff', '--name-only', baseline, '--', 'Source']).decode().splitlines()
     assert all(path.startswith(('Source/data/sourceMaps.json', 'Source/data/sourceMapCache/',
                                'Source/data/sourceMapCells/', 'Source/data/contentCache/',
                                'Source/data/silphStory/', 'Source/data/copycatService/',
-                               'Source/game/copycatService.lua', 'Source/dev/copycatServiceContracts.lua')) for path in changed), changed
+                               'Source/game/copycatService.lua', 'Source/dev/copycatServiceContracts.lua',
+                               'Source/world/sourceMaps.lua', 'Source/world/sourceBindings.lua',
+                               'Source/dev/sourceMapContracts.lua', 'Source/dev/sourceMapFixture.json',
+                               'Source/terrainAtlases/')) for path in changed), changed
     return dict(kind='host/compile-only C inventory; no native acceptance', base=BASE,
                 integration_base=baseline, maps=171, prior_maps=149, added_maps=22,
                 map_names=sorted(expected['maps']), prior_map_records_and_grids_preserved=True,
-                prior_content_record_checksums_preserved=True, shared_runtime_unchanged=True,
+                prior_content_record_checksums_preserved=True,
+                shared_runtime_changes=['generic private non-triggering warp lookup', 'enumerated inert warp binding'],
                 prior_compact_geometry_exception='Route16 warp9 resolves installed Route16FlyHouse; blocked cell208 removed',
                 added_callback_cells=sorted(callback_keys),
                 schema_4_unchanged=True, blue_water_rates_zero=True,

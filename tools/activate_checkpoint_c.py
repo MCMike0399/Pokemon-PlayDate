@@ -42,6 +42,29 @@ def inventories(project=ROOT):
 def manifest(project=ROOT):
     previous, additions = inventories(project)
     previous['maps'].update(additions)
+    # Reviewed manifest correction only: keep the inaccessible source declaration,
+    # but do not author a barrier over its ordinary floor.
+    blocked = previous['maps']['SilphCo11F']['blocked_events']
+    blocked.remove('pokered:SILPH_CO_11F:warps:3')
+    # Reuse the source-derived owner enumeration, including zero-based bytes.
+    raw = (Path(project) / 'Source/data/silphStory/scenes.json').read_bytes()
+    if hashlib.sha256(raw).hexdigest() != '767654a6dfba1734590c419441ca255e1dfeb909f9b18b107d6eb85dd51f1106':
+        raise ValueError('pinned Silph elevator data changed')
+    elevator = json.loads(raw)['scenes']['elevator']
+    names = {entry['id']: name for name, entry in previous['maps'].items()}
+    for row in elevator:
+        entry = previous['maps'][names[row['map_id']]]
+        definition = json.loads((Path(project) / 'Source' / entry['path']).read_bytes())
+        event = definition['events']['warps'][row['source_warp_byte']]
+        if (dict(x=event['x'], y=event['y']) != row['destination']
+                or event['destination']['map'] != 'SILPH_CO_ELEVATOR'):
+            raise ValueError('Silph elevator source warp differs')
+        entry.setdefault('scripted_warps', []).append(event['id'])
+    cabin = previous['maps']['SilphCoElevator']
+    definition = json.loads((Path(project) / 'Source' / cabin['path']).read_bytes())
+    cabin['scripted_warps'] = [event['id'] for event in definition['events']['warps']]
+    if len(elevator) != 11 or len(cabin['scripted_warps']) != 2:
+        raise ValueError('Silph elevator enumeration differs')
     return previous
 
 

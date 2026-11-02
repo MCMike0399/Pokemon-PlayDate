@@ -100,5 +100,14 @@
     "runtime_or_build_executed": false,
     "storage_work_or_push": false,
     "memory_and_latency_gates": "unchanged; Root owns heavy-map memory table"
+  },
+  "source_warp_host_preparation": {
+    "handoff": "source-warp-host.md",
+    "validation": "source-warp-validation.json",
+    "sync_merge": "cb7625072e5bca707b642d3c4fa3c48b5899a424",
+    "shared_geometry_implemented": true,
+    "geometry_patch_retired": true,
+    "activation_hooks_applied": false,
+    "native_executed": false
   }
 }

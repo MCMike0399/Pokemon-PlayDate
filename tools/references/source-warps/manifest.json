@@ -1,0 +1,30 @@
+{
+  "files": {
+    "constants/tileset_constants.asm": {
+      "path": "tools/references/cerulean-routes/constants/tileset_constants.asm",
+      "sha256": "887387444a2be79ffb2b501fee60fc40f8b31668d0a142ea38fc842f90c96769"
+    },
+    "data/tilesets/door_tile_ids.asm": {
+      "path": "tools/references/source-warps/data/tilesets/door_tile_ids.asm",
+      "sha256": "abfaf317853996ea9dbf2e2ae176bf75fadcb1503c0664d438c70ef9157546d1"
+    },
+    "data/tilesets/warp_tile_ids.asm": {
+      "path": "tools/references/cerulean-routes/data/tilesets/warp_tile_ids.asm",
+      "sha256": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5"
+    },
+    "engine/overworld/doors.asm": {
+      "path": "tools/references/source-warps/engine/overworld/doors.asm",
+      "sha256": "8326b3dfeeb739e095e91de2a69f9aeda83c408fa2c01db1c7afbea1df1fbd94"
+    },
+    "engine/overworld/player_state.asm": {
+      "path": "tools/references/source-warps/engine/overworld/player_state.asm",
+      "sha256": "55cd81415319a4c87fcd7d05eab816124a2d9e79229a27645309a2af80861fcf"
+    },
+    "home/overworld.asm": {
+      "path": "tools/references/vermilion-ship/home/overworld.asm",
+      "sha256": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a"
+    }
+  },
+  "schema": 1,
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d"
+}

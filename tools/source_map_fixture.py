@@ -24,6 +24,10 @@ def records(reference_root):
             path = source / entry['path']
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes((ROOT / 'Source' / entry['path']).read_bytes())
+        if 'SilphCo3F' in manifest['maps'] and 'SilphCo11F' in manifest['maps']:
+            path = source / 'data/silphStory/tiles.json'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes((ROOT / 'Source/data/silphStory/tiles.json').read_bytes())
         reference = Reference(reference_root)
         for name in ('Route22', 'ViridianSchoolHouse'):
             definition = decode_map(reference, name)

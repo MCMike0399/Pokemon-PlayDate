@@ -1,0 +1,174 @@
+{
+  "c_base": "8203e1192ad77a559305ebccd9c0d4f74e777c40",
+  "checks": {
+    "broader_run": {
+      "inherited_failures": [
+        "B-only content round-trip omits existing Fly text",
+        "B-only pin check seeks Saffron data in d858032"
+      ],
+      "passed": 24,
+      "total": 26
+    },
+    "c_inventory_audit": "pass",
+    "existing_c_boundary_checks": 7,
+    "focused_failed": 0,
+    "focused_host_tests": 52,
+    "focused_skipped": 0,
+    "generators_reproduce": [
+      "source map and binary cells",
+      "terrain atlases",
+      "Silph story",
+      "Copycat"
+    ],
+    "git_diff_check": "pass",
+    "qualification": "expected rejection; fresh actual SDK export still required",
+    "source_warp_checks": 9
+  },
+  "classification_counts": {
+    "B": {
+      "edge": 208,
+      "function2": 82,
+      "maps": 149,
+      "non_triggering": 0,
+      "standing_tile": 220,
+      "warps": 510
+    },
+    "C": {
+      "edge": 228,
+      "function2": 82,
+      "maps": 171,
+      "non_triggering": 2,
+      "standing_tile": 325,
+      "warps": 637
+    }
+  },
+  "collision_changes": {
+    "SilphCo10F": {
+      "added": {},
+      "removed": {
+        "13": "pokered:SILPH_CO_10F:warps:3"
+      }
+    },
+    "SilphCo11F": {
+      "added": {},
+      "removed": {
+        "14": "pokered:SILPH_CO_11F:warps:2",
+        "96": "pokered:SILPH_CO_11F:warps:3"
+      }
+    },
+    "SilphCo1F": {
+      "added": {},
+      "removed": {
+        "21": "pokered:SILPH_CO_1F:warps:4"
+      }
+    },
+    "SilphCo2F": {
+      "added": {},
+      "removed": {
+        "21": "pokered:SILPH_CO_2F:warps:3"
+      }
+    },
+    "SilphCo3F": {
+      "added": {},
+      "removed": {
+        "21": "pokered:SILPH_CO_3F:warps:3"
+      }
+    },
+    "SilphCo4F": {
+      "added": {},
+      "removed": {
+        "21": "pokered:SILPH_CO_4F:warps:3"
+      }
+    },
+    "SilphCo5F": {
+      "added": {},
+      "removed": {
+        "21": "pokered:SILPH_CO_5F:warps:3"
+      }
+    },
+    "SilphCo6F": {
+      "added": {},
+      "removed": {
+        "19": "pokered:SILPH_CO_6F:warps:3"
+      }
+    },
+    "SilphCo7F": {
+      "added": {},
+      "removed": {
+        "19": "pokered:SILPH_CO_7F:warps:3"
+      }
+    },
+    "SilphCo8F": {
+      "added": {},
+      "removed": {
+        "19": "pokered:SILPH_CO_8F:warps:3"
+      }
+    },
+    "SilphCo9F": {
+      "added": {},
+      "removed": {
+        "19": "pokered:SILPH_CO_9F:warps:3"
+      }
+    },
+    "SilphCoElevator": {
+      "added": {},
+      "removed": {
+        "45": "pokered:SILPH_CO_ELEVATOR:warps:1",
+        "46": "pokered:SILPH_CO_ELEVATOR:warps:2"
+      }
+    }
+  },
+  "main_base": "bbb42aaadc41a0db3904eb83d27d83270cd704d4",
+  "manifest_sha256": "b0954c4f6d879dec74d3d06331f2f684d8fc0a65fa5f6461d3ce2e537276a061",
+  "native_executed": false,
+  "preservation": {
+    "all_existing_source_grids": 801,
+    "atlas_frames_after": 795,
+    "atlas_frames_before": 626,
+    "atlas_tables_after": 23,
+    "atlas_tables_before": 18,
+    "binary_cell_payloads": 171,
+    "existing_atlas_keys_pixel_exact": 629,
+    "prior_B_descriptors_and_binding_inputs": 149,
+    "raw_maps": 171
+  },
+  "qualification": "fails closed: transform dependency changed: data/sourceMaps.json; existing pins and exports unchanged",
+  "research_commit": "46793da1a4da52feeb45b2bb2434ca50fd556715",
+  "runtime_hooks_applied": false,
+  "schema": 1,
+  "scope": "host preparation only; C inactive and unaccepted",
+  "scripted_warps": {
+    "after": 28,
+    "before": 15
+  },
+  "sdk_contract_cases_executed": 0,
+  "sdk_contract_cases_extended": 1,
+  "source_authority": {
+    "constants/tileset_constants.asm": {
+      "path": "tools/references/cerulean-routes/constants/tileset_constants.asm",
+      "sha256": "887387444a2be79ffb2b501fee60fc40f8b31668d0a142ea38fc842f90c96769"
+    },
+    "data/tilesets/door_tile_ids.asm": {
+      "path": "tools/references/source-warps/data/tilesets/door_tile_ids.asm",
+      "sha256": "abfaf317853996ea9dbf2e2ae176bf75fadcb1503c0664d438c70ef9157546d1"
+    },
+    "data/tilesets/warp_tile_ids.asm": {
+      "path": "tools/references/cerulean-routes/data/tilesets/warp_tile_ids.asm",
+      "sha256": "9784114c698ef80c12b3b21aa15ff65a917640a7a1f0d0cc07806afeb058cad5"
+    },
+    "engine/overworld/doors.asm": {
+      "path": "tools/references/source-warps/engine/overworld/doors.asm",
+      "sha256": "8326b3dfeeb739e095e91de2a69f9aeda83c408fa2c01db1c7afbea1df1fbd94"
+    },
+    "engine/overworld/player_state.asm": {
+      "path": "tools/references/source-warps/engine/overworld/player_state.asm",
+      "sha256": "55cd81415319a4c87fcd7d05eab816124a2d9e79229a27645309a2af80861fcf"
+    },
+    "home/overworld.asm": {
+      "path": "tools/references/vermilion-ship/home/overworld.asm",
+      "sha256": "04683d520f775876f8ec050cbc20e145ef4e596293393d0cb2e7ccd0657cc11a"
+    }
+  },
+  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+  "sync_merge": "cb7625072e5bca707b642d3c4fa3c48b5899a424"
+}

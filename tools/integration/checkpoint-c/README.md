@@ -1,3 +1,15 @@
+# Current source warp host preparation — 2026-11-02
+
+See [source-warp-host.md](source-warp-host.md) for the current implementation,
+checks, preservation boundary and minimal Root integration. The generic shared
+warp preparation is implemented; the old map-specific geometry patch is retired.
+Only activation/Copycat hooks remain unapplied. C is inactive and unaccepted.
+
+Everything below is historical composition evidence. Its statements about an
+unapplied geometry patch and pending host binding preparation are superseded.
+
+---
+
 # Checkpoint C current-main host composition — 2026-11-02
 
 Current merge: `a62974fa84cf48a97bcd83ceb4910aae0633196e`, parents exact original

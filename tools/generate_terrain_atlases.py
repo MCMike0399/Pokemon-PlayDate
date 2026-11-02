@@ -77,7 +77,7 @@ def build():
                 continue
             parts = key.split(':')
             require(len(parts) == 4 and parts[0] == 'pokered' and parts[2] == 'cell'
-                    and parts[1].replace('_', '').isalpha() and parts[1].isupper(),
+                    and parts[1].replace('_', '').isalnum() and parts[1].isupper(),
                     'unexpected tileset key: ' + key)
             entries = groups.setdefault(parts[1], {})
             value = dict(grid=''.join(tile['grid']), pixel=name)

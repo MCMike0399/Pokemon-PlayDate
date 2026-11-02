@@ -599,6 +599,27 @@ function SourceMaps.resolveScriptedWarp(game, door)
 end
 
 function SourceMaps.warpSpec(name, event)
+    local descriptor = assert(compactData().maps[name], "unknown source map")
+    local inert = descriptor.non_triggering_warps and descriptor.non_triggering_warps[event.id]
+    if inert then
+        local declared
+        for _, warp in ipairs(descriptor.warps) do
+            if warp.id == event.id then declared = warp end
+        end
+        assert(declared and event.x == declared.x and event.y == declared.y
+            and event.destination and event.destination.kind == declared.destination.kind
+            and event.destination.map == declared.destination.map
+            and event.destination.warp_index == declared.destination.warp_index,
+            "non-triggering event differs from enumerated source warp")
+        local cell = SourceMaps.cell(name, event.x, event.y)
+        assert(event.x == inert.source_x + descriptor.padding and event.y == inert.source_y
+            and descriptor.tileset.constant == inert.tileset and cell.key == inert.key
+            and cell.terrain.foot_tile == inert.foot_tile and not cell.terrain.warp_tile
+            and not SourceMaps.isDoor(name, event.x, event.y)
+            and inert.edge_check == "function1_interior",
+            "non-triggering source surface differs")
+        return {status = "inert", source_event_id = event.id}
+    end
     local entry = SourceMaps.entry(name)
     for _, id in ipairs(entry.scripted_warps or {}) do
         if id == event.id then

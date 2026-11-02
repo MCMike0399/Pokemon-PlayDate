@@ -1,3 +1,7 @@
+Current status: superseded by [source-warp-host.md](source-warp-host.md).
+The old map-specific geometry patch is retired; generic shared preparation is
+implemented and host-checked. The evidence below remains historical.
+
 # Silph source geometry preparation
 
 Branch: `t3/repair-silph-source-geometry`. C remains inactive. This checkout
