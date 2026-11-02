@@ -1,0 +1,49 @@
+{
+  "classification": "Finite physical ranked-door approach; partial destination coverage, not B acceptance",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-ranked-doors-north-hardware-20261101-02",
+  "build_id": "51df64cc9b6f4e5b8e1231ef523cef3c",
+  "source_revision": "3b30e05c",
+  "sha256": {
+    "manifest.json": "34f3e04084072ba4e8bba590df928815a6da7d166419dbc83f935e95994fb4b7",
+    "simulator-gate.json": "c3bc7b3b624a9fd303ea0ba786312fd3609c11e2585911e2caefdafcd6db93e8",
+    "device-smoke.json": "25108e6ad70bab73ee49dedba98b1d5f911d0fc5e849ad9eb2cecd65942447cd",
+    "device-responses.json": "d58cb47161dafe7f5e5399747e61da7eb7703ed965ed0644c79f636db9a44b26",
+    "serial-boot-trace.tsv": "8e48bc108506e7a3791ccd485a56edbdddf24cacf58b5dc0e8b9ced73d18e95b",
+    "route17-probe-finish.json": "d34893b9b6984c0dce7079705f12717bb805ccbf849239e650d2d154380fa8a3",
+    "outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  },
+  "cycle_completed": true,
+  "keeper_restored": true,
+  "new_error_or_crash_logs": false,
+  "wall_ms": {
+    "input_ready_boot": 13979,
+    "Continue": 3908,
+    "Save": 1976,
+    "FuchsiaCity_entry": 5348,
+    "Route17_first_entry": 5008
+  },
+  "measurements": {
+    "battle_start_ms": null,
+    "frame_ms": 218.797,
+    "heap_live_bytes": 6627660.8,
+    "heap_peak_bytes": 7353668.608,
+    "map_load_ms": 5348.0,
+    "slice_ms": 1457.379
+  },
+  "strict_failures": [
+    "heap_live_bytes",
+    "map_load_ms",
+    "battle_start_ms",
+    "boot_title",
+    "boot_slice",
+    "door",
+    "battle",
+    "cave_walking_p95",
+    "missing-power-on-to-walking-app-clock-proxy"
+  ],
+  "route": "Actual earned Continue; real Save and ordinary DS1 directional inputs, ten retained batches. Fuchsia, Route18, gate and Route17 reached. No teleport/planner/state injection.",
+  "coverage_limit": "Celadon and remaining ranked destinations not reached. Terrain-only itinerary omitted stationary Route17 actor at (14,98); automatic downhill resumes between serial commands. Last observed Route17 (18,101), moving. No worst-five/eight claim.",
+  "next": "Use an actor-aware existing earned route for remaining ranked destinations; keep Snorlax/Koga visual captures pending actual local desktop input qualification. Do not repeat blocked route or census.",
+  "scope": "Instrumented production-save-policy packet; no forced diagnostic full collection. Reported diagnostic windows retain observer bookkeeping only. No broad playability or C acceptance."
+}

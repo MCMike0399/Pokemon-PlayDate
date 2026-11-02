@@ -184,3 +184,12 @@ Post-pose current fullhost passes1071/1071, zero errors/skips(161.680s).
 Affected host57checks and focusednative5remain scoped. B visual preparation
 stopped at unchangedhostguard; no newmarker or partialslot import.
 [Audit](b149-pose-host-20261101.json).
+
+Current private B physical north approach closes with no new logs and keeper
+restored. Input-ready boot13.979s, Continue3.908s, Save1.976s; Fuchsia5.348s,
+Route17 first entry5.008s. Continue/Save pass this run; boot/door/slice fail.
+Ten ordinary input batches reach Route17 but not Celadon: terrain-only planning
+omitted a stationary actor and downhill resumes between requests. Partial
+coverage only, no worst-eight claim. Current post-pose host audit is1071/1071.
+[Retained partial route](b149-ranked-north-partial-20261101.json). B visual
+Snorlax/Koga/montage remains open; no C activation or push.
