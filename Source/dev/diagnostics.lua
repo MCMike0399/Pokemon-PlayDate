@@ -283,10 +283,11 @@ local function observeOwners(game)
     return {kind="owners", valid=true, version=SessionCodec.VERSION}
 end
 function HarnessDiagnostics.observe(game, kind)
-    if kind == "midgame-owners" then
-        local registered, shops, compatibility = {}, {}, {}
+    local ownerMap = kind:match("^midgame%-owners:([%w_]+)$")
+    if kind == "midgame-owners" or ownerMap then
+        local registered, shops, compatibility, trainers = {}, {}, {}, {}
         local manifestHash = SourceMaps._sharedCompact().manifest_sha256
-        for _, name in ipairs(SourceMaps.names()) do
+        for _, name in ipairs(ownerMap and {ownerMap} or {}) do
             local entry = SourceMaps.entry(name)
             local record = SourceMaps.record("data/sourceMapCache/runtime-" .. name .. ".json")
             local definition = record.definition
@@ -299,6 +300,7 @@ function HarnessDiagnostics.observe(game, kind)
             end
             for _, event in ipairs(events) do
                 registered[event.id] = SourceEvents.has(event.id)
+                trainers[event.id] = SourceEvents.trainerDefinition(event.id)
                 local descriptor = SourceEvents.descriptor(event.id)
                 local step = descriptor and descriptor.kind == "program" and descriptor.steps[1]
                 if step and step.op == "shop" then
@@ -319,7 +321,7 @@ function HarnessDiagnostics.observe(game, kind)
         armBoundary(game)
         return {kind=kind, valid=true, version=SessionCodec.VERSION,
             registered_events=registered, shops=shops, hm_compatibility=compatibility,
-            trainers=SourceEvents.trainerDefinitions()}
+            trainers=trainers, map_name=ownerMap}
     end
     if kind == "midgame-state" then
         local event = game.machine:get("event")

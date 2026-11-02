@@ -206,6 +206,7 @@ local function normalize(value)
             or args[1] == "saved" or args[1] == "loaded"
             or args[1] == "vermilion-owners" or args[1] == "vermilion-collection"
             or args[1] == "midgame-owners" or args[1] == "midgame-state"
+            or type(args[1]) == "string" and args[1]:match("^midgame%-owners:[%w_]+$") ~= nil
             or args[1] == "vermilion-encounter-terrain" or args[1] == "vermilion-aide-fixture"
             or args[1] == "vermilion-daycare" or args[1] == "vermilion-world")
     elseif op == "fixture" then

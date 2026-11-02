@@ -241,7 +241,33 @@ class MidgameJourney(vj.VermilionJourney):
         if commands and commands[0] == 'press b' and self.state.get('root') == 'overworld':
             # Let the existing A/B gesture finish before opening a field menu.
             commands = ('wait 3', *commands)
-        return super().send(*commands)
+        result = super().send(*commands)
+        if getattr(self, 'midgame_ready', False):
+            self.ensure_owner_map(self.state.get('zone_id'))
+        return result
+
+    def ensure_owner_map(self, zone):
+        model = self.models.get(zone)
+        source = getattr(model, 'source_data', None)
+        if not source or source['name'] in self.owner_maps:
+            return
+        owners = self.observe('midgame-owners:' + source['name'])
+        if owners.get('valid') is not True or owners.get('map_name') != source['name']:
+            raise ProtocolError('actual bounded map owner observation differs')
+        self.registered_events.update(self.owner_mapping(owners['registered_events']))
+        shops = self.owner_mapping(owners['shops'])
+        self.export['shops'].update(shops)
+        self.vermilion['shops'].update(shops)
+        self.source_trainers.update(self.owner_mapping(owners['trainers']))
+        self.owner_maps.add(source['name'])
+
+    @staticmethod
+    def owner_mapping(value):
+        if value == []:
+            return {}
+        if not isinstance(value, dict):
+            raise ProtocolError('actual owner map must be a mapping')
+        return value
 
     def learning(self):
         release = (getattr(self, 'cycling_brake', False)
@@ -325,10 +351,11 @@ class MidgameJourney(vj.VermilionJourney):
         owners = self.observe('midgame-owners')
         if owners.get('valid') is not True or type(owners.get('version')) is not int:
             raise ProtocolError('root midgame owner observation unavailable')
-        self.export = {'session_codec': owners['version'], 'shops': owners['shops']}
-        self.registered_events = owners['registered_events']
-        self.vermilion['shops'].update(owners['shops'])
-        for stable, definition in owners['trainers'].items():
+        self.export = {'session_codec': owners['version'], 'shops': self.owner_mapping(owners['shops'])}
+        self.registered_events = self.owner_mapping(owners['registered_events'])
+        self.owner_maps = set()
+        self.vermilion['shops'].update(self.export['shops'])
+        for stable, definition in self.owner_mapping(owners['trainers']).items():
             self.source_trainers[stable] = definition
         self.midgame_ready = True
         self.summary['midgame_dependencies'] = {'build_id': self.client.identity['build_id'],
@@ -384,6 +411,7 @@ class MidgameJourney(vj.VermilionJourney):
         self.checkpoint('earned-flash-continue')
 
     def require_event(self, stable):
+        self.ensure_owner_map(stable.rsplit(':', 2)[0])
         if self.registered_events.get(stable) is not True:
             raise ProtocolError('unavailable gameplay event; root must integrate owner: ' + stable)
 
