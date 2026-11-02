@@ -98,15 +98,23 @@ point probes retain their separate scope.
 
 ## Next work and open gates
 
-1. Measure current post-GC live heap/native headroom on Game Corner, Hideout,
-   Safari and Tower. Keep about 7.5 MiB working peak before C activation.
-   Audio remains held for its memory/listening checks.
+1. Current physical memory samples now cover Game Corner and Hideout B1F–B4F,
+   about 5 MiB collected live with 6.13 MiB sampled peak. Safari and Tower remain
+   open. The current fishing-battle point probe holds eight requested 256 KiB
+   native images on hardware, then releases them; allocation plus two collections
+   takes 1.243 s. This diagnostic-GC route is not the full C margin.
+   [Native point probe](native-headroom-current149-20261102.json).
+   Spinner query merge `1860b3c0` reduces ordinary B3 active p95 from 148 to
+   39 ms in one hardware comparison; 61 native checks and 24 merged host checks
+   pass, with no review findings. Three roughly two-second hitches remain.
+   [Scoped adoption](spinner-query-adoption-20261102.json). Audio remains held.
+   [Heavy-map samples and hitch scope](heavy-b-memory-20261102.json).
 2. Substitute is adopted. The composed host suite ran1,169tests with four
    metadata/art-reference failures;110targeted branch checks and120merged checks
    pass after correction.57protocol checks and productioncompile pass. Current
    shared-owner evidence is rebound only where unchanged assertions reran;
    HelpingHand/Dig stay stale, and no full-mechanics completion is inferred.
-3. Advance C's isolated host composition `69658243`. All three accepted-B imports
+3. Advance C's isolated host composition `5b0a6a2a`. All three accepted-B imports
    now pass after verified original-path ancestry restoration. Four conditions
    remain: President binding, two elevator arrivals and real C qualification.
    Hooks stay unapplied. Memory gates activation; latency gates acceptance.

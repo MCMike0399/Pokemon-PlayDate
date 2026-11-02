@@ -1,0 +1,218 @@
+{
+  "classification": "Bounded actual physical heavy-B traversal; not fullheavymap/Cmargin/playability acceptance",
+  "build_id": "1135d17e37fc4338953498c731ff279f",
+  "source_main": "24ea539c",
+  "hardware": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/heavy-b-memory-hardware-20261102-02",
+  "measurements": {
+    "battle_start_ms": null,
+    "frame_ms": 2264.312,
+    "heap_live_bytes": 4881983.488,
+    "heap_peak_bytes": 6427797.504,
+    "map_load_ms": 4376.0,
+    "slice_ms": 2264.312
+  },
+  "phase_measurements": {
+    "Continue": 3255.0,
+    "Save": 1837.0,
+    "battle": null,
+    "boot_slice": 1451.253,
+    "boot_title": 13174.0,
+    "cave_walking_p95": null,
+    "door": 4376.0,
+    "title_artwork": 2742.0
+  },
+  "post_gc_map_table": [
+    {
+      "map": "FuchsiaCity",
+      "post_gc_max_mib": 5.0035185546875,
+      "samples": 1
+    },
+    {
+      "map": "Route17",
+      "post_gc_max_mib": 5.12036328125,
+      "samples": 1
+    },
+    {
+      "map": "CeladonCity",
+      "post_gc_max_mib": 5.13009765625,
+      "samples": 1
+    },
+    {
+      "map": "GameCorner",
+      "post_gc_max_mib": 5.100580078125,
+      "samples": 1
+    },
+    {
+      "map": "RocketHideoutB1F",
+      "post_gc_max_mib": 5.028716796875,
+      "samples": 1
+    },
+    {
+      "map": "RocketHideoutB2F",
+      "post_gc_max_mib": 5.0111796875,
+      "samples": 1
+    },
+    {
+      "map": "RocketHideoutB3F",
+      "post_gc_max_mib": 4.9993798828125,
+      "samples": 1
+    },
+    {
+      "map": "RocketHideoutB4F",
+      "post_gc_max_mib": 5.1067646484375,
+      "samples": 1
+    }
+  ],
+  "all_door_gc_samples": [
+    {
+      "map": "FuchsiaCity",
+      "attribution": "freshconstructor",
+      "heap_kib": 5123.603,
+      "clock_ms": 33147.0
+    },
+    {
+      "map": "Route18",
+      "attribution": "freshconstructor",
+      "heap_kib": 5133.862,
+      "clock_ms": 97954.0
+    },
+    {
+      "map": "Route18Gate1F",
+      "attribution": "freshconstructor",
+      "heap_kib": 5001.114,
+      "clock_ms": 105044.0
+    },
+    {
+      "map": null,
+      "attribution": "cache-hit destination notidentified",
+      "heap_kib": 5040.267,
+      "clock_ms": 155795.0
+    },
+    {
+      "map": "Route17",
+      "attribution": "freshconstructor",
+      "heap_kib": 5243.252,
+      "clock_ms": 168856.0
+    },
+    {
+      "map": null,
+      "attribution": "cache-hit destination notidentified",
+      "heap_kib": 5231.246,
+      "clock_ms": 171701.0
+    },
+    {
+      "map": null,
+      "attribution": "cache-hit destination notidentified",
+      "heap_kib": 5293.096,
+      "clock_ms": 216759.0
+    },
+    {
+      "map": "Route16",
+      "attribution": "freshconstructor",
+      "heap_kib": 5285.674,
+      "clock_ms": 362449.0
+    },
+    {
+      "map": "Route16Gate1F",
+      "attribution": "freshconstructor",
+      "heap_kib": 5104.923,
+      "clock_ms": 423926.0
+    },
+    {
+      "map": null,
+      "attribution": "cache-hit destination notidentified",
+      "heap_kib": 5120.287,
+      "clock_ms": 429996.0
+    },
+    {
+      "map": "CeladonCity",
+      "attribution": "freshconstructor",
+      "heap_kib": 5253.22,
+      "clock_ms": 442669.0
+    },
+    {
+      "map": "GameCorner",
+      "attribution": "freshconstructor",
+      "heap_kib": 5222.994,
+      "clock_ms": 606585.0
+    },
+    {
+      "map": "RocketHideoutB1F",
+      "attribution": "freshconstructor",
+      "heap_kib": 5149.406,
+      "clock_ms": 732693.0
+    },
+    {
+      "map": "RocketHideoutB2F",
+      "attribution": "freshconstructor",
+      "heap_kib": 5131.448,
+      "clock_ms": 806940.0
+    },
+    {
+      "map": "RocketHideoutB3F",
+      "attribution": "freshconstructor",
+      "heap_kib": 5119.365,
+      "clock_ms": 866975.0
+    },
+    {
+      "map": "RocketHideoutB4F",
+      "attribution": "freshconstructor",
+      "heap_kib": 5229.327,
+      "clock_ms": 1062577.0
+    }
+  ],
+  "slow_frames": [
+    {
+      "active_ms": 2264.312,
+      "heap_kib": 5409.354,
+      "kind": "return",
+      "loading": false,
+      "segment": 1,
+      "start_ms": 955183.25,
+      "update": 18304
+    },
+    {
+      "active_ms": 2233.062,
+      "heap_kib": 5475.676,
+      "kind": "return",
+      "loading": false,
+      "segment": 1,
+      "start_ms": 1024433.188,
+      "update": 18837
+    },
+    {
+      "active_ms": 2224.75,
+      "heap_kib": 5446.524,
+      "kind": "return",
+      "loading": false,
+      "segment": 1,
+      "start_ms": 975263.0,
+      "update": 18440
+    }
+  ],
+  "slow_frame_scope": "All three topframes occur after B3 entry andbeforeB4 entry, withno nearby explicitBootTraceGCwindow. Attribution toscenecloning is an unmeasured Sourcelead only; automaticGC/otherworknotexcluded.",
+  "unmeasured": [
+    "Safari",
+    "Tower",
+    "native/transientimageheadroom",
+    "cavep95",
+    "battle start onthisfinite route",
+    "shipped-equivalenttiming"
+  ],
+  "input_scope": "Actualnormalbuttons, canonicalSquirtleBseed, sourcefixedHideoutB3spinnerroute. Original12coldroute batches were followedby source-validsingle-stepcorrection toGameCorner; all actualoperatorbatches retained.",
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged"
+  },
+  "prior_refusal": "Attempt01 refused beforegamecopy because reusedbundleData hadstalemetrics; preserved. Attempt02 freshbuild andexactSDKsafety. No staleData or guards cleared.",
+  "hashes": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/heavy-b-memory-hardware-20261102-02/device-smoke.json": "e5ac23f7cc524e731d18e040cf0c952d81de520292a52cbfeeae9f02b8fc0e73",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/heavy-b-memory-hardware-20261102-02/outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/heavy-b-memory-hardware-20261102-02/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/heavy-b-memory-hardware-20261102-02/device-responses.json": "fd29cf6856b2b7eb6a524f92674dbe97cf9aec25f5ddbd8153ef7c9c9249e1d3"
+  },
+  "limits": "DefaultdiagnosticfullGCretained. No productionrawmargin orCactivation inferred from diagnosticroute. PostGC attribution forcachehitdestinations isexplicitlyunknownratherthanlastconstructedmap. Luaheapexcludesnativeallocations. No newlogs, verifiedkeeperrunack withoutdirectscreenobservation."
+}
