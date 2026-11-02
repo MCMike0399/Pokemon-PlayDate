@@ -86,7 +86,7 @@ class ProductionBuildTests(unittest.TestCase):
         additions = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],
             'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts',
-                                  'dev/selfKOMoveContracts'],
+                                  'dev/selfKOMoveContracts', 'dev/substituteSeamContracts', 'dev/substituteContracts'],
         }
         expected = []
         for name in BASELINE['imports']:
@@ -116,7 +116,7 @@ class ProductionBuildTests(unittest.TestCase):
         additions_after = {
             'dev/chargeLockContracts': ['dev/hmBattleContracts'],
             'dev/sideContracts': ['dev/stageResetContracts', 'dev/earnedBMoveContracts',
-                                  'dev/selfKOMoveContracts'],
+                                  'dev/selfKOMoveContracts', 'dev/substituteSeamContracts', 'dev/substituteContracts'],
             'game/rocketHideoutStoryController': [
                 'game/fieldTravelRequests', 'game/fieldTravelRuntime', 'game/fieldTravelState',
                 'game/fieldGearRequests', 'game/fieldGearState', 'world/fieldGearArt'],
@@ -139,7 +139,9 @@ class ProductionBuildTests(unittest.TestCase):
             'Contracts.register("sides",SideContracts.run)': [
                 'Contracts.register("stage-reset", StageResetContracts.run)',
                 'Contracts.register("earned-b-moves", EarnedBMoveContracts.run)',
-                'Contracts.register("self-ko-moves", SelfKOMoveContracts.run)'],
+                'Contracts.register("self-ko-moves", SelfKOMoveContracts.run)',
+                'Contracts.register("substitute-seams", SubstituteSeamContracts.run)',
+                'Contracts.register("substitute", SubstituteContracts.run)'],
         }
         expected_registrations = []
         for line in BASELINE['registrations']:

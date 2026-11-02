@@ -478,7 +478,7 @@
       "handler": "standard-damage"
     },
     "substitute": {
-      "gap": "volatileStatus, onTryHit, onHit"
+      "handler": "engine-dsl"
     },
     "mindReader": {
       "gap": "onTryHit, onHit"

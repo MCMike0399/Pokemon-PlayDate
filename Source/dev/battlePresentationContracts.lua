@@ -37,6 +37,54 @@ local function settle(battle, scene, stopAtShift)
     error("battle presentation did not settle")
 end
 
+-- Compare the real SDK render against the pinned asset through an independent
+-- image context. These helpers never advance a presentation or battle clock.
+local function substituteScene(side, withParty)
+    local lead = Pokemon("snorlax", 100)
+    local roster = withParty and party(lead, Pokemon("blastoise", 100)) or nil
+    local battle = Battle(lead, Pokemon("snorlax", 100), nil, roster and {party=roster} or nil)
+    for _ = 1, 100 do
+        if battle:phase() ~= "script" then break end
+        battle.machine:get("script"):advance()
+    end
+    assert(battle:phase() == "command")
+    local scene = BattleScene(battle)
+    local say = battle.say
+    battle.say = function() end
+    assert(battle.conditions:createSubstitute(battle[side]))
+    battle.say = say
+    return battle, scene, battle[side]
+end
+local function renderPicture(fn)
+    local image = assert(gfx.image.new(112, 112, gfx.kColorWhite))
+    gfx.pushContext(image)
+    gfx.setDrawOffset(0, 0)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
+    gfx.clearClipRect()
+    local ok, problem = pcall(fn)
+    gfx.clearClipRect()
+    gfx.popContext()
+    assert(ok, problem)
+    return image
+end
+local function equalPictures(actual, expected)
+    for y = 0, 111 do
+        for x = 0, 111 do
+            assert(actual:sample(x, y) == expected:sample(x, y), "picture differs at " .. x .. "," .. y)
+        end
+    end
+end
+local function referencePicture(path, size, drop)
+    return renderPicture(function()
+        gfx.setClipRect(16, 16, 80, 80)
+        local image = assert(gfx.image.new(path))
+        local w, h = image:getSize()
+        local scale = math.min(size / w, size / h)
+        image:drawScaled(16 + (80 - size) // 2 + math.floor((size - math.floor(w * scale)) / 2),
+            16 + (80 - size) // 2 + drop + math.floor((size - math.floor(h * scale)) / 2), scale)
+    end)
+end
+
 function BattlePresentationContracts.run()
     local report = {ok = true, passed = 0, failed = 0, tests = {}}
     local saved = {}
@@ -366,6 +414,91 @@ function BattlePresentationContracts.run()
             equal(battle:phase(), "command")
             scene:exit()
         end
+    end)
+
+    test("Substitute front and back render exact pinned source canvases without a numeric doll HUD", function()
+        for _, side in ipairs({"enemy", "player"}) do
+            local battle, scene, mon = substituteScene(side)
+            local back = side == "player"
+            local hp = mon.hp
+            local before = RulesRNG.snapshot()
+            local actual = renderPicture(function() scene:drawPresentedPokemon(mon, side, 16, 16, back) end)
+            local expected = referencePicture("images/battle-effects/substitute-" .. (back and "back" or "front"), 80, 0)
+            equalPictures(actual, expected)
+            equal(mon.hp, hp)
+            equal(RulesRNG.snapshot().state, before.state)
+            equal(RulesRNG.snapshot().rolls, before.rolls)
+            scene:exit()
+        end
+    end)
+    test("Substitute uses the existing recall scale and centering without advancing its pose", function()
+        local battle, scene, mon = substituteScene("player")
+        local request = {kind="recall", details={side="player", pokemon=mon}}
+        scene.activePresentation = request
+        scene.presentationFrame = 10
+        local actual = renderPicture(function() scene:drawPresentedPokemon(mon, "player", 16, 16, true) end)
+        equalPictures(actual, referencePicture("images/battle-effects/substitute-back", 40, 0))
+        equal(scene.activePresentation, request)
+        equal(scene.presentationFrame, 10)
+        scene:exit()
+    end)
+    test("Substitute shares faint drop and slot clipping without moving the presentation clock", function()
+        local battle, scene, mon = substituteScene("enemy")
+        scene.activePresentation = {kind="faint", details={side="enemy", pokemon=mon}}
+        scene.presentationFrame = 3
+        local actual = renderPicture(function() scene:drawPresentedPokemon(mon, "enemy", 16, 16, false) end)
+        equalPictures(actual, referencePicture("images/battle-effects/substitute-front", 80, 15))
+        equal(scene.presentationFrame, 3)
+        scene:exit()
+    end)
+    test("Broken or cleared Substitute restores ordinary body art and keeps body HP HUD values", function()
+        for _, broken in ipairs({true, false}) do
+            local battle, scene, mon = substituteScene("enemy")
+            local hp = mon.hp
+            if broken then
+                battle.conditions:damageSubstitute(mon, battle.conditions:substituteHP(mon))
+            else
+                battle.conditions:clear(mon)
+            end
+            for _ = 1, 60 do scene:updateVitals() end
+            local _, shownHP, maximum = scene:shownVitals(mon)
+            equal(shownHP, hp)
+            equal(maximum, mon.maxHP)
+            local actual = renderPicture(function() scene:drawPresentedPokemon(mon, "enemy", 16, 16, false) end)
+            equalPictures(actual, referencePicture(PokemonArt.path(mon.species, "front"), 80, 0))
+            scene:exit()
+        end
+    end)
+    test("Substitute cannot mask trainer intro visibility or the existing sendout pose", function()
+        local battle, scene, mon = substituteScene("enemy")
+        scene.playerShown = nil
+        scene.enemyShown = nil
+        scene.trainerVisible = true
+        local count = 0
+        local original = scene.drawPresentedPokemon
+        scene.drawPresentedPokemon = function() count = count + 1 end
+        renderPicture(function() scene:drawBattleField() end)
+        equal(count, 0)
+        scene.drawPresentedPokemon = original
+        scene.activePresentation = {kind="sendout", details={side="enemy", pokemon=mon}}
+        scene.presentationFrame = 10
+        local actual = renderPicture(function() scene:drawPresentedPokemon(mon, "enemy", 16, 16, false) end)
+        equalPictures(actual, referencePicture(PokemonArt.path(mon.species, "front"), 8, 0))
+        equal(scene.presentationFrame, 10)
+        scene:exit()
+    end)
+    test("Substitute art cannot follow a withdrawn identity into the replacement slot", function()
+        local battle, scene, outgoing = substituteScene("player", true)
+        battle.enemy.moves = {"splash"}
+        battle.enemy.pp = {splash=moveData.splash.pp}
+        assert(battle:chooseParty(2))
+        local incoming = battle.player
+        assert(incoming ~= outgoing)
+        settle(battle, scene)
+        local actual = renderPicture(function() scene:drawPresentedPokemon(outgoing, "player", 16, 16, true) end)
+        equalPictures(actual, referencePicture(PokemonArt.path(outgoing.species, "back"), 80, 0))
+        equal(battle.conditions:substituteHP(incoming), 0)
+        scene:exit()
     end)
 
     for key, value in pairs(saved) do

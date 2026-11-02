@@ -1,0 +1,81 @@
+{
+  "status": "owner-seam preparation; Substitute dispatch remains unsupported",
+  "authoritative_base": "83337bc09a6c4d84bfdffaef2da6ae5651a06dfd",
+  "synchronization_merge": "659040c3d10543f3f3a1a2f9aa7c43614ed69a2d",
+  "oracle_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "oracle_files": {
+    "ps_data_moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+    "ps_data_mods_gen8_moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+    "ps_data_mods_gen7_moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+    "ps_data_mods_gen6_moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb",
+    "ps_data_mods_gen5_moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010",
+    "ps_sim_battle-actions.ts": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4"
+  },
+  "all_existing_local_oracle_files_verified": 17,
+  "producer_epoch": 18,
+  "legacy_inverse_sha256": "ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea",
+  "sdk_version": "3.1.2",
+  "sdk_executed": false,
+  "native_selection": "substitute-seams",
+  "native_case_names": [
+    "Substitute seam pays floor quarter once and rejects exact boundary without RNG",
+    "Substitute seam commits cost and trap removal before narration preserving other owners",
+    "Substitute seam caps each hit without spill and keeps body damage ledgers empty",
+    "Substitute receipt suppresses Sturdy Anger Point and contact ability RNG even on break",
+    "Substitute drain uses capped loss ceil rounding and existing Liquid Ooze owner once",
+    "Substitute recoil uses intercepted loss and existing Rock Head Magic Guard gates once",
+    "Substitute seam rejects implicit body routing unsupported producers and malformed damage",
+    "Substitute lifetime follows existing member cleanup and invalidates retired receipts"
+  ],
+  "build_paths": {
+    "production": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-seams-20261101-fbfce0f5-production",
+    "harness": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-seams-20261101-fbfce0f5-harness"
+  },
+  "source_files_sha256": {
+    "Source/battle/conditions.lua": "d594b0f5fdcd2557761f7202a0250a0325f6cabe4b8a25a48b6e90ec7d87131f",
+    "Source/battle/effects.lua": "5afe24562b30c9d6ca64005de99c6f96a8c5123f5708f92a0047f2f194a192ce",
+    "Source/battle/ordinaryAbilities.lua": "e6d576d9bb878df59d5df44efe12d45985d8982234ec2ce91f0972eaa50f314d",
+    "Source/battle/contactAbilities.lua": "f69f7b30a70747903d3d3346be79b5d3b26e0906ad48051fa414fe3db68bd27b",
+    "Source/dev/substituteSeamContracts.lua": "31ee8c06e383abbf0adc0398084fbffdd30324a094bcafda9dd7946d2bcb6123",
+    "tools/harness/dev_imports.lua": "0c661b7cd6a09e2b47035dfa220189da9e911dd74b93a76485364de4b8c6c520"
+  },
+  "checks": {
+    "focused_oracle_producer_contact_earned_b_host_tests": 25,
+    "existing_production_build_host_tests": 6,
+    "production_sdk_3_1_2_compile": "passed",
+    "harness_sdk_3_1_2_compile": "passed",
+    "move_support_generation_check": "passed",
+    "sdk_native_cases_compiled": 8,
+    "sdk_native_cases_executed": 0,
+    "simulator_device_usb_global_runtime_locks": "not used"
+  },
+  "implemented_scope": [
+    "Existing BattleConditions active-member storage owns substitute HP, strict HP threshold, floor-quarter cost, duplicate failure and partial-trap removal. Cost uses BattleEffects damage with cost provenance; no Pokemon or codec fields.",
+    "Explicit hitSubstitute primitive caps intercepted HP loss per hit and records typed tokens in existing BattleEffects receipt storage. It does not mark body damage, Bide or Revenge ledgers. Subsequent body hits after break still use the unchanged ordinary hit owner.",
+    "resolveSubstituteHit applies per-intercept recoil then ceil drain through existing damage, recoil-immunity and Liquid Ooze owners, once per receipt. Gen5 recoil uses 33/100 rather than modern 1/3.",
+    "Contact and Anger Point callbacks reject intercepted receipts. Ordinary body hit entry fails closed if called while a substitute remains, requiring future explicit primary routing.",
+    "Existing clear/clearAll and effects token cleanup dispose of substitute state. No additional durable or battle lifetime owner."
+  ],
+  "blockers_before_move_support_activation": [
+    "No createSubstitute DSL producer or performMove caller is installed. Existing Substitute gap and Clear Smog activation assertion are retained. This is seam preparation, not a playable Substitute implementation.",
+    "Generate and review Gen5 bypasssub/target policy from the pinned inherited move chain. Sound and Infiltrator do not automatically bypass in Gen5. Do not infer bypass from modern flags or from category alone.",
+    "Route normal formula, fixed damage, OHKO, Bide and each multihit primary result through body versus substitute interception, preserving target/immunity/Protect/absorption/accuracy/action/PP/RNG ordering. OHKO accuracy/Sturdy gates are not implemented by this seam.",
+    "Gate opposing status, volatile, stat and ability changes before their payloads/chance draws, including Disable/Encore/Foresight/Yawn/Worry Seed and DSL leaves. Preserve self-target/field bypasses and delayed residual provenance.",
+    "Use the typed interception result for Clear Smog primary resets, rage, binding, Rapid Spin, self effects and attacker-versus-defender secondaries, including the breaking hit. Existing action loop still assumes body hits.",
+    "Integrate per-hit intercepted recoil/drain without also charging the existing whole-move body recoil accumulator. Mixed multihit and cancellation/faint checkpoints need native contracts. Struggle is explicitly rejected by hitSubstitute pending its AfterSubDamage/recoil integration.",
+    "AfterSubDamage event behavior and narration/presentation are not integrated. Unsupported producers such as Baton Pass, Trick, Recycle, item theft and move calling remain unsupported; do not claim exhaustive GenV fidelity.",
+    "Root must execute substitute-seams and existing affected native selections, review gameplay and source, then decide adoption. Compile-only evidence does not establish runtime equivalence."
+  ],
+  "preservation": "Exact authoritative tree restored through normal merge 659040c3; scoped candidate leaves maps, trainers, learnsets, AI, MoveSupport, generated moves, producer history and schema4 codecs unchanged. No C activation, acceptance evidence refresh, push or actual-B/main mutation.",
+  "candidate_files": [
+    "Source/battle/conditions.lua",
+    "Source/battle/effects.lua",
+    "Source/battle/ordinaryAbilities.lua",
+    "Source/battle/contactAbilities.lua",
+    "Source/dev/substituteSeamContracts.lua",
+    "tools/harness/dev_imports.lua",
+    "tools/tests/test_substitute_seams.py",
+    "tools/tests/test_production_build.py",
+    "docs/validation/substitute-seam-preparation-20261101.json"
+  ]
+}

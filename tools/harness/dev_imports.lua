@@ -146,6 +146,10 @@ import "dev/earnedBMoveContracts"
 Contracts.register("earned-b-moves", EarnedBMoveContracts.run)
 import "dev/selfKOMoveContracts"
 Contracts.register("self-ko-moves", SelfKOMoveContracts.run)
+import "dev/substituteSeamContracts"
+Contracts.register("substitute-seams", SubstituteSeamContracts.run)
+import "dev/substituteContracts"
+Contracts.register("substitute", SubstituteContracts.run)
 import "dev/roostContracts"
 Contracts.register("roost",RoostContracts.run)
 import "dev/roostPredicateContracts"

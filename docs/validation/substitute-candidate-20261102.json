@@ -1,0 +1,332 @@
+{
+  "status": "complete implementation candidate; compile/host qualified, not native-accepted or adopted",
+  "branch": "t3/gen-v-substitute",
+  "authoritative_base": "83337bc09a6c4d84bfdffaef2da6ae5651a06dfd",
+  "baseline_seam_commit": "cc6109ef100be4f0a39ffdbd378f86ecda8169f0",
+  "source_commit": "3bdacaca1abd0522a9e436866b438175d32c1c34",
+  "implementation_commits": [
+    "cec2ec9250d3d9548643ff5e130d9ddfaf694249 Route Substitute primary hits and payloads through existing battle owners",
+    "ea2f904181fcc249e80ce426f362b9210282cf68 Enable Gen V Substitute with epoch19 producer and action contracts",
+    "3bdacaca1abd0522a9e436866b438175d32c1c34 Keep Night Shade interception fixture outside Normal immunity"
+  ],
+  "root_baseline_execution": {
+    "commit": "cc6109ef100be4f0a39ffdbd378f86ecda8169f0",
+    "user_reported_seams_passed": 8,
+    "user_reported_regressions_passed": 59,
+    "paths": [
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-seams-native-20261102-01",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-seams-regressions-native-20261102-01"
+    ],
+    "applies_to_new_candidate": false
+  },
+  "oracle_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+  "oracle_sha256": {
+    "ps_data_abilities.ts": "e942ef6a75cdd50095f6b68c27e772ea91f2202714a30b04539ff17b7b93c065",
+    "ps_data_mods_gen8_abilities.ts": "da491e974abbc07c10267cd7ddd6713fea035be415c3d1e69c916d44b9f2ad51",
+    "ps_data_mods_gen7_abilities.ts": "9f9928a6477e78f95dcc6c0bdca686f812cbe4571c034080d4c9ab2136b9e776",
+    "ps_data_mods_gen6_abilities.ts": "01dd91f133cf9ee0215b3a8b04a3418d26c0f9a380781fb4966e5d7f2808e5f9",
+    "ps_data_mods_gen5_abilities.ts": "b0fa8dac88cbbde30d38eb7b8128af37baded1063f4dbec742061c0aee9059bb",
+    "ps_data_moves.ts": "61ab107dae9628d79ac61da16c72e8565f6a1211874298e00c77c5c0ac9755a7",
+    "ps_data_mods_gen5_moves.ts": "b7f2146ad3b81a5f17a05fdb87bc3fb9b19e891ac2a44ec8f7b4ca94252e8010",
+    "ps_data_conditions.ts": "d27aa18fade4d85152b4ce8a002b9c6801e5e08f1859db918e14695797875eda",
+    "ps_data_mods_gen5_conditions.ts": "a45e44a9459209e082b2775cc1b4a24fc32ef9067d0909b8f9d75d7137b3a7dc",
+    "ps_data_mods_gen6_conditions.ts": "9cca533633c20fecc0d5cf4cbd0f318ed9e0e5164c7f9ba2d62b45b9eaaf6850",
+    "ps_data_mods_gen5_typechart.ts": "e97ecc4391101613d626498dd485ef663ed1e7a93c4061bd7053c6eec4f2d138",
+    "ps_sim_battle-actions.ts": "9d477a6296f8916cbbbfc36ae18bb0729dfda0646e4ee1c00ccb4199661c56d4",
+    "ps_sim_battle.ts": "966fe2263d943343bebc7bbf44ba5ec93454448276a6d45b497885d304dfda58",
+    "ps_sim_pokemon.ts": "42ebab9dcfc823b032d40dabb8aafc9e76276030f89bd9a0e98b5e7fb54cb607",
+    "ps_data_mods_gen8_moves.ts": "d75a2e25ce019c8619a71bd271ebb3521d8ed54b33540a0961f67320f5231f2e",
+    "ps_data_mods_gen7_moves.ts": "d043fc23b4a812ba8734d3520c8f4d7ee629b42b24d005382a447b050db9f8bc",
+    "ps_data_mods_gen6_moves.ts": "2253b9dd1ed8cde982cb5e4c5057a75f6fdebba2053af27c7fe61769979b8adb"
+  },
+  "substitute_policy_sha256": "8c5f6149432f1fb6f72a21e5cc2096e2dde8ef9a6581f2cb9d3a0fb61316cb2e",
+  "producer_epoch": 19,
+  "prior_epoch": 18,
+  "registry_rows": 425,
+  "changed_move_rows": [
+    "substitute"
+  ],
+  "changed_move_support": [
+    "substitute"
+  ],
+  "original424_inverse_sha256": "ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea",
+  "preserved": [
+    "All epoch18 SelfDestruct/Explosion flags, Reflect/ChipAway and previous producer rows",
+    "Every previous migration edge and original inverse hashes",
+    "Schema4 codecs and all Source/domain and Source/data bytes",
+    "Maps, source trainers, learnsets, AI, safety guards and services",
+    "Root runtime ownership; no push, adoption or C activation"
+  ],
+  "owners": {
+    "Source/battle/conditions.lua": "Existing member storage owns HP, strict cost/failure, partial-trap removal and lifecycle cleanup.",
+    "Source/battle/effects.lua": "Explicit primary routing, capped per-hit interception receipts, drain/recoil, supported ability gates and Intimidate immunity.",
+    "Source/battle/battle.lua": "Actual action gates, status primary rejection, each formula/multihit/OHKO path, secondary receipts and separate body recoil accumulator.",
+    "Source/battle/dsl.lua": "Concrete SubstituteEffect; fixed/Psywave routing; binding, Rapid Spin and Clear Smog payload routing.",
+    "Source/battle/contactAbilities.lua": "Intercepted-hit contact/Anger Point/secondary exclusions.",
+    "Source/battle/ordinaryAbilities.lua": "Ceil intercepted drain with existing Liquid Ooze owner.",
+    "Source/battle/battleScene.lua": "Conditional SUB and doll-HP marker; body HUD retains actual Pokemon HP. No new raster asset.",
+    "Source/battle/substitutePolicy.lua": "Generated explicit GenV bypasssub policy for all425 canonical identities; no sound/Infiltrator inference."
+  },
+  "checks": {
+    "focused_host_passed": 98,
+    "focused_host_failed": 0,
+    "focused_host_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-candidate-20261102/host.log",
+    "final_build_inventory_checks_passed": 6,
+    "final_build_inventory_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-candidate-20261102/final-build-checks.log",
+    "production_sdk": "3.1.2 passed",
+    "harness_sdk": "3.1.2 passed",
+    "generator_checks": [
+      "tools.generate_substitute_policy --check",
+      "tools.generate_move_support --check"
+    ],
+    "native_new_executed": 0,
+    "new_action_cases_compiled": 24,
+    "seam_cases_retained_and_compiled": 8,
+    "git_diff_check": "passed"
+  },
+  "known_host_failures": {
+    "suite": "tools.tests.test_runtime_move_coverage",
+    "failed_assertions": [
+      "test_current_owners_fix_actual_false_missing_with_scope_limits",
+      "test_unrelated_battle_edits_do_not_make_unchanged_owners_missing"
+    ],
+    "reason": "Bide runtime evidence is correctly stale after its shared DirectDamage owner changed. The suite and accepted evidence are unchanged. Root must execute current native cases before refreshing evidence; this candidate does not claim a full green host suite."
+  },
+  "builds": {
+    "production_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-final-20261102-production",
+    "production_source_sha256": "ca97364ece5787ca8fb431e1faeca983599a82556ef0cafda04289e4694cfa71",
+    "harness_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-final-20261102-harness-v2",
+    "harness_source_sha256": "760d75137abaf9897a54f2536ee6ba562d3810a534e568a8d678481197e65dc6",
+    "harness_compiled_source_sha256": "a015f51800c4299797e18bbe23793a332da8e5be31349fced01ada2195b7e2c9",
+    "harness_revision": "3bdacaca1abd0522a9e436866b438175d32c1c34",
+    "runtime_launched": false,
+    "global_runtime_locks_acquired": false
+  },
+  "commands": {
+    "host": "source ~/Developer/Pokemon-PlayDate-env/env.sh && python -m unittest tools.tests.test_substitute_generation tools.tests.test_substitute_seams tools.tests.test_move_producer_contract tools.tests.test_self_ko_move_generation tools.tests.test_earned_b_move_generation tools.tests.test_side_move_generation tools.tests.test_poison_fang_generation tools.tests.test_roost_move_generation tools.tests.test_charge_move_generation tools.tests.test_captivate_move_generation tools.tests.test_rain_move_generation tools.tests.test_worry_seed_generation tools.tests.test_protection_move_generation tools.tests.test_move_failure_phazing tools.tests.test_contact_ability_sources tools.tests.test_ability_metadata tools.tests.test_move_critical_generation tools.tests.test_bide_move_generation tools.tests.test_prebrock_move_generation tools.tests.test_move_target_generation tools.tests.test_production_build",
+    "compile_only_harness": "python tools/harness/run.py --build-only --output <new-output> contracts",
+    "compile_only_production": "python tools/build.py --stage <new-stage> --output <new-output.pdx>",
+    "root_native": "Standard harness command contracts runs all registered suites. Focused Root runner can select registered substitute and substitute-seams suites or call SubstituteContracts.run() and SubstituteSeamContracts.run(); no positional suite arguments are supported by the standard contracts command."
+  },
+  "native_suites": {
+    "substitute": [
+      "Substitute actual command pays HP spends PP and rejects duplicate boundary and zero PP",
+      "Substitute sleep flinch paralysis confusion and Disable retain BeforeMove and PP gates",
+      "Substitute blocks opposing status volatile stat and ability payloads before their chance draws",
+      "Gen V sound attacks and Infiltrator do not bypass Substitute",
+      "Gen V explicit Disable Encore and identification bypasses reach existing target owners",
+      "Haze and Ghost Curse bypass while self and side moves preserve both dolls",
+      "Formula fixed Psywave Endeavor Bide and OHKO primary paths intercept without body spill",
+      "Magnitude copies and two turn charge releases retain canonical Substitute routing",
+      "Each multihit routes again after break and only body hits draw opposing secondaries",
+      "Intercepted contact and opposing secondaries consume no contact chance including the breaking hit",
+      "Clear Smog and binding cannot apply through intact or breaking substitutes",
+      "Rapid Spin AfterSubDamage clears source hazards seed and trapping once with no speed boost",
+      "Rage and self drops or self secondaries persist through intercepted hits",
+      "Intercepted damage does not feed Bide Revenge or the hurt this round ledger",
+      "Actual drain and recoil apply once to capped intercepted loss with ordinary ability gates",
+      "Controlled mixed multihit recoil excludes intercepted loss from the body accumulator",
+      "Struggle intercept recoil uses quarter max HP once and can faint the user",
+      "Self KO into Substitute faints only the source and preserves final side accounting",
+      "Miss Protect immunity absorption and Damp retain their ordering ahead of interception",
+      "Substitute narration distinguishes doll HP and renderer uses no Pokemon HP mutation or rules RNG",
+      "Voluntary switching and Roar or Whirlwind clear the outgoing doll through party ownership",
+      "Cancellation and battle close clear substitute state and invalidate unresolved hit tokens",
+      "Intimidate is blocked but existing poison seed Yawn and weather still reach body HP",
+      "Unsupported Trick Recycle and Baton Pass retain explicit gaps against Substitute"
+    ],
+    "substitute-seams": [
+      "Substitute seam pays floor quarter once and rejects exact boundary without RNG",
+      "Substitute seam commits cost and trap removal before narration preserving other owners",
+      "Substitute seam caps each hit without spill and keeps body damage ledgers empty",
+      "Substitute receipt suppresses Sturdy Anger Point and contact ability RNG even on break",
+      "Substitute drain uses capped loss ceil rounding and existing Liquid Ooze owner once",
+      "Substitute recoil uses intercepted loss and existing Rock Head Magic Guard gates once",
+      "Substitute seam rejects implicit body routing unsupported producers and malformed damage",
+      "Substitute lifetime follows existing member cleanup and invalidates retired receipts"
+    ]
+  },
+  "recommended_root_regressions": [
+    "combat",
+    "contact-abilities",
+    "common-abilities",
+    "secondaries",
+    "stage-reset",
+    "self-ko-moves",
+    "bide",
+    "protect",
+    "charge-lock",
+    "earned-b-moves"
+  ],
+  "remaining_edges": [
+    "New Source has no native execution, review, motion/UI acceptance, device validation or adoption. Prior cc6109ef native proof does not certify this integration.",
+    "All preexisting unsupported producers retain identical MoveSupport gaps except Substitute. In particular Recycle, Trick, Baton Pass, move calling/copying, item theft and unsupported abilities are not enabled. Sabrina projected MrMime still exposes Recycle and Trick.",
+    "Singles only. Flame Burst has no adjacent ally in this format; its AfterSubDamage splash remains a singles no-target event. No doubles, Baton Pass transfer, later-generation sound/Infiltrator bypass or exhaustive GenV fidelity claim.",
+    "The controlled mixed-recoil contract adds recoil to Double Kick only inside a restored test fixture to check accumulator composition; no natural current multihit/recoil producer is introduced.",
+    "Native presentation uses a clear SUB/HP text marker, not a new source-derived Substitute sprite. Root should inspect both sides, breaking hits and faint/switch presentation.",
+    "Root must rerun the affected native selections and refresh stale Bide runtime coverage only after actual results. No accepted evidence was rewritten."
+  ],
+  "changed_files": [
+    "Source/battle/battle.lua",
+    "Source/battle/battleScene.lua",
+    "Source/battle/conditions.lua",
+    "Source/battle/contactAbilities.lua",
+    "Source/battle/dsl.lua",
+    "Source/battle/effects.lua",
+    "Source/battle/moveSupport.lua",
+    "Source/battle/moves.lua",
+    "Source/battle/ordinaryAbilities.lua",
+    "Source/battle/substitutePolicy.lua",
+    "Source/dev/substituteContracts.lua",
+    "Source/dev/substituteSeamContracts.lua",
+    "docs/validation/substitute-seam-preparation-20261101.json",
+    "tools/generate_gen5_data.py",
+    "tools/generate_substitute_policy.py",
+    "tools/harness/dev_imports.lua",
+    "tools/move_producer_contract.py",
+    "tools/references/move-producer-migrations.json",
+    "tools/references/move-support.json",
+    "tools/references/substitute-policy.json",
+    "tools/tests/test_captivate_move_generation.py",
+    "tools/tests/test_charge_move_generation.py",
+    "tools/tests/test_earned_b_move_generation.py",
+    "tools/tests/test_move_failure_phazing.py",
+    "tools/tests/test_poison_fang_generation.py",
+    "tools/tests/test_production_build.py",
+    "tools/tests/test_protection_move_generation.py",
+    "tools/tests/test_rain_move_generation.py",
+    "tools/tests/test_roost_move_generation.py",
+    "tools/tests/test_self_ko_move_generation.py",
+    "tools/tests/test_side_move_generation.py",
+    "tools/tests/test_substitute_generation.py",
+    "tools/tests/test_substitute_seams.py",
+    "tools/tests/test_worry_seed_generation.py"
+  ],
+  "source_sha256": {
+    "Source/battle/battle.lua": "4c85778f9ddf937390bddbf07584aee6a480fcbe45f7578ab55f35f97596728d",
+    "Source/battle/battleScene.lua": "4ff46433664f38010dbffc08ca3e3bf4735c029c34cad97a86ae6464759b480d",
+    "Source/battle/conditions.lua": "5b84a925fbbd859e9d79b76c81a4b8d6c4a7ef6804e64a1bc530ae935940c37c",
+    "Source/battle/contactAbilities.lua": "aafe03063ffc3cc5796993cf622da8b1ee7c0fd1f2bc1ad108cf6711fc5db400",
+    "Source/battle/dsl.lua": "32cffa0635019a21f18b3b7f1b3895e5a023b73296819bb4622487bc80c34ed7",
+    "Source/battle/effects.lua": "7e1e13cefbcb42ce03f6b2fc5c1072ed9de1db8e6f560520ef74735f8d8c4d56",
+    "Source/battle/moveSupport.lua": "ca8c2cb430933eb49b945368550d7af08b614e401bc8c4d7fa18da09bef2a925",
+    "Source/battle/moves.lua": "de3d7a469fcb5d3b2306fec966c7b0bf3aee18cdcb7ebc97ba4d58b3e8950743",
+    "Source/battle/ordinaryAbilities.lua": "e6d576d9bb878df59d5df44efe12d45985d8982234ec2ce91f0972eaa50f314d",
+    "Source/battle/substitutePolicy.lua": "ab3e398d283436fe99bb08b82b948bf938b0d6fff0a1bd3403230cf150943789"
+  },
+  "accepted_main_port": {
+    "base": "7726ea49f7468c142717b29344a247958edf1c3b",
+    "accepted_game_code": "af9a8938",
+    "maps": 149,
+    "original_candidate": "66ff1861acd6cbcdb4f624d0908833ec1ff9a2ab",
+    "original_candidate_ref": "prep/substitute-original-66ff1861",
+    "method": "Start this isolated branch at exact accepted main, apply only the 83337bc0-to-66ff1861 scoped candidate delta, then reconcile the one obsolete self-KO case. No synchronization merge or unrelated deletion.",
+    "production_substitute_files": "Byte-identical to Root native-tested 66ff1861, including source doll art and all430 policy entries (425core +5runtime HMs).",
+    "new_mechanics_or_contracts": false,
+    "existing_native_case_change": {
+      "suite": "self-ko-moves",
+      "old_name": "Substitute remains a reported unsupported move without self-KO activation",
+      "new_name": "Substitute pays its ordinary HP cost without self-KO activation",
+      "assertions": "selfDestruct stays false, user remains alive after exact quarter HP cost, doll owns that HP, PP spends once, enemy HP stays unchanged, no move gap and only the ordinary enemy-choice RNG draw."
+    },
+    "existing_host_reference_change": "Art preservation keeps fd456 as the art/pose baseline; its existing mechanics preservation check now compares against Root-qualified66ff so the runtime-HM policy/hash additions and existing HM case extension are retained rather than rejected as an art change.",
+    "host": {
+      "tests_passed": 44,
+      "tests_failed": 0,
+      "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-main7726-port-host-20261102-02.log",
+      "sha256": "83f4e7a86faf185a883e0d89a5cf8c3127f386e23046f863104604972ce63b14",
+      "commands": [
+        "python -m tools.generate_substitute_policy --check",
+        "python -m tools.generate_move_support --check",
+        "python -m tools.generate_substitute_art --check",
+        "python -m unittest tools.tests.test_substitute_generation tools.tests.test_substitute_seams tools.tests.test_substitute_art tools.tests.test_self_ko_move_generation tools.tests.test_move_producer_contract tools.tests.test_battle_art tools.tests.test_move_failure_phazing"
+      ]
+    },
+    "preserved": [
+      "Every accepted-main path outside the scoped candidate delta; no deletions",
+      "Main operator/proof/test files and accepted B ledger/coverage",
+      "All54 curated assertion names and bodies, existing raw proof hashes and registries",
+      "GenV shared owners, prior epoch18 edges then epoch19 Substitute, original inverse, schema4, protected art and149-map inventory"
+    ],
+    "producer_epoch": 19,
+    "original424_inverse_sha256": "ad40fd9b5592a4ffeb88dcfc9243cc56034b2f4ea5b2da6bb3f2a8c129da45ea",
+    "root_reported_prior_native": {
+      "candidate": "66ff1861acd6cbcdb4f624d0908833ec1ff9a2ab",
+      "substitute": 24,
+      "substitute-seams": 8,
+      "regression_passes": {
+        "combat": 34,
+        "contact-abilities": 25,
+        "common-abilities": 16,
+        "secondaries": 15,
+        "stage-reset": 9,
+        "self-ko-moves_before_obsolete_case": 14
+      },
+      "self_ko_group_complete": false,
+      "chain_stopped_at_obsolete_case": true,
+      "later_groups_executed": false,
+      "whole_regression_green": false
+    },
+    "native_after_this_port": "Not executed; Root owns all execution, qualification, review and adoption.",
+    "root_pending_native_selections": [
+      "substitute",
+      "substitute-seams",
+      "self-ko-moves",
+      "bide",
+      "protect",
+      "charge-lock",
+      "earned-b-moves",
+      "battle-presentation",
+      "whirlwind",
+      "move-failure"
+    ],
+    "root_native_scope": "Rerun the reconciled self-ko-moves group and finish the pending regression chain on this composed source; execute/inspect the six original doll presentation cases in battle-presentation and rerun curated54 qualification as needed. Selection names are registered suite IDs, not positional arguments to the standard contracts command.",
+    "stale_runtime_moves": [
+      "bide",
+      "dig",
+      "earthquake",
+      "explosion",
+      "furyCutter",
+      "gyroBall",
+      "heavySlam",
+      "helpingHand",
+      "magnitude",
+      "roar",
+      "selfDestruct",
+      "smackDown",
+      "whirlwind"
+    ],
+    "stale_owner_selectors": [
+      {
+        "path": "Source/battle/battle.lua",
+        "selector": "function Battle:applyMoveEffects("
+      },
+      {
+        "path": "Source/battle/battle.lua",
+        "selector": "function Battle:moveHasTarget("
+      },
+      {
+        "path": "Source/battle/battle.lua",
+        "selector": "function Battle:performMove("
+      },
+      {
+        "path": "Source/battle/battle.lua",
+        "selector": "function Battle:resolveTurn("
+      },
+      {
+        "path": "Source/battle/dsl.lua",
+        "selector": "function DirectDamage:apply("
+      },
+      {
+        "path": "Source/battle/effects.lua",
+        "selector": "function BattleEffects:hit("
+      },
+      {
+        "path": "Source/battle/moveSupport.lua",
+        "selector": "whole-file"
+      }
+    ],
+    "runtime_evidence": "Static stale-state inspection only. No Bide/runtime evidence, assertion hashes or old raw receipts refreshed.",
+    "restrictions_observed": "Host checks only; no builds, SDK/Simulator/device/USB/GUI/global runtime locks/delegation/push/adoption/main-B-C checkout edits. C remains independent and inactive."
+  }
+}

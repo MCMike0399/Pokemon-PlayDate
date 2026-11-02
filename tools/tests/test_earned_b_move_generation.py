@@ -53,7 +53,7 @@ class EarnedBProducerTests(unittest.TestCase):
             directory = Path(directory)
             result = generate(prior(), directory)
             before, after = c.read_rows(prior()), c.read_rows(result)
-            self.assertEqual(c.producer_epoch(result), 18)
+            self.assertEqual(c.producer_epoch(result), 19)
             self.assertEqual(after, c.read_rows(current()))
             self.assertEqual(set(before), set(KEYS))
             self.assertEqual({k for k in before if before[k] != after[k]}, set(KEYS))
@@ -101,8 +101,9 @@ class EarnedBProducerTests(unittest.TestCase):
         text = (ROOT / 'Source/battle/moves.lua').read_text()
         rows = c.read_rows(text)
         self.assertEqual(len(rows), 425)
-        legacy = c.legacy_rows(rows, 18)
+        legacy = c.legacy_rows(rows, 19)
         historical = dict(rows, **c.read_rows(prior()))
+        historical["substitute"] = c.split_payload(rows["substitute"])[0] + " },"
         for key in ("selfDestruct", "explosion"):
             historical[key] = c.drop_fields(historical[key], ("selfDestruct",))
         self.assertEqual(c.legacy_rows(historical, 16), legacy)
@@ -124,7 +125,7 @@ class EarnedBProducerTests(unittest.TestCase):
             else:
                 mutated[key] = c.drop_fields(rows[key], ('attemptRule', 'powerRule'))
             with self.subTest(key=key), self.assertRaises(ValueError):
-                c.legacy_rows(mutated, 17)
+                c.legacy_rows(mutated, 19)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,16 @@
+{
+  "classification": "Root native-found runtime HM policy omission fixed; isolated Substitute candidate only",
+  "base": "716a062f14141a9b57c25bad0f90338ace33ec1e",
+  "failure": "Native case title includedMagnitude andtwo-turnrelease; narrowed actualmissingpolicywasFLY, notMagnitudeidentity. Generator covered425core rows but omitted5runtime HMs.",
+  "red": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-complete-native-20261102-01",
+  "diagnostic": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-policy-red-native-20261102-02",
+  "fix": "Generate policy fromallcore425+runtime5keys parsed fromexistingfieldMoveBattleData, pinruntimeinputSHA; allvaluesfromsamecheckedGen5oracle. Unknownpolicy stillfailsclosed. ExistingHMnativecaseextendedwithCut/Surf/StrengthdamageandFlashstatusrouting; originalcase names retained.",
+  "green": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-complete-native-20261102-02",
+  "native_passed": 32,
+  "native_failed": 0,
+  "host_passed": 19,
+  "host_log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-runtime-policy-host-20261102-01.log",
+  "host_sha256": "9dc6b283b5067e87eb3eac3fcb9e23358ba52896e5f335d3835c0e04c17b2cb8",
+  "preservation": "No move-row/scalar/effect/epoch19/schema4/historyedge/inverse change. Migrationartifact onlyitsderivedpolicyhash/seal changes. No actualB/main/C change oradoption.",
+  "remaining": "Affectedregressions, originaldollpixels/presentationnativeinspection, gameplayreview andfutureintegration."
+}
