@@ -604,7 +604,9 @@ function SourceMaps.warpSpec(name, event)
     if inert then
         local declared
         for _, warp in ipairs(descriptor.warps) do
-            if warp.id == event.id then declared = warp end
+            if warp.id == event.id then
+                declared = warp
+            end
         end
         assert(declared and event.x == declared.x and event.y == declared.y
             and event.destination and event.destination.kind == declared.destination.kind
