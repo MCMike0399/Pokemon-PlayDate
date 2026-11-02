@@ -195,13 +195,13 @@ def import_chain_save(scenario, project, data, output):
     if spec is None:
         return None
     if (not isinstance(spec, dict) or set(spec) not in ({'milestone', 'starter'}, {'milestone', 'starter', 'resume'})
-            or spec['milestone'] not in {'5.2', '5.3', '5.4', '5.5a'}
+            or spec['milestone'] not in {'5.2', '5.3', '5.4', '5.5a', '5.5b'}
             or spec['starter'] not in {'bulbasaur', 'squirtle', 'charmander'}):
         raise ProtocolError('unknown starting save')
     first = scenario['processes'][0]['journey']
     expected = spec['milestone']
-    if expected == '5.5a' and first.get('name') != 'midgame-natural':
-        raise ProtocolError('accepted A starting save is only valid for midgame B')
+    if expected in {'5.5a', '5.5b'} and first.get('name') != 'midgame-natural':
+        raise ProtocolError('accepted midgame starting save requires its next midgame packet')
     if first.get('name') == 'midgame-natural':
         from tools.harness.midgame_journey import validate_scenario
         validate_scenario(scenario)
@@ -219,7 +219,7 @@ def import_chain_save(scenario, project, data, output):
     if first['name'] == 'midgame-natural':
         from tools.harness.midgame_journey import validate_chain_record
         validate_chain_record(record, spec, project)
-        if spec['milestone'] == '5.5a':
+        if spec['milestone'] in {'5.5a', '5.5b'}:
             record = dict(record, accepted_boundary=accepted_midgame_boundary(record, project))
     if first['name'] == 'vermilion-natural':
         origin = record
@@ -258,12 +258,14 @@ def import_chain_save(scenario, project, data, output):
     return record
 
 
-def accepted_midgame_boundary(record, project):
-    """Bind accepted A bytes to earned ancestry and a stopped real Continue.
+def accepted_midgame_boundary(record, project, *, chain_manifest=None):
+    """Bind accepted A/B bytes to earned ancestry and a stopped real Continue.
 
     Read only: no Simulator API, private Data owner, lock, or save edits.
     """
     from tools.harness.midgame_journey import validate_chain_record
+    milestone = record['from_milestone']
+    validate_chain_record(record, {'milestone': milestone, 'starter': record['starter']}, project)
     root = Path(record['source'])
     run = json.loads((root / 'run.json').read_bytes())
     outcome = json.loads((root / 'outcome.json').read_bytes())
@@ -273,18 +275,86 @@ def accepted_midgame_boundary(record, project):
         raise ProtocolError('accepted A requires both exact slot hashes')
     if (outcome.get('ok') is not True or outcome.get('session_id') != run.get('session_id')
             or provenance.get('evidence') != str(root) or provenance.get('files') != record['files']
-            or provenance.get('milestone') != '5.5a' or provenance.get('starter') != record['starter']
+            or provenance.get('milestone') != milestone or provenance.get('starter') != record['starter']
             or provenance.get('source_sha256') != record['journey_source_sha256']
             or provenance.get('build_id') != run.get('build_id')):
         raise ProtocolError('accepted A producer/provenance binding differs')
     manifest_path = Path(project) / 'docs/validation/chain-saves.json'
-    manifest = json.loads(manifest_path.read_bytes())
+    manifest_bytes = manifest_path.read_bytes() if chain_manifest is None else chain_manifest
+    manifest = json.loads(manifest_bytes)
     ancestors = [row for row in manifest['saves'] if row['starter'] == record['starter']
-                 and row['from_milestone'] == '5.4']
+                 and row['from_milestone'] == ('5.5a' if milestone == '5.5b' else '5.4')]
     prior = provenance.get('starting_save', {})
-    if len(ancestors) != 1 or {k: v for k, v in prior.items() if k != 'resume'} != ancestors[0]:
-        raise ProtocolError('accepted A lacks exact earned 5.4 ancestry')
-    validate_chain_record(ancestors[0], {'milestone': '5.4', 'starter': record['starter']}, project)
+    ignored = {'resume', 'accepted_boundary'} if milestone == '5.5b' else {'resume'}
+    if len(ancestors) != 1 or {k: v for k, v in prior.items() if k not in ignored} != ancestors[0]:
+        raise ProtocolError('accepted boundary lacks exact earned previous milestone ancestry')
+    validate_chain_record(ancestors[0], {'milestone': ancestors[0]['from_milestone'], 'starter': record['starter']}, project)
+    if milestone == '5.5b':
+        # The producer used a pre-B chain manifest. Verify that immutable Git
+        # object; never replace its frozen hash with today's enlarged manifest.
+        producer_commit = run['build_id'].split(':')[0]
+        historical = subprocess.check_output(['git', '-C', str(project), 'show',
+                                              producer_commit + ':docs/validation/chain-saves.json'])
+        if prior.get('accepted_boundary') != accepted_midgame_boundary(
+                ancestors[0], project, chain_manifest=historical):
+            raise ProtocolError('accepted B frozen A authority differs')
+        proof = json.loads((Path(project) / record['acceptance']).read_bytes())
+        authority = next(row for row in proof['starters'] if row['starter'] == record['starter'])
+        for filename, field in [('run.json', 'run_sha256'), ('outcome.json', 'outcome_sha256')]:
+            if hashlib.sha256((root / filename).read_bytes()).hexdigest() != authority[field]:
+                raise ProtocolError('accepted B producer evidence checksum changed')
+        if run.get('build_id') != authority['build_id']:
+            raise ProtocolError('accepted B producer build differs')
+    groups = run.get('processes', [])
+    if len(groups) != 2:
+        raise ProtocolError('accepted A requires two actual process generations')
+    first, last = groups
+    if (any(row.get('status') != 'exited' or 'returncode' not in row for row in groups)
+            or type(first.get('pid')) is not int or type(last.get('pid')) is not int
+            or first['pid'] == last['pid'] or last.get('previous_pid') != first['pid']
+            or last.get('previous_exit_confirmed') is not True or last.get('fresh_ready') is not True):
+        raise ProtocolError('accepted A producer has no confirmed actual restart/exit')
+    receipts = []
+    for group in groups:
+        reference = group['journey_receipt']
+        expected = group['evidence'] + '/journey-receipt.json'
+        if reference['path'] != expected or Path(group['evidence']).parts not in {
+                ('processes', '0001'), ('processes', '0002')}:
+            raise ProtocolError('accepted A receipt escaped its stopped generation')
+        packet = read_receipt(dict(path=str(root / expected), sha256=reference['sha256']), run)
+        state = packet['state']
+        if (packet['kind'] != 'midgame-saved' or state['packet'] != milestone
+                or state['starter'] != record['starter']):
+            raise ProtocolError('accepted A receipt route identity differs')
+        receipts.append(packet)
+        for name, digest in wanted.items():
+            slot = root / group['evidence'] / 'runtime-data' / name
+            if (group.get('durable_after', {}).get(name) != digest or slot.is_symlink()
+                    or hashlib.sha256(slot.read_bytes()).hexdigest() != digest):
+                raise ProtocolError('accepted A stopped archive slot changed')
+    if milestone == '5.5b':
+        slots = []
+        for name, digest in wanted.items():
+            path = Path(record['directory']) / name
+            if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                raise ProtocolError('accepted B canonical slot changed')
+            slot = json.loads(path.read_bytes())
+            if (set(slot) != {'format', 'schema', 'sequence', 'checksum', 'payload'}
+                    or slot['format'] != 'pokemon-playdate-save' or slot['schema'] != 1
+                    or not isinstance(slot['payload'], str)):
+                raise ProtocolError('accepted B slot envelope differs')
+            sequence = int(slot['sequence'])
+            wire = ('1\n' + str(sequence) + '\n' + slot['payload']).encode()
+            checksum = 2166136261
+            for byte in wire:
+                checksum = ((checksum ^ byte) * 16777619) & 0xffffffff
+            if f'{checksum:08x}' != slot['checksum']:
+                raise ProtocolError('accepted B slot checksum differs')
+            slots.append((sequence, json.loads(slot['payload'])))
+        if max(slots, key=lambda row: row[0])[1] != receipts[-1]['state']['codec']:
+            raise ProtocolError('accepted B saved codec differs from actual Continue')
+    if receipts[0] != receipts[1]:
+        raise ProtocolError('accepted A actual Continue codec differs from Save')
     # Verify the recorded partial chain, including its stopped producer and slots.
     for reference in prior.get('resume', {}).get('ancestry', []):
         marker_path = Path(reference['path'])
@@ -304,38 +374,9 @@ def accepted_midgame_boundary(record, project):
             if (item['file'] not in wanted or archived.is_symlink()
                     or hashlib.sha256(archived.read_bytes()).hexdigest() != item['sha256']):
                 raise ProtocolError('accepted A ancestry archive changed')
-    groups = run.get('processes', [])
-    if len(groups) != 2:
-        raise ProtocolError('accepted A requires two actual process generations')
-    first, last = groups
-    if (any(row.get('status') != 'exited' or 'returncode' not in row for row in groups)
-            or type(first.get('pid')) is not int or type(last.get('pid')) is not int
-            or first['pid'] == last['pid'] or last.get('previous_pid') != first['pid']
-            or last.get('previous_exit_confirmed') is not True or last.get('fresh_ready') is not True):
-        raise ProtocolError('accepted A producer has no confirmed actual restart/exit')
-    receipts = []
-    for group in groups:
-        reference = group['journey_receipt']
-        expected = group['evidence'] + '/journey-receipt.json'
-        if reference['path'] != expected or Path(group['evidence']).parts not in {
-                ('processes', '0001'), ('processes', '0002')}:
-            raise ProtocolError('accepted A receipt escaped its stopped generation')
-        packet = read_receipt(dict(path=str(root / expected), sha256=reference['sha256']), run)
-        state = packet['state']
-        if (packet['kind'] != 'midgame-saved' or state['packet'] != '5.5a'
-                or state['starter'] != record['starter']):
-            raise ProtocolError('accepted A receipt route identity differs')
-        receipts.append(packet)
-        for name, digest in wanted.items():
-            slot = root / group['evidence'] / 'runtime-data' / name
-            if (group.get('durable_after', {}).get(name) != digest or slot.is_symlink()
-                    or hashlib.sha256(slot.read_bytes()).hexdigest() != digest):
-                raise ProtocolError('accepted A stopped archive slot changed')
-    if receipts[0] != receipts[1]:
-        raise ProtocolError('accepted A actual Continue codec differs from Save')
     return dict(state=receipts[-1]['state'], receipt=last['journey_receipt'],
                 acceptance_sha256=hashlib.sha256((Path(project) / record['acceptance']).read_bytes()).hexdigest(),
-                chain_manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+                chain_manifest_sha256=hashlib.sha256(manifest_bytes).hexdigest(),
                 producer_run_sha256=hashlib.sha256((root / 'run.json').read_bytes()).hexdigest())
 
 
@@ -408,7 +449,7 @@ def export_chain_save(scenario, data, output, metadata):
     if spec is None:
         return
     first = scenario['processes'][0].get('journey', {})
-    if first.get('name') == 'midgame-natural' and first.get('packet') not in {'5.5a', '5.5b'}:
+    if first.get('name') == 'midgame-natural' and first.get('packet') not in {'5.5a', '5.5b', '5.5c'}:
         return  # A partial route checkpoint never exports final 5.5a slots.
     if first.get('name') == 'vermilion-natural' and (
             len(scenario['processes']) != 2

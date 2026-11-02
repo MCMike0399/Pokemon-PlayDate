@@ -13,8 +13,15 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def installed_map_names():
-    # The explicit release inventory is accepted 108 plus South 41, with Fly parked.
-    return set(manifest(ROOT)["maps"])
+    installed = json.loads((ROOT / 'Source/data/sourceMaps.json').read_bytes())
+    if len(installed['maps']) == 171:
+        from tools.activate_checkpoint_c import manifest as c_manifest
+        expected = c_manifest(ROOT)
+    else:
+        expected = manifest(ROOT)
+    if installed != expected:
+        raise ValueError('installed map inventory differs from its exact packet')
+    return set(expected['maps'])
 
 
 def accepted_source_json(relative):

@@ -804,7 +804,9 @@ class MidgameBImportTests(unittest.TestCase):
         calls = []
         with patch.object(driver, 'start_earned'), patch.object(driver, 'save'), patch.object(driver, 'write_receipt'):
             for method in ('route_tower', 'route_fuchsia', 'route_bicycle', 'route_lavender', 'route_a', 'route_saffron'):
-                setattr(driver, method, lambda method=method: calls.append(method))
+                action = lambda method=method: calls.append(method)
+                action.__name__ = method
+                setattr(driver, method, action)
             driver.natural()
         self.assertEqual(calls, ['route_tower', 'route_fuchsia', 'route_bicycle'])
         state = dict(starter='squirtle', packet='5.5b', content_scope='critical',
