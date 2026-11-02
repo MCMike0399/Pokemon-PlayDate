@@ -432,7 +432,10 @@ function Harness.afterFrame(game, runtimeError)
         return
     end
     Autopilot.afterFrame()
-    HarnessCapture.recent()
+    local terminal = request and complete and commands[index] and commands[index].op == "quiesce"
+    if not config.journey_profile or terminal then
+        HarnessCapture.recent()
+    end
     watchMachines(game)
     if tick % 15 == 0 then
         publish("heartbeat.json", { status = "alive", active_id = request and request.id, command = index })
