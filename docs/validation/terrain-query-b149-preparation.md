@@ -33,3 +33,27 @@ solved-puzzle/rejected-solution/departure/codec cases. Verify detached terrain
 mutation and nested fixture restoration in the existing native selection.
 Measure heavy-map collected live heap and matched physical route before review
 and adoption. This composition establishes no device gain or C memory margin.
+
+## Root qualification progress — 2026-11-02
+
+Actual SDK export `terrain-query-b149-exports-20261102-01` completed. The retained
+collector verifies the complete copied source, SDK/build/outcome identity, exact
+East/South output values and Kanto prerequisite sets, unchanged imports/cache,
+and SourceMaps as the only changed transform dependency. Previous receipts are
+retained under `terrain-query-prior-*`; no pins were changed without real export.
+27 focused field/source/activation/registration host checks pass.
+
+The full harness and then the combined thin native batch hit the unchanged1GiB
+host guard and published no result; neither earns correctness credit. Running
+the Surf case alone in a fresh thin process passed1/0, including Safari boarding
+and Save/Continue, with373,785,776-byte sampled peak host footprint. The next
+expiry case timed out before boot output; lidwatch reports open/awake and no
+Screen Sharing. Its owned child was stopped and data retained. No production
+defect is established by that startup failure; Root requested Screen Sharing.
+
+One added source-map contract checks terrain parity, detached values, unknown
+keys and nested fixture restoration through actual FieldTravelWorld queries.
+It compiles in `terrain-query-b149-query-contract-native-20261102-01`; execution
+is pending. All original field assertions remain intact. Disk headroom is now
+user-authorized31GiB admission/30GiB reserve; memory/ownership guards unchanged.
+Physical memory margin, remaining native cases and review still gate adoption.
