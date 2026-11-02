@@ -284,3 +284,8 @@ admission/guard wrapper and the existing `run.py --history-helper ...
 footprint and inspect the retained native capture and closure evidence. Neither
 host tests nor Swift compilation establish that closing releases any memory;
 all runtime/SDK/AX/GUI/device qualification belongs exclusively to Root.
+
+The closure review found one fail-open native-enumeration path: nil/malformed
+`CGWindowListCopyWindowInfo` had become an empty array. Root corrected this to
+throw before evaluating absence. Only a successful enumeration may produce
+`native_absent=true`; an unavailable native list poisons the owner without ack.

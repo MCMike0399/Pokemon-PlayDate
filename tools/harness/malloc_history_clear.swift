@@ -289,8 +289,11 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
 func closeCapturedMallocLog(_ app: AXUIElement, _ pid: pid_t, _ window: AXUIElement,
                             _ identifier: Int, _ bounds: CGRect,
                             _ reverify: () throws -> Void) throws -> [String: String] {
-    func nativeLogs() -> [[String: Any]] {
-        (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []).filter {
+    func nativeLogs() throws -> [[String: Any]] {
+        guard let windows = CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] else {
+            throw Refusal(reason: "native window enumeration unavailable")
+        }
+        return windows.filter {
             ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
             ($0[kCGWindowName as String] as? String) == "Malloc Log"
         }
@@ -304,7 +307,7 @@ func closeCapturedMallocLog(_ app: AXUIElement, _ pid: pid_t, _ window: AXUIElem
         try require(AXUIElementGetPid(window, &owner) == .success && owner == pid &&
                     (try rectangle(window)) == bounds && bounds.width == 740 && bounds.height == 480,
                     "captured window owner or layout changed")
-        let native = nativeLogs()
+        let native = try nativeLogs()
         try require(native.count == 1 && native[0][kCGWindowNumber as String] as? Int == identifier,
                     "captured native window changed")
         guard let nativeFrame = native[0][kCGWindowBounds as String] as? [String: Any],
@@ -339,7 +342,7 @@ func closeCapturedMallocLog(_ app: AXUIElement, _ pid: pid_t, _ window: AXUIElem
         let logs = try elements(app, kAXWindowsAttribute).filter {
             try label($0, kAXTitleAttribute) == "Malloc Log"
         }
-        let native = nativeLogs()
+        let native = try nativeLogs()
         try require(DispatchTime.now().uptimeNanoseconds < deadline, "captured window closure unconfirmed")
         if logs.isEmpty && native.isEmpty {
             return ["scope": "inspection closure", "pid": String(pid),
