@@ -48,7 +48,7 @@ function RocketHideoutStoryWorld.projectBlock(world, spec)
         local x <const> = spec.x * 2 + quadrant % 2 + entry.padding
         local y <const> = spec.y * 2 + quadrant // 2
         local key <const> = spec.keys[quadrant + 1]
-        assert(SourceMaps.compact().tiles[key], "content atlas lacks source Hideout block")
+        assert(SourceMaps.hasTile(key), "content atlas lacks source Hideout block")
         local index <const> = y * entry.width + x + 1
         if SourceMaps.cell(spec.map, x, y).key == key then
             cells[index] = nil

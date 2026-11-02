@@ -1,0 +1,176 @@
+{
+  "classification": "Root segmented native equivalence and minimal guarded green; no hardware/adoption claim",
+  "candidate": "26cd404af8a6c10415fb9a2018866406f722df53",
+  "case_runs_passed": 11,
+  "unique_existing_cases_passed": 6,
+  "effects_compared": 6,
+  "world_variants_per_effect": 3,
+  "runs": [
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-00-native-20261102-01",
+      "case": "boolean parity for every catalogue key and unknown/nonstring values",
+      "effect": null,
+      "comparisons": 0,
+      "catalogue_keys": 730,
+      "sha256": {
+        "build.json": "95ca4b6bb15e26e5dfcc88e97717eb35817a61e2206e414750f67625b4afb196",
+        "startup-probe.json": "ffbbbabf6783859e898c1de16c719910f695e1e81582854340cd8a2463742ca0",
+        "host-resources.json": "dfd3d1c36d26b813cb0ecf55733ded578af51b101e9387e21d5c2eadfb5976c4"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-01-native-20261102-01",
+      "case": "all six effects with empty, unrelated and overlapping world data: old4/new0",
+      "effect": "b1-closed",
+      "comparisons": 3,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "99c49dbfafb701707a29be61a08aab37ca10cc3aff0368905f2c71ce1d8780f1",
+        "startup-probe.json": "ae37b438e6c859f72521c4990e5f4b71e097173082f28cc93448bc18f61c3c90",
+        "host-resources.json": "8bee8b96544a184c5b9f5dc1e37f28d45c68862203e63e4af0dadbbfd315b604"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-02-native-20261102-01",
+      "case": "all six effects with empty, unrelated and overlapping world data: old4/new0",
+      "effect": "b1-open",
+      "comparisons": 3,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "2b55f3cf01316e8bdc82f5c0acbb1e121de9353dc1da8cb7c804233908ff8af0",
+        "startup-probe.json": "6ad8053386d63f27e8132233a246adfb895b80b3936587268caecf6c08ede338",
+        "host-resources.json": "eb0a2ba930e46059274739709ff3f8c36bd9c219464531bd4b73f3e3c37f1b7e"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-03-native-20261102-01",
+      "case": "all six effects with empty, unrelated and overlapping world data: old4/new0",
+      "effect": "b4-closed",
+      "comparisons": 3,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "f50e4c1cb9fca724a619c2eba6a4f81e96b774806d39be27e483e6ba4d7a4642",
+        "startup-probe.json": "8325f1b165463b052ef4c7002f94227671fe793ec4dfdab19695d1c72f3878a2",
+        "host-resources.json": "e82ae632f18fd624684f5cd1af0ee93cdd7e8784be16f4ff8da36dd87470798a"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-04-native-20261102-01",
+      "case": "all six effects with empty, unrelated and overlapping world data: old4/new0",
+      "effect": "b4-open",
+      "comparisons": 3,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "0ad91b605879d34957fd2457b639789a01fed2261538d39b7d1099a7fd6eda37",
+        "startup-probe.json": "3b62a0f75a8c9f3f8eb428bfaac97aff403b1745ea147021712b1320027cef58",
+        "host-resources.json": "40a0373d6c998051cddb12ed9ccb6433d4808ec8a5947937b47cc1584c85a691"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-05-native-20261102-01",
+      "case": "all six effects with empty, unrelated and overlapping world data: old4/new0",
+      "effect": "entrance-closed",
+      "comparisons": 3,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "99b9c8d942a37ec18114226b237c50cf2a29f5085115b07071accfd8ed62ccdc",
+        "startup-probe.json": "285db357fadd2ce0fc1fbdea673f88b7a41c05df4f0dda0b714b449215e53d9b",
+        "host-resources.json": "bbd368973b388c540564adf6fccb5a136604ba3af07e453ef3f698042701b9cc"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-06-native-20261102-01",
+      "case": "all six effects with empty, unrelated and overlapping world data: old4/new0",
+      "effect": "entrance-open",
+      "comparisons": 3,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "a8a99103c87e56bf259f05eb226e0d3bd4604b1b9d5eab881b5fac192440a0cf",
+        "startup-probe.json": "8d41c80968ad4dce57c6b814fd58479fb366ba7f7e8084597f98ce307e856bd9",
+        "host-resources.json": "a5ae18445b9da99a91ff23a7bba2b2a33b9895af725814a28c50acb5c26c1c9f"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-07-native-20261102-01",
+      "case": "valid corner blocks and out-of-bounds source cell rejection",
+      "effect": null,
+      "comparisons": 6,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "3d35e715a8929aa03961e9f6688de1353d51286fc394a505aab93e727f4b53c2",
+        "startup-probe.json": "f6793f54a4768053a60660ade353ba8a131044fa8db1a57b37b817b933015fef",
+        "host-resources.json": "136ff236b9aeb6beb0b7617ead5e170c99b8ab65b58eb4eac5aeffaf61d20f95"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-08-native-20261102-01",
+      "case": "unknown tile rejected at every quadrant with original assertion",
+      "effect": null,
+      "comparisons": 4,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "e923b9406ec89e2df3d1f6af4be1875c93ae36e4243ab0baafa536c3244babbe",
+        "startup-probe.json": "e655a9402ba07f369fbf32222aefa4b5be215d55f65ab72febf7c4b58a9a4fd8",
+        "host-resources.json": "a6f324e71855683a44c323be1c4176da17b1976de7ee208b0f163af9e7c4c4ca"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-09-native-20261102-01",
+      "case": "fixture truthiness and restoration retain origin fences",
+      "effect": null,
+      "comparisons": 0,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "c234b9fe2c0b840a9724bc4020ab04ef55d7db749c478784d44c76193f1b2d06",
+        "startup-probe.json": "4b36adb153460e3253a4c5ed946af8d707bed874fcebfbf3e9989d2875a5018f",
+        "host-resources.json": "00136e14e638a3c7263334b8125c32beaf864606b6418689d26dba992d6df7a8"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-segment-10-native-20261102-01",
+      "case": "lazy record schema, revision and descriptor validation still fail closed",
+      "effect": null,
+      "comparisons": 0,
+      "catalogue_keys": null,
+      "sha256": {
+        "build.json": "4d74358c2ba3295b2653e02ced764c5811036c0309a2d1a0f342cea23d76309e",
+        "startup-probe.json": "8d9b4816d915f2ca3a58d101a9ceca5e29feb6ca05396eb1726bbb102129be2b",
+        "host-resources.json": "3eedbf4618eb683d4cc54d9e9a3c7a57bd6f69f659e0c5c089ec5734184f5d70"
+      }
+    }
+  ],
+  "segmentation": "Private staged copies select unchanged test callbacks. The multi-effect case runs six fresh processes, comparing one exact effect each; all original assertions/inventory checks remain. Effect filter skips unselected compare calls only; full six-effect input inventory still traversed. Aggregate covers all18 required effect/world combinations. Production Source and frozen oracle unchanged.",
+  "minimal_green": {
+    "elapsed_ms": 32,
+    "failed": 0,
+    "heap_after_kib": 6471.380859375,
+    "heap_before_kib": 6427.00390625,
+    "mode": "production",
+    "ok": true,
+    "passed": 1,
+    "projected_zone_count": 0,
+    "scope": "Minimal existing pure Hideout projection under ordinary loading/guards; not a journey or physical latency acceptance",
+    "session_id": "126645d4023f44409a9985cf4211f094",
+    "simulator": true,
+    "suites": [
+      {
+        "failed": 0,
+        "id": "hideout-projection-diagnostic",
+        "passed": 1
+      }
+    ],
+    "tests": [
+      {
+        "name": "Four-cell Hideout projection under ordinary cooperative loading",
+        "ok": true
+      }
+    ],
+    "whole_catalogue_calls": 0
+  },
+  "minimal_green_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/hideout-projection-green-native-20261102-01",
+  "failed_all_in_one_retained": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-native-20261102-01",
+  "qualification": "Real thin/deep SDK exporter; all original copied bytes verified including exact private bundleID rewrite and original main. East/South exact, Kanto equivalent after prerequisite-set order normalization only. Prior proofs retained. Qualified production compile and9region-registration tests pass.",
+  "sdk_export": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-transform-sdk-20261102-01",
+  "scope": "Native contracts use production boot then enabled harness fixtures; no complete production campaign/physical/visual acceptance.16MiB pool/1GiB host/51admission/50reserve retained; all children closed and Data removed.",
+  "next": "Fresh exact-route safety, physical replay and combined review before adoption."
+}

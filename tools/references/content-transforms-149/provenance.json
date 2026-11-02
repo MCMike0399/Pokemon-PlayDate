@@ -1,22 +1,22 @@
 {
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/kanto-first-entry-149-sdk-20261030-01",
-  "producer_build_sha256": "fa78ef1f5b4fe16bc72897f3ba82f3cf85a2b8202d456530f8a9f660895e0bb0",
-  "producer_proof_sha256": "6da691a3da054e5b45ea68459d1a268b6caeb35e0b5a10db596278b2ab5196e1",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-transform-sdk-20261102-01",
+  "producer_build_sha256": "1de6c72648336767b287fefcc80c56f8b5d7be68f2e54a67fbb749c8dac02ad2",
+  "producer_proof_sha256": "1966794e7da8a98b1d6d7d92011ca0e8fdce220ad35913e40b848f93702efed4",
   "dependencies": {
     "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
     "game/rocketHideoutStory.lua": "0d6e8ec3cd50acf584a622c460c15f7bdb4c4e3655e1c2cc7932ecf124c1ff0e",
     "game/towerStory.lua": "28098bd2aff9815d6f9b2cca99d5726b358e04884d863c8f8e7320cda6fce35d",
     "game/snorlaxStory.lua": "168276ec133d6c96fc9fc73fe20eb02ea213556b8bcba9c38919d58a3f519590",
-    "game/midgameGymStory.lua": "3d265601843af151584f8808a63477053fe05c54447167d0b31189a858e41976",
+    "game/midgameGymStory.lua": "7cb913c593f1ddf8210b69f5535cbe9cb771ab5d9eeb3e11c197708b997a1def",
     "data/rocketHideoutStory/scenes.json": "e0efa336b6fcf55cb7125004f02d1e1e0f025be82ef04ec02b2a83707719cc25",
     "data/towerStory/scenes.json": "fb2faaaa5ecd56a4691585d308f1af87c0b81c527af8ea09ae75d90c7206f253",
     "data/midgameGymStory/events.json": "91f0b10be4a45a08144bb62197b313312e4caada6a0396a0b21927050bcc3b02",
     "data/sourceMaps.json": "c06d750e9050e79993da2ad991b226d576c83999c227a5cf39713de164debc42",
     "domain/gameSession.lua": "50675bbb95352a8d5ede916724456f4caf46811044ae9b36e60a226287d78095",
     "domain/party.lua": "a2ee6a9b9d44b2140fdbaa5e39e3b836798cc6ee668b81bfaa16efa1af529c97",
-    "world/sourceMaps.lua": "c0296bd0dd8cdba343028d52114656866707d73f678d4981983b5c56eefe588d"
+    "world/sourceMaps.lua": "5c1639a0caaf1badb4c396388f379cdc6255fceacaeae1a2c5659678ce5846c7"
   },
   "content_pins_sha256": "c6fbf55a263ce2747f354903cf54130a11092bc39b683a6b2e9bc953dd399fa1",
   "exports": {

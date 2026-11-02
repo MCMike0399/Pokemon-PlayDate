@@ -1,0 +1,35 @@
+{
+  "classification": "Root native differential and actual SDK provenance; candidate unadopted",
+  "candidate": "972a4f55c08ae39108ff33ee9726a8d26cca84c3",
+  "native": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-metadata-native-20261102-03",
+    "passed": 6,
+    "failed": 0,
+    "source_ids": 1262,
+    "scope": "Controlled small unqualified/deep-validation bundle plus unchanged six differential cases; no hardware claim",
+    "sha256": {
+      "build.json": "bc3989cb8cb4c19d2e90f461bef70c1a77d71b95a770ca9c563e73661a4230d0",
+      "startup-probe.json": "36e36dc8490ee8bb634d199533977d2d607c599167fffc015405e0ad9e03c749",
+      "host-resources.json": "9b4daf5f3ff159cd4ed2ec3d0270311f428b02cbc8a9adc9b74b90c997fd2ccd"
+    }
+  },
+  "failed_attempts_retained": [
+    "gamecorner-metadata-native-20261102-01 full-harness host guard, own cleanup completed",
+    "gamecorner-metadata-native-20261102-02 prelaunch assertion spelling error",
+    "gamecorner-metadata-transform-sdk-20261102-01 full-harness host guard, own cleanup completed"
+  ],
+  "sdk_export": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-metadata-transform-sdk-20261102-02",
+    "scope": "Existing unchanged Kanto/East/South exporter in controlled small unqualified/deep-validation bundle",
+    "east_south_values": "both exactly equal pinned exports; existing bytes retained",
+    "changed_dependency": "game/midgameGymStory.lua",
+    "prior_provenance": "tools/references/content-transforms-149/gamecorner-metadata-prior-provenance.json",
+    "sha256": {
+      "build.json": "cf4d960eeb880e9581fb9cded21fe6c8e3fdc93fb15809648d8a9867be20b816",
+      "startup-probe.json": "6376901b149796ae9860c528329cdac6da4d05525f27f3c2b1ba9cfa8e14f3a0",
+      "host-resources.json": "2b0d652805bf169c0abcead8d7b4d5d14830bcaff70463516c86fe4f8f716389"
+    }
+  },
+  "qualified_compile": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-metadata-qualified-20261102-01",
+  "remaining": "Fresh exact16MiB safety, same-route hardware resource/gain and review. No B/main/C Source adoption."
+}

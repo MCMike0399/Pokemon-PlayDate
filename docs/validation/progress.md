@@ -232,3 +232,19 @@ inside ordinary withLoading hits9MiB on copy3 in330ms, from6,425 to9,226KiB.
 No world/session application or limit change. [Expected-red proof](hideout-catalogue-minimal-red-20261102.json).
 The boolean owner-query candidate must turn this exact case green before its
 physical replay; B remains unaccepted.
+
+Four-cell membership candidate6576cef1 resolves the same physical GameCorner
+hard-guard failure: all12button batches complete and the player settles inside.
+GameCorner3.960s; boot13.564s, Continue3.474s, Save1.946s. No newlogs, keeper
+restored. SampledLua peak7.83MiB; uncollected endheap6.28MiB is NOT post-GClive.
+Boot/door/slice targets stillfail; battle/caves unmeasured here. Six native cases
+(all18effect/world combinations) and51affected hosts pass.
+[Physical scope and remaining gates](gamecorner-membership-hardware-20261102.json).
+Combined review/adoption pending; B visualacceptance remains open. Nothingpushed.
+
+Combined allocation review has0Standards/0Spec findings. Exact Source passes
+all1072host tests, zeroerrors/skips; the only initial failure was the now-reviewed
+source snapshot metadata. All1512coverage rows/levels/oldhashes remain.
+[Full host/review scope](gamecorner-membership-full-host-20261102.json).
+This adopts the allocation fix only; B checkpoint/visual/playability acceptance
+and C activation remain open. No push.
