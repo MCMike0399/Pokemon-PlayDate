@@ -106,7 +106,10 @@ class SubstituteArtTests(unittest.TestCase):
                      'Source/dev/substituteContracts.lua','Source/dev/substituteSeamContracts.lua']:
             # Root's native-qualified runtime HM coverage is the current mechanics
             # baseline; the art/pose preservation baseline above stays fd456.
-            self.assertEqual((art.ROOT/name).read_bytes(), original(name, MECHANICS_BASE), name)
+            # Root's reviewed formatting-only fix changes this contract's bytes,
+            # while production mechanics retain their native-qualified baseline.
+            expected_base = '4160ce96' if name == 'Source/dev/substituteContracts.lua' else MECHANICS_BASE
+            self.assertEqual((art.ROOT/name).read_bytes(), original(name, expected_base), name)
         name = 'Source/dev/battlePresentationContracts.lua'
         before = re.findall(r'    test\("([^"]+)"', original(name).decode())
         after = re.findall(r'    test\("([^"]+)"', (art.ROOT/name).read_text())
