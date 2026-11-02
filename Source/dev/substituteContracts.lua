@@ -149,7 +149,11 @@ function SubstituteContracts.run()
             end
             eq(b.player.pp.substitute, 10)
             eq(b.conditions:substituteHP(b.player), 0)
-            if gate == "confuse" then assert(b.player.hp < hp) else eq(b.player.hp, hp) end
+            if gate == "confuse" then
+                assert(b.player.hp < hp)
+            else
+                eq(b.player.hp, hp)
+            end
         end
     end)
     test("Substitute blocks opposing status volatile stat and ability payloads before their chance draws", function()
