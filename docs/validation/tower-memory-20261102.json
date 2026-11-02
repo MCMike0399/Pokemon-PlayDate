@@ -1,0 +1,372 @@
+{
+  "classification": "Physical Tower memory samples; diagnostic collections retained; no shipped-equivalent or C acceptance claim",
+  "build_id": "21aab8b6cf454f1f87d6091e1fdfc570",
+  "post_gc_samples": [
+    {
+      "clock_ms": 31052.0,
+      "heap_kib": 4932.593,
+      "serial_line": 395,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:LAVENDER_TOWN",
+      "observed_player": {
+        "moving": false,
+        "y": 6,
+        "x": 3,
+        "facing": "down"
+      },
+      "ds1_sequence": 66,
+      "ds1_tick": 219,
+      "state_serial_line": 396,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 54222.0,
+      "heap_kib": 4923.162,
+      "serial_line": 558,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_1F",
+      "observed_player": {
+        "moving": false,
+        "y": 17,
+        "x": 10,
+        "facing": "up"
+      },
+      "ds1_sequence": 114,
+      "ds1_tick": 760,
+      "state_serial_line": 560,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 80524.0,
+      "heap_kib": 4885.704,
+      "serial_line": 764,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_2F",
+      "observed_player": {
+        "moving": false,
+        "y": 9,
+        "x": 18,
+        "facing": "right"
+      },
+      "ds1_sequence": 178,
+      "ds1_tick": 1480,
+      "state_serial_line": 768,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 120499.0,
+      "heap_kib": 4882.048,
+      "serial_line": 1071,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_3F",
+      "observed_player": {
+        "moving": false,
+        "y": 9,
+        "x": 3,
+        "facing": "down"
+      },
+      "ds1_sequence": 278,
+      "ds1_tick": 2605,
+      "state_serial_line": 1075,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 185356.0,
+      "heap_kib": 4929.262,
+      "serial_line": 1498,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_4F",
+      "observed_player": {
+        "moving": false,
+        "y": 9,
+        "x": 18,
+        "facing": "right"
+      },
+      "ds1_sequence": 418,
+      "ds1_tick": 4212,
+      "state_serial_line": 1501,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 246652.0,
+      "heap_kib": 4948.16,
+      "serial_line": 1903,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_5F",
+      "observed_player": {
+        "moving": false,
+        "y": 9,
+        "x": 3,
+        "facing": "up"
+      },
+      "ds1_sequence": 550,
+      "ds1_tick": 5730,
+      "state_serial_line": 1905,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 357260.0,
+      "heap_kib": 4955.871,
+      "serial_line": 2557,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_6F",
+      "observed_player": {
+        "moving": false,
+        "y": 9,
+        "x": 18,
+        "facing": "right"
+      },
+      "ds1_sequence": 770,
+      "ds1_tick": 8269,
+      "state_serial_line": 2560,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 459310.0,
+      "heap_kib": 4951.566,
+      "serial_line": 3223,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:POKEMON_TOWER_7F",
+      "observed_player": {
+        "moving": false,
+        "y": 16,
+        "x": 9,
+        "facing": "left"
+      },
+      "ds1_sequence": 994,
+      "ds1_tick": 10851,
+      "state_serial_line": 3226,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    }
+  ],
+  "measurements": {
+    "battle_start_ms": 22.0,
+    "frame_ms": 691.25,
+    "heap_live_bytes": 4864062.464,
+    "heap_peak_bytes": 6401639.424,
+    "map_load_ms": 3512.0,
+    "slice_ms": 2455.594
+  },
+  "phase_measurements": {
+    "Continue": 3323.0,
+    "Save": 1838.0,
+    "battle": 22.0,
+    "boot_slice": 1463.275,
+    "boot_title": 13290.0,
+    "cave_walking_p95": null,
+    "door": 3512.0,
+    "title_artwork": 2766.0
+  },
+  "fixed_route": {
+    "scope": "Real input Tower memory route from genuine stopped post-Fuji save",
+    "legs": [
+      {
+        "map": "LavenderTown",
+        "last_batch": 13,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "up",
+            "moving": false,
+            "x": 10,
+            "y": 17
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_1F"
+        }
+      },
+      {
+        "map": "PokemonTower1F",
+        "last_batch": 29,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "right",
+            "moving": false,
+            "x": 18,
+            "y": 9
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_2F"
+        }
+      },
+      {
+        "map": "PokemonTower2F",
+        "last_batch": 54,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "down",
+            "moving": false,
+            "x": 3,
+            "y": 9
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_3F"
+        }
+      },
+      {
+        "map": "PokemonTower3F",
+        "last_batch": 90,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "right",
+            "moving": false,
+            "x": 18,
+            "y": 9
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_4F"
+        }
+      },
+      {
+        "map": "PokemonTower4F",
+        "last_batch": 124,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "up",
+            "moving": false,
+            "x": 3,
+            "y": 9
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_5F"
+        }
+      },
+      {
+        "map": "PokemonTower5F",
+        "last_batch": 181,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "right",
+            "moving": false,
+            "x": 18,
+            "y": 9
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_6F"
+        }
+      },
+      {
+        "map": "PokemonTower6F",
+        "last_batch": 239,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "left",
+            "moving": false,
+            "x": 9,
+            "y": 16
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:POKEMON_TOWER_7F"
+        }
+      }
+    ],
+    "deferred_cells": [
+      {
+        "map": "PokemonTower3F",
+        "index": 15
+      },
+      {
+        "map": "PokemonTower4F",
+        "index": 9
+      },
+      {
+        "map": "PokemonTower5F",
+        "index": 26
+      },
+      {
+        "map": "PokemonTower5F",
+        "index": 30
+      },
+      {
+        "map": "PokemonTower6F",
+        "index": 3
+      },
+      {
+        "map": "PokemonTower6F",
+        "index": 15
+      }
+    ],
+    "battles": 6,
+    "last_batch": 239
+  },
+  "hashes": {
+    "outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "serial.raw": "a01db77dda89d4cdb48b172857b4a9b9734aec96a7e1fb49156751fd3aa467fe",
+    "device-smoke.json": "67f8075adb75321c1f1ceec1e717bd290d441f15fe9236b7531b4a90fb9df629",
+    "tower-memory-finish.json": "116d339f55d2abea71fbd8b511045da58f79f8a279ba7daad3ea63c2d79a2236"
+  },
+  "limits": "Lua sampled heap excludes native allocations/transient peaks; original and imported earned files unchanged; late natural encounter may consume a one-frame move, reissued once after real RUN only from verified prior cell.",
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged"
+  },
+  "no_new_logs": true,
+  "source_commit": "e9499c8a",
+  "earned_save_context": "Genuine stopped post-Fuji B4 Squirtle partial Save; earlier story/party context than canonical end-B Safari/GameCorner runs, not a synthetic updated save.",
+  "interpretation": "All seven Tower entries have actual post-GC samples below6MiB; this diagnostic route peaks6.11MiB. Together with separate current GameCorner/Hideout/Fuchsia/Safari and bitmap point proofs, permits proceeding to isolated C qualification under unchanged guards. Does not establish C safety, shipped-equivalent margin or C latency/acceptance."
+}
