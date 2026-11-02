@@ -125,10 +125,20 @@ class SourceWarpEligibility(unittest.TestCase):
         with patch.object(Reference, 'bytes', corrupt), self.assertRaisesRegex(ValueError, 'checksum'):
             build()
 
-    def test_region_qualification_stays_closed_without_fresh_sdk_export(self):
+    def test_region_qualification_binds_fresh_export_to_copied_input_bytes(self):
         from tools.generate_region_registrations import build as qualify
-        with self.assertRaisesRegex(ValueError, 'transform dependency changed: data/sourceMaps.json'):
-            qualify()
+        self.assertTrue(qualify())
+        provenance = json.loads((ROOT / 'tools/references/content-transforms-149/provenance.json').read_bytes())
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory)
+            for name in provenance['dependencies']:
+                target = source / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / 'Source' / name).read_bytes())
+            manifest = source / 'data/sourceMaps.json'
+            manifest.write_bytes(manifest.read_bytes() + b'\n')
+            with self.assertRaisesRegex(ValueError, 'staged transform dependency changed: data/sourceMaps.json'):
+                qualify(source_root=source)
 
     def test_prior_149_geometry_bindings_and_all_171_binary_cell_payloads_are_preserved(self):
         old = json.loads(original(C, 'Source/data/sourceMapCache/compact.json'))
