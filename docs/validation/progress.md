@@ -159,3 +159,10 @@ a permitted custom metadata callback can be skipped. Both candidate Source
 files restored; all evidence retained. Checksum and scoped-field changes stay.
 B visual gates remain pending retained desktop observation/input verification.
 [Rejection](empty-actor-rejection-20261101.json).
+
+Current B host reconciliation passes1071/1071 tests, zero errors/skips
+(182.416s), plus the same54 native assertions. Dev journey values and all1512
+coverage rows/levels remain unchanged. Independent data review leaves only a
+clarified count category(24 runtime-only;28 including coverage). Current-source
+capture preflight passes2.975s/91frames/403MiB; Snorlax/Koga and montage remain
+open. [Finalization](b149-host-finalization-20261101.json).

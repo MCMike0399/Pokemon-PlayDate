@@ -1,107 +1,255 @@
 {
   "schema_version": 1,
   "snapshot": {
-    "commit": "4750bd71bc899f810513e71a4ce58fb85a821ccf",
-    "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+    "commit": "c994de0a5d79e2a9034ac5aa6c3a59567bb0d9b7",
+    "source_sha256": "7f5df057b05c3dd8e4fffb231c8558b29ff8b3423e483c0fbe35fa1286e70c1f",
     "policy_date": "2026-11-01",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Private149-map B with epoch17 move integration and versioned digest-prefix content layout. No checkpoint/device-playability acceptance.",
+    "scope": "Private149-map B, epoch18 Self-KO composition, measured scoped-index retention and chunked checksum. No B checkpoint or device-playability acceptance.",
     "acceptance_context": "private-5.5b-unaccepted",
-    "review": "Independent c1 data review retained. Root additionally checked the version-root source literal, byte-identical2546records/32indexes and fresh SDK qualification, froze changed documentary paths without changing historical hashes, and retained every facet level. Normal-upgrade finite hardware gain is scoped and performance review remains pending. Root then refreshed only stale Cerulean/Vermilion dev dependency hashes, with complete projection values unchanged; recorded separately without changing historical evidence.",
+    "review": "Independent combined data review found no Source/proof invariant violation; P3 targeted-test count clarified by category in the finalization companion. All1512 rows/facets/old evidence entries retained. Current full host1071/1071 passes, zero errors/skips. B remains unaccepted and not device-playable.",
     "previous_snapshot": {
-      "commit": "e1824e6917b21e55c73a739d72973389ee7f680c",
-      "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+      "commit": "4750bd71bc899f810513e71a4ce58fb85a821ccf",
+      "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
       "policy_date": "2026-11-01",
       "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-      "scope": "Private149-map B with reviewed measured cave-step preparation. No checkpoint/device-playability acceptance.",
+      "scope": "Private149-map B with epoch17 move integration and versioned digest-prefix content layout. No checkpoint/device-playability acceptance.",
       "acceptance_context": "private-5.5b-unaccepted",
-      "review": "Exact565bfdfb..9e8fd8e3 changes only fieldEncounters/Zone/private RNG snapshot/Overworld entry and ordinary encounter hook. Live validation, retained plans, RNG and Safari/door/story precedence reviewed with0findings. Root119 targeted SDK cases pass; matched hardware cavep95103.242->89.789ms. Existing phase targets and B resource/showcase gates remain. All1512 rows and existing facets/evidence unchanged; no promotion. Fresh54 SDK assertions requalify the additive RNG change. Historical runtime-scopes proof retains its exact old bytes/path via frozen copy; new scoped proof is separately linked without facet/verification promotion.",
-      "review_document": {
-        "path": "docs/validation/cave-private-b-composition-20261101.json",
-        "sha256": "13b374afcdaf04319eec1a578d82b665be9789f13685f6efcefcb29c00102837"
-      },
+      "review": "Independent c1 data review retained. Root additionally checked the version-root source literal, byte-identical2546records/32indexes and fresh SDK qualification, froze changed documentary paths without changing historical hashes, and retained every facet level. Normal-upgrade finite hardware gain is scoped and performance review remains pending. Root then refreshed only stale Cerulean/Vermilion dev dependency hashes, with complete projection values unchanged; recorded separately without changing historical evidence.",
       "previous_snapshot": {
-        "commit": "5681b1130fb91def6b04355ef34cb11f58727ac3",
-        "source_sha256": "6d10bafa7411effb0462236c81835da8c7001d8234f3daa5e0954a725fefd0a0",
-        "policy_date": "2026-10-30",
+        "commit": "e1824e6917b21e55c73a739d72973389ee7f680c",
+        "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+        "policy_date": "2026-11-01",
         "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-        "scope": "Isolated149-map B Reflect composition. Not adopted into actual B/main/C; no checkpoint/device acceptance.",
+        "scope": "Private149-map B with reviewed measured cave-step preparation. No checkpoint/device-playability acceptance.",
         "acceptance_context": "private-5.5b-unaccepted",
-        "review": "Reviewed exact e71e3301..5681b113 Source delta: existing side-condition owner gains Reflect, producer history extends14->15 while ChipAway14 and424 nonReflect rows remain unchanged. Root34 SDK executions across33 named cases plus independent Standards0/Spec0. Existing historical evidence retains original identities; no journey or whole-engine rerun claimed.",
+        "review": "Exact565bfdfb..9e8fd8e3 changes only fieldEncounters/Zone/private RNG snapshot/Overworld entry and ordinary encounter hook. Live validation, retained plans, RNG and Safari/door/story precedence reviewed with0findings. Root119 targeted SDK cases pass; matched hardware cavep95103.242->89.789ms. Existing phase targets and B resource/showcase gates remain. All1512 rows and existing facets/evidence unchanged; no promotion. Fresh54 SDK assertions requalify the additive RNG change. Historical runtime-scopes proof retains its exact old bytes/path via frozen copy; new scoped proof is separately linked without facet/verification promotion.",
+        "review_document": {
+          "path": "docs/validation/cave-private-b-composition-20261101.json",
+          "sha256": "13b374afcdaf04319eec1a578d82b665be9789f13685f6efcefcb29c00102837"
+        },
         "previous_snapshot": {
-          "commit": "94ed17bac361f25d506fd816de191c72c3803cc5",
-          "source_sha256": "e470f3cab45821d11c197815e73e6ca2fb06b3796be4be1a269885510da91261",
+          "commit": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+          "source_sha256": "6d10bafa7411effb0462236c81835da8c7001d8234f3daa5e0954a725fefd0a0",
           "policy_date": "2026-10-30",
           "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-          "scope": "Private149-map B with held-input Safari expiry correction. Main108 remains Simulator-accepted/hardware-safe; B and device playability remain unaccepted.",
+          "scope": "Isolated149-map B Reflect composition. Not adopted into actual B/main/C; no checkpoint/device acceptance.",
           "acceptance_context": "private-5.5b-unaccepted",
-          "review": "Actual Source delta since B0bc2e5fe is three lines taking pending Safari expiry before field input, plus one SDK behavior contract/shared fixture. Native red/green boarding and ongoing-Surf variants and existing normal Surf pass. Both independent correction rechecks report no findings. Every row/facet remains unchanged; no acceptance promotion. Fresh full host rerun pending.",
+          "review": "Reviewed exact e71e3301..5681b113 Source delta: existing side-condition owner gains Reflect, producer history extends14->15 while ChipAway14 and424 nonReflect rows remain unchanged. Root34 SDK executions across33 named cases plus independent Standards0/Spec0. Existing historical evidence retains original identities; no journey or whole-engine rerun claimed.",
           "previous_snapshot": {
-            "commit": "64512fa7423df9fc160bc55eeab01c67d862402c",
-            "source_sha256": "63285be81ad66d2b1d6b6629c96cf0ed29dd8773f1505c88deca42d73a6d585b",
+            "commit": "94ed17bac361f25d506fd816de191c72c3803cc5",
+            "source_sha256": "e470f3cab45821d11c197815e73e6ca2fb06b3796be4be1a269885510da91261",
             "policy_date": "2026-10-30",
             "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-            "scope": "Private 149-map B coverage review only. Accepted main remains 108 Simulator-route maps, hardware-safe with latency targets unmet; 0 device-playable maps. All three earned B journeys and two-process restarts passed on their recorded builds. B remains unaccepted.",
+            "scope": "Private149-map B with held-input Safari expiry correction. Main108 remains Simulator-accepted/hardware-safe; B and device playability remain unaccepted.",
             "acceptance_context": "private-5.5b-unaccepted",
-            "review": "Reviewed all 1512 rows and three facets against the actual ddaf3804..64512fa7 Source diff, inventories, existing scoped proofs and committed Root summaries. Current Source membership is distinct from frozen native evidence. No current-B gameplay rerun, full-suite green, full mechanics, regional fidelity, main or device acceptance is asserted.",
+            "review": "Actual Source delta since B0bc2e5fe is three lines taking pending Safari expiry before field input, plus one SDK behavior contract/shared fixture. Native red/green boarding and ongoing-Surf variants and existing normal Surf pass. Both independent correction rechecks report no findings. Every row/facet remains unchanged; no acceptance promotion. Fresh full host rerun pending.",
             "previous_snapshot": {
-              "commit": "ddaf38044e47959381d3443cca5180d0232cb591",
-              "source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
-              "policy_date": "2026-10-29",
+              "commit": "64512fa7423df9fc160bc55eeab01c67d862402c",
+              "source_sha256": "63285be81ad66d2b1d6b6629c96cf0ed29dd8773f1505c88deca42d73a6d585b",
+              "policy_date": "2026-10-30",
               "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-              "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
+              "scope": "Private 149-map B coverage review only. Accepted main remains 108 Simulator-route maps, hardware-safe with latency targets unmet; 0 device-playable maps. All three earned B journeys and two-process restarts passed on their recorded builds. B remains unaccepted.",
               "acceptance_context": "private-5.5b-unaccepted",
-              "review": "Private B now uses the existing eight-record cache for gift text. Both native variants pass all 40 gift cases; the cold lookup comparison saves about 676 KiB of retained heap. This does not establish resolution of the long-route OOM, hardware memory, or checkpoint acceptance. Post-battle cycling recovery remains a driver change pending a natural rerun."
+              "review": "Reviewed all 1512 rows and three facets against the actual ddaf3804..64512fa7 Source diff, inventories, existing scoped proofs and committed Root summaries. Current Source membership is distinct from frozen native evidence. No current-B gameplay rerun, full-suite green, full mechanics, regional fidelity, main or device acceptance is asserted.",
+              "previous_snapshot": {
+                "commit": "ddaf38044e47959381d3443cca5180d0232cb591",
+                "source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+                "policy_date": "2026-10-29",
+                "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+                "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
+                "acceptance_context": "private-5.5b-unaccepted",
+                "review": "Private B now uses the existing eight-record cache for gift text. Both native variants pass all 40 gift cases; the cold lookup comparison saves about 676 KiB of retained heap. This does not establish resolution of the long-route OOM, hardware memory, or checkpoint acceptance. Post-battle cycling recovery remains a driver change pending a natural rerun."
+              },
+              "external_review_documents": [
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/midgame-b-candidate-20261030.json",
+                  "sha256": "5fda14b2ded36c3cf55471f2f47c6fcd11b0f69222a4d50b78db53556f311da6",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                },
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/midgame-b-common-load-20261030.json",
+                  "sha256": "19d6315d57a3ea752f63fe38d8fe88edfb85bbd95f24db651c738f76c2f9f09f",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                },
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/midgame-b-host-audit-20261030.json",
+                  "sha256": "6d5ff8e575e763003ff0b2621fd71d21c8ab66f86dcdcc30bed74a4cdff93a44",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                },
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/kanto-first-entry-candidate-20261030.json",
+                  "sha256": "3a14e87a9766ed8165f882b7bea3c9a5afc79282e8dac4e9f02e9895f98086ea",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                },
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/midgame-b-protected-visuals-20261030.json",
+                  "sha256": "06a293b6b12e72f96cf89c5841fe3cf55115a4e94095a5cc97719a64f1ea3174",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                },
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/midgame-b-full-overlays-20261030.json",
+                  "sha256": "9e511be02142c00ac7ff20688496b4819fa2e93423eca525a8fe3d3bfea6f376",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                },
+                {
+                  "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                  "path": "docs/validation/kanto-first-entry-scaling-20261030.md",
+                  "sha256": "3a3c2968fc10c7fe6247c89c01187a88489520cf7727321165b8342205e02a5e",
+                  "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                }
+              ],
+              "external_documents_policy": "Documents above are resolved and hashed from the recorded committed main tree, not from B. Existing checker validates B-local facet evidence only. Keep exact original build identities; do not reinterpret these summaries as current-B execution."
             },
-            "external_review_documents": [
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/midgame-b-candidate-20261030.json",
-                "sha256": "5fda14b2ded36c3cf55471f2f47c6fcd11b0f69222a4d50b78db53556f311da6",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              },
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/midgame-b-common-load-20261030.json",
-                "sha256": "19d6315d57a3ea752f63fe38d8fe88edfb85bbd95f24db651c738f76c2f9f09f",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              },
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/midgame-b-host-audit-20261030.json",
-                "sha256": "6d5ff8e575e763003ff0b2621fd71d21c8ab66f86dcdcc30bed74a4cdff93a44",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              },
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/kanto-first-entry-candidate-20261030.json",
-                "sha256": "3a14e87a9766ed8165f882b7bea3c9a5afc79282e8dac4e9f02e9895f98086ea",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              },
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/midgame-b-protected-visuals-20261030.json",
-                "sha256": "06a293b6b12e72f96cf89c5841fe3cf55115a4e94095a5cc97719a64f1ea3174",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              },
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/midgame-b-full-overlays-20261030.json",
-                "sha256": "9e511be02142c00ac7ff20688496b4819fa2e93423eca525a8fe3d3bfea6f376",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              },
-              {
-                "commit": "971beaeb7d297d165ea0549052094c927322b64d",
-                "path": "docs/validation/kanto-first-entry-scaling-20261030.md",
-                "sha256": "3a3c2968fc10c7fe6247c89c01187a88489520cf7727321165b8342205e02a5e",
-                "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
-              }
-            ],
-            "external_documents_policy": "Documents above are resolved and hashed from the recorded committed main tree, not from B. Existing checker validates B-local facet evidence only. Keep exact original build identities; do not reinterpret these summaries as current-B execution."
+            "current_delta_evidence": "b-safari-expiry-input"
           },
-          "current_delta_evidence": "b-safari-expiry-input"
+          "current_delta_evidence": "b-reflect-native"
+        }
+      },
+      "external_review_documents": [
+        {
+          "commit": "80701fca13634403423bfa52c297f96c8e957a7a",
+          "path": "docs/validation/b-earned-moves-composition-20261101.json",
+          "sha256": "0390a0385e565a0cce0627589674be006c3e6ed249f4a13734c377124aa017ff",
+          "scope": "Original Root documentary summary read from committed main; not B-local evidence or a new execution. Failed history and pending review status retained."
         },
-        "current_delta_evidence": "b-reflect-native"
+        {
+          "commit": "80701fca13634403423bfa52c297f96c8e957a7a",
+          "path": "docs/validation/b-move-native-composition-20261101.json",
+          "sha256": "cd92967b2579325e05852636dd4fa371a6e3695e97397bb5b753da6bb3761dc9",
+          "scope": "Original Root documentary summary read from committed main; not B-local evidence or a new execution. Failed history and pending review status retained."
+        }
+      ],
+      "external_documents_policy": "Resolve exact committed blobs above. They describe original builds, not execution on fixed c1ef. Local snapshot history is retained verbatim; see review.md and smallproof.json in tools/integration/checkpoint-b/coverage-refresh-20261101 for read-only audit and integration gates.",
+      "previous_reviewed_candidate": {
+        "commit": "c1ef3b7a680ae4b0f736a93ec7715c58f263a10e",
+        "source_sha256": "97e5517e1a09d0f9b405abea64c9235bf4de15173d2fe5505691b835d04d226e",
+        "policy_date": "2026-11-01",
+        "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+        "scope": "Private149 B data-only coverage refresh at fixed c1ef3b7a. Main108 accepted; B149 unaccepted; C171 inactive. No new maps or device-playability accepted.",
+        "acceptance_context": "private-5.5b-unaccepted",
+        "review": "Reviewed actual e1824e69..c1ef3b7a delta: five runtime HM battle actions, Haze/Clear Smog, epoch17 Rest/Snore/Yawn/Foresight/Revenge and explicit Rest ABI repair, byte-identical2546 content shards, cooperative SourceBindings checkpoint and collected fresh Kanto export. All facet implementation/verification levels and historical proof hashes retained. Scoped33/145/54 results retain original build identities and failed28/5 history; not current-source execution or full-move certification. Source fingerprint checked before/after. Gameplay reviews pending; no acceptance, performance or full-host green claim.",
+        "previous_snapshot": {
+          "commit": "e1824e6917b21e55c73a739d72973389ee7f680c",
+          "source_sha256": "ad420dedc5fd67e8c708641f81ccc916d9187180cdf868e0f9c861b54e5d2240",
+          "policy_date": "2026-11-01",
+          "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+          "scope": "Private149-map B with reviewed measured cave-step preparation. No checkpoint/device-playability acceptance.",
+          "acceptance_context": "private-5.5b-unaccepted",
+          "review": "Exact565bfdfb..9e8fd8e3 changes only fieldEncounters/Zone/private RNG snapshot/Overworld entry and ordinary encounter hook. Live validation, retained plans, RNG and Safari/door/story precedence reviewed with0findings. Root119 targeted SDK cases pass; matched hardware cavep95103.242->89.789ms. Existing phase targets and B resource/showcase gates remain. All1512 rows and existing facets/evidence unchanged; no promotion. Fresh54 SDK assertions requalify the additive RNG change. Historical runtime-scopes proof retains its exact old bytes/path via frozen copy; new scoped proof is separately linked without facet/verification promotion.",
+          "review_document": {
+            "path": "docs/validation/cave-private-b-composition-20261101.json",
+            "sha256": "13b374afcdaf04319eec1a578d82b665be9789f13685f6efcefcb29c00102837"
+          },
+          "previous_snapshot": {
+            "commit": "5681b1130fb91def6b04355ef34cb11f58727ac3",
+            "source_sha256": "6d10bafa7411effb0462236c81835da8c7001d8234f3daa5e0954a725fefd0a0",
+            "policy_date": "2026-10-30",
+            "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+            "scope": "Isolated149-map B Reflect composition. Not adopted into actual B/main/C; no checkpoint/device acceptance.",
+            "acceptance_context": "private-5.5b-unaccepted",
+            "review": "Reviewed exact e71e3301..5681b113 Source delta: existing side-condition owner gains Reflect, producer history extends14->15 while ChipAway14 and424 nonReflect rows remain unchanged. Root34 SDK executions across33 named cases plus independent Standards0/Spec0. Existing historical evidence retains original identities; no journey or whole-engine rerun claimed.",
+            "previous_snapshot": {
+              "commit": "94ed17bac361f25d506fd816de191c72c3803cc5",
+              "source_sha256": "e470f3cab45821d11c197815e73e6ca2fb06b3796be4be1a269885510da91261",
+              "policy_date": "2026-10-30",
+              "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+              "scope": "Private149-map B with held-input Safari expiry correction. Main108 remains Simulator-accepted/hardware-safe; B and device playability remain unaccepted.",
+              "acceptance_context": "private-5.5b-unaccepted",
+              "review": "Actual Source delta since B0bc2e5fe is three lines taking pending Safari expiry before field input, plus one SDK behavior contract/shared fixture. Native red/green boarding and ongoing-Surf variants and existing normal Surf pass. Both independent correction rechecks report no findings. Every row/facet remains unchanged; no acceptance promotion. Fresh full host rerun pending.",
+              "previous_snapshot": {
+                "commit": "64512fa7423df9fc160bc55eeab01c67d862402c",
+                "source_sha256": "63285be81ad66d2b1d6b6629c96cf0ed29dd8773f1505c88deca42d73a6d585b",
+                "policy_date": "2026-10-30",
+                "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+                "scope": "Private 149-map B coverage review only. Accepted main remains 108 Simulator-route maps, hardware-safe with latency targets unmet; 0 device-playable maps. All three earned B journeys and two-process restarts passed on their recorded builds. B remains unaccepted.",
+                "acceptance_context": "private-5.5b-unaccepted",
+                "review": "Reviewed all 1512 rows and three facets against the actual ddaf3804..64512fa7 Source diff, inventories, existing scoped proofs and committed Root summaries. Current Source membership is distinct from frozen native evidence. No current-B gameplay rerun, full-suite green, full mechanics, regional fidelity, main or device acceptance is asserted.",
+                "previous_snapshot": {
+                  "commit": "ddaf38044e47959381d3443cca5180d0232cb591",
+                  "source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+                  "policy_date": "2026-10-29",
+                  "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
+                  "scope": "Private149-map B implementation, including source-derived Cut data and scoped Chip Away. Accepted main remains108maps. B natural journeys/restarts and final native/device acceptance are incomplete.",
+                  "acceptance_context": "private-5.5b-unaccepted",
+                  "review": "Private B now uses the existing eight-record cache for gift text. Both native variants pass all 40 gift cases; the cold lookup comparison saves about 676 KiB of retained heap. This does not establish resolution of the long-route OOM, hardware memory, or checkpoint acceptance. Post-battle cycling recovery remains a driver change pending a natural rerun."
+                },
+                "external_review_documents": [
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/midgame-b-candidate-20261030.json",
+                    "sha256": "5fda14b2ded36c3cf55471f2f47c6fcd11b0f69222a4d50b78db53556f311da6",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  },
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/midgame-b-common-load-20261030.json",
+                    "sha256": "19d6315d57a3ea752f63fe38d8fe88edfb85bbd95f24db651c738f76c2f9f09f",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  },
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/midgame-b-host-audit-20261030.json",
+                    "sha256": "6d5ff8e575e763003ff0b2621fd71d21c8ab66f86dcdcc30bed74a4cdff93a44",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  },
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/kanto-first-entry-candidate-20261030.json",
+                    "sha256": "3a14e87a9766ed8165f882b7bea3c9a5afc79282e8dac4e9f02e9895f98086ea",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  },
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/midgame-b-protected-visuals-20261030.json",
+                    "sha256": "06a293b6b12e72f96cf89c5841fe3cf55115a4e94095a5cc97719a64f1ea3174",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  },
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/midgame-b-full-overlays-20261030.json",
+                    "sha256": "9e511be02142c00ac7ff20688496b4819fa2e93423eca525a8fe3d3bfea6f376",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  },
+                  {
+                    "commit": "971beaeb7d297d165ea0549052094c927322b64d",
+                    "path": "docs/validation/kanto-first-entry-scaling-20261030.md",
+                    "sha256": "3a3c2968fc10c7fe6247c89c01187a88489520cf7727321165b8342205e02a5e",
+                    "scope": "Frozen committed Root summary; absent from pinned B. Recorded for review, not a current-B dynamic rerun or facet promotion."
+                  }
+                ],
+                "external_documents_policy": "Documents above are resolved and hashed from the recorded committed main tree, not from B. Existing checker validates B-local facet evidence only. Keep exact original build identities; do not reinterpret these summaries as current-B execution."
+              },
+              "current_delta_evidence": "b-safari-expiry-input"
+            },
+            "current_delta_evidence": "b-reflect-native"
+          }
+        },
+        "external_review_documents": [
+          {
+            "commit": "80701fca13634403423bfa52c297f96c8e957a7a",
+            "path": "docs/validation/b-earned-moves-composition-20261101.json",
+            "sha256": "0390a0385e565a0cce0627589674be006c3e6ed249f4a13734c377124aa017ff",
+            "scope": "Original Root documentary summary read from committed main; not B-local evidence or a new execution. Failed history and pending review status retained."
+          },
+          {
+            "commit": "80701fca13634403423bfa52c297f96c8e957a7a",
+            "path": "docs/validation/b-move-native-composition-20261101.json",
+            "sha256": "cd92967b2579325e05852636dd4fa371a6e3695e97397bb5b753da6bb3761dc9",
+            "scope": "Original Root documentary summary read from committed main; not B-local evidence or a new execution. Failed history and pending review status retained."
+          }
+        ],
+        "external_documents_policy": "Resolve exact committed blobs above. They describe original builds, not execution on fixed c1ef. Local snapshot history is retained verbatim; see review.md and smallproof.json in tools/integration/checkpoint-b/coverage-refresh-20261101 for read-only audit and integration gates."
+      },
+      "review_document": {
+        "path": "tools/integration/checkpoint-b/coverage-refresh-20261101/root-projection-review.json",
+        "sha256": "54b53123db7b3b4eb21f9b63aee9c54f7a2791e4bb67b6016b6e1ea58c6e17e2"
       }
     },
     "external_review_documents": [
@@ -240,8 +388,8 @@
       "external_documents_policy": "Resolve exact committed blobs above. They describe original builds, not execution on fixed c1ef. Local snapshot history is retained verbatim; see review.md and smallproof.json in tools/integration/checkpoint-b/coverage-refresh-20261101 for read-only audit and integration gates."
     },
     "review_document": {
-      "path": "tools/integration/checkpoint-b/coverage-refresh-20261101/root-projection-review.json",
-      "sha256": "54b53123db7b3b4eb21f9b63aee9c54f7a2791e4bb67b6016b6e1ea58c6e17e2"
+      "path": "docs/validation/b149-host-finalization-20261101.json",
+      "sha256": "ac55f1ef5999771f51ed3227d477649bc10729b29772f202b13b6e1e0b886328"
     }
   },
   "accepted_milestone_rows": [],
@@ -573,6 +721,18 @@
       "sha256": "4ad46d58bbae75c11ae755d9163e4734e620d10687ddf23f4f5fffe441420b84",
       "kind": "source",
       "scope": "Collected qualified Kanto export provenance and sharded cache hashes; original producer identity retained. No Source or slot substitution."
+    },
+    "current-b54-native": {
+      "path": "docs/validation/coverage-evidence/b149-current-runtime54-native-20261101.json",
+      "sha256": "1ea463b6e7690f8a7aa49dbc514dacea9805914cc38543217d16551af9ef1b82",
+      "kind": "private_verified",
+      "scope": "Same54 original SDK assertions rerun on current B. No new move/facet certification, campaign or device acceptance."
+    },
+    "current-b54-summary": {
+      "path": "docs/validation/coverage-evidence/b149-current-runtime54-summary-20261101.json",
+      "sha256": "6c39415c9f9f9212625fafe6bd7f85d0340e90aff213b0373f919b63c7d3da7a",
+      "kind": "private_verified",
+      "scope": "Same54 original SDK assertions rerun on current B. No new move/facet certification, campaign or device acceptance."
     }
   },
   "source_inventory_summary": {
@@ -15184,7 +15344,7 @@
     {
       "id": "system:natural-all3-freeze",
       "kind": "system",
-      "title": "Current integrated natural Bulbasaur/Charmander/Squirtle→Brock",
+      "title": "Current integrated natural Bulbasaur/Charmander/Squirtle\u2192Brock",
       "owner": "root",
       "dependencies": [
         "system:current-reward-correctness",
@@ -41333,7 +41493,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41377,7 +41537,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41421,7 +41581,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41465,7 +41625,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41509,7 +41669,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41553,7 +41713,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41597,7 +41757,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41641,7 +41801,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41685,7 +41845,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41729,7 +41889,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41773,7 +41933,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41817,7 +41977,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41861,7 +42021,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41905,7 +42065,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41949,7 +42109,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -41993,7 +42153,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42037,7 +42197,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42081,7 +42241,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42125,7 +42285,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42169,7 +42329,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42213,7 +42373,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42257,7 +42417,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42301,7 +42461,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42345,7 +42505,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42389,7 +42549,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42433,7 +42593,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42477,7 +42637,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42521,7 +42681,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42565,7 +42725,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42609,7 +42769,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42653,7 +42813,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42697,7 +42857,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42741,7 +42901,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42785,7 +42945,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42829,7 +42989,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42873,7 +43033,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42917,7 +43077,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -42961,7 +43121,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43005,7 +43165,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43049,7 +43209,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43093,7 +43253,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43137,7 +43297,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43181,7 +43341,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43225,7 +43385,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43269,7 +43429,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43313,7 +43473,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43357,7 +43517,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43401,7 +43561,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43445,7 +43605,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43489,7 +43649,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43533,7 +43693,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43577,7 +43737,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43621,7 +43781,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43665,7 +43825,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43709,7 +43869,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43753,7 +43913,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43797,7 +43957,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43841,7 +44001,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43885,7 +44045,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43929,7 +44089,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -43973,7 +44133,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44017,7 +44177,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44061,7 +44221,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44105,7 +44265,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44149,7 +44309,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44193,7 +44353,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44237,7 +44397,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44281,7 +44441,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44325,7 +44485,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44369,7 +44529,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44413,7 +44573,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44457,7 +44617,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44501,7 +44661,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44545,7 +44705,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44589,7 +44749,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44633,7 +44793,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44677,7 +44837,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44721,7 +44881,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44765,7 +44925,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44809,7 +44969,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44853,7 +45013,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44897,7 +45057,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44941,7 +45101,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -44985,7 +45145,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45029,7 +45189,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45073,7 +45233,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45117,7 +45277,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45161,7 +45321,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45205,7 +45365,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45249,7 +45409,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45293,7 +45453,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45337,7 +45497,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45381,7 +45541,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45425,7 +45585,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45469,7 +45629,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45513,7 +45673,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45557,7 +45717,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45601,7 +45761,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45645,7 +45805,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45689,7 +45849,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45733,7 +45893,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45777,7 +45937,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45821,7 +45981,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45865,7 +46025,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45909,7 +46069,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45953,7 +46113,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -45997,7 +46157,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46041,7 +46201,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46085,7 +46245,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46129,7 +46289,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46173,7 +46333,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46217,7 +46377,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46261,7 +46421,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46305,7 +46465,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46349,7 +46509,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46393,7 +46553,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46437,7 +46597,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46481,7 +46641,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46525,7 +46685,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46569,7 +46729,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46613,7 +46773,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46657,7 +46817,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46701,7 +46861,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46745,7 +46905,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46789,7 +46949,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46833,7 +46993,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46877,7 +47037,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46921,7 +47081,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -46965,7 +47125,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47009,7 +47169,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47053,7 +47213,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47097,7 +47257,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47141,7 +47301,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47185,7 +47345,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47229,7 +47389,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47273,7 +47433,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47317,7 +47477,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47361,7 +47521,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47405,7 +47565,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47449,7 +47609,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47493,7 +47653,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47537,7 +47697,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47581,7 +47741,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47625,7 +47785,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47669,7 +47829,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47713,7 +47873,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47757,7 +47917,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47801,7 +47961,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47845,7 +48005,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47889,7 +48049,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -47933,7 +48093,7 @@
         "evidence": [
           "exposure-current"
         ],
-        "notes": "Technical151 support ≠ naturalBlue availability; see source encounter/gift/trade policy."
+        "notes": "Technical151 support \u2260 naturalBlue availability; see source encounter/gift/trade policy."
       },
       "regional_fidelity": {
         "implementation": "partial",
@@ -72168,10 +72328,12 @@
     }
   ],
   "limits": [
-    "Source indexed counts ≠ naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
+    "Source indexed counts \u2260 naturalplayability; unused/hidden/unreferenced declarations stay distinguished.",
     "104path-present/34promotion reports remain historical; exact34rowerratum overrides broad promotion.",
     "No all425/111 fullmechanics, campaigncompletion or physicaldevice claim.",
     "Accepted 5.3, 5.4 and 5.5a decisions remain authoritative at their original evidence identities. This candidate is for B only. Historical SDK/native labels describe their named scopes and original builds, not a fresh execution on B64512fa7. Full mechanics, remaining campaign, audio listening, release and hardware playability remain unfinished.",
-    "2026-11-01 fixed c1ef refresh: census permanently STOPPED/incomplete; static ranking/real worst-door route, B long physical110doors/30maps/20battles and showcase remain open. Audio held. Sharding performance UNMEASURED; no inferred writer24912 outcome. Gameplay review pending and full host green not yet claimed. Historical row evidence is not refreshed by current-source membership."
+    "2026-11-01 fixed c1ef refresh: census permanently STOPPED/incomplete; static ranking/real worst-door route, B long physical110doors/30maps/20battles and showcase remain open. Audio held. Sharding performance UNMEASURED; no inferred writer24912 outcome. Gameplay review pending and full host green not yet claimed. Historical row evidence is not refreshed by current-source membership.",
+    "Current snapshot correction: census remains STOPPED; physical110doors/30maps/20battles passed its resource scope. Scoped index/checksum changes have measured phase gains and reviews. Current native3-second capture preflight passes; Snorlax/Koga/montage and B acceptance remain open. Previous unmeasured/open statements above describe their retained historical snapshots. No historical proof identity is relabeled.",
+    "Current full host audit1071/1071 passes with no skips/errors. This does not promote any historical verification level or complete B visual/device-playability gates."
   ]
 }
