@@ -99,8 +99,11 @@ point probes retain their separate scope.
 ## Next work and open gates
 
 1. Current physical memory samples now cover Game Corner and Hideout B1F–B4F,
-   about 5 MiB collected live with 6.13 MiB sampled peak. Safari, Tower and native
-   headroom remain open. This diagnostic-GC route is not the full C margin.
+   about 5 MiB collected live with 6.13 MiB sampled peak. Safari and Tower remain
+   open. The current fishing-battle point probe holds eight requested 256 KiB
+   native images on hardware, then releases them; allocation plus two collections
+   takes 1.243 s. This diagnostic-GC route is not the full C margin.
+   [Native point probe](native-headroom-current149-20261102.json).
    Spinner query merge `1860b3c0` reduces ordinary B3 active p95 from 148 to
    39 ms in one hardware comparison; 61 native checks and 24 merged host checks
    pass, with no review findings. Three roughly two-second hitches remain.

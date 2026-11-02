@@ -1,0 +1,52 @@
+{
+  "classification": "Current149-map native bitmap point probe, not complete memory acceptance",
+  "source_sha256": "7a35ba107cc52a6188f5e1d779f3027fd2f4d4e15c26030aed52b55869d27581",
+  "build_id": "9e406e5aa0194eed8e9e8a328eaa525c",
+  "private_probe": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/prepare_native_headroom_20261030.py",
+  "simulator": {
+    "pool": "16MiB",
+    "slice_ms": 50.378,
+    "sampled_peak_bytes": 8969863.168,
+    "strict_live_heap_failed": true,
+    "native_images": 8
+  },
+  "hardware": {
+    "requested_width": 2048,
+    "count": 8,
+    "requested_payload_bytes_each": 262144,
+    "cap": 8,
+    "requested_height": 1024,
+    "scope": "Bounded requested bitmap payload; allocator headers/masks and unsampled native peaks are not measured",
+    "build": "9e406e5aa0194eed8e9e8a328eaa525c",
+    "simulator": false,
+    "lua_heap_after_release_kib": 5183.4111328125,
+    "elapsed_ms": 1243
+  },
+  "phase_measurements": {
+    "Continue": 3212.0,
+    "Save": 3368.0,
+    "battle": 20.0,
+    "boot_slice": 1458.348,
+    "boot_title": 13360.0,
+    "cave_walking_p95": null,
+    "door": 4500.0,
+    "title_artwork": 2772.0
+  },
+  "requested_bitmap_payload_bytes": 2097152,
+  "point": "First update after actual fishing battle.live diagnostic collection; Fuchsia earned Surf/save/OldRod route",
+  "observer_effect": "Probe includes allocation and two full collections,1243ms wall on hardware. Do not attribute this observer slice to shipped gameplay or infer allocation-only time.",
+  "scope": [
+    "Eight separate requested256KiB images coexist; no claim of contiguous2MiB or measured native RSS",
+    "Lua counts exclude native/transient allocations",
+    "Default diagnostic GC and production soft GC/guards retained",
+    "No new logs; keeper inventory verified and run acknowledged, screen not directly observed",
+    "Safari/Tower and broader working margin remain open; C/audio remain inactive"
+  ],
+  "files": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-current149-prepare-20261102-01/build.json": "4d05791e781da1ed049564c3bc9cfe73bd38f5f5ac8eb72aaab237403c3ad87a",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-current149-safety-20261102-01/simulator-smoke.json": "9f5adf1a12021c8cff1d62b7e60c9507b98739632675cf5a98617395cf6a9e07",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-current149-hardware-20261102-01/device-smoke.json": "a482698620c3030307f7c3dfe0e467869937500fb363e25122237c5d95bc5d5f",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-current149-hardware-20261102-01/after/Data/com.poc.pokemon.device-test.9e406e5aa0194eed8e9e8a328eaa525c/native-headroom.json": "ebca30baa068f6be483210ffe96044b4e3986d14869a9a5d7c9040f52ec417c0",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/native-headroom-current149-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  }
+}
