@@ -99,8 +99,13 @@ point probes retain their separate scope.
 ## Next work and open gates
 
 1. Current physical memory samples now cover Game Corner and Hideout B1F–B4F,
-   about 5 MiB collected live with 6.13 MiB sampled peak. Safari and Tower remain
-   open. The current fishing-battle point probe holds eight requested 256 KiB
+   about 5 MiB collected live with 6.13 MiB sampled peak. Safari Center, East,
+   North and West now measure 5.03–5.08 MiB post-GC with the same 6.13 MiB peak;
+   seven natural encounters use ordinary RUN. Tower 1F–7F now measures
+   4.77–4.84 MiB post-GC, with 6.11 MiB sampled peak and six actual encounters.
+   Tower uses the genuine earlier post-Fuji Save, not a fabricated late-B save.
+   [Tower samples](tower-memory-20261102.json).
+   [Safari samples and retained failures](safari-memory-20261102.json). The current fishing-battle point probe holds eight requested 256 KiB
    native images on hardware, then releases them; allocation plus two collections
    takes 1.243 s. This diagnostic-GC route is not the full C margin.
    [Native point probe](native-headroom-current149-20261102.json).
@@ -117,7 +122,11 @@ point probes retain their separate scope.
 3. Advance C's isolated host composition `5b0a6a2a`. All three accepted-B imports
    now pass after verified original-path ancestry restoration. Four conditions
    remain: President binding, two elevator arrivals and real C qualification.
-   Hooks stay unapplied. Memory gates activation; latency gates acceptance.
+   The listed B memory samples and native bitmap point probe are complete in
+   their diagnostic scopes. Proceed to isolated C qualification under unchanged
+   guards; C still needs its own memory, latency, journey and visual acceptance.
+   Shared inert-warp/scripted-elevator metadata is in host preparation; the old
+   map-specific geometry patch stays unapplied.
    [C ancestry proof](checkpoint-c-restored-ancestry-20261102.json).
 4. Fix structural door/boot/cave costs and measure boot/Continue against all three
    B save sizes. Payload sizes alone establish no timing conclusion. Do not

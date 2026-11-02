@@ -1,0 +1,435 @@
+{
+  "classification": "Physical Safari memory samples; diagnostic collections retained; no shipped-equivalent or C acceptance claim",
+  "build_id": "6d5a6d8104124e25b817322b52f69dc9",
+  "post_gc_samples": [
+    {
+      "clock_ms": 33287.0,
+      "heap_kib": 5124.162,
+      "serial_line": 392,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:FUCHSIA_CITY",
+      "observed_player": {
+        "moving": false,
+        "facing": "down",
+        "y": 28,
+        "x": 19
+      },
+      "ds1_sequence": 64,
+      "ds1_tick": 220,
+      "state_serial_line": 393,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 78660.0,
+      "heap_kib": 5088.378,
+      "serial_line": 856,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:SAFARI_ZONE_GATE",
+      "observed_player": {
+        "moving": false,
+        "facing": "up",
+        "y": 5,
+        "x": 5
+      },
+      "ds1_sequence": 210,
+      "ds1_tick": 1418,
+      "state_serial_line": 860,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 191831.0,
+      "heap_kib": 5180.321,
+      "serial_line": 1470,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:SAFARI_ZONE_EAST",
+      "observed_player": {
+        "moving": false,
+        "facing": "right",
+        "y": 22,
+        "x": 0
+      },
+      "ds1_sequence": 416,
+      "ds1_tick": 4494,
+      "state_serial_line": 1471,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 197135.0,
+      "heap_kib": 5152.54,
+      "serial_line": 1514,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:SAFARI_ZONE_CENTER",
+      "observed_player": {
+        "moving": false,
+        "facing": "left",
+        "y": 10,
+        "x": 29
+      },
+      "ds1_sequence": 424,
+      "ds1_tick": 4584,
+      "state_serial_line": 1519,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 202638.0,
+      "heap_kib": 5197.565,
+      "serial_line": 1562,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:SAFARI_ZONE_EAST",
+      "observed_player": {
+        "moving": false,
+        "facing": "right",
+        "y": 22,
+        "x": 0
+      },
+      "ds1_sequence": 432,
+      "ds1_tick": 4674,
+      "state_serial_line": 1567,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 391807.0,
+      "heap_kib": 5204.843,
+      "serial_line": 2903,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:SAFARI_ZONE_NORTH",
+      "observed_player": {
+        "moving": false,
+        "facing": "left",
+        "y": 30,
+        "x": 39
+      },
+      "ds1_sequence": 906,
+      "ds1_tick": 9974,
+      "state_serial_line": 2904,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    },
+    {
+      "clock_ms": 655150.0,
+      "heap_kib": 5176.876,
+      "serial_line": 4768,
+      "phase": "door.live.after_gc",
+      "zone": "pokered:SAFARI_ZONE_WEST",
+      "observed_player": {
+        "moving": false,
+        "facing": "down",
+        "y": 0,
+        "x": 20
+      },
+      "ds1_sequence": 1572,
+      "ds1_tick": 17434,
+      "state_serial_line": 4769,
+      "attribution": "First subsequent actual settled-overworld DS1 observation before any new door.begin; not last constructor inference"
+    }
+  ],
+  "measurements": {
+    "battle_start_ms": null,
+    "frame_ms": 2163.383,
+    "heap_live_bytes": 4882555.904,
+    "heap_peak_bytes": 6428086.272,
+    "map_load_ms": 4413.0,
+    "slice_ms": 2163.383
+  },
+  "phase_measurements": {
+    "Continue": 3240.0,
+    "Save": 1846.0,
+    "battle": null,
+    "boot_slice": 1455.37,
+    "boot_title": 13181.0,
+    "cave_walking_p95": null,
+    "door": 4413.0,
+    "title_artwork": 2771.0
+  },
+  "fixed_route": {
+    "scope": "Real-input memory route; fixed source paths, natural RUN, no state setter/RNG seed",
+    "route_sha256": "78952a8a1aaffa224c153a380eb1fa096948ad44b8f2946f4af2ef6caab1f9b4",
+    "legs": [
+      {
+        "label": "center-east",
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "right",
+            "moving": false,
+            "x": 0,
+            "y": 22
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_EAST"
+        },
+        "last_batch": 52
+      },
+      {
+        "label": "east-north",
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "left",
+            "moving": false,
+            "x": 39,
+            "y": 30
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_NORTH"
+        },
+        "last_batch": 176
+      },
+      {
+        "label": "north-west",
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "down",
+            "moving": false,
+            "x": 20,
+            "y": 0
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_WEST"
+        },
+        "last_batch": 344
+      },
+      {
+        "label": "teeth",
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "down",
+            "moving": false,
+            "x": 19,
+            "y": 6
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_WEST"
+        },
+        "last_batch": 351
+      }
+    ],
+    "deferred_cell_retries": [
+      {
+        "leg": "center-east",
+        "index": 11,
+        "origin": {
+          "facing": "up",
+          "moving": false,
+          "x": 21,
+          "y": 23
+        }
+      },
+      {
+        "leg": "east-north",
+        "index": 17,
+        "origin": {
+          "facing": "right",
+          "moving": false,
+          "x": 15,
+          "y": 24
+        }
+      },
+      {
+        "leg": "east-north",
+        "index": 18,
+        "origin": {
+          "facing": "right",
+          "moving": false,
+          "x": 16,
+          "y": 24
+        }
+      },
+      {
+        "leg": "east-north",
+        "index": 47,
+        "origin": {
+          "facing": "up",
+          "moving": false,
+          "x": 9,
+          "y": 14
+        }
+      },
+      {
+        "leg": "north-west",
+        "index": 19,
+        "origin": {
+          "facing": "up",
+          "moving": false,
+          "x": 25,
+          "y": 25
+        }
+      },
+      {
+        "leg": "north-west",
+        "index": 59,
+        "origin": {
+          "facing": "up",
+          "moving": false,
+          "x": 15,
+          "y": 11
+        }
+      },
+      {
+        "leg": "north-west",
+        "index": 80,
+        "origin": {
+          "facing": "up",
+          "moving": false,
+          "x": 28,
+          "y": 3
+        }
+      }
+    ],
+    "center_return_loop": [
+      {
+        "batch": 53,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "right",
+            "moving": false,
+            "x": 1,
+            "y": 22
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_EAST"
+        }
+      },
+      {
+        "batch": 54,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "left",
+            "moving": false,
+            "x": 29,
+            "y": 10
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_CENTER"
+        }
+      },
+      {
+        "batch": 55,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "left",
+            "moving": false,
+            "x": 28,
+            "y": 10
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_CENTER"
+        }
+      },
+      {
+        "batch": 56,
+        "state": {
+          "last_save": {
+            "ok": true,
+            "reason": "published"
+          },
+          "loaded": 1,
+          "overworld": "explore",
+          "physical_controls": false,
+          "player": {
+            "facing": "right",
+            "moving": false,
+            "x": 0,
+            "y": 22
+          },
+          "ready": true,
+          "saved": 1,
+          "state": "overworld",
+          "zone": "pokered:SAFARI_ZONE_EAST"
+        }
+      }
+    ],
+    "encounters": 7,
+    "last_batch": 351
+  },
+  "hashes": {
+    "outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "serial.raw": "5e7a9dae363cb6eb2a52497d699d9be678f7a5d081b9c29c8c71195881ace64b",
+    "device-smoke.json": "753246035091b529c2025ac6ed3d4c30c7fc47f366ea5e821132226bb8e0b85b",
+    "safari-memory-finish.json": "8f487f9d4d4cd0f101039c12270fa51bc28204e0ed5d99dbcdec0fa2bfd0380d"
+  },
+  "limits": "Lua sampled heap excludes native allocations/transient peaks; original and imported earned files unchanged; late Safari encounter may consume a one-frame move, reissued once after real RUN only from verified prior cell.",
+  "keeper": {
+    "installed_inventory": "dddd464c0c8cc9018b865d44c81103ff689de334a4a7cc91cb0c5120c1028168",
+    "keeper": "/Games/Calibration.pdx",
+    "no_new_logs": true,
+    "ok": true,
+    "screen": "Not directly observed; pdutil run acknowledged"
+  },
+  "no_new_logs": true,
+  "source_commit": "e9499c8a",
+  "map_scope": "SafariCenter/East/North/West; Fuchsia/Gate approach; not Tower or C",
+  "earlier_attempts": [
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-memory-hardware-20261102-01",
+      "accepted": false,
+      "reason": "DeviceSmoke indexed actual EventState.dialog method; observer correction e9499c8a."
+    },
+    {
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-memory-hardware-20261102-02",
+      "accepted": false,
+      "reason": "A natural encounter consumed the next planned one-frame movement. Driver stopped on prior-cell mismatch; no fabricated destination. Corrected finite input retry after real RUN in03."
+    }
+  ],
+  "interpretation": "All four Safari maps have actual post-GC samples below6MiB and this diagnostic route peaks6.13MiB. Does not establish shipped-equivalent pacing, native RSS/transient peaks, C activation or acceptance."
+}

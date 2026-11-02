@@ -62,7 +62,7 @@ local function reply(sequence, status, value)
 end
 
 local function menuState(menu)
-    if not menu or not menu.isActive then
+    if type(menu) ~= "table" or not menu.isActive then
         return nil
     end
     local options = {}
@@ -73,7 +73,7 @@ local function menuState(menu)
 end
 
 local function dialogState(dialog)
-    if not dialog or not dialog.isActive then
+    if type(dialog) ~= "table" or not dialog.isActive then
         return nil
     end
     return {
