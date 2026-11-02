@@ -142,7 +142,11 @@ function BootTrace.collect(phase)
     BootTrace.mark(phase .. ".before_gc")
     collectgarbage("collect")
     BootTrace.mark(phase .. ".after_gc")
-    if DEVICE_TEST_BUILD and (phase == "title.live" or phase == "Continue.live")
+    -- The device live-heap target is measured on its 32-bit Lua runtime.
+    -- Simulator measurement admission uses its 16 MiB pool, 9 MiB peak and
+    -- raw-slice ceiling; retain the stricter live check on physical hardware.
+    if DEVICE_TEST_BUILD and not playdate.isSimulator
+        and (phase == "title.live" or phase == "Continue.live")
         and collectgarbage("count") > 6 * 1024 then
         error("device-test live heap guard at " .. phase)
     end
@@ -180,7 +184,7 @@ function BootTrace.collectMemoryIfNeeded()
     BootTrace.mark("memory.soft.after_gc")
     BootTrace.phase = phase
     memoryCollectionRunning = false
-    if after > 6 * 1024 then
+    if not playdate.isSimulator and after > 6 * 1024 then
         BootTrace.flush()
         error("live memory guard: " .. tostring(after) .. " KiB after collection at " .. tostring(phase))
     end

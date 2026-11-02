@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":14,"text":"SNORLAX calmed"},{"op":"line","source_line":15,"text":"down! With a big"},{"op":"cont","source_line":16,"text":"yawn, it returned"},{"op":"cont","source_line":17,"text":"to the mountains!"},{"op":"control","source":"done","source_line":18}],"source":"text/Route12.asm"}

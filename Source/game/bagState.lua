@@ -249,6 +249,13 @@ function BagState:chooseTarget(id)
         return false, "unavailable-item"
     end
     if id=="escapeRope"then return FieldItems.confirmEscape(self) end
+    if id == "pokeFlute" and SnorlaxStory then
+        local ok, reason = SnorlaxStory.useFlute(self)
+        if not ok then
+            self:showMessage("That item can't be used here.")
+        end
+        return ok, reason
+    end
     if fieldKeyActions[id] then
         local ok, reason = fieldKeyActions[id](self)
         if not ok then

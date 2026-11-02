@@ -40,6 +40,12 @@ class PreparationTests(unittest.TestCase):
     def test_learning_keeps_fixed_damage_over_status_and_does_not_invent_move(self):
         self.assertEqual(learn_decision(move('dragonRage',power=0),[move('growl',power=0,category='status'),move()]),1)
         self.assertIsNone(learn_decision(move('growl',power=0,category='status'),[move()]))
+    def test_learning_never_selects_a_protected_hm_slot(self):
+        protected = dict(move('flash', power=0, category='status'), protected_hm=True)
+        hypnosis = move('hypnosis', power=0, category='status')
+        self.assertEqual(learn_decision(move('headbutt', power=70), [protected, hypnosis, move()]), 2)
+        self.assertIsNone(learn_decision(move('headbutt', power=70), [protected]))
+
     def test_default_evolution_accepts_real_animation_explicit_cancel_is_separate(self):
         from tools.tests.test_brock_evolution_evidence import evolution_trace
         for policy in ['accept','cancel']:

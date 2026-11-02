@@ -1,0 +1,7 @@
+{
+  "classification": "historical audit; no runtime",
+  "git_object_revision": "63549857c19ec1edc191ed02fecb8b20f8b2617a",
+  "canonical_runner_source_sha256": "76035d8f10f49b058a5ae8733a71059a14419be872aea9a18c5b3fa2119faecc",
+  "canonical_full_source_sha256": "8cbaa3fd37e601e64926e7faeda6178f19258d34cdda9d1924a222a6e1ebd629",
+  "draft_notice": "Preserved draft pins are not final: initial hash used string ordering; subsequent full-source hash read after Root metadata changes. Runner also excludes dev/harness_build.lua. Final pins use canonical runner default plus separate full inventory/full fingerprint."
+}

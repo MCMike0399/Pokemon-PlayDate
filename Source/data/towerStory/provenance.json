@@ -6,6 +6,7 @@
     "data/maps/objects/PokemonTower7F.asm": "7b79a1dd938f866b933878da85f0ba9f89997429dd545dd159c9cc0445203dcf",
     "data/maps/objects/Route12.asm": "c888273202b9d3079fb022a1172e927d71fe7550e61a04ab3635db18ca394856",
     "data/maps/objects/Route16.asm": "1224404509f253105e7c2bfd0c3c8f5d6aeb8063deaa70147c12ca962e38646b",
+    "data/text/text_6.asm": "780a4113660b6ed4c3fa54ddd2a984e1dc7d6bea7f423a00d5a476dfaf5f80ec",
     "engine/battle/common_text.asm": "3b77739b798d4203b98ea26a565657a44d28363069892a268fb635aad148bde3",
     "engine/battle/core.asm": "36d8ff785fe642d61f6917156e70b78c36fd7cde6c0b8fb582e02f6552e786d0",
     "engine/items/item_effects.asm": "76b570b5216bbbcf6d9528c4704d931744a3740cce88afdc4f4f8f700449dda1",

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":7,"text":"Where"},{"op":"line","source_line":8,"text":"is the GHOST?"},{"op":"control","source":"prompt","source_line":9}],"source":"text/PokemonTower4F.asm"}

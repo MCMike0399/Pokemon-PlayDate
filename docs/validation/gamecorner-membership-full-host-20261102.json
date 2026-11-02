@@ -1,0 +1,18 @@
+{
+  "classification": "Exact candidate full host pass and combined source review; checkpoint unaccepted",
+  "candidate_source_commit": "295a6763cb6107a84fa6c95c3be60b500879f6eb",
+  "tests_passed": 1072,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "elapsed_seconds": 177.676,
+  "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-full-host-20261102-02/tests.log",
+  "log_sha256": "3d976273d07b10a86da36d402305d04b449c7948d58819e7874b65080613738a",
+  "review": {
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A210bc27a-7bba-4c04-9746-103f7fa7c997",
+    "standards": 0,
+    "spec": 0,
+    "scope": "Fixed67e391e8...295a6763 three production files, packets and qualification artifacts; no runtime rerun byreviewer"
+  },
+  "scope": "Source unchanged from physical/qualified/native candidate. Snapshot-only administrative refresh retains every matrix row/facet/evidence hash; no acceptance promotion. No B/C checkpoint or broad device playability claim."
+}

@@ -73,9 +73,9 @@ class RegionRegistrationTests(unittest.TestCase):
 
     def test_transformed_records_and_rosters_equal_actual_sdk_export(self):
         files = generator.build(ROOT)
-        for name in ('midgameEast',):
+        for name in ('midgameEast', 'midgameSouth'):
             declaration = json.loads(files[name + '.json'])
-            exported = json.loads((ROOT / 'tools/references/content-transforms-108' / (name + '.json')).read_bytes())
+            exported = json.loads((ROOT / 'tools/references/content-transforms-149' / (name + '.json')).read_bytes())
             for stable, record in exported['events'].items():
                 digest = declaration['records'][stable]
                 self.assertEqual(json.loads(files['chunks/' + digest + '.json']), record)
@@ -87,8 +87,10 @@ class RegionRegistrationTests(unittest.TestCase):
                 else:
                     self.assertEqual(json.loads(files['chunks/' + digest + '.json']), record)
         memberships = [set(json.loads(files[name + '.json'])['records'])
-                       for name in ('vermilion', 'midgameEast')]
+                       for name in ('vermilion', 'midgameEast', 'midgameSouth')]
         self.assertFalse(memberships[0] & memberships[1])
+        self.assertFalse(memberships[0] & memberships[2])
+        self.assertFalse(memberships[1] & memberships[2])
 
     def test_dependency_drift_cannot_be_relabelled_as_the_old_export(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -1,0 +1,45 @@
+{
+  "status": "Prepared and unadopted; no runtime/compile acceptance",
+  "time_utc": "2026-11-01T21:13:14.784277+00:00",
+  "self_ko": {
+    "candidate": "5d83e868caf75385de67e277ecd667f905049539",
+    "initial": "0cc27ef488744e7c40dab4090621832854b32d4a",
+    "branch": "t3/gen5-self-ko-preparation",
+    "native_cases": 15,
+    "native_compiled_or_executed": false,
+    "standards_initial_findings": 0,
+    "spec_initial_findings": 1,
+    "spec_finding": "King\u2019s Rock secondary and RNG lost after queued self-faint",
+    "source_fix": "Capture typed secondary locally before cost; apply only at existing successful-hit gate",
+    "independent_spec_recheck_findings": 0,
+    "adopted": false
+  },
+  "inert_warp": {
+    "candidate": "073e202e199af2dcc109e7c111964ea3d5ecb7cf",
+    "base": "164020c3f4af78caf1456559554e1b6e83e5de04",
+    "branch": "t3/interior-warp-classification",
+    "standards_findings": 0,
+    "spec_findings": 0,
+    "reported_host_checks": 27,
+    "reported_cache_runtime_files_unchanged": 173,
+    "reported_binary_cell_files_unchanged": 171,
+    "native_compiled_or_executed": false,
+    "adopted": false
+  },
+  "checksum": {
+    "candidate": "f3da5672",
+    "implementation": "d891e2aba9b4e8dc99a3bd52f3861b76d55d1dc3",
+    "branch": "t3/chunked-save-checksum",
+    "extended_native_case_executed": false,
+    "device_performance_measured": false,
+    "adopted": false
+  },
+  "capacity": {
+    "free_bytes": 52680380416,
+    "required_bytes": 54760833024,
+    "admitted": false,
+    "queue_state": "Coordinator confirmed all approved queues empty; no promised automatic recovery",
+    "scope": "No more clone/build/runtime growth admitted. No proof release or guard relaxation."
+  },
+  "release_state": "Main108 unchanged; B149 unaccepted pending native showcase/motion; C171 inactive. Existing physical resource gate remains passed. Nothing pushed."
+}

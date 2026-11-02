@@ -124,6 +124,8 @@ import "dev/ownTempoContracts"
 Contracts.register("own-tempo",OwnTempoContracts.run)
 import "dev/chargeLockContracts"
 Contracts.register("charge-lock",ChargeLockContracts.run)
+import "dev/hmBattleContracts"
+Contracts.register("hm-battle", HMBattleContracts.run)
 import "dev/chargeOwnTempoContracts"
 Contracts.register("charge-own-tempo",ChargeOwnTempoContracts.run)
 import "dev/powerOrderContracts"
@@ -138,6 +140,12 @@ import "dev/protectContracts"
 Contracts.register("protect",ProtectContracts.run)
 import "dev/sideContracts"
 Contracts.register("sides",SideContracts.run)
+import "dev/stageResetContracts"
+Contracts.register("stage-reset", StageResetContracts.run)
+import "dev/earnedBMoveContracts"
+Contracts.register("earned-b-moves", EarnedBMoveContracts.run)
+import "dev/selfKOMoveContracts"
+Contracts.register("self-ko-moves", SelfKOMoveContracts.run)
 import "dev/roostContracts"
 Contracts.register("roost",RoostContracts.run)
 import "dev/roostPredicateContracts"

@@ -193,6 +193,9 @@ function FieldTravelState:update()
             if result and result.ok then
                 self.game.lastFieldTravel = {key = "surf", kind = "complete", mode = self.session:fieldTravelData().mode}
                 self.game.session:daycareStep()
+                if SafariRuntime then
+                    SafariRuntime.completedStep(self.game, self)
+                end
                 self:close(true)
             else
                 self.message, self.phase = "SURF failed!", "result"

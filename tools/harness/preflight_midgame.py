@@ -45,6 +45,7 @@ class Audit:
         self.files = {}
         self.models = {}
         self.owner = None
+        self.qualified = set()
 
     def record(self, name, kind, status='pass', **details):
         self.rows.append(dict(name=name, kind=kind, status=status, scope=self.scope, **details))
@@ -106,7 +107,7 @@ class Audit:
             if not self.clear(model, start) or not self.clear(model, goal):
                 raise ProtocolError('endpoint blocked or outside source geometry')
             steps = model.path(start, {goal}, (), allow)
-            self.record(name, 'segment', 'gap' if requires and self.scope != 'current-5.5a' else 'pass',
+            self.record(name, 'segment', 'gap' if requires and self.scope != 'current-5.5a' and name not in self.qualified else 'pass',
                         steps=len(steps), conditional=bool(requires), **row)
         except ProtocolError as error:
             self.record(name, 'segment', 'unreachable', error=str(error), **row)
@@ -343,6 +344,125 @@ class Audit:
                 self.record(label, 'access', 'gap', error=str(error), **row)
                 break
 
+    def api_sources(self, interfaces):
+        """Record reviewed prepared owner contracts; this does not execute Lua."""
+        hashes = {}
+        for relative, names in interfaces.items():
+            content = git('show', self.ref + ':Source/' + relative)
+            self.files[relative] = sha(content)
+            hashes[relative] = sha(content)
+            for name in names:
+                if not re.search(r'function\s+' + re.escape(name) + r'\(', content.decode()):
+                    raise ProtocolError('required prepared API absent: ' + name)
+        return hashes
+
+    def field_geometry(self, mutations):
+        """Qualify only the six declared gaps against the full prepared packet.
+
+        These are static input projections of reviewed owner contracts, not
+        capability grants, actor updates, or successful runtime transactions.
+        """
+        self.qualified = set()
+        for mutation in mutations:
+            name = mutation['name']
+            model = self.model(mutation['map'])
+            cell = self.point(model, mutation['cell'])
+            try:
+                actor = next(e for e in model.events['objects']
+                             if (e['x'], e['y']) == cell)
+                if name.endswith('Snorlax removal'):
+                    sources = self.api_sources({
+                        'game/snorlaxStory.lua': ['SnorlaxStory.fluteTarget', 'SnorlaxStory.request',
+                                                  'SnorlaxStory.actorMetadata'],
+                        'game/hideoutTowerContent.lua': ['HideoutTowerContent.actorMetadata'],
+                    })
+                    definition = next(d for d in self.read('data/towerStory/scenes.json')['scenes']['snorlax']
+                                      if d['id'] == actor['id'])
+                    approach = (10, 61) if mutation['map'] == 'Route12' else (27, 10)
+                    if (actor['sprite'] != 'SPRITE_SNORLAX' or definition['map_id'] != model.name
+                            or self.point(model, (definition['x'], definition['y'])) != cell
+                            or dict(zip(('x', 'y'), approach)) not in definition['flute_positions']):
+                        raise ProtocolError('Snorlax source actor or flute range differs')
+                    origin = self.point(model, approach)
+                    if not self.clear(model, cell) or not self.clear(model, origin):
+                        raise ProtocolError('Snorlax source surface blocked')
+                    # Actor removal needs no terrain override: the underlying
+                    # cell is already legal. Never alter the actor collection.
+                    move = model.terrain_step(origin, 'down' if mutation['map'] == 'Route12' else 'left')
+                    if move is None or move.destination != cell:
+                        raise ProtocolError('removed actor cell cannot be entered from flute approach')
+                    details = dict(actor_id=actor['id'], approach=origin, removed_cell=cell,
+                                   removal_flag=definition['defeated_flag'], api_sources=sources)
+                else:
+                    sources = self.api_sources({
+                        'domain/fieldTravel.lua': ['FieldTravel.push'],
+                        'world/sourceActors.lua': ['SourceActors.isBoulderEvent', 'SourceActors.describeSource'],
+                        'world/npcMotion.lua': ['NPCMotion:previewBoulderPush', 'NPCMotion:beginBoulderPush'],
+                    })
+                    origin = self.point(model, (7, 4))
+                    target = (cell[0] + 1, cell[1])
+                    if (actor['sprite'], actor['movement'], actor['range_or_facing']) != (
+                            'SPRITE_BOULDER', 'STAY', 'BOULDER_MOVEMENT_BYTE_2'):
+                        raise ProtocolError('Warden object is not the source pushable actor')
+                    if not all(self.clear(model, p) for p in (origin, cell, target)):
+                        raise ProtocolError('Warden push surface blocked')
+                    if target in model.warps or target in model.signs or model.feet[target[1]][target[0]] == 0x15:
+                        raise ProtocolError('boulder target is protected or stairs')
+                    if any((e['x'], e['y']) == target for e in model.events['objects']):
+                        raise ProtocolError('boulder destination has another source actor')
+                    a, b = model.feet[origin[1]][origin[0]], model.feet[target[1]][target[0]]
+                    if any({a, b} == set(pair) for pair in model.pairs):
+                        raise ProtocolError('player-to-push-destination tile pair forbidden')
+                    for rule in model.rules:
+                        if (rule['facing'] == 'SPRITE_FACING_RIGHT'
+                                and rule['standing_foot_tile'] == model.feet[cell[1]][cell[0]]
+                                and rule['target_foot_tile'] == b):
+                            raise ProtocolError('boulder step is a ledge')
+                    details = dict(actor_id=actor['id'], player=origin, actor_from=cell, actor_to=target,
+                                   required_attempts=2, first_attempt='face(right) sends the first blocked press',
+                                   second_attempt='following press right starts the push',
+                                   player_after_push=origin, api_sources=sources)
+                    self.qualified.add('Warden first push destination requires actual boulder mutation')
+                self.record(name, 'mutation', conditional=True, map=mutation['map'],
+                            requires=mutation['requires'], qualification='static prepared owner inputs only',
+                            source_sha256=model.descriptor['source_sha256'], **details)
+            except (KeyError, StopIteration, ProtocolError, subprocess.CalledProcessError) as error:
+                self.record(name, 'mutation', 'gap', error=str(error), declaration=mutation)
+
+        try:
+            sources = self.api_sources({
+                'domain/fieldCycling.lua': ['FieldCycling.allowed', 'FieldCycling.enter',
+                                           'FieldCycling.motion', 'FieldCycling.gate'],
+                'domain/fieldWorld.lua': ['FieldWorld.entryTravel'],
+            })
+            bicycle = self.read('data/fieldGear.json')['bicycle']
+            for map_name, entry, gate_name in (
+                    ('Route16', (17, 10), 'Route16Gate1F'),
+                    ('Route18', (33, 8), 'Route18Gate1F')):
+                model = self.model(map_name)
+                constant = model.source_data['source_map_constant']
+                declared = dict(map=constant, x=entry[0], y=entry[1])
+                if declared not in bicycle['forced_entries'] or not self.clear(model, self.point(model, entry)):
+                    raise ProtocolError('forced Bicycle entry differs or is blocked')
+                gate_model = self.model(gate_name)
+                gate = next(g for g in bicycle['gates']
+                            if g['map'] == gate_model.source_data['source_map_constant'])
+                if not all(self.clear(gate_model, self.point(gate_model, (p['x'], p['y'])))
+                           for p in gate['stops']):
+                    raise ProtocolError('Bicycle gate stop is blocked')
+                self.record('Bicycle admission ' + map_name, 'field-policy', conditional=True,
+                            entry=declared, gate=gate, api_sources=sources,
+                            requires='Owned Bicycle, real gate and map-entry execution; no admission observed')
+            for map_name in ('Route17', 'Route18'):
+                model = self.model(map_name)
+                if (model.source_data['tileset']['constant'] not in bicycle['tilesets']
+                        and model.source_data['source_map_constant'] not in bicycle['maps']):
+                    raise ProtocolError('Cycling segment outside allowed Bicycle surface')
+            self.qualified.update(('Cycling Road Route17 top to bottom',
+                                   'Cycling Road Route18 west to gate'))
+        except (KeyError, StopIteration, ProtocolError, subprocess.CalledProcessError) as error:
+            self.record('Bicycle prepared policy', 'field-policy', 'gap', error=str(error))
+
     def travel_checks(self, routes):
         # Reuse the driver's existing bounded route solver. This adds no
         # planning behavior to either driver or preflight.
@@ -561,6 +681,218 @@ def load_helpers():
             MidgameJourney = module.MidgameJourney
 
 
+def checkpoint_b_preflight(plan):
+    """Audit every declared B waypoint and owner dependency against this checkout.
+
+    Prepared geometry is reported separately; it never grants live capabilities.
+    Missing maps/events do not stop later independent checks.
+    """
+    from tools.harness import restarting
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('current_midgame_preflight', ROOT / 'tools/harness/midgame_journey.py')
+    current_driver = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(current_driver)
+    section = plan['5.5b']
+    checks = []
+
+    def check(name, category, action):
+        try:
+            detail = action()
+            checks.append(dict(name=name, category=category, status='pass', detail=detail))
+        except (OSError, ValueError, KeyError, StopIteration, ProtocolError,
+                subprocess.CalledProcessError) as error:
+            checks.append(dict(name=name, category=category, status='blocked', error=str(error)))
+
+    # No copied saves or acquired runtime locks: verify accepted originals read-only.
+    manifest = json.loads((ROOT / 'docs/validation/chain-saves.json').read_bytes())
+    for starter in ('bulbasaur', 'squirtle', 'charmander'):
+        def accepted(starter=starter):
+            validate_chain_record = current_driver.validate_chain_record
+            rows = [r for r in manifest['saves'] if r['from_milestone'] == '5.5a' and r['starter'] == starter]
+            if len(rows) != 1:
+                raise ProtocolError('expected exactly one accepted A save')
+            row = rows[0]
+            validate_chain_record(row, dict(milestone='5.5a', starter=starter), ROOT)
+            boundary = restarting.accepted_midgame_boundary(row, ROOT)
+            for item in row['files']:
+                path = Path(row['directory']) / item['file']
+                if path.is_symlink() or sha(path.read_bytes()) != item['sha256']:
+                    raise ProtocolError('accepted A chain slot changed')
+            return dict(acceptance_sha256=boundary['acceptance_sha256'], files=row['files'],
+                        continue_codec='requires real input equality before first travel')
+        check('accepted A ' + starter, 'import', accepted)
+
+    with tempfile.TemporaryDirectory(prefix='midgame-b-current-') as directory:
+        audit = Audit('HEAD', 'current-5.5b', directory)
+        audit.load()
+        for name in section['maps']:
+            check('map ' + name, 'activation', lambda name=name: audit.model(name).name)
+        for route in section['chains']:
+            check(route['name'], 'chain', lambda route=route: audit.chain(route))
+        for leg in section['segments']:
+            def segment(leg=leg):
+                model = audit.model(leg['map'])
+                audit.path(leg['name'], model, audit.point(model, leg['start']), audit.point(model, leg['goal']),
+                           requires=leg.get('requires'))
+            check(leg['name'], 'waypoint', segment)
+        def tower_item_route():
+            model = audit.model('PokemonTower6F')
+            origin = audit.point(model, (18, 9))
+            goal = audit.point(model, (10, 15))
+            candy = next(row for row in model.events['objects'] if row['source_index'] == 4)
+            if candy['kind'] != 'item' or candy.get('extra') != ['RARE_CANDY']:
+                raise ProtocolError('Tower corridor pickup differs from pinned Rare Candy')
+            occupied = {(row['x'], row['y']) for row in model.events['objects']}
+            try:
+                model.path(origin, {goal}, occupied)
+            except ProtocolError:
+                pass
+            else:
+                raise ProtocolError('Tower live-occupancy regression vector no longer blocks before pickup')
+            point = (candy['x'], candy['y'])
+            approach = model.path(origin, set(model.approaches(point)), occupied)
+            final = approach[-1].destination if approach else origin
+            after = model.path(final, {goal}, occupied-{point})
+            return dict(item=candy['id'], approach_steps=len(approach), after_pickup_steps=len(after),
+                        condition='Driver must earn the actual pickup/removal; this host projection grants nothing.')
+        def route12_gate_approach():
+            model = audit.model('Route12')
+            owner = current_driver.MidgameJourney.__new__(current_driver.MidgameJourney)
+            owner.models, owner.map_manifest, owner.doors = audit.models, audit.manifest, audit.owner.doors
+            owner.build_evidence, owner.config = audit.build, {}
+            owner.state = {'zone_id': model.name, 'player': {'x': 9, 'y': 0},
+                           'npcs': [{'x': row['x'], 'y': row['y']} for row in model.events['objects']]}
+            goal = audit.point(model, (10, 61))
+            portal = owner.route_portal(model.name, {goal})
+            if portal is None or portal[1] != 'warp' or portal[3][0] != audit.model('Route12Gate1F').name:
+                raise ProtocolError('Route12 north approach must traverse the actual gatehouse')
+            return dict(origin=[9, 0], goal=goal, first_warp=portal[2]['id'],
+                        condition='Existing component-aware travel must receive the final Snorlax approach goal.')
+        check('Route12 north arrival through gatehouse to Snorlax', 'component-route', route12_gate_approach)
+        def fuchsia_east_route():
+            steps = []
+            model = audit.model('Route13')
+            origin = (51, 0)
+            for name, point, target, arrival in (
+                    ('Route13', (0, 10), 'Route14', (19, 10)),
+                    ('Route14', (0, 44), 'Route15', (59, 8))):
+                model = audit.model(name)
+                occupied = {(row['x'], row['y']) for row in model.events['objects']}
+                route = model.path(origin, {point}, occupied)
+                actual = cj.connection_projection(audit.models, model, point, 'left')
+                if actual != (audit.model(target).name, arrival):
+                    raise ProtocolError('Fixed Fuchsia connection differs from source header')
+                steps.append(dict(map=name, origin=origin, exit=point, walk_steps=len(route), arrival=arrival))
+                origin = arrival
+            for name, index, target in (('Route15', 4, 'Route15Gate1F'),
+                                         ('Route15Gate1F', 2, 'Route15')):
+                model = audit.model(name)
+                event = next(row for row in model.events['warps'] if row['source_index'] == index)
+                point = (event['x'], event['y'])
+                occupied = {(row['x'], row['y']) for row in model.events['objects']}
+                route = model.path(origin, {point}, occupied, {point})
+                destination, arrival = audit.owner.project_warp(model, event)
+                if destination != audit.model(target).name:
+                    raise ProtocolError('Fixed Route15 gate exit differs from source warp')
+                steps.append(dict(map=name, origin=origin, warp=event['id'], walk_steps=len(route), arrival=arrival))
+                origin = arrival
+            model = audit.model('Route15')
+            route = model.path(origin, {(0, 8)}, {(row['x'], row['y']) for row in model.events['objects']})
+            actual = cj.connection_projection(audit.models, model, (0, 8), 'left')
+            if actual != (audit.model('FuchsiaCity').name, (39, 16)):
+                raise ProtocolError('Fixed Fuchsia arrival differs from source header')
+            return dict(legs=steps, final_walk_steps=len(route), final_arrival=actual,
+                        occupancy='All source NPC cells occupied; live movement and trainer battles still require runtime.')
+        check('Route13/14/15 occupied fixed exits and gatehouse', 'component-route', fuchsia_east_route)
+        def lavender_refill_route():
+            model = audit.model('Route13')
+            occupied = {(row['x'], row['y']) for row in model.events['objects']}
+            lengths = [len(model.path((0, 10), {(51, 0)}, occupied))]
+            actual = cj.connection_projection(audit.models, model, (51, 0), 'up')
+            if actual != (audit.model('Route12').name, (11, 107)):
+                raise ProtocolError('Refill return differs from Route13 north header')
+            model = audit.model('Route12')
+            occupied = {(row['x'], row['y']) for row in model.events['objects'] if row['source_index'] != 1}
+            event = next(row for row in model.events['warps'] if row['source_index'] == 3)
+            point = (event['x'], event['y'])
+            lengths.append(len(model.path(actual[1], {point}, occupied, {point})))
+            destination, origin = audit.owner.project_warp(model, event)
+            gate = audit.model('Route12Gate1F')
+            if destination != gate.name:
+                raise ProtocolError('Refill gate ingress differs from source warp')
+            event = next(row for row in gate.events['warps'] if row['source_index'] == 1)
+            point = (event['x'], event['y'])
+            lengths.append(len(gate.path(origin, {point}, {(row['x'], row['y']) for row in gate.events['objects']}, {point})))
+            destination, origin = audit.owner.project_warp(gate, event)
+            if destination != model.name:
+                raise ProtocolError('Refill gate north exit differs from source warp')
+            lengths.append(len(model.path(origin, {(9, 0)}, occupied)))
+            actual = cj.connection_projection(audit.models, model, (9, 0), 'up')
+            if actual != (audit.model('LavenderTown').name, (9, 17)):
+                raise ProtocolError('Refill Lavender arrival differs from source header')
+            return dict(leg_steps=lengths, final_arrival=actual,
+                        condition='Actual Snorlax removal required; real Center heal and purchases remain runtime checks.')
+        check('Route13 earned Center refill through Route12 gate', 'component-route', lavender_refill_route)
+        check('Tower 6F actual corridor pickup', 'event-approach', tower_item_route)
+        check('Safari fixed input steps', 'fixed-script',
+              lambda: audit.fixed('safari-fixed-routes.json'))
+        events = {'PokemonTower2F': [1], 'PokemonTower7F': [1, 2, 3, 4],
+                  'MrFujisHouse': [5], 'Route12': [1], 'Route16': [7],
+                  'FuchsiaGym': [1], 'SafariZoneGate': [1], 'SafariZoneWest': [4],
+                  'SafariZoneSecretHouse': [1], 'WardensHouse': [1, 2, 3],
+                  'FuchsiaGoodRodHouse': [1], 'Route12SuperRodHouse': [1],
+                  'BikeShop': [1], 'PokemonFanClub': [5]}
+        for name, indices in events.items():
+            for index in indices:
+                def event(name=name, index=index):
+                    model = audit.model(name)
+                    actor = next(e for e in model.events['objects'] if e['source_index'] == index)
+                    goals = list(model.approaches((actor['x'], actor['y'])))
+                    if not goals:
+                        raise ProtocolError('source interaction has no land approach')
+                    return dict(id=actor['id'], approaches=goals,
+                                condition='registration and live occupancy require real runtime')
+                check(name + '/object/' + str(index), 'event-approach', event)
+        for row in audit.rows:
+            if row['status'] in {'gap', 'unreachable'}:
+                checks.append(dict(name=row['name'], category='geometry', status='blocked', detail=row))
+        geometry = audit.rows
+
+    main_source = (ROOT / 'Source/main.lua').read_text()
+    # Known existing production contracts, never invented setter/observation APIs.
+    for module in ('game/towerStory', 'game/snorlaxStory', 'game/fieldTravelRuntime', 'game/fieldTravelState'):
+        def installed(module=module):
+            if not re.search(r'import\s+"' + re.escape(module) + '"', main_source):
+                raise ProtocolError('production import not installed: ' + module)
+            return 'import present; native lifecycle unverified'
+        check(module, 'owner-integration', installed)
+    diagnostics = (ROOT / 'Source/dev/diagnostics.lua').read_text()
+    for name, markers in (
+            ('Safari detached owner observation', ['SafariRuntime.observe(game)']),
+            ('FieldGear detached controller/result observation', ['fieldGear=gearView', 'result = game.lastFieldGear']),
+            ('FieldTravel detached controller observation', ['game:getFieldTravelSnapshot()', 'fieldUI=ui('])):
+        def projected(markers=markers):
+            if any(marker not in diagnostics for marker in markers):
+                raise ProtocolError('installed read-only projection missing: ' + str(markers))
+            return 'existing projection present; actual input evidence remains root-owned'
+        check(name, 'observation-integration', projected)
+    for module in ('game/safariRuntime', 'game/safariBattleState', 'game/safariPassageState', 'game/fieldGearState'):
+        check(module, 'owner-integration', lambda module=module: installed(module))
+    # Static presence removes the old API-unknown blockers. Host checks never
+    # certify native input, resource commits or the earned three-starter restart.
+    for name, reason in (
+            ('Safari real input', 'Root must run fee 500, source 499/30, HM03/Teeth/HM04, committed BALL and actual 500-cell expiration.'),
+            ('Fishing real input', 'Root must run observed cast/bite/result with natural encounter or no-bite outcomes for each rod.'),
+            ('Surf/Strength execution', 'Root must witness actual two-attempt boulder push, Surf board and landing.'),
+            ('Cycling Road execution', 'Root must witness unsteered descent, held-B braking and completed travel.'),
+            ('Three earned B restarts', 'Root must run all accepted A starters through complete B steps and two-process Continue before export.')):
+        checks.append(dict(name=name, category='native-evidence-pending', status='blocked', error=reason))
+    return dict(kind='all declared B waypoints and owner gaps; host only',
+                driver_sha256=sha((ROOT / 'tools/harness/midgame_journey.py').read_bytes()),
+                source_commit=git('rev-parse', 'HEAD').decode().strip(), checks=checks,
+                geometry_checks=geometry, blockers=[r for r in checks if r['status'] == 'blocked'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True, help='one JSON report outside Git')
@@ -597,10 +929,7 @@ def main():
                     audit.gate('b4-open')
                     audit.selected_lift_exits()
                 else:
-                    for mutation in section.get('mutations', []):
-                        audit.record(mutation['name'], 'mutation', 'gap',
-                                     declaration=mutation,
-                                     reason='inactive actor/field-mode mutation; terrain cannot establish occupancy or execution')
+                    audit.field_geometry(section.get('mutations', []))
                 for route in section['chains']:
                     try:
                         audit.chain(route)
@@ -632,28 +961,56 @@ def main():
                 if scope == 'inactive-prepared-5.5b':
                     for correction in plan['inactive_corrections']:
                         model = audit.model(correction['map'])
-                        audit.path('candidate correction ' + correction['map'], model,
+                        audit.path('applied correction ' + correction['map'], model,
                                    audit.point(model, correction['start']), audit.point(model, correction['candidate']))
                         target = audit.point(model, correction['target'])
+                        origin = audit.point(model, correction['candidate'])
+                        delta = cj.DIRECTIONS[correction['direction']]
+                        if target != (origin[0] + delta[0], origin[1] + delta[1]):
+                            raise ProtocolError('corrected input does not enter declared target')
+                        if audit.clear(model, audit.point(model, correction['old'])):
+                            raise ProtocolError('historical blocked waypoint differs from pinned geometry')
                         if correction['map'] == 'FuchsiaCity':
+                            api_sources = audit.api_sources({
+                                'domain/fieldTravel.lua': ['FieldTravel.surf', 'FieldTravel.surfStep'],
+                                'game/fieldTravelRuntime.lua': ['FieldTravelRuntime.step', 'FieldTravelRuntime.finishStep'],
+                                'game/context.lua': ['GameContext:fieldTravelRestrictions', 'GameContext:commitFieldTravel'],
+                            })
                             rules = audit.read('data/fieldTravel.json')
                             tileset = model.source_data['tileset']['constant']
                             if tileset not in rules['water_tilesets'] or model.feet[target[1]][target[0]] != 0x14:
                                 raise ProtocolError('candidate does not face supported source water')
-                            origin = audit.point(model, correction['candidate'])
+                            compact = audit.read('data/sourceMapCache/compact.json')
+                            cells = []
+                            for x, y in (origin, target):
+                                palette = int(model.descriptor['tile_rows'][y][x * 2:x * 2 + 2], 16)
+                                tile = compact['tiles'][model.descriptor['palette'][palette - 1]]
+                                terrain = tile['terrain']
+                                if (str(y * model.width + x + 1) in model.descriptor['blocked']
+                                        or terrain.get('adapter_padding') is True):
+                                    raise ProtocolError('Surf cell is binding blocked or adapter padding')
+                                cells.append(terrain)
+                            if not cells[0]['land_passable'] or not cells[1]['water_candidate']:
+                                raise ProtocolError('Surf board/land inputs differ from source terrain')
                             if any(p['tileset'] == tileset and
                                    {p['a'], p['b']} == {model.feet[origin[1]][origin[0]], 0x14}
                                    for p in rules['water_pairs']):
                                 raise ProtocolError('candidate shore/water pair is prohibited')
+                            audit.record('Fuchsia Surf board and return inputs', 'field-policy',
+                                         conditional=True, origin=origin, water=target, cells=cells,
+                                         api_sources=api_sources,
+                                         requires='Soul Badge and known Surf; unoccupied cells; actual board/landing commits remain unobserved')
                         else:
                             ghost = audit.read('data/towerStory/scenes.json')['scenes']['ghost']
-                            if correction['target'] != [ghost['x'], ghost['y']]:
+                            step = model.terrain_step(origin, correction['direction'])
+                            if (correction['target'] != [ghost['x'], ghost['y']]
+                                    or step is None or step.destination != target):
                                 raise ProtocolError('candidate does not enter actual ghost trigger')
-                        audit.record('candidate target ' + correction['map'], 'correction-evidence',
+                        audit.record('applied target ' + correction['map'], 'correction-evidence',
                                      declaration=correction, target_collision=model.collision[target[1]][target[0]],
                                      target_foot_tile=model.feet[target[1]][target[0]],
                                      source_sha256=model.descriptor['source_sha256'],
-                                     status='excluded', reason='unapplied inactive driver correction; field/battle execution unverified')
+                                     conditional=True, reason='applied dormant driver correction; static geometry only; field/battle execution unverified')
             except (KeyError, ValueError, ProtocolError, subprocess.CalledProcessError) as error:
                 audit.record('source decoding', 'input', 'gap', error=str(error))
             counts = {status: sum(r['status'] == status for r in audit.rows)
@@ -665,22 +1022,36 @@ def main():
     classify_calls(report)
     report['historical_manifest_corrections'] = plan['historical_manifest_corrections']
     report['evidence_errors'] = []
-    try:
-        report['original_report'] = prior_evidence(args.prior_report, report['audits'])
-        report['supplemental_earned_evidence'] = earned_evidence(args.earned_evidence, report['audits'][0]['source_hashes'])
-    except (OSError, ValueError, KeyError, ProtocolError) as error:
-        report['evidence_errors'].append(str(error))
+    for key, collect in (
+            ('original_report', lambda: prior_evidence(args.prior_report, report['audits'])),
+            ('supplemental_earned_evidence', lambda: earned_evidence(
+                args.earned_evidence, report['audits'][0]['source_hashes']))):
+        try:
+            report[key] = collect()
+        except FileNotFoundError as error:
+            if key == 'original_report':
+                report[key] = dict(status='historical comparison unavailable',
+                                   path=str(args.prior_report),
+                                   scope='Current pinned-source geometry and call coverage remain independently checked; no old evidence is reconstructed.')
+            else:
+                report['evidence_errors'].append(key + ': ' + str(error))
+        except (OSError, ValueError, KeyError, ProtocolError) as error:
+            report['evidence_errors'].append(key + ': ' + str(error))
     report['findings'] = [row for a in report['audits']
                           for row in a['checks'] if row['status'] in {'gap', 'unreachable'}]
+    report['prepared_driver_sha256'] = sha((ROOT / 'tools/harness/midgame_journey.py').read_bytes())
+    report['driver_inventory_scope'] = 'Historical BASE call inventory stays pinned; dormant Tower and pond repairs are reported separately by prepared_driver_sha256 and applied correction checks.'
     report['coverage'] = 'conditional static geometry only; 5.5b inactive; actor occupancy, rewards, menus, field modes and new journeys are not acceptance'
-    report['unsupported_modes'] = ['Surf water collision/movement is not modelled by SourceGeometry',
-                                   'Strength actor pushes/occupancy are not terrain',
-                                   'Bicycle forced admission/motion is not walking geometry',
+    report['unsupported_modes'] = ['Surf board/landing inputs are statically checked; interpolation and commit require runtime',
+                                   'Strength source push inputs are checked; live occupancy/lease/commit require runtime',
+                                   'Bicycle policy and land geometry are checked; admission/automatic motion require runtime',
                                    'Safari admission, balls/steps and battle mode require the actual runtime']
     report['remaining_blockers'] = dict(current_5_5a=[r for r in report['findings'] if r['scope'] == 'current-5.5a'],
                                         inactive_5_5b=[r for r in report['findings'] if r['scope'] == 'inactive-prepared-5.5b'],
                                         inactive_driver_sites=[dict(method=r['method'], line=r['line'], call=r['call']) for r in report['driver_calls'] if r['status'] == 'inactive'],
                                         unsupported_modes=report['unsupported_modes'], evidence_errors=report['evidence_errors'])
+    report['checkpoint_5_5b'] = checkpoint_b_preflight(plan)
+    report['remaining_blockers']['current_5_5b'] = report['checkpoint_5_5b']['blockers']
     report['check_count'] = sum(len(a['checks']) for a in report['audits'])
     report['uncheckable_call_count'] = len(report['uncheckable_driver_calls'])
     report['current_5_5a_geometry_blockers'] = [r for r in report['findings'] if r['scope'] == 'current-5.5a'] + report['uncheckable_driver_calls']
@@ -697,10 +1068,11 @@ def main():
                           driver_call_counts=report['driver_call_counts'],
                           current_5_5a_geometry_blockers=len(report['current_5_5a_geometry_blockers']),
                           remaining_findings=[dict(scope=r['scope'], name=r['name'], status=r['status']) for r in report['findings']],
+                          current_5_5b_blockers=len(report['checkpoint_5_5b']['blockers']),
                           inactive_geometry_calls=sum(r['status'] == 'inactive' for r in report['driver_calls']),
                           unsupported_modes=report['unsupported_modes'],
                           evidence_errors=report['evidence_errors'])))
-    return 1 if report['findings'] or report['uncheckable_driver_calls'] or report['evidence_errors'] else 0
+    return 1 if report['checkpoint_5_5b']['blockers'] or report['findings'] or report['uncheckable_driver_calls'] or report['evidence_errors'] else 0
 
 
 if __name__ == '__main__':

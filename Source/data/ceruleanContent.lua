@@ -163,8 +163,19 @@ function CeruleanContent.signs()
     return catalog("events", "signs")
 end
 
+local function spriteRecord(source)
+    return assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite: " .. tostring(source))
+end
+
 function CeruleanContent.sprite(source)
-    return copy(assert(immutableLookup("sprites", "sprites", source), "missing Blue source sprite: " .. tostring(source)))
+    return copy(spriteRecord(source))
+end
+
+-- Internal validation projection: resolve every read through the same content
+-- owner, and detach only the pose fields consumed by SourceActors.
+function CeruleanContent._spritePoseMetadata(source)
+    local strip = spriteRecord(source)
+    return {standing = copy(strip.standing), fixed = copy(strip.fixed)}
 end
 
 function CeruleanContent.key(source)
@@ -287,6 +298,7 @@ function CeruleanContent.install(metadataResolver)
     SourceEvents._registerContent(contentName, index, {"events"}, index.records.trainers.trainers)
     SourceActors.registerContent("source", {
         sprite = CeruleanContent.sprite,
+        spritePoseMetadata = CeruleanContent._spritePoseMetadata,
         key = CeruleanContent.key,
         stepImage = CeruleanContent.stepImage,
         install = CeruleanContent.installArt,

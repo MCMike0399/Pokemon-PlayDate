@@ -1,0 +1,14 @@
+{
+  "scope": "Only ten exact completed, clean, already-main-merged review worktrees. Branches, canonical Git and all evidence retained. No transfer or proof release.",
+  "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/closed-review-worktree-reclaim-20261101-01/report.json",
+  "sha256": "da47f86f4536a152a53d9dc80fc38735b7f36a94fa540af0ec243c54d80c12ce",
+  "removed": 8,
+  "skipped_live_process_paths": [
+    "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-5d533d7a",
+    "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-31836018"
+  ],
+  "measured_freed_gib": 3.016834259033203,
+  "measured_free_gib_after": 47.127323150634766,
+  "runtime_admission": false,
+  "proof_or_canonical_save_release": false
+}

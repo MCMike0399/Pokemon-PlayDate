@@ -255,6 +255,72 @@
       "accepted_source_sha256": "f7075f0a4b0f0505e3cc60ac425c8ce972d731ea9e052216d2dfd00546d5699d",
       "journey_source_sha256": "a239b9a84213f0c4ea34786e754cc5834fc986d5ccce998ff8d6815cb6154b3e",
       "acceptance": "docs/validation/midgame-a-acceptance-20261029.json"
+    },
+    {
+      "starter": "bulbasaur",
+      "from_milestone": "5.5b",
+      "origin_milestone": "5.5a",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/bulbasaur",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/02-midgame--restart-55b-bulbasaur",
+      "status": "accepted milestone5.5b; natural earned route and actual process restart verified",
+      "accepted_commit": "af9a89380f9730767ff22b3ac5114cf32f216a75",
+      "accepted_source_sha256": "9b086ab51d65b4ad212d8f4486ba01ce8562e563e41ebf3947e2c7dcad058284",
+      "journey_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "acceptance": "docs/validation/midgame-b-acceptance-20261102.json",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "daa9a81c7b1ca2dc6273acc0f409cd119d8235999796299d11c4b54cf3286c07"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "ee2d97a44e69c176937869e3d10097e688aa8b6aa36658a29fafc8d2050e9298"
+        }
+      ]
+    },
+    {
+      "starter": "charmander",
+      "from_milestone": "5.5b",
+      "origin_milestone": "5.5a",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/charmander",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-charmander-learning-retry-20261030-01/01-midgame--restart-55b-charmander",
+      "status": "accepted milestone5.5b; natural earned route and actual process restart verified",
+      "accepted_commit": "af9a89380f9730767ff22b3ac5114cf32f216a75",
+      "accepted_source_sha256": "9b086ab51d65b4ad212d8f4486ba01ce8562e563e41ebf3947e2c7dcad058284",
+      "journey_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "acceptance": "docs/validation/midgame-b-acceptance-20261102.json",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801"
+        }
+      ]
+    },
+    {
+      "starter": "squirtle",
+      "from_milestone": "5.5b",
+      "origin_milestone": "5.5a",
+      "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/chain/5.5b/squirtle",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/03-midgame--restart-55b-squirtle",
+      "status": "accepted milestone5.5b; natural earned route and actual process restart verified",
+      "accepted_commit": "af9a89380f9730767ff22b3ac5114cf32f216a75",
+      "accepted_source_sha256": "9b086ab51d65b4ad212d8f4486ba01ce8562e563e41ebf3947e2c7dcad058284",
+      "journey_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "acceptance": "docs/validation/midgame-b-acceptance-20261102.json",
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "a823d67ab2beaa4b6622c48cb46566d142c2409978e0cc48d4eb35ad820cf465"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "5e44ced5258012f2a76039e234674a4636d75cb9956dc9a9809834ad7c11abd3"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":29,"text":"AREA 3"},{"op":"line","source_line":30,"text":"EAST: CENTER AREA"},{"op":"control","source":"done","source_line":31}],"source":"text/SafariZoneWest.asm"}

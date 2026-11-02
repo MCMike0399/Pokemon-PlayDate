@@ -13,7 +13,7 @@ class GiftInputs(unittest.TestCase):
     def test_primary_source_pins(self):
         pin=json.loads((g.REFERENCE/'manifest.json').read_text())
         self.assertEqual(pin['revision'],g.REVISION)
-        self.assertEqual(len(pin['files']),6)
+        self.assertEqual(len(pin['files']),10)
         for name,digest in pin['files'].items():
             self.assertEqual(hashlib.sha256((g.REFERENCE/name).read_bytes()).hexdigest(),digest)
 
@@ -36,6 +36,8 @@ class GiftInputs(unittest.TestCase):
         pins=json.loads((g.ROOT/'tools/references/vermilion-preparation.json').read_text())
         self.assertEqual(pins['revision'],g.REVISION)
         texts=json.loads((g.PREPARATION/'dialogue.json').read_text())['texts']
+        texts.update(json.loads((g.ROOT/'Source/data/midgameSouth/dialogue.json').read_text())['texts'])
+        rod_pins=json.loads((g.REFERENCE/'manifest.json').read_text())['files']
         events=json.loads(g.build()['events.json'])['events']
         used=set()
         for d in events.values():
@@ -44,14 +46,20 @@ class GiftInputs(unittest.TestCase):
         for label in used:
             row=texts[label]
             raw=(ref/row['source']).read_bytes()
-            self.assertEqual(hashlib.sha256(raw).hexdigest(),pins['files'][row['source']])
+            expected = pins['files'].get(row['source'], rod_pins.get(row['source']))
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),expected)
             self.assertEqual(row['recipe'],text_recipes(blue_source(raw.decode()))[label])
 
     def test_four_objects_thresholds_and_actual_flags(self):
         events=json.loads(g.build()['events.json'])['events']
-        self.assertEqual(set(events),{'pokered:POKEMON_FAN_CLUB:objects:5',
+        expected = {'pokered:POKEMON_FAN_CLUB:objects:5',
             'pokered:VERMILION_OLD_ROD_HOUSE:objects:1','pokered:ROUTE_2_GATE:objects:1',
-            'pokered:ROUTE_11_GATE_2F:objects:2'})
+            'pokered:ROUTE_11_GATE_2F:objects:2'}
+        installed = json.loads((g.ROOT/'Source/data/sourceMaps.json').read_bytes())['maps']
+        for name in ('FuchsiaGoodRodHouse', 'Route12SuperRodHouse'):
+            if name in installed:
+                expected.add(installed[name]['id'] + ':objects:1')
+        self.assertEqual(set(events), expected)
         by_item={d['item']:d for d in events.values()}
         self.assertEqual(by_item['hm05']['threshold'],10)
         self.assertEqual(by_item['itemfinder']['threshold'],30)

@@ -1,0 +1,54 @@
+{
+  "classification": "Root SDK validation of isolated Substitute owner interfaces; unadopted and unsupported",
+  "candidate": "cc6109ef100be4f0a39ffdbd378f86ecda8169f0",
+  "base": "83337bc09a6c4d84bfdffaef2da6ae5651a06dfd",
+  "worktree": "/Users/burbujamc/.t3/worktrees/Pokemon-PlayDate/t3-fbfce0f5",
+  "sdk": "3.1.2",
+  "passed": 67,
+  "failed": 0,
+  "runs": [
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-seams-native-20261102-01",
+      "passed": 8,
+      "failed": 0,
+      "suites": [
+        {
+          "failed": 0,
+          "id": "substitute-seams",
+          "passed": 8
+        }
+      ],
+      "sha256": {
+        "build.json": "c98f42d9f6cd01f1a1b33c928e903522c1fe4c94429898ecf120206833112946",
+        "run.json": "566671dc8040f453e8c89ca7a99fdd53fcc0ad1cae4d3c1a74b5b6757f03e41c",
+        "startup-probe.json": "b3be3afd9ed5a9c19528cdc3314fb34b251361d5780fb6d961656fda5a738303",
+        "host-resources.json": "8d6ba837733a6c38254f0f86bb677b6b0ac49eb3303de8b6f18544365c356949"
+      }
+    },
+    {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-seams-regressions-native-20261102-01",
+      "passed": 59,
+      "failed": 0,
+      "suites": [
+        {
+          "failed": 0,
+          "id": "combat",
+          "passed": 34
+        },
+        {
+          "failed": 0,
+          "id": "contact-abilities",
+          "passed": 25
+        }
+      ],
+      "sha256": {
+        "build.json": "d27ec181c1112c8d7fef8fd4b152c68a5eda2f7f5664d4a981c2ca97650936b2",
+        "run.json": "54622bc78dfcaad7c21de7d3ee8d073e2c03ea177154e77be091a090a9625e75",
+        "startup-probe.json": "d9f968af8858b5edb5d8bca33837058f85173e119d166617488e9c39d6cdfb8f",
+        "host-resources.json": "22f7f24ccbdd367c1603bae1e3479369e8f5f5991354dc16d1d609d5481b20ad"
+      }
+    }
+  ],
+  "scope": "Identified production staging/boot with private afterReady contract imports and HarnessBuild fixtures enabled. Existing SDK owner/locks and1GiB host/51GiB admission/50GiB reserve guard retained. No device operation or complete Substitute/campaign/performance acceptance.",
+  "remaining": "Primary-hit routing; status/secondary/stage gating; GenV bypass policy; AfterSubDamage integration and presentation. Epoch18/schema4/move-support remain unchanged. Candidate stays isolated pending complete integration and both review axes."
+}

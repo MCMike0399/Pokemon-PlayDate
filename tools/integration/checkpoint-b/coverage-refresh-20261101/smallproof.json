@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "fixed_commit": "c1ef3b7a680ae4b0f736a93ec7715c58f263a10e",
+  "source_tree": "f3760a88ff5b15628ca259697667844fb8e7a2d0",
+  "source_sha256_before": "97e5517e1a09d0f9b405abea64c9235bf4de15173d2fe5505691b835d04d226e",
+  "source_sha256_after_reading": "97e5517e1a09d0f9b405abea64c9235bf4de15173d2fe5505691b835d04d226e",
+  "source_files_verified_against_git": 3963,
+  "source_manifest_sha256": "bbf85863782a35b49ebd6230d8750d651ea4bb1b20d7c4f4a2f96338f4af920e",
+  "original_matrix_sha256": "86a5d813ed9a179482a260d8f5d15b09739dcc27742f0ee24067cf5131b40750",
+  "previous_snapshot_verbatim": true,
+  "row_ids_order_and_inventory_preserved": true,
+  "facet_levels_changed": 0,
+  "historical_evidence_hashes_changed": 0,
+  "changed_rows": [
+    "system:resource",
+    "system:device",
+    "move:clearSmog",
+    "move:foresight",
+    "move:haze",
+    "move:rest",
+    "move:revenge",
+    "move:snore",
+    "move:yawn",
+    "move:cut",
+    "move:flash",
+    "move:fly",
+    "move:surf",
+    "move:strength"
+  ],
+  "external_documents": [
+    {
+      "commit": "80701fca13634403423bfa52c297f96c8e957a7a",
+      "path": "docs/validation/b-earned-moves-composition-20261101.json",
+      "sha256": "0390a0385e565a0cce0627589674be006c3e6ed249f4a13734c377124aa017ff",
+      "scope": "Original Root documentary summary read from committed main; not B-local evidence or a new execution. Failed history and pending review status retained."
+    },
+    {
+      "commit": "80701fca13634403423bfa52c297f96c8e957a7a",
+      "path": "docs/validation/b-move-native-composition-20261101.json",
+      "sha256": "cd92967b2579325e05852636dd4fa371a6e3695e97397bb5b753da6bb3761dc9",
+      "scope": "Original Root documentary summary read from committed main; not B-local evidence or a new execution. Failed history and pending review status retained."
+    }
+  ],
+  "native_reports": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-01/startup-probe.json",
+      "sha256": "294dd849fc8980ccb3cd013e77ecfd9a483f078fdec7fb9d104e5ab292508916",
+      "passed": 28,
+      "failed": 5,
+      "suites": [
+        {
+          "failed": 5,
+          "id": "earned-b-moves",
+          "passed": 28
+        }
+      ],
+      "failed_names": [
+        "Rest permits two real asleep Snore actions then waking Snore fails with PP",
+        "Snore sleeping hit uses ordinary accuracy crit damage and flinch RNG",
+        "Snore flinch blocks the real opposing queued action",
+        "Snore Ghost Soundproof Protect and Inner Focus retain existing hit gates",
+        "Snore asleep still obeys flinch and Disable action gates"
+      ],
+      "build_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-01/build.json",
+      "build_sha256": "aed40338212f86cc929a91a304f07b3e0219acac7fe83708cb92066a8dfe4caf",
+      "revision": "7354cc96b711b30859ca04f3aa95c5b5d32b8829",
+      "source_sha256": "0733c62a3e9f5c3a35fe42847208f3489f3ec62fde7806b47e455ce94f96807a",
+      "compiled_source_sha256": "0f0ebcf17cc5a6f3dcb1ba5b0add930912fb0111c4d731fef532075334ec66c6",
+      "session_id": "bac52b93f97440daab53ccf5fe9abbd7",
+      "scope": "Original retained SDK result only; never a runtime execution by this worker or on fixed c1ef."
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-02/startup-probe.json",
+      "sha256": "387c56699e7e5e613efd26b4fe4d6469416d6222b546102848c8c587506d0eda",
+      "passed": 33,
+      "failed": 0,
+      "suites": [
+        {
+          "failed": 0,
+          "id": "earned-b-moves",
+          "passed": 33
+        }
+      ],
+      "failed_names": [],
+      "build_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-native-20261101-02/build.json",
+      "build_sha256": "587cb8aa8af75370f27064672ec6c29f8357edee80db50ae2473130fd408e766",
+      "revision": "685a65d4ebb0577ee0e2f6eb682079877bfeddca",
+      "source_sha256": "590aa3c25fb8268ef9186a3f0ab6e3b95494784f8861fddbbcaf15714eed0d3e",
+      "compiled_source_sha256": "64bd2ff7751b0832277468e27dd8ce6df9f24290d286ff19ac725d76ccc6e111",
+      "session_id": "0e7901106b434032bf137a91c81a6220",
+      "scope": "Original retained SDK result only; never a runtime execution by this worker or on fixed c1ef."
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-regressions-20261101-01/startup-probe.json",
+      "sha256": "6e34391661d2a6a89a200c43a5c67077d4b44fedec58a4e2f935ad692225f9a6",
+      "passed": 145,
+      "failed": 0,
+      "suites": [
+        {
+          "failed": 0,
+          "id": "combat",
+          "passed": 34
+        },
+        {
+          "failed": 0,
+          "id": "charge-lock",
+          "passed": 31
+        },
+        {
+          "failed": 0,
+          "id": "ability",
+          "passed": 46
+        },
+        {
+          "failed": 0,
+          "id": "hm-battle",
+          "passed": 25
+        },
+        {
+          "failed": 0,
+          "id": "stage-reset",
+          "passed": 9
+        }
+      ],
+      "failed_names": [],
+      "build_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-earned-moves-regressions-20261101-01/build.json",
+      "build_sha256": "9792e5c50df7b7dbabb112c957610a5eb12b581b2fa29f563a56eeb28e679994",
+      "revision": "685a65d4ebb0577ee0e2f6eb682079877bfeddca",
+      "source_sha256": "590aa3c25fb8268ef9186a3f0ab6e3b95494784f8861fddbbcaf15714eed0d3e",
+      "compiled_source_sha256": "85008cb569d10fb4d5737f00cc14e96f3fe7c3e59ab08c6aa13c34118696c47d",
+      "session_id": "0541c5aa560549109ee93384c07560a1",
+      "scope": "Original retained SDK result only; never a runtime execution by this worker or on fixed c1ef."
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-runtime54-native-20261101-01/startup-probe.json",
+      "sha256": "5f9235bf702dad812b827f2ba0892f8fbc9973ef1e5367b11c51b83849160f19",
+      "passed": 54,
+      "failed": 0,
+      "suites": [
+        {
+          "failed": 0,
+          "id": "brockMoveBatchContracts",
+          "ok": true,
+          "passed": 6
+        },
+        {
+          "failed": 0,
+          "id": "sexAbilityContracts",
+          "ok": true,
+          "passed": 1
+        },
+        {
+          "failed": 0,
+          "id": "protectContracts",
+          "ok": true,
+          "passed": 2
+        },
+        {
+          "failed": 0,
+          "id": "brockMechanicsContracts",
+          "ok": true,
+          "passed": 4
+        },
+        {
+          "failed": 0,
+          "id": "rainContracts",
+          "ok": true,
+          "passed": 2
+        },
+        {
+          "failed": 0,
+          "id": "sideContracts",
+          "ok": true,
+          "passed": 4
+        },
+        {
+          "failed": 0,
+          "id": "chargeLockContracts",
+          "ok": true,
+          "passed": 3
+        },
+        {
+          "failed": 0,
+          "id": "worrySeedContracts",
+          "ok": true,
+          "passed": 1
+        },
+        {
+          "failed": 0,
+          "id": "bideContracts",
+          "ok": true,
+          "passed": 1
+        },
+        {
+          "failed": 0,
+          "id": "whirlwindContracts",
+          "ok": true,
+          "passed": 27
+        },
+        {
+          "failed": 0,
+          "id": "moveFailureContracts",
+          "ok": true,
+          "passed": 3
+        }
+      ],
+      "failed_names": [],
+      "build_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-epoch17-runtime54-native-20261101-01/build.json",
+      "build_sha256": "13d22f85b93acb1e7be7636567470165f9481c3c9c0edd5e4c574de816040e9e",
+      "revision": "63e04aeb879fd33aad12b01ded988c342d9b8421",
+      "source_sha256": "9b87d9ee180f24a42879323792abf2fbef278dac8754bf1703cde7698b120660",
+      "compiled_source_sha256": "92da8c12cabbbacdb48990fb233294b5f6fe6502e8ac528e4d17553d6d2c5ab9",
+      "session_id": "99f2e69b55c143a3b0080e07b49913ec",
+      "scope": "Original retained SDK result only; never a runtime execution by this worker or on fixed c1ef."
+    }
+  ],
+  "source_sha256_after_host_checks": "97e5517e1a09d0f9b405abea64c9235bf4de15173d2fe5505691b835d04d226e",
+  "host_validation": {
+    "checker": {
+      "ok": true,
+      "rows": 1512,
+      "map_slots": 248,
+      "moves": 430,
+      "generated_moves": 425,
+      "runtime_moves": 5,
+      "items": 131,
+      "pickup_items": 6,
+      "audio_sources": 375,
+      "no_completion_claim": true
+    },
+    "existing_matrix_tests": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "method": "Existing CurrentMatrixTests imported from fixed B, subclass overrides only setUpClass to load candidate. ROOT and production validate remain fixed B; no files patched. Includes rejection mutants."
+    },
+    "full_host": "Not run; no full-green claim."
+  },
+  "static_delta": {
+    "chunk_R100_renames": 2546,
+    "export_equal_except_build_id": true,
+    "core_keys": 425,
+    "unchanged_declarations_since_e182": 418,
+    "unchanged_non_five_since_00ce": 420,
+    "facet_levels_changed": 0,
+    "row_changes": 14,
+    "unchanged_rows": 1498
+  },
+  "raw54_copy_byte_identical": true,
+  "registry_audit": {
+    "same_50_keys": true,
+    "states": {
+      "verified_subset": 40,
+      "source_gap": 9,
+      "source_only": 1
+    },
+    "states_definitions_capabilities_scopes_and_assertion_hashes_unchanged": true,
+    "all_non_verified_records_verbatim": true
+  },
+  "kanto_producer": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-kanto-sdk-20261101-03",
+    "build_sha256": "ba216b0ee0b22e05e5654201c9dbd578fa425af81664f314e84d2c781333f1e5",
+    "result_path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/content-shards-kanto-sdk-20261101-03/outcome.json",
+    "result_sha256": "97c4780c76b4faf57e8bacfc63b0b89d254f76cfd7638d6d9b7a6b139028d804",
+    "host_resources": {
+      "limit_bytes": 1073741824,
+      "owned_child_reaped": true,
+      "sampled_peak_bytes": 189285360
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "scope": "Ledger current-state rewrite only; prior bytes retained",
+  "prior_progress_sha256": "0737550ad6a9909275649f40911e1e3e0ff010fb6375c2659bd51c7ddd92a283",
+  "archive": "docs/validation/progress-history-before-allocation-adoption-20261102.md",
+  "adopted_B_commit": "f0edc15c1cb3ef0116d073c5efcb9e5c971a9e31",
+  "Source_changed": false
+}

@@ -83,6 +83,30 @@ function SourceEvents._contentField(root, record, field)
     end
     return value
 end
+
+-- Retain immutable field indexes only inside the existing loading scope.
+-- Every original lookup/conflict check remains; scope cleanup owns release.
+do
+    local field <const> = SourceEvents._contentField
+    local key <const> = {}
+    SourceEvents._contentField = function(root, record, name)
+        if not ShippedDataPolicy.immutableContent()
+            or not SourceMaps._usesQualifiedInputs() then
+            return field(root, record, name)
+        end
+        local values = SourceMaps._runtimeValue(key, function()
+            return {}
+        end)
+        local id = root .. ":" .. record .. ":" .. name
+        local value = values[id]
+        if not value then
+            value = field(root, record, name)
+            values[id] = value
+        end
+        return value
+    end
+end
+
 function SourceEvents._contentRecord(digest, region)
     if not digest then
         return nil
@@ -99,7 +123,7 @@ function SourceEvents._contentRecord(digest, region)
         if region then
             value = ShippedDataPolicy.readBundleJSON("data/regionDeclarations/chunks/" .. digest .. ".json")
         else
-            value = readContent("data/contentCache/chunks/" .. digest .. ".json")
+            value = readContent("data/contentCache/chunks-v2/" .. digest:sub(1, 2) .. "/" .. digest .. ".json")
         end
     end
     recent[cacheKey] = value

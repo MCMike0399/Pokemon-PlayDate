@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":14,"text":"What?"},{"op":"line","source_line":15,"text":"You stinker!"},{"op":"para","source_line":17,"text":"I took it easy on"},{"op":"line","source_line":18,"text":"you too!"},{"op":"control","source":"prompt","source_line":19}],"source":"text/PokemonTower2F.asm"}

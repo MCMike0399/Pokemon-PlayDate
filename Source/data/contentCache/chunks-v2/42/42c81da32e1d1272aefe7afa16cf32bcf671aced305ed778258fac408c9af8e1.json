@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":36,"text":"TMs are on sale"},{"op":"line","source_line":37,"text":"in CELADON!"},{"op":"cont","source_line":38,"text":"But, only a few"},{"op":"cont","source_line":39,"text":"people have HMs!"},{"op":"control","source":"done","source_line":40}],"source":"text/Route14.asm"}

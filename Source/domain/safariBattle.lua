@@ -35,7 +35,7 @@ local function duration(rng)
 end
 -- Stream must be detached. A failed rule/capture calculation cannot consume the
 -- active RNG or a Safari Ball. Root publishes only a revalidated completed plan.
-function SafariBattle.plan(safari, battle, enemy, command, caughtCount, rng, captureAttempt)
+function SafariBattle.plan(safari, battle, enemy, command, caughtCount, rng)
     assert(rng ~= RulesRNG, "detached Safari stream required")
     assert(Party._integer(caughtCount, 0, 151), "invalid Safari caught count")
     local before = SafariGame.normalize(safari)
@@ -49,10 +49,7 @@ function SafariBattle.plan(safari, battle, enemy, command, caughtCount, rng, cap
     if command == "run" then
         nextBattle.outcome = "run"
     elseif command == "ball" then
-        if type(captureAttempt) ~= "function" then
-            return nil, "safari-capture-policy-not-installed"
-        end
-        local capture, reason = captureAttempt(enemy, nextBattle.catchRate, caughtCount, stream)
+        local capture, reason = Capture.safariAttempt(enemy, nextBattle.catchRate, caughtCount, stream)
         assert(capture and type(capture.caught) == "boolean", reason or "invalid Safari capture result")
         receipt.capture = capture
         after = assert(SafariGame.ball(before)).after
@@ -134,7 +131,7 @@ local function current(request)
     end
     return true
 end
-function SafariBattle.prepare(session, enemy, battle, command, captureAttempt)
+function SafariBattle.prepare(session, enemy, battle, command)
     if not Specimen.isActiveSession(session) or type(session.safariData) ~= "function" then
         return nil, "safari-session-not-installed"
     end
@@ -160,8 +157,27 @@ function SafariBattle.prepare(session, enemy, battle, command, captureAttempt)
         roster = roster(session), rules = RulesRNG.snapshot(), battle = copy(battle), command = command,
         flags = session:flags(), inventory = session:inventory():toData(),
         box = session:storage():activeBox(), boxCount = session:storage():count(),
-        caughtCount = count, capture = captureAttempt, status = "prepared"}
+        caughtCount = count, status = "prepared"}
+    local stream = RulesRNG.new(1)
+    stream:restore(requests[token].rules)
+    local called, planned, reason = pcall(SafariBattle.plan, requests[token].safari, battle, enemy, command, count, stream)
+    if not called or not planned then
+        requests[token] = nil
+        return nil, tostring(called and reason or planned)
+    end
+    if not current(requests[token]) then
+        requests[token] = nil
+        return nil, "changed-safari-preparation"
+    end
+    requests[token].planned = planned
     return token
+end
+function SafariBattle.preview(token)
+    local request = requests[token]
+    if not request or not current(request) then
+        return nil, "stale-safari-turn"
+    end
+    return copy(request.planned)
 end
 function SafariBattle.cancel(token)
     local request = requests[token]
@@ -181,13 +197,7 @@ function SafariBattle._commitPlan(session, token)
             and session:storage():count() >= Storage.BOX_CAPACITY then
             return nil, "storage-full"
         end
-        local stream = RulesRNG.new(1)
-        stream:restore(request.rules)
-        local result, why = SafariBattle.plan(request.safari, request.battle, request.enemy,
-            request.command, request.caughtCount, stream, request.capture)
-        if not result then
-            return nil, why
-        end
+        local result = request.planned
         assert(current(request), "changed-safari-turn")
         -- Validate final resource/RNG values before root begins any publication.
         local after = SafariGame.normalize(result.after)

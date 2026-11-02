@@ -1,0 +1,117 @@
+{
+  "classification": "Root-reviewed native B showcase; milestone acceptance recorded separately",
+  "movie": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-composition-20261102-02/PokemonBlue-5.5b-showcase.mp4",
+  "movie_sha256": "603eb435307eb8de78ce59304e0df80f86b66230efd7f61a3c36875171abd672",
+  "manifest": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-composition-20261102-02/manifest.json",
+  "manifest_sha256": "3307de5867cb753d5053044523ce0a3490248dcc3578c9254b4829b4731f7770",
+  "verification": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-composition-20261102-02/review/verification.json",
+  "verification_sha256": "96dc2835a5f0e9da234ee9c7d8d72f01a1d51cba5c100721e45d86ff006ee38e",
+  "seconds": 86.161,
+  "dimensions": [
+    400,
+    240
+  ],
+  "frames": 1420,
+  "speed": 1,
+  "audio": "silent; separate audio activation held",
+  "cuts": "Four explicitly chaptered genuine earned-save sessions, same copied game Source.",
+  "full_trainer_battle": "Route12 Fisherman through all three Pok\u00e9mon and victory; exact source outcome retained.",
+  "gym": "Koga dialogue, intro and first turn only. Full_battle=false; no new Koga victory claim. Existing natural route receipts prove gym victory.",
+  "reading": "Actual in-game waits preserve all four Koga paragraphs and four short Snorlax messages; no synthetic frame holds, scaling or speed changes.",
+  "visual_review": "Root inspected native source sheets, full-size dialogue pages and decoded samples from every chapter; frame sequences show walking, trainer intro/send-outs/damage/faints/victory, Flute/wake/encounter/removal and Koga dialogue/intro/first turn. All1420 decoded RGBA frames and original timestamps match the component videos. Sampled captures retain original gaps; no continuous-playback or device-pacing claim.",
+  "components": [
+    {
+      "label": "walk",
+      "title": "Walking \u2014 Lavender Town",
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-walk-current-no-profiler-20261102-01",
+      "run_sha256": "f9a8a5766f0485a995472827da729efb660563d8cc55d04f0e9f9fbb9a621038",
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+      "summary_sha256": "33451b72ad95064f553c6625a8f6afd61747791ee21187577094b6e3ece2e4cf",
+      "video": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-walk-current-export-20261102-01/walk-complete.mp4",
+      "video_sha256": "6a91559badc1bf5d9957230262e903582bed883660358f208bd1a4caf9525ee3",
+      "capture_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-walk-current-export-20261102-01/capture-report.json",
+      "capture_report_sha256": "83ebb4bf1932c15ca2d1b10816b4ed28c9b24da19d20dd036dc883760ce91000",
+      "output_start": 0,
+      "output_end": 9.716,
+      "first_frame_index": 0,
+      "frames": 281,
+      "full_battle": false,
+      "speed": 1,
+      "cut_before": false,
+      "source_resolution": [
+        400,
+        240
+      ]
+    },
+    {
+      "label": "trainer",
+      "title": "Fisherman \u2014 complete trainer battle",
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-full-trainer-current-no-profiler-20261102-01",
+      "run_sha256": "24800ab3ff5bc7e569e67087240b1a4cace36074b0f0439645a919979b20cd53",
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+      "summary_sha256": "f0fcf2daa3e8b27a132469c81e6877801ea1ca31575269d6b3b97e11dce65de4",
+      "video": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-full-trainer-current-export-20261102-01/trainer-complete.mp4",
+      "video_sha256": "cadad8141ba6ad68b0c408265cf95370d140d3dfba96f584ac324ee33f66ab61",
+      "capture_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-full-trainer-current-export-20261102-01/capture-report.json",
+      "capture_report_sha256": "88d2d8db379ccaae81b70713ff90122a736d86ef0aa5ebdef456d2bd4431c1b5",
+      "output_start": 9.716,
+      "output_end": 33.762,
+      "first_frame_index": 281,
+      "frames": 360,
+      "full_battle": true,
+      "speed": 1,
+      "cut_before": true,
+      "source_resolution": [
+        400,
+        240
+      ]
+    },
+    {
+      "label": "cutscene",
+      "title": "Snorlax \u2014 Pok\u00e9 Flute and encounter",
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-readable-current-20261102-02",
+      "run_sha256": "4ad25c612b89ad33af9636e702bd8694a6180a515f50cc6f5a16229d9d3ce121",
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+      "summary_sha256": "354a735ada827c1126e88e05828cbc3ce69a155ea0dc86b75aacccbde9a40d69",
+      "video": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-readable-export-20261102-02/cutscene-complete.mp4",
+      "video_sha256": "53c87415b29f8da2a800293d90485a8358abe07c73db76497a66339117e0369a",
+      "capture_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-snorlax-readable-export-20261102-02/capture-report.json",
+      "capture_report_sha256": "b21aab510a3128480715006b320926f4804545c9e6f3c7b225bc3ecf814ccf61",
+      "output_start": 33.762,
+      "output_end": 56.384,
+      "first_frame_index": 641,
+      "frames": 335,
+      "full_battle": false,
+      "speed": 1,
+      "cut_before": true,
+      "source_resolution": [
+        400,
+        240
+      ]
+    },
+    {
+      "label": "gym",
+      "title": "Koga \u2014 challenge excerpt; battle continues",
+      "run": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-koga-readable-current-20261102-01",
+      "run_sha256": "e4d8fc5f54299978c2bbfc2203017d8c3a576d6c9a7cc192434fe446d3e39197",
+      "outcome_sha256": "5ed50fbd952bf09fbcd3f2e1ba9a7b2780bd0d3dc419c0568e2ef77a89d81563",
+      "summary_sha256": "63f7dcc2cff3b2fdcc98d1b7e0958619591dc48bf3a346ebf7f80ed07bd53642",
+      "video": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-koga-readable-export-20261102-01/gym-complete.mp4",
+      "video_sha256": "ed9bda33f7225f5e974bf1e7b1e92edec20d9fa09fd56443beb6f2eca52a7651",
+      "capture_report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-koga-readable-export-20261102-01/capture-report.json",
+      "capture_report_sha256": "cdf90225e2dace789c9de32f649e9dd422a508478c01a436c769f7fbe70a692d",
+      "output_start": 56.384,
+      "output_end": 86.161,
+      "first_frame_index": 976,
+      "frames": 444,
+      "full_battle": false,
+      "speed": 1,
+      "cut_before": true,
+      "source_resolution": [
+        400,
+        240
+      ]
+    }
+  ],
+  "capture_limits": "Sampled every tick for walking, every2ticks elsewhere; original gaps retained. Does not establish current hardware pacing."
+}

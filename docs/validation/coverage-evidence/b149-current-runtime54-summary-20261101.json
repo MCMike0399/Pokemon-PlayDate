@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "source_sha256": "7f5df057b05c3dd8e4fffb231c8558b29ff8b3423e483c0fbe35fa1286e70c1f",
+  "sdk": {
+    "passed": 54,
+    "failed": 0
+  },
+  "scope": "Same54 original assertions from50 existing move records rerun on current B using the retained exact production-shaped SDK selection. No new move/fidelity acceptance or source-gap promotion.",
+  "acceptance_context": "private-root-scoped-sdk-not-checkpoint-acceptance",
+  "build_id": "d6548e3577a24a6daca55c95d58a6113:7f5df057b05c3dd8e4fffb231c8558b29ff8b3423e483c0fbe35fa1286e70c1f",
+  "raw_provenance": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-runtime54-native-20261101-01/startup-probe.json",
+    "sha256": "1ea463b6e7690f8a7aa49dbc514dacea9805914cc38543217d16551af9ef1b82",
+    "size_bytes": 7588
+  },
+  "compiled_source_sha256": "c599022c93278c4fa6ccf9cfda8413dc2e54324b9b99ff41692555471ae183f2",
+  "build_metadata": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-runtime54-native-20261101-01/build.json",
+  "changed_verified_owners": [
+    {
+      "move": "hurricane",
+      "path": "Source/battle/effects.lua",
+      "selector": "function BattleEffects:accuracyBypassesCheck(",
+      "before": "e87e303cbca22b6592ea674dc5bc43ce620703c51cb87803e66591c623accc43",
+      "after": "6342e861eb7d79442581a70461152190ffa0dcf782ba69dad1f1e0387e18e44c"
+    },
+    {
+      "move": "rainDance",
+      "path": "Source/battle/effects.lua",
+      "selector": "function BattleEffects:accuracyBypassesCheck(",
+      "before": "e87e303cbca22b6592ea674dc5bc43ce620703c51cb87803e66591c623accc43",
+      "after": "6342e861eb7d79442581a70461152190ffa0dcf782ba69dad1f1e0387e18e44c"
+    },
+    {
+      "move": "skullBash",
+      "path": "Source/battle/battle.lua",
+      "selector": "    -- Charging is a TryMove",
+      "before": "0457eac8f96a16513293d43f7963bd860bf832582f0e48f33608d2c0c2e699bb",
+      "after": "a73621f1c8be3ecad2557b18ba257d40230f8e3cc413da741044a4af5c2cc98b"
+    },
+    {
+      "move": "solarBeam",
+      "path": "Source/battle/battle.lua",
+      "selector": "    -- Charging is a TryMove",
+      "before": "0457eac8f96a16513293d43f7963bd860bf832582f0e48f33608d2c0c2e699bb",
+      "after": "a73621f1c8be3ecad2557b18ba257d40230f8e3cc413da741044a4af5c2cc98b"
+    },
+    {
+      "move": "thunder",
+      "path": "Source/battle/effects.lua",
+      "selector": "function BattleEffects:accuracyBypassesCheck(",
+      "before": "e87e303cbca22b6592ea674dc5bc43ce620703c51cb87803e66591c623accc43",
+      "after": "6342e861eb7d79442581a70461152190ffa0dcf782ba69dad1f1e0387e18e44c"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/battle.lua",
+      "selector": "function Battle:performMove(",
+      "before": "d1e6055971ee0c94d8d099f5a5b07c76c86c40d76b62d920a58b0c3b8b79e8ee",
+      "after": "14ffd76f4759af980683daf9194d4277a4dd237bdc09d820db2645558b281139"
+    },
+    {
+      "move": "whirlwind",
+      "path": "Source/battle/moveSupport.lua",
+      "selector": null,
+      "before": "5ac259aefa53ea4ebf85d9cb7676da86531e698671d4079a4d5ebce3969a7077",
+      "after": "b0397c30e9ac734a50cbbfbafcd2f800d177499eec73dee6bf43352cb92eec88"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/battle.lua",
+      "selector": "function Battle:performMove(",
+      "before": "d1e6055971ee0c94d8d099f5a5b07c76c86c40d76b62d920a58b0c3b8b79e8ee",
+      "after": "14ffd76f4759af980683daf9194d4277a4dd237bdc09d820db2645558b281139"
+    },
+    {
+      "move": "roar",
+      "path": "Source/battle/moveSupport.lua",
+      "selector": null,
+      "before": "5ac259aefa53ea4ebf85d9cb7676da86531e698671d4079a4d5ebce3969a7077",
+      "after": "b0397c30e9ac734a50cbbfbafcd2f800d177499eec73dee6bf43352cb92eec88"
+    }
+  ],
+  "source_gaps_preserved": true
+}

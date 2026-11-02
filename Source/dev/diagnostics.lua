@@ -79,7 +79,11 @@ local function learningSnapshot(state)
     if state.active and state.pokemon then
         if state.pendingMove then result.move_info=moveInfo(state.pendingMove) end
         result.known_moves={}
-        for index,key in ipairs(state.pokemon.moves) do result.known_moves[index]=moveInfo(key,index,state.pokemon) end
+        for index, key in ipairs(state.pokemon.moves) do
+            local info <const> = moveInfo(key, index, state.pokemon)
+            info.protected_hm = Teaching.protectedMove(key)
+            result.known_moves[index] = info
+        end
     end
     return result
 end
@@ -314,11 +318,18 @@ function HarnessDiagnostics.observe(game, kind)
     if kind == "midgame-state" then
         local event = game.machine:get("event")
         local slotView = event and event.celadonSlotView
+        local gear = game.machine:get("fieldGear")
+        local gearView = {installed = gear ~= nil, active = gear and gear.active == true or false,
+            phase = gear and gear.phase or "unregistered", frame = gear and gear.frame or 0,
+            kind = gear and gear.plan and gear.plan.kind or "none",
+            response = gear and gear.response or 0,
+            result = game.lastFieldGear and GameSession._copy(game.lastFieldGear) or nil}
         return {kind=kind, zone_id=currentZone and currentZone.stableID,
             coins=game.session:coins(), celadonSlotView=slotView and GameSession._copy(slotView) or nil,
             fieldWorld=game.session:fieldWorldData(), fieldTravel=game.session:fieldTravelData(),
             fieldRuntime=game.getFieldTravelSnapshot and game:getFieldTravelSnapshot() or {installed=false},
-            fieldUI=ui(game.machine:get("fieldTravel"))}
+            fieldUI=ui(game.machine:get("fieldTravel")), fieldGear=gearView,
+            safari=SafariRuntime and SafariRuntime.observe(game) or {sessionInstalled=false}}
     end
     if kind == "purity" then
         -- Prepared real-SDK witness: repeated requests must preserve the entire

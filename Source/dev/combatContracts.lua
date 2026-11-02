@@ -70,6 +70,108 @@ function CombatContracts.run()
         if ok then report.passed = report.passed + 1 else report.failed = report.failed + 1; report.ok = false end
     end
 
+    test("GenV Chip Away ignores target stages while retaining attacker stages and ordinary hit gates", function()
+        -- PS9b136a8 data/moves.ts inherits both flags through Gen5;
+        -- battle-actions zeroes defensive boosts before ModifyDef/SpD and
+        -- omits only target evasion from the ordinary accuracy calculation.
+        local m = moveData.chipAway
+        equal(m.ignoreDefensive, true)
+        equal(m.ignoreEvasion, true)
+        equal(m.power, 70)
+        equal(m.accuracy, 100)
+        equal(m.pp, 20)
+        equal(m.contact, true)
+        equal(m.protectable, true)
+        local p, e = Pokemon("snorlax", 30), Pokemon("magikarp", 100)
+        assert(p:hasMove("chipAway"), "natural B2W2 Snorlax30 move")
+        p.level, p.atk, e.def = 50, 100, 100
+        for _, vector in ipairs({{-2,21}, {0,40}, {2,79}}) do
+            p.statStages.atk = vector[1]
+            for _, stage in ipairs({-6,-2,0,2,6}) do
+                e.statStages.def = stage
+                RulesRNG.seed(1)
+                local hit = calcDamage(p,e,m)
+                equal(hit.damage,vector[2])
+                equal(hit.isCrit,false)
+                equal(RulesRNG.snapshot().rolls,2, "critical then variance only")
+                equal(RulesRNG.snapshot().state,282475249)
+                equal(p.statStages.atk,vector[1])
+                equal(e.statStages.def,stage)
+            end
+        end
+        local criticalSeed = seedFor(1,16,function(x)
+            return x == 1
+        end)
+        p.statStages.atk = -2
+        e.statStages.def = -6
+        RulesRNG.seed(criticalSeed)
+        local crit = calcDamage(p,e,m)
+        equal(crit.isCrit,true)
+        p.statStages.atk = 0
+        e.statStages.def = 0
+        RulesRNG.seed(criticalSeed)
+        equal(calcDamage(p,e,m).damage,crit.damage)
+        -- An unrelated name and special category exercise the shared flags.
+        local special = Move{name="STAGE VECTOR",type="normal",category="special",power=70,accuracy=80,pp=1,ignoreDefensive=true,ignoreEvasion=true}
+        p.spa,e.spd = 100,100
+        e.statStages.spd = 6
+        RulesRNG.seed(1)
+        equal(calcDamage(p,e,special).damage,40)
+        e.statStages.spd = -6
+        RulesRNG.seed(1)
+        equal(calcDamage(p,e,special).damage,40)
+        p.statStages.acc = -6
+        for _, stage in ipairs({-6,0,6}) do
+            e.statStages.eva = stage
+            equal(accuracyThreshold(m,p,e),33)
+            equal(accuracyThreshold(special,p,e),26,"base accuracy retained")
+        end
+        RulesRNG.seed(seedFor(1,100,function(x)
+            return x > 33
+        end))
+        equal(checkAccuracy(m,p,e),false)
+        equal(RulesRNG.snapshot().rolls,1)
+        p.statStages.acc = 0
+        e.statStages.eva = 6
+        RulesRNG.seed(1)
+        equal(checkAccuracy(m,p,e),true)
+        equal(RulesRNG.snapshot().rolls,1,"100 accuracy still samples")
+        equal(accuracyThreshold(moveData.tackle,p,e),33,"ordinary moves retain evasion")
+        local b = fresh(Pokemon("snorlax",30),Pokemon("sandshrew",100))
+        b.effects.weather = {id="sandstorm",turns=5}
+        b.enemy.statStages.eva = 6
+        equal(b.effects:effectiveAbility(b.enemy),8)
+        equal(accuracyThreshold(m,b.player,b.enemy,b.effects),80,"Sand Veil retained")
+        b.player.statStages.acc = -1
+        equal(accuracyThreshold(m,b.player,b.enemy,b.effects),60)
+        -- Real enemy damaging support, PP and gate order; no changes to the
+        -- source Snorlax loss exercise or its natural moves/HP/outcomes.
+        b = fresh(Pokemon("magikarp",100),Pokemon("snorlax",30))
+        assert(b.enemy:hasMove("chipAway"))
+        b.player.statStages.def,b.player.statStages.eva = 6,6
+        local hp = b.player.hp
+        RulesRNG.seed(1)
+        one(b,"enemy","chipAway")
+        assert(b.player.hp<hp)
+        equal(b.enemy.pp.chipAway,19)
+        equal(RulesRNG.snapshot().rolls,3,"accuracy then critical then variance")
+        equal(RulesRNG.snapshot().state,1622650073)
+        b.conditions:of(b.player).protect = true
+        hp = b.player.hp
+        RulesRNG.seed(1)
+        one(b,"enemy","chipAway")
+        equal(b.player.hp,hp)
+        equal(b.enemy.pp.chipAway,18)
+        equal(RulesRNG.snapshot().rolls,0,"Protect precedes all hit rolls")
+        b = fresh(Pokemon("gastly",100),Pokemon("snorlax",30))
+        hp = b.player.hp
+        RulesRNG.seed(1)
+        one(b,"enemy","chipAway")
+        equal(b.player.hp,hp)
+        equal(b.enemy.pp.chipAway,19)
+        equal(RulesRNG.snapshot().rolls,0,"type immunity precedes all hit rolls")
+    end)
+
     test("Public move commands reject invalid inputs and phase without mutation or RNG", function()
         local b = fresh()
         for _, index in ipairs({-1, 99, 1.5, "1", false, math.huge, -math.huge, 0/0}) do
@@ -422,6 +524,144 @@ function CombatContracts.run()
         local b = fresh(); b:setDirection("player"); b.enemy.statusTurns = 3
         b:runScript(function() ApplyStatus(DEFENDER, "poison"):apply(b) end); settle(b)
         equal(b.enemy.status, "poison"); equal(b.enemy.statusTurns, 0)
+    end)
+
+    test("Reflect actual producer consumes PP and expires on its fifth use-turn residual", function()
+        local b = fresh(Pokemon("kadabra", 38), Pokemon("snorlax", 50))
+        own(b.player, {"reflect", "harden"})
+        own(b.enemy, {"harden"})
+        equal(moveData.reflect.pp, 20)
+        equal(moveData.reflect.targetId, 4)
+        equal(moveData.reflect.protectable, false)
+        assert(b:selectMove(1))
+        settle(b)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 4)
+        equal(b.player.pp.reflect, 19)
+        local record = b.conditions.sides.player.reflect
+        assert(b:selectMove(1))
+        local text = settle(b)
+        assert(text:find("But it failed!", 1, true))
+        equal(b.conditions.sides.player.reflect, record)
+        equal(record.turns, 3)
+        equal(b.player.pp.reflect, 18)
+        for expected = 2, 0, -1 do
+            assert(b:selectMove(2))
+            text = settle(b)
+            equal(b.conditions:sideTurns(b.player, "reflect"), expected)
+        end
+        assert(text:find("Reflect wore off!", 1, true))
+        equal(b.conditions.sides.player.reflect, nil)
+        assert(b:selectMove(1))
+        settle(b)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 4)
+        b:clearVolatiles()
+    end)
+    test("Reflect stays behind ordinary sleep flinch and empty PP gates", function()
+        for _, gate in ipairs({"sleep", "flinch", "empty"}) do
+            local b = fresh(Pokemon("kadabra", 38), Pokemon("snorlax", 50))
+            own(b.player, {"reflect"})
+            if gate == "sleep" then
+                b.player.status = "sleep"
+                b.player.statusTurns = 2
+                b.player.sleepDuration = 2
+            elseif gate == "flinch" then
+                b.player.flinched = true
+            else
+                b.player.pp.reflect = 0
+            end
+            local before = b.player.pp.reflect
+            one(b, "player", "reflect")
+            equal(b.conditions:sideTurns(b.player, "reflect"), 0)
+            equal(b.player.pp.reflect, before)
+            b:clearVolatiles()
+        end
+    end)
+    test("Reflect halves physical damage with GenV final half-down rounding only", function()
+        local b = fresh(Pokemon("squirtle", 50), Pokemon("snorlax", 50))
+        own(b.enemy, {"reflect"})
+        one(b, "enemy", "reflect")
+        local before = RulesRNG.snapshot()
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.tackle, 15, false), 7)
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.tackle, 1, false), 0)
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.waterGun, 15, false), 15)
+        equal(b.conditions:screenDamage(b.player, b.enemy, moveData.dragonRage, 40, false), 40)
+        equal(b.conditions:screenDamage(b.enemy, b.enemy, moveData.tackle, 15, false), 15)
+        equal(b.conditions:screenDamage(b.enemy, b.player, moveData.tackle, 15, false), 15)
+        equal(RulesRNG.snapshot().rolls, before.rolls)
+        RulesRNG.seed(2)
+        local screened = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        b.conditions.sides.enemy.reflect = nil
+        RulesRNG.seed(2)
+        local ordinary = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        equal(screened.isCrit, false)
+        equal(screened.damage, ordinary.damage // 2)
+        b:clearVolatiles()
+    end)
+    test("Reflect critical hits bypass the real damage modifier without removing the screen", function()
+        local b = fresh(Pokemon("squirtle", 50), Pokemon("snorlax", 50))
+        own(b.enemy, {"reflect"})
+        one(b, "enemy", "reflect")
+        RulesRNG.seed(1407677000)
+        local screened = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        equal(screened.isCrit, true)
+        equal(b.conditions:sideTurns(b.enemy, "reflect"), 5)
+        b.conditions.sides.enemy.reflect = nil
+        RulesRNG.seed(1407677000)
+        local ordinary = calcDamage(b.player, b.enemy, moveData.tackle, 50, b.effects)
+        equal(screened.damage, ordinary.damage)
+        b:clearVolatiles()
+    end)
+    test("Reflect and LightScreen honor declared infiltrates without an ability producer", function()
+        local b = fresh()
+        own(b.enemy, {"reflect", "lightScreen"})
+        one(b, "enemy", "reflect")
+        one(b, "enemy", "lightScreen")
+        for _, key in ipairs({"tackle", "waterGun"}) do
+            local move = {}
+            for field, value in pairs(moveData[key]) do
+                move[field] = value
+            end
+            move.infiltrates = true
+            equal(b.conditions:screenDamage(b.player, b.enemy, move, 15, false), 15)
+        end
+        equal(b.conditions:sideTurns(b.enemy, "reflect"), 5)
+        equal(b.conditions:sideTurns(b.enemy, "lightScreen"), 5)
+        equal(b.effects:supported(151), false)
+        equal(SpecimenData.holdable.lightClay, nil)
+        equal(MoveSupport.handlers.brickBreak, nil)
+        equal(MoveSupport.gaps.brickBreak, "onTryHit")
+        b:clearVolatiles()
+    end)
+    test("Reflect shares side timer ordering and survives member cleanup but never battle exit", function()
+        local b = fresh()
+        own(b.player, {"reflect", "lightScreen"})
+        one(b, "player", "reflect")
+        one(b, "player", "lightScreen")
+        local reflect, lightScreen
+        for _, event in ipairs(b.conditions:events()) do
+            if event.condition == "reflect" then
+                reflect = event
+            end
+            if event.condition == "lightScreen" then
+                lightScreen = event
+            end
+        end
+        equal(reflect.order, 26)
+        equal(reflect.suborder, 1)
+        equal(lightScreen.suborder, 2)
+        b.conditions:clear(b.player)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 5)
+        b:runScript(function()
+            b.conditions:residual(reflect)
+            b.conditions:residual(reflect)
+        end)
+        settle(b)
+        equal(b.conditions:sideTurns(b.player, "reflect"), 4)
+        local encoded = assert(PokemonCodec.encode(b.player))
+        equal(encoded.reflect, nil)
+        b:clearVolatiles()
+        b.conditions:residual(reflect)
+        equal(next(b.conditions.sides.player), nil)
     end)
 
     RulesRNG.restore(rng)

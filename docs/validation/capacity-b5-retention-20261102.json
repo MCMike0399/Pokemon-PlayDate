@@ -1,0 +1,17 @@
+{
+  "classification": "One previously approved closed B5 retry retained remotely to admit final capture",
+  "archive_id": "playdate-49fe26a0c511477bad0785da849c2bbb",
+  "manifest_sha256": "74b3161acb631539650df0073bc3344480bc256469af607048328a33f646b8ae",
+  "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fifth-resumed-20261030-01",
+  "logical_bytes": 684710026,
+  "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-49fe26a0c511477bad0785da849c2bbb.json",
+  "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fifth-resumed-20261030-01.ARCHIVED.json",
+  "original_suite_sha256": "a4172f1964402cfaa494fd263200ff641ed32832eba9d81020a885a1465526bc",
+  "original_verdict": false,
+  "complete": true,
+  "free_checkpoint_before_audit_gib": 51.92075729370117,
+  "free_checkpoint_after_release_gib": 52.3268928527832,
+  "attribution": "Measured checkpoints are not exclusive reclaimed bytes; concurrent writes continue.",
+  "guards": "All qualified29/producer/artifact/51-50 guards unchanged. No current chain/package/input released.",
+  "restore": "python3 tools/harness/pi_archive.py restore m55b-earned-fifth-resumed-20261030-01 --id playdate-49fe26a0c511477bad0785da849c2bbb --execute"
+}

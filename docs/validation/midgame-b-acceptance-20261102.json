@@ -1,0 +1,291 @@
+{
+  "schema": 1,
+  "milestone": "5.5b",
+  "milestone_accepted": true,
+  "accepted_main_code": "af9a89380f9730767ff22b3ac5114cf32f216a75",
+  "accepted_at_utc": "2026-11-02T06:54:01.099392+00:00",
+  "status": "Simulator-accepted and hardware-safe; device latency targets not yet met",
+  "maps_on_main": 149,
+  "new_maps": 41,
+  "source_tree": "ee7f8a669d9225fc766501a4b5eeb726325f0634",
+  "production_source_sha256": "9b086ab51d65b4ad212d8f4486ba01ce8562e563e41ebf3947e2c7dcad058284",
+  "production_source_files_equal_qualified_candidate": true,
+  "source_equivalence": "All non-dev game Source files match reviewed/native/hardware B candidate295a6763. Main retains its inactive dev census module and existing operator files; production build excludes dev.",
+  "starters": [
+    {
+      "starter": "bulbasaur",
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/02-midgame--restart-55b-bulbasaur",
+      "run_sha256": "8cd06ecddca5f9747b0b830290afa56471dec7ccc331f5408919deab5621e0ee",
+      "outcome_sha256": "4571208c30df995e6fd1da798622745bf2298078b247eb7eb24e133ff680570a",
+      "journey_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "build_id": "8888c7409f4fdd99cc20416759ab5f3ae0d6b6a0:02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "processes": [
+        {
+          "pid": 42701,
+          "status": "exited",
+          "fresh_ready": true,
+          "previous_exit_confirmed": true
+        },
+        {
+          "pid": 58536,
+          "status": "exited",
+          "fresh_ready": true,
+          "previous_exit_confirmed": true
+        }
+      ],
+      "receipts": [
+        {
+          "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/02-midgame--restart-55b-bulbasaur/processes/0001/journey-receipt.json",
+          "sha256": "a6a23b99bbbfc807c25d4ee598afa1c98f1893e98734d158718794aa6d262499"
+        },
+        {
+          "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/02-midgame--restart-55b-bulbasaur/processes/0002/journey-receipt.json",
+          "sha256": "a6a23b99bbbfc807c25d4ee598afa1c98f1893e98734d158718794aa6d262499"
+        }
+      ],
+      "completed_steps": [
+        "bicycle-cycling-road",
+        "fuchsia-koga",
+        "fuchsia_gym",
+        "route12-snorlax",
+        "route13-rested",
+        "safari-hm03-gold-teeth-hm04-strength-surf",
+        "tower-fuji-flute"
+      ],
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "daa9a81c7b1ca2dc6273acc0f409cd119d8235999796299d11c4b54cf3286c07"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "ee2d97a44e69c176937869e3d10097e688aa8b6aa36658a29fafc8d2050e9298"
+        }
+      ],
+      "ancestry": "Original accepted A authority and original source/partial lineage retained in canonical provenance.json"
+    },
+    {
+      "starter": "charmander",
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-charmander-learning-retry-20261030-01/01-midgame--restart-55b-charmander",
+      "run_sha256": "6ff5594d57d67f9ce50379046e2bd7c66dd11bf66d8cdc469b582cda46a283ad",
+      "outcome_sha256": "f516317225ee0e5966ec1d387d4a380b2fecc310db1e38cb4924782e100a6961",
+      "journey_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "build_id": "ea3f80a6a208ef5a7b15e678e0c2fffce692a3b6:02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "processes": [
+        {
+          "pid": 24842,
+          "status": "exited",
+          "fresh_ready": true,
+          "previous_exit_confirmed": true
+        },
+        {
+          "pid": 44495,
+          "status": "exited",
+          "fresh_ready": true,
+          "previous_exit_confirmed": true
+        }
+      ],
+      "receipts": [
+        {
+          "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-charmander-learning-retry-20261030-01/01-midgame--restart-55b-charmander/processes/0001/journey-receipt.json",
+          "sha256": "4d4a20013d084b1f5daa3ba3a551ecb3fda0b5a8be3747fe5405751de6a212ad"
+        },
+        {
+          "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-charmander-learning-retry-20261030-01/01-midgame--restart-55b-charmander/processes/0002/journey-receipt.json",
+          "sha256": "4d4a20013d084b1f5daa3ba3a551ecb3fda0b5a8be3747fe5405751de6a212ad"
+        }
+      ],
+      "completed_steps": [
+        "bicycle-cycling-road",
+        "fuchsia-koga",
+        "fuchsia_gym",
+        "rods-fishing",
+        "route12-snorlax",
+        "route13-rested",
+        "safari-hm03-gold-teeth-hm04-strength-surf",
+        "tower-fuji-flute"
+      ],
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801"
+        }
+      ],
+      "ancestry": "Original accepted A authority and original source/partial lineage retained in canonical provenance.json"
+    },
+    {
+      "starter": "squirtle",
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/03-midgame--restart-55b-squirtle",
+      "run_sha256": "d75c5ebfa9afcd92a43669e3adb4be0ffba28843d03a8ca6cf0dd5eba693d988",
+      "outcome_sha256": "a53e48fa495d213a679364952c6d220a0002472e0cee8e1686c8646a64ed55da",
+      "journey_source_sha256": "02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "build_id": "8888c7409f4fdd99cc20416759ab5f3ae0d6b6a0:02f483604ea6bc37236538f29885dded59d610592024702cf3977dcdef3b594e",
+      "processes": [
+        {
+          "pid": 58875,
+          "status": "exited",
+          "fresh_ready": true,
+          "previous_exit_confirmed": true
+        },
+        {
+          "pid": 75919,
+          "status": "exited",
+          "fresh_ready": true,
+          "previous_exit_confirmed": true
+        }
+      ],
+      "receipts": [
+        {
+          "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/03-midgame--restart-55b-squirtle/processes/0001/journey-receipt.json",
+          "sha256": "6d7eb53dc5a2d14fed2542002a1a86cb8779106b19db32726a6cdb6cc0bab7da"
+        },
+        {
+          "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-fourteenth-resumed-20261030-01/03-midgame--restart-55b-squirtle/processes/0002/journey-receipt.json",
+          "sha256": "6d7eb53dc5a2d14fed2542002a1a86cb8779106b19db32726a6cdb6cc0bab7da"
+        }
+      ],
+      "completed_steps": [
+        "bicycle-cycling-road",
+        "fuchsia-koga",
+        "fuchsia_gym",
+        "route12-snorlax",
+        "route13-rested",
+        "safari-hm03-gold-teeth-hm04-strength-surf",
+        "tower-fuji-flute"
+      ],
+      "files": [
+        {
+          "file": "adventure.a.json",
+          "sha256": "a823d67ab2beaa4b6622c48cb46566d142c2409978e0cc48d4eb35ad820cf465"
+        },
+        {
+          "file": "adventure.b.json",
+          "sha256": "5e44ced5258012f2a76039e234674a4636d75cb9956dc9a9809834ad7c11abd3"
+        }
+      ],
+      "ancestry": "Original accepted A authority and original source/partial lineage retained in canonical provenance.json"
+    }
+  ],
+  "natural_journey_scope": "Three earned A\u2192B routes with original partial-prefix lineage and real two-process quit/Continue on their retained build. Later rule/performance changes have separately scoped native/review/hardware proofs; no new whole-route replay is claimed.",
+  "blackout": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-earned-seventh-resumed-20261030-01/01-midgame--restart-55b-bulbasaur/processes/0001/journey-summary.json",
+    "sha256": "ce8581de0f4308836fbaa799a40608aaf438cda9b2278649913c7ee24159cbd9",
+    "genuine_losses": 1,
+    "fixtures": []
+  },
+  "reward_capacity_supplements": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-rod-gifts-native-prepare-20261030-01/startup-probe.json",
+      "sha256": "b6ce3e8bacb20a244ce5e889f1742f2689b285c12a01047b98d9141ef60c2299",
+      "passed": 40,
+      "scope": "Original guarded gift/rod decline/full-bag retry/receipt/codec cases"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-owner-native-sdk-20261030-12/startup-probe.json",
+      "sha256": "ade4f8936e60575d1c7dddfff937784fd7224dd527ecd0cfd1cd4bc4565c8ba5",
+      "passed": 10,
+      "scope": "Safari/travel/gear/ghost/Snorlax/Warden original owner cases; includes atomic full-bag HM04 handoff"
+    }
+  ],
+  "host_suite": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-main-composed-host-20261102-01.log",
+    "sha256": "6e3144adf693b26a62575252bdb919b602a040007858f826e956d945717d730b",
+    "tests": 1152,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 172.895
+  },
+  "compile": {
+    "command": "make compile with fresh private PRODUCT output",
+    "log": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-main-make-compile-20261102-01.log",
+    "sdk": "3.1.2",
+    "compiled_modules": 202,
+    "dev_modules": 0
+  },
+  "protocol": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-main-protocol-20261102-01.log",
+    "sha256": "ff9f696166b6795efa2376da827230869169565001982189c412ea6ffc984241",
+    "passed": 57
+  },
+  "protected_art": {
+    "historical_summary": "35802a50^:docs/validation/midgame-b-protected-visuals-20261030.json",
+    "comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/m55b-protected-catalog-comparison-20261030-01.json",
+    "sha256": "ae206f3e263a102a3553a36ae9f101479cbae62d201ae824413001e5e68ab9be",
+    "protected_images_exact": 2494,
+    "scope": "Existing protected art and reviewed41-map static overlays retained; later allocation code changes do not change art or renderer. Current native motion shown by showcase."
+  },
+  "showcase": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-composition-20261102-02/PokemonBlue-5.5b-showcase.mp4",
+    "sha256": "603eb435307eb8de78ce59304e0df80f86b66230efd7f61a3c36875171abd672",
+    "manifest": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-5.5b-current-composition-20261102-02/manifest.json",
+    "manifest_sha256": "3307de5867cb753d5053044523ce0a3490248dcc3578c9254b4829b4731f7770",
+    "seconds": 86.161,
+    "dimensions": [
+      400,
+      240
+    ],
+    "speed": 1,
+    "audio": "silent; audio held",
+    "scope": "Walking; a full Fisherman battle against three Pok\u00e9mon and victory; complete Snorlax wake, encounter and removal; readable Koga challenge and first-turn excerpt. Four genuine sessions with explicit cuts; the excerpt makes no new Koga-victory claim.",
+    "review": "Root native/decoded visual samples and source sequences inspected; all 1,420 RGBA frame hashes and original timestamps preserved. Sampled capture gaps remain visible; not a device-pacing proof."
+  },
+  "player_package": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/player-packages/5.5b-accepted-20261102-01",
+  "package_manifest_sha256": "26aa4b1dbdc2d273a1974da93b642a94c6c9585b63e619a9b4af7a4e5cc454f0",
+  "package_zip_sha256": "23b93a5f454335ea18e10d9dd301b68e8e4e8544cc2af16842b7da34a6cc1863",
+  "hardware": {
+    "smoke": "docs/validation/gamecorner-membership-hardware-20261102.json",
+    "resource": "docs/validation/b149-physical-long-traversal-20261101.json",
+    "resource_scope": "Earlier source: 110 doors, 30 maps and 20 wild battles over 87.44 minutes; maximum post-GC 5.151 MiB. Current query/allocation changes have a scoped matched hardware replay with no new logs and a 7.83 MiB sampled peak below the 9 MiB guard.",
+    "exact_normal_package_timing": "Unmeasured; related instrumented hardware results labelled separately."
+  },
+  "simulator": {
+    "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-device-safety-20261102-01/simulator-smoke.json",
+    "measurement_safety_only": true,
+    "heap_peak_bytes": 9097958.4,
+    "slice_ms": 77.436,
+    "map_load_ms": 292.0,
+    "battle_start_ms": 1.0,
+    "post_gc_lua": "Not measured on this finite no-forced-GC profile. Diagnostic heap is not compared to device6MiB live guard; physical collected samples are separate."
+  },
+  "reviews": {
+    "rod_standards": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A27fce23a-5459-457c-a844-40161c7960b5",
+    "rod_spec": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A881430f1-dcd7-40a7-957d-db0ea6f912d7",
+    "rod_findings": {
+      "documented_standards": 0,
+      "spec": 0,
+      "optional": "Small repeated goodRod selection; nonblocking."
+    },
+    "earned_moves_standards": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A4c644221-4b62-47ca-874c-0edef607a17b",
+    "earned_moves_spec": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3Abc818d43-74b2-4c11-ac1b-7f3da8d062ff",
+    "earned_scope": "Fixed range 00ce443a..12ecefec: no spec findings. The documented P3 prose issue is corrected, with original raw report, counts and historical summary hash retained. The separate later performance review has no standards or spec findings.",
+    "allocation": "docs/validation/gamecorner-membership-full-host-20261102.json",
+    "prior_surf_corrections": "Existing standards/spec rechecks resolved Surf step, renderer and expiry-input findings; no new rerun claimed."
+  },
+  "elapsed": {
+    "since_first149_map_packet_commit": "ce615acf",
+    "hours": 73.075,
+    "maps_added": 41,
+    "maps_per_day": 13.466,
+    "scope": "Wall time since first149-map packet commit, including staging, tools, latency work and waits; not pure implementation time."
+  },
+  "latency_targets_met": false,
+  "device_playable_maps": 0,
+  "audio": "Held for separate native headroom/listening integration",
+  "remaining": [
+    "Complete Blue campaign, credits and postgame",
+    "Boot/input-ready, slice, worst-door and cave-p95 targets before C acceptance",
+    "Working memory margin before C activation",
+    "Isolated Substitute/C integration and later late-game maps; no C acceptance",
+    "Exact normal-production package physical timing and user feedback when available"
+  ],
+  "push_authorized": false,
+  "prior_ledger": {
+    "path": "docs/validation/progress-history-before-b-acceptance-20261102.md",
+    "sha256": "be281f05c910c5c0f6ab94c48bb99b2116583fe05c1056b2433ff9832f7bc79b"
+  }
+}

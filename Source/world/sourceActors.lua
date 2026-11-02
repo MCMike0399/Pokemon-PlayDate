@@ -28,6 +28,8 @@ function SourceActors.registerContent(profile, resolver)
     for _, key in ipairs({ "sprite", "key", "stepImage", "install" }) do
         assert(type(resolver[key]) == "function", "explicit immutable actor art resolver required: " .. key)
     end
+    assert(resolver.spritePoseMetadata == nil or type(resolver.spritePoseMetadata) == "function",
+        "actor pose metadata resolver must be a function")
     assert(not contentResolvers[profile], "actor content resolver replaced")
     -- Copy the interface so later caller table edits cannot replace a resolver.
     contentResolvers[profile] = {}
@@ -36,7 +38,8 @@ end
 
 local function content(profile)
     if profile == "pewter" then
-        return { sprite = PewterSlice.sprite, key = PewterSprites.key, stepImage = PewterSprites.stepImage,
+        return { sprite = PewterSlice.sprite, spritePoseMetadata = PewterSlice._spritePoseMetadata,
+            key = PewterSprites.key, stepImage = PewterSprites.stepImage,
             install = PewterSprites.installFor,
             metadata = function(d, event)
                 if PewterEvents.isPickup(event.id) then
@@ -137,7 +140,10 @@ function SourceActors.describeSource(zoneID, world, game)
         if trainer then
             assert(trainer.map_id == zoneID and trainer.sprite_source == event.sprite, "trainer differs from source object")
         end
-        local strip=resolver.sprite(event.sprite);local faces={}
+        -- Legacy/custom resolvers retain their full sprite lookup. Content owners
+        -- can project detached pose metadata without copying unused frame grids.
+        local strip = (resolver.spritePoseMetadata or resolver.sprite)(event.sprite)
+        local faces = {}
         for direction in pairs(strip.standing)do faces[direction]=true end
         if faces.left then faces.right=true end
         local facing=({UP="up",DOWN="down",LEFT="left",RIGHT="right",LEFT_RIGHT="left",UP_DOWN="down",NONE="down",ANY_DIR="down"})[event.range_or_facing]

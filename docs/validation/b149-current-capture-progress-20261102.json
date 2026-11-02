@@ -1,0 +1,173 @@
+{
+  "classification": "Partial B showcase progress; acceptance remains open",
+  "components": [
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-walk-current-export-20261102-01/capture-report.json",
+      "sha256": "83ebb4bf1932c15ca2d1b10816b4ed28c9b24da19d20dd036dc883760ce91000",
+      "capture": {
+        "durations": {
+          "walk": 9.715
+        },
+        "max_frame_gap_seconds": {
+          "walk": 0.433
+        },
+        "dimensions": [
+          400,
+          240
+        ],
+        "speed": 1,
+        "audio": "none",
+        "sample_ticks": {
+          "walk": 1
+        },
+        "timing": "SDK wall timestamps; final unbounded frame omitted",
+        "motion_review": "pending root; long frame gaps remain visible, not compressed away"
+      }
+    },
+    {
+      "report": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-full-trainer-current-export-20261102-01/capture-report.json",
+      "sha256": "88d2d8db379ccaae81b70713ff90122a736d86ef0aa5ebdef456d2bd4431c1b5",
+      "capture": {
+        "durations": {
+          "trainer": 24.045
+        },
+        "max_frame_gap_seconds": {
+          "trainer": 0.208
+        },
+        "dimensions": [
+          400,
+          240
+        ],
+        "speed": 1,
+        "audio": "none",
+        "sample_ticks": {
+          "trainer": 2
+        },
+        "timing": "SDK wall timestamps; final unbounded frame omitted",
+        "motion_review": "pending root; long frame gaps remain visible, not compressed away"
+      }
+    }
+  ],
+  "post_snorlax_save": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-post-snorlax-bulbasaur-save-20261102-01/processes/0001/partial-save.json",
+    "sha256": "9d74a63432eb975a386a50016e1a4b0ff3efd874ac2ecd5577bc5065a025e143",
+    "location": {
+      "facing": "down",
+      "x": 10,
+      "y": 61,
+      "zone_id": "pokered:ROUTE_12"
+    },
+    "snorlax": true,
+    "soul": false
+  },
+  "inspection": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-composition-current-review-20261102-01/component-review.json",
+  "remaining": "Koga capture, full composition and motion review, current player package and acceptance. No push.",
+  "southern_route_saves": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-short-south-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "fde0a1af61eb1bec371887d51f87022dcad781b80dc35431f24f4977b61d1ad3",
+      "run_sha256": "39ec1700bf808515a8dc603cb66b8bbbb6d42ef07233054f75d8df733f17e312",
+      "location": {
+        "facing": "down",
+        "x": 10,
+        "y": 73,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "rocker_defeated": false,
+      "jr_defeated": false
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-before-rocker-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "7fcffe719afbefc982d7f1efa6db242acec6dc3e556a7686eb5cd9d5b3d64e51",
+      "run_sha256": "eba620e0bf90cb1697c926c5c437ae4734c8915accfa3e2842e1ff432f0b0411",
+      "location": {
+        "facing": "right",
+        "x": 13,
+        "y": 73,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "rocker_defeated": false,
+      "jr_defeated": false
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-after-rocker-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "afa90b201410ff3838ccf6b2bab198a15e77f445da2f3752815900f8d32ba182",
+      "run_sha256": "79238245c7c8a2022261d78056cd9f8abcfdde6c348a0c948dcc088ec98f9b4c",
+      "location": {
+        "facing": "right",
+        "x": 14,
+        "y": 73,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "rocker_defeated": true,
+      "jr_defeated": false
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-south-after-rocker-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "1e581602947f0bbb3967dba9f3ba9b322fe620d6107e37320f25b079975e56d1",
+      "run_sha256": "9bc4bad622c9114e4802a59514a56273ae1d03adac765a1a6f4c665ecc1a85cc",
+      "location": {
+        "facing": "down",
+        "x": 10,
+        "y": 85,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "rocker_defeated": true,
+      "jr_defeated": false
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-before-jr-save-20261102-01/processes/0001/partial-save.json",
+      "sha256": "013359902da0505e2d8066ebba8aeedcd134d2b7d093a00457623df8a1170d38",
+      "run_sha256": "80a42b45d4bb84c98b69b956dc6865aed8aa4adae55e5c63f56627feafc631e7",
+      "location": {
+        "facing": "down",
+        "x": 10,
+        "y": 91,
+        "zone_id": "pokered:ROUTE_12"
+      },
+      "rocker_defeated": true,
+      "jr_defeated": false
+    }
+  ],
+  "failed_attempts": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-south-after-snorlax-save-20261102-01",
+      "outcome": {
+        "error": "",
+        "host_guard_errors": [
+          "1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded"
+        ],
+        "ok": false
+      }
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-south-save-20261102-02",
+      "outcome": {
+        "error": "",
+        "host_guard_errors": [
+          "1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded"
+        ],
+        "ok": false
+      }
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-batched-south-save-20261102-01",
+      "outcome": {
+        "error": "runtime error: dev/harness.lua:377: assertion root expected overworld got event",
+        "host_guard_errors": [],
+        "ok": false
+      }
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/showcase-route12-after-jr-save-20261102-01",
+      "outcome": {
+        "error": "",
+        "host_guard_errors": [
+          "1 GiB footprint, 50 GiB reserve or bounded showcase deadline exceeded"
+        ],
+        "ok": false
+      }
+    }
+  ],
+  "failed_attempt_policy": "No marker reconstructed from interrupted saves. Batched walk stopped at unexpected actual trainer event; ordinary fresh-process Rocker battle then saved. JR battle Save final codec observation reached host guard. Last verified boundary is before JR at10,91."
+}

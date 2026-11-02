@@ -1,0 +1,9 @@
+{
+  "classification": "Candidate-only source snapshot refresh; no evidence/facet promotion",
+  "fixed_source_commit": "295a6763cb6107a84fa6c95c3be60b500879f6eb",
+  "prior_matrix_sha256": "57af493facf61066fd8ed7bef8310dc81a8ac10ed281916f72de7bf821709588",
+  "new_matrix_sha256": "cd19b1574abec0c4ab0c9fee216253196feb4be28151516549f0b2776894e66a",
+  "preserved": "All1512rows, facets, levels, evidence entries/hashes, historical snapshots and current inventories unchanged. Source snapshot only; B/main unchanged.",
+  "initial_full_host": "1072tests/1071pass/one staleSource snapshot failure,173.140s; log remains outsideGit.",
+  "gui_only": "Tiny owned GUI test remained under60MiB but AXtree truncated at1000elements before Clear; no Clear action qualified; child closed. Not a game/resource proof."
+}

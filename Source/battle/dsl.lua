@@ -315,13 +315,18 @@ function ApplyStatus:init(target, status, origin)
     if origin~=nil then
         assert(type(origin)=="table","invalid-status-origin")
         for key in pairs(origin) do assert(key=="source" or key=="cause","unknown-status-origin-field") end
-        assert(origin.cause=="move" or origin.cause=="ability" or origin.cause=="fatigue","invalid-status-cause")
+        assert(origin.cause=="move" or origin.cause=="ability" or origin.cause=="fatigue" or origin.cause=="yawn","invalid-status-cause")
         self.statusSource=Target.from(origin.source);self.statusCause=origin.cause
         assert(type(self.statusSource)=="table" and type(self.statusSource.resolve)=="function","invalid-status-source")
         assert(origin.cause~="fatigue" or status=="confuse","invalid-fatigue-status")
+        assert(origin.cause~="yawn" or status=="sleep","invalid-yawn-status")
     else self.statusSource=ATTACKER;self.statusCause="move" end
 end
 function ApplyStatus:preventedBySide(battle,pokemon)
+    -- Safeguard blocks Yawn placement, never an already placed Yawn's sleep.
+    if self.statusCause == "yawn" then
+        return false
+    end
     if not battle.conditions then return false end
     local source=self.statusSource:resolve(battle)
     assert(self.statusCause~="fatigue" or source==pokemon,"fatigue-must-be-self-origin")
@@ -337,10 +342,18 @@ function ApplyStatus:secondaryKind(recipient)
     assert(STATUS_NAMES[self.status] or self.status=="confuse" or self.status=="flinch","unsupported-secondary-status")
     return self.status=="flinch" and "flinch" or "condition"
 end
-function ApplyStatus:apply(battle)
+-- Keep the generic secondary-effect argument separate from Rest semantics.
+local function applyStatus(self, battle, rest)
     local pokemon = self.target:resolve(battle)
 
     if not pokemon:isAlive() then return end
+    if rest then
+        assert(self.status == "sleep" and pokemon == battle.attacker, "invalid-rest-status")
+        if pokemon.status == "sleep" or pokemon.hp == pokemon.maxHP then
+            battle:say("But it failed!")
+            return false
+        end
+    end
     -- Volatile conditions live next to the major status, not in it
     if self.status == "flinch" then
         -- Check the volatile payload, after the move's secondary chance draw.
@@ -359,7 +372,7 @@ function ApplyStatus:apply(battle)
         return
     end
 
-    if pokemon.status then
+    if pokemon.status and not rest then
         if self.status=="badPoison" then battle:say("But it failed!") end
         return
     end
@@ -382,12 +395,48 @@ function ApplyStatus:apply(battle)
     -- asleep Pokemon without its original duration.
     if self:preventedBySide(battle,pokemon) then return end
     local duration = self.status == "sleep" and RulesRNG.random(1, 3) or 0
+    -- The existing counters store blocked actions, rather than PS's counter
+    -- decremented before testing. Rest time/startTime3 therefore maps to2.
+    -- Still consume the ordinary sleep Start draw before overriding it.
+    if rest then
+        duration = 2
+    end
     if battle.conditions then battle.conditions:of(pokemon).toxic=nil end
     pokemon.status = self.status
     pokemon.statusTurns = duration
     pokemon.sleepDuration = duration
+    if rest then
+        pokemon:heal(pokemon.maxHP)
+    end
     if battle.effects then ContactAbilities.afterStatus(battle.effects,pokemon,self.statusSource:resolve(battle),self.status,self.statusCause) end
     battle:say(pokemon.name .. " " .. (STATUS_NAMES[self.status] or "was afflicted") .. "!")
+    if rest then
+        battle:say(pokemon.name .. " regained health!")
+        return true
+    end
+end
+
+function ApplyStatus:apply(battle)
+    return applyStatus(self, battle, false)
+end
+
+function ApplyStatus:applyRest(battle)
+    return applyStatus(self, battle, true)
+end
+
+Class("RestEffect")
+function RestEffect:apply(battle)
+    return ApplyStatus(ATTACKER, "sleep"):applyRest(battle)
+end
+
+Class("YawnEffect")
+function YawnEffect:apply(battle)
+    return battle.conditions:yawn()
+end
+
+Class("ForesightEffect")
+function ForesightEffect:apply(battle)
+    return battle.conditions:odorSleuth()
 end
 
 -- Fixed damage that bypasses the Gen I formula entirely
@@ -528,7 +577,8 @@ end
 
 Class("SideConditionEffect")
 function SideConditionEffect:init(kind)
-    assert(kind=="lightScreen" or kind=="safeguard" or kind=="tailwind","unsupported-side-condition")
+    assert(kind == "reflect" or kind == "lightScreen" or kind == "safeguard"
+        or kind == "tailwind", "unsupported-side-condition")
     self.kind=kind
 end
 function SideConditionEffect:apply(battle) return battle.conditions:setSideCondition(self.kind) end
@@ -538,3 +588,13 @@ function ProtectEffect:apply(battle) return battle.conditions:protect() end
 
 Class("FocusEnergyEffect")
 function FocusEnergyEffect:apply(battle) battle.conditions:focusEnergy() end
+
+-- Primary onHit/onHitField effects, never a chance-based secondary.
+Class("ResetStatStagesEffect")
+function ResetStatStagesEffect:init(scope)
+    assert(scope == "active" or scope == "defender", "unsupported-stage-reset-scope")
+    self.scope = scope
+end
+function ResetStatStagesEffect:apply(battle)
+    return battle.effects:resetStatStages(self.scope)
+end

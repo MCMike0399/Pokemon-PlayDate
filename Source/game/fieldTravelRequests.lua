@@ -65,6 +65,9 @@ local function surfPlan(game, observed)
 end
 
 function FieldTravelRequests.prepare(game, party, mon, key, destinationID, overlay)
+    if key == "fly" and not SourceMaps.nameForID("pokered:ROUTE_16_FLY_HOUSE") then
+        return nil, "fly-checkpoint-not-installed"
+    end
     local observed, reason = snapshot(game, party, overlay)
     if not observed then
         return nil, reason
@@ -164,6 +167,9 @@ function FieldTravelRequests.complete(token, overlay)
 end
 
 function FieldTravelRequests.destinations(game, party, mon)
+    if not SourceMaps.nameForID("pokered:ROUTE_16_FLY_HOUSE") then
+        return nil, "fly-checkpoint-not-installed"
+    end
     local observed, reason = snapshot(game, party)
     if not observed then
         return nil, reason

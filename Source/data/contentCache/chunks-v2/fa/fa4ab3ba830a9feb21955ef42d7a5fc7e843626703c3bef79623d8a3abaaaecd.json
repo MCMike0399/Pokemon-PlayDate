@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":48,"text":"Teach #MON"},{"op":"line","source_line":49,"text":"moves of the same"},{"op":"cont","source_line":50,"text":"element type for"},{"op":"cont","source_line":51,"text":"more power."},{"op":"control","source":"done","source_line":52}],"source":"text/Route14.asm"}

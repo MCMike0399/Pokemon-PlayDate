@@ -167,15 +167,32 @@ local bootAccepted, bootProblem = pcall(function()
 
     -- @harness imports-7
 
+    import "game/towerStory"
+    import "game/snorlaxStory"
+    import "game/towerStoryController"
     import "game/rocketHideoutStory"
     import "game/rocketHideoutStoryWorld"
     import "game/rocketHideoutStoryController"
+    import "game/fieldTravelRequests"
+    import "game/fieldTravelRuntime"
+    import "game/fieldTravelState"
+    import "game/fieldGearRequests"
+    import "game/fieldGearState"
+    import "world/fieldGearArt"
     import "game/midgameGymStory"
     import "game/midgameStoryWarps"
     import "game/celadonServices"
     import "game/celadonServicesController"
     import "game/hideoutTowerContent"
     import "game/hideoutTowerController"
+    import "domain/safariBattle"
+    import "game/midgameServices"
+    import "game/midgameServicesState"
+    import "game/safariScene"
+    import "game/safariBattleState"
+    import "game/safariPassage"
+    import "game/safariPassageState"
+    import "game/safariRuntime"
 
 
     local function campaignActorMetadata(definition, event, runtimeGame)
@@ -213,6 +230,9 @@ local bootAccepted, bootProblem = pcall(function()
             CeruleanContent.registerPackage("midgameEast", "data/midgameEast/", function(events, trainers)
                 return HideoutTowerContent.package("midgameEast", events, trainers)
             end, "hideout-tower-midgameEast-v1")
+            CeruleanContent.registerPackage("midgameSouth", "data/midgameSouth/", function(events, trainers)
+                return HideoutTowerContent.package("midgameSouth", events, trainers)
+            end, "hideout-tower-midgameSouth-v1")
             BootTrace.mark("CeruleanContent.registerPackage.end")
             GameBootstrap.yieldIfDue()
             BootTrace.mark("CeruleanContent.install.begin")
@@ -243,11 +263,23 @@ local bootAccepted, bootProblem = pcall(function()
             GameBootstrap.yieldIfDue()
             BootTrace.mark("Daycare.install.begin")
             Daycare.install()
-            -- NPC trades and Saffron guards remain parked.
-            HideoutTowerContent.install()
-            CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
-            MidgameStoryWarps.install()
             BootTrace.mark("Daycare.install.end")
+            -- NPC trades and Saffron guards remain parked.
+            BootTrace.mark("HideoutTowerContent.install.begin")
+            HideoutTowerContent.install()
+            BootTrace.mark("HideoutTowerContent.install.end")
+            BootTrace.mark("MidgameServices.install.begin")
+            MidgameServices.install()
+            SourceEvents.registerWorldHooks("pokered:SAFARI_ZONE_GATE:script:admission", {
+                explore = MidgameServices.checkEntrance,
+            })
+            BootTrace.mark("MidgameServices.install.end")
+            BootTrace.mark("CeladonServices.install.begin")
+            CeladonServices.install({reconcileActors=KantoScenes.reconcileActors})
+            BootTrace.mark("CeladonServices.install.end")
+            BootTrace.mark("MidgameStoryWarps.install.begin")
+            MidgameStoryWarps.install()
+            BootTrace.mark("MidgameStoryWarps.install.end")
             GameBootstrap.yieldIfDue()
             SourceEvents.registerWorldHooks("pokered:MUSEUM_1F:objects:1", {explore=KantoServices.check})
             SourceEvents.registerWorldHooks("pokered:PEWTER_CITY:script:default", {
@@ -320,6 +352,8 @@ local bootAccepted, bootProblem = pcall(function()
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.fieldMove.begin")
         machine:register("fieldMove", FieldMoveState(game))
+        machine:register("fieldTravel", FieldTravelState(game))
+        machine:register("fieldGear", FieldGearState(game))
         BootTrace.mark("state.fieldMove.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.bag.begin")
@@ -331,7 +365,9 @@ local bootAccepted, bootProblem = pcall(function()
         BootTrace.mark("state.shop.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.event.begin")
-        machine:register("event", NPCTradeState(game))
+        machine:register("event", MidgameServicesState(game))
+        machine:register("safariBattle", SafariBattleState(game))
+        machine:register("safariPassage", SafariPassageState(game))
         BootTrace.mark("state.event.end")
         GameBootstrap.yieldIfDue()
         BootTrace.mark("state.tutorial-escort.begin")

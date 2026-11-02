@@ -1,0 +1,13 @@
+{
+  "classification": "host only; no runtime",
+  "checks": [
+    "All packet Python syntax parsed without bytecode writes",
+    "Historical packets exact: supplied long 4ec64943, origin bbac7ddf, showcase 052c10ab",
+    "Long driver/diagnostic/route/guide/recorder/summarizer and showcase capture/export unchanged",
+    "Canonical Charmander bytes/provenance, sequences 61/62 and Fuchsia Center (3,3,up) retained",
+    "All historical showcase seed/producer/reuse/saved-codec/A ancestry fields unchanged",
+    "All 30 route map hashes and portal coordinates in source bounds",
+    "Git-object cache comparison: 2546 relocated chunks and 32 indexes byte-identical",
+    "Old showcase still rejects composed Source; exact failure retained"
+  ]
+}

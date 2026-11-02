@@ -1,0 +1,71 @@
+{
+  "classification": "host verification and SDK3.1.2 compilation only; no runtime compatibility proof",
+  "final_pin": "4750bd71bc899f810513e71a4ce58fb85a821ccf",
+  "observed_head_after": "9542d84da42cc64a8c1025d6f120ad8222baba32",
+  "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+  "full_source_sha256": "ef5612297ce89cde759f477c17eb4b6849b20da98d9e67dca454644c8c2a21b5",
+  "checks": "host-checks.json",
+  "builds": {
+    "long_traversal": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-recipes-long-compile-20261101-02",
+      "build_json_sha256": "c2a106aaed87948c88d706f3864d1af4b4288916926b05cd84a6220d620f0a03",
+      "build_id": "fef5b5e0571f41dbb914af4d2c3044ab",
+      "revision": "9542d84da42cc64a8c1025d6f120ad8222baba32",
+      "sdk_version": "3.1.2",
+      "compiler_sha256": "bf3a52424a99446cee437ab674d4935205f2a8e1d41299788b68ad4f3865e612",
+      "source_sha256": "bb055753913f419cd492aff7ad03a22af17a7089a373f880c3a463f060b22d64",
+      "compiled_source_sha256": "c06fbca08312f1afe4b2893d3b9d555046a9e2fdf98985a9a40b413dd63e0279",
+      "pdx_sha256": "2ec0d423bf36e67768e79e8d2392434f533a1f4c5781938620054c09aa47f573",
+      "status": "compile-only; verified-not-executed"
+    },
+    "showcase": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-recipes-showcase-compile-20261101-04",
+      "build_json_sha256": "0bd0bf3f039ad131060977dd343481d6a9343c430268f93162ef433c6ccdf1d1",
+      "build_id": "9542d84da42cc64a8c1025d6f120ad8222baba32:ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "revision": "9542d84da42cc64a8c1025d6f120ad8222baba32",
+      "sdk_version": "3.1.2",
+      "compiler_sha256": "bf3a52424a99446cee437ab674d4935205f2a8e1d41299788b68ad4f3865e612",
+      "source_sha256": "ad86be7578f185803d7113bc57dbaf482cec804daeec5d3606a132c4d8296844",
+      "compiled_source_sha256": "564adf166173c2d768b6e356f0b03c4aa253c95c494a6a74b2bbf3fef1cfddda",
+      "pdx_sha256": "d94b1b9e66e23f64d50031905a60e2ec7f5e0c43f0a9747d57662bd63eb49bc8",
+      "status": "compile-only; verified-not-executed"
+    }
+  },
+  "host_check_showcase": "passed strict importer, archived complete-codec equality, stopped producer and accepted-A ancestry",
+  "root_inputs_unchanged_after": true,
+  "prior_attempts": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-recipes-long-compile-20261101-01",
+      "status": "historical 635 compile; draft metadata superseded; no runtime"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-recipes-showcase-compile-20261101-01",
+      "status": "historical 635 runner compile then packet fingerprint assertion failed; no runtime"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-recipes-showcase-compile-20261101-02",
+      "status": "invocation rejected changed Root HEAD before directory creation; no runtime"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-current-recipes-showcase-compile-20261101-03",
+      "status": "4750 Source at docs HEAD9542 compile passed; superseded only by final SDK/compiler metadata checks; no runtime"
+    }
+  ],
+  "runtime_executed": false,
+  "native_preflight_executed": false,
+  "export_executed": false,
+  "physical_run_executed": false,
+  "ax_clear_reclamation_verified": false,
+  "full_capture_hold_released": false,
+  "acceptance_claimed": false,
+  "root_reported_full_host": {
+    "source_revision": "4750bd71bc899f810513e71a4ce58fb85a821ccf",
+    "passed": 1067,
+    "failures": 0,
+    "skips": 0,
+    "seconds": 191.41,
+    "log": "evidence/b149-v2-composed-full-host-20261101-02.log",
+    "attribution": "Root report from user; worker did not rerun full suite",
+    "checkpoint_acceptance": false
+  }
+}

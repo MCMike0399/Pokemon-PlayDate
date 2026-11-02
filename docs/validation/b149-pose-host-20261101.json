@@ -1,0 +1,16 @@
+{
+  "classification": "Current private B post-pose host audit; not checkpoint acceptance",
+  "source_commit": "f9920a4f51007da8e35fc2f71c220d8bd5cf0cab",
+  "source_sha256": "323edf38de2812e38cb73f7c58b8ec45d501fc2475750c0f9aa090dd5576d3e9",
+  "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/b149-pose-host-20261101-01",
+  "log_sha256": "4e1de1579d1e0afbe59d92e9f5241a1a25914184d197e9397f908a350a47966c",
+  "tests": 1071,
+  "passed": 1071,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "seconds": 161.68,
+  "targeted_host_checks": 57,
+  "native_scope": "Reviewed pose candidate retains5focused passing SDK checks; current Rule54 owners/assertions unchanged.",
+  "remaining": "Snorlax/Koga/montage, worst-eight route and latency targets remain. No C activation or push."
+}

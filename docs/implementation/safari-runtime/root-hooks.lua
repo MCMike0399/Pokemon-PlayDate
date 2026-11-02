@@ -1,0 +1,27 @@
+-- Exact additions inside current main's cooperative import/setup functions.
+-- After existing domain/capture and before any Safari runtime use:
+-- import "domain/safariBattle"
+-- After game/npcTradeState (State/Dialog/BattleMenu/CaptureAnimation exist):
+-- import "game/midgameServices"
+-- import "game/midgameServicesState"
+-- import "game/safariScene"
+-- import "game/safariBattleState"
+-- import "game/safariPassage"
+-- import "game/safariPassageState"
+-- import "game/safariRuntime"
+--
+-- After the B package has installed HM03/Gold Teeth events, in initialize-content:
+-- MidgameServices.install()
+-- SourceEvents.registerWorldHooks("pokered:SAFARI_ZONE_GATE:script:admission", {
+--     explore = MidgameServices.checkEntrance,
+-- })
+--
+-- Replace the existing event registration, keeping one executor:
+-- machine:register("event", MidgameServicesState(game))
+-- machine:register("safariBattle", SafariBattleState(game))
+-- machine:register("safariPassage", SafariPassageState(game))
+--
+-- Existing harness suite/three case names stay unchanged:
+-- Contracts.register("safari-services", SafariServicesContracts.run)
+-- Read-only journey projection: SafariRuntime.observe(game)
+-- No schema, bootstrap, field-controller or driver edits are included here.

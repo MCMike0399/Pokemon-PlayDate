@@ -64,12 +64,21 @@ class MoveFailurePhazingTests(unittest.TestCase):
     def test_damage_and_partial_status_special_cases_cannot_pass_as_plain_attacks(self):
         keys = ('dig', 'razorWind', 'furyCutter', 'gyroBall',
                 'hyperBeam', 'thrash', 'focusPunch', 'falseSwipe', 'dreamEater',
-                'selfDestruct', 'payDay', 'circleThrow', 'dragonTail', 'bugBite',
-                'reflect', 'haze', 'rest', 'substitute', 'transform', 'metronome',
+                'payDay', 'circleThrow', 'dragonTail', 'bugBite',
+                'substitute', 'transform', 'metronome',
                 'stockpile', 'swallow', 'memento', 'flatter', 'swagger', 'healPulse')
         for key in keys:
             with self.subTest(move=key):
                 self.assertTrue(self.inventory['moves'][key]['gap'])
+        self.assertEqual(self.inventory['moves']['selfDestruct'], {'handler': 'engine-dsl'})
+        self.assertIn('selfDestruct = true', self.rows['selfDestruct'])
+
+    def test_new_concrete_status_handlers_require_their_owned_payloads(self):
+        for key, effect in [('haze', 'ResetStatStagesEffect'), ('rest', 'RestEffect'),
+                            ('yawn', 'YawnEffect'), ('foresight', 'ForesightEffect')]:
+            with self.subTest(move=key):
+                self.assertEqual(self.inventory['moves'][key], {'handler': 'engine-dsl'})
+                self.assertIn(effect, self.rows[key])
 
     def test_explicit_existing_handlers_are_not_mistaken_for_empty_effects(self):
         # These rules intentionally have no generic effects array or zero power.

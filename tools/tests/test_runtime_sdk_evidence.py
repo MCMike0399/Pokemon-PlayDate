@@ -10,7 +10,9 @@ class RuntimeSDKEvidenceTests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.p=Path(self.tmp.name)
   (self.p/'Source').symlink_to(ROOT/'Source',target_is_directory=True)
-  self.registry=json.loads((ROOT/'tools/references/runtime-move-coverage.json').read_text())
+  self.use_registry('tools/references/runtime-move-coverage.json')
+ def use_registry(self,relative):
+  self.registry=json.loads((ROOT/relative).read_text())
   for name in (self.registry['accepted_summary']['path'],self.registry['sdk_result']['path']):
    dest=self.p/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/name,dest)
   self.raw=json.loads((self.p/self.registry['sdk_result']['path']).read_text())
@@ -23,8 +25,13 @@ class RuntimeSDKEvidenceTests(unittest.TestCase):
  def test_current_projection_binds50_records(self):
   result=self.load();self.assertEqual(len(result),50);self.assertEqual(result['protect']['state'],'verified_subset');self.assertEqual(result['protect']['evidence']['sdk_build_id'],self.raw['build_id'])
  def test_projection_raw_provenance_cannot_be_replaced_even_when_rehashed(self):
+  self.use_registry('tools/references/runtime-move-coverage-before-earned-b-20261101.json')
+  self.assertEqual(len(self.load()),50)
+  self.assertEqual(self.raw['evidence_format'],'contracts-projection-v1')
   self.raw['raw_provenance']['sha256']='0'*64;self.repin();self.reject()
  def test_projection_requires_explicit_format(self):
+  self.use_registry('tools/references/runtime-move-coverage-before-earned-b-20261101.json')
+  self.assertEqual(len(self.load()),50)
   self.raw['evidence_format']='raw';self.repin();self.reject()
  def test_private1059_separate(self):
   result=load_runtime_coverage(ROOT,self.moves,ROOT/'tools/references/runtime-move-coverage-private1059.json');self.assertEqual(set(result),{'bide'});self.assertEqual(result['bide']['evidence']['acceptance_context'],'private-root-verified-not-main')

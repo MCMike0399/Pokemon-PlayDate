@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":179,"text":"ROUTE 17"},{"op":"line","source_line":180,"text":"CELADON CITY -"},{"op":"cont","source_line":181,"text":"FUCHSIA CITY"},{"op":"control","source":"done","source_line":182}],"source":"text/Route17.asm"}

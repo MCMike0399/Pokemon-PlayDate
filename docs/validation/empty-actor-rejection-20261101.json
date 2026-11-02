@@ -1,0 +1,20 @@
+{
+  "classification": "Rejected performance candidate; implementation reverted, evidence retained",
+  "candidate_report": "empty-actor-candidate-20261101.json",
+  "review": {
+    "thread": "thread:delegated-task:command%3Amcp%3Abafcd493-0de4-4771-ad7d-e9474449d5d6%3Adelegate-task%3A2b4663bf-f395-44e7-98e8-3cd7028edd4f",
+    "standards_findings": 0,
+    "spec_findings": 1,
+    "severity": "P2",
+    "reason": "The gates do not bind registered content resolver/CeruleanContent.install metadata callbacks. Skipping describeSource can skip their errors even with canonical map/actor providers."
+  },
+  "counterexample": "First-install metadata callback rejects Route17 via assert. Baseline empty-marker validation calls it and rejects; candidate normalizes marker without callback and accepts. No pinned data or actor-provider replacement needed.",
+  "action": "Restored both owned candidate Source files to accepted HEAD. No guard or policy changes. Do not claim the rejected5090/4723ms values for retained production Source.",
+  "retained_implementation": "7eafb24c checksum and5d782382 scoped field retention stay adopted in private B. Retained instrumented route values are Fuchsia5648ms/Route175421ms from checksum hardware02, not the rejected candidate values.",
+  "next": "Preserve callback execution; target lighter immutable sprite metadata construction or another measured cost instead. Complete B captures when a retained desktop observation/input check is available.",
+  "source_sha256_after_restore": {
+    "Source/world/sourceActors.lua": "61589235cba53123896243e1694d79f1416d66d17b535e06abc929d38da49376",
+    "Source/world/importedMaps.lua": "3a25004c7dbc32dd99837005f7c8b263a1133fa11aea7a88de741a5816f9b6fa"
+  },
+  "remaining": "B not accepted, C isolated, no push."
+}
