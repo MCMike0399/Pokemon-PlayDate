@@ -145,8 +145,17 @@ point probes retain their separate scope.
    selected merged host/build checks and production compilation pass; the three
    changed Source files equal the measured candidate. Surf still misses 2 s.
    [Measured candidate and scope](save-inspection-reuse-measured-20261102.json).
-5. Fix structural door/boot/cave costs and measure boot/Continue against all three
-   B save sizes. Payload sizes alone establish no timing conclusion. Do not
+5. Matched hardware observations now cover all three canonical B saves, with
+   identical code/SDK/compiler and only private build identity differing:
+   selected envelopes 21,533/22,650/24,316 bytes; title preparation
+   4.589/4.687/4.981 s; input-ready boot 13.325/13.548/13.774 s;
+   Continue 3.293/3.360/3.463 s. Store inspection takes 2.419/2.482/2.635 s.
+   Default title diagnostic GC is 0.876/0.899/0.968 s; shipped-equivalent timing
+   remains unmeasured. Party, PC and flags vary together, so PC causality is not
+   isolated. All three exceed boot/slice targets; Continue meets 4 s.
+   [Three-save phases and exact proof](boot-three-earned-saves-20261102.json).
+   Fix structural door/boot/cave costs. Deferred `import()` splitting is closed:
+   SDK 3.1.2 prohibits imports outside PDZ loading; no candidate was created. Do not
    restart the census. The user explicitly allows the existing guarded history
    helper for ordinary C journeys. Its archive-fence correction passes host
    checks, but native qualification remains open: opening the profiler window
