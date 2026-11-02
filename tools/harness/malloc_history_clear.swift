@@ -279,10 +279,18 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
     usleep(200_000)
     print("{\"clear_requested\":true,\"mechanism\":\"verified-window-broom\",\"pid\":\(pid)}")
 }
-func operate(_ pid: pid_t, _ operation: String, _ directory: URL, _ reverify: () throws -> Void) throws {
+func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
+             _ reverify: () throws -> Void) throws {
     try require(AXIsProcessTrusted(), "Accessibility unavailable; no prompt requested")
     let app = AXUIElementCreateApplication(pid)
     try require(AXUIElementSetMessagingTimeout(app, 0.2) == .success, "AX timeout unavailable")
+    if journey && operation == "clear" {
+        // The pinned SDK's broom is unlabelled. Avoid materializing its populated
+        // AX control tree before clearing. This existing path still verifies the
+        // exact native window, layout, live owner and point hit-test before input.
+        try clearUnlabelledMallocControl(app, pid, reverify)
+        return
+    }
     var candidates: [AXUIElement] = [], logControls: [AXUIElement] = []
     var seen: [AXUIElement] = [], listing: [[String: String]] = []
     func walk(_ element: AXUIElement, _ scope: String, _ depth: Int) throws {
@@ -389,7 +397,7 @@ do {
     let processFile = args.count == 7 ? args[6] : "run.json"
     let directory = path(args[2])
     let pid = try verify(directory, args[3], args[4], identity, processFile)
-    try operate(pid, args[1], directory) {
+    try operate(pid, args[1], directory, journey: identity == "JOURNEY") {
         try require(try verify(directory, args[3], args[4], identity, processFile) == pid, "runtime identity changed")
     }
     fputs("helper_elapsed_ms=\(Double(DispatchTime.now().uptimeNanoseconds - started) / 1e6)\n", stderr)

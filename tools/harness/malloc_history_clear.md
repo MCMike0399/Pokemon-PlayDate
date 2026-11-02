@@ -162,7 +162,7 @@ Native command/frame timing ends before the pause; helper overhead stays in the
 separate `processes/NNNN/malloc-clear.jsonl`, with wall time retained. Journey
 results are not production latency measurements.
 
-The first safe pause performs inspect/show/inspect/Clear/inspect. Later safe
+The first safe pause performs inspect/show/Clear/inspect. Later safe
 pauses Clear/inspect when host footprint is at least512MiB. Limits are64 Clears
 and131 helper calls per generation; existing scenario validation bounds process
 generations. Each helper still has its original8s alarm and9s host ceiling.
@@ -212,3 +212,16 @@ in the live descriptor and existing process evidence; archival never reopens the
 fence. A two-generation subprocess test verifies a competing POSIX writer is
 refused after each archive and succeeds only after the owner exits. This fixes
 the review finding; actual native Clear qualification remains pending.
+
+### First-open journey memory qualification
+
+The first journey pilot stopped at the unchanged 1 GiB host limit: initial
+inspection used about 392 MB; showing Malloc Log raised usage to 880 MB; its
+pre-Clear inspection crossed 1 GiB. No Clear ran. The next candidate removes
+that pre-Clear inspection and uses the existing verified-window broom path
+directly for JOURNEY Clear, without traversing the populated log's AX children.
+The exact SDK binary, native window, 740×480 layout, current PID/locks and point
+hit-test remain mandatory immediately before input. Inspection/capture follows
+Clear. Census behavior is unchanged and remains stopped. This is a candidate
+until actual native reclamation and a short journey segment pass; no host guard,
+pool, timing or game-state check is relaxed.

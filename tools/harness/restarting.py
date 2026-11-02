@@ -705,7 +705,10 @@ class JourneyHistory:
                 return
             if self.clears >= HISTORY_MAX_CLEARS:
                 raise ProtocolError('journey history Clear bound reached')
-            operations = ['inspect', 'show-log', 'inspect', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
+            # Inspecting the populated log before Clear can materialize enough
+            # profiler UI data to exhaust the host guard. Clear's own verified
+            # window/layout/hit-test checks precede its click; inspect afterward.
+            operations = ['inspect', 'show-log', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
             for operation in operations:
                 self.invoke(operation, deadline)
                 if operation == 'clear':

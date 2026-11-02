@@ -72,6 +72,15 @@ class JourneyHistoryTests(unittest.TestCase):
             history.before_send()
         self.assertFalse((self.root / 'journey-history-ack.json').exists())
 
+    def test_first_clear_precedes_open_log_inspection(self):
+        history = self.history()
+        history.invoke = Mock()
+        history.completed(self.result, 100)
+        self.assertEqual([call.args[0] for call in history.invoke.call_args_list],
+                         ['inspect', 'show-log', 'clear', 'inspect'])
+        self.assertEqual(history.clears, 1)
+        self.assertFalse((self.root / 'journey-history-ack.json').exists())
+
     def test_bounds_and_safe_pause_below_trigger(self):
         history = self.history()
         history.invoke = Mock()
