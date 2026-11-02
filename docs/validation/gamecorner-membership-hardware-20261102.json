@@ -1,0 +1,1024 @@
+{
+  "classification": "Specific GameCorner hard-memory failure resolved on same physical route; full playability/B acceptance not established",
+  "candidate": "6576cef1",
+  "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/gamecorner-membership-hardware-20261102-01",
+  "build_id": "e64af0a6f9da4b8081420c87f486967a",
+  "sha256": {
+    "manifest.json": "842212d54805725980f83a89cfca0a2d755ac0aee621fdaab97c02cd9045cec2",
+    "simulator-gate.json": "ff3df5d1cd63c34bda59e543ff876c6c23ee68897ba91f50cd8830fafcac86d1",
+    "outcome.json": "7e41050dd76d5b476956c7436971f57d0871d536bb2203ad7dc78b5f50552448",
+    "serial-boot-trace.tsv": "fe5672f5bbfb4dbaaad8bffd06ad413caa0f1336c9f0f7c6a35b7c83b945e0e0",
+    "device-smoke.json": "4267433fc0abc66fc1e10128140c77fd89cafd0162d5ba852b27541c218cfd01",
+    "device-responses.json": "20efc9fb9760093a3991c4c65289de735ab18c2ccb8b791fc0b6607b7395037a",
+    "route17-probe-finish.json": "b202d63576374b938c2b7144811eb2d8df271c73557b76b67474241de5969d0f",
+    "keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  },
+  "measurements": {
+    "battle_start_ms": null,
+    "frame_ms": 213.812,
+    "heap_live_bytes": 6581653.504,
+    "heap_peak_bytes": 8211716.096,
+    "map_load_ms": 4477.0,
+    "slice_ms": 1458.479
+  },
+  "wall_ms": {
+    "boot_input_ready": 13564,
+    "Continue": 3474,
+    "Save": 1946,
+    "cold_FuchsiaCity": 4477,
+    "first_Route17": 4079,
+    "CeladonCity": 4008,
+    "GameCorner": 3960
+  },
+  "completed_doors": 12,
+  "native_projection": "Baseline withLoading projection failed guard330ms/copy3; new32ms/copy0/heap6427->6471KiB. Native instrumentation, not physical latency ratio.",
+  "native_differential": "All six original cases across11short processes, all18effect/world combinations; original assertions preserved.51affected hosts green (one wrong-module invocation retained, missing15-group thenpassed).",
+  "resource_scope": "No9MiB hard guard, no new error/crash logs, keeper restored. Raw sampled peak8211716.096B. heap_live_bytes6581653.504 is not post-GC live: diagnostic full collects were replaced with bookkeeping marks, production softGC unchanged. Do not claim6MiB post-GC target from it. Native memory/transient peaks unmeasured.",
+  "failures_retained": [
+    "heap_live_bytes",
+    "map_load_ms",
+    "battle_start_ms",
+    "boot_title",
+    "boot_slice",
+    "door",
+    "battle",
+    "cave_walking_p95",
+    "missing-power-on-to-walking-app-clock-proxy"
+  ],
+  "scope": "One paired instrumented same12button-batch replay with matched endpoints; interbatch idleframes differ. No forced diagnostic fullGC or limit/policy change. Existing declared phase target limits unchanged. No battle/cave coverage on this route. Remaining worst8destinations and all release gates stay open.",
+  "method_rows": [
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 591,
+          "max_ms": 341,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 739,
+          "max_ms": 272,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 450,
+          "max_ms": 450,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 307,
+          "max_ms": 307,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 145,
+          "max_ms": 80,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 110,
+          "max_ms": 28,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 47,
+          "max_ms": 26,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 37,
+          "max_ms": 8,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 54,
+          "max_ms": 54,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 32,
+          "max_ms": 32,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 66,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 125,
+          "max_ms": 70,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 882,
+          "max_ms": 489,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 37,
+          "max_ms": 37,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:FUCHSIA_CITY"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 180,
+          "max_ms": 95,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 178,
+          "max_ms": 61,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 299,
+          "max_ms": 299,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 96,
+          "max_ms": 96,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 35,
+          "max_ms": 18,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 110,
+          "max_ms": 29,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 19,
+          "max_ms": 11,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 37,
+          "max_ms": 8,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 18,
+          "max_ms": 18,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 64,
+          "max_ms": 17,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 6,
+          "max_ms": 6,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 12,
+          "max_ms": 6,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 475,
+          "max_ms": 238,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 42,
+          "max_ms": 42,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_18"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 121,
+          "max_ms": 61,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 106,
+          "max_ms": 36,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 277,
+          "max_ms": 277,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 64,
+          "max_ms": 64,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 35,
+          "max_ms": 18,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 112,
+          "max_ms": 29,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 8,
+          "max_ms": 4,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 37,
+          "max_ms": 8,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 7,
+          "max_ms": 7,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 65,
+          "max_ms": 17,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 13,
+          "max_ms": 7,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 419,
+          "max_ms": 214,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 41,
+          "max_ms": 41,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_18_GATE_1F"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 465,
+          "max_ms": 369,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 464,
+          "max_ms": 347,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 584,
+          "max_ms": 584,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 94,
+          "max_ms": 94,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 34,
+          "max_ms": 17,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 111,
+          "max_ms": 29,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 16,
+          "max_ms": 10,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 37,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 17,
+          "max_ms": 17,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 35,
+          "max_ms": 36,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 66,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 7,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 13,
+          "max_ms": 7,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 759,
+          "max_ms": 520,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 43,
+          "max_ms": 43,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_18"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 843,
+          "max_ms": 438,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 1139,
+          "max_ms": 388,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 612,
+          "max_ms": 612,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 460,
+          "max_ms": 460,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 152,
+          "max_ms": 100,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 110,
+          "max_ms": 28,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 51,
+          "max_ms": 29,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 41,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 50,
+          "max_ms": 50,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 32,
+          "max_ms": 32,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 62,
+          "max_ms": 17,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 132,
+          "max_ms": 90,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 1133,
+          "max_ms": 584,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 41,
+          "max_ms": 41,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_17"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 571,
+          "max_ms": 470,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 568,
+          "max_ms": 448,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 678,
+          "max_ms": 678,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 96,
+          "max_ms": 96,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 32,
+          "max_ms": 17,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 114,
+          "max_ms": 30,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 19,
+          "max_ms": 11,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 40,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 20,
+          "max_ms": 20,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 65,
+          "max_ms": 17,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 7,
+          "max_ms": 7,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 14,
+          "max_ms": 8,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 870,
+          "max_ms": 615,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 42,
+          "max_ms": 42,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_18"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 1306,
+          "max_ms": 870,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 1601,
+          "max_ms": 847,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 1077,
+          "max_ms": 1077,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 460,
+          "max_ms": 460,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 180,
+          "max_ms": 90,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 108,
+          "max_ms": 28,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 52,
+          "max_ms": 31,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 41,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 49,
+          "max_ms": 49,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 36,
+          "max_ms": 36,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 67,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 160,
+          "max_ms": 80,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 1595,
+          "max_ms": 1014,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 42,
+          "max_ms": 42,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_17"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 771,
+          "max_ms": 391,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 1062,
+          "max_ms": 364,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 585,
+          "max_ms": 585,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 415,
+          "max_ms": 415,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 155,
+          "max_ms": 104,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 108,
+          "max_ms": 28,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 30,
+          "max_ms": 17,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 36,
+          "max_ms": 8,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 80,
+          "max_ms": 80,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 66,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 134,
+          "max_ms": 93,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 1061,
+          "max_ms": 537,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 40,
+          "max_ms": 40,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_16"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 181,
+          "max_ms": 100,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 169,
+          "max_ms": 76,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 318,
+          "max_ms": 318,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 77,
+          "max_ms": 77,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 42,
+          "max_ms": 21,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 115,
+          "max_ms": 29,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 11,
+          "max_ms": 6,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 41,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 12,
+          "max_ms": 12,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 67,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 9,
+          "max_ms": 9,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 17,
+          "max_ms": 9,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 488,
+          "max_ms": 253,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 42,
+          "max_ms": 42,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_16_GATE_1F"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 1056,
+          "max_ms": 667,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 1345,
+          "max_ms": 646,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 872,
+          "max_ms": 872,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 413,
+          "max_ms": 413,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 192,
+          "max_ms": 96,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 108,
+          "max_ms": 27,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 32,
+          "max_ms": 18,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 38,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 81,
+          "max_ms": 81,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 65,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 171,
+          "max_ms": 87,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 1344,
+          "max_ms": 810,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 40,
+          "max_ms": 40,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:ROUTE_16"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 728,
+          "max_ms": 384,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 963,
+          "max_ms": 323,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 551,
+          "max_ms": 551,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 389,
+          "max_ms": 389,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 153,
+          "max_ms": 89,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 107,
+          "max_ms": 27,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 45,
+          "max_ms": 26,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 40,
+          "max_ms": 9,
+          "calls": 5
+        },
+        "spawn": {
+          "wall_ms": 50,
+          "max_ms": 50,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 34,
+          "max_ms": 34,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 65,
+          "max_ms": 18,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 129,
+          "max_ms": 77,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 1016,
+          "max_ms": 527,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 41,
+          "max_ms": 41,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:CELADON_CITY"
+    },
+    {
+      "end_phase": "door.map.end",
+      "methods": {
+        "validate_actors": {
+          "wall_ms": 768,
+          "max_ms": 405,
+          "calls": 2
+        },
+        "describe_actors": {
+          "wall_ms": 1014,
+          "max_ms": 340,
+          "calls": 3
+        },
+        "commit": {
+          "wall_ms": 569,
+          "max_ms": 569,
+          "calls": 1
+        },
+        "motion_attach": {
+          "wall_ms": 409,
+          "max_ms": 409,
+          "calls": 1
+        },
+        "travel": {
+          "wall_ms": 32,
+          "max_ms": 16,
+          "calls": 2
+        },
+        "resolve_location": {
+          "wall_ms": 109,
+          "max_ms": 28,
+          "calls": 4
+        },
+        "normalize_motion": {
+          "wall_ms": 47,
+          "max_ms": 28,
+          "calls": 3
+        },
+        "world_export": {
+          "wall_ms": 45,
+          "max_ms": 9,
+          "calls": 6
+        },
+        "spawn": {
+          "wall_ms": 57,
+          "max_ms": 57,
+          "calls": 1
+        },
+        "reload": {
+          "wall_ms": 32,
+          "max_ms": 32,
+          "calls": 1
+        },
+        "world_validate": {
+          "wall_ms": 62,
+          "max_ms": 16,
+          "calls": 4
+        },
+        "world_checkpoint": {
+          "wall_ms": 8,
+          "max_ms": 8,
+          "calls": 1
+        },
+        "map_descriptor": {
+          "wall_ms": 11,
+          "max_ms": 6,
+          "calls": 2
+        },
+        "capture": {
+          "wall_ms": 1058,
+          "max_ms": 549,
+          "calls": 2
+        },
+        "world_apply": {
+          "wall_ms": 40,
+          "max_ms": 40,
+          "calls": 1
+        }
+      },
+      "destination": "pokered:GAME_CORNER"
+    }
+  ],
+  "next": "One combined performance/source review of metadata+membership and actual qualification proofs, then adopt ifclear. No push."
+}

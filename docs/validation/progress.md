@@ -211,3 +211,12 @@ No new error/crash logs; collection completes and keeper is restored.
 [Failure and ranked hypotheses](b149-gamecorner-memory-stop-20261102.json).
 Do not repeat this unchanged build or lower guards. Isolated Substitute owner
 seamcc6109ef is compiled/host31 only, unsupported and unadopted; C stays inactive.
+
+Four-cell membership candidate6576cef1 resolves the same physical GameCorner
+hard-guard failure: all12button batches complete and the player settles inside.
+GameCorner3.960s; boot13.564s, Continue3.474s, Save1.946s. No newlogs, keeper
+restored. SampledLua peak7.83MiB; uncollected endheap6.28MiB is NOT post-GClive.
+Boot/door/slice targets stillfail; battle/caves unmeasured here. Six native cases
+(all18effect/world combinations) and51affected hosts pass.
+[Physical scope and remaining gates](gamecorner-membership-hardware-20261102.json).
+Combined review/adoption pending; B visualacceptance remains open. Nothingpushed.
