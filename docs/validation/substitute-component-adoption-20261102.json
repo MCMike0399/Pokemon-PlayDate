@@ -99,5 +99,14 @@
     "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234",
     "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/substitute-game-safety-20261102-01/simulator-smoke.json": "51fee7409492f12f344e8cf09f26445f5e3e0541a1845b180143a8579f766e4f"
   },
-  "limits": "Game smoke uses genuine existing Bbytes, normalmenus/SurfSave/OldRod battle, not an activeSubstitute ondevice. SourcecodeproducerEpoch19 and legacyinverse/unitchecks are separate: no persistedepoch18-to19 wiremigration is inferred from slots withoutsuchfield. DiagnosticfullGC retained; shippedtiming unmeasured, cavep95 unmeasured, native/transientmemory unmeasured. 299includesrepeatedcuratedassertions, notunique299. Nativeclip is privatecomponentfixture sampled15fps, notcampaign/devicepacing. B149 remainsaccepted; C inactive. Manylatencytargets fail; SurfSave3310ms exceeds2s. No broadfidelity claim."
+  "limits": "Game smoke uses genuine existing Bbytes, normalmenus/SurfSave/OldRod battle, not an activeSubstitute ondevice. SourcecodeproducerEpoch19 and legacyinverse/unitchecks are separate: no persistedepoch18-to19 wiremigration is inferred from slots withoutsuchfield. DiagnosticfullGC retained; shippedtiming unmeasured, cavep95 unmeasured, native/transientmemory unmeasured. 299includesrepeatedcuratedassertions, notunique299. Nativeclip is privatecomponentfixture sampled15fps, notcampaign/devicepacing. B149 remainsaccepted; C inactive. Manylatencytargets fail; SurfSave3310ms exceeds2s. No broadfidelity claim.",
+  "adopted_main_code": "056fe922ec94db22b4c0b02c1742f899e0eb6291",
+  "source_sha256": "503a70adc69c70cc22778a04ec72c7bfcbc7f49f25f91623ef328e22a9495b48",
+  "main_integration": {
+    "full_branch_host": "1169ran:1165pass/3metadatafreshnessfailures/1overbroadnew-artpreservationerror; no mechanics failure",
+    "corrected_checks": "110targetedpassed onbranch;120passed aftermerge",
+    "protocol": "57passed aftermerge",
+    "production_compile": "SDK3.1.2 literalmakecompile passed",
+    "scope": "No secondfull1169run aftermetadata/art-reference fixes; all observed failures rerun andresolved."
+  }
 }

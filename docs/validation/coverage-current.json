@@ -5,8 +5,8 @@
     "source_sha256": "12887af25cabc2b9d52c71ee0d86bca2cfc38f7a74620fb5888792a55de1dcb4",
     "policy_date": "2026-11-02",
     "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-    "scope": "Private Substitute component on accepted main149, unadopted pending finalgamegate. NoCactivation orwholecampaign replay.",
-    "acceptance_context": "private-component-sdk-not-main-checkpoint",
+    "scope": "Main149 accepted plus reviewed SDK-scoped Substitute component; C171 inactive and all broad latency/fidelity gates remain.",
+    "acceptance_context": "main149-with-scoped-substitute-component",
     "review": "Exactly one full_mechanics facet (Substitute) gains bounded sdk_scoped implementation evidence afteractual32core/6pose/motionandregressions. Allotherrows/facets, inventory, stagedsnapshots andhistoricalproofhashes retained. Originalcurated54unchanged; sixoldownerhashesrequalifiedfromactualSDK.",
     "previous_snapshot": {
       "commit": "391474749b2c0d1b9f4bd47940ea1f88178894b8",
@@ -1015,7 +1015,7 @@
     },
     "review_document": {
       "path": "docs/validation/substitute-component-adoption-20261102.json",
-      "sha256": "b18208e038d334591d7d7713292a76e96b3bc106f9d880bbb8e8c38bc30f343d"
+      "sha256": "8a048b6eebf559ea9e8d276d1808adec655983ea7558ecc1849df401bffb5c56"
     }
   },
   "accepted_milestone_rows": [],

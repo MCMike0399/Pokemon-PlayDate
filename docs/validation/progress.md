@@ -18,6 +18,9 @@ B game code merged as `af9a8938`. Current main adds the reviewed catalogue-query
 memory fix `9ba63d68`; historical B acceptance and package retain their original
 build identities. The production code matches the measured memory candidate;
 only a generated development-fixture dependency hash changed afterward.
+Substitute is integrated as`056fe922`:299native executions, six rendering cases,
+a native component motion clip and physicalgame smoke pass in their stated scope.
+[Substitute proof and limits](substitute-component-adoption-20261102.json).
 The six canonical B slot byte strings are unchanged. [Chain identities](chain-saves.json).
 
 The B merge passed 1,152 host tests and 57 protocol tests. After the memory merge,
@@ -98,9 +101,11 @@ point probes retain their separate scope.
 1. Measure current post-GC live heap/native headroom on Game Corner, Hideout,
    Safari and Tower. Keep about 7.5 MiB working peak before C activation.
    Audio remains held for its memory/listening checks.
-2. Finish Substitute regressions, six presentation cases and curated54 checks.
-   Its static standards finding is fixed (`4160ce96`); spec review has no
-   findings. Candidate `c76bdce7` remains unadopted.
+2. Substitute is adopted. The composed host suite ran1,169tests with four
+   metadata/art-reference failures;110targeted branch checks and120merged checks
+   pass after correction.57protocol checks and productioncompile pass. Current
+   shared-owner evidence is rebound only where unchanged assertions reran;
+   HelpingHand/Dig stay stale, and no full-mechanics completion is inferred.
 3. Advance C's isolated host composition `69658243`. All three accepted-B imports
    now pass after verified original-path ancestry restoration. Four conditions
    remain: President binding, two elevator arrivals and real C qualification.
@@ -127,7 +132,7 @@ node availability. No unrelated applications were killed.
 User disk policy: **30 GiB reserve / 31 GiB new-runtime admission**. Local
 maintenance runs at 30→50 GiB. Keep the SDK 3.1.2 pool at 16 MiB, host limit at
 1 GiB, Lua guards at 6/8/9 MiB, and ordered ownership locks. All runtime/USB
-readers are closed after the measured route; verified keeper is restored.
+readers are closed after both measured routes; verified keeper is restored.
 Storage is background, exception-only. No current/earned input is discarded.
 [Verified census retention](capacity-census04-retention-20261102.json),
 [earlier recovery](capacity-census-retention-complete-20261102.json).
