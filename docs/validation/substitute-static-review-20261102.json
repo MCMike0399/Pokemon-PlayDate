@@ -1,0 +1,20 @@
+{
+  "base": "7726ea49f7468c142717b29344a247958edf1c3b",
+  "candidate": "d9c39c119d3e0b001d1fd33e4d7849f5c1806dda",
+  "standards": {
+    "documented_findings": 1,
+    "severity": "P3",
+    "finding": "Compressed confusion gate conditional in dev/substituteContracts.lua:152",
+    "resolution_commit": "4160ce96",
+    "optional_heuristic": "Possible duplicate recoil logic; nonblocking, deferred to preserve differing per-hit versus whole-move timing."
+  },
+  "spec": {
+    "actionable_findings": 0,
+    "scope": "Read-only pinned GenV oracle, code/art parity with66ff, source MonsterSprite pixels, owner and epoch19 migration inspection."
+  },
+  "runtime_scope": "No fresh native execution by reviewers; Root pending regressions/presentation6/curated54 remain. Candidate unadopted, main149 unchanged.",
+  "review_threads": [
+    "thread:delegated-task:command%3Amcp%3Ae4f57bdb-c3c2-4c48-913a-c53c880f627d%3Adelegate-task%3A93102623-fe23-4cb9-976a-b6d0de310c74",
+    "thread:delegated-task:command%3Amcp%3Ae4f57bdb-c3c2-4c48-913a-c53c880f627d%3Adelegate-task%3Abe3dce4d-d91c-4dc0-b7b9-4e914ec49645"
+  ]
+}
