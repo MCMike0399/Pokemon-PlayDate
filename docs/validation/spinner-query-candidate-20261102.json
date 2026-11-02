@@ -1,0 +1,79 @@
+{
+  "classification": "UNADOPTED measured spinner query candidate; one performance review pending",
+  "base": "24ea539cd68142af6b50ca57841cdb8ae350f519",
+  "implementation": "7556db21d9b80311d3a2330df984a1ae262d771f",
+  "changed_production_owner": "Source/game/rocketHideoutStory.lua",
+  "owner_sha256": "b679e61fd27863e671118143f8c013908c4cb93cbd4e9778d3d2cf2acb61e417",
+  "native": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-native-20261102-01",
+    "passed": 61,
+    "failed": 0,
+    "routes": 59,
+    "scope": "all spinner plan parity, detached plans/public scene copies, unknown ID rejection; no full campaign claim"
+  },
+  "host": {
+    "rocket_hideout_story": 5,
+    "generator_check": true
+  },
+  "qualification": {
+    "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-sdk-exports-20261102-01",
+    "values_unchanged": true,
+    "changed_dependency_only": "game/rocketHideoutStory.lua",
+    "prior_receipts_retained": true
+  },
+  "safety": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-safety-20261102-02",
+    "slice_ms": 51.977,
+    "sampled_peak_bytes": 8965259.264,
+    "strict_live_heap_failed": true,
+    "classification": "hardware measurement admission only"
+  },
+  "hardware": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-hardware-20261102-02",
+    "build_id": "62237066d8b24b3592c8979872800f85",
+    "comparison": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-paired-comparison-20261102-02.json",
+    "no_new_logs": true,
+    "keeper_restored": true,
+    "screen": "keeper not directly observed; verified inventory and run acknowledgement",
+    "scope": "actual B3 spinners; settled B4(19,10); same B3 inputs/earned save; idle dwell and Celadon corrective branch differ"
+  },
+  "result": {
+    "b3_median_ms": [
+      136.688,
+      29.0
+    ],
+    "b3_p95_ms": [
+      147.562,
+      38.844
+    ],
+    "b3_max_ms": [
+      2264.312,
+      2134.25
+    ],
+    "over_one_second_frames": [
+      3,
+      3
+    ],
+    "qualification": "ordinary B3 active p95 improves73.68%; long hitch remains; no broad playability acceptance"
+  },
+  "first_attempt": {
+    "directory": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-hardware-20261102-01",
+    "accepted": false,
+    "reason": "incorrectly replayed baseline Celadon corrective branch after already arriving inside Game Corner; never reached B3"
+  },
+  "limits": [
+    "one paired instrumented observation; no repeatability claim",
+    "default diagnostic GC retained; not shipped-equivalent timing",
+    "Lua heap excludes native allocations/transient peaks",
+    "B149 remains accepted; C inactive; no new maps accepted"
+  ],
+  "files": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-native-20261102-01/root-verification.json": "adccc98a267e6e65491826ff7e2cf12da982cd5c172d18f6dd318fc5524a86e1",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-sdk-exports-20261102-01/outcome.json": "6f63c6ff28987ddbb5e01aaf59a0bbb72838dea6dc45325cf7f216c128ca4b38",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-safety-20261102-02/simulator-smoke.json": "395ef0ea54cb814d9457f900ed910c1eb8da04a8bb8a84b9aa251a4227761162",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-hardware-20261102-02/device-smoke.json": "e3a7ae9032072160dea16ca8c84dc2354326154ca4a4e580955b05d5b5caf1af",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-hardware-20261102-02/route17-probe-finish.json": "a05f34c48ed3d60f0fd0c5025581a16a0d32ee4c8acee390a6eb5e97689811c1",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-hardware-20261102-02/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-paired-comparison-20261102-02.json": "85d62a7b6c537685d8fd88a6b70c456c086801ccea0e7357a5ee8b450c317387"
+  }
+}

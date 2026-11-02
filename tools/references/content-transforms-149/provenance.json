@@ -1,12 +1,12 @@
 {
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/terrain-query-b149-exports-20261102-01",
-  "producer_build_sha256": "41b4b6df017db19345e1d2faaa41e3b00cdf8b78826e8604251722b239483b9a",
-  "producer_proof_sha256": "46c19e3e8f5e7f0b25f78259d66e1f81d766c2247c5af79907b9ab8ae1f0a333",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/spinner-query-sdk-exports-20261102-01",
+  "producer_build_sha256": "f9744cd29080ccc8741a28a17b431a9658d71eeb5e3e518093de43056f80e5fd",
+  "producer_proof_sha256": "6f63c6ff28987ddbb5e01aaf59a0bbb72838dea6dc45325cf7f216c128ca4b38",
   "dependencies": {
     "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
-    "game/rocketHideoutStory.lua": "0d6e8ec3cd50acf584a622c460c15f7bdb4c4e3655e1c2cc7932ecf124c1ff0e",
+    "game/rocketHideoutStory.lua": "b679e61fd27863e671118143f8c013908c4cb93cbd4e9778d3d2cf2acb61e417",
     "game/towerStory.lua": "28098bd2aff9815d6f9b2cca99d5726b358e04884d863c8f8e7320cda6fce35d",
     "game/snorlaxStory.lua": "168276ec133d6c96fc9fc73fe20eb02ea213556b8bcba9c38919d58a3f519590",
     "game/midgameGymStory.lua": "7cb913c593f1ddf8210b69f5535cbe9cb771ab5d9eeb3e11c197708b997a1def",
