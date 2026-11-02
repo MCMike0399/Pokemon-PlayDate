@@ -102,37 +102,66 @@ func verify(_ directory: URL, _ buildHash: String, _ runHash: String,
             build["simulator"] as? String == binary.path &&
             build["data_dir"] as? String == sdk.appendingPathComponent("Disk/Data/" + bundleID).path &&
             run["build_id"] as? String == id && run["session_id"] as? String == session &&
-            run["history_identity"] as? String == "JOURNEY" && run["status"] as? String == "ready" &&
-            run["fresh_ready"] as? Bool == true && run["owner_pid"] as? Int == Int(getppid()) &&
+            run["history_identity"] as? String == "JOURNEY" &&
+            run["owner_pid"] as? Int == Int(getppid()) &&
             run["simulator_sha256"] as? String == simulatorHash &&
             run["evidence"] as? String == String(processFile.dropLast("/process.json".count)),
             "not the pinned SDK journey build/process")
         let data = sdk.appendingPathComponent("Disk/Data/" + bundleID)
         let pause = try record(data.appendingPathComponent("journey-history-pause.json"))
-        let result = try record(data.appendingPathComponent("result.json"))
-        let snapshot = result["snapshot"] as? [String: Any] ?? [:]
-        let player = snapshot["player"] as? [String: Any] ?? [:]
-        let title = snapshot["title"] as? [String: Any] ?? [:]
-        let menu = title["menu"] as? [String: Any] ?? [:]
-        let readyTitle = snapshot["root"] as? String == "title" &&
-            snapshot["stack"] as? String == "title" && title["phase"] as? String == "menu" &&
-            menu["active"] as? Bool == true && player["present"] as? Bool == false
-        let exploring = snapshot["root"] as? String == "overworld" && snapshot["overworld"] as? String == "explore" &&
-            player["settled"] as? Bool == true && player["moving"] as? Bool == false &&
-            player["isJumping"] as? Bool != true && player["pendingEdgeDoor"] as? Bool == false
-        try require(pause["build_id"] as? String == id && pause["session_id"] as? String == session &&
-            result["build_id"] as? String == id && result["session_id"] as? String == session &&
-            pause["protocol"] as? Int == 1 && result["protocol"] as? Int == 1 &&
-            pause["id"] as? String != nil && pause["id"] as? String == result["id"] as? String &&
-            pause["tick"] as? Int != nil && pause["tick"] as? Int == result["tick"] as? Int &&
-            result["history_paused"] as? Bool == true && result["status"] as? String == "ok" &&
-            (exploring || readyTitle) &&
-            !FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
-            "journey is not at an unacknowledged safe pause")
+        let startup = run["status"] as? String == "launching"
+        if startup {
+            try require(build["history_startup_version"] as? Int == 1 &&
+                build["history_startup_hook_sha256"] as? String == "7fae7f6fa9d640a640d12419c959b726935d0ab51820a527b1c2218dcf87615b" &&
+                run["history_startup_version"] as? Int == 1 && run["fresh_ready"] as? Bool == false &&
+                run["simulator"] as? String == binary.path &&
+                pause["protocol"] as? Int == 1 && pause["build_id"] as? String == id &&
+                pause["session_id"] as? String == session && pause["tick"] as? Int == 0 &&
+                pause["id"] as? String != nil && pause["id"] as? String == run["startup_id"] as? String &&
+                pause["generation"] as? Int != nil && pause["generation"] as? Int == run["generation"] as? Int &&
+                pause["history_startup_version"] as? Int == 1 && pause["status"] as? String == "startup" &&
+                pause["startup_stage"] as? String == "title-preparing" &&
+                pause["root"] as? String == "title" && pause["stack"] as? String == "title" &&
+                pause["title_phase"] as? String == "preparing" && pause["player_present"] as? Bool == false &&
+                pause["injected_input"] as? Bool == false && pause["recording"] as? Bool == false &&
+                !FileManager.default.fileExists(atPath: data.appendingPathComponent("ready.json").path) &&
+                !FileManager.default.fileExists(atPath: data.appendingPathComponent("result.json").path),
+                "journey is not at the pinned pre-ready startup barrier")
+        } else {
+            try require(run["status"] as? String == "ready" && run["fresh_ready"] as? Bool == true,
+                        "journey process is not fresh ready")
+            let result = try record(data.appendingPathComponent("result.json"))
+            let snapshot = result["snapshot"] as? [String: Any] ?? [:]
+            let player = snapshot["player"] as? [String: Any] ?? [:]
+            let title = snapshot["title"] as? [String: Any] ?? [:]
+            let menu = title["menu"] as? [String: Any] ?? [:]
+            let readyTitle = snapshot["root"] as? String == "title" &&
+                snapshot["stack"] as? String == "title" && title["phase"] as? String == "menu" &&
+                menu["active"] as? Bool == true && player["present"] as? Bool == false
+            let exploring = snapshot["root"] as? String == "overworld" && snapshot["overworld"] as? String == "explore" &&
+                player["settled"] as? Bool == true && player["moving"] as? Bool == false &&
+                player["isJumping"] as? Bool != true && player["pendingEdgeDoor"] as? Bool == false
+            try require(pause["build_id"] as? String == id && pause["session_id"] as? String == session &&
+                result["build_id"] as? String == id && result["session_id"] as? String == session &&
+                pause["protocol"] as? Int == 1 && result["protocol"] as? Int == 1 &&
+                pause["id"] as? String != nil && pause["id"] as? String == result["id"] as? String &&
+                pause["tick"] as? Int != nil && pause["tick"] as? Int == result["tick"] as? Int &&
+                result["history_paused"] as? Bool == true && result["status"] as? String == "ok" &&
+                (exploring || readyTitle) &&
+                !FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
+                "journey is not at an unacknowledged safe pause")
+        }
+        try require(!FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
+                    "journey pause already acknowledged")
         let current = try record(directory.appendingPathComponent("run.json"))
         let generations = current["processes"] as? [[String: Any]] ?? []
         try require(current["build_id"] as? String == id && current["session_id"] as? String == session &&
-            generations.last?["pid"] as? Int == pid && generations.last?["status"] as? String == "ready" &&
+            generations.last?["pid"] as? Int == pid &&
+            generations.last?["status"] as? String == run["status"] as? String &&
+            generations.last?["generation"] as? Int == run["generation"] as? Int &&
+            generations.last?["start_sec"] as? UInt64 == run["start_sec"] as? UInt64 &&
+            generations.last?["start_usec"] as? UInt64 == run["start_usec"] as? UInt64 &&
+            (!startup || generations.last?["startup_id"] as? String == run["startup_id"] as? String) &&
             generations.last?["evidence"] as? String == run["evidence"] as? String,
             "process is not the current journey generation")
     } else {

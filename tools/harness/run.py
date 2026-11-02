@@ -178,11 +178,17 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False, his
     if history:
         metadata['history_identity'] = 'JOURNEY'
         metadata['history_clear'] = True
+        metadata['history_startup_version'] = 1
         # Freeze check is private staging only; production entry stays byte-exact.
         text = (source / 'main.lua').read_text()
         marker = 'if harness and harness.isQuiescent then return end'
         if text.count(marker) != 1:
             raise ProtocolError('missing unique harness freeze seam')
+        startup_marker = '        BootTrace.mark("title.visible")'
+        if text.count(startup_marker) != 1:
+            raise ProtocolError('missing unique title artwork seam')
+        text = text.replace(startup_marker, startup_marker + '\n        Harness.pauseStartup(game)')
+        metadata['history_startup_hook_sha256'] = hashlib.sha256(b'Harness.pauseStartup(game)').hexdigest()
         (source / 'main.lua').write_text(text.replace(marker,
             marker + '\n            if harness and harness.historyWaiting and harness.historyWaiting() then return end'))
     if journey:
@@ -198,7 +204,7 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False, his
             raise ProtocolError('capture policy overlay would overwrite staged Source')
         target.write_bytes(overlay)
         (source / 'main.lua').write_bytes((source / 'main.lua').read_bytes() + b'\nimport "dev/capture_policy"\n')
-    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile', 'history_clear'):
+    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile', 'history_clear', 'history_startup_version'):
         if key not in metadata:
             continue
         value = metadata[key]

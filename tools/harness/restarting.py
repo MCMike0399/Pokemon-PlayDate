@@ -12,7 +12,7 @@ from tools.harness.protocol import Client, ProtocolError, atomic_json
 TRANSIENT = frozenset({'ready.json', 'heartbeat.json', 'request.json', 'result.json',
                        'rejected.json', 'cancel.json', 'runtime-error.json', 'captures-final.json',
                        'catalog-invariance-before.json', 'catalog-invariance-after.json',
-                       'journey-history-pause.json', 'journey-history-ack.json'})
+                       'journey-history-pause.json', 'journey-history-ack.json', 'journey-startup-request.json'})
 
 
 class UnconfirmedExit(ProtocolError):
@@ -581,9 +581,25 @@ def validate_journey_pause(value, result):
         raise ProtocolError('journey history boundary is not settled exploration or ready title')
 
 
+def validate_startup_pause(value, expected):
+    if (not isinstance(value, dict) or not expected
+            or any(value.get(key) != item for key, item in expected.items())
+            or value.get('tick') != 0 or value.get('status') != 'startup'
+            or value.get('startup_stage') != 'title-preparing'
+            or value.get('history_startup_version') != 1
+            or value.get('root') != 'title' or value.get('stack') != 'title'
+            or value.get('title_phase') != 'preparing'
+            or value.get('player_present') is not False
+            or value.get('injected_input') is not False or value.get('recording') is not False):
+        raise ProtocolError('foreign or unsafe startup history pause')
+
+
 class JourneyHistory:
     """A bounded hook on the existing owner/client; never drives game commands."""
-    def __init__(self, args, metadata, output, evidence, process, client):
+    def __init__(self, args, metadata, output, evidence, process, client, startup=None):
+        self.startup = startup
+        self.startup_serviced = False
+        self.startup_consumed = False
         self.helper = Path(args.history_helper).expanduser().absolute()
         self.pin = args.history_helper_sha256
         self.metadata, self.output, self.evidence = metadata, output, evidence
@@ -616,6 +632,49 @@ class JourneyHistory:
         except BaseException:
             self.failed = True
             raise
+
+    def startup_poll(self, deadline):
+        try:
+            self.check(deadline)
+            if self.failed:
+                raise ProtocolError('history owner failed; stop without replay')
+            pause = self.client.read('journey-history-pause.json')
+            if self.startup_serviced:
+                # The publication may remain until the coroutine consumes ACK.
+                if pause is None:
+                    self.startup_consumed = True
+                if pause and (self.startup_consumed or pause != self.startup_publication):
+                    raise ProtocolError('startup history publication changed after acknowledgement')
+                return
+            if pause is None:
+                return
+            validate_startup_pause(pause, self.startup)
+            if (self.client.data / 'journey-history-ack.json').exists():
+                raise ProtocolError('startup acknowledgement already exists')
+            self.pause = pause
+            self.clear(deadline)
+            self.check(deadline)
+            if self.client.read('journey-history-pause.json') != pause:
+                raise ProtocolError('startup history pause changed before acknowledgement')
+            ack = {key: pause[key] for key in (*self.client.identity, 'id', 'tick',
+                'generation', 'startup_stage', 'history_startup_version')}
+            atomic_json(self.evidence / 'startup-pause.json', pause)
+            atomic_json(self.client.data / 'journey-history-ack.json', ack)
+            self.startup_publication = pause
+            self.startup_serviced = True
+            self.pause = None
+        except BaseException:
+            self.failed = True
+            raise
+
+    def clear(self, deadline):
+        if self.failed or self.clears >= HISTORY_MAX_CLEARS:
+            raise ProtocolError('journey history Clear bound reached or owner failed')
+        operations = ['inspect', 'show-log', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
+        for operation in operations:
+            self.invoke(operation, deadline)
+            if operation == 'clear':
+                self.clears += 1
 
     def before_send(self):
         self.check()
@@ -706,16 +765,7 @@ class JourneyHistory:
             self.pause = pause
             if self.clears and footprint < HISTORY_TRIGGER:
                 return
-            if self.clears >= HISTORY_MAX_CLEARS:
-                raise ProtocolError('journey history Clear bound reached')
-            # Inspecting the populated log before Clear can materialize enough
-            # profiler UI data to exhaust the host guard. Clear's own verified
-            # window/layout/hit-test checks precede its click; inspect afterward.
-            operations = ['inspect', 'show-log', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
-            for operation in operations:
-                self.invoke(operation, deadline)
-                if operation == 'clear':
-                    self.clears += 1
+            self.clear(deadline)
         except BaseException:
             self.failed = True
             raise
@@ -758,6 +808,14 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 runner.simulator_preflight()
                 if metadata.get('history_clear') and shutil.disk_usage(output).free < 31 * 1024**3:
                     raise ProtocolError('journey admission requires 31 GiB disk headroom')
+                startup = None
+                if metadata.get('history_clear'):
+                    if metadata.get('history_startup_version') != 1:
+                        raise ProtocolError('journey startup feature missing from actual build')
+                    import uuid
+                    startup = dict(protocol=1, build_id=metadata['build_id'], session_id=metadata['session_id'],
+                        id='startup-' + uuid.uuid4().hex, generation=generation, history_startup_version=1)
+                    atomic_json(data / 'journey-startup-request.json', startup)
                 process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
                 record['pid'] = process.pid
                 if process.pid == prior_pid:
@@ -772,7 +830,10 @@ def run(args, scenario, metadata, output, data, owner, runner):
                 client = Client(data, metadata['build_id'], metadata['session_id'], evidence, owner=owner)
                 client.sequence = sequence
                 if metadata.get('history_clear'):
-                    client.history = JourneyHistory(args, metadata, output, evidence, process, client)
+                    record.update(startup_id=startup['id'], history_startup_version=1, fresh_ready=False,
+                                  simulator=metadata['simulator'])
+                    atomic_json(evidence / 'process.json', record); publish()
+                    client.history = JourneyHistory(args, metadata, output, evidence, process, client, startup)
                 # No prior ready exists, and the old publisher is confirmed dead.
                 ready = client.ready(args.ready_timeout)
                 if process.poll() is not None:

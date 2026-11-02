@@ -247,3 +247,40 @@ User decision, 2026-11-02: raise only the ordinary journey Clear trigger from
 other memory, disk, ownership and deadline guards remain unchanged. The failed
 window-close experiment is reverted. Native effectiveness of the new trigger
 must be measured; permission alone establishes no complete journey.
+
+### Pre-ready title artwork barrier (host/compile-only candidate)
+
+History-enabled journey staging now inserts `Harness.pauseStartup(game)` just
+following `title.visible`, after `presentStartup` has yielded the actual artwork
+and before content registration or title/save inspection. Imports remain in PDZ
+loading; the checked-in `Source/main.lua` is untouched. The barrier yields the
+same initialization coroutine through `GameBootstrap.checkpoint`, keeping its
+loading/memory guards active without game updates, timers or injected input.
+It does not skip the subsequent content, save, world or constructor validation.
+
+Before launch, the existing owner publishes a unique startup request for that
+generation. Before polling readiness it records the real PID, executable hash,
+native start time and direct parent in `process.json` and current `run.json`,
+with `status=launching` and `fresh_ready=false`. The minimal startup publication
+binds build/session/generation/nonce and feature version 1 to the exact preparing
+title stack, absent player/input/recording. It never calls a full diagnostics
+snapshot while overworld is unregistered. The actual compiled inventory and
+private hook identity are retained in `build.json`.
+
+`Client.ready` services this one startup pause with the same `JourneyHistory`
+inspect/show-log/Clear/inspect operations and counters, then publishes only the
+exact startup ACK. Errors/timeouts poison the owner without ACK or replay. Only
+normal boot's genuine ready publication changes process status to ready. The
+startup Clear counts toward 64/131; later boundaries use the existing 736 MiB
+trigger instead of forcing another initial Clear. All kernel fences and native
+window/layout/PID/hit-test/payload/timing checks remain mandatory.
+
+Use the existing compile and short Root qualification commands above, with a
+fresh directory and newly compiled helper pin; keep Root's admission/guard
+wrapper unchanged. After native early-Clear qualification, Root must retry the
+exact earned Route 14 partial described by
+`E/checkpoint-c-resume-inputs-20261102-10/validation.json` and its unchanged
+`restart-55c-squirtle.json` (marker SHA256
+`bb2246417b96b01e8dfd5a664d0566fe43acc11d46375bb11dfd661a417bc380`).
+Canonical B startup alone cannot qualify that resume. This candidate has no
+native reclamation, timing, long-journey or C acceptance claim.

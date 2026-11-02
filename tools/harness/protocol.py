@@ -174,17 +174,27 @@ class Client:
     def ready(self, timeout=15):
         self._check_owner()
         deadline = time.monotonic() + timeout
-        while time.monotonic() < deadline:
+        try:
+            while time.monotonic() < deadline:
+                if self.history:
+                    self.history.startup_poll(deadline)
+                result = self.read('ready.json')
+                if result:
+                    if result.get('status') != 'ready':
+                        raise ProtocolError('runtime not ready')
+                    if self.history and not self.history.startup_serviced:
+                        raise ProtocolError('runtime ready without startup history barrier')
+                    if self.history and (self.read('journey-history-pause.json') is not None
+                            or (self.data / 'journey-history-ack.json').exists()):
+                        raise ProtocolError('runtime ready before startup acknowledgement consumed')
+                    atomic_json(self.evidence / 'ready.json', result)
+                    return result
+                time.sleep(.05)
+            raise ProtocolError('ready handshake timed out')
+        except BaseException:
             if self.history:
-                self.history.check()
-            result = self.read('ready.json')
-            if result:
-                if result.get('status') != 'ready':
-                    raise ProtocolError('runtime not ready')
-                atomic_json(self.evidence / 'ready.json', result)
-                return result
-            time.sleep(.05)
-        raise ProtocolError('ready handshake timed out')
+                self.history.failed = True
+            raise
 
     def send(self, commands, timeout=60, max_frames=1800):
         self._check_owner()

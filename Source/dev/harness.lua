@@ -296,12 +296,49 @@ function Harness.historyWaiting()
     if not historyPause then return false end
     local ack = read("journey-history-ack.json")
     if not ack then return true end
-    assert(identity(ack) and ack.id == historyPause.id and ack.tick == historyPause.tick,
+    assert(identity(ack) and ack.id == historyPause.id and ack.tick == historyPause.tick
+        and (not historyPause.startup_stage or (ack.startup_stage == historyPause.startup_stage
+            and ack.generation == historyPause.generation and ack.history_startup_version == config.history_startup_version)),
         "foreign history acknowledgement")
     -- read() consumes the acknowledgement; only the pause publication remains.
     assert(playdate.file.delete("journey-history-pause.json"))
     historyPause = nil
     return false
+end
+
+-- Called only by the identified private entry after the real title presentation
+-- yield. No diagnostics snapshot: overworld/battle are not registered yet.
+local startupPaused = false
+function Harness.pauseStartup(game)
+    assert(config.history_clear and config.history_startup_version == 1 and not startupPaused,
+        "invalid or repeated startup history barrier")
+    startupPaused = true
+    local ok, problem = pcall(function()
+        local startup = read("journey-startup-request.json")
+        assert(startup and identity(startup) and type(startup.id) == "string"
+            and startup.id:match("^startup%-%x+$") and #startup.id == 40
+            and integer(startup.generation, 1, 8) and startup.history_startup_version == 1,
+            "foreign startup history request")
+        local title = game.machine:get("title")
+        local input = Autopilot.inputSnapshot()
+        assert(game.machine:getCurrent() == "title" and game.machine:stackNames() == "title" and title.phase == "preparing"
+            and not game.player and not request and tick == 0 and not Autopilot.isRecording()
+            and #input.held == 0 and #input.pressed == 0 and #input.released == 0,
+            "unsafe startup history boundary")
+        historyPause = { id = startup.id, tick = tick, generation = startup.generation,
+            history_startup_version = 1, startup_stage = "title-preparing" }
+        publish("journey-history-pause.json", { id = startup.id, generation = startup.generation,
+            history_startup_version = 1, startup_stage = "title-preparing", status = "startup",
+            root = "title", stack = "title", title_phase = title.phase, player_present = false,
+            injected_input = false, recording = false })
+        while Harness.historyWaiting() do
+            GameBootstrap.checkpoint()
+        end
+    end)
+    if not ok then
+        publish("runtime-error.json", { error = tostring(problem), startup_stage = "title-preparing" })
+        error(problem, 0)
+    end
 end
 
 local function finish(game, status, message)
