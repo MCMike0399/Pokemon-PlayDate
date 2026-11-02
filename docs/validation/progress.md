@@ -89,10 +89,12 @@ heap is not compared with the device's 6 MiB live guard.
 
 ## Next work
 
-1. Freshly qualify the isolated door tier candidate (accepted-main port `85f464eb`, Root hook `bd5a119f`); execute its
-   existing native selections and exact 16 MiB safety route. Measure Fuchsia,
-   Route 17 and Game Corner on hardware, retaining only a ≥10% phase gain and
-   one combined performance review. Do not restart the census.
+1. The qualified door tier candidate is **rejected and unadopted**. Production
+   and deep native modes pass14/14 each and the exact safety route passes
+   measurement admission (54.148ms / 8.24MiB). Paired hardware cold-entry gains
+   are only3.1% Fuchsia,8.4% Route17,7.8% GameCorner; Save regresses11.3%.
+   No extra cycle or review is requested for this candidate. Main is unchanged.
+   [Exact comparison and retained failures](door-tier-rejected-20261102.json).
 2. Measure heavy-map post-GC live heap and native headroom. Qualify the small
    Vermilion membership and detached field-terrain candidates; both remain
    unadopted. Keep about 7.5 MiB working peak before C activation, with the
@@ -128,6 +130,7 @@ and released through the existing qualified helper and five fences. Original
 closure is not a passing result. Measured free after release was **52.40 GiB**,
 restoring the unchanged 51 GiB admission gate. No further root is admitted.
 [Receipt, exact paths and restoration command](capacity-census04-retention-20261102.json).
-Root resumed the isolated door candidate's real SDK export. Door hook integration
-passes 13 focused host checks; terrain-query composition passes18. Both remain
-unadopted until their native, physical and review gates pass.
+Root completed the door native/safety/hardware cycle and rejected the candidate
+as recorded above. Terrain-query composition passes18 hosts but remains unadopted.
+Two clean fully merged worker checkouts were removed without force after status,
+ancestry and open-handle checks; their branches and proof remain. No guards changed.
