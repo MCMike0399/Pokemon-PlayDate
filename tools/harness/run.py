@@ -143,7 +143,7 @@ def validate_recent_interval(value):
     return value
 
 
-def prepare(project, sdk, output, session, recent_interval=1, journey=False):
+def prepare(project, sdk, output, session, recent_interval=1, journey=False, history=False):
     recent_interval = validate_recent_interval(recent_interval)
     source = output / 'Source'
     shutil.copytree(project / 'Source', source)
@@ -173,6 +173,18 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
     (output / 'frames').mkdir()
     # JSON strings are Lua-compatible quoted strings for these machine-generated values.
     lua_values = []
+    if history and not journey:
+        raise ProtocolError('history clearing requires the journey profile')
+    if history:
+        metadata['history_identity'] = 'JOURNEY'
+        metadata['history_clear'] = True
+        # Freeze check is private staging only; production entry stays byte-exact.
+        text = (source / 'main.lua').read_text()
+        marker = 'if harness and harness.isQuiescent then return end'
+        if text.count(marker) != 1:
+            raise ProtocolError('missing unique harness freeze seam')
+        (source / 'main.lua').write_text(text.replace(marker,
+            marker + '\n            if harness and harness.historyWaiting and harness.historyWaiting() then return end'))
     if journey:
         metadata['journey_profile'] = True
     if recent_interval > 1:
@@ -185,8 +197,8 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
         if target.exists():
             raise ProtocolError('capture policy overlay would overwrite staged Source')
         target.write_bytes(overlay)
-        (source / 'main.lua').write_bytes(original_main + b'\nimport "dev/capture_policy"\n')
-    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile'):
+        (source / 'main.lua').write_bytes((source / 'main.lua').read_bytes() + b'\nimport "dev/capture_policy"\n')
+    for key in ('protocol', 'session_id', 'build_id', 'output_dir', 'bundle_id', 'sdk_version', 'enabled', 'data_dir', 'recent_interval', 'journey_profile', 'history_clear'):
         if key not in metadata:
             continue
         value = metadata[key]
@@ -220,6 +232,10 @@ def prepare(project, sdk, output, session, recent_interval=1, journey=False):
     metadata['bundle'] = str(bundle)
     metadata['simulator'] = str(sdk / 'bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator')
     metadata['data_dir'] = str(sdk / 'Disk/Data' / metadata['bundle_id'])
+    if history:
+        metadata['pdx_files'] = {path.relative_to(bundle).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+                                 for path in sorted(bundle.rglob('*')) if path.is_file()
+                                 and path.name != '.DS_Store' and not path.name.startswith('._')}
     atomic_json(output / 'build.json', metadata)
     return metadata
 
@@ -259,6 +275,7 @@ def _run(args):
         raise ProtocolError('scenario must be a JSON object')
     from tools.harness import restarting
     restarting.validate(scenario, getattr(args, 'qualification', False))
+    history = restarting.history_options(args, scenario)
     if not args.build_only and any(group.get('journey', {}).get('name') == 'npc-motion-continue' for group in scenario.get('processes', [scenario])):
         from tools.harness.motion_journey import visual_preflight
         visual_preflight(scenario)
@@ -271,7 +288,7 @@ def _run(args):
         journey_only = bool(groups) and all(group.get('journey') for group in groups)
         if journey_only:
             metadata = prepare(PROJECT, sdk, output, session,
-                               recent_interval=interval, journey=True)
+                               recent_interval=interval, journey=True, **({'history': True} if history else {}))
         else:
             metadata = (prepare(PROJECT, sdk, output, session, recent_interval=interval)
                         if interval > 1 else prepare(PROJECT, sdk, output, session))
@@ -290,7 +307,7 @@ def _run(args):
     captures_finalized = False
     data = Path(metadata['data_dir'])
     data.mkdir(parents=True, exist_ok=False)
-    owner = OwnerLock(data / 'owner.lock')
+    owner = OwnerLock(data / 'owner.lock', history=history)
     owner.__enter__()
     if 'processes' in scenario:
         confirmed_exit = True
@@ -382,7 +399,9 @@ def run(args):
     sdk = sdk_path(args.sdk)
     if args.build_only:
         return _run(args)
-    with OwnerLock(runtime_lock_path(sdk)), OwnerLock(device_lock_path()):
+    from tools.harness.restarting import history_options
+    history = history_options(args)
+    with OwnerLock(runtime_lock_path(sdk), history=history), OwnerLock(device_lock_path(), history=history):
         simulator_preflight()
         return _run(args)
 
@@ -398,6 +417,8 @@ def main():
     parser.add_argument('--max-frames', type=int, default=1800)
     parser.add_argument('--recent-interval', type=validate_recent_interval, default=1,
                         help='diagnostic recent-frame sampling interval; default 1 keeps the original runtime path')
+    parser.add_argument('--history-helper', type=Path, help='opt in to pinned JOURNEY history clearing')
+    parser.add_argument('--history-helper-sha256', help='exact private helper binary SHA256')
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--qualification', action='store_true', help='exercise real-runtime protocol faults, cancellation and ownership')
     args = parser.parse_args()

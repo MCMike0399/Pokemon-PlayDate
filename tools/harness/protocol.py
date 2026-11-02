@@ -85,15 +85,17 @@ def atomic_json(path, value):
 
 
 class OwnerLock:
-    def __init__(self, path):
+    def __init__(self, path, history=False):
+        self.history = history
         self.path = Path(path)
         self.stream = None
 
     def __enter__(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.stream = self.path.open('a+')
+        self.stream = (os.fdopen(os.open(self.path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600), 'a+')
+                       if self.history else self.path.open('a+'))
         try:
-            fcntl.flock(self.stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            (fcntl.lockf if self.history else fcntl.flock)(self.stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as error:
             self.stream.close()
             raise ProtocolError('run already has an owner') from error
@@ -104,7 +106,7 @@ class OwnerLock:
         return self
 
     def __exit__(self, *args):
-        fcntl.flock(self.stream, fcntl.LOCK_UN)
+        (fcntl.lockf if self.history else fcntl.flock)(self.stream, fcntl.LOCK_UN)
         self.stream.close()
 
 
@@ -124,6 +126,7 @@ class Client:
         self._pending_id = None
         self._quiescent_result = None
         self._runtime_failure = None
+        self.history = None
 
     def close(self):
         if self._owns_lock and self.owner.stream is not None and not self.owner.stream.closed:
@@ -172,6 +175,8 @@ class Client:
         self._check_owner()
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
+            if self.history:
+                self.history.check()
             result = self.read('ready.json')
             if result:
                 if result.get('status') != 'ready':
@@ -188,6 +193,8 @@ class Client:
             raise ProtocolError('runtime is quiescent; start a new session')
         if self._pending_id is not None:
             raise ProtocolError('unconfirmed pending request; recover or close this client before sending')
+        if self.history:
+            self.history.before_send()
         wire_commands = encode_commands(commands)
         if type(max_frames) is not int or not 1 <= max_frames <= 18000:
             raise ProtocolError('max_frames requires an integer in 1..18000')
@@ -199,6 +206,8 @@ class Client:
         atomic_json(self.data / 'request.json', request)
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
+            if self.history:
+                self.history.check()
             self._check_runtime_failure()
             rejected = self.read('rejected.json')
             if rejected and rejected.get('id') == request_id:
@@ -226,8 +235,13 @@ class Client:
                     self._pending_id = None
                     if result.get('quiescent') is True:
                         self._quiescent_result = result
+                    if self.history and not self._quiescent_result:
+                        self.history.completed(result, deadline)
                     return result
             time.sleep(.025)
+        if self.history:
+            self.history.failed = True
+            raise ProtocolError('journey command timed out; stop owned runtime without reset or replay')
         atomic_json(self.data / 'cancel.json', self.envelope(id=request_id))
         # Cancellation is a protocol barrier. Never issue another request until acknowledged.
         deadline = time.monotonic() + 2
@@ -243,6 +257,8 @@ class Client:
     def recover(self, timeout=5):
         """Confirm pending termination, then reset the actual runtime before reuse."""
         self._check_owner()
+        if self.history:
+            raise ProtocolError('history journey cannot recover/reset; stop owned runtime')
         self._check_runtime_failure()
         request_id = self._pending_id
         if request_id is not None:

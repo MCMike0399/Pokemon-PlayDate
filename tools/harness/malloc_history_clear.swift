@@ -1,4 +1,4 @@
-// Root-only bounded native helper; enabled explicitly by the census owner.
+// Root-only bounded native helper; enabled explicitly by its verified runtime owner.
 import Foundation
 import ApplicationServices
 import CryptoKit
@@ -55,7 +55,7 @@ func argv(_ pid: pid_t) throws -> [String] {
 func ownedLock(_ url: URL, _ owner: pid_t) throws {
     try require((try record(url))["pid"] as? Int == Int(owner), "lock metadata owner mismatch")
     // F_GETLK only queries the kernel; this descriptor never acquires a lock.
-    // Census history sessions use a POSIX lock whose owner PID Darwin exposes.
+    // Opted-in history sessions use a POSIX lock whose owner PID Darwin exposes.
     let descriptor = open(url.path, O_RDONLY | O_NOFOLLOW)
     try require(descriptor >= 0, "owner lock cannot be opened read-only")
     defer { close(descriptor) }
@@ -67,29 +67,77 @@ func ownedLock(_ url: URL, _ owner: pid_t) throws {
 }
 let sdk = path("/Users/burbujamc/Developer/PlaydateSDK")
 let simulatorHash = "ebaeca5c65f3d613f06c8a3d701e90c01f292f13fc66f24a680e4357c5b447cf"
-func verify(_ directory: URL, _ buildHash: String, _ runHash: String) throws -> pid_t {
+func verify(_ directory: URL, _ buildHash: String, _ runHash: String,
+            _ identity: String = "CENSUS", _ processFile: String = "run.json") throws -> pid_t {
+    let journey = identity == "JOURNEY"
+    try require(identity == "CENSUS" || journey, "unknown identity class")
+    try require(!journey || processFile.range(of: #"^processes/[0-9]{4}/process\.json$"#, options: .regularExpression) != nil,
+                "invalid current process path")
     let buildURL = directory.appendingPathComponent("build.json")
-    let runURL = directory.appendingPathComponent("run.json")
+    let runURL = directory.appendingPathComponent(processFile)
     try require(try digest(buildURL) == buildHash && digest(runURL) == runHash, "metadata pin mismatch")
     let build = try record(buildURL), run = try record(runURL)
-    guard let id = build["build_id"] as? String, id.count == 32,
-          id.allSatisfy({ $0.isHexDigit }), let pid = run["pid"] as? Int, pid > 1, pid <= Int(Int32.max),
+    guard let id = build["build_id"] as? String,
+          (journey ? id.range(of: #"^[0-9a-f]{40}:[0-9a-f]{64}$"#, options: .regularExpression) != nil
+                   : id.count == 32 && id.allSatisfy({ $0.isHexDigit })), let pid = run["pid"] as? Int, pid > 1, pid <= Int(Int32.max),
           let files = build["pdx_files"] as? [String: String], !files.isEmpty
-    else { throw Refusal(reason: "missing census identity") }
+    else { throw Refusal(reason: journey ? "missing journey identity" : "missing census identity") }
     let version = try String(contentsOf: sdk.appendingPathComponent("VERSION.txt"), encoding: .utf8)
     let ini = try String(contentsOf: FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(
         "Library/Preferences/com.panic.Playdate Simulator.ini"), encoding: .utf8)
     try require(version.trimmingCharacters(in: .whitespacesAndNewlines) == "3.1.2" &&
         ini.components(separatedBy: .newlines).filter { $0.hasPrefix("MallocPoolSize=") }.last == "MallocPoolSize=16645684",
         "SDK version or existing 16 MiB pool setting changed")
-    let bundle = directory.appendingPathComponent("DoorCensus.pdx")
+    let bundle = directory.appendingPathComponent(journey ? "Harness.pdx" : "DoorCensus.pdx")
     let binary = sdk.appendingPathComponent("bin/Playdate Simulator.app/Contents/MacOS/Playdate Simulator")
-    try require(build["mode"] as? String == "door-census-compile-only" &&
-        build["sdk_version"] as? String == "3.1.2" && build["sdk"] as? String == sdk.path &&
-        build["bundle_id"] as? String == "com.poc.pokemon.doorcensus." + id &&
-        build["bundle"] as? String == bundle.path && run["build_id"] as? String == id &&
-        run["simulator"] as? String == binary.path && run["simulator_sha256"] as? String == simulatorHash,
-        "not the pinned SDK census build/run")
+    let bundleID: String
+    if journey {
+        guard let session = build["session_id"] as? String, session.count == 32,
+              session.allSatisfy({ $0.isHexDigit }) else { throw Refusal(reason: "missing journey session") }
+        bundleID = "com.poc.pokemon.harness." + session
+        try require(build["history_identity"] as? String == "JOURNEY" &&
+            build["history_clear"] as? Bool == true && build["harness_profile"] as? String == "journey" &&
+            build["sdk_version"] as? String == "3.1.2" && build["sdk"] as? String == sdk.path &&
+            build["bundle_id"] as? String == bundleID && build["bundle"] as? String == bundle.path &&
+            build["simulator"] as? String == binary.path &&
+            build["data_dir"] as? String == sdk.appendingPathComponent("Disk/Data/" + bundleID).path &&
+            run["build_id"] as? String == id && run["session_id"] as? String == session &&
+            run["history_identity"] as? String == "JOURNEY" && run["status"] as? String == "ready" &&
+            run["fresh_ready"] as? Bool == true && run["owner_pid"] as? Int == Int(getppid()) &&
+            run["simulator_sha256"] as? String == simulatorHash &&
+            run["evidence"] as? String == String(processFile.dropLast("/process.json".count)),
+            "not the pinned SDK journey build/process")
+        let data = sdk.appendingPathComponent("Disk/Data/" + bundleID)
+        let pause = try record(data.appendingPathComponent("journey-history-pause.json"))
+        let result = try record(data.appendingPathComponent("result.json"))
+        let snapshot = result["snapshot"] as? [String: Any] ?? [:]
+        let player = snapshot["player"] as? [String: Any] ?? [:]
+        try require(pause["build_id"] as? String == id && pause["session_id"] as? String == session &&
+            result["build_id"] as? String == id && result["session_id"] as? String == session &&
+            pause["protocol"] as? Int == 1 && result["protocol"] as? Int == 1 &&
+            pause["id"] as? String != nil && pause["id"] as? String == result["id"] as? String &&
+            pause["tick"] as? Int != nil && pause["tick"] as? Int == result["tick"] as? Int &&
+            result["history_paused"] as? Bool == true && result["status"] as? String == "ok" &&
+            snapshot["root"] as? String == "overworld" && snapshot["overworld"] as? String == "explore" &&
+            player["settled"] as? Bool == true && player["moving"] as? Bool == false &&
+            player["isJumping"] as? Bool != true && player["pendingEdgeDoor"] as? Bool == false &&
+            !FileManager.default.fileExists(atPath: data.appendingPathComponent("journey-history-ack.json").path),
+            "journey is not at an unacknowledged safe pause")
+        let current = try record(directory.appendingPathComponent("run.json"))
+        let generations = current["processes"] as? [[String: Any]] ?? []
+        try require(current["build_id"] as? String == id && current["session_id"] as? String == session &&
+            generations.last?["pid"] as? Int == pid && generations.last?["status"] as? String == "ready" &&
+            generations.last?["evidence"] as? String == run["evidence"] as? String,
+            "process is not the current journey generation")
+    } else {
+        bundleID = "com.poc.pokemon.doorcensus." + id
+        try require(build["mode"] as? String == "door-census-compile-only" &&
+            build["sdk_version"] as? String == "3.1.2" && build["sdk"] as? String == sdk.path &&
+            build["bundle_id"] as? String == "com.poc.pokemon.doorcensus." + id &&
+            build["bundle"] as? String == bundle.path && run["build_id"] as? String == id &&
+            run["simulator"] as? String == binary.path && run["simulator_sha256"] as? String == simulatorHash,
+            "not the pinned SDK census build/run")
+    }
     try require(try digest(binary) == simulatorHash, "SDK executable changed")
     guard let entries = FileManager.default.enumerator(at: bundle, includingPropertiesForKeys: [.isSymbolicLinkKey, .isDirectoryKey])
     else { throw Refusal(reason: "missing PDX") }
@@ -105,11 +153,16 @@ func verify(_ directory: URL, _ buildHash: String, _ runHash: String) throws -> 
     let owner = getppid(), live = try bsd(pid_t(pid))
     try require(owner > 1 && live.pbi_ppid == UInt32(owner), "helper must be direct child of runtime owner")
     _ = try bsd(owner)
+    if journey {
+        try require(run["start_sec"] as? UInt64 == live.pbi_start_tvsec &&
+                    run["start_usec"] as? UInt64 == live.pbi_start_tvusec,
+                    "journey process start time changed")
+    }
     try require(try executable(pid_t(pid)) == binary.path && argv(pid_t(pid)) == [binary.path, bundle.path],
                 "live executable/PDX mismatch")
     try ownedLock(path("/private/tmp/pokemon-playdate-simulator-\(getuid()).lock"), owner)
     try ownedLock(path("/private/tmp/pokemon-playdate-device-\(getuid()).lock"), owner)
-    try ownedLock(sdk.appendingPathComponent("Disk/Data/com.poc.pokemon.doorcensus.\(id)/owner.lock"), owner)
+    try ownedLock(sdk.appendingPathComponent("Disk/Data/\(bundleID)/owner.lock"), owner)
     let again = try bsd(pid_t(pid))
     try require(live.pbi_start_tvsec == again.pbi_start_tvsec && live.pbi_start_tvusec == again.pbi_start_tvusec,
                 "PID changed during verification")
@@ -327,14 +380,17 @@ let started = DispatchTime.now().uptimeNanoseconds
 alarm(8) // Bounds native inspection/capture; never signals the Simulator.
 do {
     let args = CommandLine.arguments
-    try require(args.count == 5 && ["inspect", "show-log", "clear"].contains(args[1]),
-                "usage: helper inspect|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256")
+    try require((args.count == 5 || args.count == 7) && ["inspect", "show-log", "clear"].contains(args[1]),
+                "usage: helper inspect|show-log|clear RUN_DIRECTORY BUILD_JSON_SHA256 RUN_JSON_SHA256 [JOURNEY processes/NNNN/process.json]")
     try require(args[3].count == 64 && args[4].count == 64 && (args[3] + args[4]).allSatisfy({ $0.isHexDigit }),
                 "expected SHA256 pins")
+    let identity = args.count == 7 ? args[5] : "CENSUS"
+    try require(args.count == 5 || identity == "JOURNEY", "explicit JOURNEY identity required")
+    let processFile = args.count == 7 ? args[6] : "run.json"
     let directory = path(args[2])
-    let pid = try verify(directory, args[3], args[4])
+    let pid = try verify(directory, args[3], args[4], identity, processFile)
     try operate(pid, args[1], directory) {
-        try require(try verify(directory, args[3], args[4]) == pid, "runtime identity changed")
+        try require(try verify(directory, args[3], args[4], identity, processFile) == pid, "runtime identity changed")
     }
     fputs("helper_elapsed_ms=\(Double(DispatchTime.now().uptimeNanoseconds - started) / 1e6)\n", stderr)
 } catch {

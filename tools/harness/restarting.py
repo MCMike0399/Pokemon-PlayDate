@@ -11,7 +11,8 @@ from tools.harness.protocol import Client, ProtocolError, atomic_json
 # Only these protocol publications are removed between stopped processes.
 TRANSIENT = frozenset({'ready.json', 'heartbeat.json', 'request.json', 'result.json',
                        'rejected.json', 'cancel.json', 'runtime-error.json', 'captures-final.json',
-                       'catalog-invariance-before.json', 'catalog-invariance-after.json'})
+                       'catalog-invariance-before.json', 'catalog-invariance-after.json',
+                       'journey-history-pause.json', 'journey-history-ack.json'})
 
 
 class UnconfirmedExit(ProtocolError):
@@ -498,6 +499,219 @@ def export_chain_save(scenario, data, output, metadata):
         'status': 'journey passed Save/Continue; milestone review pending'})
 
 
+# Fixed limits for the explicitly opted-in existing journey owner. These do not
+# relax any outer owner guard. No census producer or controller is imported.
+HISTORY_TRIGGER = 512 * 1024**2
+HISTORY_MAX_CLEARS = 64
+HISTORY_MAX_CALLS = 131
+SIMULATOR_SHA256 = 'ebaeca5c65f3d613f06c8a3d701e90c01f292f13fc66f24a680e4357c5b447cf'
+
+
+def file_sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def history_options(args, scenario=None):
+    helper, pin = getattr(args, 'history_helper', None), getattr(args, 'history_helper_sha256', None)
+    if bool(helper) != bool(pin):
+        raise ProtocolError('history helper and SHA256 must be supplied together')
+    if not helper:
+        return False
+    if (not isinstance(pin, str) or len(pin) != 64 or any(c not in '0123456789abcdef' for c in pin)
+            or Path(helper).is_symlink() or not Path(helper).is_file() or file_sha(helper) != pin):
+        raise ProtocolError('history helper pin mismatch')
+    if scenario is not None and (getattr(args, 'qualification', False)
+            or not scenario.get('processes')
+            or any(not group.get('journey') for group in scenario['processes'])):
+        raise ProtocolError('history clearing requires existing process journeys')
+    return True
+
+
+def native_process_identity(pid):
+    """Darwin proc_bsdinfo start fields, not a rounded ps display timestamp."""
+    import ctypes
+    import struct
+    library = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
+    library.proc_pidinfo.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_uint64, ctypes.c_void_p, ctypes.c_int]
+    library.proc_pidinfo.restype = ctypes.c_int
+    buffer = ctypes.create_string_buffer(136)
+    size = library.proc_pidinfo(pid, 3, 0, buffer, len(buffer))  # PROC_PIDTBSDINFO
+    if size != len(buffer):
+        raise ProtocolError('cannot pin owned process start time')
+    parent = struct.unpack_from('=I', buffer.raw, 16)[0]
+    import os
+    if parent != os.getpid():
+        raise ProtocolError('Simulator is not a direct child of this owner')
+    sec, usec = struct.unpack_from('=QQ', buffer.raw, 120)
+    return dict(start_sec=sec, start_usec=usec, owner_pid=parent)
+
+
+def host_footprint(pid):
+    import ctypes
+    class Usage(ctypes.Structure):
+        _fields_ = [('uuid', ctypes.c_uint8 * 16)] + [
+            (name, ctypes.c_uint64) for name in ('user', 'system', 'idle', 'interrupt',
+                'pageins', 'wired', 'resident', 'footprint', 'start', 'exit')]
+    usage = Usage()
+    library = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
+    library.proc_pid_rusage.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+    library.proc_pid_rusage.restype = ctypes.c_int
+    if library.proc_pid_rusage(pid, 0, ctypes.byref(usage)) != 0:
+        raise ProtocolError('cannot inspect owned Simulator footprint')
+    return usage.footprint
+
+
+def validate_journey_pause(value, result):
+    if (not value or value.get('id') != result.get('id') or value.get('tick') != result.get('tick')
+            or result.get('status') != 'ok' or result.get('history_paused') is not True):
+        raise ProtocolError('foreign or incomplete journey history pause')
+    snapshot = result.get('snapshot', {})
+    player = snapshot.get('player', {})
+    if (snapshot.get('root') != 'overworld' or snapshot.get('overworld') != 'explore'
+            or player.get('settled') is not True or player.get('moving') is not False
+            or player.get('isJumping') or player.get('pendingEdgeDoor')):
+        raise ProtocolError('journey history boundary is not settled exploration')
+
+
+class JourneyHistory:
+    """A bounded hook on the existing owner/client; never drives game commands."""
+    def __init__(self, args, metadata, output, evidence, process, client):
+        self.helper = Path(args.history_helper).expanduser().absolute()
+        self.pin = args.history_helper_sha256
+        self.metadata, self.output, self.evidence = metadata, output, evidence
+        self.process, self.client = process, client
+        self.calls = self.clears = 0
+        self.failed = False
+        self.pause = None
+        self.started = self.progress = time.monotonic()
+        self.tick = None
+
+    def check(self, command_deadline=None):
+        try:
+            now = time.monotonic()
+            if self.process.poll() is not None:
+                raise ProtocolError('owned journey process exited')
+            footprint = host_footprint(self.process.pid)
+            if footprint > 1024**3:
+                raise ProtocolError('owned Simulator exceeds 1 GiB host footprint')
+            if shutil.disk_usage(self.output).free < 30 * 1024**3:
+                raise ProtocolError('journey disk reserve below 30 GiB')
+            heartbeat = self.client.read('heartbeat.json')
+            if heartbeat and heartbeat.get('tick') != self.tick:
+                self.tick, self.progress = heartbeat.get('tick'), now
+            if now - self.progress > 60 or now - self.started > 14400:
+                raise ProtocolError('journey progress or whole-owner deadline expired')
+            if command_deadline is not None and now >= command_deadline:
+                raise ProtocolError('journey command deadline expired during history pause')
+            self.client._check_runtime_failure()
+            return footprint
+        except BaseException:
+            self.failed = True
+            raise
+
+    def before_send(self):
+        self.check()
+        if self.failed:
+            raise ProtocolError('history owner failed; stop without replay')
+        if self.pause:
+            atomic_json(self.client.data / 'journey-history-ack.json', self.pause)
+            self.pause = None
+
+    def invoke(self, operation, deadline):
+        if self.calls >= HISTORY_MAX_CALLS or file_sha(self.helper) != self.pin:
+            raise ProtocolError('history helper bound or pin changed')
+        self.calls += 1
+        before = self.check(deadline)
+        began = time.monotonic()
+        pins = [str(self.output), file_sha(self.output / 'build.json'),
+                file_sha(self.evidence / 'process.json'), 'JOURNEY',
+                (self.evidence / 'process.json').relative_to(self.output).as_posix()]
+        child = subprocess.Popen([str(self.helper), operation, *pins],
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout = stderr = ''
+        inspection_captures = []
+        try:
+            while True:
+                self.check(deadline)
+                if time.monotonic() - began >= 9:
+                    raise ProtocolError('history helper timed out; no replay or acknowledgement')
+                try:
+                    stdout, stderr = child.communicate(timeout=.05)
+                    break
+                except subprocess.TimeoutExpired:
+                    pass
+            after = self.check(deadline)
+            if child.returncode != 0:
+                raise ProtocolError('history helper refused: ' + stderr[-1200:])
+            reply = json.loads(stdout)
+            if operation == 'clear' and reply not in (
+                    {'ax_press_accepted': True, 'pid': self.process.pid},
+                    {'clear_requested': True, 'mechanism': 'verified-window-broom', 'pid': self.process.pid}):
+                raise ProtocolError('history Clear acknowledgement differs')
+            if operation == 'inspect':
+                if not isinstance(reply, list):
+                    raise ProtocolError('history inspection is not a listing')
+                captures = [row for row in reply if row.get('scope') == 'inspection capture']
+                if len(captures) > 1 or (not captures and self.clears):
+                    raise ProtocolError('history inspection capture missing or ambiguous')
+                for capture in captures:
+                    path = Path(capture['path'])
+                    import re
+                    if (path.parent != self.output or path.is_symlink() or
+                            not re.fullmatch(r'malloc-log-inspection-[0-9A-Fa-f-]{36}\.png', path.name)
+                            or capture.get('returncode') != '0'):
+                        raise ProtocolError('history inspection capture identity differs')
+                    from tools.harness.run import verify_png
+                    verify_png(path)
+                    inspection_captures.append(dict(capture, sha256=file_sha(path)))
+            if operation == 'show-log':
+                if reply != {'malloc_log_open_requested': True, 'pid': self.process.pid}:
+                    raise ProtocolError('history Show Malloc Log acknowledgement differs')
+                until = time.monotonic() + .5
+                while time.monotonic() < until:
+                    self.check(deadline)
+                    time.sleep(.025)
+            return reply
+        except BaseException:
+            self.failed = True
+            raise
+        finally:
+            if child.poll() is None:
+                child.kill()
+            stdout, stderr = child.communicate()
+            try:
+                after = host_footprint(self.process.pid)
+            except BaseException:
+                after = None  # Preserve the original helper/producer failure.
+            with (self.evidence / 'malloc-clear.jsonl').open('a') as stream:
+                stream.write(json.dumps(dict(operation=operation, calls=self.calls, clears=self.clears,
+                    helper_sha256=self.pin, pins=pins, pause=self.pause, failed=self.failed,
+                    elapsed_ms=(time.monotonic()-began)*1000, returncode=child.returncode,
+                    stdout=stdout, stderr=stderr, inspection_captures=inspection_captures, host_before_bytes=before,
+                    host_after_bytes=after), sort_keys=True) + '\n')
+
+    def completed(self, result, deadline):
+        try:
+            footprint = self.check(deadline)
+            if result.get('history_paused') is not True:
+                return
+            pause = self.client.read('journey-history-pause.json')
+            validate_journey_pause(pause, result)
+            self.pause = pause
+            if self.clears and footprint < HISTORY_TRIGGER:
+                return
+            if self.clears >= HISTORY_MAX_CLEARS:
+                raise ProtocolError('journey history Clear bound reached')
+            operations = ['inspect', 'show-log', 'inspect', 'clear', 'inspect'] if not self.clears else ['clear', 'inspect']
+            for operation in operations:
+                self.invoke(operation, deadline)
+                if operation == 'clear':
+                    self.clears += 1
+        except BaseException:
+            self.failed = True
+            raise
+
+
 def run(args, scenario, metadata, output, data, owner, runner):
     """Run approved groups under the caller's uninterrupted global/private locks."""
     processes = []
@@ -533,13 +747,23 @@ def run(args, scenario, metadata, output, data, owner, runner):
             catalog_qualification.prepare(output)
             with (evidence / 'simulator.log').open('w') as log:
                 runner.simulator_preflight()
+                if metadata.get('history_clear') and shutil.disk_usage(output).free < 31 * 1024**3:
+                    raise ProtocolError('journey admission requires 31 GiB disk headroom')
                 process = subprocess.Popen([metadata['simulator'], metadata['bundle']], stdout=log, stderr=subprocess.STDOUT)
                 record['pid'] = process.pid
                 if process.pid == prior_pid:
                     raise ProtocolError('restart did not produce a new PID')
                 record['launched_ns'] = time.time_ns(); publish()
+                if metadata.get('history_clear'):
+                    record.update(native_process_identity(process.pid), build_id=metadata['build_id'],
+                        session_id=metadata['session_id'], history_identity='JOURNEY',
+                        simulator_sha256=file_sha(metadata['simulator']))
+                    if record['simulator_sha256'] != SIMULATOR_SHA256:
+                        raise ProtocolError('journey Simulator executable pin differs')
                 client = Client(data, metadata['build_id'], metadata['session_id'], evidence, owner=owner)
                 client.sequence = sequence
+                if metadata.get('history_clear'):
+                    client.history = JourneyHistory(args, metadata, output, evidence, process, client)
                 # No prior ready exists, and the old publisher is confirmed dead.
                 ready = client.ready(args.ready_timeout)
                 if process.poll() is not None:
@@ -594,7 +818,8 @@ def run(args, scenario, metadata, output, data, owner, runner):
             publish()
         # Never reset/recover a failed command into success. A poisoned pending
         # request cannot safely quiesce; stop its owned producer and archive it.
-        if client is not None and not finalized and client._pending_id is None:
+        if (client is not None and not finalized and client._pending_id is None
+                and not metadata.get('history_clear')):
             try:
                 runner.finalize_captures(client, data, output)
                 finalized = True

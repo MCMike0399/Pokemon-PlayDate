@@ -33,7 +33,7 @@ these mutually exclusive with the ordinary BSD flock owners in both directions.
 The helper opens those paths read-only and uses F_GETLK to require an exclusive
 whole-file write lock belonging to its direct parent PID. It never acquires or
 changes a lock. Metadata alone is never sufficient. Ordinary sessions retain
-the original OwnerLock; only history-enabled census ownership uses this mode.
+the original OwnerLock; the explicit JOURNEY opt-in below uses the same history mode.
 It has an eight-second lifetime ceiling. Its application-root AX object has a
 200 ms messaging timeout; Apple's API applies that setting only to that object,
 not every child reference. The whole-helper alarm remains the outer bound.
@@ -126,3 +126,79 @@ allocations again in [2024 support](https://devforum.play.date/t/simulator-memor
 These support the proposed control, not a current-SDK causal result.
 
 Host rejection checks: `python3 tools/harness/malloc_history_clear_host_checks.py HELPER RETAINED_CENSUS_RUN`.
+
+## Opted-in ordinary JOURNEY owner (host preparation only)
+
+The existing root runner now accepts `--history-helper ABSOLUTE_PATH` and
+`--history-helper-sha256 SHA256` together, only for its existing process-journey
+scenarios. No default owner changes lock mode. Opted-in sessions use whole-file
+POSIX write locks on the same Simulator, device and private Data paths; metadata
+and kernel-owner proof are both still required. Census invocation/validation is
+retained separately and is not a way to admit a journey.
+
+The explicit helper identity is:
+
+```
+HELPER OPERATION OUTPUT BUILD_JSON_SHA256 PROCESS_JSON_SHA256 JOURNEY processes/NNNN/process.json
+```
+
+Only the actual root runner launches this command as a direct child. It pins the
+new stage's actual `build.json`, PDX inventory and current generation's
+`process.json`; these bind build/session, harness bundle ID, executable hash,
+PID, direct parent and native start seconds/microseconds. The verifier also
+checks the latest generation in actual `run.json`, its live executable/argv,
+all three kernel fences, and the actual matching unacknowledged pause/result.
+Do not manually invoke the helper from a different shell or fake census fields.
+
+The private staging hook freezes before the next game update after a successful
+request ends in settled overworld exploration, with no jumping, pending edge
+door, held input or recording. The root `main.lua` bytes are untouched. Pauses
+are nonterminal: only an exact build/session/request/tick acknowledgement from
+the owner releases them. Updates, timers, movement and rules RNG do not execute
+while paused. Save UI, battle, warp and incomplete movement boundaries cannot
+Clear. These restrictions can still stop a journey at the hard guard if a safe
+boundary is not reached soon enough; there is no automatic replay or shortcut.
+Native command/frame timing ends before the pause; helper overhead stays in the
+separate `processes/NNNN/malloc-clear.jsonl`, with wall time retained. Journey
+results are not production latency measurements.
+
+The first safe pause performs inspect/show/inspect/Clear/inspect. Later safe
+pauses Clear/inspect when host footprint is at least512MiB. Limits are64 Clears
+and131 helper calls per generation; existing scenario validation bounds process
+generations. Each helper still has its original8s alarm and9s host ceiling.
+During helpers, the owner checks footprint, disk, progress and the original
+command deadline every50ms. The1GiB hard stop,31/30GiB disk admission/reserve,
+60s progress check and4h generation wall ceiling remain active during pauses.
+No game Lua guard or16MiB pool change is introduced. Helper pin changes,
+refusals, deadlines, capture failures or invalid acknowledgements poison this
+owner, skip further finalization commands and stop its owned Simulator child.
+No failed Clear is retried. Native captures use their unique helper paths and
+are bound by SHA256 in the audit. A Clear reply alone proves no reclamation.
+
+Compile-only handoff commands (Root selects a durable private directory):
+
+```sh
+swiftc -O tools/harness/malloc_history_clear.swift -o "$PRIVATE_DIR/malloc-history-clear"
+shasum -a 256 tools/harness/malloc_history_clear.swift "$PRIVATE_DIR/malloc-history-clear"
+python3 -m unittest tools.tests.test_journey_history
+```
+
+Root's eventual existing journey invocation adds only these pins:
+
+```sh
+python3 tools/harness/run.py \
+  --scenario tools/harness/scenarios/midgame/restart-55c-bulbasaur.json \
+  --output "$FRESH_OUTPUT" \
+  --history-helper "$PRIVATE_DIR/malloc-history-clear" \
+  --history-helper-sha256 "$HELPER_SHA256"
+```
+
+Use the existing Root admission/guard wrapper too, unchanged. First independently
+inspect the native controls and qualify one Clear plus a short ordinary C
+segment under this actual owner. Only then run all three existing earned
+journeys (substitute `charmander`/`squirtle` scenario filenames). The implementation
+worker ran no SDK compile, Simulator, native AX, device, USB or global locks.
+Swift compile and host checks do not establish native pause behavior, correct
+current broom layout, reclamation, complete journeys or acceptance. No census
+was resumed. Root must record actual before/after footprint and native control
+captures in the new evidence, rather than reuse census qualification.

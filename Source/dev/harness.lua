@@ -290,6 +290,20 @@ local function normalize(value)
     for _, arg in ipairs(args) do value.parts[#value.parts + 1] = tostring(arg) end
     return value
 end
+-- Nonterminal history barrier. Only the opted-in private journey build uses it.
+local historyPause
+function Harness.historyWaiting()
+    if not historyPause then return false end
+    local ack = read("journey-history-ack.json")
+    if not ack then return true end
+    assert(identity(ack) and ack.id == historyPause.id and ack.tick == historyPause.tick,
+        "foreign history acknowledgement")
+    -- read() consumes the acknowledgement; only the pause publication remains.
+    assert(playdate.file.delete("journey-history-pause.json"))
+    historyPause = nil
+    return false
+end
+
 local function finish(game, status, message)
     local interruptedSnapshot
     if status == "cancelled" or status == "timeout" then
@@ -313,7 +327,21 @@ local function finish(game, status, message)
     else
         finalSnapshot = HarnessDiagnostics.snapshot(game)
     end
+    local safeHistory
+    if config.history_clear then
+        local input = Autopilot.inputSnapshot()
+        local player = finalSnapshot.player or {}
+        safeHistory = status == "ok" and not Harness.isQuiescent
+            and finalSnapshot.root == "overworld" and finalSnapshot.overworld == "explore"
+            and player.settled == true and not player.moving and not player.isJumping and not player.pendingEdgeDoor
+            and #input.held == 0 and not Autopilot.isRecording()
+        if safeHistory then
+            historyPause = { id = request.id, tick = tick }
+            publish("journey-history-pause.json", { id = request.id })
+        end
+    end
     publish("result.json", { id = request.id, status = status, error = message,
+        history_paused = safeHistory,
         results = entries, snapshot = finalSnapshot,
         interrupted_snapshot = (status == "cancelled" or status == "timeout") and interruptedSnapshot or nil,
         catalog = Autopilot.catalog, quiescent = Harness.isQuiescent,
