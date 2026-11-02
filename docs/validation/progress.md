@@ -89,7 +89,7 @@ heap is not compared with the device's 6 MiB live guard.
 
 ## Next work
 
-1. Freshly qualify the isolated door tier candidate `6949bc94`; execute its
+1. Freshly qualify the isolated door tier candidate (accepted-main port `85f464eb`, Root hook `bd5a119f`); execute its
    existing native selections and exact 16 MiB safety route. Measure Fuchsia,
    Route 17 and Game Corner on hardware, retaining only a ≥10% phase gain and
    one combined performance review. Do not restart the census.
@@ -116,3 +116,16 @@ remotely for capture headroom; no current save/package/proof input was released.
 [closed retry](capacity-b5-retention-20261102.json).
 
 [Previous ledger and failed history](progress-history-before-b-acceptance-20261102.md).
+
+## Runtime admission follow-up — 2026-11-02
+
+Free space was 48.25 GiB, below the unchanged 51 GiB runtime admission. Root
+started the existing qualified archive workflow for only stopped superseded
+`door-census-b149-bounded-continuation-20261101-04`. Its original progress still
+reports 864 measured/1,936 gaps and 2,090 missing trials; closure is not a pass.
+The exact native metadata audit covers 691,119 entries and 4,481,431,971 logical
+bytes, with no required nonportable metadata. Archive is in progress; no release
+or reclaimed-space success is claimed. Current earned saves/builds are retained.
+No SDK/device run starts until this transaction closes and admission passes.
+Door hook integration passes 13 focused host checks in its isolated branch;
+terrain-query composition passes 18. Both remain unadopted.
