@@ -646,7 +646,8 @@ end
 function SourceEvents._registerRegionDeclaration(name, root, identity)
     local kanto = name == "ceruleanStory" or name == "ceruleanRoutes"
     if not (ShippedDataPolicy and ShippedDataPolicy.regionDeclarations())
-        or (not kanto and name ~= "vermilion" and name ~= "midgameEast" and name ~= "midgameSouth") then
+        or (not kanto and name ~= "vermilion" and name ~= "midgameEast"
+            and name ~= "midgameSouth" and name ~= "midgameSaffron") then
         return false
     end
     if kanto then
