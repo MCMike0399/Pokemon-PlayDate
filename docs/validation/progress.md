@@ -1,168 +1,118 @@
 # Full-game execution ledger
 
 Updated 2026-11-02 UTC. Follow [the goal](../plans/full-game-goal.md).
-**Main:108/222 Simulator-route maps. Private B:149. C:171 isolated. Device-playable acceptance:0/222.**
-The complete Blue campaign, credits and postgame remain unfinished. Root owns
-SDK/device sessions; no push is authorized for this work.
+**Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
+Checkpoint B is merged and accepted. The full Blue campaign, credits and postgame
+remain unfinished. C's 171-map preparation remains isolated and inactive.
 
-## Accepted main and private frontier
+## Checkpoint 5.5b — accepted
 
-5.5a is merged/pushed:43 East maps, Erika and Silph Scope, for108 maps.
-Label: **Simulator-accepted and hardware-safe; device latency targets not yet met.**
-Three earned routes and actual process restarts passed.
-[Acceptance](midgame-a-acceptance-20261029.json), [chain identities](chain-saves.json).
+**Simulator-accepted and hardware-safe; device latency targets not yet met.**
+Added 41 maps: Tower/Fuji/Flute, both Snorlax routes, Bicycle/Cycling Road,
+rods/fishing, Fuchsia/Koga, Safari, Surf and Strength. All three genuine earned
+A→B routes and actual two-process restarts pass in their retained source scope.
+Later rule and performance fixes have targeted native/review/hardware proofs;
+this is not a claimed new full-route replay. The 86.161-second native showcase
+and current production package complete the remaining visual/package gate.
+[Acceptance and exact hashes](midgame-b-acceptance-20261102.json).
 
-Private B149 covers Tower/Fuji/Flute, Snorlax, Cycling Road, rods,
-Fuchsia/Koga/Safari and Surf/Strength. Its retained three-starter earned A→B
-journeys/restarts pass; later rule/performance changes have scoped native and
-hardware evidence, not a claimed new campaign rerun. B remains **unaccepted**
-pending Snorlax/Koga captures, final60–90s motion showcase and release review.
-[Candidate](midgame-b-candidate-20261030.json), [restarts](midgame-b-common-load-20261030.json).
-C171 stays isolated/inactive; no C acceptance or5.6 work. Latency gates C acceptance.
+Merged game code: `af9a8938`. Current production Source matches the reviewed B
+candidate and packaged build. Main's working maintenance tools, tests and old
+proof files were retained when resolving B's unrelated synchronization deletions.
+**1,152 host tests pass, no failures/errors/skips; 57 protocol tests pass.**
+Literal `make compile` succeeds with SDK 3.1.2; the PDX has 202 game modules and
+zero dev modules. All six canonical B save byte strings remain unchanged.
+[Chain identities](chain-saves.json). No push is authorized.
 
-## Current private-B implementation and validation
+Elapsed: 73.075 hours since the first 149-map packet commit (`ce615acf`), about
+13.466 added maps/day. This wall time includes staging, tooling, latency work
+and waits; it is not pure implementation time.
 
-Adopted allocation composition:`f0edc15c`. It avoids unrelated gym descriptor
-projections and uses a SourceMaps boolean query instead of copying the entire
-world catalogue four times for four Hideout cells. All callbacks, validation,
-cell/world outputs, transactions, RNG, rollback and defensive getters remain.
-Combined review: **Standards0 / Spec0**. Merged Source is byte-exact to the
-native/hardware candidate. **Full host:1072/1072, zero errors/skips,177.676s.**
-The initial stale-snapshot failure is retained; the snapshot-only refresh keeps
-all1512 coverage rows, levels, inventories and original evidence hashes.
-[Host/review](gamecorner-membership-full-host-20261102.json),
-[native cases](gamecorner-membership-root-native-20261102.json),
-[physical proof](gamecorner-membership-hardware-20261102.json).
+## Visual and gameplay evidence
 
-Metadata:6native cases across1262IDs. Membership:6original cases across11short
-processes, covering all18effect/world combinations with original assertions.
-The minimal guarded projection failed on catalogue copy3; it now completes
-with0catalogue copies. No guard/GC policy or art/data/map change.
-[Expected-red diagnosis](hideout-catalogue-minimal-red-20261102.json).
+The native 400×240 silent showcase is 86.161 seconds at original speed, with
+explicit cuts between four genuine earned-save sessions. It includes walking,
+a complete three-Pokémon Fisherman victory, Snorlax's wake/encounter/removal,
+and Koga's dialogue/intro/first turn. The gym portion is an excerpt and makes
+no new Koga-victory claim. Root inspected native and decoded samples, readable
+dialogue pages and source sequences. All 1,420 decoded RGBA frames and original
+timestamps are preserved; sampled capture gaps remain visible.
+[Showcase](b149-showcase-final-20261102.json).
 
-GenV HM battle actions, Haze/ClearSmog, Rest/Snore/Yawn/Foresight/Revenge,
-Reflect/ChipAway and Self-Destruct/Explosion are composed privately, with their
-retained native/review scopes. Source gaps remain explicit; green routes never
-meant full mechanics fidelity. [Move scope](b-earned-moves-composition-20261101.json),
-[Self-KO](self-ko-private-b-adoption-20261101.json).
-Protected art/static views retain their earlier proof; allocation changes do
-not alter rendering. Static images do not establish current motion acceptance.
-[Art](midgame-b-protected-visuals-20261030.json), [overlays](midgame-b-full-overlays-20261030.json).
+The package contains a main production PDX, three earned save pairs, the clip,
+one-line loading instructions and known limits. It has not been installed or
+physically timed as an exact normal-production package. User play feedback is
+unavailable now and does not block continued work.
+[Package and limitations](midgame-b-acceptance-20261102.json).
 
-## Current physical results and limits
+The prior 2,494 protected images retain exact pixels/alpha/masks. Reviewed
+41-map spawn views and 82 overlays remain historical visual proof; current
+motion evidence is the showcase. Gen V move fixes, Surf presentation/expiry,
+rod gifts and the measured allocation changes retain their individual review
+and runtime scopes. Full mechanics fidelity is not inferred from green routes.
+Coverage facet levels and every old raw proof hash remain intact.
 
-Latest finite route, build`e64af0a6f9da4b8081420c87f486967a`, uses an earned
-Charmander B save and12ordinary input batches. It reaches GameCorner(15,17)
-settled; the prior9MiB guard failure is resolved on this matched replay.
-No new error/crash logs. Keeper restored; all runtime owners closed.
+## Physical observations — targets still open
 
-| Phase | Latest device wall | Target | Result |
+Current matched Game Corner route: build `e64af0a6f9da4b8081420c87f486967a`,
+12 ordinary input batches, no new error/crash logs, keeper restored.
+
+| Phase | Device wall | Target | Result |
 | --- | ---: | ---: | --- |
-| App start→title accepts A |13.564s|≤10s|Fail|
-| Boot maximum slice |1.458s|≤1s|Fail|
-| Continue |3.474s|≤4s|Pass this run|
-| Save |1.946s|≤2s|Pass this run|
-| Worst sampled door on this route |4.477s Fuchsia|≤1.5s|Fail; worst-eight incomplete|
-| GameCorner entry |3.960s|≤1.5s|Fail latency; former hard guard absent|
-| Battle/cave p95 |Unmeasured here|≤1s /≤50ms|Open|
+| App start → title accepts A | 13.564 s | ≤10 s | Fails |
+| Maximum boot slice | 1.458 s | ≤1 s | Fails |
+| Continue | 3.474 s | ≤4 s | Passes this run |
+| Save | 1.946 s | ≤2 s | Passes this run |
+| Worst sampled entry on this route | 4.477 s, Fuchsia | ≤1.5 s | Fails; worst-eight route incomplete |
+| Game Corner entry | 3.960 s | ≤1.5 s | Fails latency; former hard guard absent |
+| Battle / cave p95 | Unmeasured on this finite route | ≤1 s / ≤50 ms | Open |
 
-Sampled Lua peak7.83MiB stays below9MiB. Endheap6.28MiB is **uncollected**, not
-post-GC live proof. Marks remain but forced diagnostic collections are absent;
-production soft collection is unchanged. Native/transient peaks are unmeasured.
-The different historical common route measured battle18ms and cave p9588.32ms;
-that cave result fails and is not a current-source rerun.
-[Phase report](gamecorner-membership-hardware-20261102.json),
-[common shipped-equivalent route](device-shipped-equivalent-20261101.json).
+The different historical common route measured battle start at 18 ms and cave
+p95 at 88.32 ms; the cave result fails. It is not a current-source rerun.
+Sampled Lua peak is 7.83 MiB, below the unchanged 9 MiB guard. End heap of
+6.28 MiB is uncollected, not post-GC live proof. Forced diagnostic collections
+were absent; ordinary production soft collection remained.
+[Current physical report](gamecorner-membership-hardware-20261102.json).
 
-## Long-session resource evidence
-
-Earlier exact build`8ecd184c` passed110actual doors/30maps/20wild battles over
-87.44min,136post-GC samples,max5.151MiB,raw6.341MiB,no newlogs. This closes its
-stated physical resource scope, not current latency, every map or B acceptance.
+The earlier physical long traversal passed 110 doors across 30 maps and
+20 actual wild battles over 87.44 minutes: 136 post-GC samples, maximum
+5.151 MiB, raw peak 6.341 MiB and no new logs. It is resource evidence, not a
+current latency or every-map claim. The 60+60-minute idle soak and separate
+native image point probe remain scoped evidence; native/transient peaks are
+not measured by Lua counts.
 [Traversal](b149-physical-long-traversal-20261101.json).
-60+60min idle and Simulator plateaus remain retained; the separate2MiB native
-image point probe excludes long-session/unsampled native peaks.
-[Idle](idle-soak-active-20261030.json), [headroom](native-image-headroom-20261030.json).
-Audio remains held for its separate integration/listening checks.
 
-## Capture, package and isolated mechanics
+The exact retained Simulator safety route measured a 77.436 ms maximum slice,
+8.68 MiB sampled peak, 292 ms map window and 1 ms battle-start marker. Its
+finite no-forced-GC profile has no post-GC live value. Diagnostic Simulator
+heap is not compared with the device's 6 MiB live guard.
 
-Walking and a complete24.05s Fisherman victory are captured; native short
-preflights pass with exact decoded pixels. Snorlax/Koga and final composition
-remain open. The unchanged1GiB host guard stops longer setup/Save paths.
-DiveMac desktop observation and native foreground/menu actions are verified;
-Clear History/reclamation remains unqualified. A tiny GUI-only check returned
-a truncated1000-element AX tree, not proof that the control is absent.
-[Components](b149-showcase-components-20261101.json),
-[capture limits](b149-desktop-capture-limits-20261102.json).
-Outside-Git player package02 retains all three earned pairs and known limits;
-its production build predates allocation changes. Repackage on acceptance.
-User cannot play now; do not wait for feedback.
+## Next work
 
-Substitute epoch19 and source-derived doll art are isolated on
-`t3/gen-v-substitute` at716a062f. New24rule+8seam cases and6presentation cases
-are compiled, not executed on that candidate. Old67passes apply only to its
-prior owner-seam version. No Substitute adoption or C activation. Trick/Recycle
-and other unsupported producers remain gaps. The historical C exposure audit
-predates Self-KO; refresh it before C activation instead of presenting its old
-count as current. [Historical audit](checkpoint-c-current-move-exposure-20261101.json).
+1. Freshly qualify the isolated door tier candidate `6949bc94`; execute its
+   existing native selections and exact 16 MiB safety route. Measure Fuchsia,
+   Route 17 and Game Corner on hardware, retaining only a ≥10% phase gain and
+   one combined performance review. Do not restart the census.
+2. Measure heavy-map post-GC live heap and native headroom. Qualify the small
+   Vermilion membership and detached field-terrain candidates; both remain
+   unadopted. Keep about 7.5 MiB working peak before C activation, with the
+   existing guards unchanged. Audio stays held for its own listening checks.
+3. Measure title preparation/Continue on all three earned B saves. Host counts
+   are 19–21.5 KB payloads with only 3–6 stored Pokémon; no CPU/timing conclusion
+   or validation shortcut follows from those sizes.
+4. Finish isolated Substitute checks and prepare one C integration branch.
+   C activation needs the memory margin; its acceptance still requires latency
+   targets. Later regions, credits and postgame remain ahead.
 
-## Next actions and operating boundaries
+Keep SDK 3.1.2, the 16 MiB pool, 1 GiB host guard, 51 GiB runtime admission,
+50 GiB reserve and ordered ownership locks. Storage remains background and
+exception-only. The bounded recovery retained stopped census data remotely,
+verified full restore rehearsals and restored runtime admission. Measured free
+space rose from 49.06 to 54.65 GiB during that pass; concurrent activity limits
+exclusive attribution. The 70 GiB target was not reached or used as a gate for
+resuming the game. One separately approved closed B5 retry was also retained
+remotely for capture headroom; no current save/package/proof input was released.
+[Recovery](capacity-census-retention-complete-20261102.json),
+[closed retry](capacity-b5-retention-20261102.json).
 
-1. Port the reviewed shared allocation fix to main108 without B content,
-   qualifying its own copied Source and real SDK outputs.
-2. Complete remaining ranked physical destinations and structural door/cave work;
-   preserve paired evidence and≥10%performance review rule. Never resume the census.
-3. Finish genuine Snorlax/Koga segments and real-speed showcase; update the player
-   package, accept/merge B only after its remaining gates, then ask once about push.
-4. Execute/review isolated Substitute and later C integration; C acceptance still
-   requires latency targets. Do not change source trainers/moves/AI to hide gaps.
-
-Keep exact16MiB safety: no error,observed slice≤150ms,sampled peak≤9MiB.
-Keep6MiB post-GC live/8MiB soft/9MiB hard policy,51GiB runtime admission/50GiB
-reserve,ordered locks and one runtime owner. Storage is background/exception-only;
-no new tooling, broad scans or proof release. Capacity recovery is historical,
-not an active blocker. Never push without a new user request.
-
-[Complete prior ledger, including failed history](progress-history-before-allocation-adoption-20261102.md).
-
-Current B Snorlax component completes from a genuine adjacent earnedSave:
-16.56s/native400x240/originalwalltime, silent15fps; firstdecodedRGBAexact and
-first/quarter/mid/finalsourceframesinspected. No MallocLog/Clear/AX operation.
-Source-fixed waypoints avoid an optionaltrainer through ordinarymovement;
-earnedflags/resources remain. [Component/ancestry/limits](b149-snorlax-component-20261102.json).
-Koga andfinal60–90s composition remain. Capture-onlywindowclosed requirement
-retains16MiBpool/allguards; failed1GiBapproachesretained, noslot reconstruction.
-
-Current-build walking9.715s and complete Fisherman24.045s companions exported;
-Root inspected source sheets and decoded-first equality. Genuine post-Snorlax
-Bulbasaur Save now retained at Route12(10,61), Soul absent. A longer next
-approach hit unchanged1GiB host guard during Save and produced no marker;
-shorter ordinary travel is in progress. Koga/composition/acceptance stay open.
-[Current components and Save identity](b149-current-capture-progress-20261102.json).
-
-Ordinary southern route now has verified genuine Saves through Route12(10,91),
-including the actual Rocker victory. The next JR encounter reached Save but
-failed final codec observation at unchanged1GiB host guard; no checkpoint was
-reconstructed. All owned processes closed. Koga/final showcase remain open.
-
-Koga approach now has genuine Bulbasaur Saves through Route15(40,9),
-Soul absent. Earned Razor Leaf avoided recoil/rampage revival overhead; fixed
-ordinary corridor steps bypass optional sightlines without gameplay edits.
-The next run stopped during startup on the50GiB disk reserve; live free50.08GiB
-was below51GiB admission. All owned runtimes closed, no failed-slot reconstruction.
-Koga/composition/package/acceptance remain open.
-[Save chain and limits](b149-koga-approach-progress-20261102.json).
-
-Host-only Koga excerpt and copied-source gym route are prepared; no new native
-capture or B acceptance. Explicitly scoped excerpt makes no victory/badge claim;
-the existing Fisherman component remains the complete trainer battle.
-Three isolated door/memory candidates are ready for Root qualification and
-measurement; none is adopted or claimed faster.
-[Prepared scope and candidate boundaries](b149-koga-excerpt-preparation-20261102.json).
-
-Current B player package03 now compiles with SDK3.1.2 and contains202 native
-modules/zero dev modules. All three earned pairs are byte-identical to protected
-chain5.5b; portable5.16MB archive contents checked against originals. Known limits
-label related instrumented timings separately; exact-package runtime unmeasured.
-No install/acceptance/merge/push. [Package identity](b149-player-package-current-20261102.json).
+[Previous ledger and failed history](progress-history-before-b-acceptance-20261102.md).
