@@ -1434,47 +1434,51 @@ class MidgameJourney(vj.VermilionJourney):
         self.refresh_world()
 
     def route_c_guard(self):
-        # B ends at Fuchsia. Reuse walking return legs without replaying B phases.
-        if self.state['zone_id'] in {self.zone('FuchsiaPokecenter'), self.zone('FuchsiaCity')}:
-            self.return_from_fuchsia_to_route12()
-        # A genuine transit Continue may start partway through the eastern leg.
-        # Reuse its declared cells instead of planning back through Fuchsia.
-        if self.state['zone_id'] == self.zone('Route15'):
-            self.source_waypoint(59, 8)
-            self.cross('right', self.zone('Route14'), (0, 44))
-        if self.state['zone_id'] == self.zone('Route14'):
-            self.source_waypoint(19, 10)
-            self.cross('right', self.zone('Route13'), (0, 10))
-        if self.state['zone_id'] == self.zone('Route13'):
-            self.source_waypoint(51, 0)
-            self.cross('up', self.zone('Route12'), (11, 107))
-        if self.state['zone_id'] == self.zone('Route12'):
-            self.return_from_route12_to_lavender()
-            # A genuine transit Save can resume this long return leg under the
-            # unchanged per-process history budget. It completes no C quest.
-            self.save()
-        self.ensure_room('CeladonMart2F')
-        self.heal_here('CeladonPokecenter')
-        self.travel(self.zone('CeladonMart1F'))
-        for name in ('CeladonMart2F', 'CeladonMart3F', 'CeladonMart4F', 'CeladonMart5F', 'CeladonMartRoof'):
-            self.warp(self.zone(name))
-        vending = 'pokered:CELADON_MART_ROOF:background_events:1'
-        before_money, before_water = self.inventory()['money'], self.quantity('freshWater')
-        self.celadon_service(vending, ['FRESH WATER  ¥200'], background=True)
-        if self.quantity('freshWater') != before_water + 1 or self.inventory()['money'] != before_money - 200:
-            raise ProtocolError('actual source vending purchase unavailable/incomplete')
-        drinks = {item: self.quantity(item) for item in ('freshWater', 'sodaPop', 'lemonade')}
-        money = self.inventory()['money']
         flag = 'pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK'
-        opened = self.flag(flag)
-        self.travel(self.zone('Route7Gate'))
-        if not opened:
-            self.visit_event(cj.sid('ROUTE_7_GATE', 1))
+        # A stopped genuine transit Save can already contain the committed
+        # transaction. Do not buy/consume a second drink on its Continue.
         if not self.flag(flag):
-            raise ProtocolError('actual guard drink transaction did not open Saffron')
-        if (any(self.quantity(item) != quantity - (1 if item == 'freshWater' and not opened else 0)
-                for item, quantity in drinks.items()) or self.inventory()['money'] != money):
-            raise ProtocolError('guard did not consume exactly one priority drink')
+            # B ends at Fuchsia. Reuse walking return legs without replaying B phases.
+            if self.state['zone_id'] in {self.zone('FuchsiaPokecenter'), self.zone('FuchsiaCity')}:
+                self.return_from_fuchsia_to_route12()
+            # A genuine transit Continue may start partway through the eastern leg.
+            # Reuse its declared cells instead of planning back through Fuchsia.
+            if self.state['zone_id'] == self.zone('Route15'):
+                self.source_waypoint(59, 8)
+                self.cross('right', self.zone('Route14'), (0, 44))
+            if self.state['zone_id'] == self.zone('Route14'):
+                self.source_waypoint(19, 10)
+                self.cross('right', self.zone('Route13'), (0, 10))
+            if self.state['zone_id'] == self.zone('Route13'):
+                self.source_waypoint(51, 0)
+                self.cross('up', self.zone('Route12'), (11, 107))
+            if self.state['zone_id'] == self.zone('Route12'):
+                self.return_from_route12_to_lavender()
+                # A genuine transit Save can resume this long return leg under the
+                # unchanged per-process history budget. It completes no C quest.
+                self.save()
+            self.ensure_room('CeladonMart2F')
+            self.heal_here('CeladonPokecenter')
+            self.travel(self.zone('CeladonMart1F'))
+            for name in ('CeladonMart2F', 'CeladonMart3F', 'CeladonMart4F', 'CeladonMart5F', 'CeladonMartRoof'):
+                self.warp(self.zone(name))
+            vending = 'pokered:CELADON_MART_ROOF:background_events:1'
+            before_money, before_water = self.inventory()['money'], self.quantity('freshWater')
+            self.celadon_service(vending, ['FRESH WATER  ¥200'], background=True)
+            if self.quantity('freshWater') != before_water + 1 or self.inventory()['money'] != before_money - 200:
+                raise ProtocolError('actual source vending purchase unavailable/incomplete')
+            drinks = {item: self.quantity(item) for item in ('freshWater', 'sodaPop', 'lemonade')}
+            money = self.inventory()['money']
+            flag = 'pokered:wStatusFlags1:BIT_GAVE_SAFFRON_GUARDS_DRINK'
+            opened = self.flag(flag)
+            self.travel(self.zone('Route7Gate'))
+            if not opened:
+                self.visit_event(cj.sid('ROUTE_7_GATE', 1))
+            if not self.flag(flag):
+                raise ProtocolError('actual guard drink transaction did not open Saffron')
+            if (any(self.quantity(item) != quantity - (1 if item == 'freshWater' and not opened else 0)
+                    for item, quantity in drinks.items()) or self.inventory()['money'] != money):
+                raise ProtocolError('guard did not consume exactly one priority drink')
         self.heal_here('SaffronPokecenter')
         self.travel(self.zone('SaffronCity'))
         if self.zone('SaffronCity') not in self.observe('midgame-state')['fieldTravel']['visited']:
