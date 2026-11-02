@@ -216,3 +216,12 @@ Isolated Substitute interfacescc6109ef pass67 real SDK3.1.2 checks:8new
 owner cases,34ordinary combat and25contact regressions. No move activation,
 B/main Source change or C acceptance. Full primary/status/bypass integration
 remains. [Native scope](substitute-seams-native-20261102.json).
+
+Metadata candidate952db34f passes6 native differential cases/1262IDs and actual
+SDK export equality, qualified compile and fresh safety. Physical replay still
+hits9MiB atGameCorner; no valid complete timing/gate result. Raw descriptor spans
+fall across completed legs, but candidate is unadopted. All owners close; no new
+logs; keeper restored. [Comparison/limits](gamecorner-metadata-hardware-20261102.json).
+Source diagnosis identifies four whole-world catalogue copies in the four-cell
+Hideout terrain projection. A boolean query can preserve validation without
+those copies; implementation/native equivalence/resource proof remain pending.
