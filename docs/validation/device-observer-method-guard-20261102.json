@@ -1,0 +1,20 @@
+{
+  "classification": "Diagnostic observer correction; production game modules unchanged",
+  "bug": "Real EventState exposes dialog as a method. DeviceSmoke snapshot indexed it as an object when Safari dialogue returned to the event choice.",
+  "fix": "Menu/dialog observations accept table objects only. Valid Dialog observation remains unchanged.",
+  "native": {
+    "primary_red": "Actual EventState.dialog function produces original dev/deviceSmoke.lua:76 error",
+    "final_green": "2/0 with actual EventState method and actual active Dialog",
+    "limits": "Initial secondary probe used nonexistent hide(), then expected advance() to close unrevealed text. Those fixture failures remain retained; removed unrelated inactive test. Final active-dialog case and unchanged primary method case pass."
+  },
+  "host_passed": 25,
+  "original_hardware_attempt": "Failed, not accepted: Safari gate reached but no Safari map memory proof. Before/after system log hashes unchanged; keeper restored.",
+  "real_admission_replay": "Pending fresh build/safety/device retry",
+  "proofs": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/device-observer-red-native-20261102-01/startup-probe.json": "818fc287d138c95a7d60c5d80f69533cd6f627a371bc7919d673407a51ccdd3b",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/device-observer-green02-native-20261102-01/startup-probe.json": "a96deec427d4ff5d83bcb0650a5fcd4ee8dc5e2e336142708a0c103a6dd8514e",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/device-observer-host-20261102-01.log": "7163e5ad9fce2323ab35d493c3876fdf3fa6b74d83cfc43425f87d5dcb3cd602",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-memory-hardware-20261102-01/outcome.json": "ea1b8ae6cd37e80912be859c3e81a015ba3b0a258150d20615c15a7f13433bbc",
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/safari-memory-hardware-20261102-01/keeper-handoff.json": "57238f1caeab17e6442b86b889658e306ef4833a7108f56f11e2bbb2154d2234"
+  }
+}
