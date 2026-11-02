@@ -1,0 +1,44 @@
+{
+  "classification": "Closed stopped-census remote retention; not game acceptance",
+  "shared_helper_sha256": "29e0e8015e91cfbbbc4fd6bac5a820f00b1278ce66caa8f1a53a279f420046d2",
+  "operator_ledger": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/storage-maintenance-logs/stopped-census-capacity-recovery-20261102.json",
+  "completed": [
+    {
+      "id": "playdate-aff587c1cbde446797e7b28617b5287f",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-03",
+      "manifest_sha256": "dfe2183dbba04996232773a1424add6397813688f143f67a9ecdc30513000ea3",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-aff587c1cbde446797e7b28617b5287f.json",
+      "receipt_sha256": "ae9745c00de761b3691625111a31fe1d7b1157a212f4d50ea3bbd347b788dad5",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-03.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-03 --id playdate-aff587c1cbde446797e7b28617b5287f --execute"
+    },
+    {
+      "id": "playdate-fdf2b7b0b6fb44fa9c217d0554687722",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-05",
+      "manifest_sha256": "4d0fa0e949864084bdab237b499866127185874229cda29102f986ece147a92b",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-fdf2b7b0b6fb44fa9c217d0554687722.json",
+      "receipt_sha256": "103db59587a0140c85e4a4923338fad7299d918571ca8278f07f2c8511d81687",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-05.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-05 --id playdate-fdf2b7b0b6fb44fa9c217d0554687722 --execute"
+    },
+    {
+      "id": "playdate-42c27d1d2a3446b8ba7a7e433d6bb7f9",
+      "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-02",
+      "manifest_sha256": "d94a853ece921498823b750656a1da163a666f001912205023d16971c1f10ff7",
+      "receipt": "/Users/burbujamc/.local/state/pi-artifacts/playdate-42c27d1d2a3446b8ba7a7e433d6bb7f9.json",
+      "receipt_sha256": "0002021b7a34c9b1d1f4d632dc6d2117b6a820eceab66f486be2c46074d86dfd",
+      "stub": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-continuation-20261101-02.ARCHIVED.json",
+      "restore": "python3 tools/harness/pi_archive.py restore door-census-b149-bounded-continuation-20261101-02 --id playdate-42c27d1d2a3446b8ba7a7e433d6bb7f9 --execute"
+    }
+  ],
+  "active": {
+    "session": 97287,
+    "source": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/door-census-b149-bounded-full-20261101-01",
+    "phase": "Archive verified; same owned command is running full rehearsal then release. Do not start SDK or duplicate operation.",
+    "logical_bytes": 3305399831,
+    "archive_id": "playdate-be781749d8174a9e96a835ba4d057a2e"
+  },
+  "guards": "51GiB SDK admission/50reserve and existing helper budget, all five fences and qualified29 contract unchanged.",
+  "protected": "No earned chain, player package, active game input, Git, SDK, SQLite/WAL or frozen source proof bytes changed.",
+  "remaining": "Finish same active rehearsal/release; remeasure free and resume Koga approach before any new archive admissions."
+}
