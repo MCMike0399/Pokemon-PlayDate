@@ -4,6 +4,10 @@
     "data/midgameEast/events.json": "0f91c50ff92b0627a5e3d7b7521efaf88cd75017d6e76c2091031fe59c35d778",
     "data/midgameEast/sprites.json": "600ba881e4ab02f233effb078a13155f0d62182250eae7e5b22b9588e8064045",
     "data/midgameEast/trainers.json": "9850c31966a48c85453373a27bc8cf0d2e71ed0d3c123a03cc76c92f6354910a",
+    "data/midgameSaffron/dialogue.json": "17943ae6f6d5bfa1b09f69ebc33bb2c5eef33fbde5c5803bb3c8737e4ff8925c",
+    "data/midgameSaffron/events.json": "dc78f75f93668cccf0b5e04341d12859aa84b999b575012d6fcb7d6d173edb5f",
+    "data/midgameSaffron/sprites.json": "e68c524ef5cd828400304835102d7c9ac0d1fe64a943201193d1cb79202e8c54",
+    "data/midgameSaffron/trainers.json": "c226a0d39142dd6867609c12bfd10c9031434634c1465992c3cc58c097c8457b",
     "data/midgameSouth/dialogue.json": "83363fc2ad5161dc2f571b258f2bd5a4eaa5af7b85a2421055b4958b69c231f1",
     "data/midgameSouth/events.json": "bc53dcf2d4227c3efae7f7bf11ea3ec1d128beed8999fb8bc63a8842885bbfed",
     "data/midgameSouth/sprites.json": "a3b8ed37e6e177206ea3660c25b63b3b483b29c42a9c0a79fb0015844fdd6864",
@@ -20,21 +24,13 @@
     "data/vermilionPreparation/sprites.json": "9c985fbd5b6fc73ef7bff457572702fa608d64531702bed1f001fdfa3737feb7",
     "data/vermilionPreparation/trainers.json": "6ac1c6a49a3cf913f795660d95b2be9c8bce943e55984e36d38b107bc3fd6da3"
   },
-  "package_exclusions": {
-    "data/midgameSouth/": {
-      "maps": [
-        "pokered:ROUTE_16_FLY_HOUSE"
-      ],
-      "text_sources": [
-        "text/Route16FlyHouse.asm"
-      ]
-    }
-  },
+  "package_exclusions": {},
   "packages": [
     "data/sourceSlice/",
     "data/vermilionPreparation/",
     "data/midgameEast/",
-    "data/midgameSouth/"
+    "data/midgameSouth/",
+    "data/midgameSaffron/"
   ],
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d"

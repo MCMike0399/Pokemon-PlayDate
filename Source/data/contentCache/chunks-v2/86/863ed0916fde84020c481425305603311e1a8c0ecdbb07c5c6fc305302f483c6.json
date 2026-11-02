@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":16,"text":"TM29 is PSYCHIC!"},{"op":"para","source_line":18,"text":"It can lower the"},{"op":"line","source_line":19,"text":"target's SPECIAL"},{"op":"cont","source_line":20,"text":"abilities."},{"op":"control","source":"done","source_line":21}],"source":"text/MrPsychicsHouse.asm"}

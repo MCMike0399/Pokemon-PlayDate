@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":7,"text":"You're only on 5F."},{"op":"line","source_line":8,"text":"It's a long way"},{"op":"cont","source_line":9,"text":"to my BOSS!"},{"op":"control","source":"done","source_line":10}],"source":"text/SilphCo5F_2.asm"}

@@ -5,9 +5,13 @@ import hashlib
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.generate_kanto_maps import Reference, decode_map
+
 REVISION = 'af519899719f0754965776faac0e836a3b906e6d'
 OUTPUT = ROOT / 'Source/data/silphStory'
 
@@ -34,9 +38,12 @@ def build(reference):
     sources, pins = {}, {}
     names = [f'SilphCo{floor}F' for floor in range(1, 12)] + ['SilphCoElevator']
     files = [f'{kind}/{name}.asm' for kind in ('scripts', 'data/maps/objects') for name in names]
-    files += ['gfx/blocksets/facility.bst', 'engine/events/card_key.asm', 'engine/events/elevator.asm',
+    files += [f'data/maps/headers/{name}.asm' for name in names]
+    files += ['gfx/blocksets/interior.bst', 'gfx/blocksets/facility.bst', 'engine/events/card_key.asm', 'engine/events/elevator.asm',
               'home/map_objects.asm', 'data/maps/toggleable_objects.asm', 'constants/toggle_constants.asm',
-              'data/maps/objects/SaffronCity.asm']
+              'data/maps/objects/SaffronCity.asm', 'home/overworld.asm',
+              'engine/overworld/player_state.asm', 'data/tilesets/door_tile_ids.asm',
+              'data/tilesets/warp_tile_ids.asm']
     for name in files:
         raw = (reference / name).read_bytes()
         if raw != subprocess.check_output(['git', '-C', str(reference), 'show', f'{REVISION}:{name}']):
@@ -44,15 +51,17 @@ def build(reference):
         sources[name] = raw if name.endswith('.bst') else raw.decode()
         pins[name] = hashlib.sha256(raw).hexdigest()
     doors = {}
-    raw = sources['gfx/blocksets/facility.bst']
-    def keys(block):
+    def keys(block, tileset):
+        raw = sources[f'gfx/blocksets/{tileset.lower()}.bst']
         result = []
         for q in range(4):
             ids = [raw[block * 16 + (q // 2 * 2 + y) * 4 + q % 2 * 2 + x] for y in range(2) for x in range(2)]
-            result.append('pokered:FACILITY:cell:' + '-'.join(f'{v:02x}' for v in ids))
+            result.append(f'pokered:{tileset}:cell:' + '-'.join(f'{v:02x}' for v in ids))
         return result
     for floor in range(2, 12):
         name = f'SilphCo{floor}F'
+        tileset = re.search(r'map_header\s+\w+,\s*\w+,\s*(\w+)',
+                            sources[f'data/maps/headers/{name}.asm'])[1]
         source = sources[f'scripts/{name}.asm']
         label = re.search(r'^(SilphCo\d+F_?GateCallbackScript):', source, re.M)[1]
         callback = global_block(source, label)
@@ -66,7 +75,7 @@ def build(reference):
             closed, opened = int(block, 16), 3 if floor == 11 else 14
             records.append(dict(id=f'pokered:SILPH_CO_{floor}F:hidden_events:{1000 + index}',
                                 flag=flag, map=name, x=int(x), y=int(y),
-                                closed_block=closed, open_block=opened, closed_keys=keys(closed), open_keys=keys(opened)))
+                                closed_block=closed, open_block=opened, closed_keys=keys(closed, tileset), open_keys=keys(opened, tileset)))
         doors[f'pokered:SILPH_CO_{floor}F'] = records
     elevator = []
     source = sources['scripts/SilphCoElevator.asm']
@@ -127,7 +136,32 @@ def build(reference):
                                 approach=['down']*3, battle_pose=dict(x=6,y=12),
                                 triggers=[dict(x=6,y=13,player_facing='up',actor_facing='down'),
                                           dict(x=7,y=12,player_facing='left',actor_facing='right')]))
-    return {'scenes.json': encoded(dict(schema=1,source_revision=REVISION,scenes=scenes)),
+    # Use the existing pinned map decoder for callback-only cells absent from
+    # base layouts. Do not regenerate/reindex any installed decoded map.
+    map_pins = json.loads((ROOT / 'tools/references/midgame-saffron.json').read_bytes())['files']
+    ref = Reference(reference, map_pins)
+    missing = {'pokered:FACILITY:cell:24-25-24-25', 'pokered:INTERIOR:cell:5d-5d-5e-5e'}
+    tiles = []
+    for name, block in [('SilphCo3F', 0x5f), ('SilphCo11F', 0x20)]:
+        definition = decode_map(ref, name, extra_blocks=(block,))
+        tiles.extend(grid for grid in definition['grids'] if grid['stable_id'] in missing)
+    assert {grid['stable_id'] for grid in tiles} == missing and len(tiles) == 2
+    # The unused LAST_MAP declaration is interior floor, not a trigger. The
+    # source checks a standing door/warp tile, then (for INTERIOR) a map edge.
+    # Retain the source event; shared owners must not turn it into a wall/door.
+    raw11 = decode_map(ref, 'SilphCo11F')
+    warp = raw11['events']['warps'][2]
+    grid = raw11['grids'][raw11['tile_ids'][5][5] - 1]
+    assert (warp['x'], warp['y'], grid['terrain']['foot_tile']) == (5, 5, 0x1f)
+    assert not grid['terrain']['warp_tile'] and grid['terrain']['land_passable']
+    assert 'dbw INTERIOR,' not in sources['data/tilesets/door_tile_ids.asm']
+    assert 'cp SILPH_CO_11F' not in global_block(sources['home/overworld.asm'], 'ExtraWarpCheck')
+    scenes['inert_warps'] = [dict(id=warp['id'], map='SilphCo11F', x=5, y=5,
+        key=grid['stable_id'], foot_tile=0x1f,
+        reason='INTERIOR has no door tiles; $1f is not a warp tile; (5,5) is not a map edge')]
+    pins.update(ref.consumed)
+    return {'tiles.json': encoded(dict(schema=1, source_revision=REVISION, grids=tiles)),
+            'scenes.json': encoded(dict(schema=1,source_revision=REVISION,scenes=scenes)),
             'provenance.json': encoded(dict(schema=1,source_revision=REVISION,files=pins))}
 
 

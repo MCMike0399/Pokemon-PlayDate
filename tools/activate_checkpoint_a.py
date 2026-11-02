@@ -46,6 +46,13 @@ def production_exclusions(project):
     elif names == set(expected) | set(south):
         expected.update(south)
         policy = ROOT / 'tools/integration/checkpoint-b/production-exclusions.json'
+    elif len(names) == 171:
+        from tools.activate_checkpoint_c import inventories as c_inventories
+        previous, additions = c_inventories(project)
+        if names != set(previous['maps']) | set(additions):
+            raise ValueError('unsupported production map inventory; explicit release policy required')
+        expected = dict(previous['maps'], **additions)
+        policy = ROOT / 'tools/integration/checkpoint-c/production-exclusions.json'
     else:
         raise ValueError('unsupported production map inventory; explicit release policy required')
     for name, entry in expected.items():

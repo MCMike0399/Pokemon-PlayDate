@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":7,"text":"<PLAYER>! You and"},{"op":"line","source_line":8,"text":"your #MON"},{"op":"cont","source_line":9,"text":"saved us!"},{"op":"control","source":"done","source_line":10}],"source":"text/SilphCo3F.asm"}

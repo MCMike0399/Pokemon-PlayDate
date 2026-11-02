@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":17,"text":"HM02 is FLY."},{"op":"line","source_line":18,"text":"It will take you"},{"op":"cont","source_line":19,"text":"back to any town."},{"op":"para","source_line":21,"text":"Put it to good"},{"op":"line","source_line":22,"text":"use!"},{"op":"control","source":"done","source_line":23}],"source":"text/Route16FlyHouse.asm"}

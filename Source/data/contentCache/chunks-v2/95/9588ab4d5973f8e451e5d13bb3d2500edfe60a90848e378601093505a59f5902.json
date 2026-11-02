@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":70,"text":"You! It's really"},{"op":"line","source_line":71,"text":"dangerous here!"},{"op":"cont","source_line":72,"text":"You came to save"},{"op":"cont","source_line":73,"text":"me? You can't!"},{"op":"control","source":"done","source_line":74}],"source":"text/SilphCo7F.asm"}

@@ -1,0 +1,1 @@
+{"recipe":[{"op":"text","source_line":2,"text":"You look tired!"},{"op":"line","source_line":3,"text":"You should take a"},{"op":"cont","source_line":4,"text":"quick nap!"},{"op":"control","source":"prompt","source_line":5}],"source":"text/SilphCo9F.asm"}

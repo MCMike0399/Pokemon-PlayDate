@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "scope": "Checkpoint 5.5c compile-only candidate: 171 maps; no late game or postgame activation.",
+  "exclude": [
+    "data/midgameSouth/dialogue.json",
+    "data/midgameSouth/events.json",
+    "data/midgameSouth/trainers.json",
+    "data/midgameSouth/sprites.json",
+    "data/midgameSouth/manifest-entries.json",
+    "data/midgameSouth/provenance.json",
+    "data/midgameSouth/contexts.json",
+    "data/midgameSouth/reservations.json",
+    "data/midgameSouth/scripts.json",
+    "data/midgameSaffron/events.json",
+    "data/midgameSaffron/dialogue.json",
+    "data/midgameSaffron/sprites.json",
+    "data/midgameSaffron/trainers.json",
+    "data/midgameSaffron/manifest-entries.json",
+    "data/midgameSaffron/provenance.json",
+    "data/midgameSaffron/contexts.json",
+    "data/midgameSaffron/reservations.json",
+    "data/midgameSaffron/scripts.json"
+  ],
+  "retain_shared_dependencies": [
+    "domain/fieldTravel.lua",
+    "data/fieldTravel.json",
+    "game/fieldTravelWorld.lua",
+    "domain/safariGame.lua",
+    "data/safariServices.json",
+    "domain/sourceEncounters.lua",
+    "domain/coinWallet.lua",
+    "domain/gameSession.lua",
+    "domain/sessionCodec.lua",
+    "data/midgameGymStory/events.json",
+    "game/midgameGymStory.lua"
+  ],
+  "reason": "C uses shared lazy content and map caches. Full pinned preparation inputs stay in Git. Existing owner modules are retained; root-hooks.patch remains unapplied. NPC trades and all later maps stay parked."
+}

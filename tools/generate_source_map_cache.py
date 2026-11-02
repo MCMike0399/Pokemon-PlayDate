@@ -188,6 +188,26 @@ def build(manifest_path=MANIFEST, source_root=ROOT / "Source", *, cell_artifacts
             cells = cell_cache(definition, header, entry)
             if cells is not None:
                 cell_artifacts[name + ".bin"] = cells
+    # Callback-only Silph block cells come from generate_silph_story's use of
+    # the existing pinned decoder (extra_blocks), without changing base grids,
+    # map palettes, row bytes or manifest pins. This immutable auxiliary input
+    # is shared by ordinary builds and staged activation/proposal generation.
+    if "SilphCo3F" in manifest["maps"] and "SilphCo11F" in manifest["maps"]:
+        raw = (source_root / "data/silphStory/tiles.json").read_bytes()
+        require(hashlib.sha256(raw).hexdigest() ==
+                "c6e20529f7a1c785a85b91b60769ba2bdd6e36b181ddda2895f93d2885e31a70",
+                "pinned Silph callback tiles differ; reproduce with generate_silph_story")
+        extra = json.loads(raw)
+        require(extra["schema"] == 1 and extra["source_revision"] == REVISION,
+                "unverified Silph callback tiles")
+        for grid in extra["grids"]:
+            key = grid["stable_id"]
+            tile = {"key": key, "grid": grid["grid"], "terrain": grid["terrain"],
+                    "collision": int(not grid["terrain"]["land_passable"])}
+            require(key not in atlas["tiles"] or atlas["tiles"][key] == tile,
+                    "shared Silph callback tile differs: " + key)
+            atlas["tiles"][key] = tile
+            compact["tiles"][key] = {field: value for field, value in tile.items() if field != "grid"}
     # LAST_MAP is stateful in the source. Infer its ordinary unique OVERWORLD
     # ingress; an ambiguous context requires an explicit manifest override (or
     # ultimately a bespoke runtime script), never a regional Lua name branch.
