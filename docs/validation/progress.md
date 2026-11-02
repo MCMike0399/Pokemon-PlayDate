@@ -193,3 +193,12 @@ omitted a stationary actor and downhill resumes between requests. Partial
 coverage only, no worst-eight claim. Current post-pose host audit is1071/1071.
 [Retained partial route](b149-ranked-north-partial-20261101.json). B visual
 Snorlax/Koga/montage remains open; no C activation or push.
+
+Real DiveMac desktop observation is retained/inspected. Three short native
+preflights pass, but Clear Malloc History remains uninvoked: shell menu fallback
+hit t3 assistive-access denial; computer-only input did not foreground Simulator.
+A real trainer victory followed by a bounded GUI hold hit the unchanged1GiB
+host guard before Save, producing no usable checkpoint. All children closed;
+no partial-slot import, pool/guard change or B acceptance.
+[Capture limits](b149-desktop-capture-limits-20261102.json). Actor-excluding
+static Route17 planning now has a non-grass path, still physically unverified.
