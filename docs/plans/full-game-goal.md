@@ -20,6 +20,15 @@ This supersedes older150/50 GiB disk-reserve and51 GiB admission values below.
 Memory, native-image, watchdog, ownership and evidence-retention guards are
 unchanged. Shared Pi helper qualification/pressure guards remain unchanged.
 
+## Journey profiler trigger override — user decision, 2026-11-02
+
+For ordinary C journeys, trigger the approved history Clear helper at **736 MiB**
+Simulator host footprint instead of 512 MiB. This changes only the soft Clear
+trigger. Keep the **1 GiB hard stop**, **16 MiB pool**, **64 Clears / 131 helper
+calls per generation**, and all other resource, ownership and deadline guards.
+The user explicitly authorized this change after the emptied profiler UI stayed
+above 512 MiB. Runtime qualification and complete journeys remain required.
+
 ## Current direction — 2026-10-29 evening
 
 This section supersedes earlier P0 freeze and validation rules below.

@@ -163,10 +163,11 @@ point probes retain their separate scope.
    ready-title pause now proves actual Clear and 67 ordinary requests through
    Route 15, but stops at the unchanged 64-Clear limit: the cleared UI footprint
    exceeds the 512 MiB trigger. Closing the window did not release headroom and
-   is rejected. All owned children are reaped. A 736 MiB trigger proposal is
-   unapplied pending the user's guard-policy decision; the 1 GiB hard stop,
-   16 MiB pool and other limits remain unchanged. No complete C journey is
-   inferred from this short qualification.
+   is rejected. The user approved changing only the soft Clear trigger to
+   736 MiB; 36 focused host checks pass and a fresh single-Squirtle pilot is
+   running. The 1 GiB hard stop, 16 MiB pool, 64-Clear/131-call caps and other
+   limits remain unchanged. No complete C journey is inferred from the earlier
+   short qualification.
 
 Compact SMC1 terrain-row consumption is also rejected after native correctness
 passes but no whole-phase hardware gain: Fuchsia 4.451→4.507 s, memory unchanged.
