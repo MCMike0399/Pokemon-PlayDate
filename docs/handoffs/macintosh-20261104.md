@@ -6,6 +6,156 @@ requested pushing accepted main and handing the work to Macintosh. Do not launch
 a duplicate DiveMac runtime. Read the private companion inventory before changing
 or reconstructing any in-flight branch.
 
+## 0. Final reviewed readiness and first action
+
+An independent advisor challenged baseline `e29f4d77` and found two operational
+gaps: incomplete Macintosh dependencies, and an old execution template that
+resumed C record15 rather than the latest record16. Both are closed by the
+on-Macintosh recovery drill described here. The advisor also requested explicit
+fresh-session persistence. The advisor did not independently approve these later
+fixes; Root verified them with the unchanged validators on Macintosh.
+
+**Start a fresh Macintosh goal; app state is not transferred.** The outgoing
+thread's goal, task IDs, delegates, wakeups, old PID records and historical
+"needs /goal resume" memory are not local active work on Macintosh. Establish
+your own continuation state for the same unfinished project; do not resurrect
+the old DiveMac thread or assume the attempted Saffron delegate is running.
+Start the new Macintosh agent with this exact instruction:
+
+```text
+/goal Continue the same Pokemon Blue for Playdate project through credits and
+postgame. Read ~/Developer/Pokemon-PlayDate-handoff-20261104/PROMPT.md completely,
+then take ownership using its verified branch/seed recovery and latest reviewer
+order. Preserve all acceptance, safety and push gates. Continue the actual earned
+C chain; do not restart a campaign or duplicate a DiveMac runtime. Commit accepted
+work locally. Future pushes require my explicit request. Do not stop at a tool,
+checkpoint or handoff.
+```
+
+Verified Macintosh setup (created without changing its existing checkout):
+
+- `~/Developer/Pokemon-PlayDate-env/env.sh`, Python3.14.7 venv at
+  `~/Developer/Pokemon-PlayDate-env/venv`, Pillow12.0.0.
+- SDK compiler reports3.1.2 at `~/Developer/PlaydateSDK/bin/pdc`.
+- Pinned pokered checkout at `~/Developer/Pokemon-PlayDate-env/pokered`, HEAD
+  `af519899719f0754965776faac0e836a3b906e6d`, recovered from `pokered.bundle`.
+- All17 Showdown oracle files at
+  `~/Developer/Pokemon-PlayDate-env/preparation/common-abilities-oracle`.
+  The existing loader verifies each against
+  `tools/references/contact-abilities-sources.json`, revision9b136a8c.
+- The11 exact B2W2 cached CSVs are supplied in `reference-caches/`, indexed by
+  SHA256 in `reference-caches.json`. They are installed into the isolated recovery
+  source under `tools/verify_moves/cache/b2w2/2bf639e5572812a67d2b94903fdcb9d095f5aeb2`.
+  Copy them with hash/no-overwrite checks into a newly selected tool-managed
+  worktree when missing there. No fresh oracle fetch or mutable upstream master
+  is necessary.
+- **188 exact evidence dependency files (4,790,358 bytes)** are hydrated at their
+  original paths under `~/Developer/Pokemon-PlayDate-env/evidence`. These include
+  the five earlier C ancestry markers and all producer records/receipts/slots read
+  by the strict importer for all three starters. Their exhaustive path/hash list
+  is `seed-closure.json` in the reviewed packet. Frozen proof bytes and failed
+  original outcomes were preserved; no path/digest was rewritten.
+
+Install the exact CSV cache into a newly selected worktree with this bounded
+recipe (set `CODE_WORKTREE` to the actual tool-created path, not the example
+recovery export). Existing different bytes refuse rather than overwrite:
+
+```sh
+export CODE_WORKTREE=/absolute/path/to/your/tool-created/worktree
+"$HOME/Developer/Pokemon-PlayDate-env/venv/bin/python3" - <<'PY'
+from pathlib import Path
+import hashlib, json, os, shutil
+packet = Path.home() / 'Developer/Pokemon-PlayDate-handoff-20261104/reviewed-readiness'
+target = Path(os.environ['CODE_WORKTREE']).resolve(strict=True)
+for row in json.loads((packet / 'reference-caches.json').read_text()):
+    src = packet / row['packet_path']
+    assert hashlib.sha256(src.read_bytes()).hexdigest() == row['sha256']
+    dst = target / row['repository_relative']
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.exists():
+        assert not dst.is_symlink()
+        assert hashlib.sha256(dst.read_bytes()).hexdigest() == row['sha256']
+    else:
+        shutil.copy2(src, dst)
+print('11 pinned CSV inputs ready')
+PY
+```
+
+The on-Macintosh drill is at
+`~/Developer/Pokemon-PlayDate-recovery-drill-20261104/`. Its `refs.git` recovered
+the exact main/C/selected-slot/Telekinesis refs from the delivered bundle;
+`candidate-source/` is an exported C1464 tree for read-only host validation,
+**not a live game worktree**. Do not edit it as your implementation branch.
+Receipts: `setup.json`, `strict-seed-verification.json`, `oracle-verification.json`.
+All three strict seed imports pass. Squirtle has exactly the record16 slot hashes
+and completed `saffron-guard-entry`; the others use canonical accepted B saves.
+No Simulator, device, fixture, flag edit or campaign acceptance was involved.
+
+The final packet includes `reviewed-readiness/` with these receipts, the exact
+188-file closure, pinned reference bundles/caches and source-to-destination
+inventories. The earlier sibling
+`~/Developer/Pokemon-PlayDate-review-fixes-20261104/` is the preparation source.
+The original packet verification is historical baseline proof; use the final
+packet's current `SHA256SUMS`, `manifest.json` and final receiver verification
+receipt `~/Developer/Pokemon-PlayDate-handoff-20261104-final-verification.json`
+for the amended delivery. The baseline folder is preserved separately; do not
+use its old prompt for the next agent.
+
+**Use the new scenario**
+`docs/handoffs/resume-55c-squirtle-saffron16-20261104.json` from updated main.
+The final packet also supplies it under `scenarios/`. It binds the latest marker
+`ac21db92...`; do not rerun the old `run-earned-c-...-16.py` template, whose input
+was record15. Adapt its existing guard wrapper into a NEW private runner, select
+this scenario, the actual tool-managed C checkout and a NEW output path. Leave
+all resource limits/helper pin checks intact. Apply the source visibility fix
+and earn fresh qualification before starting that runtime.
+
+To repeat only the tested host import check on Macintosh (no game launch):
+
+```sh
+source ~/Developer/Pokemon-PlayDate-env/env.sh
+export HANDOFF="$HOME/Developer/Pokemon-PlayDate-handoff-20261104"
+export RECOVERY="$HOME/Developer/Pokemon-PlayDate-recovery-drill-20261104"
+GIT_DIR="$RECOVERY/refs.git" "$POKEMON_ENV/venv/bin/python3" - <<'PY'
+from pathlib import Path
+import json, os, sys, tempfile
+source = Path(os.environ['RECOVERY']) / 'candidate-source'
+sys.path.insert(0, str(source))
+from tools.harness.restarting import import_chain_save
+checks = Path(os.environ['POKEMON_ENV']) / 'handoffs'
+checks.mkdir(exist_ok=True)
+for starter in ('squirtle', 'bulbasaur', 'charmander'):
+    scenario = json.loads((Path(os.environ['HANDOFF']) / 'scenarios' /
+                           ('restart-55c-' + starter + '.json')).read_text())
+    root = Path(tempfile.mkdtemp(prefix='handoff-seed-' + starter + '-',
+                                dir=checks))
+    data, output = root / 'data', root / 'output'
+    data.mkdir()
+    output.mkdir()
+    record = import_chain_save(scenario, source, data, output)
+    if starter == 'squirtle':
+        assert record['resume']['state']['completed_steps'] == ['saffron-guard-entry']
+    print(starter, 'strict earned-seed import PASS')
+PY
+```
+
+Expected: three PASS lines. This uses the baseline C export for dependency
+verification, not the next runtime build. `GIT_DIR` is scoped to that one command
+so historical frozen Git objects resolve; do not export it for normal worktree
+operations. Actual code work uses a tool-managed checkout from
+`refs/remotes/divemac-handoff/t3/checkpoint-c-host-preparation`.
+
+Runtime-specific checks remain honest external gates: the read-only Macintosh
+preflight found its settings file lacks `MallocPoolSize=16645684`, so it correctly
+REFUSES local Simulator admission until Playdate > Malloc Pool >16MB is selected.
+No preferences were edited to manufacture a pass. AX/desktop readiness and
+native startup also remain unqualified on this host. Use the existing preflight
+and short safety qualification before a local Simulator attempt; no new
+permissions or weaker settings were assumed.
+Physical device work stays on DiveMac through its existing owner/fences and
+current serial detection. These pending game-runtime gates do not block source,
+host or branch continuation on the verified Macintosh setup.
+
 ## 1. Your assignment and authority
 
 Finish the complete native Pokémon Blue experience through credits and postgame,
@@ -451,8 +601,9 @@ in candidate handoffs. Schema4, producer epoch19 on main; Telekinesis epoch20 is
 unadopted. Gen V numbers are SDK JSON-sensitive: read memory about integer vs
 float subtypes/precision; never relax typed equality to accept a mismatch.
 
-Source DiveMac `~/Developer/Pokemon-PlayDate-env/env.sh` for SDK/reference/venv
-paths. Recreate a venv on Macintosh; do not copy one across hosts. `PARCEL_BUNDLE_SOURCE`
+Source `~/Developer/Pokemon-PlayDate-env/env.sh` for SDK/reference/venv paths.
+Macintosh's own venv was created and verified in section0; if reconstructing it,
+create a new local venv rather than copying one across hosts. `PARCEL_BUNDLE_SOURCE`
 points at an actual fresh compile-only bundle after staging/import changes. Do
 not use a stale bundle and call it current. All timed packet helpers must use one
 resolved Python interpreter; the newly recorded cross-project mixed3.14/3.9 clock

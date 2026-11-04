@@ -30,6 +30,18 @@ DiveMac/Pi until exact-path hydration is required. The outgoing agent starts no
 new campaign during the ownership transfer. All prior scope/latency limits below
 continue to apply.
 
+The user then requested an independent handover challenge. One Sol/medium advisor
+found two P2 portability gaps and one P3 persistence clarification, no standards
+findings. Root supplied the missing pinned reference/cache/environment setup,
+an exact188-file frozen seed-dependency closure, and a new scenario bound to
+latest C record16. An isolated recovery drill on Macintosh recovers all selected
+branch tips and passes the unchanged strict importer for all three starters,
+including Squirtle's exact Saffron slots. Goal/task state is explicitly not
+transferred; the prompt supplies a fresh local goal instruction. No gameplay
+Source changed or runtime started. Runtime/desktop/hardware and C acceptance
+remain separate pending gates.
+[Review findings, resolutions and actual drill](../handoffs/macintosh-readiness-review-20261104.json).
+
 ## What a player can do
 
 Checkpoint B is accepted and merged: Tower/Fuji/Flute, both Snorlax routes,

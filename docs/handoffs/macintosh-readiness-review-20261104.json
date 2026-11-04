@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "kind": "handoff-readiness-review-resolution",
+  "reviewed_baseline": "e29f4d774119c2f6d1a583d2b142531a804ad510",
+  "advisor": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "axes": {
+      "standards_findings": 0,
+      "operational_p2": 2,
+      "operational_p3": 1
+    },
+    "baseline_judgment": "NOT READY",
+    "artifact_thread": "t3-thread://v1/thread:delegated-task:command%3Amcp%3Aa1825096-f54a-4069-8002-30af87c60952%3Adelegate-task%3Aa934d6fe-31ec-49fa-9c89-efa28929bfc5"
+  },
+  "resolutions": [
+    {
+      "finding": "P2 incomplete host bootstrap",
+      "fix": "Macintosh-local Python3.14.7/Pillow12 venv; pinned pokered bundle; 17 manifest-verified Showdown files; 11 checksummed B2W2 CSVs; explicit source/destination recipe."
+    },
+    {
+      "finding": "P2 earlier scenario and missing exact ancestry",
+      "fix": "New tracked scenario binds latest Saffron record16. Exact 188-file closure traced from unchanged importers and hydrated with no-overwrite hash checks. Three strict imports pass on Macintosh, with original slot bytes."
+    },
+    {
+      "finding": "P3 app state/persistence unclear",
+      "fix": "Prompt begins with explicit new /goal continuation instruction and states task/delegate/app wake state is not migrated."
+    }
+  ],
+  "root_verified_readiness": "READY for source/host/branch continuation; game-runtime preflight, desktop/AX and physical hardware gates remain explicit",
+  "independent_rereview_of_fixes": false,
+  "macintosh_strict_seed_verification": {
+    "at": "2026-11-04T15:49:06.810997+00:00",
+    "kind": "Macintosh strict seed and branch recovery drill",
+    "candidate": "1464d1a237d551e4e6909b66fea108eea0befb7a",
+    "results": [
+      {
+        "starter": "squirtle",
+        "ok": true,
+        "resume": true,
+        "completed_steps": [
+          "saffron-guard-entry"
+        ],
+        "slot_sha256": {
+          "adventure.b.json": "abbeeadddcd2807965f40be0f77aac95e1611a9a6a63ae3a94ff87dbd7b42fb4",
+          "adventure.a.json": "01783e5d359652f061d39d2ce9f1cddc8660aaa88f49b54e73c396f284f3b1dc"
+        }
+      },
+      {
+        "starter": "bulbasaur",
+        "ok": true,
+        "resume": false,
+        "completed_steps": [],
+        "slot_sha256": {
+          "adventure.b.json": "ee2d97a44e69c176937869e3d10097e688aa8b6aa36658a29fafc8d2050e9298",
+          "adventure.a.json": "daa9a81c7b1ca2dc6273acc0f409cd119d8235999796299d11c4b54cf3286c07"
+        }
+      },
+      {
+        "starter": "charmander",
+        "ok": true,
+        "resume": false,
+        "completed_steps": [],
+        "slot_sha256": {
+          "adventure.b.json": "f67c86b43a5c2a2e5f8a06342977e6b54838fc870651e4da68bc4cf6d26a8801",
+          "adventure.a.json": "69e5b9c7472c4170fa3faeec3cfd8176a41169352e390e7ccabb4450999239a0"
+        }
+      }
+    ],
+    "pillow": "12.0.0",
+    "python": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/venv/bin/python3",
+    "all_three_imports_passed": true,
+    "no_frozen_proof_changes": true,
+    "simulator_started": false,
+    "device_used": false,
+    "existing_checkout_modified": false,
+    "not_game_acceptance": true
+  },
+  "setup_receipt_sha256": "372fa8f07b87b58c5203647fd1e379030830a3d64824ede39d439346fa0704c5",
+  "oracle_files": 17,
+  "csv_cache_files": 11,
+  "frozen_evidence_dependency_files": 188,
+  "game_source_changed": false,
+  "simulator_started": false,
+  "c_accepted": false,
+  "runtime_preflight": {
+    "settings_present": true,
+    "malloc_pool_size": null,
+    "preflight": "ProtocolError: Select Playdate > Malloc Pool > 16MB in the Simulator before runtime checks.",
+    "native_startup_qualified": false,
+    "ax_qualified": false,
+    "preferences_changed": false
+  },
+  "oracle_verification": {
+    "files": 17,
+    "abilities": 7,
+    "primary_revision": "9b136a8c8cdb860a8ab96fa063f906604e352547",
+    "sdk_executed": false
+  },
+  "runtime_gate_owner": "Incoming Root; select16MB and qualify desktop/AX before any local runtime, or retain the sole SDK/device owner on DiveMac."
+}
