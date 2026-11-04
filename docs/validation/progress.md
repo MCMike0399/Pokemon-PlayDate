@@ -1,9 +1,34 @@
 # Full-game execution ledger
 
-Updated 2026-11-02 UTC. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-11-04 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
+
+## Macintosh takeover — 2026-11-04
+
+The user requested pushing current accepted main and a complete handover to
+Macintosh. Accepted game/validation tip `75eca5d9` and the reviewed cold-archive
+allowlist commit `96b53554` were fast-forward pushed. This handover adds no game
+Source changes and does not adopt C or the selected-slot/Telekinesis candidates.
+[Takeover prompt and exact frontier](../handoffs/macintosh-20261104.md).
+
+Main remains B149 accepted with the existing label. Isolated C is at `1464d1a2`.
+Its last Squirtle attempt completed a genuine Saffron guard-entry Save, then
+failed at the unchanged64-Clear cap while routing around a source-confirmed
+Saffron actor-visibility bug. No complete C journey or new hardware result is
+claimed. Reviewer steer8's30-door production-GC route remains unexecuted.
+The November4 process audit found no live SDK/journey/device/archive operation.
+
+Both requested superseded Brock failure roots are now archived, fully rehearsed
+and locally released; exact receipts and restoration references are in the
+handover. Their logical total is8.46GiB, not an isolated free-space delta.
+Actual DiveMac free space at the audit was about95GiB. No current earned input
+or positive acceptance proof was discarded. Macintosh receives a private all-ref
+bundle and dirty-work snapshots separately; raw external evidence stays on
+DiveMac/Pi until exact-path hydration is required. The outgoing agent starts no
+new campaign during the ownership transfer. All prior scope/latency limits below
+continue to apply.
 
 ## What a player can do
 
