@@ -543,6 +543,16 @@
         "source_warp_byte": 1
       }
     ],
+    "fuji_rescue": {
+      "flag": "EVENT_RESCUED_MR_FUJI",
+      "hides": [
+        "pokered:SAFFRON_CITY:objects:14"
+      ],
+      "shows": [
+        "pokered:SAFFRON_CITY:objects:15"
+      ],
+      "source": "scripts/PokemonTower7F.asm"
+    },
     "giovanni": {
       "approach": [
         "down",

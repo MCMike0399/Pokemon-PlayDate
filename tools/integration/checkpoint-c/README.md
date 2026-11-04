@@ -1,4 +1,37 @@
-# Root C candidate wiring and qualification — 2026-11-02
+# Macintosh takeover — Saffron Silph guard fix, 2026-11-04
+
+The ordinary C driver had bounced Saffron `(0,23)` ↔ Route7 until the existing
+64-Clear cap. The cause was a source bug, not a planner bug: `SilphStory`
+applied only `EVENT_BEAT_SILPH_CO_GIOVANNI` to Saffron objects 14/15, so the
+Rocket at `(18,22)` kept the Silph warp at `(18,21)` blocked even after Mr. Fuji
+was rescued.
+
+The generator now also reads the pinned `scripts/PokemonTower7F.asm` rescue
+pair (`HideObject TOGGLE_SAFFRON_CITY_E`, `ShowObject TOGGLE_SAFFRON_CITY_F`)
+and emits `scenes.fuji_rescue`. Object identity still comes from the pinned
+`toggleable_objects` order, and both ids must also appear in the later Silph
+completion hide list. Runtime conditions are now exactly:
+
+- object 14: `not SilphCleared and not FujiRescued`
+- object 15: `not SilphCleared and FujiRescued`
+
+Coordinates, art, collision, raw maps, warp geometry, existing flags, the
+custom resolver, the deep fallback and old actor saves are unchanged.
+
+Evidence: one actual SDK 3.1.2 thin export refreshed the two region dependency
+pins (parsed transform values are identical to the prior pins; only Lua JSON
+key order differs), the qualified production compile passes, and the bounded
+native `contracts saffron-guards` witness passes 104/104 for all four flag
+combinations. The full native contract aggregate and multi-zone suites cannot
+publish inside the pinned 16 MiB pool on a 171-map candidate; those failures
+are retained, not relabelled. Host suite: 0 new failures versus unmodified
+`1464d1a2`, with the same 34 pre-existing C failures.
+
+[Receipt](saffron-fuji-guard-visibility-20261104.json). C remains unaccepted:
+the short Squirtle record16 pilot, three-starter earned journeys,
+Save-Continue, visuals, hardware and every latency gate are still open.
+
+# Root C candidate wiring and qualification — 2026-11-02 (superseded above)
 
 This current section supersedes the historical unapplied-hook claims below.
 Root synchronized main through afededc8, applied the combined activation hooks

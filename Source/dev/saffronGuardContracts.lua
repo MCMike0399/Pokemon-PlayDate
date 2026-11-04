@@ -267,5 +267,67 @@ function SaffronGuardContracts.run()
             end)
         end
     end
+    local SILPH_BLOCKER <const> = "pokered:SAFFRON_CITY:objects:14"
+    local SILPH_SLEEPING <const> = "pokered:SAFFRON_CITY:objects:15"
+    local function saffronDoor(quest, fn)
+        KantoServicesContracts.withScene("SaffronCity", {x=18, y=23, facing="up", quest=quest}, fn)
+    end
+    local function findActor(game, id)
+        for _, npc in ipairs(game.npcManager.npcs) do
+            if npc.def and npc.def.source_event_id == id then return npc end
+        end
+    end
+    local function doorActors(quest)
+        local seen <const> = {}
+        saffronDoor(quest, function(game)
+            seen[1] = findActor(game, SILPH_BLOCKER)
+            seen[2] = findActor(game, SILPH_SLEEPING)
+            seen.blocker = game.npcManager:getNPCAt(18, 22)
+        end)
+        return seen
+    end
+    test("saffron-silph-door-rocket-needs-unrescued-fuji", function()
+        local before <const> = doorActors({})
+        assert(before[1], "unrescued Fuji keeps the source Silph door Rocket")
+        eq(before[2], nil)
+        eq(before.blocker, before[1])
+        local rescued <const> = doorActors({EVENT_RESCUED_MR_FUJI=true})
+        eq(rescued[1], nil)
+        assert(rescued[2], "Fuji rescue reveals the sleeping source Rocket")
+        eq(rescued.blocker, nil)
+    end)
+    test("saffron-silph-guards-hide-on-source-completion", function()
+        for _, fuji in ipairs({false, true}) do
+            local quest <const> = {EVENT_BEAT_SILPH_CO_GIOVANNI=true}
+            if fuji then quest.EVENT_RESCUED_MR_FUJI = true end
+            local seen <const> = doorActors(quest)
+            eq(seen[1], nil)
+            eq(seen[2], nil)
+            eq(seen.blocker, nil)
+        end
+    end)
+    test("saffron-silph-guard-metadata-is-static-pure-source-conditions", function()
+        local scenes <const> = SilphStory.scenes()
+        assert(scenes.fuji_rescue and #scenes.fuji_rescue.hides == 1 and #scenes.fuji_rescue.shows == 1,
+            "source Fuji transition missing: " .. json.encode(scenes.fuji_rescue))
+        local blocker <const> = SilphStory.actorMetadata(SILPH_BLOCKER)
+        eq(#blocker.visibility, 2)
+        eq(blocker.visibility[1].group, "quest")
+        eq(blocker.visibility[1].id, "EVENT_BEAT_SILPH_CO_GIOVANNI")
+        eq(blocker.visibility[1].equals, false)
+        eq(blocker.visibility[2].id, "EVENT_RESCUED_MR_FUJI")
+        eq(blocker.visibility[2].equals, false)
+        local sleeping <const> = SilphStory.actorMetadata(SILPH_SLEEPING)
+        eq(#sleeping.visibility, 2)
+        eq(sleeping.visibility[1].id, "EVENT_BEAT_SILPH_CO_GIOVANNI")
+        eq(sleeping.visibility[1].equals, false)
+        eq(sleeping.visibility[2].id, "EVENT_RESCUED_MR_FUJI")
+        eq(sleeping.visibility[2].equals, true)
+        -- Neighbouring completion toggles keep exactly one source condition.
+        local worker <const> = SilphStory.actorMetadata("pokered:SAFFRON_CITY:objects:9")
+        eq(#worker.visibility, 1)
+        eq(worker.visibility[1].equals, true)
+        eq(SilphStory.actorMetadata("pokered:SAFFRON_CITY:objects:2").visibility[1].equals, false)
+    end)
     return report
 end

@@ -1,0 +1,129 @@
+{
+  "classification": "Isolated C host fix for the confirmed Saffron Silph guard visibility bug with one actual SDK export and one bounded native contract witness; no campaign, credits, postgame, hardware, memory or latency acceptance",
+  "base_c_commit": "1464d1a237d551e4e6909b66fea108eea0befb7a",
+  "defect": "Source/game/silphStory.lua:actorMetadata left Saffron City source objects 14 and 15 visible whenever Silph Giovanni was undefeated. Object 14 at (18,22) blocked the Silph warp at (18,21), so the ordinary driver bounced Saffron (0,23) <-> Route7 until the existing 64-Clear bound.",
+  "pinned_source_evidence": {
+    "pokered_revision": "af519899719f0754965776faac0e836a3b906e6d",
+    "files": {
+      "scripts/PokemonTower7F.asm": "7ff31c55ad8c3b487f59d7a2674f9a3d59569c6c69e8f0634d62d8088ec5e1d9",
+      "scripts/SilphCo11F.asm": "ffa66b552a5bee5c05ed184c8670f585123e8f90d9a6e737907ae0b055348106",
+      "data/maps/toggleable_objects.asm": "8dc2fafaebe2ee98c83eca34d486d861117ce95b6c6f94da7760b7b1c88f8cf4",
+      "constants/toggle_constants.asm": "b028dd3cbcc2e6ef0135ab282d7fbf5ed41213f83555466d5d96b4c9d5e3812b"
+    },
+    "transitions": "PokemonTower7F Mr. Fuji rescue sets EVENT_RESCUED_MR_FUJI and predefs HideObject TOGGLE_SAFFRON_CITY_E / ShowObject TOGGLE_SAFFRON_CITY_F; SilphCo11F completion hides TOGGLE_SAFFRON_CITY_E and _F. Object identity comes from the pinned toggleable_objects order, not the constant suffix.",
+    "generated": {
+      "Source/data/silphStory/scenes.json": "1c62fd66ccfe4b54507043ed6806ad43737725b3ab4ffd144a26f6830d12be1b",
+      "Source/data/silphStory/provenance.json": "0b5093d9b53347ca2fcf8f4ce0a0060903d9b0df0700874a30e7fedf62775dda",
+      "tools/generate_silph_story.py": "ff0d51557ea4b2b6477c5f895e5e711a78e44b90540a075eed3e14138def3687"
+    },
+    "regenerated_with": "python3 tools/generate_silph_story.py --reference ~/Developer/Pokemon-PlayDate-env/pokered then --check; generator still byte-identical on re-run"
+  },
+  "runtime_conditions": {
+    "source_object_14": [
+      {
+        "group": "quest",
+        "id": "EVENT_BEAT_SILPH_CO_GIOVANNI",
+        "equals": false
+      },
+      {
+        "group": "quest",
+        "id": "EVENT_RESCUED_MR_FUJI",
+        "equals": false
+      }
+    ],
+    "source_object_15": [
+      {
+        "group": "quest",
+        "id": "EVENT_BEAT_SILPH_CO_GIOVANNI",
+        "equals": false
+      },
+      {
+        "group": "quest",
+        "id": "EVENT_RESCUED_MR_FUJI",
+        "equals": true
+      }
+    ],
+    "preserved": "coordinates, art, collision, raw map, warp geometry, existing flags, custom resolver, deep fallback and old actor saves"
+  },
+  "host_checks": {
+    "targeted": "25 tests PASS (test_region_registrations, test_silph_story, test_source_warp_eligibility); 38 PASS including catalog qualification inputs",
+    "full_suite": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-host-suite-20261104-01/summary.json",
+    "full_suite_summary_sha256": "1b43330c2c34079895e8df51acc3a5be3956fae56c79c46a1bb80996fca91888",
+    "new_failures": 0,
+    "shared_pre_existing_failures": 34
+  },
+  "native_contract_witness": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-native-saffron-guards-20261104-05",
+    "session_id": "64439c4cf1db4082bbe4ae8e522d40f0",
+    "build_json_sha256": "4241e89e58f732a8637533956533170fb126ab67fd444d44ee3a312756181a80",
+    "result_sha256": "fec9ba16b074d4a4801a93de685e5d6dbfc8bc57086af7261afcca734bcd9837",
+    "command": "contracts saffron-guards",
+    "suite": "saffron-guards",
+    "passed": 104,
+    "failed": 0,
+    "cases": [
+      "saffron-guards: saffron-silph-door-rocket-needs-unrescued-fuji",
+      "saffron-guards: saffron-silph-guards-hide-on-source-completion",
+      "saffron-guards: saffron-silph-guard-metadata-is-static-pure-source-conditions"
+    ],
+    "covers": [
+      "pre-rescue blocker present at (18,22)",
+      "post-rescue blocker absent and sleeping Rocket present",
+      "both hidden after Silph completion",
+      "static metadata purity and neighbouring toggles"
+    ]
+  },
+  "native_limits_retained": {
+    "full_aggregate": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-native-contracts-20261104-01",
+      "outcome": "runtime error: not enough memory while publishing the aggregate reply; the suite itself returned ok (contract-progress heap 13,010 KiB of 16 MiB)"
+    },
+    "multi_zone_suite": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-native-activation-then-kanto-20261104-01",
+      "outcome": "source-map-activation ran out of memory constructing zones under the 16 MiB pool"
+    },
+    "ordering_dependency": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-native-kanto-scenes-20261104-01",
+      "outcome": "kanto-scenes alone fails its art-fixture case because an earlier suite installs that art; not a fix regression"
+    }
+  },
+  "sdk_export_and_pins": {
+    "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-sdk-export-20261104-03",
+    "sdk": "3.1.2",
+    "build_json_sha256": "d4305be13daf62d87993430fc6f053cb6114da8bfd500b442eb0dda4493b149b",
+    "outcome_json_sha256": "2f5f22e3ab3df667ff9a3daee5d80302a2807a9f1d95e24fd29981493e0d07e2",
+    "session_id": "0a4da31ccc444ce48533947158c480db",
+    "dependencies_changed": [
+      "game/silphStory.lua",
+      "data/silphStory/scenes.json"
+    ],
+    "transform_values": "parsed transform exports identical to the prior pins; only the Lua JSON key order differs",
+    "prior_provenance": "tools/references/content-transforms-149/saffron-fuji-prior-provenance.json",
+    "superseded_producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-sdk-export-20261104-01",
+    "kanto_pins": "unchanged and still verified; no Kanto dependency changed"
+  },
+  "qualified_production_compile": {
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02",
+    "pdx": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02/PokemonBlue.pdx",
+    "stage_receipts": [
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02/shipped-content-qualification.json",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02/shipped-map-qualification.json",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02/region-declarations-qualification.json"
+    ],
+    "stage_receipt_sha256": {
+      "shipped-content-qualification.json": "e6ec2f4a94f4559a74b47a3999f05139deea6d72a8f3a670d6937fd05dd355ed",
+      "shipped-map-qualification.json": "b1a6106f334f49c7be96afa9dac47615262b95d5e0632a81a060774b6689bd77",
+      "region-declarations-qualification.json": "efb8a71d31033034249c7c0cdcb9041afe7b70fb9843bac0e51baed3666c9136"
+    }
+  },
+  "not_claimed": [
+    "C campaign acceptance, three-starter journeys or Save-Continue",
+    "physical hardware, 16MiB device memory or any latency phase",
+    "the full native contract aggregate or a whole-suite native run",
+    "credits or postgame progress"
+  ],
+  "next": [
+    "one short actual C pilot from the frozen Squirtle record16 marker ac21db92",
+    "then the three-starter earned C sequence and C acceptance gates"
+  ]
+}

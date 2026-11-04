@@ -47,10 +47,13 @@ def manifest(project=ROOT):
     blocked = previous['maps']['SilphCo11F']['blocked_events']
     blocked.remove('pokered:SILPH_CO_11F:warps:3')
     # Reuse the source-derived owner enumeration, including zero-based bytes.
+    # Pin only the elevator projection this builder consumes: doors, story
+    # toggles and guard transitions have their own source generator and pinned
+    # transform provenance, and never change an installed map record.
     raw = (Path(project) / 'Source/data/silphStory/scenes.json').read_bytes()
-    if hashlib.sha256(raw).hexdigest() != '767654a6dfba1734590c419441ca255e1dfeb909f9b18b107d6eb85dd51f1106':
-        raise ValueError('pinned Silph elevator data changed')
     elevator = json.loads(raw)['scenes']['elevator']
+    if hashlib.sha256(canonical({'elevator': elevator})).hexdigest() != 'a242e5f190ad667ad470a5147dff1d458a86cabd08179cb488a30cf9f410e0a7':
+        raise ValueError('pinned Silph elevator data changed')
     names = {entry['id']: name for name, entry in previous['maps'].items()}
     for row in elevator:
         entry = previous['maps'][names[row['map_id']]]

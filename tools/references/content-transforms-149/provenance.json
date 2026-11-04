@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "source_revision": "af519899719f0754965776faac0e836a3b906e6d",
-  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-sdk-exports-thin-20261102-03",
-  "producer_build_sha256": "f66784b2a8b590dfee4030dcd61e3b5a81860f5dde10bbcb1c85ce7ac55440a1",
-  "producer_proof_sha256": "70eccb2e0da043b83c66c8778aa8dafc8dcbfb129e09741a6a8158378f402401",
+  "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-sdk-export-20261104-03",
+  "producer_build_sha256": "d4305be13daf62d87993430fc6f053cb6114da8bfd500b442eb0dda4493b149b",
+  "producer_proof_sha256": "2f5f22e3ab3df667ff9a3daee5d80302a2807a9f1d95e24fd29981493e0d07e2",
   "dependencies": {
     "game/hideoutTowerContent.lua": "fb662674e6cc36147f61a86f41858438253ef15ca23e1328d048bf4a3368f5d7",
     "game/rocketHideoutStory.lua": "b679e61fd27863e671118143f8c013908c4cb93cbd4e9778d3d2cf2acb61e417",
@@ -17,14 +17,14 @@
     "domain/gameSession.lua": "50675bbb95352a8d5ede916724456f4caf46811044ae9b36e60a226287d78095",
     "domain/party.lua": "a2ee6a9b9d44b2140fdbaa5e39e3b836798cc6ee668b81bfaa16efa1af529c97",
     "world/sourceMaps.lua": "9025c3b085f5f6f067ac08509f115706db7638d6c7fcc4edbe20e4badb32dffa",
-    "game/silphStory.lua": "1235b5ba34ea3afe6df93131e8797c9c927549407a7b1d4f2755f45e8f66ae1f",
-    "data/silphStory/scenes.json": "767654a6dfba1734590c419441ca255e1dfeb909f9b18b107d6eb85dd51f1106"
+    "game/silphStory.lua": "168edf9bf3586f4d3d470f253b7bdec94187943d60d4f089b416a0928d50b481",
+    "data/silphStory/scenes.json": "1c62fd66ccfe4b54507043ed6806ad43737725b3ab4ffd144a26f6830d12be1b"
   },
   "content_pins_sha256": "8163a8ab541f8199927363b03aee337e8cf6c01f0e27e20cb84b14ec10dd195a",
   "exports": {
-    "midgameEast": "2d0b9912389bd343dd2cf9ed0bb5db1e77679bcd6dab8e0bfd711632c6010a9d",
-    "midgameSouth": "a7739e311756b3166910677e410e426f3b22a070272904dd0b6bfd4c10bc6781",
-    "midgameSaffron": "92bc8c573878def6f0e49d8770964a9da4e135a936b69acee8c93b7b17e15ab9"
+    "midgameEast": "4846611521ad163d09a2ef777e228db17357b3899958342716b5df1925f9ae00",
+    "midgameSouth": "d4087d55b0899306ceb18d6cf78646af8795321bc0527ae3f47768ba3533e997",
+    "midgameSaffron": "0405d1f4fdac355cd2ea7cac132cbe8978d621053060d1d05870cf05e75ebc23"
   },
   "scope": "Actual SDK post-transform outputs; not a Python translation or new gameplay owner.",
   "owner_imports": [
@@ -34,6 +34,6 @@
     "game/silphStory",
     "game/midgameGymStory"
   ],
-  "producer_proof_file": "startup-probe.json",
+  "producer_proof_file": "outcome.json",
   "producer_kind": "thin actual SDK deep installer export; no unrelated contracts/captures"
 }

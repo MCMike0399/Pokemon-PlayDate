@@ -8,6 +8,7 @@ SilphStory.PRESIDENT = "pokered:SILPH_CO_11F:objects:1"
 SilphStory.NURSE = "pokered:SILPH_CO_9F:objects:1"
 SilphStory.LIFT = "pokered:SILPH_CO_ELEVATOR:background_events:1"
 SilphStory.RIVAL_LEFT = "SILPH_STORY_V1_RIVAL_LEFT"
+local SILPH_FLAG <const> = "EVENT_BEAT_SILPH_CO_GIOVANNI"
 local cached
 local integration
 local function copy(value)
@@ -142,6 +143,35 @@ function SilphStory.facingDoor(game)
         end
     end
 end
+local function listed(values, id)
+    for _, candidate in ipairs(values) do
+        if candidate == id then
+            return true
+        end
+    end
+    return false
+end
+local function fujiVisibility(scenes, id)
+    -- Saffron's guards change twice. Mr. Fuji's rescue first hides the Rocket
+    -- blocking the Silph door and then reveals the sleeping Rocket; both are
+    -- the same object the later Silph completion toggle list hides again, so
+    -- the Fuji state must be read from its own generated source lists.
+    local transition <const> = scenes.fuji_rescue
+    if listed(transition.shows, id) then
+        return {group = "quest", id = transition.flag, equals = true}
+    end
+    if listed(transition.hides, id) then
+        return {group = "quest", id = transition.flag, equals = false}
+    end
+end
+local function completionVisibility(scenes, id)
+    if listed(scenes.toggles.hide, id) then
+        return false
+    end
+    if listed(scenes.toggles.show, id) then
+        return true
+    end
+end
 function SilphStory.actorMetadata(id, game)
     if id == SilphStory.RIVAL then
         return {visibility = {{group = "quest", id = SilphStory.RIVAL_LEFT, equals = false}}}
@@ -149,17 +179,17 @@ function SilphStory.actorMetadata(id, game)
     if id == SilphStory.GIOVANNI and game and game.trainers and game.trainers:peekReceipt(id) then
         return {visibility = {}}
     end
-    for _, hidden in ipairs(SilphStory.scenes().toggles.hide) do
-        if hidden == id then
-            return {visibility = {{group = "quest", id = "EVENT_BEAT_SILPH_CO_GIOVANNI", equals = false}}}
-        end
+    local scenes <const> = SilphStory.scenes()
+    local completion <const> = completionVisibility(scenes, id)
+    if completion == nil then
+        return {}
     end
-    for _, shown in ipairs(SilphStory.scenes().toggles.show) do
-        if shown == id then
-            return {visibility = {{group = "quest", id = "EVENT_BEAT_SILPH_CO_GIOVANNI", equals = true}}}
-        end
+    local visibility <const> = {{group = "quest", id = SILPH_FLAG, equals = completion}}
+    local fuji <const> = fujiVisibility(scenes, id)
+    if fuji then
+        visibility[#visibility + 1] = fuji
     end
-    return {}
+    return {visibility = visibility}
 end
 function SilphStory.install(options)
     assert(not integration, "Silph story already installed")

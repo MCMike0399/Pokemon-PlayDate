@@ -43,7 +43,7 @@ def build(reference):
               'home/map_objects.asm', 'data/maps/toggleable_objects.asm', 'constants/toggle_constants.asm',
               'data/maps/objects/SaffronCity.asm', 'home/overworld.asm',
               'engine/overworld/player_state.asm', 'data/tilesets/door_tile_ids.asm',
-              'data/tilesets/warp_tile_ids.asm']
+              'data/tilesets/warp_tile_ids.asm', 'scripts/PokemonTower7F.asm']
     for name in files:
         raw = (reference / name).read_bytes()
         if raw != subprocess.check_output(['git', '-C', str(reference), 'show', f'{REVISION}:{name}']):
@@ -128,7 +128,20 @@ def build(reference):
     for mode, label in [('show', '.ShowToggleableObjectIDs'), ('hide', '.HideToggleableObjectIDs')]:
         block = gio.split(label + ':',1)[1].split('db -1',1)[0]
         toggles[mode] = [toggle_ids[t] for t in re.findall(r'db (TOGGLE_\w+)', block)]
-    scenes = dict(doors=doors, elevator=elevator, toggles=toggles,
+    # Saffron has one earlier transition: rescuing Mr. Fuji hides the Rocket at
+    # the Silph door (E) and reveals the sleeping Rocket (F). Silph completion
+    # hides both. Read the exact predef pair, then require both ids in that later
+    # hide list; object identity still comes from the pinned source toggle table.
+    rescue = global_block(sources['scripts/PokemonTower7F.asm'], 'PokemonTower7FMrFujiText')
+    assert re.search(r'SetEvent EVENT_RESCUED_MR_FUJI\b', rescue)
+    for constant, predef in [('TOGGLE_SAFFRON_CITY_E', 'HideObject'),
+                             ('TOGGLE_SAFFRON_CITY_F', 'ShowObject')]:
+        assert re.search(r'ld a, ' + constant + r'\s*\n\s*ld \[wToggleableObjectIndex\], a\s*\n\s*predef ' + predef, rescue), constant
+    fuji_rescue = dict(flag='EVENT_RESCUED_MR_FUJI', source='scripts/PokemonTower7F.asm',
+                       hides=[toggle_ids['TOGGLE_SAFFRON_CITY_E']],
+                       shows=[toggle_ids['TOGGLE_SAFFRON_CITY_F']])
+    assert set(fuji_rescue['hides'] + fuji_rescue['shows']) <= set(toggles['hide'])
+    scenes = dict(doors=doors, elevator=elevator, toggles=toggles, fuji_rescue=fuji_rescue,
                   rival=dict(id='pokered:SILPH_CO_7F:objects:9', origin=dict(x=3,y=7), variants=variants,
                              script_positions=[dict(x=x,y=y) for x,y in sorted(positions)],
                              rival_party_indices=dict(charmander=7,squirtle=8,bulbasaur=9)),
