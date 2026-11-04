@@ -245,14 +245,30 @@ func rectangle(_ element: AXUIElement) throws -> CGRect? {
     else { return nil }
     return CGRect(origin: point, size: dimensions)
 }
+func mallocLogWindows(_ app: AXUIElement) throws -> [AXUIElement] {
+    try elements(app, kAXWindowsAttribute).filter {
+        try label($0, kAXTitleAttribute) == "Malloc Log"
+    }
+}
+func waitForMallocLogWindow(_ app: AXUIElement, milliseconds: Int) throws -> [AXUIElement] {
+    var windows = try mallocLogWindows(app)
+    var waited = 0
+    while windows.isEmpty && waited < milliseconds {
+        usleep(100_000)
+        waited += 100
+        windows = try mallocLogWindows(app)
+    }
+    return windows
+}
 func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
                                  _ reverify: () throws -> Void) throws {
     // SDK 3.1.2 exposes no AX element for its bottom-row broom. Root inspected
     // the native capture: this exact 740x480 layout puts Clear at (48,462).
     // No caller can supply coordinates, a window title or a different target.
-    let logs = try elements(app, kAXWindowsAttribute).filter {
-        try label($0, kAXTitleAttribute) == "Malloc Log"
-    }
+    // Show Malloc Log returns before the window exists. Wait boundedly for the
+    // unique window instead of racing it; a missing or ambiguous window after
+    // the deadline still refuses and never clicks blind.
+    let logs = try waitForMallocLogWindow(app, milliseconds: 2000)
     try require(logs.count == 1, "one Malloc Log window required")
     guard let bounds = try rectangle(logs[0]) else {
         throw Refusal(reason: "Malloc Log bounds unavailable")
@@ -272,19 +288,39 @@ func clearUnlabelledMallocControl(_ app: AXUIElement, _ pid: pid_t,
     try require(AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString) == .success,
                 "Malloc Log cannot be raised")
     let point = CGPoint(x: bounds.minX + 48, y: bounds.minY + 462)
-    try reverify()
+    // Activation and window raising are asynchronous. Re-verify the same point
+    // boundedly until it resolves to this PID's Malloc Log, then click exactly
+    // once. Without a verified target this still refuses and never clicks blind.
+    var verified = false
+    var attempts = 0
+    while !verified && attempts < 12 {
+        usleep(100_000)
+        attempts += 1
+        try reverify()
+        try require(try rectangle(logs[0]) == bounds, "Malloc Log moved or resized during verification")
+        var candidate: AXUIElement?
+        guard AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(),
+              Float(point.x), Float(point.y), &candidate) == .success, let hit = candidate else {
+            _ = AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString, kCFBooleanTrue)
+            _ = AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString)
+            continue
+        }
+        var hitPID: pid_t = 0
+        if AXUIElementGetPid(hit, &hitPID) == .success && hitPID == pid {
+            let hitWindow = try attribute(hit, kAXWindowAttribute)
+            let window = hitWindow.map { unsafeBitCast($0, to: AXUIElement.self) } ?? hit
+            if try label(window, kAXTitleAttribute) == "Malloc Log" {
+                verified = true
+                break
+            }
+        }
+        _ = AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString, kCFBooleanTrue)
+        _ = AXUIElementPerformAction(logs[0], kAXRaiseAction as CFString)
+    }
+    guard verified else {
+        throw Refusal(reason: "Clear hit-test did not resolve to the Malloc Log")
+    }
     try require(try rectangle(logs[0]) == bounds, "Malloc Log moved or resized during verification")
-    var hit: AXUIElement?
-    try require(AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(),
-                Float(point.x), Float(point.y), &hit) == .success, "Clear hit-test unavailable")
-    guard let element = hit else { throw Refusal(reason: "Clear hit-test has no element") }
-    var hitPID: pid_t = 0
-    try require(AXUIElementGetPid(element, &hitPID) == .success && hitPID == pid,
-                "Clear point belongs to another application")
-    let hitWindow = try attribute(element, kAXWindowAttribute)
-    let window = hitWindow.map { unsafeBitCast($0, to: AXUIElement.self) } ?? element
-    try require(try label(window, kAXTitleAttribute) == "Malloc Log",
-                "Clear point belongs to another Simulator window")
     guard let down = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown,
                              mouseCursorPosition: point, mouseButton: .left),
           let up = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp,
@@ -382,32 +418,72 @@ func operate(_ pid: pid_t, _ operation: String, _ directory: URL, journey: Bool,
             ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
             ($0[kCGWindowName as String] as? String) == "Malloc Log"
         }
-        if logs.count == 1, let identifier = logs[0][kCGWindowNumber as String] as? Int {
-            try reverify()
-            let capture = Process()
-            let target = directory.appendingPathComponent("malloc-log-inspection-\(UUID().uuidString).png")
-            capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-            capture.arguments = ["-x", "-l", String(identifier), target.path]
-            capture.standardOutput = FileHandle.nullDevice
-            capture.standardError = FileHandle.nullDevice
-            try capture.run()
-            capture.waitUntilExit()
-            try require(capture.terminationStatus == 0 &&
-                        FileManager.default.fileExists(atPath: target.path), "Malloc Log capture failed")
-            listing.append(["scope": "inspection capture", "path": target.path,
-                            "returncode": String(capture.terminationStatus)])
+        if logs.count == 1 {
+            // The window number can change while the log redraws after a clear.
+            // Capturing is passive: refresh the identity once and retry, then
+            // refuse. No click, preference or permission is involved.
+            var captured = false
+            for attempt in 0..<2 where !captured {
+                if attempt > 0 { usleep(200_000) }
+                let current = (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[String: Any]] ?? []).filter {
+                    ($0[kCGWindowOwnerPID as String] as? Int) == Int(pid) &&
+                    ($0[kCGWindowName as String] as? String) == "Malloc Log"
+                }
+                guard current.count == 1, let identifier = current[0][kCGWindowNumber as String] as? Int else { continue }
+                try reverify()
+                let capture = Process()
+                let target = directory.appendingPathComponent("malloc-log-inspection-\(UUID().uuidString).png")
+                capture.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+                capture.arguments = ["-x", "-l", String(identifier), target.path]
+                capture.standardOutput = FileHandle.nullDevice
+                capture.standardError = FileHandle.nullDevice
+                try capture.run()
+                capture.waitUntilExit()
+                if capture.terminationStatus == 0 && FileManager.default.fileExists(atPath: target.path) {
+                    listing.append(["scope": "inspection capture", "path": target.path,
+                                    "returncode": String(capture.terminationStatus)])
+                    captured = true
+                }
+            }
+            try require(captured, "Malloc Log capture failed")
         }
         let data = try JSONSerialization.data(withJSONObject: listing, options: [.sortedKeys])
         print(String(decoding: data, as: UTF8.self))
         return
     }
     if operation == "show-log" {
-        try require(logControls.count == 1, "expected one verified Show Malloc Log menu item")
-        try require((try attribute(logControls[0], kAXEnabledAttribute)) as? Bool == true, "Malloc Log is not enabled")
-        try reverify()
-        try require(AXUIElementPerformAction(logControls[0], kAXPressAction as CFString) == .success, "Show Malloc Log AXPress failed")
-        print("{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
-        return
+        // macOS restores the Malloc Log window from the previous session and the
+        // menu item is a toggle, so a blind press can close an open window or be
+        // lost while the app is still restoring. Press at most twice, and only
+        // report success after exactly one verified window exists.
+        var presses = 0
+        while presses < 2 {
+            let openLogs = try mallocLogWindows(app)
+            try require(openLogs.count <= 1, "ambiguous Malloc Log windows")
+            if openLogs.count == 1 {
+                print(presses == 0 ? "{\"malloc_log_already_open\":true,\"pid\":\(pid)}"
+                                   : "{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
+                return
+            }
+            try require(logControls.count == 1, "expected one verified Show Malloc Log menu item")
+            try require((try attribute(logControls[0], kAXEnabledAttribute)) as? Bool == true, "Malloc Log is not enabled")
+            try reverify()
+            // The harness launches the verified Simulator binary directly, so the
+            // app can still be inactive when its menu is pressed. Raise only that
+            // verified app; the press still targets the unique menu item.
+            try require(AXUIElementSetAttributeValue(app, kAXFrontmostAttribute as CFString,
+                kCFBooleanTrue) == .success, "Simulator frontmost refused")
+            usleep(150_000)
+            try require(AXUIElementPerformAction(logControls[0], kAXPressAction as CFString) == .success, "Show Malloc Log AXPress failed")
+            presses += 1
+            let opened = try waitForMallocLogWindow(app, milliseconds: 1200)
+            try require(opened.count <= 1, "ambiguous Malloc Log windows")
+            if opened.count == 1 {
+                print("{\"malloc_log_open_requested\":true,\"pid\":\(pid)}")
+                return
+            }
+        }
+        throw Refusal(reason: "Show Malloc Log did not open the log window")
     }
     if candidates.isEmpty {
         try clearUnlabelledMallocControl(app, pid, reverify)

@@ -732,7 +732,9 @@ class JourneyHistory:
                     verify_png(path)
                     inspection_captures.append(dict(capture, sha256=file_sha(path)))
             if operation == 'show-log':
-                if reply != {'malloc_log_open_requested': True, 'pid': self.process.pid}:
+                accepted = ({'malloc_log_open_requested': True, 'pid': self.process.pid},
+                            {'malloc_log_already_open': True, 'pid': self.process.pid})
+                if reply not in accepted:
                     raise ProtocolError('history Show Malloc Log acknowledgement differs')
                 # Do not wait for the populated profiler view to materialize.
                 # Clear independently verifies window readiness and fails closed.

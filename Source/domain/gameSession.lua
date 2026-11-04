@@ -467,7 +467,12 @@ function GameSession._validateActors(deps,payload,candidateWorld,position,candid
     if deps.validateActors then
         local input=copy(payload);local before=copy(input)
         local normalized=deps.validateActors(input,copy(candidateWorld),copy(position),copy(candidateFlags))
-        retainedFields(before,normalized);return copy(normalized)
+        -- A corrected source visibility rule may drop known saved actors; every
+        -- other retained field must still survive validation unchanged.
+        local kept,after=copy(before),copy(normalized)
+        kept.count,kept.actors=nil,nil
+        after.count,after.actors=nil,nil
+        retainedFields(kept,after);return copy(normalized)
     end
     assert(payload.zone_id=="none","source actor validator required")
     return WorldMotionData.normalize(payload,nil,position,candidateFlags)

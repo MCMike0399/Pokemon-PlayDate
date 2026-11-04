@@ -27,6 +27,30 @@ publish inside the pinned 16 MiB pool on a 171-map candidate; those failures
 are retained, not relabelled. Host suite: 0 new failures versus unmodified
 `1464d1a2`, with the same 34 pre-existing C failures.
 
+## Older actor saves across the corrected visibility rule
+
+A frozen candidate slot can contain a known source actor that the corrected
+rule now hides (record16's `adventures.b` keeps object 14). Strict decode
+rejected it and Continue fell back to the older published slot.
+
+`WorldMotionData.normalize` now drops a KNOWN saved actor whose source spec is
+hidden, updates `count`, and returns the dropped ids. Unknown ids, duplicates,
+out-of-shape entries, added actors and missing still-visible actors keep their
+strict validation. `GameSession._validateActors` permits only the actor
+list/count to differ, and the dev boundary observation accepts exactly that
+canonicalization and reports it, so an accepted checkpoint stays comparable.
+
+The resumed pilot records `startup_actor_visibility_migration` with the exact
+dropped id and the hidden actor never spawns.
+
+## Silph elevator confirm
+
+`SilphStoryController` created two `EventState:guard` callbacks in one
+`menu:show` call. The second guard advanced the serial, so the confirm guard
+was stale on creation and A silently did nothing. One guarded callback now owns
+confirm and cancel, as the reviewed Hideout elevator does, with a native
+regression case.
+
 [Receipt](saffron-fuji-guard-visibility-20261104.json). C remains unaccepted:
 the short Squirtle record16 pilot, three-starter earned journeys,
 Save-Continue, visuals, hardware and every latency gate are still open.

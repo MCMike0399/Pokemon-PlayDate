@@ -355,6 +355,9 @@ class CeruleanJourney(BrockJourney):
 
     def codec_guard(self, boundary=None):
         codec = self.observe(boundary or "validate")
+        # Only a declared source-actor visibility migration may canonicalize a
+        # loaded saved actor list; the journey records the exact dropped ids.
+        self.codec_migration = codec.get("migration") if isinstance(codec, dict) else None
         if codec.get("version") != self.export["session_codec"]:
             raise ProtocolError("missing root read-only SessionCodec diagnostic/version")
         if codec.get("valid") is not True or codec.get("roundtrip_equal") is not True:

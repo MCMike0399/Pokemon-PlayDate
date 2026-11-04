@@ -137,6 +137,7 @@ function HarnessDiagnostics.snapshot(game)
             pokedex = game.session:pokedex()},
         party = party, inventory = inventory,
         pause = ui(root:get("pause")), title = ui(root:get("title")),
+        title_metadata = root:get("title") and root:get("title").metadata or nil,
         field_move = ui(root:get("fieldMove")),
         party_ui = ui(root:get("party")), bag = ui(root:get("bag")),
         party_info = root:get("party"):getInfoSnapshot(),bag_held = root:get("bag"):getHeldSnapshot(),
@@ -236,6 +237,34 @@ local function armBoundary(game)
             sequence=metadata.sequence, reason=metadata.reason}
     end
 end
+-- A corrected source visibility rule can leave a saved actor list
+-- non-canonical. Accept exactly that migration, report it, and require every
+-- other field to re-encode byte-identically. Unknown ids, added actors or any
+-- other difference still fail the canonical roundtrip.
+local function actorVisibilityMigration(payload, encoded)
+    local raw = payload.worldMotion and payload.worldMotion.actors
+    local canonical = encoded.worldMotion and encoded.worldMotion.actors
+    if type(raw) ~= "table" or type(canonical) ~= "table" then return end
+    if not (Party._array(raw.actors, 64) and Party._array(canonical.actors, 64)) then return end
+    local before, after = GameSession._copy(payload), GameSession._copy(encoded)
+    before.worldMotion.actors.count, after.worldMotion.actors.count = "actor-count", "actor-count"
+    before.worldMotion.actors.actors, after.worldMotion.actors.actors = "actor-list", "actor-list"
+    if not equal(before, after) then return end
+    local saved = {}
+    for _, actor in ipairs(raw.actors) do
+        saved[actor.id] = true
+    end
+    local kept, dropped = {}, {}
+    for _, actor in ipairs(canonical.actors) do
+        if not saved[actor.id] then return end
+        kept[actor.id] = true
+    end
+    for _, actor in ipairs(raw.actors) do
+        if not kept[actor.id] then dropped[#dropped + 1] = actor.id end
+    end
+    if #dropped == 0 then return end
+    return {reason="source-actor-visibility", dropped=dropped}
+end
 local function codecObservation(game, payload)
     local deps = game:getSessionDependencies()
     local valid, problem = SessionCodec.validate(payload, deps)
@@ -243,8 +272,13 @@ local function codecObservation(game, payload)
     local detached = assert(SessionCodec.decode(payload, deps))
     local encoded = assert(SessionCodec.encode(detached,
         {root="overworld", overworld="explore", settled=true}))
-    assert(equal(payload, encoded), "noncanonical session boundary roundtrip")
-    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true, payload=payload}
+    local migration
+    if not equal(payload, encoded) then
+        migration = actorVisibilityMigration(payload, encoded)
+        assert(migration, "noncanonical session boundary roundtrip")
+    end
+    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true,
+        payload=payload, migration=migration}
 end
 local function observeOwners(game)
     local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")

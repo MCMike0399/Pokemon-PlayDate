@@ -418,6 +418,8 @@ class MidgameJourney(vj.VermilionJourney):
             self.boundary_payload = self.codec_guard('loaded')
             if self.boundary_payload != saved['codec']:
                 raise ProtocolError('partial Continue differs from its actual saved codec payload')
+            if self.codec_migration:
+                self.summary['startup_actor_visibility_migration'] = copy.deepcopy(self.codec_migration)
             self.completed_steps = set(saved['completed_steps'])
             self.summary['resumed_steps'] = sorted(self.completed_steps)
         self.summary['starting_save'] = provenance

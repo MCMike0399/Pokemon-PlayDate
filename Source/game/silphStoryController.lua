@@ -204,18 +204,26 @@ local function prepare(state)
             for _, entry in ipairs(SilphStory.scenes().elevator) do
                 labels[#labels + 1] = tostring(entry.floor) .. "F"
             end
-            state.menu:show(labels, state:guard(function(index)
+            -- One guarded callback owns both confirm and cancel. Two guards in
+            -- one call would advance the serial twice and silently invalidate
+            -- the confirm branch, leaving A with no effect. The existing
+            -- Hideout elevator uses this same single-guard shape.
+            local choose <const> = state:guard(function(index)
                 state.menu:hide()
+                if index == nil then
+                    state:finish()
+                    return
+                end
                 local ok, reason = SilphStoryWorld.selectFloor(state.session, index)
                 if ok then
                     state:finish()
                 else
                     state:fail(reason)
                 end
-            end), state:guard(function()
-                state.menu:hide()
-                state:finish()
-            end))
+            end)
+            state.menu:show(labels, choose, function()
+                choose(nil)
+            end)
         end)
     elseif script == "lapras" then
         text(state, {"_SilphCo7FSilphWorkerM1HaveThisPokemonText"})

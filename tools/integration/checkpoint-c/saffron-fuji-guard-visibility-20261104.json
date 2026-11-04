@@ -1,5 +1,5 @@
 {
-  "classification": "Isolated C host fix for the confirmed Saffron Silph guard visibility bug with one actual SDK export and one bounded native contract witness; no campaign, credits, postgame, hardware, memory or latency acceptance",
+  "classification": "Isolated C source fixes for the Saffron Silph guard visibility and the Silph elevator confirm, a bounded compatibility migration for older actor saves, refreshed actual-SDK transform pins and one genuine resumed pilot Save; no campaign, credits, postgame, hardware, memory or latency acceptance",
   "base_c_commit": "1464d1a237d551e4e6909b66fea108eea0befb7a",
   "defect": "Source/game/silphStory.lua:actorMetadata left Saffron City source objects 14 and 15 visible whenever Silph Giovanni was undefeated. Object 14 at (18,22) blocked the Silph warp at (18,21), so the ordinary driver bounced Saffron (0,23) <-> Route7 until the existing 64-Clear bound.",
   "pinned_source_evidence": {
@@ -46,31 +46,34 @@
     "preserved": "coordinates, art, collision, raw map, warp geometry, existing flags, custom resolver, deep fallback and old actor saves"
   },
   "host_checks": {
-    "targeted": "25 tests PASS (test_region_registrations, test_silph_story, test_source_warp_eligibility); 38 PASS including catalog qualification inputs",
-    "full_suite": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-host-suite-20261104-01/summary.json",
-    "full_suite_summary_sha256": "1b43330c2c34079895e8df51acc3a5be3956fae56c79c46a1bb80996fca91888",
-    "new_failures": 0,
-    "shared_pre_existing_failures": 34
+    "targeted": "region/silph/warp registration tests PASS with refreshed pins; production build PASS",
+    "full_suite": "full host suite rerun with no newly failing test id versus unmodified 1464d1a2",
+    "new_failures_vs_unmodified_1464d1a2": 0,
+    "shared_pre_existing_c_failures": 34,
+    "baseline_receipt": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-host-suite-20261104-01/baseline-1464d1a2-failures.json"
   },
   "native_contract_witness": {
-    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-native-saffron-guards-20261104-05",
-    "session_id": "64439c4cf1db4082bbe4ae8e522d40f0",
-    "build_json_sha256": "4241e89e58f732a8637533956533170fb126ab67fd444d44ee3a312756181a80",
-    "result_sha256": "fec9ba16b074d4a4801a93de685e5d6dbfc8bc57086af7261afcca734bcd9837",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-native-saffron-guards-20261104-14",
+    "session_id": "a04dd09e4c6c45c8ae9cd8f8441de040",
+    "build_json_sha256": "ade2c8aef4d8524de67eee046c04a2003aa49fb18fffc5d10e4927ba3b40460a",
+    "result_sha256": "b485554bcad8d2291c217e203ccb67fc65d3885de85eb09e5a44d4c87502b98c",
     "command": "contracts saffron-guards",
     "suite": "saffron-guards",
-    "passed": 104,
+    "passed": 106,
     "failed": 0,
     "cases": [
       "saffron-guards: saffron-silph-door-rocket-needs-unrescued-fuji",
       "saffron-guards: saffron-silph-guards-hide-on-source-completion",
+      "saffron-guards: saffron-elevator-menu-confirms-a-floor-and-cancel-moves-none",
       "saffron-guards: saffron-silph-guard-metadata-is-static-pure-source-conditions"
     ],
     "covers": [
-      "pre-rescue blocker present at (18,22)",
+      "pre-rescue blocker present",
       "post-rescue blocker absent and sleeping Rocket present",
       "both hidden after Silph completion",
-      "static metadata purity and neighbouring toggles"
+      "static metadata purity and neighbouring toggles",
+      "old save with the now-hidden actor prunes to a canonical actor list",
+      "elevator menu confirm selects the source floor and cancel moves none"
     ]
   },
   "native_limits_retained": {
@@ -88,19 +91,18 @@
     }
   },
   "sdk_export_and_pins": {
-    "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-sdk-export-20261104-03",
+    "producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-sdk-export-20261104-04",
     "sdk": "3.1.2",
-    "build_json_sha256": "d4305be13daf62d87993430fc6f053cb6114da8bfd500b442eb0dda4493b149b",
-    "outcome_json_sha256": "2f5f22e3ab3df667ff9a3daee5d80302a2807a9f1d95e24fd29981493e0d07e2",
-    "session_id": "0a4da31ccc444ce48533947158c480db",
+    "build_json_sha256": "cb8557fff69e9842f8d5a06d4d5e97dee4984676c9c2d9410d56afbaf1b87634",
+    "outcome_json_sha256": "d98ab3cbd4564b4ae6caa8481d74e672113ee115a586391446adc5548aad59f2",
+    "session_id": "905661eb6e99439aa3dbdd973cd3a156",
     "dependencies_changed": [
-      "game/silphStory.lua",
-      "data/silphStory/scenes.json"
+      "domain/gameSession.lua"
     ],
-    "transform_values": "parsed transform exports identical to the prior pins; only the Lua JSON key order differs",
-    "prior_provenance": "tools/references/content-transforms-149/saffron-fuji-prior-provenance.json",
-    "superseded_producer": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-sdk-export-20261104-01",
-    "kanto_pins": "unchanged and still verified; no Kanto dependency changed"
+    "transform_values": "parsed transform exports identical to the prior pins; only Lua JSON key order differs",
+    "region_prior_provenance": "tools/references/content-transforms-149/saffron-fuji-prior-provenance.json",
+    "kanto_prior_provenance": "tools/integration/kanto-first-entry/qualified/saffron-fuji-prior-provenance.json",
+    "kanto_prior_export": "tools/integration/kanto-first-entry/qualified/saffron-fuji-prior-export.json"
   },
   "qualified_production_compile": {
     "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02",
@@ -117,13 +119,92 @@
     }
   },
   "not_claimed": [
-    "C campaign acceptance, three-starter journeys or Save-Continue",
+    "C campaign acceptance, three-starter journeys or Save-Continue gate",
     "physical hardware, 16MiB device memory or any latency phase",
-    "the full native contract aggregate or a whole-suite native run",
+    "the full native contract aggregate (cannot publish inside the 16MiB pool on 171 maps)",
     "credits or postgame progress"
   ],
   "next": [
-    "one short actual C pilot from the frozen Squirtle record16 marker ac21db92",
-    "then the three-starter earned C sequence and C acceptance gates"
-  ]
+    "re-run the short pilot from the earned Silph 1F Save with the elevator fix",
+    "continue Silph floors, rival, Giovanni, Sabrina, Dojo, Fly and Copycat"
+  ],
+  "actor_save_compatibility_migration": {
+    "reason": "A corrected source visibility rule must keep older saved actor lists valid.",
+    "rule": "WorldMotionData.normalize drops a KNOWN saved actor whose source spec is now hidden, updates count and returns the dropped ids. Unknown ids, duplicates, out-of-shape entries, added actors and missing still-visible actors keep strict validation. GameSession._validateActors allows only the actor list/count to differ. The dev boundary observation accepts exactly that canonicalization and reports it.",
+    "game_evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-11/01-midgame--restart-55c-squirtle",
+    "journey_reported": {
+      "dropped": [
+        "pokered:SAFFRON_CITY:objects:14"
+      ],
+      "reason": "source-actor-visibility"
+    },
+    "claim_scope": "The game loads and continues the frozen record16 candidate save; the hidden actor never spawns."
+  },
+  "silph_elevator_confirm_fix": {
+    "defect": "Source/game/silphStoryController.lua created two EventState:guard callbacks inside one menu:show call. The second guard advanced the serial, so the confirm guard was stale on creation and A silently did nothing in the Silph elevator.",
+    "fix": "One guarded callback owns confirm and cancel, matching the reviewed Hideout elevator shape.",
+    "observed": "Pilot-11 reached silph-floor with all 11 options active, selected 5, and repeated \"press a\" without any state change until the bounded drain stopped.",
+    "native_case": "saffron-guards: saffron-elevator-menu-confirms-a-floor-and-cancel-moves-none"
+  },
+  "history_helper_macintosh": {
+    "source": "tools/harness/malloc_history_clear.swift",
+    "source_sha256": "c532a89f0885f8158e071281187e56af07f2e45f5b7b957f2ee34401335ecb32",
+    "binary": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-08/malloc-history-clear",
+    "binary_sha256": "46c2bd90cd883ea3af9d7e2928f6a8dc6ae9cb545d8774a3668b3c43dfb2fa8f",
+    "ax_trust_checked_live": true,
+    "bounded_clear_qualification": "pilot-08 startup pause: inspect, show-log, clear via verified-window-broom, inspect with captured PNG; clears=1, each helper call under 1 s.",
+    "helper_improvements": [
+      "idempotent verified Show Malloc Log (max two presses)",
+      "bounded wait for the log window",
+      "single passive capture retry with refreshed window id",
+      "raise plus frontmost before the menu press",
+      "bounded hit-test retry before the single broom click"
+    ],
+    "superseded_binaries": [
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-01/malloc-history-clear",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-02/malloc-history-clear",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-03/malloc-history-clear",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-04/malloc-history-clear",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-05/malloc-history-clear",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-06/malloc-history-clear",
+      "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/journey-startup-clear-helper-macintosh-20261104-07/malloc-history-clear"
+    ]
+  },
+  "pilot": {
+    "scenario": "reviewed packet scenarios/resume-55c-squirtle-saffron16-20261104.json (identical to updated main)",
+    "resumed_from": "record16 marker ac21db92",
+    "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-11/01-midgame--restart-55c-squirtle",
+    "startup_actor_visibility_migration": {
+      "dropped": [
+        "pokered:SAFFRON_CITY:objects:14"
+      ],
+      "reason": "source-actor-visibility"
+    },
+    "earned_saves_in_run": [
+      "m55c-saffron_city-save-1-game-saved",
+      "m55c-saffron_city-save-2-game-saved",
+      "m55c-saffron_city-save-3-game-saved",
+      "m55c-silph_co_1f-save-4-game-saved",
+      "m55c-silph_co_1f-save-5-game-saved"
+    ],
+    "frontier_marker": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-11/01-midgame--restart-55c-squirtle/processes/0001/partial-save.json",
+      "sha256": "64f69e21cad42664a0ee3aa3922adfee37abde87ab7abc4a2040d9a18b0dff58",
+      "slot_sha256": [
+        "387766b7826dfeccdd97945d045b91ca5ea37ced7f02dd851ce44052511e1444",
+        "583bea914473535dbfef91df7f865cae73d6569dbdaf7d6f1f39a28ca88d3552"
+      ],
+      "completed_steps": [
+        "saffron-guard-entry"
+      ],
+      "location": {
+        "facing": "right",
+        "x": 15,
+        "y": 1,
+        "zone_id": "pokered:SILPH_CO_1F"
+      },
+      "classification": "genuine earned C partial Save from the resumed pilot (Silph Co 1F); the elevator confirm fix landed after it"
+    },
+    "stopped_at": "Silph elevator floor menu (confirm guard bug, now fixed and natively covered)"
+  }
 }

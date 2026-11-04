@@ -306,6 +306,85 @@ function SaffronGuardContracts.run()
             eq(seen.blocker, nil)
         end
     end)
+    test("saffron-saved-guard-actor-prunes-under-corrected-visibility", function()
+        local world <const> = WorldDeltas.export()
+        local descriptor <const> = assert(SourceActors.describe("pokered:SAFFRON_CITY", world))
+        local before <const> = {quest = {EVENT_RESCUED_MR_FUJI=false, EVENT_BEAT_SILPH_CO_GIOVANNI=false}}
+        local saved <const> = WorldMotionData.reconcile(nil, descriptor, before)
+        -- The pre-fix rule ignored the Fuji transition, so an old Saffron save
+        -- also retained the sleeping Rocket. Reproduce that exact old list.
+        for _, spec in ipairs(descriptor.actors) do
+            if spec.id == SILPH_SLEEPING then
+                saved.actors[#saved.actors + 1] = WorldMotionData.initial(spec)
+            end
+        end
+        saved.count = #saved.actors
+        table.sort(saved.actors, function(a, b) return a.id < b.id end)
+        local index = {}
+        for _, actor in ipairs(saved.actors) do index[actor.id] = true end
+        assert(index[SILPH_BLOCKER], "pre-rescue save must contain the door Rocket")
+        assert(index[SILPH_SLEEPING], "pre-fix save must contain the sleeping Rocket")
+        local after <const> = {quest = {EVENT_RESCUED_MR_FUJI=true, EVENT_BEAT_SILPH_CO_GIOVANNI=false}}
+        local location <const> = {zone_id=descriptor.zone_id, x=0, y=23, facing="left"}
+        local canonical, dropped = WorldMotionData.normalize(saved, descriptor, location, after)
+        eq(#dropped, 1)
+        eq(dropped[1], SILPH_BLOCKER)
+        eq(#canonical.actors, #saved.actors - 1)
+        local kept = {}
+        for _, actor in ipairs(canonical.actors) do
+            assert(actor.id ~= SILPH_BLOCKER, "hidden guard survived saved actor normalization")
+            kept[actor.id] = true
+        end
+        assert(kept[SILPH_SLEEPING], "still-visible sleeping Rocket must be retained")
+        local missing <const> = {version=1, zone_id=saved.zone_id,
+            definition_revision=saved.definition_revision, count=0, actors={}}
+        for _, actor in ipairs(saved.actors) do
+            if actor.id ~= SILPH_SLEEPING then
+                missing.actors[#missing.actors + 1] = actor
+            end
+        end
+        missing.count = #missing.actors
+        eq(pcall(WorldMotionData.normalize, missing, descriptor, location, after), false)
+    end)
+    test("saffron-elevator-menu-confirms-a-floor-and-cancel-moves-none", function()
+        local lift <const> = "pokered:SILPH_CO_ELEVATOR:background_events:1"
+        local function enter(game)
+            -- The elevator scene belongs to the composed midgame event chain;
+            -- run the same state class main.lua registers for real play.
+            game.machine:register("event", MidgameServicesState(game))
+            assert(SourceEvents.dispatch(game, lift))
+            -- Dispatch opens the source floor question; draining it exposes the
+            -- actual floor menu on the event state.
+            drain(game)
+            local event <const> = game.machine:get("event")
+            eq(event.phase, "silph-floor")
+            eq(event.menu.isActive, true)
+            eq(#event.menu.options, 11)
+            return event
+        end
+        KantoServicesContracts.withScene("SilphCoElevator", {x=3, y=1, facing="up"}, function(game)
+            local event = enter(game)
+            event:handleButton("down")
+            eq(event.menu.selectedIndex, 2)
+            event:handleButton("a")
+            eq(game.machine:getCurrent(), "overworld")
+            assert(game.session:questFlag("SILPH_STORY_LIFT_V1_2") == true,
+                "elevator confirm: " .. tostring(event.phase) .. "/" .. tostring(event.waiting))
+            assert(not game.session:questFlag("SILPH_STORY_LIFT_V1_1"))
+            -- The actual cabin exits now project to the chosen floor.
+            local door <const> = SilphStoryWorld.resolveDoor(game,
+                {source_event_id="pokered:SILPH_CO_ELEVATOR:warps:1"})
+            eq(door.to, "pokered:SILPH_CO_2F")
+        end)
+        KantoServicesContracts.withScene("SilphCoElevator", {x=3, y=1, facing="up"}, function(game)
+            local event = enter(game)
+            event:handleButton("b")
+            eq(game.machine:getCurrent(), "overworld")
+            for floor = 1, 11 do
+                assert(not game.session:questFlag("SILPH_STORY_LIFT_V1_" .. floor))
+            end
+        end)
+    end)
     test("saffron-silph-guard-metadata-is-static-pure-source-conditions", function()
         local scenes <const> = SilphStory.scenes()
         assert(scenes.fuji_rescue and #scenes.fuji_rescue.hides == 1 and #scenes.fuji_rescue.shows == 1,
