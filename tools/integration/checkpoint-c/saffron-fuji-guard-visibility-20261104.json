@@ -260,7 +260,7 @@
       "vmmap": "DiveMac /tmp/vmmap-03.txt captured at 9 s: MALLOC_SMALL 851.9M virtual, 811.8M swapped"
     },
     "classification": "Honest runtime gate for this host/SDK combination; it does not invalidate the committed source fixes, the native contracts or the production compile.",
-    "diagnosis": "The production PDX (qualified shipped content, lazy per-map path) peaks at 168 MB at the title and settles around 126 MB on DiveMac (direct Simulator launch, no harness). The harness stages raw Source and therefore runs with shippedDataPolicy unqualified, whose deep content path decodes the whole content cache eagerly: about 12 MB of JSON becomes roughly 800 MB of native small allocations. That fits B (149 maps) under the 1 GiB ceiling and no longer fits C (171 maps).",
+    "diagnosis": "The production PDX (qualified shipped content, lazy per-map path) peaks at 168 MB at the title and settles around 126 MB on DiveMac. Inside ANY harness build the shipped-data policy deliberately requires HarnessBuild == nil, so journeys always use the full deep validation path even when the staged content is ship-qualified. That deep path allocates roughly 800 MB of native small blocks at boot (vmmap MALLOC_SMALL ~852 MB virtual, ~15 MB resident, ~812 MB swapped) and therefore trips the unchanged 1 GiB owned-Simulator ceiling. B149 still fit; C171 does not.",
     "production_probe": {
       "pdx": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-qualified-production-20261104-02/PokemonBlue.pdx",
       "host": "DiveMac",
@@ -269,6 +269,7 @@
       "seconds": 30,
       "method": "direct Simulator launch, proc_pid_rusage footprint each second, terminated after 30 s"
     },
-    "next_step": "Qualify the journey harness staging through the existing production pipeline (stage_production plus the dev overlay) so journeys decode content lazily like production, or reduce the eager deep path. Do not lower the 1 GiB guard or the 16 MiB pool."
+    "next_step": "This is a structural deep-path memory gate, not a staging choice. Options require an explicit user decision: reduce C171 deep-load allocations (the steer-8 memory work), or admit a different harness host guard. Do not lower the 1 GiB guard, the 16 MiB pool or the deep validation contract unilaterally. Device acceptance remains on DiveMac and the device is not attached.",
+    "experiment_qualified_stage": "An opt-in run.py --qualified-stage that staged ship-qualified content before the dev overlay was tried and reverted: the footprint curve was unchanged because the policy still disables the qualified path whenever HarnessBuild exists. No harness behaviour changed in the tree."
   }
 }
