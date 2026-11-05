@@ -1,6 +1,6 @@
 # Full-game execution ledger
 
-Updated 2026-11-04 UTC. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
