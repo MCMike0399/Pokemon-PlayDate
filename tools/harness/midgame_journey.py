@@ -963,6 +963,17 @@ class MidgameJourney(vj.VermilionJourney):
             yield point, kind, detail
 
     def project_warp(self, model, event):
+        if model.name == self.zone('SilphCoElevator'):
+            # Both cabin warps land on the floor the source scene persisted. A
+            # genuine transit Save can resume inside the cabin, so the planner
+            # must project its exits without replaying a floor selection.
+            scenes = self.scene_data('data/silphStory/scenes.json')
+            for floor in scenes['elevator']:
+                if self.flag('SILPH_STORY_LIFT_V1_' + str(floor['floor'])):
+                    target = self.models[self.zone('SilphCo' + str(floor['floor']) + 'F')]
+                    destination = floor['destination']
+                    return target.name, (destination['x'] + target.padding, destination['y'])
+            raise ProtocolError('missing persisted Silph elevator destination')
         # Hideout lift entries use explicit cabin positions without a door step.
         scenes = self.scene_data('data/rocketHideoutStory/scenes.json')
         for floor in scenes['elevator']:
