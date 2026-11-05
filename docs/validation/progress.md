@@ -5,6 +5,19 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Selected-slot receipt rechecked — 2026-11-05
+
+Native `contracts saffron-guards` was run twice on the isolated C tip after
+`b530f2ff` and the Vermilion pin `28b60105`. The suite now also canonicalizes
+an unequal trusted boundary from the selected-slot bytes, so later play cannot
+become that receipt. Both runs passed 111/111 with zero failures, including
+all eleven elevator floors, both cabin exits, persisted-floor projection and
+unknown-floor rollback. The earlier 110-pass report does not cover these
+bytes. C is still unaccepted: allocation, earned journeys, restarts, visuals,
+hardware and latency remain open. Both runs are outside Git at
+`~/Developer/Pokemon-PlayDate-env/evidence/c-actor-validation-native-saffron-guards-20261105-06`.
+Inherited full-host failures were not relabeled.
+
 ## C actor-validation correction — 2026-11-05
 
 The reviewed Macintosh C migration had three defects: hidden saved actor

@@ -320,9 +320,10 @@ local function codecObservation(game, payload, trustedBoundary)
         migrated_equal=literal or migration ~= nil, migration=migration,
         payload=payload, canonical=encoded}
 end
--- Narrow development seam. The native contract suite proves this exact
--- predicate without manufacturing a live Save/Continue boundary.
+-- Narrow development seams. The native contract suite proves these exact
+-- predicates without manufacturing a live Save/Continue boundary.
 HarnessDiagnostics._actorVisibilityMigration = actorVisibilityMigration
+HarnessDiagnostics._codecObservation = codecObservation
 local function observeOwners(game)
     local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")
     assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale owner projection")

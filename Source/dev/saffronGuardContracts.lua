@@ -467,6 +467,36 @@ function SaffronGuardContracts.run()
         retained.questFlags = {EVENT_RESCUED_MR_FUJI=false}
         eq(HarnessDiagnostics._actorVisibilityMigration(payload, retained), nil)
     end)
+    test("saffron-unequal-boundary-canonicalizes-selected-slot-bytes", function()
+        -- A trusted boundary that still matches the installed session skips a
+        -- second decode. Any other selected-slot payload is canonicalized from
+        -- those bytes. Later play on the live session must not become the receipt.
+        KantoServicesContracts.withScene("SilphCoElevator", {x=3, y=1, facing="up"}, function(game)
+            local slot <const> = assert(SessionCodec.encode(game.session,
+                {root="overworld", overworld="explore", settled=true}))
+            assert(game.session:setQuestFlag("EVENT_RESCUED_MR_FUJI", true))
+            local literal <const> = HarnessDiagnostics._codecObservation(game, slot, true)
+            eq(literal.roundtrip_equal, true)
+            eq(literal.migrated_equal, true)
+            eq(literal.migration, nil)
+            eq(literal.payload, slot)
+            eq(literal.canonical.questFlags.EVENT_RESCUED_MR_FUJI, nil)
+            assert(game.session:questFlag("EVENT_RESCUED_MR_FUJI") == true,
+                "later play disappeared before the receipt check")
+            local altered <const> = GameSession._copy(slot)
+            altered.questFlags.EVENT_BEAT_SILPH_CO_GIOVANNI = true
+            local decoded <const> = HarnessDiagnostics._codecObservation(game, altered, true)
+            eq(decoded.roundtrip_equal, true)
+            eq(decoded.migrated_equal, true)
+            eq(decoded.payload, altered)
+            eq(decoded.canonical.questFlags.EVENT_BEAT_SILPH_CO_GIOVANNI, true)
+            eq(decoded.canonical.questFlags.EVENT_RESCUED_MR_FUJI, nil)
+            assert(game.session:questFlag("EVENT_RESCUED_MR_FUJI") == true,
+                "selected-slot canonicalization wrote the live session")
+            assert(game.session:questFlag("EVENT_BEAT_SILPH_CO_GIOVANNI") ~= true,
+                "selected-slot canonicalization wrote the live session")
+        end)
+    end)
     test("saffron-elevator-menu-confirms-a-floor-and-cancel-moves-none", function()
         local lift <const> = "pokered:SILPH_CO_ELEVATOR:background_events:1"
         local function enter(game)
