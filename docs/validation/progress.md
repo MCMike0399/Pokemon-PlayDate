@@ -1,9 +1,87 @@
 # Full-game execution ledger
 
-Updated 2026-11-02 UTC. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-11-04 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
+
+## Macintosh work reviewed and safe subset integrated — 2026-11-04
+
+The user explicitly requested reviewing the Macintosh session and pushing what
+is safe to main. The fetched C branch is `origin/pi/checkpoint-c-host-preparation`
+at `03c1bae4`, six commits beyond the previous C tip `1464d1a2`. At review it was
+44 commits ahead of the merge-base; main `ff598ced` was 9 ahead. C171 is not accepted
+and is not merged wholesale. Source-backed Fuji visibility, elevator confirmation
+and cabin projection are useful progress, but both independent reviews found
+validation defects in the actor compatibility migration and diagnostic equality
+exception. Those remain isolated and require correction/native qualification.
+[Separate Standards and Spec findings](../reviews/macintosh-c-20261104.md).
+
+Main component `598f64d2` ports only bounded named-contract dispatch and suite-aware
+catalog/field evidence classification. Default aggregate order/common cases remain;
+unknown suite rejection occurs before RNG-mutating tests. Production B runtime,
+data, art, save owners and qualification pins are unchanged; main stays 149 maps.
+The helper/acknowledgement hunk is not independently portable because main has no
+matching JourneyHistory owner, so it remains on C. The coverage review preserves
+all 1,512 rows/facets/proof hashes and prior snapshot history; only current Source
+identification advances for the two development Lua changes.
+
+Fresh validation: **1,171/1,171 full host tests pass**, no errors/skips; 32 targeted
+checks and 4 coverage checks pass. A guarded thin API probe passes 21 selected and
+22 aggregate cases (the 20 original common cases execute twice plus dispatch
+sentinels), including unknown-suite/RNG preservation. This is not a full harness
+or C journey pass. The ordinary full-contract B probe exceeded 1 GiB and remains
+a retained failure; it is a different profile from the B/C journey comparison.
+[Exact component scope](main-named-contracts-20261104.json),
+[final host result](main-named-contracts-host-20261104.json).
+
+The latest genuine C frontier is pilot12's stopped Silph elevator Save at (7,1,right),
+floor 1, marker 22047333..., only saffron-guard-entry complete. It is on Macintosh;
+the new prompt/scenario binds those exact slots and ancestry instead of older
+record16. No DiveMac Playdate USB port was present at review; hardware work needs
+the device reconnected. Source/host work continues independently. No guard, pool,
+trust fence or acceptance threshold changes.
+[Current continuation prompt](../handoffs/continuation-after-macintosh-review-20261104.md).
+
+The earlier takeover details below remain historical and are superseded above
+where the branch tip, frontier, local setup or next action has advanced.
+
+## Macintosh takeover — 2026-11-04
+
+The user requested pushing current accepted main and a complete handover to
+Macintosh. Accepted game/validation tip `75eca5d9` and the reviewed cold-archive
+allowlist commit `96b53554` were fast-forward pushed. This handover adds no game
+Source changes and does not adopt C or the selected-slot/Telekinesis candidates.
+[Takeover prompt and exact frontier](../handoffs/macintosh-20261104.md).
+
+Main remains B149 accepted with the existing label. Isolated C is at `1464d1a2`.
+Its last Squirtle attempt completed a genuine Saffron guard-entry Save, then
+failed at the unchanged64-Clear cap while routing around a source-confirmed
+Saffron actor-visibility bug. No complete C journey or new hardware result is
+claimed. Reviewer steer8's30-door production-GC route remains unexecuted.
+The November4 process audit found no live SDK/journey/device/archive operation.
+
+Both requested superseded Brock failure roots are now archived, fully rehearsed
+and locally released; exact receipts and restoration references are in the
+handover. Their logical total is8.46GiB, not an isolated free-space delta.
+Actual DiveMac free space at the audit was about95GiB. No current earned input
+or positive acceptance proof was discarded. Macintosh receives a private all-ref
+bundle and dirty-work snapshots separately; raw external evidence stays on
+DiveMac/Pi until exact-path hydration is required. The outgoing agent starts no
+new campaign during the ownership transfer. All prior scope/latency limits below
+continue to apply.
+
+The user then requested an independent handover challenge. One Sol/medium advisor
+found two P2 portability gaps and one P3 persistence clarification, no standards
+findings. Root supplied the missing pinned reference/cache/environment setup,
+an exact188-file frozen seed-dependency closure, and a new scenario bound to
+latest C record16. An isolated recovery drill on Macintosh recovers all selected
+branch tips and passes the unchanged strict importer for all three starters,
+including Squirtle's exact Saffron slots. Goal/task state is explicitly not
+transferred; the prompt supplies a fresh local goal instruction. No gameplay
+Source changed or runtime started. Runtime/desktop/hardware and C acceptance
+remain separate pending gates.
+[Review findings, resolutions and actual drill](../handoffs/macintosh-readiness-review-20261104.json).
 
 ## What a player can do
 
@@ -28,6 +106,13 @@ The B merge passed 1,152 host tests and 57 protocol tests. After the memory merg
 projection changed only its reviewed terrain-owner hash; all 64 targeted
 metadata checks then passed. Protocol checks pass 57/57 and literal production
 `make compile` passes with SDK 3.1.2. No second full-suite run is claimed.
+
+Current main after Save inspection reuse and metadata reconciliation passes the
+full **1,169/1,169 host suite**. The earlier six failures were projection digests,
+accepted-code preservation pins and the current Source coverage snapshot; their
+failed run is retained. Semantic projections, protected assets and all original
+coverage proof hashes remain unchanged. No new campaign or hardware acceptance
+is inferred. [Exact host result](main-host-after-save-20261102.json).
 
 B acceptance took 73.075 elapsed hours from the first 149-map packet: about
 13.466 added maps/day, including tooling, latency work and waits.
@@ -145,13 +230,29 @@ point probes retain their separate scope.
    selected merged host/build checks and production compilation pass; the three
    changed Source files equal the measured candidate. Surf still misses 2 s.
    [Measured candidate and scope](save-inspection-reuse-measured-20261102.json).
-5. Fix structural door/boot/cave costs and measure boot/Continue against all three
-   B save sizes. Payload sizes alone establish no timing conclusion. Do not
+5. Matched hardware observations now cover all three canonical B saves, with
+   identical code/SDK/compiler and only private build identity differing:
+   selected envelopes 21,533/22,650/24,316 bytes; title preparation
+   4.589/4.687/4.981 s; input-ready boot 13.325/13.548/13.774 s;
+   Continue 3.293/3.360/3.463 s. Store inspection takes 2.419/2.482/2.635 s.
+   Default title diagnostic GC is 0.876/0.899/0.968 s; shipped-equivalent timing
+   remains unmeasured. Party, PC and flags vary together, so PC causality is not
+   isolated. All three exceed boot/slice targets; Continue meets 4 s.
+   [Three-save phases and exact proof](boot-three-earned-saves-20261102.json).
+   Fix structural door/boot/cave costs. Deferred `import()` splitting is closed:
+   SDK 3.1.2 prohibits imports outside PDZ loading; no candidate was created. Do not
    restart the census. The user explicitly allows the existing guarded history
    helper for ordinary C journeys. Its archive-fence correction passes host
    checks, but native qualification remains open: opening the profiler window
-   itself can cross the unchanged 1 GiB host guard before Clear. No complete C
-   journey is inferred from host checks or earlier failed attempts.
+   itself can cross the unchanged 1 GiB host guard before Clear. A reviewed
+   ready-title pause now proves actual Clear and 67 ordinary requests through
+   Route 15, but stops at the unchanged 64-Clear limit: the cleared UI footprint
+   exceeds the 512 MiB trigger. Closing the window did not release headroom and
+   is rejected. The user approved changing only the soft Clear trigger to
+   736 MiB; 36 focused host checks pass and a fresh single-Squirtle pilot is
+   running. The 1 GiB hard stop, 16 MiB pool, 64-Clear/131-call caps and other
+   limits remain unchanged. No complete C journey is inferred from the earlier
+   short qualification.
 
 Compact SMC1 terrain-row consumption is also rejected after native correctness
 passes but no whole-phase hardware gain: Fuchsia 4.451→4.507 s, memory unchanged.

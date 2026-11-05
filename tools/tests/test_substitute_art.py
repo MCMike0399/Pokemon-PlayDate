@@ -109,6 +109,10 @@ class SubstituteArtTests(unittest.TestCase):
             # Root's reviewed formatting-only fix changes this contract's bytes,
             # while production mechanics retain their native-qualified baseline.
             expected_base = '4160ce96' if name == 'Source/dev/substituteContracts.lua' else MECHANICS_BASE
+            if name == 'Source/domain/sessionCodec.lua':
+                # Reviewed Save inspection reuse changes only factory wiring;
+                # pin its accepted bytes without relaxing other preservation.
+                expected_base = '1ffd6fa7'
             self.assertEqual((art.ROOT/name).read_bytes(), original(name, expected_base), name)
         name = 'Source/dev/battlePresentationContracts.lua'
         before = re.findall(r'    test\("([^"]+)"', original(name).decode())

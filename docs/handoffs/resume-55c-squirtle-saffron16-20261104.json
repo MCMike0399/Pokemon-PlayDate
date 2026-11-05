@@ -1,0 +1,41 @@
+{
+  "initial_save": {
+    "milestone": "5.5b",
+    "starter": "squirtle",
+    "resume": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-earned-saffron-resumed-20261102-16/01-midgame--restart-55c-squirtle/processes/0001/partial-save.json",
+      "sha256": "ac21db92bb977364a573c6a8323aa9961af3aae1341b1fd849f77f57302e45e0"
+    }
+  },
+  "processes": [
+    {
+      "journey": {
+        "starter": "squirtle",
+        "packet": "5.5c",
+        "content_scope": "critical",
+        "evolution_policy": "accept",
+        "max_actions": 120000,
+        "max_steps": 20000,
+        "max_encounters": 256,
+        "max_blackouts": 1,
+        "max_transitions": 512,
+        "name": "midgame-natural"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "starter": "squirtle",
+        "packet": "5.5c",
+        "content_scope": "critical",
+        "evolution_policy": "accept",
+        "max_actions": 120000,
+        "max_steps": 20000,
+        "max_encounters": 256,
+        "max_blackouts": 1,
+        "max_transitions": 512,
+        "name": "midgame-continue"
+      }
+    }
+  ]
+}

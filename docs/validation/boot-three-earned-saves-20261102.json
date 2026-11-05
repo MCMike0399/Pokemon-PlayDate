@@ -1,0 +1,132 @@
+{
+  "scope": "Three genuine canonical B saves, same149-mapSource fingerprint/compiler/SDK/private14marks/production-profile and diagnosticGC; eachfreshprocessatFuchsiaCenter3,3",
+  "rows": [
+    {
+      "starter": "squirtle",
+      "selected_envelope_bytes": 21533,
+      "both_slot_envelope_bytes": 43067,
+      "stored_pokemon": 3,
+      "title_prepare_ms": 4589.0,
+      "title_store_ms": 2419.0,
+      "title_decode_ms": 1208.0,
+      "title_field_ms": 358.0,
+      "title_map_ms": 574.0,
+      "boot_input_ready_ms": 13325.0,
+      "Continue_ms": 3293.0,
+      "boot_slice_ms": 1441.367,
+      "title_diagnostic_gc_ms": 876.0,
+      "sampled_peak_bytes": 6433560.576,
+      "build_id": "10f02e538f694b0c96b67f93289c3c75",
+      "production_timing_ms": null,
+      "maximum_raw_frame_ms": 1441.367,
+      "title_other_ms": 30.0,
+      "system_logs_unchanged": true,
+      "keeper_inventory_verified_run_acknowledged": true,
+      "keeper_screen_observed": false
+    },
+    {
+      "starter": "bulbasaur",
+      "selected_envelope_bytes": 22650,
+      "both_slot_envelope_bytes": 45300,
+      "stored_pokemon": 4,
+      "title_prepare_ms": 4687.0,
+      "title_store_ms": 2482.0,
+      "title_decode_ms": 1242.0,
+      "title_field_ms": 340.0,
+      "title_map_ms": 595.0,
+      "boot_input_ready_ms": 13548.0,
+      "Continue_ms": 3360.0,
+      "boot_slice_ms": 1470.0,
+      "title_diagnostic_gc_ms": 899.0,
+      "sampled_peak_bytes": 6491828.224,
+      "build_id": "1535ffe0af934961b08d7b39a7b49fcf",
+      "production_timing_ms": null,
+      "maximum_raw_frame_ms": 1375.366,
+      "title_other_ms": 28.0,
+      "system_logs_unchanged": true,
+      "keeper_inventory_verified_run_acknowledged": true,
+      "keeper_screen_observed": false
+    },
+    {
+      "starter": "charmander",
+      "selected_envelope_bytes": 24316,
+      "both_slot_envelope_bytes": 48630,
+      "stored_pokemon": 6,
+      "title_prepare_ms": 4981.0,
+      "title_store_ms": 2635.0,
+      "title_decode_ms": 1403.0,
+      "title_field_ms": 340.0,
+      "title_map_ms": 568.0,
+      "boot_input_ready_ms": 13774.0,
+      "Continue_ms": 3463.0,
+      "boot_slice_ms": 1934.0,
+      "title_diagnostic_gc_ms": 968.0,
+      "sampled_peak_bytes": 6598838.272,
+      "build_id": "ae5b5cb78cbf42cd8f32280de6a82971",
+      "production_timing_ms": null,
+      "maximum_raw_frame_ms": 1452.227,
+      "title_other_ms": 35.0,
+      "system_logs_unchanged": true,
+      "keeper_inventory_verified_run_acknowledged": true,
+      "keeper_screen_observed": false
+    }
+  ],
+  "source_sha256": "4767c18347d673ea1d8b04b73cce1257034cc8b89b944653eeca7d33bb8cb291",
+  "method": "App-clock endpoint elapsed times, including cooperative yields, observer IO and marked diagnostic fullGC. Physicalpower-on/shipped-equivalenttiming unmeasured. Oneobservationpersave; do notfit causal scaling from3points. Store interval includes bothslotinspection; selectedbytesaloneisnotallreadwork.",
+  "limitations": [
+    "Party,flags,storage and prior-slot content vary together;PCcausalitynotisolated",
+    "DefaultdiagnosticGCretained,never silentlysubtracted",
+    "C171andlate-gamegrowingboxesunmeasured",
+    "Walking,battleanddoorperformanceunmeasuredinthesephysicaltwoSave-onlycycles"
+  ],
+  "evidence": [
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-center-hardware-20261102-01/device-smoke.json",
+      "sha256": "af15649c75ccdfb6b7cd39c61229d84ffb2f4f4c05b2bab0a79b331099fe1d8d"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-center-hardware-20261102-01/serial-boot-trace.tsv",
+      "sha256": "e3dbe77b33d5977fb162aaa4576873aa7c31cc4de743c26913b710c27583af18"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/save-reuse-center-hardware-20261102-01/earned-save.json",
+      "sha256": "3682ccd4505ab42d2268b82629e3fe631ff073cd0a5e23f80b0b4dc8be9501e3"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-size-bulbasaur-hardware-20261102-01/device-smoke.json",
+      "sha256": "85eee773730005d8e618438660e9722a8871efe9a3136edee907f82ef77dbf1a"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-size-bulbasaur-hardware-20261102-01/serial-boot-trace.tsv",
+      "sha256": "eed87b3760b5e039f54e14bcba070a0e3f70b2a630db32bc304e9d5f29b0b409"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-size-bulbasaur-hardware-20261102-01/earned-save.json",
+      "sha256": "caa0d16897c6e6a488d4c46bcc111cadca0c750eeb58fe9049c5cfeed419f838"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-size-charmander-hardware-20261102-01/device-smoke.json",
+      "sha256": "6c61c83aec8458a36dec3502dd6156c331e7f01b92b15cd8707d3515d2ec1e59"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-size-charmander-hardware-20261102-01/serial-boot-trace.tsv",
+      "sha256": "58d16bfee107d1d6e4fdbf10a0c194feba66cba4e37e1a72f230d057671e9c31"
+    },
+    {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/boot-size-charmander-hardware-20261102-01/earned-save.json",
+      "sha256": "78c6d8ee6305cde31f3f63a649d7f6a4111111619f1b98a537df2a31c2198d94"
+    }
+  ],
+  "limits": "Scored boot_slice uses the unchanged device metrics algorithm. Raw phase since-yield can include I/O and work outside sampled frames; raw maximum frame retained separately. Default diagnostic GC remains in wall timing.",
+  "same_code_checked": {
+    "compiler_sha256": "bf3a52424a99446cee437ab674d4935205f2a8e1d41299788b68ad4f3865e612",
+    "sdk": "3.1.2",
+    "all_nonentry_compiled_source_files_equal": true,
+    "main_equal_after_only_device_id_normalization": true
+  },
+  "observations": {
+    "largest_to_smallest_title_prepare_percent": 8.542166049248202,
+    "largest_to_smallest_selected_bytes_percent": 12.924348674128083,
+    "interpretation": "Store inspection dominates allthree. PCcount,flags,prior-slotpayloadandothercontentvarytogether; noisolatedPCcausality or222mapprojection."
+  }
+}

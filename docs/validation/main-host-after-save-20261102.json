@@ -1,0 +1,23 @@
+{
+  "classification": "Full host suite only; no new native campaign, hardware or fidelity acceptance",
+  "commit": "08541d267dd2059444d6e339d04c679af4a4e43a",
+  "source_sha256": "555a769f53a63f4e4c68e7d2bbfcc5574ef1621c59b94c7ba2b282f5f81ed251",
+  "tests": 1169,
+  "passed": 1169,
+  "failures": 0,
+  "errors": 0,
+  "log": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-host-after-save-reconcile-20261102-02.log",
+    "sha256": "47d3de0b58a07d606eb8d59e2515cd6c40036d8e9c869366a6fa2972e9bcb6f2"
+  },
+  "prior_failed_run": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/main-host-after-save-adoption-20261102-01.log",
+    "result": "1169 tests, six metadata/projection/preservation failures; retained"
+  },
+  "corrections": [
+    "Journey projection source digests only; semantic data unchanged",
+    "SessionCodec preservation pinned to exact accepted Save factory1ffd6fa7",
+    "Coverage current Source snapshot reviewed; all1512rows/facets and48proof hashes unchanged"
+  ],
+  "remaining": "C171 and selected-slot candidate unaccepted; latency, native, hardware and visual gates separate"
+}

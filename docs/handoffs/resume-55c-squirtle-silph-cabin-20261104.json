@@ -1,0 +1,41 @@
+{
+  "initial_save": {
+    "milestone": "5.5b",
+    "starter": "squirtle",
+    "resume": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-12/01-midgame--restart-55c-squirtle/processes/0001/partial-save.json",
+      "sha256": "2204733359f2332c9dd844742cd4d15f457692b880df268e4802ccb15917931b"
+    }
+  },
+  "processes": [
+    {
+      "journey": {
+        "starter": "squirtle",
+        "packet": "5.5c",
+        "content_scope": "critical",
+        "evolution_policy": "accept",
+        "max_actions": 120000,
+        "max_steps": 20000,
+        "max_encounters": 256,
+        "max_blackouts": 1,
+        "max_transitions": 512,
+        "name": "midgame-natural"
+      }
+    },
+    {
+      "restart": true,
+      "journey": {
+        "starter": "squirtle",
+        "packet": "5.5c",
+        "content_scope": "critical",
+        "evolution_policy": "accept",
+        "max_actions": 120000,
+        "max_steps": 20000,
+        "max_encounters": 256,
+        "max_blackouts": 1,
+        "max_transitions": 512,
+        "name": "midgame-continue"
+      }
+    }
+  ]
+}

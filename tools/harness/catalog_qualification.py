@@ -45,11 +45,12 @@ def requests_contract_suite(scenario, suite=SUITE):
     for commands in scenario.get('requests', [scenario.get('commands', [])]):
         for command in commands:
             parts = None
-            if isinstance(command,str):
+            if isinstance(command, str):
                 parts = command.split()
-            elif isinstance(command,dict) and command.get('op')=='contracts':
+            elif isinstance(command, dict) and command.get('op') == 'contracts':
                 parts = ['contracts'] + [str(value) for value in command.get('args') or []]
-            if parts and parts[0]=='contracts' and (len(parts)==1 or parts[1]==suite):
+            if (parts and parts[0] == 'contracts'
+                    and (len(parts) == 1 or len(parts) == 2 and parts[1] == suite)):
                 return True
     return False
 

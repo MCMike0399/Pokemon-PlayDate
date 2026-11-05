@@ -42,6 +42,16 @@ local function settle(battle)
 end
 
 function Contracts.run(only)
+    local selected = suites
+    if only ~= nil then
+        selected = {}
+        for _, suite in ipairs(suites) do
+            if suite.name == only then
+                selected[#selected + 1] = suite
+            end
+        end
+        assert(#selected == 1, "unknown contract suite: " .. tostring(only))
+    end
     local savedRNG = RulesRNG.snapshot()
     local savedOffsetX, savedOffsetY = playdate.display.getOffset()
     local report = { ok = true, passed = 0, failed = 0, tests = {}, suites = {} }
@@ -376,16 +386,6 @@ function Contracts.run(only)
     -- 171-map candidate is installed; the suite still runs, the reply is what
     -- exhausts memory. An explicit suite name keeps a bounded native report;
     -- ordinary no-argument runs keep every suite in registration order.
-    local selected = suites
-    if only ~= nil then
-        selected = {}
-        for _, suite in ipairs(suites) do
-            if suite.name == only then
-                selected[#selected + 1] = suite
-            end
-        end
-        truth(#selected == 1, "unknown contract suite: " .. tostring(only))
-    end
     for _, suite in ipairs(selected) do
         local executed = { id = suite.name, ok = false, passed = 0, failed = 1 }
         if suite.name == "comprehensive-catalog" then executed.artifact_qualifier = "catalog-invariance-v1" end

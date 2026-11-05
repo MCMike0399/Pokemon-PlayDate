@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "scope": "Final main B149 named-contract component host qualification; no C gameplay acceptance",
+  "component_commit": "598f64d2cea8840fe962015d4d51f4abfb411b3d",
+  "full_host": {
+    "tests": 1171,
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "ok": true
+  },
+  "host_result": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-full-host-final.json",
+    "sha256": "1a1c774226a5afcc4c5bc5d9e8c80dcba0b4acf6cbfc739235a28cd7d1adc26c"
+  },
+  "host_log": {
+    "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-full-host-final.log",
+    "sha256": "7ae999cc0fa3d324c6f9f3eb3eb93266993878c30db8f127d732c85d3878c4f9"
+  },
+  "targeted_host": 32,
+  "coverage_checks_after_snapshot_review": 4,
+  "native_api_selected_passed": 21,
+  "native_api_aggregate_passed": 22,
+  "native_api_scope": "Actual Contracts API and 20 original common cases on each call, plus dispatch sentinels, after qualified production boot; not full harness or C journey.",
+  "original_failure_retained": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-full-host.json",
+  "production_source_unchanged": true,
+  "main_maps": 149,
+  "c_tip_unmerged": "03c1bae4f465f17e3c00178681e34370c9695c3e",
+  "unresolved_c_findings": [
+    "malformed hidden actors bypass structural/value validation",
+    "custom validator can discard actor collection or retained fields",
+    "migration diagnostics can label changed surviving records equal"
+  ],
+  "physical_device_ports_observed": []
+}
