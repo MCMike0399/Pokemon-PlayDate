@@ -27,6 +27,21 @@ publish inside the pinned 16 MiB pool on a 171-map candidate; those failures
 are retained, not relabelled. Host suite: 0 new failures versus unmodified
 `1464d1a2`, with the same 34 pre-existing C failures.
 
+## Host runtime gate on the current Simulator (2026-11-04)
+
+The corrected pilot now walks through the Silph door, enters the building,
+rides the elevator and writes genuine transit Saves (8 in one run, including
+inside the cabin). Long journeys currently stop at the existing 1 GiB owned
+Simulator ceiling: the Simulator allocates roughly 900 MB of small malloc
+blocks during harness boot on both Macintosh and DiveMac (vmmap MALLOC_SMALL
+~852 MB virtual, ~15 MB resident, ~812 MB swapped).
+
+The unmodified 1464d1a2 worktree shows the same curve with the same guards, so
+this is a host/SDK runtime gate, not a regression from the Saffron fixes. No
+guard, pool or policy value was changed, and both Simulator inis keep
+`MallocPoolSize=16645684`. The planner also projects the Silph cabin exits to
+the persisted floor (commit 873c73cf) so a resume inside the cabin can leave.
+
 ## Older actor saves across the corrected visibility rule
 
 A frozen candidate slot can contain a known source actor that the corrected

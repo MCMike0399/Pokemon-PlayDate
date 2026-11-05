@@ -125,7 +125,7 @@
     "credits or postgame progress"
   ],
   "next": [
-    "re-run the short pilot from the earned Silph 1F Save with the elevator fix",
+    "resume this cabin frontier when the host memory gate is resolved (or on the device runtime)",
     "continue Silph floors, rival, Giovanni, Sabrina, Dojo, Fly and Copycat"
   ],
   "actor_save_compatibility_migration": {
@@ -205,6 +205,60 @@
       },
       "classification": "genuine earned C partial Save from the resumed pilot (Silph Co 1F); the elevator confirm fix landed after it"
     },
-    "stopped_at": "Silph elevator floor menu (confirm guard bug, now fixed and natively covered)"
+    "stopped_at": "Silph elevator floor menu (confirm guard bug, now fixed and natively covered)",
+    "later_runs": {
+      "pilot_12": {
+        "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-12/01-midgame--restart-55c-squirtle",
+        "result": "resumed at the Silph 1F frontier, entered the elevator, selected a floor through the real menu and wrote 8 genuine Saves (Silph 1F x3, Saffron City x3, elevator). Stopped by the host footprint ceiling.",
+        "earned_saves": [
+          "m55c-silph_co_1f-save-1-game-saved",
+          "m55c-saffron_city-save-2-game-saved",
+          "m55c-saffron_city-save-3-game-saved",
+          "m55c-saffron_city-save-4-game-saved",
+          "m55c-saffron_city-save-5-game-saved",
+          "m55c-silph_co_1f-save-6-game-saved",
+          "m55c-silph_co_1f-save-7-game-saved",
+          "m55c-silph_co_elevator-save-8-game-saved"
+        ]
+      },
+      "pilot_13_14": {
+        "result": "resumed inside the cabin; the planner could not project the Silph cabin warps. project_warp now maps them to the persisted floor (commit 873c73cf)."
+      },
+      "pilot_15_to_20": {
+        "result": "the corrected planner walked out of Silph 1F to Saffron City and opened the field menu, then stopped at the same 1 GiB host ceiling."
+      }
+    },
+    "frontier_after_runs": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-12/01-midgame--restart-55c-squirtle/processes/0001/partial-save.json",
+      "sha256": "2204733359f2332c9dd844742cd4d15f457692b880df268e4802ccb15917931b",
+      "slot_sha256": [
+        "6a20c09e07b1a8e0f1bb40a0d1532aef077c961b4af91b757103a78dbca556b8",
+        "00f2d64bb333b19225bacec688d657bc9e2385ac175c881b8673b78ffcce927a"
+      ],
+      "completed_steps": [
+        "saffron-guard-entry"
+      ],
+      "location": {
+        "facing": "right",
+        "x": 7,
+        "y": 1,
+        "zone_id": "pokered:SILPH_CO_ELEVATOR"
+      },
+      "persisted_floor_flag": "SILPH_STORY_LIFT_V1_1",
+      "classification": "genuine earned C Save inside the Silph elevator cabin after a real floor confirmation"
+    }
+  },
+  "runtime_gate_20261104": {
+    "observation": "The Simulator process allocates about 900 MB of small malloc blocks during harness boot on both Macintosh and DiveMac (vmmap: MALLOC_SMALL ~852 MB virtual, ~15 MB resident, ~812 MB swapped), so the existing 1 GiB owned-Simulator ceiling stops a journey after about 8-15 s.",
+    "reproduced_on_unmodified_c": "The unmodified 1464d1a2 worktree with the same scenario and guards shows the same curve (0 -> 394 MB at 6 s -> 931 MB at 10 s -> stop), so this is not caused by the Saffron fixes.",
+    "not_caused_by_windows": "Removing the Simulator debug window frames and setting Show* flags did not change the curve; both inis are restored with MallocPoolSize intact.",
+    "guards": "No guard, pool or policy value was changed. 31/30 GiB disk, 1 GiB host, 60 s progress and the 7200 s job bound stay active.",
+    "evidence": {
+      "macintosh": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-18",
+      "divemac_candidate": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-divemac-pilot-20261104-01 (DiveMac)",
+      "divemac_baseline_1464d1a2": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-divemac-baseline-20261104-01 (DiveMac)",
+      "vmmap": "DiveMac /tmp/vmmap-03.txt captured at 9 s: MALLOC_SMALL 851.9M virtual, 811.8M swapped"
+    },
+    "classification": "Honest runtime gate for this host/SDK combination; it does not invalidate the committed source fixes, the native contracts or the production compile."
   }
 }
