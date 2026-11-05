@@ -16,6 +16,27 @@ from tools.harness.protocol import ProtocolError,atomic_json
 
 
 class CatalogTests(unittest.TestCase):
+    def test_named_suite_qualification_requires_the_requested_native_suite(self):
+        aggregate = {'commands': ['contracts']}
+        named = {'commands': ['contracts comprehensive-catalog']}
+        structured = {'commands': [{'op': 'contracts', 'args': ['comprehensive-catalog']}]}
+        other = {'commands': ['contracts persistence']}
+        self.assertTrue(q.requests_contract_suite(aggregate))
+        self.assertTrue(q.requests_contract_suite(named))
+        self.assertTrue(q.requests_contract_suite(structured))
+        self.assertFalse(q.requests_contract_suite(other))
+        self.assertFalse(q.requests_contract_suite({'commands': ['contracts comprehensive-catalog extra']}))
+        self.assertTrue(q.requests_contract_suite({'processes': [other, named]}))
+
+    def test_unrelated_named_contract_does_not_require_catalog_artifacts(self):
+        with tempfile.TemporaryDirectory() as root:
+            output, data, identity, expected = self.fixture(root)
+            request = output / '00001-request.json'
+            packet = json.loads(request.read_text())
+            packet['commands'] = ['contracts persistence']
+            atomic_json(request, packet)
+            self.assertEqual(q.executed_suites(output, identity), (False, []))
+
     def fixture(self, root):
         from PIL import Image
         output=Path(root)/'output';output.mkdir();data=Path(root)/'data';data.mkdir()

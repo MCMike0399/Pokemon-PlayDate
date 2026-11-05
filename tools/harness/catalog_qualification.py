@@ -32,6 +32,29 @@ def requests_contracts(scenario):
     return False
 
 
+def requests_contract_suite(scenario, suite=SUITE):
+    """True when a request runs the aggregate suite or names this exact suite.
+
+    A bounded `contracts <other-suite>` request is not catalog-invariance
+    evidence: it never executes the named native catalog suite. Keeping that
+    distinction avoids false 'expected exactly one executed ... suite' reports
+    for bounded native contract sessions under the 16 MiB pool.
+    """
+    if 'processes' in scenario:
+        return any(requests_contract_suite(group, suite) for group in scenario['processes'])
+    for commands in scenario.get('requests', [scenario.get('commands', [])]):
+        for command in commands:
+            parts = None
+            if isinstance(command, str):
+                parts = command.split()
+            elif isinstance(command, dict) and command.get('op') == 'contracts':
+                parts = ['contracts'] + [str(value) for value in command.get('args') or []]
+            if (parts and parts[0] == 'contracts'
+                    and (len(parts) == 1 or len(parts) == 2 and parts[1] == suite)):
+                return True
+    return False
+
+
 def image_dependencies():
     try:
         from PIL import Image
@@ -48,7 +71,7 @@ def prepare(output, scenario=None, *, launching=False):
         if directory.is_symlink():raise ProtocolError('unsafe catalog-invariance directory')
         directory.mkdir(parents=True,exist_ok=True)
         if any(directory.iterdir()):raise ProtocolError('stale catalog-invariance artifacts before launch')
-    if launching and scenario is not None and requests_contracts(scenario):image_dependencies()
+    if launching and scenario is not None and requests_contract_suite(scenario):image_dependencies()
 
 
 def expected_inventory(source):
@@ -96,7 +119,7 @@ def executed_suites(evidence, identity):
         request_path=path.with_name(path.name[:5]+'-request.json')
         if not request_path.is_file():continue
         request=json.loads(request_path.read_text())
-        if not requests_contracts({'commands':request.get('commands',[])}):continue
+        if not requests_contract_suite({'commands':request.get('commands',[])}):continue
         if request_path.is_symlink():raise ProtocolError('unsafe catalog request evidence')
         packet=json.loads(path.read_text())
         if any(packet.get(key)!=identity[key] or request.get(key)!=identity[key] for key in ('protocol','build_id','session_id')) or packet.get('id')!=request.get('id'):

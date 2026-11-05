@@ -8,7 +8,7 @@ import json
 import re
 from pathlib import Path
 
-from tools.harness.catalog_qualification import requests_contracts
+from tools.harness.catalog_qualification import requests_contract_suite
 from tools.harness.protocol import ProtocolError, atomic_json
 
 FEATURE = 'dev/fieldItemContracts.lua'
@@ -34,7 +34,7 @@ def image_dependency():
 def prepare(output, scenario=None, *, launching=False):
     if not (Path(output)/'Source'/FEATURE).is_file():
         return
-    if launching and scenario is not None and (requests_contracts(scenario) or 'field-' in json.dumps(scenario)):
+    if launching and scenario is not None and (requests_contract_suite(scenario, SUITE) or 'field-' in json.dumps(scenario)):
         image_dependency()
 
 
@@ -84,7 +84,7 @@ def finalize(output, data, evidence, identity):
             request = json.loads(request_path.read_text())
             commands = request.get('commands', [])
             shots = {c.split()[1] for c in commands if isinstance(c,str) and len(c.split())==2 and c.split()[0]=='shot' and c.split()[1] in MAPS}
-            contracts = requests_contracts({'commands':commands})
+            contracts = requests_contract_suite({'commands':commands}, SUITE)
             if not contracts and not shots:
                 continue
             packet = json.loads(result_path.read_text())

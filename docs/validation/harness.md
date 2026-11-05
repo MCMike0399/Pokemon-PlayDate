@@ -165,7 +165,10 @@ debug, and atlas. `atlas` now uses the full visual catalog. Additional actions:
   1..maxHP. This deliberately labeled shortcut is for supplementary win/loss
   checks and must not be included in a natural campaign acceptance journey.
 - `contracts` executes the SDK production-module contract suite and fails if
-  any case fails. Its report is included in that command's result.
+  any case fails. Its report is included in that command's result. `contracts
+  <suite>` executes exactly that registered suite and publishes only its
+  bounded report; use it when the full aggregate reply cannot fit the pinned
+  16 MiB pool. The suite still runs in the same production module graph.
 - `catalog` calls `VisualCatalog.write(outputDir)`, verifies every returned
   image exists, and writes the manifest as `catalog.json`. Missing-art entries
   are explicit in that manifest, not silently replaced by successful captures.

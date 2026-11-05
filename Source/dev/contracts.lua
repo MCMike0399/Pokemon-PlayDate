@@ -41,7 +41,17 @@ local function settle(battle)
     end
 end
 
-function Contracts.run()
+function Contracts.run(only)
+    local selected = suites
+    if only ~= nil then
+        selected = {}
+        for _, suite in ipairs(suites) do
+            if suite.name == only then
+                selected[#selected + 1] = suite
+            end
+        end
+        assert(#selected == 1, "unknown contract suite: " .. tostring(only))
+    end
     local savedRNG = RulesRNG.snapshot()
     local savedOffsetX, savedOffsetY = playdate.display.getOffset()
     local report = { ok = true, passed = 0, failed = 0, tests = {}, suites = {} }
@@ -372,7 +382,11 @@ function Contracts.run()
         equal(roll(true), roll(false), "encounter/DSL replay")
     end)
 
-    for _, suite in ipairs(suites) do
+    -- The full aggregate cannot be published inside the 16 MiB pool once the
+    -- 171-map candidate is installed; the suite still runs, the reply is what
+    -- exhausts memory. An explicit suite name keeps a bounded native report;
+    -- ordinary no-argument runs keep every suite in registration order.
+    for _, suite in ipairs(selected) do
         local executed = { id = suite.name, ok = false, passed = 0, failed = 1 }
         if suite.name == "comprehensive-catalog" then executed.artifact_qualifier = "catalog-invariance-v1" end
         if suite.name == "brock-field-items" then executed.artifact_qualifier = "field-map-v1" end
@@ -403,4 +417,16 @@ function Contracts.run()
     RulesRNG.restore(savedRNG)
     playdate.display.setOffset(savedOffsetX, savedOffsetY)
     return report
+end
+
+-- Bounded failure text for the runtime error reply. The full report stays in
+-- the result table; this keeps an unreachable reply diagnosable.
+function Contracts.failures(report, limit)
+    local values = {}
+    for _, case in ipairs(report.tests or {}) do
+        if not case.ok and #values < (limit or 8) then
+            values[#values + 1] = tostring(case.name) .. ' => ' .. tostring(case.error)
+        end
+    end
+    return table.concat(values, ' | ')
 end

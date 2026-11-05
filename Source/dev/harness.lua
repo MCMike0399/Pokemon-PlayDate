@@ -281,7 +281,9 @@ local function normalize(value)
         valid = true
     elseif op == "battle" then valid = pokemonData[args[1]] and integer(args[2], 1, 100) and #args == 2
     elseif op == "warp" then valid = integer(args[1], 0, 10000) and integer(args[2], 0, 10000) and #args == 2
-    elseif op == "snapshot" or op == "gamestate" or op == "state" or op == "pokemon" or op == "dismiss" or op == "atlas" or op == "catalog" or op == "contracts" or op == "quiesce" then valid = #args == 0
+    elseif op == "contracts" then
+        valid = #args == 0 or (#args == 1 and type(args[1]) == "string" and args[1]:match("^[%w_%-]+$") ~= nil)
+    elseif op == "snapshot" or op == "gamestate" or op == "state" or op == "pokemon" or op == "dismiss" or op == "atlas" or op == "catalog" or op == "quiesce" then valid = #args == 0
     end
     assert(valid, "invalid command: " .. op)
     assert(value.expect == nil or value.expect == "blocked" or value.expect == "interrupted" or value.expect == "edge-door" or value.expect == "ok", "invalid expected outcome")
@@ -410,8 +412,9 @@ function Harness.beforeFrame(game)
             complete = true
         elseif command.op == "contracts" then
             assert(Contracts, "contracts unavailable")
-            command.contracts = Contracts.run()
-            assert(command.contracts.ok, "runtime contracts failed")
+            command.contracts = Contracts.run(command.parts[2])
+            assert(command.contracts.ok,
+                "runtime contracts failed: " .. Contracts.failures(command.contracts))
             complete = true
         else
             complete = Autopilot.step(command.parts, game)
