@@ -5,6 +5,19 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Static loading redraw rejected — 2026-11-05
+
+Malloc history on the Silph-entry path still shows the live game cost in Lua
+table growth (`luaH_resize` / `luaH_new` through `pd_realloc`). A phase trace
+of the admitted elevator Save put the native jump on the Save yields: Lua
+stayed at 7.3–8.6 MiB while inspect, envelope, and readback each yielded.
+The candidate kept the door-fade callback on every slice and skipped only a
+repeat of the default loading card when its label had not changed. The same
+30-step run reached Silph 1F at (8, 11), stage done, and stopped on the
+action bound. Peak footprint was 466.2 MiB against the 468.1 MiB baseline,
+0.4 percent. Reverted. The cabin pilot was not relaunched. Evidence:
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-loadingskip-1-20261105`.
+
 ## Shared imagetable rejected — 2026-11-05
 
 Malloc samples on this path still center on Lua table allocation
