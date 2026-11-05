@@ -8,12 +8,14 @@ preparation is isolated and inactive. Nothing is pushed without a user request.
 ## C actor-validation review — 2026-11-05
 
 The user asked to review the isolated correction, adjust it, and push. The
-branch `pi/c-actor-validation-fix` is `2d76542d`. Hidden-actor validation, the
+branch `pi/c-actor-validation-fix` is `28b60105`. Hidden-actor validation, the
 retention boundary, and the Fuji/elevator fixes stay. `b530f2ff` fixes two
 receipt holes: the host checker reads the nested `worldMotion.actors` envelope,
 and an unequal dev Save/Continue observation is canonicalized from the
 selected-slot bytes rather than a later live session. Host receipt tests pass.
-Native `saffron-guards` was not re-run for that follow-up.
+`28b60105` refreshes the Vermilion owner pin for `dev/diagnostics.lua`, which
+still named the pre-edit bytes. Native `saffron-guards` was not re-run for
+either follow-up.
 
 C remains unaccepted. Main is not fast-forwarded to the branch. Earned
 completion, restarts, visuals, hardware, memory and latency gates remain open.
