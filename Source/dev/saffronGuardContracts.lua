@@ -529,8 +529,8 @@ function SaffronGuardContracts.run()
                     eq(game.session:questFlag("SILPH_STORY_LIFT_V1_" .. other.floor),
                         other.floor == entry.floor)
                 end
-                -- The same persisted flag selects the floor when a fresh cabin
-                -- process resumes from the map identity, without menu input.
+                -- The persisted floor flag selects both exits from the map id,
+                -- without another menu confirmation. This is the same session.
                 assert(SilphStoryWorld.enterLift(game.session, entry.map_id))
                 for _, exit in ipairs({"warps:1", "warps:2"}) do
                     local door <const> = SilphStoryWorld.resolveDoor(game,
@@ -547,8 +547,9 @@ function SaffronGuardContracts.run()
                     eq(bound.toY, entry.destination.y)
                 end
             end
-            -- A cabin with no persisted floor has no invented destination and
-            -- every floor flag stays false after the rollback case above.
+            -- Floor 12 is rejected before any flag write. The floor selected
+            -- above stays set. selectFloor(0) already checks a rejection
+            -- leaves the current flags unchanged.
             assert(not pcall(SilphStoryWorld.selectFloor, game.session, 12))
         end)
     end)

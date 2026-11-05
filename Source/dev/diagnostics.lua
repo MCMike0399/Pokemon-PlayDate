@@ -285,22 +285,29 @@ local function actorVisibilityMigration(payload, encoded)
     table.sort(dropped)
     return {reason = "source-actor-visibility", dropped = dropped}
 end
+local function canonicalSession(session)
+    return assert(SessionCodec.encode(session,
+        {root="overworld", overworld="explore", settled=true}))
+end
 local function codecObservation(game, payload, trustedBoundary)
     local deps = game:getSessionDependencies()
-    local detached
+    local encoded
     if trustedBoundary then
-        -- SaveStore already deep-validated the exact disk bytes and GameSaves
-        -- installed this decoded owner state. Re-validating/decoding the same
-        -- selected-slot payload here only duplicated the deep path and its
-        -- native allocations. The raw payload and sequence stay authoritative.
-        detached = game.session
+        -- A literal Save/Continue already matches the installed session, so
+        -- the common path does not decode the selected slot again. Any other
+        -- payload is canonicalized from those bytes. Later play must not
+        -- become the receipt.
+        encoded = canonicalSession(game.session)
+        if not equal(payload, encoded) then
+            local valid, problem = SessionCodec.validate(payload, deps)
+            assert(valid, problem)
+            encoded = canonicalSession(assert(SessionCodec.decode(payload, deps)))
+        end
     else
         local valid, problem = SessionCodec.validate(payload, deps)
         assert(valid, problem)
-        detached = assert(SessionCodec.decode(payload, deps))
+        encoded = canonicalSession(assert(SessionCodec.decode(payload, deps)))
     end
-    local encoded = assert(SessionCodec.encode(detached,
-        {root="overworld", overworld="explore", settled=true}))
     local literal = equal(payload, encoded)
     local migration
     if not literal then

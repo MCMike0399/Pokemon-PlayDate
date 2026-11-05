@@ -19,6 +19,18 @@ equality and the proven migration are separate, and raw selected-slot payload/
 sequence stay distinct from the canonical state. The preserved Fuji visibility
 and elevator fixes are unchanged.
 
+Review of that correction found two receipt holes. The host checker read
+`worldMotion.actors` as the actor list, but SessionCodec stores the
+envelope there and the list at `worldMotion.actors.actors`, so every
+genuine migration was rejected. It now compares that envelope and rejects
+a flat list, a zone or revision change, a survivor edit, a bad count, and
+an extra field. The dev Save/Continue observation also treated a later
+`game.session` encode as the canonical form of the selected slot. A
+literal match still skips the second decode. Any other payload is
+canonicalized from those bytes, so later play cannot become the receipt.
+Host receipt tests cover the nested migration. Native `saffron-guards`
+was not re-run. C remains unaccepted and is not merged to main.
+
 Fresh actual SDK 3.1.2 export refreshed both dependency pin maps (only
 `domain/gameSession.lua` changed); production compiles. Native
 `contracts saffron-guards` passes 110/110, now covering malformed hidden records,

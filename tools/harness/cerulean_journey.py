@@ -163,12 +163,25 @@ def actor_index(value, label):
     return index
 
 
+def _actor_envelope(motion, label):
+    """SessionCodec stores the saved actor record under worldMotion.actors.
+
+    That value is the envelope {version, zone_id, definition_revision, count,
+    actors}, not the actor list itself. The list is envelope["actors"].
+    """
+    envelope = motion.get("actors") if isinstance(motion, dict) else None
+    if not isinstance(envelope, dict):
+        raise ProtocolError("migration requires the " + label + " actor envelope")
+    return envelope
+
+
 def validate_actor_migration(raw, canonical, migration):
     """Check the exact permitted source-actor visibility migration.
 
     The raw selected-slot payload keeps every saved actor. The canonical state
     may only remove the ids that the Lua owner independently proved hidden; every
-    surviving record and every other session field must be identical.
+    surviving record and every other session field must be identical. Count is
+    allowed to shrink only by the number of removed actors.
     """
     if not isinstance(migration, dict) or set(migration) != {"reason", "dropped"}:
         raise ProtocolError("malformed source actor visibility migration")
@@ -181,11 +194,16 @@ def validate_actor_migration(raw, canonical, migration):
     canonical_motion = canonical.get("worldMotion")
     if not isinstance(raw_motion, dict) or not isinstance(canonical_motion, dict):
         raise ProtocolError("migration requires both world motion records")
-    raw_actors = actor_index(raw_motion.get("actors"), "raw")
-    canonical_actors = actor_index(canonical_motion.get("actors"), "canonical")
+    raw_envelope = _actor_envelope(raw_motion, "raw")
+    canonical_envelope = _actor_envelope(canonical_motion, "canonical")
+    raw_actors = actor_index(raw_envelope.get("actors"), "raw")
+    canonical_actors = actor_index(canonical_envelope.get("actors"), "canonical")
     for field in ("version", "rng"):
         if raw_motion.get(field) != canonical_motion.get(field):
             raise ProtocolError("migration changed retained world motion")
+    for field in ("version", "zone_id", "definition_revision"):
+        if raw_envelope.get(field) != canonical_envelope.get(field):
+            raise ProtocolError("migration changed the saved actor envelope")
     for stable, record in canonical_actors.items():
         if stable not in raw_actors or raw_actors[stable] != record:
             raise ProtocolError("migration changed a surviving source actor")
@@ -193,13 +211,17 @@ def validate_actor_migration(raw, canonical, migration):
         raise ProtocolError("migration added a source actor")
     if sorted(set(raw_actors) - set(canonical_actors)) != dropped:
         raise ProtocolError("migration dropped list differs from the actual removal")
-    if (raw_motion.get("count") != len(raw_actors)
-            or canonical_motion.get("count") != len(canonical_actors)):
+    if (raw_envelope.get("count") != len(raw_actors)
+            or canonical_envelope.get("count") != len(canonical_actors)):
         raise ProtocolError("migration changed the actor count")
     masked_raw = copy.deepcopy(raw)
     masked_canonical = copy.deepcopy(canonical)
-    masked_raw["worldMotion"]["actors"] = None
-    masked_canonical["worldMotion"]["actors"] = None
+    # The actor list and its count are the only fields a visibility drop may change.
+    for masked, envelope in ((masked_raw, raw_envelope), (masked_canonical, canonical_envelope)):
+        masked["worldMotion"]["actors"]["actors"] = None
+        masked["worldMotion"]["actors"]["count"] = None
+        if set(envelope) != {"version", "zone_id", "definition_revision", "count", "actors"}:
+            raise ProtocolError("migration actor envelope has unexpected fields")
     if masked_raw != masked_canonical:
         raise ProtocolError("migration changed a retained session field")
 
