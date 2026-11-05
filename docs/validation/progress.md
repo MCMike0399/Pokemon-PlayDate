@@ -31,6 +31,13 @@ canonicalized from those bytes, so later play cannot become the receipt.
 Host receipt tests cover the nested migration. Native `saffron-guards`
 was not re-run. C remains unaccepted and is not merged to main.
 
+That receipt change left the Vermilion owner projection pinning the previous
+`dev/diagnostics.lua` bytes, so `validate_projection` rejected this tree. The
+projection was regenerated. Only that source pin changed, to
+`37d98254f8f991958cf9aec7b03568bb37fe6710781477ede6b98a5195500a30`. Historical
+validation manifests stay as recorded. This refresh is not C acceptance, and
+native `saffron-guards` was not re-run for it.
+
 Fresh actual SDK 3.1.2 export refreshed both dependency pin maps (only
 `domain/gameSession.lua` changed); production compiles. Native
 `contracts saffron-guards` passes 110/110, now covering malformed hidden records,

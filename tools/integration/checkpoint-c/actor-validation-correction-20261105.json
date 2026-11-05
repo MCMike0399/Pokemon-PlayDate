@@ -5,6 +5,7 @@
   "correction_commit": "6fe0357cfd2fc3fef387ccf7b85f1fed12c38e02",
   "latest_correction_commit": "78a65423",
   "review_follow_up": "b530f2ff. The host checker now reads the nested actor envelope, and an unequal dev boundary is canonicalized from the selected-slot bytes. Native saffron-guards was not re-run for that follow-up.",
+  "vermilion_projection_pin": "Source/dev/vermilionJourney.json sources[dev/diagnostics.lua] regenerated from 320ec2bf490f6fd8ec2bf27a87f3cb23ebbcd3df10e14bcc8fef63821f41743b to 37d98254f8f991958cf9aec7b03568bb37fe6710781477ede6b98a5195500a30. Only that pin changed. Historical validation manifests were not rewritten. Native saffron-guards was not re-run. Not C acceptance.",
   "reviewed_main_merge": "2f5bba2219a61c658a9ec60c24f3641f1ddd3680",
   "defects_fixed": {
     "hidden_actor_structure": "WorldMotionData.normalize validates required fields, types/ranges and intrinsic motion consistency for every known saved actor before a bounded visibility migration drops it. Live reservation/surface/player-cell checks remain separate and apply only to visible actors.",
