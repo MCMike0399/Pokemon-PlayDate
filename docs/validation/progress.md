@@ -5,6 +5,19 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Shared imagetable rejected — 2026-11-05
+
+Malloc samples on this path still center on Lua table allocation
+(`luaH_resize` / `luaH_new` through `pd_realloc`), not on the rejected
+per-frame intro and travel copies. The new candidate kept one imagetable per
+tile registry, dropped the previous view's table, and collected before
+allocating the next palette so two full palettes would not be live together.
+The same 30-step Silph-entry run reached Silph 1F at (8, 11), stage done, and
+stopped on the action bound. Peak footprint was 482.9 MiB against the 468.1
+MiB baseline, about 3 percent higher. Reverted. The cabin pilot was not
+relaunched. Evidence:
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-imagetable-1-20261105`.
+
 ## Per-frame copy cut rejected — 2026-11-05
 
 The Silph-entry trace showed most top-level primitive copies were `getIntro()`
