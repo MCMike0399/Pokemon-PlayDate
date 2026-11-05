@@ -506,6 +506,52 @@ function SaffronGuardContracts.run()
             end
         end)
     end)
+    test("saffron-elevator-all-floors-both-exits-and-persisted-projection", function()
+        KantoServicesContracts.withScene("SilphCoElevator", {x=3, y=1, facing="up"}, function(game)
+            local floors <const> = SilphStory.scenes().elevator
+            eq(#floors, 11)
+            -- Explicit floor selection persists exactly one source flag.
+            local function floorFlags()
+                local values <const> = {}
+                for _, other in ipairs(floors) do
+                    values[other.floor] = game.session:questFlag(
+                        "SILPH_STORY_LIFT_V1_" .. other.floor)
+                end
+                return values
+            end
+            for _, entry in ipairs(floors) do
+                local before <const> = floorFlags()
+                assert(not pcall(SilphStoryWorld.selectFloor, game.session, 0),
+                    "unknown floor accepted")
+                same(floorFlags(), before)
+                assert(SilphStoryWorld.selectFloor(game.session, entry.floor))
+                for _, other in ipairs(floors) do
+                    eq(game.session:questFlag("SILPH_STORY_LIFT_V1_" .. other.floor),
+                        other.floor == entry.floor)
+                end
+                -- The same persisted flag selects the floor when a fresh cabin
+                -- process resumes from the map identity, without menu input.
+                assert(SilphStoryWorld.enterLift(game.session, entry.map_id))
+                for _, exit in ipairs({"warps:1", "warps:2"}) do
+                    local door <const> = SilphStoryWorld.resolveDoor(game,
+                        {source_event_id="pokered:SILPH_CO_ELEVATOR:" .. exit})
+                    eq(door.to, entry.map_id)
+                    eq(door.toX, entry.destination.x + SilphStory.padding(entry.map_id))
+                    eq(door.toY, entry.destination.y)
+                end
+                local bindings <const> = SilphStoryWorld.elevatorBindings(game.session)
+                for index = 1, 2 do
+                    local bound <const> = assert(bindings["pokered:SILPH_CO_ELEVATOR:warps:" .. index])
+                    eq(bound.to, entry.map_id)
+                    eq(bound.toX, entry.destination.x + SilphStory.padding(entry.map_id))
+                    eq(bound.toY, entry.destination.y)
+                end
+            end
+            -- A cabin with no persisted floor has no invented destination and
+            -- every floor flag stays false after the rollback case above.
+            assert(not pcall(SilphStoryWorld.selectFloor, game.session, 12))
+        end)
+    end)
     test("saffron-silph-guard-metadata-is-static-pure-source-conditions", function()
         local scenes <const> = SilphStory.scenes()
         assert(scenes.fuji_rescue and #scenes.fuji_rescue.hides == 1 and #scenes.fuji_rescue.shows == 1,

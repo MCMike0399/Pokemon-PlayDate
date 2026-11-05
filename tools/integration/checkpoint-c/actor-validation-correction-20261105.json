@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "scope": "Correct the reviewed C actor-validation/evidence defects, refresh actual-SDK qualification, and measure the runtime gate. No C acceptance, hardware, credits or postgame claim.",
+  "base_c_commit": "03c1bae4f465f17e3c00178681e34370c9695c3e",
+  "correction_commit": "6fe0357cfd2fc3fef387ccf7b85f1fed12c38e02",
+  "reviewed_main_merge": "2f5bba2219a61c658a9ec60c24f3641f1ddd3680",
+  "defects_fixed": {
+    "hidden_actor_structure": "WorldMotionData.normalize validates required fields, types/ranges and intrinsic motion consistency for every known saved actor before a bounded visibility migration drops it. Live reservation/surface/player-cell checks remain separate and apply only to visible actors.",
+    "custom_validator_retention": "GameSession._validateActors permits only removals independently proven hidden by fresh SourceActors.hidden descriptor/flags. Surviving records must be value-identical; additions, arbitrary deletion, changed retained fields and wrong counts reject. Inputs are detached copies.",
+    "truthful_observation": "HarnessDiagnostics reports literal equality separately from the accepted migration and keeps raw selected-slot payload/sequence/slot distinct from the canonical state. Surviving-record changes, additions, unproven removals and noncanonical fresh validation reject. The journey consumer re-checks the same receipt.",
+    "readability": "New dense Lua in contracts.lua, harness.lua, npcMotionContracts.lua and saffronGuardContracts.lua is expanded to one statement per line."
+  },
+  "preserved_fixes": [
+    "Saffron actor14 visible only before Fuji rescue and before Silph clear; actor15 only after rescue and before clear.",
+    "Single guarded Silph elevator confirm/cancel callback.",
+    "Persisted-cabin exits project to the selected source floor.",
+    "C171 data, source pins and owner implementation. Main's early unknown-suite rejection and stricter named-contract argument classifier were merged."
+  ],
+  "qualification": {
+    "sdk_export": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-validation-sdk-export-20261105-01",
+      "sdk": "3.1.2",
+      "build_json_sha256": "a8e059fdaa5fa49c66a2bc221e35f69cd536eaae702a9cc07b6e3a7b2b5e82df",
+      "outcome_json_sha256": "7cae2b43e8a0f49579758ec7da5b1b55cb605cc732e9609913e0342e4408ec82",
+      "changed_dependencies": [
+        "domain/gameSession.lua"
+      ],
+      "transform_values": "parsed region and Kanto transform values identical to the prior pins; only Lua JSON key order differs"
+    },
+    "native": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-validation-native-saffron-guards-20261105-05",
+      "command": "contracts saffron-guards",
+      "passed": 110,
+      "failed": 0,
+      "suite_passed": 90,
+      "result_sha256": "709cf8731e1ee8ceaa9f5d217bc756ac213030019924f442b0b96aed6c5084c4",
+      "build_json_sha256": "987fcfebc853ed76ceded043852f480c7b7b3d4099771bfd40705894e0573aaf",
+      "covered": [
+        "malformed hidden actor records reject before pruning",
+        "duplicate and unknown actor ids reject",
+        "custom validator visible-actor deletion, addition, survivor mutation/field loss, wrong count and retained-field loss reject",
+        "stale candidate flags cannot prove a removal",
+        "genuine hidden actor migration remains accepted and input ownership stays immutable",
+        "exact migration receipt rejects survivor changes, additions, unproven drops and retained-field changes",
+        "all 11 elevator floors, both cabin exits and persisted-map projection, including unknown-floor rollback"
+      ]
+    },
+    "host": {
+      "baseline_unmodified_c": "1,155 tests; 13 failures + 29 errors, all pre-existing C projection/pin/test-environment failures; 0 new against that baseline",
+      "post_correction": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-correction-20261105-01/host-fix2.log",
+      "post_merge": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-correction-20261105-01/host-postmerge.log",
+      "projection_refresh": "Cerulean and Vermilion development projections were regenerated from merged C source; their two prior projection failures now pass."
+    },
+    "production_compile": "PASS after pin refresh and after the reviewed-main merge"
+  },
+  "earned_frontier": {
+    "cabin_marker": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-saffron-fuji-pilot-20261104-12/01-midgame--restart-55c-squirtle/processes/0001/partial-save.json",
+    "cabin_marker_sha256": "2204733359f2332c9dd844742cd4d15f457692b880df268e4802ccb15917931b",
+    "cabin_slots": [
+      "6a20c09e07b1a8e0f1bb40a0d1532aef077c961b4af91b757103a78dbca556b8",
+      "00f2d64bb333b19225bacec688d657bc9e2385ac175c881b8673b78ffcce927a"
+    ],
+    "strict_import": "PASS through the existing importer: completed_steps ['saffron-guard-entry'], both exact slots and the original eight-step accepted-B ancestry",
+    "new_failed_pilot_save": {
+      "path": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-actor-validation-pilot-20261105-01/01-midgame--restart-55c-squirtle/processes/0001/partial-save.json",
+      "sha256": "80617002fe871e1c1a98c52b312e41cb5baa563c2c5c0f87ca20bdc1e0a40eb3",
+      "zone": "pokered:SILPH_CO_1F",
+      "slots_at_marker": [
+        "c7cdb34b2afbc6aadae4a21cd72b9ba0837d48459724823ad3cd84fc2d34a565",
+        "33623486cfc9d03bf95a7c46794bec728cf2718d3022b7fc3b64f5c20cb3e917"
+      ],
+      "resume_status": "REJECTED by the strict importer: later transit Saves overwrote the archived slot bytes (archived b 90d14370..., marker b 33623486...). Keep as evidence; do not use as input."
+    }
+  },
+  "runtime_measurements": {
+    "classification": "bounded host-footprint probes and retained failed pilots; not acceptance",
+    "motion_boot_probe": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-boot-alloc-probe-20261105-01",
+      "peak_mib": 202
+    },
+    "cabin_continue_probe": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-cabin-continue-probe-20261105-01",
+      "peak_mib": 318,
+      "observed": "loaded the elevator Save, moved inside the cabin, then stopped at the declared step bound"
+    },
+    "silph_entry_probe": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-elevator-entry-probe-20261105-01",
+      "peak_mib": 547,
+      "observed": "SILPH_CO_ELEVATOR -> SILPH_CO_1F with the corrected cabin projection"
+    },
+    "saffron_walk_probe_before": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-saffron-walk-probe-20261105-01",
+      "peak_mib": 701
+    },
+    "saffron_walk_probe_after_trusted_boundary": {
+      "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/c-actor-saffron-walk-probe-20261105-03",
+      "peak_mib": 611,
+      "phase_change": "the development saved/loaded boundary no longer repeats SaveStore's already-completed deep validation/decode; the owner deep path is unchanged",
+      "improvement_percent": 12.8
+    },
+    "failed_pilots": [
+      {
+        "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-actor-validation-pilot-20261105-01",
+        "error": "1GiB Simulator host ceiling exceeded",
+        "peak_bytes": 1075234568,
+        "note": "with the optional recurring capture policy"
+      },
+      {
+        "evidence": "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/checkpoint-c-actor-validation-pilot-20261105-02",
+        "error": "1GiB Simulator host ceiling exceeded",
+        "peak_bytes": 1085015792,
+        "note": "without the optional recurring capture policy; the same gate remains, so the capture overlay was not the cause"
+      }
+    ],
+    "gate_interpretation": "The earlier ~900 MB boot diagnosis is not reproduced on this corrected candidate: Continue peaks near 318 MiB and Silph 1F entry near 547 MiB. The unavoidable 1 GiB trip occurs during repeated route requests/Saves: Lua heap stays near 8 MiB while native Malloc Small grows. The remaining cost is the harness's deep Save path (SaveBuildPolicy disables owner exports whenever HarnessBuild exists) and per-request native allocation churn. Raising the guard, bypassing the harness trust fence or omitting validators would need an explicit user decision. No more pilot retries this session.",
+    "physical_device": "No /dev/cu.usbmodemPD* port observed; no hardware work attempted."
+  },
+  "not_claimed": [
+    "C campaign acceptance, earned C completion, three-starter routes or Save/Continue acceptance",
+    "physical hardware, device memory or any latency phase",
+    "credits or postgame progress",
+    "that the new failed-pilot Silph 1F marker is a valid resume input"
+  ],
+  "next": [
+    "Use the corrected cabin marker and the measured trusted-boundary candidate for the next admitted runtime only after the host allocation growth is attributed or reduced further.",
+    "Run the remaining C content (Silph floors, rival/Giovanni/Lapras, Sabrina, Dojo, Fly, Copycat) from earned saves when the 1 GiB gate permits.",
+    "Then visuals, restarts, hardware, memory and latency gates, 5.6, credits and postgame."
+  ]
+}

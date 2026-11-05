@@ -1,3 +1,43 @@
+# Actor-validation correction — 2026-11-05
+
+The reviewed Macintosh actor migration had three defects: hidden saved records
+skipped structural/value validation, the session retention boundary could
+accept arbitrary actor deletion, and the diagnostic could report unequal actor
+payloads as equal. All three are corrected on the isolated C branch:
+
+- every known saved actor is structurally and intrinsically validated before a
+  bounded visibility migration may drop it;
+- only a removal independently proven hidden by a fresh source descriptor and
+  flags survives the session boundary; survivors must be value-identical;
+- literal equality (`roundtrip_equal`) is separate from the proven migration
+  (`migrated_equal`/`migration`), and raw selected-slot payload/sequence stay
+  distinct from the canonical state.
+
+The new native cases cover malformed hidden records, duplicate/unknown IDs,
+custom-validator deletion/addition/mutation, wrong counts, stale flags,
+survivor changes and the exact migration receipt. The elevator test now covers
+all eleven floors, both cabin exits, persisted-map projection and unknown-floor
+rollback. Fresh actual SDK 3.1.2 export refreshed both dependency pin maps (only
+`domain/gameSession.lua` changed), production compiles, and native
+`contracts saffron-guards` passes 110/110. The full host suite has 0 new failures
+versus unmodified `03c1bae4`; the two stale development projections were
+regenerated.
+
+The bounded probes show Continue near 318 MiB and Silph 1F entry near 547 MiB,
+not the earlier ~900 MB boot figure. Two genuine cabin pilots still trip the
+unchanged 1 GiB host ceiling during repeated route requests/Saves; Lua heap stays
+near 8 MiB while native `Malloc Small` grows. A trusted-boundary observation
+change (do not repeat SaveStore's already-completed deep validation) reduced the
+measured Saffron-walk peak from 701 to 611 MiB (12.8%) with the owner deep path
+unchanged. The harness still takes the deep Save path because `SaveBuildPolicy`
+disables owner exports whenever `HarnessBuild` exists; changing that or the
+guard needs an explicit user decision. No more pilot retries were made.
+
+Exact evidence and failures:
+[actor-validation-correction-20261105.json](actor-validation-correction-20261105.json).
+C remains unaccepted: earned completion, restarts, visuals, hardware, memory and
+latency gates are open.
+
 # Macintosh takeover — Saffron Silph guard fix, 2026-11-04
 
 The ordinary C driver had bounced Saffron `(0,23)` ↔ Route7 until the existing

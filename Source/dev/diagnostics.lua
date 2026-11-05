@@ -184,6 +184,7 @@ function HarnessDiagnostics.snapshot(game)
             instance = dialogState.generation,
             ready = root:is("dialog") and dialog.isActive and dialog.charIndex >= #(dialog.lines[dialog.currentLine] or "") },
         camera = { x = game.camera.x, y = game.camera.y }, npcs = npcs,
+        sprites = playdate.graphics.sprite.spriteCount(),
         learning = learningSnapshot(root:get("learning")),
         last_battle_outcome = game.lastBattleOutcome and {
             trainer_id = game.lastBattleOutcome.trainer_id,
@@ -284,11 +285,20 @@ local function actorVisibilityMigration(payload, encoded)
     table.sort(dropped)
     return {reason = "source-actor-visibility", dropped = dropped}
 end
-local function codecObservation(game, payload)
+local function codecObservation(game, payload, trustedBoundary)
     local deps = game:getSessionDependencies()
-    local valid, problem = SessionCodec.validate(payload, deps)
-    assert(valid, problem)
-    local detached = assert(SessionCodec.decode(payload, deps))
+    local detached
+    if trustedBoundary then
+        -- SaveStore already deep-validated the exact disk bytes and GameSaves
+        -- installed this decoded owner state. Re-validating/decoding the same
+        -- selected-slot payload here only duplicated the deep path and its
+        -- native allocations. The raw payload and sequence stay authoritative.
+        detached = game.session
+    else
+        local valid, problem = SessionCodec.validate(payload, deps)
+        assert(valid, problem)
+        detached = assert(SessionCodec.decode(payload, deps))
+    end
     local encoded = assert(SessionCodec.encode(detached,
         {root="overworld", overworld="explore", settled=true}))
     local literal = equal(payload, encoded)
@@ -495,7 +505,7 @@ function HarnessDiagnostics.observe(game, kind)
     local boundary = assert(boundaries[game.saves], "no observed Save/Continue boundary")
     assert(boundary.session == game.session and boundary.kind == kind,
         "stale or wrong Save/Continue boundary")
-    local result = codecObservation(game, boundary.payload)
+    local result = codecObservation(game, boundary.payload, true)
     result.kind, result.sequence, result.slot = kind, boundary.sequence, boundary.slot
     return result
 end

@@ -5,6 +5,44 @@ Updated 2026-11-04 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## C actor-validation correction — 2026-11-05
+
+The reviewed Macintosh C migration had three defects: hidden saved actor
+records skipped structural/value validation, the session retention boundary
+could accept arbitrary actor deletion, and the diagnostic could report unequal
+actor payloads as equal. They are corrected on the isolated C branch
+`pi/c-actor-validation-fix` (correction `6fe0357c`, merged reviewed main
+`8306f79b` as `2f5bba22`). Every known saved actor is now fully validated before
+a bounded visibility drop; only a removal independently proven hidden by a fresh
+source descriptor/flags survives, with survivors value-identical; literal
+equality and the proven migration are separate, and raw selected-slot payload/
+sequence stay distinct from the canonical state. The preserved Fuji visibility
+and elevator fixes are unchanged.
+
+Fresh actual SDK 3.1.2 export refreshed both dependency pin maps (only
+`domain/gameSession.lua` changed); production compiles. Native
+`contracts saffron-guards` passes 110/110, now covering malformed hidden records,
+custom-validator deletion/addition/mutation, stale flags, all eleven elevator
+floors, both exits and unknown-floor rollback. The post-merge host suite runs
+1,157 tests with 40 pre-existing C projection/pin/environment failures and **0
+new** versus unmodified `03c1bae4`; regenerating the Cerulean and Vermilion
+projections fixed two of the former 42. Main remains B149 and C remains
+unaccepted.
+
+Two genuine cabin pilots from the frozen pilot12 marker still trip the unchanged
+1 GiB host ceiling during repeated route requests/Saves; both failures are
+retained. Bounded probes put Continue near 318 MiB and Silph 1F entry near
+547 MiB, so the earlier ~900 MB boot figure is not reproduced. Lua heap stays
+near 8 MiB while native `Malloc Small` grows. A trusted-boundary observation
+change removed a repeated SaveStore deep validation at the dev boundary and
+reduced the measured Saffron-walk peak 701→611 MiB (12.8%) with the owner deep
+path unchanged. The harness still selects the deep Save path because
+`SaveBuildPolicy` disables owner exports whenever `HarnessBuild` exists; changing
+that, the guard or the pool needs an explicit user decision. No more pilot
+retries were made. The failed pilot's Silph 1F marker is preserved but rejected
+by the strict importer because later transit saves overwrote its archived slots.
+[Exact correction evidence and scope](../../tools/integration/checkpoint-c/actor-validation-correction-20261105.json).
+
 ## Macintosh work reviewed and safe subset integrated — 2026-11-04
 
 The user explicitly requested reviewing the Macintosh session and pushing what
