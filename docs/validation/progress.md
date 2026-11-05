@@ -11,11 +11,12 @@ The Save path decodes the same five sprite indexes on each validator pass.
 A counter on one Silph-entry Save saw 2,722 primitive tables and 157 KB of
 JSON, so the native jump is not those session copies. Holding each immutable
 index for the load, and still reading it through the original check, reached
-Silph 1F at (8, 11), stage done, and stopped on the action bound. The Save
-published. Peak footprint was 461.4 MiB against the 468.1 MiB baseline, 1.4
-percent. Reverted. The cabin pilot was not relaunched. `SaveBuildPolicy` is
-unchanged. Evidence:
-`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-indexhold-1-20261105`.
+Silph 1F at (8, 11), stage done, and stopped on the action bound on both
+runs. The Save published. Peaks were 461.4 MiB and 477.9 MiB against the
+468.1 MiB baseline. Neither clears 10 percent. Reverted. The cabin pilot was
+not relaunched. `SaveBuildPolicy` is unchanged. Evidence:
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-indexhold-1-20261105`
+and `c-silph-indexhold-2-20261105`.
 
 ## Static-load presents rejected — 2026-11-05
 
