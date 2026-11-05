@@ -5,6 +5,19 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Per-frame copy cut rejected — 2026-11-05
+
+The Silph-entry trace showed most top-level primitive copies were `getIntro()`
+inside every settled-world hook and `fieldTravelData()` on sprite updates.
+Movement also deep-copied terrain only to read `foot_tile`. Those reads became
+scalar accessors. A surf-image check still named the removed travel table, so
+the first measurement never left Pallet Town (247.5 MiB, not comparable). After
+that fix, the same 30-step path reached Silph 1F at (8, 11), stage done, and
+stopped on the existing action bound. Peak footprint was 459.6 MiB against the
+468.1 MiB baseline, 1.8 percent. Under the 10 percent bar, so the accessors
+were reverted. The cabin pilot was not relaunched. Evidence:
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-copycut-2-20261105`.
+
 ## Silph-entry copy profile — 2026-11-05
 
 A bounded Silph-entry run of the admitted elevator Save (30 steps, 80 actions,
