@@ -5,6 +5,47 @@ Updated 2026-11-04 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Macintosh work reviewed and safe subset integrated — 2026-11-04
+
+The user explicitly requested reviewing the Macintosh session and pushing what
+is safe to main. The fetched C branch is `origin/pi/checkpoint-c-host-preparation`
+at `03c1bae4`, six commits beyond the previous C tip `1464d1a2`. At review it was
+44 commits ahead of the merge-base; main `ff598ced` was 9 ahead. C171 is not accepted
+and is not merged wholesale. Source-backed Fuji visibility, elevator confirmation
+and cabin projection are useful progress, but both independent reviews found
+validation defects in the actor compatibility migration and diagnostic equality
+exception. Those remain isolated and require correction/native qualification.
+[Separate Standards and Spec findings](../reviews/macintosh-c-20261104.md).
+
+Main component `598f64d2` ports only bounded named-contract dispatch and suite-aware
+catalog/field evidence classification. Default aggregate order/common cases remain;
+unknown suite rejection occurs before RNG-mutating tests. Production B runtime,
+data, art, save owners and qualification pins are unchanged; main stays 149 maps.
+The helper/acknowledgement hunk is not independently portable because main has no
+matching JourneyHistory owner, so it remains on C. The coverage review preserves
+all 1,512 rows/facets/proof hashes and prior snapshot history; only current Source
+identification advances for the two development Lua changes.
+
+Fresh validation: **1,171/1,171 full host tests pass**, no errors/skips; 32 targeted
+checks and 4 coverage checks pass. A guarded thin API probe passes 21 selected and
+22 aggregate cases (the 20 original common cases execute twice plus dispatch
+sentinels), including unknown-suite/RNG preservation. This is not a full harness
+or C journey pass. The ordinary full-contract B probe exceeded 1 GiB and remains
+a retained failure; it is a different profile from the B/C journey comparison.
+[Exact component scope](main-named-contracts-20261104.json),
+[final host result](main-named-contracts-host-20261104.json).
+
+The latest genuine C frontier is pilot12's stopped Silph elevator Save at (7,1,right),
+floor 1, marker 22047333..., only saffron-guard-entry complete. It is on Macintosh;
+the new prompt/scenario binds those exact slots and ancestry instead of older
+record16. No DiveMac Playdate USB port was present at review; hardware work needs
+the device reconnected. Source/host work continues independently. No guard, pool,
+trust fence or acceptance threshold changes.
+[Current continuation prompt](../handoffs/continuation-after-macintosh-review-20261104.md).
+
+The earlier takeover details below remain historical and are superseded above
+where the branch tip, frontier, local setup or next action has advanced.
+
 ## Macintosh takeover — 2026-11-04
 
 The user requested pushing current accepted main and a complete handover to

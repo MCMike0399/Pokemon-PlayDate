@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "scope": "main B149 development contract dispatch and evidence classification only; no C gameplay adoption",
+  "baseline_main": "ff598ced99b92c5e6a55283875fe6bd9ae6e5bf9",
+  "main_component": "598f64d2cea8840fe962015d4d51f4abfb411b3d",
+  "reviewed_c_base": "1464d1a237d551e4e6909b66fea108eea0befb7a",
+  "reviewed_c_tip": "03c1bae4f465f17e3c00178681e34370c9695c3e",
+  "source_sha256": "cfd9850ddda0d80a4d9a2dca90e68b51ae5eb4dae2018cbb08adbf172ca1dec7",
+  "main_maps": 149,
+  "targeted_host_passed": 32,
+  "native_api": {
+    "aggregate_passed": 22,
+    "aggregate_suites": [
+      {
+        "failed": 0,
+        "id": "handoff-first",
+        "ok": true,
+        "passed": 1
+      },
+      {
+        "failed": 0,
+        "id": "handoff-second",
+        "ok": true,
+        "passed": 1
+      }
+    ],
+    "mode": "production",
+    "ok": true,
+    "scope": "actual Contracts API and original core cases after qualified production boot; no full harness or C campaign claim",
+    "selected_passed": 21,
+    "selected_suites": [
+      {
+        "failed": 0,
+        "id": "handoff-first",
+        "ok": true,
+        "passed": 1
+      }
+    ],
+    "session_id": "ec01521b48be42a49e8a33e612a4a679",
+    "simulator": true,
+    "unknown_preserved_rng": true,
+    "unknown_rejected": true
+  },
+  "native_api_guard": {
+    "admission_gib": 31,
+    "limit_bytes": 1073741824,
+    "pid": 5683,
+    "reserve_gib": 30,
+    "returncode": -9,
+    "sampled_peak_bytes": 165725168
+  },
+  "full_contract_attempt": {
+    "captures_finalized": false,
+    "error": "1GiB Simulator host ceiling exceeded",
+    "ok": false,
+    "session_id": "a8c964ce1ad04011865cda544acf2069"
+  },
+  "full_contract_attempt_guard": {
+    "admission_gib": 31,
+    "disk_reserve_gib": 30,
+    "host_limit_bytes": 1073741824,
+    "owned_pid": 97903,
+    "returncode": -9,
+    "sampled_host_peak_bytes": 1078019752
+  },
+  "initial_full_host": {
+    "tests": 1171,
+    "failures": [
+      "test_coverage_matrix.CurrentMatrixTests.test_complete_source_indices_without_completion_promotion"
+    ],
+    "errors": [],
+    "skipped": [],
+    "ok": false
+  },
+  "coverage_review": "Only two development Lua files change Source. All1512rows, facet levels, inventories, proof references/hashes and staged source snapshots remain exact. New snapshot identifies the API source only; previous snapshot retained without rewriting history.",
+  "evidence": {
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-targeted-host-02.log": {
+      "sha256": "ec2b95a54f8a5633ea30a7816454507b3aca24f8972254d77ed216ad7180ab98"
+    },
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-contract-api-thin-02/startup-probe.json": {
+      "sha256": "e41a039df0e5a71f4f624d204aae020e8f98557952287a67c0946e0b4ad01514"
+    },
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-contract-api-thin-02/build.json": {
+      "sha256": "dc815c45a609bc0fffec363e4e39251e02098aef189ccf93a4af9793aee3571f"
+    },
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-contract-api-thin-02/host-resource-guard.json": {
+      "sha256": "dee896eeede06cb1043b60cce05550d06c69e5f8b3ecc5a2a67d04ed85ae3472"
+    },
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-full-host.json": {
+      "sha256": "67c010fe02e1dbb186f4cbee5559de8a17c0c6f0b5f543a6e0154f1e5b8bc822"
+    },
+    "/Users/burbujamc/Developer/Pokemon-PlayDate-env/evidence/macintosh-work-review-20261104-01/main-named-native/outcome.json": {
+      "sha256": "ab951fbd00c51a4a4daf04dc6b2a5c91e68a797070d860a19281a9c42db6061d"
+    }
+  },
+  "changed_source_files": [
+    "Source/dev/contracts.lua",
+    "Source/dev/harness.lua"
+  ]
+}
