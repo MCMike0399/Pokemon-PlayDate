@@ -11,9 +11,11 @@ The same bounded Silph-entry probe (cabin marker, 30 steps, 80 actions, stop
 on the existing action bound at `SILPH_CO_ELEVATOR` then `SILPH_CO_1F`) peaked
 at 468.1 MiB and 467.4 MiB on two consecutive runs. Lua heap stayed near 7.5
 MiB. A journey-trace slim that still kept full command-result snapshots reached
-the same floor and raised the peak to 482.5 MiB and 483.2 MiB. That is under
-the 10% bar, so it was reverted and stays rejected with packed terrain, atlas
-enablement and door tier. The 1 GiB repeated-request/Save ceiling is unchanged.
+the same floor and raised the peak to 482.5 MiB and 483.2 MiB. Preallocating
+deep copies with `table.create` and dropping the second save-payload JSON
+decode reached the same floor at 422.5 MiB and 425.4 MiB, 9.7% and 9.1% under
+the 468.1 MiB baseline. Both are under the 10% bar, so both were reverted and
+stay rejected with packed terrain, atlas enablement and door tier. The 1 GiB repeated-request/Save ceiling is unchanged.
 `SaveBuildPolicy` still disables owner exports whenever `HarnessBuild` exists;
 changing that, the guard or the pool needs an explicit decision. No full pilot
 was relaunched.
