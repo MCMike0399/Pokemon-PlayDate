@@ -5,6 +5,32 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Cabin pilot stopped at 1 GiB — 2026-11-05
+
+The admitted Squirtle elevator Save (marker
+`2204733359f2332c9dd844742cd4d15f457692b880df268e4802ccb15917931b`) was resumed
+with the existing guarded runner and history helper. A launch whose output path
+lived under `/var` never played: Python records the bundle as `/private/var/...`
+and the helper compares Swift's `/var/...` path, so it refused the journey pin.
+The same bytes under `/Users/.../evidence/c-cabin-pilot-20261105-03` passed
+that pin, cleared once at startup, and reached Silph 1F at (8, 1). The next
+pre-Save clear refused because the Malloc Log window was gone. That run is not
+a 1 GiB result.
+
+`evidence/c-cabin-pilot-20261105-04` kept the window open. Ten clears
+succeeded, including drops from 351 MiB to 140 MiB and from 708 MiB to 418
+MiB. Later clears stopped releasing memory and left a floor near 378 MiB. The
+player saved through Saffron and Silph 1F, entered Silph 5F, and won the
+Scientist at `SILPH_CO_5F:objects:3` (payout 1,300). The following 5F battle
+at (9, 16) crossed the 1 GiB host stop before another clear:
+`owned Simulator exceeds 1 GiB host footprint`. Six hundred thirty-eight
+command results were recorded. The only completed step is still
+`saffron-guard-entry`. Card Key, the rival, Giovanni, Lapras, Sabrina, the
+Dojo, and Fly did not finish, and the Continue process did not start. This
+pilot is not relaunched unchanged. `SaveBuildPolicy`, the 1 GiB stop, and the
+16 MiB pool are unchanged. No Playdate port is present on Macintosh. C is not
+merged.
+
 ## Silph-entry allocation and cabin import — 2026-11-05
 
 The same bounded Silph-entry probe (cabin marker, 30 steps, 80 actions, stop
@@ -17,8 +43,8 @@ decode reached the same floor at 422.5 MiB and 425.4 MiB, 9.7% and 9.1% under
 the 468.1 MiB baseline. Both are under the 10% bar, so both were reverted and
 stay rejected with packed terrain, atlas enablement and door tier. The 1 GiB repeated-request/Save ceiling is unchanged.
 `SaveBuildPolicy` still disables owner exports whenever `HarnessBuild` exists;
-changing that, the guard or the pool needs an explicit decision. No full pilot
-was relaunched.
+changing that, the guard or the pool needs an explicit decision. The later
+cabin pilot is recorded above; it is not a reason to rerun this allocation miss.
 
 The strict importer accepts the pilot12 cabin marker
 `2204733359f2332c9dd844742cd4d15f457692b880df268e4802ccb15917931b`, slots
