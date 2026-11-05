@@ -5,6 +5,23 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Silph-entry copy profile — 2026-11-05
+
+A bounded Silph-entry run of the admitted elevator Save (30 steps, 80 actions,
+stop on the existing action bound at Silph 1F) counted the copies that survive
+a malloc-log clear. Counters were removed afterward; they are not a behavior
+change. The run is outside Git at
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-alloc-profile-20261105`.
+
+Ninety-nine diagnostic snapshots copied 24,359 primitive tables and 154,412
+keys. Pokemon projections ran 675 times. Zone deep-copy ran 472 times, map
+descriptors 3 times, and the save payload was decoded 4 times plus 4 mutation
+copies. The tile-grid cache was not used (0 loads). Source maps already share
+compact terrain, so per-cell terrain duplication is not this path. The earlier
+`table.create` preallocation of these primitive copies remains rejected at
+9.7/9.1 percent. No new candidate cleared the 10 percent bar, and the unchanged
+cabin pilot was not relaunched.
+
 ## Cabin pilot stopped at 1 GiB — 2026-11-05
 
 The admitted Squirtle elevator Save (marker
