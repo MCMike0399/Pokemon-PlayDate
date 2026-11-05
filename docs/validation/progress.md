@@ -1,9 +1,23 @@
 # Full-game execution ledger
 
-Updated 2026-11-04 UTC. Follow [the goal](../plans/full-game-goal.md).
+Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
+
+## C actor-validation review — 2026-11-05
+
+The user asked to review the isolated correction, adjust it, and push. The
+branch `pi/c-actor-validation-fix` is `2d76542d`. Hidden-actor validation, the
+retention boundary, and the Fuji/elevator fixes stay. `b530f2ff` fixes two
+receipt holes: the host checker reads the nested `worldMotion.actors` envelope,
+and an unequal dev Save/Continue observation is canonicalized from the
+selected-slot bytes rather than a later live session. Host receipt tests pass.
+Native `saffron-guards` was not re-run for that follow-up.
+
+C remains unaccepted. Main is not fast-forwarded to the branch. Earned
+completion, restarts, visuals, hardware, memory and latency gates remain open.
+The corrected branch is the pushed C line. Main stays 149 maps.
 
 ## Macintosh work reviewed and safe subset integrated — 2026-11-04
 
