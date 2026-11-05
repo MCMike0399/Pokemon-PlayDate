@@ -5,6 +5,29 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Silph-entry allocation and cabin import — 2026-11-05
+
+The same bounded Silph-entry probe (cabin marker, 30 steps, 80 actions, stop
+on the existing action bound at `SILPH_CO_ELEVATOR` then `SILPH_CO_1F`) peaked
+at 468.1 MiB and 467.4 MiB on two consecutive runs. Lua heap stayed near 7.5
+MiB. A journey-trace slim that still kept full command-result snapshots reached
+the same floor and raised the peak to 482.5 MiB and 483.2 MiB. That is under
+the 10% bar, so it was reverted and stays rejected with packed terrain, atlas
+enablement and door tier. The 1 GiB repeated-request/Save ceiling is unchanged.
+`SaveBuildPolicy` still disables owner exports whenever `HarnessBuild` exists;
+changing that, the guard or the pool needs an explicit decision. No full pilot
+was relaunched.
+
+The strict importer accepts the pilot12 cabin marker
+`2204733359f2332c9dd844742cd4d15f457692b880df268e4802ccb15917931b`, slots
+`6a20c09e…` and `00f2d64b…`, the stopped producer (failed-exited, code -9),
+eight-step accepted-B ancestry, location `SILPH_CO_ELEVATOR` (7, 1, right),
+persisted floor 1, and completed step only `saffron-guard-entry`. It rejects
+the newer Silph 1F marker `80617002…` because later Saves overwrote the archived
+slots. No Playdate port is present on Macintosh (`/dev/cu.usbmodemPD*` absent).
+C is not merged. Earned journeys, restarts, visuals, hardware and latency stay
+open.
+
 ## Selected-slot receipt rechecked — 2026-11-05
 
 Native `contracts saffron-guards` was run twice on the isolated C tip after
