@@ -39,14 +39,30 @@ def check_native_witness(output):
                 if 'session_codec' in row.get('snapshot', {}):
                     raise ProtocolError('codec payload leaked into ordinary snapshots')
                 observation = row.get('observation', {})
-                if observation.get('kind') in {'validate', 'purity', 'owners'} and 'payload' in observation:
+                if observation.get('kind') in {'validate', 'purity', 'owners'} and (
+                        'payload' in observation or 'canonical' in observation):
                     raise ProtocolError('nonboundary query published a complete payload')
                 if observation.get('kind') == 'purity' and observation.get('valid') is True:
                     purities += 1
-                if observation.get('kind') == kind:
-                    if observation.get('valid') is not True or observation.get('roundtrip_equal') is not True:
+                if observation.get('kind') in {'validate', 'saved', 'loaded'}:
+                    literal = observation.get('roundtrip_equal') is True
+                    if observation.get('valid') is not True or observation.get('migrated_equal') is not True:
                         raise ProtocolError('native boundary failed canonical validation')
+                    if observation.get('kind') == 'validate' and not literal:
+                        raise ProtocolError('fresh native validation is not canonical')
+                    if observation.get('kind') == 'validate':
+                        continue
                     journey.validate_boundary_payload(observation['payload'])
+                    journey.validate_boundary_payload(observation['canonical'])
+                    if literal:
+                        if observation['payload'] != observation['canonical']:
+                            raise ProtocolError('literal boundary payload differs from canonical state')
+                    else:
+                        journey.validate_actor_migration(
+                            observation['payload'], observation['canonical'], observation.get('migration'))
+                    if type(observation.get('sequence')) is not int or observation.get('slot') not in {'a', 'b'}:
+                        raise ProtocolError('native boundary lacks selected-slot identity/sequence')
+                if observation.get('kind') == kind:
                     found.append(observation['payload'])
         if len(found) != 1 or purities < 1:
             raise ProtocolError('native witness missing unique boundary or SDK purity assertion')

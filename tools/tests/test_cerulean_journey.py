@@ -252,12 +252,16 @@ class ReceiptTests(unittest.TestCase):
     def test_codec_guard_rejects_invalid_roundtrip_version_and_aliasing(self):
         journey = cj.CeruleanJourney(NoRuntime(), "/unused", {"name": "cerulean-natural"})
         journey.export = {"session_codec": 1}
-        codec = {"version": 1, "valid": True, "roundtrip_equal": True, "payload": structural_payload()}
+        codec = {"version": 1, "valid": True, "roundtrip_equal": True, "migrated_equal": True,
+                 "payload": structural_payload(), "canonical": structural_payload(),
+                 "sequence": 1, "slot": "a"}
         journey.observe = lambda kind: codec
         payload = journey.codec_guard("saved")
         payload["party"]["changed"] = True
         self.assertEqual(codec["payload"]["party"], {})
-        for mutation in ({"version": 7}, {"valid": False}, {"roundtrip_equal": False}, {"payload": []}):
+        for mutation in ({"version": 7}, {"valid": False}, {"roundtrip_equal": False},
+                         {"migrated_equal": False}, {"payload": []}, {"canonical": []},
+                         {"slot": "c"}, {"sequence": "1"}):
             journey.observe = lambda kind: dict(codec, **mutation)
             with self.subTest(mutation=mutation), self.assertRaises(ProtocolError):
                 journey.codec_guard("saved")

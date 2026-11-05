@@ -269,6 +269,32 @@ function SaffronGuardContracts.run()
     end
     local SILPH_BLOCKER <const> = "pokered:SAFFRON_CITY:objects:14"
     local SILPH_SLEEPING <const> = "pokered:SAFFRON_CITY:objects:15"
+    -- Pre-fix saved actor list: the corrected Fuji rule hides the door Rocket,
+    -- but the old save also retained the sleeping Rocket.
+    local function savedGuards()
+        local world <const> = WorldDeltas.export()
+        local descriptor <const> = assert(SourceActors.describe("pokered:SAFFRON_CITY", world))
+        local before <const> = {quest = {EVENT_RESCUED_MR_FUJI=false, EVENT_BEAT_SILPH_CO_GIOVANNI=false}}
+        local saved <const> = WorldMotionData.reconcile(nil, descriptor, before)
+        for _, spec in ipairs(descriptor.actors) do
+            if spec.id == SILPH_SLEEPING then
+                saved.actors[#saved.actors + 1] = WorldMotionData.initial(spec)
+            end
+        end
+        saved.count = #saved.actors
+        table.sort(saved.actors, function(a, b)
+            return a.id < b.id
+        end)
+        local index = {}
+        for _, actor in ipairs(saved.actors) do
+            index[actor.id] = true
+        end
+        assert(index[SILPH_BLOCKER], "pre-rescue save must contain the door Rocket")
+        assert(index[SILPH_SLEEPING], "pre-fix save must contain the sleeping Rocket")
+        local after <const> = {quest = {EVENT_RESCUED_MR_FUJI=true, EVENT_BEAT_SILPH_CO_GIOVANNI=false}}
+        local location <const> = {zone_id=descriptor.zone_id, x=0, y=23, facing="left"}
+        return world, descriptor, saved, location, after, before
+    end
     local function saffronDoor(quest, fn)
         KantoServicesContracts.withScene("SaffronCity", {x=18, y=23, facing="up", quest=quest}, fn)
     end
@@ -307,25 +333,7 @@ function SaffronGuardContracts.run()
         end
     end)
     test("saffron-saved-guard-actor-prunes-under-corrected-visibility", function()
-        local world <const> = WorldDeltas.export()
-        local descriptor <const> = assert(SourceActors.describe("pokered:SAFFRON_CITY", world))
-        local before <const> = {quest = {EVENT_RESCUED_MR_FUJI=false, EVENT_BEAT_SILPH_CO_GIOVANNI=false}}
-        local saved <const> = WorldMotionData.reconcile(nil, descriptor, before)
-        -- The pre-fix rule ignored the Fuji transition, so an old Saffron save
-        -- also retained the sleeping Rocket. Reproduce that exact old list.
-        for _, spec in ipairs(descriptor.actors) do
-            if spec.id == SILPH_SLEEPING then
-                saved.actors[#saved.actors + 1] = WorldMotionData.initial(spec)
-            end
-        end
-        saved.count = #saved.actors
-        table.sort(saved.actors, function(a, b) return a.id < b.id end)
-        local index = {}
-        for _, actor in ipairs(saved.actors) do index[actor.id] = true end
-        assert(index[SILPH_BLOCKER], "pre-rescue save must contain the door Rocket")
-        assert(index[SILPH_SLEEPING], "pre-fix save must contain the sleeping Rocket")
-        local after <const> = {quest = {EVENT_RESCUED_MR_FUJI=true, EVENT_BEAT_SILPH_CO_GIOVANNI=false}}
-        local location <const> = {zone_id=descriptor.zone_id, x=0, y=23, facing="left"}
+        local _, descriptor, saved, location, after = savedGuards()
         local canonical, dropped = WorldMotionData.normalize(saved, descriptor, location, after)
         eq(#dropped, 1)
         eq(dropped[1], SILPH_BLOCKER)
@@ -345,6 +353,119 @@ function SaffronGuardContracts.run()
         end
         missing.count = #missing.actors
         eq(pcall(WorldMotionData.normalize, missing, descriptor, location, after), false)
+    end)
+    test("saffron-hidden-actor-records-require-complete-structure", function()
+        local _, descriptor, saved, location, after = savedGuards()
+        local function rejected(mutator)
+            local payload <const> = GameSession._copy(saved)
+            local hidden
+            for _, actor in ipairs(payload.actors) do
+                if actor.id == SILPH_BLOCKER then hidden = actor end
+            end
+            assert(hidden, "saved hidden guard required")
+            mutator(hidden, payload)
+            assert(not pcall(WorldMotionData.normalize, payload, descriptor, location, after),
+                "malformed hidden actor was accepted")
+        end
+        rejected(function(actor) actor.x = nil end)
+        rejected(function(actor) actor.delay_raw = nil end)
+        rejected(function(actor) actor.x = -1 end)
+        rejected(function(actor) actor.y = descriptor.height end)
+        rejected(function(actor) actor.facing = "sideways" end)
+        rejected(function(actor) actor.tick = 8 end)
+        rejected(function(actor) actor.delay_left = 129 end)
+        rejected(function(actor) actor.phase = "unknown" end)
+        rejected(function(actor) actor.origin_x = actor.origin_x + 1 end)
+        rejected(function(_, payload) payload.count = payload.count + 1 end)
+        rejected(function(_, payload)
+            payload.actors[#payload.actors + 1] = GameSession._copy(payload.actors[1])
+            payload.count = #payload.actors
+        end)
+        rejected(function(actor) actor.id = "pokered:SAFFRON_CITY:objects:999" end)
+    end)
+    test("saffron-session-actor-boundary-accepts-only-proven-hidden-removal", function()
+        local world, _, saved, location, after, before = savedGuards()
+        local snapshot <const> = GameSession._copy(saved)
+        local deps <const> = {validateActors=SourceActors.validate, hiddenActors=SourceActors.hidden}
+        local canonical = GameSession._validateActors(deps, saved, world, location, after)
+        same(saved, snapshot)
+        eq(#canonical.actors, #saved.actors - 1)
+        assert(canonical ~= saved and canonical.actors ~= saved.actors,
+            "actor boundary returned a shared owner record")
+        local staleFlags <const> = {validateActors=function(payload, candidateWorld, position)
+            return SourceActors.validate(payload, candidateWorld, position, after)
+        end, hiddenActors=SourceActors.hidden}
+        assert(not pcall(GameSession._validateActors, staleFlags, saved, world, location, before),
+            "stale candidate flags accepted the removal")
+        local function guarded(mutate)
+            return {validateActors=function(payload, candidateWorld, position, flags)
+                local result = SourceActors.validate(payload, candidateWorld, position, flags)
+                mutate(result)
+                return result
+            end, hiddenActors=SourceActors.hidden}
+        end
+        local function rejected(mutate, label)
+            assert(not pcall(GameSession._validateActors, guarded(mutate), saved, world, location, after),
+                "custom validator bypass: " .. label)
+        end
+        rejected(function(result)
+            table.remove(result.actors, 1)
+            result.count = #result.actors
+        end, "visible actor deletion")
+        rejected(function(result)
+            result.actors = {}
+            result.count = 0
+        end, "whole visible collection deletion")
+        rejected(function(result)
+            local extra <const> = GameSession._copy(result.actors[1])
+            extra.id = "pokered:SAFFRON_CITY:objects:999"
+            result.actors[#result.actors + 1] = extra
+            result.count = #result.actors
+        end, "unknown addition")
+        rejected(function(result)
+            result.actors[1].origin_x = result.actors[1].origin_x + 1
+        end, "survivor mutation")
+        rejected(function(result)
+            result.actors[1].delay_raw = nil
+        end, "survivor field loss")
+        rejected(function(result)
+            result.count = result.count + 1
+        end, "wrong count")
+        rejected(function(result)
+            result.definition_revision = nil
+        end, "discarded envelope field")
+        rejected(function(result)
+            result.zone_id = result.zone_id .. "-changed"
+        end, "changed retained field")
+    end)
+    test("saffron-migration-diagnostic-keeps-raw-and-canonical-distinct", function()
+        local world, descriptor, saved, location, after = savedGuards()
+        local canonical <const> = assert(WorldMotionData.normalize(saved, descriptor, location, after))
+        local payload <const> = {world=world, location=location, questFlags=after.quest,
+            trainerFlags={}, worldMotion={version=1, rng={seed=1}, actors=saved}}
+        local encoded <const> = {world=world, location=location, questFlags=after.quest,
+            trainerFlags={}, worldMotion={version=1, rng={seed=1}, actors=canonical}}
+        local receipt <const> = HarnessDiagnostics._actorVisibilityMigration(payload, encoded)
+        assert(receipt and receipt.reason == "source-actor-visibility", "genuine migration not reported")
+        eq(#receipt.dropped, 1)
+        eq(receipt.dropped[1], SILPH_BLOCKER)
+        eq(HarnessDiagnostics._actorVisibilityMigration(payload, payload), nil)
+        local mutated <const> = GameSession._copy(encoded)
+        mutated.worldMotion.actors.actors[1].origin_x = mutated.worldMotion.actors.actors[1].origin_x + 1
+        eq(HarnessDiagnostics._actorVisibilityMigration(payload, mutated), nil)
+        local unproven <const> = GameSession._copy(encoded)
+        table.remove(unproven.worldMotion.actors.actors, 1)
+        unproven.worldMotion.actors.count = #unproven.worldMotion.actors.actors
+        eq(HarnessDiagnostics._actorVisibilityMigration(payload, unproven), nil)
+        local added <const> = GameSession._copy(encoded)
+        local extra <const> = GameSession._copy(added.worldMotion.actors.actors[1])
+        extra.id = "pokered:SAFFRON_CITY:objects:999"
+        added.worldMotion.actors.actors[#added.worldMotion.actors.actors + 1] = extra
+        added.worldMotion.actors.count = #added.worldMotion.actors.actors
+        eq(HarnessDiagnostics._actorVisibilityMigration(payload, added), nil)
+        local retained <const> = GameSession._copy(encoded)
+        retained.questFlags = {EVENT_RESCUED_MR_FUJI=false}
+        eq(HarnessDiagnostics._actorVisibilityMigration(payload, retained), nil)
     end)
     test("saffron-elevator-menu-confirms-a-floor-and-cancel-moves-none", function()
         local lift <const> = "pokered:SILPH_CO_ELEVATOR:background_events:1"

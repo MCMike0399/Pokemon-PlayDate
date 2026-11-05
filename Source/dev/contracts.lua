@@ -380,7 +380,9 @@ function Contracts.run(only)
     if only ~= nil then
         selected = {}
         for _, suite in ipairs(suites) do
-            if suite.name == only then selected[#selected + 1] = suite end
+            if suite.name == only then
+                selected[#selected + 1] = suite
+            end
         end
         truth(#selected == 1, "unknown contract suite: " .. tostring(only))
     end

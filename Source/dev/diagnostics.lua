@@ -234,36 +234,55 @@ local function armBoundary(game)
         -- SaveStore supplies a detached primitive record. Nothing here calls
         -- captureSession/captureTraversal or samples current moving actors.
         boundaries[game.saves] = {session=session, kind=kind, payload=payload,
-            sequence=metadata.sequence, reason=metadata.reason}
+            sequence=metadata.sequence, slot=metadata.slot, reason=metadata.reason}
     end
+end
+local function actorMap(list)
+    if type(list) ~= "table" or not Party._array(list, 64) then return end
+    local index = {}
+    for _, actor in ipairs(list) do
+        if type(actor) ~= "table" or getmetatable(actor) ~= nil
+            or type(actor.id) ~= "string" or index[actor.id] then return end
+        index[actor.id] = actor
+    end
+    return index
 end
 -- A corrected source visibility rule can leave a saved actor list
 -- non-canonical. Accept exactly that migration, report it, and require every
--- other field to re-encode byte-identically. Unknown ids, added actors or any
--- other difference still fail the canonical roundtrip.
+-- surviving actor and every other field to re-encode byte-identically.
+-- Unknown or added ids, changed survivors or a removal that the current source
+-- descriptor and flags do not prove hidden still fail the canonical roundtrip.
 local function actorVisibilityMigration(payload, encoded)
-    local raw = payload.worldMotion and payload.worldMotion.actors
-    local canonical = encoded.worldMotion and encoded.worldMotion.actors
+    local rawMotion = payload.worldMotion
+    local canonicalMotion = encoded.worldMotion
+    if type(rawMotion) ~= "table" or type(canonicalMotion) ~= "table" then return end
+    local raw, canonical = rawMotion.actors, canonicalMotion.actors
     if type(raw) ~= "table" or type(canonical) ~= "table" then return end
-    if not (Party._array(raw.actors, 64) and Party._array(canonical.actors, 64)) then return end
+    local saved, kept = actorMap(raw.actors), actorMap(canonical.actors)
+    if not saved or not kept then return end
+    if raw.count ~= #raw.actors or canonical.count ~= #canonical.actors then return end
+    for id, actor in pairs(kept) do
+        if not equal(saved[id], actor) then return end
+    end
+    local dropped = {}
+    for id in pairs(saved) do
+        if kept[id] == nil then dropped[#dropped + 1] = id end
+    end
+    if #dropped == 0 then return end
     local before, after = GameSession._copy(payload), GameSession._copy(encoded)
     before.worldMotion.actors.count, after.worldMotion.actors.count = "actor-count", "actor-count"
     before.worldMotion.actors.actors, after.worldMotion.actors.actors = "actor-list", "actor-list"
     if not equal(before, after) then return end
-    local saved = {}
-    for _, actor in ipairs(raw.actors) do
-        saved[actor.id] = true
+    -- Prove the removals against the saved candidate world/location/flags,
+    -- not live caller state or the validator's own report.
+    local flags = {quest = payload.questFlags, trainers = payload.trainerFlags}
+    local ok, proof = pcall(SourceActors.hidden, dropped, payload.world, payload.location, flags)
+    if not ok or type(proof) ~= "table" then return end
+    for _, id in ipairs(dropped) do
+        if proof[id] ~= true then return end
     end
-    local kept, dropped = {}, {}
-    for _, actor in ipairs(canonical.actors) do
-        if not saved[actor.id] then return end
-        kept[actor.id] = true
-    end
-    for _, actor in ipairs(raw.actors) do
-        if not kept[actor.id] then dropped[#dropped + 1] = actor.id end
-    end
-    if #dropped == 0 then return end
-    return {reason="source-actor-visibility", dropped=dropped}
+    table.sort(dropped)
+    return {reason = "source-actor-visibility", dropped = dropped}
 end
 local function codecObservation(game, payload)
     local deps = game:getSessionDependencies()
@@ -272,14 +291,21 @@ local function codecObservation(game, payload)
     local detached = assert(SessionCodec.decode(payload, deps))
     local encoded = assert(SessionCodec.encode(detached,
         {root="overworld", overworld="explore", settled=true}))
+    local literal = equal(payload, encoded)
     local migration
-    if not equal(payload, encoded) then
+    if not literal then
         migration = actorVisibilityMigration(payload, encoded)
         assert(migration, "noncanonical session boundary roundtrip")
     end
-    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=true,
-        payload=payload, migration=migration}
+    -- Keep the raw selected-slot payload and sequence distinct from the
+    -- canonical re-encode. roundtrip_equal is literal equality only.
+    return {version=SessionCodec.VERSION, valid=true, roundtrip_equal=literal,
+        migrated_equal=literal or migration ~= nil, migration=migration,
+        payload=payload, canonical=encoded}
 end
+-- Narrow development seam. The native contract suite proves this exact
+-- predicate without manufacturing a live Save/Continue boundary.
+HarnessDiagnostics._actorVisibilityMigration = actorVisibilityMigration
 local function observeOwners(game)
     local export = assert(json.decodeFile("dev/ceruleanJourney.json"), "missing owner projection")
     assert(export.schema == 1 and export.session_codec == SessionCodec.VERSION, "stale owner projection")
@@ -459,8 +485,10 @@ function HarnessDiagnostics.observe(game, kind)
         local payload = assert(SessionCodec.encode(game.session,
             {root="overworld", overworld="explore", settled=true}))
         local result = codecObservation(game, payload)
-        -- Fresh validation is deliberately not a Save/Continue receipt.
-        result.payload, result.kind = nil, "validate"
+        -- Fresh validation is deliberately not a Save/Continue receipt and
+        -- must already be canonical: no loaded selected-slot migration here.
+        assert(result.roundtrip_equal, "fresh session validation is not canonical")
+        result.payload, result.canonical, result.kind = nil, nil, "validate"
         return result
     end
     assert(kind == "saved" or kind == "loaded", "unknown observation")
@@ -468,6 +496,6 @@ function HarnessDiagnostics.observe(game, kind)
     assert(boundary.session == game.session and boundary.kind == kind,
         "stale or wrong Save/Continue boundary")
     local result = codecObservation(game, boundary.payload)
-    result.kind, result.sequence = kind, boundary.sequence
+    result.kind, result.sequence, result.slot = kind, boundary.sequence, boundary.slot
     return result
 end

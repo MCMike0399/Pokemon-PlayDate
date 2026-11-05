@@ -118,8 +118,10 @@ function NPCMotionContracts.run()
         local occupied={zone_id=d.zone_id,x=5,y=3,facing="up"};rejects(function()SourceActors.validate(record,world,occupied,flags())end)
         local forest=SourceActors.describe("pokered:VIRIDIAN_FOREST",world);local f=flags();local all=WorldMotionData.reconcile(nil,forest,f)
         f.quest[PewterEvents.pickupFlag("pokered:VIRIDIAN_FOREST:objects:5")]=true
-        local pruned,dropped=WorldMotionData.normalize(all,forest,{zone_id=forest.zone_id,x=17,y=47,facing="up"},f)
-        eq(#dropped,1);eq(dropped[1],"pokered:VIRIDIAN_FOREST:objects:5")
+        local pruned, dropped = WorldMotionData.normalize(all, forest,
+            {zone_id=forest.zone_id, x=17, y=47, facing="up"}, f)
+        eq(#dropped, 1)
+        eq(dropped[1], "pokered:VIRIDIAN_FOREST:objects:5")
         eq(#pruned.actors,#all.actors-1)
         eq(WorldTiles:maxID(),before);same(RulesRNG.toData(),rng)
     end)

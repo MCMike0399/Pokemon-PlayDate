@@ -70,6 +70,30 @@ local function retainedFields(before,after)
         if type(value)=="table" then retainedFields(value,after[key]) end
     end
 end
+-- Exact value equality for the actor retention boundary. It rejects both a
+-- changed scalar and any added or removed record field.
+local function sameValue(a,b)
+    if type(a)~=type(b) then return false end
+    if type(a)~="table" then return a==b end
+    for key,value in pairs(a) do
+        if not sameValue(value,b[key]) then return false end
+    end
+    for key in pairs(b) do
+        if a[key]==nil then return false end
+    end
+    return true
+end
+local function actorIndex(list,label)
+    assert(type(list)=="table" and getmetatable(list)==nil,label.." actor list required")
+    local index={}
+    for _,record in ipairs(list) do
+        assert(type(record)=="table" and getmetatable(record)==nil,label.." plain actor record required")
+        assert(type(record.id)=="string",label.." stable actor ID required")
+        assert(index[record.id]==nil,label.." duplicate actor ID: "..record.id)
+        index[record.id]=record
+    end
+    return index
+end
 local function world(deps,payload)
     local input=copy(payload)
     local before=copy(input)
@@ -96,6 +120,7 @@ end
 local function dependencies(deps)
     assert(type(deps)=="table" and type(deps.validateWorld)=="function" and type(deps.resolveLocation)=="function","pure world/location dependencies required")
     assert(deps.validateActors==nil or type(deps.validateActors)=="function","pure actor validator required")
+    assert(deps.hiddenActors==nil or type(deps.hiddenActors)=="function","pure actor visibility proof required")
     assert(deps.resolvePlayerLocation == nil or type(deps.resolvePlayerLocation) == "function",
         "pure player location validator required")
     local definitions={}
@@ -106,6 +131,7 @@ local function dependencies(deps)
         validateWorld = deps.validateWorld,
         resolveLocation = deps.resolveLocation,
         validateActors = deps.validateActors,
+        hiddenActors = deps.hiddenActors,
         resolvePlayerLocation = deps.resolvePlayerLocation or deps.resolveLocation
     }
 end
@@ -465,14 +491,46 @@ function GameSession:worldRngData()return assert(state[self].worldRng):toData()e
 function GameSession:actorData()return copy(assert(state[self].currentActors))end
 function GameSession._validateActors(deps,payload,candidateWorld,position,candidateFlags)
     if deps.validateActors then
-        local input=copy(payload);local before=copy(input)
+        -- Only an exact, independently proven hidden-actor removal may survive
+        -- this boundary. The callback receives detached inputs and cannot
+        -- delete, add or mutate any retained actor or envelope field.
+        object(payload,{version=true,zone_id=true,definition_revision=true,count=true,actors=true})
+        for _,name in ipairs({"version","zone_id","definition_revision","count","actors"}) do
+            assert(payload[name]~=nil,"saved actor field required: "..name)
+        end
+        assert(Party._array(payload.actors,64) and Party._integer(payload.count,0,64)
+            and #payload.actors==payload.count,"invalid saved actor collection")
+        local input=copy(payload)
         local normalized=deps.validateActors(input,copy(candidateWorld),copy(position),copy(candidateFlags))
-        -- A corrected source visibility rule may drop known saved actors; every
-        -- other retained field must still survive validation unchanged.
-        local kept,after=copy(before),copy(normalized)
-        kept.count,kept.actors=nil,nil
-        after.count,after.actors=nil,nil
-        retainedFields(kept,after);return copy(normalized)
+        object(normalized,{version=true,zone_id=true,definition_revision=true,count=true,actors=true})
+        for _,name in ipairs({"version","zone_id","definition_revision","count","actors"}) do
+            assert(normalized[name]~=nil,"actor validator discarded "..name)
+        end
+        assert(Party._array(normalized.actors,64) and Party._integer(normalized.count,0,64)
+            and #normalized.actors==normalized.count,"actor validator changed the collection shape")
+        for _,name in ipairs({"version","zone_id","definition_revision"}) do
+            assert(normalized[name]==payload[name],"actor validator changed retained field: "..name)
+        end
+        local saved=actorIndex(payload.actors,"saved")
+        local kept=actorIndex(normalized.actors,"normalized")
+        local dropped={}
+        for id,record in pairs(kept) do
+            assert(saved[id],"actor validator added an unknown actor: "..id)
+            assert(sameValue(saved[id],record),"actor validator changed a surviving actor: "..id)
+        end
+        for id in pairs(saved) do
+            if not kept[id] then dropped[#dropped+1]=id end
+        end
+        table.sort(dropped)
+        if #dropped>0 then
+            assert(type(deps.hiddenActors)=="function","actor removal requires independent visibility proof")
+            local proof=deps.hiddenActors(dropped,copy(candidateWorld),copy(position),copy(candidateFlags))
+            assert(type(proof)=="table","actor visibility proof required")
+            for _,id in ipairs(dropped) do
+                assert(proof[id]==true,"actor removal is not proven hidden: "..id)
+            end
+        end
+        return copy(normalized)
     end
     assert(payload.zone_id=="none","source actor validator required")
     return WorldMotionData.normalize(payload,nil,position,candidateFlags)

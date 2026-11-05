@@ -34,6 +34,7 @@ end
 function GameContext:getSessionDependencies()
     assert(ItemData and ItemData.definitions,"production item definitions required")
     return {itemDefinitions=ItemData.definitions,validateWorld=WorldDeltas.validate,validateActors=SourceActors.validate,
+        hiddenActors=SourceActors.hidden,
         resolvePlayerLocation=function(location, world, travel)
             return FieldTravelWorld.resolvePlayerLocation(location, world, self.sessionLocationPolicy, travel)
         end,
