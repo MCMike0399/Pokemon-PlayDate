@@ -5,6 +5,21 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
 
+## Static-load presents rejected — 2026-11-05
+
+A paused split of the admitted elevator Save put about 41 MiB on slot
+inspect, 15 MiB on the new envelope, and 26 MiB on readback. Lua stayed near
+8 MiB. Those sections were yielding a full simulator frame about every 30 ms.
+The candidate still drew the first static card and still ran the door fade,
+then collected without presenting again. The Save itself dropped from roughly
+14 yields to zero and finished in 113 ms. The same 30-step run reached Silph
+1F at (8, 11), stage done, and stopped on the action bound. Peak footprint
+was 476.0 MiB against the 468.1 MiB baseline, about 2 percent higher.
+Reverted. The cabin pilot was not relaunched. Evidence:
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-noyield-1-20261105`.
+The split trace is outside Git at
+`~/Developer/Pokemon-PlayDate-env/evidence/c-silph-save-split-20261105`.
+
 ## Static loading redraw rejected — 2026-11-05
 
 Malloc history on the Silph-entry path still shows the live game cost in Lua
