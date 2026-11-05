@@ -4,6 +4,8 @@ Updated 2026-11-05 UTC. Follow [the goal](../plans/full-game-goal.md).
 **Main: 149/222 Simulator-route maps. Device-playable acceptance: 0/222.**
 The full Blue campaign, credits and postgame remain unfinished. C's 171-map
 preparation is isolated and inactive. Nothing is pushed without a user request.
+The user stopped this session after pushing `84ac642e`. The handover is
+[c-session-stop-20261105.md](../handoffs/c-session-stop-20261105.md).
 
 ## Save index hold rejected — 2026-11-05
 
