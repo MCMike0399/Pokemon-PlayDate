@@ -4,7 +4,7 @@
   "base_c_commit": "03c1bae4f465f17e3c00178681e34370c9695c3e",
   "correction_commit": "6fe0357cfd2fc3fef387ccf7b85f1fed12c38e02",
   "latest_correction_commit": "78a65423",
-  "review_follow_up": "The host checker now reads the nested actor envelope, and an unequal dev boundary is canonicalized from the selected-slot bytes. Native saffron-guards was not re-run for that follow-up.",
+  "review_follow_up": "b530f2ff. The host checker now reads the nested actor envelope, and an unequal dev boundary is canonicalized from the selected-slot bytes. Native saffron-guards was not re-run for that follow-up.",
   "reviewed_main_merge": "2f5bba2219a61c658a9ec60c24f3641f1ddd3680",
   "defects_fixed": {
     "hidden_actor_structure": "WorldMotionData.normalize validates required fields, types/ranges and intrinsic motion consistency for every known saved actor before a bounded visibility migration drops it. Live reservation/surface/player-cell checks remain separate and apply only to visible actors.",
